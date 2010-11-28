@@ -84,7 +84,7 @@ If we want to get the new stuff from "master" to "jure-branch" we say:
 	$git merge master		// get the stuff from "master"
 Similarly you can update the master:
 	$git checkout master
-	$git merger jure-branch
+	$git merge jure-branch
 	
 /////////////////////////////////////////////////////////////////////////////
 // QUICK REFERENCE
@@ -94,3 +94,6 @@ Similarly you can update the master:
   git push origin <branch>
 -- checkout and track remote branch
   git checkout --track -b <branch> origin/<branch>
+
+Useful diagnostics:
+  git remote show origin
