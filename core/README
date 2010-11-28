@@ -1,0 +1,128 @@
+========================================================================
+  SNAP : Stanford Network Analysis library
+	http://snap.stanford.edu
+========================================================================
+
+Snap is a general purpose graph mining and modeling library. The library
+is written in C++ and it scales to massive graphs with up to 250 million
+nodes, and 2 billion edges.
+
+/////////////////////////////////////////////////////////////////////////////
+Directory structure:
+  snap: 
+  	the SNAP graph library
+  glib: 
+  	contains the library that provides basic data structures (vectors,
+	strings, hash tables), infrastructure (serialization, xml and html
+	parsing), interface to GnuPlot and linear algebra (SVD).
+  examples:
+  	sample applications and examples of use. With every .cpp file there
+	is a corresponding .txt readme file for application description.
+
+Code compiles under Windows (Microsoft Visual Studio, CygWin with gcc) and
+Linux and Mac (gcc). User the SnapExamples.vcproj or the provided Makefile.
+Depending on your platform you may need to change Makefile a bit (see the
+SnapSamples\Makefile).
+
+Some of applications expect that GnuPlot and GraphViz are installed and
+accessible -- paths are in the system PATH variable or they reside in the
+working directory.
+
+Depending on the platform (Windows or Linux) you may need to edit the 
+Makefile. 
+
+Use 'make opt' to compile the optimized (fast) version of the code.
+
+/////////////////////////////////////////////////////////////////////////////
+Example applications: http://snap.stanford.edu/snap/download.html
+
+Execute:
+  make all : compiles all sample applications
+  make demo : executes all sample application
+  
+Examples:
+  cascades :
+  	Simulates an SI (susceptible-infected) model on various networks
+  centrality :
+        Node centrality measures (closeness, eigen, degree, betweenness, page rank)
+  cliques :
+	Overlapping network community detection (Clique Percolation Method)
+  community :
+        Network Community detection (Girvan-Newman and Clauset-Newman-Moore)
+  concomp :
+  	Manipulates connected components of a graph
+  forestfire : 
+  	Forest Fire graph generator
+  krongen : 
+  	Kronecker graph generator
+  kronfit : 
+  	Estimates Kronecker graph parameter matrix
+  ncpplot : 
+  	Computes Network Community Profile (NCP) plot 
+  netevol :
+  	Computes properties of an evolving network, like evolution of 
+  	diameter, densification power law, degree distribution, etc.
+  netstat :
+  	Computes statistical properties of a static network, like degree
+	distribution, hop plot, clustering coefficient, distribution of sizes
+	of connected components, spectral properties of graph adjacency
+	matrix, etc.
+
+/////////////////////////////////////////////////////////////////////////////
+SNAP: http://snap.stanford.edu/snap/doc.html
+
+The library defines Graphs (nodes and edges) and Networks (graph with data
+associated with nodes and edges).
+
+Graph types:
+  TNGraph : 
+  	directed graph (single directed edge between a pair of nodes)
+  TNEGraph : 
+  	directed multi-graph (any number of directed edges between a pair of
+	nodes)
+  TUNGraph : 
+  	undirected graph (single undirected edge between a pair of nodes)
+
+Network types:
+  TNodeNet<TNodeData> : 
+  	like TNGraph but with TNodeData object for each node
+  TNodeEdgeNet<TNodeData, TEdgeData> : 
+  	like TNEGraph but with TNodeData object for each node and TEdgeData
+	object for each edge
+  TBigNet<TNodeData> : 
+  	memory efficient implementation of TNodeNet (avoids memory
+	fragmentation)
+
+/////////////////////////////////////////////////////////////////////////////
+Snap files: http://snap.stanford.edu/snap/download.html
+
+  alg.h : basic algorithms for manipulating graphs
+  anf.h : Approximate Neighborhood Function for measuring graph diameter. 
+  	Avoids node sampling and scales to large graphs
+  bigalg.h : some algorithms for TBigNet
+  bigg.h : TBigGraph -- big disk based graphs that do not fit into memory
+  bignet.h : TBigNet -- memory efficient implementation of TNodeNet (avoids 
+  	memory fragmentation)
+  blognet.h : blog network -- posts on blogs linking each other
+  casc.h : cascade analysis and counting
+  cga.h : Community Guided Attachment (see our KDD '05 paper)
+  clust.h : graph clustering and community finding
+  centr.h : node centrality (closeness, eigen, degree, betweenness, page rank)
+  cncom.h : extracting connected components
+  emailnet.h : email network
+  ff.h : Forest Fire model (see our KDD '05 paper)
+  ggen.h : basic graph generation models
+  ghash.h : hash table where key is a graph. Used for counting graphs.
+  GMine.h : main file 
+  gnet.h : networks (TNodeNet, TNodeEdgeNet)
+  gproj.h : graph projections (see our WWW '07 paper)
+  graph.h : graphs (TNGraph, TNEGraph)
+  gstat.h : calculates various statistics of graphs
+  gsvd.h : spectral analysis of graphs (singular value decomposition)
+  gviz.h : interface to GraphViz for plotting small graphs
+  imdbnet.h : IMDB network
+  kronecker.h : Kronecker graphs (see PKDD '05 and ICML '07)
+  layout.h : positions the nodes on the plane for drawing
+  plots.h : plots graph properties (degree distributions, etc.)
+  sampl.h : graph sampling (see KDD '06)
+  timenet.h : time evolving networks

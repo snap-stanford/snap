@@ -1,0 +1,5 @@
+/////////////////////////////////////////////////
+// Includes
+#include "gkswin32.h"
+#include "stdafx.h"
+
