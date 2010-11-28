@@ -1,7 +1,7 @@
 ========================================================================
     SNAP GIT REPOSITORY
 ========================================================================
-Quick into on how to use the repository:
+Quick intro on how to use the repository:
 
 /////////////////////////////////////////////////////////////////////////////
 Each branch acts like a separate version of the repository, so all
@@ -14,7 +14,7 @@ checkout <branchname>".
 
 To merge branch B with the "master' you say: 
 	$git checkout master	// go to master branch
-	$git marger B		// merge with branch B
+	$git merge B		// merge with branch B
 To list a set of branches, say:
 	$git branch
 To list a set of remote, i.e., branches on the server, say:
@@ -41,7 +41,7 @@ Let's add a file to the local branch "jure-branch" and commit it
 	$git add jure-branch.txt
 	$git commit -m "Jure Branch" -a
 Executing
-	$git stauts
+	$git status
 reveals we are working on the branch "jure-branch"
 Changing branches:
 	$git checkout jure-branch
@@ -51,7 +51,7 @@ Changing branches:
 We see that "jure-branch" contains the "jure-branch.txt" while master
 does not contain the file. If we do "$git push" now nothing happens
 since the branch is local. We need to make the local "jure-branch" into
-a remote brach (we only need to do this once per branch):
+a remote branch (we only need to do this once per branch):
 	$git push origin jure-brach
 	$git branch -r
 Reveals that the remote repository now contains branch 
