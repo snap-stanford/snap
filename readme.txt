@@ -86,4 +86,11 @@ Similarly you can update the master:
 	$git checkout master
 	$git merger jure-branch
 	
-	
+/////////////////////////////////////////////////////////////////////////////
+// QUICK REFERENCE
+-- create local branch
+  git branch -b <branch>
+-- push local branch to server (make it into a remote branch)
+  git push origin <branch>
+-- checkout and track remote branch
+  git checkout --track -b <branch> origin/<branch>
