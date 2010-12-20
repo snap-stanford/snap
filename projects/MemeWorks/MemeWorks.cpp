@@ -25,7 +25,7 @@ int main(int argc, char* argv[]) {
   TMemesDataLoader Memes(argv[1], false);
   //TMemesDataLoader Memes("W:\\xData\\Spinn3r\\*.txt", true);
   for (; Memes.LoadNext(); ) {
-    printf("%lld\t%s\n", Memes.LineCnt, Memes.PostUrlStr.CStr());
+    //printf("%lld\t%s\n", Memes.LineCnt, Memes.PostUrlStr.CStr());
     TMd5Sig Url(Memes.PostUrlStr);
     if (PostSet.IsKey(Url)) { NSkip++; continue; }
     PostSet.AddKey(Url); Posts++;
