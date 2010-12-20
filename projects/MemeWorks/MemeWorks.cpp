@@ -23,8 +23,9 @@ int main(int argc, char* argv[]) {
   int Posts=0, NSkip=0, NonFbTw=0;
   //for (TMemesDataLoader Memes("W:\\xData\\Spinn3r\\*.rar", true); Memes.LoadNext(); ) {
   TMemesDataLoader Memes(argv[1], false);
+  //TMemesDataLoader Memes("W:\\xData\\Spinn3r\\*.txt", true);
   for (; Memes.LoadNext(); ) {
-    //printf("%lld\t%s\n", Memes.LineCnt, Memes.PostUrlStr.CStr());
+    printf("%lld\t%s\n", Memes.LineCnt, Memes.PostUrlStr.CStr());
     TMd5Sig Url(Memes.PostUrlStr);
     if (PostSet.IsKey(Url)) { NSkip++; continue; }
     PostSet.AddKey(Url); Posts++;
@@ -36,7 +37,7 @@ int main(int argc, char* argv[]) {
   CntIdV.Sort(false);
   for (int i = 2; i < CntIdV.Len(); i++) { NonFbTw += CntIdV[i].Val1; }
   printf("NoFbTw: %d (%f)\n\n", NonFbTw, NonFbTw/double(Posts));
-  for (int i = 0; i < 100; i++) { 
+  for (int i = 0; i < TMath::Mn(100, DomCntH.Len()); i++) { 
     printf("%d\t%s\n", DomCntH[CntIdV[i].Val2].Val, DomCntH.GetKey(CntIdV[i].Val2)); }
 
   //TVec<TChAV> PhraseV;  PhraseV.Add(TChAV::GetV("too", "", "to", "fail"));

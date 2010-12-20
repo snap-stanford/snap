@@ -3223,13 +3223,13 @@ bool TMemesDataLoader::LoadNext() {
     LineCnt++; }
   LineCnt++;
   if (CurLn.Empty()) { return LoadNext(); }
-  IAssert((! CurLn.Empty()) && CurLn[0]=='U' && CurLn[1]=='\t');
+  IAssertR((! CurLn.Empty()) && CurLn[0]=='X' && CurLn[1]=='\t', TStr::Fmt("**Line %lld ", LineCnt).CStr());
   PostUrlStr = CurLn.CStr()+2;
-  IAssert(SIn.GetNextLn(CurLn) && (! CurLn.Empty()) && CurLn[0]=='D');  LineCnt++;
+  IAssertR(SIn.GetNextLn(CurLn) && (! CurLn.Empty()) && CurLn[0]=='D', TStr::Fmt("**Line %lld ", LineCnt).CStr());  LineCnt++;
   PubTm = TSecTm::GetDtTmFromStr(CurLn);
-  IAssert(SIn.GetNextLn(CurLn) && (! CurLn.Empty()) && (CurLn[0]=='C' || CurLn[0]=='T'));  LineCnt++;
+  IAssertR(SIn.GetNextLn(CurLn) && (! CurLn.Empty()) && (CurLn[0]=='C' || CurLn[0]=='T'), TStr::Fmt("**Line %lld ", LineCnt).CStr());  LineCnt++;
   if (CurLn[0] == 'T') { // skip title
-    IAssert(SIn.GetNextLn(CurLn) && (! CurLn.Empty()) && CurLn[0]=='C');  LineCnt++; }
+    IAssertR(SIn.GetNextLn(CurLn) && (! CurLn.Empty()) && CurLn[0]=='C', TStr::Fmt("**Line %lld ", LineCnt).CStr());  LineCnt++; }
   ContentStr = CurLn.CStr()+2;
   // links
   while (SIn.GetNextLn(CurLn)) {  LineCnt++;
