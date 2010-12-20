@@ -3223,7 +3223,7 @@ bool TMemesDataLoader::LoadNext() {
     LineCnt++; }
   LineCnt++;
   if (CurLn.Empty()) { return LoadNext(); }
-  IAssertR((! CurLn.Empty()) && CurLn[0]=='X' && CurLn[1]=='\t', TStr::Fmt("**Line %lld ", LineCnt).CStr());
+  IAssertR((! CurLn.Empty()) && CurLn[0]=='U' && CurLn[1]=='\t', TStr::Fmt("**Line %lld ", LineCnt).CStr());
   PostUrlStr = CurLn.CStr()+2;
   IAssertR(SIn.GetNextLn(CurLn) && (! CurLn.Empty()) && CurLn[0]=='D', TStr::Fmt("**Line %lld ", LineCnt).CStr());  LineCnt++;
   PubTm = TSecTm::GetDtTmFromStr(CurLn);
