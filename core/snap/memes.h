@@ -2,16 +2,16 @@
 #define snap_memes_h
 
 #include "Snap.h"
-#include "spinn3r.h"
+//#include "spinn3r.h"
 
 // qtInClust:Part of a cluster, qtRoot:root of a cluster, qtCentr: artificial quote (cluster summary)
-typedef enum { 
-  qtUndef, qtQuote, qtInClust, qtRoot, qtCentr 
+typedef enum {
+  qtUndef, qtQuote, qtInClust, qtRoot, qtCentr
 } TQtTy;
 
 // url type
-typedef enum { 
-  utUndef=0, utBlogLeft=1, utBlogRight=2, utBlog=3, utMedia=4 
+typedef enum {
+  utUndef=0, utBlogLeft=1, utBlogRight=2, utBlog=3, utMedia=4
 } TUrlTy; // utBlog is the default type
 
 class TQuoteBs;
@@ -106,7 +106,7 @@ public:
   void GetSmoothFqOt(TTmFltPrV& FqOtV, const TTmUnit& TmUnit, const int& WndSz, const double& Smooth,
     const TSecTm& BegTm=TSecTm(0), const TSecTm& EndTm=TSecTm(TInt::Mx-1)) const;
   void PlotOverTm(const TStr& OutFNm);
-  
+
   static void GetSmoothFqOt(TTmFltPrV& FqOtV, const TTmFltPrV& RawFqOtV, const TTmUnit& TmUnit, const int& WndSz, const double& Smooth, const TSecTm& BegTm=TSecTm(0), const TSecTm& EndTm=TSecTm(TInt::Mx-1));
   static void LoadQtV(const TStr& InFNm, TVec<TQuote>& QtV);
   friend class TQuoteBs;
@@ -123,7 +123,7 @@ public:
   TCRef CRef;
   //TStrHash<TInt> StrQtIdH;    // stores quotes, domains and urls (dat = -1)  (OLD VERSION)
   TStrHash<TInt, TBigStrPool> StrQtIdH;    // new for QtBs from Aug1 to Dec 31 (NEW VERSION, BIG POOL)
-  THash<TInt, TQuote> QuoteH; // QtIds go from 0... 
+  THash<TInt, TQuote> QuoteH; // QtIds go from 0...
   TIntH UrlInDegH;  // Url/Domain in-degree (only for Domains/URLs that have quotes)
   TIntH UrlTyH;     // UrlId to TypeId (only for known URLs that have quotes)
   THash<TInt, TIntV> ClustQtIdVH; // root quote id --> all quotes in the cluster
@@ -212,7 +212,7 @@ public:
 
   PNGraph GetQuotePostNet(const TStr& DatasetFNm) const;
   PQtDomNet GetQuoteDomNet(const PNGraph& PostLinkGraph, const int& CId) const;
-  
+
   void SaveQuotes(const int& MinQtFq, const TStr& OutFNm) const;
   void SaveQuotes(const TIntV& QtIdV, const TStr& OutFNm) const;
   void SaveClusters(const TStr& OutFNm, const bool& SkipUrls=true) const;
@@ -231,7 +231,7 @@ public:
 
 /////////////////////////////////////////////////
 // Make QuoteBase from Spinn3r data
-class TMakeQtBsFromSpinn3r : public TQuoteExtractor {
+/*class TMakeQtBsFromSpinn3r : public TQuoteExtractor {
 public:
   //THashSet<TMd5Sig> QtBlackList;
   PQuoteBs QtBs;
@@ -245,7 +245,7 @@ public:
   void Save(TSOut& SOut) const;
   void SavePlots();
   void OnQuotesExtracted(const TQuoteExtractor& QuoteExtractor);
-};
+};*/
 
 /////////////////////////////////////////////////
 // Cluster Network
@@ -260,27 +260,27 @@ public:
   void AddLink(const TQuote& SrcQt, const TQuote& DstQt);
   PClustNet GetSubGraph(const TIntV& NIdV) const;
   PClustNet GetSubGraph(const int& MinQtWords, const int& MaxQtWords, const int& MinFq) const;
-	
+
   void RecalcEdges(const double& MinOverlapFrac);
   //void DelLongQts(const int& MxWrdLen);
   void MakeClusters(const TIntPrV& KeepEdgeV);
   void KeepOnlyTree(const TIntPrV& KeepEdgeV);
   void GetClusters(TVec<TIntV>& QtNIdV) const;
   void GetMergedClustQt(const TIntV& QtIdV, TQuote& NewQt) const;
-  
+
   int EvalPhraseClusters(const TIntPrV& KeepEdgeV, const bool& dump=true) const;
   void ClustKeepSingleEdge(const int& MethodId) const;
   void ClustKeepSingleEdge(const int& MethodId, TIntPrV& KeepEdgeV) const;
   void ClustGreedyTopDown() const;
   void ClustGreedyTopDown(TIntPrV& KeepEdgeV) const;
   void ClustGreedyRandom() const;
-  
+
   PClustNet GetThis() const { IAssert(CRef.GetRefs()>0); return PClustNet((TClustNet *) this); }
   void DrawNet(const TStr& OutFNm, const int& SaveTopN=10) const;
   void DumpNodes(const TStr& OutFNm, const int& SaveTopN=10) const;
   void DumpClusters(const TStr& OutFNm, int SaveTopN=10) const;
   void DumpClustersByVol(const TStr& OutFNm, const int& MinClustSz, const int& MinVolume) const;
-  
+
   static PClustNet GetFromQtBs(const PQuoteBs& QtBs, int MinQtFq=5, int MnWrdLen=5);
   friend class TPt<TClustNet>;
 };
@@ -323,22 +323,40 @@ public:
 
 /////////////////////////////////////////////////
 // Memes Dataset Loader
+// FORMAT:
+//U \t Post URL
+//D \t Post time
+//T \t Post title (optional!)
+//C \t Post content
+//L \t Index \t URL      (URL starts at Content[Index])
+//Q \t Index \t Length \t Quote (Quote starts at Content[Index])
+// EXAMPLE:
+//U       http://twitter.com/celebritybuzzon/statuses/21622719142
+//D       2010-08-19 17:59:42
+//C       free energy release free "bang pop" remix mp3, release split 7 ": altsounds.com... and performing live at spin hou...
+//L       118     http://bit.ly/aI5wOF
+//Q       26      8       bang pop
+
 class TMemesDataLoader {
-public:
+private:
   PFFile FFile;
   PSIn InFNmF;
   PSIn SInPt;
+  TChA CurLn;
   bool GetNextFile();
 public:
   uint64 LineCnt;
   TChA PostUrlStr;
+  TChA ContentStr;
   TSecTm PubTm;
-  TVec<TChA> MemeV;
-  TVec<TChA> LinkV;
+  TVec<TChA> MemeV;       // quote
+  TVec<TIntPr> MemePosV;  // (index, length), quote begins at ContentStr[MemePos[i]]
+  TVec<TChA> LinkV;       // link url
+  TVec<TInt> LinkPosV;    // url begins at ContentStr[LinkPosV[i]]
 public:
-  TMemesDataLoader(const TStr& FNmWc, const bool& IsWc=true) { 
+  TMemesDataLoader(const TStr& FNmWc, const bool& IsWc=true) {
     if (IsWc) { FFile = TFFile::New(FNmWc, false); } // wild-card expression for loading a list of files
-    else { InFNmF = TFIn::New(FNmWc); } // file with filenames
+    else { InFNmF = TFIn::New(FNmWc); } // file with one filename in each line
   }
   void Clr();
   bool LoadNext();

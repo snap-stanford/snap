@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "memes.h"
-#include "spinn3r.h"
+//#include "spinn3r.h"
 
 /////////////////////////////////////////////////
 // Quote Statistics
@@ -2330,7 +2330,7 @@ PQuoteBs TQuoteBs::BuildQuoteBs(const TStr& InBinFNmWc, const int& MinQtWrdLen) 
 
 /////////////////////////////////////////////////
 // Make QuoteBase from Spinn3r data
-
+/*
 TMakeQtBsFromSpinn3r::TMakeQtBsFromSpinn3r(const PQuoteBs& QtBsPt, const int& MinWordLen) : TQuoteExtractor(false),
   QtBs(QtBsPt), MinWrdLen(MinWordLen) { // don't save post content in .ContentBin
 }
@@ -2386,6 +2386,7 @@ void TMakeQtBsFromSpinn3r::OnQuotesExtracted(const TQuoteExtractor& QuoteExtract
     if (NewL % 1000000 == 0) { SavePlots(); }
   }
 }
+//*/
 
 /////////////////////////////////////////////////
 // Cluster Network
@@ -3177,12 +3178,12 @@ bool TMemesDataLoader::GetNextFile() {
   TStr FNm;
   if (! FFile.Empty()) {
     if (! FFile->Next(FNm)) { return false; }
-    printf("NEXT1:  %s :\t%s\n", FNm.GetFBase().CStr(), TExeTm::GetCurTm());
+    printf("NEXT-FL:  %s :\t%s\n", FNm.GetFBase().CStr(), TExeTm::GetCurTm());
   } else {
     IAssert(! InFNmF.Empty());
     if (InFNmF->Eof()) { return false; }
   while (! InFNmF->Eof() && InFNmF->GetNextLn(FNm) && FNm.Empty()) { }
-    printf("NEXT2:  %s :\t%s\n", FNm.GetFBase().CStr(), TExeTm::GetCurTm());
+    printf("NEXT-LN:  %s :\t%s\n", FNm.GetFBase().CStr(), TExeTm::GetCurTm());
   }
   if (FNm.Empty()) { return false; }
   if (TZipIn::IsZipExt(FNm.GetFExt())) {
@@ -3194,18 +3195,65 @@ bool TMemesDataLoader::GetNextFile() {
 
 void TMemesDataLoader::Clr() {
   PostUrlStr.Clr();
+  ContentStr.Clr();
   PubTm = TSecTm();
   MemeV.Clr(false);
+  MemePosV.Clr(false);
   LinkV.Clr(false);
+  LinkPosV.Clr(false);
 }
+
+// FORMAT:
+//U \t Post URL
+//D \t Post time
+//T \t Post title (optional!)
+//C \t Post content
+//L \t Index \t URL      (URL starts at Content[Index])
+//Q \t Index \t Length \t Quote (Quote starts at Content[Index])
 bool TMemesDataLoader::LoadNext() {
   Clr();
   if (SInPt.Empty() || SInPt->Eof()) {
     if (! GetNextFile()) { return false; }
   }
   TSIn& SIn = *SInPt;
-  TChA Line;
-  while (SIn.GetNextLn(Line) && (Line.Empty() || Line[0]!='P')) { LineCnt++; }
+  CurLn.Clr();
+  // keep reading until line starts with P\t
+  while (SIn.GetNextLn(CurLn) && (CurLn.Empty() || (CurLn[0]!='U' || CurLn[1]!='\t'))) { 
+    printf("L: %s\n", CurLn.CStr());
+    LineCnt++; }
+  LineCnt++;
+  if (CurLn.Empty()) { return LoadNext(); }
+  IAssert((! CurLn.Empty()) && CurLn[0]=='U' && CurLn[1]=='\t');
+  PostUrlStr = CurLn.CStr()+2;
+  IAssert(SIn.GetNextLn(CurLn) && (! CurLn.Empty()) && CurLn[0]=='D');  LineCnt++;
+  PubTm = TSecTm::GetDtTmFromStr(CurLn);
+  IAssert(SIn.GetNextLn(CurLn) && (! CurLn.Empty()) && (CurLn[0]=='C' || CurLn[0]=='T'));  LineCnt++;
+  if (CurLn[0] == 'T') { // skip title
+    IAssert(SIn.GetNextLn(CurLn) && (! CurLn.Empty()) && CurLn[0]=='C');  LineCnt++; }
+  ContentStr = CurLn.CStr()+2;
+  // links
+  while (SIn.GetNextLn(CurLn)) {  LineCnt++;
+    if (CurLn.Empty() || CurLn[0]!='L') { break; }
+    int linkb=2;
+    while (CurLn[linkb]!='\t') { linkb++; }
+    CurLn[linkb]=0;
+    LinkV.Add(CurLn.CStr()+linkb+1);
+    LinkPosV.Add(atoi(CurLn.CStr()+2));
+  }
+  // quotes
+  do {
+    if (CurLn.Empty() || CurLn[0]!='Q') { break; }
+    int qb1=2;      while (CurLn[qb1]!='\t') { qb1++; }
+    int qb2=qb1+1;  while (CurLn[qb2]!='\t') { qb2++; }
+    CurLn[qb1]=0;  CurLn[qb2]=0;
+    MemeV.Add(CurLn.CStr()+qb2+1);
+    MemePosV.Add(TIntPr(atoi(CurLn.CStr()+2), atoi(CurLn.CStr()+qb1+1)));
+    LineCnt++;
+  } while (SIn.GetNextLn(CurLn));
+  return true;
+
+  /*CurLn.Clr();
+  while (SIn.GetNextLn(CurLn) && (CurLn.Empty() || CurLn[0]!='P')) { LineCnt++; }
   LineCnt++;
   if (Line.Empty()) {
     if (GetNextFile()) { return LoadNext(); }
@@ -3220,16 +3268,17 @@ bool TMemesDataLoader::LoadNext() {
     LineCnt++;
     MemeV.Add(Line.CStr()+2);
   }
+  // links
   do {
     LineCnt++;
     if (Line.Empty() || Line[0]!='L') { break; }
     LinkV.Add(Line.CStr()+2);
   } while (SIn.GetNextLn(Line));
-  return true;
+  return true; */
 }
 
 void TMemesDataLoader::SaveTxt(TSOut& SOut) const {
-  SOut.PutStr("P\t");
+  /*SOut.PutStr("P\t");
   SOut.PutStrLn(PostUrlStr, true);
   SOut.PutStr("T\t");
   SOut.PutStrLn(PubTm.GetYmdTmStr(), true);
@@ -3242,13 +3291,13 @@ void TMemesDataLoader::SaveTxt(TSOut& SOut) const {
     SOut.PutStrLn(LinkV[l], true);
   }
   SOut.PutLn();
-
+*/
 }
 
 void TMemesDataLoader::Dump(const bool& DumpAll) const {
-  printf("%s\n  %s\tQ:%d\tL:%d\n", PostUrlStr.CStr(), PubTm.GetYmdTmStr().CStr(), MemeV.Len(), LinkV.Len());
+  /*printf("%s\n  %s\tQ:%d\tL:%d\n", PostUrlStr.CStr(), PubTm.GetYmdTmStr().CStr(), MemeV.Len(), LinkV.Len());
   if (DumpAll) {
     for (int i = 0; i < MemeV.Len(); i++) { printf("%s\n", MemeV[i].CStr()); }
     for (int i = 0; i < LinkV.Len(); i++) { printf("%s\n", LinkV[i].CStr()); }
-  }
+  }*/
 }

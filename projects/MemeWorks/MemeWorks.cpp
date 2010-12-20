@@ -1,6 +1,7 @@
 #include "stdafx.h"
-#include <spinn3r.h>
-#include <memes.h>
+//#include <spinn3r.h>
+//#include <memes.h>
+#include "../../core/snap/Memes.h"
 
 void BigMain(int argc, char* argv[]);
 void QuotesForDepression();
@@ -16,15 +17,26 @@ int main(int argc, char* argv[]) {
   //char *ToDo [] = {"QuotesApp", "-do:memestoqtbs", "-i:f.txt"};  BigMain(3, ToDo);  return 0;
   //char *ToDo [] = {"QuotesApp", "-do:mksentences", "-i:f.txt"};  BigMain(3, ToDo);  return 0;
 
-  for (TMemesDataLoader Memes("files.txt", false); Memes.LoadNext(); ) {
-    printf("%s\n", Memes.PostUrlStr.CStr());
-      //TMd5Sig UrlSig(Memes.PostUrlStr);
-      //if (SeenUrlSet.IsKey(UrlSig)) { NSkip++; continue; }
-      //SeenUrlSet.AddKey(UrlSig);
-      //for (int m = 0; m < Memes.MemeV.Len(); m++) {
-      //  MemeCntH.AddDat(Memes.MemeV[m].CStr()) += 1;
-      //}
+  THashSet<TMd5Sig> PostSet;
+  //THash<TMd5Sig, TInt> DomCntH;
+  TStrHash<TInt> DomCntH;
+  int Posts=0, NSkip=0, NonFbTw=0;
+  //for (TMemesDataLoader Memes("W:\\xData\\Spinn3r\\*.rar", true); Memes.LoadNext(); ) {
+  for (TMemesDataLoader Memes(argv[1], false); Memes.LoadNext(); ) {
+    //printf("%lld\t%s\n", Memes.LineCnt, Memes.PostUrlStr.CStr());
+    TMd5Sig Url(Memes.PostUrlStr);
+    if (PostSet.IsKey(Url)) { NSkip++; continue; }
+    PostSet.AddKey(Url); Posts++;
+    DomCntH.AddDat(TStrUtil::GetDomNm2(Memes.PostUrlStr)) += 1;
   }
+  printf("Posts:  %d\nNSkip:  %d (%d)\nNDoms:  %d\n", Posts, NSkip, PostSet.Len(), DomCntH.Len());
+  TIntPrV CntIdV(DomCntH.Len(), 0);
+  for (int i = 0; i < DomCntH.Len(); i++) { CntIdV.Add(TIntPr(DomCntH[i], i)); }
+  CntIdV.Sort(false);
+  for (int i = 2; i < CntIdV.Len(); i++) { NonFbTw += CntIdV[i].Val1; }
+  printf("NoFbTw: %d (%f)\n\n", NonFbTw, NonFbTw/double(Posts));
+  for (int i = 0; i < 100; i++) { 
+    printf("%d\t%s\n", DomCntH[CntIdV[i].Val2].Val, DomCntH.GetKey(CntIdV[i].Val2)); }
 
   //TVec<TChAV> PhraseV;  PhraseV.Add(TChAV::GetV("too", "", "to", "fail"));
   //TVec<FILE*> FileV;  FileV.Add(stdout);
@@ -155,7 +167,7 @@ void BigMain(int argc, char* argv[]) {
     if (UrlOnlyOnce && ! UrlFNm.Empty()) {  // keep track of already seen urls (so that there are no duplicate urls)
       TFIn FIn(UrlFNm);  SeenUrlSet.Load(FIn);
     }
-    FILE *F = fopen(OutFNm.CStr(), "wt");
+    /*FILE *F = fopen(OutFNm.CStr(), "wt");
     TFIn FIn(InFNm);
     int Items=0;
     for (int f=0; FIn.GetNextLn(Spinn3rFNm); f++) {
@@ -193,7 +205,7 @@ void BigMain(int argc, char* argv[]) {
       TFOut FOut(OutFNm.GetFMid()+".SeenUrlSet");
       SeenUrlSet.Save(FOut);
     }
-    fclose(F);
+    fclose(F);*/
   }
   // extract quotes and links and make them into a single file (Quotes dataset)
   if (ToDo == "mksentences") {
@@ -235,7 +247,7 @@ void BigMain(int argc, char* argv[]) {
     int Items=0;
     TVec<char *> SentV;
     for (int f=0; FIn.GetNextLn(Spinn3rFNm); f++) {
-      TQuoteExtractor QE(Spinn3rFNm.ToTrunc());
+      /*TQuoteExtractor QE(Spinn3rFNm.ToTrunc());
       printf("Processing %02d: %s [%s]\n", f+1, Spinn3rFNm.CStr(), TExeTm::GetCurTm()); fflush(stdout);
       for (int item = 0; QE.Next(); item++) {
         const TMd5Sig PostMd5(QE.PostUrlStr);
@@ -251,7 +263,7 @@ void BigMain(int argc, char* argv[]) {
         if (item>0 && item % Kilo(100) == 0) {
           QE.DumpStat();  QE.ExeTm.Tick(); }
         Items++;
-      }
+      }*/
       printf("file done. Total %d all posts, %d all items\n", SeenUrlSet.Len(), Items);
       fflush(stdout);
     }
