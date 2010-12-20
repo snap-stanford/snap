@@ -1,7 +1,7 @@
 #include "stdafx.h"
 //#include <spinn3r.h>
 //#include <memes.h>
-#include "../../core/snap/Memes.h"
+#include "../../core/snap/memes.h"
 
 void BigMain(int argc, char* argv[]);
 void QuotesForDepression();
@@ -22,7 +22,8 @@ int main(int argc, char* argv[]) {
   TStrHash<TInt> DomCntH;
   int Posts=0, NSkip=0, NonFbTw=0;
   //for (TMemesDataLoader Memes("W:\\xData\\Spinn3r\\*.rar", true); Memes.LoadNext(); ) {
-  for (TMemesDataLoader Memes(argv[1], false); Memes.LoadNext(); ) {
+  TMemesDataLoader Memes(argv[1], false);
+  for (; Memes.LoadNext(); ) {
     //printf("%lld\t%s\n", Memes.LineCnt, Memes.PostUrlStr.CStr());
     TMd5Sig Url(Memes.PostUrlStr);
     if (PostSet.IsKey(Url)) { NSkip++; continue; }
