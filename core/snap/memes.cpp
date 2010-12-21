@@ -3223,21 +3223,21 @@ bool TMemesDataLoader::LoadNext() {
   LineCnt++;
   if (CurLn.Empty()) { return LoadNext(); }
   IAssertR((! CurLn.Empty()) && CurLn[0]=='U' && CurLn[1]=='\t', 
-    TStr::Fmt("ERROR1: %s [line %lld]: '%s'\n", SIn.GetSNm().CStr(), LineCnt, CurLn.CStr()).CStr());
+    TStr::Fmt("ERROR1: %s [line %llu]: '%s'\n", SIn.GetSNm().CStr(), LineCnt, CurLn.CStr()).CStr());
   PostUrlStr = CurLn.CStr()+2;
   while (SIn.GetNextLn(CurLn) && (CurLn.Empty() || (CurLn[0]!='D' || CurLn[1]!='\t'))) { LineCnt++; }
   IAssertR((! CurLn.Empty()) && CurLn[0]=='D', 
-    TStr::Fmt("ERROR2: %s [line %lld]: '%s'\n", SIn.GetSNm().CStr(), LineCnt, CurLn.CStr()).CStr());  LineCnt++;
+    TStr::Fmt("ERROR2: %s [line %llu]: '%s'\n", SIn.GetSNm().CStr(), LineCnt, CurLn.CStr()).CStr());  LineCnt++;
   try {
     PubTm = TSecTm::GetDtTmFromStr(CurLn);
   } catch (PExcept Except){ PubTm = 1; ErrNotify(Except->GetStr());
-    printf("ERROR3: %s [line %lld]: '%s'\n", SIn.GetSNm().CStr(), LineCnt, CurLn.CStr()); 
+    printf("ERROR3: %s [line %llu]: '%s'\n", SIn.GetSNm().CStr(), LineCnt, CurLn.CStr()); 
   }
   IAssertR(SIn.GetNextLn(CurLn) && (! CurLn.Empty()) && (CurLn[0]=='C' || CurLn[0]=='T'), 
-    TStr::Fmt("ERROR4: %s [line %lld]: '%s'\n", SIn.GetSNm().CStr(), LineCnt, CurLn.CStr()).CStr());  LineCnt++;
+    TStr::Fmt("ERROR4: %s [line %llu]: '%s'\n", SIn.GetSNm().CStr(), LineCnt, CurLn.CStr()).CStr());  LineCnt++;
   if (CurLn[0] == 'T') { // skip title
     IAssertR(SIn.GetNextLn(CurLn) && (! CurLn.Empty()) && CurLn[0]=='C', 
-      TStr::Fmt("ERROR5: %s [line %lld]: '%s'\n", SIn.GetSNm().CStr(), LineCnt, CurLn.CStr()).CStr());  LineCnt++; }
+      TStr::Fmt("ERROR5: %s [line %llu]: '%s'\n", SIn.GetSNm().CStr(), LineCnt, CurLn.CStr()).CStr());  LineCnt++; }
   ContentStr = CurLn.CStr()+2;
   // links
   while (SIn.GetNextLn(CurLn)) {  LineCnt++;
