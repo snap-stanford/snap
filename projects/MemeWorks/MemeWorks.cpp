@@ -31,12 +31,12 @@ int main(int argc, char* argv[]) {
     PostSet.AddKey(Url); Posts++;
     DomCntH.AddDat(TStrUtil::GetDomNm2(Memes.PostUrlStr)) += 1;
   }
-  printf("Posts:  %d\nNSkip:  %d (%d)\nNDoms:  %d\n", Posts, NSkip, PostSet.Len(), DomCntH.Len());
+  printf("Posts:  %d\nNSkip:  %d  (%f)\nNDoms:  %d\n", Posts, NSkip, NSkip/double(Posts+NSkip), DomCntH.Len());
   TIntPrV CntIdV(DomCntH.Len(), 0);
   for (int i = 0; i < DomCntH.Len(); i++) { CntIdV.Add(TIntPr(DomCntH[i], i)); }
   CntIdV.Sort(false);
   for (int i = 2; i < CntIdV.Len(); i++) { NonFbTw += CntIdV[i].Val1; }
-  printf("NoFbTw: %d (%f)\n\n", NonFbTw, NonFbTw/double(Posts));
+  printf("NoFbTw: %d  (%f)\n\n", NonFbTw, NonFbTw/double(Posts));
   for (int i = 0; i < TMath::Mn(100, DomCntH.Len()); i++) { 
     printf("%d\t%s\n", DomCntH[CntIdV[i].Val2].Val, DomCntH.GetKey(CntIdV[i].Val2)); }
 

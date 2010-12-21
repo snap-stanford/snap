@@ -406,7 +406,7 @@ time_t TSecTm::MkGmTime(struct tm *t) {
 
 bool TSecTm::GetTmSec(struct tm& Tm, uint& AbsSec) {
   const time_t GmtTime = MkGmTime(&Tm);
-  IAssertR(uint(GmtTime) < TUInt::Mx,
+  EAssertR(uint(GmtTime) < TUInt::Mx,
     TStr::Fmt("Time out of range: %d/%d/%d %02d:%02d:%02d",
     Tm.tm_year, Tm.tm_mon, Tm.tm_mday, Tm.tm_hour, Tm.tm_min, Tm.tm_sec).CStr());
   AbsSec = uint(GmtTime);
