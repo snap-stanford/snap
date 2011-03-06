@@ -78,6 +78,7 @@ public:
   bool IsCmt() const { return Len()>0 && GetFld(0)[0] == '#'; }
   bool Eof() const { return FInPt->Eof(); }
   const TChA& GetLnStr() const { return LineStr; }
+  void ToLc();
 
   const char* GetFld(const int& FldN) const { return FldV[FldN]; }
   char* GetFld(const int& FldN) { return FldV[FldN]; }

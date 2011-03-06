@@ -451,6 +451,13 @@ bool TSsParser::Next() { // split on SplitCh
   */
 }
 
+void TSsParser::ToLc() {
+  for (int f = 0; f < FldV.Len(); f++) {
+    for (char *c = FldV[f]; *c; c++) {
+      *c = tolower(*c); }
+  }
+}
+
 bool TSsParser::GetInt(const int& FldN, int& Val) const {
   // parsing format {ws} [+/-] +{ddd}
   int _Val = -1;

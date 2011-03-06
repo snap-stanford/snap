@@ -154,6 +154,7 @@ void GetEigenVectorCentr(const PUNGraph& Graph, TIntFltH& EigenH, const double& 
     for (int i = 0; i < EigenH.Len(); i++) {
       EigenH[i] /= sum; }
     if (fabs(diff-sum) < Eps) { break; }
+    //printf("\tdiff:%f\tsum:%f\n", fabs(diff-sum), sum);
     diff = sum;
   }
 }

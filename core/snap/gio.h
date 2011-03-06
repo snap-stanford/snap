@@ -103,7 +103,18 @@ PGraph LoadConnList(const TStr& InFNm) {
 template <class PGraph>
 PGraph LoadPajek(const TStr& InFNm) {
   PGraph Graph = PGraph::TObj::New();
-  FailR("Not yet implemented.");
+  TSsParser Ss(InFNm, ssfSpaceSep, true, true);
+  Ss.Next();  Ss.ToLc();
+  EAssert(strstr(Ss[0], "*vertices") != NULL);
+  while (Ss.Next()) {
+    Ss.ToLc();
+    if (strstr(Ss[0], "*arcs")!=NULL || strstr(Ss[0],"*edges")!=NULL) { break; }
+    Graph->AddNode(Ss.GetInt(0));
+  }
+  // edges
+  while (Ss.Next()) {
+    Graph->AddEdge(Ss.GetInt(0), Ss.GetInt(1));
+  }
   return Graph;
 }
 
