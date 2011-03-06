@@ -29,12 +29,12 @@ Execute:
   make demo : executes all sample application
   
 Examples:
-  cascades :
-  	Simulates an SI (susceptible-infected) model on various networks
   centrality :
         Node centrality measures (closeness, eigen, degree, betweenness, page rank)
   community :
         Network Community detection (Girvan-Newman and Clauset-Newman-Moore)
+  cliques :
+  	Clique Percolation Method for detecting overlapping communities
   concomp :
   	Manipulates connected components of a graph
   forestfire : 
@@ -57,4 +57,3 @@ Examples:
 /////////////////////////////////////////////////////////////////////////////
 SNAP documentation:
   http://snap.stanford.edu/snap/doc.html
-

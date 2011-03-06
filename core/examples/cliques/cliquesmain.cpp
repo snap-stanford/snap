@@ -22,7 +22,8 @@ int main(int argc, char* argv[]) {
     G->AddEdge(4,5); G->AddEdge(4,7);
     G->AddEdge(5,6); G->AddEdge(5,7);
     G->AddEdge(6,7);
-    TGraphViz::Plot(G, gvlNeato, "small_graph.png", "", true);
+    // draw the small graph using GraphViz
+    TGraphViz::Plot(G, gvlNeato, "small_graph.png", "", true); 
   }
   // load graph
   else if (InFNm.GetFExt().GetLc()==".ungraph") {
@@ -37,6 +38,7 @@ int main(int argc, char* argv[]) {
   // save result
   FILE *F = fopen(TStr::Fmt("cpm-%s.txt", OutFNm.CStr()).CStr(), "wt");
   fprintf(F, "# %d Overlapping Clique Percolation Communities (min clique overlap %d)\n", CmtyV.Len(), OverlapSz);
+  fprintf(F, "# Each line contains nodes belonging to the same community community\n");
   for (int i = 0; i < CmtyV.Len(); i++) {
     fprintf(F, "%d", CmtyV[i][0].Val);
     for (int j = 1; j < CmtyV[i].Len(); j++) {
