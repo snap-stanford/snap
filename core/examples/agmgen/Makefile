@@ -11,7 +11,7 @@
 #LDFLAGS += 
 
 ## Main application file
-MAIN = cliques
+MAIN = agmgen
 
 all: $(MAIN)
 
@@ -20,8 +20,8 @@ opt: LDFLAGS += -O4
 opt: $(MAIN)
 
 # COMPILE
-$(MAIN): $(MAIN)main.cpp ../../snap/cliques.h ../../snap/cliques.cpp Snap.o 
-	g++ $(LDFLAGS) -o $(MAIN) $(MAIN)main.cpp ../../snap/cliques.cpp Snap.o -I../../glib -I../../snap
+$(MAIN): $(MAIN).cpp ../../snap/agm.h ../../snap/agm.cpp Snap.o 
+	g++ $(LDFLAGS) -o $(MAIN) $(MAIN).cpp ../../snap/agm.cpp Snap.o -I../../glib -I../../snap
 	
 Snap.o: 
 	g++ -c $(CXXFLAGS) ../../snap/Snap.cpp -I../../glib -I../../snap
