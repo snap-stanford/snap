@@ -1,6 +1,6 @@
 #ifndef snaplib_agm_h
 #define snaplib_agm_h
-#include "snap.h"
+#include "./Snap.h"
 
 class TAGM{
 public:
@@ -35,7 +35,8 @@ public:
 			TStr ColorNm = Colors[CIDV[0]%Colors.Len()];
 			TStr NodeComLabel = TStr::Fmt("%d(",NID);
 			for(int i=0;i<CIDV.Len();i++) {
-				NodeComLabel += TStr::Fmt("%d",CIDV[i]);
+				TStr TmpStr = TStr::Fmt("%d",int(CIDV[i]));
+				NodeComLabel += TmpStr;
 				if(i<CIDV.Len()-1){NodeComLabel+=",";}
 			}
 			NodeComLabel += ")";
