@@ -9,11 +9,11 @@ int main(int argc, char* argv[]) {
 	Env.PrepArgs(TStr::Fmt("agmgen. build: %s, %s. Time: %s", __TIME__, __DATE__, TExeTm::GetCurTm()));
 	TExeTm ExeTm;
 	Try
-	const TStr InFNm = Env.GetIfArgPrefixStr("-d:", "DEMO", "Group affiliation data");
+	const TStr InFNm = Env.GetIfArgPrefixStr("-i:", "DEMO", "Community affiliation data");
 	const TStr OutFPrx = Env.GetIfArgPrefixStr("-o:", "agm", "out file name prefix");
 	const int RndSeed = Env.GetIfArgPrefixFlt("-rs:",10,"Rnd Seed");
-	const double DensityCoef= Env.GetIfArgPrefixFlt("-a:",0.6,"Power-law Coeficient a of density (density ~ N^(-a)");
-	const double ScaleCoef= Env.GetIfArgPrefixFlt("-c:",1.3,"Scaling Coeficient c of density (density ~ c");
+	const double DensityCoef= Env.GetIfArgPrefixFlt("-a:",0.6,"Power-law Coefficient a of density (density ~ N^(-a)");
+	const double ScaleCoef= Env.GetIfArgPrefixFlt("-c:",1.3,"Scaling Coefficient c of density (density ~ c");
 
 	TRnd Rnd(RndSeed);
 
@@ -45,7 +45,10 @@ int main(int argc, char* argv[]) {
 		printf("community loading completed (%d communities)\n",CmtyVV.Len());
 	}
 	PUNGraph AG = TAGM::GenAGM(CmtyVV,DensityCoef,ScaleCoef,Rnd);
-	TAGM::GVizComGraph(AG,CmtyVV,OutFPrx + ".graph.gif");
+	TSnap::SaveEdgeList(AG,OutFPrx + ".edgelist.txt");
+	if(AG->GetNodes()<50) {
+		TAGM::GVizComGraph(AG,CmtyVV,OutFPrx + ".graph.gif");
+	}
 
 
 	

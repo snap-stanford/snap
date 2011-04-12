@@ -1,33 +1,28 @@
 ========================================================================
-    CONSOLE APPLICATION : agmgen Project Overview
+    Affiliation Graph Model 
 ========================================================================
 
-AppWizard has created this agmgen application for you.
+The example implements the Affiliation Graph Model (AGM). 
+AGM generates a realistic looking graph from the community affiliation
+of the nodes.
 
-This file contains a summary of what you will find in each of the files that
-make up your agmgen application.
+The Affiliation Graph Model is described in J. Yang and J. Leskovec,
+Real Communities in Real Networks: Structure and a Model.
 
-
-agmgen.vcproj
-    This is the main project file for VC++ projects generated using an Application Wizard.
-    It contains information about the version of Visual C++ that generated the file, and
-    information about the platforms, configurations, and project features selected with the
-    Application Wizard.
-
-agmgen.cpp
-    This is the main application source file.
+Depending on the platform (Windows or Linux) you need to edit the Makefile.
+Use 'make opt' to compile the optimized (fast) version of the code.
 
 /////////////////////////////////////////////////////////////////////////////
-Other standard files:
-
-StdAfx.h, StdAfx.cpp
-    These files are used to build a precompiled header (PCH) file
-    named agmgen.pch and a precompiled types file named StdAfx.obj.
-
-/////////////////////////////////////////////////////////////////////////////
-Other notes:
-
-AppWizard uses "TODO:" comments to indicate parts of the source code you
-should add to or customize.
+Parameters:
+   -i:Group affiliation data (one group per line). 
+   ('DEMO' uses a simple case where Node 0~24 belongs to one community, and Node 15~39 belongs to the other community)
+   -o:Output file prefix (the edges of the generated graph). (default:'agm')
+   -a:Power-law coefficient of the edge probability inside each community
+   -c:Scaling constant for the edge probability
 
 /////////////////////////////////////////////////////////////////////////////
+Usage:
+
+Generate an AGM graph from the 'DEMO' case
+
+agmgen -a:0.6 -c:1.3 -o:agm_demo
