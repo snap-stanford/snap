@@ -152,7 +152,10 @@ void GetTriads(const PGraph& Graph, TIntTrV& NIdCOTriadV, int SampleNodes) {
   NIdCOTriadV.Reserve(SampleNodes);
   for (int node = 0; node < SampleNodes; node++) {
     typename PGraph::TObj::TNodeI NI = Graph->GetNI(NIdV[node]);
-    if (NI.GetDeg() < 2) { continue; }
+    if (NI.GetDeg() < 2) { 
+      NIdCOTriadV.Add(TIntTr(NI.GetId(), 0, 0)); // zero triangles
+      continue; 
+    }
     // find neighborhood
     NbhH.Clr(false);
     for (int e = 0; e < NI.GetOutDeg(); e++) {

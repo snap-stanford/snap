@@ -124,5 +124,4 @@ Snap files: http://snap.stanford.edu/snap/download.html
   kronecker.h : Kronecker graphs (see PKDD '05 and ICML '07)
   layout.h : positions the nodes on the plane for drawing
   plots.h : plots graph properties (degree distributions, etc.)
-  sampl.h : graph sampling (see KDD '06)
   timenet.h : time evolving networks
