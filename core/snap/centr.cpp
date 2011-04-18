@@ -4,7 +4,7 @@ namespace TSnap {
 // Node centrality measures
 double GetDegreeCentr(const PUNGraph& Graph, const int& NId) {
   if (Graph->GetNodes() > 1) {
-    return Graph->GetNI(NId).GetDeg()*1.0/double(Graph->GetNodes()-1); }
+    return Graph->GetNI(NId).GetDeg()/double(Graph->GetNodes()-1); }
   else { return 0; }
 }
 
@@ -15,8 +15,8 @@ double GetClosenessCentr(const PUNGraph& Graph, const int& NId) {
   for (TIntH::TIter I = NDistH.BegI(); I < NDistH.EndI(); I++) {
     sum += I->Dat();
   }
-  if (sum > 0) { return 1.0/double(sum); }
-  else { return 0; }
+  if (NDistH.Len() > 1) { return sum/double(NDistH.Len()-1); }
+  else { return 0.0; }
 }
 
 // Beetweenness Centrality. To get exact results we solve single-source shortest-path problem for every node.
@@ -91,7 +91,7 @@ void GetBetweennessCentr(const PUNGraph& Graph, const TIntV& BtwNIdV, TIntFltH& 
           EdgeBtwH.AddDat(TIntPr(TMath::Mn(nid, w), TMath::Mx(nid, w))) += c; }
       }
       if (DoNodeCent && w != NI.GetId()) {
-        NodeBtwH.AddDat(w) += delta.GetDat(w); }
+        NodeBtwH.AddDat(w) += delta.GetDat(w)/2.0; }
     }
   }
 }

@@ -16,11 +16,17 @@ void GetBetweennessCentr(const PUNGraph& Graph, const TIntV& BtwNIdV, TIntFltH& 
 // Eigenvector centrality
 void GetEigenVectorCentr(const PUNGraph& Graph, TIntFltH& EigenH, const double& Eps=1e-4, const int& MaxIter=100);
 
+// PageRank and HITS (Hubs and Authorities)
+template<class PGraph> void GetPageRank(const PGraph& Graph, TIntFltH& PRankH, const double& C=0.85, const double& Eps=1e-4, const int& MaxIter=100);
+template<class PGraph> void GetHits(const PGraph& Graph, TIntFltH& NIdHubH, TIntFltH& NIdAuthH, const int& MaxIter=20);
+
+
+/////////////////////////////////////////////////
 // Page Rank -- there are two different implementations (uncomment the desired 2 lines):
-//   Berkhin -- see Algorithm 1 of P. Berkhin, A Survey on PageRank Computing, Internet Mathematics, 2005
-//   iGraph -- the way iGraph does it (which is a different way of treating leaked PageRank)
+//   Berkhin -- (the correct way) see Algorithm 1 of P. Berkhin, A Survey on PageRank Computing, Internet Mathematics, 2005
+//   iGraph -- iGraph implementation(which treats leaked PageRank in a funny way)
 template<class PGraph>
-void GetPageRank(const PGraph& Graph, TIntFltH& PRankH, const double& C=0.85, const double& Eps=1e-4, const int& MaxIter=100) {
+void GetPageRank(const PGraph& Graph, TIntFltH& PRankH, const double& C, const double& Eps, const int& MaxIter) {
   const int NNodes = Graph->GetNodes();
   const double OneOver = 1.0/double(NNodes);
   PRankH.Gen(NNodes);
@@ -51,10 +57,44 @@ void GetPageRank(const PGraph& Graph, TIntFltH& PRankH, const double& C=0.85, co
       diff += fabs(NewVal-PRankH[i]);
       PRankH[i] = NewVal;
     }
-    //printf("  diff: %f\tleaked: %f\n", diff, 1-sum);
     if (diff < Eps) { break; }
   }
-  //for (int i = 0; i < PRankH.Len(); i++) { printf("%d\t%f\n", PRankH.GetKey(i), PRankH[i]); }
+}
+
+// HITS: Hubs and Authorities (by J. Kleinberg, see http://en.wikipedia.org/wiki/HITS_algorithm)
+template<class PGraph>
+void GetHits(const PGraph& Graph, TIntFltH& NIdHubH, TIntFltH& NIdAuthH, const int& MaxIter) {
+  const int NNodes = Graph->GetNodes();
+  NIdHubH.Gen(NNodes);
+  NIdAuthH.Gen(NNodes);
+  for (typename PGraph::TObj::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
+    NIdHubH.AddDat(NI.GetId(), 1.0);
+    NIdAuthH.AddDat(NI.GetId(), 1.0);
+  }
+  double Norm=0;
+  for (int iter = 0; iter < MaxIter; iter++) {
+    // update authority scores
+    Norm = 0;
+    for (typename PGraph::TObj::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
+      double& Auth = NIdAuthH.GetDat(NI.GetId()).Val;
+      Auth = 0;
+      for (int e = 0; e < NI.GetInDeg(); e++) {
+        Auth +=  NIdHubH.GetDat(NI.GetInNId(e)); }
+      Norm += Auth*Auth;
+    }
+    Norm = sqrt(Norm);
+    for (int i = 0; i < NIdAuthH.Len(); i++) { NIdAuthH[i] /= Norm; }
+    // update hub scores
+    for (typename PGraph::TObj::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
+      double& Hub = NIdHubH.GetDat(NI.GetId()).Val;
+      Hub = 0; 
+      for (int e = 0; e < NI.GetOutDeg(); e++) {
+        Hub += NIdAuthH.GetDat(NI.GetOutNId(e)); }
+      Norm += Hub*Hub;
+    }
+    Norm = sqrt(Norm);
+    for (int i = 0; i < NIdHubH.Len(); i++) { NIdHubH[i] /= Norm; }
+  }
 }
 
 }; // namespace TSnap
