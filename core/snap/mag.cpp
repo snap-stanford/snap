@@ -1655,9 +1655,9 @@ void TMAGFitBern::DoEMAlg(const int& NStep, const int& NEstep, const int& NMstep
 	printf("--------------------------------------------\n");
 
 	TMAGAffMtxV InitMtxV;
-	TMAGNodeBern DistAttr = Param.GetNodeAttr();
+	TMAGNodeBern NodeAttr = Param.GetNodeAttr();
 	Param.GetMtxV(InitMtxV);
-	TFltV InitMuV = DistAttr.GetMuV();
+	TFltV InitMuV = NodeAttr.GetMuV();
 	
 	for(int i = 0; i < NNodes; i++) {
 		for(int l = 0; l < NAttrs; l++) {
@@ -1682,7 +1682,7 @@ void TMAGFitBern::DoEMAlg(const int& NStep, const int& NEstep, const int& NMstep
 		printf("EM Iteration : %d\n", (n+1));
 		printf("--------------------------------------------\n");
 		
-		DistAttr = Param.GetNodeAttr();
+		NodeAttr = Param.GetNodeAttr();
 		for(int i = 0; i < NNodes; i++) {
 			for(int l = 0; l < NAttrs; l++) {
 				if(!KnownVV(i, l) && TMAGNodeBern::Rnd.GetUniDev() < ReInit) {
@@ -1914,8 +1914,8 @@ const double TMAGFitBern::ComputeJointOneLL(const TIntVV& AttrVV) const {
 	const int NNodes = Param.GetNodes();
 	const int NAttrs = Param.GetAttrs();
 	TMAGAffMtxV MtxV(NAttrs);	Param.GetMtxV(MtxV);
-	const TMAGNodeBern DistAttr = Param.GetNodeAttr();
-	const TFltV MuV = DistAttr.GetMuV();
+	const TMAGNodeBern NodeAttr = Param.GetNodeAttr();
+	const TFltV MuV = NodeAttr.GetMuV();
 
 	for(int l = 0; l < NAttrs; l++) {
 		for(int i = 0; i < MtxV[l].Len(); i++) {
@@ -1956,8 +1956,8 @@ const double TMAGFitBern::ComputeJointAdjLL(const TIntVV& AttrVV) const {
 	const int NNodes = Param.GetNodes();
 	const int NAttrs = Param.GetAttrs();
 	TMAGAffMtxV MtxV(NAttrs);	Param.GetMtxV(MtxV);
-	const TMAGNodeBern DistAttr = Param.GetNodeAttr();
-	const TFltV MuV = DistAttr.GetMuV();
+	const TMAGNodeBern NodeAttr = Param.GetNodeAttr();
+	const TFltV MuV = NodeAttr.GetMuV();
 
 	for(int l = 0; l < NAttrs; l++) {
 		for(int i = 0; i < MtxV[l].Len(); i++) {
@@ -2018,8 +2018,8 @@ const double TMAGFitBern::ComputeApxLL() const {
 	double LL = 0.0, LLSelf = 0.0;
 	const int NNodes = Param.GetNodes();
 	const int NAttrs = Param.GetAttrs();
-	TMAGNodeBern DistAttr = Param.GetNodeAttr();
-	TFltV MuV = DistAttr.GetMuV();
+	TMAGNodeBern NodeAttr = Param.GetNodeAttr();
+	TFltV MuV = NodeAttr.GetMuV();
 	TMAGAffMtxV LLMtxV(NAttrs);
 
 	for(int l = 0; l < NAttrs; l++) {
@@ -2058,8 +2058,8 @@ const double TMAGFitBern::ComputeApxAdjLL() const {
 	double LL = 0.0, LLSelf = 0.0;
 	const int NNodes = Param.GetNodes();
 	const int NAttrs = Param.GetAttrs();
-	TMAGNodeBern DistAttr = Param.GetNodeAttr();
-	TFltV MuV = DistAttr.GetMuV();
+	TMAGNodeBern NodeAttr = Param.GetNodeAttr();
+	TFltV MuV = NodeAttr.GetMuV();
 	MuV.PutAll(0.0);
 	TMAGAffMtxV LLMtxV(NAttrs);
 	double TotalEdge = 0.0;
