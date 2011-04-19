@@ -1644,7 +1644,7 @@ void TMAGFitBern::DoEMAlg(const int& NStep, const int& NEstep, const int& NMstep
 	const int NNodes = Param.GetNodes();
 	const int NAttrs = Param.GetAttrs();
 	TIntV IndexV;
-	double LL, MuDist, MtxDist, NodeAttr;
+	double LL, MuDist, MtxDist;
 
 	MuHisV.Gen(NStep + 1, 0);
 	MtxHisV.Gen(NStep + 1, 0);
