@@ -1176,11 +1176,6 @@ double TMAGFitBern::DoEStepApxOneIter(const TFltV& TrueMuV, TFltVV& NewPhiVV, co
 
 	const int Iter = 3;
 	int NId;
-	TIntPrV DegPrV;	DegPrV.Gen(NNodes, 0);
-	for(TNGraph::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
-		int DegVal = NI.GetInDeg() * NI.GetInDeg() + NI.GetOutDeg() * NI.GetOutDeg();
-		DegPrV.Add(TIntPr(DegVal, NI.GetId()));
-	}
 
 	NewVal.Gen(NAttrs * Iter);
 	for(int i = 0; i < NNodes * Iter; i++) {
@@ -1270,14 +1265,6 @@ double TMAGFitBern::DoEStepApxOneIter(const TFltV& TrueMuV, TFltVV& NewPhiVV, co
 	printf("  Avg = %.3f\n", Avg / double(NAttrs));
 //	printf("  Linf = %f\n", MaxDelta);
 //	L1 /= double(NAttrs);
-
-	DegPrV.Sort(false);
-	for(int i = 0; i < 5; i++) {
-		for(int l = 0; l < NAttrs; l++) {
-			printf("%.3f  ", double(PhiVV(DegPrV[i].Val2, l)));
-		}
-		printf("\n");
-	}
 
 	return L1;
 }
