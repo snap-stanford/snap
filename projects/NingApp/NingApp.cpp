@@ -205,7 +205,7 @@ int main(int argc, char* argv[]) {
   const int ItemStepCnt = Kilo(100);
   int ItemCnt=0, SmallCnt=ItemStepCnt;
   //TJsonLoader J("W:\\code\\projects\\tweets1k.txt");//"*.log.gz");
-  TJsonLoader J("*.log.gz");
+  TJsonLoader J("/lfs/1/tmp/twitter-jan2011/*.log.gz");
   TExeTm Time1k;
   while (J.Next()) {
     ItemCnt++; SmallCnt--;

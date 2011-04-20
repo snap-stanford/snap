@@ -19,7 +19,7 @@ all: NingApp
 
 opt: CXXFLAGS += -O4
 opt: LDFLAGS += -O4
-opt: MemeWorks
+opt: NingApp
 
 # COMPILE
 NingApp: NingApp.cpp Snap.o 
