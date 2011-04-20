@@ -1,10 +1,222 @@
 #include "stdafx.h"
 //#include "ning.h"
 
+/////////////////////////////////////////////////
+// Simple JSON parser (does not support nested objects and arrays)
+class TJsonItem {
+private:
+  THash<TChA, TChA> KeyValH;               // key-value pairs
+  THash<TChA, TJsonItem> KeyObjH;          // key-nested object
+  THash<TChA, TVec<TJsonItem> > KeyArrayH; // key-array of objects
+public:
+  TJsonItem() { }
+  TJsonItem(const TStr& JsonStr) { Parse(JsonStr.CStr()); }
+  TJsonItem(const TChA& JsonStr) { Parse(JsonStr.CStr()); }
+  TJsonItem(const char* JsonStr) { Parse(JsonStr); }
+  const TChA& operator[](const int& KeyId) const { return KeyValH[KeyId]; }
+  const TChA& operator[](const TChA& Key) const { return KeyValH.GetDat(Key); }
+  const TChA& GetDat(const TChA& Key) const { return KeyValH.GetDat(Key); }
+  bool IsKey(const TChA& Key) const { return KeyValH.IsKey(Key); }
+  int Len() const { return KeyValH.Len(); }
+  void Clr() { 
+    KeyValH.Clr(false, 1000, false);
+    KeyObjH.Clr(false, 1000, false);
+    KeyArrayH.Clr(false, 1000, false);
+  }
+  const char* GetStr(const char* Beg, TChA& Str) const {
+    Str.Clr();
+    const char* c = Beg+1;  IAssert(*Beg=='"');
+    while (*c && *c != '"') {
+      if (*c!='\\') { Str.Push(*c); }
+      else {  c++;
+        switch (*c) {
+          case '"' : Str.Push('"'); break;
+          case '\\' : Str.Push('\\'); break;
+          case '/' : Str.Push('/'); break;
+          case 'b' : Str.Push('\b'); break;
+          case 'f' : Str.Push('\f'); break;
+          case 'n' : Str.Push('\n'); break;
+          case 't' : Str.Push('\t'); break;
+          case 'r' : Str.Push('\r'); break;
+          case 'u' : break; //printf("Unicode not supported: '%s'", Beg); break;
+          default : FailR(TStr::Fmt("Unknown escape sequence: '%s'", Beg).CStr());
+        };
+      }
+      c++;
+    }
+    if (*c && *c=='"') { c++; }
+    return c;
+  }
+  const char* ParseArrayVal(const char* JsonStr) {
+    const char *c = JsonStr;
+    bool Nested = false;
+    TChA ValStr;
+    Clr();
+    while (*c && TCh::IsWs(*c)) { c++; }
+    if (*c == '"') { c = GetStr(c, ValStr); } // string
+    else if (TCh::IsNum(*c) || (*c=='-' &&  TCh::IsNum(*(c+1)))) {  // number
+      while (*c && *c!=',' && *c!='}' && *c!=']' && ! TCh::IsWs(*c)) { ValStr.Push(*c); c++; } }
+    else if (*c=='t' || *c=='f' || *c=='n') { // true, false, null
+      while (*c && *c!=',' && *c!='}' && *c!=']') { ValStr.Push(*c); c++; } }
+    else if (*c=='{') { // nested object
+      TJsonItem& Obj = KeyObjH.AddDat("key");
+      c = Obj.Parse(c) + 1;  Nested = true;
+    }
+    else if (*c=='[') { // array
+      TVec<TJsonItem>& Array = KeyArrayH.AddDat("key");
+        c++;
+        while (*c && *c!=']') {
+          while (*c && TCh::IsWs(*c)) { c++; }
+          Array.Add();
+          if (*c=='{') { c = Array.Last().Parse(c) + 1; } // nested object
+          else { c = Array.Last().ParseArrayVal(c); }
+          if (*c && *c==',') { c++; }
+        }
+        c++; Nested = true;
+    }
+    if (! Nested) {
+      IAssert(! KeyValH.IsKey("key"));
+      KeyValH.AddDat("key", ValStr); 
+    }
+    while (*c && TCh::IsWs(*c)) { c++; }
+    return c;
+  }
+  const char* Parse(const char* JsonStr) {
+    TChA KeyStr, ValStr;
+    Clr();
+    const char *c = JsonStr;
+    bool Nested = false;
+    while (*c && *c!='{') { c++; } // find first '{'
+    while (*c && *c!='}') {
+      while (*c && *c!='"') { c++; }
+      c = GetStr(c, KeyStr); // key -- string
+      while (*c && TCh::IsWs(*c)) { c++; }
+      IAssert(*c==':'); c++;
+      while (*c && TCh::IsWs(*c)) { c++; }
+      // value
+      ValStr.Clr();
+      if (*c == '"') { c = GetStr(c, ValStr); } // string
+      else if (TCh::IsNum(*c) || (*c=='-' &&  TCh::IsNum(*(c+1)))) {  // number
+        while (*c && *c!=',' && *c!='}' && *c!=']' && ! TCh::IsWs(*c)) { ValStr.Push(*c); c++; } }
+      else if (*c=='t' || *c=='f' || *c=='n') { // true, false, null
+        while (*c && *c!=',' && *c!='}' && *c!=']') { ValStr.Push(*c); c++; } }
+      else if (*c=='{') { // nested object
+        TJsonItem& Obj = KeyObjH.AddDat(KeyStr);
+        c = Obj.Parse(c) + 1;  Nested = true;
+      }
+      else if (*c=='[') { // array
+        TVec<TJsonItem>& Array = KeyArrayH.AddDat(KeyStr);
+        c++;
+        while (*c && *c!=']') {
+          while (*c && TCh::IsWs(*c)) { c++; }
+          Array.Add();
+          if (*c=='{') { c = Array.Last().Parse(c) + 1; } // nested object
+          else { c = Array.Last().ParseArrayVal(c); }
+          if (*c && *c==',') { c++; }
+        }
+        c++; Nested = true;
+      }
+      else { FailR(TStr::Fmt("Unknown character '%c' at position %d in %s", *c, int(c-JsonStr), JsonStr).CStr()); }
+      if (! Nested) {
+        KeyValH.AddDat(KeyStr, ValStr); }
+      while (*c && TCh::IsWs(*c)) { c++; }
+      if (*c && *c==',') { c++; }
+      while (*c && TCh::IsWs(*c)) { c++; }
+    }
+    return c;
+  }
+
+  void Dump(const int& Indent=0) const {
+    // short outputs
+    if (KeyValH.Len()==0 && KeyArrayH.Len()==0 && KeyObjH.Len()==0) {
+      for (int x=0;x<Indent;x++){printf(" ");} 
+      printf("{ }\n", KeyValH.GetKey(0).CStr(), KeyValH[0].CStr());
+      return;
+    }
+    if (KeyValH.Len()==1 && KeyArrayH.Len()==0 && KeyObjH.Len()==0) {
+      for (int x=0;x<Indent;x++){printf(" ");} 
+      printf("{ %s : %s }\n", KeyValH.GetKey(0).CStr(), KeyValH[0].CStr());
+      return;
+    }
+    // long output
+    for (int x=0;x<Indent;x++){printf(" ");} printf("{\n");
+    for (int i = 0; i < KeyValH.Len(); i++) {
+      for (int x=0;x<Indent;x++){printf(" ");}
+      printf("%s : %s\n", KeyValH.GetKey(i).CStr(), KeyValH[i].CStr());
+    }
+    if (KeyArrayH.Len() > 0) {
+      for (int i = 0; i < KeyArrayH.Len(); i++) {
+        const TVec<TJsonItem>& Array = KeyArrayH[i];
+        for (int x=0;x<Indent;x++){printf(" ");} printf("%s : [\n", KeyArrayH.GetKey(i).CStr());
+        for (int a = 0; a < Array.Len(); a++) { Array[a].Dump(Indent+2); }
+        for (int x=0;x<Indent;x++){printf(" ");} printf("]\n");
+      }
+    }
+    if (KeyObjH.Len() > 0) {
+      for (int i = 0; i < KeyObjH.Len(); i++) {
+        for (int x=0;x<Indent;x++){printf(" ");} 
+        printf("%s : \n", KeyObjH.GetKey(i).CStr());
+        KeyObjH[i].Dump(Indent+2);
+      }
+    }
+    for (int x=0;x<Indent;x++){printf(" ");} printf("}\n");
+  }
+};
+
+/////////////////////////////////////////////////
+// Simple JSON parser
+class TJsonLoader {
+private:
+  PSIn SIn;
+  TFFile FFile;
+  TChA Line;
+  TJsonItem Item;
+  int ItemCnt;
+  TExeTm ExeTm;
+public:
+  TJsonLoader(const TStr& FNmWc) : FFile(FNmWc), ItemCnt(0) { }
+  const TChA& operator[](const int& KeyId) const { return Item[KeyId]; }
+  const TChA& operator[](const TChA& Key) const { return Item[Key]; }
+  const TChA& GetDat(const TChA& Key) const { return Item.GetDat(Key); }
+  bool IsKey(const TChA& Key) const { return Item.IsKey(Key); }
+  int Len() const { return Item.Len(); }
+  void Dump() const { Item.Dump(0); }
+  bool Next() {
+    if (SIn.Empty() || SIn->Eof()) {
+      TStr FNm;
+      if (! SIn.Empty()) { printf("  %d items\t[%s]\n", ItemCnt, ExeTm.GetTmStr()); }
+      if (! FFile.Next(FNm)) { return false; }
+      printf("Parsing: %s\n", FNm.CStr()); ItemCnt=0;
+      if (TZipIn::IsZipExt(FNm.GetFExt())) { SIn=TZipIn::New(FNm); }
+      else { SIn=TFIn::New(FNm); }
+      ExeTm.Tick();
+    }
+    SIn->GetNextLn(Line);
+    Item.Parse(Line.CStr());  ItemCnt++;
+    return true;
+  }
+};
+
+
 int main(int argc, char* argv[]) {
   printf("NingApp. build: %s, %s. Start time: %s\n\n", __TIME__, __DATE__, TExeTm::GetCurTm());
   TExeTm ExeTm;  TInt::Rnd.PutSeed(0);  Try  //TSysProc::SetLowPriority();
- 
+  
+  const int ItemStepCnt = Kilo(100);
+  int ItemCnt=0, SmallCnt=ItemStepCnt;
+  TJsonLoader J("W:\\code\\projects\\tweets1k.txt");//"*.log.gz");
+  TExeTm Time1k;
+  while (J.Next()) {
+    ItemCnt++; SmallCnt--;
+    //printf("\n-----------------------------------------------------\n");
+    //J.Dump();
+    if (SmallCnt == 0) {
+      printf("\rTime to read %dk: %g. ", ItemStepCnt/1000, Time1k.GetSecs());
+      Time1k.Tick();  SmallCnt = ItemStepCnt;
+    }
+  }
+  
+
   //TNingUsrBs UsrBs(TZipIn("Ning-UsrBs.bin.rar"), false);  printf("load UsrBs done [%s].\n", ExeTm.GetStr());
   //
   //TNingNets Nets(TZipIn("data/Ning-FriendReq.ningTmNets.rar"));
