@@ -25,24 +25,34 @@ Use 'make opt' to compile the optimized (fast) version of the code.
 Example applications: http://snap.stanford.edu/snap/download.html
 
 Execute:
-  make all : compiles all sample applications
+  make all : compiles all sample applications (debug mode)
+  make opt : compiles all sample applications (release mode, 10x faster code!)
   make demo : executes all sample application
   
 Examples:
+  cascades :
+  	Simulate a SI (susceptible-infected) model on a network and compute
+  	structural properties of cascades
   centrality :
-        Node centrality measures (closeness, eigen, degree, betweenness, page rank)
+        Node centrality measures (closeness, eigen, degree, betweenness, 
+        page rank, hubs and authorities)
+  cliques :
+	Overlapping network community detection (Clique Percolation Method)
   community :
         Network Community detection (Girvan-Newman and Clauset-Newman-Moore)
-  cliques :
-  	Clique Percolation Method for detecting overlapping communities
   concomp :
   	Manipulates connected components of a graph
   forestfire : 
   	Forest Fire graph generator
+  kcores :
+  	Computes the k-core decomposition of the network
   krongen : 
   	Kronecker graph generator
   kronfit : 
   	Estimates Kronecker graph parameter matrix
+  motifs : 
+  	Counts the number of occurence of every possible subgraph on K nodes 
+  	in the network
   ncpplot : 
   	Computes Network Community Profile (NCP) plot 
   netevol :

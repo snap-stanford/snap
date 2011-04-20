@@ -178,6 +178,7 @@
 //#include "prolog.h"
 
 #include "zipfl.h"
+#include "json.h"
 
 void BaseTralala();
 

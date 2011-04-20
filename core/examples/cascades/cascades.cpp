@@ -1,29 +1,31 @@
 #include "stdafx.h"
 
-template<class PGraph> int FindRoot(const PGraph& G, const TIntH& NIdInfTmH);
-template<class PGraph> double GetAvgDepthFromRoot(const PGraph& G);
-PNGraph RunSICascade(PUNGraph G, const double& Beta, const int& CascSz, TIntH& NIdInfTmH);
-PNGraph RunSICascade2(PUNGraph G, const double& Beta, const int& MxCascSz, TIntH& NIdInfTmH);
-PNGraph AddSpuriousEdges(const PUNGraph& Graph, const PNGraph& Casc, TIntH NIdTmH);
+// For more details and motivation what this code is trying to achive see 
+// "Correcting for Missing Data in Information Cascades" by E. Sadikov, M. Medina, J. Leskovec, H. Garcia-Molina. WSDM, 2011
 
+/////////////////////////////////////////////////
+// Structural properties of the cascades (propagation trees)
 class TCascadeStat {
 public:
   THash<TFlt, TMom> NCascInf, NCascNet;   // number of cascades
-  THash<TFlt, TMom> MxSzInf, MxSzNet;     // size of largest cascade
-  THash<TFlt, TMom> AvgSzInf, AvgSzNet;   // average cascade size
-  THash<TFlt, TMom> NIsoInf, NIsoNet;     // number of isolated nodes
-  THash<TFlt, TMom> NLfInf, NLfNet;       // number of leaves
-  THash<TFlt, TMom> NRtInf, NRtNet;       // number of roots
-  THash<TFlt, TMom> OutDegInf, OutDegNet; // average out-degree
-  THash<TFlt, TMom> InDegInf, InDegNet;   // average in-degree
+  THash<TFlt, TMom> MxSzInf, MxSzNet;     // size of the largest cascade
+  THash<TFlt, TMom> AvgSzInf, AvgSzNet;   // average cascade size (number of nodes)
+  THash<TFlt, TMom> NIsoInf, NIsoNet;     // number of isolated nodes in the cascade
+  THash<TFlt, TMom> NLfInf, NLfNet;       // number of leaves in a cascade
+  THash<TFlt, TMom> NRtInf, NRtNet;       // number of roots in a cascade
+  THash<TFlt, TMom> OutDegInf, OutDegNet; // average out-degree of a cascade
+  THash<TFlt, TMom> InDegInf, InDegNet;   // average in-degree of a cascade
   // requires the root node (largest connected component)
   THash<TFlt, TMom> DepthInf, DepthNet;   // average depth (avg. distance from leaves to the root)
-  THash<TFlt, TMom> MxWidInf, MxWidNet;   // cascade width
-  THash<TFlt, TMom> MxLevInf, MxLevNet;   // level of max width
-  THash<TFlt, TMom> IncLevInf, IncLevNet; // number of levels of increasing width
+  THash<TFlt, TMom> MxWidInf, MxWidNet;   // cascade width (max number of nodes at any depth d)
+  THash<TFlt, TMom> MxLevInf, MxLevNet;   // level of max width (depth of max width)
+  THash<TFlt, TMom> IncLevInf, IncLevNet; // number of levels with increasing width
 public:
   TCascadeStat() { }
   void PlotAll(const TStr& OutFNm, const TStr& Desc, const bool& DivByM=true);
+  static double NonZ(double C) { return C==0?1.0:C; }
+  // randomly remove nodes from the cascade and store cascade properties as a function of the fraction of removed nodes
+  // for more details see "Correcting for Missing Data in Information Cascades" by E. Sadikov, M. Medina, J. Leskovec, H. Garcia-Molina. WSDM, 2011
   template <class PGraph>
   void SampleCascade(const PGraph& InfCasc, const PGraph& NetCasc, const TIntH& NIdInfTmH, const double& PStep=0.05, const int& NRuns=1, const bool& DivByM=true) {
     for (int Run=0; Run < NRuns; Run++) {
@@ -38,7 +40,26 @@ public:
       }
     }
   }
-  static double NonZ(double C) { return C==0?1.0:C; }
+  template<class PGraph>
+  int FindCascadeRoot(const PGraph& G, const TIntH& NIdInfTmH) { // earliest infected node
+    int Min=TInt::Mx, MinNId=-1;
+    for (typename PGraph::TObj::TNodeI NI = G->BegNI(); NI < G->EndNI(); NI++) {
+      const int t = NIdInfTmH.GetDat(NI.GetId());
+      if (t < Min && NI.GetInDeg()==0) { Min=t; MinNId=NI.GetId(); } }
+    IAssert(MinNId!=-1);  return MinNId;
+  }
+  template<class PGraph>
+  double GetAvgDepthFromRoot(const PGraph& G) {
+    TMom Mom;
+    TIntPrV HopCntV;
+    for (typename PGraph::TObj::TNodeI NI = G->BegNI(); NI < G->EndNI(); NI++) {
+      if (NI.GetOutDeg()>0 && NI.GetInDeg()==0) {
+        TSnap::GetNodesAtHops(G, NI.GetId(), HopCntV, true);
+        Mom.Add(HopCntV.Last().Val1()); }
+    }
+    Mom.Def();  return Mom.GetMean();
+  }
+  // collect statistics of the structural properties of the cascade
   template <class PGraph>
   void TakeStat(const PGraph& InfG, const PGraph& NetG, const TIntH& NIdInfTmH, const double& P, const bool& DivByM=true) {
     const double M = DivByM ? InfG->GetNodes() : 1;  IAssert(M>=1);
@@ -75,7 +96,7 @@ public:
     NIsoInf.AddDat(P).Add(i1/M); NIsoNet.AddDat(P).Add(i2/M); }
     // cascade depth
     { const double M1 = DivByM ? CcNet->GetNodes() : 1;  IAssert(M1>=1);
-    int Root=FindRoot(CcInf, NIdInfTmH);  TIntPrV HopCntV;
+    int Root=FindCascadeRoot(CcInf, NIdInfTmH);  TIntPrV HopCntV;
     TSnap::GetNodesAtHops(CcInf, Root, HopCntV, true);
     int MxN=0, Lev=0, IncL=0;
     for (int i = 0; i < HopCntV.Len(); i++) {
@@ -87,7 +108,7 @@ public:
       DepthInf.AddDat(P).Add(D/M1); MxWidInf.AddDat(P).Add(MxN/M1);
       MxLevInf.AddDat(P).Add(Lev/D); IncLevInf.AddDat(P).Add(IncL/D);
     }
-    Root=FindRoot(CcNet, NIdInfTmH);
+    Root=FindCascadeRoot(CcNet, NIdInfTmH);
     TSnap::GetNodesAtHops(CcNet, Root, HopCntV, true);
     MxN=0; Lev=0; IncL=0; D=0; c=0;
     for (int i = 0; i < HopCntV.Len(); i++) {
@@ -101,54 +122,52 @@ public:
   }
 };
 
+PNGraph RunSICascade(PUNGraph G, const double& Beta, const int& CascSz, TIntH& NIdInfTmH);
+PNGraph RunSICascade2(PUNGraph G, const double& Beta, const int& MxCascSz, TIntH& NIdInfTmH);
+PNGraph AddSpuriousEdges(const PUNGraph& Graph, const PNGraph& Casc, TIntH NIdTmH);
+
+
 int main(int argc, char* argv[]) {
   Env = TEnv(argc, argv, TNotify::StdNotify);
   Env.PrepArgs(TStr::Fmt("Cascades. build: %s, %s. Time: %s", __TIME__, __DATE__, TExeTm::GetCurTm()));
   TExeTm ExeTm;
-
-  //// Simulate SI model
-  TStr FNm="Gnm";
-  PUNGraph Graph = TSnap::GenRndGnm<PUNGraph>(1000, 2000);
+  Try
+  const TStr InFNm = Env.GetIfArgPrefixStr("-i:", "demo", "Input undirected graph");
+  const TStr OutFNm = Env.GetIfArgPrefixStr("-o:", "demo", "Output file name prefix");
+  const double Beta = Env.GetIfArgPrefixFlt("-b:", 0.1, "Beta (infection (i.e., cascade propagation) probability)");
+  // load
+  printf("Loading %s...", InFNm.CStr());
+  PUNGraph Graph;
+  if (InFNm == "demo") { Graph = TSnap::GenRndGnm<PUNGraph>(100, 200); }
+  else { Graph = TSnap::LoadEdgeList<PUNGraph>(InFNm); }
+  printf("nodes:%d  edges:%d\n", Graph->GetNodes(), Graph->GetEdges());
+  
+  // Simulate SI model
   Graph = TSnap::GetMxWcc(Graph);
-  const TFltV BetaV = TFltV::GetV(0.1, 0.05, 0.01, 0.5, 1.0, 0.001);
   bool DivByM = true;
-  for (int i = 0; i < BetaV.Len(); i++) {
-    TCascadeStat CascStat;
-    const double Beta = BetaV[i];  printf("\n%s -- BETA:%g\n", FNm.CStr(), Beta);
-    for (int Run = 0; Run < 100; Run++) {
-      TIntH NIdInfTmH;
-      PNGraph InfCasc = RunSICascade(Graph, Beta, 1000, NIdInfTmH);
-      if (InfCasc->GetNodes() < 10) { printf("."); continue; } printf("*"); // min cascade size
-      PNGraph NetCasc = AddSpuriousEdges(Graph, InfCasc, NIdInfTmH);
-      CascStat.SampleCascade(InfCasc, NetCasc, NIdInfTmH, 0.05, 20, DivByM);  // div-by-M
-    }
-    CascStat.PlotAll(TStr::Fmt("%sB%03d", FNm.CStr(), int(100*Beta)), TStr::Fmt("%s N=%d  E=%d  Beta=%g", FNm.CStr(), Graph->GetNodes(), Graph->GetEdges(), Beta), DivByM);
+  TCascadeStat CascStat;
+  printf("\nGraph:%s -- Beta: %g\n", OutFNm.CStr(), Beta);
+  for (int Run = 0; Run < 10; Run++) { // number of runs
+    TIntH NIdInfTmH;
+    // incluence cascade
+    PNGraph InfCasc = RunSICascade(Graph, Beta, 100, NIdInfTmH);
+    if (InfCasc->GetNodes() < 10) { printf("."); continue; } // min cascade size
+    // network cascade
+    PNGraph NetCasc = AddSpuriousEdges(Graph, InfCasc, NIdInfTmH);
+    // sample the cascade
+    CascStat.SampleCascade(InfCasc, NetCasc, NIdInfTmH, 0.1, 10, DivByM);  // div-by-M
+    printf(".");
   }
+  CascStat.PlotAll(TStr::Fmt("%s-B%03d", OutFNm.CStr(), int(100*Beta)), TStr::Fmt("%s N=%d  E=%d  Beta=%g", 
+    OutFNm.CStr(), Graph->GetNodes(), Graph->GetEdges(), Beta), DivByM);
+  
+  Catch
   printf("\nrun time: %s (%s)\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
   return 0;
 }
 
-template<class PGraph>
-int FindRoot(const PGraph& G, const TIntH& NIdInfTmH) { // earliest infected node
-  int Min=TInt::Mx, MinNId=-1;
-  for (typename PGraph::TObj::TNodeI NI = G->BegNI(); NI < G->EndNI(); NI++) {
-    const int t = NIdInfTmH.GetDat(NI.GetId());
-    if (t < Min && NI.GetInDeg()==0) { Min=t; MinNId=NI.GetId(); } }
-  IAssert(MinNId!=-1);  return MinNId;
-}
-
-template<class PGraph>
-double GetAvgDepthFromRoot(const PGraph& G) {
-  TMom Mom;
-  TIntPrV HopCntV;
-  for (typename PGraph::TObj::TNodeI NI = G->BegNI(); NI < G->EndNI(); NI++) {
-    if (NI.GetOutDeg()>0 && NI.GetInDeg()==0) {
-      TSnap::GetNodesAtHops(G, NI.GetId(), HopCntV, true);
-      Mom.Add(HopCntV.Last().Val1()); }
-  }
-  Mom.Def();  return Mom.GetMean();
-}
-
+/////////////////////////////////////////////////
+// Implementation
 void TCascadeStat::PlotAll(const TStr& OutFNm, const TStr& Desc, const bool& DivByM) {
   const TStr MStr = DivByM ? " / M (number of observed nodes)" : "";
   { TGnuPlot GP(TStr::Fmt("ncasc-%s", OutFNm.CStr()), Desc);
@@ -259,6 +278,8 @@ PNGraph RunSICascade2(PUNGraph G, const double& Beta, const int& MxCascSz, TIntH
   return Casc;
 }
 
+// network cascade: add spurious edges
+// for more details see "Correcting for Missing Data in Information Cascades" by E. Sadikov, M. Medina, J. Leskovec, H. Garcia-Molina. WSDM, 2011
 PNGraph AddSpuriousEdges(const PUNGraph& Graph, const PNGraph& Casc, TIntH NIdTmH) {
   TIntPrV EdgeV;
   for (TNGraph::TNodeI NI = Casc->BegNI(); NI < Casc->EndNI(); NI++) {

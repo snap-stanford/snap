@@ -61,7 +61,7 @@ def Main() :
   # Example files
   FileList = FileList + GetFileList('examples', '*.sln|README|*.txt|Makefile', '')
   # Samples
-  #FileList = FileList + GetFileList('examples/cascades', '*.cpp|*.h|*.txt|*.vcproj|Makefile', '')
+  FileList = FileList + GetFileList('examples/cascades', '*.cpp|*.h|*.txt|*.vcproj|Makefile', '')
   FileList = FileList + GetFileList('examples/centrality', '*.cpp|*.h|*.txt|*.vcproj|Makefile', '')
   FileList = FileList + GetFileList('examples/cliques', '*.cpp|*.h|*.txt|*.vcproj|Makefile|*.png|*.dot', '')
   FileList = FileList + GetFileList('examples/community', '*.cpp|*.h|*.txt|*.vcproj|Makefile', '')
@@ -76,7 +76,7 @@ def Main() :
   FileList = FileList + GetFileList('examples/testgraph', '*.cpp|*.h|*.txt|*.vcproj|Makefile', '')
   FileList = FileList + GetFileList('examples/motifs', '*.cpp|*.h|*.txt|*.vcproj|Makefile', '')
   FileList = FileList + GetFileList('examples/cliques', '*.cpp|*.h|*.txt|*.vcproj|Makefile', '')
-  
+  FileList = FileList + GetFileList('examples/kcores', '*.cpp|*.h|*.txt|*.vcproj|Makefile', '')  
   
   print ('Zipping', len(FileList), 'files')
   F = open('zipGardenFiles.txt', 'wt')
@@ -87,3 +87,4 @@ def Main() :
   os.remove('zipGardenFiles.txt')
   
 Main()
+

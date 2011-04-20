@@ -17,11 +17,12 @@ opt: LDFLAGS += -O4
 opt: MakeAll
 
 MakeAll:
-#	$(MAKE) -C cascades
+	$(MAKE) -C cascades
 	$(MAKE) -C centrality
 	$(MAKE) -C community
 	$(MAKE) -C concomp
 	$(MAKE) -C forestfire
+	$(MAKE) -C kcores
 	$(MAKE) -C krongen
 	$(MAKE) -C kronfit
 	$(MAKE) -C mkdatasets
@@ -37,6 +38,7 @@ clean:
 	$(MAKE) clean -C community
 	$(MAKE) clean -C concomp
 	$(MAKE) clean -C forestfire
+	$(MAKE) clean -C kcores
 	$(MAKE) clean -C krongen
 	$(MAKE) clean -C kronfit
 	$(MAKE) clean -C mkdatasets
