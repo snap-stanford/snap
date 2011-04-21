@@ -209,10 +209,10 @@ int main(int argc, char* argv[]) {
   TExeTm Time1k;
   while (J.Next()) {
     ItemCnt++; SmallCnt--;
-    printf("\n-----------------------------------------------------\n");
-    J.Dump();
+    //printf("\n-----------------------------------------------------\n"); J.Dump();
     if (SmallCnt == 0) {
-      printf("\rTime to read %dk: %g. ", ItemStepCnt/1000, Time1k.GetSecs());
+      printf("\rTime to read %dk: %gs. ", ItemStepCnt/1000, Time1k.GetSecs());
+      fflush(stdout);
       Time1k.Tick();  SmallCnt = ItemStepCnt;
     }
   }
