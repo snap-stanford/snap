@@ -166,7 +166,18 @@ bool TJsonLoader::Next() {
     else { SIn=TFIn::New(FNm); }
     ExeTm.Tick();
   }
-  SIn->GetNextLn(Line);  LineNo++;
-  Item.Parse(Line.CStr());
+  try {
+    SIn->GetNextLn(Line);  LineNo++;
+    Item.Parse(Line.CStr());
+  }
+  catch (PExcept Except) {
+    TStr FullMsgCStr = TStr::Fmt("%s while pasing '%s' in line %d\nBEGIN LINE\n", 
+      Except->GetStr().CStr(), GetCurFNm().CStr(), GetLineNo());
+    FullMsgCStr += Line;
+    FullMsgCStr += "\nEND LINE\n";
+    SaveToErrLog(FullMsgCStr.CStr());
+    ErrNotify(FullMsgCStr.CStr());
+    return Next();
+  }
   return true;
 }
