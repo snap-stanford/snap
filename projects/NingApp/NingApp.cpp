@@ -13,6 +13,11 @@ int main(int argc, char* argv[]) {
   UsrBs.ParseUsers("W:\\xData\\Ning\\comment\\comment-*.gz ");
   UsrBs.Save(TFOut("NingUsrBs.bin"));
 
+  //TNingUsrBs UsrBs(TFIn("NingUsrBs.bin"));
+  //THashSet<TIntPr> AppUsrH(TFIn("AppUsrH.bin")); 
+  //THashSet<TInt> AppH(TFIn("AppH.bin"));
+  
+
 
   //TNingUsrBs UsrBs(TZipIn("Ning-UsrBs.bin.rar"), false);  printf("load UsrBs done [%s].\n", ExeTm.GetStr());
   //

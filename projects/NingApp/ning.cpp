@@ -9,7 +9,8 @@ void TNingUsrBs::ParseUsers(const TStr& InFNmWc) {
   //  printf("Event %s...", TNingEventStat::GetStr(Event).CStr());
   //  TJsonLoader J(NingPath+TNingEventStat::GetStr(Event)+"\\*.gz");
   THashSet<TIntPr> AppUsrH;
-  THashSet<TInt> AppH;
+  THash<TInt,TInt> AppCntH;
+  THash<TInt,TInt> UsrCntH;
   int EvCnt=0, NoAppId=0, NoAuth=0;
   TExeTm ExeTm;
   TJsonLoader J(InFNmWc);
@@ -19,13 +20,15 @@ void TNingUsrBs::ParseUsers(const TStr& InFNmWc) {
     const int AppId = atoi(J.GetDat("appId").CStr());
     const int UId = AddUId(J.GetDat("author"));
     AppUsrH.AddKey(TIntPr(UId, AppId));
-    AppH.AddKey(AppId);
+    AppCntH.AddDat(AppId)++;
+    UsrCntH.AddDat(UId)++;
     EvCnt++;
   }
   printf("  events %d, no-appId %d, no-auth %d [%s]\n", EvCnt, NoAppId, NoAuth, ExeTm.GetStr());
   //}
   AppUsrH.Save(TFOut("AppUsrH.bin")); 
-  AppH.Save(TFOut("AppH.bin")); 
+  AppCntH.Save(TFOut("AppCntH.bin"));
+  UsrCntH.Save(TFOut("UsrCntH.bin"));
 }
 
 #ifdef XXXXXXXXXXXXX
