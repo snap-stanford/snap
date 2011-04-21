@@ -7,8 +7,8 @@ int main(int argc, char* argv[]) {
   
   const int ItemStepCnt = Kilo(1);
   int ItemCnt=0, SmallCnt=ItemStepCnt;
-  TJsonLoader J("W:\\code\\projects\\tweets1k.txt");//"*.log.gz");
-  //TJsonLoader J("/lfs/1/tmp/twitter-jan2011/twitter_20110104-10.log.rar");
+  //TJsonLoader J("W:\\code\\projects\\tweets1k.txt");//"*.log.gz");
+  TJsonLoader J("/lfs/1/tmp/twitter-jan2011/twitter_2011011*.log.rar");
   TExeTm Time1k;
   try {
     while (J.Next()) {
