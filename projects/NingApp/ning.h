@@ -1,6 +1,28 @@
 #pragma once
 
 static TStr NingPath = "W:\\Data\\Ning\\";;
+
+/////////////////////////////////////////////////
+// Ning User Base
+class TNingUsrBs {
+private:
+  TStrHash<TInt> UIdH;
+  //THash<TInt, THash<TInt, TNingEventStat> > StatH; // (app-id, (uid, stat))
+private:
+  int AddUId(const TChA& UsrHash) { return UIdH.AddDatId(UsrHash); }
+public:
+  TNingUsrBs() { }
+  TNingUsrBs(TSIn& SIn, const bool& LoatStat=true) { Load(SIn, LoatStat); }
+  void Save(TSOut& SOut) const { UIdH.Save(SOut); StatH.Save(SOut); }
+  void Load(TSIn& SIn, const bool& LoadStat=true) { UIdH.Load(SIn); if (LoadStat) { StatH.Load(SIn); } }
+  int Len() const { return UIdH.Len(); }
+  int GetUId(const char* UsrHash) const { return UIdH.GetKeyId(UsrHash); }
+  int GetUId(const TChA& UsrHash) const { return UIdH.GetKeyId(UsrHash); }
+  int GetUId(const TStr& UsrHash) const { return UIdH.GetKeyId(UsrHash); }
+  void ParseUsers(const TStr& InFNmWc);
+};
+
+/*
 class TNingEventStat;
 
 /////////////////////////////////////////////////
@@ -24,26 +46,6 @@ public:
   int& operator[] (const TEventId& EventId) { return EventStat[(int)EventId].Val; }
   static TEventId GetId(const TStr& EventIdStr);
   static TStr GetStr(const TEventId& EventId);
-};
-
-/////////////////////////////////////////////////
-// Ning User Base
-class TNingUsrBs {
-private:
-  TStrHash<TInt> UIdH;
-  THash<TInt, THash<TInt, TNingEventStat> > StatH; // (app-id, (uid, stat))
-private:
-  int AddUId(const TChA& UsrHash) { return UIdH.AddDatId(UsrHash); }
-public:
-  TNingUsrBs() { }
-  TNingUsrBs(TSIn& SIn, const bool& LoatStat=true) { Load(SIn, LoatStat); }
-  void Save(TSOut& SOut) const { UIdH.Save(SOut); StatH.Save(SOut); }
-  void Load(TSIn& SIn, const bool& LoadStat=true) { UIdH.Load(SIn); if (LoadStat) { StatH.Load(SIn); } }
-  int Len() const { return UIdH.Len(); }
-  int GetUId(const char* UsrHash) const { return UIdH.GetKeyId(UsrHash); }
-  int GetUId(const TChA& UsrHash) const { return UIdH.GetKeyId(UsrHash); }
-  int GetUId(const TStr& UsrHash) const { return UIdH.GetKeyId(UsrHash); }
-  void CollectStat();
 };
 
 /////////////////////////////////////////////////
@@ -151,3 +153,5 @@ public:
   void SaveTab(const TStr& OutFNm, const int& MinUsrs) const;
   void PlotAll(const TStr& OutFNm) const;
 };
+
+//*/

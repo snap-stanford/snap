@@ -53,8 +53,10 @@ public:
 
   int GetMemUsed() const {return Val1.GetMemUsed()+Val2.GetMemUsed();}
 
-  int GetPrimHashCd() const {return Val1.GetPrimHashCd()+Val2.GetPrimHashCd();} //J: terrible hash function!
-  int GetSecHashCd() const {return Val1.GetSecHashCd()+Val2.GetSecHashCd();}    //J: terrible hash function!
+  //int GetPrimHashCd() const {return Val1.GetPrimHashCd()+Val2.GetPrimHashCd();} //J: terrible hash function!
+  //int GetSecHashCd() const {return Val1.GetSecHashCd()+Val2.GetSecHashCd();}    //J: terrible hash function!
+  int GetPrimHashCd() const {return 12289*Val1.GetPrimHashCd() ^ Val2.GetPrimHashCd();} //J: multiply by prime and xor
+  int GetSecHashCd() const {return Val1.GetSecHashCd() ^ 24593*Val2.GetSecHashCd();}    //J: multiply by prime and xor
 
   void GetVal(TVal1& _Val1, TVal2& _Val2) const {_Val1=Val1; _Val2=Val2;}
   TStr GetStr() const {
@@ -149,6 +151,8 @@ public:
     return Val1.GetPrimHashCd()+Val2.GetPrimHashCd()+Val3.GetPrimHashCd();}
   int GetSecHashCd() const {
     return Val1.GetSecHashCd()+Val2.GetSecHashCd()+Val3.GetSecHashCd();}
+  //int GetPrimHashCd() const {return 193*Val1.GetPrimHashCd() ^ 24593 * Val2.GetPrimHashCd() ^ ; } //J: multiply by prime and xor
+  //int GetSecHashCd() const {return Val1.GetSecHashCd() ^ 24593*Val2.GetSecHashCd();}    //J: multiply by prime and xor
 
   void GetVal(TVal1& _Val1, TVal2& _Val2, TVal3& _Val3) const {
     _Val1=Val1; _Val2=Val2; _Val3=Val3;}

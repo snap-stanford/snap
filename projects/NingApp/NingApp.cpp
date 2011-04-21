@@ -1,30 +1,19 @@
 #include "stdafx.h"
-//#include "ning.h"
+#include "ning.h"
+
+void TestTwitter();
 
 int main(int argc, char* argv[]) {
   printf("NingApp. build: %s, %s. Start time: %s\n\n", __TIME__, __DATE__, TExeTm::GetCurTm());
   TExeTm ExeTm;  TInt::Rnd.PutSeed(0);  Try  //TSysProc::SetLowPriority();
-  
-  const int ItemStepCnt = Kilo(1);
-  int ItemCnt=0, SmallCnt=ItemStepCnt;
-  //TJsonLoader J("W:\\code\\projects\\tweets1k.txt");//"*.log.gz");
-  TJsonLoader J("/lfs/1/tmp/twitter-jan2011/twitter_2011011*.log.rar");
-  TExeTm Time1k;
-  try {
-    while (J.Next()) {
-      ItemCnt++;  SmallCnt--;
-      //printf("\n-----------------------------------------------------\n"); J.Dump();
-      if (SmallCnt == 0) {
-        printf("\rTotal %d items. Time to read %dk items: %g sec.   ", ItemCnt, ItemStepCnt/1000, Time1k.GetSecs());
-        Time1k.Tick();  SmallCnt = ItemStepCnt;
-      }
-    }
-  }
-  catch (PExcept Except){
-    printf("%s\n", Except->GetStr().CStr());
-    J.Dump();
-  }
-  
+  // TestTwitter();
+
+  // ning user ids and user network statistics
+  TNingUsrBs UsrBs;
+  UsrBs.CollectStat();
+  UsrBs.Save(TFOut("NingUsrBs.bin"));
+
+
   //TNingUsrBs UsrBs(TZipIn("Ning-UsrBs.bin.rar"), false);  printf("load UsrBs done [%s].\n", ExeTm.GetStr());
   //
   //TNingNets Nets(TZipIn("data/Ning-FriendReq.ningTmNets.rar"));
@@ -48,23 +37,6 @@ int main(int argc, char* argv[]) {
     //;printf("%d\t%d\n", I.GetKey(), I.GetDat());
   }
   
-  // gnuplot
-  TFltPrV XY, XY2;
-  for (int i =0; i < 100; i++) {
-    XY.Add(TFltPr(i, i*i));
-    XY2.Add(TFltPr(i, i*i*i));
-  }
-  TGnuPlot Gp("plot1", "Polo title");
-  Gp.AddPlot(XY, gpwLinesPoints, "quadratic");
-  int id = Gp.AddPlot(XY2, gpwLinesPoints, "cubic");
-  Gp.AddPwrFit(id, gpwLines, "lw 5");
-  Gp.SetXYLabel("x", "y");
-  Gp.SavePng();
-  { TFOut FOut("a.bin");
-  XY.Save(FOut); }
-  { TFIn FIn("a.bin");
-  XY.Load(FIn); }
-
   // graph
   PUNGraph G = TUNGraph::New();
   //G = TSnap::GenCircle<PNGraph>(100, 2);
@@ -143,3 +115,25 @@ void Test() {
   printf("%d users\n MinApp: %d\nMaxApp: %d\n", UH.Len(), MinApp, MaxApp);
 }
 */
+
+void TestTwitter() {
+  const int ItemStepCnt = Kilo(1);
+  int ItemCnt=0, SmallCnt=ItemStepCnt;
+  //TJsonLoader J("W:\\code\\projects\\tweets1k.txt");
+  TJsonLoader J("/lfs/1/tmp/twitter-jan2011/twitter_2011011*.log.rar");
+  TExeTm Time1k;
+  try {
+    while (J.Next()) {
+      ItemCnt++;  SmallCnt--;
+      //printf("\n-----------------------------------------------------\n"); J.Dump();
+      if (SmallCnt == 0) {
+        printf("\rTotal %d items. Time to read %dk items: %g sec.   ", ItemCnt, ItemStepCnt/1000, Time1k.GetSecs());
+        Time1k.Tick();  SmallCnt = ItemStepCnt;
+      }
+    }
+  }
+  catch (PExcept Except){
+    printf("%s\n", Except->GetStr().CStr());
+    J.Dump();
+  }
+}

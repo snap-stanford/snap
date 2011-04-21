@@ -3,25 +3,32 @@
 
 /////////////////////////////////////////////////
 // Ning User Base
-void TNingUsrBs::CollectStat() {
+void TNingUsrBs::ParseUsers(const TStr& InFNmWc) {
+  //for (int dir = 0; dir < TNingEventStat::MxEventId; dir++) {
+  //  const TNingEventStat::TEventId Event = (TNingEventStat::TEventId) dir;
+  //  printf("Event %s...", TNingEventStat::GetStr(Event).CStr());
+  //  TJsonLoader J(NingPath+TNingEventStat::GetStr(Event)+"\\*.gz");
+  THashSet<TIntPr> AppUsrH;
+  THashSet<TInt> AppH;
+  int EvCnt=0, NoAppId=0, NoAuth=0;
   TExeTm ExeTm;
-  for (int dir = 0; dir < TNingEventStat::MxEventId; dir++) {
-    const TNingEventStat::TEventId Event = (TNingEventStat::TEventId) dir;
-    printf("Event %s...", TNingEventStat::GetStr(Event).CStr());
-    TJsonLoader J(NingPath+TNingEventStat::GetStr(Event)+"\\*.gz");
-    int EvCnt=0, NoAppId=0, NoAuth=0;  ExeTm.Tick();
-    while (J.Next()) {
-      if (! J.IsKey("appId")) { NoAppId++; continue; }
-      if (! J.IsKey("author")) { NoAuth++; continue; }
-      const int AppId = atoi(J.GetDat("appId").CStr());
-      const int UId = AddUId(J.GetDat("author"));
-      TNingEventStat& EV = StatH.AddDat(AppId).AddDat(UId);
-      EV[Event]++;  EvCnt++;
-    }
-    printf("  events %d, no-appId %d, no-auth %d [%s]\n", EvCnt, NoAppId, NoAuth, ExeTm.GetStr());
+  TJsonLoader J(InFNmWc);
+  while (J.Next()) {
+    if (! J.IsKey("appId")) { NoAppId++; continue; }
+    if (! J.IsKey("author")) { NoAuth++; continue; }
+    const int AppId = atoi(J.GetDat("appId").CStr());
+    const int UId = AddUId(J.GetDat("author"));
+    AppUsrH.AddKey(TIntPr(UId, AppId));
+    AppH.AddKey(AppId);
+    EvCnt++;
   }
+  printf("  events %d, no-appId %d, no-auth %d [%s]\n", EvCnt, NoAppId, NoAuth, ExeTm.GetStr());
+  //}
+  AppUsrH.Save(TFOut("AppUsrH.bin")); 
+  AppH.Save(TFOut("AppH.bin")); 
 }
 
+#ifdef XXXXXXXXXXXXX
 
 /////////////////////////////////////////////////
 // Ning time network
@@ -417,3 +424,5 @@ void TNingAppStatsDat::PlotAll(const TStr& OutFNm) const {
       EventStr.CStr(), AppStatH.Len()), TStr::Fmt("%s over all apps", EventStr.CStr()), "Count", gpsLog);   
   }
 }
+
+#endif
