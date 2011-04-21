@@ -5,19 +5,25 @@ int main(int argc, char* argv[]) {
   printf("NingApp. build: %s, %s. Start time: %s\n\n", __TIME__, __DATE__, TExeTm::GetCurTm());
   TExeTm ExeTm;  TInt::Rnd.PutSeed(0);  Try  //TSysProc::SetLowPriority();
   
-  const int ItemStepCnt = Kilo(10);
+  const int ItemStepCnt = Kilo(1);
   int ItemCnt=0, SmallCnt=ItemStepCnt;
   //TJsonLoader J("W:\\code\\projects\\tweets1k.txt");//"*.log.gz");
-  TJsonLoader J("/lfs/1/tmp/twitter-jan2011/*.log.rar");
+  TJsonLoader J("/lfs/1/tmp/twitter_20110101-00.log.rar");
   TExeTm Time1k;
-  while (J.Next()) {
-    ItemCnt++; SmallCnt--;
-    //printf("\n-----------------------------------------------------\n"); J.Dump();
-    if (SmallCnt == 0) {
-      printf("\r%dm items. Time to read %dk: %gs. ", ItemCnt/Mega(1), ItemStepCnt/1000, Time1k.GetSecs());
-      fflush(stdout);
-      Time1k.Tick();  SmallCnt = ItemStepCnt;
+  try {
+    while (J.Next()) {
+      ItemCnt++; SmallCnt--;
+      //printf("\n-----------------------------------------------------\n"); J.Dump();
+      if (SmallCnt == 0) {
+        printf("\r%dm items. Time to read %dk: %gs. ", ItemCnt, ItemStepCnt/1000, Time1k.GetSecs());
+        fflush(stdout);
+        Time1k.Tick();  SmallCnt = ItemStepCnt;
+      }
     }
+  }
+  catch (PExcept Except){
+    printf("%s\n", Except->GetStr());
+    printf("File %s, line %d\n", J.GetCurFNm().CStr(), J.GetLineNo());
   }
   
   //TNingUsrBs UsrBs(TZipIn("Ning-UsrBs.bin.rar"), false);  printf("load UsrBs done [%s].\n", ExeTm.GetStr());

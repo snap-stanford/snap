@@ -47,18 +47,21 @@ private:
   TFFile FFile;
   TChA Line;
   TJsonObj Item;
-  int ItemCnt;
+  int LineNo;
   TExeTm ExeTm;
 public:
-  TJsonLoader(const TStr& FNmWc) : FFile(FNmWc), ItemCnt(0) { }
-  int GetItems() const { return ItemCnt; }
+  TJsonLoader(const TStr& FNmWc) : FFile(FNmWc), LineNo(0) { }
   bool Next();
+  int GetLineNo() const { return LineNo; }
+  TStr GetCurFNm() const { return SIn->GetSNm(); }
+  
   // access to key:value elements (all values are strings)
   const TChA& operator[](const int& KeyId) const { return Item[KeyId]; }
   const TChA& operator[](const TChA& Key) const { return Item[Key]; }
   const TChA& GetDat(const TChA& Key) const { return Item.GetDat(Key); }
   bool IsKey(const TChA& Key) const { return Item.IsKey(Key); }
   int Len() const { return Item.Len(); }
+  
   // access to key:object and key:array  elements 
   // (array elements are objects with a single key:value element)
   const TJsonObj& GetObj(const int& KeyId) const { return Item.GetObj(KeyId); }
