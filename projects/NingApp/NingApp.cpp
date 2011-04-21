@@ -7,13 +7,13 @@ int main(int argc, char* argv[]) {
   
   const int ItemStepCnt = Kilo(1);
   int ItemCnt=0, SmallCnt=ItemStepCnt;
-  TJsonLoader J("W:\\code\\projects\\tweets1k.txt");//"*.log.gz");
-  //TJsonLoader J("/lfs/1/tmp/twitter-jan2011/twitter_20110104-10.log.rar");
+  //TJsonLoader J("W:\\code\\projects\\tweets1k.txt");//"*.log.gz");
+  TJsonLoader J("/lfs/1/tmp/twitter-jan2011/twitter_20110104-10.log.rar");
   TExeTm Time1k;
   try {
     while (J.Next()) {
       ItemCnt++;  SmallCnt--;
-      printf("\n-----------------------------------------------------\n"); J.Dump();
+      //printf("\n-----------------------------------------------------\n"); J.Dump();
       if (SmallCnt == 0) {
         printf("\rTotal %d items. Time to read %dk items: %g sec.   ", ItemCnt, ItemStepCnt/1000, Time1k.GetSecs());
         Time1k.Tick();  SmallCnt = ItemStepCnt;
@@ -22,7 +22,7 @@ int main(int argc, char* argv[]) {
   }
   catch (PExcept Except){
     printf("%s\n", Except->GetStr().CStr());
-    printf("File %s, line %d\n", J.GetCurFNm().CStr(), J.GetLineNo());
+    printf("JSON File: %s, Line %d\n", J.GetCurFNm().CStr(), J.GetLineNo());
     printf("Line:BEGIN\n%s\nEND\n", J.GetLineStr().CStr());
     J.Dump();
   }
