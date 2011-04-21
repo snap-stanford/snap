@@ -55,9 +55,10 @@ private:
 public:
   TJsonLoader(const TStr& FNmWc) : FFile(FNmWc), LineNo(0) { }
   bool Next();
-  int GetLineNo() const { return LineNo; }
   TStr GetCurFNm() const { return SIn->GetSNm(); }
-  
+  int GetLineNo() const { return LineNo; }
+  TChA GetLineStr() const { return Line; }
+
   // access to key:value elements (all values are strings)
   const TChA& operator[](const int& KeyId) const { return Item[KeyId]; }
   const TChA& operator[](const TChA& Key) const { return Item[Key]; }

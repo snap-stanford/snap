@@ -16,7 +16,6 @@ int main(int argc, char* argv[]) {
       //printf("\n-----------------------------------------------------\n"); J.Dump();
       if (SmallCnt == 0) {
         printf("\r%dm items. Time to read %dk: %gs. ", ItemCnt, ItemStepCnt/1000, Time1k.GetSecs());
-        fflush(stdout);
         Time1k.Tick();  SmallCnt = ItemStepCnt;
       }
     }
@@ -24,6 +23,7 @@ int main(int argc, char* argv[]) {
   catch (PExcept Except){
     printf("%s\n", Except->GetStr().CStr());
     printf("File %s, line %d\n", J.GetCurFNm().CStr(), J.GetLineNo());
+    printf("Line:BEGIN\n%s\nEND\n", J.GetLineStr().CStr());
   }
   
   //TNingUsrBs UsrBs(TZipIn("Ning-UsrBs.bin.rar"), false);  printf("load UsrBs done [%s].\n", ExeTm.GetStr());
