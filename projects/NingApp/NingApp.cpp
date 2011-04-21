@@ -22,7 +22,7 @@ int main(int argc, char* argv[]) {
     }
   }
   catch (PExcept Except){
-    printf("%s\n", Except->GetStr());
+    printf("%s\n", Except->GetStr().CStr());
     printf("File %s, line %d\n", J.GetCurFNm().CStr(), J.GetLineNo());
   }
   
