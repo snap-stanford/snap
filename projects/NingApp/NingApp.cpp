@@ -211,7 +211,7 @@ int main(int argc, char* argv[]) {
     ItemCnt++; SmallCnt--;
     //printf("\n-----------------------------------------------------\n"); J.Dump();
     if (SmallCnt == 0) {
-      printf("\rTime to read %dk: %gs. ", ItemStepCnt/1000, Time1k.GetSecs());
+      printf("\r%dm items. Time to read %dk: %gs. ", ItemCnt/Mega(1), ItemStepCnt/1000, Time1k.GetSecs());
       fflush(stdout);
       Time1k.Tick();  SmallCnt = ItemStepCnt;
     }
