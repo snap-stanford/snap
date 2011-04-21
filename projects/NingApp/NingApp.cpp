@@ -202,7 +202,7 @@ int main(int argc, char* argv[]) {
   printf("NingApp. build: %s, %s. Start time: %s\n\n", __TIME__, __DATE__, TExeTm::GetCurTm());
   TExeTm ExeTm;  TInt::Rnd.PutSeed(0);  Try  //TSysProc::SetLowPriority();
   
-  const int ItemStepCnt = Kilo(100);
+  const int ItemStepCnt = Kilo(10);
   int ItemCnt=0, SmallCnt=ItemStepCnt;
   //TJsonLoader J("W:\\code\\projects\\tweets1k.txt");//"*.log.gz");
   TJsonLoader J("/lfs/1/tmp/twitter-jan2011/*.log.rar");
