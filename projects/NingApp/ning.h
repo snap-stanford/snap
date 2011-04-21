@@ -13,8 +13,8 @@ private:
 public:
   TNingUsrBs() { }
   TNingUsrBs(TSIn& SIn, const bool& LoatStat=true) { Load(SIn, LoatStat); }
-  void Save(TSOut& SOut) const { UIdH.Save(SOut); StatH.Save(SOut); }
-  void Load(TSIn& SIn, const bool& LoadStat=true) { UIdH.Load(SIn); if (LoadStat) { StatH.Load(SIn); } }
+  void Save(TSOut& SOut) const { UIdH.Save(SOut); } //StatH.Save(SOut); }
+  void Load(TSIn& SIn, const bool& LoadStat=true) { UIdH.Load(SIn); } //if (LoadStat) { StatH.Load(SIn); } }
   int Len() const { return UIdH.Len(); }
   int GetUId(const char* UsrHash) const { return UIdH.GetKeyId(UsrHash); }
   int GetUId(const TChA& UsrHash) const { return UIdH.GetKeyId(UsrHash); }

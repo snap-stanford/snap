@@ -10,7 +10,7 @@ int main(int argc, char* argv[]) {
 
   // ning user ids and user network statistics
   TNingUsrBs UsrBs;
-  UsrBs.CollectStat();
+  UsrBs.ParseUsers("W:\\xData\\Ning\\comment\\comment-*.gz ");
   UsrBs.Save(TFOut("NingUsrBs.bin"));
 
 
