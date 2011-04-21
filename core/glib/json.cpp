@@ -3,7 +3,7 @@
 const char* TJsonObj::GetStr(const char* Beg, TChA& Str) const {
   Str.Clr();
   const char* c = Beg+1;  
-  EAssertR(*Beg=='"', "JSON error: Strings should start with '\"'");
+  EAssertR(*Beg=='"', TStr::Fmt("JSON error: Strings should start with '\"': %s", Beg));
   while (*c && *c != '"') {
     if (*c!='\\') { Str.Push(*c); }
     else {  c++;
@@ -37,12 +37,12 @@ const char* TJsonObj::ParseArrayVal(const char* JsonStr) {
   else if (*c=='t' || *c=='f' || *c=='n') { // true, false, null
     while (*c && *c!=',' && *c!='}' && *c!=']') { ValStr.Push(*c); c++; } }
   else if (*c=='{') { // nested object
-    EAssertR(! KeyObjH.IsKey("key"), "JSON error: object already contains 'key' element");
+    EAssertR(! KeyArrayH.IsKey("key"), "JSON error: object with key 'key' already exists");
     TJsonObj& Obj = KeyObjH.AddDat("key");
     c = Obj.Parse(c) + 1;  Nested = true;
   }
   else if (*c=='[') { // array
-    EAssertR(! KeyArrayH.IsKey("key"), "JSON error: object already contains 'key' element");
+    EAssertR(! KeyArrayH.IsKey("key"), "JSON error: array with key 'key' already exists");
     TVec<TJsonObj>& Array = KeyArrayH.AddDat("key");
       c++;
       while (*c && *c!=']') {
@@ -55,7 +55,7 @@ const char* TJsonObj::ParseArrayVal(const char* JsonStr) {
       c++; Nested = true;
   }
   if (! Nested) {
-    EAssertR(! KeyValH.IsKey("key"), "JSON error: object already contains 'key' element");
+    EAssertR(! KeyArrayH.IsKey("key"), "JSON error: object with key 'key' already exists");
     KeyValH.AddDat("key", ValStr); 
   }
   while (*c && TCh::IsWs(*c)) { c++; }
@@ -68,11 +68,12 @@ const char* TJsonObj::Parse(const char* JsonStr) {
   const char *c = JsonStr;
   bool Nested = false;
   while (*c && *c!='{') { c++; } // find first '{'
+  if (*c) { c++; }
   while (*c && *c!='}') {
     while (*c && *c!='"') { c++; }
     c = GetStr(c, KeyStr); // key -- string
     while (*c && TCh::IsWs(*c)) { c++; }
-    EAssertR(*c==':', "JSON error: Expect ':'");
+    EAssertR(*c==':', TStr::Fmt("JSON error: Expect ':' at character %d", int(c-JsonStr)));
     c++;
     while (*c && TCh::IsWs(*c)) { c++; }
     // value
@@ -83,10 +84,12 @@ const char* TJsonObj::Parse(const char* JsonStr) {
     else if (*c=='t' || *c=='f' || *c=='n') { // true, false, null
       while (*c && *c!=',' && *c!='}' && *c!=']') { ValStr.Push(*c); c++; } }
     else if (*c=='{') { // nested object
+      EAssertR(! KeyObjH.IsKey(KeyStr), TStr::Fmt("JSON error: object with key '%s' already exists", KeyStr.CStr()));
       TJsonObj& Obj = KeyObjH.AddDat(KeyStr);
       c = Obj.Parse(c) + 1;  Nested = true;
     }
     else if (*c=='[') { // array
+      EAssertR(! KeyArrayH.IsKey(KeyStr), TStr::Fmt("JSON error: array with key '%s' already exists", KeyStr.CStr()));
       TVec<TJsonObj>& Array = KeyArrayH.AddDat(KeyStr);
       c++;
       while (*c && *c!=']') {
@@ -100,6 +103,7 @@ const char* TJsonObj::Parse(const char* JsonStr) {
     }
     else { EFailR(TStr::Fmt("JSON error: Unknown character '%c' at position %d in %s", *c, int(c-JsonStr), JsonStr).CStr()); }
     if (! Nested) {
+      EAssertR(! KeyValH.IsKey(KeyStr), TStr::Fmt("JSON error: value with key '%s' already exists", KeyStr.CStr()));
       KeyValH.AddDat(KeyStr, ValStr); }
     while (*c && TCh::IsWs(*c)) { c++; }
     if (*c && *c==',') { c++; }
@@ -118,7 +122,7 @@ void TJsonObj::Dump(const int& Indent) const {
   // short outputs
   if (KeyValH.Len()==0 && KeyArrayH.Len()==0 && KeyObjH.Len()==0) {
     for (int x=0;x<Indent;x++){printf(" ");} 
-    printf("{ }\n", KeyValH.GetKey(0).CStr(), KeyValH[0].CStr());
+    printf("{ }\n");
     return;
   }
   if (KeyValH.Len()==1 && KeyArrayH.Len()==0 && KeyObjH.Len()==0) {
@@ -162,8 +166,7 @@ bool TJsonLoader::Next() {
     else { SIn=TFIn::New(FNm); }
     ExeTm.Tick();
   }
-  SIn->GetNextLn(Line);
+  SIn->GetNextLn(Line);  LineNo++;
   Item.Parse(Line.CStr());
-  LineNo++;
   return true;
 }
