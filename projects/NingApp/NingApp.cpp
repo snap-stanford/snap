@@ -9,11 +9,17 @@ int main(int argc, char* argv[]) {
   // TestTwitter();
 
   //// load Ning user ids
-  //TNingUsrBs UsrBs;
-  //UsrBs.ParseUsers("W:\\xData\\Ning\\comment\\comment-*.gz");
+  TNingUsrBs UsrBs;
+  UsrBs.ParseUsers("W:\\xData\\Ning\\comment-*.gz");
   //UsrBs.Save(TFOut("NingUsrBs.bin"));
 
-  TNingUsrBs UsrBs(TFIn("NingUsrBs.bin"));
+  //// load Ning nets
+  //TNingUsrBs UsrBs(TZipIn("NingUsrBs.bin.gz"));
+  PNingNetBs NetBs = TNingNetBs::New();
+  NetBs->ParseNetworks("W:\\xData\\Ning\\comment*.gz", UsrBs, "comment");
+  NetBs->Save(TFOut("NingNetBs.bin"));
+
+  /*TNingUsrBs UsrBs(TFIn("NingUsrBs.bin"));
   THashSet<TIntPr> AppUsrH(TFIn("AppUsrH.bin")); 
   THash<TInt,TInt> AppCntH(TFIn("AppCntH.bin")); 
   THash<TInt,TInt> UsrCntH(TFIn("UsrCntH.bin")); 

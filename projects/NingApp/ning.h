@@ -42,20 +42,29 @@ public:
 /////////////////////////////////////////////////
 // Ning network base
 // Link types: attended event, requested friendship, invited to group, comment
+class TNingNetBs;
+typedef TPt<TNingNetBs> PNingNetBs;
+
 class TNingNetBs {
 private:
+  TCRef CRef;
   THash<TInt, PNingTmNet> AppNetH;   // app-id to network
 public:
   TNingNetBs() { }
   TNingNetBs(TSIn& SIn) : AppNetH(SIn) { }
   void Save(TSOut& SOut) const { AppNetH.Save(SOut); }
   void Load(TSIn& SIn) { AppNetH.Load(SIn); }
+  static PNingNetBs New() { return new TNingNetBs(); }
+  static PNingNetBs New(TSIn& SIn) { return new TNingNetBs(SIn); }
+  
   int Len() const { return AppNetH.Len(); }
   PNingTmNet GetNet(const int& AppId) const { return AppNetH.GetDat(AppId); }
   PNingTmNet operator[] (const int& KeyId) const { return AppNetH[KeyId]; }
   void ParseNetworks(const TStr& InFNmWc, const TNingUsrBs& UsrBs, const TStr& LinkTy);
   //void SaveTxtStat(const TStr& OutFNm) const;
+  friend class TPt<TNingNetBs>;
 };
+
 
 /*
 class TNingEventStat;
