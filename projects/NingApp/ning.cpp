@@ -19,16 +19,22 @@ void TNingUsrBs::ParseUsers(const TStr& InFNmWc) {
     if (! J.IsKey("author")) { NoAuth++; continue; }
     const int AppId = atoi(J.GetDat("appId").CStr());
     const int UId = AddUId(J.GetDat("author"));
-    AppUsrH.AddKey(TIntPr(UId, AppId));
+    AppUsrH.AddKey(TIntPr(AppId, UId));
     AppCntH.AddDat(AppId)++;
     UsrCntH.AddDat(UId)++;
     EvCnt++;
   }
   printf("  events %d, no-appId %d, no-auth %d [%s]\n", EvCnt, NoAppId, NoAuth, ExeTm.GetStr());
-  //}
+  
   AppUsrH.Save(TFOut("AppUsrH.bin")); 
   AppCntH.Save(TFOut("AppCntH.bin"));
   UsrCntH.Save(TFOut("UsrCntH.bin"));
+  { TIntH ValCntH;
+  for (int i=0; i < AppCntH.Len(); i++) { ValCntH.AddDat(AppCntH[i])++; }
+  TGnuPlot::PlotValCntH(ValCntH, "ning-appSize", "Ning App size distribution", "Number of users", "Number of apps", gpsLog); }
+  { TIntH ValCntH;
+  for (int i=0; i < UsrCntH.Len(); i++) { ValCntH.AddDat(UsrCntH[i])++; }
+  TGnuPlot::PlotValCntH(ValCntH, "ning-usrComments", "Number of comments of a user (over all apps)", "Number of comments", "Number of users", gpsLog); }
 }
 
 #ifdef XXXXXXXXXXXXX

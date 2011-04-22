@@ -8,14 +8,28 @@ int main(int argc, char* argv[]) {
   TExeTm ExeTm;  TInt::Rnd.PutSeed(0);  Try  //TSysProc::SetLowPriority();
   // TestTwitter();
 
-  // ning user ids and user network statistics
+  //// load Ning user ids
   TNingUsrBs UsrBs;
   UsrBs.ParseUsers("W:\\xData\\Ning\\comment\\comment-*.gz");
   UsrBs.Save(TFOut("NingUsrBs.bin"));
 
   //TNingUsrBs UsrBs(TFIn("NingUsrBs.bin"));
-  //THashSet<TIntPr> AppUsrH(TFIn("AppUsrH.bin")); 
-  //THashSet<TInt> AppH(TFIn("AppH.bin"));
+  THashSet<TIntPr> AppUsrH(TFIn("AppUsrH.bin")); 
+  THash<TInt,TInt> AppCntH(TFIn("AppCntH.bin")); 
+  THash<TInt,TInt> UsrCntH(TFIn("UsrCntH.bin")); 
+ 
+  printf("%d users in all apps\n", UsrBs.Len());
+  printf("%d apps\n", AppCntH.Len());
+  printf("%d unique user-app pairs\n", AppUsrH.Len());
+  { TIntH ValCntH;
+  for (int i=0; i < AppCntH.Len(); i++) { ValCntH.AddDat(AppCntH[i])++; }
+  TGnuPlot::PlotValCntH(ValCntH, "ning-appSize", "Ning App size distribution", "Size of the app", "Number of such apps", gpsLog); }
+  { TIntH ValCntH;
+  for (int i=0; i < UsrCntH.Len(); i++) { ValCntH.AddDat(UsrCntH[i])++; }
+  TGnuPlot::PlotValCntH(ValCntH, "ning-usrComments", "Number of comments of a user (over all apps)", "Number of comments of a user", "Number of such users", gpsLog); }
+  { TIntH UsrAppCntH;
+  for (int i =0; i < AppUsrH.Len(); i++) { UsrAppCntH.AddDat(AppUsrH[i].Val1)++; }
+  TGnuPlot::PlotValCntH(UsrAppCntH, "ning-usrApps", "Number of apps of a user", "Number of apps a user is memeber of", "Number of such users", gpsLog); }
   
 
 
