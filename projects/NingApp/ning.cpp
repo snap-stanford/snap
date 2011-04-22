@@ -22,6 +22,11 @@ void TNingUsrBs::ParseUsers(const TStr& InFNmWc, const TStr& PlotOutFNm) {
     AppUsrH.AddKey(TIntPr(AppId, UId));
     AppEventsH.AddDat(AppId)++;
     UsrEventsH.AddDat(UId)++;
+    if (J.IsKey("attachedToAuthor")) { 
+      const int UId2 = AddUId(J.GetDat("attachedToAuthor"));
+      AppUsrH.AddKey(TIntPr(AppId, UId2));
+      UsrEventsH.AddDat(UId2)++;
+    }
     EvCnt++;
   }
   printf("Loading done. Info:\n");

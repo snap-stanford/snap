@@ -11,31 +11,36 @@ int main(int argc, char* argv[]) {
   //// load Ning user ids
   TNingUsrBs UsrBs;
   UsrBs.ParseUsers("W:\\xData\\Ning\\comment-*.gz");
-  //UsrBs.Save(TFOut("NingUsrBs.bin"));
+  { UsrBs.Save(TFOut("NingUsrBs.bin")); }
 
   //// load Ning nets
   //TNingUsrBs UsrBs(TZipIn("NingUsrBs.bin.gz"));
   PNingNetBs NetBs = TNingNetBs::New();
-  NetBs->ParseNetworks("W:\\xData\\Ning\\comment*.gz", UsrBs, "comment");
+  NetBs->ParseNetworks("W:\\xData\\Ning\\comment\\comment-*.gz", UsrBs, "comment");
   NetBs->Save(TFOut("NingNetBs.bin"));
-
+  
   /*TNingUsrBs UsrBs(TFIn("NingUsrBs.bin"));
   THashSet<TIntPr> AppUsrH(TFIn("AppUsrH.bin")); 
   THash<TInt,TInt> AppCntH(TFIn("AppCntH.bin")); 
   THash<TInt,TInt> UsrCntH(TFIn("UsrCntH.bin")); 
  
-  printf("%d users in all apps\n", UsrBs.Len());
+  printf("%d users in all apps\n", UsrCntH.Len());
   printf("%d apps\n", AppCntH.Len());
   printf("%d unique user-app pairs\n", AppUsrH.Len());
   { TIntH ValCntH;
   for (int i=0; i < AppCntH.Len(); i++) { ValCntH.AddDat(AppCntH[i])++; }
-  TGnuPlot::PlotValCntH(ValCntH, "ning-appSize", "Ning App size distribution", "Size of the app", "Number of such apps", gpsLog); }
+  TGnuPlot::PlotValCntH(ValCntH, "ning-appComments", "Ning App number of comments distribution", "Number of comments in the app", "Number of such apps", gpsLog); }
   { TIntH ValCntH;
   for (int i=0; i < UsrCntH.Len(); i++) { ValCntH.AddDat(UsrCntH[i])++; }
   TGnuPlot::PlotValCntH(ValCntH, "ning-usrComments", "Number of comments of a user (over all apps)", "Number of comments of a user", "Number of such users", gpsLog); }
-  { TIntH UsrAppCntH;
+  { TIntH UsrAppCntH, UsrH;
   for (int i =0; i < AppUsrH.Len(); i++) { UsrAppCntH.AddDat(AppUsrH[i].Val1)++; }
-  TGnuPlot::PlotValCntH(UsrAppCntH, "ning-usrApps", "Number of apps of a user", "Number of apps a user is memeber of", "Number of such users", gpsLog); }
+  for (int i =0; i < UsrAppCntH.Len(); i++) { UsrH.AddDat(UsrAppCntH[i])++; }
+  TGnuPlot::PlotValCntH(UsrH, "ning-usrApps", "Number of apps of a user", "Number of apps a user is memeber of", "Number of such users", gpsLog); }
+  { TIntH UsrAppCntH, UsrH;
+  for (int i =0; i < AppUsrH.Len(); i++) { UsrAppCntH.AddDat(AppUsrH[i].Val2)++; }
+  for (int i =0; i < UsrAppCntH.Len(); i++) { UsrH.AddDat(UsrAppCntH[i])++; }
+  TGnuPlot::PlotValCntH(UsrH, "ning-appSize", "Number of apps of a user", "Number of users in the app", "Number of such apps", gpsLog); }
   
 
   //TNingUsrBs UsrBs(TZipIn("Ning-UsrBs.bin.rar"), false);  printf("load UsrBs done [%s].\n", ExeTm.GetStr());
