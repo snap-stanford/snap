@@ -3,14 +3,14 @@
 
 /////////////////////////////////////////////////
 // Ning User Base
-void TNingUsrBs::ParseUsers(const TStr& InFNmWc) {
+void TNingUsrBs::ParseUsers(const TStr& InFNmWc, const TStr& PlotOutFNm) {
   //for (int dir = 0; dir < TNingEventStat::MxEventId; dir++) {
   //  const TNingEventStat::TEventId Event = (TNingEventStat::TEventId) dir;
   //  printf("Event %s...", TNingEventStat::GetStr(Event).CStr());
   //  TJsonLoader J(NingPath+TNingEventStat::GetStr(Event)+"\\*.gz");
+  THash<TInt,TInt> AppEventsH;
+  THash<TInt,TInt> UsrEventsH;
   THashSet<TIntPr> AppUsrH;
-  THash<TInt,TInt> AppCntH;
-  THash<TInt,TInt> UsrCntH;
   int EvCnt=0, NoAppId=0, NoAuth=0;
   TExeTm ExeTm;
   TJsonLoader J(InFNmWc);
@@ -20,21 +20,85 @@ void TNingUsrBs::ParseUsers(const TStr& InFNmWc) {
     const int AppId = atoi(J.GetDat("appId").CStr());
     const int UId = AddUId(J.GetDat("author"));
     AppUsrH.AddKey(TIntPr(AppId, UId));
-    AppCntH.AddDat(AppId)++;
-    UsrCntH.AddDat(UId)++;
+    AppEventsH.AddDat(AppId)++;
+    UsrEventsH.AddDat(UId)++;
     EvCnt++;
   }
+  printf("Loading done. Info:\n");
   printf("  events %d, no-appId %d, no-auth %d [%s]\n", EvCnt, NoAppId, NoAuth, ExeTm.GetStr());
-  
-  AppUsrH.Save(TFOut("AppUsrH.bin")); 
-  AppCntH.Save(TFOut("AppCntH.bin"));
-  UsrCntH.Save(TFOut("UsrCntH.bin"));
-  { TIntH ValCntH;
-  for (int i=0; i < AppCntH.Len(); i++) { ValCntH.AddDat(AppCntH[i])++; }
-  TGnuPlot::PlotValCntH(ValCntH, "ning-appSize", "Ning App size distribution", "Number of users", "Number of apps", gpsLog); }
-  { TIntH ValCntH;
-  for (int i=0; i < UsrCntH.Len(); i++) { ValCntH.AddDat(UsrCntH[i])++; }
-  TGnuPlot::PlotValCntH(ValCntH, "ning-usrComments", "Number of comments of a user (over all apps)", "Number of comments", "Number of users", gpsLog); }
+  printf("  %d users (in all apps)\n", UsrEventsH.Len());
+  printf("  %d different apps\n", AppEventsH.Len());
+  printf("  %d unique user-app pairs\n", AppUsrH.Len());
+  // create plots
+  if (! PlotOutFNm.Empty()) {
+    { TIntH ValCntH;
+    for (int i = 0; i < AppEventsH.Len(); i++) { ValCntH.AddDat(AppEventsH[i])++; }
+    TGnuPlot::PlotValCntH(ValCntH, "ning-appEvents", "Ning App number of events distribution", "Number of events in the app", "Number of such apps", gpsLog); }
+    { TIntH ValCntH;
+    for (int i = 0; i < UsrEventsH.Len(); i++) { ValCntH.AddDat(UsrEventsH[i])++; }
+    TGnuPlot::PlotValCntH(ValCntH, PlotOutFNm+"-usrEvents", "Number of events of a user (over all apps)", "Number of events of a user", "Number of such users", gpsLog); }
+    { TIntH UsrAppCntH, UsrAppDistr;
+    for (int i = 0; i < AppUsrH.Len(); i++) { UsrAppCntH.AddDat(AppUsrH[i].Val2)++; }
+    for (int i = 0; i < UsrAppCntH.Len(); i++) { UsrAppDistr.AddDat(UsrAppCntH[i])++; }
+    TGnuPlot::PlotValCntH(UsrAppDistr, PlotOutFNm+"-usrApps", "Number of apps of a user", "Number of apps a user is memeber of", "Number of such users", gpsLog); }
+    { TIntH AppUsrCntH, AppSzDistr;
+    for (int i = 0; i < AppUsrH.Len(); i++) { AppUsrCntH.AddDat(AppUsrH[i].Val1)++; }
+    for (int i = 0; i < AppUsrCntH.Len(); i++) { AppSzDistr.AddDat(AppUsrCntH[i])++; }
+    TGnuPlot::PlotValCntH(AppSzDistr, PlotOutFNm+"-usrSz", "Number of users in the app", "Number of users in an app", "Number of such apps", gpsLog); }  
+  }
+}
+
+/////////////////////////////////////////////////
+// Ning network base
+void TNingNetBs::ParseNetworks(const TStr& InFNmWc, const TNingUsrBs& UsrBs, const TStr& LinkTy) {
+  printf("\nLinkType:: %s\n", LinkTy.CStr()); TExeTm ExeTm;
+  IAssert(LinkTy=="eventattendee" || LinkTy=="friendrequestmessage" || LinkTy=="groupinvitationrequest" || LinkTy=="comment");
+  TChA SrcKey, DstKey;
+  if (LinkTy=="eventattendee") {
+    SrcKey="inviter";  DstKey="author";
+  } else if (LinkTy=="friendrequestmessage") {
+    SrcKey="author";  DstKey="recipient";
+  } else if (LinkTy=="groupinvitationrequest") {
+    SrcKey="author";  DstKey="requestor";
+  } else if (LinkTy=="comment") {
+    SrcKey="attachedToAuthor";  DstKey="author";
+  }
+  TJsonLoader J(InFNmWc);
+  int MultiEdgeCnt=0, BadUsr=0;
+  while (J.Next()) {
+    EAssertR(J.IsKey("appId") && J.IsKey(SrcKey) && J.IsKey(DstKey), TStr::Fmt("Bad JSON object in %s line %d.", J.GetCurFNm(), J.GetLineNo()));
+    const int AppId = atoi(J.GetDat("appId").CStr());
+    const int SrcNId = UsrBs.GetUId(J.GetDat(SrcKey));
+    const int DstNId = UsrBs.GetUId(J.GetDat(DstKey));
+    if (SrcNId==-1 || DstNId==-1) { 
+      //printf("Unknown User:\n  %s: %d\n  %s: %d\n",  J.GetDat(SrcKey).CStr(), SrcNId, J.GetDat(DstKey).CStr(), DstNId); 
+      BadUsr++; continue; }
+    if (SrcNId == DstNId) { continue; } // skip self edges
+    // NingTmNet
+    const TSecTm Tm = TSecTm::GetDtTmFromStr(J.GetDat("createdDate")); //"createdDate": "2009-10-06 07:48:08.287",
+    PNingTmNet& G = AppNetH.AddDat(AppId);
+    if (G.Empty()) { G = TNingTmNet::New(); }
+    TSecTm ETm;
+    if (! G->IsNode(SrcNId)) { G->AddNode(SrcNId, Tm); }
+    if (! G->IsNode(DstNId)) { G->AddNode(DstNId, Tm); }
+    G->AddEdge(SrcNId, DstNId, -1, Tm);
+  }
+  printf("\nLoading done.\n");
+  printf("  %d  authors\n", UsrBs.Len());
+  printf("  %d  networks\n", AppNetH.Len());
+  printf("  %d  bad-users\n", BadUsr);
+  printf("Sorting...");
+  int Nodes=0, Edges=0;
+  for (int i=0; i<AppNetH.Len(); i++) { 
+    IAssert(! AppNetH[i].Empty());
+    AppNetH[i]->SortNIdByDat(true); // sort nodes by time
+    AppNetH[i]->SortEIdByDat(true); // sort edges by time
+    Nodes += AppNetH[i]->GetNodes();
+    Edges += AppNetH[i]->GetEdges(); 
+  }
+  printf("  %d  total nodes in all nets\n", Nodes);
+  printf("  %d  total edges in all nets\n", Edges);
+  printf("done [%s]\n", ExeTm.GetStr());
 }
 
 #ifdef XXXXXXXXXXXXX

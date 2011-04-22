@@ -9,11 +9,11 @@ int main(int argc, char* argv[]) {
   // TestTwitter();
 
   //// load Ning user ids
-  TNingUsrBs UsrBs;
-  UsrBs.ParseUsers("W:\\xData\\Ning\\comment\\comment-*.gz");
-  UsrBs.Save(TFOut("NingUsrBs.bin"));
+  //TNingUsrBs UsrBs;
+  //UsrBs.ParseUsers("W:\\xData\\Ning\\comment\\comment-*.gz");
+  //UsrBs.Save(TFOut("NingUsrBs.bin"));
 
-  //TNingUsrBs UsrBs(TFIn("NingUsrBs.bin"));
+  TNingUsrBs UsrBs(TFIn("NingUsrBs.bin"));
   THashSet<TIntPr> AppUsrH(TFIn("AppUsrH.bin")); 
   THash<TInt,TInt> AppCntH(TFIn("AppCntH.bin")); 
   THash<TInt,TInt> UsrCntH(TFIn("UsrCntH.bin")); 
@@ -31,7 +31,6 @@ int main(int argc, char* argv[]) {
   for (int i =0; i < AppUsrH.Len(); i++) { UsrAppCntH.AddDat(AppUsrH[i].Val1)++; }
   TGnuPlot::PlotValCntH(UsrAppCntH, "ning-usrApps", "Number of apps of a user", "Number of apps a user is memeber of", "Number of such users", gpsLog); }
   
-
 
   //TNingUsrBs UsrBs(TZipIn("Ning-UsrBs.bin.rar"), false);  printf("load UsrBs done [%s].\n", ExeTm.GetStr());
   //

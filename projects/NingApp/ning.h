@@ -1,7 +1,5 @@
 #pragma once
 
-static TStr NingPath = "W:\\Data\\Ning\\";;
-
 /////////////////////////////////////////////////
 // Ning User Base
 class TNingUsrBs {
@@ -13,13 +11,50 @@ private:
 public:
   TNingUsrBs() { }
   TNingUsrBs(TSIn& SIn, const bool& LoatStat=true) { Load(SIn, LoatStat); }
-  void Save(TSOut& SOut) const { UIdH.Save(SOut); } //StatH.Save(SOut); }
-  void Load(TSIn& SIn, const bool& LoadStat=true) { UIdH.Load(SIn); } //if (LoadStat) { StatH.Load(SIn); } }
+  void Save(TSOut& SOut) const { UIdH.Save(SOut); } 
+  void Load(TSIn& SIn, const bool& LoadStat=true) { UIdH.Load(SIn); }
   int Len() const { return UIdH.Len(); }
   int GetUId(const char* UsrHash) const { return UIdH.GetKeyId(UsrHash); }
   int GetUId(const TChA& UsrHash) const { return UIdH.GetKeyId(UsrHash); }
   int GetUId(const TStr& UsrHash) const { return UIdH.GetKeyId(UsrHash); }
-  void ParseUsers(const TStr& InFNmWc);
+  void ParseUsers(const TStr& InFNmWc, const TStr& PlotOutFNm="");
+};
+
+/////////////////////////////////////////////////
+// Ning time network
+class TNingTmNet;
+typedef TPt<TNingTmNet> PNingTmNet;
+
+class TNingTmNet : public TTimeNENet {
+public:
+  TNingTmNet() : TTimeNENet() { }
+  TNingTmNet(const int& Nodes, const int& Edges) : TTimeNENet(Nodes, Edges) { }
+  TNingTmNet(TSIn& SIn) : TTimeNENet(SIn) { }
+  TNingTmNet(const TNingTmNet& NingNet) : TTimeNENet(NingNet) { }
+  void Save(TSOut& SOut) const { TTimeNENet::Save(SOut); }
+  static PNingTmNet New() { return new TNingTmNet(); }
+  static PNingTmNet New(const int& Nodes, const int& Edges) { return new TNingTmNet(Nodes, Edges); }
+  static PNingTmNet Load(TSIn& SIn) { return new TNingTmNet(SIn); }
+  bool operator < (const TNingTmNet& Net) const { Fail; return false; }
+  friend class TPt<TNingTmNet>;
+};
+
+/////////////////////////////////////////////////
+// Ning network base
+// Link types: attended event, requested friendship, invited to group, comment
+class TNingNetBs {
+private:
+  THash<TInt, PNingTmNet> AppNetH;   // app-id to network
+public:
+  TNingNetBs() { }
+  TNingNetBs(TSIn& SIn) : AppNetH(SIn) { }
+  void Save(TSOut& SOut) const { AppNetH.Save(SOut); }
+  void Load(TSIn& SIn) { AppNetH.Load(SIn); }
+  int Len() const { return AppNetH.Len(); }
+  PNingTmNet GetNet(const int& AppId) const { return AppNetH.GetDat(AppId); }
+  PNingTmNet operator[] (const int& KeyId) const { return AppNetH[KeyId]; }
+  void ParseNetworks(const TStr& InFNmWc, const TNingUsrBs& UsrBs, const TStr& LinkTy);
+  //void SaveTxtStat(const TStr& OutFNm) const;
 };
 
 /*
@@ -48,13 +83,35 @@ public:
   static TStr GetStr(const TEventId& EventId);
 };
 
-/////////////////////////////////////////////////
-// Ning time network
-//typedef TTimeNENet TNingTmNet;
-class TNingTmNet;
-typedef TPt<TNingTmNet> PNingTmNet;
+//////////////////////////////////////////////////
+// Ning Net
+class TNingNodeDat {
+private:
+  TSecTm Tm;
+public:
+  TNingNodeDat() : Tm() { }
+  TNingNodeDat(const TSecTm& Time) : Tm(Time) { }
+  TNingNodeDat(const TNingNodeDat& Node) : Tm(Node.Tm) { }
+  TNingNodeDat(TSIn& SIn) : Tm(SIn) { }
+  void Save(TSOut& SOut) const { Tm.Save(SOut); }
+  const TSecTm& GetTm() const { return TSecTm; }
+};
 
-class TNingTmNet : public TNodeEDatNet<TSecTm, TSecTm> {
+class TNingEdgeDat {
+private:
+  TSecTm Tm;
+  TInt Wgt;
+public:
+  TNingEdgeDat() : Tm(), Wgt(0) { }
+  TNingEdgeDat(const TSecTm& Time) : Tm(Time), Wgt(0) { }
+  TNingEdgeDat(const TNingEdgeDat& Edge) : Tm(Edge.Tm), Wgt(Edge.Wgt) { }
+  TNingEdgeDat(TSIn& SIn) : Tm(SIn)u, EventCnt(SIn) { }
+  void Save(TSOut& SOut) const { Tm.Save(SOut); Wgt.Save(SOut); }
+  const TSecTm& GetTm() const { return TSecTm; }
+  int GetWgt() const { return TSecTm; }
+};
+
+class TNingTmNet : public TNodeEDatNet<TSecTm, TNingEdgeDat> {
 public:
   typedef TNodeEDatNet<TSecTm, TSecTm> TNet;
   typedef TPt<TNodeEDatNet<TSecTm, TSecTm> > PNet;
@@ -72,26 +129,6 @@ public:
   void PlotGrowthStat(const TStr& OutFNm, FILE* StatF=NULL) const;
 
   friend class TPt<TNingTmNet>;
-};
-
-/////////////////////////////////////////////////
-// Ning network extractor:
-// Link types: attended event, requested friendship, invited to group, comment
-class TNingNets {
-private:
-  //THash<TInt, PNGraph> AppIdNetH; // app-id to network
-  THash<TInt, PNingTmNet> AppIdNetH; // app-id to network
-  // THash<TInt, TNetStat> NetStatH; // ning network statistics (page views, etc.)
-public:
-  TNingNets() { }
-  TNingNets(TSIn& SIn) : AppIdNetH(SIn) { }
-  void Save(TSOut& SOut) const { AppIdNetH.Save(SOut); }
-  void Load(TSIn& SIn) { AppIdNetH.Load(SIn); }
-  void ParseNetworks(const TStr& LinkTy, const TNingUsrBs& UsrBs);
-  int Len() const { return AppIdNetH.Len(); }
-  PNingTmNet GetNet(const int& AppId) const { return AppIdNetH.GetDat(AppId); }
-  PNingTmNet GetNetId(const int& Index) const { return AppIdNetH[Index]; }
-  void SaveTxtStat(const TStr& OutFNm) const;
 };
 
 //////////////////////////////////////////////////
