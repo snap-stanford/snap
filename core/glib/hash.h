@@ -101,10 +101,10 @@ private:
     bool operator () (const int& KeyId1, const int& KeyId2) const {
       if (CmpKey) {
         if (Asc) { return Hash.GetKey(KeyId1) < Hash.GetKey(KeyId2); }
-        else { return Hash.GetKey(KeyId1) > Hash.GetKey(KeyId2); } }
+        else { return Hash.GetKey(KeyId2) < Hash.GetKey(KeyId1); } }
       else {
         if (Asc) { return Hash[KeyId1] < Hash[KeyId2]; }
-        else { return Hash[KeyId1] > Hash[KeyId2]; } } }
+        else { return Hash[KeyId2] < Hash[KeyId1]; } } }
   };
 
 private:

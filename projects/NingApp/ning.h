@@ -6,14 +6,13 @@ class TNingUsrBs {
 private:
   TStrHash<TInt> UIdH;
   //THash<TInt, THash<TInt, TNingEventStat> > StatH; // (app-id, (uid, stat))
-private:
-  int AddUId(const TChA& UsrHash) { return UIdH.AddDatId(UsrHash); }
 public:
   TNingUsrBs() { }
   TNingUsrBs(TSIn& SIn, const bool& LoatStat=true) { Load(SIn, LoatStat); }
   void Save(TSOut& SOut) const { UIdH.Save(SOut); } 
   void Load(TSIn& SIn, const bool& LoadStat=true) { UIdH.Load(SIn); }
   int Len() const { return UIdH.Len(); }
+  int AddUId(const TChA& UsrHash) { return UIdH.AddDatId(UsrHash); }
   int GetUId(const char* UsrHash) const { return UIdH.GetKeyId(UsrHash); }
   int GetUId(const TChA& UsrHash) const { return UIdH.GetKeyId(UsrHash); }
   int GetUId(const TStr& UsrHash) const { return UIdH.GetKeyId(UsrHash); }
@@ -60,7 +59,8 @@ public:
   int Len() const { return AppNetH.Len(); }
   PNingTmNet GetNet(const int& AppId) const { return AppNetH.GetDat(AppId); }
   PNingTmNet operator[] (const int& KeyId) const { return AppNetH[KeyId]; }
-  void ParseNetworks(const TStr& InFNmWc, const TNingUsrBs& UsrBs, const TStr& LinkTy);
+  void ParseNetworks(const TStr& InFNmWc, TNingUsrBs& UsrBs, const TStr& LinkTy);
+  void Sort();
   //void SaveTxtStat(const TStr& OutFNm) const;
   friend class TPt<TNingNetBs>;
 };

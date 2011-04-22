@@ -539,18 +539,21 @@ public:
 
   template <class TCmp>
   static TIter GetPivotValNCmp(const TIter& BI, const TIter& EI, const TCmp& Cmp) {
-    TIter MiddleI = BI + (EI - BI) / 2;
-    const TVal& Val1 = *BI;
-    const TVal& Val2 = *MiddleI;
-    const TVal& Val3 = *(EI - 1);
+    const int SubVals=int(EI-BI)+1;
+    const int ValN1=TInt::GetRnd(SubVals);;
+    const int ValN2=TInt::GetRnd(SubVals);
+    const int ValN3=TInt::GetRnd(SubVals);
+    const TVal& Val1 = *(BI+ValN1);
+    const TVal& Val2 = *(BI+ValN2);
+    const TVal& Val3 = *(BI+ValN3);
     if (Cmp(Val1, Val2)) {
-      if (Cmp(Val2, Val3)) return MiddleI;
-      else if (Cmp(Val3, Val1)) return BI;
-      else return EI - 1;
+      if (Cmp(Val2, Val3)) return BI+ValN2;
+      else if (Cmp(Val3, Val1)) return BI+ValN1;
+      else return BI+ValN3;
     } else {
-      if (Cmp(Val1, Val3)) return BI;
-      else if (Cmp(Val3, Val2)) return MiddleI;
-      else return EI - 1;
+      if (Cmp(Val1, Val3)) return BI+ValN1;
+      else if (Cmp(Val3, Val2)) return BI+ValN2;
+      else return BI+ValN3;
     }
   }
 
@@ -587,13 +590,20 @@ public:
 
   template <class TCmp>
   static void QSortCmp(TIter BI, TIter EI, const TCmp& Cmp) {
+    static int depth=0;
+    if(depth>1000) {
+      printf("xxx\n");
+    }
     if (BI + 1 < EI) {
       if (EI - BI < 20) {
         ISortCmp(BI, EI, Cmp); }
       else {
-        TIter Split = PartitionCmp(BI, EI, *GetPivotValNCmp(BI, EI, Cmp), Cmp);
+        const TVal Val = *GetPivotValNCmp(BI, EI, Cmp);
+        TIter Split = PartitionCmp(BI, EI, Val, Cmp);
+        depth++;
         QSortCmp(BI, Split, Cmp);
         QSortCmp(Split, EI, Cmp);
+        depth--;
       }
     }
   }

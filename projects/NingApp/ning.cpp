@@ -38,7 +38,7 @@ void TNingUsrBs::ParseUsers(const TStr& InFNmWc, const TStr& PlotOutFNm) {
   if (! PlotOutFNm.Empty()) {
     { TIntH ValCntH;
     for (int i = 0; i < AppEventsH.Len(); i++) { ValCntH.AddDat(AppEventsH[i])++; }
-    TGnuPlot::PlotValCntH(ValCntH, "ning-appEvents", "Ning App number of events distribution", "Number of events in the app", "Number of such apps", gpsLog); }
+    TGnuPlot::PlotValCntH(ValCntH, PlotOutFNm+"-appEvents", "Ning App number of events distribution", "Number of events in the app", "Number of such apps", gpsLog); }
     { TIntH ValCntH;
     for (int i = 0; i < UsrEventsH.Len(); i++) { ValCntH.AddDat(UsrEventsH[i])++; }
     TGnuPlot::PlotValCntH(ValCntH, PlotOutFNm+"-usrEvents", "Number of events of a user (over all apps)", "Number of events of a user", "Number of such users", gpsLog); }
@@ -55,7 +55,7 @@ void TNingUsrBs::ParseUsers(const TStr& InFNmWc, const TStr& PlotOutFNm) {
 
 /////////////////////////////////////////////////
 // Ning network base
-void TNingNetBs::ParseNetworks(const TStr& InFNmWc, const TNingUsrBs& UsrBs, const TStr& LinkTy) {
+void TNingNetBs::ParseNetworks(const TStr& InFNmWc, TNingUsrBs& UsrBs, const TStr& LinkTy) {
   printf("\nLinkType:: %s\n", LinkTy.CStr()); TExeTm ExeTm;
   IAssert(LinkTy=="eventattendee" || LinkTy=="friendrequestmessage" || LinkTy=="groupinvitationrequest" || LinkTy=="comment");
   TChA SrcKey, DstKey;
@@ -69,21 +69,21 @@ void TNingNetBs::ParseNetworks(const TStr& InFNmWc, const TNingUsrBs& UsrBs, con
     SrcKey="attachedToAuthor";  DstKey="author";
   }
   TJsonLoader J(InFNmWc);
-  int MultiEdgeCnt=0, BadUsr=0;
+  int MultiEdgeCnt=0, BadUsr=0, TmNotDef=0;
   while (J.Next()) {
     EAssertR(J.IsKey("appId") && J.IsKey(SrcKey) && J.IsKey(DstKey), TStr::Fmt("Bad JSON object in %s line %d.", J.GetCurFNm(), J.GetLineNo()));
     const int AppId = atoi(J.GetDat("appId").CStr());
-    const int SrcNId = UsrBs.GetUId(J.GetDat(SrcKey));
-    const int DstNId = UsrBs.GetUId(J.GetDat(DstKey));
+    const int SrcNId = UsrBs.AddUId(J.GetDat(SrcKey));
+    const int DstNId = UsrBs.AddUId(J.GetDat(DstKey));
     if (SrcNId==-1 || DstNId==-1) { 
       //printf("Unknown User:\n  %s: %d\n  %s: %d\n",  J.GetDat(SrcKey).CStr(), SrcNId, J.GetDat(DstKey).CStr(), DstNId); 
       BadUsr++; continue; }
     if (SrcNId == DstNId) { continue; } // skip self edges
     // NingTmNet
     const TSecTm Tm = TSecTm::GetDtTmFromStr(J.GetDat("createdDate")); //"createdDate": "2009-10-06 07:48:08.287",
+    if (! Tm.IsDef()) { TmNotDef++; continue; }
     PNingTmNet& G = AppNetH.AddDat(AppId);
     if (G.Empty()) { G = TNingTmNet::New(); }
-    TSecTm ETm;
     if (! G->IsNode(SrcNId)) { G->AddNode(SrcNId, Tm); }
     if (! G->IsNode(DstNId)) { G->AddNode(DstNId, Tm); }
     G->AddEdge(SrcNId, DstNId, -1, Tm);
@@ -92,9 +92,11 @@ void TNingNetBs::ParseNetworks(const TStr& InFNmWc, const TNingUsrBs& UsrBs, con
   printf("  %d  authors\n", UsrBs.Len());
   printf("  %d  networks\n", AppNetH.Len());
   printf("  %d  bad-users\n", BadUsr);
+  printf("  %d  events without time\n", TmNotDef++);
   printf("Sorting...");
   int Nodes=0, Edges=0;
-  for (int i=0; i<AppNetH.Len(); i++) { 
+  Save(TFOut("NingNetBs.bin.unsorted2"));
+  for (int i=0; i<AppNetH.Len(); i++) {
     IAssert(! AppNetH[i].Empty());
     AppNetH[i]->SortNIdByDat(true); // sort nodes by time
     AppNetH[i]->SortEIdByDat(true); // sort edges by time
@@ -104,6 +106,17 @@ void TNingNetBs::ParseNetworks(const TStr& InFNmWc, const TNingUsrBs& UsrBs, con
   printf("  %d  total nodes in all nets\n", Nodes);
   printf("  %d  total edges in all nets\n", Edges);
   printf("done [%s]\n", ExeTm.GetStr());
+}
+
+void TNingNetBs::Sort() {
+  for (int i=0; i<AppNetH.Len(); i++) {
+    //if (i>=13260) { AppNetH[i]->Save(TFOut(TStr::Fmt("NingTmNet-%d.bin", i))); }
+    printf("%d\t%d", i, AppNetH[i]->GetNodes());
+    AppNetH[i]->SortNIdByDat(true); // sort nodes by time
+    printf("\t%d\n", AppNetH[i]->GetEdges(), AppNetH[i]->GetEdges());
+    AppNetH[i]->SortEIdByDat(true); // sort edges by time
+    
+  }
 }
 
 #ifdef XXXXXXXXXXXXX

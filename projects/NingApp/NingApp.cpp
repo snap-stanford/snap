@@ -9,16 +9,38 @@ int main(int argc, char* argv[]) {
   // TestTwitter();
 
   //// load Ning user ids
-  TNingUsrBs UsrBs;
-  UsrBs.ParseUsers("W:\\xData\\Ning\\comment-*.gz");
-  { UsrBs.Save(TFOut("NingUsrBs.bin")); }
+  /*TNingUsrBs UsrBs;
+  UsrBs.ParseUsers("W:\\xData\\Ning\\comment\\comment-*.gz", "Comment");
+  { UsrBs.Save(TFOut("NingUsrBs_x.bin")); }*/
 
   //// load Ning nets
   //TNingUsrBs UsrBs(TZipIn("NingUsrBs.bin.gz"));
-  PNingNetBs NetBs = TNingNetBs::New();
+  /*PNingNetBs NetBs = TNingNetBs::New();
   NetBs->ParseNetworks("W:\\xData\\Ning\\comment\\comment-*.gz", UsrBs, "comment");
   NetBs->Save(TFOut("NingNetBs.bin"));
-  
+  UsrBs.Save(TFOut("NingUsrBs.bin"));*/
+
+  PNingNetBs NetBs = TNingNetBs::New(TFIn("W:\\code\\projects\\NingApp\\AWorkDir\\NingNetBs.bin.unsorted2"));
+  NetBs->Sort();
+  /*PNingTmNet Net = TNingTmNet::Load(TFIn("W:\\code\\projects\\NingApp\\AWorkDir\\NingTmNet-13267.bin"));
+  printf("done. %gs\n", ExeTm.GetSecs()); ExeTm.Tick();
+  printf("sort\n");
+  Net->SortNIdByDat(true);
+  printf("done. %gs\n", ExeTm.GetSecs()); ExeTm.Tick();
+  Net->SortEIdByDat(true);
+  printf("done. %gs\n", ExeTm.GetSecs()); ExeTm.Tick();
+  /*TIntV V;
+  for (TNingTmNet::TEdgeI EI = Net->BegEI(); EI < Net->EndEI(); EI++) {
+    V.Add(EI().GetAbsSecs());
+    //printf("%d\n", EI().GetAbsSecs());
+  }
+  V.Save(TFOut("v.bin"));*/
+  /*TIntV V(TFIn("v.bin"));
+  ExeTm.Tick();
+  printf("sort2: %d\n", V.Len());
+  V.SortCmp(TLss<TInt>());
+  printf("done. %gs", ExeTm.GetSecs()); ExeTm.Tick();
+  */
   /*TNingUsrBs UsrBs(TFIn("NingUsrBs.bin"));
   THashSet<TIntPr> AppUsrH(TFIn("AppUsrH.bin")); 
   THash<TInt,TInt> AppCntH(TFIn("AppCntH.bin")); 
