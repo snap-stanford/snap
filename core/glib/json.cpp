@@ -159,15 +159,17 @@ void TJsonObj::Dump(const int& Indent) const {
 bool TJsonLoader::Next() {
   if (SIn.Empty() || SIn->Eof()) {
     TStr FNm;
-    if (! SIn.Empty()) { printf("  %d items in file [%s]\n", LineNo, ExeTm.GetTmStr()); }
+    if (! SIn.Empty()) { 
+      printf("  %d items in file. %d items total. [%s]\n", LineNo, ItemCnt, ExeTm.GetTmStr()); }
     if (! FFile.Next(FNm)) { return false; }
-    printf("Parsing: %s\n", FNm.CStr());  LineNo=0;
+    printf("JSON parse file %d: %s\n", ++FileCnt, FNm.CStr());  LineNo=0;
     if (TZipIn::IsZipExt(FNm.GetFExt())) { SIn=TZipIn::New(FNm); }
     else { SIn=TFIn::New(FNm); }
     ExeTm.Tick();
   }
   try {
-    SIn->GetNextLn(Line);  LineNo++;
+    SIn->GetNextLn(Line);
+    LineNo++;  ItemCnt++;
     Item.Parse(Line.CStr());
   }
   catch (PExcept Except) {

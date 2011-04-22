@@ -50,10 +50,10 @@ private:
   TFFile FFile;
   TChA Line;
   TJsonObj Item;
-  int LineNo;
+  int LineNo, FileCnt, ItemCnt;
   TExeTm ExeTm;
 public:
-  TJsonLoader(const TStr& FNmWc) : FFile(FNmWc), LineNo(0) { }
+  TJsonLoader(const TStr& FNmWc) : FFile(FNmWc), LineNo(0), FileCnt(0), ItemCnt(0) { }
   bool Next();
   TStr GetCurFNm() const { return SIn->GetSNm(); }
   int GetLineNo() const { return LineNo; }
