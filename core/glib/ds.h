@@ -539,7 +539,7 @@ public:
 
   template <class TCmp>
   static TIter GetPivotValNCmp(const TIter& BI, const TIter& EI, const TCmp& Cmp) {
-    const int SubVals=int(EI-BI)+1;
+    const int SubVals=int(EI-BI);
     const int ValN1=TInt::GetRnd(SubVals);;
     const int ValN2=TInt::GetRnd(SubVals);
     const int ValN3=TInt::GetRnd(SubVals);
