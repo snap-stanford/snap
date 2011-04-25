@@ -131,8 +131,7 @@ void TNingNetBs::SaveTxtStat(const TStr& OutFNm, const int& MnSz, const int& MxS
     PUNGraph G = TSnap::ConvertGraph<PUNGraph>(Net);
     //const double FullWcc = CnComV[0].Len()/(double)GetNodes();
     const double FullCcf = TSnap::GetClustCf(G);
-    TCnComV CnComV; TSnap::GetWccs(ThisPt, CnComV);
-    const double FullWcc = CnComV[0].Len()/(double)G->GetNodes();
+    const double FullWcc = GetMxWccSz(G);
     fprintf(StatF, "\t%d\t%f\t%f", G->GetEdges(), FullCcf, FullWcc);
     fprintf(StatF, "\n");
     //printf("App: %d\tnodes: %d\tedges: %d\t", AppIdNetH.GetKey(SzAIdV[i].Val2),  G->GetNodes(), G->GetEdges());
