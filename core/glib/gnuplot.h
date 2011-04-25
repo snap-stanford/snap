@@ -87,13 +87,10 @@ public:
   int AddPlot(const TStr& DataFNm, const int& ColY, const TGpSeriesTy& SeriesTy=gpwLinesPoints, const TStr& Label=TStr(), const TStr& Style=TStr());
   int AddPlot(const TStr& DataFNm, const int& ColX, const int& ColY, const TGpSeriesTy& SeriesTy=gpwLinesPoints, const TStr& Label=TStr(), const TStr& Style=TStr());
   template<class TKey, class TDat, class THashFunc>
-  int AddPlot(const THash<TKey, TDat, THashFunc>& XYValH, const TGpSeriesTy& SeriesTy=gpwLinesPoints, const TStr& Label=TStr(), const TStr& Style=TStr()) {
-    TFltKdV XYFltValV(XYValH.Len(), 0);  for (int k = XYValH.FFirstKeyId();  XYValH.FNextKeyId(k); ) { 
-      XYFltValV.Add(TFltKd(TFlt(XYValH.GetKey(k)), TFlt(XYValH[k]))); }  XYFltValV.Sort();
-    return AddPlot(XYFltValV, SeriesTy, Label, Style); }
+  int AddPlot(const THash<TKey, TDat, THashFunc>& XYValH, const TGpSeriesTy& SeriesTy=gpwLinesPoints, const TStr& Label=TStr(), const TStr& Style=TStr(), const bool& ExpBucket = false);
   template<class TKey, class THashFunc>
   int AddPlot(THash<TKey, TMom, THashFunc>& ValMomH, const TGpSeriesTy& SeriesTy=gpwLinesPoints, const TStr& Label=TStr(), const TStr& Style=TStr(),
-    bool PlotAvg=true, bool PlotMed=true, bool PlotMin=false, bool PlotMax=false, bool PlotSDev=false, bool PlotStdErr=false);
+    bool PlotAvg=true, bool PlotMed=true, bool PlotMin=false, bool PlotMax=false, bool PlotSDev=false, bool PlotStdErr=false, const bool& ExpBucket=false);
 
   int AddErrBar(const TFltTrV& XYDValV, const TStr& Label=TStr());
   int AddErrBar(const TFltTrV& XYDValV, const TStr& DatLabel, const TStr& ErrLabel);
@@ -232,10 +229,25 @@ void TGnuPlot::SaveTs(const TVec<TTuple<TVal, Vals> >& ValV, const TStr& FNm, co
   fclose(F);
 }
 
+template<class TKey, class TDat, class THashFunc>
+int TGnuPlot::AddPlot(const THash<TKey, TDat, THashFunc>& XYValH, const TGpSeriesTy& SeriesTy, const TStr& Label, const TStr& Style, const bool& ExpBucket) {
+  TFltPrV XYFltValV(XYValH.Len(), 0);  
+  for (int k = XYValH.FFirstKeyId();  XYValH.FNextKeyId(k); ) { 
+    XYFltValV.Add(TFltPr(TFlt(XYValH.GetKey(k)), TFlt(XYValH[k]))); 
+  }  
+  XYFltValV.Sort();
+  if (ExpBucket) {
+    TFltPrV BucketV;
+    TGnuPlot::MakeExpBins(XYFltValV, BucketV);
+    BucketV.Swap(XYFltValV);
+  }
+  return AddPlot(XYFltValV, SeriesTy, Label, Style); 
+}
+
 template<class TKey, class THashFunc>
-int TGnuPlot::AddPlot(THash<TKey, TMom, THashFunc>& ValMomH, const TGpSeriesTy& SeriesTy, const TStr& Label, const TStr& Style, bool PlotAvg, bool PlotMed, bool PlotMin, bool PlotMax, bool PlotSDev, bool PlotStdErr) {
+int TGnuPlot::AddPlot(THash<TKey, TMom, THashFunc>& ValMomH, const TGpSeriesTy& SeriesTy, const TStr& Label, const TStr& Style, bool PlotAvg, bool PlotMed, bool PlotMin, bool PlotMax, bool PlotSDev, bool PlotStdErr, const bool& ExpBucket) {
   TFltTrV AvgV, StdErrV;
-  TFltPrV AvgV2, MedV, MinV, MaxV;
+  TFltPrV AvgV2, MedV, MinV, MaxV, BucketV;
   for (int i = ValMomH.FFirstKeyId(); ValMomH.FNextKeyId(i); ) {
     ValMomH[i].Def();
     if (PlotAvg) { 
@@ -255,6 +267,12 @@ int TGnuPlot::AddPlot(THash<TKey, TMom, THashFunc>& ValMomH, const TGpSeriesTy& 
   AvgV.Sort();  AvgV2.Sort();
   MedV.Sort();  MinV.Sort();  MaxV.Sort(); 
   int PlotId=0;
+  // exponential bucketing
+  if (! AvgV2.Empty()) { TGnuPlot::MakeExpBins(AvgV2, BucketV);  BucketV.Swap(AvgV2); }
+  if (! MedV.Empty()) { TGnuPlot::MakeExpBins(MedV, BucketV);  BucketV.Swap(MedV); }
+  if (! MinV.Empty()) { TGnuPlot::MakeExpBins(MinV, BucketV);  BucketV.Swap(MinV); }
+  if (! MaxV.Empty()) { TGnuPlot::MakeExpBins(MaxV, BucketV);  BucketV.Swap(MaxV); }
+  // plot
   if (! AvgV.Empty()) { PlotId = AddErrBar(AvgV, Label+" Average", "StdDev"); }
   if (! AvgV2.Empty()) { PlotId = AddPlot(AvgV2, SeriesTy, Label+" Average", Style); }
   if (! MedV.Empty()) { PlotId = AddPlot(MedV, SeriesTy, Label+" Median", Style); }

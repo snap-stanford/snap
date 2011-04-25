@@ -21,21 +21,28 @@ public:
 
 /////////////////////////////////////////////////
 // Ning time network
-class TNingTmNet;
-typedef TPt<TNingTmNet> PNingTmNet;
+class TNingNet;
+typedef TPt<TNingNet> PNingNet;
 
-class TNingTmNet : public TTimeNENet {
+class TNingNet : public TTimeNENet {
 public:
-  TNingTmNet() : TTimeNENet() { }
-  TNingTmNet(const int& Nodes, const int& Edges) : TTimeNENet(Nodes, Edges) { }
-  TNingTmNet(TSIn& SIn) : TTimeNENet(SIn) { }
-  TNingTmNet(const TNingTmNet& NingNet) : TTimeNENet(NingNet) { }
+  static const int MnTm; // Feb 8 2007
+  static const int MxTm; // Jun 10 2010
+public:
+  TNingNet() : TTimeNENet() { }
+  TNingNet(const int& Nodes, const int& Edges) : TTimeNENet(Nodes, Edges) { }
+  TNingNet(TSIn& SIn) : TTimeNENet(SIn) { }
+  TNingNet(const TNingNet& NingNet) : TTimeNENet(NingNet) { }
   void Save(TSOut& SOut) const { TTimeNENet::Save(SOut); }
-  static PNingTmNet New() { return new TNingTmNet(); }
-  static PNingTmNet New(const int& Nodes, const int& Edges) { return new TNingTmNet(Nodes, Edges); }
-  static PNingTmNet Load(TSIn& SIn) { return new TNingTmNet(SIn); }
-  bool operator < (const TNingTmNet& Net) const { Fail; return false; }
-  friend class TPt<TNingTmNet>;
+  static PNingNet New() { return new TNingNet(); }
+  static PNingNet New(const int& Nodes, const int& Edges) { return new TNingNet(Nodes, Edges); }
+  static PNingNet Load(TSIn& SIn) { return new TNingNet(SIn); }
+  bool operator < (const TNingNet& Net) const { Fail; return false; }
+  TSecTm GetMnTm() const { return EdgeH[0].GetDat(); }
+  TSecTm GetMxTm() const { return EdgeH[EdgeH.Len()-1].GetDat(); }
+  int GetAge(const TTmUnit& TmUnit) const { return TSecTm(GetMxTm()-GetMnTm()).GetInUnits(TmUnit); }
+  int GetDeadTm(const TTmUnit& TmUnit) const { return TSecTm(MxTm - GetMxTm()).GetInUnits(TmUnit); }
+  friend class TPt<TNingNet>;
 };
 
 /////////////////////////////////////////////////
@@ -47,7 +54,7 @@ typedef TPt<TNingNetBs> PNingNetBs;
 class TNingNetBs {
 private:
   TCRef CRef;
-  THash<TInt, PNingTmNet> AppNetH;   // app-id to network
+  THash<TInt, PNingNet> AppNetH;   // app-id to network
 public:
   TNingNetBs() { }
   TNingNetBs(TSIn& SIn) : AppNetH(SIn) { }
@@ -57,11 +64,14 @@ public:
   static PNingNetBs New(TSIn& SIn) { return new TNingNetBs(SIn); }
   
   int Len() const { return AppNetH.Len(); }
-  PNingTmNet GetNet(const int& AppId) const { return AppNetH.GetDat(AppId); }
-  PNingTmNet operator[] (const int& KeyId) const { return AppNetH[KeyId]; }
+  int GetAppId(const int& KeyId) const { return AppNetH.GetKey(KeyId); }
+  PNingNet GetNet(const int& KeyId) const { return AppNetH[KeyId]; }
+  PNingNet GetNetId(const int& AppId) const { return AppNetH.GetDat(AppId); }
   void ParseNetworks(const TStr& InFNmWc, TNingUsrBs& UsrBs, const TStr& LinkTy);
-  void Sort();
-  //void SaveTxtStat(const TStr& OutFNm) const;
+  // plots & statistics
+  void SaveTxtStat(const TStr& OutFNm, const int& MnSz, const int& MxSz) const;
+  void PlotDeadStat(const TStr& OutFNmPref);
+  
   friend class TPt<TNingNetBs>;
 };
 
@@ -120,24 +130,24 @@ public:
   int GetWgt() const { return TSecTm; }
 };
 
-class TNingTmNet : public TNodeEDatNet<TSecTm, TNingEdgeDat> {
+class TNingNet : public TNodeEDatNet<TSecTm, TNingEdgeDat> {
 public:
   typedef TNodeEDatNet<TSecTm, TSecTm> TNet;
   typedef TPt<TNodeEDatNet<TSecTm, TSecTm> > PNet;
 public:
-  TNingTmNet() { }
-  TNingTmNet(const int& Nodes, const int& Edges) : TNet(Nodes, Edges) { }
-  TNingTmNet(const TNingTmNet& TimeNet) : TNet(TimeNet) { }
-  TNingTmNet(TSIn& SIn) : TNet(SIn) { }
+  TNingNet() { }
+  TNingNet(const int& Nodes, const int& Edges) : TNet(Nodes, Edges) { }
+  TNingNet(const TNingNet& TimeNet) : TNet(TimeNet) { }
+  TNingNet(TSIn& SIn) : TNet(SIn) { }
   void Save(TSOut& SOut) const { TNet::Save(SOut); }
-  static PNingTmNet New() { return new TNingTmNet(); }
-  static PNingTmNet New(const int& Nodes, const int& Edges) { return new TNingTmNet(Nodes, Edges); }
-  static PNingTmNet Load(TSIn& SIn) { return new TNingTmNet(SIn); }
-  TNingTmNet& operator = (const TNingTmNet& TimeNet) { Fail; return *this; }
+  static PNingNet New() { return new TNingNet(); }
+  static PNingNet New(const int& Nodes, const int& Edges) { return new TNingNet(Nodes, Edges); }
+  static PNingNet Load(TSIn& SIn) { return new TNingNet(SIn); }
+  TNingNet& operator = (const TNingNet& TimeNet) { Fail; return *this; }
 
   void PlotGrowthStat(const TStr& OutFNm, FILE* StatF=NULL) const;
 
-  friend class TPt<TNingTmNet>;
+  friend class TPt<TNingNet>;
 };
 
 //////////////////////////////////////////////////

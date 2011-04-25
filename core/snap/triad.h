@@ -13,6 +13,7 @@ template <class PGraph> void GetNodeClustCf(const PGraph& Graph, TIntFltH& NIdCC
 template <class PGraph> int GetTriads(const PGraph& Graph, int SampleNodes=-1);
 template <class PGraph> int GetTriads(const PGraph& Graph, int& ClosedTriads, int& OpenTriads, int SampleNodes);
 template <class PGraph> void GetTriads(const PGraph& Graph, TIntTrV& NIdCOTriadV, int SampleNodes=-1);
+//template <class PGraph> int GetTriadEdges(const PGraph& Graph, int SampleNodes=-1);
 
 template <class PGraph> int GetNodeTriads(const PGraph& Graph, const int& NId);
 template <class PGraph> int GetNodeTriads(const PGraph& Graph, const int& NId, int& ClosedTriads, int& OpenTriads);

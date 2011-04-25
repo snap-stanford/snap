@@ -920,6 +920,7 @@ public:
 
   // edges
   int GetEdges() const { return EdgeH.Len(); }
+  int GetUniqEdges(const bool& Dir=true) const;
   int AddEdge(const int& SrcNId, const int& DstNId, int EId = -1);
   int AddEdge(const int& SrcNId, const int& DstNId, int EId, const TEdgeData& EdgeDat);
   int AddEdge(const TEdgeI& EdgeI) { return AddEdge(EdgeI.GetSrcNId(), EdgeI.GetDstNId(), EdgeI.GetId(), EdgeI.GetDat()); }
@@ -1030,6 +1031,18 @@ void TNodeEdgeNet<TNodeData, TEdgeData>::DelNode(const int& NId) {
     EdgeH.DelKey(EId);
   }
   NodeH.DelKey(NId);
+}
+
+template <class TNodeData, class TEdgeData>
+int TNodeEdgeNet<TNodeData, TEdgeData>::GetUniqEdges(const bool& Dir) const {
+  TIntPrSet UniqESet(GetEdges());
+  for (TEdgeI EI = BegEI(); EI < EndEI(); EI++) {
+    const int Src = EI.GetSrcNId();
+    const int Dst = EI.GetDstNId();
+    if (Dir) { UniqESet.AddKey(TIntPr(Src, Dst)); }
+    else { UniqESet.AddKey(TIntPr(TMath::Mn(Src, Dst), TMath::Mx(Src, Dst))); }
+  }
+  return UniqESet.Len();
 }
 
 template <class TNodeData, class TEdgeData>

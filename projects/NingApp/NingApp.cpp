@@ -2,27 +2,33 @@
 #include "ning.h"
 
 void TestTwitter();
+void LoadNingNetBs();
 
 int main(int argc, char* argv[]) {
   printf("NingApp. build: %s, %s. Start time: %s\n\n", __TIME__, __DATE__, TExeTm::GetCurTm());
   TExeTm ExeTm;  TInt::Rnd.PutSeed(0);  Try  //TSysProc::SetLowPriority();
   // TestTwitter();
 
-  //// load Ning user ids
-  /*TNingUsrBs UsrBs;
-  UsrBs.ParseUsers("W:\\xData\\Ning\\comment\\comment-*.gz", "Comment");
-  { UsrBs.Save(TFOut("NingUsrBs_x.bin")); }*/
+  PNingNetBs NetBs = TNingNetBs::New(TZipIn("nets/NingNetBs.bin.rar")); 
+  printf("Loading NetBs done. %d nets [%s]\n", NetBs->Len(), ExeTm.GetStr());
+  NetBs->SaveTxtStat("ningComment", 10, Mega(100));
+  
+  
+  /*
+  for(TZipIn ZipIn("nets/NingNetBs.nets_bin.rar"); ! ZipIn.Eof(); ) {
+    PNingNet Net = TNingNet::Load(ZipIn);
+    TSecTm MxTm;
+    for (TNingNet::TNodeI NI = Net->BegNI(); NI <  Net->EndNI(); NI++) {
+      if (! MxTm.IsDef() || MxTm < NI.GetDat()) { MxTm=NI.GetDat(); }
+    }
+    for (TNingNet::TEdgeI EI = Net->BegEI(); EI <  Net->EndEI(); EI++) {
+      if (! MxTm.IsDef() || MxTm < EI.GetDat()) { MxTm=EI.GetDat(); }
+    }
+    if (MxTm != Net->GetMxTm()) { printf("*"); } else { printf("."); }
+  } //*/
 
-  //// load Ning nets
-  //TNingUsrBs UsrBs(TZipIn("NingUsrBs.bin.gz"));
-  /*PNingNetBs NetBs = TNingNetBs::New();
-  NetBs->ParseNetworks("W:\\xData\\Ning\\comment\\comment-*.gz", UsrBs, "comment");
-  NetBs->Save(TFOut("NingNetBs.bin"));
-  UsrBs.Save(TFOut("NingUsrBs.bin"));*/
-
-  PNingNetBs NetBs = TNingNetBs::New(TFIn("W:\\code\\projects\\NingApp\\AWorkDir\\NingNetBs.bin.unsorted2"));
-  NetBs->Sort();
-  /*PNingTmNet Net = TNingTmNet::Load(TFIn("W:\\code\\projects\\NingApp\\AWorkDir\\NingTmNet-13267.bin"));
+  //
+  /*PNingNet Net = TNingNet::Load(TFIn("W:\\code\\projects\\NingApp\\AWorkDir\\NingNet-13267.bin"));
   printf("done. %gs\n", ExeTm.GetSecs()); ExeTm.Tick();
   printf("sort\n");
   Net->SortNIdByDat(true);
@@ -30,7 +36,7 @@ int main(int argc, char* argv[]) {
   Net->SortEIdByDat(true);
   printf("done. %gs\n", ExeTm.GetSecs()); ExeTm.Tick();
   /*TIntV V;
-  for (TNingTmNet::TEdgeI EI = Net->BegEI(); EI < Net->EndEI(); EI++) {
+  for (TNingNet::TEdgeI EI = Net->BegEI(); EI < Net->EndEI(); EI++) {
     V.Add(EI().GetAbsSecs());
     //printf("%d\n", EI().GetAbsSecs());
   }
@@ -67,9 +73,9 @@ int main(int argc, char* argv[]) {
 
   //TNingUsrBs UsrBs(TZipIn("Ning-UsrBs.bin.rar"), false);  printf("load UsrBs done [%s].\n", ExeTm.GetStr());
   //
-  //TNingNets Nets(TZipIn("data/Ning-FriendReq.ningTmNets.rar"));
-  //TNingNets Nets(TZipIn("data/Ning-Comment.ningTmNets.rar"));
-  //TNingNets Nets(TZipIn("data/Ning-EventAttend.ningTmNets.rar"));
+  //TNingNets Nets(TZipIn("data/Ning-FriendReq.NingNets.rar"));
+  //TNingNets Nets(TZipIn("data/Ning-Comment.NingNets.rar"));
+  //TNingNets Nets(TZipIn("data/Ning-EventAttend.NingNets.rar"));
   //Nets.SaveTxtStat("Comment-rnd1k_XXX");
   
   /*
@@ -107,6 +113,22 @@ int main(int argc, char* argv[]) {
   return 0;
 }
 
+void LoadNingNetBs() {
+  //// Load Ning user ids
+  //TNingUsrBs UsrBs;
+  //UsrBs.ParseUsers("W:\\xData\\Ning\\comment\\comment-*.gz", "Comment");
+  //UsrBs.Save(TFOut("NingUsrBs.bin"));
+  //// Load Ning nets and fill-in UsrBs
+  TNingUsrBs UsrBs;
+  PNingNetBs NetBs = TNingNetBs::New();
+  NetBs->ParseNetworks("W:\\xData\\Ning\\comment\\comment-*.gz", UsrBs, "comment");
+  NetBs->Save(TFOut("NingNetBs.bin"));
+  UsrBs.Save(TFOut("NingUsrBs.bin"));
+  TFOut FOut("NingNetBs.nets_bin");
+  for (int i=0; i<NetBs->Len(); i++) {
+    NetBs->GetNet(i)->Save(FOut); }
+}
+
 void BuildNetsAndStats() {
   //TGroupBs GroupBs;
   //GroupBs.ParseGroups(UsrBs);
@@ -121,15 +143,15 @@ void BuildNetsAndStats() {
   // friend request
   { TNingNets Nets;
   Nets.ParseNetworks("friendrequestmessage", UsrBs);
-  Nets.Save(TFOut("Ning-FriendReq.ningTmNets")); }
+  Nets.Save(TFOut("Ning-FriendReq.NingNets")); }
   // event attendee
   { TNingNets Nets;
   Nets.ParseNetworks("eventattendee", UsrBs);
-  Nets.Save(TFOut("Ning-EventAttend.ningTmNets")); }
+  Nets.Save(TFOut("Ning-EventAttend.NingNets")); }
   // comment network
   { TNingNets Nets;
   Nets.ParseNetworks("comment", UsrBs);
-  Nets.Save(TFOut("Ning-Comment.ningTmNets")); } //*/
+  Nets.Save(TFOut("Ning-Comment.NingNets")); } //*/
 
   // simple network statistics
   /*TNingAppStat NingAppStat;
