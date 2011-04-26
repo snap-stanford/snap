@@ -12,17 +12,21 @@ int main(int argc, char* argv[]) {
   //PUNGraph G = TUNGraph::GetSmallGraph();  TGraphViz::Plot(G, gvlNeato, "a.gif", "", true);
   //printf("%d\n", TSnap::GetTriadEdges(G));
 
-  //PNingNetBs NetBs = TNingNetBs::New(TZipIn("nets/NingNetBs.bin.rar")); 
-  //printf("Loading NetBs done. %d nets [%s]\n", NetBs->Len(), ExeTm.GetStr());
+  PNingNetBs NetBs = TNingNetBs::New(TZipIn("nets/NingNetBs.bin.rar")); 
+  printf("Loading NetBs done. %d nets [%s]\n", NetBs->Len(), ExeTm.GetStr());
   //NetBs->SaveTxtStat("ningComment2", 10, Mega(100));
   //NetBs->PlotDeadStat("ningComment");
+  NetBs->PlotSimNodesEvol(8994, 100, 90, 365, 10);
     
   
-  int n = 0;
+  /*int n = 0;
   for(TZipIn ZipIn("nets/NingNetBs.nets_bin.rar"); ! ZipIn.Eof(); n++) {
     PNingNet Net = TNingNet::Load(ZipIn);
-    if (Net->GetNodes() < 1000) { continue; }
-    Net->PlotOverTime(TStr::Fmt("net-%03d", n));
+    if (Net->GetAge(tmuDay) < 365) { continue; }
+    if (Net->GetNodes() >= 1000 && Net->GetNodes() <= 1200) {
+      Net->PlotOverTime(TStr::Fmt("net1k-%06d", n)); }
+    //if (Net->GetNodes() >= 100 && Net->GetNodes() <= 110) {
+   //   Net->PlotOverTime(TStr::Fmt("net100-%06d", n)); }
   } //*/
 
   //

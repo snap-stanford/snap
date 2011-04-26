@@ -43,7 +43,11 @@ public:
   int GetAge(const TTmUnit& TmUnit) const { return TSecTm(GetMxTm()-GetMnTm()).GetInUnits(TmUnit); }
   int GetDeadTm(const TTmUnit& TmUnit) const { return TSecTm(MxTm - GetMxTm()).GetInUnits(TmUnit); }
   TStr GetTitle() const;
+  void GetNodesOverTm(const TTmUnit TmUnit, const int& TmSteps, TFltV& NodesTmV, const bool Cummulative=true, const bool& Relative=false);
+
   void PlotOverTime(const TStr& OutFNmPref) const;
+  
+  static double GetL2Dist(const TFltV& V1, const TFltV& V2);
 
   friend class TPt<TNingNet>;
 };
@@ -73,7 +77,8 @@ public:
   void ParseNetworks(const TStr& InFNmWc, TNingUsrBs& UsrBs, const TStr& LinkTy);
   // plots & statistics
   void SaveTxtStat(const TStr& OutFNm, const int& MnSz, const int& MxSz) const;
-  void PlotDeadStat(const TStr& OutFNmPref);
+  void PlotDeadStat(const TStr& OutFNmPref) const;
+  void PlotSimNodesEvol(const int& NetId, const int& PlotN, const int& TmSteps, const int& MinAge, const int& MinNodes) const;
     
   friend class TPt<TNingNetBs>;
 };
