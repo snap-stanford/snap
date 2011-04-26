@@ -58,6 +58,47 @@ void TNingUsrBs::ParseUsers(const TStr& InFNmWc, const TStr& PlotOutFNm) {
 const int TNingNet::MnTm = 1170958982; // Feb 8 2007
 const int TNingNet::MxTm = 1278405972;
 
+TStr TNingNet::GetTitle() const {
+  return TStr::Fmt("NingNet (%d, %d, %d). Age:%d Dead:%d.", GetNodes(), GetUniqEdges(), GetEdges(), 
+    GetAge(tmuDay), GetDeadTm(tmuDay));
+}
+
+void TNingNet::PlotOverTime(const TStr& OutFNmPref) const {
+  TIntFltH NodesH, EdgesH, EventsH;
+  THash<TIntPr, TSecTm> EdgeTmH(GetEdges());
+  TIntSet NodeSet(GetNodes());
+  // events
+  for (TEdgeI EI=BegEI(); EI < EndEI(); EI++) {
+    EventsH.AddDat(TSecTm(EI()-GetMnTm()).GetInUnits(tmuDay))++;
+    if (! EdgeTmH.IsKey(TIntPr(EI.GetSrcNId(), EI.GetDstNId()))) {
+      EdgeTmH.AddDat(TIntPr(EI.GetSrcNId(), EI.GetDstNId()), EI());
+    }
+    if (! NodeSet.IsKey(EI.GetSrcNId())) {
+      NodeSet.AddKey(EI.GetSrcNId());
+      NodesH.AddDat(TSecTm(EI()-GetMnTm()).GetInUnits(tmuDay))++;
+    }
+    if (! NodeSet.IsKey(EI.GetDstNId())) {
+      NodeSet.AddKey(EI.GetDstNId());
+      NodesH.AddDat(TSecTm(EI()-GetMnTm()).GetInUnits(tmuDay))++;
+    }
+  }
+  for (int i = 0; i < EdgeTmH.Len(); i++) {
+    EdgesH.AddDat(TSecTm(EdgeTmH[i]-GetMnTm()).GetInUnits(tmuDay))++;
+  }
+  // cummulative and relative
+  for (int i = 1; i < NodesH.Len(); i++) { NodesH[i] += NodesH[i-1]; }
+  for (int i = 1; i < EdgesH.Len(); i++) { EdgesH[i] += EdgesH[i-1]; }
+  for (int i = 1; i < EventsH.Len(); i++) { EventsH[i] += EventsH[i-1]; }
+  //for (int i = 0; i < NodesH.Len(); i++) { NodesH[i] /= NodesH[NodesH.Len()-1]; }
+  //for (int i = 0; i < EdgesH.Len(); i++) { EdgesH[i] /= EdgesH[EdgesH.Len()-1]; }
+  //for (int i = 0; i < EventsH.Len(); i++) { EventsH[i] /= EventsH[EventsH.Len()-1]; }
+  TGnuPlot GP(OutFNmPref+"-OverTm", GetTitle()+" Nodes, Edges and Events over time.");
+  GP.AddPlot(NodesH, gpwLinesPoints, "Nodes");
+  GP.AddPlot(EdgesH, gpwLinesPoints, "Edges");
+  GP.AddPlot(EventsH, gpwLinesPoints, "Events");
+  GP.SavePng();
+}
+
 /////////////////////////////////////////////////
 // Ning network base
 void TNingNetBs::ParseNetworks(const TStr& InFNmWc, TNingUsrBs& UsrBs, const TStr& LinkTy) {
@@ -104,7 +145,6 @@ void TNingNetBs::ParseNetworks(const TStr& InFNmWc, TNingUsrBs& UsrBs, const TSt
     IAssert(! AppNetH[i].Empty());
     AppNetH[i]->SortNIdByDat(true); // sort nodes by time
     AppNetH[i]->SortEIdByDat(true); // sort edges by time
-    printf("sort");
     Nodes += AppNetH[i]->GetNodes();
     Edges += AppNetH[i]->GetEdges(); 
   }
@@ -122,7 +162,7 @@ void TNingNetBs::SaveTxtStat(const TStr& OutFNm, const int& MnSz, const int& MxS
   FILE *StatF = fopen(TStr("GrowthStat-"+OutFNm+".tab").CStr(), "wt");
   fprintf(StatF, "AppId\tAge\tDeadTm\tNodes\tEdges\tUniqEdges\tCmtPerEdge");
   fprintf(StatF, "\tAvgDeg\tFracDeg1Nodes\tFracOverAvg");
-  fprintf(StatF, "\tTriadEdges\tCccf\tNWccs\tWccSz\tEigVal, EigValRat\tEffDiam\n");
+  fprintf(StatF, "\tTriadEdges\tCccf\tNWccs\tWccSz\tEigVal\tEigValRat\tEffDiam\n");
   for (int i=0; i<Len(); i++) {
     PNingNet Net = GetNet(SzAIdV[i].Val2);
     if (Net->GetNodes() < MnSz || Net->GetNodes() > MxSz) { continue; }
@@ -146,8 +186,8 @@ void TNingNetBs::SaveTxtStat(const TStr& OutFNm, const int& MnSz, const int& MxS
     const double FullWcc = TSnap::GetMxWccSz(G);
     const int NWccs = CnComV.Len();
     TFltV EigValV;   TSnap::GetEigVals(G, 2, EigValV);
-    const double EigVal = EigValV[0];
-    const double EigValRat = EigValV[0]/EigValV[1];
+    const double EigVal = abs(EigValV[0]);
+    const double EigValRat = abs(EigValV[0])/abs(EigValV[1]);
     const double EffDiam = TSnap::GetBfsEffDiam(G, 100);
     fprintf(StatF, "\t%d\t%f\t%d\t%f\t%f\t%f\t%f", TriadEdges, FullCcf, NWccs, FullWcc, EigVal, EigValRat, EffDiam);
     fprintf(StatF, "\n");
@@ -173,6 +213,7 @@ void TNingNetBs::PlotDeadStat(const TStr& OutFNmPref) {
     "Time [days since Feb 8 2007]", "Number of comments", gpsLog10Y);
   
   TIntH SzDeadH, DeadCntH, DeadCnt10H;
+  TIntH NodesH, EdgesH, UniqEdgesH;
   THash<TInt, TMom> SzDeadMomH;
   int Month1Dead=0, Month3Dead=0, Month6Dead=0;
   for (int n = 0; n < Len(); n++) {
@@ -186,6 +227,9 @@ void TNingNetBs::PlotDeadStat(const TStr& OutFNmPref) {
     DeadCntH.AddDat(DeadTm)++;
     if (Net->GetNodes()>=10) { 
       DeadCnt10H.AddDat(DeadTm)++; }
+    NodesH.AddDat(Net->GetNodes())++;
+    EdgesH.AddDat(Net->GetEdges())++;
+    UniqEdgesH.AddDat(Net->GetUniqEdges())++;
   }
   const int Nets = Len();
   printf("%d\tNetworks dead more than 1 month \tAlive\t%d\n", Month1Dead, Nets-Month1Dead);
@@ -193,6 +237,9 @@ void TNingNetBs::PlotDeadStat(const TStr& OutFNmPref) {
   printf("%d\tNetworks dead more than 6 months\tAlive\t%d\n", Month6Dead, Nets-Month6Dead);
   TGnuPlot::PlotValCntH(DeadCntH, OutFNmPref+"-DeadTime", "Number of days dead", "Number of days network is dead", "Number of such networks", gpsLog);
   TGnuPlot::PlotValCntH(DeadCnt10H, OutFNmPref+"-DeadTime10", "Number of days dead. Only nets with at least 10 nodes.", "Number of days network is dead", "Number of such networks", gpsLog);
+  TGnuPlot::PlotValCntH(NodesH, OutFNmPref+"-Nodes", "Network size distribution", "Number of nodes", "Number of networks", gpsLog);
+  TGnuPlot::PlotValCntH(EdgesH, OutFNmPref+"-Comments", "Network number of comments sdistribution", "Number of comments", "Number of networks", gpsLog);
+  TGnuPlot::PlotValCntH(UniqEdgesH, OutFNmPref+"-Edges", "Network number of edges distribution", "Number of edges", "Number of networks", gpsLog);
   { TGnuPlot GP(OutFNmPref+"-Size_DeadTime1", "Number of days the network has been dead (no commending activity)");
   GP.AddPlot(SzDeadH, gpwPoints, "Dead time");
   GP.AddPlot(SzDeadMomH, gpwLinesPoints, "Dead time", "", true, true, true, true, false, false);

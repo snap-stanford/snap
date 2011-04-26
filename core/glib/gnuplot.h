@@ -249,7 +249,7 @@ int TGnuPlot::AddPlot(THash<TKey, TMom, THashFunc>& ValMomH, const TGpSeriesTy& 
   TFltTrV AvgV, StdErrV;
   TFltPrV AvgV2, MedV, MinV, MaxV, BucketV;
   for (int i = ValMomH.FFirstKeyId(); ValMomH.FNextKeyId(i); ) {
-    ValMomH[i].Def();
+    if (! ValMomH[i].IsDef()) { ValMomH[i].Def(); }
     if (PlotAvg) { 
       if (PlotSDev) { 
         AvgV.Add(TFltTr((double)ValMomH.GetKey(i), ValMomH[i].GetMean(), ValMomH[i].GetSDev())); } // std deviation
@@ -425,7 +425,7 @@ void TGnuPlot::PlotValMomH(THash<TVal1, TMom>& ValMomH, const TStr& OutFNmPref, 
   TFltTrV AvgV, StdErrV;
   TFltPrV AvgV2, MedV, MinV, MaxV;
   for (int i = ValMomH.FFirstKeyId(); ValMomH.FNextKeyId(i); ) {
-    ValMomH[i].Def();
+    if (! ValMomH[i].IsDef()) { ValMomH[i].Def(); }
     if (PlotAvg) { 
       if (PlotSDev) { 
         AvgV.Add(TFltTr((double)ValMomH.GetKey(i), ValMomH[i].GetMean(), ValMomH[i].GetSDev())); } // std deviation

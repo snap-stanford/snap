@@ -42,6 +42,9 @@ public:
   TSecTm GetMxTm() const { return EdgeH[EdgeH.Len()-1].GetDat(); }
   int GetAge(const TTmUnit& TmUnit) const { return TSecTm(GetMxTm()-GetMnTm()).GetInUnits(TmUnit); }
   int GetDeadTm(const TTmUnit& TmUnit) const { return TSecTm(MxTm - GetMxTm()).GetInUnits(TmUnit); }
+  TStr GetTitle() const;
+  void PlotOverTime(const TStr& OutFNmPref) const;
+
   friend class TPt<TNingNet>;
 };
 
@@ -71,7 +74,7 @@ public:
   // plots & statistics
   void SaveTxtStat(const TStr& OutFNm, const int& MnSz, const int& MxSz) const;
   void PlotDeadStat(const TStr& OutFNmPref);
-  
+    
   friend class TPt<TNingNetBs>;
 };
 

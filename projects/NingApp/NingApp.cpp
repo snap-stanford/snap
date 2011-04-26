@@ -12,21 +12,17 @@ int main(int argc, char* argv[]) {
   //PUNGraph G = TUNGraph::GetSmallGraph();  TGraphViz::Plot(G, gvlNeato, "a.gif", "", true);
   //printf("%d\n", TSnap::GetTriadEdges(G));
 
-  PNingNetBs NetBs = TNingNetBs::New(TZipIn("nets/NingNetBs.bin.rar")); 
-  printf("Loading NetBs done. %d nets [%s]\n", NetBs->Len(), ExeTm.GetStr());
-  NetBs->SaveTxtStat("ningComment2", 10, Mega(100));
+  //PNingNetBs NetBs = TNingNetBs::New(TZipIn("nets/NingNetBs.bin.rar")); 
+  //printf("Loading NetBs done. %d nets [%s]\n", NetBs->Len(), ExeTm.GetStr());
+  //NetBs->SaveTxtStat("ningComment2", 10, Mega(100));
+  //NetBs->PlotDeadStat("ningComment");
     
-  /*
-  for(TZipIn ZipIn("nets/NingNetBs.nets_bin.rar"); ! ZipIn.Eof(); ) {
+  
+  int n = 0;
+  for(TZipIn ZipIn("nets/NingNetBs.nets_bin.rar"); ! ZipIn.Eof(); n++) {
     PNingNet Net = TNingNet::Load(ZipIn);
-    TSecTm MxTm;
-    for (TNingNet::TNodeI NI = Net->BegNI(); NI <  Net->EndNI(); NI++) {
-      if (! MxTm.IsDef() || MxTm < NI.GetDat()) { MxTm=NI.GetDat(); }
-    }
-    for (TNingNet::TEdgeI EI = Net->BegEI(); EI <  Net->EndEI(); EI++) {
-      if (! MxTm.IsDef() || MxTm < EI.GetDat()) { MxTm=EI.GetDat(); }
-    }
-    if (MxTm != Net->GetMxTm()) { printf("*"); } else { printf("."); }
+    if (Net->GetNodes() < 1000) { continue; }
+    Net->PlotOverTime(TStr::Fmt("net-%03d", n));
   } //*/
 
   //
