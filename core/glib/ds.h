@@ -590,20 +590,14 @@ public:
 
   template <class TCmp>
   static void QSortCmp(TIter BI, TIter EI, const TCmp& Cmp) {
-    static int depth=0;
-    if(depth>1000) {
-      printf("xxx\n");
-    }
     if (BI + 1 < EI) {
       if (EI - BI < 20) {
         ISortCmp(BI, EI, Cmp); }
       else {
         const TVal Val = *GetPivotValNCmp(BI, EI, Cmp);
         TIter Split = PartitionCmp(BI, EI, Val, Cmp);
-        depth++;
         QSortCmp(BI, Split, Cmp);
         QSortCmp(Split, EI, Cmp);
-        depth--;
       }
     }
   }

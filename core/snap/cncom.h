@@ -42,6 +42,7 @@ template <class PGraph> void GetWccSzCnt(const PGraph& Graph, TIntPrV& WccSzCnt)
 template <class PGraph> void GetWccs(const PGraph& Graph, TCnComV& CnComV);
 template <class PGraph> void GetSccSzCnt(const PGraph& Graph, TIntPrV& SccSzCnt);
 template <class PGraph> void GetSccs(const PGraph& Graph, TCnComV& CnComV);
+template <class PGraph> double GetMxWccSz(const PGraph& Graph);
 
 // get largest weakly/strongly/bi-connected component
 template <class PGraph> PGraph GetMxWcc(const PGraph& Graph);
@@ -362,6 +363,14 @@ void GetSccs(const PGraph& Graph, TCnComV& CnComV) {
   TSccVisitor<PGraph, false> Visitor(Graph);
   TCnCom::GetDfsVisitor(Graph, Visitor);
   CnComV = Visitor.CnComV;
+}
+
+template <class PGraph> 
+double GetMxWccSz(const PGraph& Graph) {
+  TCnComV CnComV;
+  GetWccs(Graph, CnComV);
+  if (Graph->GetNodes() == 0) { return 0; }
+  else { return CnComV[0].Len() / double(Graph->GetNodes()); }
 }
 
 template <class PGraph>

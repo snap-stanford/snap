@@ -827,7 +827,7 @@ void TTimeNENet::GetEdgeBuckets(const int EdgesPerBucket, TTimeNet::TTmBucketV& 
   }
 }
 
-// get edges that close triangles
+// get edges that close triangles over time
 int TTimeNENet::GetTriadEdges(TIntV& TriadEIdV) const {
   PUNGraph Graph = TUNGraph::New(GetNodes(), GetEdges());
   TIntV EIdV;  GetEIdByTm(EIdV);

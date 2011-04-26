@@ -2,6 +2,16 @@
     CONSOLE APPLICATION : NingApp Project Overview
 ========================================================================
 
+Loading NetBs done. 556112 nets [02m39s]
+Start of time = thu feb 8 18:23:02 2007 1170958982
+End of time = tue jul 6 08:46:12 2010 1278405972
+
+459227  Networks dead more than 1 month         Alive   96885
+368361  Networks dead more than 3 months        Alive   187751
+276058  Networks dead more than 6 months        Alive   280054
+
+////////////////////////////////////////////////////////////////////////
+
 LinkType:: friendrequestmessage
   43193832  authors
   123195  networks
