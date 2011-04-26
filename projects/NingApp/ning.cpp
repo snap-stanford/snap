@@ -100,6 +100,7 @@ void TNingNetBs::ParseNetworks(const TStr& InFNmWc, TNingUsrBs& UsrBs, const TSt
     IAssert(! AppNetH[i].Empty());
     AppNetH[i]->SortNIdByDat(true); // sort nodes by time
     AppNetH[i]->SortEIdByDat(true); // sort edges by time
+    printf("sort");
     Nodes += AppNetH[i]->GetNodes();
     Edges += AppNetH[i]->GetEdges(); 
   }
