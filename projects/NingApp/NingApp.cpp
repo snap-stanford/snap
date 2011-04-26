@@ -9,9 +9,12 @@ int main(int argc, char* argv[]) {
   TExeTm ExeTm;  TInt::Rnd.PutSeed(0);  Try  //TSysProc::SetLowPriority();
   // TestTwitter();
 
+  //PUNGraph G = TUNGraph::GetSmallGraph();  TGraphViz::Plot(G, gvlNeato, "a.gif", "", true);
+  //printf("%d\n", TSnap::GetTriadEdges(G));
+
   PNingNetBs NetBs = TNingNetBs::New(TZipIn("nets/NingNetBs.bin.rar")); 
   printf("Loading NetBs done. %d nets [%s]\n", NetBs->Len(), ExeTm.GetStr());
-  NetBs->SaveTxtStat("ningComment", 10, Mega(100));
+  NetBs->SaveTxtStat("ningComment2", 10, Mega(100));
   
   
   /*

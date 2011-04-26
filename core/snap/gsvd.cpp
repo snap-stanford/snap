@@ -175,7 +175,7 @@ bool IsAllValVNeg(TFltV& ValV, const bool& InvertSign) {
 void GetSngVals(const PNGraph& Graph, const int& SngVals, TFltV& SngValV) {
   const int Nodes = Graph->GetNodes();
   IAssert(SngVals > 0);
-  if (Nodes < 500) {
+  if (Nodes < 100) {
     // perform full SVD
     TFltVV AdjMtx(Nodes+1, Nodes+1);
     TFltVV LSingV, RSingV;

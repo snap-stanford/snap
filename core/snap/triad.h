@@ -13,7 +13,7 @@ template <class PGraph> void GetNodeClustCf(const PGraph& Graph, TIntFltH& NIdCC
 template <class PGraph> int GetTriads(const PGraph& Graph, int SampleNodes=-1);
 template <class PGraph> int GetTriads(const PGraph& Graph, int& ClosedTriads, int& OpenTriads, int SampleNodes);
 template <class PGraph> void GetTriads(const PGraph& Graph, TIntTrV& NIdCOTriadV, int SampleNodes=-1);
-//template <class PGraph> int GetTriadEdges(const PGraph& Graph, int SampleNodes=-1);
+template <class PGraph> int GetTriadEdges(const PGraph& Graph, int SampleEdges=-1);
 
 template <class PGraph> int GetNodeTriads(const PGraph& Graph, const int& NId);
 template <class PGraph> int GetNodeTriads(const PGraph& Graph, const int& NId, int& ClosedTriads, int& OpenTriads);
@@ -182,6 +182,42 @@ void GetTriads(const PGraph& Graph, TIntTrV& NIdCOTriadV, int SampleNodes) {
     IAssert(2*(OpenCnt+CloseCnt) == NbhH.Len()*(NbhH.Len()-1));
     NIdCOTriadV.Add(TIntTr(NI.GetId(), CloseCnt, OpenCnt));
   }
+}
+
+// Count the number of edges that participate in at least one triad
+template <class PGraph> 
+int GetTriadEdges(const PGraph& Graph, int SampleEdges) {
+  const bool IsDir = Graph->HasFlag(gfDirected);
+  TIntSet NbhH;
+  int TriadEdges = 0;
+  for(typename PGraph::TObj::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
+    NbhH.Clr(false);
+    for (int e = 0; e < NI.GetOutDeg(); e++) {
+      if (NI.GetOutNId(e) != NI.GetId()) {
+        NbhH.AddKey(NI.GetOutNId(e)); }
+    }
+    if (IsDir) {
+      for (int e = 0; e < NI.GetInDeg(); e++) {
+        if (NI.GetInNId(e) != NI.GetId()) {
+          NbhH.AddKey(NI.GetInNId(e)); }
+      }
+    }
+    for (int e = 0; e < NI.GetOutDeg(); e++) {
+      if (!IsDir && NI.GetId()<NI.GetOutNId(e)) { continue; } // for undirected graphs count each edge only once
+      const typename PGraph::TObj::TNodeI SrcNode = Graph->GetNI(NI.GetOutNId(e));
+      bool Triad=false;
+      for (int e1 = 0; e1 < SrcNode.GetOutDeg(); e1++) {
+        if (NbhH.IsKey(SrcNode.GetOutNId(e1))) { Triad=true; break; }
+      }
+      if (IsDir && ! Triad) {
+        for (int e1 = 0; e1 < SrcNode.GetInDeg(); e1++) {
+          if (NbhH.IsKey(SrcNode.GetInNId(e1))) { Triad=true; break; }
+        }
+      }
+      if (Triad) { TriadEdges++; }
+    }
+  }
+  return TriadEdges;
 }
 
 /// Return number of undirected triads a node participates in

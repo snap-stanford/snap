@@ -119,23 +119,37 @@ void TNingNetBs::SaveTxtStat(const TStr& OutFNm, const int& MnSz, const int& MxS
   //SzAIdV.Sort(false);
   SzAIdV.Shuffle(TInt::Rnd);
   FILE *StatF = fopen(TStr("GrowthStat-"+OutFNm+".tab").CStr(), "wt");
-  //fprintf(StatF, "AppId\tNodes\tEdges\tFullWcc\tFullCcf\tNodes@T2\tEdges@T2\tWcc@T2\tCcf@T2\tAgeDays\tDPL\tR2\n");
-  fprintf(StatF, "AppId\tAge\tDeadTm\tNodes\tEdges\tUniqEdges\n");
-    //FullWcc\tFullCcf\tNodes@T2\tEdges@T2\tWcc@T2\tCcf@T2\tAgeDays\tDPL\tR2\n");
-  //for (int i=0; i<Kilo(1); i++) {
+  fprintf(StatF, "AppId\tAge\tDeadTm\tNodes\tEdges\tUniqEdges\tCmtPerEdge");
+  fprintf(StatF, "\tAvgDeg\tFracDeg1Nodes\tFracOverAvg");
+  fprintf(StatF, "\tTriadEdges\tCccf\tNWccs\tWccSz\tEigVal, EigValRat\tEffDiam\n");
   for (int i=0; i<Len(); i++) {
     PNingNet Net = GetNet(SzAIdV[i].Val2);
     if (Net->GetNodes() < MnSz || Net->GetNodes() > MxSz) { continue; }
     printf("%d,%d\t", Net->GetNodes(), Net->GetEdges());
-    fprintf(StatF, "%d\t%d\t%d\t%d\t%d\t%d", GetAppId(SzAIdV[i].Val2), Net->GetAge(tmuDay), Net->GetDeadTm(tmuDay), Net->GetNodes(), Net->GetEdges());
-    PUNGraph G = TSnap::ConvertGraph<PUNGraph>(Net);
-    //const double FullWcc = CnComV[0].Len()/(double)GetNodes();
+    fprintf(StatF, "%d\t%d\t%d\t%d\t%d", GetAppId(SzAIdV[i].Val2), Net->GetAge(tmuDay), Net->GetDeadTm(tmuDay), Net->GetNodes(), Net->GetEdges());
+    PUNGraph G = TSnap::ConvertGraph<PUNGraph>(Net, true);
+    //PNGraph G = TSnap::ConvertGraph<PNGraph>(Net, true);
+    const int GEdges = G->GetEdges();
+    const double CmtPerEdge = Net->GetEdges() / double(GEdges);
+    fprintf(StatF, "\t%d\t%f", GEdges, CmtPerEdge);
+    const double AvgDeg = 2*GEdges / double(G->GetNodes());
+    int CntDeg1=0, CntDegOverAvg=0;
+    for (TUNGraph::TNodeI NI = G->BegNI(); NI < G->EndNI(); NI++) {
+      if (NI.GetDeg() == 1) { CntDeg1++; }
+      if (NI.GetDeg() > AvgDeg) { CntDegOverAvg++; }
+    }
+    fprintf(StatF, "\t%f\t%f\t%f", AvgDeg, CntDeg1/double(G->GetNodes()), CntDegOverAvg/double(G->GetNodes()));
+    const int TriadEdges = TSnap::GetTriadEdges(G);
     const double FullCcf = TSnap::GetClustCf(G);
-    const double FullWcc = GetMxWccSz(G);
-    fprintf(StatF, "\t%d\t%f\t%f", G->GetEdges(), FullCcf, FullWcc);
+    TCnComV CnComV;  TSnap::GetWccs(G, CnComV);
+    const double FullWcc = TSnap::GetMxWccSz(G);
+    const int NWccs = CnComV.Len();
+    TFltV EigValV;   TSnap::GetEigVals(G, 2, EigValV);
+    const double EigVal = EigValV[0];
+    const double EigValRat = EigValV[0]/EigValV[1];
+    const double EffDiam = TSnap::GetBfsEffDiam(G, 100);
+    fprintf(StatF, "\t%d\t%f\t%d\t%f\t%f\t%f\t%f", TriadEdges, FullCcf, NWccs, FullWcc, EigVal, EigValRat, EffDiam);
     fprintf(StatF, "\n");
-    //printf("App: %d\tnodes: %d\tedges: %d\t", AppIdNetH.GetKey(SzAIdV[i].Val2),  G->GetNodes(), G->GetEdges());
-    //const TStr OutFNm = TStr::Fmt("app%d", AppIdNetH.GetKey(SzAIdV[i].Val2));
     //G->PlotGrowthStat(OutFNm, StatF);
   }
   fclose(StatF);
