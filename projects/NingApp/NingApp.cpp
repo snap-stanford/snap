@@ -11,12 +11,15 @@ int main(int argc, char* argv[]) {
 
   //PUNGraph G = TUNGraph::GetSmallGraph();  TGraphViz::Plot(G, gvlNeato, "a.gif", "", true);
   //printf("%d\n", TSnap::GetTriadEdges(G));
+  //TNingUsrBs UsrBs(TZipIn("nets/NingUsrBs.bin.rar"));
+  TNingGroupBs GroupBs(TZipIn("nets/NingGroupBs.bin.rar"));
+  GroupBs.PlotGroupStat("ningComment");
 
-  PNingNetBs NetBs = TNingNetBs::New(TZipIn("nets/NingNetBs.bin.rar")); 
-  printf("Loading NetBs done. %d nets [%s]\n", NetBs->Len(), ExeTm.GetStr());
+  //PNingNetBs NetBs = TNingNetBs::New(TZipIn("nets/NingNetBs.bin.rar")); 
+  //printf("Loading NetBs done. %d nets [%s]\n", NetBs->Len(), ExeTm.GetStr());
   //NetBs->SaveTxtStat("ningComment2", 10, Mega(100));
   //NetBs->PlotDeadStat("ningComment");
-  NetBs->PlotSimNodesEvol(8994, 100, 90, 365, 10);
+  //NetBs->PlotSimNodesEvol(8994, 100, 90, 365, 10);
     
   
   /*int n = 0;
@@ -129,6 +132,10 @@ void LoadNingNetBs() {
   TFOut FOut("NingNetBs.nets_bin");
   for (int i=0; i<NetBs->Len(); i++) {
     NetBs->GetNet(i)->Save(FOut); }
+  //// Ning grops
+  TNingGroupBs GroupBs;
+  GroupBs.ParseGroups("W:\\xData\\Ning\\groupmembership\\*.gz", UsrBs);
+  GroupBs.Save(TFOut("NingGroupBs.bin"));
 }
 
 void BuildNetsAndStats() {

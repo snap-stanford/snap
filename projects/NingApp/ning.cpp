@@ -303,6 +303,46 @@ void TNingNetBs::PlotSimNodesEvol(const int& NetId, const int& PlotN, const int&
   GP.SavePng();
 }
 
+//////////////////////////////////////////////////
+// Ning groups
+void TNingGroup::AddUsr(const int& UId, const TSecTm& JoinTm) {
+  if (! NIdJoinTmH.IsKey(UId) || NIdJoinTmH.GetDat(UId) > JoinTm) {
+    NIdJoinTmH.AddDat(UId, JoinTm);
+  }
+}
+
+void TNingGroupBs::ParseGroups(const TStr& InFNmWc, const TNingUsrBs& UsrBs) {
+  TJsonLoader J(InFNmWc);
+  TStrHash<TInt> GIdH; // group id to index
+  while (J.Next()) {
+    const int AppId = atoi(J.GetDat("appId").CStr());
+    const int UId = UsrBs.GetUId(J.GetDat("author"));
+    if (UId == -1) { continue; } // unknown user
+    const TSecTm Tm = TSecTm::GetDtTmFromStr(J.GetDat("createdDate")); //"createdDate": "2009-10-06 07:48:08.287",
+    TInt& GId = GIdH.AddDat(J.GetDat("groupId"));
+    TNingGroupV& GroupV = GroupsH.AddDat(AppId);
+    if (GId == 0) { // new group
+      GroupV.Add();
+      GId = GroupV.Len()-1;
+    }
+    IAssert(GId < GroupV.Len());
+    GroupV[GId].AddUsr(UId, Tm);
+  }
+}
+
+void TNingGroupBs::PlotGroupStat(const TStr& OutFNm) const {
+  TIntH GroupSzH, NGroupsH;
+  for (int i = 0; i < Len(); i++) {
+    const TNingGroupV& GV = GroupsH[i];
+    NGroupsH.AddDat(GV.Len())++;
+    for (int j = 0; j < GV.Len(); j++) {
+      GroupSzH.AddDat(GV[j].Len())++; }
+  }
+  TGnuPlot::PlotValCntH(GroupSzH, OutFNm+"-GroupSz", "Group Size distribution", "Group Size", "Number of such groups", gpsLog);
+  TGnuPlot::PlotValCntH(NGroupsH, OutFNm+"-NGroups", "Number of groups distribution", "Number of groups per network", "Number of such networks", gpsLog);
+}
+
+
 #ifdef XXXXXXXXXXXXX
 
 /////////////////////////////////////////////////

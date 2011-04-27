@@ -16,6 +16,8 @@ public:
   int GetUId(const char* UsrHash) const { return UIdH.GetKeyId(UsrHash); }
   int GetUId(const TChA& UsrHash) const { return UIdH.GetKeyId(UsrHash); }
   int GetUId(const TStr& UsrHash) const { return UIdH.GetKeyId(UsrHash); }
+  bool IsUId(const char* UsrHash) const { return UIdH.IsKey(UsrHash); }
+  bool IsUId(const TChA& UsrHash) const { return UIdH.IsKey(UsrHash); }
   void ParseUsers(const TStr& InFNmWc, const TStr& PlotOutFNm="");
 };
 
@@ -83,6 +85,48 @@ public:
   friend class TPt<TNingNetBs>;
 };
 
+//////////////////////////////////////////////////
+// Ning groups
+class TNingGroup {
+private:
+  THash<TInt, TSecTm> NIdJoinTmH;
+public:
+  TNingGroup() { }
+  TNingGroup(TSIn& SIn) : NIdJoinTmH(SIn){ }
+  void Save(TSOut& SOut) const { NIdJoinTmH.Save(SOut); }
+  void Load(TSIn& SIn) { NIdJoinTmH.Load(SIn); }
+  int Len() const { return NIdJoinTmH.Len(); }
+  bool IsIn(const int& NId) const { return NIdJoinTmH.IsKey(NId); }
+  int GetNId(const int& KeyId) const { return NIdJoinTmH.GetKey(KeyId); }
+  int operator [] (const int& KeyId) { return GetNId(KeyId); }
+  TSecTm GetTm(const int& NId) const { return NIdJoinTmH.GetDat(NId); }
+  TSecTm GetTm2(const int& KeyId) const { return NIdJoinTmH[KeyId]; }
+  bool operator < (const TNingGroup& Group) const { Fail; return false; }
+  TSecTm GetMnTm() const { return NIdJoinTmH[0]; }
+  TSecTm GetMxTm() const { return NIdJoinTmH[NIdJoinTmH.Len()-1]; }
+  int GetAge(const TTmUnit& TmUnit) const { return TSecTm(GetMxTm()-GetMnTm()).GetInUnits(TmUnit); }
+  int GetDeadTm(const TTmUnit& TmUnit) const { return TSecTm(TNingNet::MxTm - GetMxTm()).GetInUnits(TmUnit); }
+  void AddUsr(const int& UId, const TSecTm& JoinTm);
+  void SortByTm() { NIdJoinTmH.SortByDat(true); }
+};
+
+typedef TVec<TNingGroup> TNingGroupV;
+
+class TNingGroupBs {
+private:
+  THash<TInt, TVec<TNingGroup> > GroupsH; // (appid, node group memberships over time)
+public:
+  TNingGroupBs() { }
+  TNingGroupBs(TSIn& SIn) : GroupsH(SIn) { }
+  void Save(TSOut& SOut) const { GroupsH.Save(SOut); }
+  void Load(TSIn& SIn) { GroupsH.Load(SIn); }
+  int Len() const { return GroupsH.Len(); }
+  int GetGroups(const int& AppId) const { return GroupsH.GetDat(AppId).Len(); }
+  const TNingGroup& GetGroup(const int& AppId, const int& GroupId) const { return GroupsH.GetDat(AppId)[GroupId]; }
+  const TNingGroupV& GetGroupV(const int& AppId) const { return GroupsH.GetDat(AppId); }
+  void ParseGroups(const TStr& InFNmWc, const TNingUsrBs& UsrBs);
+  void PlotGroupStat(const TStr& OutFNm) const;
+};
 
 /*
 class TNingEventStat;
@@ -157,19 +201,6 @@ public:
 
   friend class TPt<TNingNet>;
 };
-
-//////////////////////////////////////////////////
-// Ning groups
-class TGroupBs {
-private:
-  THash<TInt, TVec<TIntV> > GroupsH; // (appid, group memberships)
-public:
-  TGroupBs() { }
-  void Save(TSOut& SOut) const { GroupsH.Save(SOut); }
-  void Load(TSIn& SIn) { GroupsH.Load(SIn); }
-  void ParseGroups(const TNingUsrBs& UsrBs);
-};
-
 
 //////////////////////////////////////////////////
 // Ning network statistics and app_stats table
