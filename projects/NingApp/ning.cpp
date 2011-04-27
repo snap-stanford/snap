@@ -349,6 +349,11 @@ void TNingGroupBs::ParseGroups(const TStr& InFNmWc, const TNingUsrBs& UsrBs) {
     IAssert(GId < GroupV.Len());
     GroupV[GId].AddUsr(UId, Tm);
   }
+  for (int a = 0; a < GroupsH.Len(); a++) {
+    TNingGroupV& GV = GroupsH[a];
+    for (int g = 0; g < GV.Len(); g++) {
+      GV[g].SortByTm(); }
+  }
 }
 
 PNingGroupBs TNingGroupBs::GetSubBs(const PNingNetBs& NetBs, const int& MinSz, const double& MaxFracSz, const int& MinAge) {
@@ -361,7 +366,7 @@ PNingGroupBs TNingGroupBs::GetSubBs(const PNingNetBs& NetBs, const int& MinSz, c
     TNingGroupV NewGroupV;
     for (int g = 0; g < GroupV.Len(); g++) {
       const TNingGroup& Gr = GroupV[g];
-      if (Gr.GetAge(tmuDay) >= MinAge && Gr.Len() >= MinSz && Gr.Len()/AppNodes <= MaxFracSz) {
+      if (Gr.Len() >= MinSz && Gr.Len()/AppNodes <= MaxFracSz && Gr.GetAge(tmuDay) >= MinAge) {
         NewGroupV.Add(GroupV[g]); }
     }
     if (NewGroupV.Len() > 0) {

@@ -42,7 +42,7 @@ public:
   bool operator < (const TNingNet& Net) const { Fail; return false; }
   TSecTm GetMnTm() const { return EdgeH[0].GetDat(); }
   TSecTm GetMxTm() const { return EdgeH[EdgeH.Len()-1].GetDat(); }
-  int GetAge(const TTmUnit& TmUnit) const { return TSecTm(GetMxTm()-GetMnTm()).GetInUnits(TmUnit); }
+  int GetAge(const TTmUnit& TmUnit) const { return GetMxTm()!=GetMnTm() ? TSecTm(GetMxTm()-GetMnTm()).GetInUnits(TmUnit) : 0; }
   int GetDeadTm(const TTmUnit& TmUnit) const { return TSecTm(MxTm - GetMxTm()).GetInUnits(TmUnit); }
   TStr GetTitle() const;
   void GetNodesOverTm(const TTmUnit TmUnit, const int& TmSteps, TFltV& NodesTmV, const bool Cummulative=true, const bool& Relative=false);
@@ -110,7 +110,8 @@ public:
   bool operator < (const TNingGroup& Group) const { Fail; return false; }
   TSecTm GetMnTm() const { return NIdJoinTmH[0]; }
   TSecTm GetMxTm() const { return NIdJoinTmH[NIdJoinTmH.Len()-1]; }
-  int GetAge(const TTmUnit& TmUnit) const { return TSecTm(GetMxTm()-GetMnTm()).GetInUnits(TmUnit); }
+  int GetAge(const TTmUnit& TmUnit) const { IAssert(Len()>0); IAssert(GetMnTm().IsDef() && GetMxTm().IsDef()); 
+    IAssert(GetMxTm() >= GetMnTm()); return TSecTm(GetMxTm()-GetMnTm()).GetInUnits(TmUnit); }
   int GetDeadTm(const TTmUnit& TmUnit) const { return TSecTm(TNingNet::MxTm - GetMxTm()).GetInUnits(TmUnit); }
   void AddUsr(const int& UId, const TSecTm& JoinTm);
   void SortByTm() { NIdJoinTmH.SortByDat(true); }
@@ -131,6 +132,7 @@ public:
   static PNingGroupBs New(TSIn& SIn) { return new TNingGroupBs(SIn); }
   
   int Len() const { return GroupsH.Len(); }
+  bool HasGroups(const int& AppId) const { return GroupsH.IsKey(AppId); }
   int GetGroups(const int& AppId) const { return GroupsH.GetDat(AppId).Len(); }
   const TNingGroup& GetGroup(const int& AppId, const int& GroupId) const { return GroupsH.GetDat(AppId)[GroupId]; }
   const TNingGroupV& GetGroupV(const int& AppId) const { return GroupsH.GetDat(AppId); }
@@ -143,9 +145,11 @@ public:
 class TNingGroupEvol {
 private:
   THash<TInt, TIntPr> JoinProbH;
-  //THash<TInt, TIntPr>
+  THash<TInt, THash<TInt, TIntPr> > DegJoinAdjH, DegJoinCcfH;
+  
 public:
   void AddNet(const PNingNet& Net, const TNingGroupV& GroupV) {
+    static int NJoin = 0;
     THash<TIntPr, TSecTm> EdgeTmSet(Net->GetEdges());
     THash<TSecTm, TIntPrV> TmJoinVH;
     THash<TInt, TIntSet> GroupSet;
@@ -193,11 +197,14 @@ public:
           NIdGroupV.AddDat(JoinV[j].Val2).Add(JoinV[j].Val1);
         }
         for (int j = 0; j < JoinV.Len(); j++) {
-          OnNodeJoined(G, GroupV[JoinV[j].Val1], GroupSet.GetDat(JoinV[j].Val1), JoinV[j].Val2, NIdInEH.GetDat(JoinV[j].Val1), EdgeTm); }
+          OnNodeJoined(G, GroupV[JoinV[j].Val1], GroupSet.GetDat(JoinV[j].Val1), JoinV[j].Val2, NIdInEH.GetDat(JoinV[j].Val1), EdgeTm); 
+          if (++NJoin % Kilo(1) == 0) { printf("."); }
+          if (NJoin % Kilo(10) == 0) { PlotAll(); }
+        }
       }
     }
-    
   }
+
   void OnNodeJoined(const PUNGraph& G, const TNingGroup& EndGroup, const TIntSet& CurGroup, const int& JoinNId, const TIntH& NIdInEH, const TSecTm& JoinTm) {
     // prob. of joining given number of edges in
     const int JoinInE = NIdInEH.GetDat(JoinNId);
@@ -207,7 +214,24 @@ public:
       if (NIdInEH[i] == JoinInE && ! EndGroup.IsIn(NIdInEH.GetKey(i))) { NoJoin++; }
     }
     JoinProbH.AddDat(JoinInE).Val2 += NoJoin+1;
-    // prob. of joining given degree and number of 
+    // prob. of joining given degree and number of edges between nodes in the group
+    if (JoinInE==3 || JoinInE==4 || JoinInE==5 || JoinInE==6) {
+      THash<TInt, TIntPr>&  DegJoinH = DegJoinAdjH.AddDat(JoinInE);
+    }
+  }
+  void PlotAll() const { 
+    THash<TInt, TFlt> InEProbH;
+    THash<TInt, TInt> InECntH, AllCntH;
+    int npos=0, nobs=0;
+    for (int e = 0; e < JoinProbH.Len(); e++) {
+      InECntH.AddDat(JoinProbH.GetKey(e), JoinProbH[e].Val1);
+      AllCntH.AddDat(JoinProbH.GetKey(e), JoinProbH[e].Val2);
+      InEProbH.AddDat(JoinProbH.GetKey(e), JoinProbH[e].Val1/(double)JoinProbH[e].Val2);
+      npos+=JoinProbH[e].Val1;  nobs+=JoinProbH[e].Val2;
+    }
+    TGnuPlot::PlotValCntH(InEProbH, "joinProb", TStr::Fmt("%d observations, %d join events", nobs, npos), "Number of friends in the group", "Prob. joining the group");
+    TGnuPlot::PlotValCntH(InECntH, "joinProb-inE", TStr::Fmt("%d observations, %d join events", nobs, npos), "Number of friends in the group", "Number of nodes that joined the group");
+    TGnuPlot::PlotValCntH(AllCntH, "joinProb-All", TStr::Fmt("%d observations, %d join events", nobs, npos), "Number of friends in the group", "Number of such nodes");
   }
 
 };
