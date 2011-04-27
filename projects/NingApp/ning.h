@@ -77,6 +77,8 @@ public:
   PNingNet GetNet(const int& KeyId) const { return AppNetH[KeyId]; }
   PNingNet GetNetId(const int& AppId) const { return AppNetH.GetDat(AppId); }
   void ParseNetworks(const TStr& InFNmWc, TNingUsrBs& UsrBs, const TStr& LinkTy);
+  PNingNetBs GetSubBs(const TIntV& AppIdV) const;
+  PNingNetBs GetSubBs(const int& MinNodes, const int& MinAge, const int& MinDeadTm) const;
   // plots & statistics
   void SaveTxtStat(const TStr& OutFNm, const int& MnSz, const int& MxSz) const;
   void PlotDeadStat(const TStr& OutFNmPref) const;
@@ -87,6 +89,9 @@ public:
 
 //////////////////////////////////////////////////
 // Ning groups
+class TNingGroupBs;
+typedef TPt<TNingGroupBs> PNingGroupBs;
+
 class TNingGroup {
 private:
   THash<TInt, TSecTm> NIdJoinTmH;
@@ -114,9 +119,10 @@ typedef TVec<TNingGroup> TNingGroupV;
 
 class TNingGroupBs {
 private:
+  TCRef CRef;
   THash<TInt, TVec<TNingGroup> > GroupsH; // (appid, node group memberships over time)
 public:
-  TNingGroupBs() { }
+  TNingGroupBs() { }  
   TNingGroupBs(TSIn& SIn) : GroupsH(SIn) { }
   void Save(TSOut& SOut) const { GroupsH.Save(SOut); }
   void Load(TSIn& SIn) { GroupsH.Load(SIn); }
@@ -126,6 +132,75 @@ public:
   const TNingGroupV& GetGroupV(const int& AppId) const { return GroupsH.GetDat(AppId); }
   void ParseGroups(const TStr& InFNmWc, const TNingUsrBs& UsrBs);
   void PlotGroupStat(const TStr& OutFNm) const;
+  friend class TPt<TNingGroupBs>;
+};
+
+class TNingGroupEvol {
+private:
+  THash<TInt, TIntPr> JoinProbH;
+  //THash<TInt, TIntPr>
+public:
+  void AddNet(const PNingNet& Net, const TNingGroupV& GroupV) {
+    THash<TIntPr, TSecTm> EdgeTmSet(Net->GetEdges());
+    THash<TSecTm, TIntPrV> TmJoinVH;
+    THash<TInt, TIntSet> GroupSet;
+    THash<TInt, TIntH> NIdInEH;
+    THash<TInt, TIntV> NIdGroupV;
+    // preprocess edges
+    for (TNingNet::TEdgeI EI = Net->BegEI(); EI < Net->EndEI(); EI++) {
+      const TIntPr Edge(TMath::Mn(EI.GetSrcNId(), EI.GetDstNId()), TMath::Mx(EI.GetSrcNId(), EI.GetDstNId()));
+      if (EdgeTmSet.IsKey(Edge)) { continue; }
+      EdgeTmSet.AddDat(Edge, EI());
+    }
+    // find node group membership times
+    for (int g = 0; g < GroupV.Len(); g++) {
+      for (int i = 0; i < GroupV[g].Len(); i++) {
+        TmJoinVH.AddDat(GroupV[g].GetTm2(i)).Add(TIntPr(g, GroupV[g].GetNId(i))); } // (group, node)
+    }
+    PUNGraph G = TUNGraph::New(Net->GetNodes(), -1);
+    // evolve the network
+    for (int i = 0; i < EdgeTmSet.Len(); i++) {
+      const TIntPr Edge = EdgeTmSet.GetKey(i);
+      const TSecTm EdgeTm = EdgeTmSet[i];
+      // add edge to net
+      if (! G->IsNode(Edge.Val1)) { G->AddNode(Edge.Val1); }
+      if (! G->IsNode(Edge.Val2)) { G->AddNode(Edge.Val2); }
+      G->AddEdge(Edge.Val1, Edge.Val2);
+      // count node group in-degree
+      if (NIdGroupV.IsKey(Edge.Val1)) {
+        const TIntV& GroupV = NIdGroupV.GetDat(Edge.Val1);
+        for (int g = 0; g < GroupV.Len(); g++) {
+          NIdInEH.AddDat(GroupV[g]).AddDat(Edge.Val2)++; }
+      }
+      if (NIdGroupV.IsKey(Edge.Val2)) {
+        const TIntV& GroupV = NIdGroupV.GetDat(Edge.Val2);
+        for (int g = 0; g < GroupV.Len(); g++) {
+          NIdInEH.AddDat(GroupV[g]).AddDat(Edge.Val1)++; }
+      }
+      //if (GroupSet.IsKey(Edge.Val1) && GroupSet.IsKey(Edge.Val2)) { InGroupE++; }
+      //else if (GroupSet.IsKey(Edge.Val1) || GroupSet.IsKey(Edge.Val2)) { InOutGroupE++; }
+      //else { OutGroupE++; }
+      // nodes that joined any of the groups at current time
+      if (TmJoinVH.IsKey(EdgeTm)) {
+        const TIntPrV& JoinV = TmJoinVH.GetDat(EdgeTm);
+        for (int j = 0; j < JoinV.Len(); j++) {
+          GroupSet.AddDat(JoinV[j].Val1).AddKey(JoinV[j].Val2); 
+          NIdGroupV.AddDat(JoinV[j].Val2).Add(JoinV[j].Val1);
+        }
+        for (int j = 0; j < JoinV.Len(); j++) {
+          OnNodeJoined(G, GroupV[JoinV[j].Val1], JoinV[j].Val2, GroupSet.GetDat(JoinV[j].Val1), NIdInEH.GetDat(JoinV[j].Val1), EdgeTm); }
+      }
+    }
+    
+  }
+  void OnNodeJoined(const PUNGraph& G, const TNingGroup& Group, const int& JoinNId, const TIntSet& GroupSet, const TIntH& NIdInEH, const TSecTm& JoinTm) {
+    // prop of joining given number of edges in
+    const int JoinInE = NIdInEH.GetDat(JoinNId);
+    JoinProbH.AddDat(JoinInE).Val1 += 1;
+    for (int i = ) {
+    }
+  }
+
 };
 
 /*

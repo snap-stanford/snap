@@ -13,10 +13,10 @@ int main(int argc, char* argv[]) {
   //printf("%d\n", TSnap::GetTriadEdges(G));
   //TNingUsrBs UsrBs(TZipIn("nets/NingUsrBs.bin.rar"));
   TNingGroupBs GroupBs(TZipIn("nets/NingGroupBs.bin.rar"));
-  GroupBs.PlotGroupStat("ningComment");
+  //GroupBs.PlotGroupStat("ningComment");
 
-  //PNingNetBs NetBs = TNingNetBs::New(TZipIn("nets/NingNetBs.bin.rar")); 
-  //printf("Loading NetBs done. %d nets [%s]\n", NetBs->Len(), ExeTm.GetStr());
+  PNingNetBs NetBs = TNingNetBs::New(TZipIn("nets/NingNetBs.bin.rar")); 
+  printf("Loading NetBs done. %d nets [%s]\n", NetBs->Len(), ExeTm.GetStr());
   //NetBs->SaveTxtStat("ningComment2", 10, Mega(100));
   //NetBs->PlotDeadStat("ningComment");
   //NetBs->PlotSimNodesEvol(8994, 100, 90, 365, 10);
@@ -128,6 +128,7 @@ void LoadNingNetBs() {
   PNingNetBs NetBs = TNingNetBs::New();
   NetBs->ParseNetworks("W:\\xData\\Ning\\comment\\comment-*.gz", UsrBs, "comment");
   NetBs->Save(TFOut("NingNetBs.bin"));
+  NetBs->GetSubBs(100, 365, 0)->Save(TFOut("NingNetBs100n1y.bin"));
   UsrBs.Save(TFOut("NingUsrBs.bin"));
   TFOut FOut("NingNetBs.nets_bin");
   for (int i=0; i<NetBs->Len(); i++) {

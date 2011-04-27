@@ -177,6 +177,27 @@ void TNingNetBs::ParseNetworks(const TStr& InFNmWc, TNingUsrBs& UsrBs, const TSt
   printf("done [%s]\n", ExeTm.GetStr());
 }
 
+PNingNetBs TNingNetBs::GetSubBs(const TIntV& AppIdV) const {
+  PNingNetBs NewBs = TNingNetBs::New();
+  NewBs->AppNetH.Gen(AppIdV.Len());
+  for (int i = 0; i < AppIdV.Len(); i++) {
+    const int AppId = AppIdV[i];
+    NewBs->AppNetH.AddDat(AppId, GetNetId(AppId));
+  }
+  return NewBs;
+}
+
+PNingNetBs TNingNetBs::GetSubBs(const int& MinNodes, const int& MinAge, const int& MinDeadTm) const {
+  TIntV AppIdV;
+  for (int i = 0; i < Len(); i++) {
+    const int AppId = GetAppId(i);
+    PNingNet Net = GetNetId(AppId);
+    if (Net->GetNodes() >= MinNodes && Net->GetAge(tmuDay) >= MinAge && Net->GetDeadTm(tmuDay) >= MinDeadTm) {
+      AppIdV.Add(AppId); }
+  }
+  return GetSubBs(AppIdV);
+}
+
 void TNingNetBs::SaveTxtStat(const TStr& OutFNm, const int& MnSz, const int& MxSz) const {
   TIntPrV SzAIdV(Len(), 0);
   for (int i=0; i < Len(); i++) {
