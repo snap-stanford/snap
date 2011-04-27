@@ -206,6 +206,7 @@ public:
   }
 
   void OnNodeJoined(const PUNGraph& G, const TNingGroup& EndGroup, const TIntSet& CurGroup, const int& JoinNId, const TIntH& NIdInEH, const TSecTm& JoinTm) {
+    if (! NIdInEH.IsKey(JoinNId)) { return; }
     // prob. of joining given number of edges in
     const int JoinInE = NIdInEH.GetDat(JoinNId);
     int NoJoin=0;

@@ -24,8 +24,11 @@ int main(int argc, char* argv[]) {
     if (! GroupBs.HasGroups(AppId)) { continue; }
     const TNingGroupV& GV = GroupBs.GetGroupV(AppId);
     printf("Take %d-th net on %d nodes and %d groups\n", cnt++, Net->GetNodes(), GV.Len());
-    for (int g = 0; g < GV.Len(); g++) {
-      GroupEvol.AddNet(Net, GV); }
+    Net->Save(TFOut(TStr::Fmt("%d-net.bin", AppId)));
+    GV.Save(TFOut(TStr::Fmt("%d-groups.bin", AppId)));
+    //for (int g = 0; g < GV.Len(); g++) {
+    //  GroupEvol.AddNet(Net, GV); }
+    if (cnt > 10) { break; }
   }
   
 
