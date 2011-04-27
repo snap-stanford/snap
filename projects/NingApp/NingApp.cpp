@@ -13,7 +13,7 @@ int main(int argc, char* argv[]) {
   //printf("%d\n", TSnap::GetTriadEdges(G));
   
   //TNingUsrBs UsrBs(TZipIn("nets/NingUsrBs.bin.rar"));
-  PNingNetBs NetBs = TNingNetBs::New(TZipIn("nets/NingNetBs-100n1y.bin.rar"));  printf("Loading NetBs done. %d nets [%s]\n", NetBs->Len(), ExeTm.GetStr());
+  /*PNingNetBs NetBs = TNingNetBs::New(TZipIn("nets/NingNetBs-100n1y.bin.rar"));  printf("Loading NetBs done. %d nets [%s]\n", NetBs->Len(), ExeTm.GetStr());
   TNingGroupBs GroupBs(TZipIn("nets/NingGroupBs-10n05s60d.bin.rar"));
   TNingGroupEvol GroupEvol;
   int cnt=0;
@@ -30,6 +30,17 @@ int main(int argc, char* argv[]) {
     //  GroupEvol.AddNet(Net, GV); }
     if (cnt > 10) { break; }
   }
+  */
+  TNingGroupEvol GroupEvol;
+  TStr FNm;
+  for (TFFile FFile("nets/*-groups.bin"); FFile.Next(FNm); ) {
+    PNingNet Net = TNingNet::Load(TFIn(FNm.GetSubStr(0, FNm.SearchChBack('-'))+"net.bin"));
+    TNingGroupV GV; GV.Load(TFIn(FNm));
+    printf("%s. %d groups.\n", Net->GetTitle().CStr(), GV.Len());
+    for (int g = 0; g < GV.Len(); g++) {
+      GroupEvol.AddNet(Net, GV); }
+  }
+  GroupEvol.PlotAll();
   
 
   //NetBs->SaveTxtStat("ningComment2", 10, Mega(100));

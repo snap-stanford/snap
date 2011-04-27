@@ -155,6 +155,8 @@ public:
     THash<TInt, TIntSet> GroupSet;
     THash<TInt, TIntH> NIdInEH;
     THash<TInt, TIntV> NIdGroupV;
+    int TmJoinIdx = 0;
+    PUNGraph G = TUNGraph::New(Net->GetNodes(), -1);
     // preprocess edges
     for (TNingNet::TEdgeI EI = Net->BegEI(); EI < Net->EndEI(); EI++) {
       const TIntPr Edge(TMath::Mn(EI.GetSrcNId(), EI.GetDstNId()), TMath::Mx(EI.GetSrcNId(), EI.GetDstNId()));
@@ -166,7 +168,7 @@ public:
       for (int i = 0; i < GroupV[g].Len(); i++) {
         TmJoinVH.AddDat(GroupV[g].GetTm2(i)).Add(TIntPr(g, GroupV[g].GetNId(i))); } // (group, node)
     }
-    PUNGraph G = TUNGraph::New(Net->GetNodes(), -1);
+    TmJoinVH.SortByKey(true);
     // evolve the network
     for (int i = 0; i < EdgeTmSet.Len(); i++) {
       const TIntPr Edge = EdgeTmSet.GetKey(i);
@@ -190,14 +192,15 @@ public:
       //else if (GroupSet.IsKey(Edge.Val1) || GroupSet.IsKey(Edge.Val2)) { InOutGroupE++; }
       //else { OutGroupE++; }
       // nodes that joined any of the groups at current time
-      if (TmJoinVH.IsKey(EdgeTm)) {
-        const TIntPrV& JoinV = TmJoinVH.GetDat(EdgeTm);
+      for (; TmJoinIdx < TmJoinVH.Len() && TmJoinVH.GetKey(TmJoinIdx) < EdgeTm; TmJoinIdx++) {
+        const TIntPrV& JoinV = TmJoinVH[TmJoinIdx];
         for (int j = 0; j < JoinV.Len(); j++) {
           GroupSet.AddDat(JoinV[j].Val1).AddKey(JoinV[j].Val2); 
           NIdGroupV.AddDat(JoinV[j].Val2).Add(JoinV[j].Val1);
         }
         for (int j = 0; j < JoinV.Len(); j++) {
-          OnNodeJoined(G, GroupV[JoinV[j].Val1], GroupSet.GetDat(JoinV[j].Val1), JoinV[j].Val2, NIdInEH.GetDat(JoinV[j].Val1), EdgeTm); 
+          if (NIdInEH.IsKey(JoinV[j].Val1)) { 
+            OnNodeJoined(G, GroupV[JoinV[j].Val1], GroupSet.GetDat(JoinV[j].Val1), JoinV[j].Val2, NIdInEH.GetDat(JoinV[j].Val1), EdgeTm); }
           if (++NJoin % Kilo(1) == 0) { printf("."); }
           if (NJoin % Kilo(10) == 0) { PlotAll(); }
         }
