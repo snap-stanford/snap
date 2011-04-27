@@ -74,6 +74,7 @@ public:
   
   int Len() const { return AppNetH.Len(); }
   int GetAppId(const int& KeyId) const { return AppNetH.GetKey(KeyId); }
+  bool IsNet(const int& AppId) const { return AppNetH.IsKey(AppId); }
   PNingNet GetNet(const int& KeyId) const { return AppNetH[KeyId]; }
   PNingNet GetNetId(const int& AppId) const { return AppNetH.GetDat(AppId); }
   void ParseNetworks(const TStr& InFNmWc, TNingUsrBs& UsrBs, const TStr& LinkTy);
@@ -126,11 +127,15 @@ public:
   TNingGroupBs(TSIn& SIn) : GroupsH(SIn) { }
   void Save(TSOut& SOut) const { GroupsH.Save(SOut); }
   void Load(TSIn& SIn) { GroupsH.Load(SIn); }
+  static PNingGroupBs New() { return new TNingGroupBs(); }
+  static PNingGroupBs New(TSIn& SIn) { return new TNingGroupBs(SIn); }
+  
   int Len() const { return GroupsH.Len(); }
   int GetGroups(const int& AppId) const { return GroupsH.GetDat(AppId).Len(); }
   const TNingGroup& GetGroup(const int& AppId, const int& GroupId) const { return GroupsH.GetDat(AppId)[GroupId]; }
   const TNingGroupV& GetGroupV(const int& AppId) const { return GroupsH.GetDat(AppId); }
   void ParseGroups(const TStr& InFNmWc, const TNingUsrBs& UsrBs);
+  PNingGroupBs GetSubBs(const PNingNetBs& NetBs, const int& MinSz, const double& MaxFracSz, const int& MinAge);
   void PlotGroupStat(const TStr& OutFNm) const;
   friend class TPt<TNingGroupBs>;
 };
@@ -188,17 +193,21 @@ public:
           NIdGroupV.AddDat(JoinV[j].Val2).Add(JoinV[j].Val1);
         }
         for (int j = 0; j < JoinV.Len(); j++) {
-          OnNodeJoined(G, GroupV[JoinV[j].Val1], JoinV[j].Val2, GroupSet.GetDat(JoinV[j].Val1), NIdInEH.GetDat(JoinV[j].Val1), EdgeTm); }
+          OnNodeJoined(G, GroupV[JoinV[j].Val1], GroupSet.GetDat(JoinV[j].Val1), JoinV[j].Val2, NIdInEH.GetDat(JoinV[j].Val1), EdgeTm); }
       }
     }
     
   }
-  void OnNodeJoined(const PUNGraph& G, const TNingGroup& Group, const int& JoinNId, const TIntSet& GroupSet, const TIntH& NIdInEH, const TSecTm& JoinTm) {
-    // prop of joining given number of edges in
+  void OnNodeJoined(const PUNGraph& G, const TNingGroup& EndGroup, const TIntSet& CurGroup, const int& JoinNId, const TIntH& NIdInEH, const TSecTm& JoinTm) {
+    // prob. of joining given number of edges in
     const int JoinInE = NIdInEH.GetDat(JoinNId);
+    int NoJoin=0;
     JoinProbH.AddDat(JoinInE).Val1 += 1;
-    for (int i = ) {
+    for (int i = 0; i < NIdInEH.Len(); i++) {
+      if (NIdInEH[i] == JoinInE && ! EndGroup.IsIn(NIdInEH.GetKey(i))) { NoJoin++; }
     }
+    JoinProbH.AddDat(JoinInE).Val2 += NoJoin+1;
+    // prob. of joining given degree and number of 
   }
 
 };

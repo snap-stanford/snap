@@ -351,6 +351,26 @@ void TNingGroupBs::ParseGroups(const TStr& InFNmWc, const TNingUsrBs& UsrBs) {
   }
 }
 
+PNingGroupBs TNingGroupBs::GetSubBs(const PNingNetBs& NetBs, const int& MinSz, const double& MaxFracSz, const int& MinAge) {
+  PNingGroupBs NewBs = TNingGroupBs::New();
+  for (int n = 0; n < Len(); n++) {
+    const int AppId = GroupsH.GetKey(n);
+    const TNingGroupV& GroupV = GroupsH[n];
+    if (! NetBs->IsNet(AppId)) { continue; }
+    const double AppNodes = NetBs->GetNetId(AppId)->GetNodes();
+    TNingGroupV NewGroupV;
+    for (int g = 0; g < GroupV.Len(); g++) {
+      const TNingGroup& Gr = GroupV[g];
+      if (Gr.GetAge(tmuDay) >= MinAge && Gr.Len() >= MinSz && Gr.Len()/AppNodes <= MaxFracSz) {
+        NewGroupV.Add(GroupV[g]); }
+    }
+    if (NewGroupV.Len() > 0) {
+      NewBs->GroupsH.AddDat(AppId, NewGroupV);
+    }
+  }
+  return NewBs;
+}
+
 void TNingGroupBs::PlotGroupStat(const TStr& OutFNm) const {
   TIntH GroupSzH, NGroupsH;
   for (int i = 0; i < Len(); i++) {
