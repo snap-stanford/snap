@@ -670,7 +670,7 @@ void TNingGroupEvol2::PlotRatioHash(const THash<TInt, THash<TInt, TFltPr> >& Deg
     GP.AddErrBar(StdErrV, "");
   }
   GP.SetTitle(Desc);
-  //GP.AddCmd("set xrange [0:100]");
+  GP.AddCmd("set xrange [0:100]");
   GP.SavePng(); 
 }
 

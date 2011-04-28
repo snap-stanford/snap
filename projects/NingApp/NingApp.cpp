@@ -37,11 +37,13 @@ int main(int argc, char* argv[]) {
   }
   //GroupEvol.PlotAll();
   //*/
-  TNingGroupEvol2 GroupEvol("Evol-AllNets2");
-  int netcnt=1, grpcnt=0;
-  for (TFIn FIn("nets/NingNetGroup-N100n1y-G10n05s60d.bin"); ! FIn.Eof(); netcnt++) {
+  TNingGroupEvol2 GroupEvol("Evol-Nets-Ls500");
+  int netcnt=0, grpcnt=0;
+  for (TFIn FIn("nets/NingNetGroup-N100n1y-G10n05s60d.bin"); ! FIn.Eof(); ) {
     PNingNet Net = TNingNet::Load(FIn);
-    TNingGroupV GV(FIn);  grpcnt += GV.Len();
+    TNingGroupV GV(FIn);  
+    if (Net->GetNodes() > 500) { continue; }
+    netcnt++;  grpcnt += GV.Len();
     printf("\nNet %d on %d nodes and %d groups (%d total):", netcnt, Net->GetNodes(), GV.Len(), grpcnt);
     GroupEvol.AddNet(Net, GV);
   }
