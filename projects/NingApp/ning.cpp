@@ -482,7 +482,7 @@ void TNingGroupEvol::PlotAll(const TStr& OutFNmPref) const {
 // fraction of nodes that joined in 1 month period
 // group starts, after i-th month check fringe, how many join till month i+1
 void TNingGroupEvol2::AddNet(const PNingNet& Net, const TNingGroupV& GroupV) {
-  const TSecTm MonthSecs(30*24*3600);
+  const TSecTm MonthSecs(31*24*3600);
   static int NJoin = 0;
   THash<TIntPr, TSecTm> EdgeTmSet(Net->GetEdges()); // edges over time
   THash<TInt, TIntH> NIdInEH;                       // group -> (node, number of friends in the group)
@@ -557,29 +557,34 @@ void TNingGroupEvol2::AddNet(const PNingNet& Net, const TNingGroupV& GroupV) {
         NIdInEH.AddDat(GroupV[g]).AddDat(Edge.Val1)++; }
     }
     // determine which groups to consider
-    if (MinNexTm > EdgeTm.GetAbsSecs()) { continue; }
+    //if (MinNexTm > EdgeTm.GetAbsSecs()) { continue; }
     for (int g = 0; g < GroupV.Len(); g++) {
-      MinNexTm = TMath::Mn(MinNexTm, GroupTmV[g].GetAbsSecs());
+      //MinNexTm = TMath::Mn(MinNexTm, GroupTmV[g].GetAbsSecs());
       if (GroupTmV[g] > EdgeTm) { continue; } // group has been checked less than 1 month ago
       if (! NIdInEH.IsKey(g)) { continue; }   // empty fringe
-      GroupTmV[g] += MonthSecs; // check again the group in a month
-      JoinSet.Clr();  FringeSet.Clr();
-      const TNingGroup& Group = GroupV[g];
+      GroupTmV[g] = EdgeTm + MonthSecs; // check again the group in a month
+      //GroupTmV[g] += MonthSecs; // check again the group in a month
+      const TSecTm NextMonthTm = GroupTmV[g];
+      const TIntSet& CurGroup = GroupSet.GetDat(g);
+      const TNingGroup& EndGroup = GroupV[g];
       const TIntH& NodeInEH = NIdInEH.GetDat(g);
+      JoinSet.Clr();  FringeSet.Clr();
       // nodes in fringe
       for (int i = 0; i < NodeInEH.Len(); i++) { // non-member nodes with at least 1 edge in the group 
         const int NId = NodeInEH.GetKey(i);
-        const bool IsNodeIn = Group.IsIn(NId);
-        if (! IsNodeIn || (IsNodeIn && Group.GetTm(NId) > GroupTmV[g])) { // not in group (now or will join later) and has >0 edges to the group
+        const bool IsNodeIn = CurGroup.IsKey(NId);
+        if (! IsNodeIn || (IsNodeIn && EndGroup.GetTm(NId) > NextMonthTm)) { // not in group (now or will join later) and has >0 edges to the group
           FringeSet.AddKey(NId); }
       }
       // fringe nodes that will join inside a month
       for (int i = 0; i < FringeSet.Len(); i++) {
-        if (Group.IsIn(FringeSet[i]) && Group.GetTm(FringeSet[i]) < GroupTmV[g]) { 
+        if (EndGroup.IsIn(FringeSet[i]) && EndGroup.GetTm(FringeSet[i]) < NextMonthTm) { 
           JoinSet.AddKey(FringeSet[i]); }
       }
+      //printf("%d %d G:%d  ", EdgeTm.GetAbsSecs()/MonthSecs, t, g);
+      //printf("g1:%d  g2:%d  g1:%d  f:%d  e:%d  j2:%d\n", CurGraph->GetNodes(), FutGraph->GetNodes(), CurGroup.Len(), FringeSet.Len(), NodeInEH.Len(), JoinSet.Len());
       //OnGroupTimeStep(CurG, GroupV[g], GroupSet.GetDat(g), FringeSet, JoinSet, NodeInEH, EdgeTm); 
-      OnGroupTimeStep2(CurG, FutG, GroupV[g], GroupSet.GetDat(g), FringeSet, JoinSet, NodeInEH, EdgeTm); 
+      OnGroupTimeStep2(CurG, FutG, GroupV[g], CurGroup, FringeSet, JoinSet, NodeInEH, EdgeTm); 
       if (++NJoin % 100 == 0) { printf("."); }
       if (NJoin % Kilo(10) == 0) { printf("p"); PlotAll(); }
     }
@@ -628,20 +633,27 @@ void TNingGroupEvol2::OnGroupTimeStep(const PUNGraph& Graph, const TNingGroup& G
 
 // how fast will the group grow in the future based on its current clustering (density, etc.)
 void TNingGroupEvol2::OnGroupTimeStep2(const PUNGraph& CurGraph, const PUNGraph& FutGraph, const TNingGroup& Group, const TIntSet& CurGroup, const TIntSet& FringeSet, const TIntSet& JoinSet, const TIntH& NodeInEH, const TSecTm& CurTm) {
-  /*TIntV GroupNIdV(CurGroup.Len()+JoinSet.Len());  CurGroup.GetKeyV(GroupNIdV);
-  PUNGraph NowG = TSnap::GetSubGraph(Graph, GroupNIdV); // current group subgraph
+  TIntV CurMemV(CurGroup.Len()+JoinSet.Len()), FutMemV;  
+  CurGroup.GetKeyV(CurMemV);  FutMemV = CurMemV;
   for (int i = 0; i < JoinSet.Len(); i++) {
     IAssert(! CurGroup.IsKey(JoinSet[i]));
-    GroupNIdV.Add(JoinSet[i]); }
-  PUNGraph NxtG = TSnap::GetSubGraph(Graph, GroupNIdV); // 1 month from now group subgraph
+    FutMemV.Add(JoinSet[i]); 
+  }
+  PUNGraph CurG  = TSnap::GetSubGraph(CurGraph, CurMemV); // current group subgraph
+  PUNGraph FutGC = TSnap::GetSubGraph(FutGraph, CurMemV); // 1 month from now current group subgraph
+  PUNGraph FutGF = TSnap::GetSubGraph(FutGraph, FutMemV); // 1 month from now future group subgraph
+  // stats
   const double Growth = JoinSet.Len() / CurGroup.Len();
-  const int NowEdges = NowG->GetEdges();
-  const double NowCCf = TSnap::GetClustCf(NowG);
-  const int NxtEdges = NxtG->GetEdges();
-  const double NxtCCf = TSnap::GetClustCf(NxtG);
+  const int CurEdges = CurG->GetEdges();
+  const double CurCCf = TSnap::GetClustCf(CurG);
+  const int FutEdgesC = FutGC->GetEdges();
+  const double FutCCfC = TSnap::GetClustCf(FutGC);
+  const int FutEdgesF = FutGF->GetEdges();
+  const double FutCCfF = TSnap::GetClustCf(FutGF);
+  //const int NxtEdges = NxtG->GetEdges();
+  //const double NxtCCf = TSnap::GetClustCf(NxtG);
   //
-  THash<TInt, TMom> CcfGrowthH, CcfDiffGrowhtH, CcfRatGrowthH, AvgDegGrowthH;*/
-  printf("g1:%d  g2:%d  g1:%d  j2:%d\n", CurGraph->GetNodes(), FutGraph->GetNodes(), CurGroup.Len(), JoinSet.Len());
+  //THash<TInt, TMom> CcfGrowthH, CcfDiffGrowhtH, CcfRatGrowthH, AvgDegGrowthH;
 }
 
 void TNingGroupEvol2::PlotAll(const TStr& Title) const {
