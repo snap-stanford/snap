@@ -581,13 +581,13 @@ void TNingGroupEvol2::OnGroupTimeStep(const PUNGraph& Graph, const TNingGroup& G
     const bool Joined = JoinSet.IsKey(NId);
     const int InDeg = NodeInEH.GetDat(NId);
     const int Deg = Graph->GetNI(NId).GetOutDeg();
-    IAssert(Deg >= InDeg);
+    if (Deg < InDeg) { return; printf("XXXXXXXXX"); }
     { TFltPr& Pr = JoinCntH.AddDat(InDeg);
     if (Joined) { Pr.Val1++; }  Pr.Val2 += 1; }
     { TFltPr& Pr = OutEdgeCntH.AddDat(Deg-InDeg);
     if (Joined) { Pr.Val1++; }  Pr.Val2 += 1; }
     // prob. of joining given degree and number of edges between nodes in the group (SLOW)
-    if (InDeg>=3 && InDeg<=7) {
+    /*if (InDeg>=3 && InDeg<=7) {
       InSet.Clr();
       TUNGraph::TNodeI Node = Graph->GetNI(NId);
       for (int e = 0; e < Node.GetOutDeg(); e++) {
@@ -609,7 +609,7 @@ void TNingGroupEvol2::OnGroupTimeStep(const PUNGraph& Graph, const TNingGroup& G
       if (Joined) { Pr.Val1++; }  Pr.Val2 += 1; }
       { TFltPr& Pr = InOutFracRatH.AddDat(InDeg).AddDat(int(100 * InAdj/(InAdj+OutAdj)));
       if (Joined) { Pr.Val1++; }  Pr.Val2 += 1; }
-    }
+    }*/
   }
 }
 
@@ -626,6 +626,7 @@ void TNingGroupEvol2::PlotAll(const TStr& Title) const {
 }
 
 void TNingGroupEvol2::PlotRatioHash(const THash<TInt, TFltPr>& XYRatH, const TStr& OutFNm, const TStr& Title, const TStr& XLabel) {
+  if (XYRatH.Empty()) return;
   TFltPrV ProbV, PosCntV, AllCntV;
   TFltTrV StdErrV;
   double npos=0, nobs=0;
@@ -650,6 +651,7 @@ void TNingGroupEvol2::PlotRatioHash(const THash<TInt, TFltPr>& XYRatH, const TSt
 }
 
 void TNingGroupEvol2::PlotRatioHash(const THash<TInt, THash<TInt, TFltPr> >& DegXYRatH, const TStr& OutFNm, const TStr& Title, const TStr& XLabel) {
+  if (DegXYRatH.Empty()) return;
   TGnuPlot GP(OutFNm+"-Prob");
   GP.SetXYLabel(XLabel, "Probability of joining the group");
   TStr Desc;

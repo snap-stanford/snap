@@ -21,31 +21,31 @@ int main(int argc, char* argv[]) {
   TNingGroupBs GroupBs(TZipIn("nets/NingGroupBs-10n05s60d.bin.rar"));
   //TNingUsrBs UsrBs(TZipIn("nets/NingUsrBs.bin.rar"));
   //TFOut FOut("NingNetGroup-N100n1y-G10n05s60d.bin");
-  TNingGroupEvol2 GroupEvol("Evol-AllNets");
-  int netcnt=0, grpcnt=0;
+  //TNingGroupEvol2 GroupEvol("Evol-AllNets");
+  int netcnt=0, grpcnt=0, nskip=0;
   for (int n = 0; n < NetBs->Len(); n++) {
     const int AppId = NetBs->GetAppId(n);
     PNingNet Net = NetBs->GetNet(n);
     //if (Net->GetNodes() < 1000 || Net->GetNodes() > 1100) { continue; }
-    if (! GroupBs.HasGroups(AppId)) { continue; }
+    if (! GroupBs.HasGroups(AppId)) { nskip++; continue; }
     const TNingGroupV& GV = GroupBs.GetGroupV(AppId);
-    printf("\nNet %d on %d nodes and %d groups (%d total):", ++netcnt, Net->GetNodes(), GV.Len(), grpcnt);
-    for (int g = 0; g < GV.Len(); g++) { GroupEvol.AddNet(Net, GV);  grpcnt++; }
+    printf("\nNet %d on %d nodes and %d groups (%d total) %d skip, %d grps:", ++netcnt, Net->GetNodes(), GV.Len(), grpcnt, nskip, GroupBs.Len());
+    //for (int g = 0; g < GV.Len(); g++) { GroupEvol.AddNet(Net, GV);  grpcnt++; }
     //Net->Save(TFOut(TStr::Fmt("%d-net.bin", AppId)));  GV.Save(TFOut(TStr::Fmt("%d-groups.bin", AppId)));
     //Net->Save(FOut);  GV.Save(FOut);
     //if (cnt > 10) { break; }
   }
   //GroupEvol.PlotAll();
   //*/
-  TNingGroupEvol2 GroupEvol("Evol-Nets-Ls500");
+  TNingGroupEvol2 GroupEvol("Evol-AllNets1a");
   int netcnt=0, grpcnt=0;
   for (TFIn FIn("nets/NingNetGroup-N100n1y-G10n05s60d.bin"); ! FIn.Eof(); ) {
     PNingNet Net = TNingNet::Load(FIn);
     TNingGroupV GV(FIn);  
-    if (Net->GetNodes() > 500) { continue; }
+    //if (Net->GetNodes() > 500) { continue; }
     netcnt++;  grpcnt += GV.Len();
     printf("\nNet %d on %d nodes and %d groups (%d total):", netcnt, Net->GetNodes(), GV.Len(), grpcnt);
-    GroupEvol.AddNet(Net, GV);
+    //GroupEvol.AddNet(Net, GV);
   }
   GroupEvol.PlotAll();
 
