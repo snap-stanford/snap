@@ -176,6 +176,18 @@ public:
   static void PlotRatioHash(const THash<TInt, THash<TInt, TFltPr> >& DegXYRatH, const TStr& OutFNm, const TStr& Title, const TStr& XLabel);
 };
 
+class TNingGroupEvol3 { // month by month group growth
+public:
+  TStr OutFNmPref;
+  double NetCnt, GrpCnt, MemCnt;
+  THash<TInt, TFltPr> JoinCntH, OutEdgeCntH;
+  THash<TInt, THash<TInt, TFltPr> > DegAdjEdgeH, DegInOutEdgeH, DegOutEdgeH, InOutRatH, InOutFracRatH;
+public:
+  TNingGroupEvol2(const TStr& OutFNm) : OutFNmPref(OutFNm), NetCnt(0), GrpCnt(0), MemCnt(0) { }
+  void AddNet(const PNingNet& Net, const TNingGroupV& GroupV);
+  
+};
+
 /*
 class TNingEventStat;
 
