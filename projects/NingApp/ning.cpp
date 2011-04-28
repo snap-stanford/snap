@@ -489,7 +489,7 @@ void TNingGroupEvol2::AddNet(const PNingNet& Net, const TNingGroupV& GroupV) {
   THash<TInt, TIntV> NIdGroupV;                     // node  -> group memberships
   THash<TInt, TIntSet> GroupSet;                    // group -> nodes in the group
   THash<TSecTm, TIntPrV> TmJoinVH;                  // nodes that joined groups at time T
-  int TmJoinIdx = 0;
+  int TmJoinIdx = 0; uint MinNexTm=0;
   TVec<TSecTm> GroupTmV;
   // preprocess edges
   for (TNingNet::TEdgeI EI = Net->BegEI(); EI < Net->EndEI(); EI++) {
@@ -558,7 +558,9 @@ void TNingGroupEvol2::AddNet(const PNingNet& Net, const TNingGroupV& GroupV) {
       }
     }
     // determine which groups to consider
+    if (MinNexTm > EdgeTm.GetAbsSecs()) { continue; }
     for (int g = 0; g < GroupV.Len(); g++) {
+      MinNexTm = TMath::Mn(MinNexTm, GroupTmV[g].GetAbsSecs());
       if (GroupTmV[g] > EdgeTm) { continue; } // group has been checked less than 1 month ago
       if (! NIdInEH.IsKey(g)) { continue; }   // empty fringe
       GroupTmV[g] += MonthSecs; // check again the group in a month
@@ -578,8 +580,8 @@ void TNingGroupEvol2::AddNet(const PNingNet& Net, const TNingGroupV& GroupV) {
           JoinSet.AddKey(FringeSet[i]); }
       }
       OnGroupTimeStep(G, GroupV[g], GroupSet.GetDat(g), FringeSet, JoinSet, NodeInEH, EdgeTm); 
-      if (++NJoin % Kilo(1) == 0) { printf("."); }
-      if (NJoin % Kilo(100) == 0) { printf("p"); PlotAll(); }
+      if (++NJoin % 100 == 0) { printf("."); }
+      if (NJoin % Kilo(1) == 0) { printf("p"); PlotAll(); }
     }
   }
 }
@@ -606,11 +608,6 @@ void TNingGroupEvol2::OnGroupTimeStep(const PUNGraph& Graph, const TNingGroup& G
       IAssert(InSet.Len() == InDeg);
       int InGroupEdges, InOutGroupEdges, OutGroupEdges;
       TSnap::GetNodeTriads(Graph, NId, InSet, InGroupEdges, InOutGroupEdges, OutGroupEdges);
-      if (InSet.Len()>6 || InGroupEdges>0) {
-        printf("%d:%d:%d:%d  ", CurGroup.Len(), Node.GetOutDeg(), InSet.Len(), InGroupEdges);
-        static int c=0; c++;
-        if (c==100000) { FailR("jure"); }
-      }
       const double InAdj = InGroupEdges/double(InDeg*(InDeg-1)/2.0);
       const double OutAdj = OutGroupEdges/double((Deg-InDeg)*(Deg-InDeg-1)/2.0);
       const double InOutAdj = InOutGroupEdges/double(InDeg*(Deg-InDeg)/2.0);
@@ -666,7 +663,7 @@ void TNingGroupEvol2::PlotRatioHash(const THash<TInt, TFltPr>& XYRatH, const TSt
   GP.SetXYLabel(XLabel, "Probability of joining the group");
   GP.AddPlot(ProbV, gpwLinesPoints, "Probability");
   GP.AddErrBar(StdErrV, "Standard error");
-  GP.AddCmd("set xrange [0:50]");
+  GP.AddCmd("set xrange [0:100]");
   GP.SavePng(); }
   //TGnuPlot::PlotValV(PosCntV, OutFNm+"-CntJoin", Desc, XLabel, "Number of nodes that joined the group", gpsLog);
   //TGnuPlot::PlotValV(AllCntV, OutFNm+"-CntFringe", Desc, XLabel, "Number of nodes in the fringe (joined and not)", gpsLog);
