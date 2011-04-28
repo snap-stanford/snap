@@ -583,8 +583,8 @@ void TNingGroupEvol2::AddNet(const PNingNet& Net, const TNingGroupV& GroupV) {
       }
       //printf("%d %d G:%d  ", EdgeTm.GetAbsSecs()/MonthSecs, t, g);
       //printf("g1:%d  g2:%d  g1:%d  f:%d  e:%d  j2:%d\n", CurGraph->GetNodes(), FutGraph->GetNodes(), CurGroup.Len(), FringeSet.Len(), NodeInEH.Len(), JoinSet.Len());
-      //OnGroupTimeStep(CurG, GroupV[g], GroupSet.GetDat(g), FringeSet, JoinSet, NodeInEH, EdgeTm); 
-      OnGroupTimeStep2(CurG, FutG, GroupV[g], CurGroup, FringeSet, JoinSet, NodeInEH, EdgeTm); 
+      OnGroupTimeStep(CurG, GroupV[g], GroupSet.GetDat(g), FringeSet, JoinSet, NodeInEH, EdgeTm); 
+      //OnGroupTimeStep2(CurG, FutG, GroupV[g], CurGroup, FringeSet, JoinSet, NodeInEH, EdgeTm); 
       if (++NJoin % 100 == 0) { printf("."); }
       if (NJoin % Kilo(10) == 0) { printf("p"); PlotAll(); }
     }
@@ -627,7 +627,7 @@ void TNingGroupEvol2::OnGroupTimeStep(const PUNGraph& Graph, const TNingGroup& G
       if (Joined) { Pr.Val1++; }  Pr.Val2 += 1; }
       { TFltPr& Pr = InOutFracRatH.AddDat(InDeg).AddDat(int(100 * InAdj/(InAdj+OutAdj)));
       if (Joined) { Pr.Val1++; }  Pr.Val2 += 1; }
-    }
+    } //*/
   }
 }
 
@@ -698,9 +698,10 @@ void TNingGroupEvol2::PlotRatioHash(const THash<TInt, THash<TInt, TFltPr> >& Deg
   TGnuPlot GP(OutFNm+"-Prob");
   GP.SetXYLabel(XLabel, "Probability of joining the group");
   TStr Desc;
+  TIntV KeyV; DegXYRatH.GetKeyV(KeyV); KeyV.Sort();
   for (int x = 0; x < DegXYRatH.Len(); x++) {
-    const THash<TInt, TFltPr>& XYRatH = DegXYRatH[x];
-    const int Deg = DegXYRatH.GetKey(x);
+    const int Deg = KeyV[x];
+    const THash<TInt, TFltPr>& XYRatH = DegXYRatH.GetDat(Deg);
     TFltPrV ProbV;  TFltTrV StdErrV;
     double npos=0, nobs=0;
     for (int e = 0; e < XYRatH.Len(); e++) {

@@ -37,14 +37,20 @@ int main(int argc, char* argv[]) {
   }
   //GroupEvol.PlotAll();
   //*/
-  TNingGroupEvol2 GroupEvol("Evol-AllNets1a");
-  int netcnt=0, grpcnt=0;
+  Env = TEnv(argc, argv, TNotify::StdNotify);
+  Env.PrepArgs("QuotesApp");
+  const TStr OutFNm = Env.GetIfArgPrefixStr("-o:", "Evol-All", "Output file name");
+  const int MinNodes = Env.GetIfArgPrefixInt("-min:", 0, "Min nodes");
+  int MaxNodes = Env.GetIfArgPrefixInt("-max:", -1, "Max nodes");
+  if (MaxNodes == -1) { MaxNodes = Mega(100); }
+  TNingGroupEvol2 GroupEvol(OutFNm);
+  int netcnt=0, grpcnt=0, skipcnt=0;
   for (TFIn FIn("nets/NingNetGroup-N100n1y-G10n05s60d.bin"); ! FIn.Eof(); ) {
     PNingNet Net = TNingNet::Load(FIn);
     TNingGroupV GV(FIn);  
-    //if (Net->GetNodes() > 500) { continue; }
+    if (Net->GetNodes() < MinNodes && Net->GetNodes() > MaxNodes) { skipcnt++; continue; }
     netcnt++;  grpcnt += GV.Len();
-    printf("\nNet %d on %d nodes and %d groups (%d total):", netcnt, Net->GetNodes(), GV.Len(), grpcnt);
+    printf("\nNet %d (skip %d) on %d nodes and %d groups (%d total):", netcnt, skipcnt, Net->GetNodes(), GV.Len(), grpcnt);
     GroupEvol.AddNet(Net, GV);
   }
   GroupEvol.PlotAll(); //*/
