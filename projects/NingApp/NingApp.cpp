@@ -9,8 +9,13 @@ int main(int argc, char* argv[]) {
   TExeTm ExeTm;  TInt::Rnd.PutSeed(0);  Try  //TSysProc::SetLowPriority();
   // TestTwitter();
 
-  //PUNGraph G = TUNGraph::GetSmallGraph();  TGraphViz::Plot(G, gvlNeato, "a.gif", "", true);
-  //printf("%d\n", TSnap::GetTriadEdges(G));
+  //PUNGraph G = TUNGraph::GetSmallGraph();  
+  PUNGraph G = TSnap::ConvertGraph<PUNGraph>(TNGraph::GetSmallGraph());
+  G->AddEdge(0,3); G->AddEdge(2,4); G->AddEdge(1,4);
+  TGraphViz::Plot(G, gvlNeato, "a.gif", "", true);
+  int InGroupEdges=0,  InOutGroupEdges=0,  OutGroupEdges=0;
+  TSnap::GetNodeTriads(G, 1, TIntSet(TIntV::GetV(0,1,2)), InGroupEdges, InOutGroupEdges, OutGroupEdges);
+  printf("%d %d %d\n", InGroupEdges, InOutGroupEdges, OutGroupEdges);
   
   //TNingUsrBs UsrBs(TZipIn("nets/NingUsrBs.bin.rar"));
   /*PNingNetBs NetBs = TNingNetBs::New(TZipIn("nets/NingNetBs-100n1y.bin.rar"));  printf("Loading NetBs done. %d nets [%s]\n", NetBs->Len(), ExeTm.GetStr());
@@ -23,7 +28,7 @@ int main(int argc, char* argv[]) {
     //if (Net->GetNodes() < 1000 || Net->GetNodes() > 1100) { continue; }
     if (! GroupBs.HasGroups(AppId)) { continue; }
     const TNingGroupV& GV = GroupBs.GetGroupV(AppId);
-    printf("Take %d-th net on %d nodes and %d groups (%d total)\n", ++netcnt, Net->GetNodes(), GV.Len(), grpcnt);
+    printf("\nNet %d on %d nodes and %d groups (%d total):", ++netcnt, Net->GetNodes(), GV.Len(), grpcnt);
     for (int g = 0; g < GV.Len(); g++) { GroupEvol.AddNet(Net, GV);  grpcnt++; }
     //Net->Save(TFOut(TStr::Fmt("%d-net.bin", AppId)));
     //GV.Save(TFOut(TStr::Fmt("%d-groups.bin", AppId)));
@@ -31,7 +36,7 @@ int main(int argc, char* argv[]) {
   }
   GroupEvol.PlotAll();
   //*/
-  TNingGroupEvol2 GroupEvol("xxx");
+  /*TNingGroupEvol2 GroupEvol("xxx");
   TStr FNm;
   for (TFFile FFile("nets/*-groups.bin"); FFile.Next(FNm); ) {
     PNingNet Net = TNingNet::Load(TFIn(FNm.GetSubStr(0, FNm.SearchChBack('-'))+"net.bin"));

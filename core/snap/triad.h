@@ -319,7 +319,7 @@ int GetNodeTriads(const PGraph& Graph, const int& NId, const TIntSet& GroupSet, 
   // count connected neighbors
   for (int srcNbh = 0; srcNbh < NbhSet.Len(); srcNbh++) {
     const int NbrId = NbhSet.GetKey(srcNbh);
-    const bool NbrIn = GroupSet.IsKey(srcNbh);
+    const bool NbrIn = GroupSet.IsKey(NbrId);
     const typename PGraph::TObj::TNodeI SrcNode = Graph->GetNI(NbrId);
     for (int dstNbh = srcNbh+1; dstNbh < NbhSet.Len(); dstNbh++) {
       const int DstNId = NbhSet.GetKey(dstNbh);

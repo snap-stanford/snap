@@ -606,6 +606,11 @@ void TNingGroupEvol2::OnGroupTimeStep(const PUNGraph& Graph, const TNingGroup& G
       IAssert(InSet.Len() == InDeg);
       int InGroupEdges, InOutGroupEdges, OutGroupEdges;
       TSnap::GetNodeTriads(Graph, NId, InSet, InGroupEdges, InOutGroupEdges, OutGroupEdges);
+      if (InSet.Len()>6 || InGroupEdges>0) {
+        printf("%d:%d:%d:%d  ", CurGroup.Len(), Node.GetOutDeg(), InSet.Len(), InGroupEdges);
+        static int c=0; c++;
+        if (c==100000) { FailR("jure"); }
+      }
       const double InAdj = InGroupEdges/double(InDeg*(InDeg-1)/2.0);
       const double OutAdj = OutGroupEdges/double((Deg-InDeg)*(Deg-InDeg-1)/2.0);
       const double InOutAdj = InOutGroupEdges/double(InDeg*(Deg-InDeg)/2.0);
@@ -624,32 +629,6 @@ void TNingGroupEvol2::OnGroupTimeStep(const PUNGraph& Graph, const TNingGroup& G
 }
 
 void TNingGroupEvol2::PlotAll(const TStr& Title) const {
-  /*THash<TInt, TFlt> JoinProbH, NJoinedH, NodeCntH;
-  double npos=0, nobs=0;
-  for (int e = 0; e < JoinCntH.Len(); e++) {
-    JoinProbH.AddDat(JoinCntH.GetKey(e), JoinCntH[e].Val1/JoinCntH[e].Val2);
-    NJoinedH.AddDat(JoinCntH.GetKey(e), JoinCntH[e].Val1);
-    NodeCntH.AddDat(JoinCntH.GetKey(e), JoinCntH[e].Val2);
-    npos += JoinCntH[e].Val1;  nobs += JoinCntH[e].Val2;
-  }
-  TGnuPlot::PlotValCntH(JoinProbH, OutFNmPref+"-JoinProbIn", TStr::Fmt("%.1fm nodes in fringe, %.1fm join events.", nobs/Mega(1), npos/Mega(1)), "Number of friends in the group", "Prob. joining the group");
-  TGnuPlot::PlotValCntH(NJoinedH, OutFNmPref+"-CntJoinIn", TStr::Fmt("%.1fm nodes in fringe, %.1fm join events.", nobs/Mega(1), npos/Mega(1)), "Number of friends in the group", "Number of nodes that joined the group", gpsLog);
-  TGnuPlot::PlotValCntH(NodeCntH, OutFNmPref+"-CntFringeIn", TStr::Fmt("%.1fm nodes in fringe, %.1fm join events.", nobs/Mega(1), npos/Mega(1)), "Number of friends in the group", "Number of such nodes", gpsLog);
-  // prob join vs. out edges
-  JoinProbH.Clr();  NJoinedH.Clr();  NodeCntH.Clr();
-  npos=0;  nobs=0;
-  for (int e = 0; e < OutEdgeCntH.Len(); e++) {
-    JoinProbH.AddDat(OutEdgeCntH.GetKey(e), OutEdgeCntH[e].Val1/OutEdgeCntH[e].Val2);
-    NJoinedH.AddDat(OutEdgeCntH.GetKey(e), OutEdgeCntH[e].Val1);
-    NodeCntH.AddDat(OutEdgeCntH.GetKey(e), OutEdgeCntH[e].Val2);
-    npos += OutEdgeCntH[e].Val1;  nobs += OutEdgeCntH[e].Val2;
-  }
-  TGnuPlot::PlotValCntH(JoinProbH, OutFNmPref+"-JoinProbOut", TStr::Fmt("%.1fm nodes in fringe, %.1fm join events.", nobs/Mega(1), npos/Mega(1)), "Number of friends outside the group", "Prob. joining the group");
-  TGnuPlot::PlotValCntH(NJoinedH, OutFNmPref+"-CntJoinOut", TStr::Fmt("%.1fm nodes in fringe, %.1fm join events.", nobs/Mega(1), npos/Mega(1)), "Number of friends outside the group", "Number of nodes that joined the group", gpsLog);
-  TGnuPlot::PlotValCntH(NodeCntH, OutFNmPref+"-CntFringeOut", TStr::Fmt("%.1fm nodes in fringe, %.1fm join events.", nobs/Mega(1), npos/Mega(1)), "Number of friends outside the group", "Number of such nodes", gpsLog);
-  // prob join vs. adj. edges
-  //DegAdjEdgeH, DegInOutEdgeH, InOutRatH, InOutFracRatH*/
-
   PlotRatioHash(JoinCntH, OutFNmPref+"-JoinIn", Title, "Number of friends INSIDE the group");
   PlotRatioHash(OutEdgeCntH, OutFNmPref+"-JoinOut", Title, "Number of friends OUTSIDE the group");
   for (int i = 0; i < DegAdjEdgeH.Len(); i++) {
@@ -684,6 +663,7 @@ void TNingGroupEvol2::PlotRatioHash(const THash<TInt, TFltPr>& XYRatH, const TSt
   ProbV.Sort(); StdErrV.Sort(); PosCntV.Sort(); AllCntV.Sort();
   TStr Desc = Title + TStr::Fmt("  %.1fm joins, %.1fm in fringe.", npos/Mega(1), nobs/Mega(1));
   { TGnuPlot GP(OutFNm+"-Prob", Desc);
+  GP.SetXYLabel(XLabel, "Probability of joining the group");
   GP.AddPlot(ProbV, gpwLinesPoints, "Probability");
   GP.AddErrBar(StdErrV, "Standard error");
   GP.AddCmd("set xrange [0:50]");
