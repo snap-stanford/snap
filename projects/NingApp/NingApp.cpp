@@ -40,7 +40,7 @@ int main(int argc, char* argv[]) {
     for (int g = 0; g < GV.Len(); g++) {
       GroupEvol.AddNet(Net, GV); }
   }
-  GroupEvol.PlotAll();
+  GroupEvol.PlotAll("final");
   
 
   //NetBs->SaveTxtStat("ningComment2", 10, Mega(100));
