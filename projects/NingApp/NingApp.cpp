@@ -13,25 +13,25 @@ int main(int argc, char* argv[]) {
   //printf("%d\n", TSnap::GetTriadEdges(G));
   
   //TNingUsrBs UsrBs(TZipIn("nets/NingUsrBs.bin.rar"));
-  PNingNetBs NetBs = TNingNetBs::New(TZipIn("nets/NingNetBs-100n1y.bin.rar"));  printf("Loading NetBs done. %d nets [%s]\n", NetBs->Len(), ExeTm.GetStr());
+  /*PNingNetBs NetBs = TNingNetBs::New(TZipIn("nets/NingNetBs-100n1y.bin.rar"));  printf("Loading NetBs done. %d nets [%s]\n", NetBs->Len(), ExeTm.GetStr());
   TNingGroupBs GroupBs(TZipIn("nets/NingGroupBs-10n05s60d.bin.rar"));
-  TNingGroupEvol GroupEvol;
-  int cnt=0;
+  TNingGroupEvol2 GroupEvol("evol2-all");
+  int netcnt=0, grpcnt=0
   for (int n = 0; n < NetBs->Len(); n++) {
     const int AppId = NetBs->GetAppId(n);
     PNingNet Net = NetBs->GetNet(n);
     //if (Net->GetNodes() < 1000 || Net->GetNodes() > 1100) { continue; }
     if (! GroupBs.HasGroups(AppId)) { continue; }
     const TNingGroupV& GV = GroupBs.GetGroupV(AppId);
-    printf("Take %d-th net on %d nodes and %d groups\n", cnt++, Net->GetNodes(), GV.Len());
+    printf("Take %d-th net on %d nodes and %d groups (%d total)\n", ++netcnt, Net->GetNodes(), GV.Len(), grpcnt);
+    for (int g = 0; g < GV.Len(); g++) { GroupEvol.AddNet(Net, GV);  grpcnt++; }
     //Net->Save(TFOut(TStr::Fmt("%d-net.bin", AppId)));
     //GV.Save(TFOut(TStr::Fmt("%d-groups.bin", AppId)));
-    for (int g = 0; g < GV.Len(); g++) { GroupEvol.AddNet(Net, GV); }
     //if (cnt > 10) { break; }
   }
-  GroupEvol.PlotAll("ningCommentAll");
+  GroupEvol.PlotAll();
   //*/
-  /*TNingGroupEvol GroupEvol;
+  TNingGroupEvol2 GroupEvol("xxx");
   TStr FNm;
   for (TFFile FFile("nets/*-groups.bin"); FFile.Next(FNm); ) {
     PNingNet Net = TNingNet::Load(TFIn(FNm.GetSubStr(0, FNm.SearchChBack('-'))+"net.bin"));

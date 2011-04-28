@@ -14,6 +14,7 @@ template <class PGraph> int GetTriads(const PGraph& Graph, int SampleNodes=-1);
 template <class PGraph> int GetTriads(const PGraph& Graph, int& ClosedTriads, int& OpenTriads, int SampleNodes);
 template <class PGraph> void GetTriads(const PGraph& Graph, TIntTrV& NIdCOTriadV, int SampleNodes=-1);
 template <class PGraph> int GetTriadEdges(const PGraph& Graph, int SampleEdges=-1);
+template <class PGraph> int GetNodeTriads(const PUNGraph& Graph, const int& NId, const TIntSet& GroupSet, int& InGroupEdges, int& InOutGroupEdges);
 
 template <class PGraph> int GetNodeTriads(const PGraph& Graph, const int& NId);
 template <class PGraph> int GetNodeTriads(const PGraph& Graph, const int& NId, int& ClosedTriads, int& OpenTriads);
@@ -139,7 +140,7 @@ int GetTriads(const PGraph& Graph, int& ClosedTriads, int& OpenTriads, int Sampl
   return ClosedTriads;
 }
 
-/// Note: pretends that the graph is undirected (count unique connected triples of nodes)
+// Note: pretends that the graph is undirected (count unique connected triples of nodes)
 template <class PGraph>
 void GetTriads(const PGraph& Graph, TIntTrV& NIdCOTriadV, int SampleNodes) {
   const bool IsDir = Graph->HasFlag(gfDirected);
@@ -220,14 +221,50 @@ int GetTriadEdges(const PGraph& Graph, int SampleEdges) {
   return TriadEdges;
 }
 
-/// Return number of undirected triads a node participates in
+// node NId and a subset of its neighbors GroupSet
+//   InGroupEdges ... triads (NId, g1, g2), where g1 and g2 are in GroupSet
+//   InOutGroupEdges ... triads (NId, g1, o1), where g1 in GroupSet and o1 not in GroupSet
+template <class PGraph> 
+int GetNodeTriads(const PGraph& Graph, const int& NId, const TIntSet& GroupSet, int& InGroupEdges, int& InOutGroupEdges) {
+  const typename PGraph::TObj::TNodeI NI = Graph->GetNI(NId);
+  const bool IsDir = Graph->HasFlag(gfDirected);
+  InGroupEdges=0;   InOutGroupEdges=0;
+  if (NI.GetDeg() < 2 || GroupSet.Empty()) { return 0; }
+  // find neighborhood
+  TIntSet NbhSet(NI.GetDeg());
+  for (int e = 0; e < NI.GetOutDeg(); e++) {
+    if (NI.GetOutNId(e) != NI.GetId()) { // exclude self edges
+      NbhSet.AddKey(NI.GetOutNId(e)); }
+  }
+  if (IsDir) {
+    for (int e = 0; e < NI.GetInDeg(); e++) {
+      if (NI.GetInNId(e) != NI.GetId()) {
+        NbhSet.AddKey(NI.GetInNId(e)); }
+    }
+  }
+  // count connected neighbors
+  for (int srcGrp = 0; srcGrp < GroupSet.Len(); srcGrp++) {
+    IAssert(NbhSet.IsKey(GroupSet[srcGrp]));
+    const typename PGraph::TObj::TNodeI SrcNode = Graph->GetNI(GroupSet.GetKey(srcGrp));
+    for (int i = 0; i < SrcNode.GetOutDeg(); i++) {
+      const int dst = SrcNode.GetOutNId(i);
+      if (! NbhSet.IsKey(dst)) { continue; } // not triangle
+      if (GroupSet.IsKey(dst)) { InGroupEdges++; }
+      else { InOutGroupEdges++; }
+    }
+  }
+  return InGroupEdges;
+}
+
+
+// Return number of undirected triads a node participates in
 template <class PGraph>
 int GetNodeTriads(const PGraph& Graph, const int& NId) {
   int ClosedTriads=0, OpenTriads=0;
   return GetNodeTriads(Graph, NId, ClosedTriads, OpenTriads);
 }
 
-/// Return number of undirected triads a node participates in
+// Return number of undirected triads a node participates in
 template <class PGraph> 
 int GetNodeTriads(const PGraph& Graph, const int& NId, int& ClosedTriads, int& OpenTriads) {
   const typename PGraph::TObj::TNodeI NI = Graph->GetNI(NId);

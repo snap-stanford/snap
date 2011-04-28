@@ -6,6 +6,7 @@ template <class PGraph> int CntInDegNodes(const PGraph& Graph, const int& NodeIn
 template <class PGraph> int CntOutDegNodes(const PGraph& Graph, const int& NodeOutDeg);
 template <class PGraph> int CntDegNodes(const PGraph& Graph, const int& NodeDeg);
 template <class PGraph> int CntNonZNodes(const PGraph& Graph);
+template <class PGraph> int CntEdgesToSet(const PGraph& Graph, const int& NId, const TIntSet& NodeSet);
 
 template <class PGraph> void GetInDegCnt(const PGraph& Graph, TIntPrV& DegToCntV);
 template <class PGraph> void GetInDegCnt(const PGraph& Graph, TFltPrV& DegToCntV);
@@ -76,6 +77,26 @@ int CntNonZNodes(const PGraph& Graph) {
     if (NI.GetDeg() > 0) Cnt++;
   }
   return Cnt;
+}
+
+template <class PGraph> 
+int CntEdgesToSet(const PGraph& Graph, const int& NId, const TIntSet& NodeSet) {
+  if (! Graph->IsNode(NId)) { return 0; }
+  const bool IsDir = Graph->HasFlag(gfDirected);
+  const typename PGraph::TObj::TNodeI NI = Graph->GetNI(NId);
+  if (! IsDir) {
+    int EdgesToSet = 0;
+    for (int e = 0; e < NI.GetOutDeg(); e++) {
+      if (NodeSet.IsKey(NI.GetOutNId(e))) { EdgesToSet++; } }
+    return EdgesToSet;
+  } else {
+    TIntSet Set(NI.GetDeg());
+    for (int e = 0; e < NI.GetOutDeg(); e++) {
+      if (NodeSet.IsKey(NI.GetOutNId(e))) { Set.AddKey(NI.GetOutNId(e)); } }
+    for (int e = 0; e < NI.GetInDeg(); e++) {
+      if (NodeSet.IsKey(NI.GetInNId(e))) { Set.AddKey(NI.GetInNId(e)); } }
+    return Set.Len();
+  }
 }
 
 template <class PGraph>

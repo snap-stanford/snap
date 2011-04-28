@@ -142,183 +142,35 @@ public:
   friend class TPt<TNingGroupBs>;
 };
 
-class TNingGroupEvol {
-private:
+
+/////////////////////////////////////////////////
+// Ning group evolution
+class TNingGroupEvol { // for every group join event
+public:
   THash<TInt, TFltPr> JoinProbH;
   THash<TInt, THash<TInt, TIntPr> > DegJoinAdjH, DegJoinCcfH;
-  
 public:
-  void AddNet(const PNingNet& Net, const TNingGroupV& GroupV) {
-    static int NJoin = 0;
-    THash<TIntPr, TSecTm> EdgeTmSet(Net->GetEdges());
-    THash<TSecTm, TIntPrV> TmJoinVH;
-    THash<TInt, TIntSet> GroupSet;
-    THash<TInt, TIntH> NIdInEH;
-    THash<TInt, TIntV> NIdGroupV;
-    int TmJoinIdx = 0;
-    PUNGraph G = TUNGraph::New(Net->GetNodes(), -1);
-    // preprocess edges
-    for (TNingNet::TEdgeI EI = Net->BegEI(); EI < Net->EndEI(); EI++) {
-      const TIntPr Edge(TMath::Mn(EI.GetSrcNId(), EI.GetDstNId()), TMath::Mx(EI.GetSrcNId(), EI.GetDstNId()));
-      if (EdgeTmSet.IsKey(Edge)) { continue; }
-      EdgeTmSet.AddDat(Edge, EI());
-    }
-    // find node group membership times
-    for (int g = 0; g < GroupV.Len(); g++) {
-      for (int i = 0; i < GroupV[g].Len(); i++) {
-        TmJoinVH.AddDat(GroupV[g].GetTm2(i)).Add(TIntPr(g, GroupV[g].GetNId(i))); } // (group, node)
-    }
-    TmJoinVH.SortByKey(true);
-    // evolve the network
-    for (int i = 0; i < EdgeTmSet.Len(); i++) {
-      const TIntPr Edge = EdgeTmSet.GetKey(i);
-      const TSecTm EdgeTm = EdgeTmSet[i];
-      // add edge to net
-      if (! G->IsNode(Edge.Val1)) { G->AddNode(Edge.Val1); }
-      if (! G->IsNode(Edge.Val2)) { G->AddNode(Edge.Val2); }
-      G->AddEdge(Edge.Val1, Edge.Val2);
-      // count node group in-degree
-      if (NIdGroupV.IsKey(Edge.Val1)) {
-        const TIntV& GroupV = NIdGroupV.GetDat(Edge.Val1);
-        for (int g = 0; g < GroupV.Len(); g++) {
-          NIdInEH.AddDat(GroupV[g]).AddDat(Edge.Val2)++; }
-      }
-      if (NIdGroupV.IsKey(Edge.Val2)) {
-        const TIntV& GroupV = NIdGroupV.GetDat(Edge.Val2);
-        for (int g = 0; g < GroupV.Len(); g++) {
-          NIdInEH.AddDat(GroupV[g]).AddDat(Edge.Val1)++; }
-      }
-      //if (GroupSet.IsKey(Edge.Val1) && GroupSet.IsKey(Edge.Val2)) { InGroupE++; }
-      //else if (GroupSet.IsKey(Edge.Val1) || GroupSet.IsKey(Edge.Val2)) { InOutGroupE++; }
-      //else { OutGroupE++; }
-      // nodes that joined any of the groups at current time
-      for (; TmJoinIdx < TmJoinVH.Len() && TmJoinVH.GetKey(TmJoinIdx) < EdgeTm; TmJoinIdx++) {
-        const TIntPrV& JoinV = TmJoinVH[TmJoinIdx];
-        for (int j = 0; j < JoinV.Len(); j++) {
-          GroupSet.AddDat(JoinV[j].Val1).AddKey(JoinV[j].Val2); 
-          NIdGroupV.AddDat(JoinV[j].Val2).Add(JoinV[j].Val1);
-        }
-        for (int j = 0; j < JoinV.Len(); j++) {
-          if (NIdInEH.IsKey(JoinV[j].Val1)) { 
-            OnNodeJoined(G, GroupV[JoinV[j].Val1], GroupSet.GetDat(JoinV[j].Val1), JoinV[j].Val2, NIdInEH.GetDat(JoinV[j].Val1), EdgeTm); }
-          if (++NJoin % Kilo(1) == 0) { printf("."); }
-          if (NJoin % Mega(1) == 0) { PlotAll("ningCommentAll"); }
-        }
-      }
-    }
-  }
-  void OnNodeJoined(const PUNGraph& G, const TNingGroup& EndGroup, const TIntSet& CurGroup, const int& JoinNId, const TIntH& NIdInEH, const TSecTm& JoinTm) {
-    if (! NIdInEH.IsKey(JoinNId)) { return; }
-    // prob. of joining given number of edges in
-    const int JoinInE = NIdInEH.GetDat(JoinNId);
-    int NoJoin=0;
-    JoinProbH.AddDat(JoinInE).Val1 += 1;
-    for (int i = 0; i < NIdInEH.Len(); i++) {
-      if (NIdInEH[i] == JoinInE /*&& ! EndGroup.IsIn(NIdInEH.GetKey(i))*/) { NoJoin++; }
-    }
-    JoinProbH.AddDat(JoinInE).Val2 += NoJoin;
-    // prob. of joining given degree and number of edges between nodes in the group
-    if (JoinInE==3 || JoinInE==4 || JoinInE==5 || JoinInE==6) {
-      //THash<TInt, TIntPr>&  DegJoinH = DegJoinAdjH.AddDat(JoinInE);
-    }
-  }
-  void PlotAll(const TStr& OutFNmPref) const { 
-    THash<TInt, TFlt> InEProbH;
-    THash<TInt, TFlt> InECntH, AllCntH;
-    double npos=0, nobs=0;
-    for (int e = 0; e < JoinProbH.Len(); e++) {
-      InECntH.AddDat(JoinProbH.GetKey(e), JoinProbH[e].Val1);
-      AllCntH.AddDat(JoinProbH.GetKey(e), JoinProbH[e].Val2);
-      InEProbH.AddDat(JoinProbH.GetKey(e), JoinProbH[e].Val1/(double)JoinProbH[e].Val2);
-      npos += JoinProbH[e].Val1;  nobs += JoinProbH[e].Val2;
-    }
-    TGnuPlot::PlotValCntH(InEProbH, OutFNmPref+"-JoinProb", TStr::Fmt("%.1fm observations, %.1fm join events", nobs/Mega(1), npos/Mega(1)), "Number of friends in the group", "Prob. joining the group");
-    TGnuPlot::PlotValCntH(InECntH, OutFNmPref+"-Joins", TStr::Fmt("%.1fm observations, %.1fm join events", nobs/Mega(1), npos/Mega(1)), "Number of friends in the group", "Number of nodes that joined the group");
-    TGnuPlot::PlotValCntH(AllCntH, OutFNmPref+"-AllNodes", TStr::Fmt("%.1fm observations, %.1fm join events", nobs/Mega(1), npos/Mega(1)), "Number of friends in the group", "Number of such nodes");
-  }
+  TNingGroupEvol() { }
+  void AddNet(const PNingNet& Net, const TNingGroupV& GroupV);
+  void OnNodeJoined(const PUNGraph& G, const TNingGroup& EndGroup, const TIntSet& CurGroup, 
+    const int& JoinNId, const TIntH& NIdInEH, const TSecTm& JoinTm);
+  void PlotAll(const TStr& OutFNmPref) const;
+};
 
-  // fraction of nodes that joined in 1 month period
-  // group starts, after i-th month check fringe, how many join till month i+1
-  void AddNet2(const PNingNet& Net, const TNingGroupV& GroupV) {
-    const TSecTm MonthSecs(30*24*3600);
-    static int NJoin = 0;
-    THash<TIntPr, TSecTm> EdgeTmSet(Net->GetEdges()); // edges over time
-    THash<TInt, TIntH> NIdInEH;                       // group -> (node, number of friends in the group)
-    THash<TInt, TIntV> NIdGroupV;                     // node  -> group memberships
-    THash<TInt, TIntSet> GroupSet;                    // group -> nodes in the group
-    THash<TSecTm, TIntPrV> TmJoinVH;                  // nodes that joined groups at time T
-    int TmJoinIdx = 0;
-    TVec<TSecTm> GroupTmV;
-    // preprocess edges
-    for (TNingNet::TEdgeI EI = Net->BegEI(); EI < Net->EndEI(); EI++) {
-      const TIntPr Edge(TMath::Mn(EI.GetSrcNId(), EI.GetDstNId()), TMath::Mx(EI.GetSrcNId(), EI.GetDstNId()));
-      if (EdgeTmSet.IsKey(Edge)) { continue; }
-      EdgeTmSet.AddDat(Edge, EI());
-    }
-    // preprocess groups
-    for (int g = 0; g < GroupV.Len(); g++) {
-      for (int i = 0; i < GroupV[g].Len(); i++) {
-        TmJoinVH.AddDat(GroupV[g].GetTm2(i)).Add(TIntPr(g, GroupV[g].GetNId(i))); } // time -> (group, node)
-      GroupTmV.Add(TSecTm(GroupV[g].GetMnTm()+MonthSecs));
-    }
-    //TmGroupVH.SortByKey(true);
-    // evolve the network
-    PUNGraph G = TUNGraph::New(Net->GetNodes(), -1);
-    TIntSet JoinSet, FringeSet;
-    for (int t = 0; t < EdgeTmSet.Len(); t++) {
-      const TIntPr Edge = EdgeTmSet.GetKey(t);
-      const TSecTm EdgeTm = EdgeTmSet[t];
-      // add edge to net
-      if (! G->IsNode(Edge.Val1)) { G->AddNode(Edge.Val1); }
-      if (! G->IsNode(Edge.Val2)) { G->AddNode(Edge.Val2); }
-      G->AddEdge(Edge.Val1, Edge.Val2);
-      // count node group in-degree
-      if (NIdGroupV.IsKey(Edge.Val1)) {
-        const TIntV& GroupV = NIdGroupV.GetDat(Edge.Val1);
-        for (int g = 0; g < GroupV.Len(); g++) {
-          NIdInEH.AddDat(GroupV[g]).AddDat(Edge.Val2)++; }
-      }
-      if (NIdGroupV.IsKey(Edge.Val2)) {
-        const TIntV& GroupV = NIdGroupV.GetDat(Edge.Val2);
-        for (int g = 0; g < GroupV.Len(); g++) {
-          NIdInEH.AddDat(GroupV[g]).AddDat(Edge.Val1)++; }
-      }
-      // determine which nodes joined up to now
-      for (; TmJoinIdx < TmJoinVH.Len() && TmJoinVH.GetKey(TmJoinIdx) < EdgeTm; TmJoinIdx++) {
-        const TIntPrV& JoinV = TmJoinVH[TmJoinIdx];
-        for (int j = 0; j < JoinV.Len(); j++) {
-          GroupSet.AddDat(JoinV[j].Val1).AddKey(JoinV[j].Val2);  // group -> members
-          NIdGroupV.AddDat(JoinV[j].Val2).Add(JoinV[j].Val1); }  // node -> groups
-      }
-      // determine which groups to consider
-      for (int g = 0; g < GroupV.Len(); g++) {
-        if (GroupTmV[g] > EdgeTm) { continue; } // group has been checked less than 1 month ago
-        if (! NIdInEH.IsKey(g)) { continue; }   // empty fringe
-        JoinSet.Clr();  FringeSet.Clr();
-        const TNingGroup& Group = GroupV[g];
-        const TIntH& NodeInEH = NIdInEH.GetDat(g);
-        // nodes in fringe
-        for (int i = 0; i < NodeInEH.Len(); i++) { // non-member nodes with at least 1 edge in the group 
-          const int NId = NodeInEH.GetKey(i);
-          const bool IsNodeIn = Group.IsIn(NId);
-          if (! IsNodeIn || (IsNodeIn && Group.GetTm(NId) > GroupTmV[g] + MonthSecs)) { 
-            JoinSet.AddKey(FringeSet[i]); }
-        }
-        // nodes that will join inside a month
-        for (int i = 0; i < FringeSet.Len(); i++) {
-          if (Group.IsIn(FringeSet[i]) && Group.GetTm(FringeSet[i]) < GroupTmV[g]) { 
-            JoinSet.AddKey(FringeSet[i]); }
-        }
-        //
-        CheckGroup(G, GroupV[g], GroupSet.GetDat(g), FringeSet, JoinSet, NodeInEH, EdgeTm); 
-        if (++NJoin % Kilo(1) == 0) { printf("."); }
-        if (NJoin % Mega(1) == 0) { PlotAll("ningCommentAll"); }
-        GroupTmV[g] += MonthSecs; // check again the group in a month
-      }
-    }
-  }
-  void CheckGroup(const PUNGraph& Graph, const TNingGroup& Group, const TIntSet& CurGroup, const TIntSet& FringeSet, const TIntSet& JoinSet, const TIntH& NodeInEH, const TSecTm& CurTm) {
-  }
+//   InGroupTriads ... triads (g1, g2, g3), where g1, g2 and g3 are in GroupSet
+
+
+class TNingGroupEvol2 { // month-by-month group/network snapshots
+public:
+  TStr OutFNmPref;
+  THash<TInt, TFltPr> JoinCntH, OutEdgeCntH;
+  THash<TInt, THash<TInt, TFltPr> > DegAdjEdgeH, DegInOutEdgeH, DegJoinCcfH;
+public:
+  TNingGroupEvol2(const TStr& OutFNm) : OutFNmPref(OutFNm) { }
+  void AddNet(const PNingNet& Net, const TNingGroupV& GroupV);
+  void OnGroupTimeStep(const PUNGraph& Graph, const TNingGroup& Group, const TIntSet& CurGroup, 
+    const TIntSet& FringeSet, const TIntSet& JoinSet, const TIntH& NodeInEH, const TSecTm& CurTm);
+  void PlotAll() const;
 };
 
 /*
