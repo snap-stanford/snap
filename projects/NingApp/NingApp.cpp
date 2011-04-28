@@ -30,14 +30,14 @@ int main(int argc, char* argv[]) {
     if (! GroupBs.HasGroups(AppId)) { nskip++; continue; }
     const TNingGroupV& GV = GroupBs.GetGroupV(AppId);
     printf("\nNet %d on %d nodes and %d groups (%d total) %d skip, %d grps:", ++netcnt, Net->GetNodes(), GV.Len(), grpcnt, nskip, GroupBs.Len());
-    //for (int g = 0; g < GV.Len(); g++) { GroupEvol.AddNet(Net, GV);  grpcnt++; }
+    GroupEvol.AddNet(Net, GV);  grpcnt+=GV.Len(); 
     //Net->Save(TFOut(TStr::Fmt("%d-net.bin", AppId)));  GV.Save(TFOut(TStr::Fmt("%d-groups.bin", AppId)));
     //Net->Save(FOut);  GV.Save(FOut);
     //if (cnt > 10) { break; }
   }
   //GroupEvol.PlotAll();
   //*/
-  TNingGroupEvol2 GroupEvol("Evol-AllNets1a");
+  /*TNingGroupEvol2 GroupEvol("Evol-AllNets1a");
   int netcnt=0, grpcnt=0;
   for (TFIn FIn("nets/NingNetGroup-N100n1y-G10n05s60d.bin"); ! FIn.Eof(); ) {
     PNingNet Net = TNingNet::Load(FIn);
@@ -47,17 +47,18 @@ int main(int argc, char* argv[]) {
     printf("\nNet %d on %d nodes and %d groups (%d total):", netcnt, Net->GetNodes(), GV.Len(), grpcnt);
     //GroupEvol.AddNet(Net, GV);
   }
-  GroupEvol.PlotAll();
+  GroupEvol.PlotAll(); //*/
 
 
-  /*for (TFFile FFile("nets/*-groups.bin"); FFile.Next(FNm); ) {
+  TNingGroupEvol3 GroupEvol("GroupEvol");
+  TStr FNm;
+  for (TFFile FFile("nets/*-groups.bin"); FFile.Next(FNm); ) {
     PNingNet Net = TNingNet::Load(TFIn(FNm.GetSubStr(0, FNm.SearchChBack('-'))+"net.bin"));
     TNingGroupV GV; GV.Load(TFIn(FNm));
     printf("%s. %d groups.\n", Net->GetTitle().CStr(), GV.Len());
-    for (int g = 0; g < GV.Len(); g++) {
-      GroupEvol.AddNet(Net, GV); }
+    GroupEvol.AddNet(Net, GV);
   }
-  GroupEvol.PlotAll("final");*/
+  //GroupEvol.PlotAll("final"); //*/
   
 
   //NetBs->SaveTxtStat("ningComment2", 10, Mega(100));
