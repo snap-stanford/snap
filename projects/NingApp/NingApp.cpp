@@ -50,7 +50,7 @@ int main(int argc, char* argv[]) {
   GroupEvol.PlotAll(); //*/
 
 
-  TNingGroupEvol3 GroupEvol("GroupEvol");
+  TNingGroupEvol2 GroupEvol("GroupEvol");
   TStr FNm;
   for (TFFile FFile("nets/*-groups.bin"); FFile.Next(FNm); ) {
     PNingNet Net = TNingNet::Load(TFIn(FNm.GetSubStr(0, FNm.SearchChBack('-'))+"net.bin"));
