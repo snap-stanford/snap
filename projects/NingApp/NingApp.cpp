@@ -37,16 +37,15 @@ int main(int argc, char* argv[]) {
   }
   //GroupEvol.PlotAll();
   //*/
-  TNingGroupEvol2 GroupEvol("Evol-AllNets");
+  TNingGroupEvol2 GroupEvol("Evol-AllNets2");
   int netcnt=1, grpcnt=0;
   for (TFIn FIn("nets/NingNetGroup-N100n1y-G10n05s60d.bin"); ! FIn.Eof(); netcnt++) {
     PNingNet Net = TNingNet::Load(FIn);
     TNingGroupV GV(FIn);  grpcnt += GV.Len();
     printf("\nNet %d on %d nodes and %d groups (%d total):", netcnt, Net->GetNodes(), GV.Len(), grpcnt);
     GroupEvol.AddNet(Net, GV);
-    if (netcnt % 10 == 0) { GroupEvol.PlotAll(TStr::Fmt("%d nets, %d groups. ", netcnt, grpcnt)); printf(" PLOT"); }
   }
-  GroupEvol.PlotAll(TStr::Fmt("%d nets, %d groups. ", netcnt, grpcnt));
+  GroupEvol.PlotAll();
 
 
   /*for (TFFile FFile("nets/*-groups.bin"); FFile.Next(FNm); ) {

@@ -163,15 +163,17 @@ public:
 class TNingGroupEvol2 { // month-by-month group/network snapshots
 public:
   TStr OutFNmPref;
+  double NetCnt, GrpCnt, MemCnt;
   THash<TInt, TFltPr> JoinCntH, OutEdgeCntH;
   THash<TInt, THash<TInt, TFltPr> > DegAdjEdgeH, DegInOutEdgeH, DegOutEdgeH, InOutRatH, InOutFracRatH;
 public:
-  TNingGroupEvol2(const TStr& OutFNm) : OutFNmPref(OutFNm) { }
+  TNingGroupEvol2(const TStr& OutFNm) : OutFNmPref(OutFNm), NetCnt(0), GrpCnt(0), MemCnt(0) { }
   void AddNet(const PNingNet& Net, const TNingGroupV& GroupV);
   void OnGroupTimeStep(const PUNGraph& Graph, const TNingGroup& Group, const TIntSet& CurGroup, 
     const TIntSet& FringeSet, const TIntSet& JoinSet, const TIntH& NodeInEH, const TSecTm& CurTm);
   void PlotAll(const TStr& Title="") const;
   static void PlotRatioHash(const THash<TInt, TFltPr>& XYRatH, const TStr& OutFNm, const TStr& Title, const TStr& XLabel);
+  static void PlotRatioHash(const THash<TInt, THash<TInt, TFltPr> >& DegXYRatH, const TStr& OutFNm, const TStr& Title, const TStr& XLabel);
 };
 
 /*

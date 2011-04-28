@@ -503,7 +503,9 @@ void TNingGroupEvol2::AddNet(const PNingNet& Net, const TNingGroupV& GroupV) {
     for (int i = 0; i < GroupV[g].Len(); i++) {
       TmJoinVH.AddDat(GroupV[g].GetTm2(i)).Add(TIntPr(g, GroupV[g].GetNId(i))); } // time -> (group, node)
     GroupTmV.Add(TSecTm(GroupV[g].GetMnTm()+MonthSecs));
+    MemCnt += GroupV[g].Len();
   }
+  NetCnt++; GrpCnt+=GroupV.Len();
   // evolve the network
   PUNGraph G = TUNGraph::New(Net->GetNodes(), -1);
   TIntSet JoinSet, FringeSet;
@@ -536,26 +538,12 @@ void TNingGroupEvol2::AddNet(const PNingNet& Net, const TNingGroupV& GroupV) {
     if (NIdGroupV.IsKey(Edge.Val1)) {
       const TIntV& GroupV = NIdGroupV.GetDat(Edge.Val1);
       for (int g = 0; g < GroupV.Len(); g++) {
-        NIdInEH.AddDat(GroupV[g]).AddDat(Edge.Val2)++; 
-        /*const int NId = Edge.Val2;
-        TUNGraph::TNodeI NI = G->GetNI(NId);
-        TIntSet& GroupNodes = GroupSet.GetDat(GroupV[g]);
-        int InCnt=0;
-        for (int i= 0; i < NI.GetOutDeg(); i++) {
-          if (GroupNodes.IsKey(NI.GetOutNId(i))) { InCnt++; } }
-        int InCnt2 = NIdInEH.GetDat(GroupV[g]).GetDat(Edge.Val2);
-        int InCnt3 = TSnap::CntEdgesToSet(G, NId, GroupSet.GetDat(GroupV[g]));
-        IAssert(InCnt == InCnt3);  IAssert(InCnt3 == InCnt2); //*/
-      }
+        NIdInEH.AddDat(GroupV[g]).AddDat(Edge.Val2)++; }
     }
     if (NIdGroupV.IsKey(Edge.Val2)) {
       const TIntV& GroupV = NIdGroupV.GetDat(Edge.Val2);
       for (int g = 0; g < GroupV.Len(); g++) {
-        NIdInEH.AddDat(GroupV[g]).AddDat(Edge.Val1)++; 
-        /*int InCnt2 = NIdInEH.GetDat(GroupV[g]).GetDat(Edge.Val1);
-        int InCnt3 = TSnap::CntEdgesToSet(G, Edge.Val1, GroupSet.GetDat(GroupV[g]));
-        IAssert(InCnt2 == InCnt3); //*/
-      }
+        NIdInEH.AddDat(GroupV[g]).AddDat(Edge.Val1)++; }
     }
     // determine which groups to consider
     if (MinNexTm > EdgeTm.GetAbsSecs()) { continue; }
@@ -581,7 +569,7 @@ void TNingGroupEvol2::AddNet(const PNingNet& Net, const TNingGroupV& GroupV) {
       }
       OnGroupTimeStep(G, GroupV[g], GroupSet.GetDat(g), FringeSet, JoinSet, NodeInEH, EdgeTm); 
       if (++NJoin % 100 == 0) { printf("."); }
-      if (NJoin % Kilo(1) == 0) { printf("p"); PlotAll(); }
+      if (NJoin % Kilo(10) == 0) { printf("p"); PlotAll(); }
     }
   }
 }
@@ -598,8 +586,8 @@ void TNingGroupEvol2::OnGroupTimeStep(const PUNGraph& Graph, const TNingGroup& G
     if (Joined) { Pr.Val1++; }  Pr.Val2 += 1; }
     { TFltPr& Pr = OutEdgeCntH.AddDat(Deg-InDeg);
     if (Joined) { Pr.Val1++; }  Pr.Val2 += 1; }
-    // prob. of joining given degree and number of edges between nodes in the group
-    if (InDeg==3 || InDeg==4 || InDeg==5 || InDeg==6) {
+    // prob. of joining given degree and number of edges between nodes in the group (SLOW)
+    if (InDeg>=3 && InDeg<=7) {
       InSet.Clr();
       TUNGraph::TNodeI Node = Graph->GetNI(NId);
       for (int e = 0; e < Node.GetOutDeg(); e++) {
@@ -621,28 +609,20 @@ void TNingGroupEvol2::OnGroupTimeStep(const PUNGraph& Graph, const TNingGroup& G
       if (Joined) { Pr.Val1++; }  Pr.Val2 += 1; }
       { TFltPr& Pr = InOutFracRatH.AddDat(InDeg).AddDat(int(100 * InAdj/(InAdj+OutAdj)));
       if (Joined) { Pr.Val1++; }  Pr.Val2 += 1; }
-    } //*/
+    }
   }
 }
 
 void TNingGroupEvol2::PlotAll(const TStr& Title) const {
-  PlotRatioHash(JoinCntH, OutFNmPref+"-JoinIn", Title, "Number of friends INSIDE the group");
-  PlotRatioHash(OutEdgeCntH, OutFNmPref+"-JoinOut", Title, "Number of friends OUTSIDE the group");
-  for (int i = 0; i < DegAdjEdgeH.Len(); i++) {
-    PlotRatioHash(DegAdjEdgeH[i], OutFNmPref+TStr::Fmt("-InEdge%d", DegAdjEdgeH.GetKey(i)), 
-      TStr::Fmt("%s. DEGREE %d.", Title.CStr(), DegAdjEdgeH.GetKey(i)), "Number of edges between IN-group friends"); }
-  for (int i = 0; i < DegInOutEdgeH.Len(); i++) {
-    PlotRatioHash(DegInOutEdgeH[i], OutFNmPref+TStr::Fmt("-InOutEdge%d", DegInOutEdgeH.GetKey(i)), 
-      TStr::Fmt("%s. DEGREE %d.", Title.CStr(), DegInOutEdgeH.GetKey(i)), "Number of edges between IN- and OUT-group friends"); }
-  for (int i = 0; i < DegOutEdgeH.Len(); i++) {
-    PlotRatioHash(DegOutEdgeH[i], OutFNmPref+TStr::Fmt("-OutEdge%d", DegOutEdgeH.GetKey(i)), 
-      TStr::Fmt("%s. DEGREE %d.", Title.CStr(), DegOutEdgeH.GetKey(i)), "Number of edges between OUT-group friends"); }
-  for (int i = 0; i < InOutRatH.Len(); i++) {
-    PlotRatioHash(InOutRatH[i], OutFNmPref+TStr::Fmt("-InOutFrac%d", InOutRatH.GetKey(i)), 
-      TStr::Fmt("%s. DEGREE %d.", Title.CStr(), InOutRatH.GetKey(i)), "Frac of IN-group friend edges (over OUT-group friend edges)"); }
-  for (int i = 0; i < InOutFracRatH.Len(); i++) {
-    PlotRatioHash(InOutFracRatH[i], OutFNmPref+TStr::Fmt("-InOutRat%d", InOutFracRatH.GetKey(i)), 
-      TStr::Fmt("%s. DEGREE %d.", Title.CStr(), InOutFracRatH.GetKey(i)), "Ratio of IN-group fraction (over OUT-group fraction)"); }
+  TStr TitleX = TStr::Fmt("%g nets, %g groups, %.1fm members,",  NetCnt, GrpCnt, MemCnt/Mega(1));
+  PlotRatioHash(JoinCntH, OutFNmPref+"-JoinIn", TitleX, "Number of friends INSIDE the group");
+  PlotRatioHash(OutEdgeCntH, OutFNmPref+"-JoinOut", TitleX, "Number of friends OUTSIDE the group");
+  PlotRatioHash(DegAdjEdgeH, OutFNmPref+"-InEdge", TitleX, "Number of edges between IN-group friends"); 
+  PlotRatioHash(DegInOutEdgeH, OutFNmPref+"-InOutEdge", TitleX, "Number of edges between IN- and OUT-group friends"); 
+  PlotRatioHash(DegOutEdgeH, OutFNmPref+"-OutEdge", TitleX, "Number of edges between OUT-group friends"); 
+  PlotRatioHash(InOutRatH, OutFNmPref+"-InOutFrac", TitleX, "Frac of IN-group friend edges (over OUT-group friend edges)"); 
+  PlotRatioHash(InOutFracRatH, OutFNmPref+"-InOutRat", TitleX, "Ratio of IN-group fraction (over OUT-group fraction)"); 
+  //*/
 }
 
 void TNingGroupEvol2::PlotRatioHash(const THash<TInt, TFltPr>& XYRatH, const TStr& OutFNm, const TStr& Title, const TStr& XLabel) {
@@ -658,7 +638,7 @@ void TNingGroupEvol2::PlotRatioHash(const THash<TInt, TFltPr>& XYRatH, const TSt
     npos += XYRatH[e].Val1;  nobs += XYRatH[e].Val2;
   }
   ProbV.Sort(); StdErrV.Sort(); PosCntV.Sort(); AllCntV.Sort();
-  TStr Desc = Title + TStr::Fmt("  %.1fm joins, %.1fm in fringe.", npos/Mega(1), nobs/Mega(1));
+  TStr Desc = Title + TStr::Fmt(" %.1fm joins, %.1fm in fringe.", npos/Mega(1), nobs/Mega(1));
   { TGnuPlot GP(OutFNm+"-Prob", Desc);
   GP.SetXYLabel(XLabel, "Probability of joining the group");
   GP.AddPlot(ProbV, gpwLinesPoints, "Probability");
@@ -667,6 +647,31 @@ void TNingGroupEvol2::PlotRatioHash(const THash<TInt, TFltPr>& XYRatH, const TSt
   GP.SavePng(); }
   //TGnuPlot::PlotValV(PosCntV, OutFNm+"-CntJoin", Desc, XLabel, "Number of nodes that joined the group", gpsLog);
   //TGnuPlot::PlotValV(AllCntV, OutFNm+"-CntFringe", Desc, XLabel, "Number of nodes in the fringe (joined and not)", gpsLog);
+}
+
+void TNingGroupEvol2::PlotRatioHash(const THash<TInt, THash<TInt, TFltPr> >& DegXYRatH, const TStr& OutFNm, const TStr& Title, const TStr& XLabel) {
+  TGnuPlot GP(OutFNm+"-Prob");
+  GP.SetXYLabel(XLabel, "Probability of joining the group");
+  TStr Desc;
+  for (int x = 0; x < DegXYRatH.Len(); x++) {
+    const THash<TInt, TFltPr>& XYRatH = DegXYRatH[x];
+    const int Deg = DegXYRatH.GetKey(x);
+    TFltPrV ProbV;  TFltTrV StdErrV;
+    double npos=0, nobs=0;
+    for (int e = 0; e < XYRatH.Len(); e++) {
+      const double Prob = XYRatH[e].Val1/XYRatH[e].Val2;
+      ProbV.Add(TFltPr(XYRatH.GetKey(e).Val, Prob));
+      StdErrV.Add(TFltTr(XYRatH.GetKey(e).Val, Prob, sqrt(Prob*(1-Prob)/XYRatH[e].Val2))); 
+      npos += XYRatH[e].Val1;  nobs += XYRatH[e].Val2;
+    }
+    ProbV.Sort();  StdErrV.Sort();
+    Desc = Title + TStr::Fmt(" %.1fm joins, %.1fm in fringe.", npos/Mega(1), nobs/Mega(1));
+    GP.AddPlot(ProbV, gpwLinesPoints, TStr::Fmt("Probability. DEGREE %d", Deg));
+    GP.AddErrBar(StdErrV, "");
+  }
+  GP.SetTitle(Desc);
+  //GP.AddCmd("set xrange [0:100]");
+  GP.SavePng(); 
 }
 
 #ifdef XXXXXXXXXXXXX
