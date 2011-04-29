@@ -45,7 +45,7 @@ int main(int argc, char* argv[]) {
   if (MaxNodes == -1) { MaxNodes = Mega(100); }
   TNingGroupEvol2 GroupEvol(OutFNm);
   int netcnt=0, grpcnt=0, skipcnt=0;
-  for (TFIn FIn("nets/NingNetGroup-N100n1y-G10n05s60d.bin"); ! FIn.Eof(); ) {
+  for (TFIn FIn("../nets/NingNetGroup-N100n1y-G10n05s60d.bin"); ! FIn.Eof(); ) {
     PNingNet Net = TNingNet::Load(FIn);
     TNingGroupV GV(FIn);  
     if (Net->GetNodes() < MinNodes && Net->GetNodes() > MaxNodes) { skipcnt++; continue; }
