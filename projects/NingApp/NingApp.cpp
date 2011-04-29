@@ -52,6 +52,7 @@ int main(int argc, char* argv[]) {
     netcnt++;  grpcnt += GV.Len();
     printf("\nNet %d (skip %d) on %d nodes and %d groups (%d total):", netcnt, skipcnt, Net->GetNodes(), GV.Len(), grpcnt);
     GroupEvol.AddNet(Net, GV);
+    
   }
   GroupEvol.PlotAll(); //*/
 
@@ -62,8 +63,9 @@ int main(int argc, char* argv[]) {
     TNingGroupV GV; GV.Load(TFIn(FNm));
     printf("%s. %d groups.\n", Net->GetTitle().CStr(), GV.Len());
     GroupEvol.AddNet(Net, GV);
+    //GroupEvol.PlotAll();
   }
-  //GroupEvol.PlotAll("final"); //*/
+  GroupEvol.PlotAll("final"); //*/
   
 
   //NetBs->SaveTxtStat("ningComment2", 10, Mega(100));

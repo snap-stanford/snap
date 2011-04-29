@@ -631,6 +631,12 @@ void TNingGroupEvol2::OnGroupTimeStep(const PUNGraph& Graph, const TNingGroup& G
   }
 }
 
+int MyRat(const double& Fut, const double& Cur) {
+  if (Cur>0 && Cur < Fut) { return int(10*Fut/Cur); }
+  if (Fut>0 && Cur > Fut) { return int(10*-Cur/Fut); }
+  return 0;
+}
+
 // how fast will the group grow in the future based on its current clustering (density, etc.)
 void TNingGroupEvol2::OnGroupTimeStep2(const PUNGraph& CurGraph, const PUNGraph& FutGraph, const TNingGroup& Group, const TIntSet& CurGroup, const TIntSet& FringeSet, const TIntSet& JoinSet, const TIntH& NodeInEH, const TSecTm& CurTm) {
   if (CurGroup.Len() < 5) { return; }
@@ -664,9 +670,6 @@ void TNingGroupEvol2::OnGroupTimeStep2(const PUNGraph& CurGraph, const PUNGraph&
   const double FutEffDiam = TSnap::GetBfsEffDiam(CmFutG, 100);
   //THash<TInt, THash<TInt, TMom> > SzEdgesH, SzCcfH, SzTrEdH, SzWccH, SzEigValH, SzEffDiamH; // growth
   //THash<TInt, THash<TInt, TMom> > SzCcfRatH, SzCCfDiffH, SzEdgeDiffH, 
-  THash<TInt, TMom> AvgDegGrowthH, TrEdGrowthH, CcfGrowthH, WccGrowthH, EigValGrowthH, DiamGrowthH;
-  THash<TInt, TMom> AvgDegDiffH, TrEdDiffH, CcfDiffH, WccSzDiffH, EigValDiffH, EffDiamDiffH;
-  THash<TInt, TMom> AvgDegRatH, TrEdRatH, CcfRatH, WccSzRatH, EigValRatH, EffDiamRatH;
   AvgDegGrowthH.AddDat(int(100*CurEdges/CurNodes)).Add(Growth);
   TrEdGrowthH.AddDat(int(100*CurTrEd)).Add(Growth);
   CcfGrowthH.AddDat(int(100*CurCCf)).Add(Growth);
@@ -681,12 +684,12 @@ void TNingGroupEvol2::OnGroupTimeStep2(const PUNGraph& CurGraph, const PUNGraph&
   //EigValDiffH.AddDat(int(100*(CurEigVal-FutEigVal))).Add(Growth);
   EffDiamDiffH.AddDat(int(100*(CurEffDiam-FutEffDiam))).Add(Growth);
   // ratio between current and future
-  AvgDegDiffH.AddDat(int(100*((CurEdges/CurNodes)/(FutEdges/CurEdges)))).Add(Growth);
-  TrEdDiffH.AddDat(int(100*(CurTrEd/FutTrEd))).Add(Growth);
-  CcfDiffH.AddDat(int(100*(CurCCf/FutCCf))).Add(Growth);
-  WccSzDiffH.AddDat(int(100*(CurWcc/FutWcc))).Add(Growth);
-  //EigValDiffH.AddDat(int(100*(CurEigVal/FutEigVal))).Add(Growth);
-  EffDiamDiffH.AddDat(int(100*(CurEffDiam/FutEffDiam))).Add(Growth);
+  AvgDegRatH.AddDat(MyRat(FutEdges/CurEdges, CurEdges/CurNodes)).Add(Growth);
+  TrEdRatH.AddDat(MyRat(FutTrEd, CurTrEd)).Add(Growth);
+  CcfRatH.AddDat(MyRat(FutCCf,CurCCf)).Add(Growth);
+  WccSzRatH.AddDat(MyRat(FutWcc, CurWcc)).Add(Growth);
+  //EigValRatH.AddDat(int(100*(CurEigVal/FutEigVal))).Add(Growth);
+  EffDiamRatH.AddDat(MyRat(FutEffDiam, CurEffDiam)).Add(Growth);
 }
 
 void TNingGroupEvol2::PlotAll(const TStr& Title) const {
@@ -699,24 +702,24 @@ void TNingGroupEvol2::PlotAll(const TStr& Title) const {
   PlotRatioHash(InOutRatH, OutFNmPref+"-InOutFrac", TitleX, "Frac of IN-group friend edges (over OUT-group friend edges)"); 
   PlotRatioHash(InOutFracRatH, OutFNmPref+"-InOutRat", TitleX, "Ratio of IN-group fraction (over OUT-group fraction)"); 
   //*/
-  TGnuPlot::PlotValMomH(AvgDegGrowthH, OutFNmPref+"-Growth_AvgDeg", TitleX, "Average Degree", "Growth Rate (frac of new nodes added in 30 days)", gpsAuto, gpwLinesPoints, true, true, false, false, true);
-  TGnuPlot::PlotValMomH(TrEdGrowthH, OutFNmPref+"-Growth_TrEd", TitleX, "Fraction of edges supported by 1 triad", "Growth Rate (frac of new nodes added in 30 days)", gpsAuto, gpwLinesPoints, true, true, false, false, true);
-  TGnuPlot::PlotValMomH(CcfGrowthH, OutFNmPref+"-Growth_Ccf", TitleX, "Clustering coefficient", "Growth Rate (frac of new nodes added in 30 days)", gpsAuto, gpwLinesPoints, true, true, false, false, true);
-  TGnuPlot::PlotValMomH(WccGrowthH, OutFNmPref+"-Growth_Wcc", TitleX, "Size of Largest Connected component", "Growth Rate (frac of new nodes added in 30 days)", gpsAuto, gpwLinesPoints, true, true, false, false, true);
-  //TGnuPlot::PlotValMomH(EigValGrowthH, OutFNmPref+"-", TitleX, "", "Growth Rate (frac of new nodes added in 30 days)", gpsAuto, gpwLinesPoints, true, true, false, false, true);
-  TGnuPlot::PlotValMomH(DiamGrowthH, OutFNmPref+"-Growth_Diam", TitleX, "Effective Diameter", "Growth Rate (frac of new nodes added in 30 days)", gpsAuto, gpwLinesPoints, true, true, false, false, true);
-  TGnuPlot::PlotValMomH(AvgDegDiffH, OutFNmPref+"-Growth_AvgDegDiff", TitleX, "Difference in AvgDegree", "Growth Rate (frac of new nodes added in 30 days)", gpsAuto, gpwLinesPoints, true, true, false, false, true);
-  TGnuPlot::PlotValMomH(TrEdDiffH, OutFNmPref+"-Growth_TrEdDiff", TitleX, "Difference in Frac of triad edges", "Growth Rate (frac of new nodes added in 30 days)", gpsAuto, gpwLinesPoints, true, true, false, false, true);
-  TGnuPlot::PlotValMomH(CcfDiffH, OutFNmPref+"-Growth_CcfDiff", TitleX, "Difference in CCF", "Growth Rate (frac of new nodes added in 30 days)", gpsAuto, gpwLinesPoints, true, true, false, false, true);
-  TGnuPlot::PlotValMomH(WccSzDiffH, OutFNmPref+"-Growth_WccDiff", TitleX, "Difference in WCC Size", "Growth Rate (frac of new nodes added in 30 days)", gpsAuto, gpwLinesPoints, true, true, false, false, true);
-  //TGnuPlot::PlotValMomH(EigValDiffH, OutFNmPref+"-", TitleX, "", "Growth Rate (frac of new nodes added in 30 days)", gpsAuto, gpwLinesPoints, true, true, false, false, true);
-  TGnuPlot::PlotValMomH(EffDiamDiffH, OutFNmPref+"-Growth_DiamDiff", TitleX, "Difference in Effective diameter", "Growth Rate (frac of new nodes added in 30 days)", gpsAuto, gpwLinesPoints, true, true, false, false, true);
-  TGnuPlot::PlotValMomH(AvgDegRatH, OutFNmPref+"-Growth_AvgDegRat", TitleX, "Ratio of AvgDeg", "Growth Rate (frac of new nodes added in 30 days)", gpsAuto, gpwLinesPoints, true, true, false, false, true);
-  TGnuPlot::PlotValMomH(TrEdRatH, OutFNmPref+"-Growth_TrEdRat", TitleX, "Ratio of Frac of Triad Edges", "Growth Rate (frac of new nodes added in 30 days)", gpsAuto, gpwLinesPoints, true, true, false, false, true);
-  TGnuPlot::PlotValMomH(CcfRatH, OutFNmPref+"-Growth_CcfRat", TitleX, "Ratio of CCFs", "Growth Rate (frac of new nodes added in 30 days)", gpsAuto, gpwLinesPoints, true, true, false, false, true);
-  TGnuPlot::PlotValMomH(WccSzRatH, OutFNmPref+"-Growth_WccRat", TitleX, "Ratio of WCC Size", "Growth Rate (frac of new nodes added in 30 days)", gpsAuto, gpwLinesPoints, true, true, false, false, true);
-  //TGnuPlot::PlotValMomH(EigValRatH, OutFNmPref+"-", TitleX, "", "Growth Rate (frac of new nodes added in 30 days)", gpsAuto, gpwLinesPoints, true, true, false, false, true);
-  TGnuPlot::PlotValMomH(EffDiamRatH, OutFNmPref+"-Growth_DiamRat", TitleX, "Ratio of Effective Diameter", "Growth Rate (frac of new nodes added in 30 days)", gpsAuto, gpwLinesPoints, true, true, false, false, true);
+  TGnuPlot::PlotValMomH(AvgDegGrowthH, OutFNmPref+"-Growth_AvgDeg", TitleX, "Average Degree", "Growth Rate (frac of new nodes added in 30 days)", gpsAuto, gpwLinesPoints, true, true, false, false, false, false);
+  TGnuPlot::PlotValMomH(TrEdGrowthH, OutFNmPref+"-Growth_TrEd", TitleX, "Fraction of edges supported by 1 triad", "Growth Rate (frac of new nodes added in 30 days)", gpsAuto, gpwLinesPoints, true, true, false, false, false, false);
+  TGnuPlot::PlotValMomH(CcfGrowthH, OutFNmPref+"-Growth_Ccf", TitleX, "Clustering coefficient", "Growth Rate (frac of new nodes added in 30 days)", gpsAuto, gpwLinesPoints, true, true, false, false, false, false);
+  TGnuPlot::PlotValMomH(WccGrowthH, OutFNmPref+"-Growth_Wcc", TitleX, "Size of Largest Connected component", "Growth Rate (frac of new nodes added in 30 days)", gpsAuto, gpwLinesPoints, true, true, false, false, false, false);
+  //TGnuPlot::PlotValMomH(EigValGrowthH, OutFNmPref+"-", TitleX, "", "Growth Rate (frac of new nodes added in 30 days)", gpsAuto, gpwLinesPoints, true, true, false, false, false);
+  TGnuPlot::PlotValMomH(DiamGrowthH, OutFNmPref+"-Growth_Diam", TitleX, "Effective Diameter", "Growth Rate (frac of new nodes added in 30 days)", gpsAuto, gpwLinesPoints, true, true, false, false, false, false);
+  TGnuPlot::PlotValMomH(AvgDegDiffH, OutFNmPref+"-Growth_AvgDegDiff", TitleX, "Difference in AvgDegree", "Growth Rate (frac of new nodes added in 30 days)", gpsAuto, gpwLinesPoints, true, true, false, false, false, false);
+  TGnuPlot::PlotValMomH(TrEdDiffH, OutFNmPref+"-Growth_TrEdDiff", TitleX, "Difference in Frac of triad edges", "Growth Rate (frac of new nodes added in 30 days)", gpsAuto, gpwLinesPoints, true, true, false, false, false, false);
+  TGnuPlot::PlotValMomH(CcfDiffH, OutFNmPref+"-Growth_CcfDiff", TitleX, "Difference in CCF", "Growth Rate (frac of new nodes added in 30 days)", gpsAuto, gpwLinesPoints, true, true, false, false, false, false);
+  TGnuPlot::PlotValMomH(WccSzDiffH, OutFNmPref+"-Growth_WccDiff", TitleX, "Difference in WCC Size", "Growth Rate (frac of new nodes added in 30 days)", gpsAuto, gpwLinesPoints, true, true, false, false, false, false);
+  //TGnuPlot::PlotValMomH(EigValDiffH, OutFNmPref+"-", TitleX, "", "Growth Rate (frac of new nodes added in 30 days)", gpsAuto, gpwLinesPoints, true, true, false, false, false);
+  TGnuPlot::PlotValMomH(EffDiamDiffH, OutFNmPref+"-Growth_DiamDiff", TitleX, "Difference in Effective diameter", "Growth Rate (frac of new nodes added in 30 days)", gpsAuto, gpwLinesPoints, true, true, false, false, false, false);
+  TGnuPlot::PlotValMomH(AvgDegRatH, OutFNmPref+"-Growth_AvgDegRat", TitleX, "Ratio of AvgDeg", "Growth Rate (frac of new nodes added in 30 days)", gpsAuto, gpwLinesPoints, true, true, false, false, false, false);
+  TGnuPlot::PlotValMomH(TrEdRatH, OutFNmPref+"-Growth_TrEdRat", TitleX, "Ratio of Frac of Triad Edges", "Growth Rate (frac of new nodes added in 30 days)", gpsAuto, gpwLinesPoints, true, true, false, false, false, false);
+  TGnuPlot::PlotValMomH(CcfRatH, OutFNmPref+"-Growth_CcfRat", TitleX, "Ratio of CCFs", "Growth Rate (frac of new nodes added in 30 days)", gpsAuto, gpwLinesPoints, true, true, false, false, false, false);
+  TGnuPlot::PlotValMomH(WccSzRatH, OutFNmPref+"-Growth_WccRat", TitleX, "Ratio of WCC Size", "Growth Rate (frac of new nodes added in 30 days)", gpsAuto, gpwLinesPoints, true, true, false, false, false, false);
+  //TGnuPlot::PlotValMomH(EigValRatH, OutFNmPref+"-", TitleX, "", "Growth Rate (frac of new nodes added in 30 days)", gpsAuto, gpwLinesPoints, true, true, false, false, false);
+  TGnuPlot::PlotValMomH(EffDiamRatH, OutFNmPref+"-Growth_DiamRat", TitleX, "Ratio of Effective Diameter", "Growth Rate (frac of new nodes added in 30 days)", gpsAuto, gpwLinesPoints, true, true, false, false, false, false);
 }
 
 void TNingGroupEvol2::PlotRatioHash(const THash<TInt, TFltPr>& XYRatH, const TStr& OutFNm, const TStr& Title, const TStr& XLabel) {
