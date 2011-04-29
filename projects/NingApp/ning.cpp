@@ -583,8 +583,8 @@ void TNingGroupEvol2::AddNet(const PNingNet& Net, const TNingGroupV& GroupV) {
       }
       //printf("%d %d G:%d  ", EdgeTm.GetAbsSecs()/MonthSecs, t, g);
       //printf("g1:%d  g2:%d  g1:%d  f:%d  e:%d  j2:%d\n", CurGraph->GetNodes(), FutGraph->GetNodes(), CurGroup.Len(), FringeSet.Len(), NodeInEH.Len(), JoinSet.Len());
-      //OnGroupTimeStep(CurG, GroupV[g], GroupSet.GetDat(g), FringeSet, JoinSet, NodeInEH, EdgeTm); 
-      OnGroupTimeStep2(CurG, FutG, GroupV[g], CurGroup, FringeSet, JoinSet, NodeInEH, EdgeTm); 
+      OnGroupTimeStep(CurG, GroupV[g], GroupSet.GetDat(g), FringeSet, JoinSet, NodeInEH, EdgeTm); 
+      //OnGroupTimeStep2(CurG, FutG, GroupV[g], CurGroup, FringeSet, JoinSet, NodeInEH, EdgeTm); 
       if (++NJoin % 100 == 0) { printf("."); }
       if (NJoin % Kilo(10) == 0) { printf("p"); PlotAll(); }
     }
@@ -605,7 +605,7 @@ void TNingGroupEvol2::OnGroupTimeStep(const PUNGraph& Graph, const TNingGroup& G
     { TFltPr& Pr = OutEdgeCntH.AddDat(Deg-InDeg);
     if (Joined) { Pr.Val1++; }  Pr.Val2 += 1; }
     // prob. of joining given degree and number of edges between nodes in the group (SLOW)
-    if (InDeg>=3 && InDeg<=7) {
+    /*if (InDeg>=3 && InDeg<=7) {
       InSet.Clr();
       TUNGraph::TNodeI Node = Graph->GetNI(NId);
       for (int e = 0; e < Node.GetOutDeg(); e++) {

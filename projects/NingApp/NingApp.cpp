@@ -6,7 +6,7 @@ void LoadNingNetBs();
 
 int main(int argc, char* argv[]) {
   printf("NingApp. build: %s, %s. Start time: %s\n\n", __TIME__, __DATE__, TExeTm::GetCurTm());
-  TExeTm ExeTm;  TInt::Rnd.PutSeed(0);  Try  //TSysProc::SetLowPriority();
+  TExeTm ExeTm;  TInt::Rnd.PutSeed(0);  Try  TSysProc::SetLowPriority();
   Env = TEnv(argc, argv, TNotify::StdNotify);
   Env.PrepArgs("NingApp");
   // TestTwitter();
@@ -48,7 +48,7 @@ int main(int argc, char* argv[]) {
   for (TFIn FIn("../nets/NingNetGroup-N100n1y-G10n05s60d.bin"); ! FIn.Eof(); ) {
     PNingNet Net = TNingNet::Load(FIn);
     TNingGroupV GV(FIn);  
-    if (Net->GetNodes() < MinNodes && Net->GetNodes() > MaxNodes) { skipcnt++; continue; }
+    if (Net->GetNodes() < MinNodes || Net->GetNodes() > MaxNodes) { skipcnt++; continue; }
     netcnt++;  grpcnt += GV.Len();
     printf("\nNet %d (skip %d) on %d nodes and %d groups (%d total):", netcnt, skipcnt, Net->GetNodes(), GV.Len(), grpcnt);
     GroupEvol.AddNet(Net, GV);
