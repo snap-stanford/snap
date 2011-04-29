@@ -7,6 +7,8 @@ void LoadNingNetBs();
 int main(int argc, char* argv[]) {
   printf("NingApp. build: %s, %s. Start time: %s\n\n", __TIME__, __DATE__, TExeTm::GetCurTm());
   TExeTm ExeTm;  TInt::Rnd.PutSeed(0);  Try  //TSysProc::SetLowPriority();
+  Env = TEnv(argc, argv, TNotify::StdNotify);
+  Env.PrepArgs("NingApp");
   // TestTwitter();
 
   //PUNGraph G = TUNGraph::GetSmallGraph();  
@@ -37,8 +39,6 @@ int main(int argc, char* argv[]) {
   }
   //GroupEvol.PlotAll();
   //*/
-  Env = TEnv(argc, argv, TNotify::StdNotify);
-  Env.PrepArgs("QuotesApp");
   const TStr OutFNm = Env.GetIfArgPrefixStr("-o:", "Evol-All", "Output file name");
   const int MinNodes = Env.GetIfArgPrefixInt("-min:", 0, "Min nodes");
   int MaxNodes = Env.GetIfArgPrefixInt("-max:", -1, "Max nodes");

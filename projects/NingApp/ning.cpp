@@ -677,14 +677,14 @@ void TNingGroupEvol2::OnGroupTimeStep2(const PUNGraph& CurGraph, const PUNGraph&
   //EigValGrowthH.AddDat(abs(int(10*CurEigVal))).Add(Growth);
   DiamGrowthH.AddDat(int(10*CurEffDiam)).Add(Growth);
   // difference between current and future
-  AvgDegDiffH.AddDat(int(100*(CurEdges/CurNodes-FutEdges/CurEdges))).Add(Growth);
-  TrEdDiffH.AddDat(int(100*(CurTrEd-FutTrEd))).Add(Growth);
-  CcfDiffH.AddDat(int(100*(CurCCf-FutCCf))).Add(Growth);
-  WccSzDiffH.AddDat(int(100*(CurWcc-FutWcc))).Add(Growth);
+  AvgDegDiffH.AddDat(int(100*(FutEdges/(double)FutNodes-CurEdges/(double)CurNodes))).Add(Growth);
+  TrEdDiffH.AddDat(int(100*(FutTrEd-CurTrEd))).Add(Growth);
+  CcfDiffH.AddDat(int(100*(FutCCf-CurCCf))).Add(Growth);
+  WccSzDiffH.AddDat(int(100*(FutWcc-CurWcc))).Add(Growth);
   //EigValDiffH.AddDat(int(100*(CurEigVal-FutEigVal))).Add(Growth);
-  EffDiamDiffH.AddDat(int(100*(CurEffDiam-FutEffDiam))).Add(Growth);
+  EffDiamDiffH.AddDat(int(100*(FutEffDiam-CurEffDiam))).Add(Growth);
   // ratio between current and future
-  AvgDegRatH.AddDat(MyRat(FutEdges/CurEdges, CurEdges/CurNodes)).Add(Growth);
+  AvgDegRatH.AddDat(MyRat(FutEdges/(double)FutNodes, CurEdges/(double)CurNodes)).Add(Growth);
   TrEdRatH.AddDat(MyRat(FutTrEd, CurTrEd)).Add(Growth);
   CcfRatH.AddDat(MyRat(FutCCf,CurCCf)).Add(Growth);
   WccSzRatH.AddDat(MyRat(FutWcc, CurWcc)).Add(Growth);
