@@ -37,7 +37,7 @@ int main(int argc, char* argv[]) {
   }
   //GroupEvol.PlotAll();
   //*/
-  /*Env = TEnv(argc, argv, TNotify::StdNotify);
+  Env = TEnv(argc, argv, TNotify::StdNotify);
   Env.PrepArgs("QuotesApp");
   const TStr OutFNm = Env.GetIfArgPrefixStr("-o:", "Evol-All", "Output file name");
   const int MinNodes = Env.GetIfArgPrefixInt("-min:", 0, "Min nodes");
@@ -45,7 +45,7 @@ int main(int argc, char* argv[]) {
   if (MaxNodes == -1) { MaxNodes = Mega(100); }
   TNingGroupEvol2 GroupEvol(OutFNm);
   int netcnt=0, grpcnt=0, skipcnt=0;
-  for (TFIn FIn("nets/NingNetGroup-N100n1y-G10n05s60d.bin"); ! FIn.Eof(); ) {
+  for (TFIn FIn("../nets/NingNetGroup-N100n1y-G10n05s60d.bin"); ! FIn.Eof(); ) {
     PNingNet Net = TNingNet::Load(FIn);
     TNingGroupV GV(FIn);  
     if (Net->GetNodes() < MinNodes && Net->GetNodes() > MaxNodes) { skipcnt++; continue; }
@@ -56,7 +56,7 @@ int main(int argc, char* argv[]) {
   }
   GroupEvol.PlotAll(); //*/
 
-  TNingGroupEvol2 GroupEvol("GroupEvol");
+  /*TNingGroupEvol2 GroupEvol("GroupEvol");
   TStr FNm;
   for (TFFile FFile("nets/*-groups.bin"); FFile.Next(FNm); ) {
     PNingNet Net = TNingNet::Load(TFIn(FNm.GetSubStr(0, FNm.SearchChBack('-'))+"net.bin"));

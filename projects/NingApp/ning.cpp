@@ -633,7 +633,7 @@ void TNingGroupEvol2::OnGroupTimeStep(const PUNGraph& Graph, const TNingGroup& G
 
 int MyRat(const double& Fut, const double& Cur) {
   if (Cur>0 && Cur < Fut) { return int(10*Fut/Cur); }
-  if (Fut>0 && Cur > Fut) { return int(10*-Cur/Fut); }
+  if (Fut>0 && Cur > Fut) { return int(-10*Cur/Fut); }
   return 0;
 }
 
