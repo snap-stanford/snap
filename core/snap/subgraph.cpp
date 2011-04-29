@@ -12,10 +12,11 @@ PUNGraph GetSubGraph(const PUNGraph& Graph, const TIntV& NIdV, const bool& Renum
   TIntSet NIdSet(NIdV.Len());
   for (int n = 0; n < NIdV.Len(); n++) {
     NewGraph.AddNode(n);
-    NIdSet.AddKey(NIdV[n]);
+    if (Graph->IsNode(NIdV[n])) {
+      NIdSet.AddKey(NIdV[n]); }
   }
-  for (int n = 0; n < NIdV.Len(); n++) {
-    const TUNGraph::TNodeI NI = Graph->GetNI(NIdV[n]);
+  for (int n = 0; n < NIdSet.Len(); n++) {
+    const TUNGraph::TNodeI NI = Graph->GetNI(NIdSet[n]);
     const int SrcNId = NIdSet.GetKeyId(NI.GetId());
     for (int edge = 0; edge < NI.GetDeg(); edge++) {
       const int OutNId = NIdSet.GetKeyId(NI.GetNbhNId(edge));

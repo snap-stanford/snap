@@ -167,7 +167,7 @@ public:
     const TStr& OutFNmPref, const TStr& Desc, const TStr& XLabel, const TStr& YLabel, 
     const TGpScaleTy& ScaleTy=gpsAuto, const TGpSeriesTy& SeriesTy=gpwLinesPoints);
   template <class TVal1>
-  static void PlotValMomH(THash<TVal1, TMom>& ValMomH, const TStr& OutFNmPref, const TStr& Desc="",
+  static void PlotValMomH(const THash<TVal1, TMom>& ValMomH, const TStr& OutFNmPref, const TStr& Desc="",
    const TStr& XLabel="", const TStr& YLabel="", const TGpScaleTy& ScaleTy=gpsAuto, const TGpSeriesTy& SeriesTy=gpwLinesPoints,
    bool PlotAvg=true, bool PlotMed=true, bool PlotMin=false, bool PlotMax=false, bool PlotSDev=false, bool PlotStdErr=true);
   
@@ -419,26 +419,28 @@ void TGnuPlot::PlotValV(const TVec<TVal1>& ValV, const TStr& OutFNmPref, const T
 }
 
 template <class TVal1>
-void TGnuPlot::PlotValMomH(THash<TVal1, TMom>& ValMomH, const TStr& OutFNmPref, const TStr& Desc,
+void TGnuPlot::PlotValMomH(const THash<TVal1, TMom>& ValMomH, const TStr& OutFNmPref, const TStr& Desc,
  const TStr& XLabel, const TStr& YLabel, const TGpScaleTy& ScaleTy, const TGpSeriesTy& SeriesTy,
  bool PlotAvg, bool PlotMed, bool PlotMin, bool PlotMax, bool PlotSDev, bool PlotStdErr) {
   TFltTrV AvgV, StdErrV;
   TFltPrV AvgV2, MedV, MinV, MaxV;
   for (int i = ValMomH.FFirstKeyId(); ValMomH.FNextKeyId(i); ) {
-    if (! ValMomH[i].IsDef()) { ValMomH[i].Def(); }
+    //if (! ValMomH[i].IsDef()) { ValMomH[i].Def(); }
+    TMom Mom(ValMomH[i]);
+    if (! Mom.IsDef()) { Mom.Def(); }
     if (PlotAvg) { 
       if (PlotSDev) { 
-        AvgV.Add(TFltTr((double)ValMomH.GetKey(i), ValMomH[i].GetMean(), ValMomH[i].GetSDev())); } // std deviation
+        AvgV.Add(TFltTr((double)ValMomH.GetKey(i), Mom.GetMean(), Mom.GetSDev())); } // std deviation
       else { 
-        AvgV2.Add(TFltPr((double)ValMomH.GetKey(i), ValMomH[i].GetMean())); 
+        AvgV2.Add(TFltPr((double)ValMomH.GetKey(i), Mom.GetMean())); 
       }
       if (PlotStdErr) {
-        StdErrV.Add(TFltTr((double)ValMomH.GetKey(i), ValMomH[i].GetMean(), ValMomH[i].GetSDev()/sqrt((double)ValMomH[i].GetVals()))); 
+        StdErrV.Add(TFltTr((double)ValMomH.GetKey(i), Mom.GetMean(), Mom.GetSDev()/sqrt((double)Mom.GetVals()))); 
       }
     }
-    if (PlotMed) { MedV.Add(TFltPr((double)ValMomH.GetKey(i), ValMomH[i].GetMedian())); }
-    if (PlotMin) { MinV.Add(TFltPr((double)ValMomH.GetKey(i), ValMomH[i].GetMn())); }
-    if (PlotMax) { MaxV.Add(TFltPr((double)ValMomH.GetKey(i), ValMomH[i].GetMx())); }
+    if (PlotMed) { MedV.Add(TFltPr((double)ValMomH.GetKey(i), Mom.GetMedian())); }
+    if (PlotMin) { MinV.Add(TFltPr((double)ValMomH.GetKey(i), Mom.GetMn())); }
+    if (PlotMax) { MaxV.Add(TFltPr((double)ValMomH.GetKey(i), Mom.GetMx())); }
   }
   AvgV.Sort();  AvgV2.Sort();
   MedV.Sort();  MinV.Sort();  MaxV.Sort();  StdErrV.Sort();

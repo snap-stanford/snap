@@ -161,8 +161,13 @@ class TNingGroupEvol2 { // month-by-month group/network snapshots
 public:
   TStr OutFNmPref;
   double NetCnt, GrpCnt, MemCnt;
+  // node join stat
   THash<TInt, TFltPr> JoinCntH, OutEdgeCntH;
   THash<TInt, THash<TInt, TFltPr> > DegAdjEdgeH, DegInOutEdgeH, DegOutEdgeH, InOutRatH, InOutFracRatH;
+  // group growth
+  THash<TInt, TMom> AvgDegGrowthH, TrEdGrowthH, CcfGrowthH, WccGrowthH, EigValGrowthH, DiamGrowthH;
+  THash<TInt, TMom> AvgDegDiffH, TrEdDiffH, CcfDiffH, WccSzDiffH, EigValDiffH, EffDiamDiffH;
+  THash<TInt, TMom> AvgDegRatH, TrEdRatH, CcfRatH, WccSzRatH, EigValRatH, EffDiamRatH;
 public:
   TNingGroupEvol2(const TStr& OutFNm) : OutFNmPref(OutFNm), NetCnt(0), GrpCnt(0), MemCnt(0) { }
   void AddNet(const PNingNet& Net, const TNingGroupV& GroupV);
