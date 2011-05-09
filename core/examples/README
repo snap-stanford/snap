@@ -46,10 +46,16 @@ Examples:
   	Forest Fire graph generator
   kcores :
   	Computes the k-core decomposition of the network
+  kronem : 
+  	Estimates Kronecker graph parameter matrix using EM algorithm
   krongen : 
   	Kronecker graph generator
   kronfit : 
   	Estimates Kronecker graph parameter matrix
+  maggen : 
+  	Multiplicative Attribute Graph (MAG) generator
+  magfit : 
+  	Estimates MAG model parameter
   motifs : 
   	Counts the number of occurence of every possible subgraph on K nodes 
   	in the network

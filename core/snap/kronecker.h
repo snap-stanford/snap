@@ -98,6 +98,7 @@ public:
 
   void Dump(const TStr& MtxNm = TStr(), const bool& Sort = false) const;
   static double GetAvgAbsErr(const TKronMtx& Kron1, const TKronMtx& Kron2); // avg L1 on (sorted) parameters
+  static double GetAvgFroErr(const TKronMtx& Kron1, const TKronMtx& Kron2); // avg L2 on (sorted) parameters
   static TKronMtx GetMtx(TStr MatlabMtxStr);
   static TKronMtx GetRndMtx(const int& Dim, const double& MinProb);
   static TKronMtx GetInitMtx(const int& Dim, const int& Nodes, const int& Edges);
@@ -109,6 +110,9 @@ public:
 
 /////////////////////////////////////////////////
 // Kronecker Log Likelihood
+
+enum TKronEMType {  kronNodeMiss = 0, kronFutureLink, kronEdgeMiss  };
+
 class TKroneckerLL {
 public:
 private:
@@ -117,14 +121,29 @@ private:
   TInt Nodes, KronIters;
 
   TFlt PermSwapNodeProb; // permutation proposal distribution (swap edge endpoins vs. swap random nodes)
-  TIntPrV GEdgeV;        // edge vector (for swap edge permutation proposal)
+//  TIntPrV GEdgeV;        // edge vector (for swap edge permutation proposal)
+  TIntTrV GEdgeV;        // edge vector (for swap edge permutation proposal)
+  TIntTrV LEdgeV;        // latent edge vector
+  TInt LSelfEdge;        // latent self edges
   TIntV NodePerm;        // current permutation
+  TIntV InvertPerm;      // current invert permutation
+
+  TInt RealNodes;	// # of observed nodes (for KronEM)
+  TInt RealEdges;	// # of observed edges (for link prediction)
 
   TKronMtx ProbMtx, LLMtx; // Prob and LL matrices (parameters)
   TFlt LogLike; // LL at ProbMtx
   TFltV GradV;  // DLL at ProbMtx (gradient)
+
+  TKronEMType EMType;	// Latent setting type for EM
+  TInt MissEdges;		// # of missing edges (if unknown, -1)
+
+  TBool DebugMode;		// Debug mode flag
+  TFltV LLV;			// Log-likelihood (per EM iteration)
+  TVec<TKronMtx> MtxV;	// Kronecker initiator matrix (per EM iteration)
+
 public:
-  TKroneckerLL() : Nodes(-1), KronIters(-1), PermSwapNodeProb(0.2), LogLike(TKronMtx::NInf) { }
+  TKroneckerLL() : Nodes(-1), KronIters(-1), PermSwapNodeProb(0.2), LogLike(TKronMtx::NInf), EMType(kronNodeMiss), RealNodes(-1), RealEdges(-1), MissEdges(-1), DebugMode(false) { }
   TKroneckerLL(const PNGraph& GraphPt, const TFltV& ParamV, const double& PermPSwapNd=0.2);
   TKroneckerLL(const PNGraph& GraphPt, const TKronMtx& ParamMtx, const double& PermPSwapNd=0.2);
   TKroneckerLL(const PNGraph& GraphPt, const TKronMtx& ParamMtx, const TIntV& NodeIdPermV, const double& PermPSwapNd=0.2);
@@ -141,13 +160,29 @@ public:
   int GetParams() const { return ProbMtx.Len(); }
   int GetDim() const { return ProbMtx.GetDim(); }
 
+  void SetDebug(const bool Debug) { DebugMode = Debug; }
+  const TFltV& GetLLHist() const { return LLV; }
+  const TVec<TKronMtx>& GetParamHist() const { return MtxV; }
+  
+  // check actual nodes and edges (for KronEM)
+  bool IsObsNode(const int& NId) const { IAssert(RealNodes > 0);	return (NId < RealNodes);	}
+  bool IsObsEdge(const int& NId1, const int& NId2) const { IAssert(RealNodes > 0);	return ((NId1 < RealNodes) && (NId2 < RealNodes));	}
+  bool IsLatentNode(const int& NId) const { return !IsObsNode(NId);	}
+  bool IsLatentEdge(const int& NId1, const int& NId2) const { return !IsObsEdge(NId1, NId2);	}
+
   // node permutation
   void SetPerm(const char& PermId);
   void SetOrderPerm(); // identity
   void SetRndPerm();   // random
   void SetDegPerm();   // node degrees
-  void SetPerm(const TIntV& NodePermV) { NodePerm = NodePermV; }
+  void SetBestDegPerm();	// best matched degrees
+  void SetPerm(const TIntV& NodePermV) { NodePerm = NodePermV; SetIPerm(NodePerm); }
+  void SetIPerm(const TIntV& Perm);	// construct invert permutation
   const TIntV& GetPermV() const { return NodePerm; }
+
+  // handling isolated nodes to fit # of nodes to Kronecker graphs model
+  void AppendIsoNodes();
+  void RestoreGraph(const bool RestoreNodes = true);
 
   // full graph LL
   double GetFullGraphLL() const;
@@ -184,6 +219,16 @@ public:
   double GradDescent(const int& NIter, const double& LrnRate, double MnStep, double MxStep, const int& WarmUp, const int& NSamples);
   double GradDescent2(const int& NIter, const double& LrnRate, double MnStep, double MxStep, const int& WarmUp, const int& NSamples);
 
+  // KronEM
+  void SetRandomEdges(const int& NEdges, const bool isDir = true);
+  void MetroGibbsSampleSetup(const int& WarmUp);
+  void MetroGibbsSampleNext(const int& WarmUp, const bool DLLUpdate = false);
+  void RunEStep(const int& GibbsWarmUp, const int& WarmUp, const int& NSamples, TFltV& LLV, TVec<TFltV>& DLLV);
+  double RunMStep(const TFltV& LLV, const TVec<TFltV>& DLLV, const int& GradIter, const double& LrnRate, double MnStep, double MxStep);
+  void RunKronEM(const int& EMIter, const int& GradIter, double LrnRate, double MnStep, double MxStep, const int& GibbsWarmUp, const int& WarmUp, const int& NSamples, const TKronEMType& Type = kronNodeMiss, const int& NMissing = -1);
+
+
+
   TFltV TestSamplePerm(const TStr& OutFNm, const int& WarmUp, const int& NSamples, const TKronMtx& TrueMtx, const bool& DoPlot=true);
   static double CalcChainR2(const TVec<TFltV>& ChainLLV);
   static void ChainGelmapRubinPlot(const TVec<TFltV>& ChainLLV, const TStr& OutFNm, const TStr& Desc);
@@ -195,6 +240,21 @@ public:
   static void TestGradDescent(const int& KronIters, const int& KiloSamples, const TStr& Permutation);
   friend class TPt<TKroneckerLL>;
 };
+
+
+/////////////////////////////////////////////////
+// Add Noise to Graph
+class TKronNoise {
+public:
+	TKronNoise() {};
+	static int RemoveNodeNoise(PNGraph& Graph, const int& NNodes, const bool Random = true);
+	static int RemoveNodeNoise(PNGraph& Graph, const double& Rate, const bool Random = true);
+	static int FlipEdgeNoise(PNGraph& Graph, const int& NEdges, const bool Random = true);
+	static int FlipEdgeNoise(PNGraph& Graph, const double& Rate, const bool Random = true);
+	static int RemoveEdgeNoise(PNGraph& Graph, const int& NEdges);
+	static int RemoveEdgeNoise(PNGraph& Graph, const double& Rate);
+};
+
 
 /////////////////////////////////////////////////
 // Kronecker Log Likelihood Maximization

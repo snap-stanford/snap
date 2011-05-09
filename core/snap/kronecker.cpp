@@ -664,6 +664,19 @@ double TKronMtx::GetAvgAbsErr(const TKronMtx& Kron1, const TKronMtx& Kron2) {
   return delta/P1.Len();
 }
 
+// average L2 difference in the parameters
+double TKronMtx::GetAvgFroErr(const TKronMtx& Kron1, const TKronMtx& Kron2) {
+  TFltV P1 = Kron1.GetMtx();
+  TFltV P2 = Kron2.GetMtx();
+  IAssert(P1.Len() == P2.Len());
+  P1.Sort();  P2.Sort();
+  double delta = 0.0;
+  for (int i = 0; i < P1.Len(); i++) {
+    delta += pow(P1[i] - P2[i], 2);
+  }
+  return sqrt(delta/P1.Len());
+}
+
 // get matrix from matlab matrix notation
 TKronMtx TKronMtx::GetMtx(TStr MatlabMtxStr) {
   TStrV RowStrV, ColStrV;
@@ -778,6 +791,7 @@ TKroneckerLL::TKroneckerLL(const PNGraph& GraphPt, const TKronMtx& ParamMtx, con
 TKroneckerLL::TKroneckerLL(const PNGraph& GraphPt, const TKronMtx& ParamMtx, const TIntV& NodeIdPermV, const double& PermPSwapNd) : PermSwapNodeProb(PermPSwapNd) {
   InitLL(GraphPt, ParamMtx);
   NodePerm = NodeIdPermV;
+  SetIPerm(NodePerm);
 }
 
 PKroneckerLL TKroneckerLL::New(const PNGraph& GraphPt, const TKronMtx& ParamMtx, const double& PermPSwapNd) {
@@ -792,6 +806,7 @@ void TKroneckerLL::SetPerm(const char& PermId) {
   if (PermId == 'o') { SetOrderPerm(); }
   else if (PermId == 'd') { SetDegPerm(); }
   else if (PermId == 'r') { SetRndPerm(); }
+  else if (PermId == 'b') { SetBestDegPerm(); }
   else FailR("Unknown permutation type (o,d,r)");
 }
 
@@ -799,6 +814,7 @@ void TKroneckerLL::SetOrderPerm() {
   NodePerm.Gen(Nodes, 0);
   for (int i = 0; i < Graph->GetNodes(); i++) {
     NodePerm.Add(i); }
+  SetIPerm(NodePerm);
 }
 
 void TKroneckerLL::SetRndPerm() {
@@ -806,6 +822,7 @@ void TKroneckerLL::SetRndPerm() {
   for (int i = 0; i < Graph->GetNodes(); i++) {
     NodePerm.Add(i); }
   NodePerm.Shuffle(TKronMtx::Rnd);
+  SetIPerm(NodePerm);
 }
 
 void TKroneckerLL::SetDegPerm() {
@@ -818,6 +835,46 @@ void TKroneckerLL::SetDegPerm() {
   for (int i = 0; i < DegNIdV.Len(); i++) {
     NodePerm.Add(DegNIdV[i].Val2);
   }
+  SetIPerm(NodePerm);
+}
+
+void TKroneckerLL::SetBestDegPerm() {
+  NodePerm.Gen(Nodes);
+  const int NZero = ProbMtx.GetDim();
+  TFltIntPrV DegV(Nodes), CDegV(Nodes);
+  TFltV Row(NZero);		Row.PutAll(0.0);
+  TFltV Col(NZero);		Col.PutAll(0.0);
+  for(int i = 0; i < NZero; i++) {
+	  for(int j = 0; j < NZero; j++) {
+		  Row[i] += ProbMtx.At(i, j);
+		  Col[i] += ProbMtx.At(j, i);
+	  }
+  }
+  
+  for(int i = 0; i < Nodes; i++) {
+	  TNGraph::TNodeI NodeI = Graph->GetNI(i);
+	  int NId = i;
+	  double RowP = 1.0, ColP = 1.0;
+	  for(int j = 0; j < KronIters; j++) {
+		  int Bit = NId % NZero;
+		  RowP *= Row[Bit];		ColP *= Col[Bit];
+		  NId /= NZero;
+	  }
+	  CDegV[i] = TFltIntPr(RowP + ColP , i);
+	  DegV[i] = TFltIntPr(NodeI.GetDeg(), i);
+  }
+  DegV.Sort(false);		CDegV.Sort(false);
+  for(int i = 0; i < Nodes; i++) {
+	  NodePerm[DegV[i].Val2] = CDegV[i].Val2;
+  }
+  SetIPerm(NodePerm);
+}
+
+void TKroneckerLL::SetIPerm(const TIntV& Perm) {
+	InvertPerm.Gen(Perm.Len());
+	for (int i = 0; i < Perm.Len(); i++) {
+		InvertPerm[Perm[i]] = i;
+	}
 }
 
 void TKroneckerLL::SetGraph(const PNGraph& GraphPt) {
@@ -836,14 +893,49 @@ void TKroneckerLL::SetGraph(const PNGraph& GraphPt) {
   IAssert(LLMtx.GetDim() > 1 && LLMtx.Len() == ProbMtx.Len());
   KronIters = (int) ceil(log(double(Nodes)) / log(double(ProbMtx.GetDim())));
   // edge vector (for swap-edge permutation proposal)
-  if (PermSwapNodeProb < 1.0) {
+//  if (PermSwapNodeProb < 1.0) {
     GEdgeV.Gen(Graph->GetEdges(), 0); 
     for (TNGraph::TEdgeI EI = Graph->BegEI(); EI < Graph->EndEI(); EI++) {
       if (EI.GetSrcNId() != EI.GetDstNId()) {
-        GEdgeV.Add(TIntPr(EI.GetSrcNId(), EI.GetDstNId())); 
+        GEdgeV.Add(TIntTr(EI.GetSrcNId(), EI.GetDstNId(), -1)); 
       } 
     }
+//  }
+  
+  RealNodes = Nodes;
+  RealEdges = Graph->GetEdges();
+  LEdgeV = TIntTrV();
+  LSelfEdge = 0;
+}
+
+void TKroneckerLL::AppendIsoNodes() {
+  Nodes = (int) pow(ProbMtx.GetDim(), KronIters); 
+
+  // add nodes until filling the Kronecker graph model
+  for (int nid = Graph->GetNodes(); nid < Nodes; nid++) {
+	  Graph->AddNode(nid);
   }
+}
+
+void TKroneckerLL::RestoreGraph(const bool RestoreNodes) {
+	//	remove from Graph
+	int NId1, NId2;
+
+	for (int e = 0; e < LEdgeV.Len(); e++) {
+    	NId1 = LEdgeV[e].Val1;  NId2 = LEdgeV[e].Val2;
+		Graph->DelEdge(NId1, NId2);
+//		GEdgeV.DelIfIn(LEdgeV[e]);
+	}
+	if(LEdgeV.Len() - LSelfEdge)
+		GEdgeV.Del(GEdgeV.Len() - LEdgeV.Len() + LSelfEdge, GEdgeV.Len() - 1);
+	LEdgeV.Clr();
+	LSelfEdge = 0;
+
+	if(RestoreNodes) {
+		for(int i = Graph->GetNodes(); i >= RealNodes; i--) {
+			Graph->DelNode(i);
+		}
+	}
 }
 
 double TKroneckerLL::GetFullGraphLL() const {
@@ -999,6 +1091,7 @@ double TKroneckerLL::SwapNodesLL(const int& NId1, const int& NId2) {
       + LLMtx.GetEdgeLL(PrevId2, PrevId1, KronIters); }
   // swap
   NodePerm.Swap(NId1, NId2);
+  InvertPerm.Swap(NodePerm[NId1], NodePerm[NId2]);
   // add new LL (add nodes)
   LogLike = LogLike + NodeLLDelta(NId1) + NodeLLDelta(NId2);
   const int NewId1 = NodePerm[NId1], NewId2 = NodePerm[NId2];
@@ -1031,6 +1124,7 @@ bool TKroneckerLL::SampleNextPerm(int& NId1, int& NId2) {
   if (LogU > NewLL - OldLL) { // reject
     LogLike = OldLL;
     NodePerm.Swap(NId2, NId1); //swap back
+	InvertPerm.Swap(NodePerm[NId2], NodePerm[NId1]); // swap back
     return false;
   }
   return true; // accept new sample
@@ -1210,6 +1304,12 @@ double TKroneckerLL::GradDescent(const int& NIter, const double& LrnRate, double
   TFltV CurGradV, LearnRateV(GetParams()), LastStep(GetParams());
   LearnRateV.PutAll(LrnRate);
   TKronMtx NewProbMtx = ProbMtx;
+  
+  if(DebugMode) {
+	  LLV.Gen(NIter, 0);
+	  MtxV.Gen(NIter, 0);
+  }
+
   for (int Iter = 0; Iter < NIter; Iter++) {
     printf("%03d] ", Iter);
     SampleGradient(WarmUp, NSamples, CurLL, CurGradV);
@@ -1239,6 +1339,11 @@ double TKroneckerLL::GradDescent(const int& NIter, const double& LrnRate, double
       ProbMtx = NewProbMtx;  ProbMtx.GetLLMtx(LLMtx); }
     OldLL=CurLL;
     printf("\n");  fflush(stdout);
+
+	if(DebugMode) {
+		LLV.Add(CurLL);
+		MtxV.Add(NewProbMtx);
+	}
   }
   printf("TotalExeTm: %s %g\n", TotalTm.GetStr(), TotalTm.GetSecs());
   ProbMtx.Dump("FITTED PARAMS", false);
@@ -1304,6 +1409,323 @@ double TKroneckerLL::GradDescent2(const int& NIter, const double& LrnRate, doubl
   ProbMtx.Dump("FITTED PARAMS\n", false);
   return CurLL;
 }
+
+
+// filling in random edges for KronEM
+void TKroneckerLL::SetRandomEdges(const int& NEdges, const bool isDir) {
+	int count = 0, added = 0, collision = 0;
+	const int MtxDim = ProbMtx.GetDim();
+	const double MtxSum = ProbMtx.GetMtxSum();
+	TVec<TFltIntIntTr> ProbToRCPosV; // row, col position
+	double CumProb = 0.0;
+
+	for(int r = 0; r < MtxDim; r++) {
+		for(int c = 0; c < MtxDim; c++) {
+			const double Prob = ProbMtx.At(r, c);
+			if (Prob > 0.0) {
+				CumProb += Prob;
+				ProbToRCPosV.Add(TFltIntIntTr(CumProb/MtxSum, r, c));
+			}
+		}
+	}
+
+	int Rng, Row, Col, n, NId1, NId2;
+	while(added < NEdges) {
+		Rng = Nodes;	Row = 0;	Col = 0;
+		for (int iter = 0; iter < KronIters; iter++) {
+			const double& Prob = TKronMtx::Rnd.GetUniDev();
+			n = 0; while(Prob > ProbToRCPosV[n].Val1) { n++; }
+			const int MtxRow = ProbToRCPosV[n].Val2;
+			const int MtxCol = ProbToRCPosV[n].Val3;
+			Rng /= MtxDim;
+			Row += MtxRow * Rng;
+			Col += MtxCol * Rng;
+		}
+		
+		count++;
+
+		NId1 = InvertPerm[Row];	NId2 = InvertPerm[Col];
+
+		//	Check conflicts
+		if(EMType != kronEdgeMiss && IsObsEdge(NId1, NId2)) {
+			continue;
+		}
+
+		if (! Graph->IsEdge(NId1, NId2)) {
+			Graph->AddEdge(NId1, NId2);
+			if(NId1 != NId2)	{ GEdgeV.Add(TIntTr(NId1, NId2, LEdgeV.Len())); }
+			else { LSelfEdge++; }
+			LEdgeV.Add(TIntTr(NId1, NId2, GEdgeV.Len()-1));
+			added++;
+			if (! isDir) {
+				if (NId1 != NId2) {
+				   Graph->AddEdge(NId2, NId1);
+				   GEdgeV.Add(TIntTr(NId2, NId1, LEdgeV.Len()));
+				   LEdgeV.Add(TIntTr(NId2, NId1, GEdgeV.Len()-1));
+				   added++;
+				}
+			}
+		} else { collision ++; }
+	}
+//	printf("total = %d / added = %d / collision = %d\n", count, added, collision);
+}
+
+// sampling setup for KronEM
+void TKroneckerLL::MetroGibbsSampleSetup(const int& WarmUp) {
+	double alpha = log(ProbMtx.GetMtxSum()) / log(double(ProbMtx.GetDim()));
+	int NId1 = 0, NId2 = 0;
+	int NMissing;
+
+	RestoreGraph(false);
+	if(EMType == kronEdgeMiss) {
+		CalcApxGraphLL();
+		for (int s = 0; s < WarmUp; s++)	SampleNextPerm(NId1, NId2);
+	}
+
+	if(EMType == kronFutureLink) {
+		NMissing = (int) (pow(ProbMtx.GetMtxSum(), KronIters) - pow(double(RealNodes), alpha));
+	} else if(EMType == kronEdgeMiss) {
+		NMissing = MissEdges;
+	} else {
+		NMissing = (int) (pow(ProbMtx.GetMtxSum(), KronIters) * (1.0 - pow(double(RealNodes) / double(Nodes), 2)));
+	}
+	NMissing = (NMissing < 1) ? 1 : NMissing;
+	
+	SetRandomEdges(NMissing, true);
+	
+	CalcApxGraphLL();
+	for (int s = 0; s < WarmUp; s++)	SampleNextPerm(NId1, NId2);
+}
+
+// Metropolis-Hastings steps for KronEM
+void TKroneckerLL::MetroGibbsSampleNext(const int& WarmUp, const bool DLLUpdate) {
+	int NId1 = 0, NId2 = 0, hit = 0, GId = 0;
+	TIntTr EdgeToRemove, NewEdge;
+	double RndAccept;
+
+	if(LEdgeV.Len()) {
+		for(int i = 0; i < WarmUp; i++) {
+			hit = TKronMtx::Rnd.GetUniDevInt(LEdgeV.Len());
+				
+			NId1 = LEdgeV[hit].Val1;	NId2 = LEdgeV[hit].Val2;
+			GId = LEdgeV[hit].Val3;
+			SetRandomEdges(1, true);
+			NewEdge = LEdgeV.Last();
+			
+			RndAccept = (1.0 - exp(LLMtx.GetEdgeLL(NewEdge.Val1, NewEdge.Val2, KronIters))) / (1.0 - exp(LLMtx.GetEdgeLL(NId1, NId2, KronIters)));
+			RndAccept = (RndAccept > 1.0) ? 1.0 : RndAccept;
+
+			if(TKronMtx::Rnd.GetUniDev() > RndAccept) { //	reject
+				Graph->DelEdge(NewEdge.Val1, NewEdge.Val2);
+				if(NewEdge.Val1 != NewEdge.Val2) {	GEdgeV.DelLast();	}
+				else {	LSelfEdge--;	}
+				LEdgeV.DelLast();
+			} else {	//	accept
+				Graph->DelEdge(NId1, NId2);
+				LEdgeV[hit] = LEdgeV.Last();
+				LEdgeV.DelLast();
+				if(NId1 == NId2) {
+					LSelfEdge--;
+					if(NewEdge.Val1 != NewEdge.Val2) {
+						GEdgeV[GEdgeV.Len()-1].Val3 = hit;
+					}
+				} else {
+					IAssertR(GEdgeV.Last().Val3 >= 0, "Invalid indexing");
+
+					GEdgeV[GId] = GEdgeV.Last();
+					if(NewEdge.Val1 != NewEdge.Val2) {
+						GEdgeV[GId].Val3 = hit;
+					}
+					LEdgeV[GEdgeV[GId].Val3].Val3 = GId;
+					GEdgeV.DelLast();
+				}
+
+      			LogLike += LLMtx.GetApxNoEdgeLL(EdgeToRemove.Val1, EdgeToRemove.Val2, KronIters) - LLMtx.GetEdgeLL(EdgeToRemove.Val1, EdgeToRemove.Val2, KronIters);
+      			LogLike += -LLMtx.GetApxNoEdgeLL(NewEdge.Val1, NewEdge.Val2, KronIters) + LLMtx.GetEdgeLL(NewEdge.Val1, NewEdge.Val2, KronIters);
+				
+				if(DLLUpdate) {
+  					for (int p = 0; p < LLMtx.Len(); p++) {
+						GradV[p] += LLMtx.GetApxNoEdgeDLL(p, EdgeToRemove.Val1, EdgeToRemove.Val2, KronIters) - LLMtx.GetEdgeDLL(p, EdgeToRemove.Val1, EdgeToRemove.Val2, KronIters);
+						GradV[p] += -LLMtx.GetApxNoEdgeDLL(p, NewEdge.Val1, NewEdge.Val2, KronIters) + LLMtx.GetEdgeDLL(p, NewEdge.Val1, NewEdge.Val2, KronIters);
+					}
+				}
+			}
+		}
+	}
+	
+//	CalcApxGraphLL();
+	for (int s = 0; s < WarmUp; s++) {
+		if(SampleNextPerm(NId1, NId2)) {
+			if(DLLUpdate)	UpdateGraphDLL(NId1, NId2);
+		}
+	}
+}
+
+// E-step in KronEM
+void TKroneckerLL::RunEStep(const int& GibbsWarmUp, const int& WarmUp, const int& NSamples, TFltV& LLV, TVec<TFltV>& DLLV) {
+	TExeTm ExeTm, TotalTm;
+	LLV.Gen(NSamples, 0);
+	DLLV.Gen(NSamples, 0);
+
+	ExeTm.Tick();
+	for(int i = 0; i < 2; i++)	MetroGibbsSampleSetup(WarmUp);
+	printf("  Warm-Up [%u] : %s\n", WarmUp, ExeTm.GetTmStr());
+	CalcApxGraphLL();
+	for(int i = 0; i < GibbsWarmUp; i++)	MetroGibbsSampleNext(10, false);
+	printf("  Gibbs Warm-Up [%u] : %s\n", GibbsWarmUp, ExeTm.GetTmStr());
+   
+	ExeTm.Tick();
+	CalcApxGraphLL();
+	CalcApxGraphDLL();
+	for(int i = 0; i < NSamples; i++) {
+		MetroGibbsSampleNext(50, false);
+
+		LLV.Add(LogLike);
+		DLLV.Add(GradV);
+		
+		int OnePercent = (i+1) % (NSamples / 10);
+		if(OnePercent == 0) {
+			int TenPercent = ((i+1) / (NSamples / 10)) * 10;
+			printf("  %3u%% done : %s\n", TenPercent, ExeTm.GetTmStr());
+		}
+	}
+}
+
+// M-step in KronEM
+double TKroneckerLL::RunMStep(const TFltV& LLV, const TVec<TFltV>& DLLV, const int& GradIter, const double& LrnRate, double MnStep, double MxStep) {
+	TExeTm IterTm, TotalTm;
+	double OldLL=LogLike, CurLL=0;
+	const double alpha = log(double(RealEdges)) / log(double(RealNodes));
+	const double EZero = pow(double(ProbMtx.GetDim()), alpha);
+	
+	TFltV CurGradV(GetParams()), LearnRateV(GetParams()), LastStep(GetParams());
+	LearnRateV.PutAll(LrnRate);
+
+	TKronMtx NewProbMtx = ProbMtx;
+	const int NSamples = LLV.Len();
+	const int ReCalcLen = NSamples / 10;
+
+	for (int s = 0; s < LLV.Len(); s++) {
+		CurLL += LLV[s];
+		for(int p = 0; p < GetParams(); p++) { CurGradV[p] += DLLV[s][p]; }
+	}
+	CurLL /= NSamples;
+	for(int p = 0; p < GetParams(); p++) { CurGradV[p] /= NSamples; }
+	
+	double MaxLL = CurLL;
+	TKronMtx MaxProbMtx = ProbMtx;
+	TKronMtx OldProbMtx = ProbMtx;
+
+	for (int Iter = 0; Iter < GradIter; Iter++) {
+		printf("    %03d] ", Iter+1);
+		IterTm.Tick();
+		
+		for (int p = 0; p < GetParams(); p++) {
+			if (Iter < 1) {
+				while (fabs(LearnRateV[p]*CurGradV[p]) > MxStep) { LearnRateV[p] *= 0.95; }
+				while (fabs(LearnRateV[p]*CurGradV[p]) < 5 * MnStep) { LearnRateV[p] *= (1.0/0.95); } // move more
+			} else {
+			// set learn rate so that move for each parameter is inside the [MnStep, MxStep]
+				while (fabs(LearnRateV[p]*CurGradV[p]) > MxStep) { LearnRateV[p] *= 0.95; printf(".");}
+				while (fabs(LearnRateV[p]*CurGradV[p]) < MnStep) { LearnRateV[p] *= (1.0/0.95); printf("*");}
+				if (MxStep > 3*MnStep) { MxStep *= 0.95; }
+			}
+			NewProbMtx.At(p) = ProbMtx.At(p) + LearnRateV[p]*CurGradV[p];
+			if (NewProbMtx.At(p) > 0.9999) { NewProbMtx.At(p)=0.9999; }
+			if (NewProbMtx.At(p) < 0.0001) { NewProbMtx.At(p)=0.0001; }
+			LearnRateV[p] *= 0.95;
+		}
+		printf("  trueE0: %.2f (%u from %u),  estE0: %.2f (%u from %u),  ERR: %f\n", EZero, RealEdges(), RealNodes(), ProbMtx.GetMtxSum(), Graph->GetEdges(), Graph->GetNodes(), fabs(EZero-ProbMtx.GetMtxSum()));
+		printf("      currLL: %.4f, deltaLL: %.4f\n", CurLL, CurLL-OldLL); // positive is good
+		for (int p = 0; p < GetParams(); p++) {
+			printf("      %d]  %f  <--  %f + %9f   Grad: %9.1f   Rate: %g\n", p, NewProbMtx.At(p),
+			ProbMtx.At(p), (double)(LearnRateV[p]*CurGradV[p]), CurGradV[p](), LearnRateV[p]());
+		}
+		
+		OldLL=CurLL;
+		if(Iter == GradIter - 1) {
+			break;
+		}
+
+		CurLL = 0;
+		CurGradV.PutAll(0.0);
+		TFltV OneDLL;
+
+		CalcApxGraphLL();
+		CalcApxGraphDLL();
+
+		for(int s = 0; s < NSamples; s++) {
+			ProbMtx = OldProbMtx;  ProbMtx.GetLLMtx(LLMtx);
+			MetroGibbsSampleNext(10, true);
+			ProbMtx = NewProbMtx;  ProbMtx.GetLLMtx(LLMtx);
+			if(s % ReCalcLen == ReCalcLen/2) {
+				CurLL += CalcApxGraphLL();
+				OneDLL = CalcApxGraphDLL();
+			} else {
+				CurLL += LogLike;
+				OneDLL = GradV;
+			}
+			for(int p = 0; p < GetParams(); p++) {
+				CurGradV[p] += OneDLL[p];
+			}
+		}
+		CurLL /= NSamples;
+		
+		if(MaxLL < CurLL) {
+			MaxLL = CurLL;	MaxProbMtx = ProbMtx;
+		}
+
+		printf("    Time: %s\n", IterTm.GetTmStr());
+		printf("\n");  fflush(stdout);
+	}
+	ProbMtx = MaxProbMtx;	ProbMtx.GetLLMtx(LLMtx);
+
+	printf("    FinalLL : %f,   TotalExeTm: %s\n", MaxLL, TotalTm.GetTmStr());
+	ProbMtx.Dump("    FITTED PARAMS", false);
+
+	return MaxLL;
+}
+
+// KronEM
+void TKroneckerLL::RunKronEM(const int& EMIter, const int& GradIter, double LrnRate, double MnStep, double MxStep, const int& GibbsWarmUp, const int& WarmUp, const int& NSamples, const TKronEMType& Type, const int& NMissing) {
+	printf("\n----------------------------------------------------------------------\n");
+	printf("Fitting graph on %d nodes, %d edges\n", int(RealNodes), int(RealEdges));
+	printf("Kron iters:  %d (== %d nodes)\n\n", KronIters(), ProbMtx.GetNodes(KronIters()));
+
+	TFltV LLV(NSamples);
+	TVec<TFltV> DLLV(NSamples);	
+	int count = 0;
+
+	EMType = Type;
+	MissEdges = NMissing;
+	AppendIsoNodes();
+	SetRndPerm();
+
+	if(DebugMode) {
+		LLV.Gen(EMIter, 0);
+		MtxV.Gen(EMIter, 0);
+	}
+
+	for(int i = 0; i < EMIter; i++) {
+		printf("\n----------------------------------------------------------------------\n");
+		printf("%03d EM-iter] E-Step\n", i+1);
+		RunEStep(GibbsWarmUp, WarmUp, NSamples, LLV, DLLV);
+		printf("\n\n");
+		
+		printf("%03d EM-iter] M-Step\n", i+1);
+		double CurLL = RunMStep(LLV, DLLV, GradIter, LrnRate, MnStep, MxStep);
+		printf("\n\n");
+
+		if(DebugMode) {
+			LLV.Add(CurLL);
+			MtxV.Add(ProbMtx);
+		}
+	}
+
+	RestoreGraph();
+}
+
+
 
 void GetMinMax(const TFltPrV& XYValV, double& Min, double& Max, const bool& ResetMinMax) {
   if (ResetMinMax) { Min = TFlt::Mx;  Max = TFlt::Mn; }
@@ -1772,6 +2194,101 @@ void TKroneckerLL::GradDescent(const double& LearnRate, const int& WarmUp, const
   ProbMtx.Dump("Final Thetas");
 }
 */
+
+
+/////////////////////////////////////////////////
+// Add Noise to Graph
+
+int TKronNoise::RemoveNodeNoise(PNGraph& Graph, const int& NNodes, const bool Random) {
+	IAssert(NNodes > 0 && NNodes < (Graph->GetNodes() / 2));
+
+	int i = 0;
+	TIntV ShufflePerm;
+	Graph->GetNIdV(ShufflePerm);
+	if(Random) {
+		ShufflePerm.Shuffle(TKronMtx::Rnd);
+		for(i = 0; i < NNodes; i++) {
+			Graph->DelNode(int(ShufflePerm[i]));
+		}
+	} else {
+		for(i = 0; i < NNodes; i++) {
+			Graph->DelNode(int(ShufflePerm[ShufflePerm.Len() - 1 - i]));
+		}
+	}
+
+	return Graph->GetNodes();
+}
+
+int TKronNoise::RemoveNodeNoise(PNGraph& Graph, const double& Rate, const bool Random) {
+	IAssert(Rate > 0 && Rate < 0.5);
+	return TKronNoise::RemoveNodeNoise(Graph, (int) floor(Rate * double(Graph->GetNodes())), Random);
+}
+
+int TKronNoise::FlipEdgeNoise(PNGraph& Graph, const int& NEdges, const bool Random) {
+	IAssert(NEdges > 0 && NEdges < Graph->GetEdges());
+
+	const int Nodes = Graph->GetNodes();
+	const int Edges = Graph->GetEdges();
+	int Src, Dst;
+
+	TIntV NIdV, TempV;
+	TIntPrV ToAdd, ToDel;
+	Graph->GetNIdV(NIdV);
+
+	ToAdd.Gen(NEdges / 2, 0);
+	for(int i = 0; i < NEdges / 2; i++) {
+		Src = NIdV[TKronMtx::Rnd.GetUniDevInt(Nodes)];
+		Dst = NIdV[TKronMtx::Rnd.GetUniDevInt(Nodes)];
+		if(Graph->IsEdge(Src, Dst)) {	i--;	continue;	}
+
+		ToAdd.Add(TIntPr(Src, Dst));
+	}
+
+	ToDel.Gen(Edges, 0);
+	for(TNGraph::TEdgeI EI = Graph->BegEI(); EI < Graph->EndEI(); EI++) {
+		ToDel.Add(TIntPr(EI.GetSrcNId(), EI.GetDstNId()));
+	}
+	ToDel.Shuffle(TKronMtx::Rnd);
+	
+	for(int i = 0; i < NEdges / 2; i++) {
+		Graph->DelEdge(ToDel[i].Val1, ToDel[i].Val2);
+		Graph->AddEdge(ToAdd[i].Val1, ToAdd[i].Val2);
+	}
+
+	return Graph->GetEdges();
+}
+
+int TKronNoise::FlipEdgeNoise(PNGraph& Graph, const double& Rate, const bool Random) {
+	IAssert(Rate > 0 && Rate < 0.5);
+	return TKronNoise::FlipEdgeNoise(Graph, (int) floor(Rate * double(Graph->GetEdges())), Random);
+}
+
+int TKronNoise::RemoveEdgeNoise(PNGraph& Graph, const int& NEdges) {
+	IAssert(NEdges > 0 && NEdges < Graph->GetEdges());
+	
+	TIntPrV ToDel;
+	
+	ToDel.Gen(Graph->GetEdges(), 0);
+	for(TNGraph::TEdgeI EI = Graph->BegEI(); EI < Graph->EndEI(); EI++) {
+		if(EI.GetSrcNId() != EI.GetDstNId()) {
+			ToDel.Add(TIntPr(EI.GetSrcNId(), EI.GetDstNId()));
+		}
+	}
+	ToDel.Shuffle(TKronMtx::Rnd);
+
+	for(int i = 0; i < NEdges; i++) {
+		Graph->DelEdge(ToDel[i].Val1, ToDel[i].Val2);
+	}
+
+	return Graph->GetEdges();
+}
+
+int TKronNoise::RemoveEdgeNoise(PNGraph& Graph, const double& Rate) {
+	IAssert(Rate > 0 && Rate < 0.5);
+	return TKronNoise::RemoveEdgeNoise(Graph, (int) floor(Rate * double(Graph->GetEdges())));
+}
+
+
 
 /////////////////////////////////////////////////
 // Kronecker Log Likelihood Maximization
