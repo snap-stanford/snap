@@ -218,7 +218,7 @@ int GetNodesAtHops(const PGraph& Graph, const int& StartNId, TIntPrV& HopCntV, c
 template <class PGraph>
 int GetShortPath(const PGraph& Graph, const int& SrcNId, TIntH& NIdToDistH, const bool& Dir, const int& MaxDist) {
   TBreathFS<PGraph> BFS(Graph);
-  BFS.DoBfs(SrcNId, true, ! Dir, -1, TInt::Mx);
+  BFS.DoBfs(SrcNId, true, ! Dir, -1, MaxDist);
   NIdToDistH.Clr();
   NIdToDistH.Swap(BFS.NIdDistH);
   return NIdToDistH[NIdToDistH.Len()-1];

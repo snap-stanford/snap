@@ -41,7 +41,11 @@ typedef ptrdiff_t ssize_t;
 
 #if defined(GLib_UNIX)
 #define _isnan(x) isnan(x)
-#define _finite(x) finite(x)
+#if defined (GLib_MACOSX)
+  #define _finite(x) isfinite(x)
+#else
+  #define _finite(x) finite(x)
+#endif
 #endif
 
 #if defined(GLib_WIN32)
@@ -286,7 +290,7 @@ void ExeStop(
   ((Cond) ? static_cast<void>(0) : TExcept::Throw(TSysStr::GetLastMsgCStr(), \
   TStr(__FILE__) + " line " + TInt::GetStr(__LINE__) +": "+ TStr(#Cond)))
 
-// compile time assert 
+// compile time assert
 // #define STATIC_ASSERT(x) { const char temp[ (((x) == 0) ? 0 : 1) ] = {'\0'}; }
 template <bool BoolVal> struct TStaticAssert;
 template <> struct TStaticAssert<true> { enum { value = 1 }; };
