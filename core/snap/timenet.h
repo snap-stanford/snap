@@ -86,7 +86,9 @@ public:
   PTimeNENet Get1stEdgeNet() const;
   PTimeNENet GetSubGraph(const TIntV& NIdV) const;
   PTimeNENet GetESubGraph(const TIntV& EIdV) const;
+  PTimeNENet GetGraphUpToTm(const TSecTm& MaxEdgeTm) const;
 
+  void SortNodeEdgeTimes();
   void UpdateNodeTimes();
   void SetNodeTmToFirstEdgeTm();
   void SetRndEdgeTimes(const int& MinTmEdge=0);

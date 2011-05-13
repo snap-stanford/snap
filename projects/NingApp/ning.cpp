@@ -63,6 +63,66 @@ TStr TNingNet::GetTitle() const {
     GetAge(tmuDay), GetDeadTm(tmuDay));
 }
 
+PUNGraph TNingNet::GetUNGraphUpToTm(const TSecTm& MaxEdgeTm) const {
+  PUNGraph NewNetPt = TUNGraph::New();
+  TUNGraph& NewNet = *NewNetPt;
+  TSecTm PrevTm;
+  for (TEdgeI EI = BegEI(); EI < EndEI(); EI++) {
+    if (EI() > MaxEdgeTm) { break; }
+    if (! NewNet.IsNode(EI.GetSrcNId()))
+      NewNet.AddNode(EI.GetSrcNId());
+    if (! NewNet.IsNode(EI.GetDstNId()))
+      NewNet.AddNode(EI.GetDstNId());
+    NewNet.AddEdge(EI.GetSrcNId(), EI.GetDstNId());
+    IAssert(! PrevTm.IsDef() || PrevTm <= EI()); // edge times must be sorted
+    PrevTm = EI();
+  }
+  return NewNetPt;
+}
+
+PUNGraph TNingNet::GetSubGraph(const TNingGroup& Group, const int& TakeFirstK, const TSecTm& MxEdgeTm) const {
+  PUNGraph NewNetPt = TUNGraph::New();
+  TUNGraph& NewNet = *NewNetPt;
+  int node, edge;
+  TNodeI NI;
+  IAssert(TakeFirstK <= Group.Len());
+  if (TakeFirstK != -1) {
+    for (node = 0; node < TakeFirstK; node++) {
+      if (IsNode(Group.GetNId(node))) {
+        NewNet.AddNode(Group.GetNId(node)); }
+    }
+    for (node = 0; node < TakeFirstK; node++) {
+      const int NId = Group.GetNId(node);
+      if (! IsNode(NId)) { continue; }
+      NI = GetNI(NId);
+      for (edge = 0; edge < NI.GetOutDeg(); edge++) {
+        const int OutNId = NI.GetOutNId(edge);
+        const TSecTm OutETm = NI.GetOutEDat(edge);
+        if (NewNet.IsNode(OutNId) && OutETm <= MxEdgeTm) { 
+          NewNet.AddEdge(NId, OutNId); 
+        }
+      }
+    }
+  } else {
+    for (node = 0; node < Group.Len(); node++) {
+      if (IsNode(Group.GetNId(node)) && Group.GetTm2(node) <= MxEdgeTm) {
+        NewNet.AddNode(Group.GetNId(node)); }
+    }
+    for (node = 0; node < Group.Len(); node++) {
+      const int NId = Group.GetNId(node);
+      if (! NewNet.IsNode(NId)) { continue; }
+      NI = GetNI(NId);
+      for (edge = 0; edge < NI.GetOutDeg(); edge++) {
+        const int OutNId = NI.GetOutNId(edge);
+        const TSecTm OutETm = NI.GetOutEDat(edge);
+        if (NewNet.IsNode(OutNId) && OutETm <= MxEdgeTm) { 
+          NewNet.AddEdge(NId, OutNId); }
+      }
+    }
+  }
+  return NewNetPt;
+}
+
 void TNingNet::GetNodesOverTm(const TTmUnit TmUnit, const int& TmSteps, TFltV& NodesTmV, const bool Cummulative, const bool& Relative) {
   NodesTmV.Gen(TmSteps+1);
   NodesTmV.PutAll(0);
@@ -73,11 +133,9 @@ void TNingNet::GetNodesOverTm(const TTmUnit TmUnit, const int& TmSteps, TFltV& N
     NodesTmV[NodeAge]++;
   }
   if(Cummulative) {
-    for (int i = 1; i < NodesTmV.Len(); i++) { NodesTmV[i] += NodesTmV[i-1]; }
-  }
+    for (int i = 1; i < NodesTmV.Len(); i++) { NodesTmV[i] += NodesTmV[i-1]; } }
   if (Relative) {
-    for (int i = 0; i < NodesTmV.Len(); i++) { NodesTmV[i] /= double(GetNodes()); }
-  }
+    for (int i = 0; i < NodesTmV.Len(); i++) { NodesTmV[i] /= double(GetNodes()); } }
 }
 
 void TNingNet::PlotOverTime(const TStr& OutFNmPref) const {
@@ -482,8 +540,8 @@ void TNingGroupEvol::PlotAll(const TStr& OutFNmPref) const {
 // fraction of nodes that joined in 1 month period
 // group starts, after i-th month check fringe, how many join till month i+1
 void TNingGroupEvol2::AddNet(const PNingNet& Net, const TNingGroupV& GroupV) {
-  const TSecTm MonthSecs(31*24*3600);
-  static int NJoin = 0;
+  const TSecTm MonthSecs(1*31*24*3600);
+  static int NJoin = 0, NetId = 0;
   THash<TIntPr, TSecTm> EdgeTmSet(Net->GetEdges()); // edges over time
   THash<TInt, TIntH> NIdInEH;                       // group -> (node, number of friends in the group)
   THash<TInt, TIntV> NIdGroupV;                     // node  -> group memberships
@@ -493,7 +551,7 @@ void TNingGroupEvol2::AddNet(const PNingNet& Net, const TNingGroupV& GroupV) {
   uint MinNexTm = 0;
   TVec<TSecTm> GroupTmV;
   // preprocess edges
-  uint x =0;
+  uint x =0; NetId++;
   for (TNingNet::TEdgeI EI = Net->BegEI(); EI < Net->EndEI(); EI++) {
     IAssert(EI.GetSrcNId() != EI.GetDstNId());
     const TIntPr Edge(TMath::Mn(EI.GetSrcNId(), EI.GetDstNId()), TMath::Mx(EI.GetSrcNId(), EI.GetDstNId()));
@@ -582,9 +640,9 @@ void TNingGroupEvol2::AddNet(const PNingNet& Net, const TNingGroupV& GroupV) {
           JoinSet.AddKey(FringeSet[i]); }
       }
       //printf("%d %d G:%d  ", EdgeTm.GetAbsSecs()/MonthSecs, t, g);
-      //printf("g1:%d  g2:%d  g1:%d  f:%d  e:%d  j2:%d\n", CurGraph->GetNodes(), FutGraph->GetNodes(), CurGroup.Len(), FringeSet.Len(), NodeInEH.Len(), JoinSet.Len());
+      //printf("n1:%d  e1:%d  n2:%d  e2:%d  gr:%d  fr:%d  e:%d  j2:%d\n", CurG->GetNodes(), CurG->GetEdges(), FutG->GetNodes(), FutG->GetEdges(), CurGroup.Len(), FringeSet.Len(), NodeInEH.Len(), JoinSet.Len());
       //OnGroupTimeStep(CurG, GroupV[g], GroupSet.GetDat(g), FringeSet, JoinSet, NodeInEH, EdgeTm); // fringe node join prob
-      OnGroupTimeStep2(CurG, FutG, GroupV[g], CurGroup, FringeSet, JoinSet, NodeInEH, EdgeTm);  // group growth
+      OnGroupTimeStep2(g, CurG, FutG, GroupV[g], CurGroup, FringeSet, JoinSet, NodeInEH, EdgeTm);  // group growth
       if (++NJoin % 100 == 0) { printf("."); }
       if (NJoin % Kilo(10) == 0) { printf("p"); PlotAll(); }
     }
@@ -638,8 +696,9 @@ int MyRat(const double& Fut, const double& Cur) {
 }
 
 // how fast will the group grow in the future based on its current clustering (density, etc.)
-void TNingGroupEvol2::OnGroupTimeStep2(const PUNGraph& CurGraph, const PUNGraph& FutGraph, const TNingGroup& Group, const TIntSet& CurGroup, const TIntSet& FringeSet, const TIntSet& JoinSet, const TIntH& NodeInEH, const TSecTm& CurTm) {
+void TNingGroupEvol2::OnGroupTimeStep2(const int& Id, const PUNGraph& CurGraph, const PUNGraph& FutGraph, const TNingGroup& Group, const TIntSet& CurGroup, const TIntSet& FringeSet, const TIntSet& JoinSet, const TIntH& NodeInEH, const TSecTm& CurTm) {
   if (CurGroup.Len() < 5) { return; }
+  if (JoinSet.Len() == 0) { return; } // nobody joined, skip
   TIntV CurMemV(CurGroup.Len()+JoinSet.Len()), FutMemV;  
   CurGroup.GetKeyV(CurMemV);  FutMemV = CurMemV;
   for (int i = 0; i < JoinSet.Len(); i++) {
@@ -652,10 +711,11 @@ void TNingGroupEvol2::OnGroupTimeStep2(const PUNGraph& CurGraph, const PUNGraph&
   TFltV EigValV;   
   // current group members graph
   const int    Size = CurGroup.Len();
-  const double Growth = JoinSet.Len() / CurGroup.Len();
+  const double Growth = JoinSet.Len() / (double) CurGroup.Len();
   const int    CurNodes = CurG->GetNodes();
   const int    CurEdges = CurG->GetEdges();
   const double CurCCf = TSnap::GetClustCf(CurG);
+  //printf("%d\t1:%d\te1:%d\tn2:%d\te2:%d\tccf:%g\tgr:%g\n", Id, CurG->GetNodes(), CurG->GetEdges(), CmFutG->GetNodes(), CmFutG->GetEdges(),  CurCCf, Growth);
   const double CurTrEd = CurEdges!=0 ? TSnap::GetTriadEdges(CurG) / double(CurEdges) : 0.0;
   const double CurWcc = TSnap::GetMxWccSz(CurG);  //TSnap::GetEigVals(CurG, 2, EigValV);
   //const double CurEigVal = abs(EigValV[0]);
@@ -774,61 +834,85 @@ void TNingGroupEvol2::PlotRatioHash(const THash<TInt, THash<TInt, TFltPr> >& Deg
   GP.SavePng(); 
 }
 
-/*void TNingGroupEvol3::AddNet(const PNingNet& Net, const TNingGroupV& GroupV) {
+// for every group snapshot it when it had GroupSz members and check the 1 month growth
+void TNingGroupEvol3::AddNet(const PNingNet& Net, const TNingGroupV& GroupV, const int& GroupSz) {
   const TSecTm MonthSecs(30*24*3600);
-  static int NJoin = 0;
-  THash<TIntPr, TSecTm> EdgeTmSet(Net->GetEdges()); // edges over time
-  THash<TInt, TIntSet> GroupSet;                    // group -> nodes in the group
-  int TmJoinIdx = 0; uint MinNexTm=0;
-  TVec<TSecTm> GroupTmV;
-  // preprocess edges
-  for (TNingNet::TEdgeI EI = Net->BegEI(); EI < Net->EndEI(); EI++) {
-    IAssert(EI.GetSrcNId() != EI.GetDstNId());
-    const TIntPr Edge(TMath::Mn(EI.GetSrcNId(), EI.GetDstNId()), TMath::Mx(EI.GetSrcNId(), EI.GetDstNId()));
-    if (EdgeTmSet.IsKey(Edge)) { continue; }
-    EdgeTmSet.AddDat(Edge, EI());
-  }
-  // preprocess groups
+  static int NNet = 0;
   for (int g = 0; g < GroupV.Len(); g++) {
-    GroupTmV.Add(TSecTm(GroupV[g].GetMnTm()+MonthSecs));
-    MemCnt += GroupV[g].Len();
+    if (GroupV[g].Len() < GroupSz) { continue; }
+    const TSecTm CheckTm = GroupV[g].GetTm2(GroupSz-1);
+    PUNGraph CurG = Net->GetSubGraph(GroupV[g], GroupSz, CheckTm);
+    PUNGraph FutG = Net->GetSubGraph(GroupV[g], -1, TSecTm(CheckTm+MonthSecs));
+    // measure the network
+    TFltV EigValV;   
+    // current group members graph
+    const double Growth = (FutG->GetNodes()-CurG->GetNodes()) / (double) CurG->GetNodes();
+    const int    CurNodes = CurG->GetNodes();
+    const int    CurEdges = CurG->GetEdges();
+    const double CurCCf = TSnap::GetClustCf(CurG);
+    //printf("%d\t1:%d\te1:%d\tn2:%d\te2:%d\tccf:%g\tgr:%g\n", GroupV[g].Len(), CurG->GetNodes(), CurG->GetEdges(), FutG->GetNodes(), FutG->GetEdges(),  CurCCf, Growth);
+    const double CurTrEd = CurEdges!=0 ? TSnap::GetTriadEdges(CurG) / double(CurEdges) : 0.0;
+    const double CurWcc = TSnap::GetMxWccSz(CurG);  //TSnap::GetEigVals(CurG, 2, EigValV);
+    //const double CurEigVal = abs(EigValV[0]);
+    const double CurEffDiam = TSnap::GetBfsEffDiam(CurG, 100);
+    // future graph of current group members
+    const int    FutNodes = FutG->GetNodes();
+    const int    FutEdges = FutG->GetEdges();
+    const double FutCCf = TSnap::GetClustCf(FutG);
+    const double FutTrEd = CurEdges!=0 ? TSnap::GetTriadEdges(FutG) / double(CurEdges) : 0.0;
+    const double FutWcc = TSnap::GetMxWccSz(FutG);  //TSnap::GetEigVals(FutG, 2, EigValV);
+    //const double FutEigVal = abs(EigValV[0]);
+    const double FutEffDiam = TSnap::GetBfsEffDiam(FutG, 100);
+    //THash<TInt, THash<TInt, TMom> > SzEdgesH, SzCcfH, SzTrEdH, SzWccH, SzEigValH, SzEffDiamH; // growth
+    //THash<TInt, THash<TInt, TMom> > SzCcfRatH, SzCCfDiffH, SzEdgeDiffH, 
+    AvgDegGrowthH.AddDat(int(100*CurEdges/CurNodes)).Add(Growth);
+    TrEdGrowthH.AddDat(int(100*CurTrEd)).Add(Growth);
+    CcfGrowthH.AddDat(int(100*CurCCf)).Add(Growth);
+    WccGrowthH.AddDat(int(100*CurWcc)).Add(Growth);
+    //EigValGrowthH.AddDat(abs(int(10*CurEigVal))).Add(Growth);
+    DiamGrowthH.AddDat(int(10*CurEffDiam)).Add(Growth);
+    // difference between current and future
+    AvgDegDiffH.AddDat(int(100*(FutEdges/(double)FutNodes-CurEdges/(double)CurNodes))).Add(Growth);
+    TrEdDiffH.AddDat(int(100*(FutTrEd-CurTrEd))).Add(Growth);
+    CcfDiffH.AddDat(int(100*(FutCCf-CurCCf))).Add(Growth);
+    WccSzDiffH.AddDat(int(100*(FutWcc-CurWcc))).Add(Growth);
+    //EigValDiffH.AddDat(int(100*(CurEigVal-FutEigVal))).Add(Growth);
+    EffDiamDiffH.AddDat(int(100*(FutEffDiam-CurEffDiam))).Add(Growth);
+    // ratio between current and future
+    AvgDegRatH.AddDat(MyRat(FutEdges/(double)FutNodes, CurEdges/(double)CurNodes)).Add(Growth);
+    TrEdRatH.AddDat(MyRat(FutTrEd, CurTrEd)).Add(Growth);
+    CcfRatH.AddDat(MyRat(FutCCf,CurCCf)).Add(Growth);
+    WccSzRatH.AddDat(MyRat(FutWcc, CurWcc)).Add(Growth);
+    //EigValRatH.AddDat(int(100*(CurEigVal/FutEigVal))).Add(Growth);
+    EffDiamRatH.AddDat(MyRat(FutEffDiam, CurEffDiam)).Add(Growth);  
   }
-  NetCnt++;  GrpCnt+=GroupV.Len();
-  // evolve the network
-  PUNGraph G = TUNGraph::New(Net->GetNodes(), -1);
-  TIntSet JoinSet;
-  for (int t = 0; t < EdgeTmSet.Len(); t++) {
-    const TIntPr Edge = EdgeTmSet.GetKey(t);
-    const TSecTm EdgeTm = EdgeTmSet[t];
-    // determine which nodes joined up to now
-    for (; TmJoinIdx < TmJoinVH.Len() && TmJoinVH.GetKey(TmJoinIdx) < EdgeTm; TmJoinIdx++) {
-      const TIntPrV& JoinV = TmJoinVH[TmJoinIdx];
-      for (int j = 0; j < JoinV.Len(); j++) {
-        GroupSet.AddDat(JoinV[j].Val1).AddKey(JoinV[j].Val2); } // group -> members
-    }
-    // add edge to the network
-    if (! G->IsNode(Edge.Val1)) { G->AddNode(Edge.Val1); }
-    if (! G->IsNode(Edge.Val2)) { G->AddNode(Edge.Val2); }
-    G->AddEdge(Edge.Val1, Edge.Val2);
-    // determine which groups to consider
-    for (int g = 0; g < GroupV.Len(); g++) {
-      if (GroupTmV[g] > EdgeTm) { continue; } // group has been checked less than 1 month ago
-      GroupTmV[g] += MonthSecs; // check again the group in a month
-      const TNingGroup& FinalGroup = GroupV[g];
-      const TIntSet& CurSet = GroupSet.GetDat(g);
-      JoinSet.Clr();
-      // nodes that will join inside a month
-      for (int i = 0; i < FinalGroup.Len(); i++) {
-        const int nid = FinalGroup.GetNId(i);
-        if (FinalGroup.GetTm(nid) < GroupTmV[g]) {
-          JoinSet.AddKey(FringeSet[i]); }
-      }
-      OnGroupTick();
-      if (++NJoin % 100 == 0) { printf("."); }
-      if (NJoin % Kilo(10) == 0) { printf("p"); PlotAll(); }
-    }
-  }
-}*/
+  if (++NNet % 100 == 0) { printf("."); }
+  if (NNet % Kilo(1) == 0) { printf("p"); PlotAll(); }
+}
+
+void TNingGroupEvol3::PlotAll(const TStr& Title) const {
+  TStr TitleX = TStr::Fmt("%g nets, %g groups, %.1fm members,",  NetCnt, GrpCnt, MemCnt/Mega(1));
+  TGnuPlot::PlotValMomH(AvgDegGrowthH, OutFNmPref+"-Growth_AvgDeg", TitleX, "Average Degree", "Growth Rate (frac of new nodes added in 30 days)", gpsAuto, gpwLinesPoints, true, true, false, false, false, false, true);
+  TGnuPlot::PlotValMomH(TrEdGrowthH, OutFNmPref+"-Growth_TrEd", TitleX, "Fraction of edges supported by 1 triad", "Growth Rate (frac of new nodes added in 30 days)", gpsAuto, gpwLinesPoints, true, true, false, false, false, false, true);
+  TGnuPlot::PlotValMomH(CcfGrowthH, OutFNmPref+"-Growth_Ccf", TitleX, "Clustering coefficient", "Growth Rate (frac of new nodes added in 30 days)", gpsAuto, gpwLinesPoints, true, true, false, false, false, false, true);
+  TGnuPlot::PlotValMomH(WccGrowthH, OutFNmPref+"-Growth_Wcc", TitleX, "Size of Largest Connected component", "Growth Rate (frac of new nodes added in 30 days)", gpsAuto, gpwLinesPoints, true, true, false, false, false, false, true);
+  //TGnuPlot::PlotValMomH(EigValGrowthH, OutFNmPref+"-", TitleX, "", "Growth Rate (frac of new nodes added in 30 days)", gpsAuto, gpwLinesPoints, true, true, false, false, false, true);
+  TGnuPlot::PlotValMomH(DiamGrowthH, OutFNmPref+"-Growth_Diam", TitleX, "Effective Diameter", "Growth Rate (frac of new nodes added in 30 days)", gpsAuto, gpwLinesPoints, true, true, false, false, false, false, true);
+  TGnuPlot::PlotValMomH(AvgDegDiffH, OutFNmPref+"-Growth_AvgDegDiff", TitleX, "Difference in AvgDegree", "Growth Rate (frac of new nodes added in 30 days)", gpsAuto, gpwLinesPoints, true, true, false, false, false, false, true);
+  TGnuPlot::PlotValMomH(TrEdDiffH, OutFNmPref+"-Growth_TrEdDiff", TitleX, "Difference in Frac of triad edges", "Growth Rate (frac of new nodes added in 30 days)", gpsAuto, gpwLinesPoints, true, true, false, false, false, false, true);
+  TGnuPlot::PlotValMomH(CcfDiffH, OutFNmPref+"-Growth_CcfDiff", TitleX, "Difference in CCF", "Growth Rate (frac of new nodes added in 30 days)", gpsAuto, gpwLinesPoints, true, true, false, false, false, false, true);
+  TGnuPlot::PlotValMomH(WccSzDiffH, OutFNmPref+"-Growth_WccDiff", TitleX, "Difference in WCC Size", "Growth Rate (frac of new nodes added in 30 days)", gpsAuto, gpwLinesPoints, true, true, false, false, false, false, true);
+  //TGnuPlot::PlotValMomH(EigValDiffH, OutFNmPref+"-", TitleX, "", "Growth Rate (frac of new nodes added in 30 days)", gpsAuto, gpwLinesPoints, true, true, false, false, false, true);
+  TGnuPlot::PlotValMomH(EffDiamDiffH, OutFNmPref+"-Growth_DiamDiff", TitleX, "Difference in Effective diameter", "Growth Rate (frac of new nodes added in 30 days)", gpsAuto, gpwLinesPoints, true, true, false, false, false, false, true);
+  TGnuPlot::PlotValMomH(AvgDegRatH, OutFNmPref+"-Growth_AvgDegRat", TitleX, "Ratio of AvgDeg", "Growth Rate (frac of new nodes added in 30 days)", gpsAuto, gpwLinesPoints, true, true, false, false, false, false, true);
+  TGnuPlot::PlotValMomH(TrEdRatH, OutFNmPref+"-Growth_TrEdRat", TitleX, "Ratio of Frac of Triad Edges", "Growth Rate (frac of new nodes added in 30 days)", gpsAuto, gpwLinesPoints, true, true, false, false, false, false, true);
+  TGnuPlot::PlotValMomH(CcfRatH, OutFNmPref+"-Growth_CcfRat", TitleX, "Ratio of CCFs", "Growth Rate (frac of new nodes added in 30 days)", gpsAuto, gpwLinesPoints, true, true, false, false, false, false, true);
+  TGnuPlot::PlotValMomH(WccSzRatH, OutFNmPref+"-Growth_WccRat", TitleX, "Ratio of WCC Size", "Growth Rate (frac of new nodes added in 30 days)", gpsAuto, gpwLinesPoints, true, true, false, false, false, false, true);
+  //TGnuPlot::PlotValMomH(EigValRatH, OutFNmPref+"-", TitleX, "", "Growth Rate (frac of new nodes added in 30 days)", gpsAuto, gpwLinesPoints, true, true, false, false, false, true);
+  TGnuPlot::PlotValMomH(EffDiamRatH, OutFNmPref+"-Growth_DiamRat", TitleX, "Ratio of Effective Diameter", "Growth Rate (frac of new nodes added in 30 days)", gpsAuto, gpwLinesPoints, true, true, false, false, false, false, true);
+}
+
+  
 
 #ifdef XXXXXXXXXXXXX
 

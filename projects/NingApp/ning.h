@@ -1,5 +1,7 @@
 #pragma once
 
+class TNingGroup;
+
 /////////////////////////////////////////////////
 // Ning User Base
 class TNingUsrBs {
@@ -45,6 +47,8 @@ public:
   int GetAge(const TTmUnit& TmUnit) const { return GetMxTm()!=GetMnTm() ? TSecTm(GetMxTm()-GetMnTm()).GetInUnits(TmUnit) : 0; }
   int GetDeadTm(const TTmUnit& TmUnit) const { return TSecTm(MxTm - GetMxTm()).GetInUnits(TmUnit); }
   TStr GetTitle() const;
+  PUNGraph GetUNGraphUpToTm(const TSecTm& MaxEdgeTm) const;
+  PUNGraph GetSubGraph(const TNingGroup& Group, const int& TakeFirstK, const TSecTm& MxEdgeTm) const;
   void GetNodesOverTm(const TTmUnit TmUnit, const int& TmSteps, TFltV& NodesTmV, const bool Cummulative=true, const bool& Relative=false);
 
   void PlotOverTime(const TStr& OutFNmPref) const;
@@ -173,7 +177,7 @@ public:
   void AddNet(const PNingNet& Net, const TNingGroupV& GroupV);
   void OnGroupTimeStep(const PUNGraph& Graph, const TNingGroup& Group, const TIntSet& CurGroup, 
     const TIntSet& FringeSet, const TIntSet& JoinSet, const TIntH& NodeInEH, const TSecTm& CurTm);
-  void OnGroupTimeStep2(const PUNGraph& CurGraph, const PUNGraph& FutGraph, const TNingGroup& Group, 
+  void OnGroupTimeStep2(const int& Id, const PUNGraph& CurGraph, const PUNGraph& FutGraph, const TNingGroup& Group, 
     const TIntSet& CurGroup, const TIntSet& FringeSet, const TIntSet& JoinSet, const TIntH& NodeInEH, const TSecTm& CurTm);
   void PlotAll(const TStr& Title="") const;
   static void PlotRatioHash(const THash<TInt, TFltPr>& XYRatH, const TStr& OutFNm, const TStr& Title, const TStr& XLabel);
@@ -184,9 +188,14 @@ class TNingGroupEvol3 { // month by month group growth
 public:
   TStr OutFNmPref;
   double NetCnt, GrpCnt, MemCnt;
+  // group growth
+  THash<TInt, TMom> AvgDegGrowthH, TrEdGrowthH, CcfGrowthH, WccGrowthH, EigValGrowthH, DiamGrowthH;
+  THash<TInt, TMom> AvgDegDiffH, TrEdDiffH, CcfDiffH, WccSzDiffH, EigValDiffH, EffDiamDiffH;
+  THash<TInt, TMom> AvgDegRatH, TrEdRatH, CcfRatH, WccSzRatH, EigValRatH, EffDiamRatH;
 public:
   TNingGroupEvol3(const TStr& OutFNm) : OutFNmPref(OutFNm), NetCnt(0), GrpCnt(0), MemCnt(0) { }
-  void AddNet(const PNingNet& Net, const TNingGroupV& GroupV);
+  void AddNet(const PNingNet& Net, const TNingGroupV& GroupV, const int& GroupSz);
+  void PlotAll(const TStr& Title="") const;
 };
 
 /*

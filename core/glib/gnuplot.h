@@ -448,8 +448,10 @@ void TGnuPlot::PlotValMomH(const THash<TVal1, TMom>& ValMomH, const TStr& OutFNm
       THashSet<TFlt> PointSet;
       for (int xi = 0; xi < ValMomH[i].GetVals(); xi++) {
         PointSet.AddKey(ValMomH[i].GetVal(xi)); }
+        //ScatterV.Add(TFltPr(x, ValMomH[i].GetVal(xi)));  }
       for (int xi = 0; xi < PointSet.Len(); xi++) {
         ScatterV.Add(TFltPr(x, PointSet[xi]));  }
+      //printf("S%d %d %d.", ValMomH[i].GetVals(), PointSet.Len(), ScatterV.Len());
     }
   }
   AvgV.Sort();  AvgV2.Sort();
@@ -457,6 +459,7 @@ void TGnuPlot::PlotValMomH(const THash<TVal1, TMom>& ValMomH, const TStr& OutFNm
   TGnuPlot GP(OutFNmPref, Desc);
   GP.SetScale(ScaleTy);
   GP.SetXYLabel(XLabel, YLabel);
+  if (! ScatterV.Empty()) { GP.AddPlot(ScatterV, gpwPoints, "Scatter"); }
   if (! AvgV.Empty()) { GP.AddErrBar(AvgV, "Average", "StdDev"); }
   if (! AvgV2.Empty()) { GP.AddPlot(AvgV2, SeriesTy, "Average"); }
   if (! MedV.Empty()) { GP.AddPlot(MedV, SeriesTy, "Median"); }

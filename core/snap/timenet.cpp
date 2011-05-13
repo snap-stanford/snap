@@ -679,6 +679,30 @@ PTimeNENet TTimeNENet::GetESubGraph(const TIntV& EIdV) const {
   return NewNetPt;
 }
 
+// assumes that the edges of the network are sorted in time
+PTimeNENet TTimeNENet::GetGraphUpToTm(const TSecTm& MaxEdgeTm) const {
+  PTimeNENet NewNetPt = TTimeNENet::New();
+  TTimeNENet& NewNet = *NewNetPt;
+  TSecTm PrevTm;
+  for (TEdgeI EI = BegEI(); EI < EndEI(); EI++) {
+    if (EI() > MaxEdgeTm) { break; }
+    if (! NewNet.IsNode(EI.GetSrcNId()))
+      NewNet.AddNode(GetNI(EI.GetSrcNId()));
+    if (! NewNet.IsNode(EI.GetDstNId()))
+      NewNet.AddNode(GetNI(EI.GetDstNId()));
+    NewNet.AddEdge(EI);
+    IAssert(! PrevTm.IsDef() || PrevTm <= EI()); // edge times must be sorted
+    PrevTm = EI();
+  }
+  NewNet.Defrag();
+  return NewNetPt;
+}
+
+void TTimeNENet::SortNodeEdgeTimes() {
+  NodeH.SortByDat(true);
+  EdgeH.SortByDat(true);
+}
+
 // node time must be smaller than times of incoming or outgoing edges
 void TTimeNENet::UpdateNodeTimes() {
   int Cnt = 0;
