@@ -835,11 +835,11 @@ void TNingGroupEvol2::PlotRatioHash(const THash<TInt, THash<TInt, TFltPr> >& Deg
 }
 
 // for every group snapshot it when it had GroupSz members and check the 1 month growth
-void TNingGroupEvol3::AddNet(const PNingNet& Net, const TNingGroupV& GroupV, const int& GroupSz) {
+void TNingGroupEvol3::AddNet(const PNingNet& Net, const TNingGroupV& GroupV, const int& GroupSz, const int& MinFinalGroupSz, const int&  MaxFinalGroupSz) {
   const TSecTm MonthSecs(30*24*3600);
   static int NNet = 0;
   for (int g = 0; g < GroupV.Len(); g++) {
-    if (GroupV[g].Len() < GroupSz) { continue; }
+    if (GroupV[g].Len() < GroupSz || GroupV[g].Len() < MinFinalGroupSz || GroupV[g].Len() > MaxFinalGroupSz) { continue; }
     const TSecTm CheckTm = GroupV[g].GetTm2(GroupSz-1);
     PUNGraph CurG = Net->GetSubGraph(GroupV[g], GroupSz, CheckTm);
     PUNGraph FutG = Net->GetSubGraph(GroupV[g], -1, TSecTm(CheckTm+MonthSecs));

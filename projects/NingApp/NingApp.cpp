@@ -39,7 +39,7 @@ int main(int argc, char* argv[]) {
   }
   //GroupEvol.PlotAll();
   //*/
-  const TStr OutFNm = Env.GetIfArgPrefixStr("-o:", "Evol-Gt100", "Output file name");
+  const TStr OutFNm = Env.GetIfArgPrefixStr("-o:", "Evol-at100-1000gt", "Output file name");
   const int MinNodes = Env.GetIfArgPrefixInt("-min:", 100, "Min nodes");
   int MaxNodes = Env.GetIfArgPrefixInt("-max:", -1, "Max nodes");
   if (MaxNodes == -1) { MaxNodes = Mega(100); }
@@ -51,8 +51,8 @@ int main(int argc, char* argv[]) {
     //if (Net->GetNodes() < MinNodes || Net->GetNodes() > MaxNodes) { skipcnt++; continue; } // final network size
     netcnt++;  grpcnt += GV.Len();
     printf("Net %d (skip %d) on %d nodes %d edges and %d groups (%d total)\n", netcnt, skipcnt, Net->GetNodes(), Net->GetEdges(), GV.Len(), grpcnt);
-    GroupEvol.AddNet(Net, GV, 100);
-    
+    //GroupEvol.AddNet(Net, GV, 100, 100, 200); // groups at 100 that at most doubled the size
+    GroupEvol.AddNet(Net, GV, 100, 1000, Mega(1)); // groups at 100 that 
   }
   GroupEvol.PlotAll(); //*/
 

@@ -194,7 +194,7 @@ public:
   THash<TInt, TMom> AvgDegRatH, TrEdRatH, CcfRatH, WccSzRatH, EigValRatH, EffDiamRatH;
 public:
   TNingGroupEvol3(const TStr& OutFNm) : OutFNmPref(OutFNm), NetCnt(0), GrpCnt(0), MemCnt(0) { }
-  void AddNet(const PNingNet& Net, const TNingGroupV& GroupV, const int& GroupSz);
+  void AddNet(const PNingNet& Net, const TNingGroupV& GroupV, const int& CurGroupSz, const int&  MinFinalGroupSz, const int&  MaxFinalGroupSz);
   void PlotAll(const TStr& Title="") const;
 };
 
