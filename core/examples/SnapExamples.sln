@@ -1,35 +1,35 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual Studio 2008
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ncpplot", "ncpplot\ncpplot.vcproj", "{D744773B-A887-425A-A715-AADB2AE9511A}"
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ncpplot", "ncpplot\ncpplot.vcxproj", "{D744773B-A887-425A-A715-AADB2AE9511A}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "forestfire", "forestfire\forestfire.vcproj", "{345EFCD5-A5BA-4C41-928C-AE5BD9A5FE09}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "forestfire", "forestfire\forestfire.vcxproj", "{345EFCD5-A5BA-4C41-928C-AE5BD9A5FE09}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "kronfit", "kronfit\kronfit.vcproj", "{345EFCD5-A5BA-4C41-928C-AE5BD9A5FE08}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "kronfit", "kronfit\kronfit.vcxproj", "{345EFCD5-A5BA-4C41-928C-AE5BD9A5FE08}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "krongen", "krongen\krongen.vcproj", "{345EFCD5-A5BA-4C41-928C-AE5BD9A5FE07}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "krongen", "krongen\krongen.vcxproj", "{345EFCD5-A5BA-4C41-928C-AE5BD9A5FE07}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "testgraph", "testgraph\testgraph.vcproj", "{345EFCD5-A5BA-4C41-928C-AE5BD9A5FE03}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "testgraph", "testgraph\testgraph.vcxproj", "{345EFCD5-A5BA-4C41-928C-AE5BD9A5FE03}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "netstat", "netstat\netstat.vcproj", "{345EFCD5-A5BA-4C41-928C-AE5BD9A5FE04}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "netstat", "netstat\netstat.vcxproj", "{345EFCD5-A5BA-4C41-928C-AE5BD9A5FE04}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "netevol", "netevol\netevol.vcproj", "{345EFCD5-A5BA-4C41-928C-AE5BD9A5FE05}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "netevol", "netevol\netevol.vcxproj", "{345EFCD5-A5BA-4C41-928C-AE5BD9A5FE05}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "mkdatasets", "mkdatasets\mkdatasets.vcproj", "{345EFCD5-A5BA-4C41-928C-AE5BD9A5FE06}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "mkdatasets", "mkdatasets\mkdatasets.vcxproj", "{345EFCD5-A5BA-4C41-928C-AE5BD9A5FE06}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "concomp", "concomp\concomp.vcproj", "{345EFCD5-A5BA-4C41-928C-AE5BD9A5FE02}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "concomp", "concomp\concomp.vcxproj", "{345EFCD5-A5BA-4C41-928C-AE5BD9A5FE02}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "centrality", "centrality\centrality.vcproj", "{6D5B617C-EFD4-11DE-A84C-189A55D89593}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "centrality", "centrality\centrality.vcxproj", "{6D5B617C-EFD4-11DE-A84C-189A55D89593}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "community", "community\community.vcproj", "{6D5B617C-EFD4-11DE-A84C-189A55D89594}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "community", "community\community.vcxproj", "{6D5B617C-EFD4-11DE-A84C-189A55D89594}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cascades", "cascades\cascades.vcproj", "{60E5066B-4AE0-49D0-B482-75BE307F1C04}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cascades", "cascades\cascades.vcxproj", "{60E5066B-4AE0-49D0-B482-75BE307F1C04}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "motifs", "motifs\motifs.vcproj", "{345EFCD5-A5BA-4C41-928C-AE5CD9A5FE08}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "motifs", "motifs\motifs.vcxproj", "{345EFCD5-A5BA-4C41-928C-AE5CD9A5FE08}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cliques", "cliques\cliques.vcproj", "{CCB155FF-3FA8-45CF-A1DD-54770FDD2EAA}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cliques", "cliques\cliques.vcxproj", "{CCB155FF-3FA8-45CF-A1DD-54770FDD2EAA}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "agmgen", "agmgen\agmgen.vcproj", "{1BAC236F-C118-487D-8584-4E911B30080C}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "agmgen", "agmgen\agmgen.vcxproj", "{1BAC236F-C118-487D-8584-4E911B30080C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
