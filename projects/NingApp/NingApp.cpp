@@ -16,7 +16,7 @@ int main(int argc, char* argv[]) {
   //TJsonLoader J("/lfs/1/tmp/twitter-jan2011/*.log.rar"); 
   TJsonLoader J("W:\\xData\\Twitter\\tweets1k.txt");
   while (J.Next()) {
-    printf("\n-----------------------------------------------------\n");
+    printf("\n-------------------------------------------------------------------------------------------------------\n");
     J.Dump();
   }
 
