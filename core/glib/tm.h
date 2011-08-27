@@ -337,7 +337,7 @@ typedef TVec<TTmStrPr> TTmStrPrV;
 // Execution-Time
 class TExeTm{
 private:
-  int LastTick;
+  clock_t LastTick;
 public:
   TExeTm(): LastTick(0) { Tick(); }
   TExeTm(const TExeTm& Tm): LastTick(Tm.LastTick) { }
@@ -360,7 +360,7 @@ public:
 // Time-Stop-Watch
 class TTmStopWatch {
 private:
-  int TmSoFar;
+  clock_t TmSoFar;
   bool RunningP;
   TExeTm ExeTm;
   UndefCopyAssign(TTmStopWatch);
@@ -371,7 +371,7 @@ public:
   void Stop() { if (RunningP) { RunningP = false; TmSoFar += ExeTm.GetTime(); } }
   void Reset(const bool& Start) { TmSoFar = 0; RunningP = Start; ExeTm.Tick(); }
 
-  int GetTime() { return TmSoFar + (RunningP ? ExeTm.GetTime() : 0); }
+  clock_t GetTime() { return TmSoFar + (RunningP ? ExeTm.GetTime() : 0); }
   double GetSec() { return double(GetTime()) / double(CLOCKS_PER_SEC); }
   int GetSecInt() { return TFlt::Round(GetSec()); }
 };

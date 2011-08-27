@@ -23,13 +23,13 @@ opt: NingApp
 
 # COMPILE
 NingApp: NingApp.cpp Snap.o 
-	g++ $(LDFLAGS) -o NingApp NingApp.cpp Snap.o -I$(GLIB) -I$(SNAP)
+	g++ $(LDFLAGS) -o NingApp NingApp.cpp ning.cpp Snap.o -I$(GLIB) -I$(SNAP)
 
 #NingApp: NingApp.cpp Snap.o ning.o
 #	g++ $(LDFLAGS) -o NingApp NingApp.cpp ning.o Snap.o -I$(GLIB) -I$(SNAP)
 
-ning.o: ning.cpp ning.h
-	g++ -c $(CXXFLAGS) ning.cpp -I$(GLIB) -I$(SNAP)
+#ning.o: ning.cpp ning.h
+#	g++ -c $(CXXFLAGS) ning.cpp -I$(GLIB) -I$(SNAP)
 	
 Snap.o: 
 	g++ -c $(CXXFLAGS) $(SNAP)/Snap.cpp -I$(GLIB) -I$(SNAP)

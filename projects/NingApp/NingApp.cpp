@@ -1,4 +1,5 @@
 #include "stdafx.h"
+
 #include "ning.h"
 
 void TestTwitter();
@@ -9,8 +10,17 @@ int main(int argc, char* argv[]) {
   TExeTm ExeTm;  TInt::Rnd.PutSeed(0);  Try  TSysProc::SetLowPriority();
   Env = TEnv(argc, argv, TNotify::StdNotify);
   Env.PrepArgs("NingApp");
-  // TestTwitter();
+  
+  TestTwitter();
 
+  //TJsonLoader J("/lfs/1/tmp/twitter-jan2011/*.log.rar"); 
+  TJsonLoader J("W:\\xData\\Twitter\\tweets1k.txt");
+  while (J.Next()) {
+    printf("\n-----------------------------------------------------\n");
+    J.Dump();
+  }
+
+  
   //PUNGraph G = TUNGraph::GetSmallGraph();  
   /*PUNGraph G = TSnap::ConvertGraph<PUNGraph>(TNGraph::GetSmallGraph());
   G->AddEdge(0,3); G->AddEdge(2,4); G->AddEdge(1,4);
@@ -39,7 +49,7 @@ int main(int argc, char* argv[]) {
   }
   //GroupEvol.PlotAll();
   //*/
-  const TStr OutFNm = Env.GetIfArgPrefixStr("-o:", "Evol-at100-1000gt", "Output file name");
+  /*const TStr OutFNm = Env.GetIfArgPrefixStr("-o:", "Evol-at100-1000gt", "Output file name");
   const int MinNodes = Env.GetIfArgPrefixInt("-min:", 100, "Min nodes");
   int MaxNodes = Env.GetIfArgPrefixInt("-max:", -1, "Max nodes");
   if (MaxNodes == -1) { MaxNodes = Mega(100); }
@@ -178,17 +188,17 @@ void LoadNingNetBs() {
   TNingUsrBs UsrBs;
   PNingNetBs NetBs = TNingNetBs::New();
   NetBs->ParseNetworks("W:\\xData\\Ning\\comment\\comment-*.gz", UsrBs, "comment");
-  NetBs->Save(TFOut("NingNetBs.bin"));
-  NetBs->GetSubBs(100, 365, 0)->Save(TFOut("NingNetBs100n1y.bin"));
-  UsrBs.Save(TFOut("NingUsrBs.bin"));
+  { TFOut FOut("NingNetBs.bin"); NetBs->Save(FOut); }
+  { TFOut FOut("NingNetBs100n1y.bin"); NetBs->GetSubBs(100, 365, 0)->Save(FOut); }
+  { TFOut FOut("NingUsrBs.bin"); UsrBs.Save(FOut); }
   TFOut FOut("NingNetBs.nets_bin");
   for (int i=0; i<NetBs->Len(); i++) {
     NetBs->GetNet(i)->Save(FOut); }
   //// Ning grops
   TNingGroupBs GroupBs;
   GroupBs.ParseGroups("W:\\xData\\Ning\\groupmembership\\*.gz", UsrBs);
-  GroupBs.Save(TFOut("NingGroupBs.bin"));
-  GroupBs.GetSubBs(NetBs, 10, 0.5, 60)->Save(TFOut("NingGroupBs-10n05s60d.bin"));
+  { TFOut FOut("NingGroupBs.bin"); GroupBs.Save(FOut); }
+  { TFOut FOut("NingGroupBs-10n05s60d.bin"); GroupBs.GetSubBs(NetBs, 10, 0.5, 60)->Save(FOut); }
 }
 
 void BuildNetsAndStats() {

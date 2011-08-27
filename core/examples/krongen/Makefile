@@ -20,7 +20,7 @@ opt: LDFLAGS += -O4
 opt: $(MAIN)
 
 # COMPILE
-$(MAIN): $(MAIN).cpp Snap.o 
+$(MAIN): $(MAIN).cpp Snap.o ning.cpp ning.h
 	g++ $(LDFLAGS) -o $(MAIN) $(MAIN).cpp ../../snap/kronecker.cpp Snap.o -I../../glib -I../../snap
 	
 Snap.o: 
