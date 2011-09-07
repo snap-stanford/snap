@@ -19,7 +19,7 @@ int main(int argc, char* argv[]) {
   TSnap::GetNodeTriads(G, 1, TIntSet(TIntV::GetV(0,1,2)), InGroupEdges, InOutGroupEdges, OutGroupEdges);
   printf("%d %d %d\n", InGroupEdges, InOutGroupEdges, OutGroupEdges);*/
   
-  /*PNingNetBs NetBs = TNingNetBs::New(TZipIn("nets/NingNetBs-100n1y.bin.rar"));  printf("Loading NetBs done. %d nets [%s]\n", NetBs->Len(), ExeTm.GetStr());
+  PNingNetBs NetBs = TNingNetBs::New(TZipIn("nets/NingNetBs-100n1y.bin.rar"));  printf("Loading NetBs done. %d nets [%s]\n", NetBs->Len(), ExeTm.GetStr());
   TNingGroupBs GroupBs(TZipIn("nets/NingGroupBs-10n05s60d.bin.rar"));
   //TNingUsrBs UsrBs(TZipIn("nets/NingUsrBs.bin.rar"));
   //TFOut FOut("NingNetGroup-N100n1y-G10n05s60d.bin");
@@ -39,20 +39,21 @@ int main(int argc, char* argv[]) {
   }
   //GroupEvol.PlotAll();
   //*/
-  const TStr OutFNm = Env.GetIfArgPrefixStr("-o:", "Evol-at100-1000gt", "Output file name");
+  
+ /* const TStr OutFNm = Env.GetIfArgPrefixStr("-o:", "Evol-at10-1000gt", "Output file name");
   const int MinNodes = Env.GetIfArgPrefixInt("-min:", 100, "Min nodes");
   int MaxNodes = Env.GetIfArgPrefixInt("-max:", -1, "Max nodes");
   if (MaxNodes == -1) { MaxNodes = Mega(100); }
   TNingGroupEvol3 GroupEvol(OutFNm);
   int netcnt=0, grpcnt=0, skipcnt=0;
-  for (TFIn FIn("nets/NingNetGroup-N100n1y-G10n05s60d.bin"); ! FIn.Eof(); ) {
+  for (TFIn FIn("../nets/NingNetGroup-N100n1y-G10n05s60d.bin"); ! FIn.Eof(); ) {
     PNingNet Net = TNingNet::Load(FIn);
     TNingGroupV GV(FIn);  
     //if (Net->GetNodes() < MinNodes || Net->GetNodes() > MaxNodes) { skipcnt++; continue; } // final network size
     netcnt++;  grpcnt += GV.Len();
     printf("Net %d (skip %d) on %d nodes %d edges and %d groups (%d total)\n", netcnt, skipcnt, Net->GetNodes(), Net->GetEdges(), GV.Len(), grpcnt);
     //GroupEvol.AddNet(Net, GV, 100, 100, 200); // groups at 100 that at most doubled the size
-    GroupEvol.AddNet(Net, GV, 100, 1000, Mega(1)); // groups at 100 that 
+    GroupEvol.AddNet(Net, GV, 10, 1000, Mega(10)); // groups at 100 that 
   }
   GroupEvol.PlotAll(); //*/
 
