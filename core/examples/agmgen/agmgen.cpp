@@ -16,7 +16,6 @@ int main(int argc, char* argv[]) {
 	const double ScaleCoef= Env.GetIfArgPrefixFlt("-c:",1.3,"Scaling Coefficient c of density (density ~ c");
 
 	TRnd Rnd(RndSeed);
-
 	TVec<TIntV> CmtyVV;
 	if(InFNm=="DEMO") {
 		CmtyVV.Gen(2);
@@ -49,12 +48,7 @@ int main(int argc, char* argv[]) {
 	if(AG->GetNodes()<50) {
 		TAGM::GVizComGraph(AG,CmtyVV,OutFPrx + ".graph.gif");
 	}
-
-
-	
-
 	Catch
   printf("\nrun time: %s (%s)\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
-
   return 0;
 }

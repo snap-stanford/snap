@@ -11,14 +11,14 @@ int main(int argc, char* argv[]) {
   Env = TEnv(argc, argv, TNotify::StdNotify);
   Env.PrepArgs("NingApp");
   
-  TestTwitter();
+  /*TestTwitter();
 
   //TJsonLoader J("/lfs/1/tmp/twitter-jan2011/*.log.rar"); 
   TJsonLoader J("W:\\xData\\Twitter\\tweets1k.txt");
   while (J.Next()) {
     printf("\n-------------------------------------------------------------------------------------------------------\n");
     J.Dump();
-  }
+  }*/
 
   
   //PUNGraph G = TUNGraph::GetSmallGraph();  
