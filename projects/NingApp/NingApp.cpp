@@ -20,6 +20,46 @@ int main(int argc, char* argv[]) {
     J.Dump();
   }*/
 
+  //PUNGraph G = TSnap::LoadEdgeList<PUNGraph>("W:\\xData\\Epinions\\epinions.txt", 0, 1);
+  //G->Save(TFOut("epin.ungraph"));
+  TStr GNm = "answers";
+  PNGraph NG = TNGraph::Load(TZipIn("W:\\xData\\aBinData\\"+GNm+".ngraph.gz"));  PUNGraph G = TSnap::ConvertGraph<PUNGraph>(NG);
+  //PUNGraph G = TUNGraph::Load(TFIn("aa_epin.ungraph")); GNm="epin";
+    
+  TSnap::PrintInfo(G, GNm);
+  TSnap::PlotOutDegDistr(G, GNm);
+  TIntPrV DegV;
+  TSnap::GetNodeOutDegV(G, DegV);
+  DegV.SortCmp(TCmpPairByVal2<TInt, TInt>(false));
+  TFltPrV DegDiamV, DelDiamV, DelIdDiamV;
+  double MaxDeg = DegV[0].Val2;
+  double EffDiam, AvgDiam, Nodes=G->GetNodes();
+  int FullDiam;
+  TSnap::GetBfsEffDiam(G, 100, false, EffDiam, FullDiam, AvgDiam);
+  FILE *F = fopen(TStr::Fmt("%s.tab", GNm.CStr()).CStr(), "wt");
+  printf("%d] %.2g [%d]:\t%d\t%.2g\t%.2g\n", DelIdDiamV.Len(), 0/Nodes, DegV[0].Val2, FullDiam, EffDiam, AvgDiam);
+  fprintf(F, "Id\tMaxDeg\tFracDel\tFullDiam\tEffDiam\tAvgDiam\n");
+  fprintf(F, "%d\t%d\t%f\t%d\t%f\t%f\n", DelIdDiamV.Len(), DegV[0].Val2, 0/Nodes, FullDiam, EffDiam, AvgDiam);
+  DegDiamV.Add(TFltPr(MaxDeg, EffDiam));
+  DelDiamV.Add(TFltPr(1.0/Nodes, EffDiam));
+  DelIdDiamV.Add(TFltPr(DelIdDiamV.Len(), EffDiam));
+  for (int i = 0; i < DegV.Len()-1; ) {
+    int previ = i;
+    while (i < DegV.Len()-1 && DegV[i].Val2 >= MaxDeg) {
+      G->DelNode(DegV[i].Val1); i++; }
+    MaxDeg *= 0.8;
+    if (i == previ) { continue; }
+    TSnap::GetBfsEffDiam(G, 100, false, EffDiam, FullDiam, AvgDiam); 
+    printf("%d] %.2g [%d]:\t%d\t%.2g\t%.2g\n", DelIdDiamV.Len(), double(i), DegV[i].Val2, FullDiam, EffDiam, AvgDiam);
+    fprintf(F, "%d\t%d\t%f\t%d\t%f\t%f\n", DelIdDiamV.Len(), DegV[i].Val2, i/Nodes, FullDiam, EffDiam, AvgDiam);
+    DegDiamV.Add(TFltPr(DegV[i].Val2(), EffDiam));
+    DelDiamV.Add(TFltPr(i/Nodes, EffDiam));
+    DelIdDiamV.Add(TFltPr(DelIdDiamV.Len(), EffDiam));
+    TGnuPlot::PlotValV(DegDiamV, "DegDiam-"+GNm, "Maximum node degre in the network vs. effective diameter", "Maximum Degree", "Effective Diameter");
+    TGnuPlot::PlotValV(DelDiamV, "Del1Diam-"+GNm, "Fraction of deleted nodes vs. effective diameter", "Fraction deleted", "Effective Diameter", gpsLog10X);
+    TGnuPlot::PlotValV(DelIdDiamV, "Del2Diam-"+GNm, "DeletionId vs. effective diameter", "Deletion Id", "Effective Diameter");
+  }
+  fclose(F);
   
   //PUNGraph G = TUNGraph::GetSmallGraph();  
   /*PUNGraph G = TSnap::ConvertGraph<PUNGraph>(TNGraph::GetSmallGraph());
