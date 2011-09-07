@@ -25,6 +25,7 @@ const char* TJsonObj::GetStr(const char* Beg, TChA& Str) const {
   if (*c && *c=='"') { c++; }
   return c;
 }
+
 const char* TJsonObj::ParseArrayVal(const char* JsonStr) {
   const char *c = JsonStr;
   bool Nested = false;

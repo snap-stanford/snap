@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Snap.h"
+
 class TNingGroup;
 
 /////////////////////////////////////////////////

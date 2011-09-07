@@ -9,6 +9,10 @@ private:
   THash<TChA, TJsonObj> KeyObjH;          // key-nested object
   THash<TChA, TVec<TJsonObj> > KeyArrayH; // key-array of objects
 private:
+  int GetStr(const TStr& JsonStr, int Beg, TChA& Str, bool &IsValid) const;
+  int ParseArrayVal(const TStr& JsonStr, int Beg, bool &valid);
+  int Parse(const TStr& JsonStr, int Beg, bool &valid);  
+  
   const char* GetStr(const char* Beg, TChA& Str) const;
   const char* ParseArrayVal(const char* JsonStr);
   const char* Parse(const char* JsonStr);

@@ -199,7 +199,7 @@ void TNingNetBs::ParseNetworks(const TStr& InFNmWc, TNingUsrBs& UsrBs, const TSt
   TJsonLoader J(InFNmWc);
   int MultiEdgeCnt=0, BadUsr=0, TmNotDef=0;
   while (J.Next()) {
-    EAssertR(J.IsKey("appId") && J.IsKey(SrcKey) && J.IsKey(DstKey), TStr::Fmt("Bad JSON object in %s line %d.", J.GetCurFNm(), J.GetLineNo()));
+    EAssertR(J.IsKey("appId") && J.IsKey(SrcKey) && J.IsKey(DstKey), TStr::Fmt("Bad JSON object in %s line %d.", J.GetCurFNm().CStr(), J.GetLineNo()));
     const int AppId = atoi(J.GetDat("appId").CStr());
     const int SrcNId = UsrBs.AddUId(J.GetDat(SrcKey));
     const int DstNId = UsrBs.AddUId(J.GetDat(DstKey));

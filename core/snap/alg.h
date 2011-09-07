@@ -8,6 +8,7 @@ template <class PGraph> int CntDegNodes(const PGraph& Graph, const int& NodeDeg)
 template <class PGraph> int CntNonZNodes(const PGraph& Graph);
 template <class PGraph> int CntEdgesToSet(const PGraph& Graph, const int& NId, const TIntSet& NodeSet);
 
+// degree histograms
 template <class PGraph> void GetInDegCnt(const PGraph& Graph, TIntPrV& DegToCntV);
 template <class PGraph> void GetInDegCnt(const PGraph& Graph, TFltPrV& DegToCntV);
 template <class PGraph> void GetOutDegCnt(const PGraph& Graph, TIntPrV& DegToCntV);
@@ -16,6 +17,9 @@ template <class PGraph> void GetDegCnt(const PGraph& Graph, TIntPrV& DegToCntV);
 template <class PGraph> void GetDegCnt(const PGraph& Graph, TFltPrV& DegToCntV);
 template <class PGraph> void GetDegSeqV(const PGraph& Graph, TIntV& DegV);
 template <class PGraph> void GetDegSeqV(const PGraph& Graph, TIntV& InDegV, TIntV& OutDegV);
+
+template <class PGraph> void GetNodeInDegV(const PGraph& Graph, TIntPrV& NIdInDegV);
+template <class PGraph> void GetNodeOutDegV(const PGraph& Graph, TIntPrV& NIdOutDegV);
 
 template <class PGraph> int CntUniqUndirEdges(const PGraph& Graph);
 template <class PGraph> int CntUniqDirEdges(const PGraph& Graph);
@@ -180,6 +184,22 @@ void GetDegSeqV(const PGraph& Graph, TIntV& InDegV, TIntV& OutDegV) {
   for (typename PGraph::TObj::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
     InDegV.Add(NI.GetInDeg()); 
     OutDegV.Add(NI.GetOutDeg());
+  }
+}
+
+template <class PGraph> 
+void GetNodeInDegV(const PGraph& Graph, TIntPrV& NIdInDegV) {
+  NIdInDegV.Reserve(Graph->GetNodes(), 0);
+  for (typename PGraph::TObj::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
+    NIdInDegV.Add(TIntPr(NI.GetId(), NI.GetInDeg()));
+  }
+}
+
+template <class PGraph> 
+void GetNodeOutDegV(const PGraph& Graph, TIntPrV& NIdOutDegV) {
+  NIdOutDegV.Reserve(Graph->GetNodes(), 0);
+  for (typename PGraph::TObj::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
+    NIdOutDegV.Add(TIntPr(NI.GetId(), NI.GetOutDeg()));
   }
 }
 
