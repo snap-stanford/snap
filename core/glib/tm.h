@@ -149,7 +149,7 @@ public:
 
   // additions/substractions
   TSecTm& AddSecs(const int& Secs){
-    IAssert(IsDef()); AbsSecs.Val+=uint(Secs); return *this;}
+    IAssert(IsDef()); AbsSecs.Val+=(Secs); return *this;} //J: remove uint since we may want to subtract seconds
   TSecTm& AddMins(const int& Mins){
     IAssert(IsDef()); AbsSecs.Val+=uint(Mins*60); return *this;}
   TSecTm& AddHours(const int& Hours){

@@ -36,11 +36,14 @@ public:
   const TJsonObj& GetObj(const TChA& Key) const { return KeyObjH.GetDat(Key); }
   bool IsObj(const TChA& Key) const { return KeyObjH.IsKey(Key); }
   int LenObj() const { return KeyObjH.Len(); }
+  
+  // array
+  const TChA& GetArrayKey(const int& KeyId) const { return KeyArrayH.GetKey(KeyId); }
+  int LenArray() const { return KeyArrayH.Len(); }
+  bool IsArray(const TChA& Key) const { return KeyArrayH.IsKey(Key); }
   const TVec<TJsonObj>& GetArray(const int& KeyId) const { return KeyArrayH[KeyId]; }
   const TVec<TJsonObj>& GetArray(const TChA& Key) const { return KeyArrayH.GetDat(Key); }
-  bool IsArray(const TChA& Key) const { return KeyArrayH.IsKey(Key); }
-  int LenArray() const { return KeyArrayH.Len(); }
-  
+    
   void Clr();
   void Dump(const int& Indent=0) const;
   friend class TJsonLoader;
@@ -58,6 +61,7 @@ private:
   TExeTm ExeTm;
 public:
   TJsonLoader(const TStr& FNmWc) : FFile(FNmWc), LineNo(0), FileCnt(0), ItemCnt(0) { }
+  
   bool Next();
   TStr GetCurFNm() const { return SIn->GetSNm(); }
   int GetLineNo() const { return LineNo; }

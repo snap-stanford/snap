@@ -87,7 +87,8 @@ const char* TJsonObj::Parse(const char* JsonStr) {
     else if (*c=='{') { // nested object
       EAssertR(! KeyObjH.IsKey(KeyStr), TStr::Fmt("JSON error: object with key '%s' already exists", KeyStr.CStr()));
       TJsonObj& Obj = KeyObjH.AddDat(KeyStr);
-      c = Obj.Parse(c) + 1;  Nested = true;
+      c = Obj.Parse(c) + 1;  
+      Nested = true;
     }
     else if (*c=='[') { // array
       EAssertR(! KeyArrayH.IsKey(KeyStr), TStr::Fmt("JSON error: array with key '%s' already exists", KeyStr.CStr()));
