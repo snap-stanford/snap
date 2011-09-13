@@ -181,6 +181,7 @@ void TTrawling::ThresholdSupp() {
 void TTrawling::GenCandAndCntSupp(const int& FqItemsetLen) {
   CandItemH.Clr(false);
   TIntV JoinItem;
+  if (CurItemH.Len() == 0) { return; }
   if (CurItemH.GetKey(0).Len() == 1) {
     // join 1-items into 2-items
     for (int i = 0; i < CurItemH.Len(); i++) {
@@ -230,7 +231,7 @@ int TTrawling::GetNextFqItemSets(const int& FqItemsetLen) {
   ThresholdSupp(); // CandItemH --> CurItemH
   printf("  Items:  %d\n", CurItemH.Len());*/
   GenCandAndCntSupp(FqItemsetLen);
-  printf("  cur: %d cand: [%s]", CandItemH.Len(), CurItemH.Len(), ExeTm.GetStr());
+  printf("  cur: %d cand: %d [%s]", CurItemH.Len(), CandItemH.Len(), ExeTm.GetStr());
   CurItemH.Swap(CandItemH);
   return CurItemH.Len();
 }
