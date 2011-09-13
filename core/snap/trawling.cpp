@@ -222,7 +222,6 @@ void TTrawling::GenCandAndCntSupp(const int& FqItemsetLen) {
 
 int TTrawling::GetNextFqItemSets(const int& FqItemsetLen) {
   TExeTm ExeTm;
-  printf("  C[%d][%s]", CurItemH.Len(), ExeTm.GetStr());
   /* // slow
   GenCandidates(); // CurItemH --> CandItemH
   printf(" S[%d][%s]", CandItemH.Len(), ExeTm.GetStr());
@@ -231,6 +230,7 @@ int TTrawling::GetNextFqItemSets(const int& FqItemsetLen) {
   ThresholdSupp(); // CandItemH --> CurItemH
   printf("  Items:  %d\n", CurItemH.Len());*/
   GenCandAndCntSupp(FqItemsetLen);
+  printf("  cur: %d cand: [%s]", CandItemH.Len(), CurItemH.Len(), ExeTm.GetStr());
   CurItemH.Swap(CandItemH);
   return CurItemH.Len();
 }
@@ -240,12 +240,13 @@ TIntPrV TTrawling::PlotMinFqVsMaxSet(const TStr& OutFNm) {
   TIntPrV SzCntH;
   SzCntH.Add(TIntPr(1, CurItemH.Len()));
   for (int ItemSetSz = 2; ItemSetSz < 100; ItemSetSz++) {
-    printf("Itemset size %d:\n", ItemSetSz);
+    printf("\nItemset size %d:  ", ItemSetSz);
     GetNextFqItemSets();
     if (CurItemH.Empty()) { break; }
     SzCntH.Add(TIntPr(ItemSetSz, CurItemH.Len()));
     TGnuPlot::PlotValV(SzCntH, "itemSet-"+OutFNm, TStr::Fmt("Minimum Suport = %d", MinSup), 
       "Itemset size", "Number of itemsets > Minimum Support");
   }
+  printf("\n\n");
   return SzCntH;
 }
