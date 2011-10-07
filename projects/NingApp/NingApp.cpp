@@ -10,6 +10,31 @@ int main(int argc, char* argv[]) {
   Env = TEnv(argc, argv, TNotify::StdNotify);
   Env.PrepArgs("NingApp");
 
+    THashSet<TIntPr> set;
+    PUNGraph G = TUNGraph::New();
+    G->AddNode(2);
+    G->AddNode(1);
+    G->AddEdge(1,2);
+    int i = 0; 
+    for (TUNGraph::TNodeI itr = G->BegNI(); itr<G->EndNI(); itr++){
+        i++;
+    }
+    printf("nodes: size %d, iter %d\n",G->GetNodes(), i);
+    i = 0; 
+    bool notfound = true;
+    for (TUNGraph::TEdgeI itr = G->BegEI(); itr<G->EndEI(); itr++){
+        i++;
+        printf("E: %d\t%d\n",itr.GetSrcNId(), itr.GetDstNId());
+        /*if (notfound){ printf("%d\t%d\n",itr.GetSrcNId(), itr.GetDstNId()); }
+        if (set.IsKey(TIntPr(itr.GetSrcNId(), itr.GetDstNId())) || set.IsKey(TIntPr(itr.GetDstNId(), itr.GetSrcNId()))) {
+            printf("overlap on %dth edge (%d,%d)\n", i, itr.GetSrcNId(), itr.GetDstNId());
+            notfound =false;
+        }
+        set.AddKey(TIntPr(itr.GetSrcNId(), itr.GetDstNId()));*/
+    }
+    printf("edges: size %d, iter %d\n",G->GetEdges(), i);
+    printf("done");
+
   /*TestTwitter();
 
   //TJsonLoader J("/lfs/1/tmp/twitter-jan2011/*.log.rar");
@@ -21,7 +46,7 @@ int main(int argc, char* argv[]) {
 
   //PUNGraph G = TSnap::LoadEdgeList<PUNGraph>("W:\\xData\\Epinions\\epinions.txt", 0, 1);
   //G->Save(TFOut("epin.ungraph"));
-  TStr GNm = "answers";
+  /*TStr GNm = "answers";
   PNGraph NG = TNGraph::Load(TZipIn("W:\\xData\\aBinData\\"+GNm+".ngraph.gz"));  PUNGraph G = TSnap::ConvertGraph<PUNGraph>(NG);
   //PUNGraph G = TUNGraph::Load(TFIn("aa_epin.ungraph")); GNm="epin";
 

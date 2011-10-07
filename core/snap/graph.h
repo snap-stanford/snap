@@ -73,10 +73,7 @@ public:
     TEdgeI(const TNodeI& NodeI, const TNodeI& EndNodeI, const int& EdgeN=0) : CurNode(NodeI), EndNode(EndNodeI), CurEdge(EdgeN) { }
     TEdgeI(const TEdgeI& EdgeI) : CurNode(EdgeI.CurNode), EndNode(EdgeI.EndNode), CurEdge(EdgeI.CurEdge) { }
     TEdgeI& operator = (const TEdgeI& EdgeI) { if (this!=&EdgeI) { CurNode=EdgeI.CurNode;  EndNode=EdgeI.EndNode;  CurEdge=EdgeI.CurEdge; }  return *this; }
-    TEdgeI& operator++ (int) { 
-      do { CurEdge++;  if (CurEdge >= CurNode.GetOutDeg()) { CurEdge=0;  CurNode++;
-        while (CurNode < EndNode && CurNode.GetOutDeg()==0) { CurNode++; } }  
-      } while (CurNode < EndNode && GetSrcNId()>GetDstNId());  return *this;  }
+    TEdgeI& operator++ (int) { do { CurEdge++; if (CurEdge >= CurNode.GetOutDeg()) { CurEdge=0;  CurNode++; while (CurNode < EndNode && CurNode.GetOutDeg()==0) { CurNode++; } } } while (CurNode < EndNode && GetSrcNId()>GetDstNId()); return *this; }
     bool operator < (const TEdgeI& EdgeI) const { return CurNode<EdgeI.CurNode || (CurNode==EdgeI.CurNode && CurEdge<EdgeI.CurEdge); }
     bool operator == (const TEdgeI& EdgeI) const { return CurNode == EdgeI.CurNode && CurEdge == EdgeI.CurEdge; }
     int GetId() const { return -1; }
@@ -121,7 +118,7 @@ public:
   int AddEdge(const TEdgeI& EdgeI) { return AddEdge(EdgeI.GetSrcNId(), EdgeI.GetDstNId()); }
   void DelEdge(const int& SrcNId, const int& DstNId);
   bool IsEdge(const int& SrcNId, const int& DstNId) const;
-  TEdgeI BegEI() const { TNodeI NI=BegNI();  while(NI<EndNI() && NI.GetOutDeg()==0) NI++;  return TEdgeI(NI, EndNI()); }
+  TEdgeI BegEI() const { TNodeI NI=BegNI(); while (NI<EndNI() && (NI.GetOutDeg()==0 || NI.GetId()>NI.GetOutNId(0))) { NI++; } return TEdgeI(NI, EndNI()); }
   TEdgeI EndEI() const { return TEdgeI(EndNI(), EndNI()); }
   TEdgeI GetEI(const int& EId) const; // not supported
   TEdgeI GetEI(const int& SrcNId, const int& DstNId) const;
