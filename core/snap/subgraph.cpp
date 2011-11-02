@@ -11,8 +11,8 @@ PUNGraph GetSubGraph(const PUNGraph& Graph, const TIntV& NIdV, const bool& Renum
   NewGraph.Reserve(NIdV.Len(), -1);
   TIntSet NIdSet(NIdV.Len());
   for (int n = 0; n < NIdV.Len(); n++) {
-    NewGraph.AddNode(n);
     if (Graph->IsNode(NIdV[n])) {
+      NewGraph.AddNode(n);
       NIdSet.AddKey(NIdV[n]); }
   }
   for (int n = 0; n < NIdSet.Len(); n++) {
@@ -35,8 +35,9 @@ PNGraph GetSubGraph(const PNGraph& Graph, const TIntV& NIdV, const bool& Renumbe
   NewGraph.Reserve(NIdV.Len(), -1);
   TIntSet NIdSet(NIdV.Len());
   for (int n = 0; n < NIdV.Len(); n++) {
-    NewGraph.AddNode(n);
-    NIdSet.AddKey(NIdV[n]);
+    if (Graph->IsNode(NIdV[n])) {
+      NewGraph.AddNode(n);
+      NIdSet.AddKey(NIdV[n]); }
   }
   for (int n = 0; n < NIdV.Len(); n++) {
     const TNGraph::TNodeI NI = Graph->GetNI(NIdV[n]);

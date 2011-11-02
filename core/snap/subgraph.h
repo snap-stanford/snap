@@ -34,7 +34,8 @@ struct TGetSubGraph {
     typename PGraph::TObj& NewGraph = *NewGraphPt;
     NewGraph.Reserve(NIdV.Len(), -1);
     for (int n = 0; n < NIdV.Len(); n++) {
-      NewGraph.AddNode(Graph->GetNI(NIdV[n])); 
+      if (Graph->IsNode(NIdV[n])) {
+        NewGraph.AddNode(Graph->GetNI(NIdV[n])); }
     }
     for (typename PGraph::TObj::TEdgeI EI = Graph->BegEI(); EI < Graph->EndEI(); EI++) {
       if (NewGraph.IsNode(EI.GetSrcNId()) && NewGraph.IsNode(EI.GetDstNId())) {
@@ -54,9 +55,9 @@ struct TGetSubGraph<PGraph, false> { // not multigraph
     NewGraph.Reserve(NIdV.Len(), -1);
     for (int n = 0; n < NIdV.Len(); n++) {
       if (! HasGraphFlag(typename PGraph::TObj, gfNodeDat)) {
-        NewGraph.AddNode(NIdV[n]); }
+        if (Graph->IsNode(NIdV[n])) { NewGraph.AddNode(NIdV[n]); } }
       else {
-        NewGraph.AddNode(Graph->GetNI(NIdV[n])); }
+        if (Graph->IsNode(NIdV[n])) { NewGraph.AddNode(Graph->GetNI(NIdV[n])); } }
     }
     for (int n = 0; n < NIdV.Len(); n++) {
       const typename PGraph::TObj::TNodeI NI = Graph->GetNI(NIdV[n]);

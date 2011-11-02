@@ -112,8 +112,8 @@ int GetMxDegNId(const PGraph& Graph) {
   TIntV MxDegV;
   int MxDeg=-1;
   for (typename PGraph::TObj::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
-    if (MxDeg < NI.GetDeg()) { MxDeg.Clr(); MxDeg = NI.GetDeg(); }
-    if (MxDeg == NI.GetDeg()) { MxDeg.Add(NI.GetId()); }
+    if (MxDeg < NI.GetDeg()) { MxDegV.Clr(); MxDeg = NI.GetDeg(); }
+    if (MxDeg == NI.GetDeg()) { MxDegV.Add(NI.GetId()); }
   }
   EAssertR(! MxDegV.Empty(), "Input graph is emptry!");
   return MxDegV[TInt::Rnd.GetUniDevInt(MxDegV.Len())];
@@ -124,8 +124,8 @@ int GetMxInDegNId(const PGraph& Graph) {
   TIntV MxDegV;
   int MxDeg=-1;
   for (typename PGraph::TObj::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
-    if (MxDeg < NI.GetInDeg()) { MxDeg.Clr(); MxDeg = NI.GetInDeg(); }
-    if (MxDeg == NI.GetInDeg()) { MxDeg.Add(NI.GetId()); }
+    if (MxDeg < NI.GetInDeg()) { MxDegV.Clr(); MxDeg = NI.GetInDeg(); }
+    if (MxDeg == NI.GetInDeg()) { MxDegV.Add(NI.GetId()); }
   }
   EAssertR(! MxDegV.Empty(), "Input graph is emptry!");
   return MxDegV[TInt::Rnd.GetUniDevInt(MxDegV.Len())];
@@ -136,8 +136,8 @@ int GetMxOutDegNId(const PGraph& Graph) {
   TIntV MxDegV;
   int MxDeg=-1;
   for (typename PGraph::TObj::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
-    if (MxDeg < NI.GetOutDeg()) { MxDeg.Clr(); MxDeg = NI.GetOutDeg(); }
-    if (MxDeg == NI.GetOutDeg()) { MxDeg.Add(NI.GetId()); }
+    if (MxDeg < NI.GetOutDeg()) { MxDegVF.Clr(); MxDeg = NI.GetOutDeg(); }
+    if (MxDeg == NI.GetOutDeg()) { MxDegV.Add(NI.GetId()); }
   }
   EAssertR(! MxDegV.Empty(), "Input graph is emptry!")
   return MxDegV[TInt::Rnd.GetUniDevInt(MxDegV.Len())];
