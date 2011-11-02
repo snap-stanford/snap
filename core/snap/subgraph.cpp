@@ -12,7 +12,7 @@ PUNGraph GetSubGraph(const PUNGraph& Graph, const TIntV& NIdV, const bool& Renum
   TIntSet NIdSet(NIdV.Len());
   for (int n = 0; n < NIdV.Len(); n++) {
     if (Graph->IsNode(NIdV[n])) {
-      NewGraph.AddNode(n);
+      NewGraph.AddNode(NIdV[n]);
       NIdSet.AddKey(NIdV[n]); }
   }
   for (int n = 0; n < NIdSet.Len(); n++) {
@@ -36,7 +36,7 @@ PNGraph GetSubGraph(const PNGraph& Graph, const TIntV& NIdV, const bool& Renumbe
   TIntSet NIdSet(NIdV.Len());
   for (int n = 0; n < NIdV.Len(); n++) {
     if (Graph->IsNode(NIdV[n])) {
-      NewGraph.AddNode(n);
+      NewGraph.AddNode(NIdV[n]);
       NIdSet.AddKey(NIdV[n]); }
   }
   for (int n = 0; n < NIdV.Len(); n++) {
