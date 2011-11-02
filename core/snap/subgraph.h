@@ -5,8 +5,8 @@ namespace TSnap {
 
 // node subgraphs
 template<class PGraph> PGraph GetSubGraph(const PGraph& Graph, const TIntV& NIdV);
-PUNGraph GetSubGraph(const PUNGraph& Graph, const TIntV& NIdV, const bool& RenumberNodes);
-PNGraph GetSubGraph(const PNGraph& Graph, const TIntV& NIdV, const bool& RenumberNodes);
+PUNGraph GetSubGraph(const PUNGraph& Graph, const TIntV& NIdV, const bool& RenumberNodes=false);
+PNGraph GetSubGraph(const PNGraph& Graph, const TIntV& NIdV, const bool& RenumberNodes=false);
 
 // edge subgraphs
 template<class PGraph> PGraph GetESubGraph(const PGraph& Graph, const TIntV& EIdV);
@@ -53,15 +53,16 @@ struct TGetSubGraph<PGraph, false> { // not multigraph
     PGraph NewGraphPt = PGraph::TObj::New();
     typename PGraph::TObj& NewGraph = *NewGraphPt;
     NewGraph.Reserve(NIdV.Len(), -1);
+    TIntSet NodeSet;
     for (int n = 0; n < NIdV.Len(); n++) {
       if (! HasGraphFlag(typename PGraph::TObj, gfNodeDat)) {
-        if (Graph->IsNode(NIdV[n])) { NewGraph.AddNode(NIdV[n]); } }
+        if (Graph->IsNode(NIdV[n])) { NewGraph.AddNode(NIdV[n]); NodeSet.AddKey(NIdV[n]); } }
       else {
-        if (Graph->IsNode(NIdV[n])) { NewGraph.AddNode(Graph->GetNI(NIdV[n])); } }
+        if (Graph->IsNode(NIdV[n])) { NewGraph.AddNode(Graph->GetNI(NIdV[n])); NodeSet.AddKey(NIdV[n]); } }
     }
-    for (int n = 0; n < NIdV.Len(); n++) {
-      const typename PGraph::TObj::TNodeI NI = Graph->GetNI(NIdV[n]);
-      const int SrcNId = NI.GetId();
+    for (int n = 0; n < NodeSet.Len(); n++) {
+      const int SrcNId = NodeSet[n];
+      const typename PGraph::TObj::TNodeI NI = Graph->GetNI(SrcNId);
       for (int edge = 0; edge < NI.GetOutDeg(); edge++) {
         const int OutNId = NI.GetOutNId(edge);
         if (NewGraph.IsNode(OutNId)) {
