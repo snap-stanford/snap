@@ -8,6 +8,10 @@ template <class PGraph> int CntDegNodes(const PGraph& Graph, const int& NodeDeg)
 template <class PGraph> int CntNonZNodes(const PGraph& Graph);
 template <class PGraph> int CntEdgesToSet(const PGraph& Graph, const int& NId, const TIntSet& NodeSet);
 
+template <class PGraph> int GetMxDegNId(const PGraph& Graph);
+template <class PGraph> int GetMxInDegNId(const PGraph& Graph);
+template <class PGraph> int GetMxOutDegNId(const PGraph& Graph);
+
 // degree histograms
 template <class PGraph> void GetInDegCnt(const PGraph& Graph, TIntPrV& DegToCntV);
 template <class PGraph> void GetInDegCnt(const PGraph& Graph, TFltPrV& DegToCntV);
@@ -101,6 +105,42 @@ int CntEdgesToSet(const PGraph& Graph, const int& NId, const TIntSet& NodeSet) {
       if (NodeSet.IsKey(NI.GetInNId(e))) { Set.AddKey(NI.GetInNId(e)); } }
     return Set.Len();
   }
+}
+
+template <class PGraph> 
+int GetMxDegNId(const PGraph& Graph) {
+  TIntV MxDegV;
+  int MxDeg=-1;
+  for (typename PGraph::TObj::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
+    if (MxDeg < NI.GetDeg()) { MxDeg.Clr(); MxDeg = NI.GetDeg(); }
+    if (MxDeg == NI.GetDeg()) { MxDeg.Add(NI.GetId()); }
+  }
+  EAssertR(! MxDegV.Empty(), "Input graph is emptry!");
+  return MxDegV[TInt::Rnd.GetUniDevInt(MxDegV.Len())];
+}
+
+template <class PGraph> 
+int GetMxInDegNId(const PGraph& Graph) {
+  TIntV MxDegV;
+  int MxDeg=-1;
+  for (typename PGraph::TObj::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
+    if (MxDeg < NI.GetInDeg()) { MxDeg.Clr(); MxDeg = NI.GetInDeg(); }
+    if (MxDeg == NI.GetInDeg()) { MxDeg.Add(NI.GetId()); }
+  }
+  EAssertR(! MxDegV.Empty(), "Input graph is emptry!");
+  return MxDegV[TInt::Rnd.GetUniDevInt(MxDegV.Len())];
+}
+
+template <class PGraph> 
+int GetMxOutDegNId(const PGraph& Graph) {
+  TIntV MxDegV;
+  int MxDeg=-1;
+  for (typename PGraph::TObj::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
+    if (MxDeg < NI.GetOutDeg()) { MxDeg.Clr(); MxDeg = NI.GetOutDeg(); }
+    if (MxDeg == NI.GetOutDeg()) { MxDeg.Add(NI.GetId()); }
+  }
+  EAssertR(! MxDegV.Empty(), "Input graph is emptry!")
+  return MxDegV[TInt::Rnd.GetUniDevInt(MxDegV.Len())];
 }
 
 template <class PGraph>

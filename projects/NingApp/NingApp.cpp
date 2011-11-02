@@ -21,7 +21,7 @@ int main(int argc, char* argv[]) {
 
   //PUNGraph G = TSnap::LoadEdgeList<PUNGraph>("W:\\xData\\Epinions\\epinions.txt", 0, 1);
   //G->Save(TFOut("epin.ungraph"));
-  /*TStr GNm = "answers";
+  TStr GNm = "answers";
   PNGraph NG = TNGraph::Load(TZipIn("W:\\xData\\aBinData\\"+GNm+".ngraph.gz"));  PUNGraph G = TSnap::ConvertGraph<PUNGraph>(NG);
   //PUNGraph G = TUNGraph::Load(TFIn("aa_epin.ungraph")); GNm="epin";
 
