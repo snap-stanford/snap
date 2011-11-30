@@ -37,7 +37,7 @@ paranoid: CXXFLAGS += -Wextra -Wfloat-equal -Wundef -Wunsafe-loop-optimizations 
 paranoid: testBase
 
 testBase: $(MAINOBJS)
-	$(CXX) $(LDFLAGS) -o testBase $(MAINOBJS)
+	$(CXX) -o testBase $(MAINOBJS) $(LDFLAGS)
 
 %.o: %.cpp
 	$(CXX) -c $(CXXFLAGS) $<

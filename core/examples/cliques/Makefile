@@ -21,7 +21,7 @@ opt: $(MAIN)
 
 # COMPILE
 $(MAIN): $(MAIN)main.cpp ../../snap/cliques.h ../../snap/cliques.cpp Snap.o 
-	g++ $(LDFLAGS) -o $(MAIN) $(MAIN)main.cpp ../../snap/cliques.cpp Snap.o -I../../glib -I../../snap
+	g++ -o $(MAIN) $(MAIN)main.cpp ../../snap/cliques.cpp Snap.o -I../../glib -I../../snap $(LDFLAGS)
 	
 Snap.o: 
 	g++ -c $(CXXFLAGS) ../../snap/Snap.cpp -I../../glib -I../../snap

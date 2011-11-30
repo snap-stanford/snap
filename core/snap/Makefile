@@ -15,7 +15,7 @@ CC = g++
 all: testSnap
 
 testSnap: testSnap.cpp Snap.o 
-	$(CC) $(LDFLAGS) -o testSnap testSnap.cpp Snap.o -I../GLib
+	$(CC) -o testSnap testSnap.cpp Snap.o -I../GLib $(LDFLAGS) 
 
 Snap.o:
 	$(CC) -c $(CXXFLAGS) Snap.cpp -I../GLib

@@ -136,10 +136,10 @@ int GetMxOutDegNId(const PGraph& Graph) {
   TIntV MxDegV;
   int MxDeg=-1;
   for (typename PGraph::TObj::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
-    if (MxDeg < NI.GetOutDeg()) { MxDegVF.Clr(); MxDeg = NI.GetOutDeg(); }
+    if (MxDeg < NI.GetOutDeg()) { MxDegV.Clr(); MxDeg = NI.GetOutDeg(); }
     if (MxDeg == NI.GetOutDeg()) { MxDegV.Add(NI.GetId()); }
   }
-  EAssertR(! MxDegV.Empty(), "Input graph is emptry!")
+  EAssertR(! MxDegV.Empty(), "Input graph is emptry!");
   return MxDegV[TInt::Rnd.GetUniDevInt(MxDegV.Len())];
 }
 
