@@ -33,8 +33,6 @@ PNGraph GenCopyModel(const int& Nodes, const double& Beta, TRnd& Rnd=TInt::Rnd);
 PNGraph GenRMat(const int& Nodes, const int& Edges, const double& A, const double& B, const double& C, TRnd& Rnd=TInt::Rnd);
 PNGraph GenRMatEpinions();
 
-
-
 /////////////////////////////////////////////////
 // Implementation
 // return random edge where the edge does not touch NId1 and NId2
@@ -68,7 +66,7 @@ PGraph GenGrid(const int& Rows, const int& Cols, const bool& IsDir) {
 template <class PGraph> 
 PGraph GenStar(const int& Nodes, const bool& IsDir) {
   PGraph Graph = PGraph::TObj::New();
-  Graph.Reserve(Nodes, Nodes);
+  Graph->Reserve(Nodes, Nodes);
   Graph->AddNode(0);
   for (int n = 1; n < Nodes; n++) {
     Graph->AddNode(n);
@@ -97,7 +95,7 @@ PGraph GenCircle(const int& Nodes, const int& NodeOutDeg, const bool& IsDir) {
 template <class PGraph> 
 PGraph GenFull(const int& Nodes) {
   PGraph Graph = PGraph::TObj::New();
-  Graph.Reserve(Nodes, Nodes*Nodes);
+  Graph->Reserve(Nodes, Nodes*Nodes);
   for (int n = 0; n < Nodes; n++) {
     Graph->AddNode(n);
   }

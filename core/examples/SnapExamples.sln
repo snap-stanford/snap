@@ -31,6 +31,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cliques", "cliques\cliques.
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "agmgen", "agmgen\agmgen.vcxproj", "{1BAC236F-C118-487D-8584-4E911B30080C}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "graphgen", "graphgen\graphgen.vcxproj", "{101ACD69-D26C-4AA9-AC8A-41199C797209}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -117,6 +119,12 @@ Global
 		{1BAC236F-C118-487D-8584-4E911B30080C}.Release|Win32.ActiveCfg = Release|Win32
 		{1BAC236F-C118-487D-8584-4E911B30080C}.Release|Win32.Build.0 = Release|Win32
 		{1BAC236F-C118-487D-8584-4E911B30080C}.Release|x64.ActiveCfg = Release|Win32
+		{101ACD69-D26C-4AA9-AC8A-41199C797209}.Debug|Win32.ActiveCfg = Debug|Win32
+		{101ACD69-D26C-4AA9-AC8A-41199C797209}.Debug|Win32.Build.0 = Debug|Win32
+		{101ACD69-D26C-4AA9-AC8A-41199C797209}.Debug|x64.ActiveCfg = Debug|Win32
+		{101ACD69-D26C-4AA9-AC8A-41199C797209}.Release|Win32.ActiveCfg = Release|Win32
+		{101ACD69-D26C-4AA9-AC8A-41199C797209}.Release|Win32.Build.0 = Release|Win32
+		{101ACD69-D26C-4AA9-AC8A-41199C797209}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
