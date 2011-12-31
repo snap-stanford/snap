@@ -240,46 +240,26 @@ double GetBfsEffDiam(const PGraph& Graph, const int& TestNodes, const bool& Dir)
   return EffDiam;
 }
 
-// returns Effective Diameter and the Diameter of a graph (by performing BFS from TestNodes random nodes)
+// returns Effective Diameter and the (approximation of the) Diameter of a graph (by performing BFS from TestNodes random nodes)
 template <class PGraph>
 double GetBfsEffDiam(const PGraph& Graph, const int& TestNodes, const bool& Dir, double& EffDiam, int& FullDiam) {
-  EffDiam = -1;
-  FullDiam = -1;
-  TIntFltH DistToCntH;
-  TBreathFS<PGraph> BFS(Graph);
-  // shotest paths
-  TIntV NodeIdV;
-  Graph->GetNIdV(NodeIdV);  NodeIdV.Shuffle(TInt::Rnd);
-  for (int tries = 0; tries < TMath::Mn(TestNodes, Graph->GetNodes()); tries++) {
-    const int NId = NodeIdV[tries]; //Graph->GetRndNId();
-    BFS.DoBfs(NId, true, ! Dir, -1, TInt::Mx);
-    for (int i = 0; i < BFS.NIdDistH.Len(); i++) {
-      DistToCntH.AddDat(BFS.NIdDistH[i]) += 1; }
-  }
-  TIntFltKdV DistNbhsPdfV;
-  for (int i = 0; i < DistToCntH.Len(); i++) {
-    DistNbhsPdfV.Add(TIntFltKd(DistToCntH.GetKey(i), DistToCntH[i]));
-  }
-  DistNbhsPdfV.Sort();
-  EffDiam = TAnf::CalcEffDiamPdf(DistNbhsPdfV, 0.9);
-  FullDiam = DistNbhsPdfV.Last().Key;
-  return EffDiam;
+  double AvgDiam;
+  EffDiam = -1;  FullDiam = -1;
+  return GetBfsEffDiam(Graph, TestNodes, Dir, EffDiam, FullDiam, AvgDiam);
 }
 
 // returns Effective Diameter, the Diameter and the Average Shortest Path Lenght of a graph
 // (by performing BFS from TestNodes random starting nodes)
 template <class PGraph>
 double GetBfsEffDiam(const PGraph& Graph, const int& TestNodes, const bool& Dir, double& EffDiam, int& FullDiam, double& AvgDiam) {
-  EffDiam = -1;
-  FullDiam = -1;
-  AvgDiam = -1;
+  EffDiam = -1;  FullDiam = -1;  AvgDiam = -1;
   TIntFltH DistToCntH;
   TBreathFS<PGraph> BFS(Graph);
   // shotest paths
   TIntV NodeIdV;
   Graph->GetNIdV(NodeIdV);  NodeIdV.Shuffle(TInt::Rnd);
   for (int tries = 0; tries < TMath::Mn(TestNodes, Graph->GetNodes()); tries++) {
-    const int NId = NodeIdV[tries]; //Graph->GetRndNId();
+    const int NId = NodeIdV[tries];
     BFS.DoBfs(NId, true, ! Dir, -1, TInt::Mx);
     for (int i = 0; i < BFS.NIdDistH.Len(); i++) {
       DistToCntH.AddDat(BFS.NIdDistH[i]) += 1; }
@@ -293,12 +273,12 @@ double GetBfsEffDiam(const PGraph& Graph, const int& TestNodes, const bool& Dir,
   }
   DistNbhsPdfV.Sort();
   EffDiam = TAnf::CalcEffDiamPdf(DistNbhsPdfV, 0.9); // effective diameter (90-th percentile)
-  FullDiam = DistNbhsPdfV.Last().Key; // full diameter (max shortest path length)
-  AvgDiam = SumPathL/PathCnt; // average shortest path length
+  FullDiam = DistNbhsPdfV.Last().Key;                // approximate full diameter (max shortest path length)
+  AvgDiam = SumPathL/PathCnt;                        // average shortest path length
   return EffDiam;
 }
 
-// use whole graph (all links) to measure the distances but report the path lengths only between points in SubGraphNIdV
+// use whole graph (all links) to measure the distances but report the path lengths only between nodes in SubGraphNIdV
 template <class PGraph>
 double GetBfsEffDiam(const PGraph& Graph, const int& TestNodes, const TIntV& SubGraphNIdV, const bool& Dir, double& EffDiam, int& FullDiam) {
   EffDiam = -1;
@@ -321,9 +301,9 @@ double GetBfsEffDiam(const PGraph& Graph, const int& TestNodes, const TIntV& Sub
     DistNbhsPdfV.Add(TIntFltKd(DistToCntH.GetKey(i), DistToCntH[i]));
   }
   DistNbhsPdfV.Sort();
-  EffDiam = TAnf::CalcEffDiamPdf(DistNbhsPdfV, 0.9);
-  FullDiam = DistNbhsPdfV.Last().Key;
-  return EffDiam;
+  EffDiam = TAnf::CalcEffDiamPdf(DistNbhsPdfV, 0.9);  // effective diameter (90-th percentile)
+  FullDiam = DistNbhsPdfV.Last().Key;                 // approximate full diameter (max shortest path length)
+  return EffDiam;                                     // average shortest path length
 }
 
 } // namespace TSnap

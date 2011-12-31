@@ -21,7 +21,6 @@ void PrintGraphStat(const PNGraph& G) {
   printf("90-percentile effective diameter\t%.2g\n", EffDiam);
 }
 
-
 template<class PGraph> 
 void PrintGraphStatTable(const PGraph& G, TStr OutFNm, TStr Desc="") {
   TFltPrV DegCCfV;
