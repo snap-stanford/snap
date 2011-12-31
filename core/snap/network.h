@@ -846,8 +846,8 @@ public:
     TEdgeDat& GetInEDat(const int& EdgeN) { return Net->GetEDat(GetInEId(EdgeN)); }
     const TEdgeDat& GetInEDat(const int& EdgeN) const { return Net->GetEDat(GetInEId(EdgeN)); }
     TEdgeDat& GetOutEDat(const int& EdgeN) { return Net->GetEDat(GetOutEId(EdgeN)); }
-    const TEdgeDat& GetOutEDat(const int& EdgeN) const { return Net->GetEDat(GetNbhEId(EdgeN)); }
-    TEdgeDat& GetNbhEDat(const int& EdgeN) { return Net->GetEDat(GetOutEId(EdgeN)); }
+    const TEdgeDat& GetOutEDat(const int& EdgeN) const { return Net->GetEDat(GetOutEId(EdgeN)); }
+    TEdgeDat& GetNbhEDat(const int& EdgeN) { return Net->GetEDat(GetNbhEId(EdgeN)); }
     const TEdgeDat& GetNbhEDat(const int& EdgeN) const { return Net->GetEDat(GetNbhEId(EdgeN)); }
     friend class TNodeEdgeNet;
   };
