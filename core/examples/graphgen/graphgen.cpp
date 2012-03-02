@@ -24,44 +24,45 @@ int main(int argc, char* argv[]) {
 
   if (Env.IsEndOfRun()) { return 0; }
   TExeTm ExeTm;
+  TInt::Rnd.PutSeed(-1); // initialize random seed
   printf("Generating...\n");
   PUNGraph G;
   TStr DescStr;
   if (Plot == "f") {
     G = TSnap::GenFull<PUNGraph>(N);
-    DescStr = TStr::Fmt("Undirected Erdos-Renyi random graph");
-  } else 
+    DescStr = TStr::Fmt("Undirected complete graph.");
+  } else
   if (Plot == "s") {
     G = TSnap::GenStar<PUNGraph>(N, false);
-    DescStr = TStr::Fmt("Undirected star graph (1 center node connected to all other nodes)");
-  } else 
+    DescStr = TStr::Fmt("Undirected star graph (1 center node connected to all other nodes).");
+  } else
   if (Plot == "2") {
     G = TSnap::GenGrid<PUNGraph>(N, M, false);
-    DescStr = TStr::Fmt("Undirected 2D grid of %d rows and %d columns", N, M);
-  } else 
+    DescStr = TStr::Fmt("Undirected 2D grid of %d rows and %d columns.", N, M);
+  } else
   if (Plot == "e") {
     G = TSnap::GenRndGnm<PUNGraph>(N, M, false);
-    DescStr = TStr::Fmt("Undirected Erdos-Renyi random graph");
-  } else 
+    DescStr = TStr::Fmt("Undirected Erdos-Renyi random graph.");
+  } else
   if (Plot == "k") {
     G = TSnap::GenRndDegK(N, K);
-    DescStr = TStr::Fmt("Undirected k-regular random graph (every node has degree k)");
-  } else 
+    DescStr = TStr::Fmt("Undirected k-regular random graph (every node has degree K).");
+  } else
   if (Plot == "b") {
     G = TSnap::GenPrefAttach(N, K);
-    DescStr = TStr::Fmt("Undirected Albert-Barabasi Preferential Attachment graph (each new node creades k preferentially attached edges)");
-  } else 
+    DescStr = TStr::Fmt("Undirected Albert-Barabasi Preferential Attachment graph (each new node creades k preferentially attached edges).");
+  } else
   if (Plot == "p") {
     G = TSnap::GenRndPowerLaw(N, P, true);
-    DescStr = TStr::Fmt("Random Graph with Power-Law degree distribution with exponent P");
-  } else 
+    DescStr = TStr::Fmt("Random Graph with Power-Law degree distribution with exponent P.");
+  } else
   if (Plot == "c") {
     G = TSnap::ConvertGraph<PUNGraph>(TSnap::GenCopyModel(N, P));
-    DescStr = TStr::Fmt("Copying model by Kleinberg et al. Node u comes, selects a random v, and with prob P it links to v, with 1-P links u links to neighbor of v. Power-law degree slope is 1/(1-P)");
-  } else 
+    DescStr = TStr::Fmt("Copying model by Kleinberg et al. Node u comes, selects a random v, and with prob P it links to v, with 1-P links u links to neighbor of v. Power-law degree slope is 1/(1-P).");
+  } else
   if (Plot == "w") {
     G = TSnap::GenSmallWorld(N, K, P);
-    DescStr = TStr::Fmt("Watts-Strogatz Small-world model. Every node links to K other nodes (so, node has 2*K edges)");
+    DescStr = TStr::Fmt("Watts-Strogatz Small-world model. Every node links to K other nodes.");
   }
   printf("done.\n");
   TSnap::SaveEdgeList(G, OutFNm, DescStr);
