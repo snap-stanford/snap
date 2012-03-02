@@ -932,7 +932,7 @@ void TKroneckerLL::RestoreGraph(const bool RestoreNodes) {
 	LSelfEdge = 0;
 
 	if(RestoreNodes) {
-		for(int i = Graph->GetNodes(); i >= RealNodes; i--) {
+		for(int i = Graph->GetNodes()-1; i >= RealNodes; i--) {
 			Graph->DelNode(i);
 		}
 	}
