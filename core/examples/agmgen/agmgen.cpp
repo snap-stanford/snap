@@ -11,16 +11,16 @@ int main(int argc, char* argv[]) {
 	Try
 	const TStr InFNm = Env.GetIfArgPrefixStr("-i:", "DEMO", "Community affiliation data");
 	const TStr OutFPrx = Env.GetIfArgPrefixStr("-o:", "agm", "out file name prefix");
-	const int RndSeed = Env.GetIfArgPrefixFlt("-rs:",10,"Rnd Seed");
+	const int RndSeed = Env.GetIfArgPrefixFlt("-rs:",10,"Random number Seed");
 	const double DensityCoef= Env.GetIfArgPrefixFlt("-a:",0.6,"Power-law Coefficient a of density (density ~ N^(-a)");
 	const double ScaleCoef= Env.GetIfArgPrefixFlt("-c:",1.3,"Scaling Coefficient c of density (density ~ c");
 
 	TRnd Rnd(RndSeed);
 	TVec<TIntV> CmtyVV;
-	if(InFNm=="DEMO") {
+	if(InFNm == "DEMO") {
 		CmtyVV.Gen(2);
 		TIntV NIdV;
-		for(int i=0;i<25;i++) {
+		for(int i = 0; i < 25; i++) {
 			TIntV& CmtyV = CmtyVV[0];
 			CmtyV.Add(i+1);
 		}
@@ -43,10 +43,10 @@ int main(int argc, char* argv[]) {
 	  }
 		printf("community loading completed (%d communities)\n",CmtyVV.Len());
 	}
-	PUNGraph AG = TAGM::GenAGM(CmtyVV,DensityCoef,ScaleCoef,Rnd);
-	TSnap::SaveEdgeList(AG,OutFPrx + ".edgelist.txt");
-	if(AG->GetNodes()<50) {
-		TAGM::GVizComGraph(AG,CmtyVV,OutFPrx + ".graph.gif");
+	PUNGraph AG = TAGM::GenAGM(CmtyVV, DensityCoef, ScaleCoef, Rnd);
+	TSnap::SaveEdgeList(AG, OutFPrx + ".edgelist.txt");
+	if(AG->GetNodes() < 50) {
+		TAGMUtil::GVizComGraph(AG, CmtyVV, OutFPrx + ".graph.gif");
 	}
 	Catch
   printf("\nrun time: %s (%s)\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
