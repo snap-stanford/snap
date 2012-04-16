@@ -479,7 +479,7 @@ int TAGMUtil::FindComsByAGM(const PUNGraph& Graph, const int InitComs, const int
 		IAssert(IdxRegDrop > 0);
 		LeftReg = RegDrop - XV[IdxRegDrop - 1][0];
 		RightReg = XV[IdxRegDrop][0] - RegDrop;
-		NumComs = TMath::Round( (RightReg * RegComsV[IdxRegDrop - 1].Val2 + LeftReg * RegComsV[IdxRegDrop].Val2) / (LeftReg + RightReg));
+		NumComs = (int) TMath::Round( (RightReg * RegComsV[IdxRegDrop - 1].Val2 + LeftReg * RegComsV[IdxRegDrop].Val2) / (LeftReg + RightReg));
 
 	}
 	printf("Number of communities that would exist in the graph:%d\n", NumComs);

@@ -40,7 +40,16 @@ public:
 	static void GetIntersection(const THashSet<TInt>& A, const THashSet<TInt>& B, THashSet<TInt>& C);
 	static int Intersection(const THashSet<TInt>& A, const THashSet<TInt>& B);
 	static int FindComsByAGM(const PUNGraph& Graph, const int InitComs, const int MaxIter, const int RndSeed, const double RegGap, const double PNoCom = 0.0, const TStr PltFPrx = TStr());
-	static void SaveGephi(const TStr& OutFNm, const PUNGraph& G, const TVec<TIntV>& CmtyVVAtr, const double MaxSz, const double MinSz, const TIntStrH& NIDNameH = TIntStrH(), const THash<TInt, TIntTr >& NIDColorH = THash<TInt, TIntTr > ());
+	//static void SaveGephi(const TStr& OutFNm, const PUNGraph& G, const TVec<TIntV >& CmtyVVAtr, const double MaxSz, const double MinSz, const THash<TInt, TStr>& NIDNameH = THash<TInt, TStr>(), const THash<TInt, TIntTr >& NIDColorH = THash<TInt, TIntTr >());
+	static void SaveGephi(const TStr& OutFNm, const PUNGraph& G, const TVec<TIntV >& CmtyVVAtr, const double MaxSz, const double MinSz) {
+		THash<TInt, TStr> TmpH;
+		SaveGephi(OutFNm, G, CmtyVVAtr, MaxSz, MinSz, TmpH);
+	}
+	static void SaveGephi(const TStr& OutFNm, const PUNGraph& G, const TVec<TIntV >& CmtyVVAtr, const double MaxSz, const double MinSz, const THash<TInt, TStr>& NIDNameH) { 
+		THash<TInt, TIntTr> TmpH; 
+		SaveGephi(OutFNm, G, CmtyVVAtr, MaxSz, MinSz, NIDNameH, TmpH);
+	}
+	static void SaveGephi(const TStr& OutFNm, const PUNGraph& G, const TVec<TIntV >& CmtyVVAtr, const double MaxSz, const double MinSz, const THash<TInt, TStr>& NIDNameH, const THash<TInt, TIntTr >& NIDColorH);
 	// Separator separated file. One edge per line
 	// SrcColId and DstColId are column indexes of source/destination INTEGER node id
 	template <class PGraph>
