@@ -3,8 +3,8 @@
 #
 
 ## Linux  (uncomment the 2 lines below for compilation on Linux)
-#CXXFLAGS += -std=c++98 -Wall
-#LDFLAGS += -lrt
+CXXFLAGS += -std=c++98 -Wall
+LDFLAGS += -lrt
 
 ## CygWin (uncomment the 2 lines below for compilation on CygWin)
 #CXXFLAGS += -Wall
@@ -20,8 +20,8 @@ opt: LDFLAGS += -O4
 opt: $(MAIN)
 
 # COMPILE
-$(MAIN): $(MAIN).cpp ../../snap/agm.h ../../snap/agm.cpp Snap.o 
-	g++ -o $(MAIN) $(MAIN).cpp ../../snap/agm.cpp Snap.o -I../../glib -I../../snap $(LDFLAGS)
+$(MAIN): $(MAIN).cpp Snap.o ../../snap/agm.h ../../snap/agm.cpp  ../../snap/logreg_light.h ../../snap/logreg_light.cpp  
+	g++ -o $(MAIN) $(MAIN).cpp  ../../snap/agm.cpp ../../snap/logreg_light.cpp ../../glib/linalg.cpp Snap.o -I../../glib -I../../snap $(LDFLAGS)
 	
 Snap.o: 
 	g++ -c $(CXXFLAGS) ../../snap/Snap.cpp -I../../glib -I../../snap

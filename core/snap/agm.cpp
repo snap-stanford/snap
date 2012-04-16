@@ -1,8 +1,6 @@
-#include "stdafx.h"
-#include "./Snap.h"
+#include "../snap/Snap.h"
 #include "./agm.h"
 #include "./logreg_light.h"
-#include "./logreg_light.cpp"
 
 
 //////////////////////////////////////////////////////////////////
