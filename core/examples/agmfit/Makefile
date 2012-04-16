@@ -21,10 +21,10 @@ opt: $(MAIN)
 
 # COMPILE
 $(MAIN): $(MAIN).cpp Snap.o ../../snap/agm.h ../../snap/agm.cpp  ../../snap/logreg_light.h ../../snap/logreg_light.cpp  
-	g++ -o $(MAIN) $(MAIN).cpp  ../../snap/agm.cpp ../../snap/logreg_light.cpp ../../glib/linalg.cpp Snap.o -I../../glib -I../../snap $(LDFLAGS)
+	g++ -o $(MAIN) $(MAIN).cpp  Snap.o ../../snap/agm.cpp ../../snap/logreg_light.cpp  -I../../glib -I../../snap $(LDFLAGS) 
 	
 Snap.o: 
-	g++ -c $(CXXFLAGS) ../../snap/Snap.cpp -I../../glib -I../../snap
+	g++ -c $(CXXFLAGS) ../../snap/Snap.cpp -I../../glib -I../../snap 
 
 clean:
 	rm -f *.o  $(MAIN)  $(MAIN).exe

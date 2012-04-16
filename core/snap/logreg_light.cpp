@@ -101,7 +101,7 @@ int TLogRegFit::MLEGradient(const double& ChangeEps, const int& MaxStep, const T
 		double Alpha = 0.15, Beta = 0.9;
 		//double LearnRate = 0.1 / (0.1 * iter + 1); //GetStepSizeByLineSearch(GradV, GradV, Alpha, Beta);
 		double LearnRate = GetStepSizeByLineSearch(GradV, GradV, Alpha, Beta);
-		if (TLinAlg::Norm(GradV) < ChangeEps) { break; }
+		if (TLinAlg::DotProduct(GradV, GradV) < ChangeEps) { break; }
 		for(int i = 0; i < Theta.Len(); i++) {
 			double Change = LearnRate * GradV[i];
 			Theta[i] += Change;
@@ -111,7 +111,7 @@ int TLogRegFit::MLEGradient(const double& ChangeEps, const int& MaxStep, const T
 		if (! PlotNm.Empty()) {
 			double L = Likelihood();
 			IterLV.Add(TIntFltPr(iter, L));
-			IterGradNormV.Add(TIntFltPr(iter, TLinAlg::Norm(GradV)));
+			IterGradNormV.Add(TIntFltPr(iter, TLinAlg::DotProduct(GradV, GradV)));
 		}
 		
 	}

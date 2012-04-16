@@ -600,7 +600,7 @@ int TAGMFit::MLEGradAscentGivenCAG(const double& Thres, const int& MaxIter, cons
 		double Alpha = 0.15, Beta = 0.2;
 		if (Edges > Kilo(100)) { Alpha = 0.00015; Beta = 0.3;}
 		double LearnRate = GetStepSizeByLineSearchForLambda(GradV, GradV, Alpha, Beta);
-		if (TLinAlg::Norm(GradV) < Thres) { break; }
+		if (TLinAlg::DotProduct(GradV, GradV) < Thres) { break; }
 		for(int i = 0; i < LambdaV.Len(); i++) {
 			double Change = LearnRate * GradV[i];
 			LambdaV[i] += Change;
@@ -610,7 +610,7 @@ int TAGMFit::MLEGradAscentGivenCAG(const double& Thres, const int& MaxIter, cons
 		if (! PlotNm.Empty()) {
 			double L = Likelihood();
 			IterLV.Add(TIntFltPr(iter, L));
-			IterGradNormV.Add(TIntFltPr(iter, TLinAlg::Norm(GradV)));
+			IterGradNormV.Add(TIntFltPr(iter, TLinAlg::DotProduct(GradV, GradV)));
 		}
 		
 	}
