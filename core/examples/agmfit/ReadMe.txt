@@ -16,6 +16,11 @@ AGMfit automatically estimates the number of communities in the graph.
 User also can control the probability of edges between the nodes that do not share any communities. 
 If a user does not assume a certain probability, AGMfit uses (1 / N^2) where N is the number of nodes in the graph.
 
+After finding the communities, AGMfit outputs the community memberships by a text file (one line per community).
+AGMfit also generates the Graph Exchange XML format (.gexf file) describing both the graph 
+and the community memberships (specified by node attribute).
+The Graph Exchange XML format can be loaded in Gephi which supports filtering nodes by each community.
+
 For more detail, refer to the following paper: (currently under submission)
 Model-based approach to detecting densely overlapping communities in networks: J. Yang and J. Leskovec.
 
@@ -32,6 +37,10 @@ Parameters:
 
 /////////////////////////////////////////////////////////////////////////////
 Usage:
+
+Find communities from a synthetic network by AGM
+
+agmfit -i:DEMO
 
 Find 12 communities from the NCAA football network. Use 0.1 as an edge probability between the nodes having no community in common. 
 
