@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "./Snap.h"
 #include "./agm.h"
-#include "./agmfit.h"
 #include "./logreg_light.h"
 #include "./logreg_light.cpp"
 
@@ -9,8 +8,12 @@
 //////////////////////////////////////////////////////////////////
 //AGM
 void TAGM::RndConnectInsideCommunity(PUNGraph& Graph, const TIntV& CmtyV, const double& Prob, TRnd& Rnd){
-	int CNodes = CmtyV.Len();
-	int CEdges = (int) Rnd.GetBinomialDev(Prob,CNodes*(CNodes-1)/2);
+	int CNodes = CmtyV.Len(), CEdges;
+	if (CNodes < 20) {
+		CEdges = (int) Rnd.GetBinomialDev(Prob, CNodes * (CNodes-1) / 2);
+	} else {
+		CEdges = (int) (Prob * CNodes * (CNodes-1) / 2);
+	}
 	THashSet<TIntPr> NewEdgeSet(CEdges);
 	for (int edge = 0; edge < CEdges; ) {
 		int SrcNId = CmtyV[Rnd.GetUniDevInt(CNodes)];
@@ -35,8 +38,8 @@ PUNGraph TAGM::GenAGM(TVec<TIntV>& CmtyVV, const double& DensityCoef, const doub
 	TFltV CProbV;
 	double Prob;
 	for(int i=0;i<CmtyVV.Len();i++) {
-		Prob = ScaleCoef*pow(double(CmtyVV[i].Len()),-DensityCoef);
-		if(Prob>1){Prob = 1;}
+		Prob = ScaleCoef * pow(double(CmtyVV[i].Len()), - DensityCoef);
+		if(Prob > 1) { Prob = 1;}
 		CProbV.Add(Prob);
 	}
 	return TAGM::GenAGM(CmtyVV, CProbV, Rnd);
@@ -51,7 +54,6 @@ PUNGraph TAGM::GenAGM(TVec<TIntV>& CmtyVV, const TFltV& CProbV, TRnd& Rnd, const
 			G->AddNode(CmtyV[u]);
 		}
 		double Prob = CProbV[i];
-		//printf("\r%d(%d)/%d",i,CmtyVV[i].Len(),CmtyVV.Len());
 		RndConnectInsideCommunity(G,CmtyV,Prob,Rnd);
 	}
 	if (PNoCom > 0.0) { //if we want to connect nodes that do not share any community
@@ -141,7 +143,6 @@ void TAGMUtil::ConnectCmtyVV(TVec<TIntV>& CmtyVV, const TIntPrV& CIDSzPrV, const
 	while(NDegV.Len()<CDegV.Len()) {
 		NDegV.Add(NIDMemPrV[Rnd.GetUniDevInt(Nodes)].Val1);
 	}
-	printf("Total Mem: %d, Total Sz: %d\n",NDegV.Len(), CDegV.Len());
 
 	int TotalComSz = CDegV.Len();
 	int c=0;
@@ -202,6 +203,23 @@ void TAGMUtil::DumpCmtyVV(const TStr& OutFNm, const TVec<TIntV>& CmtyVV) {
 	}
 	fclose(F);
 }
+
+void TAGMUtil::DumpCmtyVV(const TStr OutFNm, TVec<TIntV>& CmtyVV, TIntStrH& NIDNmH) {
+	FILE* F = fopen(OutFNm.CStr(), "wt");
+	for (int c = 0; c < CmtyVV.Len(); c++) {
+		for (int u = 0; u < CmtyVV[c].Len(); u++) {
+			if (NIDNmH.IsKey(CmtyVV[c][u])){
+				fprintf(F, "%s\t", NIDNmH.GetDat(CmtyVV[c][u]).CStr());
+			}
+			else {
+				fprintf(F, "%d\t", (int) CmtyVV[c][u]);
+			}
+		}
+		fprintf(F, "\n");
+	}
+	fclose(F);
+}
+
 
 int TAGMUtil::TotalMemberships(const TVec<TIntV>& CmtyVV){
 	int M = 0;
@@ -295,12 +313,69 @@ int TAGMUtil::Intersection(const THashSet<TInt>& A, const THashSet<TInt>& B) {
 	return n;
 }
 
+void TAGMUtil::SaveGephi(const TStr& OutFNm, const PUNGraph& G, const TVec<TIntV>& CmtyVVAtr, const double MaxSz, const double MinSz, const TIntStrH& NIDNameH, const THash<TInt, TIntTr>& NIDColorH ) {
+	THash<TInt,TIntV> NIDComVHAtr;
+	TAGMUtil::GetNodeMembership(NIDComVHAtr, CmtyVVAtr);
+
+	FILE* F = fopen(OutFNm.CStr(), "wt");
+	fprintf(F, "<?xml version='1.0' encoding='UTF-8'?>\n");
+	fprintf(F, "<gexf xmlns='http://www.gexf.net/1.2draft' xmlns:viz='http://www.gexf.net/1.1draft/viz' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.gexf.net/1.2draft http://www.gexf.net/1.2draft/gexf.xsd' version='1.2'>\n");
+	fprintf(F, "\t<graph mode='static' defaultedgetype='undirected'>\n");
+	if (CmtyVVAtr.Len() > 0) {
+		fprintf(F, "\t<attributes class='node'>\n");
+		for (int c = 0; c < CmtyVVAtr.Len(); c++) {
+			fprintf(F, "\t\t<attribute id='%d' title='c%d' type='boolean'>", c, c);
+			fprintf(F, "\t\t<default>false</default>\n");
+			fprintf(F, "\t\t</attribute>\n");
+		}
+		fprintf(F, "\t</attributes>\n");
+	}
+	fprintf(F, "\t\t<nodes>\n");
+	for (TUNGraph::TNodeI NI = G->BegNI(); NI < G->EndNI(); NI++) {
+		int NID = NI.GetId();
+		TStr Label = NIDNameH.IsKey(NID)? NIDNameH.GetDat(NID): "";
+		TIntTr Color = NIDColorH.IsKey(NID)? NIDColorH.GetDat(NID) : TIntTr(120, 120, 120);
+
+		double Size = MinSz;
+		double SizeStep = (MaxSz - MinSz) / (double) CmtyVVAtr.Len();
+		if (NIDComVHAtr.IsKey(NID)) {
+			Size = MinSz +  SizeStep *  (double) NIDComVHAtr.GetDat(NID).Len();
+		}
+		double Alpha = 1.0;
+		fprintf(F, "\t\t\t<node id='%d' label='%s'>\n", NID, Label.CStr());
+		fprintf(F, "\t\t\t\t<viz:color r='%d' g='%d' b='%d' a='%.1f'/>\n", Color.Val1.Val, Color.Val2.Val, Color.Val3.Val, Alpha);
+		fprintf(F, "\t\t\t\t<viz:size value='%.3f'/>\n", Size);
+		//specify attributes
+		if (NIDComVHAtr.IsKey(NID)) {
+			fprintf(F, "\t\t\t\t<attvalues>\n");
+			for (int c = 0; c < NIDComVHAtr.GetDat(NID).Len(); c++) {
+				int CID = NIDComVHAtr.GetDat(NID)[c];
+				fprintf(F, "\t\t\t\t\t<attvalue for='%d' value='true'/>\n", CID);
+			}
+			fprintf(F, "\t\t\t\t</attvalues>\n");
+		}
+
+		fprintf(F, "\t\t\t</node>\n");
+	}
+	fprintf(F, "\t\t</nodes>\n");
+	//plot edges
+	int EID = 0;
+	fprintf(F, "\t\t<edges>\n");
+	for (TUNGraph::TEdgeI EI = G->BegEI(); EI < G->EndEI(); EI++) {
+		fprintf(F, "\t\t\t<edge id='%d' source='%d' target='%d'/>\n", EID++, EI.GetSrcNId(), EI.GetDstNId());
+	}
+	fprintf(F, "\t\t</edges>\n");
+	fprintf(F, "\t</graph>\n");
+	fprintf(F, "</gexf>\n");
+	fclose(F);
+}
+
 
 int TAGMUtil::FindComsByAGM(const PUNGraph& Graph, const int InitComs, const int MaxIter, const int RndSeed, const double RegGap, const double PNoCom, const TStr PltFPrx) {
 	TRnd Rnd(RndSeed);
 	int LambdaIter = 100;
-	if (Graph->GetNodes() < 200) { LambdaIter = 1; } 
-	if (Graph->GetNodes() < 200 && Graph->GetEdges() > 2000) { LambdaIter = 100; } 
+	if (Graph->GetNodes() < 200) { LambdaIter = 10; } 
+	if (Graph->GetNodes() > 200 && Graph->GetEdges() > 2000) { LambdaIter = 100; } 
 
 	//Find coms with large C
 	TAGMFit AGMFitM(Graph, InitComs, RndSeed);
@@ -407,7 +482,7 @@ int TAGMUtil::FindComsByAGM(const PUNGraph& Graph, const int InitComs, const int
 		NumComs = TMath::Round( (RightReg * RegComsV[IdxRegDrop - 1].Val2 + LeftReg * RegComsV[IdxRegDrop].Val2) / (LeftReg + RightReg));
 
 	}
-	printf("Num Coms:%d\n", NumComs);
+	printf("Number of communities that would exist in the graph:%d\n", NumComs);
 	if (NumComs < 2) { NumComs = 2; }
 
 	if (PltFPrx.Len() > 0) {
@@ -931,4 +1006,14 @@ double TAGMFit::SelectLambdaSum(const TFltV& NewLambdaV, const TIntSet& ComK) {
 		Result += NewLambdaV[SI.GetKey()];
 	}
 	return Result;
+}
+
+void TAGMFit::PrintSummary() {
+	int Coms = 0;
+	for (int i = 0; i < LambdaV.Len(); i++) {
+		if (LambdaV[i] <= 0.0001) { continue; }
+		printf("P_c : %.3f Com Sz: %d, Total Edges inside: %d \n", 1.0 - exp(- LambdaV[i]), CIDNSetV[i].Len(), (int) ComEdgesV[i]);
+		Coms++;
+	}
+	printf("%d Communities, Total Memberships = %d, Likelihood = %.2f, Epsilon = %f\n", Coms, NIDCIDPrS.Len(), Likelihood(), PNoCom.Val);
 }

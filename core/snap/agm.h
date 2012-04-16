@@ -33,12 +33,36 @@ public:
 	static void GetNodeMembership(TIntH& NIDComVH, const TVec<TIntV >& CmtyVV);
 	static void LoadCmtyVV(const TStr& InFNm, TVec<TIntV>& CmtyVV);
 	static void DumpCmtyVV(const TStr& OutFNm, const TVec<TIntV>& CmtyVV);
+	static void DumpCmtyVV(const TStr OutFNm, TVec<TIntV>& CmtyVV, TIntStrH& NIDNmH);
 	static int TotalMemberships(const TVec<TIntV>& CmtyVV);
 	static void RewireCmtyVV(const TVec<TIntV>& CmtyVVIn, TVec<TIntV>& CmtyVVOut, const TIntV& NIdV, TRnd& Rnd);
 	static int Intersection(const TIntV& C1, const TIntV& C2);
 	static void GetIntersection(const THashSet<TInt>& A, const THashSet<TInt>& B, THashSet<TInt>& C);
 	static int Intersection(const THashSet<TInt>& A, const THashSet<TInt>& B);
 	static int FindComsByAGM(const PUNGraph& Graph, const int InitComs, const int MaxIter, const int RndSeed, const double RegGap, const double PNoCom = 0.0, const TStr PltFPrx = TStr());
+	static void SaveGephi(const TStr& OutFNm, const PUNGraph& G, const TVec<TIntV>& CmtyVVAtr, const double MaxSz, const double MinSz, const TIntStrH& NIDNameH = TIntStrH(), const THash<TInt, TIntTr >& NIDColorH = THash<TInt, TIntTr>());
+	// Separator separated file. One edge per line
+	// SrcColId and DstColId are column indexes of source/destination INTEGER node id
+	template <class PGraph>
+	static PGraph LoadEdgeListStr(const TStr& InFNm, TIntStrH& NIDNameH, const int& SrcColId = 0, const int& DstColId = 1, const TSsFmt SsFmt = ssfTabSep) {
+		TSsParser Ss(InFNm, SsFmt);
+		PGraph Graph = PGraph::TObj::New();
+		TStrHash<TInt> StrSet(Mega(1), true);
+		while (Ss.Next()) {
+			const int SrcNId = StrSet.AddKey(Ss[SrcColId]);
+			const int DstNId = StrSet.AddKey(Ss[DstColId]);
+			if (! Graph->IsNode(SrcNId)) { Graph->AddNode(SrcNId); }
+			if (! Graph->IsNode(DstNId)) { Graph->AddNode(DstNId); }
+			Graph->AddEdge(SrcNId, DstNId);
+		}
+		NIDNameH.Gen(StrSet.Len());
+		for (int s = 0; s < StrSet.Len(); s++) { NIDNameH.AddDat(s, StrSet.GetKey(s)); }
+		IAssert(NIDNameH.Len() == Graph->GetNodes());
+
+		Graph->Defrag();
+		return Graph;
+	}
+
 	template<class PGraph>
 	static void GVizComGraph(const PGraph& Graph,const TVec<TIntV >& CmtyVV, const TStr& OutFNm, const TStr& Desc = TStr()){
 		TStrV Colors = TStrV::GetV("red","blue","green","pink","cyan");
@@ -125,6 +149,7 @@ public:
 	double Likelihood(const TFltV& NewLambdaV, double& LEdges, double& LNoEdges);
 	void GetEdgeJointCom();
 	void GradLogLForLambda(TFltV& GradV);
+	void PrintSummary();
 	int MLEGradAscentGivenCAG(const double& Thres=0.001, const int& MaxIter=10000, const TStr PlotNm = TStr());
 	void SetDefaultPNoCom();
 	void SetPNoCom(const double& Input) { if (BaseCID == -1) { PNoCom = Input; } }// only if we do not use eps-community
@@ -133,7 +158,7 @@ public:
 	double SelectLambdaSum(const TIntSet& ComK);
 	double SelectLambdaSum(const TFltV& NewLambdaV, const TIntSet& ComK);
 	void RandomInit(const int& MaxK);
-	void RunMCMC(const int& MaxIter, const int& EvalLambdaIter, const TStr& PlotFPrx);
+	void RunMCMC(const int& MaxIter, const int& EvalLambdaIter, const TStr& PlotFPrx = TStr());
 	void SampleTransition(int& NID, int& JoinCID, int& LeaveCID, double& DeltaL);
 	void InitNodeData();
 	void LeaveCom(const int& NID, const int& CID);
