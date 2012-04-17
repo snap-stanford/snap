@@ -1,4 +1,4 @@
-#include "../snap/Snap.h"
+#include "stdafx.h"
 #include "./agm.h"
 #include "./logreg_light.h"
 
@@ -1007,10 +1007,17 @@ double TAGMFit::SelectLambdaSum(const TFltV& NewLambdaV, const TIntSet& ComK) {
 }
 
 void TAGMFit::PrintSummary() {
+	TIntFltH CIDLambdaH(CIDNSetV.Len());
+	for (int c = 0; c < CIDNSetV.Len(); c++) {
+		CIDLambdaH.AddDat(c, LambdaV[c]);
+	}
+	CIDLambdaH.SortByDat(false);
+
 	int Coms = 0;
 	for (int i = 0; i < LambdaV.Len(); i++) {
-		if (LambdaV[i] <= 0.0001) { continue; }
-		printf("P_c : %.3f Com Sz: %d, Total Edges inside: %d \n", 1.0 - exp(- LambdaV[i]), CIDNSetV[i].Len(), (int) ComEdgesV[i]);
+		int CID = CIDLambdaH.GetKey(i);
+		if (LambdaV[CID] <= 0.0001) { continue; }
+		printf("P_c : %.3f Com Sz: %d, Total Edges inside: %d \n", 1.0 - exp(- LambdaV[CID]), CIDNSetV[CID].Len(), (int) ComEdgesV[CID]);
 		Coms++;
 	}
 	printf("%d Communities, Total Memberships = %d, Likelihood = %.2f, Epsilon = %f\n", Coms, NIDCIDPrS.Len(), Likelihood(), PNoCom.Val);

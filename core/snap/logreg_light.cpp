@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////
 // Logistic regression by gradient ascent
-#include "../snap/Snap.h"
+#include "stdafx.h"
 #include "logreg_light.h"
 
 void TLogRegFit::GetNewtonStep(TFltVV& HVV, const TFltV& GradV, TFltV& DeltaLV){

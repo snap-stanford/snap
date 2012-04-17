@@ -83,6 +83,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\snap\agm.cpp" />
+    <ClCompile Include="..\..\snap\logreg_light.cpp" />
     <ClCompile Include="agmgen.cpp" />
     <ClCompile Include="..\..\snap\Snap.cpp" />
     <ClCompile Include="stdafx.cpp">

@@ -3,8 +3,8 @@
 #
 
 ## Linux  (uncomment the 2 lines below for compilation on Linux)
-CXXFLAGS += -std=c++98 -Wall
-LDFLAGS += -lrt
+#CXXFLAGS += -std=c++98 -Wall
+#LDFLAGS += -lrt
 
 ## CygWin (uncomment the 2 lines below for compilation on CygWin)
 #CXXFLAGS += -Wall

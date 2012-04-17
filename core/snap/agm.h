@@ -3,7 +3,7 @@
 #include "./Snap.h"
 
 
-class TAGM{
+class TAGM {
 public:
 	static void RndConnectInsideCommunity(PUNGraph& Graph, const TIntV& CmtyV, const double& Prob, TRnd& Rnd);
 	static PUNGraph GenAGM(const TIntV& NIdV , THash<TInt,TIntV >& CmtyVH, const TStr& AGMNm, const double& PiCoef, const double& ProbBase, TRnd& Rnd=TInt::Rnd);
@@ -13,7 +13,7 @@ public:
 
 };
 
-class TAGMUtil{
+class TAGMUtil {
 public:
 	static void GenPLSeq(TIntV& SzSeq,const int& SeqLen, const double& Alpha, TRnd& Rnd, const int& Min, const int& Max);
 	static void ConnectCmtyVV(TVec<TIntV>& CmtyVV, const TIntPrV& CIDSzPrV, const TIntPrV& NIDMemPrV, TRnd& Rnd);
@@ -128,7 +128,7 @@ public:
 
 /////////////////////////////////////////////////////////////////////////////////////
 //Fitting AGM
-class TAGMFit{
+class TAGMFit {
 private:
 	PUNGraph G; //graph to fit
 	TVec<TIntSet> CIDNSetV; //Community ID -> Member Node ID Sets
