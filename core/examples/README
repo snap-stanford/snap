@@ -1,0 +1,77 @@
+========================================================================
+  SNAP : Stanford Network Analysis library
+	http://snap.stanford.edu
+========================================================================
+
+Snap is a general purpose graph mining and modeling library. The library
+is written in C++ and it scales to massive graphs with up to 200 million
+nodes, and 2 billion edges.
+
+Code compiles under Windows (Microsoft Visual Studio, CygWin with gcc) and
+Linux and Mac (gcc). User the SnapExamples.vcproj or the provided Makefile.
+Depending on your platform you may need to change Makefile a bit (see the
+SnapSamples\Makefile).
+
+Some of applications expect that GnuPlot and GraphViz are installed and
+accessible -- paths are in the system PATH variable or they reside in the
+working directory.
+
+Depending on the platform (Windows or Linux) you may need to edit the 
+Makefile of each individual example (edit examples/*/Makefile). 
+
+Use 'make opt' to compile the optimized (fast) version of the code.
+
+/////////////////////////////////////////////////////////////////////////////
+Example applications: http://snap.stanford.edu/snap/download.html
+
+Execute:
+  make all : compiles all sample applications (debug mode)
+  make opt : compiles all sample applications (release mode, 10x faster code!)
+  make demo : executes all sample application
+  
+Examples:
+  cascades :
+  	Simulate a SI (susceptible-infected) model on a network and compute
+  	structural properties of cascades
+  centrality :
+    Node centrality measures (closeness, eigen, degree, betweenness, 
+    page rank, hubs and authorities)
+  cliques :
+	  Overlapping network community detection (Clique Percolation Method)
+  community :
+    Network Community detection (Girvan-Newman and Clauset-Newman-Moore)
+  concomp :
+  	Manipulates connected components of a graph
+  forestfire : 
+  	Forest Fire graph generator
+  graphhen : 
+	  Common graph generators (Small-world, Preferential Attachment, etc.)
+  kcores :
+  	Computes the k-core decomposition of the network
+  kronem : 
+  	Estimates Kronecker graph parameter matrix using EM algorithm
+  krongen : 
+  	Kronecker graph generator
+  kronfit : 
+  	Estimates Kronecker graph parameter matrix
+  maggen : 
+  	Multiplicative Attribute Graph (MAG) generator
+  magfit : 
+  	Estimates MAG model parameter
+  motifs : 
+  	Counts the number of occurence of every possible subgraph on K nodes 
+  	in the network
+  ncpplot : 
+  	Computes Network Community Profile (NCP) plot 
+  netevol :
+  	Computes properties of an evolving network, like evolution of 
+  	diameter, densification power law, degree distribution, etc.
+  netstat :
+  	Computes statistical properties of a static network, like degree
+	distribution, hop plot, clustering coefficient, distribution of sizes
+	of connected components, spectral properties of graph adjacency
+	matrix, etc.
+
+/////////////////////////////////////////////////////////////////////////////
+SNAP documentation:
+  http://snap.stanford.edu/snap/doc.html

@@ -1,0 +1,96 @@
+-------------------------------------------------------------------------------
+  SNAP by Jure Leskovec (jure@cs.stanford.edu)
+                 http://snap.stanford.edu
+-------------------------------------------------------------------------------
+
+Snap is a general purpose graph mining and modeling library. The library
+is written in C++ and it scales to massive graphs with up to 200 million nodes,
+and 2 billion edges. 
+
+-------------------------------------------------
+Directory structure:
+  GLib : contains the library that provides basic data structures (vectors, 
+  	strings, hash tables), infrastructure (serialization, xml and html 
+  	parsing), interface to GnuPlot and linear algebra (SVD).
+  SnapLib : the graph mining library
+  SnapSamples : example programs and utilities
+
+-------------------------------------------------
+SnapSamples:
+The directory for sample applications and examples of use. With every .cpp 
+file there is a corresponding .txt readme file for application description.
+
+Code compiles under Windows (Microsoft Visual Studio, CygWin with gcc) and 
+Linux (gcc). User the GraphSamples.vcproj or the provided Makefile. 
+Depending on your platform you may need to change Makefile a bit (see the 
+SnapSamples\Makefile).
+
+Some of applications expect that GnuPlot and GraphViz are installed and 
+accessible -- paths are in the system PATH variable or they reside in the 
+working directory.
+
+Execute:
+  make all : compiles all sample applications
+  make demo : executes all sample application
+
+Applications:
+  CascadeCnt : counts and manipulates network cascades -- graphs that are 
+  	induced by the propagation (of a information/virus) over the graph.
+  ConnComp : extracts largest weakly or strongly connected component.
+  ForestFire : Forest Fire graph generative model (see our KDD '05 paper)
+  GraphProj : Graph Projections (see our WWW '07 paper)
+  Kronecker : Kronecker graphs (see PKDD '05 and ICML '07)
+  KronFit : For estimating Kronecker graphs initiator (see ICML '07)
+  NetMine : plots statistical properties of the graph (degree distribution,
+  	hop plot, clustering coefficient, etc.)
+
+-------------------------------------------------
+SnapLib
+
+The library defines Graphs (topology not data/weights on nodes or edges) from 
+Networks (topologu with data on nodes and edges).
+
+Graph types:
+  TNGraph : directed graph (single directed edge between a pair of nodes)
+  TNEGraph : directed multi-graph (any number of directed edges between 
+  	a pair of nodes)
+  TUNGraph : undirected graph (single undirected edge between a pair of nodes)
+
+Network types:  
+  TNodeNet<TNodeData> : like TNGraph but with TNodeData object for each node
+  TNodeEdgeNet<TNodeData, TEdgeData> : like TNEGraph but with TNodeData object 
+  	for each node and TEdgeData object for each edge
+  TBigNet<TNodeData> : memory efficient implementation of TNodeNet (avoids 
+  	memory fragmentation)
+
+-------------------------------------------------
+Snap files:
+  alg.h : basic algorithms for manipulating graphs
+  anf.h : Approximate Neighborhood Function for measuring graph diameter. 
+  	Avoids node sampling and scales to large graphs
+  bigalg.h : some algorithms for TBigNet
+  bigg.h : TBigGraph -- big disk based graphs that do not fit into memory
+  bignet.h : TBigNet -- memory efficient implementation of TNodeNet (avoids 
+  	memory fragmentation)
+  blognet.h : blog network -- posts on blogs linking each other
+  casc.h : cascade analysis and counting
+  cga.h : Community Guided Attachment (see our KDD '05 paper)
+  clust.h : graph clustering and community finding
+  cncom.h : extracting connected components
+  emailnet.h : email network
+  ff.h : Forest Fire model (see our KDD '05 paper)
+  ggen.h : basic graph generation models
+  ghash.h : hash table where key is a graph. Used for counting graphs.
+  GMine.h : main file 
+  gnet.h : networks (TNodeNet, TNodeEdgeNet)
+  gproj.h : graph projections (see our WWW '07 paper)
+  graph.h : graphs (TNGraph, TNEGraph)
+  gstat.h : calculates various statistics of graphs
+  gsvd.h : spectral analysis of graphs (singular value decomposition)
+  gviz.h : interface to GraphViz for plotting small graphs
+  imdbnet.h : IMDB network
+  kronecker.h : Kronecker graphs (see PKDD '05 and ICML '07)
+  layout.h : positions the nodes on the plane for drawing
+  plots.h : plots graph properties (degree distributions, etc.)
+  sampl.h : graph sampling (see KDD '06)
+  timenet.h : time evolving networks
