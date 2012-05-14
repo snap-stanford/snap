@@ -15,10 +15,10 @@ CC = g++
 all: testSnap
 
 testSnap: testSnap.cpp Snap.o 
-	$(CC) -o testSnap testSnap.cpp Snap.o -I../GLib $(LDFLAGS) 
+	$(CC) -o testSnap testSnap.cpp Snap.o -I../glib-core $(LDFLAGS) 
 
 Snap.o:
-	$(CC) -c $(CXXFLAGS) Snap.cpp -I../GLib
+	$(CC) -c $(CXXFLAGS) Snap.cpp -I../glib-core
 
 clean:
 	rm -f *.o testSnap testSnap.exe *.plt *.tab *.png
