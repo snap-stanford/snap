@@ -11,6 +11,7 @@ CSNAP = ../$(SNAP)
 EXSNAP = ../../$(SNAP)
 
 UNAME := $(shell uname)
+UNAMEO := $(shell uname -o)
 
 ifeq ($(UNAME), Linux)
   # Linux flags
@@ -26,12 +27,14 @@ else ifeq ($(UNAME), Darwin)
   LDFLAGS += 
   LIBS += 
 
-endif
+else ifeq ($(UNAMEO), Cygwin)
+  # Cygwin flags
+  CC = g++
+  CXXFLAGS += -Wall
+  LDFLAGS += 
+  LIBS += 
 
-## CygWin (uncomment if using cygwin)
-#CXXFLAGS += -Wall
-#LDFLAGS += 
-#CC = g++
+endif
 
 all: testSnap
 
