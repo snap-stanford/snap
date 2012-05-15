@@ -2,33 +2,17 @@
 # Makefile for non-Microsoft compilers
 #
 
-GLIB = ../../glib-core
-SNAP = ../../snap-core
-
-## Linux  (uncomment the 2 lines below for compilation on Linux)
-CXXFLAGS += -std=c++98 -Wall
-LDFLAGS += -lrt
-
-## CygWin (uncomment the 2 lines below for compilation on CygWin)
-#CXXFLAGS += -Wall
-#LDFLAGS += 
-
-## Main application file
-MAIN = community
+include ../../Makefile.config
+include Makefile.ex
 
 all: $(MAIN)
 
-opt: CXXFLAGS += -O4
-opt: LDFLAGS += -O4
-opt: $(MAIN)
-
 # COMPILE
-$(MAIN): $(MAIN).cpp $(SNAP)/Snap.o
-	g++ -o $(MAIN) $(MAIN).cpp $(SNAP)/Snap.o -I$(GLIB) -I$(SNAP) $(LDFLAGS)
-	
-$(SNAP)/Snap.o: 
-	make -C $(SNAP)
-	#g++ -c $(CXXFLAGS) $(SNAP)/Snap.cpp -I$(GLIB) -I$(SNAP)
+$(MAIN): $(MAIN).cpp $(DEPH) $(DEPCPP) $(EXSNAP)/Snap.o 
+	$(CC) -o $(MAIN) $(MAIN).cpp $(DEPH) $(DEPCPP) $(EXSNAP)/Snap.o -I$(EXGLIB) -I$(EXSNAP) $(LDFLAGS) $(LIBS)
+
+$(EXSNAP)/Snap.o: 
+	make -C $(EXSNAP)
 
 clean:
 	rm -f *.o  $(MAIN)  $(MAIN).exe
