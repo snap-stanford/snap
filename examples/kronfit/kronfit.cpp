@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "../../snap/kronecker.h"
+#include "kronecker.h"
 
 int main(int argc, char* argv[]) {
   Env = TEnv(argc, argv, TNotify::StdNotify);

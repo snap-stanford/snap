@@ -3,9 +3,9 @@
 #include "stdafx.h"
 #include "Snap.h"
 
-#include "../glib-core/base.cpp"
-#include "../glib-core/gnuplot.cpp"
-#include "../glib-core/linalg.cpp"
+#include "base.cpp"
+#include "gnuplot.cpp"
+#include "linalg.cpp"
 
 #include "gbase.cpp"
 #include "util.cpp"

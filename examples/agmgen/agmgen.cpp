@@ -2,7 +2,7 @@
 //
 
 #include "stdafx.h"
-#include "../../snap/agm.h"
+#include "agm.h"
 
 int main(int argc, char* argv[]) {
 	Env = TEnv(argc, argv, TNotify::StdNotify);

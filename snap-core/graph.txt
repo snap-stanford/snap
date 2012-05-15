@@ -1,4 +1,4 @@
-# Directed graph (each unordered pair of nodes is saved once): graph.txt 
+# Directed graph: graph.txt 
 # Edge list format
 # Nodes: 10 Edges: 10
 # FromNodeId	ToNodeId
