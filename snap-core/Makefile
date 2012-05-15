@@ -4,9 +4,16 @@
 
 GLIB = "../glib-core"
 
-## Linux (uncomment if using linux)
-XXFLAGS += -std=c++98 -Wall
-LDFLAGS += -lrt
+UNAME := $(shell uname)
+
+ifeq ($(UNAME), Linux)
+  # Linux flags
+  CXXFLAGS += -std=c++98 -Wall
+  LDFLAGS += -lrt
+else ifeq ($(UNAME), Darwin)
+  # OS X flags
+  CXXFLAGS += -std=c++98 -Wall
+endif
 
 ## CygWin (uncomment if using cygwin)
 #CXXFLAGS += -Wall
