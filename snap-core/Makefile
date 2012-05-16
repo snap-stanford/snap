@@ -7,7 +7,7 @@ include ../Makefile.config
 all: testSnap
 
 testSnap: testSnap.cpp Snap.o 
-	$(CC) -o testSnap testSnap.cpp Snap.o $(LDFLAGS) $(LIBS)
+	$(CC) -o testSnap testSnap.cpp Snap.o -I$(CGLIB) $(LDFLAGS) $(LIBS)
 
 Snap.o:
 	$(CC) -c $(CXXFLAGS) Snap.cpp -I$(CGLIB)
