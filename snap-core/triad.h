@@ -147,8 +147,10 @@ void GetTriads(const PGraph& Graph, TIntTrV& NIdCOTriadV, int SampleNodes) {
   const bool IsDir = Graph->HasFlag(gfDirected);
   TIntSet NbhH;
   TIntV NIdV;
+  TRnd Rnd(0);
+
   Graph->GetNIdV(NIdV);
-  NIdV.Shuffle(TInt::Rnd);
+  NIdV.Shuffle(Rnd);
   if (SampleNodes == -1) {
     SampleNodes = Graph->GetNodes(); }
   NIdCOTriadV.Clr(false);
