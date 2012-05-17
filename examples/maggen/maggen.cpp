@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "../../snap/mag.h"
+#include "mag.h"
 
 int main(int argc, char* argv[]) {
   Env = TEnv(argc, argv, TNotify::StdNotify);

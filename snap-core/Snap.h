@@ -3,9 +3,9 @@
 
 /////////////////////////////////////////////////
 // SNAP library
-#include "../glib-core/base.h"
-#include "../glib-core/gnuplot.h"
-#include "../glib-core/linalg.h"
+#include "base.h"
+#include "gnuplot.h"
+#include "linalg.h"
 
 #include "gbase.h"
 #include "util.h"

@@ -2,23 +2,16 @@
 # Small makefile for testing with non-Microsoft compilers
 #
 
-## Linux (uncomment if using linux)
-#XXFLAGS += -std=c++98 -Wall
-#LDFLAGS += -lrt
-
-## CygWin (uncomment if using cygwin)
-CXXFLAGS += -Wall
-LDFLAGS += 
-
-CC = g++
+include ../Makefile.config
 
 all: testSnap
 
 testSnap: testSnap.cpp Snap.o 
-	$(CC) -o testSnap testSnap.cpp Snap.o -I../glib-core $(LDFLAGS) 
+	$(CC) -o testSnap testSnap.cpp Snap.o -I$(CGLIB) $(LDFLAGS) $(LIBS)
 
 Snap.o:
-	$(CC) -c $(CXXFLAGS) Snap.cpp -I../glib-core
+	$(CC) -c $(CXXFLAGS) Snap.cpp -I$(CGLIB)
 
 clean:
 	rm -f *.o testSnap testSnap.exe *.plt *.tab *.png
+

@@ -1,6 +1,6 @@
 #include "stdafx.h"
-#include "../../snap/subgraphenum.h"
-#include "../../snap/graphcounter.h"
+#include "subgraphenum.h"
+#include "graphcounter.h"
 
 int main(int argc, char* argv[]) {
   Env = TEnv(argc, argv, TNotify::StdNotify);

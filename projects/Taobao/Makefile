@@ -3,7 +3,7 @@
 #
 
 ## Linux (uncomment if using linux)
-XXFLAGS += -std=c++98 -Wall
+CXXFLAGS += -std=c++98 -Wall
 LDFLAGS += -lrt
 
 ## CygWin (uncomment if using cygwin)

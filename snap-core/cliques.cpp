@@ -226,7 +226,9 @@ void TCliqueOverlap::GetCPMCommunities(const PUNGraph& G, int MinMaxCliqueSize, 
   TExeTm ExeTm;
   TVec<TIntV> MaxCliques;
   TCliqueOverlap::GetMaxCliques(G, MinMaxCliqueSize, MaxCliques);
-  printf("...%d cliques found\n");
+  // op RS 2012/05/15, commented out next line, a parameter is missing,
+  //   creating a warning on OS X
+  // printf("...%d cliques found\n");
   // get clique overlap matrix (graph)
   PUNGraph OverlapGraph = TCliqueOverlap::CalculateOverlapMtx(MaxCliques, MinMaxCliqueSize-1);
   printf("...overlap matrix (%d, %d)\n", G->GetNodes(), G->GetEdges());

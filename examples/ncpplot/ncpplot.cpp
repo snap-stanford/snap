@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "../../snap/ncp.h"
+#include "ncp.h"
 
 int main(int argc, char* argv[]) {
   Env = TEnv(argc, argv, TNotify::StdNotify);
