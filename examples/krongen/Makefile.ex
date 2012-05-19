@@ -3,6 +3,6 @@
 
 ## Main application file
 MAIN = krongen
-DEPH = DEPH = $(EXSNAP)/kronecker.h
+DEPH = $(EXSNAP)/kronecker.h
 DEPCPP = $(EXSNAP)/kronecker.cpp
 
