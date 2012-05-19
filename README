@@ -9,9 +9,9 @@ nodes, and 2 billion edges.
 
 /////////////////////////////////////////////////////////////////////////////
 Directory structure:
-  snap: 
-  	the SNAP graph library
-  glib: 
+  snap-core: 
+  	the SNAP graph library (more info below)
+  glib-core: 
   	contains the library that provides basic data structures (vectors,
 	strings, hash tables), infrastructure (serialization, xml and html
 	parsing), interface to GnuPlot and linear algebra (SVD).
@@ -20,7 +20,7 @@ Directory structure:
 	is a corresponding .txt readme file for application description.
 
 Code compiles under Windows (Microsoft Visual Studio, CygWin with gcc) and
-Linux and Mac (gcc). User the SnapExamples.vcproj or the provided Makefile.
+Linux and Mac (gcc). Use the SnapExamples.vcproj or the provided Makefile.
 Depending on your platform you may need to change Makefile a bit (see the
 SnapSamples\Makefile).
 
@@ -37,8 +37,8 @@ Use 'make opt' to compile the optimized (fast) version of the code.
 Example applications: http://snap.stanford.edu/snap/download.html
 
 Execute:
-  make all : compiles all sample applications (debug mode)
-  make opt : compiles all sample applications (release mode, 10x faster code!)
+  make all  : compiles all sample applications (debug mode)
+  make opt  : compiles all sample applications (release mode, 10x faster code!)
   make demo : executes all sample application
   
 Examples:

@@ -25,8 +25,8 @@ Use 'make opt' to compile the optimized (fast) version of the code.
 Example applications: http://snap.stanford.edu/snap/download.html
 
 Execute:
-  make all : compiles all sample applications (debug mode)
-  make opt : compiles all sample applications (release mode, 10x faster code!)
+  make all  : compiles all sample applications (debug mode)
+  make opt  : compiles all sample applications (release mode, 10x faster code!)
   make demo : executes all sample application
   
 Examples:
