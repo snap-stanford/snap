@@ -1,5 +1,4 @@
 #include "stdafx.h"
-#include "cliques.h"
 
 int main(int argc, char* argv[]) {
   Env = TEnv(argc, argv, TNotify::StdNotify);

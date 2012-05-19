@@ -25,8 +25,8 @@ PUNGraph TAGM::GenAGM(TVec<TIntV>& CmtyVV, const double& DensityCoef, const doub
 }
 
 void TAGM::RndConnectInsideCommunity(PUNGraph& Graph, const TIntV& CmtyV, const double& Prob, TRnd& Rnd){
-	int CNodes = CmtyV.Len();
-	int CEdges = Rnd.GetBinomialDev(Prob,CNodes*(CNodes-1)/2);
+	const int CNodes = CmtyV.Len();
+	const int CEdges = (int) TMath::Round(Rnd.GetBinomialDev(Prob,CNodes*(CNodes-1)/2));
 	THashSet<TIntPr> NewEdgeSet(CEdges);
 	for (int edge = 0; edge < CEdges; ) {
 		int SrcNId = CmtyV[Rnd.GetUniDevInt(CNodes)];

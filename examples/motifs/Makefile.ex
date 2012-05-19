@@ -3,6 +3,6 @@
 
 ## Main application file
 MAIN = motifs
-DEPH = 
+DEPH = $(EXSNAP)/subgraphenum.h $(EXSNAP)/graphcounter.h
 DEPCPP = $(EXSNAP)/subgraphenum.cpp $(EXSNAP)/graphcounter.cpp
 

@@ -1,5 +1,4 @@
 // agmgen.cpp : Defines the entry point for the console application.
-//
 
 #include "stdafx.h"
 #include "agm.h"
@@ -11,7 +10,7 @@ int main(int argc, char* argv[]) {
 	Try
 	const TStr InFNm = Env.GetIfArgPrefixStr("-i:", "DEMO", "Community affiliation data");
 	const TStr OutFPrx = Env.GetIfArgPrefixStr("-o:", "agm", "out file name prefix");
-	const int RndSeed = Env.GetIfArgPrefixFlt("-rs:",10,"Rnd Seed");
+	const int RndSeed = Env.GetIfArgPrefixInt("-rs:",10,"Rnd Seed");
 	const double DensityCoef= Env.GetIfArgPrefixFlt("-a:",0.6,"Power-law Coefficient a of density (density ~ N^(-a)");
 	const double ScaleCoef= Env.GetIfArgPrefixFlt("-c:",1.3,"Scaling Coefficient c of density (density ~ c");
 
