@@ -9,7 +9,7 @@ all: $(MAIN)
 
 # COMPILE
 $(MAIN): $(MAIN).cpp $(DEPH) $(DEPCPP) $(EXSNAP)/Snap.o 
-	$(CC) -o $(MAIN) $(MAIN).cpp $(DEPH) $(DEPCPP) $(EXSNAP)/Snap.o -I$(EXGLIB) -I$(EXSNAP) $(LDFLAGS) $(LIBS)
+	$(CC) -o $(MAIN) $(MAIN).cpp $(DEPCPP) $(EXSNAP)/Snap.o -I$(EXGLIB) -I$(EXSNAP) $(LDFLAGS) $(LIBS)
 
 $(EXSNAP)/Snap.o: 
 	make -C $(EXSNAP)
