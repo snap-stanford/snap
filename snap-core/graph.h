@@ -98,7 +98,7 @@ public:
   static PUNGraph New(const int& Nodes, const int& Edges) { return new TUNGraph(Nodes, Edges); }
   static PUNGraph Load(TSIn& SIn) { return PUNGraph(new TUNGraph(SIn)); }
   bool HasFlag(const TGraphFlag& Flag) const;
-  TUNGraph& operator = (const TUNGraph& Graph) { 
+  TUNGraph& operator = (const TUNGraph& Graph) {
     if (this!=&Graph) { MxNId=Graph.MxNId;  NodeH=Graph.NodeH; }  return *this; }
   // nodes
   int GetNodes() const { return NodeH.Len(); }
@@ -122,7 +122,7 @@ public:
   TEdgeI EndEI() const { return TEdgeI(EndNI(), EndNI()); }
   TEdgeI GetEI(const int& EId) const; // not supported
   TEdgeI GetEI(const int& SrcNId, const int& DstNId) const;
-  
+
   int GetRndNId(TRnd& Rnd=TInt::Rnd) { return NodeH.GetKey(NodeH.GetRndKeyId(Rnd, 0.8)); }
   TNodeI GetRndNI(TRnd& Rnd=TInt::Rnd) { return GetNI(GetRndNId(Rnd)); }
   void GetNIdV(TIntV& NIdV) const;
@@ -231,7 +231,7 @@ public:
   static PNGraph New(const int& Nodes, const int& Edges) { return new TNGraph(Nodes, Edges); }
   static PNGraph Load(TSIn& SIn) { return PNGraph(new TNGraph(SIn)); }
   bool HasFlag(const TGraphFlag& Flag) const;
-  TNGraph& operator = (const TNGraph& Graph) { 
+  TNGraph& operator = (const TNGraph& Graph) {
     if (this!=&Graph) { MxNId=Graph.MxNId;  NodeH=Graph.NodeH; }  return *this; }
   // nodes
   int GetNodes() const { return NodeH.Len(); }
@@ -250,13 +250,13 @@ public:
   int GetEdges() const;
   int AddEdge(const int& SrcNId, const int& DstNId);
   int AddEdge(const TEdgeI& EdgeI) { return AddEdge(EdgeI.GetSrcNId(), EdgeI.GetDstNId()); }
-  void DelEdge(const int& SrcNId, const int& DstNId, const bool& Dir = true);
-  bool IsEdge(const int& SrcNId, const int& DstNId, const bool& Dir = true) const;
+  void DelEdge(const int& SrcNId, const int& DstNId, const bool& IsDir = true);
+  bool IsEdge(const int& SrcNId, const int& DstNId, const bool& IsDir = true) const;
   TEdgeI BegEI() const { TNodeI NI=BegNI();  while(NI<EndNI() && NI.GetOutDeg()==0) NI++;  return TEdgeI(NI, EndNI()); }
   TEdgeI EndEI() const { return TEdgeI(EndNI(), EndNI()); }
   TEdgeI GetEI(const int& EId) const; // not supported
   TEdgeI GetEI(const int& SrcNId, const int& DstNId) const;
-  
+
   int GetRndNId(TRnd& Rnd=TInt::Rnd) { return NodeH.GetKey(NodeH.GetRndKeyId(Rnd, 0.8)); }
   TNodeI GetRndNI(TRnd& Rnd=TInt::Rnd) { return GetNI(GetRndNId(Rnd)); }
   void GetNIdV(TIntV& NIdV) const;
@@ -395,7 +395,7 @@ public:
   static PNEGraph New(const int& Nodes, const int& Edges) { return PNEGraph(new TNEGraph(Nodes, Edges)); }
   static PNEGraph Load(TSIn& SIn) { return PNEGraph(new TNEGraph(SIn)); }
   bool HasFlag(const TGraphFlag& Flag) const;
-  TNEGraph& operator = (const TNEGraph& Graph) { if (this!=&Graph) { 
+  TNEGraph& operator = (const TNEGraph& Graph) { if (this!=&Graph) {
     MxNId=Graph.MxNId; MxEId=Graph.MxEId; NodeH=Graph.NodeH; EdgeH=Graph.EdgeH; }  return *this; }
   // nodes
   int GetNodes() const { return NodeH.Len(); }
@@ -412,16 +412,16 @@ public:
   int AddEdge(const int& SrcNId, const int& DstNId, int EId  = -1);
   int AddEdge(const TEdgeI& EdgeI) { return AddEdge(EdgeI.GetSrcNId(), EdgeI.GetDstNId(), EdgeI.GetId()); }
   void DelEdge(const int& EId);
-  void DelEdge(const int& SrcNId, const int& DstNId, const bool& Dir = true); // deletes all edges between the two nodes
+  void DelEdge(const int& SrcNId, const int& DstNId, const bool& IsDir = true); // deletes all edges between the two nodes
   bool IsEdge(const int& EId) const { return EdgeH.IsKey(EId); }
-  bool IsEdge(const int& SrcNId, const int& DstNId, const bool& Dir = true) const { int EId;  return IsEdge(SrcNId, DstNId, EId, Dir); }
-  bool IsEdge(const int& SrcNId, const int& DstNId, int& EId, const bool& Dir = true) const;
+  bool IsEdge(const int& SrcNId, const int& DstNId, const bool& IsDir = true) const { int EId;  return IsEdge(SrcNId, DstNId, EId, IsDir); }
+  bool IsEdge(const int& SrcNId, const int& DstNId, int& EId, const bool& IsDir = true) const;
   int GetEId(const int& SrcNId, const int& DstNId) const { int EId; return IsEdge(SrcNId, DstNId, EId)?EId:-1; }
   TEdgeI BegEI() const { return TEdgeI(EdgeH.BegI(), this); }
   TEdgeI EndEI() const { return TEdgeI(EdgeH.EndI(), this); }
   TEdgeI GetEI(const int& EId) const { return TEdgeI(EdgeH.GetI(EId), this); }
   TEdgeI GetEI(const int& SrcNId, const int& DstNId) const { return GetEI(GetEId(SrcNId, DstNId)); }
-  
+
   int GetRndNId(TRnd& Rnd=TInt::Rnd) { return NodeH.GetKey(NodeH.GetRndKeyId(Rnd, 0.8)); }
   TNodeI GetRndNI(TRnd& Rnd=TInt::Rnd) { return GetNI(GetRndNId(Rnd)); }
   int GetRndEId(TRnd& Rnd=TInt::Rnd) { return EdgeH.GetKey(EdgeH.GetRndKeyId(Rnd, 0.8)); }

@@ -170,8 +170,8 @@ public:
 };
 
 /////////////////////////////////////////////////
-// Union Find (Disjoint-set data structure)
-// http://en.wikipedia.org/wiki/Disjoint-set_data_structure)
+/// Union Find (Disjoint-set data structure)
+/// http://en.wikipedia.org/wiki/Disjoint-set_data_structure)
 class TUnionFind {
 private:
   THash<TInt, TIntPr> KIdSetH; // key id to (parent, rank)

@@ -41,8 +41,7 @@ public:
   static TChA GetWebsiteNm(const TChA& UrlChA); // get website (GetDomNm2 or blog url)
   static bool GetNormalizedUrl(const TChA& UrlIn, const TChA& BaseUrl, TChA& UrlOut);
   static bool StripEnd(const TChA& Str, const TChA& SearchStr, TChA& NewStr);
-  //int GetNthOccurence(const TChA& Url, const int& Count, const char Ch = '/');
-
+  
   static TChA GetShorStr(const TChA& LongStr, const int MaxLen=50);
   static TChA GetCleanStr(const TChA& ChA);
   static TChA GetCleanWrdStr(const TChA& ChA);

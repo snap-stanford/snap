@@ -56,5 +56,3 @@ void TUnionFind::Dump() {
   }
   printf("\n");
 }
-
-

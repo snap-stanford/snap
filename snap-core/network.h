@@ -140,8 +140,8 @@ public:
   int GetEdges() const;
   int AddEdge(const int& SrcNId, const int& DstNId);
   int AddEdge(const TEdgeI& EdgeI) { return AddEdge(EdgeI.GetSrcNId(), EdgeI.GetDstNId()); }
-  void DelEdge(const int& SrcNId, const int& DstNId, const bool& Dir = true);
-  bool IsEdge(const int& SrcNId, const int& DstNId, const bool& Dir = true) const;
+  void DelEdge(const int& SrcNId, const int& DstNId, const bool& IsDir = true);
+  bool IsEdge(const int& SrcNId, const int& DstNId, const bool& IsDir = true) const;
   TEdgeI BegEI() const { TNodeI NI=BegNI();  while(NI<EndNI() && NI.GetOutDeg()==0) NI++;  return TEdgeI(NI, EndNI()); }
   TEdgeI EndEI() const { return TEdgeI(EndNI(), EndNI()); }
   TEdgeI GetEI(const int& EId) const; // not supported
@@ -232,20 +232,20 @@ int TNodeNet<TNodeData>::AddEdge(const int& SrcNId, const int& DstNId) {
 }
 
 template <class TNodeData>
-void TNodeNet<TNodeData>::DelEdge(const int& SrcNId, const int& DstNId, const bool& Dir) {
+void TNodeNet<TNodeData>::DelEdge(const int& SrcNId, const int& DstNId, const bool& IsDir) {
   IAssertR(IsNode(SrcNId) && IsNode(DstNId), TStr::Fmt("%d or %d not a node.", SrcNId, DstNId).CStr());
   GetNode(SrcNId).OutNIdV.DelIfIn(DstNId);
   GetNode(DstNId).InNIdV.DelIfIn(SrcNId);
-  if (! Dir) {
+  if (! IsDir) {
     GetNode(DstNId).OutNIdV.DelIfIn(SrcNId);
     GetNode(SrcNId).InNIdV.DelIfIn(DstNId);
   }
 }
 
 template <class TNodeData>
-bool TNodeNet<TNodeData>::IsEdge(const int& SrcNId, const int& DstNId, const bool& Dir) const {
+bool TNodeNet<TNodeData>::IsEdge(const int& SrcNId, const int& DstNId, const bool& IsDir) const {
   if (! IsNode(SrcNId) || ! IsNode(DstNId)) { return false; }
-  if (Dir) { return GetNode(SrcNId).IsOutNId(DstNId); }
+  if (IsDir) { return GetNode(SrcNId).IsOutNId(DstNId); }
   else { return GetNode(SrcNId).IsOutNId(DstNId) || GetNode(DstNId).IsOutNId(SrcNId); }
 }
 
@@ -482,8 +482,8 @@ public:
   int AddEdge(const int& SrcNId, const int& DstNId);
   int AddEdge(const int& SrcNId, const int& DstNId, const TEdgeData& EdgeData);
   int AddEdge(const TEdgeI& EdgeI) { return AddEdge(EdgeI.GetSrcNId(), EdgeI.GetDstNId(), EdgeI()); }
-  void DelEdge(const int& SrcNId, const int& DstNId, const bool& Dir = true);
-  bool IsEdge(const int& SrcNId, const int& DstNId, const bool& Dir = true) const;
+  void DelEdge(const int& SrcNId, const int& DstNId, const bool& IsDir = true);
+  bool IsEdge(const int& SrcNId, const int& DstNId, const bool& IsDir = true) const;
   TEdgeI BegEI() const { TNodeI NI=BegNI();  while(NI<EndNI() && NI.GetOutDeg()==0) NI++; return TEdgeI(NI, EndNI()); }
   TEdgeI EndEI() const { return TEdgeI(EndNI(), EndNI()); }
   TEdgeI GetEI(const int& EId) const; // not supported
@@ -602,13 +602,13 @@ int TNodeEDatNet<TNodeData, TEdgeData>::AddEdge(const int& SrcNId, const int& Ds
 }
 
 template <class TNodeData, class TEdgeData>
-void TNodeEDatNet<TNodeData, TEdgeData>::DelEdge(const int& SrcNId, const int& DstNId, const bool& Dir) {
+void TNodeEDatNet<TNodeData, TEdgeData>::DelEdge(const int& SrcNId, const int& DstNId, const bool& IsDir) {
   IAssertR(IsNode(SrcNId) && IsNode(DstNId), TStr::Fmt("%d or %d not a node.", SrcNId, DstNId).CStr());
   int pos = GetNIdPos(GetNode(SrcNId).OutNIdV, DstNId);
   if (pos != -1) { GetNode(SrcNId).OutNIdV.Del(pos); }
   pos = GetNode(DstNId).InNIdV.SearchBin(SrcNId);
   if (pos != -1) { GetNode(DstNId).InNIdV.Del(pos); }
-  if (! Dir) {
+  if (! IsDir) {
     pos = GetNIdPos(GetNode(DstNId).OutNIdV, SrcNId);
     if (pos != -1) { GetNode(DstNId).OutNIdV.Del(pos); }
     pos = GetNode(SrcNId).InNIdV.SearchBin(DstNId);
@@ -617,9 +617,9 @@ void TNodeEDatNet<TNodeData, TEdgeData>::DelEdge(const int& SrcNId, const int& D
 }
 
 template <class TNodeData, class TEdgeData>
-bool TNodeEDatNet<TNodeData, TEdgeData>::IsEdge(const int& SrcNId, const int& DstNId, const bool& Dir) const {
+bool TNodeEDatNet<TNodeData, TEdgeData>::IsEdge(const int& SrcNId, const int& DstNId, const bool& IsDir) const {
   if (! IsNode(SrcNId) || ! IsNode(DstNId)) { return false; }
-  if (Dir) { return GetNode(SrcNId).IsOutNId(DstNId); }
+  if (IsDir) { return GetNode(SrcNId).IsOutNId(DstNId); }
   else { return GetNode(SrcNId).IsOutNId(DstNId) || GetNode(DstNId).IsOutNId(SrcNId); }
 }
 
@@ -920,15 +920,15 @@ public:
 
   // edges
   int GetEdges() const { return EdgeH.Len(); }
-  int GetUniqEdges(const bool& Dir=true) const;
+  int GetUniqEdges(const bool& IsDir=true) const;
   int AddEdge(const int& SrcNId, const int& DstNId, int EId = -1);
   int AddEdge(const int& SrcNId, const int& DstNId, int EId, const TEdgeData& EdgeDat);
   int AddEdge(const TEdgeI& EdgeI) { return AddEdge(EdgeI.GetSrcNId(), EdgeI.GetDstNId(), EdgeI.GetId(), EdgeI.GetDat()); }
   void DelEdge(const int& EId);
-  void DelEdge(const int& SrcNId, const int& DstNId, const bool& Dir = true);
+  void DelEdge(const int& SrcNId, const int& DstNId, const bool& IsDir = true);
   bool IsEdge(const int& EId) const { return EdgeH.IsKey(EId); }
-  bool IsEdge(const int& SrcNId, const int& DstNId, const bool& Dir = true) const { int EId;  return IsEdge(SrcNId, DstNId, EId, Dir); }
-  bool IsEdge(const int& SrcNId, const int& DstNId, int& EId, const bool& Dir = true) const;
+  bool IsEdge(const int& SrcNId, const int& DstNId, const bool& IsDir = true) const { int EId;  return IsEdge(SrcNId, DstNId, EId, IsDir); }
+  bool IsEdge(const int& SrcNId, const int& DstNId, int& EId, const bool& IsDir = true) const;
   int GetEId(const int& SrcNId, const int& DstNId) const { int EId; return IsEdge(SrcNId, DstNId, EId)?EId:-1; }
   TEdgeI BegEI() const { return TEdgeI(EdgeH.BegI(), this); }
   TEdgeI EndEI() const { return TEdgeI(EdgeH.EndI(), this); }
@@ -1034,12 +1034,12 @@ void TNodeEdgeNet<TNodeData, TEdgeData>::DelNode(const int& NId) {
 }
 
 template <class TNodeData, class TEdgeData>
-int TNodeEdgeNet<TNodeData, TEdgeData>::GetUniqEdges(const bool& Dir) const {
+int TNodeEdgeNet<TNodeData, TEdgeData>::GetUniqEdges(const bool& IsDir) const {
   TIntPrSet UniqESet(GetEdges());
   for (TEdgeI EI = BegEI(); EI < EndEI(); EI++) {
     const int Src = EI.GetSrcNId();
     const int Dst = EI.GetDstNId();
-    if (Dir) { UniqESet.AddKey(TIntPr(Src, Dst)); }
+    if (IsDir) { UniqESet.AddKey(TIntPr(Src, Dst)); }
     else { UniqESet.AddKey(TIntPr(TMath::Mn(Src, Dst), TMath::Mx(Src, Dst))); }
   }
   return UniqESet.Len();
@@ -1080,16 +1080,16 @@ void TNodeEdgeNet<TNodeData, TEdgeData>::DelEdge(const int& EId) {
 }
 
 template <class TNodeData, class TEdgeData>
-void TNodeEdgeNet<TNodeData, TEdgeData>::DelEdge(const int& SrcNId, const int& DstNId, const bool& Dir) {
+void TNodeEdgeNet<TNodeData, TEdgeData>::DelEdge(const int& SrcNId, const int& DstNId, const bool& IsDir) {
   int EId;
-  IAssert(IsEdge(SrcNId, DstNId, EId, Dir));
+  IAssert(IsEdge(SrcNId, DstNId, EId, IsDir));
   GetNode(SrcNId).OutEIdV.DelIfIn(EId);
   GetNode(DstNId).InEIdV.DelIfIn(EId);
   EdgeH.DelKey(EId);
 }
 
 template <class TNodeData, class TEdgeData>
-bool TNodeEdgeNet<TNodeData, TEdgeData>::IsEdge(const int& SrcNId, const int& DstNId, int& EId, const bool& Dir) const {
+bool TNodeEdgeNet<TNodeData, TEdgeData>::IsEdge(const int& SrcNId, const int& DstNId, int& EId, const bool& IsDir) const {
   if (! IsNode(SrcNId)) { return false; }
   if (! IsNode(DstNId)) { return false; }
   const TNode& SrcNode = GetNode(SrcNId);
@@ -1098,7 +1098,7 @@ bool TNodeEdgeNet<TNodeData, TEdgeData>::IsEdge(const int& SrcNId, const int& Ds
     if (DstNId == Edge.GetDstNId()) {
       EId = Edge.GetId();  return true; }
   }
-  if (! Dir) {
+  if (! IsDir) {
     for (int edge = 0; edge < SrcNode.GetInDeg(); edge++) {
     const TEdge& Edge = GetEdge(SrcNode.GetInEId(edge));
     if (DstNId == Edge.GetSrcNId()) {

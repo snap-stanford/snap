@@ -30,10 +30,5 @@
 
 #include "gviz.cpp"
 #include "ghash.cpp"
-//#include "casc.cpp"
-//#include "gproj.cpp"
-//#include "sampl.cpp"
-//#include "layout.cpp"
-//#include "plots.cpp"
 #include "statplot.cpp"
 #include "gio.cpp"

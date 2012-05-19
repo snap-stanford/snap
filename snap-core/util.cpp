@@ -178,7 +178,7 @@ bool TStrUtil::GetXmlTagNmVal2(TXmlLx& XmlLx, TChA& TagNm, TChA& TagVal, const b
   //  EAssertR(XmlLx.GetSym() == xsyETag, TagNm);
   //} else {
   //  EAssertR(NextSym == xsyETag, TagNm); // empty tag
-    //printf("  token: %s empty! %s\n", XmlLx.TagNm.CStr(), XmlLx.GetFPosStr().CStr());
+  //  printf("  token: %s empty! %s\n", XmlLx.TagNm.CStr(), XmlLx.GetFPosStr().CStr());
   //}
 }
 
@@ -221,6 +221,7 @@ TChA TStrUtil::GetWebsiteNm(const TChA& PostUrlStr) {
   if (DomNm == "blog.myspace.com") {
     return PostUrlStr.GetSubStr(7, GetNthOccurence(PostUrlStr, 2, '&')-1);
   }
+  // For these websites take the domain name and 1st directory: http://blogs.msdn.com/squasta
   // http://blogs.msdn.com/squasta/archive/2008/08/11/annonces-microsoft-au-black-hat-2008.aspx
   // http://ameblo.jp/baptism/entry-10126216277.html
   // http://xfruits.com/fcuignet/?id=8793&clic=249862689&url=http%3a%2f%2fnews.google.com%2fnews%2furl%3fsa%3dt%26ct%3dfr%2f9-0%26fd%3dr%26url%3dhttp%3a%2f%2fwww.investir-en-tunisie.net%2fnews%2farticle.php%253fid%253d5026%26cid%3d1241943065%26ei%3doy6gslh9jzycxahkjfxucw%26usg%3dafqjcnen_bczqldodsyga6zps2axphxl3q
@@ -262,6 +263,7 @@ TChA TStrUtil::GetWebsiteNm(const TChA& PostUrlStr) {
     } else {
       return PostUrlStr.GetSubStr(7, GetNthOccurence(PostUrlStr, 4)-1); }
   }
+  // For these websites take the domain name and 2 directories: http://bbc.co.uk/blogs/thereporters/
   // http://bbc.co.uk/blogs/thereporters/markdevenport/2008/08/back_to_porridge.html
   // http://nydailynews.com/blogs/subwaysquawkers/2008/08/anaheim-is-no-magic-kingdom-fo.html
   // http://newsbusters.org/blogs/p-j-gladnick/2008/08/11/sf-chronicle-writer-predicts-global-warming-shellfish-invas
@@ -300,7 +302,7 @@ TChA TStrUtil::GetWebsiteNm(const TChA& PostUrlStr) {
   return DomNm;
 }
 
-// remove ending /, /index.html, etc. and strip starting www.
+/// Quick URL nomalization: Remove ending /, /index.html, etc. and strip starting www.
 bool TStrUtil::GetNormalizedUrl(const TChA& UrlIn, const TChA& BaseUrl, TChA& UrlOut) {
   UrlOut = UrlIn;
   if (StripEnd(UrlIn, "/", UrlOut)) {}
@@ -558,7 +560,7 @@ void TStrUtil::GetAddWIdV(TStrHash<TInt>& StrH, const char *CStr, TIntV& WIdV) {
   }
 }
 
-// parse:
+// Parse time in various formats:
 //   10:16, 16 Sep 2004
 //   10:20, 2004 Sep 16
 //   2005-07-07 20:30:35
@@ -615,7 +617,7 @@ bool TStrUtil::GetTmFromStr(const char* TmStr, TSecTm& Tm) {
   return true;
 }
 
-// <last_name>_<first name innitial>
+// Standardize first and lastnames into <last_name>_<first name innitial>
 TStr TStrUtil::GetStdName(TStr AuthorName) {
   TStr StdName;
   AuthorName.ToLc();

@@ -134,8 +134,8 @@ PGraph GenTree(const int& Fanout, const int& Levels, const bool& IsDir, const bo
 }
 
 /// Ravasz & Barabasi: Hierarchical organization in complex networks
-///  corners of the graph are recursively expanded with miniature
-///  copies of the base graph (below)
+/// corners of the graph are recursively expanded with miniature
+/// copies of the base graph (below)
 ///   o---o
 ///   |\ /|
 ///   | o |

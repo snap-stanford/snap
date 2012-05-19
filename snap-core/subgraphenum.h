@@ -1,5 +1,5 @@
-#ifndef Snap_SubGraphEnum
-#define Snap_SubGraphEnum
+#ifndef Snap_SubGraphEnum_h
+#define Snap_SubGraphEnum_h
 
 #include "Snap.h"
 

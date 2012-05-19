@@ -244,7 +244,7 @@ int TNGraph::AddEdge(const int& SrcNId, const int& DstNId) {
   return -1; // edge id
 }
 
-void TNGraph::DelEdge(const int& SrcNId, const int& DstNId, const bool& Dir) {
+void TNGraph::DelEdge(const int& SrcNId, const int& DstNId, const bool& IsDir) {
   IAssertR(IsNode(SrcNId) && IsNode(DstNId), TStr::Fmt("%d or %d not a node.", SrcNId, DstNId).CStr());
   { TNode& N = GetNode(SrcNId);
   int n = N.OutNIdV.SearchBin(DstNId);
@@ -252,7 +252,7 @@ void TNGraph::DelEdge(const int& SrcNId, const int& DstNId, const bool& Dir) {
   { TNode& N = GetNode(DstNId);
   int n = N.InNIdV.SearchBin(SrcNId);
   if (n!= -1) { N.InNIdV.Del(n); } }
-  if (! Dir) {
+  if (! IsDir) {
     { TNode& N = GetNode(SrcNId);
     int n = N.InNIdV.SearchBin(DstNId);
     if (n!= -1) { N.InNIdV.Del(n); } }
@@ -262,9 +262,9 @@ void TNGraph::DelEdge(const int& SrcNId, const int& DstNId, const bool& Dir) {
   }
 }
 
-bool TNGraph::IsEdge(const int& SrcNId, const int& DstNId, const bool& Dir) const {
+bool TNGraph::IsEdge(const int& SrcNId, const int& DstNId, const bool& IsDir) const {
   if (! IsNode(SrcNId) || ! IsNode(DstNId)) { return false; }
-  if (Dir) { return GetNode(SrcNId).IsOutNId(DstNId); }
+  if (IsDir) { return GetNode(SrcNId).IsOutNId(DstNId); }
   else { return GetNode(SrcNId).IsOutNId(DstNId) || GetNode(DstNId).IsOutNId(SrcNId); }
 }
 
@@ -435,24 +435,24 @@ void TNEGraph::DelEdge(const int& EId) {
 }
 
 // delete all edges between the two nodes
-void TNEGraph::DelEdge(const int& SrcNId, const int& DstNId, const bool& Dir) {
+void TNEGraph::DelEdge(const int& SrcNId, const int& DstNId, const bool& IsDir) {
   int EId;
-  IAssert(IsEdge(SrcNId, DstNId, EId, Dir)); // there is at least one edge
-  while (IsEdge(SrcNId, DstNId, EId, Dir)) {
+  IAssert(IsEdge(SrcNId, DstNId, EId, IsDir)); // there is at least one edge
+  while (IsEdge(SrcNId, DstNId, EId, IsDir)) {
     GetNode(SrcNId).OutEIdV.DelIfIn(EId);
     GetNode(DstNId).InEIdV.DelIfIn(EId);
   }
   EdgeH.DelKey(EId);
 }
 
-bool TNEGraph::IsEdge(const int& SrcNId, const int& DstNId, int& EId, const bool& Dir) const {
+bool TNEGraph::IsEdge(const int& SrcNId, const int& DstNId, int& EId, const bool& IsDir) const {
   const TNode& SrcNode = GetNode(SrcNId);
   for (int edge = 0; edge < SrcNode.GetOutDeg(); edge++) {
     const TEdge& Edge = GetEdge(SrcNode.GetOutEId(edge));
     if (DstNId == Edge.GetDstNId()) {
       EId = Edge.GetId();  return true; }
   }
-  if (! Dir) {
+  if (! IsDir) {
     for (int edge = 0; edge < SrcNode.GetInDeg(); edge++) {
     const TEdge& Edge = GetEdge(SrcNode.GetInEId(edge));
     if (DstNId == Edge.GetSrcNId()) {

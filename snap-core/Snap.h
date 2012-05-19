@@ -32,15 +32,9 @@
 // graph generators
 #include "ggen.h"            // graph generators (preferential attachment, small-world, ...)
 #include "ff.h"              // forest fire graph generator
-//#include "cga.h"
 
 #include "gviz.h"
 #include "ghash.h"
-//#include "casc.h"
-//#include "gproj.h"
-//#include "sampl.h"
-//#include "layout.h"
-//#include "plots.h"
 #include "statplot.h"
 #include "gio.h"
 

@@ -9,8 +9,8 @@ template <class PGraph> int GetNodesAtHops(const PGraph& Graph, const int& Start
 
 /////////////////////////////////////////////////
 // Paths
-template <class PGraph> int GetShortPath(const PGraph& Graph, const int& SrcNId, TIntH& NIdToDistH, const bool& IsDir=false, const int& MaxDist=TInt::Mx);
 template <class PGraph> int GetShortPath(const PGraph& Graph, const int& SrcNId, const int& DstNId, const bool& IsDir=false);
+template <class PGraph> int GetShortPath(const PGraph& Graph, const int& SrcNId, TIntH& NIdToDistH, const bool& IsDir=false, const int& MaxDist=TInt::Mx);
 
 /////////////////////////////////////////////////
 // Diameter
@@ -20,7 +20,6 @@ template <class PGraph> double GetBfsEffDiam(const PGraph& Graph, const int& NTe
 template <class PGraph> double GetBfsEffDiam(const PGraph& Graph, const int& NTestNodes, const bool& IsDir, double& EffDiam, int& FullDiam, double& AvgDiam);
 template <class PGraph> double GetBfsEffDiam(const PGraph& Graph, const int& NTestNodes, const TIntV& SubGraphNIdV, const bool& IsDir, double& EffDiam, int& FullDiam);
 
-//template <class PGraph> int GetShortPathDist(const PGraph& Graph, const int& SrcNId, const int& DstNId, const bool& IsDir=false);
 //template <class PGraph> int GetRangeDist(const PGraph& Graph, const int& SrcNId, const int& DstNId, const bool& IsDir=false);
 //template <class PGraph> int GetShortPath(const PGraph& Graph, const int& SrcNId, TIntH& NIdToDistH, const bool& IsDir=false, const int& MaxDist=1000);
 //template <class PGraph> int GetShortPath(const PGraph& Graph, const int& SrcNId, const TIntSet& TargetSet, const bool& IsDir, TIntV& PathNIdV);
@@ -223,6 +222,13 @@ int GetShortPath(const PGraph& Graph, const int& SrcNId, TIntH& NIdToDistH, cons
   NIdToDistH.Clr();
   NIdToDistH.Swap(BFS.NIdDistH);
   return NIdToDistH[NIdToDistH.Len()-1];
+}
+
+template <class PGraph> 
+int GetShortPath(const PGraph& Graph, const int& SrcNId, const int& DstNId, const bool& IsDir) {
+  TBreathFS<PGraph> BFS(Graph);
+  BFS.DoBfs(SrcNId, true, ! IsDir, DstNId, TInt::Mx);
+  return BFS.GetHops(SrcNId, DstNId);
 }
 
 template <class PGraph>

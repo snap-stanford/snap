@@ -504,10 +504,10 @@ public:
   TVal PopHeap() { return PopHeap(TLss<TVal>()); }                // remove largest element
   template <class TCmp> void MakeHeap(const TCmp& Cmp) { MakeHeap(0, Len(), Cmp); }
   template <class TCmp> void PushHeap(const TVal& Val, const TCmp& Cmp) { Add(Val); PushHeap(0, Len()-1, 0, Val, Cmp); }
-  template <class TCmp> TVal PopHeap(const TCmp& Cmp) { IAssert(! Empty()); const TVal Top=ValT[0];  
+  template <class TCmp> TVal PopHeap(const TCmp& Cmp) { IAssert(! Empty()); const TVal Top=ValT[0];
     ValT[0]=Last(); DelLast(); if (! Empty()) { AdjustHeap(0, 0, Len(), ValT[0], Cmp); } return Top; }
   // heap helper functions //J:
-  template <class TCmp> 
+  template <class TCmp>
   void PushHeap(const int& First, int HoleIdx, const int& Top, TVal Val, const TCmp& Cmp) {
     int Parent = (HoleIdx-1)/2;
     while (HoleIdx > Top && Cmp(ValT[First+Parent], Val)) {
@@ -515,7 +515,7 @@ public:
       HoleIdx = Parent;  Parent = (HoleIdx-1)/2; }
     ValT[First+HoleIdx] = Val;
   }
-  template <class TCmp> 
+  template <class TCmp>
   void AdjustHeap(const int& First, int HoleIdx, const int& Len, TVal Val, const TCmp& Cmp) {
     const int Top = HoleIdx;
     int Right = 2*HoleIdx+2;
@@ -528,7 +528,7 @@ public:
       HoleIdx = Right-1; }
     PushHeap(First, HoleIdx, Top, Val, Cmp);
   }
-  template <class TCmp> 
+  template <class TCmp>
   void MakeHeap(const int& First, const int& Len, const TCmp& Cmp) {
     if (Len < 2) { return; }
     int Parent = (Len-2)/2;
@@ -677,7 +677,7 @@ public:
 
 template <class TVal>
 void TVec<TVal>::Resize(const int& _MxVals){
-  IAssertR(MxVals!=-1, TStr::Fmt("Can not resize buffer. %s", GetTypeNm(*this).CStr()).CStr());
+  IAssertR(MxVals!=-1, TStr::Fmt("Can not resize buffer. %s. [Program failed to allocate more memory. Solution: Get a bigger machine and a 64-bit compiler.]", GetTypeNm(*this).CStr()).CStr());
   if (_MxVals==-1){
     if (Vals==0){MxVals=16;} else {MxVals*=2;}
   } else {
@@ -686,7 +686,7 @@ void TVec<TVal>::Resize(const int& _MxVals){
   if (ValT==NULL){
     try {ValT=new TVal[MxVals];}
     catch (std::exception Ex){
-      EFailR(TStr::Fmt("TVec::Resize: %s, Vals:%d, MxVals:%d, _MxVals:%d, Type:%s",
+      EFailR(TStr::Fmt("TVec::Resize: %s, Vals:%d, MxVals:%d, _MxVals:%d, Type:%s [Program failed to allocate more memory. Solution: Get a bigger machine and a 64-bit compiler.]",
        Ex.what(), Vals, MxVals, _MxVals, GetTypeNm(*this).CStr()));}
   } else {
     //if (Vals > 1000000) {
@@ -695,7 +695,7 @@ void TVec<TVal>::Resize(const int& _MxVals){
     try {
       NewValT=new TVal[MxVals];}
     catch (std::exception Ex){
-      EFailR(TStr::Fmt("TVec::Resize: %s, Vals:%d, MxVals:%d, _MxVals:%d, Type:%s",
+      EFailR(TStr::Fmt("TVec::Resize: %s, Vals:%d, MxVals:%d, _MxVals:%d, Type:%s [Program failed to allocate more memory. Solution: Get a bigger machine and a 64-bit compiler.]",
        Ex.what(), Vals, MxVals, _MxVals, GetTypeNm(*this).CStr()));}
     Assert(NewValT!=NULL);
     for (int ValN=0; ValN<Vals; ValN++){NewValT[ValN]=ValT[ValN];}
@@ -1472,14 +1472,14 @@ void TVecPool<TVal>::Resize(const ::TSize& _MxVals){
   if (ValBf == NULL) {
     try { ValBf = new TVal [MxVals]; }
     catch (std::exception Ex) {
-      EFailR(TStr::Fmt("TVecPool::Resize: %s, MxVals: %d", Ex.what(), _MxVals)); }
+      EFailR(TStr::Fmt("TVecPool::Resize: %s, MxVals: %d. [Program failed to allocate more memory. Solution: Get a bigger machine and a 64-bit compiler.]", Ex.what(), _MxVals)); }
     IAssert(ValBf != NULL);
     if (EmptyVal != TVal()) { PutAll(EmptyVal); }
   } else {
     printf("*** Resize vector pool: %I64d -> %I64d\n", uint64(Vals), uint64(MxVals));
     TVal* NewValBf = NULL;
     try { NewValBf = new TVal [MxVals]; }
-    catch (std::exception Ex) { EFailR(TStr::Fmt("TVecPool::Resize: %s, MxVals: %d", Ex.what(), _MxVals)); }
+    catch (std::exception Ex) { EFailR(TStr::Fmt("TVecPool::Resize: %s, MxVals: %d. [Program failed to allocate more memory. Solution: Get a bigger machine and a 64-bit compiler.]", Ex.what(), _MxVals)); }
     IAssert(NewValBf != NULL);
     if (FastCopy) {
       memcpy(NewValBf, ValBf, Vals*sizeof(TVal)); }

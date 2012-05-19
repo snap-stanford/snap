@@ -1,5 +1,5 @@
-#ifndef snap_wgtnet
-#define snap_wgtnet
+#ifndef snap_wgtnet_h
+#define snap_wgtnet_h
 
 #include "Snap.h"
 
@@ -47,8 +47,8 @@ template <> struct IsNodeDat<TWgtNet> { enum { Val = 1 }; };
 template <> struct IsEdgeDat<TWgtNet> { enum { Val = 1 }; };
 }
 
-// For bipartite graph with edges A to B 
-// TakeLeft=True: build a graph on A (where two nodes in A are linked 
+// For bipartite graph with edges A to B
+// TakeLeft=True: build a graph on A (where two nodes in A are linked
 // by edge weight of number of common nodes they link to in B)
 template <class PGraph>
 PWgtNet TWgtNet::MakeFromBipart(const PGraph& Graph, const bool& TakeLeft) {
@@ -104,7 +104,7 @@ public:
   int GetRnd2WccSz(const double ProbPick2nd) const;
 
   static void GetAvgSDevV(const THash<TFlt, TMom>& MomH, TFltTrV& ValAvgSDevV);
-  static void PlotPick2VsProb2nd(const PWgtNet& Net, const int& NRuns, const double& StepP, const TStr& OutFNm, 
+  static void PlotPick2VsProb2nd(const PWgtNet& Net, const int& NRuns, const double& StepP, const TStr& OutFNm,
     TStr Desc="", bool PlotTop2=true, bool PlotBtm2=true, bool PlotRnd2=true);
 };
 
