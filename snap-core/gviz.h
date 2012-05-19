@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////
 // GraphViz Layout Engines
-typedef enum { gvlDot, gvlNeato, gvlTwopi } TGVizLayout;
+typedef enum { gvlDot, gvlNeato, gvlTwopi, gvlCirco } TGVizLayout;
 
 /////////////////////////////////////////////////
 // GraphViz
@@ -36,12 +36,12 @@ void SaveTxt(const PGraph& Graph, const TStr& OutFNm, const TStr& Desc, const bo
   }
   // edges
   for (typename PGraph::TObj::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
-    if (NI.GetOutDeg()==0 && NI.GetInDeg()==0 && !NIdColorH.IsKey(NI.GetId())) { 
+    if (NI.GetOutDeg()==0 && NI.GetInDeg()==0 && !NIdColorH.IsKey(NI.GetId())) {
       fprintf(F, "%d;\n", NI.GetId()); }
     else {
       for (int e = 0; e < NI.GetOutDeg(); e++) {
         if (! IsDir && NI.GetId() > NI.GetOutNId(e)) { continue; }
-        fprintf(F, "  %d %s %d;\n", NI.GetId(), IsDir?"->":"--", NI.GetOutNId(e)); 
+        fprintf(F, "  %d %s %d;\n", NI.GetId(), IsDir?"->":"--", NI.GetOutNId(e));
       }
     }
   }
@@ -64,7 +64,7 @@ void SaveTxt(const PGraph& Graph, const TStr& OutFNm, const TStr& Desc, const TI
   // node colors
   //for (int i = 0; i < NodeLabelH.Len(); i++) {
   for (typename PGraph::TObj::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
-    fprintf(F, "  %d [label=\"%s\"];\n", NI.GetId(), NodeLabelH.GetDat(NI.GetId()).CStr()); 
+    fprintf(F, "  %d [label=\"%s\"];\n", NI.GetId(), NodeLabelH.GetDat(NI.GetId()).CStr());
 }
   // edges
   for (typename PGraph::TObj::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {

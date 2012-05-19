@@ -2,7 +2,7 @@
 #include "trawling.h"
 
 /////////////////////////////////////////////////
-// Trawling the web for emerging communities 
+// Trawling the web for emerging communities
 // graph, left points to right
 TTrawling::TTrawling(const PNGraph& Graph, const int& MinSupport) : MinSup(MinSupport) {
   TIntH ItemCntH;
@@ -29,7 +29,7 @@ TTrawling::TTrawling(const PNGraph& Graph, const int& MinSupport) : MinSup(MinSu
       NIdSetH.AddDat(NI.GetId(), RightV);
     }
   }
-  // 
+  //
   for (int n = 0; n < NIdSetH.Len(); n++) {
     const TIntV& Set = NIdSetH[n];
     for (int s = 0; s < Set.Len(); s++) {
@@ -45,18 +45,18 @@ TTrawling::TTrawling(const PUNGraph& Graph, const TIntV& LeftNIdV, const int& Mi
     if (! LeftSet.IsKey(NI.GetId())) { continue; }
     RightV.Clr(false);
     for (int e = 0; e < NI.GetOutDeg(); e++) {
-      if (! LeftSet.IsKey(NI.GetId())) { 
-        RightV.Add(NI.GetOutNId(e)); 
+      if (! LeftSet.IsKey(NI.GetId())) {
+        RightV.Add(NI.GetOutNId(e));
       }
     }
     NIdSetH.AddDat(NI.GetId(), RightV);
   }*/
 }
 
-void Dump(const TIntV& V, TStr Desc="") { 
+void Dump(const TIntV& V, TStr Desc="") {
   printf("%s", Desc.CStr());
   for (int i = 0; i < V.Len(); i++) {
-    printf("  %d", V[i]);
+    printf("  %d", V[i]());
   }
   printf("\n");
 }
@@ -79,15 +79,15 @@ void TTrawling::JoinItems(const TIntV& Item1, const TIntV& Item2, TIntV& JoinIte
   JoinItem.Clr(false);
   const int MaxL = Item1.Len()+1;
   while (i < Item1.Len()) {
-    while (j < Item2.Len() && Item2[j] < Item1[i]) { 
+    while (j < Item2.Len() && Item2[j] < Item1[i]) {
       JoinItem.Add(Item2[j]); j++; }
     JoinItem.Add(Item1[i]);
     if (j < Item2.Len() && Item1[i] == Item2[j]) { j++; }
     i++;
     if (JoinItem.Len() > MaxL) { JoinItem.Clr(false); return; }
   }
-  while (j < Item2.Len()) { 
-    JoinItem.Add(Item2[j]); j++; 
+  while (j < Item2.Len()) {
+    JoinItem.Add(Item2[j]); j++;
   }
   /*if (JoinItem.Len() > 3) {
     Dump(Item1, "\n1:");
@@ -130,10 +130,10 @@ bool TTrawling::IsIn(const TIntV& BigV, const TIntV& SmallV) {
   if (BigV.Len() < SmallV.Len()) { return false; }
   int CmnEls = 0, b=0, s=0;
   while (b < BigV.Len()) {
-    while (s < SmallV.Len() && SmallV[s] < BigV[b]) { 
-      return false; 
+    while (s < SmallV.Len() && SmallV[s] < BigV[b]) {
+      return false;
     }
-    if (SmallV[s] == BigV[b]) { 
+    if (SmallV[s] == BigV[b]) {
       if (++CmnEls == SmallV.Len()) { return true; }
       s++;
     }
@@ -171,7 +171,7 @@ void TTrawling::CountSupport() {
 void TTrawling::ThresholdSupp() {
   CurItemH.Clr(false);
   for (int k=CandItemH.FFirstKeyId(); CandItemH.FNextKeyId(k); ) {
-    if (CandItemH[k] >= MinSup) { 
+    if (CandItemH[k] >= MinSup) {
       CurItemH.AddDat(CandItemH.GetKey(k), CandItemH[k]);
     }
   }
@@ -245,7 +245,7 @@ TIntPrV TTrawling::PlotMinFqVsMaxSet(const TStr& OutFNm) {
     GetNextFqItemSets();
     if (CurItemH.Empty()) { break; }
     SzCntH.Add(TIntPr(ItemSetSz, CurItemH.Len()));
-    TGnuPlot::PlotValV(SzCntH, "itemSet-"+OutFNm, TStr::Fmt("Minimum Suport = %d", MinSup), 
+    TGnuPlot::PlotValV(SzCntH, "itemSet-"+OutFNm, TStr::Fmt("Minimum Suport = %d", MinSup),
       "Itemset size", "Number of itemsets > Minimum Support");
   }
   printf("\n\n");

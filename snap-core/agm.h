@@ -1,8 +1,8 @@
-#ifndef snaplib_agm_h
-#define snaplib_agm_h
-#include "./Snap.h"
+#ifndef snap_agm_h
+#define snap_agm_h
+#include "Snap.h"
 
-class TAGM{
+class TAGM {
 public:
 	static void RndConnectInsideCommunity(PUNGraph& Graph, const TIntV& CmtyV, const double& Prob, TRnd& Rnd);
 	static PUNGraph GenAGM(TVec<TIntV >& CmtyVV, const double& DensityCoef, const double& ScaleCoef, TRnd& Rnd=TInt::Rnd);
@@ -40,17 +40,17 @@ public:
 				if(i<CIDV.Len()-1){NodeComLabel+=",";}
 			}
 			NodeComLabel += ")";
-			fprintf(F, "  %d [style=filled, shape=\"%s\" fillcolor=\"%s\" label=\"%s\"];\n", NI.GetId(), ShapeNm.CStr(),ColorNm.CStr(), NodeComLabel.CStr()); 
+			fprintf(F, "  %d [style=filled, shape=\"%s\" fillcolor=\"%s\" label=\"%s\"];\n", NI.GetId(), ShapeNm.CStr(),ColorNm.CStr(), NodeComLabel.CStr());
 		}
-	
+
 		// edges
 		for (typename PGraph::TObj::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
-			if (NI.GetOutDeg()==0 && NI.GetInDeg()==0  ) { 
+			if (NI.GetOutDeg()==0 && NI.GetInDeg()==0  ) {
 				fprintf(F, "%d;\n", NI.GetId()); }
 			else {
 				for (int e = 0; e < NI.GetOutDeg(); e++) {
 					if (! IsDir && NI.GetId() > NI.GetOutNId(e)) { continue; }
-					fprintf(F, "  %d %s %d;\n", NI.GetId(), IsDir?"->":"--", NI.GetOutNId(e)); 
+					fprintf(F, "  %d %s %d;\n", NI.GetId(), IsDir?"->":"--", NI.GetOutNId(e));
 				}
 			}
 		}

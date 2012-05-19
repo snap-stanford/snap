@@ -86,10 +86,10 @@ bool TUNGraph::IsEdge(const int& SrcNId, const int& DstNId) const {
 }
 
 TUNGraph::TEdgeI TUNGraph::GetEI(const int& SrcNId, const int& DstNId) const {
-  const int minNId = TMath::Mn(SrcNId, DstNId);
-  const int maxNId = TMath::Mx(SrcNId, DstNId);
-  const TNodeI SrcNI = GetNI(minNId);
-  const int NodeN = SrcNI.NodeHI.GetDat().NIdV.SearchBin(maxNId);
+  const int MnNId = TMath::Mn(SrcNId, DstNId);
+  const int MxNId = TMath::Mx(SrcNId, DstNId);
+  const TNodeI SrcNI = GetNI(MnNId);
+  const int NodeN = SrcNI.NodeHI.GetDat().NIdV.SearchBin(MxNId);
   IAssert(NodeN != -1);
   return TEdgeI(SrcNI, EndNI(), NodeN);
 }

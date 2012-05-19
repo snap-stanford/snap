@@ -340,8 +340,8 @@ void TGHash<TDat>::PlotGViz(const TIntV& KeyIdV, const TStr& OutFNmPref, const T
   TExeTm ExeTm;
   printf("Plotting %d graphs\n", KeyIdV.Len());
   for (int i = 0; i < KeyIdV.Len(); i++) {
-    const TStr FNm = TStr::Fmt("%s.%03d.key%d.", OutFNmPref.CStr(), i+1, KeyIdV[i]);
-    const TStr Desc = TStr::Fmt("KeyId:%d", KeyIdV[i]);
+    const TStr FNm = TStr::Fmt("%s.%03d.key%d.", OutFNmPref.CStr(), i+1, KeyIdV[i]());
+    const TStr Desc = TStr::Fmt("KeyId:%d", KeyIdV[i]());
     const TGraphKey& GKey = GetKey(KeyIdV[i]);
     printf("\r  %d  g(%d, %d)    ", i, GKey.GetNodes(), GKey.GetEdges());
     GKey.SaveGViz(FNm+"dot", Desc);
@@ -362,7 +362,7 @@ void TGHash<TDat>::SaveTxt(const TStr& OutFNm, const TStr& Desc, const TStr& Dat
   fprintf(F, "Rank\tKeyId\tNodes\tEdges\t%s\n", DatColNm.CStr());
   for (int i = 0; i < KeyIdV.Len(); i++) {
     const TGraphKey& Key = GetKey(KeyIdV[i]);
-    fprintf(F, "%d\t%d\t%d\t%d\t%s\n", i+1, KeyIdV[i], Key.GetNodes(), Key.GetEdges(),
+    fprintf(F, "%d\t%d\t%d\t%d\t%s\n", i+1, KeyIdV[i](), Key.GetNodes(), Key.GetEdges(),
       GetDatId(KeyIdV[i]).GetStr().CStr());
   }
   fclose(F);
@@ -376,7 +376,7 @@ void TGHash<TDat>::SaveDetailTxt(const TStr& OutFNm, const TStr& Desc, const TSt
   fprintf(F, "%s\n", Desc.CStr());
   fprintf(F, "%d graphs", KeyIdV.Len());
   for (int i = 0; i < KeyIdV.Len(); i++) {
-    fprintf(F, "\n\n[%5d]\tRank: %d\n", KeyIdV[i], i+1);
+    fprintf(F, "\n\n[%5d]\tRank: %d\n", KeyIdV[i](), i+1);
     fprintf(F, "Dat:  %s\n", GetDat(KeyIdV[i]).GetStr().CStr());
     GetDatId(KeyIdV[i]).SaveTxt(F);
   }

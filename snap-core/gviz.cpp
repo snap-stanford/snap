@@ -33,6 +33,7 @@ TStr GetLayoutStr(const TGVizLayout& Layout) {
     case gvlDot : return "dot";
     case gvlNeato : return "neato";
     case gvlTwopi : return "twopi";
+    case gvlCirco: return "circo";
     default: Fail;
   }
   return TStr::GetNullStr();

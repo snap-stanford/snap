@@ -219,7 +219,7 @@ TChA TStrUtil::GetWebsiteNm(const TChA& PostUrlStr) {
   TChA DomNm = TStrUtil::GetDomNm2(PostUrlStr);
   // http://blog.myspace.com/index.cfm?fuseaction=blog.view&friendid=141560&blogid=420009539
   if (DomNm == "blog.myspace.com") {
-    return PostUrlStr.GetSubStr(7, GetNthOccurence(PostUrlStr, 2, '&')-1); 
+    return PostUrlStr.GetSubStr(7, GetNthOccurence(PostUrlStr, 2, '&')-1);
   }
   // http://blogs.msdn.com/squasta/archive/2008/08/11/annonces-microsoft-au-black-hat-2008.aspx
   // http://ameblo.jp/baptism/entry-10126216277.html
@@ -244,20 +244,20 @@ TChA TStrUtil::GetWebsiteNm(const TChA& PostUrlStr) {
   // http://blogs.menomoneefallsnow.com/in_the_race/archive/2008/08/11/sometimes-it-s-about-how-you-play-the-game.asp
   // http://weblogs.baltimoresun.com/entertainment/midnight_sun/blog/2008/08/heidis_bad_break_with_dubai_pa.html
   // http://eonline.com/uberblog/b23076_youtubular_from_rickrolled_barackrolled.html?sid=rss_topstories&utm_source=eo
-  if (DomNm=="blogs.msdn.com" || DomNm=="ameblo.jp" || DomNm=="xfruits.com" || DomNm=="scienceblogs.com" || DomNm=="blogs.sun.com" 
-    || DomNm=="blog.wired.com" || DomNm=="weblogs.asp.net" || DomNm=="blogs.technet.com" || DomNm=="blogs.guardian.co" 
-    || DomNm=="blogs.clarin.com" || DomNm=="blogs.sun.com" || DomNm=="blog.wired.com" || DomNm=="weblogs.asp.net" 
-    || DomNm=="blogs.technet.com" || DomNm=="blogs.guardian.com" || DomNm=="blogs.clarin.com" || DomNm=="blogs.zdnet.com" 
-    || DomNm=="blogs.citypages.com" || DomNm=="voices.washingtonpost.com" || DomNm=="blog.tv2.dk" 
+  if (DomNm=="blogs.msdn.com" || DomNm=="ameblo.jp" || DomNm=="xfruits.com" || DomNm=="scienceblogs.com" || DomNm=="blogs.sun.com"
+    || DomNm=="blog.wired.com" || DomNm=="weblogs.asp.net" || DomNm=="blogs.technet.com" || DomNm=="blogs.guardian.co"
+    || DomNm=="blogs.clarin.com" || DomNm=="blogs.sun.com" || DomNm=="blog.wired.com" || DomNm=="weblogs.asp.net"
+    || DomNm=="blogs.technet.com" || DomNm=="blogs.guardian.com" || DomNm=="blogs.clarin.com" || DomNm=="blogs.zdnet.com"
+    || DomNm=="blogs.citypages.com" || DomNm=="voices.washingtonpost.com" || DomNm=="blog.tv2.dk"
     || DomNm=="blogs.menomoneefallsnow.com" || DomNm=="weblogs.baltimoresun.com" || DomNm=="eonline.com") {
-      return PostUrlStr.GetSubStr(7, GetNthOccurence(PostUrlStr, 4)-1); 
+      return PostUrlStr.GetSubStr(7, GetNthOccurence(PostUrlStr, 4)-1);
   }
   // http://digg.com/submit?phase=2&amp;url=http://socialitelife.celebuzz.com/archive/2008/07/31/and_then_a_hero_came_along.php&amp;title=and
   // http://digg.com/general_sciences/mental_images_are_like_pictures_slide_show
   if (DomNm == "digg.com") {
     if (PostUrlStr.IsPrefix("http://digg.com/submit?")) {
       const int Url = PostUrlStr.SearchStr(";url=");
-      if (Url != -1) { 
+      if (Url != -1) {
         return GetWebsiteNm(PostUrlStr.GetSubStr(Url+5, PostUrlStr.SearchCh('&', Url+5))); }
     } else {
       return PostUrlStr.GetSubStr(7, GetNthOccurence(PostUrlStr, 4)-1); }
@@ -266,22 +266,22 @@ TChA TStrUtil::GetWebsiteNm(const TChA& PostUrlStr) {
   // http://nydailynews.com/blogs/subwaysquawkers/2008/08/anaheim-is-no-magic-kingdom-fo.html
   // http://newsbusters.org/blogs/p-j-gladnick/2008/08/11/sf-chronicle-writer-predicts-global-warming-shellfish-invas
   // http://nydailynews.com/blogs/subwaysquawkers/2008/08/anaheim-is-no-magic-kingdom-fo.html
-  if (PostUrlStr.IsPrefix("http://nydailynews.com/blogs/") || PostUrlStr.IsPrefix("http://bbc.co.uk/blogs/") 
+  if (PostUrlStr.IsPrefix("http://nydailynews.com/blogs/") || PostUrlStr.IsPrefix("http://bbc.co.uk/blogs/")
     || PostUrlStr.IsPrefix("http://nydailynews.com/blogs/") || PostUrlStr.IsPrefix("http://newsbusters.org/blogs/")) {
-    return PostUrlStr.GetSubStr(7, GetNthOccurence(PostUrlStr, 5)-1); 
+    return PostUrlStr.GetSubStr(7, GetNthOccurence(PostUrlStr, 5)-1);
   }
   // http://feeds.feedburner.com/~r/adesblog/ ~3/361711640
   if (DomNm=="feeds.feedburner.com") {
-    return PostUrlStr.GetSubStr(7, GetNthOccurence(PostUrlStr, 5)-1); 
+    return PostUrlStr.GetSubStr(7, GetNthOccurence(PostUrlStr, 5)-1);
   }
   // http://groups.google.com/group/news.admin.net-abuse.sightings/browse_thread/thread/8452c47949453216/f07daa509b90295c?show_docid=f07daa509b90295c
   if (DomNm=="groups.google.com") {
-    return PostUrlStr.GetSubStr(7, GetNthOccurence(PostUrlStr, 5)-1); 
+    return PostUrlStr.GetSubStr(7, GetNthOccurence(PostUrlStr, 5)-1);
   }
   // http://news.google.com/news/url?sa=t&ct=us/20-0&fd=r&url=http://www.theobserver.ca/articledisplay.aspx%3fe%3d1151495&cid=0&ei=yswgsjpndpbi8atc9knacw&usg=afqjcnhrbg-nc9z6ymtqfkear3_npwqqxa
   if (DomNm=="news.google.com") { // redirect
     const int UrlPos = PostUrlStr.SearchStr("&url=");
-    if (UrlPos != -1) { 
+    if (UrlPos != -1) {
       return GetWebsiteNm(PostUrlStr.GetSubStr(UrlPos+5, PostUrlStr.SearchCh('&', UrlPos+5))); }
   }
   // http://bloggrevyen.no/go/110340/http://blog.christergulbrandsen.com/2008/08/11/is-nationalism-the-only-way-to-de
@@ -320,7 +320,7 @@ bool TStrUtil::GetNormalizedUrl(const TChA& UrlIn, const TChA& BaseUrl, TChA& Ur
   }
   // http://www. --> http://
   if (UrlOut.IsPrefix("http://www.")) {
-    UrlOut = "http://"+UrlOut.GetSubStr(11, TInt::Mx);
+    UrlOut = TChA("http://") + UrlOut.GetSubStr(11, TInt::Mx);
   }
   UrlOut.ToLc();
   return true;

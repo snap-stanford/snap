@@ -4,14 +4,15 @@ namespace TSnap {
 // Node centrality measures
 double GetDegreeCentr(const PUNGraph& Graph, const int& NId) {
   if (Graph->GetNodes() > 1) {
-    return Graph->GetNI(NId).GetDeg()/double(Graph->GetNodes()-1); }
-  else { return 0; }
+    return double(Graph->GetNI(NId).GetDeg())/double(Graph->GetNodes()-1); }
+  else { return 0.0; }
 }
 
+/// Closeness centrality: Average shortest path lenght to any other node in the graph
 double GetClosenessCentr(const PUNGraph& Graph, const int& NId) {
   TIntH NDistH(Graph->GetNodes());
   TSnap::GetShortPath<PUNGraph>(Graph, NId, NDistH, true, TInt::Mx);
-  int sum = 0;
+  double sum = 0;
   for (TIntH::TIter I = NDistH.BegI(); I < NDistH.EndI(); I++) {
     sum += I->Dat();
   }
@@ -19,10 +20,10 @@ double GetClosenessCentr(const PUNGraph& Graph, const int& NId) {
   else { return 0.0; }
 }
 
-// Beetweenness Centrality. To get exact results we solve single-source shortest-path problem for every node.
-// Solving it for a BtwNIdV subset of nodes gives centralitiy values that are about Graph->GetNodes()/BtwNIdV.Len() times lower than exact centrality.
-// "A Faster Algorithm for Beetweenness Centrality", Ulrik Brandes, Journal of Mathematical Sociology, 2001
-// "Centrality Estimation in Large Networks", Urlik Brandes and Christian Pich, 2006
+/// Beetweenness Centrality. To get exact results we solve single-source shortest-path problem for every node.
+/// Solving it for a BtwNIdV subset of nodes gives centralitiy values that are about Graph->GetNodes()/BtwNIdV.Len() times lower than exact centrality.
+/// "A Faster Algorithm for Beetweenness Centrality", Ulrik Brandes, Journal of Mathematical Sociology, 2001
+/// "Centrality Estimation in Large Networks", Urlik Brandes and Christian Pich, 2006
 void GetBetweennessCentr(const PUNGraph& Graph, const TIntV& BtwNIdV, TIntFltH& NodeBtwH, const bool& DoNodeCent, TIntPrFltH& EdgeBtwH, const bool& DoEdgeCent) {
   if (DoNodeCent) { NodeBtwH.Clr(); }
   if (DoEdgeCent) { EdgeBtwH.Clr(); }
@@ -32,12 +33,12 @@ void GetBetweennessCentr(const PUNGraph& Graph, const TIntV& BtwNIdV, TIntFltH& 
   TIntIntVH P(nodes); // one vector for every node
   TIntFltH delta(nodes);
   TIntH sigma(nodes), d(nodes);
-  // init  
+  // init
   for (TUNGraph::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
-    if (DoNodeCent) { 
+    if (DoNodeCent) {
       NodeBtwH.AddDat(NI.GetId(), 0); }
     if (DoEdgeCent) {
-      for (int e = 0; e < NI.GetOutDeg(); e++) { 
+      for (int e = 0; e < NI.GetOutDeg(); e++) {
         if (NI.GetId() < NI.GetOutNId(e)) {
           EdgeBtwH.AddDat(TIntPr(NI.GetId(), NI.GetOutNId(e)), 0); }
       }
@@ -96,14 +97,14 @@ void GetBetweennessCentr(const PUNGraph& Graph, const TIntV& BtwNIdV, TIntFltH& 
   }
 }
 
-// NodeFrac ... calculate Beetweenness Centrality for a fraction of nodes. Gives approximate
-// beetweenness centrality scores but scales to large networks
+/// Approximate beetweenness centrality scores. The implementation scales to large networks.
+/// NodeFrac ... calculate Beetweenness Centrality for a fraction of nodes. Gives approximate.
 void GetBetweennessCentr(const PUNGraph& Graph, TIntFltH& NodeBtwH, const double& NodeFrac) {
   TIntPrFltH EdgeBtwH;
   TIntV NIdV;  Graph->GetNIdV(NIdV);
   if (NodeFrac < 1.0) { // calculate beetweenness centrality for a subset of nodes
     NIdV.Shuffle(TInt::Rnd);
-    for (int i = int((1.0-NodeFrac)*NIdV.Len()); i > 0; i--) { 
+    for (int i = int((1.0-NodeFrac)*NIdV.Len()); i > 0; i--) {
       NIdV.DelLast(); }
   }
   GetBetweennessCentr(Graph, NIdV, NodeBtwH, true, EdgeBtwH, false);
@@ -114,7 +115,7 @@ void GetBetweennessCentr(const PUNGraph& Graph, TIntPrFltH& EdgeBtwH, const doub
   TIntV NIdV;  Graph->GetNIdV(NIdV);
   if (NodeFrac < 1.0) { // calculate beetweenness centrality for a subset of nodes
     NIdV.Shuffle(TInt::Rnd);
-    for (int i = int((1.0-NodeFrac)*NIdV.Len()); i > 0; i--) { 
+    for (int i = int((1.0-NodeFrac)*NIdV.Len()); i > 0; i--) {
       NIdV.DelLast(); }
   }
   GetBetweennessCentr(Graph, NIdV, NodeBtwH, false, EdgeBtwH, true);
@@ -124,7 +125,7 @@ void GetBetweennessCentr(const PUNGraph& Graph, TIntFltH& NodeBtwH, TIntPrFltH& 
   TIntV NIdV;  Graph->GetNIdV(NIdV);
   if (NodeFrac < 1.0) { // calculate beetweenness centrality for a subset of nodes
     NIdV.Shuffle(TInt::Rnd);
-    for (int i = int((1.0-NodeFrac)*NIdV.Len()); i > 0; i--) { 
+    for (int i = int((1.0-NodeFrac)*NIdV.Len()); i > 0; i--) {
       NIdV.DelLast(); }
   }
   GetBetweennessCentr(Graph, NIdV, NodeBtwH, true, EdgeBtwH, true);

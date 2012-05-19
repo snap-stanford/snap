@@ -3,7 +3,7 @@ namespace TSnap {
 /////////////////////////////////////////////////
 // Graph Algorithms
 
-// renumber node ids to 0...N-1
+/// RenumberNodes ... Renumber node ids in the subgraph to 0...N-1
 PUNGraph GetSubGraph(const PUNGraph& Graph, const TIntV& NIdV, const bool& RenumberNodes) {
   //if (! RenumberNodes) { return TSnap::GetSubGraph(Graph, NIdV); }
   PUNGraph NewGraphPt = TUNGraph::New();
@@ -12,7 +12,7 @@ PUNGraph GetSubGraph(const PUNGraph& Graph, const TIntV& NIdV, const bool& Renum
   TIntSet NIdSet(NIdV.Len());
   for (int n = 0; n < NIdV.Len(); n++) {
     if (Graph->IsNode(NIdV[n])) {
-      NIdSet.AddKey(NIdV[n]); 
+      NIdSet.AddKey(NIdV[n]);
       if (! RenumberNodes) { NewGraph.AddNode(NIdV[n]); }
       else { NewGraph.AddNode(NIdSet.GetKeyId(NIdV[n])); }
     }
@@ -41,7 +41,7 @@ PUNGraph GetSubGraph(const PUNGraph& Graph, const TIntV& NIdV, const bool& Renum
   return NewGraphPt;
 }
 
-// renumber node ids to 0...N-1
+/// RenumberNodes ... Renumber node ids in the subgraph to 0...N-1
 PNGraph GetSubGraph(const PNGraph& Graph, const TIntV& NIdV, const bool& RenumberNodes) {
   //if (! RenumberNodes) { return TSnap::GetSubGraph(Graph, NIdV); }
   PNGraph NewGraphPt = TNGraph::New();
@@ -50,7 +50,7 @@ PNGraph GetSubGraph(const PNGraph& Graph, const TIntV& NIdV, const bool& Renumbe
   TIntSet NIdSet(NIdV.Len());
   for (int n = 0; n < NIdV.Len(); n++) {
     if (Graph->IsNode(NIdV[n])) {
-      NIdSet.AddKey(NIdV[n]); 
+      NIdSet.AddKey(NIdV[n]);
       if (! RenumberNodes) { NewGraph.AddNode(NIdV[n]); }
       else { NewGraph.AddNode(NIdSet.GetKeyId(NIdV[n])); }
     }

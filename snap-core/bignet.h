@@ -441,7 +441,7 @@ int  TBigNet<TNodeData, IsDir>::IsolateNode(int NId) {
     const int Deg = Pool.GetVLen(N.InVId);
     int* Val = (int *) BinSearch(InNIdV, InNIdV+Deg, NId);
     if (Val == NULL) {
-      printf("BAD: Can't find: OUT: NId: %d -- OutNbhId: %d\n", NId, OutV[i]);
+      printf("BAD: Can't find: OUT: NId: %d -- OutNbhId: %d\n", NId, OutV[i]());
       continue;
     }
     IAssert(Val != 0);
@@ -461,7 +461,7 @@ int  TBigNet<TNodeData, IsDir>::IsolateNode(int NId) {
       const int Deg = Pool.GetVLen(N.OutVId);
       int* Val = (int *) BinSearch(OutNIdV, OutNIdV+Deg, NId);
       if (Val == NULL) {
-        printf("IN: NId: %d -- InNbhId: %d\n", NId, OutV[i]);
+        printf("IN: NId: %d -- InNbhId: %d\n", NId, OutV[i]());
         continue;
       }
       IAssert(Val != 0);
@@ -668,7 +668,7 @@ void TBigNet<TNodeData, IsDir>::Rewire(TRnd& Rnd) {
     if (Len > 0 && V[Len-1]==NI.GetId()) { V[Len-1] = DelNId;  NDup++; }
     if (cnt % Mega(10) == 0) { printf(".");  fflush(stdout); }
   }
-  printf("\n    %I64u duplicate edges removed [%s]\n", NDup, ExeTm.GetStr());
+  printf("\n    %llu duplicate edges removed [%s]\n", NDup, ExeTm.GetStr());
   if (OnlySources()) { return; }
   // resolve one way edges
   printf("  resolving one way edges...\n"); cnt=0; fflush(stdout);
@@ -692,7 +692,7 @@ void TBigNet<TNodeData, IsDir>::Rewire(TRnd& Rnd) {
     }
     if (cnt % Mega(10) == 0) { printf(".");  fflush(stdout); }
   }
-  printf("\n    %I64u resolved edges [%s]\n", NResolve, ExeTm.GetStr());
+  printf("\n    %llu resolved edges [%s]\n", NResolve, ExeTm.GetStr());
   // check if there are two nodes that still have space and are not yet connected and connect them
   printf("  filling empty edge slots...\n");
   TIntPrV SlotNIdV;
@@ -737,7 +737,7 @@ void TBigNet<TNodeData, IsDir>::Rewire(TRnd& Rnd) {
     }
     if (ni1 % Mega(1) == 0) { printf(".");  fflush(stdout); }
   }
-  printf("    %I64u edges added.\nDONE. TOTAL REWIRE TIME [%s]\n\n", NAddit, ExeTm.GetStr());
+  printf("    %llu edges added.\nDONE. TOTAL REWIRE TIME [%s]\n\n", NAddit, ExeTm.GetStr());
 }
 
 template <class TNodeData, bool IsDir>
@@ -942,18 +942,18 @@ bool TBigNet<TNodeData, IsDir>::IsOk() const {
         //if (ValV[i]==DelNId) { continue; }
         // sorted & no duplicates & no empty values (can have deleted nodes)
         EAssertR((ValV[i-1]<ValV[i]) || (ValV[i-1]==ValV[i] && ValV[i]==DelNId),
-          TStr::Fmt("nid1: %d nid2:%d", ValV[i-1],ValV[i]));
+          TStr::Fmt("NId1: %d NId2:%d", ValV[i-1](),ValV[i]()));
         EAssertR((0<=ValV[i] && ValV[i]<MxNId) || ValV[i]==DelNId,
-          TStr::Fmt("nid1: %dm mxNId: %d", ValV[i], MxNId));
+          TStr::Fmt("NId1: %dm MxNId: %d", ValV[i](), MxNId));
         if (! OnlySources()) {
           EAssertR(IsNode(ValV[i]) || ValV[i]==DelNId,
-            TStr::Fmt("nid1: %dm mxNId: %d", ValV[i])); } // every link is a node
+            TStr::Fmt("NId1: %dm MxNId: %d", ValV[i](), MxNId)); } // every link is a node
       }
       } catch (PExcept Except){
         printf("  %s\n", Except->GetStr().CStr());
         printf("  vec id: %d, lenght: %d\n", id, ValV.Len());
         for (int i = 1; i < ValV.Len(); i++) {
-          printf("  %d", ValV[i]);
+          printf("  %d", ValV[i]());
           if (!((ValV[i-1]<ValV[i]) || (ValV[i-1]==ValV[i] && ValV[i]==DelNId))) { printf("*"); }
         }
         printf("\n");

@@ -38,9 +38,9 @@ PNGraph GenRMatEpinions();
 // return random edge where the edge does not touch NId1 and NId2
 template <class PGraph> TIntPr GetRndEdgeNonAdjNode(const PGraph& Graph, int NId1, int NId2 = -1);
 
-template <class PGraph> 
+template <class PGraph>
 PGraph GenGrid(const int& Rows, const int& Cols, const bool& IsDir) {
-    PGraph GraphPt = PGraph::New();
+  PGraph GraphPt = PGraph::New();
   typename PGraph::TObj& Graph = *GraphPt;
   Graph.Reserve(Rows*Cols, 4*Rows*Cols);
   int node, r, c;
@@ -63,7 +63,7 @@ PGraph GenGrid(const int& Rows, const int& Cols, const bool& IsDir) {
   return GraphPt;
 }
 
-template <class PGraph> 
+template <class PGraph>
 PGraph GenStar(const int& Nodes, const bool& IsDir) {
   PGraph Graph = PGraph::TObj::New();
   Graph->Reserve(Nodes, Nodes);
@@ -76,7 +76,7 @@ PGraph GenStar(const int& Nodes, const bool& IsDir) {
   return Graph;
 }
 
-template <class PGraph> 
+template <class PGraph>
 PGraph GenCircle(const int& Nodes, const int& NodeOutDeg, const bool& IsDir) {
   PGraph Graph = PGraph::TObj::New();
   Graph->Reserve(Nodes, Nodes*NodeOutDeg);
@@ -92,7 +92,7 @@ PGraph GenCircle(const int& Nodes, const int& NodeOutDeg, const bool& IsDir) {
   return Graph;
 }
 
-template <class PGraph> 
+template <class PGraph>
 PGraph GenFull(const int& Nodes) {
   PGraph Graph = PGraph::TObj::New();
   Graph->Reserve(Nodes, Nodes*Nodes);
@@ -107,7 +107,7 @@ PGraph GenFull(const int& Nodes) {
   return Graph;
 }
 
-template <class PGraph> 
+template <class PGraph>
 PGraph GenTree(const int& Fanout, const int& Levels, const bool& IsDir, const bool& ChildPointsToParent) {
   const int Nodes = (int) (pow(double(Fanout), double(Levels+1)) - 1) / (Fanout - 1);
   const int Edges = Nodes - 1;
@@ -133,15 +133,15 @@ PGraph GenTree(const int& Fanout, const int& Levels, const bool& IsDir, const bo
   return GraphPt;
 }
 
-// Ravasz & Barabasi: Hierarchical organization in complex networks
-//  corners of the graph are recursively expanded with miniature 
-//  copies of the base graph (below)
-//   o---o
-//   |\ /|
-//   | o |
-//   |/ \|
-//   o---o
-template <class PGraph> 
+/// Ravasz & Barabasi: Hierarchical organization in complex networks
+///  corners of the graph are recursively expanded with miniature
+///  copies of the base graph (below)
+///   o---o
+///   |\ /|
+///   | o |
+///   |/ \|
+///   o---o
+template <class PGraph>
 PGraph GenBaraHierar(const int& Levels, const bool& IsDir) {
   const int Nodes = (int) TMath::Round(TMath::Power(5, Levels));
   PGraph GraphPt = PGraph::New();
@@ -164,7 +164,7 @@ PGraph GenBaraHierar(const int& Levels, const bool& IsDir) {
         typename PGraph::TObj::TNodeI NI = Graph.GetNI(n);
         const int SrcId = n+MxNId*(d+1);
         for (int e = 0; e < NI.GetOutDeg(); e++) {
-          Graph.AddEdge(SrcId, NI.GetOutNId(e)+MxNId*(d+1)); 
+          Graph.AddEdge(SrcId, NI.GetOutNId(e)+MxNId*(d+1));
         }
       }
     }
@@ -198,13 +198,13 @@ PGraph GenRndGnm(const int& Nodes, const int& Edges, const bool& IsDir, TRnd& Rn
     const int DstNId = Rnd.GetUniDevInt(Nodes);
     if (SrcNId != DstNId && Graph.AddEdge(SrcNId, DstNId) != -2) { // is new edge
       if (! IsDir) { Graph.AddEdge(DstNId, SrcNId); }
-      edge++; 
-    } 
+      edge++;
+    }
   }
   return GraphPt;
 }
 
-template <class PGraph> 
+template <class PGraph>
 TIntPr GetRndEdgeNonAdjNode(const PGraph& Graph, int NId1, int NId2) {
   typename PGraph::TObj::TNodeI NI1, NI2;
   int OutDeg = -1;
@@ -225,4 +225,4 @@ TIntPr GetRndEdgeNonAdjNode(const PGraph& Graph, int NId1, int NId2) {
   return TIntPr(NI1.GetId(), NI2.GetId());
 }
 
-} // namespace TSnap
+}; // namespace TSnap

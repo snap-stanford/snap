@@ -19,23 +19,23 @@ public:
 
   void PermuteEdgeSigns();
   void RewireNetwork();
-  
+
   void SimplifyNet();
   void FlipMinusEdges(const int&  OldSign=-1, const int& NewSign=1);
-  PSignNet GetSubNet(const int& MinEdgeWgt) const { 
+  PSignNet GetSubNet(const int& MinEdgeWgt) const {
     return TSnap::GetEDatSubGraph<PSignNet, TInt>(PSignNet((TSignNet*) this), MinEdgeWgt, 1); }
-  PSignNet GetSignSubNet(const int& Sign) const { 
+  PSignNet GetSignSubNet(const int& Sign) const {
     return TSnap::GetEDatSubGraph<PSignNet, TInt>(PSignNet((TSignNet*) this), Sign, 0); }
-  
+
   void CountStructBalance() const;
   void CountBalUnBal(const int& NId1, const int& NId2, int& BalTriads, int& UnBalTriads) const;
   void SetNodePart(const int& PartId);
   void SetNodePart(TVec<TIntV>& PartNIdV);
   void GetPartStat(const TVec<TIntV>& PartNIdV, const TStr& Desc=TStr()) const;
   void MakeStatusConsistent();
-  
-  
-  // signed triad 
+
+
+  // signed triad
   PSignNet GetTriad(const int& NId1, const int& NId2, const int& NId3) const;
   bool IsClosedTriad() const;
   bool IsBalanced() const;
@@ -49,7 +49,7 @@ public:
   //static int GetEdgeSigSign(const int& EdgeSig);
   static TChA GetEdgeStr(const int& EdgeSig);
   static TChA GetTriadStr(const TIntTr& TriadSig);
-      
+
   void EdgeSignStat() const;
   void PlotSignCmnNbhs(const TStr& OutFNm) const;
   void CountSignedTriads(const TStr& OutFNm) const;
@@ -117,7 +117,7 @@ public:
     //old: double GetPlsSurp() const { return (PlsCnt-double(PlsWgt+(MnsCnt-MnsWgt)))/sqrt(PlsVarSq+MnsVarSq); }
     double GetOutPlsSurp() const { return (PlsCnt - OutSumWgt)/sqrt(OutVarSq); }
     double GetInPlsSurp() const { return  (PlsCnt - InSumWgt)/sqrt(InVarSq); }
-    void SaveHist(const TStr& OutFNm) const { 
+    void SaveHist(const TStr& OutFNm) const {
       TGnuPlot::PlotValCntH(OutPlusPH, OutFNm+"_Out", "", "Probability of plus out", "Count");
       TGnuPlot::PlotValCntH(InPlusPH, OutFNm+"_In", "", "Probability of plus in", "Count"); }
   };
@@ -142,13 +142,13 @@ public:
   void Save(TSOut& SOut) const;
   PSignNet GetSubGraph(const int& N1, const int& N2);
   PSignNet GetSubGraph(const int& N1, const int& N2, const int& N3);
-  
-  void CountTriadClose(const int& SrcNId, const int& DstNId, const int& Sign, const double& SrcOutPlusProb, 
+
+  void CountTriadClose(const int& SrcNId, const int& DstNId, const int& Sign, const double& SrcOutPlusProb,
     const double& DstInPlusProb, const bool& OnlySimpleTriads=false);
-  void CountTriad3to4Edges(const int& SrcNId, const int& DstNId, const int& Sign, const double& SrcOutPlusProb, 
+  void CountTriad3to4Edges(const int& SrcNId, const int& DstNId, const int& Sign, const double& SrcOutPlusProb,
     const double& DstInPlusProb);
   void CountTriadCloseVec(const int& SrcNId, const int& DstNId, const int& Sign);
-  
+
   int IsSameOpnTriad(const PSignNet& Net1, const PSignNet& Net2);
   int GetOpnTriadId(const PSignNet& Net1);
   bool IsSameTriad(const PSignNet& Net1, const PSignNet& Net2, const TIntV& Perm) const;
@@ -162,7 +162,7 @@ public:
   bool IsStatusSurp(const int& OpnTriadId, const bool& DstNode=true) const;
   bool IsBalanceFrac(const int& OpnTriadId) const;
   bool IsBalanceSurp(const int& OpnTriadId) const;
-  
+
   void PrintInfo() const;
   void SaveCloseTriadTxt(const TStr& FNmPref, const bool& DrawNets=true, const bool& PlotHists=true);
   void DrawCloseTriad(const TStr& FNmPref, const int& OpnTriadId, const TStr& Label="");
@@ -288,15 +288,15 @@ public:
     for (int i = 0; i < ResH.Len(); i++) {
       const TIntQu& Q = ResH[i];
       printf("%s\t%d\t%d\t%d\t%d\t%f\n", ResH.GetKey(i).CStr(),
-        Q.Val1, Q.Val2, Q.Val3, Q.Val4, double(Q.Val1+Q.Val4)/double(Q.Val1+Q.Val2+Q.Val3+Q.Val4));
+        Q.Val1(), Q.Val2(), Q.Val3(), Q.Val4(), double(Q.Val1+Q.Val4)/double(Q.Val1+Q.Val2+Q.Val3+Q.Val4));
     }
     printf("\n");
   }
-  // 
-  bool SaveEdgeAttrs(FILE *F, const int& SrcNId,const int& DstNId, const bool& SaveEol=true) {  
+  //
+  bool SaveEdgeAttrs(FILE *F, const int& SrcNId,const int& DstNId, const bool& SaveEol=true) {
     TIntV NbhV;
     bool DelEdge = false;
-    const int TrueSign = Network->IsEdge(SrcNId, DstNId) ? Network->GetEDat(SrcNId, DstNId) : 0;
+    const int TrueSign = Network->IsEdge(SrcNId, DstNId) ? (int) Network->GetEDat(SrcNId, DstNId) : 0;
     //if (MinCmnNbrs > TSnap::GetCmnNbhs(Network, SrcNId, DstNId, NbhV)) { return false; }
     TSnap::GetCmnNbhs(Network, SrcNId, DstNId, NbhV);
     if (Network->IsEdge(SrcNId, DstNId)) { Network->DelEdge(SrcNId, DstNId); DelEdge=true; }
@@ -305,12 +305,12 @@ public:
     int srcOutPlus=0, dstInPlus=0;
     for (int e = 0; e < SrcNI.GetOutDeg(); e++) { srcOutPlus += SrcNI.GetOutEDat(e)>0 ? 1:0; }
     for (int e = 0; e < DstNI.GetInDeg(); e++) { dstInPlus += DstNI.GetInEDat(e)>0 ? 1:0; }
-    fprintf(F, "%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d", TrueSign==1?1:0, SrcNI.GetOutDeg(), srcOutPlus, 
+    fprintf(F, "%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d", TrueSign==1?1:0, SrcNI.GetOutDeg(), srcOutPlus,
       SrcNI.GetOutDeg()-srcOutPlus, DstNI.GetInDeg(), dstInPlus, DstNI.GetInDeg()-dstInPlus, NbhV.Len());
     THash<TIntPr, TInt> H;
     for (int i = 1; i <=2; i++) {
-      for (int j = 1; j <=2; j++) { 
-        H.AddDat(TIntPr(i,j)); H.AddDat(TIntPr(i,-j)); H.AddDat(TIntPr(-i,j)); H.AddDat(TIntPr(-i,-j)); 
+      for (int j = 1; j <=2; j++) {
+        H.AddDat(TIntPr(i,j)); H.AddDat(TIntPr(i,-j)); H.AddDat(TIntPr(-i,j)); H.AddDat(TIntPr(-i,-j));
     } }
     // predict edge A-->B
     for (int n = 0; n < NbhV.Len(); n++) {
@@ -325,20 +325,20 @@ public:
         IAssert(Network->IsNode(Mid));
         printf("\nES: %d\t%d\n", (int)Network->IsEdge(SrcNId, Mid), (int)Network->IsEdge(Mid, SrcNId));
         printf("\nED: %d\t%d\n", (int)Network->IsEdge(DstNId, Mid), (int)Network->IsEdge(Mid, DstNId));
-        if (Network->IsEdge(SrcNId, Mid)) { printf("S1: %d\n", Network->GetEDat(SrcNId, Mid)); }
-        else  { printf("S2: %d\n", Network->GetEDat(Mid, SrcNId)); }
-        if (Network->IsEdge(Mid, DstNId)) { printf("D1: %d\n", Network->GetEDat(Mid, DstNId)); }
-        else  { printf("D2: %d\n", Network->GetEDat(DstNId, Mid)); }
+        if (Network->IsEdge(SrcNId, Mid)) { printf("S1: %d\n", (int)Network->GetEDat(SrcNId, Mid)); }
+        else  { printf("S2: %d\n", (int)Network->GetEDat(Mid, SrcNId)); }
+        if (Network->IsEdge(Mid, DstNId)) { printf("D1: %d\n", (int)Network->GetEDat(Mid, DstNId)); }
+        else  { printf("D2: %d\n", (int)Network->GetEDat(DstNId, Mid)); }
       }
       IAssert(Network->IsEdge(SrcNId, Mid) || Network->IsEdge(Mid, SrcNId));
       IAssert(Network->IsEdge(DstNId, Mid) || Network->IsEdge(Mid, DstNId));
       IAssert(AC != 0 && CB != 0);
       H.AddDat(TIntPr(AC, CB)) += 1;
     }
-    fprintf(F, "\t%d\t%d\t%d\t%d", H.GetDat(TIntPr(1,1)), H.GetDat(TIntPr(1,-1)), H.GetDat(TIntPr(-1,1)), H.GetDat(TIntPr(-1,-1)));
-    fprintf(F, "\t%d\t%d\t%d\t%d", H.GetDat(TIntPr(1,2)), H.GetDat(TIntPr(1,-2)), H.GetDat(TIntPr(-1,2)), H.GetDat(TIntPr(-1,-2)));
-    fprintf(F, "\t%d\t%d\t%d\t%d", H.GetDat(TIntPr(2,1)), H.GetDat(TIntPr(2,-1)), H.GetDat(TIntPr(-2,1)), H.GetDat(TIntPr(-2,-1)));
-    fprintf(F, "\t%d\t%d\t%d\t%d", H.GetDat(TIntPr(2,2)), H.GetDat(TIntPr(2,-2)), H.GetDat(TIntPr(-2,2)), H.GetDat(TIntPr(-2,-2)));
+    fprintf(F, "\t%d\t%d\t%d\t%d", (int)H.GetDat(TIntPr(1,1)), (int)H.GetDat(TIntPr(1,-1)), (int)H.GetDat(TIntPr(-1,1)), (int)H.GetDat(TIntPr(-1,-1)));
+    fprintf(F, "\t%d\t%d\t%d\t%d", (int)H.GetDat(TIntPr(1,2)), (int)H.GetDat(TIntPr(1,-2)), (int)H.GetDat(TIntPr(-1,2)), (int)H.GetDat(TIntPr(-1,-2)));
+    fprintf(F, "\t%d\t%d\t%d\t%d", (int)H.GetDat(TIntPr(2,1)), (int)H.GetDat(TIntPr(2,-1)), (int)H.GetDat(TIntPr(-2,1)), (int)H.GetDat(TIntPr(-2,-1)));
+    fprintf(F, "\t%d\t%d\t%d\t%d", (int)H.GetDat(TIntPr(2,2)), (int)H.GetDat(TIntPr(2,-2)), (int)H.GetDat(TIntPr(-2,2)), (int)H.GetDat(TIntPr(-2,-2)));
     if (SaveEol) { fprintf(F, "\n"); }
     if (DelEdge) { Network->AddEdge(SrcNId, DstNId, TrueSign); }
     return true;
@@ -348,7 +348,7 @@ public:
     FILE *F = fopen(TStr::Fmt("tr16pred-%s-nbh%d.tab", OutFNm.CStr(), MinCmnNbrs).CStr(), "wt");
     //FILE *F = fopen(TStr::Fmt("tr16pred-%s-nbh%d.tab", OutFNm.CStr(), MinCmnNbrs).CStr(), "wt");
     fprintf(F, "Edge\tAOutDeg\tAOutPlus\tAOutMinus\tBInDeg\tBInPlus\tBInMinus\tCmnNbrs");
-    fprintf(F, "\tFFpp\tFFpm\tFFmp\tFFmm"); // feed forward 
+    fprintf(F, "\tFFpp\tFFpm\tFFmp\tFFmm"); // feed forward
     fprintf(F, "\tFBpp\tFBpm\tFBmp\tFBmm"); // collision
     fprintf(F, "\tBFpp\tBFpm\tBFmp\tBFmm"); // split
     fprintf(F, "\tBBpp\tBBpm\tBBmp\tBBmm\n"); // feed backward
@@ -375,9 +375,9 @@ public:
   }
   bool HasMinusEdge(const int& NId) const {
     const TSignNet::TNodeI NI = Network->GetNI(NId);
-    for (int i = 0; i < NI.GetOutDeg(); i++) { 
+    for (int i = 0; i < NI.GetOutDeg(); i++) {
       if (NI.GetOutEDat(i)==-1) { return true; } }
-    for (int i = 0; i < NI.GetInDeg(); i++) { 
+    for (int i = 0; i < NI.GetInDeg(); i++) {
       if (NI.GetInEDat(i)==-1) { return true; } }
     return false;
   }
@@ -385,7 +385,7 @@ public:
   void SaveEdgePredFeatures(const TStr& OutFNm, const int& SavePairs) {
     FILE *F = fopen(TStr::Fmt("edgePred-%s-nbh%d.tab", OutFNm.CStr(), MinCmnNbrs).CStr(), "wt");
     fprintf(F, "Edge\tAOutDeg\tAOutPlus\tAOutMinus\tBInDeg\tBInPlus\tBInMinus\tCmnNbrs");
-    fprintf(F, "\tFFpp\tFFpm\tFFmp\tFFmm"); // feed forward 
+    fprintf(F, "\tFFpp\tFFpm\tFFmp\tFFmm"); // feed forward
     fprintf(F, "\tFBpp\tFBpm\tFBmp\tFBmm"); // collision
     fprintf(F, "\tBFpp\tBFpm\tBFmp\tBFmm"); // split
     fprintf(F, "\tBBpp\tBBpm\tBBmp\tBBmm\tCmnPlus\n"); // feed backward
@@ -405,8 +405,8 @@ public:
       Hop2NIdV.Clr(false);
       TSnap::GetNodesAtHop(PlusNet, Src, 2, Hop2NIdV);
       const int CmnNbrs = TSnap::GetCmnNbhs(PlusNet, Src, Dst, NbhV);
-      if (CmnNbrs >= MinCmnNbrs && SaveTrust<SavePairs) { 
-        SaveEdgeAttrs(F, Src, Dst, false); 
+      if (CmnNbrs >= MinCmnNbrs && SaveTrust<SavePairs) {
+        SaveEdgeAttrs(F, Src, Dst, false);
         fprintf(F, "\t%d\n", CmnNbrs);
         EmbeddH.AddDat(CmnNbrs) += 1;
         printf(" %d", CmnNbrs);
@@ -433,7 +433,7 @@ public:
   void SaveEdgePredFeatures2(const TStr& OutFNm, const int& SavePairs) {
     FILE *F = fopen(TStr::Fmt("edgePred2-%s-nbh%d.tab", OutFNm.CStr(), MinCmnNbrs).CStr(), "wt");
     fprintf(F, "Edge\tAOutDeg\tAOutPlus\tAOutMinus\tBInDeg\tBInPlus\tBInMinus\tCmnNbrs");
-    fprintf(F, "\tFFpp\tFFpm\tFFmp\tFFmm"); // feed forward 
+    fprintf(F, "\tFFpp\tFFpm\tFFmp\tFFmm"); // feed forward
     fprintf(F, "\tFBpp\tFBpm\tFBmp\tFBmm"); // collision
     fprintf(F, "\tBFpp\tBFpm\tBFmp\tBFmm"); // split
     fprintf(F, "\tBBpp\tBBpm\tBBmp\tBBmm\tCmnPlus\n"); // feed backward

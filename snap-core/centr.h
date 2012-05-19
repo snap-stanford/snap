@@ -22,9 +22,9 @@ template<class PGraph> void GetHits(const PGraph& Graph, TIntFltH& NIdHubH, TInt
 
 
 /////////////////////////////////////////////////
-// Page Rank -- there are two different implementations (uncomment the desired 2 lines):
-//   Berkhin -- (the correct way) see Algorithm 1 of P. Berkhin, A Survey on PageRank Computing, Internet Mathematics, 2005
-//   iGraph -- iGraph implementation(which treats leaked PageRank in a funny way)
+/// Page Rank -- there are two different implementations (uncomment the desired 2 lines):
+///   Berkhin -- (the correct way) see Algorithm 1 of P. Berkhin, A Survey on PageRank Computing, Internet Mathematics, 2005
+///   iGraph -- iGraph implementation(which treats leaked PageRank in a funny way)
 template<class PGraph>
 void GetPageRank(const PGraph& Graph, TIntFltH& PRankH, const double& C, const double& Eps, const int& MaxIter) {
   const int NNodes = Graph->GetNodes();
@@ -45,7 +45,7 @@ void GetPageRank(const PGraph& Graph, TIntFltH& PRankH, const double& C, const d
         if (OutDeg > 0) {
           TmpV[j] += PRankH.GetDat(InNId) / OutDeg; }
       }
-      TmpV[j] =  C*TmpV[j]; // Berkhin
+      TmpV[j] =  C*TmpV[j]; // Berkhin (the correct way of doing it)
       //TmpV[j] =  C*TmpV[j] + (1.0-C)*OneOver; // iGraph
     }
     double diff=0, sum=0, NewVal;
@@ -61,7 +61,7 @@ void GetPageRank(const PGraph& Graph, TIntFltH& PRankH, const double& C, const d
   }
 }
 
-// HITS: Hubs and Authorities (by J. Kleinberg, see http://en.wikipedia.org/wiki/HITS_algorithm)
+/// HITS: Hubs and Authorities (by J. Kleinberg, see http://en.wikipedia.org/wiki/HITS_algorithm)
 template<class PGraph>
 void GetHits(const PGraph& Graph, TIntFltH& NIdHubH, TIntFltH& NIdAuthH, const int& MaxIter) {
   const int NNodes = Graph->GetNodes();
@@ -87,7 +87,7 @@ void GetHits(const PGraph& Graph, TIntFltH& NIdHubH, TIntFltH& NIdAuthH, const i
     // update hub scores
     for (typename PGraph::TObj::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
       double& Hub = NIdHubH.GetDat(NI.GetId()).Val;
-      Hub = 0; 
+      Hub = 0;
       for (int e = 0; e < NI.GetOutDeg(); e++) {
         Hub += NIdAuthH.GetDat(NI.GetOutNId(e)); }
       Norm += Hub*Hub;

@@ -111,7 +111,7 @@ public:
 /////////////////////////////////////////////////
 // Kronecker Log Likelihood
 
-enum TKronEMType {  kronNodeMiss = 0, kronFutureLink, kronEdgeMiss  };
+enum TKronEMType {  kronNodeMiss = 0, kronFutureLink, kronEdgeMiss }; /// !!!!! MYUNGHWAN, CHECK!
 
 class TKroneckerLL {
 public:
@@ -122,7 +122,7 @@ private:
 
   TFlt PermSwapNodeProb; // permutation proposal distribution (swap edge endpoins vs. swap random nodes)
 //  TIntPrV GEdgeV;        // edge vector (for swap edge permutation proposal)
-  TIntTrV GEdgeV;        // edge vector (for swap edge permutation proposal)
+  TIntTrV GEdgeV;        // edge vector (for swap edge permutation proposal) /// !!!!! MYUNGHWAN, CHECK!
   TIntTrV LEdgeV;        // latent edge vector
   TInt LSelfEdge;        // latent self edges
   TIntV NodePerm;        // current permutation
@@ -163,7 +163,7 @@ public:
   void SetDebug(const bool Debug) { DebugMode = Debug; }
   const TFltV& GetLLHist() const { return LLV; }
   const TVec<TKronMtx>& GetParamHist() const { return MtxV; }
-  
+
   // check actual nodes and edges (for KronEM)
   bool IsObsNode(const int& NId) const { IAssert(RealNodes > 0);	return (NId < RealNodes);	}
   bool IsObsEdge(const int& NId1, const int& NId2) const { IAssert(RealNodes > 0);	return ((NId1 < RealNodes) && (NId2 < RealNodes));	}

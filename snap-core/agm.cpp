@@ -23,6 +23,7 @@ PUNGraph TAGM::GenAGM(TVec<TIntV>& CmtyVV, const double& DensityCoef, const doub
 	printf("AGM completed (%d nodes %d edges)\n",G->GetNodes(),G->GetEdges());
 	return G;
 }
+
 void TAGM::RndConnectInsideCommunity(PUNGraph& Graph, const TIntV& CmtyV, const double& Prob, TRnd& Rnd){
 	int CNodes = CmtyV.Len();
 	int CEdges = Rnd.GetBinomialDev(Prob,CNodes*(CNodes-1)/2);
@@ -34,10 +35,11 @@ void TAGM::RndConnectInsideCommunity(PUNGraph& Graph, const TIntV& CmtyV, const 
 		if (SrcNId != DstNId && !NewEdgeSet.IsKey(TIntPr(SrcNId,DstNId))) { // is new edge
 			NewEdgeSet.AddKey(TIntPr(SrcNId,DstNId));
 			Graph->AddEdge(SrcNId,DstNId);
-			edge++; 
-		} 
+			edge++;
+		}
 	}
 }
+
 void TAGM::GetNodeMembership(THash<TInt,TIntV >& NIDComVH, const THash<TInt,TIntV>& CmtyVH) {
 	for(int i=0;i<CmtyVH.Len();i++){
 		int CID = CmtyVH.GetKey(i);

@@ -1,3 +1,5 @@
+// Small example testing basic functionality of SNAP
+
 #include "Snap.h"
 
 int main(int argc, char* argv[]) {

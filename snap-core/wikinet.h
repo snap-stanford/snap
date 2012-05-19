@@ -2,7 +2,7 @@
 #define snap_wikinet_h
 
 #include "Snap.h"
-#include <signnet.h>
+#include "signnet.h"
 
 class TWikiElecBs;
 class TWikiMetaHist;
@@ -42,9 +42,9 @@ public:
   int GetAllWrdCnt() const { return MnEdWrds+WkEdWrds+MnTkEdWrds+WkTkEdWrds; }
   int GetRevCnt() const { return MnRevCnt; }
   int GetRevWrds() const { return MnRevWrds; }
-  bool operator < (const TWikiUsr& WUsr) const { 
+  bool operator < (const TWikiUsr& WUsr) const {
     return strcmp(Usr.CStr(), WUsr.Usr.CStr())<0; }
-  void Dump() const { 
+  void Dump() const {
     //printf("%s\t%s\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\n", Usr.CStr(), Admin?"A":" ", BarnStars, MnEdCnt, MnEdWrds, MnTkEdCnt, MnTkEdWrds, WkEdCnt, WkEdWrds, WkTkEdCnt, WkTkEdWrds); }
     printf("%s\n", Usr.CStr()); }
   friend class TWikiTalkNet;
@@ -83,10 +83,10 @@ class TWikiTalkNet : public TNodeEDatNet<TWikiUsr, TWikiTalkEdge> {
 private:
   THash<TStr, TInt> UsrNIdH;
 public:
-  TWikiTalkNet() : TNet() { } 
-  TWikiTalkNet(TSIn& SIn) : TNet(SIn), UsrNIdH(SIn) { 
+  TWikiTalkNet() : TNet() { }
+  TWikiTalkNet(TSIn& SIn) : TNet(SIn), UsrNIdH(SIn) {
     if (UsrNIdH.Empty()) { for (TNodeI NI=BegNI(); NI<EndNI(); NI++) {
-      UsrNIdH.AddDat(NI().GetUsr(), NI.GetId()); } } } 
+      UsrNIdH.AddDat(NI().GetUsr(), NI.GetId()); } } }
   void Save(TSOut& SOut) const { TNet::Save(SOut); UsrNIdH.Save(SOut); }
   static PWikiTalkNet New() { return new TWikiTalkNet; }
   static PWikiTalkNet Load(TSIn& SIn) { return new TWikiTalkNet(SIn); }
@@ -100,11 +100,11 @@ public:
   PWikiTalkNet GetSubGraph(const TIntV& NIdV, const bool& RenumberNodes=false) const;
   PWikiTalkNet GetVoteSubNet(const int& VoteSign, const bool& VoteOnly, const bool& TalkOnly) const;
   PSignNet GetSignNet(const int& VoteSign, const bool& VoteOnly, const bool& TalkOnly) const;
-  
+
   void FindPartitions(const int& NPart, const bool& OnlyMinus) const;
   void GetPartStat(const TVec<TIntV>& PartNIdV) const;
   void TestPartitions(const TStr& OutFNm);
-    
+
   void PlotBarnStarDelta(const TStr& OutFNm) const;
   void PlotFracPosVsWords(const TStr& OutFNm) const;
   void PlotFracPosVsWords2(const TStr& OutFNm) const;
@@ -143,8 +143,8 @@ class TWikiTimeTalkNet : public TNodeEdgeNet<TChA, TWikiTalkEdge2> { // (talk ti
 private:
   TStrHash<TInt> UsrNIdH;
 public:
-  TWikiTimeTalkNet() : TNet() { } 
-  TWikiTimeTalkNet(TSIn& SIn) : TNet(SIn), UsrNIdH(SIn) { } 
+  TWikiTimeTalkNet() : TNet() { }
+  TWikiTimeTalkNet(TSIn& SIn) : TNet(SIn), UsrNIdH(SIn) { }
   void Save(TSOut& SOut) const { TNet::Save(SOut); UsrNIdH.Save(SOut); }
   static PWikiTimeTalkNet New() { return new TWikiTimeTalkNet; }
   static PWikiTimeTalkNet Load(TSIn& SIn) { return new TWikiTimeTalkNet(SIn); }
@@ -167,8 +167,8 @@ public:
     const TStr UsrChanges = "W:\\data\\wiki20080103-parseByGuerogy\\enwiki.important-username-changes.2007-08-06";
     const TStr BarnStars = "W:\\Data\\wiki20080103-parseByGuerogy\\barnstars.history.unsorted";
     THash<TChA, TChA> UsrMapH;
-    for (TSsParser Ss(UsrChanges, ssfSpaceSep); Ss.Next(); ) { 
-      TChA U1=Ss[3], U2=Ss[4]; if (U1.ToLc()!=U2.ToLc()) { UsrMapH.AddDat(U1,U2); } } 
+    for (TSsParser Ss(UsrChanges, ssfSpaceSep); Ss.Next(); ) {
+      TChA U1=Ss[3], U2=Ss[4]; if (U1.ToLc()!=U2.ToLc()) { UsrMapH.AddDat(U1,U2); } }
     for (TSsParser Ss(BarnStars, ssfSpaceSep); Ss.Next(); ) {
       TStr U = Ss[3]; U.ToTrunc(); U.ToLc();
       if (UsrMapH.IsKey(U)) { U = UsrMapH.GetDat(U); }
@@ -219,10 +219,10 @@ private:
   TSecTm VoteTm;
 public:
   TWikiVote() { }
-  TWikiVote(const int& UsrID, const int _UsrVote, const int& _UsrIndent, const int& TextLen, const TSecTm& VoteTime) : 
+  TWikiVote(const int& UsrID, const int _UsrVote, const int& _UsrIndent, const int& TextLen, const TSecTm& VoteTime) :
     UsrId(UsrID), UsrVote(_UsrVote), UsrIndent(_UsrIndent), TxtLen(TextLen), VoteTm(VoteTime) { }
-  TWikiVote(TSIn& SIn) { SIn.LoadBf(this, sizeof(TWikiVote)); } 
-  void Save(TSOut& SOut) const { SOut.SaveBf(this, sizeof(TWikiVote)); } 
+  TWikiVote(TSIn& SIn) { SIn.LoadBf(this, sizeof(TWikiVote)); }
+  void Save(TSOut& SOut) const { SOut.SaveBf(this, sizeof(TWikiVote)); }
   bool operator < (const TWikiVote& WV) const { return VoteTm<WV.VoteTm; }
   int GetUId() const { return UsrId; }
   int GetVote() const { return UsrVote; }
@@ -250,13 +250,13 @@ public:
   void Save(TSOut& SOut) const;
   bool operator < (const TWikiElec& WE) const;
   void SetIsVoteFlag();
-  
+
   int GetUId() const { return UsrId; }
   TSecTm GetTm() const { return ElecTm; }
   int Len() const { return VoteV.Len(); }
   const TWikiVote& GetVote(const int& VoteN) const { return VoteV[VoteN]; }
   const TWikiVote& operator [] (const int& VoteN) const { return GetVote(VoteN); }
-  
+
   double GetFracSup(const bool& OnlyVotes=true) const;
   double GetFracSup(int VoteId1, int VoteId2) const;
   double GetTrend(int VoteId1, int VoteId2) const;
@@ -288,7 +288,7 @@ public:
   TWikiElecBs() { }
   TWikiElecBs(TSIn& SIn) : UsrH(SIn), ElecV(SIn) { }
   void Save(TSOut& SOut) const { UsrH.Save(SOut); ElecV.Save(SOut); }
-  
+
   int GetUsrs() const { return UsrH.Len(); }
   const char *GetUsr(const int& UId) const { return UsrH.GetKey(UId); }
   bool IsUId(const int& UId) const { return UId < UsrH.Len(); }
@@ -309,7 +309,7 @@ public:
   void GetEIdByVotes(TIntV& EIdV, const bool& AscNumVotes=true) const;
   void GetEIdByVotes(TIntV& EIdV, const int& MinLen, const double& FracPos, const double AboveFrac, const bool& AscNumVotes=true) const;
   void GetEIdByFrac(TIntV& EIdV, const int& MinLen, const double& MnFracSup, const double& MxFracSup) const;
-  
+
   void GetUsrV(TIntV& UIdV) const;
   void GetElecUsrV(TIntV& ElecUIdV) const;
   void GetElecAdminUsrV(TIntV& ElecAdminUIdV) const;
@@ -319,19 +319,19 @@ public:
   void GetAdminSet(TIntSet& AdminSet) const;
   void GetFqVoterSet(TIntSet& FqVoterSet) const;
   void GetAdminTmSet(THash<TInt, TSecTm>& AdminSet) const;
-  
+
   void KeepFqVoters(const int& MinVotes, const int& MinElecLen, const bool& OnlyAdmins);
   void KeepVoters(const bool& OnlyAdmins, const bool& OnlyNonAdmins);
   void KeepTopVoters(const int& Votes, const bool& KeepTop);
-  int GetVoteTrails(const int& MinUsrVotes, const bool& No01Prob, TIntV& UIdV, TVec<TFltPrV>& ProbSupTmV, 
+  int GetVoteTrails(const int& MinUsrVotes, const bool& No01Prob, TIntV& UIdV, TVec<TFltPrV>& ProbSupTmV,
     TVec<TFltPrV>& FracSupTmV, TVec<TFltPrV>& ProbSupFracSupV, TVec<TFltPrV>& VotesTmV) const;
-  void GetVoteTrails2(const int& MinUsrVotes, const bool& No01Prob, TIntV& UIdV, 
+  void GetVoteTrails2(const int& MinUsrVotes, const bool& No01Prob, TIntV& UIdV,
     TVec<TFltPrV>& VoteIdxFracSupV, TVec<TFltPrV>& NVotesFracSupV) const;
   void GetUsrVoteTrail(const TIntV& UIdV, TVec<TFltPrV>& ProbPosFracPosV) const;
   void GetUsrAreaUTrail(const TIntV& UIdV, TFltV& AreaV) const;
   void PermuteVotes();
   void SortVotesByTm();
-  
+
   // new plots
   void PlotElecSupOppOt(const TStr& OutFNm, const int& MinVotes, const int& MaxVotes) const;
   void PlotElecLenDistr(const TStr& OutFNm) const;
@@ -360,12 +360,12 @@ public:
   void PlotSupFracVsElecLen(const TStr& OutFNm) const;
   void PlotSupOpp(const TStr& OutFNm) const;
   void PlotVoteDistr(const TStr& OutFNm) const;
-  
+
   PSignNet GetAdminUsrVoteNet() const;
   PSignNet GetElecUsrVoteNet() const;
   PSignNet GetAllUsrVoteNet() const;
   PSignNet GetVoteNet(const TIntV& UsrIdV) const;
-  
+
   void GetOnlyVoteElecBs(TWikiElecBs& NewElecBs, const bool& OnlySupOpp) const;
   bool AddElecRes(const TWikiMetaHist& WMH, const THash<TStr, TStr>& UsrMapH, const THash<TStr, TElecSum>& ElecSumH);
   void ParseVotes(const TWikiMetaHist& WMH, const THash<TStr, TStr>& UsrMapH, TWikiElec& WikiElec);
@@ -409,12 +409,12 @@ public:
   TWikiMetaLoader(const TStr& InFNm);
   bool IsIpAddrUsr() const;
   bool Next();
-  static bool IsIpAddr(const TChA& Usr);  
+  static bool IsIpAddr(const TChA& Usr);
 };
 
 /////////////////////////////////////////////////
 // Wikipedia pages-meta-history parser
-//   loads enwiki-20080103-pages-meta-history.xml.7z 
+//   loads enwiki-20080103-pages-meta-history.xml.7z
 class TWikiMetaHist {
 private:
   PSIn SInPt;
@@ -430,7 +430,7 @@ public:
   TWikiMetaHist(const TStr& InFNm); // for text loading
   TWikiMetaHist(const PSIn& SIn); // for binary loading
   void Save(TSOut& SOut) const;
-  
+
   void Clr();
   bool LoadNextBin();
   bool LoadNextTxt();
@@ -477,8 +477,8 @@ public:
 
   void SaveMatlabSparseMtx(const TStr& OutFNm, const bool& IsDir=true) const;
   static PWikiVoteNet GetSmallNet();
-  static PWikiVoteNet LoadSlashdot(const TStr& InFNm, const TStr& PosEdge, const TStr& NegEdge); 
-  
+  static PWikiVoteNet LoadSlashdot(const TStr& InFNm, const TStr& PosEdge, const TStr& NegEdge);
+
   friend class TPt<TWikiVoteNet>;
 }; */
 
