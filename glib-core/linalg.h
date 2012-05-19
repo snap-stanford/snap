@@ -281,7 +281,7 @@ private:
   static double pythag(double a, double b);
 
   //displays error message to screen
-  static void nrerror(char error_text[]);
+  static void nrerror(const TStr& error_text);
 
 public:
     // Householder reduction of a real, symmetric matrix a[1..n][1..n].

@@ -132,7 +132,7 @@ TStr THtmlLxChDef::GetCSZFromYuascii(const TChA& ChA){
 TStr THtmlLxChDef::GetCSZFromWin1250(const TChA& ChA){
   TChA DstChA;
   for (int ChN=0; ChN<ChA.Len(); ChN++){
-    char Ch=ChA[ChN];
+    const uchar Ch=ChA[ChN];
     switch (Ch){
       case 232: DstChA+='c'; break;
       case 200: DstChA+='C'; break;
@@ -207,10 +207,10 @@ void THtmlLx::GetEscCh(){
         PutCh('#'); PutCh('&');
       }
     } else
-    if (('a'<=Ch)&&(Ch<='z')||('A'<=Ch)&&(Ch<='Z')){
+    if ((('a'<=Ch)&&(Ch<='z'))||(('A'<=Ch)&&(Ch<='Z'))){
       do {
         EscChA.AddCh(Ch); GetCh();
-      } while (('A'<=Ch)&&(Ch<='Z')||('a'<=Ch)&&(Ch<='z')||('0'<=Ch)&&(Ch<='9'));
+      } while ((('A'<=Ch)&&(Ch<='Z'))||(('a'<=Ch)&&(Ch<='z'))||(('0'<=Ch)&&(Ch<='9')));
       if (Ch==';'){GetCh();}
       PutStr(ChDef.GetEscStr(EscChA));
     } else {
@@ -765,7 +765,7 @@ TStr THtmlDoc::GetTxtLnDoc(const TStr& HtmlStr){
   return LnDocChA;
 }
 
-TStr THtmlDoc::GetTxtLnDoc(const TStr& HtmlStr, 
+TStr THtmlDoc::GetTxtLnDoc(const TStr& HtmlStr,
  const TStr& BaseUrlStr, const bool& OutUrlP, const bool& OutTagsP){
   // prepare output-string
   TChA OutChA; OutChA+=' ';

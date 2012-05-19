@@ -549,8 +549,8 @@ double TNumericalStuff::sign(double a, double b) {
   return b >= 0.0 ? fabs(a) : -fabs(a);
 }
 
-void TNumericalStuff::nrerror(char error_text[]) {
-    printf("NR_ERROR: %s", error_text);
+void TNumericalStuff::nrerror(const TStr& error_text) {
+    printf("NR_ERROR: %s", error_text.CStr());
     throw new TNSException(error_text);
 }
 

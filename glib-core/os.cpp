@@ -628,8 +628,7 @@ uint64 TSysTm::GetMSecsFromTm(const TTm& Tm){
 
 TTm TSysTm::GetTmFromMSecs(const uint64& TmNum){
   int MSec = TmNum % 1000;
-  time_t Sec = (TmNum / 1000)-(1970-1601)*365*3600*24;
-
+  time_t Sec = time_t(uint64(TmNum / 1000)-uint64(1970-1601)*365*3600*24);
   FailR("BUG!: miliseconds start Jan 1 1601 (and not Jan 1 1970)!!!"); //J:BUG
   struct tm tms;
   gmtime_r(&Sec, &tms);

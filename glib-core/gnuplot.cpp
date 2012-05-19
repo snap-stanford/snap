@@ -31,7 +31,7 @@ TGnuPlot::TGpSeries& TGnuPlot::TGpSeries::operator = (const TGnuPlot::TGpSeries&
 }
 
 bool TGnuPlot::TGpSeries::operator < (const TGpSeries& Gps) const {
-  return XYValV < Gps.XYValV || (XYValV == Gps.XYValV) && Label < Gps.Label;
+  return (XYValV < Gps.XYValV) || ((XYValV == Gps.XYValV) && (Label < Gps.Label));
 }
 
 TGnuPlot::TGnuPlot(const TStr& FileNm, const TStr& PlotTitle, const bool& Grid) :
@@ -48,7 +48,7 @@ TGnuPlot::TGnuPlot(const TStr& DataFileNm, const TStr& PlotFileNm, const TStr& P
   YRange(0, 0), XRange(0, 0), SetGrid(Grid), SetPause(true), SeriesV(), MoreCmds() {
 }
 
-TGnuPlot::TGnuPlot(const TGnuPlot& GnuPlot) : DataFNm(GnuPlot.DataFNm), PlotFNm(GnuPlot.PlotFNm), 
+TGnuPlot::TGnuPlot(const TGnuPlot& GnuPlot) : DataFNm(GnuPlot.DataFNm), PlotFNm(GnuPlot.PlotFNm),
   Title(GnuPlot.Title), LblX(GnuPlot.LblX), LblY(GnuPlot.LblY), ScaleTy(GnuPlot.ScaleTy), YRange(GnuPlot.YRange),
   XRange(GnuPlot.XRange), SetGrid(GnuPlot.SetGrid), SetPause(GnuPlot.SetPause), SeriesV(GnuPlot.SeriesV),
   MoreCmds(GnuPlot.MoreCmds) {
@@ -782,11 +782,11 @@ void TGnuPlot::CreatePlotFile(const TStr& Comment) {
   if (! Title.Empty()) fprintf(F, "set title \"%s\"\n", Title.CStr());
   fprintf(F, "set key bottom right\n");
   fprintf(F, "%s\n", GetScaleStr(ScaleTy).CStr());
-  if (ScaleTy==gpsLog || ScaleTy==gpsLog10X || ScaleTy==gpsLog10XY) { 
-    fprintf(F, "set format x \"10^{%%L}\"\n"); 
+  if (ScaleTy==gpsLog || ScaleTy==gpsLog10X || ScaleTy==gpsLog10XY) {
+    fprintf(F, "set format x \"10^{%%L}\"\n");
     fprintf(F, "set mxtics 10\n"); }
-  if (ScaleTy==gpsLog || ScaleTy==gpsLog10Y || ScaleTy==gpsLog10XY) { 
-    fprintf(F, "set format y \"10^{%%L}\"\n"); 
+  if (ScaleTy==gpsLog || ScaleTy==gpsLog10Y || ScaleTy==gpsLog10XY) {
+    fprintf(F, "set format y \"10^{%%L}\"\n");
     fprintf(F, "set mytics 10\n"); }
   if (ScaleTy==gpsLog2X || ScaleTy==gpsLog2XY) { fprintf(F, "set format x \"2^{%%L}\"\n"); }
   if (ScaleTy==gpsLog2Y || ScaleTy==gpsLog2XY) { fprintf(F, "set format y \"2^{%%L}\"\n"); }

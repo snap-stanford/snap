@@ -320,7 +320,7 @@ bool TUrl::IsAbs(const TStr& UrlStr){
     return UrlStr.GetLc().IsPrefix(UrlHttpAbsPrefixStr);
   } else {
     int ColonChN=UrlStr.SearchCh(':'); int SlashChN=UrlStr.SearchCh('/');
-    return (ColonChN!=-1)&&((SlashChN==-1)||(SlashChN!=-1)&&(ColonChN<SlashChN));
+    return (ColonChN!=-1)&&((SlashChN==-1)||((SlashChN!=-1)&&(ColonChN<SlashChN)));
   }
 }
 

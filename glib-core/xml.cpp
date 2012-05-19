@@ -8,7 +8,7 @@ TStr TXmlObjSer::GetTagNm(const TStr& TypeNm){
     TChA XmlTagChA=TypeNm;
     for (int ChN=0; ChN<XmlTagChA.Len(); ChN++){
       char Ch=XmlTagChA[ChN];
-      if (!(('A'<=Ch)&&(Ch<='Z')||('a'<=Ch)&&(Ch<='z')||('0'<=Ch)&&(Ch<='9'))){
+      if (!((('A'<=Ch)&&(Ch<='Z'))||(('a'<=Ch)&&(Ch<='z'))||(('0'<=Ch)&&(Ch<='9')))){
         XmlTagChA.PutCh(ChN, '_');
       }
     }
@@ -414,7 +414,7 @@ TStr TXmlLx::GetName(){
     do {NmChA+=Ch;} while (ChDef.IsName(GetCh()));
   } else {
     EThrow("Invalid first name character.");
-    // EThrow(TStr::Fmt("Invalid first name character [%u:'%c%c%c%c%c'].", 
+    // EThrow(TStr::Fmt("Invalid first name character [%u:'%c%c%c%c%c'].",
     //  uint(Ch), Ch, RSIn.GetCh(), RSIn.GetCh(), RSIn.GetCh(), RSIn.GetCh()));
   }
   return NmChA;
@@ -886,7 +886,7 @@ void TXmlLx::EThrow(const TStr& MsgStr) const {
   TExcept::Throw(FullMsgStr);
 }
 
-TStr TXmlLx::GetFPosStr() const { 
+TStr TXmlLx::GetFPosStr() const {
   TChA FPosChA;
   FPosChA+=" [File:"; FPosChA+=SIn->GetSNm();
   FPosChA+=" Line:"; FPosChA+=TInt::GetStr(LnN);
@@ -1440,7 +1440,7 @@ void TXmlDoc::SaveStr(TStr& Str){
 }
 
 /////////////////////////////////////////////////
-// Fast and dirty XML parser 
+// Fast and dirty XML parser
 // very basic it does only <item>string</item>, no comments, no arguments
 TXmlLxSym TXmlParser::GetSym() {
   if (NextSym != xsyUndef) {
@@ -1458,7 +1458,7 @@ TXmlLxSym TXmlParser::GetSym() {
     else { Sym = xsySTag;  SymStr.Push(Ch); }
     while((Ch=GetCh())!='>' && Ch!=TCh::EofCh) { SymStr.Push(Ch); }
     const int StrLen = SymStr.Len();
-    if (StrLen > 1 && SymStr[StrLen-1] == '/') { 
+    if (StrLen > 1 && SymStr[StrLen-1] == '/') {
       Sym = xsyETag; SymStr[StrLen-1] = 0;
       for (char *c = SymStr.CStr()+StrLen-2; TCh::IsWs(*c); c--) { *c=0; }
     }
@@ -1478,7 +1478,7 @@ TXmlLxSym TXmlParser::GetSym(TChA& _SymStr) {
   return Sym;
 }
 
-TXmlLxSym TXmlParser::PeekSym() { 
+TXmlLxSym TXmlParser::PeekSym() {
   if (NextSym == xsyUndef) {
     const TXmlLxSym TmpSim=Sym;
     const TChA TmpSymStr=SymStr;
@@ -1489,13 +1489,13 @@ TXmlLxSym TXmlParser::PeekSym() {
   return NextSym;
 }
 
-TXmlLxSym TXmlParser::PeekSym(TChA& _SymStr) { 
+TXmlLxSym TXmlParser::PeekSym(TChA& _SymStr) {
   PeekSym();
   _SymStr = NextSymStr;
-  return NextSym; 
+  return NextSym;
 }
 
-void TXmlParser::SkipTillTag(const TChA& _SymStr) { 
+void TXmlParser::SkipTillTag(const TChA& _SymStr) {
   while(PeekSym() != xsyEof) {
     if (NextSymStr == _SymStr) { return; }
     GetSym();
@@ -1503,15 +1503,15 @@ void TXmlParser::SkipTillTag(const TChA& _SymStr) {
 }
 
 // get <tag>value</tag>
-void TXmlParser::GetTagVal(const TChA& TagStr, TChA& TagVal) { 
+void TXmlParser::GetTagVal(const TChA& TagStr, TChA& TagVal) {
   EAssertR(GetTag(TagStr) == xsySTag, TStr::Fmt("Expected '<%s>'. Found '%s'", TagStr.CStr(), SymStr.CStr()).CStr());
   EAssertR(GetSym(TagVal) == xsyStr, "Expected string tag.");
   EAssertR(GetTag(TagStr) == xsyETag, TStr::Fmt("Expected '</%s>'. Found '%s'", TagStr.CStr(), SymStr.CStr()).CStr());
 }
 
-TXmlLxSym TXmlParser::GetTag(const TChA& TagStr) { 
+TXmlLxSym TXmlParser::GetTag(const TChA& TagStr) {
   GetSym();
-  EAssertR(TagStr==SymStr, TStr::Fmt("Expected xml symbol '%s'. Found '%s'", 
+  EAssertR(TagStr==SymStr, TStr::Fmt("Expected xml symbol '%s'. Found '%s'",
     TagStr.CStr(), SymStr.CStr()).CStr());
   return Sym;
 }
@@ -1521,17 +1521,17 @@ void TXmlParser::GetPlainStrFromXmlStr(const TChA& XmlStr, TChA& PlainChA) {
   PlainChA.Clr();
   const char *Ch = XmlStr.CStr();
   while (*Ch){
-    if (*Ch!='&'){ PlainChA+=*Ch; Ch++; } 
+    if (*Ch!='&'){ PlainChA+=*Ch; Ch++; }
     else {
       if (*++Ch=='#'){
         TChA RefChA; int RefCd=0;
         if (*++Ch=='x'){
           forever {  Ch++;
-            if (TCh::IsHex(*Ch)){ RefChA+=*Ch;  RefCd=RefCd*16+TCh::GetHex(*Ch); } 
+            if (TCh::IsHex(*Ch)){ RefChA+=*Ch;  RefCd=RefCd*16+TCh::GetHex(*Ch); }
             else { break; } }
         } else { // decimal character code
           forever {
-            if (TCh::IsNum(*Ch)){ RefChA+=*Ch; RefCd=RefCd*10+TCh::GetNum(*Ch); } 
+            if (TCh::IsNum(*Ch)){ RefChA+=*Ch; RefCd=RefCd*10+TCh::GetNum(*Ch); }
             else { break; } Ch++; }
         }
         if ((!RefChA.Empty())&&(*Ch==';')){
