@@ -105,10 +105,10 @@ public:
   TUNGraph& operator = (const TUNGraph& Graph) {
     if (this!=&Graph) { MxNId=Graph.MxNId;  NodeH=Graph.NodeH; }  return *this; }
   // nodes
-  int GetNodes() const { return NodeH.Len(); }                                                    /// Returns the number of nodes in the graph.
-  int AddNode(int NId = -1);                                                                      /// Add a node of ID NId to the graph.
-  int AddNode(const TNodeI& NodeI) { return AddNode(NodeI.GetId()); }                             /// Add a node of ID NId to the graph.
-  int AddNode(const int& NId, const TIntV& NbhNIdV);                                              /// Add a node of ID NId to the graph and create edges to all node in vector NbhNIdV.
+  int GetNodes() const { return NodeH.Len(); }                                /// Returns the number of nodes in the graph.
+  int AddNode(int NId = -1);                                                  /// Add a node of ID NId to the graph.
+  int AddNode(const TNodeI& NodeI) { return AddNode(NodeI.GetId()); }         /// Add a node of ID NId to the graph.
+  int AddNode(const int& NId, const TIntV& NbhNIdV);                          /// Add a node of ID NId to the graph and create edges to all node in vector NbhNIdV.
   int AddNode(const int& NId, const TVecPool<TInt>& Pool, const int& NIdVId); /// Add a node of ID NId to the graph and create edges to all node in vector of ID NIdVId in the vector pool Pool).
   void DelNode(const int& NId);                                               /// Delete node of ID NId from the graph.
   void DelNode(const TNode& NodeI) { DelNode(NodeI.GetId()); }                /// Delete node of ID NodeI.GetId() from the graph.
@@ -117,11 +117,11 @@ public:
   TNodeI EndNI() const { return TNodeI(NodeH.EndI()); }                       /// Return an iterator referring to the past-the-end node in the graph.
   TNodeI GetNI(const int& NId) const { return TNodeI(NodeH.GetI(NId)); }      /// Return an iterator referring to the node of ID NId in the graph.
   // edges
-  int GetEdges() const;                                                                           /// Return the number of edges in the graph.
-  int AddEdge(const int& SrcNId, const int& DstNId);                                              /// Add an edge between node IDs SrcNId and DstNId to the graph.
-  int AddEdge(const TEdgeI& EdgeI) { return AddEdge(EdgeI.GetSrcNId(), EdgeI.GetDstNId()); }      /// Add an edge between EdgeI.GetSrcNId() and EdgeI.GetDstNId() to the graph.
-  void DelEdge(const int& SrcNId, const int& DstNId);                                             /// Delete an edge between node IDs SrcNId and DstNId from the graph.
-  bool IsEdge(const int& SrcNId, const int& DstNId) const;                                        /// Test whether an edge between node IDs SrcNId and DstNId exists the graph.
+  int GetEdges() const;                                                                       /// Return the number of edges in the graph.
+  int AddEdge(const int& SrcNId, const int& DstNId);                                          /// Add an edge between node IDs SrcNId and DstNId to the graph.
+  int AddEdge(const TEdgeI& EdgeI) { return AddEdge(EdgeI.GetSrcNId(), EdgeI.GetDstNId()); }  /// Add an edge between EdgeI.GetSrcNId() and EdgeI.GetDstNId() to the graph.
+  void DelEdge(const int& SrcNId, const int& DstNId);                                         /// Delete an edge between node IDs SrcNId and DstNId from the graph.
+  bool IsEdge(const int& SrcNId, const int& DstNId) const;                                    /// Test whether an edge between node IDs SrcNId and DstNId exists the graph.
   TEdgeI BegEI() const { TNodeI NI=BegNI(); while (NI<EndNI() && (NI.GetOutDeg()==0 || NI.GetId()>NI.GetOutNId(0))) { NI++; } return TEdgeI(NI, EndNI()); }  /// Return an iterator referring to the first edge in the graph.
   TEdgeI EndEI() const { return TEdgeI(EndNI(), EndNI()); }                   /// Return an iterator referring to the past-the-end edge in the graph.
   TEdgeI GetEI(const int& EId) const;                                         /// Not supported/implemented!
