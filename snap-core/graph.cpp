@@ -4,6 +4,10 @@ bool TUNGraph::HasFlag(const TGraphFlag& Flag) const {
   return HasGraphFlag(TUNGraph::TNet, Flag);
 }
 
+// Add a node of ID NId to the graph.
+/// Return value is the ID of the node being added.
+/// If NId=-1 node id will be automatically assigned (and returned).
+/// If node of ID NId already exists, do nothing.
 int TUNGraph::AddNode(int NId) {
   if (NId == -1) { NId = MxNId;  MxNId++; }
   else if (IsNode(NId)) { return NId; } // already a node
@@ -12,8 +16,12 @@ int TUNGraph::AddNode(int NId) {
   return NId;
 }
 
-// add a node with a list of neighbors
-// (use TUNGraph::IsOk to check whether the graph is consistent)
+// Add a node of ID NId to the graph and create edges to all node in vector NbhNIdV.
+/// Function can create inconsistent graphs unless the neighboring nodes (in NbhNIdV vector)
+/// are also explicitly added to the graph.
+/// Use TUNGraph::IsOk to check that the resulting graph is consistent.
+/// Return value is the ID of the node being added.
+/// If node NId already exists the function aborts.
 int TUNGraph::AddNode(const int& NId, const TIntV& NbhNIdV) {
   IAssert(NId != -1);
   IAssertR(! IsNode(NId), TStr::Fmt("NodeId %d already exists", NId));
@@ -25,8 +33,12 @@ int TUNGraph::AddNode(const int& NId, const TIntV& NbhNIdV) {
   return NId;
 }
 
-// add a node from a vector pool
-// (use TUNGraph::IsOk to check whether the graph is consistent)
+// Add a node of ID NId to the graph and create edges to all node in vector of ID NIdVId in the vector pool Pool).
+/// Function can create inconsistent graphs unless the neighboring nodes (stored in the vector)
+/// are also explicitly added to the graph.
+/// Use TUNGraph::IsOk to check that the resulting graph is consistent.
+/// Return value is the ID of the node being added.
+/// If node NId already exists the function aborts.
 int TUNGraph::AddNode(const int& NId, const TVecPool<TInt>& Pool, const int& NIdVId) {
   IAssert(NId != -1);
   IAssertR(! IsNode(NId), TStr::Fmt("NodeId %d already exists", NId));
@@ -38,11 +50,14 @@ int TUNGraph::AddNode(const int& NId, const TVecPool<TInt>& Pool, const int& NId
   return NId;
 }
 
+// Delete node of ID NId from the graph.
+/// If the node of ID NId does not exist the function aborts.
 void TUNGraph::DelNode(const int& NId) {
-  { TNode& Node = GetNode(NId);
+  { AssertR(IsNode(NId), TStr::Fmt("NodeId %d does not exist", NId));
+  TNode& Node = GetNode(NId);
   for (int e = 0; e < Node.GetDeg(); e++) {
-	const int nbh = Node.GetNbhNId(e);
-	if (nbh == NId) { continue; }
+  const int nbh = Node.GetNbhNId(e);
+  if (nbh == NId) { continue; }
     TNode& N = GetNode(nbh);
     const int n = N.NIdV.SearchBin(NId);
     if (n!= -1) { N.NIdV.Del(n); }
@@ -58,9 +73,12 @@ int TUNGraph::GetEdges() const {
   return Edges/2;
 }
 
+// Add an edge between SrcNId and DstNId to the graph.
+/// If the edge already exists return -2. If the edge was successfully added return -1.
+/// Normally the function should return an ID of the edge added but since edges in TUNGraph have no IDs we return -1.
+/// Function aborts if SrcNId or DstNId are not nodes in the graph.
 int TUNGraph::AddEdge(const int& SrcNId, const int& DstNId) {
   IAssertR(IsNode(SrcNId) && IsNode(DstNId), TStr::Fmt("%d or %d not a node.", SrcNId, DstNId).CStr());
-  //IAssert(! IsEdge(SrcNId, DstNId));
   if (IsEdge(SrcNId, DstNId)) { return -2; } // edge already exists
   GetNode(SrcNId).NIdV.AddSorted(DstNId);
   if (SrcNId!=DstNId) { // not a self edge
@@ -68,6 +86,9 @@ int TUNGraph::AddEdge(const int& SrcNId, const int& DstNId) {
   return -1; // edge id
 }
 
+// Delete an edge between node IDs SrcNId and DstNId from the graph.
+/// If the edge (SrcNId, DstNId) does not exist in the graph function still completes.
+/// But the function aborts if SrcNId or DstNId are not nodes in the graph.
 void TUNGraph::DelEdge(const int& SrcNId, const int& DstNId) {
   IAssertR(IsNode(SrcNId) && IsNode(DstNId), TStr::Fmt("%d or %d not a node.", SrcNId, DstNId).CStr());
   { TNode& N = GetNode(SrcNId);
@@ -80,11 +101,14 @@ void TUNGraph::DelEdge(const int& SrcNId, const int& DstNId) {
   }
 }
 
+// Test whether an edge between node IDs SrcNId and DstNId exists the graph.
 bool TUNGraph::IsEdge(const int& SrcNId, const int& DstNId) const {
   if (! IsNode(SrcNId) || ! IsNode(DstNId)) return false;
   return GetNode(SrcNId).IsNbhNId(DstNId);
 }
 
+// Return an iterator referring to edge (SrcNId, DstNId) in the graph.
+/// Note that since this is an undirected graph GetEI(SrcNId, DstNId) has the same effect as GetEI(DstNId, SrcNId).
 TUNGraph::TEdgeI TUNGraph::GetEI(const int& SrcNId, const int& DstNId) const {
   const int MnNId = TMath::Mn(SrcNId, DstNId);
   const int MxNId = TMath::Mx(SrcNId, DstNId);
@@ -94,12 +118,18 @@ TUNGraph::TEdgeI TUNGraph::GetEI(const int& SrcNId, const int& DstNId) const {
   return TEdgeI(SrcNI, EndNI(), NodeN);
 }
 
+
+// Get a vector IDs of all nodes in the graph
 void TUNGraph::GetNIdV(TIntV& NIdV) const {
   NIdV.Gen(GetNodes(), 0);
   for (int N=NodeH.FFirstKeyId(); NodeH.FNextKeyId(N); ) {
     NIdV.Add(NodeH.GetKey(N)); }
 }
 
+// Defragment the graph.
+/// After performing many node and edge insertions and deletions to a graph,
+/// the graph data structure will be fragmented in memory.
+/// This function compacts down the graph data structure and frees unneeded memory.
 void TUNGraph::Defrag(const bool& OnlyNodeLinks) {
   for (int n = NodeH.FFirstKeyId(); NodeH.FNextKeyId(n); ) {
     NodeH[n].NIdV.Pack();
@@ -109,7 +139,8 @@ void TUNGraph::Defrag(const bool& OnlyNodeLinks) {
   }
 }
 
-// for each node check that their neighbors are also nodes
+// Check the graph data structure for internal consistency.
+/// For each node in the graph check that its neighbors are also nodes in the graph.
 bool TUNGraph::IsOk(const bool& ThrowExcept) const {
   bool RetVal = true;
   for (int N = NodeH.FFirstKeyId(); NodeH.FNextKeyId(N); ) {
@@ -139,6 +170,7 @@ bool TUNGraph::IsOk(const bool& ThrowExcept) const {
   return RetVal;
 }
 
+// Print the graph in a human readable form to an output stream OutF.
 void TUNGraph::Dump(FILE *OutF) const {
   const int NodePlaces = (int) ceil(log10((double) GetNodes()));
   fprintf(OutF, "-------------------------------------------------\nUndirected Node Graph: nodes: %d, edges: %d\n", GetNodes(), GetEdges());
@@ -152,9 +184,10 @@ void TUNGraph::Dump(FILE *OutF) const {
   fprintf(OutF, "\n");
 }
 
-//Graph:   3--0--4
-//           /|
-//          1-2
+// Return a small graph on 5 nodes and 4 edges.
+/// Graph:   3--0--4
+///            /|
+///           1-2
 PUNGraph TUNGraph::GetSmallGraph() {
   PUNGraph Graph = TUNGraph::New();
   for (int i = 0; i < 5; i++) { Graph->AddNode(i); }
@@ -211,15 +244,15 @@ int TNGraph::AddNode(const int& NId, const TVecPool<TInt>& Pool, const int& SrcV
 void TNGraph::DelNode(const int& NId) {
   { TNode& Node = GetNode(NId);
   for (int e = 0; e < Node.GetOutDeg(); e++) {
-	const int nbh = Node.GetOutNId(e);
-	if (nbh == NId) { continue; }
+  const int nbh = Node.GetOutNId(e);
+  if (nbh == NId) { continue; }
     TNode& N = GetNode(nbh);
     int n = N.InNIdV.SearchBin(NId);
     if (n!= -1) { N.InNIdV.Del(n); }
   }
   for (int e = 0; e < Node.GetInDeg(); e++) {
-	const int nbh = Node.GetInNId(e);
-	if (nbh == NId) { continue; }
+  const int nbh = Node.GetInNId(e);
+  if (nbh == NId) { continue; }
     TNode& N = GetNode(nbh);
     int n = N.OutNIdV.SearchBin(NId);
     if (n!= -1) { N.OutNIdV.Del(n); }
