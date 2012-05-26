@@ -11,7 +11,7 @@ class TNEGraph; typedef TPt<TNEGraph> PNEGraph; /// Pointer to a directed multig
 /////////////////////////////////////////////////
 /// Undirected graph.
 /// Node IDs can be arbitrary non-negive integers. Nodes and edges have no attributes/data associated with them.
-/// There is at most one undirected edge between a pair of nodes. This means self loops are allowed but multiple (parallel) edges are not.
+/// There is at most one undirected edge between a pair of nodes. This means self loops (one per node) are allowed but multiple (parallel) edges are not.
 /// The undirected graph data structire is implemented using sorted adjacency lists.
 /// This means adding a node takes constant time, while adding an edge takes linear time (since adjacency list is kept sorted).
 /// Accessing arbitrary node takes constant time and accessing any edge takes logarithmic time.
