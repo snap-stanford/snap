@@ -140,9 +140,9 @@ public:
   int AddNode(int NId = -1);
   /// Add a node of ID NId to the graph.
   int AddNode(const TNodeI& NodeI) { return AddNode(NodeI.GetId()); }
-  // Add a node of ID NId to the graph and create edges to all node in vector NbhNIdV.
+  // Add a node of ID NId to the graph and create edges to all nodes in vector NbhNIdV.
   int AddNode(const int& NId, const TIntV& NbhNIdV);
-  // Add a node of ID NId to the graph and create edges to all node in vector of ID NIdVId in the vector pool Pool).
+  // Add a node of ID NId to the graph and create edges to all nodes in vector NIdVId in the vector pool Pool).
   int AddNode(const int& NId, const TVecPool<TInt>& Pool, const int& NIdVId);
   // Delete node of ID NId from the graph.
   void DelNode(const int& NId);
@@ -197,9 +197,9 @@ public:
   bool IsOk(const bool& ThrowExcept=true) const;
   // Print the graph in a human readable form to an output stream OutF.
   void Dump(FILE *OutF=stdout) const;
-
   // Return a small graph on 5 nodes and 4 edges.
   static PUNGraph GetSmallGraph();
+
   friend class TUNGraphMtx;
   friend class TPt<TUNGraph>;
 };

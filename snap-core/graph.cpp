@@ -14,7 +14,7 @@ int TUNGraph::AddNode(int NId) {
   return NId;
 }
 
-/// Add a node of ID NId to the graph and create edges to all node in vector NbhNIdV.
+/// Add a node of ID NId to the graph and create edges to all nodes in vector NbhNIdV.
 /// \block doc/graph.cpp.txt TUNGraph::AddNode-1
 int TUNGraph::AddNode(const int& NId, const TIntV& NbhNIdV) {
   IAssert(NId != -1);
@@ -27,7 +27,7 @@ int TUNGraph::AddNode(const int& NId, const TIntV& NbhNIdV) {
   return NId;
 }
 
-/// Add a node of ID NId to the graph and create edges to all node in vector of ID NIdVId in the vector pool Pool).
+/// Add a node of ID NId to the graph and create edges to all nodes in the vector NIdVId in the vector pool Pool).
 /// \block doc/graph.cpp.txt TUNGraph::AddNode-2
 int TUNGraph::AddNode(const int& NId, const TVecPool<TInt>& Pool, const int& NIdVId) {
   IAssert(NId != -1);
