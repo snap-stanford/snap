@@ -6,3 +6,9 @@ This means adding a node takes constant time, while adding an edge takes linear 
 Accessing arbitrary node takes constant time and accessing any edge takes logarithmic time.
 ///
 
+/// [TUNGraph::AddNode]
+This is TUNGraph::AddNode documentation from graph.h.txt.
+It is a test to see how detailed comments are processed by doxygen. The most
+important part is if the two comments are merged and which one comes first.
+///
+
