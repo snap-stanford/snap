@@ -28,7 +28,7 @@ def convert(dirpath,srcname,dstname):
         block = False
 
         # find the \block command
-        if len(words) >= 3  and  words[1] == "\\block":
+        if len(words) >= 3  and  words[0] == "///"  and  words[1] == "\\block":
             block = True
 
         if not block:
