@@ -4,11 +4,11 @@ dummy:
 all: dev user
 
 dev: doxycopy
-	rm -rf html-dev log-doxygen-dev.txt
+	rm -rf snapdoc-dev log-doxygen-dev.txt
 	doxygen Doxyfile-dev
 
 user: doxycopy
-	rm -rf html-user log-doxygen-user.txt
+	rm -rf snapdoc-user log-doxygen-user.txt
 	doxygen Doxyfile-user
 
 doxycopy:
@@ -24,6 +24,6 @@ doxycopy:
 
 clean:
 	rm -rf snap
-	rm -rf html-dev* html-user*
+	rm -rf snapdoc-dev* snapdoc-user*
 	rm -rf log-doxygen*.txt doxygen_*.tmp
 
