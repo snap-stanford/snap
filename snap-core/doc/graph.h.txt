@@ -1,14 +1,85 @@
-/// [Undirected graph]
-Node IDs can be arbitrary non-negive integers. Nodes and edges have no attributes/data associated with them.
+/// Undirected_graph
+Node IDs can be arbitrary non-negative integers. Nodes and edges have no attributes/data associated with them.
 There is at most one undirected edge between a pair of nodes. This means self loops (one per node) are allowed but multiple (parallel) edges are not.
-The undirected graph data structire is implemented using sorted adjacency lists.
+The undirected graph data structure is implemented using sorted adjacency lists.
 This means adding a node takes constant time, while adding an edge takes linear time (since adjacency list is kept sorted).
 Accessing arbitrary node takes constant time and accessing any edge takes logarithmic time.
 ///
 
-/// [TUNGraph::AddNode]
-This is TUNGraph::AddNode documentation from graph.h.txt.
-It is a test to see how detailed comments are processed by doxygen. The most
-important part is if the two comments are merged and which one comes first.
+/// TNodeI::GetInNId
+Range of NodeN: 0 <= NodeN < GetInDeg(). Since the graph is undirected
+GetInNId(), GetOutNId() and GetNbhNId() all give the same output.
 ///
 
+/// TNodeI::GetOutNId
+Range of NodeN: 0 <= NodeN < GetOutDeg(). Since the graph is undirected
+GetInNId(), GetOutNId() and GetNbhNId() all give the same output.
+///
+
+/// TNodeI::GetNbhNId
+Range of NodeN: 0 <= NodeN < GetNbhDeg(). Since the graph is undirected
+GetInNId(), GetOutNId() and GetNbhNId() all give the same output.
+///
+
+/// TUNGraph::New
+Call: PUNGraph Graph = TUNGraph::New(Nodes, Edges).
+///
+
+/// TUNGraph::AddNode (int NId = -1)
+Return value is the ID of the node being added.
+If NId=-1 node id will be automatically assigned (and returned).
+If node of ID NId already exists, do nothing.
+///
+
+/// TUNGraph::AddNode-1 (const int& NId, const TIntV& NbhNIdV)
+Function can create inconsistent graphs unless the neighboring nodes (in NbhNIdV vector)
+are also explicitly added to the graph.
+Use TUNGraph::IsOk to check that the resulting graph is consistent.
+Return value is the ID of the node being added.
+If node NId already exists the function aborts.
+///
+
+/// TUNGraph::AddNode-2 (const int& NId, const TVecPool<TInt>& Pool, const int& NIdVId)
+Function can create inconsistent graphs unless the neighboring nodes (stored in the vector)
+are also explicitly added to the graph.
+Use TUNGraph::IsOk to check that the resulting graph is consistent.
+Return value is the ID of the node being added.
+If node NId already exists the function aborts.
+///
+
+/// TUNGraph::DelNode
+If the node of ID NId does not exist the function aborts.
+///
+
+/// TUNGraph::AddEdge
+If the edge already exists return -2. If the edge was successfully added return -1.
+Normally the function should return an ID of the edge added but since edges in TUNGraph have no IDs we return -1.
+Function aborts if SrcNId or DstNId are not nodes in the graph.
+///
+
+/// TUNGraph::DelEdge
+If the edge (SrcNId, DstNId) does not exist in the graph function still completes.
+But the function aborts if SrcNId or DstNId are not nodes in the graph.
+///
+
+/// TUNGraph::GetEI
+Note that since this is an undirected graph GetEI(SrcNId, DstNId) has the same effect as GetEI(DstNId, SrcNId).
+///
+
+/// TUNGraph::Defrag
+After performing many node and edge insertions and deletions to a graph,
+the graph data structure will be fragmented in memory.
+This function compacts down the graph data structure and frees unneeded memory.
+///
+
+/// TUNGraph::IsOk
+For each node in the graph check that its neighbors are also nodes in the graph.
+///
+
+/// TUNGraph::GetSmallGraph
+\verbatim
+Graph:   3--0--4
+           /|
+          1-2
+\endverbatim
+///

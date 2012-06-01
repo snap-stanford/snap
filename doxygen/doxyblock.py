@@ -6,8 +6,23 @@ import os
 import shutil
 import sys
 
-# prefix added to the block lines
-blockprefix = "/// "
+# brief doc prefix
+briefprefix = "///"
+
+# detailed doc prefix
+detailprefix = "##"
+
+# block prefix in the existing documentation
+blockprefix = "///"
+
+# subdirectory with the documentation
+docdir = "doc"
+
+# documentation file suffix
+docsuffix = ".txt"
+
+# prefix added to the block lines in the output
+docprefix = "/// "
 
 def mkdirs(path):
     try:
@@ -23,22 +38,33 @@ def convert(dirpath,srcname,dstname):
     f = open(srcname)
 
     for l in f:
-        words = l.split()
+        # find the comments
+        brief = l.find(briefprefix)
+        detailed = l.find(detailprefix)
 
-        block = False
-
-        # find the \block command
-        if len(words) >= 3  and  words[0] == "///"  and  words[1] == "\\block":
-            block = True
-
-        if not block:
+        # no comments found, add the line to the output and continue
+        if brief < 0  or  detailed < 0  or  detailed < brief:
             lines.append(l)
             continue
 
-        # process a \block command
-        bfile = os.path.join(dirpath,words[2])
-        bname = " ".join(words[3:])
-        #lines.append("*** " + words[0] + " " + bfile + " " + bname + "\n")
+        # process the comment
+
+        # append the content before the detailed doc
+        lines.append(l[:detailed] + "\n")
+
+        # get the macro file name and block name
+        bfile = os.path.join(dirpath, docdir,
+                            os.path.basename(srcname) + docsuffix)
+
+        words = l[detailed+len(detailprefix):].split()
+        if len(words) <= 0:
+            continue
+
+        bname = words[0].strip()
+        if len(bname) <= 0:
+            continue
+
+        #lines.append("*** " + bfile + " " + bname + "\n")
 
         insert(lines,bfile,bname)
 
@@ -54,6 +80,10 @@ def convert(dirpath,srcname,dstname):
 def insert(lines,bfile,bname):
     #print "*** .%s. .%s." % (bfile, bname)
 
+    if not os.path.exists(bfile):
+        print "*** Error: file not found - file:.%s." % (bfile)
+        sys.exit(1)
+
     f = open(bfile)
 
     found = False
@@ -62,24 +92,14 @@ def insert(lines,bfile,bname):
 
         block = False
 
-        # find block start ///
-        if len(words) >= 2  and  words[0] == "///":
+        # find block start
+        if len(words) >= 2  and  words[0] == blockprefix:
             block = True
         if not block:
             continue
 
-        # process a block ///
-
-        # find the block label
-        lpar = l.find("[")
-        rpar = l.find("]")
-
-        # skip incorrectly formatted labels
-        if lpar < 0  or  rpar < 0  or  rpar < lpar:
-            continue
-
         # get the label match
-        blabel = l[lpar+1:rpar]
+        blabel = words[1]
         #print "+++ .%s. .%s." % (blabel, l)
         if bname == blabel:
             found = True
@@ -87,6 +107,8 @@ def insert(lines,bfile,bname):
 
     if not found:
         f.close()
+        print "*** Error: block not found - file:.%s., block:.%s." % (bfile, bname)
+        sys.exit(1)
         return
 
     lines.append("\n")
@@ -95,11 +117,11 @@ def insert(lines,bfile,bname):
 
         block = False
 
-        # terminate at the block end ///
-        if len(words) >= 1  and  words[0] == "///":
+        # terminate at the block end
+        if len(words) >= 1  and  words[0] == blockprefix:
             break
 
-        lines.append(blockprefix + l)
+        lines.append(docprefix + l)
 
     f.close()
 
@@ -123,9 +145,13 @@ if __name__ == '__main__':
         srcpath = os.path.join(workdir, path)
 
         for file in files:
+
+            # skip files that start with "."
+            if file[0] == ".":
+                continue
+
             # copy file from path/file to workdir/dstpath/file
             #shutil.copyfile(
             convert(srcpath,
                 os.path.join(srcpath,file), os.path.join(dstpath,file))
-
 
