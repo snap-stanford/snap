@@ -19,6 +19,7 @@ template <class PGraph> double GetBfsEffDiam(const PGraph& Graph, const int& NTe
 template <class PGraph> double GetBfsEffDiam(const PGraph& Graph, const int& NTestNodes, const bool& IsDir, double& EffDiam, int& FullDiam);
 template <class PGraph> double GetBfsEffDiam(const PGraph& Graph, const int& NTestNodes, const bool& IsDir, double& EffDiam, int& FullDiam, double& AvgDiam);
 template <class PGraph> double GetBfsEffDiam(const PGraph& Graph, const int& NTestNodes, const TIntV& SubGraphNIdV, const bool& IsDir, double& EffDiam, int& FullDiam);
+template <class PGraph> int GetNodeEcc(const PGraph& Graph, const int& NId, const bool& IsDir=false);
 
 //template <class PGraph> int GetRangeDist(const PGraph& Graph, const int& SrcNId, const int& DstNId, const bool& IsDir=false);
 //template <class PGraph> int GetShortPath(const PGraph& Graph, const int& SrcNId, TIntH& NIdToDistH, const bool& IsDir=false, const int& MaxDist=1000);
@@ -310,6 +311,26 @@ double GetBfsEffDiam(const PGraph& Graph, const int& NTestNodes, const TIntV& Su
   EffDiam = TAnf::CalcEffDiamPdf(DistNbhsPdfV, 0.9);  // effective diameter (90-th percentile)
   FullDiam = DistNbhsPdfV.Last().Key;                 // approximate full diameter (max shortest path length over the sampled nodes)
   return EffDiam;                                     // average shortest path length
+}
+
+/// Return node eccentricity, the largest distance from the node to any other node.
+template <class PGraph>
+int GetNodeEcc(const PGraph& Graph, const int& NId, const bool& IsDir) {
+  int NodeEcc;
+  int Dist;
+  TBreathFS<PGraph> BFS(Graph);
+  // get shortest paths to all the nodes
+  BFS.DoBfs(NId, true, ! IsDir, -1, TInt::Mx);
+
+  NodeEcc = 0;
+  // find the largest value
+  for (int i = 0; i < BFS.NIdDistH.Len(); i++) {
+    Dist = BFS.NIdDistH[i];
+    if (Dist > NodeEcc) {
+      NodeEcc = Dist;
+    }
+  }
+  return NodeEcc;
 }
 
 } // namespace TSnap
