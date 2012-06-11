@@ -1,19 +1,11 @@
 #
-# Makefile for non-Microsoft compilers
+#	Makefile for this SNAP example
+#	- modify Makefile.ex when creating a new SNAP example
+#
+#	implements:
+#		all (default), clean
 #
 
 include ../../Makefile.config
 include Makefile.ex
-
-all: $(MAIN)
-
-# COMPILE
-$(MAIN): $(MAIN).cpp $(DEPH) $(DEPCPP) $(EXSNAP)/Snap.o 
-	$(CC) -o $(MAIN) $(MAIN).cpp $(DEPCPP) $(EXSNAP)/Snap.o -I$(EXGLIB) -I$(EXSNAP) $(LDFLAGS) $(LIBS)
-
-$(EXSNAP)/Snap.o: 
-	make -C $(EXSNAP)
-
-clean:
-	rm -f *.o  $(MAIN)  $(MAIN).exe
-	rm -rf Debug Release
+include ../Makefile.exmain
