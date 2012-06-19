@@ -160,7 +160,7 @@ void TUNGraph::Dump(FILE *OutF) const {
   fprintf(OutF, "\n");
 }
 
-// Return a small graph on 5 nodes and 4 edges.
+// Return a small graph on 5 nodes and 5 edges.
 PUNGraph TUNGraph::GetSmallGraph() {
   PUNGraph Graph = TUNGraph::New();
   for (int i = 0; i < 5; i++) { Graph->AddNode(i); }
