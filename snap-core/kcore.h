@@ -55,7 +55,7 @@ int TKCore<PGraph>::GetNextCore() {
       if (Deg < CurK) {
         const typename PGraph::TObj::TNodeI NI = Graph->GetNI(NId);
         for (int e = 0; e < NI.GetDeg(); e++) {
-          const int n = NI.GetNbhNId(e);
+          const int n = NI.GetNbrNId(e);
           const int nk = DegH.GetKeyId(n);
           if (nk != -1) { DegH[nk] -= 1; } // mark node deleted
         }

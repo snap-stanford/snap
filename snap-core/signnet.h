@@ -51,7 +51,7 @@ public:
   static TChA GetTriadStr(const TIntTr& TriadSig);
 
   void EdgeSignStat() const;
-  void PlotSignCmnNbhs(const TStr& OutFNm) const;
+  void PlotSignCmnNbrs(const TStr& OutFNm) const;
   void CountSignedTriads(const TStr& OutFNm) const;
   void PlotGraphProp(const TStr& OutFNm) const;
   void PlotInOutPlusFrac(const TStr& OutFNm) const;
@@ -187,7 +187,7 @@ public:
     if (DstNId == SrcNId || Network->IsEdge(DstNId, SrcNId)) { return; }
     Network->AddNode(SrcNId);  Network->AddNode(DstNId);
     Network->AddEdge(SrcNId, DstNId, TrueSign);
-    if (MinCmnNbrs>0 && MinCmnNbrs>TSnap::GetCmnNbhs(Network, SrcNId, DstNId)) { return; }
+    if (MinCmnNbrs>0 && MinCmnNbrs>TSnap::GetCmnNbrs(Network, SrcNId, DstNId)) { return; }
     PredictRandom(SrcNId, DstNId, TrueSign);
     PredictOutSign(SrcNId, DstNId, TrueSign);
     PredictInSign(SrcNId, DstNId, TrueSign);
@@ -200,7 +200,7 @@ public:
     TIntTrV EdgeV;
     int NegCnt=0;
     for (TSignNet::TEdgeI EI = Network->BegEI(); EI < Network->EndEI(); EI++) {
-      if (MinCmnNbrs>0 && MinCmnNbrs>TSnap::GetCmnNbhs(Network, EI.GetSrcNId(), EI.GetDstNId())) { continue; }
+      if (MinCmnNbrs>0 && MinCmnNbrs>TSnap::GetCmnNbrs(Network, EI.GetSrcNId(), EI.GetDstNId())) { continue; }
       EdgeV.Add(TIntTr(EI.GetSrcNId(), EI.GetDstNId(), EI()));
       if (EI() == -1) { NegCnt++; }
     }
@@ -251,11 +251,11 @@ public:
     else { AddPred("InSign", -1, TrueSign); }
   }
   void PredictStatus(const int& SrcNId, const int& DstNId, const int& TrueSign) {
-    TIntV NbhV;
-    TSnap::GetCmnNbhs(Network, SrcNId, DstNId, NbhV);
+    TIntV NbrV;
+    TSnap::GetCmnNbrs(Network, SrcNId, DstNId, NbrV);
     double SrcS=0, DstS=0;
-    for (int n = 0; n < NbhV.Len(); n++) {
-      PSignNet TriadNet = Network->GetTriad(SrcNId, DstNId, NbhV[n]); // (src,dst) == (0,1)
+    for (int n = 0; n < NbrV.Len(); n++) {
+      PSignNet TriadNet = Network->GetTriad(SrcNId, DstNId, NbrV[n]); // (src,dst) == (0,1)
       SrcS += TSignMicroEvol::GetStatus(TriadNet, 0)>=0 ? 1:-1;
       DstS += TSignMicroEvol::GetStatus(TriadNet, 1)>=0 ? 1:-1;
     }
@@ -268,19 +268,19 @@ public:
     else { AddPred("StatDif", 1, TrueSign); }
   }
   void PredictBalance(const int& SrcNId, const int& DstNId, const int& TrueSign) {
-    TIntV NbhV;
-    TSnap::GetCmnNbhs(Network, SrcNId, DstNId, NbhV);
+    TIntV NbrV;
+    TSnap::GetCmnNbrs(Network, SrcNId, DstNId, NbrV);
     int Bal=0;
-    for (int n = 0; n < NbhV.Len(); n++) {
-      //PSignNet TriadNet = Network->GetTriad(SrcNId, DstNId, NbhV[n]); // (src,dst) == (0,1)
+    for (int n = 0; n < NbrV.Len(); n++) {
+      //PSignNet TriadNet = Network->GetTriad(SrcNId, DstNId, NbrV[n]); // (src,dst) == (0,1)
       //Bal += TriadNet->IsBalanced()? 1:0;
-      const int E1 = Network->IsEdge(SrcNId, NbhV[n])? Network->GetEDat(SrcNId, NbhV[n]) : Network->GetEDat(NbhV[n], SrcNId);
-      const int E2 = Network->IsEdge(DstNId, NbhV[n])? Network->GetEDat(DstNId, NbhV[n]) : Network->GetEDat(NbhV[n], DstNId);
+      const int E1 = Network->IsEdge(SrcNId, NbrV[n])? Network->GetEDat(SrcNId, NbrV[n]) : Network->GetEDat(NbrV[n], SrcNId);
+      const int E2 = Network->IsEdge(DstNId, NbrV[n])? Network->GetEDat(DstNId, NbrV[n]) : Network->GetEDat(NbrV[n], DstNId);
       if (E1*E2 == 1) { Bal++; }
     }
-    //if (Bal >= NbhV.Len()/2) { AddPred("Balance", TrueSign, TrueSign); }
+    //if (Bal >= NbrV.Len()/2) { AddPred("Balance", TrueSign, TrueSign); }
     //else { AddPred("Balance", -TrueSign, TrueSign); }
-    if (Bal >= NbhV.Len()/2) { AddPred("Balance", +1, TrueSign); }
+    if (Bal >= NbrV.Len()/2) { AddPred("Balance", +1, TrueSign); }
     else { AddPred("Balance", -1, TrueSign); }
   }
   void PrintRes() const {
@@ -294,11 +294,11 @@ public:
   }
   //
   bool SaveEdgeAttrs(FILE *F, const int& SrcNId,const int& DstNId, const bool& SaveEol=true) {
-    TIntV NbhV;
+    TIntV NbrV;
     bool DelEdge = false;
     const int TrueSign = Network->IsEdge(SrcNId, DstNId) ? (int) Network->GetEDat(SrcNId, DstNId) : 0;
-    //if (MinCmnNbrs > TSnap::GetCmnNbhs(Network, SrcNId, DstNId, NbhV)) { return false; }
-    TSnap::GetCmnNbhs(Network, SrcNId, DstNId, NbhV);
+    //if (MinCmnNbrs > TSnap::GetCmnNbrs(Network, SrcNId, DstNId, NbrV)) { return false; }
+    TSnap::GetCmnNbrs(Network, SrcNId, DstNId, NbrV);
     if (Network->IsEdge(SrcNId, DstNId)) { Network->DelEdge(SrcNId, DstNId); DelEdge=true; }
     TSignNet::TNodeI SrcNI = Network->GetNI(SrcNId);
     TSignNet::TNodeI DstNI = Network->GetNI(DstNId);
@@ -306,16 +306,16 @@ public:
     for (int e = 0; e < SrcNI.GetOutDeg(); e++) { srcOutPlus += SrcNI.GetOutEDat(e)>0 ? 1:0; }
     for (int e = 0; e < DstNI.GetInDeg(); e++) { dstInPlus += DstNI.GetInEDat(e)>0 ? 1:0; }
     fprintf(F, "%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d", TrueSign==1?1:0, SrcNI.GetOutDeg(), srcOutPlus,
-      SrcNI.GetOutDeg()-srcOutPlus, DstNI.GetInDeg(), dstInPlus, DstNI.GetInDeg()-dstInPlus, NbhV.Len());
+      SrcNI.GetOutDeg()-srcOutPlus, DstNI.GetInDeg(), dstInPlus, DstNI.GetInDeg()-dstInPlus, NbrV.Len());
     THash<TIntPr, TInt> H;
     for (int i = 1; i <=2; i++) {
       for (int j = 1; j <=2; j++) {
         H.AddDat(TIntPr(i,j)); H.AddDat(TIntPr(i,-j)); H.AddDat(TIntPr(-i,j)); H.AddDat(TIntPr(-i,-j));
     } }
     // predict edge A-->B
-    for (int n = 0; n < NbhV.Len(); n++) {
+    for (int n = 0; n < NbrV.Len(); n++) {
       int AC=0, CB=0; // edge desc: +,- 1:AC/CB, 2:CA/BC : FB+- = (1, -2)
-      const int Mid = NbhV[n];
+      const int Mid = NbrV[n];
       if (Network->IsEdge(SrcNId, Mid)) { AC = 1 * Network->GetEDat(SrcNId, Mid); }
       else  { AC = 2 * Network->GetEDat(Mid, SrcNId); }
       if (Network->IsEdge(Mid, DstNId)) { CB = 1 * Network->GetEDat(Mid, DstNId); }
@@ -345,14 +345,14 @@ public:
   }
   // save features for edge sign prediction
   void SaveEdgeSignPredFeatures(const TStr& OutFNm) {
-    FILE *F = fopen(TStr::Fmt("tr16pred-%s-nbh%d.tab", OutFNm.CStr(), MinCmnNbrs).CStr(), "wt");
-    //FILE *F = fopen(TStr::Fmt("tr16pred-%s-nbh%d.tab", OutFNm.CStr(), MinCmnNbrs).CStr(), "wt");
+    FILE *F = fopen(TStr::Fmt("tr16pred-%s-nbr%d.tab", OutFNm.CStr(), MinCmnNbrs).CStr(), "wt");
+    //FILE *F = fopen(TStr::Fmt("tr16pred-%s-nbr%d.tab", OutFNm.CStr(), MinCmnNbrs).CStr(), "wt");
     fprintf(F, "Edge\tAOutDeg\tAOutPlus\tAOutMinus\tBInDeg\tBInPlus\tBInMinus\tCmnNbrs");
     fprintf(F, "\tFFpp\tFFpm\tFFmp\tFFmm"); // feed forward
     fprintf(F, "\tFBpp\tFBpm\tFBmp\tFBmm"); // collision
     fprintf(F, "\tBFpp\tBFpm\tBFmp\tBFmm"); // split
     fprintf(F, "\tBBpp\tBBpm\tBBmp\tBBmm\n"); // feed backward
-    TIntV NbhV;
+    TIntV NbrV;
     int NegEdgeCnt=0;
     //Network->MakeStatusConsistent();
     TIntPrV EdgeV;
@@ -366,7 +366,7 @@ public:
       const int SrcNId = EdgeV[edge].Val1;
       const int DstNId = EdgeV[edge].Val2;
       const int TrueSign = Network->GetEDat(SrcNId, DstNId);
-      const int CmnNbrs = TSnap::GetCmnNbhs(Network, SrcNId, DstNId);
+      const int CmnNbrs = TSnap::GetCmnNbrs(Network, SrcNId, DstNId);
       if (CmnNbrs < MinCmnNbrs) { continue; }
       if (TrueSign==1 && NegEdgeCnt <= 0) { continue; }
       if (SaveEdgeAttrs(F, SrcNId, DstNId) && TrueSign==1) { NegEdgeCnt--; }
@@ -383,14 +383,14 @@ public:
   }
   // save features for trust prediction (is there a trust edge vs. there is no edge), (A,B) vs (A,D)
   void SaveEdgePredFeatures(const TStr& OutFNm, const int& SavePairs) {
-    FILE *F = fopen(TStr::Fmt("edgePred-%s-nbh%d.tab", OutFNm.CStr(), MinCmnNbrs).CStr(), "wt");
+    FILE *F = fopen(TStr::Fmt("edgePred-%s-nbr%d.tab", OutFNm.CStr(), MinCmnNbrs).CStr(), "wt");
     fprintf(F, "Edge\tAOutDeg\tAOutPlus\tAOutMinus\tBInDeg\tBInPlus\tBInMinus\tCmnNbrs");
     fprintf(F, "\tFFpp\tFFpm\tFFmp\tFFmm"); // feed forward
     fprintf(F, "\tFBpp\tFBpm\tFBmp\tFBmm"); // collision
     fprintf(F, "\tBFpp\tBFpm\tBFmp\tBFmm"); // split
     fprintf(F, "\tBBpp\tBBpm\tBBmp\tBBmm\tCmnPlus\n"); // feed backward
     TIntPrV EdgeV, NoEdgeV;
-    TIntV NbhV, Hop2NIdV;
+    TIntV NbrV, Hop2NIdV;
     TIntH EmbeddH;
     PSignNet PlusNet = TSnap::GetEDatSubGraph(Network, 1, 0);
     PlusNet->PrintInfo();
@@ -404,7 +404,7 @@ public:
       if (! HasMinusEdge(Src) || ! HasMinusEdge(Dst)) { continue; }
       Hop2NIdV.Clr(false);
       TSnap::GetNodesAtHop(PlusNet, Src, 2, Hop2NIdV);
-      const int CmnNbrs = TSnap::GetCmnNbhs(PlusNet, Src, Dst, NbhV);
+      const int CmnNbrs = TSnap::GetCmnNbrs(PlusNet, Src, Dst, NbrV);
       if (CmnNbrs >= MinCmnNbrs && SaveTrust<SavePairs) {
         SaveEdgeAttrs(F, Src, Dst, false);
         fprintf(F, "\t%d\n", CmnNbrs);
@@ -413,7 +413,7 @@ public:
         SaveTrust++;
       }
       for (int n = 0; n < Hop2NIdV.Len(); n++) {
-        const int CmnNbrs2 = TSnap::GetCmnNbhs(PlusNet, Src, Hop2NIdV[n], NbhV);
+        const int CmnNbrs2 = TSnap::GetCmnNbrs(PlusNet, Src, Hop2NIdV[n], NbrV);
         if(EmbeddH.IsKey(CmnNbrs2) && EmbeddH.GetDat(CmnNbrs2) > 0 && SaveNoEdge<SavePairs) {
           SaveEdgeAttrs(F, Src, Hop2NIdV[n], false);
           fprintf(F, "\t%d\n", CmnNbrs2);
@@ -431,20 +431,20 @@ public:
   }
   // (A,B) vs (C,D) -- trust edge vs. no edge
   void SaveEdgePredFeatures2(const TStr& OutFNm, const int& SavePairs) {
-    FILE *F = fopen(TStr::Fmt("edgePred2-%s-nbh%d.tab", OutFNm.CStr(), MinCmnNbrs).CStr(), "wt");
+    FILE *F = fopen(TStr::Fmt("edgePred2-%s-nbr%d.tab", OutFNm.CStr(), MinCmnNbrs).CStr(), "wt");
     fprintf(F, "Edge\tAOutDeg\tAOutPlus\tAOutMinus\tBInDeg\tBInPlus\tBInMinus\tCmnNbrs");
     fprintf(F, "\tFFpp\tFFpm\tFFmp\tFFmm"); // feed forward
     fprintf(F, "\tFBpp\tFBpm\tFBmp\tFBmm"); // collision
     fprintf(F, "\tBFpp\tBFpm\tBFmp\tBFmm"); // split
     fprintf(F, "\tBBpp\tBBpm\tBBmp\tBBmm\tCmnPlus\n"); // feed backward
     TIntPrV EdgeV, NoEdgeV;
-    TIntV NbhV, Hop2NIdV;
+    TIntV NbrV, Hop2NIdV;
     THash<TInt, TIntPrV> EmbedEdgeVH;
     TIntH EmbedH;
     PSignNet PlusNet = TSnap::GetEDatSubGraph(Network, 1, 0);
     PlusNet->PrintInfo();
     for (TSignNet::TEdgeI EI = PlusNet->BegEI(); EI < PlusNet->EndEI(); EI++) {
-      const int Cmn = TSnap::GetCmnNbhs(PlusNet, EI.GetSrcNId(), EI.GetDstNId(), NbhV);
+      const int Cmn = TSnap::GetCmnNbrs(PlusNet, EI.GetSrcNId(), EI.GetDstNId(), NbrV);
       EmbedEdgeVH.AddDat(Cmn).Add(TIntPr(EI.GetSrcNId(), EI.GetDstNId()));
       EmbedH.AddDat(Cmn) += 1;
     }
@@ -455,11 +455,11 @@ public:
       const int SrcNId = Network->GetRndNId();
       const int DstNId = Network->GetRndNId();
       if (SrcNId == DstNId || Network->IsEdge(SrcNId, DstNId, false)) { continue; }
-      const int Cmn = TSnap::GetCmnNbhs(PlusNet, SrcNId, DstNId, NbhV);
+      const int Cmn = TSnap::GetCmnNbrs(PlusNet, SrcNId, DstNId, NbrV);
       if (Cmn < MinCmnNbrs) { continue; }
       if (! EmbedH.IsKey(Cmn) || EmbedH.GetDat(Cmn)==0) { continue; }
       const int i = EmbedH.GetDat(Cmn)-1;
-      //IAssert(TSnap::GetCmnNbhs(PlusNet, SrcNId, DstNId, NbhV) == TSnap::GetCmnNbhs(PlusNet, EmbedEdgeVH.GetDat(Cmn)[i].Val1, EmbedEdgeVH.GetDat(Cmn)[i].Val2, NbhV));
+      //IAssert(TSnap::GetCmnNbrs(PlusNet, SrcNId, DstNId, NbrV) == TSnap::GetCmnNbrs(PlusNet, EmbedEdgeVH.GetDat(Cmn)[i].Val1, EmbedEdgeVH.GetDat(Cmn)[i].Val2, NbrV));
       SaveEdgeAttrs(F, EmbedEdgeVH.GetDat(Cmn)[i].Val1, EmbedEdgeVH.GetDat(Cmn)[i].Val2, false);  fprintf(F, "\t%d\n", Cmn);
       SaveEdgeAttrs(F, SrcNId, DstNId, false);  fprintf(F, "\t%d\n", Cmn);
       printf(".");

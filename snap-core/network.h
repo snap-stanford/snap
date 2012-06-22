@@ -37,10 +37,10 @@ public:
     TNodeData& GetDat() { return NodeDat; }
     int GetInNId(const int& NodeN) const { return InNIdV[NodeN]; }
     int GetOutNId(const int& NodeN) const { return OutNIdV[NodeN]; }
-    int GetNbhNId(const int& NodeN) const { return NodeN<GetOutDeg() ? GetOutNId(NodeN):GetInNId(NodeN-GetOutDeg()); }
+    int GetNbrNId(const int& NodeN) const { return NodeN<GetOutDeg() ? GetOutNId(NodeN):GetInNId(NodeN-GetOutDeg()); }
     bool IsInNId(const int& NId) const { return InNIdV.SearchBin(NId) != -1; }
     bool IsOutNId(const int& NId) const { return OutNIdV.SearchBin(NId) != -1; }
-    bool IsNbhNId(const int& NId) const { return IsOutNId(NId) || IsInNId(NId); }
+    bool IsNbrNId(const int& NId) const { return IsOutNId(NId) || IsInNId(NId); }
     bool operator < (const TNode& Node) const { return NodeDat < Node.NodeDat; }
     friend class TNodeNet<TNodeData>;
   };
@@ -64,10 +64,10 @@ public:
     int GetOutDeg() const { return NodeHI.GetDat().GetOutDeg(); }
     int GetInNId(const int& NodeN) const { return NodeHI.GetDat().GetInNId(NodeN); }
     int GetOutNId(const int& NodeN) const { return NodeHI.GetDat().GetOutNId(NodeN); }
-    int GetNbhNId(const int& NodeN) const { return NodeHI.GetDat().GetNbhNId(NodeN); }
+    int GetNbrNId(const int& NodeN) const { return NodeHI.GetDat().GetNbrNId(NodeN); }
     bool IsInNId(const int& NId) const { return NodeHI.GetDat().IsInNId(NId); }
     bool IsOutNId(const int& NId) const { return NodeHI.GetDat().IsOutNId(NId); }
-    bool IsNbhNId(const int& NId) const { return IsOutNId(NId) || IsInNId(NId); }
+    bool IsNbrNId(const int& NId) const { return IsOutNId(NId) || IsInNId(NId); }
     const TNodeData& operator () () const { return NodeHI.GetDat().NodeDat; }
     TNodeData& operator () () { return NodeHI.GetDat().GetDat(); }
     const TNodeData& GetDat() const { return NodeHI.GetDat().GetDat(); }
@@ -76,8 +76,8 @@ public:
     TNodeData& GetInNDat(const int& NodeN) { return Net->GetNDat(GetInNId(NodeN)); }
     const TNodeData& GetOutNDat(const int& NodeN) const { return Net->GetNDat(GetOutNId(NodeN)); }
     TNodeData& GetOutNDat(const int& NodeN) { return Net->GetNDat(GetOutNId(NodeN)); }
-    const TNodeData& GetNbhNDat(const int& NodeN) const { return Net->GetNDat(GetNbhNId(NodeN)); }
-    TNodeData& GetNbhNDat(const int& NodeN) { return Net->GetNDat(GetNbhNId(NodeN)); }
+    const TNodeData& GetNbrNDat(const int& NodeN) const { return Net->GetNDat(GetNbrNId(NodeN)); }
+    TNodeData& GetNbrNDat(const int& NodeN) { return Net->GetNDat(GetNbrNId(NodeN)); }
     friend class TNodeNet<TNodeData>;
   };
 
@@ -197,16 +197,16 @@ template <class TNodeData>
 void TNodeNet<TNodeData>::DelNode(const int& NId) {
   { TNode& Node = GetNode(NId);
   for (int e = 0; e < Node.GetOutDeg(); e++) {
-  const int nbh = Node.GetOutNId(e);
-  if (nbh == NId) { continue; }
-    TNode& N = GetNode(nbh);
+  const int nbr = Node.GetOutNId(e);
+  if (nbr == NId) { continue; }
+    TNode& N = GetNode(nbr);
     int n = N.InNIdV.SearchBin(NId);
     if (n!= -1) { N.InNIdV.Del(n); }
   }
   for (int e = 0; e < Node.GetInDeg(); e++) {
-  const int nbh = Node.GetInNId(e);
-  if (nbh == NId) { continue; }
-    TNode& N = GetNode(nbh);
+  const int nbr = Node.GetInNId(e);
+  if (nbr == NId) { continue; }
+    TNode& N = GetNode(nbr);
     int n = N.OutNIdV.SearchBin(NId);
     if (n!= -1) { N.OutNIdV.Del(n); }
   } }
@@ -362,12 +362,12 @@ public:
     TNodeData& GetDat() { return NodeDat; }
     int GetInNId(const int& EdgeN) const { return InNIdV[EdgeN]; }
     int GetOutNId(const int& EdgeN) const { return OutNIdV[EdgeN].Val1; }
-    int GetNbhNId(const int& EdgeN) const { return EdgeN<GetOutDeg() ? GetOutNId(EdgeN):GetInNId(EdgeN-GetOutDeg()); }
+    int GetNbrNId(const int& EdgeN) const { return EdgeN<GetOutDeg() ? GetOutNId(EdgeN):GetInNId(EdgeN-GetOutDeg()); }
     TEdgeData& GetOutEDat(const int& EdgeN) { return OutNIdV[EdgeN].Val2; }
     const TEdgeData& GetOutEDat(const int& EdgeN) const { return OutNIdV[EdgeN].Val2; }
     bool IsInNId(const int& NId) const { return InNIdV.SearchBin(NId)!=-1; }
     bool IsOutNId(const int& NId) const { return TNodeEDatNet::GetNIdPos(OutNIdV, NId)!=-1; }
-    bool IsNbhNId(const int& NId) const { return IsOutNId(NId) || IsInNId(NId); }
+    bool IsNbrNId(const int& NId) const { return IsOutNId(NId) || IsInNId(NId); }
     bool operator < (const TNode& Node) const { return NodeDat < Node.NodeDat; }
     friend class TNodeEDatNet<TNodeData, TEdgeData>;
   };
@@ -391,10 +391,10 @@ public:
     int GetOutDeg() const { return NodeHI.GetDat().GetOutDeg(); }
     int GetInNId(const int& NodeN) const { return NodeHI.GetDat().GetInNId(NodeN); }
     int GetOutNId(const int& NodeN) const { return NodeHI.GetDat().GetOutNId(NodeN); }
-    int GetNbhNId(const int& NodeN) const { return NodeHI.GetDat().GetNbhNId(NodeN); }
+    int GetNbrNId(const int& NodeN) const { return NodeHI.GetDat().GetNbrNId(NodeN); }
     bool IsInNId(const int& NId) const { return NodeHI.GetDat().IsInNId(NId); }
     bool IsOutNId(const int& NId) const { return NodeHI.GetDat().IsOutNId(NId); }
-    bool IsNbhNId(const int& NId) const { return IsOutNId(NId) || IsInNId(NId); }
+    bool IsNbrNId(const int& NId) const { return IsOutNId(NId) || IsInNId(NId); }
     // node data
     const TNodeData& operator () () const { return NodeHI.GetDat().NodeDat; }
     TNodeData& operator () () { return NodeHI.GetDat().GetDat(); }
@@ -404,15 +404,15 @@ public:
     TNodeData& GetOutNDat(const int& NodeN) { return Net->GetNDat(GetOutNId(NodeN)); }
     const TNodeData& GetInNDat(const int& NodeN) const { return Net->GetNDat(GetInNId(NodeN)); }
     TNodeData& GetInNDat(const int& NodeN) { return Net->GetNDat(GetInNId(NodeN)); }
-    const TNodeData& GetNbhNDat(const int& NodeN) const { return Net->GetNDat(GetNbhNId(NodeN)); }
-    TNodeData& GetNbhNDat(const int& NodeN) { return Net->GetNDat(GetNbhNId(NodeN)); }
+    const TNodeData& GetNbrNDat(const int& NodeN) const { return Net->GetNDat(GetNbrNId(NodeN)); }
+    TNodeData& GetNbrNDat(const int& NodeN) { return Net->GetNDat(GetNbrNId(NodeN)); }
     // edge data
     TEdgeData& GetOutEDat(const int& EdgeN) { return NodeHI.GetDat().GetOutEDat(EdgeN); }
     const TEdgeData& GetOutEDat(const int& EdgeN) const { return NodeHI.GetDat().GetOutEDat(EdgeN); }
     TEdgeData& GetInEDat(const int& EdgeN) { return Net->GetEDat(GetInNId(EdgeN), GetId()); }
     const TEdgeData& GetInEDat(const int& EdgeN) const { return Net->GetEDat(GetInNId(EdgeN), GetId()); }
-    TEdgeData& GetNbhEDat(const int& EdgeN) { return EdgeN<GetOutDeg() ? GetOutEDat(EdgeN) : GetInEDat(EdgeN-GetOutDeg()); }
-    const TEdgeData& GetNbhEDat(const int& EdgeN) const { return EdgeN<GetOutDeg() ? GetOutEDat(EdgeN) : GetInEDat(EdgeN-GetOutDeg()); }
+    TEdgeData& GetNbrEDat(const int& EdgeN) { return EdgeN<GetOutDeg() ? GetOutEDat(EdgeN) : GetInEDat(EdgeN-GetOutDeg()); }
+    const TEdgeData& GetNbrEDat(const int& EdgeN) const { return EdgeN<GetOutDeg() ? GetOutEDat(EdgeN) : GetInEDat(EdgeN-GetOutDeg()); }
     friend class TNodeEDatNet<TNodeData, TEdgeData>;
   };
 
@@ -559,16 +559,16 @@ template <class TNodeData, class TEdgeData>
 void TNodeEDatNet<TNodeData, TEdgeData>::DelNode(const int& NId) {
   const TNode& Node = GetNode(NId);
   for (int out = 0; out < Node.GetOutDeg(); out++) {
-    const int nbh = Node.GetOutNId(out);
-    if (nbh == NId) { continue; }
-    TIntV& NIdV = GetNode(nbh).InNIdV;
+    const int nbr = Node.GetOutNId(out);
+    if (nbr == NId) { continue; }
+    TIntV& NIdV = GetNode(nbr).InNIdV;
     const int pos = NIdV.SearchBin(NId);
     if (pos != -1) { NIdV.Del(pos); }
   }
   for (int in = 0; in < Node.GetInDeg(); in++) {
-    const int nbh = Node.GetInNId(in);
-    if (nbh == NId) { continue; }
-    TNIdDatPrV& NIdDatV = GetNode(nbh).OutNIdV;
+    const int nbr = Node.GetInNId(in);
+    if (nbr == NId) { continue; }
+    TNIdDatPrV& NIdDatV = GetNode(nbr).OutNIdV;
     const int pos = GetNIdPos(NIdDatV, NId);
     if (pos != -1) { NIdDatV.Del(pos); }
   }
@@ -773,10 +773,10 @@ public:
     TNodeData& GetDat() { return NodeDat; }
     int GetInEId(const int& NodeN) const { return InEIdV[NodeN]; }
     int GetOutEId(const int& NodeN) const { return OutEIdV[NodeN]; }
-    int GetNbhEId(const int& EdgeN) const { return EdgeN<GetOutDeg()?GetOutEId(EdgeN):GetInEId(EdgeN-GetOutDeg()); }
+    int GetNbrEId(const int& EdgeN) const { return EdgeN<GetOutDeg()?GetOutEId(EdgeN):GetInEId(EdgeN-GetOutDeg()); }
     bool IsInEId(const int& EId) const { return InEIdV.SearchBin(EId) != -1; }
     bool IsOutEId(const int& EId) const { return OutEIdV.SearchBin(EId) != -1; }
-    bool IsNbhEId(const int& EId) const { return IsInEId(EId) || IsOutEId(EId); }
+    bool IsNbrEId(const int& EId) const { return IsInEId(EId) || IsOutEId(EId); }
     friend class TNodeEdgeNet<TNodeData, TEdgeData>;
   };
 
@@ -821,11 +821,11 @@ public:
     // nodes
     int GetInNId(const int& EdgeN) const { return Net->GetEdge(NodeHI.GetDat().GetInEId(EdgeN)).GetSrcNId(); }
     int GetOutNId(const int& EdgeN) const { return Net->GetEdge(NodeHI.GetDat().GetOutEId(EdgeN)).GetDstNId(); }
-    int GetNbhNId(const int& EdgeN) const { const TEdge& E = Net->GetEdge(NodeHI.GetDat().GetNbhEId(EdgeN));
+    int GetNbrNId(const int& EdgeN) const { const TEdge& E = Net->GetEdge(NodeHI.GetDat().GetNbrEId(EdgeN));
       return GetId()==E.GetSrcNId() ? E.GetDstNId():E.GetSrcNId(); }
     bool IsInNId(const int& NId) const;
     bool IsOutNId(const int& NId) const;
-    bool IsNbhNId(const int& NId) const { return IsOutNId(NId) || IsInNId(NId); }
+    bool IsNbrNId(const int& NId) const { return IsOutNId(NId) || IsInNId(NId); }
     const TNodeData& operator () () const { return NodeHI.GetDat().GetDat(); }
     TNodeData& operator () () { return NodeHI.GetDat().GetDat(); }
     const TNodeData& GetDat() const { return NodeHI.GetDat().GetDat(); }
@@ -834,21 +834,21 @@ public:
     TNodeData& GetInNDat(const int& EdgeN) { return Net->GetNodeDat(GetInNId(EdgeN)); }
     const TNodeData& GetOutNDat(const int& EdgeN) const { return Net->GetNDat(GetOutNId(EdgeN)); }
     TNodeData& GetOutNDat(const int& EdgeN) { return Net->GetNDat(GetOutNId(EdgeN)); }
-    const TNodeData& GetNbhNDat(const int& EdgeN) const { return Net->GetNDat(GetNbhNId(EdgeN)); }
-    TNodeData& GetNbhNDat(const int& EdgeN) { return Net->GetNDat(GetNbhNId(EdgeN)); }
+    const TNodeData& GetNbrNDat(const int& EdgeN) const { return Net->GetNDat(GetNbrNId(EdgeN)); }
+    TNodeData& GetNbrNDat(const int& EdgeN) { return Net->GetNDat(GetNbrNId(EdgeN)); }
     // edges
     int GetInEId(const int& EdgeN) const { return NodeHI.GetDat().GetInEId(EdgeN); }
     int GetOutEId(const int& EdgeN) const { return NodeHI.GetDat().GetOutEId(EdgeN); }
-    int GetNbhEId(const int& EdgeN) const { return NodeHI.GetDat().GetNbhEId(EdgeN); }
+    int GetNbrEId(const int& EdgeN) const { return NodeHI.GetDat().GetNbrEId(EdgeN); }
     bool IsInEId(const int& EId) const { return NodeHI.GetDat().IsInEId(EId); }
     bool IsOutEId(const int& EId) const { return NodeHI.GetDat().IsOutEId(EId); }
-    bool IsNbhEId(const int& EId) const { return NodeHI.GetDat().IsNbhEId(EId); }
+    bool IsNbrEId(const int& EId) const { return NodeHI.GetDat().IsNbrEId(EId); }
     TEdgeDat& GetInEDat(const int& EdgeN) { return Net->GetEDat(GetInEId(EdgeN)); }
     const TEdgeDat& GetInEDat(const int& EdgeN) const { return Net->GetEDat(GetInEId(EdgeN)); }
     TEdgeDat& GetOutEDat(const int& EdgeN) { return Net->GetEDat(GetOutEId(EdgeN)); }
     const TEdgeDat& GetOutEDat(const int& EdgeN) const { return Net->GetEDat(GetOutEId(EdgeN)); }
-    TEdgeDat& GetNbhEDat(const int& EdgeN) { return Net->GetEDat(GetNbhEId(EdgeN)); }
-    const TEdgeDat& GetNbhEDat(const int& EdgeN) const { return Net->GetEDat(GetNbhEId(EdgeN)); }
+    TEdgeDat& GetNbrEDat(const int& EdgeN) { return Net->GetEDat(GetNbrEId(EdgeN)); }
+    const TEdgeDat& GetNbrEDat(const int& EdgeN) const { return Net->GetEDat(GetNbrEId(EdgeN)); }
     friend class TNodeEdgeNet;
   };
 

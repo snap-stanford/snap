@@ -34,12 +34,12 @@ public:
     int GetDeg() const { return NIdV.Len(); }
     int GetInDeg() const { return GetDeg(); }
     int GetOutDeg() const { return GetDeg(); }
-    int GetInNId(const int& NodeN) const { return GetNbhNId(NodeN); }
-    int GetOutNId(const int& NodeN) const { return GetNbhNId(NodeN); }
-    int GetNbhNId(const int& NodeN) const { return NIdV[NodeN]; }
-    bool IsNbhNId(const int& NId) const { return NIdV.SearchBin(NId)!=-1; }
-    bool IsInNId(const int& NId) const { return IsNbhNId(NId); }
-    bool IsOutNId(const int& NId) const { return IsNbhNId(NId); }
+    int GetInNId(const int& NodeN) const { return GetNbrNId(NodeN); }
+    int GetOutNId(const int& NodeN) const { return GetNbrNId(NodeN); }
+    int GetNbrNId(const int& NodeN) const { return NIdV[NodeN]; }
+    bool IsNbrNId(const int& NId) const { return NIdV.SearchBin(NId)!=-1; }
+    bool IsInNId(const int& NId) const { return IsNbrNId(NId); }
+    bool IsOutNId(const int& NId) const { return IsNbrNId(NId); }
     void PackOutNIdV() { NIdV.Pack(); }
     void PackNIdV() { NIdV.Pack(); }
     friend class TUNGraph;
@@ -74,14 +74,14 @@ public:
     int GetInNId(const int& NodeN) const { return NodeHI.GetDat().GetInNId(NodeN); }
     /// Return ID of NodeN-th out-node (the node the current node points to). ## TNodeI::GetOutNId
     int GetOutNId(const int& NodeN) const { return NodeHI.GetDat().GetOutNId(NodeN); }
-    /// Return ID of NodeN-th neighboring node. ## TNodeI::GetNbhNId
-    int GetNbhNId(const int& NodeN) const { return NodeHI.GetDat().GetNbhNId(NodeN); }
+    /// Return ID of NodeN-th neighboring node. ## TNodeI::GetNbrNId
+    int GetNbrNId(const int& NodeN) const { return NodeHI.GetDat().GetNbrNId(NodeN); }
     /// Test whether node with ID NId points to the current node.
     bool IsInNId(const int& NId) const { return NodeHI.GetDat().IsInNId(NId); }
     /// Test whether the current node points to node with ID NId.
     bool IsOutNId(const int& NId) const { return NodeHI.GetDat().IsOutNId(NId); }
     /// Test whether node with ID NId is a neighbor of the current node.
-    bool IsNbhNId(const int& NId) const { return NodeHI.GetDat().IsNbhNId(NId); }
+    bool IsNbrNId(const int& NId) const { return NodeHI.GetDat().IsNbrNId(NId); }
     friend class TUNGraph;
   };
   /// Edge iterator. Only forward iteration (operator++) is supported.
@@ -139,8 +139,8 @@ public:
   int AddNode(int NId = -1);
   /// Add a node of ID NodeI.GetId() to the graph.
   int AddNode(const TNodeI& NodeI) { return AddNode(NodeI.GetId()); }
-  /// Add a node of ID NId to the graph and create edges to all nodes in vector NbhNIdV. ## TUNGraph::AddNode-1
-  int AddNode(const int& NId, const TIntV& NbhNIdV);
+  /// Add a node of ID NId to the graph and create edges to all nodes in vector NbrNIdV. ## TUNGraph::AddNode-1
+  int AddNode(const int& NId, const TIntV& NbrNIdV);
   /// Add a node of ID NId to the graph and create edges to all nodes in vector NIdVId in the vector pool Pool. ## TUNGraph::AddNode-2
   int AddNode(const int& NId, const TVecPool<TInt>& Pool, const int& NIdVId);
   /// Delete node of ID NId from the graph. ## TUNGraph::DelNode
@@ -226,10 +226,10 @@ public:
     int GetOutDeg() const { return OutNIdV.Len(); }
     int GetInNId(const int& NodeN) const { return InNIdV[NodeN]; }
     int GetOutNId(const int& NodeN) const { return OutNIdV[NodeN]; }
-    int GetNbhNId(const int& NodeN) const { return NodeN<GetOutDeg()?GetOutNId(NodeN):GetInNId(NodeN-GetOutDeg()); }
+    int GetNbrNId(const int& NodeN) const { return NodeN<GetOutDeg()?GetOutNId(NodeN):GetInNId(NodeN-GetOutDeg()); }
     bool IsInNId(const int& NId) const { return InNIdV.SearchBin(NId) != -1; }
     bool IsOutNId(const int& NId) const { return OutNIdV.SearchBin(NId) != -1; }
-    bool IsNbhNId(const int& NId) const { return IsOutNId(NId) || IsInNId(NId); }
+    bool IsNbrNId(const int& NId) const { return IsOutNId(NId) || IsInNId(NId); }
     void PackOutNIdV() { OutNIdV.Pack(); }
     void PackNIdV() { InNIdV.Pack(); }
     friend class TNGraph;
@@ -253,10 +253,10 @@ public:
     int GetOutDeg() const { return NodeHI.GetDat().GetOutDeg(); }
     int GetInNId(const int& NodeN) const { return NodeHI.GetDat().GetInNId(NodeN); }
     int GetOutNId(const int& NodeN) const { return NodeHI.GetDat().GetOutNId(NodeN); }
-    int GetNbhNId(const int& NodeN) const { return NodeHI.GetDat().GetNbhNId(NodeN); }
+    int GetNbrNId(const int& NodeN) const { return NodeHI.GetDat().GetNbrNId(NodeN); }
     bool IsInNId(const int& NId) const { return NodeHI.GetDat().IsInNId(NId); }
     bool IsOutNId(const int& NId) const { return NodeHI.GetDat().IsOutNId(NId); }
-    bool IsNbhNId(const int& NId) const { return IsOutNId(NId) || IsInNId(NId); }
+    bool IsNbrNId(const int& NId) const { return IsOutNId(NId) || IsInNId(NId); }
     friend class TNGraph;
   };
   class TEdgeI {
@@ -366,7 +366,7 @@ public:
     int GetOutDeg() const { return OutEIdV.Len(); }
     int GetInEId(const int& EdgeN) const { return InEIdV[EdgeN]; }
     int GetOutEId(const int& EdgeN) const { return OutEIdV[EdgeN]; }
-    int GetNbhEId(const int& EdgeN) const { return EdgeN<GetOutDeg()?GetOutEId(EdgeN):GetInEId(EdgeN-GetOutDeg()); }
+    int GetNbrEId(const int& EdgeN) const { return EdgeN<GetOutDeg()?GetOutEId(EdgeN):GetInEId(EdgeN-GetOutDeg()); }
     bool IsInEId(const int& EId) const { return InEIdV.SearchBin(EId) != -1; }
     bool IsOutEId(const int& EId) const { return OutEIdV.SearchBin(EId) != -1; }
     friend class TNEGraph;
@@ -405,18 +405,18 @@ public:
     int GetOutDeg() const { return NodeHI.GetDat().GetOutDeg(); }
     int GetInNId(const int& EdgeN) const { return Graph->GetEdge(NodeHI.GetDat().GetInEId(EdgeN)).GetSrcNId(); }
     int GetOutNId(const int& EdgeN) const { return Graph->GetEdge(NodeHI.GetDat().GetOutEId(EdgeN)).GetDstNId(); }
-    int GetNbhNId(const int& EdgeN) const { const TEdge& E = Graph->GetEdge(NodeHI.GetDat().GetNbhEId(EdgeN));
+    int GetNbrNId(const int& EdgeN) const { const TEdge& E = Graph->GetEdge(NodeHI.GetDat().GetNbrEId(EdgeN));
       return GetId()==E.GetSrcNId() ? E.GetDstNId():E.GetSrcNId(); }
     bool IsInNId(const int& NId) const;
     bool IsOutNId(const int& NId) const;
-    bool IsNbhNId(const int& NId) const { return IsOutNId(NId) || IsInNId(NId); }
+    bool IsNbrNId(const int& NId) const { return IsOutNId(NId) || IsInNId(NId); }
     // edges
     int GetInEId(const int& EdgeN) const { return NodeHI.GetDat().GetInEId(EdgeN); }
     int GetOutEId(const int& EdgeN) const { return NodeHI.GetDat().GetOutEId(EdgeN); }
-    int GetNbhEId(const int& EdgeN) const { return NodeHI.GetDat().GetNbhEId(EdgeN); }
+    int GetNbrEId(const int& EdgeN) const { return NodeHI.GetDat().GetNbrEId(EdgeN); }
     bool IsInEId(const int& EId) const { return NodeHI.GetDat().IsInEId(EId); }
     bool IsOutEId(const int& EId) const { return NodeHI.GetDat().IsOutEId(EId); }
-    bool IsNbhEId(const int& EId) const { return IsInEId(EId) || IsOutEId(EId); }
+    bool IsNbrEId(const int& EId) const { return IsInEId(EId) || IsOutEId(EId); }
     friend class TNEGraph;
   };
   class TEdgeI {

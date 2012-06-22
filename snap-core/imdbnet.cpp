@@ -71,15 +71,15 @@ void TImdbNet::SetLangCntryByMajority() {
     TIntPrV NIdToVal;
     for (TNodeI NI = BegNI(); NI < EndNI(); NI++) {
       if (NI().GetLang() != 0) { continue; }
-      int Nbhs=0; TIntH LangCntH;
+      int Nbrs=0; TIntH LangCntH;
       for (int e = 0; e < NI.GetOutDeg(); e++) {
-        LangCntH.AddDat(NI.GetOutNDat(e).GetLang()) += 1;  Nbhs++; }
+        LangCntH.AddDat(NI.GetOutNDat(e).GetLang()) += 1;  Nbrs++; }
       for (int e = 0; e < NI.GetInDeg(); e++) {
-        LangCntH.AddDat(NI.GetInNDat(e).GetLang()) += 1;  Nbhs++; }
-      if (LangCntH.IsKey(0)) { Nbhs-=LangCntH.GetDat(0); LangCntH.GetDat(0)=0; }
+        LangCntH.AddDat(NI.GetInNDat(e).GetLang()) += 1;  Nbrs++; }
+      if (LangCntH.IsKey(0)) { Nbrs-=LangCntH.GetDat(0); LangCntH.GetDat(0)=0; }
       LangCntH.SortByDat(false);
       if (LangCntH.GetKey(0) == 0) { continue; }
-      if (LangCntH[0]*2 >= Nbhs) { 
+      if (LangCntH[0]*2 >= Nbrs) { 
         NIdToVal.Add(TIntPr(NI.GetId(), LangCntH.GetKey(0))); }
     }
     if (NIdToVal.Empty()) { break; } // done
@@ -95,15 +95,15 @@ void TImdbNet::SetLangCntryByMajority() {
     TIntPrV NIdToVal;
     for (TNodeI NI = BegNI(); NI < EndNI(); NI++) {
       if (NI().GetCntry() != 0) { continue; }
-      int Nbhs=0; TIntH CntryCntH;
+      int Nbrs=0; TIntH CntryCntH;
       for (int e = 0; e < NI.GetOutDeg(); e++) {
-        CntryCntH.AddDat(NI.GetOutNDat(e).GetCntry()) += 1;  Nbhs++; }
+        CntryCntH.AddDat(NI.GetOutNDat(e).GetCntry()) += 1;  Nbrs++; }
       for (int e = 0; e < NI.GetInDeg(); e++) {
-        CntryCntH.AddDat(NI.GetInNDat(e).GetCntry()) += 1;  Nbhs++; }
-      if (CntryCntH.IsKey(0)) { Nbhs-=CntryCntH.GetDat(0); CntryCntH.GetDat(0)=0; }
+        CntryCntH.AddDat(NI.GetInNDat(e).GetCntry()) += 1;  Nbrs++; }
+      if (CntryCntH.IsKey(0)) { Nbrs-=CntryCntH.GetDat(0); CntryCntH.GetDat(0)=0; }
       CntryCntH.SortByDat(false);
       if (CntryCntH.GetKey(0) == 0) { continue; }
-      if (CntryCntH[0]*2 >= Nbhs) { 
+      if (CntryCntH[0]*2 >= Nbrs) { 
         NIdToVal.Add(TIntPr(NI.GetId(), CntryCntH.GetKey(0))); }
     }
     if (NIdToVal.Empty()) { break; } // done
@@ -124,13 +124,13 @@ void TImdbNet::SetActorCntryLangByMajority() {
     if (! NI().IsActor()) { continue; }
     IAssert(NI().GetLang() == 0); // no language set
     IAssert(NI.GetInDeg() == 0);  // actors point to movies
-    int Nbhs=0;  TIntH LangCntH;
+    int Nbrs=0;  TIntH LangCntH;
     for (int e = 0; e < NI.GetOutDeg(); e++) {
-      LangCntH.AddDat(NI.GetOutNDat(e).GetLang()) += 1;  Nbhs++; }
-    if (LangCntH.IsKey(0)) { Nbhs-=LangCntH.GetDat(0); LangCntH.GetDat(0)=0; }
+      LangCntH.AddDat(NI.GetOutNDat(e).GetLang()) += 1;  Nbrs++; }
+    if (LangCntH.IsKey(0)) { Nbrs-=LangCntH.GetDat(0); LangCntH.GetDat(0)=0; }
     LangCntH.SortByDat(false);
     if (LangCntH.GetKey(0) == 0) { continue; }
-    if (LangCntH[0]*2 >= Nbhs) { 
+    if (LangCntH[0]*2 >= Nbrs) { 
       NIdToVal.Add(TIntPr(NI.GetId(), LangCntH.GetKey(0))); }
   }
   for (int i = 0; i < NIdToVal.Len(); i++) {
@@ -146,13 +146,13 @@ void TImdbNet::SetActorCntryLangByMajority() {
     if (! NI().IsActor()) { continue; }
     IAssert(NI().GetCntry() == 0); // no country set
     IAssert(NI.GetInDeg() == 0);   // actors point to movies
-    int Nbhs=0; TIntH CntryCntH;
+    int Nbrs=0; TIntH CntryCntH;
     for (int e = 0; e < NI.GetOutDeg(); e++) {
-      CntryCntH.AddDat(NI.GetOutNDat(e).GetCntry()) += 1;  Nbhs++; }
-    if (CntryCntH.IsKey(0)) { Nbhs-=CntryCntH.GetDat(0); CntryCntH.GetDat(0)=0; }
+      CntryCntH.AddDat(NI.GetOutNDat(e).GetCntry()) += 1;  Nbrs++; }
+    if (CntryCntH.IsKey(0)) { Nbrs-=CntryCntH.GetDat(0); CntryCntH.GetDat(0)=0; }
     CntryCntH.SortByDat(false);
     if (CntryCntH.GetKey(0) == 0) { continue; }
-    if (CntryCntH[0]*2 >= Nbhs) { 
+    if (CntryCntH[0]*2 >= Nbrs) { 
       NIdToVal.Add(TIntPr(NI.GetId(), CntryCntH.GetKey(0))); }
   }
   for (int i = 0; i < NIdToVal.Len(); i++) {

@@ -129,7 +129,7 @@ int TBreathFS<PGraph>::GetRndPath(const int& SrcNId, const int& DstNId, TIntV& P
     IAssert(NIdDistH.IsKeyGetDat(CurNId, CurDist));
     CloserNIdV.Clr(false);
     for (int e = 0; e < NI.GetDeg(); e++) {
-      const int Next = NI.GetNbhNId(e);
+      const int Next = NI.GetNbrNId(e);
       IAssert(NIdDistH.IsKeyGetDat(Next, NextDist));
       if (NextDist == CurDist-1) { CloserNIdV.Add(Next); }
     }
@@ -271,16 +271,16 @@ double GetBfsEffDiam(const PGraph& Graph, const int& NTestNodes, const bool& IsD
     for (int i = 0; i < BFS.NIdDistH.Len(); i++) {
       DistToCntH.AddDat(BFS.NIdDistH[i]) += 1; }
   }
-  TIntFltKdV DistNbhsPdfV;
+  TIntFltKdV DistNbrsPdfV;
   double SumPathL=0, PathCnt=0;
   for (int i = 0; i < DistToCntH.Len(); i++) {
-    DistNbhsPdfV.Add(TIntFltKd(DistToCntH.GetKey(i), DistToCntH[i]));
+    DistNbrsPdfV.Add(TIntFltKd(DistToCntH.GetKey(i), DistToCntH[i]));
     SumPathL += DistToCntH.GetKey(i) * DistToCntH[i];
     PathCnt += DistToCntH[i];
   }
-  DistNbhsPdfV.Sort();
-  EffDiam = TAnf::CalcEffDiamPdf(DistNbhsPdfV, 0.9); // effective diameter (90-th percentile)
-  FullDiam = DistNbhsPdfV.Last().Key;                // approximate full diameter (max shortest path length over the sampled nodes)
+  DistNbrsPdfV.Sort();
+  EffDiam = TAnf::CalcEffDiamPdf(DistNbrsPdfV, 0.9); // effective diameter (90-th percentile)
+  FullDiam = DistNbrsPdfV.Last().Key;                // approximate full diameter (max shortest path length over the sampled nodes)
   AvgDiam = SumPathL/PathCnt;                        // average shortest path length
   return EffDiam;
 }
@@ -303,13 +303,13 @@ double GetBfsEffDiam(const PGraph& Graph, const int& NTestNodes, const TIntV& Su
         DistToCntH.AddDat(Dist) += 1; }
     }
   }
-  TIntFltKdV DistNbhsPdfV;
+  TIntFltKdV DistNbrsPdfV;
   for (int i = 0; i < DistToCntH.Len(); i++) {
-    DistNbhsPdfV.Add(TIntFltKd(DistToCntH.GetKey(i), DistToCntH[i]));
+    DistNbrsPdfV.Add(TIntFltKd(DistToCntH.GetKey(i), DistToCntH[i]));
   }
-  DistNbhsPdfV.Sort();
-  EffDiam = TAnf::CalcEffDiamPdf(DistNbhsPdfV, 0.9);  // effective diameter (90-th percentile)
-  FullDiam = DistNbhsPdfV.Last().Key;                 // approximate full diameter (max shortest path length over the sampled nodes)
+  DistNbrsPdfV.Sort();
+  EffDiam = TAnf::CalcEffDiamPdf(DistNbrsPdfV, 0.9);  // effective diameter (90-th percentile)
+  FullDiam = DistNbrsPdfV.Last().Key;                 // approximate full diameter (max shortest path length over the sampled nodes)
   return EffDiam;                                     // average shortest path length
 }
 

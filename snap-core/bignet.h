@@ -53,10 +53,10 @@ public:
     int GetOutDeg() const { return OutDeg; }
     int GetInNId(const int& NodeN) const { return InNIdV[NodeN]; }
     int GetOutNId(const int& NodeN) const { return OutNIdV[NodeN]; }
-    int GetOutNbhId(const int& NodeN) const { return NodeN<OutDeg ? OutNIdV[NodeN]:InNIdV[NodeN-OutDeg]; }
+    int GetOutNbrId(const int& NodeN) const { return NodeN<OutDeg ? OutNIdV[NodeN]:InNIdV[NodeN-OutDeg]; }
     bool IsInNId(const int& NId) const { return BinSearch(InNIdV, InNIdV+InDeg, NId)!=NULL; }
     bool IsOutNId(const int& NId) const { return BinSearch(OutNIdV, OutNIdV+OutDeg, NId)!=NULL; }
-    bool IsNbhNId(const int& NId) const { return IsOutNId(NId) || IsInNId(NId); }
+    bool IsNbrNId(const int& NId) const { return IsOutNId(NId) || IsInNId(NId); }
     const TNodeData& operator () () const { return GetDat(); }
     TNodeData& operator () () { return GetDat(); }
     const TNodeData& GetDat() const { return NodeHI->Dat.Dat; }
@@ -66,8 +66,8 @@ public:
     //TNodeData& GetInNDat(const int& NodeN) { return Net->GetNDat(GetInNId(NodeN)); }
     //const TNodeData& GetOutNDat(const int& NodeN) const { return Net->GetNDat(GetOutNId(NodeN)); }
     //TNodeData& GetOutNDat(const int& NodeN) { return Net->GetNDat(GetOutNId(NodeN)); }
-    //const TNodeData& GetNbhNDat(const int& NodeN) const { return Net->GetNDat(GetNbhNId(NodeN)); }
-    //TNodeData& GetNbhNDat(const int& NodeN) { return Net->GetNDat(GetNbhNId(NodeN)); }
+    //const TNodeData& GetNbrNDat(const int& NodeN) const { return Net->GetNDat(GetNbrNId(NodeN)); }
+    //TNodeData& GetNbrNDat(const int& NodeN) { return Net->GetNDat(GetNbrNId(NodeN)); }
     void Dump() const;
     friend class TBigNet<TNodeData, IsDir>;
   };
@@ -441,7 +441,7 @@ int  TBigNet<TNodeData, IsDir>::IsolateNode(int NId) {
     const int Deg = Pool.GetVLen(N.InVId);
     int* Val = (int *) BinSearch(InNIdV, InNIdV+Deg, NId);
     if (Val == NULL) {
-      printf("BAD: Can't find: OUT: NId: %d -- OutNbhId: %d\n", NId, OutV[i]());
+      printf("BAD: Can't find: OUT: NId: %d -- OutNbrId: %d\n", NId, OutV[i]());
       continue;
     }
     IAssert(Val != 0);
@@ -461,7 +461,7 @@ int  TBigNet<TNodeData, IsDir>::IsolateNode(int NId) {
       const int Deg = Pool.GetVLen(N.OutVId);
       int* Val = (int *) BinSearch(OutNIdV, OutNIdV+Deg, NId);
       if (Val == NULL) {
-        printf("IN: NId: %d -- InNbhId: %d\n", NId, OutV[i]());
+        printf("IN: NId: %d -- InNbrId: %d\n", NId, OutV[i]());
         continue;
       }
       IAssert(Val != 0);

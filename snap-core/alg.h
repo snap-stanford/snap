@@ -245,28 +245,28 @@ void GetNodeOutDegV(const PGraph& Graph, TIntPrV& NIdOutDegV) {
 
 template <class PGraph>
 int GetUniqUndirEdges(const PGraph& Graph) {
-  TIntSet NbhSet;
+  TIntSet NbrSet;
   int Cnt = 0;
   for (typename PGraph::TObj::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
-    NbhSet.Clr(false);
+    NbrSet.Clr(false);
     for (int e = 0; e < NI.GetDeg(); e++) { // unqiue neighbors of a node
-      NbhSet.AddKey(NI.GetNbhNId(e));
+      NbrSet.AddKey(NI.GetNbrNId(e));
     }
-    Cnt += NbhSet.Len();
+    Cnt += NbrSet.Len();
   }
   return Cnt / 2;
 }
 
 template <class PGraph>
 int GetUniqDirEdges(const PGraph& Graph) {
-  TIntSet NbhSet;
+  TIntSet NbrSet;
   int Cnt = 0;
   for (typename PGraph::TObj::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
-    NbhSet.Clr(false);
+    NbrSet.Clr(false);
     for (int e = 0; e < NI.GetOutDeg(); e++) { // unqiue out-neighbors of a node
-      NbhSet.AddKey(NI.GetOutNId(e));
+      NbrSet.AddKey(NI.GetOutNId(e));
     }
-    Cnt += NbhSet.Len();
+    Cnt += NbrSet.Len();
   }
   return Cnt;
 }
@@ -276,7 +276,7 @@ int GetUniqBiDirEdges(const PGraph& Graph) {
   if (! Graph->HasFlag(gfDirected)) { // graph is undirected
     return GetUniqUndirEdges(Graph);  // then every edge is bi-directional
   }
-  TIntSet NbhSet;
+  TIntSet NbrSet;
   int Cnt = 0;
   for (typename PGraph::TObj::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
     const int SrcId = NI.GetId();

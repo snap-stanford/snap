@@ -37,7 +37,7 @@ void GetRndWalkRestart(const PGraph& Graph, const double& JumpProb, const int& J
 template <class PGraph>
 double GetAdamicAdar(const PGraph& Graph, const int& SrcNId, const int& DstNId) {
   TIntV CmnV;
-  TSnap::GetCmnNbhs(Graph, SrcNId, DstNId, CmnV);
+  TSnap::GetCmnNbrs(Graph, SrcNId, DstNId, CmnV);
   double Aa = 0;
   for (int c=0; c < CmnV.Len(); c++) {
     Aa += 1.0/log(Graph->GetNI(CmnV[c]).GetDeg());
@@ -54,7 +54,7 @@ void GetAdamicAdar(const PGraph& Graph, const int& SrcNId, THash<TInt, TFlt>& Aa
   AaNIdH.Clr(false);
   for (int i = 0; i < NIdV.Len(); i++) {
     const int DstNId = NIdV[i];
-    TSnap::GetCmnNbhs(Graph, SrcNId, DstNId, CmnV);
+    TSnap::GetCmnNbrs(Graph, SrcNId, DstNId, CmnV);
     double Aa=0;
     for (int c=0; c < CmnV.Len(); c++) {
       Aa += 1.0/log((double)Graph->GetNI(CmnV[c]).GetDeg());
@@ -73,7 +73,7 @@ void TLpExample::GetNetAttrV(TVec<TFltV>& AttrV) const { // (dstnid, class, feat
   const TNodeI SrcNI = GetNI(SrcNId);
   for (int i = 0; i < DstNIdV.Len(); i++) {
     const int Dst = DstNIdV[i];
-    const int Cmn = TSnap::GetCmnNbhs(PNet((TLpExample*)this), SrcNId, Dst);
+    const int Cmn = TSnap::GetCmnNbrs(PNet((TLpExample*)this), SrcNId, Dst);
     AttrV.Add();  TFltV& A = AttrV.Last();
     A.Add(DstNIdV[i]()); A.Add(1);
     A.Add(SrcNI.GetDeg());   A.Add(GetNI(Dst).GetDeg());
@@ -81,7 +81,7 @@ void TLpExample::GetNetAttrV(TVec<TFltV>& AttrV) const { // (dstnid, class, feat
   }
   for (int i = 0; i < NolNIdV.Len(); i++) {
     const int Dst = NolNIdV[i];
-    const int Cmn = TSnap::GetCmnNbhs(PNet((TLpExample*)this), SrcNId, Dst);
+    const int Cmn = TSnap::GetCmnNbrs(PNet((TLpExample*)this), SrcNId, Dst);
     AttrV.Add();  TFltV& A = AttrV.Last();
     A.Add(Dst); A.Add(0);
     A.Add(SrcNI.GetDeg());   A.Add(GetNI(Dst).GetDeg());
@@ -139,7 +139,7 @@ void TLpExample::GetLen2PathAttrV(TVec<TFltV>& AttrV) const { // (dstnid, class,
     TFltV AttrV1(GetNAttr()), AttrV2(GetNAttr());
     int a1=0, a2=0;
     const int DstNId = NIdV[i];
-    TSnap::GetCmnNbhs(PNet((TLpExample*)this), SrcNId, DstNId, CmnV);
+    TSnap::GetCmnNbrs(PNet((TLpExample*)this), SrcNId, DstNId, CmnV);
     for (int c = 0; c < CmnV.Len(); c++) {
       const int C = CmnV[c];
       if (IsEdge(SrcNId, C)) {

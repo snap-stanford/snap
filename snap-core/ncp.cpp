@@ -257,7 +257,7 @@ double TLocClustStat::TCutInfo::GetFracDegOut(const PUNGraph& Graph, double& MxF
     const TUNGraph::TNodeI NI = Graph->GetNI(CutNIdV[n]);
     int EdgesOut = 0;
     for (int i = 0; i < NI.GetDeg(); i++) {
-      if (! InNIdSet.IsKey(NI.GetNbhNId(i))) { EdgesOut++; }
+      if (! InNIdSet.IsKey(NI.GetNbrNId(i))) { EdgesOut++; }
     }
     const double FracOut = EdgesOut/double(NI.GetDeg());
     if (FracOut <= 0.5) { NHalfIn++; }

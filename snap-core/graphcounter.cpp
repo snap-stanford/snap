@@ -258,7 +258,7 @@ void TGraphEnumUtils::GetIndGraph(const PNGraph &G, const TIntV &sg, PNGraph &in
 		//
 		int deg = nIt.GetOutDeg();
 		for(int j=0; j<deg; j++) {
-			int dstId = nIt.GetNbhNId(j);
+			int dstId = nIt.GetNbrNId(j);
 			if(nId == dstId) continue;
 			//
 			if(indG->IsNode(dstId)) indG->AddEdge(nId, dstId);

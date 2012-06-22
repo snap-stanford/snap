@@ -8,17 +8,17 @@ Accessing arbitrary node takes constant time and accessing any edge takes logari
 
 /// TNodeI::GetInNId
 Range of NodeN: 0 <= NodeN < GetInDeg(). Since the graph is undirected
-GetInNId(), GetOutNId() and GetNbhNId() all give the same output.
+GetInNId(), GetOutNId() and GetNbrNId() all give the same output.
 ///
 
 /// TNodeI::GetOutNId
 Range of NodeN: 0 <= NodeN < GetOutDeg(). Since the graph is undirected
-GetInNId(), GetOutNId() and GetNbhNId() all give the same output.
+GetInNId(), GetOutNId() and GetNbrNId() all give the same output.
 ///
 
-/// TNodeI::GetNbhNId
-Range of NodeN: 0 <= NodeN < GetNbhDeg(). Since the graph is undirected
-GetInNId(), GetOutNId() and GetNbhNId() all give the same output.
+/// TNodeI::GetNbrNId
+Range of NodeN: 0 <= NodeN < GetNbrDeg(). Since the graph is undirected
+GetInNId(), GetOutNId() and GetNbrNId() all give the same output.
 ///
 
 /// TUNGraph::New
@@ -31,8 +31,8 @@ If NId=-1 node id will be automatically assigned (and returned).
 If node of ID NId already exists, do nothing.
 ///
 
-/// TUNGraph::AddNode-1 (const int& NId, const TIntV& NbhNIdV)
-Function can create inconsistent graphs unless the neighboring nodes (in NbhNIdV vector)
+/// TUNGraph::AddNode-1 (const int& NId, const TIntV& NbrNIdV)
+Function can create inconsistent graphs unless the neighboring nodes (in NbrNIdV vector)
 are also explicitly added to the graph.
 Use TUNGraph::IsOk to check that the resulting graph is consistent.
 Return value is the ID of the node being added.
