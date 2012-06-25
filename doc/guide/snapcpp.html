@@ -1,0 +1,1631 @@
+<html><head><meta content="text/html; charset=UTF-8" http-equiv="Content-Type"><title>SNAP C++ Programming Guide</title><meta content="text/html; charset=UTF-8" http-equiv="Content-Type"><link rel="shortcut icon" type="image/x-icon" href="http://snap.stanford.edu/favicon.ico"><link rel="stylesheet" type="text/css" href="styleguide.css"><script type="text/javascript" language="javascript">
+
+                function GetElementsByName(name) {
+                  // Workaround a bug on old versions of opera.
+                  if (document.getElementsByName) {
+                    return document.getElementsByName(name);
+                  } else {
+                    return [document.getElementById(name)];
+                  }
+                }
+
+                /**
+                 * @param {string} namePrefix The prefix of the body name.
+                 * @param {function(boolean): boolean} getVisibility Computes the new
+                 *     visibility state, given the current one.
+                 */
+                function ChangeVisibility(namePrefix, getVisibility) {
+                  var bodyName = namePrefix + '__body';
+                  var buttonName = namePrefix + '__button';
+                  var bodyElements = GetElementsByName(bodyName);
+                  var linkElement = GetElementsByName('link-' + buttonName)[0];
+                  if (bodyElements.length != 1) {
+                    throw Error('ShowHideByName() got the wrong number of bodyElements:  ' + 
+                        bodyElements.length);
+                  } else {
+                    var bodyElement = bodyElements[0];
+                    var buttonElement = GetElementsByName(buttonName)[0];
+                    var isVisible = bodyElement.style.display != "none";
+                    if (getVisibility(isVisible)) {
+                      bodyElement.style.display = "inline";
+                      linkElement.style.display = "block";
+                      buttonElement.innerHTML = '▽';
+                    } else {
+                      bodyElement.style.display = "none";
+                      linkElement.style.display = "none";
+                      buttonElement.innerHTML = '▶';
+                    }
+                  }
+                }
+
+                function ShowHideByName(namePrefix) {
+                  ChangeVisibility(namePrefix, function(old) { return !old; });
+                }
+
+                function ShowByName(namePrefix) {
+                  ChangeVisibility(namePrefix, function() { return true; });
+                }
+
+                function ShowHideAll() {
+                  var allButton = GetElementsByName("show_hide_all_button")[0];
+                  if (allButton.innerHTML == '▽') {
+                    allButton.innerHTML = '▶';
+                    SetHiddenState(document.getElementsByTagName("body")[0].childNodes, "none", '▶');
+                  } else {
+                    allButton.innerHTML = '▽';
+                    SetHiddenState(document.getElementsByTagName("body")[0].childNodes, "inline", '▽');
+                  }
+                }
+
+                // Recursively sets state of all children
+                // of a particular node.
+                function SetHiddenState(root, newState, newButton) {
+                  for (var i = 0; i != root.length; i++) {
+                    SetHiddenState(root[i].childNodes, newState, newButton);
+                    if (root[i].className == 'showhide_button')  {
+                      root[i].innerHTML = newButton;
+                    }
+                    if (root[i].className == 'stylepoint_body' ||
+                        root[i].className == 'link_button')  {
+                      root[i].style.display = newState;
+                    }
+                  }
+                }
+
+
+                function EndsWith(str, suffix) {
+                  var l = str.length - suffix.length;
+                  return l >= 0 && str.indexOf(suffix, l) == l;
+                }
+
+                function RefreshVisibilityFromHashParam() {
+                  var hashRegexp = new RegExp('#([^&#]*)$');
+                  var hashMatch = hashRegexp.exec(window.location.href);
+                  var anchor = hashMatch && GetElementsByName(hashMatch[1])[0];
+                  var node = anchor;
+                  var suffix = '__body';
+                  while (node) {
+                    var id = node.id;
+                    var matched = id && EndsWith(id, suffix);
+                    if (matched) {
+                      var len = id.length - suffix.length;
+                      ShowByName(matched.substring(0, len));
+                      if (anchor.scrollIntoView) {
+                        anchor.scrollIntoView();
+                      }
+                      
+                      return;
+                    }
+                    node = node.parentNode;
+                  }
+                }
+
+                window.onhashchange = RefreshVisibilityFromHashParam;
+
+                window.onload = function() {
+                  // if the URL contains "?showall=y", expand the details of all children
+                  var showHideAllRegex = new RegExp("[\\?&](showall)=([^&#]*)");
+                  var showHideAllValue = showHideAllRegex.exec(window.location.href);
+                  if (showHideAllValue != null) {
+                    if (showHideAllValue[2] == "y") {
+                      SetHiddenState(document.getElementsByTagName("body")[0].childNodes, 
+                          "inline", '▽');
+                    } else {
+                      SetHiddenState(document.getElementsByTagName("body")[0].childNodes, 
+                          "none", '▶');
+                    }
+                  }
+                  var showOneRegex = new RegExp("[\\?&](showone)=([^&#]*)");
+                  var showOneValue = showOneRegex.exec(window.location.href);
+                  if (showOneValue) {
+                    ShowHideByName(showOneValue[2]);
+                  }
+
+
+                  RefreshVisibilityFromHashParam();
+                }
+              </script></head><body><h1>SNAP C++ Programming Guide</h1>
+
+<p align="right">
+Revision 06-19-2012
+</p>
+
+
+
+<address>
+Derived from Google C++ Style Guide<br>
+Heavily customized for the SNAP Library<br>
+</address>
+
+      <div class="toc"><div class="toc_title">Table of Contents</div><table><tbody> <tr class="" valign="top"><td><div class="toc_category"><a href="#Formatting">Formatting</a></div></td><td><div class="toc_stylepoint"> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Line_Length">Line Length</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Spaces_vs._Tabs">Spaces vs. Tabs</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Conditionals">Conditionals</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Loops_and_Switch_Statements">Loops and Switch Statements</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Pointer_and_Reference_Expressions">Pointer and Reference Expressions</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Boolean_Expressions">Boolean Expressions</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Function_Calls">Function Calls</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Function_Declarations_and_Definitions">Function Declarations and Definitions</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Return_Values">Return Values</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Class_Format">Class Format</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Constructor_Initializer_Lists">Constructor Initializer Lists</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Templates">Templates</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Namespace_Formatting">Namespace Formatting</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Vertical_Whitespace">Vertical Whitespace</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Preprocessor_Directives">Preprocessor Directives</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Non-ASCII_Characters">Non-ASCII Characters</a></span> </div></td></tr>
+<tr class="" valign="top"><td><div class="toc_category"><a href="#Naming">Naming</a></div></td><td><div class="toc_stylepoint"><span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#General_Naming_Rules">General Naming Rules</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#File_Names">File Names</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Type_Names">Type Names</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Variable_Names">Variable Names</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Function_Names">Function Names</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Enumerator_Names">Enumerator Names</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Namespace_Names">Namespace Names</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Macro_Names">Macro Names</a></span> </div></td></tr>
+<tr class="" valign="top"><td><div class="toc_category"><a href="#Comments">Comments</a></div></td><td><div class="toc_stylepoint"><span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Comment_Style">Comment Style</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Documentation">Documentation</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Class_Comments">Class Comments</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Function_Comments">Function Comments</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Variable_Comments">Variable Comments</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Implementation_Comments">Implementation Comments</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Punctuation,_Spelling_and_Grammar">Punctuation, Spelling and Grammar</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#TODO_Comments">TODO Comments</a></span> </div></td></tr>
+<tr class="" valign="top"><td><div class="toc_category"><a href="#SNAP-Specific_Magic">SNAP-Specific Magic</a></div></td><td><div class="toc_stylepoint"> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Smart_Pointers">Smart Pointers</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Streams">Streams</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Assertions">Assertions</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Integer_Types">Integer Types</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Exceptions">Exceptions</a></span> </div></td></tr>
+<tr class="" valign="top"><td><div class="toc_category"><a href="#Other_C++_Features">Other C++ Features</a></div></td><td><div class="toc_stylepoint"> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Use_of_const">Use of const</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Preprocessor_Macros">Preprocessor Macros</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#0_and_NULL">0 and NULL</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#sizeof">sizeof</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Casting">Casting</a></span> </div></td></tr>
+<tr class="" valign="top"><td><div class="toc_category"><a href="#Scoping">Scoping</a></div></td><td><div class="toc_stylepoint"><span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Namespaces">Namespaces</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Nonmember,_Static_Member,_and_Global_Functions">Nonmember, Static Member, and Global Functions</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Static_and_Global_Variables">Static and Global Variables</a></span> </div></td></tr>
+<tr class="" valign="top"><td><div class="toc_category"><a href="#Functions">Functions</a></div></td><td><div class="toc_stylepoint"> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Function_Parameters">Function Parameters</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Reference_Parameters">Reference Parameters</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Default_Arguments">Default Arguments</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Write_Short_Functions">Write Short Functions</a></span> </div></td></tr>
+<tr class="" valign="top"><td><div class="toc_category"><a href="#Classes">Classes</a></div></td><td><div class="toc_stylepoint"> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Class_Definitions">Class Definitions</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Declaration_Order">Declaration Order</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Doing_Work_in_Constructors">Doing Work in Constructors</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Access_Control">Access Control</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Structs_vs._Classes">Structs vs. Classes</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Multiple_Inheritance">Multiple Inheritance</a></span> </div></td></tr>
+<tr class="" valign="top"><td><div class="toc_category"><a href="#Header_Files">Header Files</a></div></td><td><div class="toc_stylepoint"><span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#The__define_Guard">The #define Guard</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Names_and_Order_of_Includes">Names and Order of Includes</a></span> </div></td></tr>
+<tr class="" valign="top"><td><div class="toc_category"><a href="#Exceptions_to_the_Rules">Exceptions to the Rules</a></div></td><td><div class="toc_stylepoint"><span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Existing_Non-conformant_Code">Existing Non-conformant Code</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Windows_Code">Windows Code</a></span> </div></td></tr>
+</tbody></table></div>
+
+<div class=""><h2 id="Background" name="Background">Background</h2>
+  <p>
+    Stanford Network Analysis Platform (SNAP) is a general purpose network
+    analysis and graph mining library. It easily scales
+    to massive networks with hundreds of millions of nodes, and billions
+    of edges.
+  </p>
+  <p>
+    SNAP is written in the C++ programming language.
+    This programming guide describes a set of conventions for the SNAP
+    C++ code as well as the most important constructs that are used in
+    the code.
+  </p>
+  <p>
+    C++ has many powerful features,
+    but this power brings with it complexity, which can make code
+    more error-prone and harder to read and maintain.
+    The goal of this guide is to manage this complexity by describing
+    the rules of writing SNAP code. These rules exist to keep the
+    code base consistent and easier to manage while still allowing
+    productive use of C++ features.
+  </p>
+  <p>
+    Code <em>consistency</em> is important to keep the code base manageable.
+    It is very important that any programmer
+    be able to look at another's code and quickly understand it.
+    Maintaining a uniform style and following conventions means that we can
+    more easily use "pattern-matching" to infer what various symbols are
+    and what they do, which makes code much easier to understand. In some
+    cases there might be good arguments for changing certain style
+    rules, but we nonetheless keep things as they are in order to
+    preserve consistency.
+  </p>
+  <p>
+    Another issue this guide addresses is that of C++ feature bloat.
+    C++ is a huge language with many advanced features. In some cases
+    we constrain, or even ban, use of certain features. We do this to
+    keep code simple and to avoid the various common errors and
+    problems that these features can cause.  This guide lists these
+    features and explains why their use is restricted.
+  </p>
+  <p>
+    Note that this guide is not a C++ tutorial. We assume that you
+    are familiar with the language.
+  </p>
+  
+</div>
+
+<div class=""><h2 id="Formatting" name="Formatting">Formatting</h2>
+  <p>
+    Coding style and formatting can be pretty arbitrary, but code is much
+    easier to follow and learn if everyone uses the same style. Not everyone
+    may agree with every aspect of the formatting rules,
+    but it is important that all SNAP contributors
+    follow the style rules so that we
+    can all read and understand everyone's code easily.
+  </p>
+
+  <div class=""><h3><a id="Line_Length" name="Line_Length">Line Length</a></h3>
+    <div class="" style="display:inline;">
+      Try to keep each line of text in your code at most 80 characters
+      long.
+    </div>
+  </div>
+
+  <div class=""><h3><a id="Spaces_vs._Tabs" name="Spaces_vs._Tabs">Spaces vs. Tabs</a></h3>
+    <div class="" style="display:inline;">
+      Use only spaces, and indent 2 spaces at a time.
+    </div>
+    <div class=""><div style="display: inline;" id="Spaces_vs._Tabs__body" name="Spaces_vs._Tabs__body" class="stylepoint_body">
+      <p>
+        We use spaces for indentation. Do not use tabs in your code.
+        You should set your editor to emit 2 spaces when you hit the tab
+        key.
+      </p>
+    </div></div>
+  </div>
+
+  <div class=""><h3><a id="Conditionals" name="Conditionals">Conditionals</a></h3>
+    <div class="" style="display:inline;">
+      Prefer no spaces inside parentheses.  The <code>else</code>
+      keyword belongs on a new line.
+    </div>
+    <div class=""><div style="display: inline;" id="Conditionals__body" name="Conditionals__body" class="stylepoint_body">
+      </p>
+      <div class=""><pre>if (condition) {     // no spaces inside parentheses
+  ...  // 2 space indent.
+} else if (...) {    // The else goes on the same line as the closing brace.
+  ...
+} else {
+  ...
+}</pre></div>
+      <p>
+        You must have a space between the <code>if</code> and the open
+        parenthesis.  You must also have a space between the close
+        parenthesis and the curly brace.
+      </p>
+      <div class=""><pre class="badcode">if(condition)     // Bad - space missing after IF.
+if (condition){   // Bad - space missing before {.
+if(condition){    // Doubly bad.</pre></div>
+      <div class=""><pre>if (condition) {  // Good - proper space after IF and before {.</pre></div>
+      <p>
+        Short conditional statements may be written on one line if
+        this enhances readability.  You may use this only when the
+        line is brief and the statement does not use the
+        <code>else</code> clause. Always use the curly brace:
+      </p>
+      <div class=""><pre>if (x == kFoo) { return new Foo(); }
+if (x == kBar) { return new Bar(); }</pre></div>
+      <p>
+        A one line if statement is not allowed when the statement has an
+        <code>else</code>:
+      </p>
+      <div class=""><pre class="badcode">// Not allowed - IF statement on one line when there is an ELSE clause
+if (x) { DoThis(); }
+else { DoThat(); }</pre></div>
+      <p>
+        Single-line statements without curly braces are prohibited:
+      </p>
+      <div class=""><pre class="badcode">if (condition)
+  DoSomething();</pre></div>
+      <p>
+        In most cases, conditional or loop statements with complex
+        conditions or statements are more readable with curly braces.
+      </p>
+      <div class=""><pre>if (condition) {
+  DoSomething();  // 2 space indent.
+}</pre></div>
+    </div></div>
+  </div>
+
+  <div class=""><h3><a id="Loops_and_Switch_Statements" name="Loops_and_Switch_Statements">Loops and Switch Statements</a></h3>
+    <div class="" style="display:inline;">
+      Use curly braces for loops:
+    </div>
+    <div class=""><div style="display: inline;" id="Loops_and_Switch_Statements__body" name="Loops_and_Switch_Statements__body" class="stylepoint_body">
+      </p>
+      <div class=""><pre>while (condition) {
+  ...           // 2 space indent
+}
+for (int i = 0; i &lt; Num; i++) {
+  ...           // 2 space indent
+}
+</pre></div>
+      <div class=""><pre class="badcode">while (condition);  // Bad - looks like part of do/while loop.</pre></div>
+      <p>
+        <code>case</code> blocks in <code>switch</code> statements can have
+        curly braces or not, depending on your preference.  If you do
+        include curly braces they should be placed as shown below.
+      </p>
+      <p>
+        If the condition is not an enumerated value, switch statements
+        should always have a <code>default</code> case:
+      </p>
+      
+      <div class=""><pre>switch (var) {
+  case 0: {  // 2 space indent
+    ...      // 4 space indent
+    break;
+  }
+  case 1: {
+    ...
+    break;
+  }
+  default:
+    ...
+  }
+}</pre></div>
+    </div></div>
+  </div>
+
+  <div class=""><h3><a id="Pointer_and_Reference_Expressions" name="Pointer_and_Reference_Expressions">Pointer and Reference Expressions</a></h3>
+    <div class="" style="display:inline;">
+      Do not include spaces around period or arrow.
+      Pointer operators do not have trailing spaces.
+    </div>
+    <div class=""><div style="display: inline;" id="Pointer_and_Reference_Expressions__body" name="Pointer_and_Reference_Expressions__body" class="stylepoint_body">
+      <p>
+        The following are examples of correctly-formatted pointer and
+        reference expressions:
+      </p>
+      <div class=""><pre>x = *p;
+p = &amp;x;
+x = r.y;
+x = r-&gt;y;</pre></div>
+      <p>
+        Note that:
+      </p>
+      <ul>
+        <li> There are no spaces around the period or arrow when
+             accessing a member.
+             </li>
+        <li> Pointer operators have no space after the <code>*</code> or
+             <code>&amp;</code>.
+             </li>
+      </ul>
+      <p>
+        When declaring a pointer variable or argument, place
+        the asterisk <code>*</code> adjacent to the
+        variable name and the ampersand <code>&amp;</code>
+        adjacent to the type:
+      </p>
+      <div class=""><pre>
+char *C;
+const int&amp; P;
+</pre></div>
+    </div></div>
+  </div>
+
+  <div class=""><h3><a id="Boolean_Expressions" name="Boolean_Expressions">Boolean Expressions</a></h3>
+    <div class="" style="display:inline;">
+      When you have a long boolean expression, put the operators at the
+      line ends:
+    </div>
+    <div class=""><div style="display: inline;" id="Boolean_Expressions__body" name="Boolean_Expressions__body" class="stylepoint_body">
+      <div class=""><pre>if (ThisOneThing &gt; ThisOtherThing &amp;&amp;
+    AThirdThing == AFourthThing &amp;&amp;
+    YetAnother &amp;&amp; LastOne) {
+  ...
+}</pre></div>
+    </div></div>
+  </div>
+
+  <div class=""><h3><a id="Function_Calls" name="Function_Calls">Function Calls</a></h3>
+    <div class="" style="display:inline;">
+      Place the call on one line if it fits; otherwise, wrap arguments at the
+      parenthesis.
+    </div>
+    <div class=""><div style="display: inline;" id="Function_Calls__body" name="Function_Calls__body" class="stylepoint_body">
+      <p>
+        Function calls have the following format:
+      </p>
+      <div class=""><pre>bool RetVal = DoSomething(Arg1, Arg2, Arg3);</pre></div>
+      <p>
+        If the arguments do not all fit on one line, they should be
+        broken up onto multiple lines.  Do not add spaces after the
+        open paren or before the close paren:
+      </p>
+      <div class=""><pre>
+DoSomethingThatRequiresALongFunctionName(Argument1,
+  Argument2, Argument3, Argument4);
+</pre></div>
+      <p>
+        If the parameter names are very long and there is not much
+        space left due to line indentation, you may place all arguments
+        on subsequent lines: 
+      </p>
+      <div class=""><pre>
+DoSomethingElseThatRequiresAEvenLongerFunctionName(
+  Argument1,
+  Argument2,
+  Argument3,
+  Argument4);
+</pre></div>
+    </div></div>
+  </div>
+
+  <div class=""><h3><a id="Function_Declarations_and_Definitions" name="Function_Declarations_and_Definitions">Function Declarations and Definitions</a></h3>
+    <div class="" style="display:inline;">
+      Place the function return type and parameters on the same line
+      as function name, if they fit.
+    </div>
+    <div class=""><div style="display: inline;" id="Function_Declarations_and_Definitions__body" name="Function_Declarations_and_Definitions__body" class="stylepoint_body">
+      <p>
+        Functions look like this:
+      </p>
+      <div class=""><pre>ReturnType ClassName::FunctionName(Type ParName1, Type ParName2) {
+  DoSomething();
+  ...
+}</pre></div>
+      <p>
+        If you have too much text to fit on one line, split the code
+        over several lines:
+      </p>
+      <div class=""><pre>ReturnType ClassName::ReallyLongFunctionName(Type ParName1,
+  Type ParName2, Type ParName3) {
+  DoSomething();
+  ...
+}</pre></div>
+      <p>
+        Some points to note:
+      </p>
+      <ul>
+        <li> The return type is always on the same line as the
+             function name.
+             </li>
+        <li> The open parenthesis is always on the same line as the
+             function name.
+             </li>
+        <li> There is never a space between the function name and the
+             open parenthesis.
+             </li>
+        <li> There is never a space between the parentheses and the
+             parameters.
+             </li>
+        <li> The open curly brace is always at the end of the same
+             line as the last parameter.
+             </li>
+        <li> The close curly brace is either on the last line by itself
+             or (if other style rules permit) on the same line as the
+             open curly brace.
+             </li>
+        <li> There should be a space between the close parenthesis and
+             the open curly brace.
+             </li>
+        <li> All parameters should be named, with identical names in the
+             declaration and implementation.
+             </li>
+        <li> All parameters should be aligned if possible.
+             </li>
+        <li> Default indentation is 2 spaces.
+             </li>
+      </ul>
+    </div></div>
+  </div>
+
+  <div class=""><h3><a id="Return_Values" name="Return_Values">Return Values</a></h3>
+    <div class="" style="display:inline;">
+      Do not needlessly surround the <code>return</code> expression with
+      parentheses. Parentheses are ok to make a complex expression more readable:
+    </div>
+    <div class=""><div style="display: inline" id="Return_Values__body" name="Return_Values__body" class="stylepoint_body">
+      </p>
+      <div class=""><pre>return Result;                  // No parentheses in the simple case.
+return (SomeLongCondition &amp;&amp;    // Parentheses ok to make a complex
+        AnotherCondition);      //   expression more readable.</pre></div>
+    </div></div>
+  </div>
+
+  <div class=""><h3><a id="Class_Format" name="Class_Format">Class Format</a></h3>
+    <div class="" style="display:inline;">
+      The basic format for a class declaration (the comments are omitted,
+      see <a href="#Class_Comments">Class Comments</a> for
+      a discussion of what comments are needed) is:
+    </div>
+    <div class=""><div style="display: inline;" id="Class_Format__body" name="Class_Format__body" class="stylepoint_body">
+      <div class=""><pre>class TMyClass : public TOtherClass {
+public:
+  typedef TMyClass TDef;                      // typedefs
+  typedef enum { meOne, meTwo, ... } TMyEnum; // enums
+public:
+  class TPubClass1 {                          // public subclasses
+    ...
+  }
+private:
+  class TPriClass2 {                          // private subclasses
+    ...
+  }
+private:
+  TInt Var;                                   // private data
+private:
+  TInt GetTmpData() {                         // private methods
+    ...
+  }
+public:
+  TMyClass();                                 // constructors
+  explicit TMyClass(int Var);
+  ~TMyClass();                                // destructors
+  int SetStats(const int N);                  // public methods
+  ...
+  friend class TMyOtherClass;                 // friends
+};</pre></div>
+      <p>
+        For a class format example in the SNAP code, see
+        <code>graph.h:TUNGraph</code>.
+      </p>
+    </div></div>
+  </div>
+
+  <div class=""><h3><a id="Constructor_Initializer_Lists" name="Constructor_Initializer_Lists">Constructor Initializer Lists</a></h3>
+    <div class="" style="display:inline;">
+      Constructor initializer lists can be all on one line or in multiple
+      lines, if the list is too long to fit in one line:
+    </div>
+    <div class=""><div style="display: inline;" id="Constructor_Initializer_Lists__body" name="Constructor_Initializer_Lists__body" class="stylepoint_body">
+      <div class=""><pre>MyClass::MyClass(int Var) : SomeVar(Var), SomeOtherVar(Var + 1) { }</pre></div>
+    </div></div>
+  </div>
+
+  <div class=""><h3><a id="Templates" name="Templates">Templates</a></h3>
+    <div class="" style="display:inline;">
+      Use one line for template forward definitions, if possible.
+      Use two lines for template implementations as shown below.
+    </div>
+    <div class=""><div style="display: inline;" id="Class_Format__body" name="Class_Format__body" class="stylepoint_body">
+      <p>
+        An example of template forward definition (see <code>alg.h</code>
+        for more):
+      </p>
+      <div class=""><pre>template &lt;class PGraph&gt; int GetMxDegNId(const PGraph& Graph);</pre></div>
+      <p>
+        The corresponding template implementation is:
+      </p>
+      <div class=""><pre>template &lt;class PGraph&gt;
+int GetMxDegNId(const PGraph& Graph) {
+  ...
+}
+</pre></div>
+    </div></div>
+  </div>
+
+  <div class=""><h3><a id="Namespace_Formatting" name="Namespace_Formatting">Namespace Formatting</a></h3>
+    <div class="" style="display:inline;">
+      The contents of namespaces are not indented.
+    </div>
+    <div class=""><div style="display: inline;" id="Namespace_Formatting__body" name="Namespace_Formatting__body" class="stylepoint_body">
+      <p>
+        <a href="#Namespaces">Namespaces</a> do not add an extra level of
+        indentation. For example, use:
+      </p>
+      <div class=""><pre>namespace {
+
+void Foo() {  // Correct.  No extra indentation within namespace.
+  ...
+}
+
+}  // namespace</pre></div>
+      <p>
+        Do not indent within a namespace:
+      </p>
+      <div class=""><pre class="badcode">namespace {
+
+  // Wrong.  Indented when it should not be.
+  void Foo() {
+    ...
+  }
+
+}  // namespace</pre></div>
+      <p>
+        When declaring nested namespaces, put each namespace on its own line.
+      </p>
+      <div class=""><pre>namespace Foo {
+namespace Bar {
+...
+}
+}</pre></div>
+    </div></div>
+  </div>
+
+  <div class=""><h3><a id="Vertical_Whitespace" name="Vertical_Whitespace">Vertical Whitespace</a></h3>
+    <div class="" style="display:inline;">
+      Minimize use of vertical whitespace.
+    </div>
+    <div class=""><div style="display: inline;" id="Vertical_Whitespace__body" name="Vertical_Whitespace__body" class="stylepoint_body">
+      <p>
+        This is more a principle than a rule: don't use blank lines
+        when you don't have to.  In particular, don't put more than
+        one or two blank lines between functions, resist starting
+        functions with a blank line, don't end functions with a blank
+        line, and be discriminating with your use of blank lines
+        inside functions.
+      </p>
+      <p>
+        The basic principle is: The more code that fits on one screen,
+        the easier it is to follow and understand the control flow of
+        the program.  Of course, readability can suffer from code
+        being too dense as well as too spread out, so use your
+        judgement.  But in general, minimize use of vertical
+        whitespace.
+      </p>
+      <p>
+        Some rules of thumb to help when blank lines may be useful:
+      </p>
+      <ul>
+        <li> Blank lines at the beginning or end of a function very
+             rarely help readability.
+             </li>
+        <li> Blank lines inside a chain of if-else blocks may well
+             help readability.
+             </li>
+      </ul>
+    </div></div>
+  </div>
+
+  <div class=""><h3><a id="Preprocessor_Directives" name="Preprocessor_Directives">Preprocessor Directives</a></h3>
+    <div class="" style="display:inline;">
+      The hash mark that starts a preprocessor directive should
+      always be at the beginning of the line, even when preprocessor
+      directives are within the body of indented code.
+    </div>
+  </div>
+
+  <div class=""><h3><a id="Non-ASCII_Characters" name="Non-ASCII_Characters">Non-ASCII Characters</a></h3>
+    <div class="" style="display:inline;">
+      Non-ASCII characters should be rare, and must use UTF-8 formatting.
+    </div>
+    <div class=""><div style="display: inline;" id="Non-ASCII_Characters__body" name="Non-ASCII_Characters__body" class="stylepoint_body">
+      <p>
+        In certain
+        cases it is appropriate to include non-ASCII characters in your code.
+        For example, if your code parses data files from foreign sources,
+        it may be appropriate to hard-code the non-ASCII string(s) used in
+        those data files as delimiters.
+        In such cases, you should use UTF-8, since this encoding
+        is understood by most tools able to handle more than just ASCII.
+        Hex encoding is also OK, and encouraged where it enhances
+        readability — for example, <code>"\xEF\xBB\xBF"</code> is the
+        Unicode zero-width no-break space character, which would be
+        invisible if included in the source as straight UTF-8.
+      </p>
+    </div></div>
+  </div>
+</div>
+
+<div class=""><h2 id="Naming" name="Naming">Naming</h2>
+  <p>
+    SNAP code uses a range of conventions to name entities.
+    It is important to follow these conventions in your code to
+    keep the code compact and consistent.
+  </p>
+
+  <div class=""><h3><a id="General_Naming_Rules" name="General_Naming_Rules">General Naming Rules</a></h3>
+    <div class="" style="display:inline;">
+      Function names, variable names, and filenames should be short and
+      concise.
+    </div>
+    <div class=""><div style="display: inline;" id="General_Naming_Rules__body" name="General_Naming_Rules__body" class="stylepoint_body">
+      <p>
+        Type and variable names should typically be nouns,
+        <code>ErrCnt</code>.
+        Function names should typically be "command" verbs,
+        <code>OpenFile()</code>.
+      </p>
+      <p>
+        SNAP code uses an extensive list of abbreviations, which make
+        the code easy to understand once you get familiar with them:
+        <ul>
+          <li><code>T...</code>: a type (<code>TInt</code>).</li>
+          <li><code>P...</code>: a pointer (<code>PUNGraph</code>).</li>
+          <li><code>...V</code>: a vector (<code>InNIdV</code>).</li>
+          <li><code>...VV</code>: a matrix (<code>TFltVV</code>).</li>
+          <li><code>...H</code>: a hash table (<code>NodeH</code>).</li>
+          <li><code>...HH</code>: a hash of hashes (<code>TIntIntHH</code>).</li>
+          <li><code>...I</code>: an iterator (<code>NodeI</code>).</li>
+          <li><code>...Pt</code>: a pointer (<code>SInPt</code>).</li>
+          <li><code>Get...</code>: an access method (<code>GetDeg()</code>).</li>
+          <li><code>Set...</code>: a set method (<code>SetXYLabel()</code>).</li>
+          <li><code>...Str</code>: a string operation (<code>CStr()</code>).</li>
+          <li><code>Id</code>: an identifier (<code>GetUId()</code>).</li>
+          <li><code>NId</code>: a node identifier (<code>GetNIdV()</code>).</li>
+          <li><code>EId</code>: an edge identifier (<code>GetEIdV()</code>).</li>
+          <li><code>Nbr</code>: a neighbour (<code>GetNbrNId()</code>).</li>
+          <li><code>Deg</code>: a node degree (<code>GetOutDeg()</code>).</li>
+          <li><code>Src</code>: a source node (<code>GetSrcNId()</code>).</li>
+          <li><code>Dst</code>: a destination node (<code>GetDstNId()</code>).</li>
+          <li><code>Err</code>: an error (<code>AvgAbsErr</code>).</li>
+          <li><code>Cnt</code>: a counter (<code>LinksCnt</code>).</li>
+          <li><code>Mx</code>: a maximum (<code>GetMxWcc()</code>).</li>
+          <li><code>Mn</code>: a minimum (<code>MnWrdLen</code>).</li>
+          <li><code>NonZ</code>: a non-zero (<code>NonZNodes</code>).</li>
+        </ul>
+      </p>
+    </div></div>
+  </div>
+
+  <div class=""><h3><a id="File_Names" name="File_Names">File Names</a></h3>
+    <div class="" style="display:inline;">
+      Filenames should be all lowercase with no underscores
+      (<code>_</code>) or dashes (<code>-</code>).
+      C++ files should end in <code>.cpp</code> and header files
+      should end in <code>.h</code>.
+    </div>
+    <div class=""><div style="display: inline;" id="File_Names__body" name="File_Names__body" class="stylepoint_body">
+      <p>
+        Examples of acceptable file names:
+      </p>
+      <div class=""><pre>graph.cpp
+bignet.h</pre></div>
+    </div></div>
+  </div>
+
+  <div class=""><h3><a id="Type_Names" name="Type_Names">Type Names</a></h3>
+    <div class="" style="display:inline;">
+      Type names start with a capital letter <code>"T"</code> and have a
+      capital letter for each new word, with no underscores:
+      <code>TUNGraph</code>.
+    </div>
+  </div>
+
+  <div class=""><h3><a id="Variable_Names" name="Variable_Names">Variable Names</a></h3>
+    <div class="" style="display:inline;">
+      Variable names start with a capital letter and have a
+      capital letter for each new word, with no underscores:
+      <code>NIdV</code>. An exception for lowercase names is
+      the use of short index names for loop iterations, such as
+      <code>i, j, k</code>.
+    </div>
+  </div>
+
+  <div class=""><h3><a id="Function_Names" name="Function_Names">Function Names</a></h3>
+    <div class="" style="display:inline;">
+      Function names start with a capital letter and have a
+      capital letter for each new word, with no underscores:
+      <code>GetInNId()</code>.
+    </div>
+  </div>
+
+  <div class=""><h3><a id="Enumerator_Names" name="Enumerator_Names">Enumerator Names</a></h3>
+    <div class="" style="display:inline;">
+      Enumerators start with lowercase letters for each word in the
+      corresponding type, followed by capitalized words, with no
+      underscores:
+    </div>
+    <div class=""><div style="display: inline" id="Enumerator_Names__body" name="Enumerator_Names__body" class="stylepoint_body">
+      <div class=""><pre>typedef enum { srUndef, srOk, srFlood, srTimeLimit } TStopReason;</pre></div>
+    </div></div>
+  </div>
+
+  <div class=""><h3><a id="Namespace_Names" name="Namespace_Names">Namespace Names</a></h3>
+    <div class="" style="display:inline;">
+      Do not define any new namespaces.
+    </div>
+    <div class=""><div style="display:inline" id="Namespace_Names__body" name="Namespace_Names__body" class="stylepoint_body">
+      <p>
+        See <a href="#Namespaces">Namespaces</a> for a discussion about
+        the SNAP namespaces.
+      </p>
+    </div></div>
+  </div>
+
+  <div class=""><h3><a id="Macro_Names" name="Macro_Names">Macro Names</a></h3>
+    <div class="" style="display:inline;">
+      In general macros should <em>not</em> be used.
+      However, if they are absolutely needed, then they should be
+      named with all capitals and underscores:
+    </div>
+    <div class=""><div style="display: inline" id="Macro_Names__body" name="Macro_Names__body" class="stylepoint_body">
+      <div class=""><pre>#define ROUND(x) ...
+#define PI_ROUNDED 3.14</pre></div>
+    </div></div>
+  </div>
+
+<div class=""><h2 id="Comments" name="Comments">Comments</h2>
+  <p>
+    Comments are absolutely vital to keeping the code readable.
+    But remember: while comments are very important, the best code is
+    self-documenting.  Giving sensible
+    names to types and variables is much better than using obscure
+    names that you must then explain through comments.
+  </p>
+  <p>
+    Comments in the source code are also used to generate reference
+    documentation for SNAP. A few simple guidelines below show how you
+    can write comments that result in high quality reference documentation.
+  </p>
+  <p>
+    When writing your comments, write for your audience: the next
+    contributor who will need to understand your code.  Be
+    generous — the next one may be you in a few months!
+  </p>
+
+  <div class=""><h3><a id="Comment_Style" name="Comment_Style">Comment Style</a></h3>
+    <div class="" style="display:inline;">
+      Use the <code>//</code> syntax to document the code, wherever possible:
+      <div class=""><pre>// This line illustrates a code comment.</pre></div>
+      
+    </div>
+  </div>
+
+  <div class=""><h3><a id="Documentation" name="Documentation">Documentation</a></h3>
+    <div class="" style="display:inline;">
+        SNAP reference documentation is generated from the source code,
+        using the Doxygen documentation system.
+        Each entity in the code has two types of descriptions
+        for the reference documentation, a brief description and detailed
+        description, both are optional. Text for a brief description is
+        located directly in the source code. Text for a detailed description
+        is in a separate file, only a tag name is given in the source code.
+    </div>
+    <div class=""><div style="display: inline;" id="Doxygen__Details" name="Doxygen__Details__body" class="stylepoint_body">
+      <p>
+        A brief description consists of <code>///</code>, followed by one
+        line of text:
+        <div class=""><pre>/// Return ID of the current node.</pre></div>
+      </p>
+      <p>
+        A detailed description consists of a brief description, followed by
+        <code>##&lt;tag_name&gt;</code>: 
+        <div class=""><pre>/// Return ID of NodeN-th neighboring node. ##TNodeI::GetNbrNId</pre></div>
+      </p>
+      <p>
+        Text for <code>&lt;tag_name&gt;</code> from file
+        <code>&lt;source_file&gt;</code> is placed in file
+        <code>doc/&lt;source_file&gt;.txt</code>. Tag format is:
+        <div class=""><pre>/// &lt;tag_name&gt;
+...&lt;detailed description&gt;
+///
+</pre></div>
+      </p>
+      <p>
+        For example, a detailed description for
+        <code>##TNodeI::GetNbrNId</code> from file
+        <code>snap-core/graph.h</code> is in file
+        <code>snap-core/doc/graph.h.txt</code>:
+        <div class=""><pre>
+/// TNodeI::GetNbrNId
+Range of NodeN: 0 <= NodeN &lt; GetNbrDeg(). Since the graph is undirected
+GetInNId(), GetOutNId() and GetNbrNId() all give the same output.
+///
+</pre></div>
+      </p>
+    </div></div>
+  </div>
+
+  <div class=""><h3><a id="Class_Comments" name="Class_Comments">Class Comments</a></h3>
+    <div class="" style="display:inline;">
+      Every class definition should have an accompanying description of
+      what it is for and how it should be used.
+    </div>
+    <div class=""><div style="display: inline;" id="Class_Comments__body" name="Class_Comments__body" class="stylepoint_body">
+      <div class=""><pre>/// Undirected graph. ##Undirected_graph
+class TUNGraph {
+  ...
+};</pre></div>
+    </div></div>
+  </div>
+
+  <div class=""><h3><a id="Function_Comments" name="Function_Comments">Function Comments</a></h3>
+    <div class="" style="display:inline;">
+      A description should give use of the function at the function
+      declaration:
+      <div class=""><pre>/// Delete node of ID NId from the graph. ##TUNGraph::DelNode
+void DelNode(const int& NId);</pre></div>
+    </div>
+    <div class=""><div style="display: inline;" id="Function_Comments__body" name="Function_Comments__body" class="stylepoint_body">
+      <p class=""><span class="stylepoint_subsection">Function Declarations</span>
+        <p>
+          Every function declaration should have a description immediately
+          preceding it about what the function does and how to
+          use it. In general, the description does not provide how the
+          function performs its task.  That should be left to
+          comments in the function definition.
+        </p>
+      </p>
+
+      <p class=""><span class="stylepoint_subsection">Function Definitions</span>
+        <p>
+          Each function definition should have a comment describing
+          what the function does if there's anything tricky about how it does
+          its job.  For example, in the definition comment you might
+          describe any coding tricks you use, give an overview of the
+          steps you go through, or explain why you chose to implement
+          the function in the way you did rather than using a viable
+          alternative. If you implemented an algorithm from literature,
+          this is a good place to provide a reference.
+        </p>
+        <p>
+          Note you should <em>not</em> just repeat the comments given
+          with the function declaration, in the <code>.h</code> file or
+          wherever.  It's okay to recapitulate briefly what the function
+          does, but the focus of the comments should be on how it does it.
+        </p>
+      </p>
+    </div></div>
+  </div>
+
+  <div class=""><h3><a id="Variable_Comments" name="Variable_Comments">Variable Comments</a></h3>
+    <div class="" style="display:inline;">
+      In general the actual name of the variable should be descriptive
+      enough to give a good idea of what the variable is used for.  In
+      certain cases, comments are required.
+    </div>
+    <div class=""><div style="display: inline" id="Variable_Comments__body" name="Variable_Comments__body" class="stylepoint_body">
+      <p class=""><span class="stylepoint_subsection">Class Data Members</span>
+        <p>
+          Each class data member (also called an instance variable or
+          member variable) should have a comment describing what it is
+          used for.
+        </p>
+      </p>
+    </div></div>
+  </div>
+
+  <div class=""><h3><a id="Implementation_Comments" name="Implementation_Comments">Implementation Comments</a></h3>
+    <div class="" style="display:inline;">
+      In your implementation you should have comments in tricky,
+      non-obvious, interesting, or important parts of your code.
+    </div>
+  </div>
+
+  <div class=""><h3><a id="Punctuation,_Spelling_and_Grammar" name="Punctuation,_Spelling_and_Grammar">Punctuation, Spelling and Grammar</a></h3>
+    <div class="" style="display:inline;">
+      Pay attention to punctuation, spelling, and grammar; it is
+      easier to read well-written comments than badly written ones.
+    </div>
+  </div>
+
+  <div class=""><h3><a id="TODO_Comments" name="TODO_Comments">TODO Comments</a></h3>
+    <div class="" style="display:inline;">
+      Use <code>TODO</code> comments for code that is temporary, a
+      short-term solution, or good-enough but not perfect.
+    </div>
+    <div class=""><div style="display: inline;" id="TODO_Comments__body" name="TODO_Comments__body" class="stylepoint_body">
+      <p>
+        <code>TODO</code>s should include the string <code>TODO</code> in
+        all caps, followed by the name, e-mail address, or other identifier
+        of the person who can best provide context about the problem
+        referenced by the <code>TODO</code>. The main purpose is to have
+        a consistent <code>TODO</code> format that can be
+        searched to find the person who can provide more details upon request.
+      </p>
+    </div></div>
+  </div>
+</div>
+
+<div class=""><h2 id="SNAP-Specific_Magic" name="SNAP-Specific_Magic">SNAP-Specific Magic</h2>
+
+  <div class=""><h3><a id="Smart_Pointers" name="Smart_Pointers">Smart Pointers</a></h3>
+    <div class="" style="display:inline;">
+        Use "smart" pointers instead of class objects, whenever a smart
+        pointer type is defined for a class.
+    </div>
+    <div class=""><div style="display: inline;" id="Smart_Pointers__body" name="Smart_Pointers__body" class="stylepoint_body">
+      <p>
+        Smart pointers are objects that act like pointers, but automate
+        management of the underlying memory. 
+        They are extremely useful for preventing memory leaks, and
+        are essential for writing exception-safe code.
+      </p>
+      <p>
+        By convention, class names in SNAP start with letter
+        <code>&quot;T&quot;</code> and their corresponding smart pointer
+        types have <code>&quot;T&quot;</code> replaced with
+        <code>&quot;P&quot;</code>.
+      </p>
+      <p>
+        In the following example, variable <code>Graph</code>
+        is defined as an undirected graph.
+        <code>TUNGraph</code>
+        is the base type and <code>PUNGraph</code> is its corresponding
+        smart pointer type:
+        <div class=""><pre>PUNGraph Graph = TUNGraph::New();</pre></div>
+      </p>
+      <p>
+        To implement smart pointers for a new class, only a few lines
+        need to be added to the class definition.
+      </p>
+      <p>
+        The original class definition:
+      </p>
+      <div class=""><pre>class TUNGraph {
+  ...
+};</pre></div>
+      <p>
+        The original class definition after 
+        smart pointers are added:
+      </p>
+      <div class=""><pre>class TUNGraph;
+
+typedef TPt&lt;TUNGraph&gt; PUNGraph;
+
+class TUNGraph {
+   ...
+private:
+  TCRef CRef;
+  ...
+public:
+  ...
+  friend class TPt&lt;TUNGraph&gt;;
+};</pre></div>
+      <p>
+        The new code declares <code>PUNGraph</code>, a smart pointer type
+        for the original class <code>TUNGraph</code>. Two new definitons
+        have been added to <code>TUNGraph</code>: <code>CRef</code>,
+        a reference counter for garbage collection, and <code>TPt</code>,
+        a pointer type.
+      </p>
+    </div></div>
+  </div>
+
+  <div class=""><h3><a id="Streams" name="Streams">Streams</a></h3>
+    <div class="" style="display:inline;">
+      SNAP defines its own streams. Use SNAP defined streams.
+      For console output, use <code>printf()</code>.
+      Do not use C++ streams, like <code>cin</code>,
+      <code>cout</code>, <code>cerr</code>.
+    </div>
+    <div class=""><div style="display: inline;" id="Streams__body" name="Streams__body" class="stylepoint_body">
+      <p>
+        SNAP defined streams are:
+        <ul>
+          <li><code>TSIn</code> is an input stream.</li>
+          <li><code>TSOut</code> is an output stream.</li>
+          <li><code>TSInOut</code> is an input/output stream.</li>
+          <li><code>TStdIn</code> is the standard input stream.</li>
+          <li><code>TStdOut</code> is the standard output stream.</li>
+          <li><code>TFIn</code> is a file input stream.</li>
+          <li><code>TFOut</code> is a file output stream.</li>
+          <li><code>TFInOut</code> is a file input/output stream.</li>
+          <li><code>TZipIn</code> is a compressed file input.</li>
+          <li><code>TZipOut</code> is a compressed file output.</li>
+        </ul>
+      </p>
+    </div></div>
+  </div>
+
+  <div class=""><h3><a id="Assertions" name="Assertions">Assertions</a></h3>
+    <div class="" style="display:inline;">
+      SNAP defines a rich set of assertions to verify that the program
+      works as expected. Use these assertions are often as possible.
+      Avoid assertions that can cause significant degradation of
+      the program performance.
+    </div>
+    <div class=""><div style="display: inline;" id="Streams__body" name="Streams__body" class="stylepoint_body">
+      <p>
+        Some common SNAP assertions are:
+        <ul>
+          <li><code>Assert</code> verifies the condition. This is the basic assertion.</li>
+          <li><code>AssertR</code> verifies the condition, prints the reason when the condition fails.</li>
+          <li><code>EFailR</code> fails with exception and prints the reason.</li>
+        </ul>
+      </p>
+      <p>
+        Examples of assertion usage:
+      </p>
+      <div class=""><pre>AssertR(IsNode(NId), TStr::Fmt("NodeId %d does not exist", NId));
+EFailR(TStr::Fmt("JSON Error: Unknown escape sequence: '%s'", Beg).CStr());
+</pre></div>
+      </p>
+      </p>
+    </div></div>
+  </div>
+
+  <div class=""><h3><a id="Integer_Types" name="Integer_Types">Integer Types</a></h3>
+    <div class="" style="display:inline;">
+      Of the built-in C++ integer types, use only <code>int</code>
+      in your code.  If a program needs a variable of a different
+      size, use one of these precise-width integer types:
+      <ul>
+        <li> <code>int8,  uint8</code>:  signed, unsigned  8-bit integers.</li>
+        <li> <code>int16, uint16</code>: signed, unsigned 16-bit integers.</li>
+        <li> <code>int32, uint32</code>: signed, unsigned 32-bit integers.</li>
+        <li> <code>int64, uint64</code>: signed, unsigned 64-bit integers.</li>
+      </ul>
+    </div>
+    <div class=""><div style="display: inline;" id="Integer_Types__body" name="Integer_Types__body" class="stylepoint_body">
+        <p>
+          Use <code>int</code> for integers that are not
+          going to be too big, e.g., loop counters.
+          You can assume that an <code>int</code> is
+          at least 32 bits,
+          but don't assume that it has more than 32 bits.
+        </p>
+        <p>
+          Do not use the unsigned integer types,
+          unless the quantity you are representing is really a bit pattern
+          rather than a number, or unless you need defined
+          twos-complement overflow. In particular, do not use unsigned
+          types to say a number will never be negative.  Instead, use
+          assertions for this purpose.
+        </p>
+    </div></div>
+  </div>
+
+  <div class=""><h3><a id="" name="Exceptions">Exceptions</a></h3>
+    <div class="" style="display:inline;">
+      SNAP defines its own exceptions. Use SNAP defined exceptions.
+      Do not use C++ exceptions.
+    </div>
+    <div class=""><div style="display: inline;" id="Exceptions__body" name="Exceptions__body" class="stylepoint_body">
+      <p>
+        SNAP exceptions are implemented with <code>TExcept::Throw</code>
+        and <code>PExcept</code>.
+      </p>
+      <p>
+        <code>TExcept::Throw</code> throws an exception:
+      </p>
+      <div class=""><pre>TExcept::Throw("Empty blog url");</pre></div>
+      <p>
+        <code>PExcept</code> catches an exception:
+      </p>
+      <div class=""><pre>try {
+  ...
+} catch (PExcept Except) {
+  SaveToErrLog(Except->GetStr().CStr());
+}</pre></div>
+    </div></div>
+  </div>
+
+</div>
+
+<div class=""><h2 id="Other_C++_Features" name="Other_C++_Features">Other C++ Features</h2>
+
+  <div class=""><h3><a id="Use_of_const" name="Use_of_const">Use of const</a></h3>
+    <div class="" style="display:inline;">
+      Use <code>const</code> whenever it makes sense to do so.
+    </div>
+    <div class=""><div style="display: inline;" id="Use_of_const__body" name="Use_of_const__body" class="stylepoint_body">
+      <p>
+        Declared variables and parameters can be preceded by the
+        keyword <code>const</code> to indicate the variables are not
+        changed (e.g., <code>const int Foo</code>).  Class functions
+        can have the <code>const</code> qualifier to indicate the
+        function does not change the state of the class member
+        variables (e.g., <code>class Foo { int Bar(char Ch) const;
+        };</code>).
+      </p>
+      <p>
+          <code>const</code> variables, data members, methods and
+          arguments add a level of compile-time type checking; it
+          is better to detect errors as soon as possible.
+          Therefore we strongly recommend that you use
+          <code>const</code> whenever it makes sense to do so:
+      </p>
+      <ul>
+        <li> If a function does not modify an argument passed by
+             reference or by pointer, that argument should be
+             <code>const</code>.
+             </li>
+        <li> Declare methods to be <code>const</code> whenever
+             possible. Accessors should almost always be
+             <code>const</code>. Other methods should be const if they do
+             not modify any data members, do not call any
+             non-<code>const</code> methods, and do not return a
+             non-<code>const</code> pointer or non-<code>const</code>
+             reference to a data member.
+             </li>
+        <li> Consider making data members <code>const</code>
+             whenever they do not need to be modified after
+             construction.
+             </li>
+      </ul>
+      <p>
+        Put <code>const</code> at the beginning of a definition as in
+        <code>const int* Foo</code>, not in the middle as in
+        <code>int const *Foo</code>.
+      </p>
+      <p>
+        Note that <code>const</code> is viral: if you pass a <code>const</code>
+        variable to a function, that function must have <code>const</code>
+        in its prototype (or the variable will need a
+        <code>const_cast</code>).
+      </p>
+    </div></div>
+  </div>
+
+  <div class=""><h3><a id="Preprocessor_Macros" name="Preprocessor_Macros">Preprocessor Macros</a></h3>
+    <div class="" style="display:inline;">
+      Avoid using macros, if possible. Prefer inline functions, enums,
+      and <code>const</code> variables to macros.
+    </div>
+    <div class=""><div style="display: inline;" id="Preprocessor_Macros__body" name="Preprocessor_Macros__body" class="stylepoint_body">
+      <p>
+        Macros are not nearly as necessary in C++ as they are
+        in C. Instead of using a macro to inline performance-critical
+        code, use an inline function.  Instead of using a macro to
+        store a constant, use a <code>const</code> variable. Instead of
+        using a macro to "abbreviate" a long variable name, use a
+        reference. Instead of using a macro to conditionally compile code
+        ... well, don't do that at all (except, of course, for the 
+        <code>#define</code> guards to prevent double inclusion of
+        header files). It makes testing much more difficult.
+      </p>
+    </div></div>
+  </div>
+
+  <div class=""><h3><a id="0_and_NULL" name="0_and_NULL">0 and NULL</a></h3>
+    <div class="" style="display:inline;">
+      Use <code>0</code> for integers, <code>0.0</code> for reals,
+      <code>NULL</code> for pointers, and <code>'\0'</code> for chars.
+    </div>
+  </div>
+
+  <div class=""><h3><a id="sizeof" name="sizeof">sizeof</a></h3>
+    <div class="" style="display:inline;">
+      Use <code>sizeof(<var>varname</var>)</code> instead of
+      <code>sizeof(<var>type</var>)</code> whenever possible.
+    </div>
+  <div class=""><div style="display: inline;" id="sizeof__body" name="sizeof__body" class="stylepoint_body">
+    <p>
+      Use <code>sizeof(<var>varname</var>)</code> because it will update
+      appropriately if the type of the variable changes.
+      <code>sizeof(<var>type</var>)</code> may make sense in some cases,
+      but should generally be avoided because it can fall out of sync if
+      the variable's type changes.
+    </p>
+    <p>
+      <div class=""><pre>Struct Data;
+memset(&amp;Data, 0, sizeof(Data));</pre></div>
+      <div class=""><pre class="badcode">memset(&amp;Data, 0, sizeof(Struct));</pre></div>
+    </p>
+  </div></div>
+  </div>
+
+  <div class=""><h3><a id="Casting" name="Casting">Casting</a></h3>
+    <div class="" style="display:inline;">
+      Use C++ casts like <code>static_cast&lt;&gt;()</code>:
+      <div class=""><pre>int Cnt = static_cast&lt;int&gt;(ValType);</pre></div>
+      Do not use other cast formats like <code>int y = (int)x;</code> or
+      <code>int y = int(x);</code>.
+    </div>
+  </div>
+
+</div>
+
+<div class=""><h2 id="Scoping" name="Scoping">Scoping</h2>
+  <div class=""><h3><a id="Namespaces" name="Namespaces">Namespaces</a></h3>
+    <div class="" style="display:inline;">
+      SNAP uses namespace <code>TSnap</code> to encapsulate global
+      functions. Define all SNAP global functions within that namespace.
+    </div>
+    <div class=""><div style="display: inline;" id="Namespaces__body" name="Namespaces__body" class="stylepoint_body">
+      <p>
+        Use namespace <code>TSnapDetail</code> for partial template
+        specialization.
+      </p>
+      <p>
+        Do not use a <i class="">using-directive</i> to make all names
+        from a namespace available:
+      </p>
+      <div class=""><pre class="badcode">// Forbidden -- This pollutes the namespace.
+using namespace Foo;</pre></div>
+    </div></div>
+  </div>
+
+  <div class=""><h3><a id="Nonmember,_Static_Member,_and_Global_Functions" name="Nonmember,_Static_Member,_and_Global_Functions">Nonmember, Static Member, and Global Functions</a></h3>
+    <div class="" style="display:inline;">
+      Prefer nonmember functions within a namespace or static member
+      functions to global functions; use completely global functions
+      rarely.
+    </div>
+    <div class=""><div style="display: inline;" id="Nonmember,_Static_Member,_and_Global_Functions__body" name="Nonmember,_Static_Member,_and_Global_Functions__body" class="stylepoint_body">
+        <p>
+          Use namespace <code>TSnap</code> for global functions.
+          See file <code>alg.h</code> for an example.
+        </p>
+        <p>
+          If you must define a nonmember function and it is only
+          needed locally in its <code>.cpp</code> file, use <code>static</code>
+          linkage: <code>static int Foo() {...}</code>, or
+          an unnamed namespace to limit its scope:
+                 <div class=""><pre>namespace {                            // This is in a .cpp file.
+
+// The content of a namespace is not indented
+enum { kUnused, kEOF, kError };        // Commonly used tokens.
+bool AtEof() { return pos_ == kEOF; }  // Uses our namespace's EOF.
+
+}  // namespace</pre></div>
+
+        </p>
+    </div></div>
+  </div>
+
+  <div class=""><h3><a id="Static_and_Global_Variables" name="Static_and_Global_Variables">Static and Global Variables</a></h3>
+    <div class="" style="display:inline;">
+      Static or global variables of class type are forbidden: they cause
+      hard-to-find bugs due to indeterminate order of construction and
+      destruction.
+    </div>
+  </div>
+</div>
+
+<div class=""><h2 id="Functions" name="Functions">Functions</h2>
+  Functions are a fundamental unit of C++ classes.
+  This section lists the guidelines you
+  should follow when writing a function.
+
+  <div class=""><h3><a id="Function_Parameters" name="Function_Parameters">Function Parameters</a></h3>
+    <div class="" style="display:inline;">
+      Parameters to functions should be passed by reference, where
+      appropriate. Passing by reference avoids unneccessary copying
+      and makes the code execution more efficient:
+    </div>
+
+    <div class=""><div style="display: inline;" id="Function_Parameters__body" name="Function_Parameters__body" class="stylepoint_body">
+      <div class=""><pre>double GetDegreeCentr(const PUNGraph& Graph, const int& NId);</pre></div>
+      <p>
+        When defining a function, parameter order is: inputs,
+        then outputs.
+      </p>
+      <p>
+        Input parameters
+        are usually values or <code>const</code> references, while output
+        and input/output parameters will be non-<code>const</code>
+        pointers. When ordering function parameters, put all input-only
+        parameters before any output parameters.  In particular, do not add
+        new parameters to the end of the function just because they are
+        new; place new input-only parameters before the output
+        parameters.
+      </p>
+      <p>
+        This is not a hard-and-fast rule.  Parameters that are both
+        input and output (often classes/structs) muddy the waters,
+        and, as always, consistency with related functions may require
+        you to bend the rule.
+      </p>
+    </div></div>
+  </div>
+
+  <div class=""><h3><a id="Reference_Parameters" name="Reference_Parameters">Reference Parameters</a></h3>
+    <div class="" style="display:inline;">
+      If a function needs to modify a variable, use a reference
+      parameter:
+      <div class=""><pre>int Foo(const int&amp; Val);</pre></div>
+      All parameters passed by reference should be labeled
+      <code>const</code>.
+    </div>
+  </div>
+
+  <div class=""><h3><a id="Default_Arguments" name="Default_Arguments">Default Arguments</a></h3>
+    <div class="" style="display:inline;">
+      The use of default function arguments is discouraged.
+    </div>
+    <div class=""><div style="display: inline;" id="Default_Arguments__body" name="Default_Arguments__body" class="stylepoint_body">
+      <p>
+        <p>
+          One specific exception is when default arguments are used to
+          simulate variable-length argument lists:
+        </p>
+        <div class=""><pre>// Support up to 4 params by using a default empty AlphaNum.
+string StrCat(const TAlphaNum &amp;A,
+  const TAlphaNum &amp;B = EmptyAlphaNum,
+  const TAlphaNum &amp;C = EmptyAlphaNum,
+  const TAlphaNum &amp;D = EmptyAlphaNum);</pre></div>
+      </p>
+    </div></div>
+  </div>
+
+  <div class=""><h3><a id="Write_Short_Functions" name="Write_Short_Functions">Write Short Functions</a></h3>
+    <div class="" style="display:inline;">
+      Prefer small and focused functions.
+    </div>
+    <div class=""><div style="display: inline;" id="Write_Short_Functions__body" name="Write_Short_Functions__body" class="stylepoint_body">
+      <p>
+        We recognize that long functions are sometimes appropriate, so
+        no hard limit is placed on functions length. If a function
+        exceeds about 40 lines, think about whether it can be broken
+        up without harming the structure of the program.
+      </p>
+      <p>
+        Even if your long function works perfectly now, someone
+        modifying it in a few months may add new behavior. This could
+        result in bugs that are hard to find.  Keeping your functions
+        short and simple makes it easier for other people to read and
+        modify your code.
+      </p>
+    </div></div>
+  </div>
+</div>
+
+<div class=""><h2 id="Classes" name="Classes">Classes</h2>
+  Classes are the fundamental unit of code in C++. Naturally, we use
+  them extensively. This section lists the main dos and don'ts you
+  should follow when writing a class.
+
+  <div class=""><h3><a id="Class_Definitions" name="Class_Definitions">Class Definitions</a></h3>
+    <div class="" style="display:inline;">
+      Each SNAP class must define the following methods:
+      default constructor, copy constructor,
+      <code>TSIn</code> constructor,
+      assignment operator,
+      Save(), Load().
+    </div>
+  </div>
+
+  <div class=""><h3><a id="Declaration_Order" name="Declaration_Order">Declaration Order</a></h3>
+    <div class="" style="display:inline;">
+      Class declarations generally should be in
+      the following order:
+    </div>
+    <div class=""><div style="display: inline;" id="Declaration_Order__body" name="Declaration_Order__body" class="stylepoint_body">
+      <ul>
+        <li> Typedefs and Enums</li>
+        <li> Constants (<code>static const</code> data members)</li>
+        <li> Private/Public Classes</li>
+        <li> Data Members (except <code>static const</code> data members)</li>
+        <li> Private Methods</li>
+        <li> Constructors</li>
+        <li> Destructor</li>
+        <li> Public Methods, including static methods</li>
+        <li> Friends</li>
+      </ul>
+      <p>
+        Method definitions in the corresponding <code>.cpp</code> file
+        should be the same as the declaration order, as much as possible.
+      </p>
+    </div></div>
+  </div>
+
+  <div class=""><h3><a id="Doing_Work_in_Constructors" name="Doing_Work_in_Constructors">Doing Work in Constructors</a></h3>
+    <div class="" style="display:inline;">
+      In general, constructors should merely set member variables to their
+      initial values.  Any complex initialization should go in an explicit
+      <code>Init()</code> method.
+    </div>
+    <div class=""><div style="display: inline;" id="Doing_Work_in_Constructors__body" name="Doing_Work_in_Constructors__body" class="stylepoint_body">
+      <p>
+        If your object requires non-trivial initialization, consider
+        having an explicit <code>Init()</code> method.  In particular,
+        constructors should not call virtual functions, attempt to raise
+        errors, access potentially uninitialized global variables, etc.
+      </p>
+    </div></div>
+  </div>
+
+  <div class=""><h3><a id="Access_Control" name="Access_Control">Access Control</a></h3>
+    <div class="" style="display:inline;">
+      Make data members <code>private</code>, and provide
+      access to them through accessor functions as needed.
+      Typically a variable would be called <code>Foo</code> and
+      the accessor function <code>GetFoo()</code>. You may also
+      want a mutator function <code>SetFoo()</code>.
+    </div>
+  </div>
+
+  <div class=""><h3><a id="Structs_vs._Classes" name="Structs_vs._Classes">Structs vs. Classes</a></h3>
+    <div class="" style="display:inline;">
+      Use a <code>struct</code> only for passive objects that carry data;
+      everything else is a <code>class</code>.
+    </div>
+    <div class=""><div style="display: inline;" id="Structs_vs._Classes__body" name="Structs_vs._Classes__body" class="stylepoint_body">
+      <p>
+        The <code>struct</code> and <code>class</code> keywords behave
+        almost identically in C++.  We add our own semantic meanings
+        to each keyword, so you should use the appropriate keyword for
+        the data-type you're defining.
+      </p>
+      <p>
+        If in doubt, make it a <code>class</code>.
+      </p>
+    </div></div>
+  </div>
+
+  <div class=""><h3><a id="Multiple_Inheritance" name="Multiple_Inheritance">Multiple Inheritance</a></h3>
+    <div class="" style="display:inline;">
+      In general, multiple inheritance is not allowed.
+      Only very rarely is multiple implementation inheritance actually
+      useful.  We allow multiple inheritance only when at most one of
+      the base classes has an implementation; all other base classes
+      must be pure interface classes tagged
+      with the <code>Interface</code> suffix.
+    </div>
+  </div>
+</div>
+
+<div class=""><h2 id="Header_Files" name="Header_Files">Header Files</h2>
+  <p>
+    In general, every <code>.cpp</code> file should have an associated
+    <code>.h</code> file. There are some common exceptions, such as
+    
+    unittests
+    and small <code>.cpp</code> files containing just a <code>main()</code>
+    function.
+  </p>
+  <p>
+    Correct use of header files can make a huge difference to the
+    readability, size and performance of your code.
+  </p>
+
+  <div class=""><h3><a id="The__define_Guard" name="The__define_Guard">The #define Guard</a></h3>
+    <div class="" style="display:inline;">
+      All header files should have <code>#define</code> guards to
+      prevent multiple inclusion.  The format of the symbol name
+      should be
+      <code><i>snap</i>_<i>&lt;file&gt;</i>_h</code>:
+    </div>
+    <div class=""><div style="display: inline;" id="The__define_Guard__body" name="The__define_Guard__body" class="stylepoint_body">
+      
+      <div class=""><pre>#ifndef snap_agm_h
+#define snap_agm_h
+...
+
+#endif  // snap_agm_h</pre></div>
+      
+    </div></div>
+  </div>
+
+  <div class=""><h3><a id="Names_and_Order_of_Includes" name="Names_and_Order_of_Includes">Names and Order of Includes</a></h3>
+    <div class="" style="display:inline;">
+      Use standard order for readability and to avoid hidden
+      dependencies:
+      <ol>
+        <li> C system files.</li>
+        <li> C++ system files.</li>
+        <li> Other libraries' <code>.h</code> files.</li>
+        <li> 
+             Your project's
+             <code>.h</code> files.</li>
+      </ol>
+    </div>
+    <div class=""><div style="display: inline;" id="Names_and_Order_of_Includes__body" name="Names_and_Order_of_Includes__body" class="stylepoint_body">
+      <p>
+        
+        All of a project's header files should be
+        listed as descendants of the project's source directory
+        without use of UNIX directory shortcuts <code>.</code> (the current
+        directory) or <code>..</code> (the parent directory).  For
+        example,
+        <code>snap-awesome-algorithm/src/base/logging.h</code>
+        should be included as:
+      </p>
+      <div class=""><pre>#include "base/logging.h"</pre></div>
+      
+      <p>
+        Within each section it is nice to order the includes
+        alphabetically.
+      </p>
+    </div></div>
+  </div>
+</div>
+
+<div class=""><h2 id="Exceptions_to_the_Rules" name="Exceptions_to_the_Rules">Exceptions to the Rules</h2>
+  <p>
+    The coding conventions described above are mandatory.  However,
+    like all good rules, these sometimes have exceptions, which we
+    discuss here.
+  </p>
+
+  <div class=""><h3><a id="Existing_Non-conformant_Code" name="Existing_Non-conformant_Code">Existing Non-conformant Code</a></h3>
+    <div class="" style="display:inline;">
+      Some of the SNAP code was written before this style guide has been
+      created and does not conform to the guide.
+    </div>
+    <div class=""><div style="display: inline;" id="Existing_Non-conformant_Code__body" name="Existing_Non-conformant_Code__body" class="stylepoint_body">
+      <p>
+        If you need to change such code, the best option is to rewrite
+        it, so that it conforms to the guide. If that is not possible,
+        because rewriting would require more time and effort than you
+        have available, then stay consistent with the local conventions
+        in that code.
+      </p>
+    </div></div>
+  </div>
+
+  <div class=""><h3><a id="Windows_Code" name="Windows_Code">Windows Code</a></h3>
+    <div class="" style="display:inline;">
+      Windows programmers have developed their own set of coding
+      conventions, mainly derived from the conventions in Windows headers
+      and other Microsoft code. You should not use any Windows specific
+      constructs within the SNAP code.
+    </div>
+    <div class=""><div style="display: inline;" id="Windows_Code__body" name="Windows_Code__body" class="stylepoint_body">
+      <p>
+        SNAP does not contain any Windows specific code. All such code
+        is encapsulated within the GLIB library, which SNAP uses. If you
+        must implement some Windows specific functionality, contact SNAP
+        maintainers.
+      </p>
+    </div></div>
+  </div>
+</div>
+
+<h2>Parting Words</h2>
+  <p>
+    Use common sense and <em>BE CONSISTENT</em>.
+  </p>
+  <p>
+    If you are writing new code, follow this style guide.
+  </p>
+  <p>
+    If you are editing existing code, take a few minutes to look at it
+    and determine its style. If your code
+    looks drastically different from the existing code around it,
+    the discontinuity makes it harder for others to understand it.
+    Try to avoid this.
+  </p>
+  <p>
+    OK, enough writing about writing code; the code itself is much
+    more interesting. Have fun!
+  </p>
+
+
+<hr>
+
+<p align="right">
+Revision 06-19-2012
+</p>
+
+<!--
+  QQQ Google says "we", should we use "SNAP", "SNAP group", "we", "they"
+  QQQ SNAP copy constructors - do they copy the content or provide reference? 
+    if copy, how to get another pointer?
+    if not copy, how to create a deep copy?
+  QQQ what is the difference between TSIn constructor and Load()?
+-->
+
+<!-- TODO (future) 64-bit portability, printf() -->
+<!-- TODO (future) printf, use value X(), CStr(), TStr::Fmt (sprintf) - less than 1000 chars -->
+
+</body></html>

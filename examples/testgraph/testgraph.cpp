@@ -38,7 +38,7 @@ int main(int argc, char* argv[]) {
   for (PGraph::TObj::TNodeI NI = G->BegNI(); NI < G->EndNI(); NI++) {
     printf("  %d: ", NI.GetId());
     for (int e = 0; e < NI.GetDeg(); e++) {
-      printf(" %d", NI.GetNbhNId(e)); }
+      printf(" %d", NI.GetNbrNId(e)); }
     printf("\n");
   }
   // dump subgraph

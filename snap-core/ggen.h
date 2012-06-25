@@ -214,7 +214,7 @@ TIntPr GetRndEdgeNonAdjNode(const PGraph& Graph, int NId1, int NId2) {
   } while (OutDeg == 0);
   NI2 = Graph->GetNI(NI1.GetOutNId(TInt::Rnd.GetUniDevInt(OutDeg)));
   int runs = 0;
-  while (NI1.IsNbhNId(NId1) || NI1.IsNbhNId(NId2) || NI2.IsNbhNId(NId1) || NI2.IsNbhNId(NId2) || NI1.GetId()==NI2.GetId()) {
+  while (NI1.IsNbrNId(NId1) || NI1.IsNbrNId(NId2) || NI2.IsNbrNId(NId1) || NI2.IsNbrNId(NId2) || NI1.GetId()==NI2.GetId()) {
     do {
       NI1 = Graph->GetRndNI();
       OutDeg = NI1.GetOutDeg();

@@ -25,8 +25,8 @@ public:
   double GetCount(const TAnfBitV& BitV, const uint64& NIdOffset) const {
     return pow(2.0, AvgLstZero(BitV, NIdOffset)) / 0.77351;
   }
-  void GetNodeAnf(const int& SrcNId, TIntFltKdV& DistNbhsV, const int& MxDist, const bool& IsDir);
-  void GetGraphAnf(TIntFltKdV& DistNbhsV, const int& MxDist, const bool& IsDir);
+  void GetNodeAnf(const int& SrcNId, TIntFltKdV& DistNbrsV, const int& MxDist, const bool& IsDir);
+  void GetGraphAnf(TIntFltKdV& DistNbrsV, const int& MxDist, const bool& IsDir);
 };
 
 template <class PGraph>
@@ -78,13 +78,13 @@ double TGraphAnf<PGraph>::AvgLstZero(const TAnfBitV& BitV, const uint64& NIdOffs
 }
 
 template <class PGraph>
-void TGraphAnf<PGraph>::GetNodeAnf(const int& SrcNId, TIntFltKdV& DistNbhsV, const int& MxDist, const bool& IsDir) {
+void TGraphAnf<PGraph>::GetNodeAnf(const int& SrcNId, TIntFltKdV& DistNbrsV, const int& MxDist, const bool& IsDir) {
   const int NNodes = Graph->GetNodes();
   TAnfBitV CurBitsV, LastBitsV;
   InitAnfBits(CurBitsV);          IAssert(CurBitsV.BegI() != NULL);
   LastBitsV.Gen(CurBitsV.Len());  IAssert(LastBitsV.BegI() != NULL);
-  DistNbhsV.Clr();
-  DistNbhsV.Add(TIntFltKd(1, Graph->GetNI(SrcNId).GetOutDeg()));
+  DistNbrsV.Clr();
+  DistNbrsV.Add(TIntFltKd(1, Graph->GetNI(SrcNId).GetOutDeg()));
   for (int dist = 1; dist < (MxDist==-1 ? TInt::Mx : MxDist); dist++) {
     memcpy(LastBitsV.BegI(), CurBitsV.BegI(), sizeof(uint)*CurBitsV.Len()); //LastBitsV = CurBitsV;
     for (typename PGraph::TObj::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
@@ -100,21 +100,21 @@ void TGraphAnf<PGraph>::GetNodeAnf(const int& SrcNId, TIntFltKdV& DistNbhsV, con
         }
       }
     }
-    DistNbhsV.Add(TIntFltKd(dist, GetCount(CurBitsV, GetNIdOffset(SrcNId))));
-    if (DistNbhsV.Len() > 1 && DistNbhsV.Last().Dat < 1.001*DistNbhsV[DistNbhsV.Len()-2].Dat) break; // 0.1%  change
+    DistNbrsV.Add(TIntFltKd(dist, GetCount(CurBitsV, GetNIdOffset(SrcNId))));
+    if (DistNbrsV.Len() > 1 && DistNbrsV.Last().Dat < 1.001*DistNbrsV[DistNbrsV.Len()-2].Dat) break; // 0.1%  change
   }
 }
 
 template <class PGraph>
-void TGraphAnf<PGraph>::GetGraphAnf(TIntFltKdV& DistNbhsV, const int& MxDist, const bool& IsDir) {
+void TGraphAnf<PGraph>::GetGraphAnf(TIntFltKdV& DistNbrsV, const int& MxDist, const bool& IsDir) {
   TAnfBitV CurBitsV, LastBitsV;
   InitAnfBits(CurBitsV);          IAssert(CurBitsV.BegI() != NULL);
   LastBitsV.Gen(CurBitsV.Len());  IAssert(LastBitsV.BegI() != NULL);
   int v, e;
   double NPairs = 0.0;
-  DistNbhsV.Clr();
-  DistNbhsV.Add(TIntFltKd(0, Graph->GetNodes()));
-  DistNbhsV.Add(TIntFltKd(1, Graph->GetEdges()));
+  DistNbrsV.Clr();
+  DistNbrsV.Add(TIntFltKd(0, Graph->GetNodes()));
+  DistNbrsV.Add(TIntFltKd(1, Graph->GetEdges()));
   //TExeTm ExeTm;
   for (int dist = 2; dist < (MxDist==-1 ? TInt::Mx : MxDist); dist++) {
     //printf("ANF dist %d...", dist);  ExeTm.Tick();
@@ -136,22 +136,22 @@ void TGraphAnf<PGraph>::GetGraphAnf(TIntFltKdV& DistNbhsV, const int& MxDist, co
     for (v = NIdToBitPosH.FFirstKeyId(); NIdToBitPosH.FNextKeyId(v); ) {
       NPairs += GetCount(CurBitsV, NIdToBitPosH[v]);
     }
-    DistNbhsV.Add(TIntFltKd(dist, NPairs));
+    DistNbrsV.Add(TIntFltKd(dist, NPairs));
     //printf("pairs: %g  %s\n", NPairs, ExeTm.GetTmStr());
     if (NPairs == 0) { break; }
-    if (DistNbhsV.Len() > 1 && NPairs < 1.001*DistNbhsV[DistNbhsV.Len()-2].Dat) { break; } // 0.1%  change
-    //TGnuPlot::SaveTs(DistNbhsV, "hops.tab", "HOPS, REACHABLE PAIRS");
+    if (DistNbrsV.Len() > 1 && NPairs < 1.001*DistNbrsV[DistNbrsV.Len()-2].Dat) { break; } // 0.1%  change
+    //TGnuPlot::SaveTs(DistNbrsV, "hops.tab", "HOPS, REACHABLE PAIRS");
   }
 }
 /////////////////////////////////////////////////
 // Approximate Neighborhood Function
 namespace TAnf {
-double CalcEffDiam(const TIntFltKdV& DistNbhsCdfV, const double& Percentile=0.9);
-double CalcEffDiam(const TFltPrV& DistNbhsCdfV, const double& Percentile=0.9);
-double CalcEffDiamPdf(const TIntFltKdV& DistNbhsPdfV, const double& Percentile=0.9);
-double CalcEffDiamPdf(const TFltPrV& DistNbhsPdfV, const double& Percentile=0.9);
-double CalcAvgDiamPdf(const TIntFltKdV& DistNbhsPdfV);
-double CalcAvgDiamPdf(const TFltPrV& DistNbhsPdfV);
+double CalcEffDiam(const TIntFltKdV& DistNbrsCdfV, const double& Percentile=0.9);
+double CalcEffDiam(const TFltPrV& DistNbrsCdfV, const double& Percentile=0.9);
+double CalcEffDiamPdf(const TIntFltKdV& DistNbrsPdfV, const double& Percentile=0.9);
+double CalcEffDiamPdf(const TFltPrV& DistNbrsPdfV, const double& Percentile=0.9);
+double CalcAvgDiamPdf(const TIntFltKdV& DistNbrsPdfV);
+double CalcAvgDiamPdf(const TFltPrV& DistNbrsPdfV);
 
 template <class PGraph> void Test() {
   PGraph Graph = PGraph::TObj::New();
@@ -169,13 +169,13 @@ template <class PGraph> void Test() {
   TFltV AnfV;
   for (int t = 0; t < 10; t++) {
     TGraphAnf<PGraph> Anf(Graph, 128, 5, t+1);
-    TIntFltKdV DistToNbhsV;
-    Anf.GetGraphAnf(DistToNbhsV, 5, true);
+    TIntFltKdV DistToNbrsV;
+    Anf.GetGraphAnf(DistToNbrsV, 5, true);
     printf("\n--seed: %d---------------------\n", t+1);
-    for (int i = 0; i < DistToNbhsV.Len(); i++) {
-      printf("dist: %d\t hops:%f\n", DistToNbhsV[i].Key(), DistToNbhsV[i].Dat());
+    for (int i = 0; i < DistToNbrsV.Len(); i++) {
+      printf("dist: %d\t hops:%f\n", DistToNbrsV[i].Key(), DistToNbrsV[i].Dat());
     }
-    AnfV.Add(DistToNbhsV.Last().Dat);
+    AnfV.Add(DistToNbrsV.Last().Dat);
   }
   TMom Mom(AnfV);
   printf("-----------\nAvgAnf: %f  StDev:  %f\n", Mom.GetMean(), Mom.GetSDev());//*/
@@ -215,29 +215,29 @@ template <class PGraph> void Test() {
 // Snap functions
 namespace TSnap {
 
-template <class PGraph> void GetAnf(const PGraph& Graph, const int& SrcNId, TIntFltKdV& DistNbhsV, const int& MxDist, const bool& IsDir, const int& NApprox=32); // number of reachable nodes at distance Dist
-template <class PGraph> void GetAnf(const PGraph& Graph, TIntFltKdV& DistNbhsV, const int& MxDist, const bool& IsDir, const int& NApprox=32); // number of pairs of reachable nodes at distance Dist
+template <class PGraph> void GetAnf(const PGraph& Graph, const int& SrcNId, TIntFltKdV& DistNbrsV, const int& MxDist, const bool& IsDir, const int& NApprox=32); // number of reachable nodes at distance Dist
+template <class PGraph> void GetAnf(const PGraph& Graph, TIntFltKdV& DistNbrsV, const int& MxDist, const bool& IsDir, const int& NApprox=32); // number of pairs of reachable nodes at distance Dist
 template <class PGraph> double GetAnfEffDiam(const PGraph& Graph, const bool& IsDir, const double& Percentile, const int& NApprox);
 template <class PGraph> double GetAnfEffDiam(const PGraph& Graph, const int NRuns=1, int NApprox=-1);
 
 template <class PGraph>
-void GetAnf(const PGraph& Graph, const int& SrcNId, TIntFltKdV& DistNbhsV, const int& MxDist, const bool& IsDir, const int& NApprox) {
+void GetAnf(const PGraph& Graph, const int& SrcNId, TIntFltKdV& DistNbrsV, const int& MxDist, const bool& IsDir, const int& NApprox) {
   TGraphAnf<PGraph> Anf(Graph, NApprox, 5, 0);
-  Anf.GetNodeAnf(SrcNId, DistNbhsV, MxDist, IsDir);
+  Anf.GetNodeAnf(SrcNId, DistNbrsV, MxDist, IsDir);
 }
 
 template <class PGraph>
-void GetAnf(const PGraph& Graph, TIntFltKdV& DistNbhsV, const int& MxDist, const bool& IsDir, const int& NApprox) {
+void GetAnf(const PGraph& Graph, TIntFltKdV& DistNbrsV, const int& MxDist, const bool& IsDir, const int& NApprox) {
   TGraphAnf<PGraph> Anf(Graph, NApprox, 5, 0);
-  Anf.GetGraphAnf(DistNbhsV, MxDist, IsDir);
+  Anf.GetGraphAnf(DistNbrsV, MxDist, IsDir);
 }
 
 template <class PGraph>
 double GetAnfEffDiam(const PGraph& Graph, const bool& IsDir, const double& Percentile, const int& NApprox) {
-  TIntFltKdV DistNbhsV;
+  TIntFltKdV DistNbrsV;
   TGraphAnf<PGraph> Anf(Graph, NApprox, 5, 0);
-  Anf.GetGraphAnf(DistNbhsV, -1, IsDir);
-  return TAnf::CalcEffDiam(DistNbhsV, Percentile);
+  Anf.GetGraphAnf(DistNbrsV, -1, IsDir);
+  return TAnf::CalcEffDiam(DistNbrsV, Percentile);
 }
 
 template<class PGraph>

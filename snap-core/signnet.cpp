@@ -94,7 +94,7 @@ void TSignNet::FlipMinusEdges(const int&  OldSign, const int& NewSign) {
 }
 
 void TSignNet::CountStructBalance() const {
-  TIntSet NbhIdSet;
+  TIntSet NbrIdSet;
   THash<TIntTr, TInt> TriadCntH;
   TIntH SignH;
   for (TEdgeI EI = BegEI(); EI < EndEI(); EI++) {
@@ -109,18 +109,18 @@ void TSignNet::CountStructBalance() const {
     const TNodeI SrcNI = GetNI(EI.GetSrcNId());
     const TNodeI DstNI = GetNI(EI.GetDstNId());
     const TInt E1Dat = EI();
-    NbhIdSet.Clr(false);
+    NbrIdSet.Clr(false);
     for (int es = 0; es < SrcNI.GetDeg(); es++) {
-      NbhIdSet.AddKey(SrcNI.GetNbhNId(es));
+      NbrIdSet.AddKey(SrcNI.GetNbrNId(es));
     }
     for (int ed = 0; ed < DstNI.GetDeg(); ed++) {
-      const int nbh = DstNI.GetNbhNId(ed);
-      if (! NbhIdSet.IsKey(nbh)) { continue; }
-      const TInt E3Dat = DstNI.GetNbhEDat(ed);
+      const int nbr = DstNI.GetNbrNId(ed);
+      if (! NbrIdSet.IsKey(nbr)) { continue; }
+      const TInt E3Dat = DstNI.GetNbrEDat(ed);
       for (int ed2 = 0; ed2 < SrcNI.GetDeg(); ed2++) {
-        if (nbh != SrcNI.GetNbhNId(ed2)) { continue; }
-        const TInt E2Dat = SrcNI.GetNbhEDat(ed2);
-        // printf("%d-%d-%d  %2d %2d %2d\n", EI.GetSrcNId(), EI.GetDstNId(), nbh, E1Dat, E2Dat, E3Dat);
+        if (nbr != SrcNI.GetNbrNId(ed2)) { continue; }
+        const TInt E2Dat = SrcNI.GetNbrEDat(ed2);
+        // printf("%d-%d-%d  %2d %2d %2d\n", EI.GetSrcNId(), EI.GetDstNId(), nbr, E1Dat, E2Dat, E3Dat);
         TriadCntH.AddDat(TIntTr(TMath::Mx(E1Dat, E2Dat, E3Dat),
           TMath::Median(E1Dat, E2Dat, E3Dat), TMath::Mn(E1Dat, E2Dat, E3Dat))) += 1;
       }
@@ -154,17 +154,17 @@ void TSignNet::CountBalUnBal(const int& NId1, const int& NId2, int& BalTriads, i
   else { return; }
   TNodeI NI1 = GetNI(NId1);
   TNodeI NI2 = GetNI(NId2);
-  TIntH NbhH(NI1.GetDeg());
+  TIntH NbrH(NI1.GetDeg());
   for (int i = 0; i < NI1.GetDeg(); i++) {
-    const int nid = NI1.GetNbhNId(i);
+    const int nid = NI1.GetNbrNId(i);
     if (nid!=NId1 && nid!=NId2) {
-      NbhH.AddDat(nid, NI1.GetNbhEDat(i));
+      NbrH.AddDat(nid, NI1.GetNbrEDat(i));
     }
   }
   for (int i = 0; i < NI2.GetDeg(); i++) {
-    const int nid = NI2.GetNbhNId(i);
-    if (NbhH.IsKey(nid)) {
-      if (Sign*NbhH.GetDat(nid)*NI2.GetNbhEDat(i) == 1) { BalTriads++; }
+    const int nid = NI2.GetNbrNId(i);
+    if (NbrH.IsKey(nid)) {
+      if (Sign*NbrH.GetDat(nid)*NI2.GetNbrEDat(i) == 1) { BalTriads++; }
       else { UnBalTriads++; }
     }
   }
@@ -285,19 +285,19 @@ void TSignNet::EdgeSignStat() const {
 
 // plot the span of a particular edge:
 //   number of common friends of the endpoints
-void TSignNet::PlotSignCmnNbhs(const TStr& OutFNm) const {
+void TSignNet::PlotSignCmnNbrs(const TStr& OutFNm) const {
   TFltFltH SupCmnH, SupCmnH2, OppCmnH, OppCmnH2;    // common friends
   THash<TFlt, TMom> CmnFracH, CmnFracH2;  // fraction of supporters
   PSignNet ThisPt = PSignNet((TSignNet*) this);
   for (TEdgeI EI = BegEI(); EI < EndEI(); EI++) {
-    const int C = TSnap::GetCmnNbhs(ThisPt, EI.GetSrcNId(), EI.GetDstNId());
+    const int C = TSnap::GetCmnNbrs(ThisPt, EI.GetSrcNId(), EI.GetDstNId());
     if (EI() == 1) { SupCmnH.AddDat(C)++;  CmnFracH.AddDat(C).Add(1);
     } else if (EI() == -1) { OppCmnH.AddDat(C)++;  CmnFracH.AddDat(C).Add(0);  }
   }
   PSignNet PermNet = TSignNet::New();  *PermNet = *this;
   PermNet->PermuteEdgeSigns();
   for (TEdgeI EI = PermNet->BegEI(); EI < PermNet->EndEI(); EI++) {
-    const int C = TSnap::GetCmnNbhs(PermNet, EI.GetSrcNId(), EI.GetDstNId());
+    const int C = TSnap::GetCmnNbrs(PermNet, EI.GetSrcNId(), EI.GetDstNId());
     if (EI() == 1) { SupCmnH2.AddDat(C)++;  CmnFracH2.AddDat(C).Add(1);
     } else if (EI() == -1) { OppCmnH2.AddDat(C)++;  CmnFracH2.AddDat(C).Add(0);  }
   }
@@ -539,16 +539,16 @@ void TSignNet::CountSignedTriads(const TStr& OutFNm) const {
   TVec<PSignNet> TriadIdV;
   TVec<PSignNet> TriadIdV2;
   TIntH TriadIdCntH;
-  TIntV NbhV;
+  TIntV NbrV;
   PSignNet ThisPt = PSignNet((TSignNet*) this);
   double AllPlusE=0, AllE = GetEdges();
   int c=0, Decile=int(AllE/100);
   TIntH UnSignCntH;
   TIntH SignToUnsignH;
   for (TEdgeI EI = BegEI(); EI < EndEI(); EI++) {
-    TSnap::GetCmnNbhs(ThisPt, EI.GetSrcNId(), EI.GetDstNId(), NbhV);
-    for (int n = 0; n < NbhV.Len(); n++) {
-      PSignNet TriadNet = GetTriad(EI.GetSrcNId(), EI.GetDstNId(), NbhV[n]);
+    TSnap::GetCmnNbrs(ThisPt, EI.GetSrcNId(), EI.GetDstNId(), NbrV);
+    for (int n = 0; n < NbrV.Len(); n++) {
+      PSignNet TriadNet = GetTriad(EI.GetSrcNId(), EI.GetDstNId(), NbrV[n]);
       // count signed triad
       int TriadId = -1;
       for (int i = 0; i < TriadIdV.Len() && TriadId==-1; i++) {
@@ -556,7 +556,7 @@ void TSignNet::CountSignedTriads(const TStr& OutFNm) const {
       if (TriadId==-1) { TriadId=TriadIdV.Len();  TriadIdV.Add(TriadNet); }
       TriadIdCntH.AddDat(TriadId) += 1;
       // count unsigned triads
-      TriadNet = GetTriad(EI.GetSrcNId(), EI.GetDstNId(), NbhV[n]);
+      TriadNet = GetTriad(EI.GetSrcNId(), EI.GetDstNId(), NbrV[n]);
       TriadNet->SetAllEDat(1);
       int TriadId2 = -1;
       for (int i = 0; i < TriadIdV2.Len() && TriadId2==-1; i++) {
@@ -1132,11 +1132,11 @@ void TSignMicroEvol::CountTriadClose(const int& SrcNId, const int& DstNId, const
   IAssert(! Network->IsEdge(SrcNId, DstNId));
   // edge that closes an open triad
   if (! Network->IsEdge(DstNId, SrcNId)) {
-    TIntV NbhV;
-    TSnap::GetCmnNbhs(Network, SrcNId, DstNId, NbhV);
-    for (int n = 0; n < NbhV.Len(); n++) {
-      PSignNet Net1 = GetSubGraph(SrcNId, DstNId, NbhV[n]);
-      PSignNet Net2 = GetSubGraph(SrcNId, DstNId, NbhV[n]);
+    TIntV NbrV;
+    TSnap::GetCmnNbrs(Network, SrcNId, DstNId, NbrV);
+    for (int n = 0; n < NbrV.Len(); n++) {
+      PSignNet Net1 = GetSubGraph(SrcNId, DstNId, NbrV[n]);
+      PSignNet Net2 = GetSubGraph(SrcNId, DstNId, NbrV[n]);
       Net2->AddEdge(0, 1, Sign); // new edge is between nodes 0 and 1
       // triad transition
       const int Net1Id = GetTriadId(Net1);
@@ -1179,12 +1179,12 @@ void TSignMicroEvol::CountTriadClose(const int& SrcNId, const int& DstNId, const
 // do reciprocal edges make triads more balanced
 void TSignMicroEvol::CountTriad3to4Edges(const int& SrcNId, const int& DstNId, const int& Sign, const double& SrcOutPlusProb, const double& DstInPlusProb) {
   IAssert(! Network->IsEdge(SrcNId, DstNId));
-  TIntV NbhV;
-  TSnap::GetCmnNbhs(Network, SrcNId, DstNId, NbhV);
-  for (int n = 0; n < NbhV.Len(); n++) {
-    PSignNet Net1 = GetSubGraph(SrcNId, DstNId, NbhV[n]);
+  TIntV NbrV;
+  TSnap::GetCmnNbrs(Network, SrcNId, DstNId, NbrV);
+  for (int n = 0; n < NbrV.Len(); n++) {
+    PSignNet Net1 = GetSubGraph(SrcNId, DstNId, NbrV[n]);
     if (! (Net1->GetEdges()==3 && Net1->IsClosedTriad())) { continue; }
-    PSignNet Net2 = GetSubGraph(SrcNId, DstNId, NbhV[n]);
+    PSignNet Net2 = GetSubGraph(SrcNId, DstNId, NbrV[n]);
     Net2->AddEdge(0, 1, +1); // pretend new edge is +
     const int Net1Id = GetTriadId(Net1);
     const int Net2Id = GetTriadId(Net2);
@@ -1204,11 +1204,11 @@ void TSignMicroEvol::CountTriad3to4Edges(const int& SrcNId, const int& DstNId, c
 }
 
 void TSignMicroEvol::CountTriadCloseVec(const int& SrcNId, const int& DstNId, const int& Sign) {
-  TIntV NbhV;
-  TSnap::GetCmnNbhs(Network, SrcNId, DstNId, NbhV);
+  TIntV NbrV;
+  TSnap::GetCmnNbrs(Network, SrcNId, DstNId, NbrV);
   TTuple<TInt, 16> CntV;
-  for (int n = 0; n < NbhV.Len(); n++) {
-    PSignNet OpnTriadNet = GetSubGraph(SrcNId, DstNId, NbhV[n]);
+  for (int n = 0; n < NbrV.Len(); n++) {
+    PSignNet OpnTriadNet = GetSubGraph(SrcNId, DstNId, NbrV[n]);
     if (OpnTriadNet->GetEdges() != 2) { continue; }
     const int TdId = GetOpnTriadId(OpnTriadNet);
     IAssert(TdId < 16);

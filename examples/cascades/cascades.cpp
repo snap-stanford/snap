@@ -285,9 +285,9 @@ PNGraph AddSpuriousEdges(const PUNGraph& Graph, const PNGraph& Casc, TIntH NIdTm
   for (TNGraph::TNodeI NI = Casc->BegNI(); NI < Casc->EndNI(); NI++) {
     TUNGraph::TNodeI GNI = Graph->GetNI(NI.GetId());
     const int Tm = NIdTmH.GetDat(NI.GetId());
-    for (int i=0,j=0; i < GNI.GetOutDeg(); i++) {
+    for (int i=0; i < GNI.GetOutDeg(); i++) {
       const int Dst = GNI.GetOutNId(i);
-      if (NIdTmH.IsKey(Dst) && Tm<NIdTmH.GetDat(Dst) && ! NI.IsNbhNId(Dst)) {
+      if (NIdTmH.IsKey(Dst) && Tm<NIdTmH.GetDat(Dst) && ! NI.IsNbrNId(Dst)) {
         EdgeV.Add(TIntPr(GNI.GetId(), Dst)); }
     }
   }

@@ -109,7 +109,7 @@ void TWikiTalkNet::PermuteOutVoteSigns(const bool& OnlyVotes) {
 }
 
 void TWikiTalkNet::CountStructBalance() const {
-  TIntSet NbhIdSet;
+  TIntSet NbrIdSet;
   THash<TIntTr, TInt> TriadCntH;
   TIntH SignH;
   for (TEdgeI EI = BegEI(); EI < EndEI(); EI++) {
@@ -124,14 +124,14 @@ void TWikiTalkNet::CountStructBalance() const {
     const TNodeI SrcNI = GetNI(EI.GetSrcNId());
     const TNodeI DstNI = GetNI(EI.GetDstNId());
     const TInt E1Dat = EI().VoteSign();
-    NbhIdSet.Clr(false);
+    NbrIdSet.Clr(false);
     for (int es = 0; es < SrcNI.GetDeg(); es++) {
-      NbhIdSet.AddKey(SrcNI.GetNbhNId(es)); }
+      NbrIdSet.AddKey(SrcNI.GetNbrNId(es)); }
     for (int ed = 0; ed < DstNI.GetDeg(); ed++) {
-      const int nbh = DstNI.GetNbhNId(ed);
-      if (! NbhIdSet.IsKey(nbh)) { continue; }
-      const TInt E2Dat = SrcNI.GetNbhEDat(NbhIdSet.GetKeyId(nbh)).VoteSign();
-      const TInt E3Dat = DstNI.GetNbhEDat(ed).VoteSign();
+      const int nbr = DstNI.GetNbrNId(ed);
+      if (! NbrIdSet.IsKey(nbr)) { continue; }
+      const TInt E2Dat = SrcNI.GetNbrEDat(NbrIdSet.GetKeyId(nbr)).VoteSign();
+      const TInt E3Dat = DstNI.GetNbrEDat(ed).VoteSign();
       TriadCntH.AddDat(TIntTr(TMath::Mx(E1Dat, E2Dat, E3Dat),
         TMath::Median(E1Dat, E2Dat, E3Dat), TMath::Mn(E1Dat, E2Dat, E3Dat))) += 1;
     }
@@ -516,7 +516,7 @@ void TWikiTalkNet::PlotVoteSignCmnFriends(const TStr& OutFNm) const {
   THash<TFlt, TMom> RngFracH, CmnFracH; // fraction of supporters
   PWikiTalkNet ThisPt = PWikiTalkNet((TWikiTalkNet*) this);
   for (TEdgeI EI = BegEI(); EI < EndEI(); EI++) {
-    const int C = -1; Fail;//TGAlg::GetCmnNbhs(ThisPt, EI.GetSrcNId(), EI.GetDstNId(), false);
+    const int C = -1; Fail;//TGAlg::GetCmnNbrs(ThisPt, EI.GetSrcNId(), EI.GetDstNId(), false);
     const int R = -1; //TGAlg::GetRangeDist(ThisPt, EI.GetSrcNId(), EI.GetDstNId(), false);
     if (EI().GetVote() == 1) {
       SupRngH.AddDat(R)++;  RngFracH.AddDat(R).Add(1);
@@ -3692,7 +3692,7 @@ void TWikiVoteNet::PermuteAllEdgeSigns(const bool& OnlySigns) {
 }
 
 void TWikiVoteNet::CountTriads() const {
-  TIntSet NbhIdSet;
+  TIntSet NbrIdSet;
   THash<TIntTr, TInt> TriadCntH;
   TIntH SignH;
   for (TEdgeI EI = BegEI(); EI < EndEI(); EI++) {
@@ -3707,15 +3707,15 @@ void TWikiVoteNet::CountTriads() const {
     const TNodeI SrcNI = GetNI(EI.GetSrcNId());
     const TNodeI DstNI = GetNI(EI.GetDstNId());
     const TInt E1Dat = EI();
-    NbhIdSet.Clr(false);
+    NbrIdSet.Clr(false);
     for (int es = 0; es < SrcNI.GetDeg(); es++) {
-      NbhIdSet.AddKey(SrcNI.GetNbhNId(es)); }
+      NbrIdSet.AddKey(SrcNI.GetNbrNId(es)); }
     for (int ed = 0; ed < DstNI.GetDeg(); ed++) {
-      const int nbh = DstNI.GetNbhNId(ed);
-      if (! NbhIdSet.IsKey(nbh)) { continue; }
-      const TInt E2Dat = SrcNI.GetNbhEDat(NbhIdSet.GetKeyId(nbh));
-      const TInt E3Dat = DstNI.GetNbhEDat(ed);
-      //printf("triad: %d -- %d -- %d  :  %d %d %d\n", SrcNI.GetId(), DstNI.GetId(), nbh, E1Dat, E2Dat, E3Dat);
+      const int nbr = DstNI.GetNbrNId(ed);
+      if (! NbrIdSet.IsKey(nbr)) { continue; }
+      const TInt E2Dat = SrcNI.GetNbrEDat(NbrIdSet.GetKeyId(nbr));
+      const TInt E3Dat = DstNI.GetNbrEDat(ed);
+      //printf("triad: %d -- %d -- %d  :  %d %d %d\n", SrcNI.GetId(), DstNI.GetId(), nbr, E1Dat, E2Dat, E3Dat);
       //TriadCntH.AddDat(E1Dat+E2Dat+E3Dat) += 1;
       TriadCntH.AddDat(TIntTr(TMath::Mx(E1Dat, E2Dat, E3Dat),
         TMath::Median(E1Dat, E2Dat, E3Dat), TMath::Mn(E1Dat, E2Dat, E3Dat))) += 1;
@@ -3925,7 +3925,7 @@ void TWikiVoteNet::PlotSignRange(const TStr& OutFNm) const {
   THash<TFlt, TMom> RngFracH, CmnFracH; // fraction of supporters
   PWikiVoteNet ThisPt = PWikiVoteNet((TWikiVoteNet*) this);
   for (TEdgeI EI = BegEI(); EI < EndEI(); EI++) {
-    const int C = TGAlg::GetCmnNbhs(ThisPt, EI.GetSrcNId(), EI.GetDstNId(), false);
+    const int C = TGAlg::GetCmnNbrs(ThisPt, EI.GetSrcNId(), EI.GetDstNId(), false);
     const int R = TGAlg::GetRangeDist(ThisPt, EI.GetSrcNId(), EI.GetDstNId(), false);
     if (EI() == 1) {
       SupRngH.AddDat(R)++;  RngFracH.AddDat(R).Add(1);

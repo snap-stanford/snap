@@ -12,9 +12,9 @@ private: //Recursion variables only
 	TVec<TIntV> *m_maxCliques;
 	int m_minMaxCliqueSize;
 private:
-	void GetNbhs(int NId, THashSet<TInt>& Nbhs) const;
+	void GetNbrs(int NId, THashSet<TInt>& Nbrs) const;
 	int GetNodeIdWithMaxDeg(const THashSet<TInt>& Set) const;
-	int MaxNbhsInCANDNodeId(const THashSet<TInt>& SUBG, const THashSet<TInt>& CAND) const;
+	int MaxNbrsInCANDNodeId(const THashSet<TInt>& SUBG, const THashSet<TInt>& CAND) const;
 private:
 	void Expand(const THashSet<TInt>& SUBG, THashSet<TInt>& CAND);
 public:

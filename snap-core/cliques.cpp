@@ -32,10 +32,10 @@ int TCliqueOverlap::Intersection(const THashSet<TInt>& A, const THashSet<TInt>& 
 	return n;
 }
 
-void TCliqueOverlap::GetNbhs(int NId, THashSet<TInt>& Nbhs) const{
+void TCliqueOverlap::GetNbrs(int NId, THashSet<TInt>& Nbrs) const{
 	TUNGraph::TNodeI node = m_G->GetNI(NId);
 	int deg = node.GetDeg();
-	for (int i=0; i<deg; i++) Nbhs.AddKey(node.GetNbhNId(i));
+	for (int i=0; i<deg; i++) Nbrs.AddKey(node.GetNbrNId(i));
 }
 
 int TCliqueOverlap::GetNodeIdWithMaxDeg(const THashSet<TInt>& Set) const{
@@ -50,7 +50,7 @@ int TCliqueOverlap::GetNodeIdWithMaxDeg(const THashSet<TInt>& Set) const{
 	return id;
 }
 
-int TCliqueOverlap::MaxNbhsInCANDNodeId(const THashSet<TInt>& SUBG, const THashSet<TInt>& CAND) const{
+int TCliqueOverlap::MaxNbrsInCANDNodeId(const THashSet<TInt>& SUBG, const THashSet<TInt>& CAND) const{
 	int id = -1;
 	int maxIntersection = -1;
 	//
@@ -61,8 +61,8 @@ int TCliqueOverlap::MaxNbhsInCANDNodeId(const THashSet<TInt>& SUBG, const THashS
 		//
 		int curIntersection = 0;
 		for (int i=0; i<deg; i++) {
-			int nbhId = nIt.GetNbhNId(i);
-			if (CAND.IsKey(nbhId)) curIntersection++;
+			int nbrId = nIt.GetNbrNId(i);
+			if (CAND.IsKey(nbrId)) curIntersection++;
 		}
 		//
 		if (maxIntersection < curIntersection) { maxIntersection=curIntersection; id=nId; }
@@ -74,26 +74,26 @@ void TCliqueOverlap::Expand(const THashSet<TInt>& SUBG, THashSet<TInt>& CAND) {
 	if (SUBG.Len()==0) { if (m_Q.Len() >= m_minMaxCliqueSize) { m_Q.Pack(); m_maxCliques->Add(m_Q); } return; }
 	if (CAND.Len()==0) return;
 	//Get u that maximaze CAND intersection with neighbours of vertex u
-	int u = MaxNbhsInCANDNodeId(SUBG, CAND);
+	int u = MaxNbrsInCANDNodeId(SUBG, CAND);
 	//Get neighbours of node u
-	THashSet<TInt> nbhsU;
-	GetNbhs(u, nbhsU);
-	//Get relative complement of nbhsU in CAND
+	THashSet<TInt> nbrsU;
+	GetNbrs(u, nbrsU);
+	//Get relative complement of nbrsU in CAND
 	THashSet<TInt> EXT;
-	GetRelativeComplement(CAND, nbhsU, EXT);
+	GetRelativeComplement(CAND, nbrsU, EXT);
 	while(EXT.Len() != 0) {
 		int q = GetNodeIdWithMaxDeg(EXT);
 		//
 		m_Q.Add(q);
 		//
-		THashSet<TInt> nbhsQ;
-		GetNbhs(q, nbhsQ);
+		THashSet<TInt> nbrsQ;
+		GetNbrs(q, nbrsQ);
 		//
 		THashSet<TInt> SUBGq;
-		GetIntersection(SUBG, nbhsQ, SUBGq);
+		GetIntersection(SUBG, nbrsQ, SUBGq);
 		//
 		THashSet<TInt> CANDq;
-		GetIntersection(CAND, nbhsQ, CANDq);
+		GetIntersection(CAND, nbrsQ, CANDq);
 		//
 		Expand(SUBGq, CANDq);
 		//
@@ -101,7 +101,7 @@ void TCliqueOverlap::Expand(const THashSet<TInt>& SUBG, THashSet<TInt>& CAND) {
 		m_Q.DelLast();
 		//
 		EXT.Clr();
-		GetRelativeComplement(CAND, nbhsU, EXT);
+		GetRelativeComplement(CAND, nbrsU, EXT);
 	}
 }
 

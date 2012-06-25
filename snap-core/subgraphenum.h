@@ -63,8 +63,8 @@ private:
 	int m_subGraphSz;
 	TGraphCounter *m_functor;
 private:
-	void GetSubGraphs_recursive(TSVec &sg, const TSSet &sgNbhs, TSSet &ext, int vId);
-	void GetSubGraphs_recursive(TSVec &sg, const TSSet &sgNbhs, TSSet &ext);
+	void GetSubGraphs_recursive(TSVec &sg, const TSSet &sgNbrs, TSSet &ext, int vId);
+	void GetSubGraphs_recursive(TSVec &sg, const TSSet &sgNbrs, TSSet &ext);
 public: 
   TSubGraphEnum() { }
 	//Graph must be normalized (vertex ids are 0,1,2,...)
@@ -78,7 +78,7 @@ public:
 /////////////////////////////////////////////////
 // TSubGraphEnum implementation
 template <class TGraphCounter>
-void TSubGraphEnum<TGraphCounter>::GetSubGraphs_recursive(TSVec &sg, const TSSet &sgNbhs, TSSet &ext, int vId) {
+void TSubGraphEnum<TGraphCounter>::GetSubGraphs_recursive(TSVec &sg, const TSSet &sgNbrs, TSSet &ext, int vId) {
 	if(sg.Size() == m_subGraphSz) { (*m_functor)(m_graph, sg.getVec()); return; }
 	//
 	for(int i=0; i<ext.Capacity(); i++) {
@@ -94,16 +94,16 @@ void TSubGraphEnum<TGraphCounter>::GetSubGraphs_recursive(TSVec &sg, const TSSet
 		ext.Remove(wId);
 		//
 		TSSet newExt = ext;
-		TSSet newSgNbhs = sgNbhs;
+		TSSet newSgNbrs = sgNbrs;
 		for(int j=0; j<wDeg; j++) {
-			int nbhId = wIt.GetNbhNId(j);
-			if(nbhId > vId && !sgNbhs.IsKey(nbhId) && !sg.Contains(nbhId)) {
-				newExt.Add(nbhId);
-				newSgNbhs.Add(nbhId);
+			int nbrId = wIt.GetNbrNId(j);
+			if(nbrId > vId && !sgNbrs.IsKey(nbrId) && !sg.Contains(nbrId)) {
+				newExt.Add(nbrId);
+				newSgNbrs.Add(nbrId);
 			}
 		}
 		sg.Push(wId);
-		GetSubGraphs_recursive(sg, newSgNbhs, newExt, vId);
+		GetSubGraphs_recursive(sg, newSgNbrs, newExt, vId);
 		sg.Pop();
 	}
 }
@@ -125,19 +125,19 @@ void TSubGraphEnum<TGraphCounter>::GetSubGraphs(PNGraph &Graph, int SubGraphSz, 
 		//Subgraph extension
 		TSSet ext(m_nodes);
 		for(int i=0; i<vDeg; i++) {
-			int nbhId = it.GetNbhNId(i);
-			if(nbhId > vId) 
-				ext.Add(nbhId);
+			int nbrId = it.GetNbrNId(i);
+			if(nbrId > vId) 
+				ext.Add(nbrId);
 		}
 		//Subgraph neighbours
-		TSSet sgNbhs = ext;
-		GetSubGraphs_recursive(sg, sgNbhs, ext, vId);
+		TSSet sgNbrs = ext;
+		GetSubGraphs_recursive(sg, sgNbrs, ext, vId);
 	}
 	//printf("secs: %llf\n", extime.GetSecs());
 }
 
 template <class TGraphCounter>
-void TSubGraphEnum<TGraphCounter>::GetSubGraphs_recursive(TSVec &sg, const TSSet &sgNbhs, TSSet &ext) {
+void TSubGraphEnum<TGraphCounter>::GetSubGraphs_recursive(TSVec &sg, const TSSet &sgNbrs, TSSet &ext) {
 	if(sg.Size() == m_subGraphSz) { (*m_functor)(m_graph, sg.getVec()); return; }
 	//
 	for(int i=0; i<ext.Capacity(); i++) {
@@ -153,16 +153,16 @@ void TSubGraphEnum<TGraphCounter>::GetSubGraphs_recursive(TSVec &sg, const TSSet
 		ext.Remove(wId);
 		//
 		TSSet newExt = ext;
-		TSSet newSgNbhs = sgNbhs;
+		TSSet newSgNbrs = sgNbrs;
 		for(int j=0; j<wDeg; j++) {
-			int nbhId = wIt.GetNbhNId(j);
-			if(!sgNbhs.IsKey(nbhId) && !sg.Contains(nbhId)) {
-				newExt.Add(nbhId);
-				newSgNbhs.Add(nbhId);
+			int nbrId = wIt.GetNbrNId(j);
+			if(!sgNbrs.IsKey(nbrId) && !sg.Contains(nbrId)) {
+				newExt.Add(nbrId);
+				newSgNbrs.Add(nbrId);
 			}
 		}
 		sg.Push(wId);
-		GetSubGraphs_recursive(sg, newSgNbhs, newExt);
+		GetSubGraphs_recursive(sg, newSgNbrs, newExt);
 		sg.Pop();
 	}
 }
@@ -183,14 +183,14 @@ void TSubGraphEnum<TGraphCounter>::GetSubGraphs(PNGraph &Graph, int NId, int Sub
 	//Subgraph extension
 	TSSet ext(m_nodes);
 	for(int i=0; i<vDeg; i++) {
-		int nbhId = it.GetNbhNId(i);
-		ext.Add(nbhId);
+		int nbrId = it.GetNbrNId(i);
+		ext.Add(nbrId);
 	}
 	//Subgraph neighbours
-	TSSet sgNbhs = ext;
+	TSSet sgNbrs = ext;
 	//
 	TExeTm extime;
-	GetSubGraphs_recursive(sg, sgNbhs, ext);
+	GetSubGraphs_recursive(sg, sgNbrs, ext);
 	printf("secs: %llf\n", extime.GetSecs());
 }
 

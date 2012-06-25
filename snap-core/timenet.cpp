@@ -864,7 +864,7 @@ int TTimeNENet::GetTriadEdges(TIntV& TriadEIdV) const {
     if (Src==Dst || Graph->IsEdge(Src, Dst)) { continue; } // take only 1st edge
     if (! Graph->IsNode(Src)) { Graph->AddNode(Src); }
     if (! Graph->IsNode(Dst)) { Graph->AddNode(Dst); }
-    if (TSnap::GetCmnNbhs(Graph, Src, Dst) > 0) { TriadEIdV.Add(EIdV[edge]); }
+    if (TSnap::GetCmnNbrs(Graph, Src, Dst) > 0) { TriadEIdV.Add(EIdV[edge]); }
     Graph->AddEdge(Src, Dst);
     if (edge % 10000 == 0) {
       printf("\redges %dk / %dk: triangle edges: %dk [total %s]", edge/1000, EIdV.Len()/1000,
@@ -1127,7 +1127,7 @@ void TTimeNENet::PlotCloseTriad(const TStr& FNmPref, TStr Desc, const bool& Only
   THash<TInt, TInt> SrcTmH, DstTmH; // time_edge - time_src/time_dst)
   PUNGraph Graph = TUNGraph::New(GetNodes(), -1);
   TIntV EIdV;  GetEIdByTm(EIdV);
-  TIntV CmnV, SrcNbhV, DstNbhV;
+  TIntV CmnV, SrcNbrV, DstNbrV;
   TExeTm ExeTm;
   TFltV RndRdnV, PrefPrefV, PrefRndV, RndPrefV;
   TFltFltH RndRndH, PrefPrefH, PrefRndH, RndPrefH;
@@ -1148,27 +1148,27 @@ void TTimeNENet::PlotCloseTriad(const TStr& FNmPref, TStr Desc, const bool& Only
     // find common neighbors
     const TUNGraph::TNodeI SrcNI = Graph->GetNI(Src);
     const TUNGraph::TNodeI DstNI = Graph->GetNI(Dst);
-    SrcNbhV.Clr(false);  DstNbhV.Clr(false);
-    for (int i = 0; i < SrcNI.GetOutDeg(); i++) { SrcNbhV.Add(SrcNI.GetOutNId(i)); }
-    for (int i = 0; i < DstNI.GetOutDeg(); i++) { DstNbhV.Add(DstNI.GetOutNId(i)); }
-    SrcNbhV.Sort();  DstNbhV.Sort();
-    SrcNbhV.Intrs(DstNbhV, CmnV);
+    SrcNbrV.Clr(false);  DstNbrV.Clr(false);
+    for (int i = 0; i < SrcNI.GetOutDeg(); i++) { SrcNbrV.Add(SrcNI.GetOutNId(i)); }
+    for (int i = 0; i < DstNI.GetOutDeg(); i++) { DstNbrV.Add(DstNI.GetOutNId(i)); }
+    SrcNbrV.Sort();  DstNbrV.Sort();
+    SrcNbrV.Intrs(DstNbrV, CmnV);
     if (! CmnV.Empty()) {
       // triad completion
       const int SrcDeg = Graph->GetNode(Src).GetOutDeg();
       const int DstDeg = Graph->GetNode(Dst).GetInDeg();
       double RndRnd=0, RndPref=0, PrefRnd=0, PrefPref=0;
-      int AllNbhDegSum=0;//, NbhDegSum = 0;
+      int AllNbrDegSum=0;//, NbrDegSum = 0;
       //for (int i = 0; i < CmnV.Len(); i++) {
-      //  NbhDegSum += Graph->GetNode(CmnV[i]).GetOutDeg(); }
+      //  NbrDegSum += Graph->GetNode(CmnV[i]).GetOutDeg(); }
       for (int i = 0; i < SrcNI.GetOutDeg(); i++) {
-        AllNbhDegSum += Graph->GetNode(SrcNI.GetOutNId(i)).GetOutDeg(); }
+        AllNbrDegSum += Graph->GetNode(SrcNI.GetOutNId(i)).GetOutDeg(); }
       // uniform-uniform node selection = 1/|cmn| sum_{i\in cmn} 1/(d_i-1)
       // preferential-uniform
       for (int i = 0; i < CmnV.Len(); i++) {
         const int Deg = Graph->GetNode(CmnV[i]).GetOutDeg();
         RndRnd += (1.0/double(SrcDeg)) * (1.0/double(Deg-1));
-        PrefRnd +=  (Deg/double(AllNbhDegSum)) * (1.0/double(Deg-1));
+        PrefRnd +=  (Deg/double(AllNbrDegSum)) * (1.0/double(Deg-1));
       }
       // uniform-preferential selection = 1/|cmn| sum_{i\in cmn} d_t / sum_{i--j} d_j
       // preferential-preferential
@@ -1181,7 +1181,7 @@ void TTimeNENet::PlotCloseTriad(const TStr& FNmPref, TStr Desc, const bool& Only
             DegSum += Graph->GetNode(N.GetOutNId(j)).GetOutDeg(); }
         }
         RndPref += 1.0/double(SrcDeg) * DstDeg/double(DegSum);
-        PrefPref += (Deg/double(AllNbhDegSum)) * (DstDeg/double(DegSum));
+        PrefPref += (Deg/double(AllNbrDegSum)) * (DstDeg/double(DegSum));
       }
       IAssert(0.0<RndRnd && RndRnd<=1.0);   IAssert(0.0<RndPref && RndPref<=1.0);
       IAssert(0.0<PrefRnd && PrefRnd<=1.0);  IAssert(0.0<PrefPref && PrefPref<=1.0);

@@ -21,10 +21,10 @@ template <class PGraph> int GetNodeTriads(const PUNGraph& Graph, const int& NId,
 template <class PGraph> int GetNodeTriads(const PUNGraph& Graph, const int& NId, const TIntSet& GroupSet, int& InGroupEdges, int& InOutGroupEdges, int& OutGroup);
 template <class PGraph> void GetTriadParticip(const PGraph& Graph, TIntPrV& TriadCntV);
 
-template<class PGraph> int GetCmnNbhs(const PGraph& Graph, const int& NId1, const int& NId2);
-template<class PGraph> int GetCmnNbhs(const PGraph& Graph, const int& NId1, const int& NId2, TIntV& NbhV);
+template<class PGraph> int GetCmnNbrs(const PGraph& Graph, const int& NId1, const int& NId2);
+template<class PGraph> int GetCmnNbrs(const PGraph& Graph, const int& NId1, const int& NId2, TIntV& NbrV);
 template<class PGraph> int GetLen2Paths(const PGraph& Graph, const int& NId1, const int& NId2);
-template<class PGraph> int GetLen2Paths(const PGraph& Graph, const int& NId1, const int& NId2, TIntV& NbhV);
+template<class PGraph> int GetLen2Paths(const PGraph& Graph, const int& NId1, const int& NId2, TIntV& NbrV);
 
 /////////////////////////////////////////////////
 // Implementation
@@ -145,7 +145,7 @@ int GetTriads(const PGraph& Graph, int& ClosedTriads, int& OpenTriads, int Sampl
 template <class PGraph>
 void GetTriads(const PGraph& Graph, TIntTrV& NIdCOTriadV, int SampleNodes) {
   const bool IsDir = Graph->HasFlag(gfDirected);
-  TIntSet NbhH;
+  TIntSet NbrH;
   TIntV NIdV;
   TRnd Rnd(0);
 
@@ -162,28 +162,28 @@ void GetTriads(const PGraph& Graph, TIntTrV& NIdCOTriadV, int SampleNodes) {
       continue;
     }
     // find neighborhood
-    NbhH.Clr(false);
+    NbrH.Clr(false);
     for (int e = 0; e < NI.GetOutDeg(); e++) {
       if (NI.GetOutNId(e) != NI.GetId()) {
-        NbhH.AddKey(NI.GetOutNId(e)); }
+        NbrH.AddKey(NI.GetOutNId(e)); }
     }
     if (IsDir) {
       for (int e = 0; e < NI.GetInDeg(); e++) {
         if (NI.GetInNId(e) != NI.GetId()) {
-          NbhH.AddKey(NI.GetInNId(e)); }
+          NbrH.AddKey(NI.GetInNId(e)); }
       }
     }
     // count connected neighbors
     int OpenCnt=0, CloseCnt=0;
-    for (int srcNbh = 0; srcNbh < NbhH.Len(); srcNbh++) {
-      const typename PGraph::TObj::TNodeI SrcNode = Graph->GetNI(NbhH.GetKey(srcNbh));
-      for (int dstNbh = srcNbh+1; dstNbh < NbhH.Len(); dstNbh++) {
-        const int dstNId = NbhH.GetKey(dstNbh);
-        if (SrcNode.IsNbhNId(dstNId)) { CloseCnt++; } // is edge
+    for (int srcNbr = 0; srcNbr < NbrH.Len(); srcNbr++) {
+      const typename PGraph::TObj::TNodeI SrcNode = Graph->GetNI(NbrH.GetKey(srcNbr));
+      for (int dstNbr = srcNbr+1; dstNbr < NbrH.Len(); dstNbr++) {
+        const int dstNId = NbrH.GetKey(dstNbr);
+        if (SrcNode.IsNbrNId(dstNId)) { CloseCnt++; } // is edge
         else { OpenCnt++; }
       }
     }
-    IAssert(2*(OpenCnt+CloseCnt) == NbhH.Len()*(NbhH.Len()-1));
+    IAssert(2*(OpenCnt+CloseCnt) == NbrH.Len()*(NbrH.Len()-1));
     NIdCOTriadV.Add(TIntTr(NI.GetId(), CloseCnt, OpenCnt));
   }
 }
@@ -192,18 +192,18 @@ void GetTriads(const PGraph& Graph, TIntTrV& NIdCOTriadV, int SampleNodes) {
 template <class PGraph>
 int GetTriadEdges(const PGraph& Graph, int SampleEdges) {
   const bool IsDir = Graph->HasFlag(gfDirected);
-  TIntSet NbhH;
+  TIntSet NbrH;
   int TriadEdges = 0;
   for(typename PGraph::TObj::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
-    NbhH.Clr(false);
+    NbrH.Clr(false);
     for (int e = 0; e < NI.GetOutDeg(); e++) {
       if (NI.GetOutNId(e) != NI.GetId()) {
-        NbhH.AddKey(NI.GetOutNId(e)); }
+        NbrH.AddKey(NI.GetOutNId(e)); }
     }
     if (IsDir) {
       for (int e = 0; e < NI.GetInDeg(); e++) {
         if (NI.GetInNId(e) != NI.GetId()) {
-          NbhH.AddKey(NI.GetInNId(e)); }
+          NbrH.AddKey(NI.GetInNId(e)); }
       }
     }
     for (int e = 0; e < NI.GetOutDeg(); e++) {
@@ -211,11 +211,11 @@ int GetTriadEdges(const PGraph& Graph, int SampleEdges) {
       const typename PGraph::TObj::TNodeI SrcNode = Graph->GetNI(NI.GetOutNId(e));
       bool Triad=false;
       for (int e1 = 0; e1 < SrcNode.GetOutDeg(); e1++) {
-        if (NbhH.IsKey(SrcNode.GetOutNId(e1))) { Triad=true; break; }
+        if (NbrH.IsKey(SrcNode.GetOutNId(e1))) { Triad=true; break; }
       }
       if (IsDir && ! Triad) {
         for (int e1 = 0; e1 < SrcNode.GetInDeg(); e1++) {
-          if (NbhH.IsKey(SrcNode.GetInNId(e1))) { Triad=true; break; }
+          if (NbrH.IsKey(SrcNode.GetInNId(e1))) { Triad=true; break; }
         }
       }
       if (Triad) { TriadEdges++; }
@@ -238,23 +238,23 @@ int GetNodeTriads(const PGraph& Graph, const int& NId, int& ClosedTriads, int& O
   ClosedTriads=0;  OpenTriads=0;
   if (NI.GetDeg() < 2) { return 0; }
   // find neighborhood
-  TIntSet NbhSet(NI.GetDeg());
+  TIntSet NbrSet(NI.GetDeg());
   for (int e = 0; e < NI.GetOutDeg(); e++) {
     if (NI.GetOutNId(e) != NI.GetId()) { // exclude self edges
-      NbhSet.AddKey(NI.GetOutNId(e)); }
+      NbrSet.AddKey(NI.GetOutNId(e)); }
   }
   if (Graph->HasFlag(gfDirected)) {
     for (int e = 0; e < NI.GetInDeg(); e++) {
       if (NI.GetInNId(e) != NI.GetId()) { // exclude self edges
-        NbhSet.AddKey(NI.GetInNId(e)); }
+        NbrSet.AddKey(NI.GetInNId(e)); }
     }
   }
   // count connected neighbors
-  for (int srcNbh = 0; srcNbh < NbhSet.Len(); srcNbh++) {
-    const typename PGraph::TObj::TNodeI SrcNode = Graph->GetNI(NbhSet.GetKey(srcNbh));
-    for (int dstNbh = srcNbh+1; dstNbh < NbhSet.Len(); dstNbh++) {
-      const int dstNId = NbhSet.GetKey(dstNbh);
-      if (SrcNode.IsNbhNId(dstNId)) { ClosedTriads++; }
+  for (int srcNbr = 0; srcNbr < NbrSet.Len(); srcNbr++) {
+    const typename PGraph::TObj::TNodeI SrcNode = Graph->GetNI(NbrSet.GetKey(srcNbr));
+    for (int dstNbr = srcNbr+1; dstNbr < NbrSet.Len(); dstNbr++) {
+      const int dstNId = NbrSet.GetKey(dstNbr);
+      if (SrcNode.IsNbrNId(dstNId)) { ClosedTriads++; }
       else { OpenTriads++; }
     }
   }
@@ -271,24 +271,24 @@ int GetNodeTriads(const PGraph& Graph, const int& NId, const TIntSet& GroupSet, 
   InGroupEdges=0;   InOutGroupEdges=0;
   if (NI.GetDeg() < 2 || GroupSet.Empty()) { return 0; }
   // find neighborhood
-  TIntSet NbhSet(NI.GetDeg());
+  TIntSet NbrSet(NI.GetDeg());
   for (int e = 0; e < NI.GetOutDeg(); e++) {
     if (NI.GetOutNId(e) != NI.GetId()) { // exclude self edges
-      NbhSet.AddKey(NI.GetOutNId(e)); }
+      NbrSet.AddKey(NI.GetOutNId(e)); }
   }
   if (IsDir) {
     for (int e = 0; e < NI.GetInDeg(); e++) {
       if (NI.GetInNId(e) != NI.GetId()) {
-        NbhSet.AddKey(NI.GetInNId(e)); }
+        NbrSet.AddKey(NI.GetInNId(e)); }
     }
   }
   // count connected neighbors
   for (int srcGrp = 0; srcGrp < GroupSet.Len(); srcGrp++) {
-    IAssert(NbhSet.IsKey(GroupSet[srcGrp]));
+    IAssert(NbrSet.IsKey(GroupSet[srcGrp]));
     const typename PGraph::TObj::TNodeI SrcNode = Graph->GetNI(GroupSet.GetKey(srcGrp));
     for (int i = 0; i < SrcNode.GetOutDeg(); i++) {
       const int dst = SrcNode.GetOutNId(i);
-      if (! NbhSet.IsKey(dst)) { continue; } // not triangle
+      if (! NbrSet.IsKey(dst)) { continue; } // not triangle
       if (GroupSet.IsKey(dst)) { InGroupEdges++; }
       else { InOutGroupEdges++; }
     }
@@ -307,25 +307,25 @@ int GetNodeTriads(const PGraph& Graph, const int& NId, const TIntSet& GroupSet, 
   InGroupEdges=0;  InOutGroupEdges=0;  OutGroupEdges=0;
   if (NI.GetDeg() < 2 || GroupSet.Empty()) { return 0; }
   // find neighborhood
-  TIntSet NbhSet(NI.GetDeg());
+  TIntSet NbrSet(NI.GetDeg());
   for (int e = 0; e < NI.GetOutDeg(); e++) {
     if (NI.GetOutNId(e) != NI.GetId()) { // exclude self edges
-      NbhSet.AddKey(NI.GetOutNId(e)); }
+      NbrSet.AddKey(NI.GetOutNId(e)); }
   }
   if (IsDir) {
     for (int e = 0; e < NI.GetInDeg(); e++) {
       if (NI.GetInNId(e) != NI.GetId()) {
-        NbhSet.AddKey(NI.GetInNId(e)); }
+        NbrSet.AddKey(NI.GetInNId(e)); }
     }
   }
   // count connected neighbors
-  for (int srcNbh = 0; srcNbh < NbhSet.Len(); srcNbh++) {
-    const int NbrId = NbhSet.GetKey(srcNbh);
+  for (int srcNbr = 0; srcNbr < NbrSet.Len(); srcNbr++) {
+    const int NbrId = NbrSet.GetKey(srcNbr);
     const bool NbrIn = GroupSet.IsKey(NbrId);
     const typename PGraph::TObj::TNodeI SrcNode = Graph->GetNI(NbrId);
-    for (int dstNbh = srcNbh+1; dstNbh < NbhSet.Len(); dstNbh++) {
-      const int DstNId = NbhSet.GetKey(dstNbh);
-      if (SrcNode.IsNbhNId(DstNId)) { // triad (NId, NbrId, DstNid)
+    for (int dstNbr = srcNbr+1; dstNbr < NbrSet.Len(); dstNbr++) {
+      const int DstNId = NbrSet.GetKey(dstNbr);
+      if (SrcNode.IsNbrNId(DstNId)) { // triad (NId, NbrId, DstNid)
         bool DstIn = GroupSet.IsKey(DstNId);
         if (NbrIn && DstIn) { InGroupEdges++; }
         else if (NbrIn || DstIn) { InOutGroupEdges++; }
@@ -349,78 +349,78 @@ void GetTriadParticip(const PGraph& Graph, TIntPrV& TriadCntV) {
 }
 
 template<class PGraph>
-int GetCmnNbhs(const PGraph& Graph, const int& NId1, const int& NId2) {
-  TIntV NbhV;
-  return GetCmnNbhs(Graph, NId1, NId2, NbhV);
+int GetCmnNbrs(const PGraph& Graph, const int& NId1, const int& NId2) {
+  TIntV NbrV;
+  return GetCmnNbrs(Graph, NId1, NId2, NbrV);
 }
 
 // Get common neighbors between a pair of nodes (undirected)
 template<class PGraph>
-int GetCmnNbhs(const PGraph& Graph, const int& NId1, const int& NId2, TIntV& NbhV) {
-  if (! Graph->IsNode(NId1) || ! Graph->IsNode(NId2)) { NbhV.Clr(false); return 0; }
+int GetCmnNbrs(const PGraph& Graph, const int& NId1, const int& NId2, TIntV& NbrV) {
+  if (! Graph->IsNode(NId1) || ! Graph->IsNode(NId2)) { NbrV.Clr(false); return 0; }
   typename PGraph::TObj::TNodeI NI1 = Graph->GetNI(NId1);
   typename PGraph::TObj::TNodeI NI2 = Graph->GetNI(NId2);
-  NbhV.Clr(false);
-  NbhV.Reserve(TMath::Mn(NI1.GetDeg(), NI2.GetDeg()));
+  NbrV.Clr(false);
+  NbrV.Reserve(TMath::Mn(NI1.GetDeg(), NI2.GetDeg()));
   TIntSet NSet1(NI1.GetDeg()), NSet2(NI2.GetDeg());
   for (int i = 0; i < NI1.GetDeg(); i++) {
-    const int nid = NI1.GetNbhNId(i);
+    const int nid = NI1.GetNbrNId(i);
     if (nid!=NId1 && nid!=NId2) {
       NSet1.AddKey(nid); }
   }
   for (int i = 0; i < NI2.GetDeg(); i++) {
-    const int nid = NI2.GetNbhNId(i);
+    const int nid = NI2.GetNbrNId(i);
     if (NSet1.IsKey(nid)) {
       NSet2.AddKey(nid);
     }
   }
-  NSet2.GetKeyV(NbhV);
-  return NbhV.Len();
+  NSet2.GetKeyV(NbrV);
+  return NbrV.Len();
 }
 
 template<>
-inline int GetCmnNbhs<PUNGraph>(const PUNGraph& Graph, const int& NId1, const int& NId2, TIntV& NbhV) {
-  if (! Graph->IsNode(NId1) || ! Graph->IsNode(NId2)) { NbhV.Clr(false); return 0; }
+inline int GetCmnNbrs<PUNGraph>(const PUNGraph& Graph, const int& NId1, const int& NId2, TIntV& NbrV) {
+  if (! Graph->IsNode(NId1) || ! Graph->IsNode(NId2)) { NbrV.Clr(false); return 0; }
   const TUNGraph::TNodeI NI1 = Graph->GetNI(NId1);
   const TUNGraph::TNodeI NI2 = Graph->GetNI(NId2);
   int i=0, j=0;
-  NbhV.Clr(false);
-  NbhV.Reserve(TMath::Mn(NI1.GetDeg(), NI2.GetDeg()));
+  NbrV.Clr(false);
+  NbrV.Reserve(TMath::Mn(NI1.GetDeg(), NI2.GetDeg()));
   while (i < NI1.GetDeg() && j < NI2.GetDeg()) {
-    const int nid = NI1.GetNbhNId(i);
-    while (j < NI2.GetDeg() && NI2.GetNbhNId(j) < nid) { j++; }
-    if (j < NI2.GetDeg() && nid==NI2.GetNbhNId(j) && nid!=NId1 && nid!=NId2) {
-      IAssert(NbhV.Empty() || NbhV.Last() < nid);
-      NbhV.Add(nid);
+    const int nid = NI1.GetNbrNId(i);
+    while (j < NI2.GetDeg() && NI2.GetNbrNId(j) < nid) { j++; }
+    if (j < NI2.GetDeg() && nid==NI2.GetNbrNId(j) && nid!=NId1 && nid!=NId2) {
+      IAssert(NbrV.Empty() || NbrV.Last() < nid);
+      NbrV.Add(nid);
       j++;
     }
     i++;
   }
-  return NbhV.Len();
+  return NbrV.Len();
 }
 
 // get number of length 2 directed paths between a pair of nodes
 // for a pair of nodes (i,j): |{u: (i,u) and (u,j) }|
 template<class PGraph>
 int GetLen2Paths(const PGraph& Graph, const int& NId1, const int& NId2) {
-  TIntV NbhV;
-  return GetLen2Paths(Graph, NId1, NId2, NbhV);
+  TIntV NbrV;
+  return GetLen2Paths(Graph, NId1, NId2, NbrV);
 }
 
 // get number of length 2 directed paths between a pair of nodes
 // for a pair of nodes (i,j): {u: (i,u) and (u,j) }
 template<class PGraph>
-int GetLen2Paths(const PGraph& Graph, const int& NId1, const int& NId2, TIntV& NbhV) {
+int GetLen2Paths(const PGraph& Graph, const int& NId1, const int& NId2, TIntV& NbrV) {
   const typename PGraph::TNodeI NI = Graph->GetNI(NId1);
-  NbhV.Clr(false);
-  NbhV.Reserve(NI.GetOutDeg());
+  NbrV.Clr(false);
+  NbrV.Reserve(NI.GetOutDeg());
   for (int e = 0; e < NI.GetOutDeg(); e++) {
     const typename PGraph::TNodeI MidNI = GetNI(NI.GetOutNId(e));
     if (MidNI.IsOutNId(NId2)) {
-      NbhV.Add(MidNI.GetId());
+      NbrV.Add(MidNI.GetId());
     }
   }
-  return NbhV.Len();
+  return NbrV.Len();
 }
 
 }; // mamespace TSnap
@@ -517,9 +517,9 @@ void TNetConstraint<PGraph>::CalcConstraints() {
   // add open triads
   for (typename PGraph::TObj::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
     for (int i = 0; i < NI.GetDeg();  i++) {
-      const int NId1 = NI.GetNbhNId(i);
+      const int NId1 = NI.GetNbrNId(i);
       for (int j = 0; j < NI.GetDeg();  j++) {
-        const int NId2 = NI.GetNbhNId(j);
+        const int NId2 = NI.GetNbrNId(j);
         AddConstraint(NId1, NId2);
       }
     }

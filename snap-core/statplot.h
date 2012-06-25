@@ -102,14 +102,14 @@ void PlotClustCf(const PGraph& Graph, const TStr& FNmPref, TStr DescStr) {
 
 template <class PGraph>
 void PlotHops(const PGraph& Graph, const TStr& FNmPref, const TStr& DescStr, const bool& IsDir, const int& NApprox) {
-  TIntFltKdV DistNbhsV;
-  TSnap::GetAnf(Graph, DistNbhsV, -1, IsDir, NApprox);
-  const double EffDiam = TAnf::CalcEffDiam(DistNbhsV, 0.9);
+  TIntFltKdV DistNbrsV;
+  TSnap::GetAnf(Graph, DistNbrsV, -1, IsDir, NApprox);
+  const double EffDiam = TAnf::CalcEffDiam(DistNbrsV, 0.9);
   TGnuPlot GnuPlot("hop."+FNmPref, TStr::Fmt("%s. Hop plot. EffDiam: %g, G(%d, %d)",
     DescStr.CStr(), EffDiam, Graph->GetNodes(), Graph->GetEdges()));
   GnuPlot.SetXYLabel("Number of hops", "Number of pairs of nodes");
   GnuPlot.SetScale(gpsLog10Y);
-  GnuPlot.AddPlot(DistNbhsV, gpwLinesPoints, "");
+  GnuPlot.AddPlot(DistNbrsV, gpwLinesPoints, "");
   GnuPlot.SavePng();
 }
 
@@ -127,15 +127,15 @@ void PlotShortPathDistr(const PGraph& Graph, const TStr& FNmPref, TStr DescStr, 
       DistToCntH.AddDat(BFS.NIdDistH[i]) += 1; }
   }
   DistToCntH.SortByKey(true);
-  TFltPrV DistNbhsPdfV;
+  TFltPrV DistNbrsPdfV;
   for (int i = 0; i < DistToCntH.Len(); i++) {
-    DistNbhsPdfV.Add(TFltPr(DistToCntH.GetKey(i)(), DistToCntH[i]()));
+    DistNbrsPdfV.Add(TFltPr(DistToCntH.GetKey(i)(), DistToCntH[i]()));
   }
-  const double EffDiam = TAnf::CalcEffDiamPdf(DistNbhsPdfV, 0.9);
-  const double AvgDiam = TAnf::CalcAvgDiamPdf(DistNbhsPdfV);
-  const int FullDiam = (int) DistNbhsPdfV.Last().Val1;
+  const double EffDiam = TAnf::CalcEffDiamPdf(DistNbrsPdfV, 0.9);
+  const double AvgDiam = TAnf::CalcAvgDiamPdf(DistNbrsPdfV);
+  const int FullDiam = (int) DistNbrsPdfV.Last().Val1;
   if (DescStr.Empty()) { DescStr = FNmPref; }
-  TGnuPlot::PlotValV(DistNbhsPdfV, "diam."+FNmPref,
+  TGnuPlot::PlotValV(DistNbrsPdfV, "diam."+FNmPref,
     TStr::Fmt("%s. G(%d, %d). Diam: avg:%.2f  eff:%.2f  max:%d", DescStr.CStr(), Graph->GetNodes(), Graph->GetEdges(),
     AvgDiam, EffDiam, FullDiam), "Number of hops", "Number of shortest paths", gpsLog10Y, false, gpwLinesPoints);
 }

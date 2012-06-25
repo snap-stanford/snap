@@ -321,19 +321,19 @@ void TGStat::TakeDiam(const PGraph& Graph, TFSet StatFSet, const bool& IsMxWcc) 
     bool Line=false;
     if (StatFSet.In(gsvEffDiam) || StatFSet.In(gsdHops)) {
       TMom DiamMom;  ExeTm.Tick();
-      TIntFltKdV DistNbhsV;
+      TIntFltKdV DistNbrsV;
       for (int r = 0; r < NDiamRuns; r++) {
-        TSnap::GetAnf(Graph, DistNbhsV, -1, false, 32);
-        DiamMom.Add(TAnf::CalcEffDiam(DistNbhsV, 0.9));
+        TSnap::GetAnf(Graph, DistNbrsV, -1, false, 32);
+        DiamMom.Add(TAnf::CalcEffDiam(DistNbrsV, 0.9));
         printf(".");
       }
       DiamMom.Def();
       SetVal(gsvEffDiam, DiamMom.GetMean());
       SetVal(gsvEffDiamDev, DiamMom.GetSDev());
       TFltPrV& HopsV = DistrStatH.AddDat(gsdHops);
-      HopsV.Gen(DistNbhsV.Len(), 0);
-      for (int i = 0; i < DistNbhsV.Len(); i++) {
-        HopsV.Add(TFltPr(DistNbhsV[i].Key(), DistNbhsV[i].Dat)); }
+      HopsV.Gen(DistNbrsV.Len(), 0);
+      for (int i = 0; i < DistNbrsV.Len(); i++) {
+        HopsV.Add(TFltPr(DistNbrsV[i].Key(), DistNbrsV[i].Dat)); }
       printf("  ANF-eff %.1f[%s]", DiamMom.GetMean(), ExeTm.GetTmStr());
       Line=true;
     }
@@ -354,19 +354,19 @@ void TGStat::TakeDiam(const PGraph& Graph, TFSet StatFSet, const bool& IsMxWcc) 
     }
     if (StatFSet.In(gsvEffWccDiam) || StatFSet.In(gsdWccHops)) {
       TMom DiamMom; ExeTm.Tick();
-      TIntFltKdV DistNbhsV;
+      TIntFltKdV DistNbrsV;
       for (int r = 0; r < NDiamRuns; r++) {
-        TSnap::GetAnf(Graph, DistNbhsV, -1, false, 32);
-        DiamMom.Add(TAnf::CalcEffDiam(DistNbhsV, 0.9));
+        TSnap::GetAnf(Graph, DistNbrsV, -1, false, 32);
+        DiamMom.Add(TAnf::CalcEffDiam(DistNbrsV, 0.9));
         printf(".");
       }
       DiamMom.Def();
       SetVal(gsvEffWccDiam, DiamMom.GetMean());
       SetVal(gsvEffWccDiamDev, DiamMom.GetSDev());
       TFltPrV& WccHopsV = DistrStatH.AddDat(gsdWccHops);
-      WccHopsV.Gen(DistNbhsV.Len(), 0);
-      for (int i = 0; i < DistNbhsV.Len(); i++) {
-        WccHopsV.Add(TFltPr(DistNbhsV[i].Key(), DistNbhsV[i].Dat)); }
+      WccHopsV.Gen(DistNbrsV.Len(), 0);
+      for (int i = 0; i < DistNbrsV.Len(); i++) {
+        WccHopsV.Add(TFltPr(DistNbrsV[i].Key(), DistNbrsV[i].Dat)); }
       printf("  ANF-wccEff %.1f[%s]", DiamMom.GetMean(), ExeTm.GetTmStr());
       Line=true;
     }

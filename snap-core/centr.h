@@ -28,7 +28,7 @@ template<class PGraph> void GetHits(const PGraph& Graph, TIntFltH& NIdHubH, TInt
 template<class PGraph>
 void GetPageRank(const PGraph& Graph, TIntFltH& PRankH, const double& C, const double& Eps, const int& MaxIter) {
   const int NNodes = Graph->GetNodes();
-  const double OneOver = 1.0/double(NNodes);
+  //const double OneOver = 1.0/double(NNodes);
   PRankH.Gen(NNodes);
   for (typename PGraph::TObj::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
     PRankH.AddDat(NI.GetId(), 1.0/NNodes);

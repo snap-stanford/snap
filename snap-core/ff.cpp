@@ -26,7 +26,7 @@ void TForestFire::BurnExpFire() {
   TIntH BurnedNIdH;               // burned nodes
   TIntV BurningNIdV = InfectNIdV; // currently burning nodes
   TIntV NewBurnedNIdV;            // nodes newly burned in current step
-  bool HasAliveNbhs;              // has unburned neighbors
+  bool HasAliveNbrs;              // has unburned neighbors
   int NBurned = NInfect, NDiedFire=0;
   for (int i = 0; i < InfectNIdV.Len(); i++) {
     BurnedNIdH.AddDat(InfectNIdV[i]); }
@@ -37,13 +37,13 @@ void TForestFire::BurnExpFire() {
     for (int node = 0; node < BurningNIdV.Len(); node++) {
       const int& BurningNId = BurningNIdV[node];
       const TNGraph::TNodeI Node = G.GetNI(BurningNId);
-      HasAliveNbhs = false;
+      HasAliveNbrs = false;
       NDiedFire = 0;
       // burn forward links  (out-links)
       for (int e = 0; e < Node.GetOutDeg(); e++) {
         const int OutNId = Node.GetOutNId(e);
         if (! BurnedNIdH.IsKey(OutNId)) { // not yet burned
-          HasAliveNbhs = true;
+          HasAliveNbrs = true;
           if (Rnd.GetUniDev() < FwdBurnProb) {
             BurnedNIdH.AddDat(OutNId);  NewBurnedNIdV.Add(OutNId);  NBurned++; }
         }
@@ -53,13 +53,13 @@ void TForestFire::BurnExpFire() {
         for (int e = 0; e < Node.GetInDeg(); e++) {
           const int InNId = Node.GetInNId(e);
           if (! BurnedNIdH.IsKey(InNId)) { // not yet burned
-            HasAliveNbhs = true;
+            HasAliveNbrs = true;
             if (Rnd.GetUniDev() < BckBurnProb) {
               BurnedNIdH.AddDat(InNId);  NewBurnedNIdV.Add(InNId);  NBurned++; }
           }
         }
       }
-      if (! HasAliveNbhs) { NDiedFire++; }
+      if (! HasAliveNbrs) { NDiedFire++; }
     }
     NBurnedTmV.Add(NBurned);
     NBurningTmV.Add(BurningNIdV.Len() - NDiedFire);
@@ -87,7 +87,7 @@ void TForestFire::BurnGeoFire() {
   TIntH BurnedNIdH;               // burned nodes
   TIntV BurningNIdV = InfectNIdV; // currently burning nodes
   TIntV NewBurnedNIdV;            // nodes newly burned in current step
-  bool HasAliveInNbhs, HasAliveOutNbhs; // has unburned neighbors
+  bool HasAliveInNbrs, HasAliveOutNbrs; // has unburned neighbors
   TIntV AliveNIdV;                // NIds of alive neighbors
   int NBurned = NInfect, time;
   for (int i = 0; i < InfectNIdV.Len(); i++) {
@@ -99,16 +99,16 @@ void TForestFire::BurnGeoFire() {
       const int& BurningNId = BurningNIdV[node];
       const TNGraph::TNodeI Node = G.GetNI(BurningNId);
       // find unburned links
-      HasAliveOutNbhs = false;
+      HasAliveOutNbrs = false;
       AliveNIdV.Clr(false); // unburned links
       for (int e = 0; e < Node.GetOutDeg(); e++) {
         const int OutNId = Node.GetOutNId(e);
         if (! BurnedNIdH.IsKey(OutNId)) {
-          HasAliveOutNbhs = true;  AliveNIdV.Add(OutNId); }
+          HasAliveOutNbrs = true;  AliveNIdV.Add(OutNId); }
       }
       // number of links to burn (geometric coin). Can also burn 0 links
       const int BurnNFwdLinks = Rnd.GetGeoDev(1.0-FwdBurnProb) - 1;
-      if (HasAliveOutNbhs && BurnNFwdLinks > 0) {
+      if (HasAliveOutNbrs && BurnNFwdLinks > 0) {
         AliveNIdV.Shuffle(Rnd);
         for (int i = 0; i < TMath::Mn(BurnNFwdLinks, AliveNIdV.Len()); i++) {
           BurnedNIdH.AddDat(AliveNIdV[i]);
@@ -117,16 +117,16 @@ void TForestFire::BurnGeoFire() {
       // backward links
       if (BckBurnProb > 0.0) {
         // find unburned links
-        HasAliveInNbhs = false;
+        HasAliveInNbrs = false;
         AliveNIdV.Clr(false);
         for (int e = 0; e < Node.GetInDeg(); e++) {
           const int InNId = Node.GetInNId(e);
           if (! BurnedNIdH.IsKey(InNId)) {
-            HasAliveInNbhs = true;  AliveNIdV.Add(InNId); }
+            HasAliveInNbrs = true;  AliveNIdV.Add(InNId); }
         }
          // number of links to burn (geometric coin). Can also burn 0 links
         const int BurnNBckLinks = Rnd.GetGeoDev(1.0-BckBurnProb) - 1;
-        if (HasAliveInNbhs && BurnNBckLinks > 0) {
+        if (HasAliveInNbrs && BurnNBckLinks > 0) {
           AliveNIdV.Shuffle(Rnd);
           for (int i = 0; i < TMath::Mn(BurnNBckLinks, AliveNIdV.Len()); i++) {
             BurnedNIdH.AddDat(AliveNIdV[i]);
@@ -158,7 +158,7 @@ void TForestFire::BurnGeoFire() {
   TIntH BurnedNIdH;               // burned nodes
   TIntV BurningNIdV = InfectNIdV; // currently burning nodes
   TIntV NewBurnedNIdV;            // nodes newly burned in current step
-  bool HasAliveInNbhs, HasAliveOutNbhs; // has unburned neighbors
+  bool HasAliveInNbrs, HasAliveOutNbrs; // has unburned neighbors
   TIntV AliveNIdV;                // NIds of alive neighbors
   int NBurned = NInfect, time;
   for (int i = 0; i < InfectNIdV.Len(); i++) {
@@ -175,11 +175,11 @@ void TForestFire::BurnGeoFire() {
         AliveNIdV.Clr(false);
         for (int e = 0; e < Node.GetOutDeg(); e++) {
           const int OutNId = Node.GetOutNId(e);
-          if (! BurnedNIdH.IsKey(OutNId)) { HasAliveOutNbhs=true;  AliveNIdV.Add(OutNId); }
+          if (! BurnedNIdH.IsKey(OutNId)) { HasAliveOutNbrs=true;  AliveNIdV.Add(OutNId); }
         }
         for (int e = 0; e < Node.GetInDeg(); e++) {
           const int InNId = Node.GetInNId(e);
-          if (! BurnedNIdH.IsKey(InNId)) { HasAliveInNbhs=true;  AliveNIdV.Add(-InNId); }
+          if (! BurnedNIdH.IsKey(InNId)) { HasAliveInNbrs=true;  AliveNIdV.Add(-InNId); }
         }
         AliveNIdV.Shuffle(Rnd);
         // add links
@@ -188,16 +188,16 @@ void TForestFire::BurnGeoFire() {
           NewBurnedNIdV.Add(AliveNIdV[i]);  NBurned++;
         }
       }
-      HasAliveOutNbhs = false;
+      HasAliveOutNbrs = false;
       AliveNIdV.Clr(false); // unburned links
       for (int e = 0; e < Node.GetOutDeg(); e++) {
         const int OutNId = Node.GetOutNId(e);
         if (! BurnedNIdH.IsKey(OutNId)) {
-          HasAliveOutNbhs = true;  AliveNIdV.Add(OutNId); }
+          HasAliveOutNbrs = true;  AliveNIdV.Add(OutNId); }
       }
       // number of links to burn (geometric coin). Can also burn 0 links
       const int BurnNFwdLinks = Rnd.GetGeoDev(1.0-FwdBurnProb) - 1;
-      if (HasAliveOutNbhs && BurnNFwdLinks > 0) {
+      if (HasAliveOutNbrs && BurnNFwdLinks > 0) {
         AliveNIdV.Shuffle(Rnd);
         for (int i = 0; i < TMath::Mn(BurnNFwdLinks, AliveNIdV.Len()); i++) {
           BurnedNIdH.AddDat(AliveNIdV[i]);
@@ -206,16 +206,16 @@ void TForestFire::BurnGeoFire() {
       // backward links
       if (BckBurnProb > 0.0) {
         // find unburned links
-        HasAliveInNbhs = false;
+        HasAliveInNbrs = false;
         AliveNIdV.Clr(false);
         for (int e = 0; e < Node.GetInDeg(); e++) {
           const int InNId = Node.GetInNId(e);
           if (! BurnedNIdH.IsKey(InNId)) {
-            HasAliveInNbhs = true;  AliveNIdV.Add(InNId); }
+            HasAliveInNbrs = true;  AliveNIdV.Add(InNId); }
         }
          // number of links to burn (geometric coin). Can also burn 0 links
         const int BurnNBckLinks = Rnd.GetGeoDev(1.0-BckBurnProb) - 1;
-        if (HasAliveInNbhs && BurnNBckLinks > 0) {
+        if (HasAliveInNbrs && BurnNBckLinks > 0) {
           AliveNIdV.Shuffle(Rnd);
           for (int i = 0; i < TMath::Mn(BurnNBckLinks, AliveNIdV.Len()); i++) {
             BurnedNIdH.AddDat(AliveNIdV[i]);
