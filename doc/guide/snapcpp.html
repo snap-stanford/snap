@@ -127,7 +127,7 @@
               </script></head><body><h1>SNAP C++ Programming Guide</h1>
 
 <p align="right">
-Revision 06-19-2012
+Revision 06-25-2012
 </p>
 
 
@@ -137,7 +137,7 @@ Derived from Google C++ Style Guide<br>
 Heavily customized for the SNAP Library<br>
 </address>
 
-      <div class="toc"><div class="toc_title">Table of Contents</div><table><tbody> <tr class="" valign="top"><td><div class="toc_category"><a href="#Formatting">Formatting</a></div></td><td><div class="toc_stylepoint"> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Line_Length">Line Length</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Spaces_vs._Tabs">Spaces vs. Tabs</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Conditionals">Conditionals</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Loops_and_Switch_Statements">Loops and Switch Statements</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Pointer_and_Reference_Expressions">Pointer and Reference Expressions</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Boolean_Expressions">Boolean Expressions</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Function_Calls">Function Calls</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Function_Declarations_and_Definitions">Function Declarations and Definitions</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Return_Values">Return Values</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Class_Format">Class Format</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Constructor_Initializer_Lists">Constructor Initializer Lists</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Templates">Templates</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Namespace_Formatting">Namespace Formatting</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Vertical_Whitespace">Vertical Whitespace</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Preprocessor_Directives">Preprocessor Directives</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Non-ASCII_Characters">Non-ASCII Characters</a></span> </div></td></tr>
+      <div class="toc"><div class="toc_title">Table of Contents</div><table><tbody> <tr class="" valign="top"><td><div class="toc_category"><a href="#Formatting">Formatting</a></div></td><td><div class="toc_stylepoint"> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Line_Length">Line Length</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Spaces_vs._Tabs">Spaces vs. Tabs</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Conditionals">Conditionals</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Loops_and_Switch_Statements">Loops and Switch Statements</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Pointer_and_Reference_Expressions">Pointer and Reference Expressions</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Boolean_Expressions">Boolean Expressions</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Function_Calls">Function Calls</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Function_Declarations_and_Definitions">Function Declarations and Definitions</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Return_Values">Return Values</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Class_Format">Class Format</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Constructor_Initializer_Lists">Constructor Initializer Lists</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Templates">Templates</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Vertical_Whitespace">Vertical Whitespace</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Preprocessor_Directives">Preprocessor Directives</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Non-ASCII_Characters">Non-ASCII Characters</a></span> </div></td></tr>
 <tr class="" valign="top"><td><div class="toc_category"><a href="#Naming">Naming</a></div></td><td><div class="toc_stylepoint"><span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#General_Naming_Rules">General Naming Rules</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#File_Names">File Names</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Type_Names">Type Names</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Variable_Names">Variable Names</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Function_Names">Function Names</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Enumerator_Names">Enumerator Names</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Namespace_Names">Namespace Names</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Macro_Names">Macro Names</a></span> </div></td></tr>
 <tr class="" valign="top"><td><div class="toc_category"><a href="#Comments">Comments</a></div></td><td><div class="toc_stylepoint"><span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Comment_Style">Comment Style</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Documentation">Documentation</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Class_Comments">Class Comments</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Function_Comments">Function Comments</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Variable_Comments">Variable Comments</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Implementation_Comments">Implementation Comments</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Punctuation,_Spelling_and_Grammar">Punctuation, Spelling and Grammar</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#TODO_Comments">TODO Comments</a></span> </div></td></tr>
 <tr class="" valign="top"><td><div class="toc_category"><a href="#SNAP-Specific_Magic">SNAP-Specific Magic</a></div></td><td><div class="toc_stylepoint"> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Smart_Pointers">Smart Pointers</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Streams">Streams</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Assertions">Assertions</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Integer_Types">Integer Types</a></span> <span class="" style="padding-right: 1em; white-space:nowrap;"><a href="#Exceptions">Exceptions</a></span> </div></td></tr>
@@ -389,7 +389,7 @@ const int&amp; P;
       </p>
       <div class=""><pre>
 DoSomethingThatRequiresALongFunctionName(Argument1,
-  Argument2, Argument3, Argument4);
+    Argument2, Argument3, Argument4);
 </pre></div>
       <p>
         If the parameter names are very long and there is not much
@@ -398,10 +398,10 @@ DoSomethingThatRequiresALongFunctionName(Argument1,
       </p>
       <div class=""><pre>
 DoSomethingElseThatRequiresAEvenLongerFunctionName(
-  Argument1,
-  Argument2,
-  Argument3,
-  Argument4);
+    Argument1,
+    Argument2,
+    Argument3,
+    Argument4);
 </pre></div>
     </div></div>
   </div>
@@ -424,7 +424,7 @@ DoSomethingElseThatRequiresAEvenLongerFunctionName(
         over several lines:
       </p>
       <div class=""><pre>ReturnType ClassName::ReallyLongFunctionName(Type ParName1,
-  Type ParName2, Type ParName3) {
+    Type ParName2, Type ParName3) {
   DoSomething();
   ...
 }</pre></div>
@@ -459,7 +459,7 @@ DoSomethingElseThatRequiresAEvenLongerFunctionName(
              </li>
         <li> All parameters should be aligned if possible.
              </li>
-        <li> Default indentation is 2 spaces.
+        <li> Default indentation is 4 spaces.
              </li>
       </ul>
     </div></div>
@@ -499,18 +499,40 @@ private:
   }
 private:
   TInt Var;                                   // private data
+  ...
 private:
-  TInt GetTmpData() {                         // private methods
-    ...
-  }
+  TInt GetTmpData();                          // private methods
+  ...
 public:
   TMyClass();                                 // constructors
-  explicit TMyClass(int Var);
-  ~TMyClass();                                // destructors
+  ...
   int SetStats(const int N);                  // public methods
   ...
   friend class TMyOtherClass;                 // friends
 };</pre></div>
+      <p>
+        Each public SNAP class must define the following methods:
+        default constructor, copy constructor, TSIn constructor,
+        assignment operator, Save(), Load():
+      </p>
+      <div class=""><pre>class TMyClass : public TOtherClass {
+...
+public:
+  TMyClass();                                 // default constructor
+  explicit TMyClass(int Var);
+  TMyClass(const TMyClass& MCVar);            // copy constructor
+  TMyClass(TSIn& SIn);                        // TSIn constructor
+  void Save(TSOut& SOut) const;               // Save() method
+  TMyClass& operator = (const TMyClass& MCVar);   // '=' operator
+  ...
+  int GetVar() const;                         // get value of Var
+  int SetVar(const int N);                    // set value of Var
+  ...
+};</pre></div>
+      <p>
+        Make data members <code>private</code> and provide access to
+        them through <code>Get...()</code> and <code>Set...()</code> methods.
+      </p>
       <p>
         For a class format example in the SNAP code, see
         <code>graph.h:TUNGraph</code>.
@@ -525,6 +547,11 @@ public:
     </div>
     <div class=""><div style="display: inline;" id="Constructor_Initializer_Lists__body" name="Constructor_Initializer_Lists__body" class="stylepoint_body">
       <div class=""><pre>MyClass::MyClass(int Var) : SomeVar(Var), SomeOtherVar(Var + 1) { }</pre></div>
+      <p>
+        Make sure that the values in the list are listed in the same order
+        in which they are declared. A list order that is different than
+        the declaration order can produce errors that are hard to find.
+      </p>
     </div></div>
   </div>
 
@@ -550,44 +577,6 @@ int GetMxDegNId(const PGraph& Graph) {
     </div></div>
   </div>
 
-  <div class=""><h3><a id="Namespace_Formatting" name="Namespace_Formatting">Namespace Formatting</a></h3>
-    <div class="" style="display:inline;">
-      The contents of namespaces are not indented.
-    </div>
-    <div class=""><div style="display: inline;" id="Namespace_Formatting__body" name="Namespace_Formatting__body" class="stylepoint_body">
-      <p>
-        <a href="#Namespaces">Namespaces</a> do not add an extra level of
-        indentation. For example, use:
-      </p>
-      <div class=""><pre>namespace {
-
-void Foo() {  // Correct.  No extra indentation within namespace.
-  ...
-}
-
-}  // namespace</pre></div>
-      <p>
-        Do not indent within a namespace:
-      </p>
-      <div class=""><pre class="badcode">namespace {
-
-  // Wrong.  Indented when it should not be.
-  void Foo() {
-    ...
-  }
-
-}  // namespace</pre></div>
-      <p>
-        When declaring nested namespaces, put each namespace on its own line.
-      </p>
-      <div class=""><pre>namespace Foo {
-namespace Bar {
-...
-}
-}</pre></div>
-    </div></div>
-  </div>
-
   <div class=""><h3><a id="Vertical_Whitespace" name="Vertical_Whitespace">Vertical Whitespace</a></h3>
     <div class="" style="display:inline;">
       Minimize use of vertical whitespace.
@@ -596,7 +585,7 @@ namespace Bar {
       <p>
         This is more a principle than a rule: don't use blank lines
         when you don't have to.  In particular, don't put more than
-        one or two blank lines between functions, resist starting
+        one blank line between functions, resist starting
         functions with a blank line, don't end functions with a blank
         line, and be discriminating with your use of blank lines
         inside functions.
@@ -609,17 +598,6 @@ namespace Bar {
         judgement.  But in general, minimize use of vertical
         whitespace.
       </p>
-      <p>
-        Some rules of thumb to help when blank lines may be useful:
-      </p>
-      <ul>
-        <li> Blank lines at the beginning or end of a function very
-             rarely help readability.
-             </li>
-        <li> Blank lines inside a chain of if-else blocks may well
-             help readability.
-             </li>
-      </ul>
     </div></div>
   </div>
 
@@ -683,7 +661,7 @@ namespace Bar {
           <li><code>...H</code>: a hash table (<code>NodeH</code>).</li>
           <li><code>...HH</code>: a hash of hashes (<code>TIntIntHH</code>).</li>
           <li><code>...I</code>: an iterator (<code>NodeI</code>).</li>
-          <li><code>...Pt</code>: a pointer (<code>SInPt</code>).</li>
+          <li><code>...Pt</code>: a pointer (<code>NetPt</code>).</li>
           <li><code>Get...</code>: an access method (<code>GetDeg()</code>).</li>
           <li><code>Set...</code>: a set method (<code>SetXYLabel()</code>).</li>
           <li><code>...Str</code>: a string operation (<code>CStr()</code>).</li>
@@ -960,6 +938,9 @@ void DelNode(const int& NId);</pre></div>
     <div class="" style="display:inline;">
         Use "smart" pointers instead of class objects, whenever a smart
         pointer type is defined for a class.
+        Smart pointers are implemented for large, complex classes,
+        like graphs and networks, but not for simpler classes, like
+        vectors.
     </div>
     <div class=""><div style="display: inline;" id="Smart_Pointers__body" name="Smart_Pointers__body" class="stylepoint_body">
       <p>
@@ -1007,24 +988,27 @@ private:
   ...
 public:
   ...
+  static PUNGraph New();                 // New() method
+  static PUNGraph Load(TSIn& SIn);       // Load() method
+  ...
   friend class TPt&lt;TUNGraph&gt;;
 };</pre></div>
       <p>
         The new code declares <code>PUNGraph</code>, a smart pointer type
-        for the original class <code>TUNGraph</code>. Two new definitons
-        have been added to <code>TUNGraph</code>: <code>CRef</code>,
-        a reference counter for garbage collection, and <code>TPt</code>,
-        a pointer type.
+        for the original class <code>TUNGraph</code>. A few new definitons
+        have been added to <code>TUNGraph</code>:
+        <code>CRef</code>, a reference counter for garbage collection,
+        <code>New</code> and <code>Load</code> methods,
+        and <code>TPt</code>, a pointer type.
       </p>
     </div></div>
   </div>
 
   <div class=""><h3><a id="Streams" name="Streams">Streams</a></h3>
     <div class="" style="display:inline;">
-      SNAP defines its own streams. Use SNAP defined streams.
+      SNAP defines its own streams. Use those instead of C++ streams,
+      like <code>cin</code>, <code>cout</code>, <code>cerr</code>.
       For console output, use <code>printf()</code>.
-      Do not use C++ streams, like <code>cin</code>,
-      <code>cout</code>, <code>cerr</code>.
     </div>
     <div class=""><div style="display: inline;" id="Streams__body" name="Streams__body" class="stylepoint_body">
       <p>
@@ -1054,6 +1038,15 @@ public:
     </div>
     <div class=""><div style="display: inline;" id="Streams__body" name="Streams__body" class="stylepoint_body">
       <p>
+        Assertion names in SNAP use the following convention for the
+        first letter:
+        <ul>
+          <li><code>A</code>: compiled only in the debug mode.</li>
+          <li><code>I</code>: always compiled.</li>
+          <li><code>E</code>: exceptions.</li>
+        </ul>
+      </p>
+      <p>
         Some common SNAP assertions are:
         <ul>
           <li><code>Assert</code> verifies the condition. This is the basic assertion.</li>
@@ -1067,8 +1060,6 @@ public:
       <div class=""><pre>AssertR(IsNode(NId), TStr::Fmt("NodeId %d does not exist", NId));
 EFailR(TStr::Fmt("JSON Error: Unknown escape sequence: '%s'", Beg).CStr());
 </pre></div>
-      </p>
-      </p>
     </div></div>
   </div>
 
@@ -1087,7 +1078,7 @@ EFailR(TStr::Fmt("JSON Error: Unknown escape sequence: '%s'", Beg).CStr());
     <div class=""><div style="display: inline;" id="Integer_Types__body" name="Integer_Types__body" class="stylepoint_body">
         <p>
           Use <code>int</code> for integers that are not
-          going to be too big, e.g., loop counters.
+          going to be too large, e.g., loop counters.
           You can assume that an <code>int</code> is
           at least 32 bits,
           but don't assume that it has more than 32 bits.
@@ -1148,8 +1139,10 @@ EFailR(TStr::Fmt("JSON Error: Unknown escape sequence: '%s'", Beg).CStr());
       </p>
       <p>
           <code>const</code> variables, data members, methods and
-          arguments add a level of compile-time type checking; it
+          arguments add a level of compile-time type checking. It
           is better to detect errors as soon as possible.
+          <code>const</code> can also significantly reduce execution
+          time.
           Therefore we strongly recommend that you use
           <code>const</code> whenever it makes sense to do so:
       </p>
@@ -1252,8 +1245,12 @@ memset(&amp;Data, 0, sizeof(Data));</pre></div>
     </div>
     <div class=""><div style="display: inline;" id="Namespaces__body" name="Namespaces__body" class="stylepoint_body">
       <p>
-        Use namespace <code>TSnapDetail</code> for partial template
-        specialization.
+        Use namespace <code>TSnapDetail</code> to encapsulate local
+        functions.
+      </p>
+      <p>
+        Do not define any new namespaces, use <code>TSnap</code> for global
+        functions and <code>TSnapDetail</code> for local functions.
       </p>
       <p>
         Do not use a <i class="">using-directive</i> to make all names
@@ -1272,15 +1269,16 @@ using namespace Foo;</pre></div>
     </div>
     <div class=""><div style="display: inline;" id="Nonmember,_Static_Member,_and_Global_Functions__body" name="Nonmember,_Static_Member,_and_Global_Functions__body" class="stylepoint_body">
         <p>
-          Use namespace <code>TSnap</code> for global functions.
+          Use namespace <code>TSnap</code> for global functions and
+          namespace <code>TSnapDetail</code> for local functions.
           See file <code>alg.h</code> for an example.
         </p>
         <p>
           If you must define a nonmember function and it is only
           needed locally in its <code>.cpp</code> file, use <code>static</code>
           linkage: <code>static int Foo() {...}</code>, or
-          an unnamed namespace to limit its scope:
-                 <div class=""><pre>namespace {                            // This is in a .cpp file.
+          namespace <code>TSnapDetail</code> to limit its scope:
+                 <div class=""><pre>namespace TSnapDetail {                // This is in a .cpp file.
 
 // The content of a namespace is not indented
 enum { kUnused, kEOF, kError };        // Commonly used tokens.
@@ -1342,9 +1340,7 @@ bool AtEof() { return pos_ == kEOF; }  // Uses our namespace's EOF.
     <div class="" style="display:inline;">
       If a function needs to modify a variable, use a reference
       parameter:
-      <div class=""><pre>int Foo(const int&amp; Val);</pre></div>
-      All parameters passed by reference should be labeled
-      <code>const</code>.
+      <div class=""><pre>int Foo(int&amp; Val);</pre></div>
     </div>
   </div>
 
@@ -1354,15 +1350,8 @@ bool AtEof() { return pos_ == kEOF; }  // Uses our namespace's EOF.
     </div>
     <div class=""><div style="display: inline;" id="Default_Arguments__body" name="Default_Arguments__body" class="stylepoint_body">
       <p>
-        <p>
-          One specific exception is when default arguments are used to
-          simulate variable-length argument lists:
-        </p>
-        <div class=""><pre>// Support up to 4 params by using a default empty AlphaNum.
-string StrCat(const TAlphaNum &amp;A,
-  const TAlphaNum &amp;B = EmptyAlphaNum,
-  const TAlphaNum &amp;C = EmptyAlphaNum,
-  const TAlphaNum &amp;D = EmptyAlphaNum);</pre></div>
+        One specific exception is when default arguments are used to
+        simulate variable-length argument lists.
       </p>
     </div></div>
   </div>
@@ -1396,11 +1385,11 @@ string StrCat(const TAlphaNum &amp;A,
 
   <div class=""><h3><a id="Class_Definitions" name="Class_Definitions">Class Definitions</a></h3>
     <div class="" style="display:inline;">
-      Each SNAP class must define the following methods:
+      Each public SNAP class must define the following methods:
       default constructor, copy constructor,
       <code>TSIn</code> constructor,
       assignment operator,
-      Save(), Load().
+      Save(), New(), Load().
     </div>
   </div>
 
@@ -1614,7 +1603,7 @@ string StrCat(const TAlphaNum &amp;A,
 <hr>
 
 <p align="right">
-Revision 06-19-2012
+Revision 06-25-2012
 </p>
 
 <!--
