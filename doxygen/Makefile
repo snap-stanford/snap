@@ -1,3 +1,4 @@
+DATE := $(shell date +%Y%m%d)
 
 dummy:
 
@@ -5,11 +6,13 @@ all: dev user
 
 dev: doxycopy
 	rm -rf snapdoc-dev log-doxygen-dev.txt
-	doxygen Doxyfile-dev
+	sed "s/00000000/$(DATE)/" Doxyfile-dev > Doxyfile-dev-tmp
+	doxygen Doxyfile-dev-tmp
 
 user: doxycopy
 	rm -rf snapdoc-user log-doxygen-user.txt
-	doxygen Doxyfile-user
+	sed "s/00000000/$(DATE)/" Doxyfile-user > Doxyfile-user-tmp
+	doxygen Doxyfile-user-tmp
 
 doxycopy:
 	rm -rf snap
@@ -25,5 +28,6 @@ doxycopy:
 clean:
 	rm -rf snap
 	rm -rf snapdoc-dev* snapdoc-user*
+	rm -rf Doxyfile-*-tmp
 	rm -rf log-doxygen*.txt doxygen_*.tmp
 
