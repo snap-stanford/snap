@@ -127,7 +127,7 @@
               </script></head><body><h1>SNAP C++ Programming Guide</h1>
 
 <p align="right">
-Revision 06-27-2012
+Revision 06-28-2012
 </p>
 
 
@@ -512,8 +512,11 @@ public:
 };</pre></div>
       <p>
         Each public SNAP class must define the following methods:
-        default constructor, copy constructor, <code>TSIn</code> constructor,
-        assignment operator <code>=</code>:
+        a default constructor, a copy constructor,
+        a<code>TSIn</code> constructor,
+        an assignment operator <code>=</code>,
+        a <code>Load()</code> method and
+        a <code>Save()</code> method:
       </p>
       <div class=""><pre>class TMyClass : public TOtherClass {
 ...
@@ -523,6 +526,8 @@ public:
   TMyClass(const TMyClass& MCVar);            // copy constructor
   TMyClass(TSIn& SIn);                        // TSIn constructor
   TMyClass& operator = (const TMyClass& MCVar);   // '=' operator
+  void Load(TSIn& SIn);                       // Load() method
+  void Save(TSOut& SOut) const;               // Save() method
   ...
   int GetVar() const;                         // get value of Var
   int SetVar(const int N);                    // set value of Var
@@ -534,8 +539,7 @@ public:
       </p>
       <p>
         More complex classes with support for "smart" pointers
-        must define additional methods <code>New()</code>,
-        <code>Load()</code>, and <code>Save()</code>.
+        have additional requirements.
         See <a href="#Smart_Pointers">Smart Pointers</a> for details.
       </p>
       <p>
@@ -969,6 +973,11 @@ void DelNode(const int& NId);</pre></div>
         <div class=""><pre>PUNGraph Graph = TUNGraph::New();</pre></div>
       </p>
       <p>
+        The following example shows how an undirected graph is loaded
+        from a file:
+        <div class=""><pre>{ TFIn FIn("input.graph"); PUNGraph Graph2 = TUNGraph::Load(FIn); }</pre></div>
+      </p>
+      <p>
         To implement smart pointers for a new class, only a few lines
         need to be added to the class definition.
       </p>
@@ -995,7 +1004,6 @@ public:
   ...
   static PUNGraph New();                 // New()  method
   static PUNGraph Load(TSIn& SIn);       // Load() method
-  void Save(TSOut& SOut) const;          // Save() method
   ...
   friend class TPt&lt;TUNGraph&gt;;
 };</pre></div>
@@ -1003,10 +1011,19 @@ public:
         The new code declares <code>PUNGraph</code>, a smart pointer type
         for the original class <code>TUNGraph</code>. A few new definitons
         have been added to <code>TUNGraph</code>:
-        <code>CRef</code>, a reference counter for garbage collection,
-        <code>New()</code>, <code>Load()</code> and <code>Save()</code> methods,
-        and <code>TPt</code>, a pointer type.
+        <code>CRef</code>, a reference counter for garbage collection;
+        <code>New()</code>, a method to create an instance; and a
+        <code>friend</code> declaration for <code>TPt&lt;TUNGraph&gt;</code>.
+        The <code>Load()</code> method for a smart pointer class returns
+        a pointer to a new object instance rather than no result, 
+        which is the case for regular classes.
       </p>
+      <p>
+        An example of definitions for the <code>New()</code> and
+        <code>Load()</code> methods for <code>TUNGraph</code> are shown here:
+      </p>
+      <div class=""><pre>static PUNGraph New() { return new TUNGraph(); }
+static PUNGraph Load(TSIn& SIn) { return PUNGraph(new TUNGraph(SIn)); }</pre></div>
     </div></div>
   </div>
 
@@ -1383,11 +1400,12 @@ bool AtEof() { return pos_ == kEOF; }  // Uses our namespace's EOF.
   <div class=""><h3><a id="Class_Definitions" name="Class_Definitions">Class Definitions</a></h3>
     <div class="" style="display:inline;">
       Each public SNAP class must define the following methods:
-      default constructor, copy constructor,
-      <code>TSIn</code> constructor,
-      assignment operator <code>=</code>. Classes that support "smart" pointers
-      must also define <code>New()</code>, <code>Load()</code>,
-      <code>Save()</code> methods.
+      a default constructor, a copy constructor,
+      a <code>TSIn</code> constructor,
+      an assignment operator <code>=</code>, and
+      <code>Save()</code> and <code>Load()</code> methods.
+      Classes that support "smart" pointers
+      must also define a <code>New()</code> method.
       See <a href="#Class_Format">Class Format</a> for additional details on
       class formatting.
     </div>
@@ -1400,15 +1418,15 @@ bool AtEof() { return pos_ == kEOF; }  // Uses our namespace's EOF.
     </div>
     <div class=""><div style="display: inline;" id="Declaration_Order__body" name="Declaration_Order__body" class="stylepoint_body">
       <ul>
-        <li> Typedefs and Enums</li>
-        <li> Constants (<code>static const</code> data members)</li>
-        <li> Private/Public Classes</li>
-        <li> Data Members (except <code>static const</code> data members)</li>
-        <li> Private Methods</li>
-        <li> Constructors</li>
-        <li> Destructor</li>
-        <li> Public Methods, including static methods</li>
-        <li> Friends</li>
+        <li>Typedefs and Enums</li>
+        <li>Constants (<code>static const</code> data members)</li>
+        <li>Private/Public Classes</li>
+        <li>Data Members (except <code>static const</code> data members)</li>
+        <li>Private Methods</li>
+        <li>Constructors</li>
+        <li>Destructor</li>
+        <li>Public Methods, including static methods</li>
+        <li>Friends</li>
       </ul>
       <p>
         Method definitions in the corresponding <code>.cpp</code> file
@@ -1603,7 +1621,7 @@ bool AtEof() { return pos_ == kEOF; }  // Uses our namespace's EOF.
 <hr>
 
 <p align="right">
-Revision 06-27-2012
+Revision 06-28-2012
 </p>
 
 <!-- TODO (future) 64-bit portability, printf() -->
