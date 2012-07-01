@@ -1,34 +1,54 @@
 /////////////////////////////////////////////////
-// Loading and saving graphs
+// Loading and saving graphs to various file formats.
 namespace TSnap {
-// Load
-template <class PGraph> PGraph LoadEdgeList(const TStr& InFNm, const int& SrcColId=0, const int& DstColId=1);
-template <class PGraph> PGraph LoadEdgeList(const TStr& InFNm, const int& SrcColId, const int& DstColId, const char& Separator);
-template <class PGraph> PGraph LoadEdgeListStr(const TStr& InFNm, const int& SrcColId=0, const int& DstColId=1);
-template <class PGraph> PGraph LoadPajek(const TStr& InFNm);
-template <class PGraph> PGraph LoadConnList(const TStr& InFNm);
-//template <class PGraph> PGraph LoadAdjMtx(const TStr& FNm, const int Thresh);
-//PNGraph TNGraph::LoadNextEdgeList(TSIn& SIn, const bool& IsDir);
-//PNGraph TNGraph::LoadAdjMtx(const TStr& FNm, const int Thresh);
 
+/// Loads a (directed, undirected or multi) graph from a text file InFNm with 1 edge per line (whitespace separated columns, integer node ids).
+template <class PGraph> PGraph LoadEdgeList(const TStr& InFNm, const int& SrcColId=0, const int& DstColId=1);
+/// Loads a (directed, undirected or multi) graph from a text file InFNm with 1 edge per line ('Separtor' separated columns, integer node ids).
+template <class PGraph> PGraph LoadEdgeList(const TStr& InFNm, const int& SrcColId, const int& DstColId, const char& Separator);
+/// Loads a (directed, undirected or multi) graph from a text file InFNm with 1 edge per line (whitespace separated columns, arbitrary string node ids).
+template <class PGraph> PGraph LoadEdgeListStr(const TStr& InFNm, const int& SrcColId=0, const int& DstColId=1);
+/// Loads a (directed, undirected or multi) graph from a text file InFNm with 1 edge per line (whitespace separated columns, arbitrary string node ids).
+template <class PGraph> PGraph LoadEdgeListStr(const TStr& InFNm, const int& SrcColId, const int& DstColId, TStrHash<TInt>& StrToNIdH);
+/// Loads a (directed, undirected or multi) graph from a text file InFNm with 1 node and all its edges in a single line.
+template <class PGraph> PGraph LoadConnList(const TStr& InFNm);
+
+/// Loads a (directed, undirected or multi) graph from Pajek .NET file.
+template <class PGraph> PGraph LoadPajek(const TStr& InFNm);
+/// Loads a directed network in the DyNetML format. Loads only the first network in the file FNm.
 PNGraph LoadDyNet(const TStr& FNm);
-// DyNetML format, loads all the networks in the file
+/// Loads directed networks in the DyNetML format. Loads all the networks in the file FNm.
 TVec<PNGraph> LoadDyNetGraphV(const TStr& FNm);
 
-// Save
+//TODO: Sparse/Dense adjacency matrix which values we threshold at Thresh to obtain an adjacency matrix.
+//template <class PGraph> PGraph LoadAdjMtx(const TStr& FNm, const int Thresh);
+//TODO: Load from a GML file format (http://en.wikipedia.org/wiki/Graph_Modelling_Language)
+//template <class PGraph> PGraph LoadGml(const TStr& FNm, const int Thresh);
+
+
+/// Saves a graph into a text file. Each line contains two columsn and encodes a single edge: <source node id><tab><destination node id>
 template <class PGraph> void SaveEdgeList(const PGraph& Graph, const TStr& OutFNm, const TStr& Desc=TStr());
+/// Saves a graph in a Pajek .NET format.
 template <class PGraph> void SavePajek(const PGraph& Graph, const TStr& OutFNm);
-template <class PGraph> void SavePajek(const PGraph& Graph, const TStr& OutFNm, const TIntStrH& NIdClrH);
-template <class PGraph> void SavePajek(const PGraph& Graph, const TStr& OutFNm, const TIntStrH& NIdClrH, const TIntStrH& NIdLabelH);
-template <class PGraph> void SavePajek(const PGraph& Graph, const TStr& OutFNm, const TIntStrH& NIdClrH, const TIntStrH& NIdLabelH, const TIntStrH& EIdClrH);
-//template <class PGraph> SaveGml(const PGraph& Graph, const TStr& OutFNm, const TStr& Desc);
+/// Saves a graph in a Pajek .NET format.
+template <class PGraph> void SavePajek(const PGraph& Graph, const TStr& OutFNm, const TIntStrH& NIdColorH);
+/// Saves a graph in a Pajek .NET format.
+template <class PGraph> void SavePajek(const PGraph& Graph, const TStr& OutFNm, const TIntStrH& NIdColorH, const TIntStrH& NIdLabelH);
+/// Saves a graph in a Pajek .NET format.
+template <class PGraph> void SavePajek(const PGraph& Graph, const TStr& OutFNm, const TIntStrH& NIdColorH, const TIntStrH& NIdLabelH, const TIntStrH& EIdColorH);
+/// Saves a graph as a Matlab Sparse matrix.
 template <class PGraph> void SaveMatlabSparseMtx(const PGraph& Graph, const TStr& OutFNm);
+
+//TODO:  Save to a GML file format (http://en.wikipedia.org/wiki/Graph_Modelling_Language)
+//template <class PGraph> SaveGml(const PGraph& Graph, const TStr& OutFNm, const TStr& Desc);
 
 /////////////////////////////////////////////////
 // Implementation
 
-// Whitespace separated file. One edge per line
-// SrcColId and DstColId are column indexes of source/destination INTEGER node id
+/// Whitespace separated file of several columns: ... <source node id> ... <destination node id> ...
+/// SrcColId and DstColId are column indexes of source/destination (integer!) node ids.
+/// This means there is one edge per line and node IDs are assumed to be integers.
+/// The function loads the format saved by TSnap::SaveEdgeList()
 template <class PGraph>
 PGraph LoadEdgeList(const TStr& InFNm, const int& SrcColId, const int& DstColId) {
   TSsParser Ss(InFNm, ssfWhiteSep, true, true, true);
@@ -44,8 +64,10 @@ PGraph LoadEdgeList(const TStr& InFNm, const int& SrcColId, const int& DstColId)
   return Graph;
 }
 
-// Separator separated file. One edge per line
-// SrcColId and DstColId are column indexes of source/destination INTEGER node id
+/// 'Separator' separated file of several columns: ... <source node id> ... <destination node id> ...
+/// SrcColId and DstColId are column indexes of source/destination (integer!) node ids.
+/// This means there is one edge per line and node IDs are assumed to be integers.
+/// The function loads the format saved by TSnap::SaveEdgeList() if we set Separator='\t'.
 template <class PGraph>
 PGraph LoadEdgeList(const TStr& InFNm, const int& SrcColId, const int& DstColId, const char& Separator) {
   TSsParser Ss(InFNm, Separator);
@@ -61,16 +83,18 @@ PGraph LoadEdgeList(const TStr& InFNm, const int& SrcColId, const int& DstColId,
   return Graph;
 }
 
-// Whitespace separated file. One edge per line
-// SrcColId and DstColId are column indexes of source/destination STRING node id
+/// Whitespace separated file of several columns: ... <source node id> ... <destination node id> ...
+/// SrcColId and DstColId are column indexes of source/destination (string) node ids.
+/// This means there is one edge per line and node IDs can be arbitrary STRINGs. 
+/// Note that the mapping of node names to ids is discarded.
 template <class PGraph>
 PGraph LoadEdgeListStr(const TStr& InFNm, const int& SrcColId, const int& DstColId) {
   TSsParser Ss(InFNm, ssfWhiteSep);
   PGraph Graph = PGraph::TObj::New();
-  TStrHash<TInt> StrSet(Mega(1), true);
+  TStrHash<TInt> StrToNIdH(Mega(1), true); // hash-table mapping strings to integer node ids
   while (Ss.Next()) {
-    const int SrcNId = StrSet.AddKey(Ss[SrcColId]);
-    const int DstNId = StrSet.AddKey(Ss[DstColId]);
+    const int SrcNId = StrToNIdH.AddKey(Ss[SrcColId]);
+    const int DstNId = StrToNIdH.AddKey(Ss[DstColId]);
     if (! Graph->IsNode(SrcNId)) { Graph->AddNode(SrcNId); }
     if (! Graph->IsNode(DstNId)) { Graph->AddNode(DstNId); }
     Graph->AddEdge(SrcNId, DstNId);
@@ -79,6 +103,29 @@ PGraph LoadEdgeListStr(const TStr& InFNm, const int& SrcColId, const int& DstCol
   return Graph;
 }
 
+/// Whitespace separated file of several columns: ... <source node id> ... <destination node id> ...
+/// SrcColId and DstColId are column indexes of source/destination (string) node ids.
+/// This means there is one edge per line and node IDs can be arbitrary STRINGs.
+/// The mapping of strings to node ids in stored in StrToNIdH.
+/// To map between node names and ids use: NId = StrToNIdH.GetKeyId(NodeName) and TStr NodeName = StrToNIdH[NId];
+template <class PGraph>
+PGraph LoadEdgeListStr(const TStr& InFNm, const int& SrcColId, const int& DstColId, TStrHash<TInt>& StrToNIdH) {
+  TSsParser Ss(InFNm, ssfWhiteSep);
+  PGraph Graph = PGraph::TObj::New();
+  while (Ss.Next()) {
+    const int SrcNId = StrToNIdH.AddKey(Ss[SrcColId]);
+    const int DstNId = StrToNIdH.AddKey(Ss[DstColId]);
+    if (! Graph->IsNode(SrcNId)) { Graph->AddNode(SrcNId); }
+    if (! Graph->IsNode(DstNId)) { Graph->AddNode(DstNId); }
+    Graph->AddEdge(SrcNId, DstNId);
+  }
+  Graph->Defrag();
+  return Graph;
+}
+
+/// Whitespace separated file of several columns: <source node id> <destination node id1> <destination node id2> ... 
+/// First colum of each line contains a source node id followed by ids of the destination nodes.
+/// For example, '1 2 3' encodes edges 1-->2 and 1-->3. Note that this format allows for saving isolated nodes.
 template <class PGraph>
 PGraph LoadConnList(const TStr& InFNm) {
   TSsParser Ss(InFNm, ssfWhiteSep);
@@ -102,10 +149,11 @@ PGraph LoadPajek(const TStr& InFNm) {
   PGraph Graph = PGraph::TObj::New();
   TSsParser Ss(InFNm, ssfSpaceSep, true, true);
   Ss.Next();  Ss.ToLc();
+  // nodes
   EAssert(strstr(Ss[0], "*vertices") != NULL);
   while (Ss.Next()) {
     Ss.ToLc();
-    if (strstr(Ss[0], "*arcs")!=NULL || strstr(Ss[0],"*edges")!=NULL) { break; }
+    if (strstr(Ss[0], "*arcs")!=NULL || strstr(Ss[0],"*edges")!=NULL) { break; } // arcs are directed, edges are undirected
     Graph->AddNode(Ss.GetInt(0));
   }
   // edges
@@ -153,15 +201,17 @@ void SavePajek(const PGraph& Graph, const TStr& OutFNm) {
   fclose(F);
 }
 
+/// NIdColorH maps node ids to node colors. Default node color is Red.
+/// See http://vlado.fmf.uni-lj.si/pub/networks/pajek/doc/pajekman.pdf for a list of supported color names.
 template <class PGraph>
-void SavePajek(const PGraph& Graph, const TStr& OutFNm, const TIntStrH& NIdClrH) {
+void SavePajek(const PGraph& Graph, const TStr& OutFNm, const TIntStrH& NIdColorH) {
   TIntH NIdToIdH(Graph->GetNodes(), true);
   FILE *F = fopen(OutFNm.CStr(), "wt");
   fprintf(F, "*Vertices %d\n", Graph->GetNodes());
   int i = 0;
   for (typename PGraph::TObj::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++, i++) {
     fprintf(F, "%d  \"%d\" ic %s fos 10\n", i+1, NI.GetId(),
-      NIdClrH.IsKey(NI.GetId()) ? NIdClrH.GetDat(NI.GetId()).CStr() : "Red");
+      NIdColorH.IsKey(NI.GetId()) ? NIdColorH.GetDat(NI.GetId()).CStr() : "Red");
     NIdToIdH.AddDat(NI.GetId(), i+1);
   }
   if (HasGraphFlag(typename PGraph::TObj, gfDirected)) {
@@ -177,8 +227,11 @@ void SavePajek(const PGraph& Graph, const TStr& OutFNm, const TIntStrH& NIdClrH)
   fclose(F);
 }
 
+/// NIdColorH maps node ids to node colors. Default node color is Red.
+/// NIdLabelH maps node ids to node string labels.
+/// See http://vlado.fmf.uni-lj.si/pub/networks/pajek/doc/pajekman.pdf for a list of supported color names.
 template <class PGraph>
-void SavePajek(const PGraph& Graph, const TStr& OutFNm, const TIntStrH& NIdClrH, const TIntStrH& NIdLabelH) {
+void SavePajek(const PGraph& Graph, const TStr& OutFNm, const TIntStrH& NIdColorH, const TIntStrH& NIdLabelH) {
   TIntH NIdToIdH(Graph->GetNodes(), true);
   FILE *F = fopen(OutFNm.CStr(), "wt");
   fprintf(F, "*Vertices %d\n", Graph->GetNodes());
@@ -186,7 +239,7 @@ void SavePajek(const PGraph& Graph, const TStr& OutFNm, const TIntStrH& NIdClrH,
   for (typename PGraph::TObj::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++, i++) {
     fprintf(F, "%d  \"%s\" ic %s fos 10\n", i+1,
       NIdLabelH.IsKey(NI.GetId()) ? NIdLabelH.GetDat(NI.GetId()).CStr() : TStr::Fmt("%d", NI.GetId()).CStr(),
-      NIdClrH.IsKey(NI.GetId()) ? NIdClrH.GetDat(NI.GetId()).CStr() : "Red");
+      NIdColorH.IsKey(NI.GetId()) ? NIdColorH.GetDat(NI.GetId()).CStr() : "Red");
     NIdToIdH.AddDat(NI.GetId(), i+1);
   }
   if (HasGraphFlag(typename PGraph::TObj, gfDirected)) {
@@ -202,8 +255,12 @@ void SavePajek(const PGraph& Graph, const TStr& OutFNm, const TIntStrH& NIdClrH,
   fclose(F);
 }
 
+/// NIdColorH maps node ids to node colors. Default node color is Red.
+/// NIdLabelH maps node ids to node string labels.
+/// EIdColorH maps edge ids to node colors. Default edge color is Black.
+/// See http://vlado.fmf.uni-lj.si/pub/networks/pajek/doc/pajekman.pdf for a list of supported color names.
 template <class PGraph>
-void SavePajek(const PGraph& Graph, const TStr& OutFNm, const TIntStrH& NIdClrH, const TIntStrH& NIdLabelH, const TIntStrH& EIdClrH) {
+void SavePajek(const PGraph& Graph, const TStr& OutFNm, const TIntStrH& NIdColorH, const TIntStrH& NIdLabelH, const TIntStrH& EIdColorH) {
   CAssert(HasGraphFlag(typename PGraph::TObj, gfMultiGraph)); // network needs to have edge ids
   TIntH NIdToIdH(Graph->GetNodes(), true);
   FILE *F = fopen(OutFNm.CStr(), "wt");
@@ -212,7 +269,7 @@ void SavePajek(const PGraph& Graph, const TStr& OutFNm, const TIntStrH& NIdClrH,
   for (typename PGraph::TObj::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++, i++) {
     fprintf(F, "%d  \"%s\" ic %s fos 10\n", i+1,
       NIdLabelH.IsKey(NI.GetId()) ? NIdLabelH.GetDat(NI.GetId()).CStr() : TStr::Fmt("%d", NI.GetId()).CStr(),
-      NIdClrH.IsKey(NI.GetId()) ? NIdClrH.GetDat(NI.GetId()).CStr() : "Red");
+      NIdColorH.IsKey(NI.GetId()) ? NIdColorH.GetDat(NI.GetId()).CStr() : "Red");
     NIdToIdH.AddDat(NI.GetId(), i+1);
   }
   if (HasGraphFlag(typename PGraph::TObj, gfDirected)) {
@@ -224,11 +281,12 @@ void SavePajek(const PGraph& Graph, const TStr& OutFNm, const TIntStrH& NIdClrH,
     const int SrcNId = NIdToIdH.GetDat(EI.GetSrcNId());
     const int DstNId = NIdToIdH.GetDat(EI.GetDstNId());
     fprintf(F, "%d %d 1 c %s\n", SrcNId, DstNId, 1,
-      EIdClrH.IsKey(EI.GetId()) ? EIdClrH.GetDat(EI.GetId()).CStr() : "Black");
+      EIdColorH.IsKey(EI.GetId()) ? EIdColorH.GetDat(EI.GetId()).CStr() : "Black");
   }
   fclose(F);
 }
 
+/// Each line contains a tuple of 3 values: <source node id><tab><destination node id><tab>1
 template <class PGraph>
 void SaveMatlabSparseMtx(const PGraph& Graph, const TStr& OutFNm) {
   FILE *F = fopen(OutFNm.CStr(), "wt");

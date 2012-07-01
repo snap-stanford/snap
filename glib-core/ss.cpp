@@ -355,7 +355,10 @@ TSsParser::~TSsParser() {
   //if (Bf != NULL) { delete [] Bf; }
 }
 
-/*bool TSsParser::Next() { // split on SplitCh
+/*
+// Old implementation that loaded a line into a fixed size buffer (which limited the maximum line lenght).
+// New implementation below has no limit on the line lenght.
+bool TSsParser::Next() { // split on SplitCh
   const char* EndBf = Bf+BfLen-1;
   memset(Bf, 0, BfLen);
   char *cur = Bf, *last = Bf;
@@ -415,40 +418,6 @@ bool TSsParser::Next() { // split on SplitCh
   FldV.Add(last);  // add last field
   if (SkipEmptyFld && FldV.Empty()) { return Next(); } // skip empty lines
   return true; 
-
-  //const char* EndBf = Bf+BfLen-1;
-  //memset(Bf, 0, BfLen);
-  //char *cur = Bf, *last = Bf;
-  /*if (SkipLeadBlanks) { // skip leadning blanks
-    while (! FIn.Eof() && cur < EndBf && (FIn.PeekCh()=='\t' || FIn.PeekCh()==' ')) { FIn.GetCh(); } 
-  }
-  while (! FIn.Eof() && cur < EndBf) {
-    if (SsFmt == ssfWhiteSep) {
-      while (! FIn.Eof() && cur < EndBf && ! TCh::IsWs(*cur=FIn.GetCh())) { cur++; }
-    } else {
-      while (! FIn.Eof() && cur < EndBf && (*cur=FIn.GetCh())!=SplitCh && *cur!='\r' && *cur!='\n') { cur++; }
-    }
-    if (*cur=='\r' || *cur=='\n') {
-      if (! FIn.Eof()) { // read the remaining of the line
-        if (*cur == '\r' && FIn.PeekCh()=='\n') { FIn.GetCh(); }
-        else if (*cur == '\n' && FIn.PeekCh()=='\r') { FIn.GetCh(); }
-      }
-      *cur = 0; cur++;
-      FldV.Add(last);
-      last = cur;
-      break;
-    }
-    *cur = 0;  cur++;
-    FldV.Add(last);  last = cur;
-    if (SkipEmptyFld && strlen(FldV.Last())==0) { FldV.DelLast(); } // skip empty fields
-  }
-  LineCnt++;
-  if (SkipCmt && IsCmt() && ! FIn.Eof()) { return Next(); }
-  if (FldV.Len() == 1 && strlen(FldV[0])==0) { FldV.Clr(); return true; }
-  if (SkipEmptyFld && FldV.Len()>0 && strlen(FldV.Last())==0) { FldV.DelLast(); }
-  return ! FIn.Eof() || ! FldV.Empty();
-  //if (SkipEmptyFld && FldV.Empty() && ! FIn.Eof()) { return Next(); } // skip empty line
-  */
 }
 
 void TSsParser::ToLc() {

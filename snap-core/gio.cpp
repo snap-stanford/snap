@@ -1,6 +1,5 @@
 namespace TSnap {
 
-/// Loads a directed network in the DyNetML format. Loads only the first network in the file FNm.
 /// For more info see ORA Network Analysis Data (http://www.casos.cs.cmu.edu/computational_tools/data2.php)
 PNGraph LoadDyNet(const TStr& FNm) {
   TXmlLx XmlLx(TZipIn::IsZipFNm(FNm)?TZIpIn::New(FNm):TFIn::New(FNm), xspTruncate);
@@ -27,7 +26,6 @@ PNGraph LoadDyNet(const TStr& FNm) {
   return PNGraph();
 }
 
-/// Loads directed networks in the DyNetML format. Loads all the networks in the file FNm.
 /// For more info see ORA Network Analysis Data (http://www.casos.cs.cmu.edu/computational_tools/data2.php)
 TVec<PNGraph> LoadDyNetGraphV(const TStr& FNm) {
   TXmlLx XmlLx(TZipIn::IsZipFNm(FNm)?TZIpIn::New(FNm):TFIn::New(FNm), xspTruncate);
