@@ -51,7 +51,7 @@ void BaseTralala(){
   #endif
 }
 
-#if defined(GLib_UNIX)
+#if defined(GLib_UNIX) && ! defined(GLib_CYGWIN)
 int _daylight = 0;
 #endif
 

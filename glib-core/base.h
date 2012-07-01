@@ -87,13 +87,13 @@
 #endif
 
 #if defined(GLib_UNIX)
-  extern int _daylight;
   #ifndef _environ
     #if defined(GLib_MACOSX)
      #include <crt_externs.h>
      #define _environ (*_NSGetEnviron())
     #elif !defined(GLib_CYGWIN)
      #define _environ __environ
+     extern int _daylight;
     #else
      #define _environ environ
     #endif
