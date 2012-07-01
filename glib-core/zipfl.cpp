@@ -1,8 +1,4 @@
 /////////////////////////////////////////////////
-// Includes
-//#include "zipfl.h"
-
-/////////////////////////////////////////////////
 // ZIP Input-File
 TStrStrH TZipIn::FExtToCmdH;
 const int TZipIn::MxBfL=32*1024;
@@ -135,11 +131,6 @@ int TZipIn::GetBf(const void* LBf, const TSize& LBfL){
       LBfS+=(((char*)LBf)[LBfC]=Bf[BfC++]);}
   }
   return LBfS;
-}
-
-void TZipIn::AddZipExtCmd(const TStr& ZipFNmExt, const TStr& ZipCmd) {
-  if (FExtToCmdH.Empty()) FillFExtToCmdH();
-  FExtToCmdH.AddDat(ZipFNmExt, ZipCmd);
 }
 
 bool TZipIn::IsZipExt(const TStr& FNmExt) {
@@ -338,11 +329,6 @@ void TZipOut::Flush(){
   #else
   EAssertR(fflush(ZipStdinWr)==0, "Can not flush file '"+GetSNm()+"'.");
   #endif
-}
-
-void TZipOut::AddZipExtCmd(const TStr& ZipFNmExt, const TStr& ZipCmd) {
-  if (FExtToCmdH.Empty()) FillFExtToCmdH();
-  FExtToCmdH.AddDat(ZipFNmExt, ZipCmd);
 }
 
 bool TZipOut::IsZipExt(const TStr& FNmExt) {

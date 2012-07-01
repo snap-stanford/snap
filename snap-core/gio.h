@@ -9,10 +9,8 @@ template <class PGraph> PGraph LoadPajek(const TStr& InFNm);
 template <class PGraph> PGraph LoadConnList(const TStr& InFNm);
 //template <class PGraph> PGraph LoadAdjMtx(const TStr& FNm, const int Thresh);
 //PNGraph TNGraph::LoadNextEdgeList(TSIn& SIn, const bool& IsDir);
-//PNGraph TNGraph::LoadAdjMtx(const TStr& FNm, const int Thresh) {
+//PNGraph TNGraph::LoadAdjMtx(const TStr& FNm, const int Thresh);
 
-// ORA Network Analysis Data (http://www.casos.cs.cmu.edu/computational_tools/data2.php)
-// DyNetML format, loads only the first network in the file
 PNGraph LoadDyNet(const TStr& FNm);
 // DyNetML format, loads all the networks in the file
 TVec<PNGraph> LoadDyNetGraphV(const TStr& FNm);
@@ -62,7 +60,6 @@ PGraph LoadEdgeList(const TStr& InFNm, const int& SrcColId, const int& DstColId,
   Graph->Defrag();
   return Graph;
 }
-
 
 // Whitespace separated file. One edge per line
 // SrcColId and DstColId are column indexes of source/destination STRING node id

@@ -2,29 +2,12 @@
 #define zipfl_h
 
 /////////////////////////////////////////////////
-// Includes
-//#include "base.h"
-
-// #define TFileIn(FNm) 
-//   (TZipIn::IsZipFNm((FNm)) ? TZipIn(FNm) : TFIn(FNm));
-// #define TFileOut(FNm) 
-//   TZipOut::IsZipFNm(FNm) ? TZipOut(FNm) : TFOut(FNm);
-
-/////////////////////////////////////////////////
-// Compressed input and output streams.
-// 7za.exe or 7z.exe must be in the path (http://www.7-zip.org)
-// 7za.exe is a stand-alone program, which supports
-//   -- extraction:  .gz, .7z, .rar, .zip, .cab, .arj. bzip2
-//   -- compression: .7z
-// 7z.exe uses DLLs in folders Codecs and Formats
-//   -- extraction:  .gz, .7z, .rar, .zip, .cab, .arj. bzip2
-//   -- compression: .gz, .7z, .rar, .zip, .cab, .arj. bzip2
-// Add this to Windows registry to locate Codecs and Formats:
-//   [HKEY_LOCAL_MACHINE\SOFTWARE\7-Zip]
-//   "Path"="C:\\Programs\\Util"
-
-/////////////////////////////////////////////////
-// ZIP Input-File (requires 7za.exe or 7z.exe)
+/// Compressed File Input Stream. The class reads from a compressed file without explicitly uncompressing it.
+/// This is eachieved by running external 7ZIP program which uncompresses to standard output, which is then piped to TZipFl.
+/// The class requires 7ZIP to be installed on the machine. Go to http://www.7-zip.org to install the software.
+/// 7za (7z) is a stand-alone executable and can decompress the following formats: .gz, .7z, .rar, .zip, .cab, .arj. bzip2.
+/// The class TZIpIn expects that '7za' ('7z.exe') is in the working path. Make sure you can execute '7za e -y -bd -so <FILENAME>'
+/// Note: You can only load .gz files of uncompressed size <2GB. If you load any other format there is no such limitation.
 class TZipIn : public TSIn {
 private:
   static TStrStrH FExtToCmdH;
@@ -40,6 +23,7 @@ private:
 private:
   void FillBf();
   void CreateZipProcess(const TStr& Cmd, const TStr& ZipFNm);
+  static void FillFExtToCmdH();
 private:
   TZipIn();
   TZipIn(const TZipIn&);
@@ -60,16 +44,22 @@ public:
   uint64 GetFLen() const { return FLen; }
   uint64 GetCurFPos() const { return CurFPos; }
 
-  static void AddZipExtCmd(const TStr& ZipFNmExt, const TStr& ZipCmd);
+  /// Check whether the file extension of FNm is that of a compressed file (.gz, .7z, .rar, .zip, .cab, .arj. bzip2).
   static bool IsZipFNm(const TStr& FNm) { return IsZipExt(FNm.GetFExt()); }
+  /// Check whether the file extension FNmExt is that of a compressed file (.gz, .7z, .rar, .zip, .cab, .arj. bzip2).
   static bool IsZipExt(const TStr& FNmExt);
-  static void FillFExtToCmdH();
+  /// Return a command-line string that is executed in order to decompress a file to standard output. 
   static TStr GetCmd(const TStr& ZipFNm);
+  /// Return the uncompressed size (in bytes) of the compressed file ZipFNm.
   static uint64 GetFLen(const TStr& ZipFNm);
 };
 
 /////////////////////////////////////////////////
-// ZIP Output-File (requires 7z.exe and 7za.exe)
+/// Compressed File Output Stream. The class directly writes to a compressed file.
+/// This is eachieved by TZipFl outputing into a pipe from which 7ZIP then reads and compresses.
+/// The class requires 7ZIP to be installed on the machine. Go to http://www.7-zip.org to install the software.
+/// 7za (7z) is a stand-alone executable and can decompress the following formats: .gz, .7z, .rar, .zip, .cab, .arj. bzip2.
+/// The class TZIpOut expects that '7za' ('7z.exe') is in the working path.
 class TZipOut : public TSOut{
 private:
   static const TSize MxBfL;
@@ -84,6 +74,7 @@ private:
 private:
   void FlushBf();
   void CreateZipProcess(const TStr& Cmd, const TStr& ZipFNm);
+  static void FillFExtToCmdH();
 private:
   TZipOut();
   TZipOut(const TZipOut&);
@@ -97,10 +88,11 @@ public:
   int PutBf(const void* LBf, const TSize& LBfL);
   void Flush();
 
-  static void AddZipExtCmd(const TStr& ZipFNmExt, const TStr& ZipCmd);
+  /// Check whether the file extension of FNm is that of a compressed file (.gz, .7z, .rar, .zip, .cab, .arj. bzip2).
   static bool IsZipFNm(const TStr& FNm) { return IsZipExt(FNm.GetFExt()); }
+  /// Check whether the file extension FNmExt is that of a compressed file (.gz, .7z, .rar, .zip, .cab, .arj. bzip2).
   static bool IsZipExt(const TStr& FNmExt);
-  static void FillFExtToCmdH();
+  /// Return a command-line string that is executed in order to decompress a file to standard output. 
   static TStr GetCmd(const TStr& ZipFNm);
 };
 
