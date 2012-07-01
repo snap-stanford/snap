@@ -2,7 +2,7 @@ namespace TSnap {
 
 /// For more info see ORA Network Analysis Data (http://www.casos.cs.cmu.edu/computational_tools/data2.php)
 PNGraph LoadDyNet(const TStr& FNm) {
-  TXmlLx XmlLx(TZipIn::IsZipFNm(FNm)?TZIpIn::New(FNm):TFIn::New(FNm), xspTruncate);
+  TXmlLx XmlLx(TZipIn::IsZipFNm(FNm)?TZipIn::New(FNm):TFIn::New(FNm), xspTruncate);
   THashSet<TStr> NIdStr;
   while (XmlLx.GetSym()!=xsyEof) {
     if (XmlLx.Sym==xsySTag && XmlLx.TagNm=="network") {
@@ -28,7 +28,7 @@ PNGraph LoadDyNet(const TStr& FNm) {
 
 /// For more info see ORA Network Analysis Data (http://www.casos.cs.cmu.edu/computational_tools/data2.php)
 TVec<PNGraph> LoadDyNetGraphV(const TStr& FNm) {
-  TXmlLx XmlLx(TZipIn::IsZipFNm(FNm)?TZIpIn::New(FNm):TFIn::New(FNm), xspTruncate);
+  TXmlLx XmlLx(TZipIn::IsZipFNm(FNm)?TZipIn::New(FNm):TFIn::New(FNm), xspTruncate);
   TVec<PNGraph> GraphV;
   THashSet<TStr> NIdStr;
   while (XmlLx.GetSym()!=xsyEof) {

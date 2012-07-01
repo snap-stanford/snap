@@ -54,7 +54,7 @@ public:
 };
 
 /////////////////////////////////////////////////
-// Fast-Spread-Sheet-Parser
+/// Fast Spread Sheet Parser.
 ClassTP(TSsParser, PSsParser)//{
 private:
   TSsFmt SsFmt;
@@ -66,7 +66,7 @@ private:
   PSIn FInPt;
   UndefDefaultCopyAssign(TSsParser);
 public:
-  TSsParser(const TStr& FNm, const TSsFmt _SsFmt, const bool& _SkipLeadBlanks=false, const bool& _SkipCmt=true, const bool& _SkipEmptyFld=false);
+  TSsParser(const TStr& FNm, const TSsFmt _SsFmt=ssfTabSep, const bool& _SkipLeadBlanks=false, const bool& _SkipCmt=true, const bool& _SkipEmptyFld=false);
   TSsParser(const TStr& FNm, const char& Separator, const bool& _SkipLeadBlanks=false, const bool& _SkipCmt=true, const bool& _SkipEmptyFld=false);
   ~TSsParser();
   static PSsParser New(const TStr& FNm, const TSsFmt SsFmt) { return new TSsParser(FNm, SsFmt); }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////
-// Loading and saving graphs to various file formats.
+// Loading and saving graphs from/to various file formats.
 namespace TSnap {
 
 /// Loads a (directed, undirected or multi) graph from a text file InFNm with 1 edge per line (whitespace separated columns, integer node ids).
@@ -36,7 +36,7 @@ template <class PGraph> void SavePajek(const PGraph& Graph, const TStr& OutFNm, 
 template <class PGraph> void SavePajek(const PGraph& Graph, const TStr& OutFNm, const TIntStrH& NIdColorH, const TIntStrH& NIdLabelH);
 /// Saves a graph in a Pajek .NET format.
 template <class PGraph> void SavePajek(const PGraph& Graph, const TStr& OutFNm, const TIntStrH& NIdColorH, const TIntStrH& NIdLabelH, const TIntStrH& EIdColorH);
-/// Saves a graph as a Matlab Sparse matrix.
+/// Saves a graph in a MATLAB sparse matrix format.
 template <class PGraph> void SaveMatlabSparseMtx(const PGraph& Graph, const TStr& OutFNm);
 
 //TODO:  Save to a GML file format (http://en.wikipedia.org/wiki/Graph_Modelling_Language)
