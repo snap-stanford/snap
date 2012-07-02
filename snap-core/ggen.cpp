@@ -2,7 +2,7 @@
 // Graph Generators
 namespace TSnap {
 
-// Constant degree random graph
+/// Generates a random graph where each node has degree exactly NodeDeg.
 PUNGraph GenRndDegK(const int& Nodes, const int& NodeDeg, const int& NSwitch, TRnd& Rnd) {
   // create degree sequence
   TIntV DegV(Nodes, 0);
@@ -16,6 +16,9 @@ PUNGraph GenRndDegK(const int& Nodes, const int& NodeDeg, const int& NSwitch, TR
   return GenRewire(G, NSwitch, Rnd);  // make it random
 }
 
+/// Generates a random scale-free graph with power-law degree distribution with
+/// exponent PowerExp. The method uses either the Configuration model (fast but
+/// the the result is approximate) or the Edge Rewiring method (slow but exact).
 PUNGraph GenRndPowerLaw(const int& Nodes, const double& PowerExp, const bool& ConfModel, TRnd& Rnd) {
   TIntV DegSeqV;
   uint DegSum=0;
@@ -36,9 +39,10 @@ PUNGraph GenRndPowerLaw(const int& Nodes, const double& PowerExp, const bool& Co
   }
 }
 
-// A graph with exact degree sequence (edges could be a bit biased). No self loops.
-// The idea is to simulate Configuration Model but if a duplicate edge occurs,
-// find a random edge, break it and reconnect
+/// Generates a random graph with exact degree sequence DegSeqV.
+/// The generated graph has no self loops. The graph generation process
+/// simulates the Configuration Model but if a duplicate edge occurs, we find a
+/// random edge, break it and reconnect it with the duplicate.
 PUNGraph GenDegSeq(const TIntV& DegSeqV, TRnd& Rnd) {
   const int Nodes = DegSeqV.Len();
   PUNGraph GraphPt = TUNGraph::New();
@@ -60,7 +64,7 @@ PUNGraph GenDegSeq(const TIntV& DegSeqV, TRnd& Rnd) {
     if (NId1 == NId2) {
       if (DegH.GetDat(NId1) == 1) { continue; }
       // find rnd edge, break it, and connect the endpoints to the nodes
-      const TIntPr Edge = GetRndEdgeNonAdjNode(GraphPt, NId1, -1);
+      const TIntPr Edge = TSnapDetail::GetRndEdgeNonAdjNode(GraphPt, NId1, -1);
       if (Edge.Val1==-1) { continue; }
       Graph.DelEdge(Edge.Val1, Edge.Val2);
       Graph.AddEdge(Edge.Val1, NId1);
@@ -72,7 +76,7 @@ PUNGraph GenDegSeq(const TIntV& DegSeqV, TRnd& Rnd) {
         Graph.AddEdge(NId1, NId2); }  // good edge
       else {
         // find rnd edge, break and cross-connect
-        const TIntPr Edge = GetRndEdgeNonAdjNode(GraphPt, NId1, NId2);
+        const TIntPr Edge = TSnapDetail::GetRndEdgeNonAdjNode(GraphPt, NId1, NId2);
         if (Edge.Val1==-1) {continue; }
         Graph.DelEdge(Edge.Val1, Edge.Val2);
         Graph.AddEdge(NId1, Edge.Val1);
@@ -90,9 +94,14 @@ PUNGraph GenDegSeq(const TIntV& DegSeqV, TRnd& Rnd) {
 }
 
 
-// Generate a random graph with a given degree sequence
-// Configuration model: pick two spokes at random, link or discard, continue until done
-// We ignore (discard) self loops and multiple edges
+/// Generates a random undirect graph with a given degree sequence DegSeqV.
+/// Configuration model operates as follows. For each node N, of degree
+/// DeqSeqV[N] we create DeqSeqV[N] spokes (half-edges). We then pick two
+/// spokes at random, and connect the spokes endpoints. We continue this
+/// process until no spokes are left. Generally this generates a multigraph
+/// (i.e., spokes out of same nodes can be chosen multiple times).We ignore
+/// (discard) self-loops and multiple edges. Thus, the generated graph will
+/// only approximate follow the given degree sequence. The method is very fast!
 PUNGraph GenConfModel(const TIntV& DegSeqV, TRnd& Rnd) {
   const int Nodes = DegSeqV.Len();
   PUNGraph GraphPt = TUNGraph::New();
@@ -133,10 +142,12 @@ PUNGraph GenConfModel(const TIntV& DegSeqV, TRnd& Rnd) {
   return GraphPt;
 }
 
-// Rewire the network (while preserving node degrees): edge switching model
-// See:  On the uniform generation of random graphs with prescribed degree sequences
-// by R. Milo, N. Kashtan, S. Itzkovitz, M. E. J. Newman, U. Alon
-// http://arxiv.org/abs/cond-mat/0312028
+/// Rewire the network. Keeps node degrees as is but randomly rewires the edges.
+/// Use this function to generate a random graph with the same degree sequence 
+/// as the OrigGraph. 
+/// See:  On the uniform generation of random graphs with prescribed degree
+/// sequences by R. Milo, N. Kashtan, S. Itzkovitz, M. E. J. Newman, U. Alon
+/// URL: http://arxiv.org/abs/cond-mat/0312028
 PUNGraph GenRewire(const PUNGraph& OrigGraph, const int& NSwitch, TRnd& Rnd) {
   const int Nodes = OrigGraph->GetNodes();
   const int Edges = OrigGraph->GetEdges();
@@ -184,6 +195,12 @@ PUNGraph GenRewire(const PUNGraph& OrigGraph, const int& NSwitch, TRnd& Rnd) {
   return GraphPt;
 }
 
+/// Rewire the network. Keeps node degrees as is but randomly rewires the edges.
+/// Use this function to generate a random graph with the same degree sequence
+/// as the OrigGraph.
+/// See:  On the uniform generation of random graphs with prescribed degree
+/// sequences by R. Milo, N. Kashtan, S. Itzkovitz, M. E. J. Newman, U. Alon.
+/// URL: http://arxiv.org/abs/cond-mat/0312028
 PNGraph GenRewire(const PNGraph& OrigGraph, const int& NSwitch, TRnd& Rnd) {
   const int Nodes = OrigGraph->GetNodes();
   const int Edges = OrigGraph->GetEdges();
@@ -227,9 +244,10 @@ PNGraph GenRewire(const PNGraph& OrigGraph, const int& NSwitch, TRnd& Rnd) {
   return GraphPt;
 }
 
-// Barabasi-Albert model
-//   See: Emergence of scaling in random networks
-//   http://arxiv.org/abs/cond-mat/9910332
+/// Barabasi-Albert model of scale-free graphs.
+/// The graph has power-law degree distribution.
+/// See: Emergence of scaling in random networks by Barabasi and Albert.
+/// URL: http://arxiv.org/abs/cond-mat/9910332
 PUNGraph GenPrefAttach(const int& Nodes, const int& NodeOutDeg, TRnd& Rnd) {
   PUNGraph GraphPt = PUNGraph::New();
   TUNGraph& Graph = *GraphPt;
@@ -256,7 +274,7 @@ PUNGraph GenPrefAttach(const int& Nodes, const int& NodeOutDeg, TRnd& Rnd) {
 }
 
 namespace TSnapDetail {
-//   sample random point from d-dimensional unit sphere
+/// Sample random point from the surface of a Dim-dimensional unit sphere.
 void GetSphereDev(const int& Dim, TRnd& Rnd, TFltV& ValV) {
   if (ValV.Len() != Dim) { ValV.Gen(Dim); }
   double Length = 0.0;
@@ -270,7 +288,11 @@ void GetSphereDev(const int& Dim, TRnd& Rnd, TFltV& ValV) {
 }
 } // namespace TSnapDetail
 
-// Geometric Preferential Attachment model by Flexman, Frieze and Vera, WAW 2004
+/// Generates a random scale-free graph using the Geometric Preferential
+/// Attachment model by Flexman, Frieze and Vera.
+/// See: A geometric preferential attachment model of networks by Flexman,
+/// Frieze and Vera. WAW 2004.
+/// URL: http://math.cmu.edu/~af1p/Texfiles/GeoWeb.pdf
 PUNGraph GenGeoPrefAttach(const int& Nodes, const int& OutDeg, const double& Beta, TRnd& Rnd) {
   PUNGraph G = TUNGraph::New(Nodes, Nodes*OutDeg);
   TFltTrV PointV(Nodes, 0);
@@ -317,8 +339,11 @@ PUNGraph GenGeoPrefAttach(const int& Nodes, const int& OutDeg, const double& Bet
   return G;
 }
 
-// Small-World mode by Watts and Strogatz: Collective dynamics of 'small-world' networks.
-// We assume a circle where each node out-links to NodeOutDeg other nodes (so, a node has 2*NodeOutDeg edges)
+/// Generates a small-world graph using the Watts-Strogatz model.
+/// We assume a circle where each node creates links to NodeOutDeg other nodes. 
+/// This way at the end each node is connected to 2*NodeOutDeg other nodes.
+/// See: Collective dynamics of 'small-world' networks. Watts and Strogatz.
+/// URL: http://research.yahoo.com/files/w_s_NATURE_0.pdf
 PUNGraph GenSmallWorld(const int& Nodes, const int& NodeOutDeg, const double& RewireProb, TRnd& Rnd) {
   THashSet<TIntPr> EdgeSet(Nodes*NodeOutDeg);
   for (int node = 0; node < Nodes; node++) {
@@ -351,10 +376,13 @@ PNGraph GenForestFire(const int& Nodes, const double& FwdProb, const double& Bck
   return TForestFire::GenGraph(Nodes, FwdProb, BckProb);
 }
 
-// Copying Model as defined in Kleinberg, Kumar, Raghavan, Rajagopalan, Tomkins:
-//   The Web as a Graph: Measurements, Models, and Methods. COCOON 1999.
-// Node u comes, selects a random v, and with prob Beta it links to v,
-// with 1-Beta links u links to neighbor of v. Power-law degree slope is -1/(1-Beta)
+/// Generates a random scale-free network using the Copying Model.
+/// The generating process operates as follows: Node u is added to a graph, it
+/// selects a random node v, and with prob Beta it links to v, with 1-Beta 
+/// links u links to neighbor of v. The power-law degree exponent is -1/(1-Beta).
+/// See: Stochastic models for the web graph.
+/// Kumar, Raghavan, Rajagopalan, Sivakumar, Tomkins, Upfal.
+/// URL: http://snap.stanford.edu/class/cs224w-readings/kumar00stochastic.pdf
 PNGraph GenCopyModel(const int& Nodes, const double& Beta, TRnd& Rnd) {
   PNGraph GraphPt = TNGraph::New();
   TNGraph& Graph = *GraphPt;
@@ -375,9 +403,11 @@ PNGraph GenCopyModel(const int& Nodes, const double& Beta, TRnd& Rnd) {
   return GraphPt;
 }
 
-// R-MAT generator model: A Recursive Model for Graph Mining
-// by D. Chakrabarti, Y. Zhan and C. Faloutsos, in SIAM Data Mining 2004
-// http://www.cs.cmu.edu/~deepay/mywww/papers/siam04.pdf
+/// R-MAT Generator. The modes is based on the recursive descent into a 2x2
+/// matrix [A,B; C, 1-(A+B+C)].
+/// See: R-MAT Generator: A Recursive Model for Graph Mining. 
+/// D. Chakrabarti, Y. Zhan and C. Faloutsos, in SIAM Data Mining 2004. 
+/// URL: http://www.cs.cmu.edu/~deepay/mywww/papers/siam04.pdf
 PNGraph GenRMat(const int& Nodes, const int& Edges, const double& A, const double& B, const double& C, TRnd& Rnd) {
   PNGraph GraphPt = TNGraph::New();
   TNGraph& Graph = *GraphPt;
@@ -443,6 +473,10 @@ PNGraph GenRMat(const int& Nodes, const int& Edges, const double& A, const doubl
   return GraphPt;
 }
 
+/// R-Mat generator with parameters set so that it generates a synthetic copy
+/// of the Epinions social network.
+/// The original Epinions social network can be downloaded at 
+/// http://snap.stanford.edu/data/soc-Epinions1.html
 PNGraph GenRMatEpinions() {
   return GenRMat(75888, 508837, 0.550, 0.228, 0.212);
 }
