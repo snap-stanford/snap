@@ -60,10 +60,14 @@ public:
   TKeyDat& operator()() const { return *KeyDatI; }
   TKeyDat* operator->() const { return KeyDatI; }
 
+  /// Tests whether the iterator has been initialized.
+  bool IsEmpty() const { return KeyDatI == NULL; }
+  /// Tests whether the iterator is pointing to the past-end element.
+  bool IsEnd() const { return EndI == KeyDatI; }
+  
   const TKey& GetKey() const {Assert((KeyDatI!=NULL)&&(KeyDatI->HashCd!=-1)); return KeyDatI->Key;}
   const TDat& GetDat() const {Assert((KeyDatI!=NULL)&&(KeyDatI->HashCd!=-1)); return KeyDatI->Dat;}
   TDat& GetDat() {Assert((KeyDatI!=NULL)&&(KeyDatI->HashCd!=-1)); return KeyDatI->Dat;}
-  bool IsEnd() { return EndI == KeyDatI; }
 };
 
 /////////////////////////////////////////////////
@@ -162,13 +166,10 @@ public:
   }
 
   TIter BegI() const {
-    if (Len()>0){
-      if (IsKeyIdEqKeyN()) { return TIter(KeyDatV.BegI(), KeyDatV.EndI());}
-      int FKeyId=-1;  FNextKeyId(FKeyId);
-      return TIter(KeyDatV.BegI()+FKeyId, KeyDatV.EndI());
-    }
-    return TIter(KeyDatV.EndI(), KeyDatV.EndI());
-  }
+    if (Len() == 0){return TIter(KeyDatV.EndI(), KeyDatV.EndI());}
+    if (IsKeyIdEqKeyN()) { return TIter(KeyDatV.BegI(), KeyDatV.EndI());}
+    int FKeyId=-1;  FNextKeyId(FKeyId);
+    return TIter(KeyDatV.BegI()+FKeyId, KeyDatV.EndI()); }
   TIter EndI() const {return TIter(KeyDatV.EndI(), KeyDatV.EndI());}
   //TIter GetI(const int& KeyId) const {return TIter(&KeyDatV[KeyId], KeyDatV.EndI());}
   TIter GetI(const TKey& Key) const {return TIter(&KeyDatV[GetKeyId(Key)], KeyDatV.EndI());}
@@ -203,21 +204,14 @@ public:
   void MarkDelKey(const TKey& Key); // marks the record as deleted - doesn't delete Dat (to avoid fragmentation)
   void MarkDelKeyId(const int& KeyId){MarkDelKey(GetKey(KeyId));}
 
-  const TKey& GetKey(const int& KeyId) const {
-    return GetHashKeyDat(KeyId).Key;}
+  const TKey& GetKey(const int& KeyId) const { return GetHashKeyDat(KeyId).Key;}
   int GetKeyId(const TKey& Key) const;
-  int GetRndKeyId(TRnd& Rnd) const {
-    //IAssert((! Empty()) && IsKeyIdEqKeyN());
-    //return Rnd.GetUniDevInt(Len()); }
-    IAssert(! Empty()); // J: can handle hash tables with deleted entries
-    int KeyId = abs(Rnd.GetUniDevInt(KeyDatV.Len()));
-    while (KeyDatV[KeyId].HashCd == -1) {
-      KeyId = abs(Rnd.GetUniDevInt(KeyDatV.Len())); }
-    return KeyId; }
-  int GetRndKeyId(TRnd& Rnd, const double& EmptyFrac=0.8);
+  /// Get an index of a random element. If the hash table has many deleted keys, this may take a long time.
+  int GetRndKeyId(TRnd& Rnd) const;
+  /// Get an index of a random element. If the hash table has many deleted keys, defrag the hash table first (that's why the function is non-const).
+  int GetRndKeyId(TRnd& Rnd, const double& EmptyFrac);
   bool IsKey(const TKey& Key) const {return GetKeyId(Key)!=-1;}
-  bool IsKey(const TKey& Key, int& KeyId) const {
-    KeyId=GetKeyId(Key); return KeyId!=-1;}
+  bool IsKey(const TKey& Key, int& KeyId) const { KeyId=GetKeyId(Key); return KeyId!=-1;}
   bool IsKeyId(const int& KeyId) const {
     return (0<=KeyId)&&(KeyId<KeyDatV.Len())&&(KeyDatV[KeyId].HashCd!=-1);}
   const TDat& GetDat(const TKey& Key) const {return KeyDatV[GetKeyId(Key)].Dat;}
@@ -395,14 +389,21 @@ void THash<TKey, TDat, THashFunc>::MarkDelKey(const TKey& Key){
   KeyDatV[KeyId].HashCd=TInt(-1);
 }
 
-// return random KeyId even if the hash table contains deleted keys
-// defrags the table if necessary
+template<class TKey, class TDat, class THashFunc>
+int THash<TKey, TDat, THashFunc>::GetRndKeyId(TRnd& Rnd) const  {
+  IAssert(! Empty());
+  int KeyId = abs(Rnd.GetUniDevInt(KeyDatV.Len()));
+  while (KeyDatV[KeyId].HashCd == -1) { // if the index is empty, just try again
+    KeyId = abs(Rnd.GetUniDevInt(KeyDatV.Len())); }
+  return KeyId; 
+}
+
 template<class TKey, class TDat, class THashFunc>
 int THash<TKey, TDat, THashFunc>::GetRndKeyId(TRnd& Rnd, const double& EmptyFrac) {
   IAssert(! Empty());
   if (FreeKeys/double(Len()+FreeKeys) > EmptyFrac) { Defrag(); }
   int KeyId = Rnd.GetUniDevInt(KeyDatV.Len());
-  while (KeyDatV[KeyId].HashCd == -1) {
+  while (KeyDatV[KeyId].HashCd == -1) { // if the index is empty, just try again
     KeyId = Rnd.GetUniDevInt(KeyDatV.Len());
   }
   return KeyId;

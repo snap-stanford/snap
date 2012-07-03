@@ -562,3 +562,217 @@ void TNEGraph::Dump(FILE *OutF) const {
   }
   fprintf(OutF, "\n");
 }
+
+/////////////////////////////////////////////////
+// Bipartite graph
+int TBPGraph::AddNode(int NId, const bool& LeftNode) {
+  if (NId == -1) { NId = MxNId;  MxNId++; }
+  else if (IsLNode(NId)) { IAssertR(LeftNode, TStr::Fmt("Node with id %s already exists on the 'left'.", NId));  return NId; }
+  else if (IsRNode(NId)) { IAssertR(! LeftNode, TStr::Fmt("Node with id %s already exists on the 'right'.", NId));  return NId; }
+  else { MxNId = TMath::Mx(NId+1, MxNId()); }
+  if (LeftNode) { LeftH.AddDat(NId, TNode(NId)); }
+  else { RightH.AddDat(NId, TNode(NId)); }
+  return NId;
+}
+
+// Delete node of ID NId from the bipartite graph.
+void TBPGraph::DelNode(const int& NId) {
+  AssertR(IsNode(NId), TStr::Fmt("NodeId %d does not exist", NId));
+  THash<TInt, TNode>& SrcH = IsLNode(NId) ? LeftH : RightH;
+  THash<TInt, TNode>& DstH = IsLNode(NId) ? RightH : LeftH;
+  { TNode& Node = SrcH.GetDat(NId);
+  for (int e = 0; e < Node.GetOutDeg(); e++) {
+    const int nbr = Node.GetOutNId(e);
+    IAssertR(nbr != NId, "Bipartite graph has a loop!");
+    TNode& N = DstH.GetDat(nbr);
+    const int n = N.NIdV.SearchBin(NId);
+    IAssert(n!= -1); 
+    N.NIdV.Del(n);
+  } }
+  SrcH.DelKey(NId);
+}
+
+int TBPGraph::GetEdges() const {
+  int Edges = 0;
+  for (int N=LeftH.FFirstKeyId(); LeftH.FNextKeyId(N); ) {
+    Edges += LeftH[N].GetDeg(); }
+  return Edges;
+}
+
+int TBPGraph::AddEdge(const int& LeftNId, const int& RightNId) {
+  const bool IsLL = IsLNode(LeftNId), IsLR = IsRNode(LeftNId);
+  const bool IsRL = IsLNode(RightNId), IsRR = IsRNode(RightNId);
+  IAssertR((IsLL||IsLR)&&(IsRL||IsRR), TStr::Fmt("%d or %d is not a node.", LeftNId, RightNId).CStr());
+  IAssertR(LeftNId!=RightNId, "No self-edges are allowed."); 
+  IAssertR((IsLL&&IsRR&&!IsLR&&!IsRL)||(!IsLL&&!IsRR&&IsLR&&IsRL), "One node should be on the 'left' and the other on the 'right'.");
+  const int LNId = IsLL ? LeftNId : RightNId; // the real left node
+  const int RNId = IsLL ? RightNId : LeftNId; // the real right node
+  if (LeftH.GetDat(LNId).IsOutNId(RNId)) { return -2; } // edge already exists
+  LeftH.GetDat(LNId).NIdV.AddSorted(RNId);
+  RightH.GetDat(RNId).NIdV.AddSorted(LNId);
+  return -1; // edge id
+}
+
+void TBPGraph::DelEdge(const int& LeftNId, const int& RightNId) {
+  const bool IsLL = IsLNode(LeftNId), IsLR = IsRNode(LeftNId);
+  const bool IsRL = IsLNode(RightNId), IsRR = IsRNode(RightNId);
+  IAssertR((IsLL||IsLR)&&(IsRL||IsRR), TStr::Fmt("%d or %d is not a node.", LeftNId, RightNId).CStr());
+  IAssertR(LeftNId!=RightNId, "No self-edges are allowed."); 
+  IAssertR((IsLL&&IsRR&&!IsLR&&!IsRL)||(!IsLL&&!IsRR&&IsLR&&IsRL), "One node should be on the 'left' and the other on the 'right'.");
+  const int LNId = IsLL ? LeftNId : RightNId; // the real left node
+  const int RNId = IsLL ? RightNId : LeftNId; // the real right node
+  { TIntV& NIdV = LeftH.GetDat(LNId).NIdV;
+  int n = NIdV.SearchBin(RNId);
+  if (n != -1) { NIdV.Del(n); } }
+  { TIntV& NIdV = RightH.GetDat(RNId).NIdV;
+  int n = NIdV.SearchBin(LNId);
+  if (n != -1) { NIdV.Del(n); } }
+}
+
+bool TBPGraph::IsEdge(const int& LeftNId, const int& RightNId) const {
+  if (! IsNode(LeftNId) || ! IsNode(RightNId)) { return false; }
+  return IsLNode(LeftNId) ? LeftH.GetDat(LeftNId).IsOutNId(RightNId) : RightH.GetDat(LeftNId).IsOutNId(RightNId);
+}
+
+TBPGraph::TEdgeI TBPGraph::GetEI(const int& LeftNId, const int& RightNId) const {
+  const bool IsLL = IsLNode(LeftNId), IsLR = IsRNode(LeftNId);
+  const bool IsRL = IsLNode(RightNId), IsRR = IsRNode(RightNId);
+  IAssertR((IsLL||IsLR)&&(IsRL||IsRR), TStr::Fmt("%d or %d is not a node.", LeftNId, RightNId).CStr());
+  IAssertR(LeftNId!=RightNId, "No self-edges are allowed."); 
+  IAssertR((IsLL&&IsRR&&!IsLR&&!IsRL)||(!IsLL&&!IsRR&&IsLR&&IsRL), "One node should be on the 'left' and the other on the 'right'.");
+  const int LNId = IsLL ? LeftNId : RightNId; // the real left node
+  const int RNId = IsLL ? RightNId : LeftNId; // the real right node
+  const TNodeI SrcNI = GetNI(LNId);
+  const int NodeN = SrcNI.LeftHI.GetDat().NIdV.SearchBin(RNId);
+  IAssertR(NodeN != -1, "Right edge endpoint does not exists!");
+  return TEdgeI(SrcNI, EndNI(), NodeN);
+}
+
+int TBPGraph::GetRndNId(TRnd& Rnd) { 
+  const int NNodes = GetNodes();
+  if (Rnd.GetUniDevInt(NNodes) < GetLNodes()) {
+    return GetRndLNId(Rnd); }
+  else {
+    return GetRndRNId(Rnd); }
+}
+
+int TBPGraph::GetRndLNId(TRnd& Rnd) { 
+  return LeftH.GetKey(LeftH.GetRndKeyId(Rnd, 0.8)); 
+}
+
+int TBPGraph::GetRndRNId(TRnd& Rnd) { 
+  return RightH.GetKey(RightH.GetRndKeyId(Rnd, 0.8)); 
+}
+
+void TBPGraph::GetNIdV(TIntV& NIdV) const {
+  NIdV.Gen(GetNodes(), 0);
+  for (int N=LeftH.FFirstKeyId(); LeftH.FNextKeyId(N); ) {
+    NIdV.Add(LeftH.GetKey(N)); }
+  for (int N=RightH.FFirstKeyId(); RightH.FNextKeyId(N); ) {
+    NIdV.Add(RightH.GetKey(N)); }
+}
+
+void TBPGraph::GetLNIdV(TIntV& NIdV) const {
+  NIdV.Gen(GetLNodes(), 0);
+  for (int N=LeftH.FFirstKeyId(); LeftH.FNextKeyId(N); ) {
+    NIdV.Add(LeftH.GetKey(N)); }
+}
+
+void TBPGraph::GetRNIdV(TIntV& NIdV) const {
+  NIdV.Gen(GetRNodes(), 0);
+  for (int N=RightH.FFirstKeyId(); RightH.FNextKeyId(N); ) {
+    NIdV.Add(RightH.GetKey(N)); }
+}
+
+void TBPGraph::Reserve(const int& Nodes, const int& Edges) { 
+  if (Nodes>0) { LeftH.Gen(Nodes/2); RightH.Gen(Nodes/2); } 
+}
+
+void TBPGraph::Defrag(const bool& OnlyNodeLinks) {
+  for (int n = LeftH.FFirstKeyId(); LeftH.FNextKeyId(n); ) {
+    LeftH[n].NIdV.Pack(); }
+  for (int n = RightH.FFirstKeyId(); RightH.FNextKeyId(n); ) {
+    RightH[n].NIdV.Pack(); }
+  if (! OnlyNodeLinks && ! LeftH.IsKeyIdEqKeyN()) { LeftH.Defrag(); }
+  if (! OnlyNodeLinks && ! RightH.IsKeyIdEqKeyN()) { RightH.Defrag(); }
+}
+
+bool TBPGraph::IsOk(const bool& ThrowExcept) const {
+  bool RetVal = false;
+  // edge lists are sorted
+  for (int n = LeftH.FFirstKeyId(); LeftH.FNextKeyId(n); ) {
+    if (! LeftH[n].NIdV.IsSorted()) {
+      const TStr Msg = TStr::Fmt("Neighbor list of node %d is not sorted.", LeftH[n].GetId());
+      if (ThrowExcept) { EAssertR(false, Msg); } else { ErrNotify(Msg.CStr()); } RetVal=false; }
+  }
+  for (int n = RightH.FFirstKeyId(); RightH.FNextKeyId(n); ) {
+    if (! RightH[n].NIdV.IsSorted()) {
+      const TStr Msg = TStr::Fmt("Neighbor list of node %d is not sorted.", RightH[n].GetId());
+      if (ThrowExcept) { EAssertR(false, Msg); } else { ErrNotify(Msg.CStr()); } RetVal=false; }
+  }
+  // nodes only appear on one side
+  for (int n = LeftH.FFirstKeyId(); LeftH.FNextKeyId(n); ) {
+    if (RightH.IsKey(LeftH[n].GetId())) {
+      const TStr Msg = TStr::Fmt("'Left' node %d also appears on the 'right'.", LeftH[n].GetId());
+      if (ThrowExcept) { EAssertR(false, Msg); } else { ErrNotify(Msg.CStr()); } RetVal=false; }
+  } 
+  for (int n = RightH.FFirstKeyId(); RightH.FNextKeyId(n); ) {
+    if (LeftH.IsKey(RightH[n].GetId())) {
+      const TStr Msg = TStr::Fmt("'Right' node %d also appears on the 'left'.", RightH[n].GetId());
+      if (ThrowExcept) { EAssertR(false, Msg); } else { ErrNotify(Msg.CStr()); } RetVal=false; }
+  }
+  // edges only point from left to right and right to left
+  for (int n = LeftH.FFirstKeyId(); LeftH.FNextKeyId(n); ) {
+    for (int e = 0; e < LeftH[n].NIdV.Len(); e++) {
+      if (! RightH.IsKey(LeftH[n].NIdV[e]) || ! RightH.GetDat(LeftH[n].NIdV[e]).NIdV.IsIn(LeftH[n].GetId())) {
+        const TStr Msg = TStr::Fmt("'Left' node %d does not point to the 'right' node %d.", LeftH[n].GetId(), LeftH[n].NIdV[e]);
+        if (ThrowExcept) { EAssertR(false, Msg); } else { ErrNotify(Msg.CStr()); } RetVal=false; }
+    }
+  }
+  for (int n = RightH.FFirstKeyId(); RightH.FNextKeyId(n); ) {
+    for (int e = 0; e < RightH[n].NIdV.Len(); e++) {
+      if (! LeftH.IsKey(RightH[n].NIdV[e]) || ! LeftH.GetDat(RightH[n].NIdV[e]).NIdV.IsIn(RightH[n].GetId())) {
+        const TStr Msg = TStr::Fmt("'Left' node %d does not point to the 'right' node %d.", RightH[n].GetId(), RightH[n].NIdV[e]);
+        if (ThrowExcept) { EAssertR(false, Msg); } else { ErrNotify(Msg.CStr()); } RetVal=false; }
+    }
+  }
+  return RetVal;
+}
+
+void TBPGraph::Dump(FILE *OutF) const {
+  const int NodePlaces = (int) ceil(log10((double) GetNodes()));
+  fprintf(OutF, "-------------------------------------------------\nBipartite Graph: nodes: %d+%d=%d, edges: %d\n", GetLNodes(), GetRNodes(), GetNodes(), GetEdges());
+  for (int N = LeftH.FFirstKeyId(); LeftH.FNextKeyId(N); ) {
+    const TNode& Node = LeftH[N];
+    fprintf(OutF, "  %*d [%d] ", NodePlaces, Node.GetId(), Node.GetDeg());
+    for (int edge = 0; edge < Node.GetDeg(); edge++) {
+      fprintf(OutF, " %*d", NodePlaces, Node.GetNbrNId(edge)); }
+    fprintf(OutF, "\n");
+  }
+  fprintf(OutF, "\n");
+  /*// Also dump the 'right' side
+  fprintf(OutF, "\n");
+  for (int N = RightH.FFirstKeyId(); RightH.FNextKeyId(N); ) {
+    const TNode& Node = RightH[N];
+    fprintf(OutF, "  %*d [%d] ", NodePlaces, Node.GetId(), Node.GetDeg());
+    for (int edge = 0; edge < Node.GetDeg(); edge++) {
+      fprintf(OutF, " %*d", NodePlaces, Node.GetNbrNId(edge)); }
+    fprintf(OutF, "\n");
+  }
+  fprintf(OutF, "\n"); //*/
+}
+
+PBPGraph TBPGraph::GetSmallGraph() {
+  PBPGraph BP = TBPGraph::New();
+  BP->AddNode(0, true);
+  BP->AddNode(1, true);
+  BP->AddNode(2, false);
+  BP->AddNode(3, false);
+  BP->AddNode(4, false);
+  BP->AddEdge(0, 2);
+  BP->AddEdge(0, 3);
+  BP->AddEdge(1, 2);
+  BP->AddEdge(1, 3);
+  BP->AddEdge(1, 4);
+  return BP;
+}

@@ -13,6 +13,7 @@ typedef enum {
   gfNodeDat,    // network with data on nodes
   gfEdgeDat,    // network with data on edges
   gfSources,    // nodes only store out-edges (but not in-edges). See TBigNet
+  gfBipart,     // bipartite graph
   gfMx
 } TGraphFlag;
 
@@ -23,8 +24,7 @@ template <class TGraph> struct IsMultiGraph { enum { Val = 0 }; };
 template <class TGraph> struct IsNodeDat    { enum { Val = 0 }; };
 template <class TGraph> struct IsEdgeDat    { enum { Val = 0 }; };
 template <class TGraph> struct IsSources    { enum { Val = 0 }; };
-
-template <class PGraph> int GetTriads(const PGraph& Graph, int& ClosedTriads, int& OpenTriads, int SampleNodes=-1);
+template <class TGraph> struct IsBipart     { enum { Val = 0 }; };
 
 // test whether TDerivClass is derived from TBaseClass
 template<class TDerivClass, class TBaseClass>
@@ -57,7 +57,8 @@ public:
   (Flag)==gfMultiGraph ? TSnap::IsMultiGraph<TGraph::TNet>::Val : \
   (Flag)==gfNodeDat ? TSnap::IsNodeDat<TGraph::TNet>::Val : \
   (Flag)==gfEdgeDat ? TSnap::IsEdgeDat<TGraph::TNet>::Val : \
-  (Flag)==gfSources ? TSnap::IsSources<TGraph::TNet>::Val : 0)
+  (Flag)==gfSources ? TSnap::IsSources<TGraph::TNet>::Val : \
+  (Flag)==gfBipart ? TSnap::IsBipart<TGraph::TNet>::Val : 0)
 
 /////////////////////////////////////////////////
 // Graph Base
@@ -69,7 +70,10 @@ template <class PGraph> void PrintInfo(const PGraph& Graph, const TStr& Desc="",
 /////////////////////////////////////////////////
 // Implementation
 
-// print basic graph info
+// Forward declaration
+template <class PGraph> int GetTriads(const PGraph& Graph, int& ClosedTriads, int& OpenTriads, int SampleNodes=-1);
+
+/// Print basic graph statistics.
 template <class PGraph>
 void PrintInfo(const PGraph& Graph, const TStr& Desc, const TStr& OutFNm, const bool& Fast) {
   int BiDirEdges=0, ZeroNodes=0, ZeroInNodes=0, ZeroOutNodes=0, SelfEdges=0, NonZIODegNodes=0;

@@ -1,19 +1,25 @@
 /////////////////////////////////////////////////
 // Undirected graphs
 class TUNGraph;
+class TBPGraph;
+//TODO:class TUNEGraph; -- undirected multigraph
 
 /// Pointer to an undirected graph (TUNGraph)
 typedef TPt<TUNGraph> PUNGraph;
-//class TUNEGraph;  typedef TPt<TUNEGraph> PUNEGraph;
+/// Pointer to a bipartitegraph graph (TBPGraph)
+typedef TPt<TBPGraph> PBPGraph;
 
 /////////////////////////////////////////////////
 // Directed graphs
+class TNGraph;
+class TNEGraph;
 
 /// Pointer to a directed graph (TNGraph)
-class TNGraph;  typedef TPt<TNGraph> PNGraph;
+typedef TPt<TNGraph> PNGraph;
 /// Pointer to a directed multigraph (TNEGraph)
-class TNEGraph; typedef TPt<TNEGraph> PNEGraph;
+typedef TPt<TNEGraph> PNEGraph;
 
+/////////////////////////////////////////////////
 /// Undirected graph. ## Undirected_graph
 class TUNGraph {
 public:
@@ -104,7 +110,7 @@ public:
     int GetSrcNId() const { return CurNode.GetId(); }
     /// Get destination of an edge. Since the graph is undirected this is the node with greater ID of the edge endpoints.
     int GetDstNId() const { return CurNode.GetOutNId(CurEdge); }
-    friend class TNGraph;
+    friend class TUNGraph;
   };
 private:
   TCRef CRef;
@@ -132,8 +138,8 @@ public:
   bool HasFlag(const TGraphFlag& Flag) const;
   TUNGraph& operator = (const TUNGraph& Graph) {
     if (this!=&Graph) { MxNId=Graph.MxNId;  NodeH=Graph.NodeH; }  return *this; }
-  // nodes
-  /// Returns the number of nodes in the graph.
+  
+  /// Return the number of nodes in the graph.
   int GetNodes() const { return NodeH.Len(); }
   /// Add a node of ID NId to the graph. ## TUNGraph::AddNode
   int AddNode(int NId = -1);
@@ -155,7 +161,7 @@ public:
   TNodeI EndNI() const { return TNodeI(NodeH.EndI()); }
   /// Return an iterator referring to the node of ID NId in the graph.
   TNodeI GetNI(const int& NId) const { return TNodeI(NodeH.GetI(NId)); }
-  // edges
+  
   /// Return the number of edges in the graph.
   int GetEdges() const;
   /// Add an edge between node IDs SrcNId and DstNId to the graph. ## TUNGraph::AddEdge
@@ -508,4 +514,232 @@ public:
 namespace TSnap {
 template <> struct IsMultiGraph<TNEGraph> { enum { Val = 1 }; };
 template <> struct IsDirected<TNEGraph> { enum { Val = 1 }; };
+}
+
+/////////////////////////////////////////////////
+/// Bipartite graph. ##Bipartite_graph
+class TBPGraph {
+public:
+  typedef TBPGraph TNet;
+  typedef TPt<TBPGraph> PNet;
+  typedef enum { bgsUndef, bgsLeft, bgsRight, bgsBoth } TNodeTy; // left or right hand side node
+public:
+  class TNode {
+  private:
+    TInt Id;
+    TIntV NIdV;
+    TNodeTy NodeTy; // remove
+  public:
+    TNode() : Id(-1), NIdV(), NodeTy(bgsUndef) { }
+    TNode(const int& NId) : Id(NId), NIdV(), NodeTy(true?bgsLeft:bgsRight) { }
+    TNode(const TNode& Node) : Id(Node.Id), NIdV(Node.NIdV), NodeTy(Node.NodeTy) { }
+    TNode(TSIn& SIn) : Id(SIn), NIdV(SIn), NodeTy(bgsUndef) { TInt Ty(SIn);  NodeTy=(TNodeTy)Ty.Val; }
+    void Save(TSOut& SOut) const { Id.Save(SOut);  NIdV.Save(SOut);  TInt(NodeTy).Save(SOut); }
+    int GetId() const { return Id; }
+    int GetDeg() const { return NIdV.Len(); }
+    int GetInDeg() const { return GetDeg(); }
+    int GetOutDeg() const { return GetDeg(); }
+    int GetInNId(const int& NodeN) const { return GetNbrNId(NodeN); }
+    int GetOutNId(const int& NodeN) const { return GetNbrNId(NodeN); }
+    int GetNbrNId(const int& NodeN) const { return NIdV[NodeN]; }
+    bool IsNbrNId(const int& NId) const { return NIdV.SearchBin(NId)!=-1; }
+    bool IsInNId(const int& NId) const { return IsNbrNId(NId); }
+    bool IsOutNId(const int& NId) const { return IsNbrNId(NId); }
+    void PackOutNIdV() { NIdV.Pack(); }
+    void PackNIdV() { NIdV.Pack(); }
+    friend class TBPGraph;
+  };
+  /// Node iterator. Only forward iteration (operator++) is supported.
+  class TNodeI {
+  private:
+    typedef THash<TInt, TNode>::TIter THashIter;
+    THashIter LeftHI, RightHI; // iterator over left and right hand-side nodes
+  private:
+    inline THashIter HI() const { return ! LeftHI.IsEnd()?LeftHI:RightHI; }
+  public:
+    TNodeI() : LeftHI(), RightHI() { }
+    TNodeI(const THashIter& LeftHIter, const THashIter& RightHIter) : LeftHI(LeftHIter), RightHI(RightHIter) { }
+    TNodeI(const TNodeI& NodeI) : LeftHI(NodeI.LeftHI), RightHI(NodeI.RightHI) { }
+    TNodeI& operator = (const TNodeI& NodeI) { LeftHI = NodeI.LeftHI;  RightHI=NodeI.RightHI;  return *this; }
+    /// Increment iterator.
+    TNodeI& operator++ (int) { 
+      if (! LeftHI.IsEnd()) { 
+        LeftHI++; } 
+      else if (! RightHI.IsEnd()) { 
+        RightHI++; } 
+      return *this; }
+    bool operator < (const TNodeI& NodeI) const { return LeftHI < NodeI.LeftHI || (LeftHI==NodeI.LeftHI && RightHI < NodeI.RightHI); }
+    bool operator == (const TNodeI& NodeI) const { return LeftHI==NodeI.LeftHI && RightHI==NodeI.RightHI; }
+    /// Return ID of the current node.
+    int GetId() const { return HI().GetDat().GetId(); }
+    /// Test whether the node is left hand side node.
+    bool IsLeft() const { return LeftHI.IsEnd(); }
+    /// Test whether the node is right hand side node.
+    bool IsRight() const { return ! IsLeft(); }
+    /// Return degree of the current node.
+    int GetDeg() const { return HI().GetDat().GetDeg(); }
+    /// Return in-degree of the current node (returns same as value GetDeg() since the graph is undirected).
+    int GetInDeg() const { return HI().GetDat().GetInDeg(); }
+    /// Return out-degree of the current node (returns same as value GetDeg() since the graph is undirected).
+    int GetOutDeg() const { return HI().GetDat().GetOutDeg(); }
+    /// Return ID of NodeN-th in-node (the node pointing to the current node). ##TNodeI::GetInNId
+    int GetInNId(const int& NodeN) const { return HI().GetDat().GetInNId(NodeN); }
+    /// Return ID of NodeN-th out-node (the node the current node points to). ##TNodeI::GetOutNId
+    int GetOutNId(const int& NodeN) const { return HI().GetDat().GetOutNId(NodeN); }
+    /// Return ID of NodeN-th neighboring node. ##TNodeI::GetNbrNId
+    int GetNbrNId(const int& NodeN) const { return HI().GetDat().GetNbrNId(NodeN); }
+    /// Test whether node with ID NId points to the current node.
+    bool IsInNId(const int& NId) const { return HI().GetDat().IsInNId(NId); }
+    /// Test whether the current node points to node with ID NId.
+    bool IsOutNId(const int& NId) const { return HI().GetDat().IsOutNId(NId); }
+    /// Test whether node with ID NId is a neighbor of the current node.
+    bool IsNbrNId(const int& NId) const { return HI().GetDat().IsNbrNId(NId); }
+    friend class TBPGraph;
+  };
+  /// Edge iterator. Only forward iteration (operator++) is supported.
+  class TEdgeI {
+  private:
+    TNodeI CurNode, EndNode; // end node on the 'left'
+    int CurEdge;
+  public:
+    TEdgeI() : CurNode(), EndNode(), CurEdge(0) { }
+    TEdgeI(const TNodeI& NodeI, const TNodeI& EndNodeI, const int& EdgeN=0) : CurNode(NodeI), EndNode(EndNodeI), CurEdge(EdgeN) { }
+    TEdgeI(const TEdgeI& EdgeI) : CurNode(EdgeI.CurNode), EndNode(EdgeI.EndNode), CurEdge(EdgeI.CurEdge) { }
+    TEdgeI& operator = (const TEdgeI& EdgeI) { if (this!=&EdgeI) { CurNode=EdgeI.CurNode;  EndNode=EdgeI.EndNode;  CurEdge=EdgeI.CurEdge; }  return *this; }
+    /// Increment iterator.
+    TEdgeI& operator++ (int) { CurEdge++; if (CurEdge >= CurNode.GetOutDeg()) { CurEdge=0;  CurNode++;
+      while (CurNode < EndNode && CurNode.GetOutDeg()==0) { CurNode++; } }  return *this; }
+    bool operator < (const TEdgeI& EdgeI) const { return CurNode<EdgeI.CurNode || (CurNode==EdgeI.CurNode && CurEdge<EdgeI.CurEdge); }
+    bool operator == (const TEdgeI& EdgeI) const { return CurNode == EdgeI.CurNode && CurEdge == EdgeI.CurEdge; }
+    /// Get edge ID. Always returns -1 since only edges in multigraphs have explicit IDs.
+    int GetId() const { return -1; }
+    /// Get the source ('left' side) of an edge. Since the graph is undirected this is the node with smaller ID of the edge endpoints.
+    int GetSrcNId() const { return CurNode.GetId(); }
+    /// Get destination ('right' side) of an edge. Since the graph is undirected this is the node with greater ID of the edge endpoints.
+    int GetDstNId() const { return CurNode.GetOutNId(CurEdge); }
+    /// Get the id of the node on the 'left' side of the edge.
+    int GetLNId() const { return GetSrcNId(); }
+    /// Get the id of the node on the 'right' side of the edge.
+    int GetRNId() const { return GetDstNId(); }
+    friend class TBPGraph;
+  };
+private:
+  TCRef CRef;
+  TInt MxNId;
+  THash<TInt, TNode> LeftH;
+  THash<TInt, TNode> RightH;
+private:
+  //TNode& GetNode(const int& NId) { return NodeH.GetDat(NId); }
+  //const TNode& GetNode(const int& NId) const { return NodeH.GetDat(NId); }
+public:
+  TBPGraph() : CRef(), MxNId(0), LeftH(), RightH() { }
+  /// Constructor that reserves enough memory for a graph of Nodes (LeftNodes+RightNodes) nodes and Edges edges.
+  explicit TBPGraph(const int& Nodes, const int& Edges) : MxNId(0) { } //!!! Reserve(Nodes, Edges); }
+  TBPGraph(const TBPGraph& BPGraph) : MxNId(BPGraph.MxNId), LeftH(BPGraph.LeftH), RightH(BPGraph.RightH) { }
+  /// Constructor for loading the graph from a (binary) stream SIn.
+  TBPGraph(TSIn& SIn) : MxNId(SIn), LeftH(SIn), RightH(SIn) { }
+  /// Saves the graph to a (binary) stream SOut.
+  void Save(TSOut& SOut) const { MxNId.Save(SOut);  LeftH.Save(SOut);  RightH.Save(SOut); }
+  /// Static constructor that returns a pointer to the graph. Call: PBPGraph BPGraph = TBPGraph::New();
+  static PBPGraph New() { return new TBPGraph(); }
+  /// Static constructor that returns a pointer to the graph and reserves enough memory for Nodes nodes and Edges edges. ##TBPGraph::New
+  static PBPGraph New(const int& Nodes, const int& Edges) { return new TBPGraph(Nodes, Edges); }
+  /// Static constructor that loads the graph from a stream SIn and returns a pointer to it.
+  static PBPGraph Load(TSIn& SIn) { return PBPGraph(new TBPGraph(SIn)); }
+  /// Allows for run-time checking the type of the graph (see the TGraphFlag for flags).
+  bool HasFlag(const TGraphFlag& Flag) const;
+  TBPGraph& operator = (const TBPGraph& BPGraph) {
+    if (this!=&BPGraph) { MxNId=BPGraph.MxNId;  LeftH=BPGraph.LeftH;  RightH=BPGraph.RightH; }  return *this; }
+  
+  /// Returns the total number of nodes in the graph.
+  int GetNodes() const { return GetLNodes() + GetRNodes(); }
+  /// Returns the number of nodes on the 'left' side of the biparite graph.
+  int GetLNodes() const { return LeftH.Len(); }
+  /// Returns the number of nodes on the 'right' side of the biparite graph.
+  int GetRNodes() const { return RightH.Len(); }
+  /// Add a node of ID NId to the graph. ##TBPGraph::AddNode
+  int AddNode(int NId = -1, const bool& LeftNode=true);
+  /// Add a node of ID NodeI.GetId() to the graph.
+  int AddNode(const TNodeI& NodeI) { return AddNode(NodeI.GetId(), NodeI.IsLeft()); }
+  /// Delete node of ID NId from the graph. ##TBPGraph::DelNode
+  void DelNode(const int& NId);
+  /// Delete node of ID NodeI.GetId() from the graph.
+  void DelNode(const TNode& NodeI) { DelNode(NodeI.GetId()); }
+  /// Test whether ID NId is a node.
+  bool IsNode(const int& NId) const { return IsLNode(NId) || IsRNode(NId); }
+  /// Test whether ID NId is a 'left' side node.
+  bool IsLNode(const int& NId) const { return LeftH.IsKey(NId); }
+  /// Test whether ID NId is a 'right' side node.
+  bool IsRNode(const int& NId) const { return RightH.IsKey(NId); }
+    
+  /// Return an iterator referring to the first node in the graph.
+  TNodeI BegNI() const { return TNodeI(LeftH.BegI(), RightH.BegI()); }
+  /// Return an iterator referring to the past-the-end node in the graph.
+  TNodeI EndNI() const { return TNodeI(LeftH.EndI(), RightH.EndI()); }
+  /// Return an iterator referring to the node of ID NId in the graph.
+  TNodeI GetNI(const int& NId) const { return IsLNode(NId) ? TNodeI(LeftH.GetI(NId), RightH.EndI()) : TNodeI(LeftH.EndI(), RightH.GetI(NId)); }
+  /// Return an iterator referring to the first 'left' node in the graph.
+  TNodeI BegLNI() const { return TNodeI(LeftH.BegI(), RightH.EndI()); }
+  /// Return an iterator referring to the past-the-end 'left' node in the graph.
+  TNodeI EndLNI() const { return EndNI(); }
+  /// Return an iterator referring to the first 'right' node in the graph.
+  TNodeI BegRNI() const { return TNodeI(LeftH.EndI(), RightH.BegI()); }
+  /// Return an iterator referring to the past-the-end 'right' node in the graph.
+  TNodeI EndRNI() const { return EndNI(); }
+
+  /// Return the number of edges in the graph.
+  int GetEdges() const;
+  /// Add an edge between a node LeftNId on the left and a node RightNId on the right side of the bipartite graph. ##TBPGraph::AddEdge
+  int AddEdge(const int& LeftNId, const int& RightNId);
+  /// Add an edge between EdgeI.GetLNId() and EdgeI.GetRNId() to the graph.
+  int AddEdge(const TEdgeI& EdgeI) { return AddEdge(EdgeI.GetSrcNId(), EdgeI.GetDstNId()); }
+  /// Delete an edge between a node LeftNId on the left and a node RightNId on the right side of the bipartite graph. ##TBPGraph::DelEdge
+  void DelEdge(const int& LeftNId, const int& RightNId);
+  /// Test whether an edge between node IDs LeftNId and RightNId exists the graph.
+  bool IsEdge(const int& LeftNId, const int& RightNId) const;
+  /// Return an iterator referring to the first edge in the graph.
+  TEdgeI BegEI() const { TNodeI NI=BegLNI(); while (NI<EndLNI() && (NI.GetOutDeg()==0 || NI.GetId()>NI.GetOutNId(0))) { NI++; } return TEdgeI(NI, EndLNI()); }
+  /// Return an iterator referring to the past-the-end edge in the graph.
+  TEdgeI EndEI() const { return TEdgeI(EndNI(), EndNI()); }
+  /// Not supported/implemented!
+  TEdgeI GetEI(const int& EId) const;
+  /// Return an iterator referring to edge (LeftNId, RightNId) in the graph. ##TBPGraph::GetEI
+  TEdgeI GetEI(const int& LeftNId, const int& RightNId) const;
+    
+  /// Return an ID of a random node in the graph.
+  int GetRndNId(TRnd& Rnd=TInt::Rnd);
+  /// Return an ID of a random 'left' node in the graph.
+  int GetRndLNId(TRnd& Rnd=TInt::Rnd);
+  /// Return an ID of a random 'right' node in the graph.
+  int GetRndRNId(TRnd& Rnd=TInt::Rnd);
+  /// Return an interator referring to a random node in the graph.
+  TNodeI GetRndNI(TRnd& Rnd=TInt::Rnd) { return GetNI(GetRndNId(Rnd)); }
+  /// Get a vector IDs of all nodes in the bipartite graph.
+  void GetNIdV(TIntV& NIdV) const;
+  /// Get a vector IDs of all 'left' nodes in the bipartite graph.
+  void GetLNIdV(TIntV& NIdV) const;
+  /// Get a vector IDs of all 'right' nodes in the bipartite graph.
+  void GetRNIdV(TIntV& NIdV) const;
+
+  /// Test whether the bipartite graph is empty (has zero nodes).
+  bool Empty() const { return GetNodes()==0; }
+  /// Delete all nodes and edges from the bipartite graph.
+  void Clr() { MxNId=0;  LeftH.Clr();  RightH.Clr(); }
+  /// Reserve memory for a biparite graph of Nodes nodes and Edges edges.
+  void Reserve(const int& Nodes, const int& Edges);
+  /// Defragment the biparite graph. ##TBPGraph::Defrag
+  void Defrag(const bool& OnlyNodeLinks=false);
+  /// Check the bipartite graph data structure for internal consistency. ##TBPGraph::IsOk
+  bool IsOk(const bool& ThrowExcept=true) const;
+  /// Print the biparite graph in a human readable form to an output stream OutF.
+  void Dump(FILE *OutF=stdout) const;
+  /// Return a small graph on 2 'left', 3 'right' nodes and 4 edges. ##TBPGraph::GetSmallGraph
+  static PBPGraph GetSmallGraph();
+
+  friend class TPt<TBPGraph>;
+};
+
+// set flags
+namespace TSnap {
+template <> struct IsBipart<TBPGraph> { enum { Val = 1 }; };
 }

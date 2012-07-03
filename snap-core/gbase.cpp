@@ -3,16 +3,17 @@
 namespace TSnap {
 
 TStr GetFlagStr(const TGraphFlag& GraphFlag) {
-  static THash<TInt, TStr> GraphFlagToStrH;
-  if (GraphFlagToStrH.Empty()) {
-    GraphFlagToStrH.AddDat((int) gfUndef, "Undef");
-    GraphFlagToStrH.AddDat((int) gfDirected, "Directed");
-    GraphFlagToStrH.AddDat((int) gfMultiGraph, "MultiGraph");
-    GraphFlagToStrH.AddDat((int) gfNodeDat, "NodeDat");
-    GraphFlagToStrH.AddDat((int) gfEdgeDat, "EdgeDat");
-    GraphFlagToStrH.AddDat((int) gfSources, "Sources");
-  }
-  return GraphFlagToStrH.GetDat((int) GraphFlag);
+  switch (GraphFlag) {
+    case gfUndef : return "Undef";
+    case gfDirected : return "Directed";
+    case gfMultiGraph : return "Multigraph";
+    case gfNodeDat : return "NodeDat";
+    case gfEdgeDat : return "EdgeDat";
+    case gfSources : return "Sources";
+    case gfBipart : return "Bipartite";
+    default: FailR("Unknown graph type");
+  };
+  return TStr();
 }
 
 };  // namespace TSnap
