@@ -77,7 +77,7 @@ PGraph GenStar(const int& Nodes, const bool& IsDir) {
   for (int n = 1; n < Nodes; n++) {
     Graph->AddNode(n);
     Graph->AddEdge(0, n);
-    if (Graph.HasFlag(gfDirected) && ! IsDir) { Graph->AddEdge(n, 0); }
+    if (Graph->HasFlag(gfDirected) && ! IsDir) { Graph->AddEdge(n, 0); }
   }
   return Graph;
 }
@@ -91,7 +91,7 @@ PGraph GenCircle(const int& Nodes, const int& NodeOutDeg, const bool& IsDir) {
   for (int n = 0; n < Nodes; n++) {
     for (int x = 0; x < NodeOutDeg; x++) {
       Graph->AddEdge(n, (n+x) % Nodes);
-      if (Graph.HasFlag(gfDirected) && ! IsDir) { Graph->AddEdge((n+x) % Nodes, n); }
+      if (Graph->HasFlag(gfDirected) && ! IsDir) { Graph->AddEdge((n+x) % Nodes, n); }
     }
   }
   return Graph;
