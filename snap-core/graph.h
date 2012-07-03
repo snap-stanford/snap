@@ -553,7 +553,7 @@ public:
   TNodeI BegNI() const { return TNodeI(NodeH.BegI(), this); }
   TNodeI EndNI() const { return TNodeI(NodeH.EndI(), this); }
   TNodeI GetNI(const int& NId) const { return TNodeI(NodeH.GetI(NId), this); }
-  /// Return the maximum id of a any node in the graph.
+  /// Returns the maximum id of a any node in the graph.
   int GetMxNId() const { return MxNId; }
 
   int GetEdges() const { return EdgeH.Len(); }
