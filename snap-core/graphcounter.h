@@ -81,7 +81,10 @@ private:
   static void GetNormalizedMap(const PNGraph &G, THash<TInt,TInt> &map);
   static void GetPermutations(TIntV &v, int start, TVec<TIntV> &perms);
 public:
-  static inline bool IsEdge(const PNGraph &G, int SrcNId, int DstNId) { return G->GetNodeC(SrcNId).IsOutNId(DstNId); }
+  static inline bool IsEdge(const PNGraph &G, int SrcNId, int DstNId) {
+    // JURE return G->GetNodeC(SrcNId).IsOutNId(DstNId);
+    return G->IsEdge(SrcNId, DstNId, true);
+    }
   static void GetEdges(uint64 graphId, int nodes, TVec<TPair<int,int> > &edges);
 public:
   static void GetNormalizedGraph(const PNGraph &G, PNGraph &nG);
