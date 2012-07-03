@@ -652,7 +652,7 @@ public:
     /// Return ID of the current node.
     int GetId() const { return HI().GetDat().GetId(); }
     /// Test whether the node is left hand side node.
-    bool IsLeft() const { return LeftHI.IsEnd(); }
+    bool IsLeft() const { return ! LeftHI.IsEnd(); }
     /// Test whether the node is right hand side node.
     bool IsRight() const { return ! IsLeft(); }
     /// Return degree of the current node.
