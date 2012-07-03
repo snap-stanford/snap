@@ -604,7 +604,7 @@ int TBPGraph::AddEdge(const int& LeftNId, const int& RightNId) {
   const bool IsRL = IsLNode(RightNId), IsRR = IsRNode(RightNId);
   IAssertR((IsLL||IsLR)&&(IsRL||IsRR), TStr::Fmt("%d or %d is not a node.", LeftNId, RightNId).CStr());
   IAssertR(LeftNId!=RightNId, "No self-edges are allowed."); 
-  IAssertR((IsLL&&IsRR&&!IsLR&&!IsRL)||(!IsLL&&!IsRR&&IsLR&&IsRL), "One node should be on the 'left' and the other on the 'right'.");
+  IAssertR((IsLL&&!IsLR&&!IsRL&&IsRR)||(!IsLL&&IsLR&&IsRL&&!IsRR), "One node should be on the 'left' and the other on the 'right'.");
   const int LNId = IsLL ? LeftNId : RightNId; // the real left node
   const int RNId = IsLL ? RightNId : LeftNId; // the real right node
   if (LeftH.GetDat(LNId).IsOutNId(RNId)) { return -2; } // edge already exists
@@ -618,7 +618,7 @@ void TBPGraph::DelEdge(const int& LeftNId, const int& RightNId) {
   const bool IsRL = IsLNode(RightNId), IsRR = IsRNode(RightNId);
   IAssertR((IsLL||IsLR)&&(IsRL||IsRR), TStr::Fmt("%d or %d is not a node.", LeftNId, RightNId).CStr());
   IAssertR(LeftNId!=RightNId, "No self-edges are allowed."); 
-  IAssertR((IsLL&&IsRR&&!IsLR&&!IsRL)||(!IsLL&&!IsRR&&IsLR&&IsRL), "One node should be on the 'left' and the other on the 'right'.");
+  IAssertR((IsLL&&!IsLR&&!IsRL&&IsRR)||(!IsLL&&IsLR&&IsRL&&!IsRR), "One node should be on the 'left' and the other on the 'right'.");
   const int LNId = IsLL ? LeftNId : RightNId; // the real left node
   const int RNId = IsLL ? RightNId : LeftNId; // the real right node
   { TIntV& NIdV = LeftH.GetDat(LNId).NIdV;
@@ -639,7 +639,7 @@ TBPGraph::TEdgeI TBPGraph::GetEI(const int& LeftNId, const int& RightNId) const 
   const bool IsRL = IsLNode(RightNId), IsRR = IsRNode(RightNId);
   IAssertR((IsLL||IsLR)&&(IsRL||IsRR), TStr::Fmt("%d or %d is not a node.", LeftNId, RightNId).CStr());
   IAssertR(LeftNId!=RightNId, "No self-edges are allowed."); 
-  IAssertR((IsLL&&IsRR&&!IsLR&&!IsRL)||(!IsLL&&!IsRR&&IsLR&&IsRL), "One node should be on the 'left' and the other on the 'right'.");
+  IAssertR((IsLL&&!IsLR&&!IsRL&&IsRR)||(!IsLL&&IsLR&&IsRL&&!IsRR), "One node should be on the 'left' and the other on the 'right'.");
   const int LNId = IsLL ? LeftNId : RightNId; // the real left node
   const int RNId = IsLL ? RightNId : LeftNId; // the real right node
   const TNodeI SrcNI = GetNI(LNId);
