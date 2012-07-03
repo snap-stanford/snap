@@ -20,11 +20,11 @@ template <class PGraph> PGraph GenBaraHierar(const int& Levels, const bool& IsDi
 /////////////////////////////////////////////////
 // Random graphs
 
-/// Generates a Erdos-Renyi random graph.
+/// Generates an Erdos-Renyi random graph.
 template <class PGraph> PGraph GenRndGnm(const int& Nodes, const int& Edges, const bool& IsDir=true, TRnd& Rnd=TInt::Rnd);
-
-/////////////////////////////////////////////////
-// Common models
+/// Generates a random bipartite graph.
+PBPGraph GenRndBipart(const int& LeftNodes, const int& RightNodes, const int& Edges, TRnd& Rnd=TInt::Rnd);
+/// Generates a random graph where each node has degree exactly NodeDeg.
 PUNGraph GenRndDegK(const int& Nodes, const int& NodeDeg, const int& NSwitch=100, TRnd& Rnd=TInt::Rnd);
 PUNGraph GenRndPowerLaw(const int& Nodes, const double& PowerExp, const bool& ConfModel=true, TRnd& Rnd=TInt::Rnd);
 PUNGraph GenDegSeq(const TIntV& DegSeqV, TRnd& Rnd=TInt::Rnd);
@@ -35,6 +35,7 @@ PUNGraph GenSmallWorld(const int& Nodes, const int& NodeOutDeg, const double& Re
 PUNGraph GenConfModel(const TIntV& DegSeqV, TRnd& Rnd=TInt::Rnd);
 PUNGraph GenRewire(const PUNGraph& Graph, const int& NSwitch=100, TRnd& Rnd=TInt::Rnd);
 PNGraph  GenRewire(const PNGraph& Graph, const int& NSwitch=100, TRnd& Rnd=TInt::Rnd);
+PBPGraph GenRewire(const PBPGraph& Graph, const int& NSwitch=100, TRnd& Rnd=TInt::Rnd);
 
 PNGraph GenForestFire(const int& Nodes, const double& FwdProb, const double& BckProb);
 PNGraph GenCopyModel(const int& Nodes, const double& Beta, TRnd& Rnd=TInt::Rnd);

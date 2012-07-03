@@ -2,7 +2,19 @@
 // Graph Generators
 namespace TSnap {
 
-/// Generates a random graph where each node has degree exactly NodeDeg.
+PBPGraph GenRndBipart(const int& LeftNodes, const int& RightNodes, const int& Edges, TRnd& Rnd) {
+  PBPGraph G = TBPGraph::New();
+  for (int i = 0; i < LeftNodes; i++) { G->AddNode(i, true); }
+  for (int i = 0; i < RightNodes; i++) { G->AddNode(LeftNodes+i, false); }
+  IAssertR(Edges < LeftNodes*RightNodes, "Too many edges in the bipartite graph!");
+  for (int edges = 0; edges < Edges; ) {
+    const int LNId = Rnd.GetUniDevInt(LeftNodes);
+    const int RNId = LeftNodes + Rnd.GetUniDevInt(RightNodes);
+    if (G->AddEdge(LNId, RNId) != -2) { edges++; } // is new edge
+  }
+  return G;
+}
+
 PUNGraph GenRndDegK(const int& Nodes, const int& NodeDeg, const int& NSwitch, TRnd& Rnd) {
   // create degree sequence
   TIntV DegV(Nodes, 0);
@@ -184,14 +196,12 @@ PUNGraph GenRewire(const PUNGraph& OrigGraph, const int& NSwitch, TRnd& Rnd) {
     } else { skip++; }
     if (swps % Edges == 0) {
       printf("\r  %uk/%uk: %uk skip [%s]", swps/1000u, 2*uint(Edges)*uint(NSwitch)/1000u, skip/1000u, ExeTm.GetStr());
-      // time limit 2 hours
-      if (ExeTm.GetSecs() > 2*3600) { printf(" *** Time limit!\n"); break; }
+      if (ExeTm.GetSecs() > 2*3600) { printf(" *** Time limit!\n"); break; } // time limit 2 hours
     }
   }
   printf("\r  total %uk switchings attempted, %uk skiped  [%s]\n", 2*uint(Edges)*uint(NSwitch)/1000u, skip/1000u, ExeTm.GetStr());
   for (int e = 0; e < EdgeSet.Len(); e++) {
-    Graph.AddEdge(EdgeSet[e].Val1, EdgeSet[e].Val2);
-  }
+    Graph.AddEdge(EdgeSet[e].Val1, EdgeSet[e].Val2); }
   return GraphPt;
 }
 
@@ -233,14 +243,61 @@ PNGraph GenRewire(const PNGraph& OrigGraph, const int& NSwitch, TRnd& Rnd) {
     } else { skip++; }
     if (swps % Edges == 0) {
       printf("\r  %uk/%uk: %uk skip [%s]", swps/1000u, 2*uint(Edges)*uint(NSwitch)/1000u, skip/1000u, ExeTm.GetStr());
-      // time limit 2 hours
-      if (ExeTm.GetSecs() > 2*3600) { printf(" *** Time limit!\n"); break; }
+      if (ExeTm.GetSecs() > 2*3600) { printf(" *** Time limit!\n"); break; } // time limit 2 hours
     }
   }
   printf("\r  total %uk switchings attempted, %uk skiped  [%s]\n", 2*uint(Edges)*uint(NSwitch)/1000u, skip/1000u, ExeTm.GetStr());
   for (int e = 0; e < EdgeSet.Len(); e++) {
-    Graph.AddEdge(EdgeSet[e].Val1, EdgeSet[e].Val2);
+    Graph.AddEdge(EdgeSet[e].Val1, EdgeSet[e].Val2); }
+  return GraphPt;
+}
+
+/// Rewire a bipartite graph. Keeps node degrees as is but randomly rewires the
+/// edges. Use this function to generate a random graph with the same degree 
+/// sequence as the OrigGraph. 
+/// See:  On the uniform generation of random graphs with prescribed degree
+/// sequences by R. Milo, N. Kashtan, S. Itzkovitz, M. E. J. Newman, U. Alon
+/// URL: http://arxiv.org/abs/cond-mat/0312028
+PBPGraph GenRewire(const PBPGraph& OrigGraph, const int& NSwitch, TRnd& Rnd) {
+  const int Nodes = OrigGraph->GetNodes();
+  const int Edges = OrigGraph->GetEdges();
+  PBPGraph GraphPt = TBPGraph::New();
+  TBPGraph& Graph = *GraphPt;
+  Graph.Reserve(Nodes, -1);
+  TExeTm ExeTm;
+  // generate a graph that satisfies the constraints
+  printf("Randomizing edges (%d, %d)...\n", Nodes, Edges);
+  TIntPrSet EdgeSet(Edges);
+  for (TBPGraph::TNodeI NI = OrigGraph->BegLNI(); NI < OrigGraph->EndLNI(); NI++) {
+    const int NId = NI.GetId();
+    for (int e = 0; e < NI.GetOutDeg(); e++) {
+      EdgeSet.AddKey(TIntPr(NId, NI.GetOutNId(e))); } // edges left-->right
+    Graph.AddNode(NI.GetId(), true); } // left nodes
+  for (TBPGraph::TNodeI NI = OrigGraph->BegRNI(); NI < OrigGraph->EndRNI(); NI++) {
+    Graph.AddNode(NI.GetId(), false); } // right nodes
+  IAssert(EdgeSet.Len() == Edges);
+  // edge switching
+  uint skip=0;
+  for (uint swps = 0; swps < 2*uint(Edges)*uint(NSwitch); swps++) {
+    const int keyId1 = EdgeSet.GetRndKeyId(Rnd);
+    const int keyId2 = EdgeSet.GetRndKeyId(Rnd);
+    if (keyId1 == keyId2) { skip++; continue; }
+    const TIntPr& E1 = EdgeSet[keyId1];
+    const TIntPr& E2 = EdgeSet[keyId2];
+    TIntPr NewE1(E1.Val1, E2.Val2), NewE2(E2.Val1, E1.Val2);
+    if (NewE1!=NewE2 && NewE1.Val1!=NewE1.Val2 && NewE2.Val1!=NewE2.Val2 && ! EdgeSet.IsKey(NewE1) && ! EdgeSet.IsKey(NewE2)) {
+      EdgeSet.DelKeyId(keyId1);  EdgeSet.DelKeyId(keyId2);
+      EdgeSet.AddKey(TIntPr(NewE1));
+      EdgeSet.AddKey(TIntPr(NewE2));
+    } else { skip++; }
+    if (swps % Edges == 0) {
+      printf("\r  %uk/%uk: %uk skip [%s]", swps/1000u, 2*uint(Edges)*uint(NSwitch)/1000u, skip/1000u, ExeTm.GetStr());
+      if (ExeTm.GetSecs() > 2*3600) { printf(" *** Time limit!\n"); break; } // time limit 2 hours
+    }
   }
+  printf("\r  total %uk switchings attempted, %uk skiped  [%s]\n", 2*uint(Edges)*uint(NSwitch)/1000u, skip/1000u, ExeTm.GetStr());
+  for (int e = 0; e < EdgeSet.Len(); e++) {
+    Graph.AddEdge(EdgeSet[e].Val1, EdgeSet[e].Val2); }
   return GraphPt;
 }
 
