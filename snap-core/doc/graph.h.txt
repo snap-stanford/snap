@@ -1,22 +1,23 @@
 /// Undirected_graph
 Node IDs can be arbitrary non-negative integers. Nodes and edges have no attributes/data associated with them.
-There is at most one undirected edge between a pair of nodes. This means self loops (one per node) are allowed but multiple (parallel) edges are not.
+There is at most one undirected edge between a pair of nodes.
+Self loops (one per node) are allowed but multiple (parallel) edges are not.
 The undirected graph data structure is implemented using sorted adjacency lists.
-This means adding a node takes constant time, while adding an edge takes linear time (since adjacency list is kept sorted).
-Accessing arbitrary node takes constant time and accessing any edge takes logarithmic time.
+This means adding a node takes constant time, while adding an edge takes linear time (since adjacency list is kept sorted) in the node degree.
+Accessing arbitrary node takes constant time and accessing any edge takes logarithmic time in the node degree.
 ///
 
-/// TNodeI::GetInNId
+/// TUNGraph::TNodeI::GetInNId
 Range of NodeN: 0 <= NodeN < GetInDeg(). Since the graph is undirected
 GetInNId(), GetOutNId() and GetNbrNId() all give the same output.
 ///
 
-/// TNodeI::GetOutNId
+/// TUNGraph::TNodeI::GetOutNId
 Range of NodeN: 0 <= NodeN < GetOutDeg(). Since the graph is undirected
 GetInNId(), GetOutNId() and GetNbrNId() all give the same output.
 ///
 
-/// TNodeI::GetNbrNId
+/// TUNGraph::TNodeI::GetNbrNId
 Range of NodeN: 0 <= NodeN < GetNbrDeg(). Since the graph is undirected
 GetInNId(), GetOutNId() and GetNbrNId() all give the same output.
 ///
@@ -32,15 +33,14 @@ If node of ID NId already exists, do nothing.
 ///
 
 /// TUNGraph::AddNode-1 (const int& NId, const TIntV& NbrNIdV)
-Function can create inconsistent graphs unless the neighboring nodes (in NbrNIdV vector)
-are also explicitly added to the graph.
-Use TUNGraph::IsOk to check that the resulting graph is consistent.
+The operation can create inconsistent graphs unless the neighboring nodes (in NbrNIdV vector) exist.
+Use TUNGraph::IsOk to check that the resulting graph is consistent after the operation.
 Return value is the ID of the node being added.
 If node NId already exists the function aborts.
 ///
 
 /// TUNGraph::AddNode-2 (const int& NId, const TVecPool<TInt>& Pool, const int& NIdVId)
-Function can create inconsistent graphs unless the neighboring nodes (stored in the vector)
+The operation can create inconsistent graphs unless the neighboring nodes (stored in the vector)
 are also explicitly added to the graph.
 Use TUNGraph::IsOk to check that the resulting graph is consistent.
 Return value is the ID of the node being added.
@@ -54,7 +54,7 @@ If the node of ID NId does not exist the function aborts.
 /// TUNGraph::AddEdge
 If the edge already exists return -2. If the edge was successfully added return -1.
 Normally the function should return an ID of the edge added but since edges in TUNGraph have no IDs we return -1.
-Function aborts if SrcNId or DstNId are not nodes in the graph.
+The function aborts if SrcNId or DstNId are not nodes in the graph.
 ///
 
 /// TUNGraph::DelEdge
@@ -83,3 +83,114 @@ Graph:   3--0--4
           1-2
 \endverbatim
 ///
+
+/// Directed_graph
+Node IDs can be arbitrary non-negative integers. Nodes and edges have no
+attributes/data associated with them.
+There is at most one directed edge from one source node to a destination
+node.
+There can be an edge between the same pair of nodes in the opposite direction.
+Self loops (one per node) are allowed
+but multiple (parallel) edges are not.
+The directed graph data structure is implemented using sorted adjacency
+lists.
+This means adding a node takes constant time, while adding an edge takes
+linear time (since adjacency list is kept sorted) in the node degree.
+Accessing arbitrary node takes constant time and accessing any edge takes
+logarithmic time in the node degree.
+///
+
+/// TNGraph::TNodeI::GetInNId
+Range of NodeN: 0 <= NodeN < GetInDeg().
+///
+
+/// TNGraph::TNodeI::GetOutNId
+Range of NodeN: 0 <= NodeN < GetOutDeg().
+///
+
+/// TNGraph::TNodeI::GetNbrNId
+Range of NodeN: 0 <= NodeN < GetNbrDeg().
+///
+
+/// TNGraph::New
+Call: PNGraph Graph = TNGraph::New(Nodes, Edges).
+///
+    
+/// TNGraph::AddNode (int NId = -1)
+Return value is the ID of the node being added.
+If NId=-1 node id will be automatically assigned (and returned).
+If node of ID NId already exists, do nothing.
+///
+    
+/// TNGraph::AddNode-1 (const int& NId, const TIntV& InNIdV, const TIntV& OutNIdV)
+The operation can create inconsistent graphs unless the neighboring nodes (in
+vectors InNIdV and OutNIdV) exist.
+Use TUNGraph::IsOk to check that the resulting graph is consistent.
+Return value is the ID of the node being added.
+If node NId already exists the function aborts.
+///
+
+/// TNGraph::AddNode-2 (const int& NId, const TVecPool<TInt>& Pool, const int& NIdVId)
+The operation can create inconsistent graphs unless the neighboring nodes (stored in the vector) exist.
+Use TNGraph::IsOk to check that the resulting graph is consistent.
+Return value is the ID of the node being added.
+If node NId already exists the function aborts.
+///
+
+/// TNGraph::DelNode
+If the node of ID NId does not exist the function aborts.
+///
+
+/// TNGraph::AddEdge
+If the edge already exists return -2. If the edge was successfully added
+return -1.
+Normally the function should return an ID of the edge added but since edges in
+TNGraph have no IDs we return -1.
+Function aborts if SrcNId or DstNId are not nodes in the graph.
+///
+
+/// TNGraph::DelEdge
+If the edge (SrcNId, DstNId) does not exist in the graph function still
+completes.
+But the function aborts if SrcNId or DstNId are not nodes in the graph.
+///
+
+/// TNGraph::Defrag
+After performing many node and edge insertions and deletions to a graph,
+the graph data structure will be fragmented in memory.
+This function compacts down the graph data structure and frees unneeded
+memory.
+///
+
+/// TNGraph::IsOk
+For each node in the graph check that its neighbors are also nodes in the
+graph.
+///
+
+/// TNGraph::GetSmallGraph
+\verbatim
+Edges:  0 -> 1, 1 -> 2, 0 -> 2, 1 -> 3, 3 -> 4, 2 -> 3
+\endverbatim
+///
+
+/// Directed_multigraph
+Node IDs can be arbitrary non-negative integers. Nodes and edges have no
+attributes/data associated with them.
+There can be more than one directed edge from one source node to a destination
+node.
+Self loops (one per node) are allowed as well as
+multiple (parallel) edges.
+///
+
+/// TNEGraph::TNodeI::GetInNId
+Range of NodeN: 0 <= NodeN < GetInDeg().
+///
+
+/// TNEGraph::TNodeI::GetOutNId 
+Range of NodeN: 0 <= NodeN < GetOutDeg().
+/// 
+    
+/// TNEGraph::TNodeI::GetNbrNId 
+Range of NodeN: 0 <= NodeN < GetNbrDeg().
+///
+

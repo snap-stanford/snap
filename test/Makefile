@@ -16,7 +16,7 @@ LIBS += -lrt -lproc -lsnap -lgtest
 all: $(MAIN)
 
 # COMPILE
-$(MAIN): $(MAIN).cpp $(DEPH) $(DEPCPP)
+$(MAIN): $(MAIN).cpp $(DEPH) $(DEPCPP) $(TESTS)
 	$(CC) $(CXXFLAGS) -o $(MAIN) $(MAIN).cpp $(TESTS) $(DEPCPP) $(LDFLAGS) $(LIBS)
 
 clean:

@@ -14,7 +14,7 @@ class TNGraph;  typedef TPt<TNGraph> PNGraph;
 /// Pointer to a directed multigraph (TNEGraph)
 class TNEGraph; typedef TPt<TNEGraph> PNEGraph;
 
-/// Undirected graph. ## Undirected_graph
+/// Undirected graph. ##Undirected_graph
 class TUNGraph {
 public:
   typedef TUNGraph TNet;
@@ -70,11 +70,11 @@ public:
     int GetInDeg() const { return NodeHI.GetDat().GetInDeg(); }
     /// Return out-degree of the current node (returns same as value GetDeg() since the graph is undirected).
     int GetOutDeg() const { return NodeHI.GetDat().GetOutDeg(); }
-    /// Return ID of NodeN-th in-node (the node pointing to the current node). ## TNodeI::GetInNId
+    /// Return ID of NodeN-th in-node (the node pointing to the current node). ##TUNGraph::TNodeI::GetInNId
     int GetInNId(const int& NodeN) const { return NodeHI.GetDat().GetInNId(NodeN); }
-    /// Return ID of NodeN-th out-node (the node the current node points to). ## TNodeI::GetOutNId
+    /// Return ID of NodeN-th out-node (the node the current node points to). ##TUNGraph::TNodeI::GetOutNId
     int GetOutNId(const int& NodeN) const { return NodeHI.GetDat().GetOutNId(NodeN); }
-    /// Return ID of NodeN-th neighboring node. ## TNodeI::GetNbrNId
+    /// Return ID of NodeN-th neighboring node. ##TUNGraph::TNodeI::GetNbrNId
     int GetNbrNId(const int& NodeN) const { return NodeHI.GetDat().GetNbrNId(NodeN); }
     /// Test whether node with ID NId points to the current node.
     bool IsInNId(const int& NId) const { return NodeHI.GetDat().IsInNId(NId); }
@@ -122,9 +122,9 @@ public:
   TUNGraph(TSIn& SIn) : MxNId(SIn), NodeH(SIn) { }
   /// Saves the graph to a (binary) stream SOut.
   void Save(TSOut& SOut) const { MxNId.Save(SOut);  NodeH.Save(SOut); }
-  /// Static constructor that returns a pointer to the graph. Call: PUNGraph Graph = TUNGraph::New();
+  /// Static constructor that returns a pointer to the graph. Call: PUNGraph Graph = TUNGraph::New().
   static PUNGraph New() { return new TUNGraph(); }
-  /// Static constructor that returns a pointer to the graph and reserves enough memory for Nodes nodes and Edges edges. ## TUNGraph::New
+  /// Static constructor that returns a pointer to the graph and reserves enough memory for Nodes nodes and Edges edges. ##TUNGraph::New
   static PUNGraph New(const int& Nodes, const int& Edges) { return new TUNGraph(Nodes, Edges); }
   /// Static constructor that loads the graph from a stream SIn and returns a pointer to it.
   static PUNGraph Load(TSIn& SIn) { return PUNGraph(new TUNGraph(SIn)); }
@@ -135,15 +135,15 @@ public:
   // nodes
   /// Returns the number of nodes in the graph.
   int GetNodes() const { return NodeH.Len(); }
-  /// Add a node of ID NId to the graph. ## TUNGraph::AddNode
+  /// Add a node of ID NId to the graph. ##TUNGraph::AddNode
   int AddNode(int NId = -1);
   /// Add a node of ID NodeI.GetId() to the graph.
   int AddNode(const TNodeI& NodeI) { return AddNode(NodeI.GetId()); }
-  /// Add a node of ID NId to the graph and create edges to all nodes in vector NbrNIdV. ## TUNGraph::AddNode-1
+  /// Add a node of ID NId to the graph and create edges to all nodes in vector NbrNIdV. ##TUNGraph::AddNode-1
   int AddNode(const int& NId, const TIntV& NbrNIdV);
-  /// Add a node of ID NId to the graph and create edges to all nodes in vector NIdVId in the vector pool Pool. ## TUNGraph::AddNode-2
+  /// Add a node of ID NId to the graph and create edges to all nodes in vector NIdVId in the vector pool Pool. ##TUNGraph::AddNode-2
   int AddNode(const int& NId, const TVecPool<TInt>& Pool, const int& NIdVId);
-  /// Delete node of ID NId from the graph. ## TUNGraph::DelNode
+  /// Delete node of ID NId from the graph. ##TUNGraph::DelNode
   void DelNode(const int& NId);
   /// Delete node of ID NodeI.GetId() from the graph.
   void DelNode(const TNode& NodeI) { DelNode(NodeI.GetId()); }
@@ -158,11 +158,11 @@ public:
   // edges
   /// Return the number of edges in the graph.
   int GetEdges() const;
-  /// Add an edge between node IDs SrcNId and DstNId to the graph. ## TUNGraph::AddEdge
+  /// Add an edge between node IDs SrcNId and DstNId to the graph. ##TUNGraph::AddEdge
   int AddEdge(const int& SrcNId, const int& DstNId);
   /// Add an edge between EdgeI.GetSrcNId() and EdgeI.GetDstNId() to the graph.
   int AddEdge(const TEdgeI& EdgeI) { return AddEdge(EdgeI.GetSrcNId(), EdgeI.GetDstNId()); }
-  /// Delete an edge between node IDs SrcNId and DstNId from the graph. ## TUNGraph::DelEdge
+  /// Delete an edge between node IDs SrcNId and DstNId from the graph. ##TUNGraph::DelEdge
   void DelEdge(const int& SrcNId, const int& DstNId);
   /// Test whether an edge between node IDs SrcNId and DstNId exists the graph.
   bool IsEdge(const int& SrcNId, const int& DstNId) const;
@@ -172,7 +172,7 @@ public:
   TEdgeI EndEI() const { return TEdgeI(EndNI(), EndNI()); }
   /// Not supported/implemented!
   TEdgeI GetEI(const int& EId) const;
-  /// Return an iterator referring to edge (SrcNId, DstNId) in the graph. ## TUNGraph::GetEI
+  /// Return an iterator referring to edge (SrcNId, DstNId) in the graph. ##TUNGraph::GetEI
   TEdgeI GetEI(const int& SrcNId, const int& DstNId) const;
 
   /// Return an ID of a random node in the graph.
@@ -190,13 +190,13 @@ public:
   void Reserve(const int& Nodes, const int& Edges) { if (Nodes>0) NodeH.Gen(Nodes/2); }
   /// Reserve memory for node ID NId having Deg edges.
   void ReserveNIdDeg(const int& NId, const int& Deg) { GetNode(NId).NIdV.Reserve(Deg); }
-  /// Defragment the graph. ## TUNGraph::Defrag
+  /// Defragment the graph. ##TUNGraph::Defrag
   void Defrag(const bool& OnlyNodeLinks=false);
-  /// Check the graph data structure for internal consistency. ## TUNGraph::IsOk
+  /// Check the graph data structure for internal consistency. ##TUNGraph::IsOk
   bool IsOk(const bool& ThrowExcept=true) const;
   /// Print the graph in a human readable form to an output stream OutF.
   void Dump(FILE *OutF=stdout) const;
-  /// Return a small graph on 5 nodes and 4 edges. ## TUNGraph::GetSmallGraph
+  /// Return a small graph on 5 nodes and 5 edges. ##TUNGraph::GetSmallGraph
   static PUNGraph GetSmallGraph();
 
   friend class TUNGraphMtx;
@@ -205,6 +205,8 @@ public:
 
 /////////////////////////////////////////////////
 // Directed Node Graph
+
+/// Directed graph. ##Directed_graph
 class TNGraph {
 public:
   typedef TNGraph TNet;
@@ -235,6 +237,7 @@ public:
     friend class TNGraph;
     friend class TNGraphMtx;
   };
+  /// Node iterator. Only forward iteration (operator++) is supported.
   class TNodeI {
   private:
     typedef THash<TInt, TNode>::TIter THashIter;
@@ -244,21 +247,33 @@ public:
     TNodeI(const THashIter& NodeHIter) : NodeHI(NodeHIter) { }
     TNodeI(const TNodeI& NodeI) : NodeHI(NodeI.NodeHI) { }
     TNodeI& operator = (const TNodeI& NodeI) { NodeHI = NodeI.NodeHI;  return *this; }
+    /// Increment iterator.
     TNodeI& operator++ (int) { NodeHI++;  return *this; }
     bool operator < (const TNodeI& NodeI) const { return NodeHI < NodeI.NodeHI; }
     bool operator == (const TNodeI& NodeI) const { return NodeHI == NodeI.NodeHI; }
+    /// Return ID of the current node.
     int GetId() const { return NodeHI.GetDat().GetId(); }
+    /// Return degree of the current node, the sum of in-degree and out-degree.
     int GetDeg() const { return NodeHI.GetDat().GetDeg(); }
+    /// Return in-degree of the current node.
     int GetInDeg() const { return NodeHI.GetDat().GetInDeg(); }
+    /// Return out-degree of the current node.
     int GetOutDeg() const { return NodeHI.GetDat().GetOutDeg(); }
+    /// Return ID of NodeN-th in-node (the node pointing to the current node). ##TNGraph::TNodeI::GetInNId
     int GetInNId(const int& NodeN) const { return NodeHI.GetDat().GetInNId(NodeN); }
+    /// Return ID of NodeN-th out-node (the node the current node points to). ##TNGraph::TNodeI::GetOutNId
     int GetOutNId(const int& NodeN) const { return NodeHI.GetDat().GetOutNId(NodeN); }
+    /// Return ID of NodeN-th neighboring node. ##TNGraph::TNodeI::GetNbrNId
     int GetNbrNId(const int& NodeN) const { return NodeHI.GetDat().GetNbrNId(NodeN); }
+    /// Test whether node with ID NId points to the current node.
     bool IsInNId(const int& NId) const { return NodeHI.GetDat().IsInNId(NId); }
+    /// Test whether the current node points to node with ID NId.
     bool IsOutNId(const int& NId) const { return NodeHI.GetDat().IsOutNId(NId); }
+    /// Test whether node with ID NId is a neighbor of the current node.
     bool IsNbrNId(const int& NId) const { return IsOutNId(NId) || IsInNId(NId); }
     friend class TNGraph;
   };
+  /// Edge iterator. Only forward iteration (operator++) is supported.
   class TEdgeI {
   private:
     TNodeI CurNode, EndNode;
@@ -268,12 +283,16 @@ public:
     TEdgeI(const TNodeI& NodeI, const TNodeI& EndNodeI, const int& EdgeN=0) : CurNode(NodeI), EndNode(EndNodeI), CurEdge(EdgeN) { }
     TEdgeI(const TEdgeI& EdgeI) : CurNode(EdgeI.CurNode), EndNode(EdgeI.EndNode), CurEdge(EdgeI.CurEdge) { }
     TEdgeI& operator = (const TEdgeI& EdgeI) { if (this!=&EdgeI) { CurNode=EdgeI.CurNode;  EndNode=EdgeI.EndNode;  CurEdge=EdgeI.CurEdge; }  return *this; }
+    /// Increment iterator.
     TEdgeI& operator++ (int) { CurEdge++; if (CurEdge >= CurNode.GetOutDeg()) { CurEdge=0;  CurNode++;
       while (CurNode < EndNode && CurNode.GetOutDeg()==0) { CurNode++; } }  return *this; }
     bool operator < (const TEdgeI& EdgeI) const { return CurNode<EdgeI.CurNode || (CurNode==EdgeI.CurNode && CurEdge<EdgeI.CurEdge); }
     bool operator == (const TEdgeI& EdgeI) const { return CurNode == EdgeI.CurNode && CurEdge == EdgeI.CurEdge; }
+    /// Get edge ID. Always returns -1 since only edges in multigraphs have explicit IDs.
     int GetId() const { return -1; }
+    /// Get the source node of an edge.
     int GetSrcNId() const { return CurNode.GetId(); }
+    /// Get destination node of an edge.
     int GetDstNId() const { return CurNode.GetOutNId(CurEdge); }
     friend class TNGraph;
   };
@@ -286,53 +305,92 @@ private:
   const TNode& GetNode(const int& NId) const { return NodeH.GetDat(NId); }
 public:
   TNGraph() : CRef(), MxNId(0), NodeH() { }
+  /// Constructor that reserves enough memory for a graph of Nodes nodes and Edges edges.
   explicit TNGraph(const int& Nodes, const int& Edges) : MxNId(0) { Reserve(Nodes, Edges); }
   TNGraph(const TNGraph& Graph) : MxNId(Graph.MxNId), NodeH(Graph.NodeH) { }
+  /// Constructor for loading the graph from a (binary) stream SIn.
   TNGraph(TSIn& SIn) : MxNId(SIn), NodeH(SIn) { }
+  /// Saves the graph to a (binary) stream SOut.
   void Save(TSOut& SOut) const { MxNId.Save(SOut);  NodeH.Save(SOut); }
+  /// Static constructor that returns a pointer to the graph. Call: PNGraph Graph = TNGraph::New().
   static PNGraph New() { return new TNGraph(); }
+  /// Static constructor that returns a pointer to the graph and reserves enough memory for Nodes nodes and Edges edges. ##TNGraph::New
   static PNGraph New(const int& Nodes, const int& Edges) { return new TNGraph(Nodes, Edges); }
+  /// Static constructor that loads the graph from a stream SIn and returns a pointer to it.
   static PNGraph Load(TSIn& SIn) { return PNGraph(new TNGraph(SIn)); }
+  /// Allows for run-time checking the type of the graph (see the TGraphFlag for flags).
   bool HasFlag(const TGraphFlag& Flag) const;
   TNGraph& operator = (const TNGraph& Graph) {
     if (this!=&Graph) { MxNId=Graph.MxNId;  NodeH=Graph.NodeH; }  return *this; }
   // nodes
+  /// Returns the number of nodes in the graph.
   int GetNodes() const { return NodeH.Len(); }
+  /// Add a node of ID NId to the graph. ##TNGraph::AddNode
   int AddNode(int NId = -1);
+  /// Add a node of ID NodeI.GetId() to the graph.
   int AddNode(const TNodeI& NodeId) { return AddNode(NodeId.GetId()); }
+  /// Add a node of ID NId to the graph, create edges to the node from all nodes in vector InNIdV, create edges from the node to all nodes in vector OutNIdV. ##TNGraph::AddNode-1
   int AddNode(const int& NId, const TIntV& InNIdV, const TIntV& OutNIdV);
+  /// Add a node of ID NId to the graph, create edges to the node from all nodes in vector InNIdV in the vector pool Pool, create edges from the node to all nodes in vector OutNIdVin the vector pool Pool . ##TNGraph::AddNode-2
   int AddNode(const int& NId, const TVecPool<TInt>& Pool, const int& SrcVId, const int& DstVId);
+  /// Delete node of ID NId from the graph. ##TNGraph::DelNode
   void DelNode(const int& NId);
+  /// Delete node of ID NodeI.GetId() from the graph.
   void DelNode(const TNode& NodeI) { DelNode(NodeI.GetId()); }
+  /// Test whether ID NId is a node.
   bool IsNode(const int& NId) const { return NodeH.IsKey(NId); }
+  /// Return an iterator referring to the first node in the graph.
   TNodeI BegNI() const { return TNodeI(NodeH.BegI()); }
+  /// Return an iterator referring to the past-the-end node in the graph.
   TNodeI EndNI() const { return TNodeI(NodeH.EndI()); }
+  /// Return an iterator referring to the node of ID NId in the graph.
   TNodeI GetNI(const int& NId) const { return TNodeI(NodeH.GetI(NId)); }
+  // TODO document TNGraph::GetNodeC()
   const TNode& GetNodeC(const int& NId) const { return NodeH.GetDat(NId); }
   // edges
+  /// Return the number of edges in the graph.
   int GetEdges() const;
+  /// Add an edge from node IDs SrcNId to node DstNId to the graph. ##TNGraph::AddEdge
   int AddEdge(const int& SrcNId, const int& DstNId);
+  /// Add an edge from EdgeI.GetSrcNId() to EdgeI.GetDstNId() to the graph.
   int AddEdge(const TEdgeI& EdgeI) { return AddEdge(EdgeI.GetSrcNId(), EdgeI.GetDstNId()); }
+  /// Delete an edge from node IDs SrcNId to DstNId from the graph. ##TNGraph::DelEdge
   void DelEdge(const int& SrcNId, const int& DstNId, const bool& IsDir = true);
+  /// Test whether an edge from node IDs SrcNId to DstNId exists the graph.
   bool IsEdge(const int& SrcNId, const int& DstNId, const bool& IsDir = true) const;
+  /// Return an iterator referring to the first edge in the graph.
   TEdgeI BegEI() const { TNodeI NI=BegNI();  while(NI<EndNI() && NI.GetOutDeg()==0) NI++;  return TEdgeI(NI, EndNI()); }
+  /// Return an iterator referring to the past-the-end edge in the graph.
   TEdgeI EndEI() const { return TEdgeI(EndNI(), EndNI()); }
+  /// Not supported/implemented!
   TEdgeI GetEI(const int& EId) const; // not supported
+  /// Return an iterator referring to edge (SrcNId, DstNId) in the graph.
   TEdgeI GetEI(const int& SrcNId, const int& DstNId) const;
 
+  /// Return an ID of a random node in the graph.
   int GetRndNId(TRnd& Rnd=TInt::Rnd) { return NodeH.GetKey(NodeH.GetRndKeyId(Rnd, 0.8)); }
+  /// Return an interator referring to a random node in the graph.
   TNodeI GetRndNI(TRnd& Rnd=TInt::Rnd) { return GetNI(GetRndNId(Rnd)); }
+  /// Get a vector IDs of all nodes in the graph.
   void GetNIdV(TIntV& NIdV) const;
 
+  /// Test whether the graph is empty (has zero nodes).
   bool Empty() const { return GetNodes()==0; }
+  /// Delete all nodes and edges from the graph.
   void Clr() { MxNId=0;  NodeH.Clr(); }
+  /// Reserve memory for a graph of Nodes nodes and Edges edges.
   void Reserve(const int& Nodes, const int& Edges) { if (Nodes>0) { NodeH.Gen(Nodes/2); } }
+  /// Reserve memory for node ID NId having InDeg in-edges.
   void ReserveNIdInDeg(const int& NId, const int& InDeg) { GetNode(NId).InNIdV.Reserve(InDeg); }
+  /// Reserve memory for node ID NId having OutDeg out-edges.
   void ReserveNIdOutDeg(const int& NId, const int& OutDeg) { GetNode(NId).OutNIdV.Reserve(OutDeg); }
+  /// Defragment the graph. ##TNGraph::Defrag
   void Defrag(const bool& OnlyNodeLinks=false);
+  /// Check the graph data structure for internal consistency. ##TNGraph::IsOk
   bool IsOk(const bool& ThrowExcept=true) const;
+  /// Print the graph in a human readable form to an output stream OutF.
   void Dump(FILE *OutF=stdout) const;
-
+  /// Return a small graph on 5 nodes and 6 edges. ##TNGraph::GetSmallGraph
   static PNGraph GetSmallGraph();
   friend class TPt<TNGraph>;
   friend class TNGraphMtx;
@@ -345,6 +403,9 @@ template <> struct IsDirected<TNGraph> { enum { Val = 1 }; };
 
 /////////////////////////////////////////////////
 // Node Edge Graph
+
+// TODO TNEGraph describe time complexity for basic operations
+/// Directed multigraph. ##Directed_multigraph
 class TNEGraph {
 public:
   typedef TNEGraph TNet;
@@ -385,7 +446,7 @@ public:
     int GetDstNId() const { return DstNId; }
     friend class TNEGraph;
   };
-  // iterators
+  /// Node iterator. Only forward iteration (operator++) is supported.
   class TNodeI {
   private:
     typedef THash<TInt, TNode>::TIter THashIter;
@@ -396,21 +457,33 @@ public:
     TNodeI(const THashIter& NodeHIter, const TNEGraph* GraphPt) : NodeHI(NodeHIter), Graph(GraphPt) { }
     TNodeI(const TNodeI& NodeI) : NodeHI(NodeI.NodeHI), Graph(NodeI.Graph) { }
     TNodeI& operator = (const TNodeI& NodeI) { NodeHI = NodeI.NodeHI;  Graph=NodeI.Graph;  return *this; }
+    /// Increment iterator.
     TNodeI& operator++ (int) { NodeHI++;  return *this; }
     bool operator < (const TNodeI& NodeI) const { return NodeHI < NodeI.NodeHI; }
     bool operator == (const TNodeI& NodeI) const { return NodeHI == NodeI.NodeHI; }
+    /// Return ID of the current node.
     int GetId() const { return NodeHI.GetDat().GetId(); }
+    /// Return degree of the current node, the sum of in-degree and out-degree.
     int GetDeg() const { return NodeHI.GetDat().GetDeg(); }
+    /// Return in-degree of the current node.
     int GetInDeg() const { return NodeHI.GetDat().GetInDeg(); }
+    /// Return out-degree of the current node.
     int GetOutDeg() const { return NodeHI.GetDat().GetOutDeg(); }
+    /// Return ID of NodeN-th in-node (the node pointing to the current node). ##TNEGraph::TNodeI::GetInNId
     int GetInNId(const int& EdgeN) const { return Graph->GetEdge(NodeHI.GetDat().GetInEId(EdgeN)).GetSrcNId(); }
+    /// Return ID of NodeN-th out-node (the node the current node points to). ##TNEGraph::TNodeI::GetOutNId
     int GetOutNId(const int& EdgeN) const { return Graph->GetEdge(NodeHI.GetDat().GetOutEId(EdgeN)).GetDstNId(); }
+    /// Return ID of NodeN-th neighboring node. ##TNEGraph::TNodeI::GetNbrNId
     int GetNbrNId(const int& EdgeN) const { const TEdge& E = Graph->GetEdge(NodeHI.GetDat().GetNbrEId(EdgeN));
       return GetId()==E.GetSrcNId() ? E.GetDstNId():E.GetSrcNId(); }
+    /// Test whether node with ID NId points to the current node.
     bool IsInNId(const int& NId) const;
+    /// Test whether the current node points to node with ID NId.
     bool IsOutNId(const int& NId) const;
+    /// Test whether node with ID NId is a neighbor of the current node.
     bool IsNbrNId(const int& NId) const { return IsOutNId(NId) || IsInNId(NId); }
     // edges
+    // TODO, continue from here
     int GetInEId(const int& EdgeN) const { return NodeHI.GetDat().GetInEId(EdgeN); }
     int GetOutEId(const int& EdgeN) const { return NodeHI.GetDat().GetOutEId(EdgeN); }
     int GetNbrEId(const int& EdgeN) const { return NodeHI.GetDat().GetNbrEId(EdgeN); }

@@ -31,102 +31,103 @@ TEST(TUNGraph, DefaultConstructor) {
 
 // Test node, edge creation
 TEST(TUNGraph, ManipulateNodesEdges) {
-  int nnodes = 10000;
-  int nedges = 100000;
-  const char *fname = "test.graph";
+  int NNodes = 10000;
+  int NEdges = 100000;
+  const char *FName = "test.graph";
 
   PUNGraph Graph;
   PUNGraph Graph1;
   PUNGraph Graph2;
   int i;
   int n;
-  int ncount;
+  int NCount;
   int x,y;
 
   Graph = TUNGraph::New();
   EXPECT_EQ(1,Graph->Empty());
 
   // create the nodes
-  for (i = 0; i < nnodes; i++) {
+  for (i = 0; i < NNodes; i++) {
     Graph->AddNode(i);
   }
   EXPECT_EQ(0,Graph->Empty());
-  EXPECT_EQ(nnodes,Graph->GetNodes());
+  EXPECT_EQ(NNodes,Graph->GetNodes());
 
   // create random edges
-  ncount = nedges;
-  while (ncount > 0) {
-    x = (long) (drand48() * nnodes);
-    y = (long) (drand48() * nnodes);
+  NCount = NEdges;
+  while (NCount > 0) {
+    x = (long) (drand48() * NNodes);
+    y = (long) (drand48() * NNodes);
     // Graph->GetEdges() is not correct for the loops (x == y),
     // skip the loops in this test
     if (x != y  &&  !Graph->IsEdge(x,y)) {
       n = Graph->AddEdge(x, y);
-      ncount--;
+      NCount--;
     }
   }
 
-  EXPECT_EQ(nedges,Graph->GetEdges());
+  EXPECT_EQ(NEdges,Graph->GetEdges());
 
   EXPECT_EQ(0,Graph->Empty());
   EXPECT_EQ(1,Graph->IsOk());
 
-  for (i = 0; i < nnodes; i++) {
+  for (i = 0; i < NNodes; i++) {
     EXPECT_EQ(1,Graph->IsNode(i));
   }
 
-  EXPECT_EQ(0,Graph->IsNode(nnodes));
-  EXPECT_EQ(0,Graph->IsNode(nnodes+1));
-  EXPECT_EQ(0,Graph->IsNode(2*nnodes));
+  EXPECT_EQ(0,Graph->IsNode(NNodes));
+  EXPECT_EQ(0,Graph->IsNode(NNodes+1));
+  EXPECT_EQ(0,Graph->IsNode(2*NNodes));
 
   // iterators
-  ncount = 0;
+  NCount = 0;
   for (TUNGraph::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
-    ncount++;
+    NCount++;
   }
-  EXPECT_EQ(nnodes,ncount);
+  EXPECT_EQ(NNodes,NCount);
 
-  ncount = 0;
+  NCount = 0;
   for (TUNGraph::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
     for (int e = 0; e < NI.GetOutDeg(); e++) {
-      ncount++;
+      NCount++;
     }
   }
-  EXPECT_EQ(nedges*2,ncount);
+  EXPECT_EQ(NEdges*2,NCount);
 
-  ncount = 0;
+  NCount = 0;
   for (TUNGraph::TEdgeI EI = Graph->BegEI(); EI < Graph->EndEI(); EI++) {
-    ncount++;
+    NCount++;
   }
-  EXPECT_EQ(nedges,ncount);
+  EXPECT_EQ(NEdges,NCount);
 
   // assignment
-  Graph1 = Graph;
+  Graph1 = TUNGraph::New();
+  *Graph1 = *Graph;
 
-  EXPECT_EQ(nnodes,Graph1->GetNodes());
-  EXPECT_EQ(nedges,Graph1->GetEdges());
+  EXPECT_EQ(NNodes,Graph1->GetNodes());
+  EXPECT_EQ(NEdges,Graph1->GetEdges());
   EXPECT_EQ(0,Graph1->Empty());
   EXPECT_EQ(1,Graph1->IsOk());
 
   // saving and loading
   {
-    TFOut FOut(fname);
+    TFOut FOut(FName);
     Graph->Save(FOut);
     FOut.Flush();
   }
 
   {
-    TFIn FIn(fname);
+    TFIn FIn(FName);
     Graph2 = TUNGraph::Load(FIn);
   }
 
-  EXPECT_EQ(nnodes,Graph2->GetNodes());
-  EXPECT_EQ(nedges,Graph2->GetEdges());
+  EXPECT_EQ(NNodes,Graph2->GetNodes());
+  EXPECT_EQ(NEdges,Graph2->GetEdges());
   EXPECT_EQ(0,Graph2->Empty());
   EXPECT_EQ(1,Graph2->IsOk());
 
   // remove all the nodes and edges
-  for (i = 0; i < nnodes; i++) {
+  for (i = 0; i < NNodes; i++) {
     n = Graph->GetRndNId();
     Graph->DelNode(n);
   }
