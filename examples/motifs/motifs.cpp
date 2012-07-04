@@ -46,7 +46,7 @@ int main(int argc, char* argv[]) {
       TGraphViz::Plot(SG, gvlNeato, TStr::Fmt("%s-motif%03d.gif", OutFNm.CStr(), i), 
         TStr::Fmt("GId:%d  Count: %llu", gid, GraphCounter.GetCnt(gid)));
     }
-    fprintf(F, "%d\t%d\t%d\t%llu\n", gid, SG->GetNodes(), SG->GetEdges(), GraphCounter.GetCnt(gid));
+    fprintf(F, "%d\t%d\t%d\t%llu\n", gid, SG->GetNodes(), SG->GetEdges(), static_cast<long long unsigned int>(GraphCounter.GetCnt(gid)));
   }
   printf("done.");
   fclose(F); 

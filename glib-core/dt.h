@@ -258,7 +258,8 @@ public:
   void PutCh(const int& ChN, const char& Ch){
     Assert((0<=ChN)&&(ChN<BfL)); Bf[ChN]=Ch;}
   char GetCh(const int& ChN) const {return operator[](ChN);}
-  char LastCh() const {return operator[](Len()-1);}
+  char LastCh() const { Assert(1<=BfL); return Bf[BfL-1]; }
+  char LastLastCh() const { Assert(2<=BfL); return Bf[BfL-2]; }
 
   TChA GetSubStr(const int& BChN, const int& EChN) const;
 

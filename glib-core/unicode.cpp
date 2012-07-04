@@ -148,7 +148,7 @@ void TUniCodec::TestDecodeUtf8(TRnd& rnd, const TStr& testCaseDesc)
 	{
 		IAssert(i + 2 <= testCaseDesc.Len());
 		const char c = testCaseDesc[i], d = testCaseDesc[i + 1]; i += 2;
-		uint cp; int nBytes = -1, minBytes = -1; bool eighties = false;
+		uint cp = 0; int nBytes = -1, minBytes = -1; bool eighties = false;
 		IAssert('1' <= d && d <= '6'); nBytes = d - '0';
 		if (c == 'A') { cp = GetRndUint(rnd, 0u, 0x7fu); minBytes = 1; } // 1 byte
 		else if (c == 'B') { cp = GetRndUint(rnd, 0x80u, 0x7ffu); minBytes = 2; } // 2 bytes
@@ -365,7 +365,7 @@ void TUniCodec::TestDecodeUtf16(TRnd& rnd, const TStr& testCaseDesc,
 	for (int i = 0; i < testCaseDesc.Len(); )
 	{
 		const char c = testCaseDesc[i++];
-		uint cp; int nWords = -1;
+		uint cp = 0; int nWords = -1;
 		if (c == 'X' || c == 'Y') IAssert(i > 1); // if you want a BOM at the beginning of your data, use insertBom -- if we permit X and Y here, predicting the expectedDest and expectedRetVal gets more complicated
 		if (c == 'A') { cp = GetRndUint(rnd, 0u, Utf16FirstSurrogate - 1); nWords = 1; } // characters below the first surrogate range
 		else if (c == 'B') { cp = GetRndUint(rnd, Utf16FirstSurrogate, Utf16FirstSurrogate + 1023); nWords = 1; } // the first surrogate range
@@ -1018,7 +1018,7 @@ void TUniChDb::InitDerivedCoreProperties(const TStr& basePath)
 		IAssert(fields.Len() == 2);
 		int from, to; reader.ParseCodePointRange(fields[0], from, to);
 		TStr s = fields[1];
-		TUniChFlags flag;
+		TUniChFlags flag = ucfCompatibilityDecomposition;
 		if (s == "Math") flag = ucfDcpMath;
 		else if (s == "Alphabetic") flag = ucfDcpAlphabetic;
 		else if (s == "Lowercase") flag = ucfDcpLowercase;
@@ -1155,7 +1155,8 @@ void TUniChDb::InitWordAndSentenceBoundaryFlags(const TStr& basePath)
 	{
 		IAssert(fields.Len() == 2);
 		int from, to; reader.ParseCodePointRange(fields[0], from, to);
-		TStr s = fields[1]; TUniChFlags flag;
+		TStr s = fields[1];
+    TUniChFlags flag = ucfCompatibilityDecomposition;
 		if (s == "Format") flag = ucfWbFormat;
 		else if (s == "Katakana") flag = ucfWbKatakana;
 		else if (s == "ALetter") flag = ucfWbALetter;
@@ -1190,7 +1191,8 @@ void TUniChDb::InitWordAndSentenceBoundaryFlags(const TStr& basePath)
 	{
 		IAssert(fields.Len() == 2);
 		int from, to; reader.ParseCodePointRange(fields[0], from, to);
-		TStr s = fields[1]; TUniChFlags flag;
+		TStr s = fields[1];
+    TUniChFlags flag = ucfCompatibilityDecomposition;
 		if (s == "Sep") flag = ucfSbSep;
 		else if (s == "Format") flag = ucfSbFormat;
 		else if (s == "Sp") flag = ucfSbSp;

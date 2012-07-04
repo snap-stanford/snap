@@ -73,7 +73,7 @@ private:
 public:
 	TMAGNodeSimple() : Mu(0.5), Dim(-1) {}
 	TMAGNodeSimple(const int& _Dim, const double& _Mu = 0.5) : Dim(_Dim) {  IAssert(_Mu >= 0.0 && _Mu <= 1.0);  Mu = _Mu;  }
-	TMAGNodeSimple(const TMAGNodeSimple& Simple) : Dim(Simple.Dim), Mu(Simple.Mu) {}
+	TMAGNodeSimple(const TMAGNodeSimple& Simple) : Mu(Simple.Mu), Dim(Simple.Dim) {}
 
 	TMAGNodeSimple& operator=(const TMAGNodeSimple& Simple) {  Mu = Simple.Mu;  Dim = Simple.Dim;  return (*this);  }
 	
@@ -93,9 +93,9 @@ private:
 	TInt Dim;
 public:
 	TMAGNodeBern() : MuV(), Dim(-1) {}
-	TMAGNodeBern(const int& _Dim, const double& _Mu = 0.5) : Dim(_Dim), MuV(_Dim) {  IAssert(_Mu >= 0.0 && _Mu <= 1.0);  MuV.PutAll(_Mu);  }
-	TMAGNodeBern(const TFltV& _MuV) : Dim(_MuV.Len()), MuV(_MuV) {}
-	TMAGNodeBern(const TMAGNodeBern& Dist) : Dim(Dist.Dim), MuV(Dist.MuV) {}
+	TMAGNodeBern(const int& _Dim, const double& _Mu = 0.5) : MuV(_Dim), Dim(_Dim) {  IAssert(_Mu >= 0.0 && _Mu <= 1.0);  MuV.PutAll(_Mu);  }
+	TMAGNodeBern(const TFltV& _MuV) : MuV(_MuV), Dim(_MuV.Len()) {}
+	TMAGNodeBern(const TMAGNodeBern& Dist) : MuV(Dist.MuV), Dim(Dist.Dim) {}
 
 	TMAGNodeBern& operator=(const TMAGNodeBern& Dist);
 
@@ -354,8 +354,8 @@ private:
 	TFltV LLHisV;
 	
 public:
-	TMAGFitBern() : PhiVV(), KnownVV(), Param(), Graph(), ESpeedUp(true), MSpeedUp(true), AvgPhiV(), AvgPhiPairVV(), Debug(false), NormConst(1.0)  { }
-	TMAGFitBern(const PNGraph& G, const int& NAttrs) : Graph(G), PhiVV(G->GetNodes(), NAttrs), KnownVV(G->GetNodes(), NAttrs), Param(G->GetNodes(), NAttrs), ESpeedUp(true), MSpeedUp(true), AvgPhiV(NAttrs), AvgPhiPairVV(NAttrs, NAttrs), Debug(false), NormConst(1.0) { }
+	TMAGFitBern() : PhiVV(), KnownVV(), Graph(), Param(), ESpeedUp(true), MSpeedUp(true), Debug(false), AvgPhiV(), AvgPhiPairVV(), NormConst(1.0)  { }
+	TMAGFitBern(const PNGraph& G, const int& NAttrs) : PhiVV(G->GetNodes(), NAttrs), KnownVV(G->GetNodes(), NAttrs), Graph(G), Param(G->GetNodes(), NAttrs), ESpeedUp(true), MSpeedUp(true), Debug(false), AvgPhiV(NAttrs), AvgPhiPairVV(NAttrs, NAttrs), NormConst(1.0) { }
 	
 	TMAGFitBern(const PNGraph& G, const TStr& InitFNm) : Param(G->GetNodes(), InitFNm), ESpeedUp(true), MSpeedUp(true), Debug(false), NormConst(1.0) {
 		const int NNodes = G->GetNodes();
@@ -390,8 +390,8 @@ public:
 //	void PerturbInit(const TFltV& MuV, const TMAGAffMtxV& AffMtxV, const double& PerturbRate);
 	void RandomInit(const TFltV& MuV, const TMAGAffMtxV& AffMtxV, const int& Seed);
 	const TFltVV& GetPhiVV() const { return PhiVV; }
-	const TFltVV& SetPhiVV(const TIntVV& AttrVV, const int KnownIds = 0);
-	const TFltVV& SetPhiVV(const TFltVV& AttrVV, const int KnownIds = 0) {  PhiVV = AttrVV;  KnownVV.Gen(PhiVV.GetXDim(), PhiVV.GetYDim());  KnownVV.PutAll(false);  for(int i = 0; i < KnownIds; i++) {  KnownVV.PutY(i, true); } }
+	void SetPhiVV(const TIntVV& AttrVV, const int KnownIds = 0);
+	void SetPhiVV(const TFltVV& AttrVV, const int KnownIds = 0) {  PhiVV = AttrVV;  KnownVV.Gen(PhiVV.GetXDim(), PhiVV.GetYDim());  KnownVV.PutAll(false);  for(int i = 0; i < KnownIds; i++) {  KnownVV.PutY(i, true); } }
 
 	const double GetInCoeff(const int& i, const int& j, const int& l, const int& A, const TMAGAffMtx& Theta) const;
 	const double GetAvgInCoeff(const int& i, const int& AId, const int& A, const TMAGAffMtx& Theta) const;

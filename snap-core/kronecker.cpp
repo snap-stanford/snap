@@ -1696,7 +1696,7 @@ void TKroneckerLL::RunKronEM(const int& EMIter, const int& GradIter, double LrnR
 
 	TFltV LLV(NSamples);
 	TVec<TFltV> DLLV(NSamples);
-	int count = 0;
+	//int count = 0;
 
 	EMType = Type;
 	MissEdges = NMissing;
@@ -2018,7 +2018,7 @@ void TKroneckerLL::GradDescentConvergence(const TStr& OutFNm, const TStr& Desc1,
  double LearnRate, const int& WarmUp, const int& NSamples, const int& AvgKGraphs, const TKronMtx& TrueParam) {
   TExeTm IterTm;
   int Iter;
-  double OldLL=0, MyLL=0, AvgAbsErr, AbsSumErr;
+  double OldLL=0, MyLL=0, AvgAbsErr=0, AbsSumErr=0;
   TFltV MyGradV, SDevV;
   TFltV LearnRateV(GetParams());  LearnRateV.PutAll(LearnRate);
   TFltPrV EZeroV, DiamV, Lambda1V, Lambda2V, AvgAbsErrV, AvgLLV;

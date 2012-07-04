@@ -448,6 +448,12 @@ public:
   const TVal& Last() const {return GetVal(Len()-1);}
   TVal& Last(){return GetVal(Len()-1);}
   int LastValN() const {return Len()-1;}
+  const TVal& LastLast() const {
+    AssertR(1<Vals, GetXOutOfBoundsErrMsg(Vals-2));
+    return ValT[Vals-2];}
+  TVal& LastLast(){
+    AssertR(1<Vals, GetXOutOfBoundsErrMsg(Vals-2));
+    return ValT[Vals-2];}
 
   TIter BegI() const {return ValT;}
   TIter EndI() const {return ValT+Vals;}

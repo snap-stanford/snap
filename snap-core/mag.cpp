@@ -396,7 +396,7 @@ void TMAGFitBern::SetGraph(const PNGraph& GraphPt) {
 	}
 }
 
-const TFltVV& TMAGFitBern::SetPhiVV(const TIntVV& AttrVV, const int KnownIds) {
+void TMAGFitBern::SetPhiVV(const TIntVV& AttrVV, const int KnownIds) {
 	const int NNodes = Param.GetNodes();
 	const int NAttrs = Param.GetAttrs();
 
@@ -744,8 +744,8 @@ const double TMAGFitBern::ObjPhiMI(const double& x, const int& NId, const int& A
 }
 
 const double TMAGFitBern::GetEstNoEdgeLL(const int& NId, const int& AId) const {
-	const int NNodes = Param.GetNodes();
-	const int NAttrs = Param.GetAttrs();
+	// const int NNodes = Param.GetNodes();
+	// const int NAttrs = Param.GetAttrs();
 	
 	TMAGNodeBern DistParam = Param.GetNodeAttr();
 	double LL = 0.0;
@@ -757,7 +757,7 @@ const double TMAGFitBern::UpdatePhi(const int& NId, const int& AId, double& Phi)
 	TMAGAffMtx LLTheta, Theta = Param.GetMtx(AId); 
 	TMAGAffMtx SqTheta(Theta);
 	const int NNodes = Param.GetNodes();
-	const int NAttrs = Param.GetAttrs();
+	// const int NAttrs = Param.GetAttrs();
 	Theta.GetLLMtx(LLTheta);
 	TMAGNodeBern DistParam = Param.GetNodeAttr();
 	const double Mu = DistParam.GetMu(AId);
@@ -1060,7 +1060,7 @@ double TMAGFitBern::DoEStepOneIter(const TFltV& TrueMuV, TFltVV& NewPhiVV, const
 	double Val;
 	TFltIntIntTrV NewVal;
 	int RndCount = 0;
-	double OldMI = 0.0, NewMI = 0.0;
+	// double OldMI = 0.0, NewMI = 0.0;
 	TFltV MuV(NAttrs);	MuV.PutAll(0.0);
 	TIntV NIndV(NNodes), AIndV(NAttrs);
 
@@ -1138,7 +1138,7 @@ double TMAGFitBern::DoEStepApxOneIter(const TFltV& TrueMuV, TFltVV& NewPhiVV, co
 	double Val;
 	TFltIntIntTrV NewVal;
 	int RndCount = 0;
-	double OldMI = 0.0, NewMI = 0.0;
+	// double OldMI = 0.0, NewMI = 0.0;
 	TFltV MuV(NAttrs);	MuV.PutAll(0.0);
 	TFltVV ProdVV(NNodes, 4);	ProdVV.PutAll(0.0);
 	TIntV NIndV(NNodes), AIndV(NAttrs);
@@ -1273,7 +1273,7 @@ double TMAGFitBern::DoEStep(const TFltV& TrueMuV, const int& NIter, double& LL, 
 	const int NNodes = Param.GetNodes();
 	const int NAttrs = Param.GetAttrs();
 	TFltVV NewPhiVV(NNodes, NAttrs);
-	double MI;
+	// double MI;
 
 	TFltV Delta(NIter);
 
@@ -1319,7 +1319,7 @@ const double TMAGFitBern::UpdateMu(const int& AId) {
 
 const void TMAGFitBern::GradAffMtx(const int& AId, const TFltVV& ProdVV, const TFltVV& SqVV, const TMAGAffMtx& CurMtx, TFltV& GradV) {
 	const int NNodes = Param.GetNodes();
-	const int NAttrs = Param.GetAttrs();
+	// const int NAttrs = Param.GetAttrs();
 	GradV.PutAll(0.0);
 	
 	for(int i = 0; i < NNodes; i++) {
@@ -1345,8 +1345,8 @@ const void TMAGFitBern::GradAffMtx(const int& AId, const TFltVV& ProdVV, const T
 
 const void TMAGFitBern::GradApxAffMtx(const int& AId, const TFltVV& ProdVV, const TFltVV& SqVV, const TMAGAffMtx& CurMtx, TFltV& GradV) {
 	const int NNodes = Param.GetNodes();
-	const int NAttrs = Param.GetAttrs();
-	const int NSq = NNodes * (NNodes - 1);
+	// const int NAttrs = Param.GetAttrs();
+	// const int NSq = NNodes * (NNodes - 1);
 	GradV.PutAll(0.0);
 
 	TFltV LogSumV;
@@ -1417,8 +1417,8 @@ const void TMAGFitBern::GradApxAffMtx(const int& AId, const TFltVV& ProdVV, cons
 
 const double TMAGFitBern::UpdateAffMtx(const int& AId, const double& LrnRate, const double& MaxGrad, const double& Lambda, TFltVV& ProdVV, TFltVV& SqVV, TMAGAffMtx& NewMtx) {
 	double Delta = 0.0;
-	const int NNodes = Param.GetNodes();
-	const int NAttrs = Param.GetAttrs();
+	// const int NNodes = Param.GetNodes();
+	// const int NAttrs = Param.GetAttrs();
 	TMAGAffMtx AffMtx = Param.GetMtx(AId);
 
 	TFltV GradV(4);
@@ -1606,7 +1606,7 @@ const double TMAGFitBern::UpdateAffMtxV(const int& GradIter, const double& LrnRa
 }
 
 void TMAGFitBern::DoMStep(const int& GradIter, const double& LrnRate, const double& MaxGrad, const double& Lambda, const int& NReal) {
-	const int NNodes = Param.GetNodes();
+	// const int NNodes = Param.GetNodes();
 	const int NAttrs = Param.GetAttrs();
 	double MuDelta = 0.0, AffMtxDelta = 0.0;
 
@@ -1631,7 +1631,8 @@ void TMAGFitBern::DoEMAlg(const int& NStep, const int& NEstep, const int& NMstep
 	const int NNodes = Param.GetNodes();
 	const int NAttrs = Param.GetAttrs();
 	TIntV IndexV;
-	double LL, MuDist, MtxDist;
+	double LL;
+  // double MuDist, MtxDist;
 
 	MuHisV.Gen(NStep + 1, 0);
 	MtxHisV.Gen(NStep + 1, 0);
@@ -1826,7 +1827,7 @@ void TMAGFitBern::CountAttr(TFltV& EstMuV) const {
 
 void TMAGFitBern::SortAttrOrdering(const TFltV& TrueMuV, TIntV& IndexV) const {
 	const int NAttrs = TrueMuV.Len();
-	const int NNodes = PhiVV.GetXDim();
+	// const int NNodes = PhiVV.GetXDim();
 	TFltV EstMuV, SortedTrueMuV, SortedEstMuV, TrueIdxV, EstIdxV;
 	IndexV.Gen(NAttrs);
 	TrueIdxV.Gen(NAttrs);
@@ -2002,7 +2003,8 @@ const double TMAGFitBern::ComputeJointLL(int NSample) const {
 }
 
 const double TMAGFitBern::ComputeApxLL() const {
-	double LL = 0.0, LLSelf = 0.0;
+	double LL = 0.0;
+  // double LLSelf = 0.0;
 	const int NNodes = Param.GetNodes();
 	const int NAttrs = Param.GetAttrs();
 	TMAGNodeBern NodeAttr = Param.GetNodeAttr();
@@ -2042,7 +2044,8 @@ const double TMAGFitBern::ComputeApxLL() const {
 }
 
 const double TMAGFitBern::ComputeApxAdjLL() const {
-	double LL = 0.0, LLSelf = 0.0;
+	double LL = 0.0;
+  // double LLSelf = 0.0;
 	const int NNodes = Param.GetNodes();
 	const int NAttrs = Param.GetAttrs();
 	TMAGNodeBern NodeAttr = Param.GetNodeAttr();
@@ -2149,7 +2152,7 @@ const double TMAGFitBern::ComputeMI(const TFltVV& AttrV, const int AId1, const i
 }
 
 const double TMAGFitBern::ComputeMI(const TIntVV& AttrV) {
-	const int NNodes = AttrV.GetXDim();
+	// const int NNodes = AttrV.GetXDim();
 	const int NAttrs = AttrV.GetYDim();
 	double MI = 0.0;
 
@@ -2163,7 +2166,7 @@ const double TMAGFitBern::ComputeMI(const TIntVV& AttrV) {
 }
 
 const double TMAGFitBern::ComputeMI(const TFltVV& AttrV) {
-	const int NNodes = AttrV.GetXDim();
+	// const int NNodes = AttrV.GetXDim();
 	const int NAttrs = AttrV.GetYDim();
 	double MI = 0.0;
 

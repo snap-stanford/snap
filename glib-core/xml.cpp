@@ -322,7 +322,7 @@ void TXmlLx::ToNrSpacing(){
     TxtChA.Trunc(DstChN);
     // delete trailing white-spaces
     while ((TxtChA.Len()>0)&&(ChDef.IsWs(TxtChA.LastCh()))){
-      TxtChA.Trunc(TxtChA.Len()-1);}
+      TxtChA.Pop();}
   } else {
     Fail;
   }
@@ -735,8 +735,8 @@ void TXmlLx::GetCDSect(){
   forever {
     if (!ChDef.IsChar(Ch)){EThrow("Invalid CDATA character.");}
     if ((Ch=='>')&&(TxtChA.Len()>=2)&&
-     (TxtChA[TxtChA.Len()-2]==']')&&(TxtChA[TxtChA.Len()-1]==']')){
-      GetCh(); TxtChA.Trunc(TxtChA.Len()-2); break;
+     (TxtChA.LastLastCh()==']') && (TxtChA.LastCh()==']')){
+      GetCh(); TxtChA.Pop(); TxtChA.Pop(); break;
     } else {
       TxtChA+=Ch; GetCh();
     }
@@ -816,7 +816,7 @@ TXmlLxSym TXmlLx::GetSym(){
       if (Ch=='&'){GetCh(); TxtChA+=GetReference();} // reference
       else {
         if ((Ch=='>')&&(TxtChA.Len()>=2)&&
-         (TxtChA[TxtChA.Len()-2]==']')&&(TxtChA[TxtChA.Len()-1]==']')){
+         (TxtChA.LastLastCh()==']')&&(TxtChA.LastCh()==']')){
           EThrow("Forbidden substring ']]>' in character data.");}
         TxtChA+=Ch; GetCh(); // usual char
       }

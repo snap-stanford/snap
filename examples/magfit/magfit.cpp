@@ -34,7 +34,7 @@ int main(int argc, char* argv[]) {
   }
   TIntV NIdV;  Graph->GetNIdV(NIdV);
   Graph = TSnap::GetSubGraph(Graph, NIdV, true);
-  const int Nodes = Graph->GetNodes();
+  // const int Nodes = Graph->GetNodes();
 
   ExeTm.Tick();
   printf("\n*** MAGfit starting... \n");
