@@ -845,7 +845,7 @@ void TLocClustStat::SaveTxtInfo(const TStr& OutFNmPref, const TStr& Desc, const 
   const int GEdges = Graph->GetEdges();
   TVec<TFltV> ColV(17);
   double MxFrac=0, AvgFrac=0, MedianFrac=0, Pct9Frac=0, Flake=0;
-  double PrevBPos = 1, BPos = 1;
+  // double PrevBPos = 1, BPos = 1;
   for (int i = 0; i < SizeBucketSet.Len(); i++) {
     if ( !BestCutH.IsKey(SizeBucketSet[i])) { continue; }
     const TLocClustStat::TCutInfo& C = GetKNodeCut(SizeBucketSet[i]);

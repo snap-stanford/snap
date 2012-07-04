@@ -246,7 +246,7 @@ void TSs::LoadTxtFldV(
             ChA+=Ch; Ch=SIn->GetCh();
           }
           if ((!ChA.Empty())&&(ChA.LastCh()=='\"')){
-            ChA.Trunc(ChA.Len()-1);}
+            ChA.Pop();}
         } else
         if (SsFmt==ssfCommaSep){
           while ((!SIn->Eof())&&(Ch!=',')&&(Ch!='\r')&&

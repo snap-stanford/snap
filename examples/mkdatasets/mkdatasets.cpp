@@ -196,7 +196,7 @@ void MakeSlashdotSignNet(const TStr InFNm, TStr OutFNm, TStr Desc, THashSet<TChA
   //THashSet<TChA> NIdSet;
   TChA LnStr;
   TVec<char *> WrdV;
-  int Sign;
+  int Sign = 0;
   //PSignNet Net = TSignNet::New();
   TPt<TNodeEDatNet<TInt, TInt> >  Net = TNodeEDatNet<TInt, TInt>::New();
   int i = 0;

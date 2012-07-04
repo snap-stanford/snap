@@ -2212,7 +2212,8 @@ size_t TUniCodec::DecodeUtf16FromBytes(
 	size_t nDecoded = 0;
 	if (srcCount <= 0) return nDecoded;
 	const size_t origSrcIdx = srcIdx, srcEnd = srcIdx + srcCount;
-	bool littleEndian, leDefault = (defaultByteOrder == boLittleEndian || (defaultByteOrder == boMachineEndian && IsMachineLittleEndian()));
+	bool littleEndian = false;
+  bool leDefault = (defaultByteOrder == boLittleEndian || (defaultByteOrder == boMachineEndian && IsMachineLittleEndian()));
 	if (bomHandling == bomIgnored) littleEndian = leDefault;
 	else if (bomHandling == bomAllowed || bomHandling == bomRequired)
 	{
@@ -2294,7 +2295,8 @@ size_t TUniCodec::DecodeUtf16FromWords(
 	size_t nDecoded = 0;
 	if (srcCount <= 0) return nDecoded;
 	const size_t origSrcIdx = srcIdx, srcEnd = srcIdx + srcCount;
-	bool swap, isMachineLe = IsMachineLittleEndian();
+	bool swap = false;
+  bool isMachineLe = IsMachineLittleEndian();
 	bool isDefaultLe = (defaultByteOrder == boLittleEndian || (defaultByteOrder == boMachineEndian && isMachineLe));
 	if (bomHandling == bomIgnored) swap = (isDefaultLe != isMachineLe);
 	else if (bomHandling == bomAllowed || bomHandling == bomRequired)

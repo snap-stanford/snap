@@ -418,7 +418,7 @@ TLxSym TILx::GetSym(const TFSet& Expect){
       if ((IsCmtAlw)&&(Ch=='/')){
         TChA _CmtStr;
         do {_CmtStr+=GetCh();} while (!ChDef->IsTerm(Ch));
-        _CmtStr.Trunc(_CmtStr.Len()-1); _CmtStr.Trunc();
+        _CmtStr.Pop(); _CmtStr.Trunc();
         if (Ch==TCh::CrCh){
           if (GetCh()==TCh::LfCh){GetCh();}
         } else
@@ -434,7 +434,7 @@ TLxSym TILx::GetSym(const TFSet& Expect){
           while (GetCh()!='*'){_CmtStr+=Ch;}
           _CmtStr+=GetCh();
         } while (Ch!='/');
-        _CmtStr.Trunc(_CmtStr.Len()-2); _CmtStr.Trunc();
+        _CmtStr.Pop(); _CmtStr.Pop(); _CmtStr.Trunc();
         GetCh(); GetSym(Expect);
         CmtStr=_CmtStr;
       } else {
@@ -475,7 +475,7 @@ TLxSym TILx::GetSym(const TFSet& Expect){
           if (IsCmtAlw){
             TChA _CmtStr;
             do {_CmtStr+=GetCh();} while (!ChDef->IsTerm(Ch));
-            _CmtStr.Trunc(_CmtStr.Len()-1); _CmtStr.Trunc();
+            _CmtStr.Pop(); _CmtStr.Trunc();
             if (Ch==TCh::CrCh){
               if (GetCh()==TCh::LfCh){GetCh();}
             } else

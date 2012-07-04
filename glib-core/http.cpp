@@ -786,7 +786,7 @@ void THttpResp::AddFldVal(const TStr& FldNm, const TStr& FldVal){
   FldNmToValVH.AddDat(NrFldNm).Add(FldVal);
   if (HdStr.IsSuffix("\r\n\r\n")){
     TChA HdChA=HdStr;
-    HdChA.Trunc(HdChA.Len()-2);
+    HdChA.Pop(); HdChA.Pop();
     HdChA+=NrFldNm; HdChA+=": "; HdChA+=FldVal;
     HdChA+="\r\n\r\n";
     HdStr=HdChA;

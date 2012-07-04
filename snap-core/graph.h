@@ -655,11 +655,11 @@ public:
     int GetInDeg() const { return HI().GetDat().GetInDeg(); }
     /// Return out-degree of the current node (returns same as value GetDeg() since the graph is undirected).
     int GetOutDeg() const { return HI().GetDat().GetOutDeg(); }
-    /// Return ID of NodeN-th in-node (the node pointing to the current node). ##TNodeI::GetInNId
+    /// Return ID of NodeN-th in-node (the node pointing to the current node). ##TBPGraph::TNodeI::GetInNId
     int GetInNId(const int& NodeN) const { return HI().GetDat().GetInNId(NodeN); }
-    /// Return ID of NodeN-th out-node (the node the current node points to). ##TNodeI::GetOutNId
+    /// Return ID of NodeN-th out-node (the node the current node points to). ##TBPGraph::TNodeI::GetOutNId
     int GetOutNId(const int& NodeN) const { return HI().GetDat().GetOutNId(NodeN); }
-    /// Return ID of NodeN-th neighboring node. ##TNodeI::GetNbrNId
+    /// Return ID of NodeN-th neighboring node. ##TBPGraph::TNodeI::GetNbrNId
     int GetNbrNId(const int& NodeN) const { return HI().GetDat().GetNbrNId(NodeN); }
     /// Test whether node with ID NId points to the current node.
     bool IsInNId(const int& NId) const { return HI().GetDat().IsInNId(NId); }

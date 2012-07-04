@@ -143,7 +143,11 @@ private:
   TVec<TKronMtx> MtxV;	// Kronecker initiator matrix (per EM iteration)
 
 public:
-  TKroneckerLL() : Nodes(-1), KronIters(-1), PermSwapNodeProb(0.2), LogLike(TKronMtx::NInf), EMType(kronNodeMiss), RealNodes(-1), RealEdges(-1), MissEdges(-1), DebugMode(false) { }
+  // RS 07/03/12, changed the order in the constructor initializer list
+  //    so that it matches the declaration order. This changes also
+  //    got rid of the compilation warnings. This is the old order:
+  // TKroneckerLL() : Nodes(-1), KronIters(-1), PermSwapNodeProb(0.2), LogLike(TKronMtx::NInf), EMType(kronNodeMiss), RealNodes(-1), RealEdges(-1), MissEdges(-1), DebugMode(false) { }
+  TKroneckerLL() : Nodes(-1), KronIters(-1), PermSwapNodeProb(0.2), RealNodes(-1), RealEdges(-1), LogLike(TKronMtx::NInf), EMType(kronNodeMiss), MissEdges(-1), DebugMode(false) { }
   TKroneckerLL(const PNGraph& GraphPt, const TFltV& ParamV, const double& PermPSwapNd=0.2);
   TKroneckerLL(const PNGraph& GraphPt, const TKronMtx& ParamMtx, const double& PermPSwapNd=0.2);
   TKroneckerLL(const PNGraph& GraphPt, const TKronMtx& ParamMtx, const TIntV& NodeIdPermV, const double& PermPSwapNd=0.2);

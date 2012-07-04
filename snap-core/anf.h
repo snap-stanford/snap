@@ -139,7 +139,7 @@ void TGraphAnf<PGraph>::GetGraphAnf(TIntFltKdV& DistNbrsV, const int& MxDist, co
     DistNbrsV.Add(TIntFltKd(dist, NPairs));
     //printf("pairs: %g  %s\n", NPairs, ExeTm.GetTmStr());
     if (NPairs == 0) { break; }
-    if (DistNbrsV.Len() > 1 && NPairs < 1.001*DistNbrsV[DistNbrsV.Len()-2].Dat) { break; } // 0.1%  change
+    if (DistNbrsV.Len() > 1 && NPairs < 1.001*DistNbrsV.LastLast().Dat) { break; } // 0.1%  change
     //TGnuPlot::SaveTs(DistNbrsV, "hops.tab", "HOPS, REACHABLE PAIRS");
   }
 }
@@ -179,7 +179,7 @@ template <class PGraph> void Test() {
   }
   TMom Mom(AnfV);
   printf("-----------\nAvgAnf: %f  StDev:  %f\n", Mom.GetMean(), Mom.GetSDev());//*/
-  const int NApprox = 32;
+  // const int NApprox = 32;
   /*printf("\nANF vs. SAMPLE diam test (10 runs of ANF, NApprox=%d):\n", NApprox);
   //Graph = TGGen<PGraph>::GenGrid(20, 20);
   Graph = TGAlg::GetMxWcc(TGGen<PGraph>::GenRnd(1000, 10000));

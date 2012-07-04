@@ -73,12 +73,12 @@ TD34GraphCounter::TD34GraphCounter(int GraphSz) {
 	//
 	m_subGraphSize = GraphSz;
 	//
-	int numOfGraphs;
+	int numOfGraphs = 0;
 	if(GraphSz==3) numOfGraphs = TD3Graph::m_numOfGraphs;
 	else if(GraphSz==4) numOfGraphs = TD4Graph::m_numOfGraphs;
 	//
 	for(int i=0; i<numOfGraphs; i++) {
-		int graphId;
+		int graphId = 0;
 		if(GraphSz==3) graphId = TD3Graph::m_graphIds[i];
 		else if(GraphSz==4) graphId = TD4Graph::m_graphIds[i];
 		//
@@ -94,7 +94,7 @@ TD34GraphCounter::TD34GraphCounter(int GraphSz) {
 	}
 }
 void TD34GraphCounter::operator()(const PNGraph &G, const TIntV &sg) {
-	int graphId;
+	int graphId = 0;
 	if(m_subGraphSize==3) graphId = TD3Graph::getId(G, sg);
 	else if(m_subGraphSize==4) graphId = TD4Graph::getId(G, sg);
 	//

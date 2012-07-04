@@ -194,3 +194,42 @@ Range of NodeN: 0 <= NodeN < GetOutDeg().
 Range of NodeN: 0 <= NodeN < GetNbrDeg().
 ///
 
+/// Bipartite_graph
+///
+
+/// TBPGraph::TNodeI::GetInNId
+///
+
+/// TBPGraph::TNodeI::GetOutNId
+///
+
+/// TBPGraph::TNodeI::GetNbrNId
+///
+
+/// TBPGraph::New
+///
+
+/// TBPGraph::AddNode
+///
+
+/// TBPGraph::DelNode
+///
+
+/// TBPGraph::AddEdge
+///
+
+/// TBPGraph::DelEdge
+///
+
+/// TBPGraph::GetEI
+///
+
+/// TBPGraph::Defrag
+///
+
+/// TBPGraph::IsOk
+///
+
+/// TBPGraph::GetSmallGraph
+/// 
+
