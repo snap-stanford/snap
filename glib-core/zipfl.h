@@ -5,9 +5,10 @@
 /// Compressed File Input Stream. The class reads from a compressed file without explicitly uncompressing it.
 /// This is eachieved by running external 7ZIP program which uncompresses to standard output, which is then piped to TZipFl.
 /// The class requires 7ZIP to be installed on the machine. Go to http://www.7-zip.org to install the software.
-/// 7za (7z) is a stand-alone executable and can decompress the following formats: .gz, .7z, .rar, .zip, .cab, .arj. bzip2.
-/// The class TZIpIn expects that '7za' ('7z.exe') is in the working path. Make sure you can execute '7za e -y -bd -so <FILENAME>'
-/// Note: You can only load .gz files of uncompressed size <2GB. If you load any other format there is no such limitation.
+/// 7z (7z.exe) is an executable and can decompress the following formats: .gz, .7z, .rar, .zip, .cab, .arj. bzip2.
+/// The class TZIpIn expects that '7z' ('7z.exe') is in the working path. Make sure you can execute '7z e -y -bd -so <FILENAME>'
+/// Note: You can only load .gz files of uncompressed size <2GB. If you load some other format (like .bz2 or rar) there is no such limitation.
+/// Note2: For 7z to work properly you need both the 7z executable and the directory 'Codecs'.
 class TZipIn : public TSIn {
 private:
   static TStrStrH FExtToCmdH;
@@ -58,8 +59,9 @@ public:
 /// Compressed File Output Stream. The class directly writes to a compressed file.
 /// This is eachieved by TZipFl outputing into a pipe from which 7ZIP then reads and compresses.
 /// The class requires 7ZIP to be installed on the machine. Go to http://www.7-zip.org to install the software.
-/// 7za (7z) is a stand-alone executable and can decompress the following formats: .gz, .7z, .rar, .zip, .cab, .arj. bzip2.
-/// The class TZIpOut expects that '7za' ('7z.exe') is in the working path.
+/// 7z (7z.exe) is an executable and can decompress the following formats: .gz, .7z, .rar, .zip, .cab, .arj. bzip2.
+/// The class TZIpOut expects that '7z' ('7z.exe') is in the working path.
+/// Note2: For 7z to work properly you need both the 7z executable and the directory 'Codecs'.
 class TZipOut : public TSOut{
 private:
   static const TSize MxBfL;

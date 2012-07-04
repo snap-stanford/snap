@@ -725,14 +725,14 @@ bool TBPGraph::IsOk(const bool& ThrowExcept) const {
   for (int n = LeftH.FFirstKeyId(); LeftH.FNextKeyId(n); ) {
     for (int e = 0; e < LeftH[n].NIdV.Len(); e++) {
       if (! RightH.IsKey(LeftH[n].NIdV[e]) || ! RightH.GetDat(LeftH[n].NIdV[e]).NIdV.IsIn(LeftH[n].GetId())) {
-        const TStr Msg = TStr::Fmt("'Left' node %d does not point to the 'right' node %d.", LeftH[n].GetId(), LeftH[n].NIdV[e]);
+        const TStr Msg = TStr::Fmt("'Left' node %d does not point to the 'right' node %d.", LeftH[n].GetId(), LeftH[n].NIdV[e]());
         if (ThrowExcept) { EAssertR(false, Msg); } else { ErrNotify(Msg.CStr()); } RetVal=false; }
     }
   }
   for (int n = RightH.FFirstKeyId(); RightH.FNextKeyId(n); ) {
     for (int e = 0; e < RightH[n].NIdV.Len(); e++) {
       if (! LeftH.IsKey(RightH[n].NIdV[e]) || ! LeftH.GetDat(RightH[n].NIdV[e]).NIdV.IsIn(RightH[n].GetId())) {
-        const TStr Msg = TStr::Fmt("'Left' node %d does not point to the 'right' node %d.", RightH[n].GetId(), RightH[n].NIdV[e]);
+        const TStr Msg = TStr::Fmt("'Left' node %d does not point to the 'right' node %d.", RightH[n].GetId(), RightH[n].NIdV[e]());
         if (ThrowExcept) { EAssertR(false, Msg); } else { ErrNotify(Msg.CStr()); } RetVal=false; }
     }
   }
