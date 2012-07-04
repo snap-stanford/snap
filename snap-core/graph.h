@@ -161,7 +161,9 @@ public:
   TNodeI EndNI() const { return TNodeI(NodeH.EndI()); }
   /// Return an iterator referring to the node of ID NId in the graph.
   TNodeI GetNI(const int& NId) const { return TNodeI(NodeH.GetI(NId)); }
-  
+  /// Return the maximum id of a any node in the graph.
+  int GetMxNId() const { return MxNId; }
+
   /// Return the number of edges in the graph.
   int GetEdges() const;
   /// Add an edge between node IDs SrcNId and DstNId to the graph. ##TUNGraph::AddEdge
@@ -328,7 +330,7 @@ public:
   bool HasFlag(const TGraphFlag& Flag) const;
   TNGraph& operator = (const TNGraph& Graph) {
     if (this!=&Graph) { MxNId=Graph.MxNId;  NodeH=Graph.NodeH; }  return *this; }
-  // nodes
+  
   /// Returns the number of nodes in the graph.
   int GetNodes() const { return NodeH.Len(); }
   /// Add a node of ID NId to the graph. ##TNGraph::AddNode
@@ -352,8 +354,10 @@ public:
   /// Return an iterator referring to the node of ID NId in the graph.
   TNodeI GetNI(const int& NId) const { return TNodeI(NodeH.GetI(NId)); }
   // TODO document TNGraph::GetNodeC()
-  const TNode& GetNodeC(const int& NId) const { return NodeH.GetDat(NId); }
-  // edges
+  //const TNode& GetNodeC(const int& NId) const { return NodeH.GetDat(NId); }
+  /// Return the maximum id of a any node in the graph.
+  int GetMxNId() const { return MxNId; }
+
   /// Return the number of edges in the graph.
   int GetEdges() const;
   /// Add an edge from node IDs SrcNId to node DstNId to the graph. ##TNGraph::AddEdge
@@ -539,7 +543,7 @@ public:
   bool HasFlag(const TGraphFlag& Flag) const;
   TNEGraph& operator = (const TNEGraph& Graph) { if (this!=&Graph) {
     MxNId=Graph.MxNId; MxEId=Graph.MxEId; NodeH=Graph.NodeH; EdgeH=Graph.EdgeH; }  return *this; }
-  // nodes
+
   int GetNodes() const { return NodeH.Len(); }
   int AddNode(int NId = -1);
   int AddNode(const TNodeI& NodeId) { return AddNode(NodeId.GetId()); }
@@ -549,7 +553,9 @@ public:
   TNodeI BegNI() const { return TNodeI(NodeH.BegI(), this); }
   TNodeI EndNI() const { return TNodeI(NodeH.EndI(), this); }
   TNodeI GetNI(const int& NId) const { return TNodeI(NodeH.GetI(NId), this); }
-  // edges
+  /// Returns the maximum id of a any node in the graph.
+  int GetMxNId() const { return MxNId; }
+
   int GetEdges() const { return EdgeH.Len(); }
   int AddEdge(const int& SrcNId, const int& DstNId, int EId  = -1);
   int AddEdge(const TEdgeI& EdgeI) { return AddEdge(EdgeI.GetSrcNId(), EdgeI.GetDstNId(), EdgeI.GetId()); }
@@ -646,7 +652,7 @@ public:
     /// Return ID of the current node.
     int GetId() const { return HI().GetDat().GetId(); }
     /// Test whether the node is left hand side node.
-    bool IsLeft() const { return LeftHI.IsEnd(); }
+    bool IsLeft() const { return ! LeftHI.IsEnd(); }
     /// Test whether the node is right hand side node.
     bool IsRight() const { return ! IsLeft(); }
     /// Return degree of the current node.
@@ -698,9 +704,9 @@ public:
   };
 private:
   TCRef CRef;
-  TInt MxNId;
-  THash<TInt, TNode> LeftH;
-  THash<TInt, TNode> RightH;
+  TInt MxNId;                 // maximum node id in the graph
+  THash<TInt, TNode> LeftH;   // 'left' nodes
+  THash<TInt, TNode> RightH;  // 'right' nodes
 private:
   //TNode& GetNode(const int& NId) { return NodeH.GetDat(NId); }
   //const TNode& GetNode(const int& NId) const { return NodeH.GetDat(NId); }
@@ -744,6 +750,8 @@ public:
   bool IsLNode(const int& NId) const { return LeftH.IsKey(NId); }
   /// Test whether ID NId is a 'right' side node.
   bool IsRNode(const int& NId) const { return RightH.IsKey(NId); }
+  /// Return the maximum id of a any node in the graph.
+  int GetMxNId() const { return MxNId; }
     
   /// Return an iterator referring to the first node in the graph.
   TNodeI BegNI() const { return TNodeI(LeftH.BegI(), RightH.BegI()); }

@@ -136,6 +136,9 @@ public:
   const TNode& GetNode(const int& NId) const { return NodeH.GetDat(NId); }
   TNodeData& GetNDat(const int& NId) { return NodeH.GetDat(NId).NodeDat; }
   const TNodeData& GetNDat(const int& NId) const { return NodeH.GetDat(NId).NodeDat; }
+  /// Returns the maximum id of a any node in the network.
+  int GetMxNId() const { return MxNId; }
+
   // edges
   int GetEdges() const;
   int AddEdge(const int& SrcNId, const int& DstNId);
@@ -224,7 +227,6 @@ int TNodeNet<TNodeData>::GetEdges() const {
 template <class TNodeData>
 int TNodeNet<TNodeData>::AddEdge(const int& SrcNId, const int& DstNId) {
   IAssert(IsNode(SrcNId) && IsNode(DstNId));
-  //IAssert(! IsEdge(SrcNId, DstNId));
   if (IsEdge(SrcNId, DstNId)) { return -2; }
   GetNode(SrcNId).OutNIdV.AddSorted(DstNId);
   GetNode(DstNId).InNIdV.AddSorted(SrcNId);
@@ -476,6 +478,8 @@ public:
   const TNode& GetNode(const int& NId) const { return NodeH.GetDat(NId); }
   TNodeData& GetNDat(const int& NId) { return NodeH.GetDat(NId).NodeDat; }
   const TNodeData& GetNDat(const int& NId) const { return NodeH.GetDat(NId).NodeDat; }
+  /// Returns the maximum id of a any node in the network.
+  int GetMxNId() const { return MxNId; }
 
   // edges
   int GetEdges() const;
@@ -917,6 +921,8 @@ public:
   TNodeI GetNI(const int& NId) const { return TNodeI(NodeH.GetI(NId), this); }
   TNodeData& GetNDat(const int& NId) { return NodeH.GetDat(NId).NodeDat; }
   const TNodeData& GetNDat(const int& NId) const { return NodeH.GetDat(NId).NodeDat; }
+  /// Returns the maximum id of a any node in the network.
+  int GetMxNId() const { return MxNId; }
 
   // edges
   int GetEdges() const { return EdgeH.Len(); }
