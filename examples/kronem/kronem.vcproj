@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="9.00"
 	Name="kronem"
-	ProjectGUID="{CCB155FF-3FA8-45CF-A1DD-54770FDD2EAB}"
+	ProjectGUID="{E4CDCAFA-FEA6-4F99-AF60-C565A1EC8197}"
 	RootNamespace="kronem"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="196613"
@@ -165,6 +165,14 @@
 	<References>
 	</References>
 	<Files>
+		<File
+			RelativePath="..\..\snap-core\kronecker.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\snap-core\kronecker.h"
+			>
+		</File>
 		<File
 			RelativePath=".\kronem.cpp"
 			>

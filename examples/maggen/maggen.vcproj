@@ -166,6 +166,14 @@
 	</References>
 	<Files>
 		<File
+			RelativePath="..\..\snap-core\mag.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\snap-core\mag.h"
+			>
+		</File>
+		<File
 			RelativePath=".\maggen.cpp"
 			>
 		</File>

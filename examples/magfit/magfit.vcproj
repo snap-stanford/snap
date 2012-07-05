@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="9.00"
 	Name="magfit"
-	ProjectGUID="{CCB155FF-3FA8-45CF-A1DD-54770FDD2EAB}"
+	ProjectGUID="{2A3A0B57-83B1-40A3-9109-1A1C04384269}"
 	RootNamespace="magfit"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="196613"
@@ -165,6 +165,14 @@
 	<References>
 	</References>
 	<Files>
+		<File
+			RelativePath="..\..\snap-core\mag.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\snap-core\mag.h"
+			>
+		</File>
 		<File
 			RelativePath=".\magfit.cpp"
 			>

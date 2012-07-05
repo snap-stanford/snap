@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="9.00"
 	Name="graphgen"
-	ProjectGUID="{345EFCD5-A5BA-4C41-928C-AE5BD9A5FE02}"
+	ProjectGUID="{59BC1999-6B67-414F-91B0-0D02AEAC3E1D}"
 	RootNamespace="graphgen"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="196613"
