@@ -166,11 +166,11 @@
 	</References>
 	<Files>
 		<File
-			RelativePath="..\..\snap\kronecker.cpp"
+			RelativePath="..\..\snap-core\kronecker.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\snap\kronecker.h"
+			RelativePath="..\..\snap-core\kronecker.h"
 			>
 		</File>
 		<File
@@ -182,11 +182,11 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\snap\Snap.cpp"
+			RelativePath="..\..\snap-core\Snap.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\snap\Snap.h"
+			RelativePath="..\..\snap-core\Snap.h"
 			>
 		</File>
 		<File

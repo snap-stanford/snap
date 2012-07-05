@@ -166,11 +166,11 @@
 	</References>
 	<Files>
 		<File
-			RelativePath="..\..\snap\agm.cpp"
+			RelativePath="..\..\snap-core\agm.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\snap\agm.h"
+			RelativePath="..\..\snap-core\agm.h"
 			>
 		</File>
 		<File
@@ -182,11 +182,11 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\snap\Snap.cpp"
+			RelativePath="..\..\snap-core\Snap.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\snap\Snap.h"
+			RelativePath="..\..\snap-core\Snap.h"
 			>
 		</File>
 		<File

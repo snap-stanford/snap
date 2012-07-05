@@ -943,8 +943,8 @@ const double TMAGFitBern::UpdateApxPhiMI(const double& Lambda, const int& NId, c
 	TFltV ProdV;	ProdVV.GetRow(NId, ProdV);
 	ProdV[0] -= GetAvgThetaLL(NId, NId, AId, true, false);
 	ProdV[1] -= GetAvgThetaLL(NId, NId, AId, false, true);
-	ProdV[2] -= log(2) + GetAvgSqThetaLL(NId, NId, AId, true, false);
-	ProdV[3] -= log(2) + GetAvgSqThetaLL(NId, NId, AId, false, true);
+	ProdV[2] -= log(2.0) + GetAvgSqThetaLL(NId, NId, AId, true, false);
+	ProdV[3] -= log(2.0) + GetAvgSqThetaLL(NId, NId, AId, false, true);
 
 	//	Using log-sum-exp trick
 	double EdgeQ[2], MaxExp[2];
@@ -2110,7 +2110,7 @@ const double TMAGFitBern::ComputeMI(const TIntVV& AttrV, const int AId1, const i
 
 	for(int x = 0; x < 2; x++) {
 		for(int y = 0; y < 2; y++) {
-			MI += Pxy(x, y) / double(NNodes) * (log(Pxy(x, y)) - log(Px[x]) - log(Py[y]) + log(NNodes));
+      MI += Pxy(x, y) / double(NNodes) * (log(Pxy(x, y).Val) - log(Px[x].Val) - log(Py[y].Val) + log((double)NNodes));
 		}
 	}
 	
@@ -2144,7 +2144,7 @@ const double TMAGFitBern::ComputeMI(const TFltVV& AttrV, const int AId1, const i
 	
 	for(int x = 0; x < 2; x++) {
 		for(int y = 0; y < 2; y++) {
-			MI += Pxy(x, y) / double(NNodes) * (log(Pxy(x, y)) - log(Px[x]) - log(Py[y]) + log(NNodes));
+			MI += Pxy(x, y) / double(NNodes) * (log(Pxy(x, y)) - log(Px[x]) - log(Py[y]) + log(double(NNodes)));
 		}
 	}
 	

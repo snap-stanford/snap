@@ -912,7 +912,7 @@ void TKroneckerLL::SetGraph(const PNGraph& GraphPt) {
 
 
 void TKroneckerLL::AppendIsoNodes() {
-  Nodes = (int) pow(ProbMtx.GetDim(), KronIters);
+  Nodes = (int) pow((double)ProbMtx.GetDim(), KronIters);
   // add nodes until filling the Kronecker graph model
   for (int nid = Graph->GetNodes(); nid < Nodes; nid++) {
 	  Graph->AddNode(nid);

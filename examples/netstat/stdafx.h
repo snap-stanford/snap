@@ -4,5 +4,3 @@
 
 #include <stdio.h>
 #include "Snap.h"
-
-

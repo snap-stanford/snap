@@ -1,5 +1,31 @@
 #include "stdafx.h"
 
+template<class PGraph>
+void CreatePlots(const PGraph& Graph, TStr OutFNm, TStr Desc, 
+                 bool PlotDD, bool PlotCDD, bool PlotHop, bool PlotWcc, 
+                 bool PlotScc, bool PlotSVal, bool PlotSVec, bool PlotClustCf) {
+  printf("Creating plots...\n");
+  const int SingularVals = Graph->GetNodes()/2 > 200 ? 200 : Graph->GetNodes()/2;
+  if (PlotDD) {
+    TSnap::PlotOutDegDistr(Graph, OutFNm, Desc, false, false);
+    TSnap::PlotInDegDistr(Graph, OutFNm, Desc, false, false); }
+  if (PlotCDD) {
+    TSnap::PlotOutDegDistr(Graph, OutFNm, Desc, true, false);
+    TSnap::PlotInDegDistr(Graph, OutFNm, Desc, true, false); }
+  if (PlotHop) {
+    TSnap::PlotHops(Graph, OutFNm, Desc, false, 32); }
+  if (PlotWcc) {
+    TSnap::PlotWccDistr(Graph, OutFNm, Desc); }
+  if (PlotScc) {
+    TSnap::PlotSccDistr(Graph, OutFNm, Desc); }
+  if (PlotClustCf) {
+    TSnap::PlotClustCf(Graph, OutFNm, Desc); }
+  if (PlotSVal) {
+    TSnap::PlotSngValRank(TSnap::ConvertGraph<PNGraph>(Graph, true), SingularVals, OutFNm, Desc); }
+  if(PlotSVec) {
+    TSnap::PlotSngVec(TSnap::ConvertGraph<PNGraph>(Graph, true), OutFNm, Desc); }
+}
+
 int main(int argc, char* argv[]) {
   Env = TEnv(argc, argv, TNotify::StdNotify);
   Env.PrepArgs(TStr::Fmt("GraphInfo. build: %s, %s. Time: %s", __TIME__, __DATE__, TExeTm::GetCurTm()));
@@ -31,36 +57,40 @@ int main(int argc, char* argv[]) {
   //PNGraph G = TGGen<PNGraph>::GenRMat(1000, 3000, 0.40, 0.25, 0.2);
   //G->SaveEdgeList("graph.txt", "RMat graph (a:0.40, b:0.25, c:0.20)");
   printf("Loading...");
-  PNGraph Graph = TSnap::LoadEdgeList<PNGraph>(InFNm);
-  if (! IsDir) { TSnap::MakeUnDir(Graph); }
-  printf("nodes:%d  edges:%d\nCreating plots...\n", Graph->GetNodes(), Graph->GetEdges());
-  const int Vals = Graph->GetNodes()/2 > 200 ? 200 : Graph->GetNodes()/2;
-  if (PlotDD) {
-    TSnap::PlotOutDegDistr(Graph, OutFNm, Desc, false, false);
-    TSnap::PlotInDegDistr(Graph, OutFNm, Desc, false, false);
+  PNGraph NGraph;
+  PUNGraph UNGraph;
+  // binary formats
+  if (InFNm.IsSuffix(".ngraph")) { 
+    printf("directed graph (binary format)\n");
+    TFIn FIn(InFNm);  NGraph = TNGraph::Load(FIn);
+  } else
+  if (InFNm.SearchStr(".ngraph.")!=-1 && TZipIn::IsZipFNm(InFNm)) {
+    printf("directed graph (binary zipped format)\n");
+    TZipIn ZipIn(InFNm);  NGraph = TNGraph::Load(ZipIn);
+  } else 
+  if (InFNm.IsSuffix(".ungraph")) { 
+    printf("undirected graph (binary format)\n");
+    TFIn FIn(InFNm);  UNGraph = TUNGraph::Load(FIn);
+  } else
+  if (InFNm.SearchStr(".ungraph.")!=-1 && TZipIn::IsZipFNm(InFNm)) {
+    printf("undirected graph (binary zipped format)\n");
+    TZipIn ZipIn(InFNm);  UNGraph = TUNGraph::Load(ZipIn);
+  } else
+  // text formats
+  if (IsDir) {
+    printf("directed graph (TXT format)\n");
+    NGraph = TSnap::LoadEdgeList<PNGraph>(InFNm);
+  } else {
+    printf("undirected graph (TXT format)\n");
+    UNGraph = TSnap::LoadEdgeList<PUNGraph>(InFNm);
   }
-  if (PlotCDD) {
-    TSnap::PlotOutDegDistr(Graph, OutFNm, Desc, true, false);
-    TSnap::PlotInDegDistr(Graph, OutFNm, Desc, true, false);
-  }
-  if (PlotHop) {
-    TSnap::PlotHops(Graph, OutFNm, Desc, false, 32);
-  }
-  if (PlotWcc) {
-    TSnap::PlotWccDistr(Graph, OutFNm, Desc);
-  }
-  if (PlotScc) {
-    TSnap::PlotSccDistr(Graph, OutFNm, Desc);
-  }
-  if (PlotClustCf) {
-    TSnap::PlotClustCf(Graph, OutFNm, Desc);
-  }
-  if (PlotSVal) {
-    TSnap::PlotSngValRank(Graph, Vals, OutFNm, Desc);
-  }
-  if(PlotSVec) {
-    TSnap::PlotSngVec(Graph, OutFNm, Desc);
-  }
+  // create plots
+  if (! UNGraph.Empty()) { 
+    TSnap::PrintInfo(UNGraph, InFNm, "", UNGraph->GetNodes()>Kilo(1));
+    CreatePlots(UNGraph, OutFNm, Desc, PlotDD, PlotCDD, PlotHop, PlotWcc, PlotScc, PlotSVal, PlotSVec, PlotClustCf); }
+  if (! NGraph.Empty()) { 
+    TSnap::PrintInfo(NGraph, InFNm, "", NGraph->GetNodes()>Kilo(1));
+    CreatePlots(NGraph, OutFNm, Desc, PlotDD, PlotCDD, PlotHop, PlotWcc, PlotScc, PlotSVal, PlotSVec, PlotClustCf); }
   Catch
   printf("\nrun time: %s (%s)\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
   return 0;

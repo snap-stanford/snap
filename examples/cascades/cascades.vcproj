@@ -326,11 +326,11 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\snap\Snap.cpp"
+			RelativePath="..\..\snap-core\Snap.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\snap\Snap.h"
+			RelativePath="..\..\snap-core\Snap.h"
 			>
 		</File>
 		<File
