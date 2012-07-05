@@ -795,8 +795,8 @@ void TGnuPlot::CreatePlotFile(const TStr& Comment) {
   if (YRange.Val1 != YRange.Val2) fprintf(F, "set yrange [%g:%g]\n", YRange.Val1(), YRange.Val2());
   if (! LblX.Empty()) fprintf(F, "set xlabel \"%s\"\n", LblX.CStr());
   if (! LblY.Empty()) fprintf(F, "set ylabel \"%s\"\n", LblY.CStr());
-  fprintf(F, "set ticscale 2\n"); // New in version 4.2
-  //fprintf(F, "set ticscale 2 1\n"); // Old (depreciated)
+  //fprintf(F, "set tics scale 2\n"); // New in version 4.2
+  fprintf(F, "set ticscale 2 1\n"); // Old (depreciated)
   // custom commands
   for (int i = 0; i < MoreCmds.Len(); i++) {
     fprintf(F, "%s\n", MoreCmds[i].CStr()); }
