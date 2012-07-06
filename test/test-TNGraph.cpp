@@ -16,35 +16,35 @@
 #include <snap/Snap.h>
 
 // Test the default constructor
-TEST(TUNGraph, DefaultConstructor) {
-  PUNGraph Graph;
+TEST(TNGraph, DefaultConstructor) {
+  PNGraph Graph;
 
-  Graph = TUNGraph::New();
+  Graph = TNGraph::New();
 
   EXPECT_EQ(0,Graph->GetNodes());
   EXPECT_EQ(0,Graph->GetEdges());
 
   EXPECT_EQ(1,Graph->IsOk());
   EXPECT_EQ(1,Graph->Empty());
-  EXPECT_EQ(0,Graph->HasFlag(gfDirected));
+  EXPECT_EQ(1,Graph->HasFlag(gfDirected));
 }
 
 // Test node, edge creation
-TEST(TUNGraph, ManipulateNodesEdges) {
+TEST(TNGraph, ManipulateNodesEdges) {
   int NNodes = 10000;
   int NEdges = 100000;
   const char *FName = "test.graph";
 
-  PUNGraph Graph;
-  PUNGraph Graph1;
-  PUNGraph Graph2;
+  PNGraph Graph;
+  PNGraph Graph1;
+  PNGraph Graph2;
   int i;
   int n;
   int NCount;
   int x,y;
   int Deg, InDeg, OutDeg;
 
-  Graph = TUNGraph::New();
+  Graph = TNGraph::New();
   EXPECT_EQ(1,Graph->Empty());
 
   // create the nodes
@@ -82,39 +82,38 @@ TEST(TUNGraph, ManipulateNodesEdges) {
 
   // nodes iterator
   NCount = 0;
-  for (TUNGraph::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
+  for (TNGraph::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
     NCount++;
   }
   EXPECT_EQ(NNodes,NCount);
 
   // edges per node iterator
   NCount = 0;
-  for (TUNGraph::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
+  for (TNGraph::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
     for (int e = 0; e < NI.GetOutDeg(); e++) {
       NCount++;
     }
   }
-  EXPECT_EQ(NEdges*2,NCount);
+  EXPECT_EQ(NEdges,NCount);
 
   // edges iterator
   NCount = 0;
-  for (TUNGraph::TEdgeI EI = Graph->BegEI(); EI < Graph->EndEI(); EI++) {
+  for (TNGraph::TEdgeI EI = Graph->BegEI(); EI < Graph->EndEI(); EI++) {
     NCount++;
   }
   EXPECT_EQ(NEdges,NCount);
 
   // node degree
-  for (TUNGraph::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
+  for (TNGraph::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
     Deg = NI.GetDeg();
     InDeg = NI.GetInDeg();
     OutDeg = NI.GetOutDeg();
 
-    EXPECT_EQ(Deg,InDeg);
-    EXPECT_EQ(Deg,OutDeg);
+    EXPECT_EQ(Deg,InDeg+OutDeg);
   }
 
   // assignment
-  Graph1 = TUNGraph::New();
+  Graph1 = TNGraph::New();
   *Graph1 = *Graph;
 
   EXPECT_EQ(NNodes,Graph1->GetNodes());
@@ -131,7 +130,7 @@ TEST(TUNGraph, ManipulateNodesEdges) {
 
   {
     TFIn FIn(FName);
-    Graph2 = TUNGraph::Load(FIn);
+    Graph2 = TNGraph::Load(FIn);
   }
 
   EXPECT_EQ(NNodes,Graph2->GetNodes());
@@ -161,16 +160,16 @@ TEST(TUNGraph, ManipulateNodesEdges) {
 }
 
 // Test small graph
-TEST(TUNGraph, GetSmallGraph) {
-  PUNGraph Graph;
+TEST(TNGraph, GetSmallGraph) {
+  PNGraph Graph;
 
-  Graph = TUNGraph::GetSmallGraph();
+  Graph = TNGraph::GetSmallGraph();
 
   EXPECT_EQ(5,Graph->GetNodes());
-  EXPECT_EQ(5,Graph->GetEdges());
+  EXPECT_EQ(6,Graph->GetEdges());
 
   EXPECT_EQ(1,Graph->IsOk());
   EXPECT_EQ(0,Graph->Empty());
-  EXPECT_EQ(0,Graph->HasFlag(gfDirected));
+  EXPECT_EQ(1,Graph->HasFlag(gfDirected));
 }
 

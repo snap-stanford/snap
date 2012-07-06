@@ -7,7 +7,7 @@ CXXFLAGS += -std=c++98 -Wall
 CXXFLAGS += -O3
 
 ## Main application file
-DEMOS = demo-TUNGraph
+DEMOS = demo-TUNGraph demo-TNGraph
 DEPH = 
 DEPCPP =
 LIBS += -lrt -lproc -lsnap -lgtest
@@ -17,6 +17,9 @@ all: $(DEMOS)
 # COMPILE
 demo-TUNGraph: demo-TUNGraph.cpp
 	$(CC) $(CXXFLAGS) -o demo-TUNGraph demo-TUNGraph.cpp $(DEPCPP) $(LDFLAGS) $(LIBS)
+
+demo-TNGraph: demo-TNGraph.cpp
+	$(CC) $(CXXFLAGS) -o demo-TNGraph demo-TNGraph.cpp $(DEPCPP) $(LDFLAGS) $(LIBS)
 
 clean:
 	rm -f *.o $(DEMOS) $(DEMOS).exe

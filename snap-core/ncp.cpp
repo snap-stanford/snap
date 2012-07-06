@@ -1,4 +1,4 @@
-#include "stdafx.h"
+ #include "stdafx.h"
 #include "ncp.h"
 
 //////////////////////////////////////////////////
@@ -6,16 +6,16 @@
 
 bool TLocClust::Verbose = true;
 
-int TLocClust::ApproxPageRank(const int& StartNId, const double& Eps) {
+int TLocClust::ApproxPageRank(const int& SeedNode, const double& Eps) {
   for (int i = 0; i < ProbH.Len(); i++) { ProbH[i]=0.0; }
   for (int i = 0; i < ResH.Len(); i++) { ResH[i]=0.0; }
   ProbH.Clr(false, -1, false);
   ResH.Clr(false, -1, false);
-  ResH.AddDat(StartNId, 1.0);
+  ResH.AddDat(SeedNode, 1.0);
   int iter = 0;
   double OldRes = 0.0;
   NodeQ.Clr(false);
-  NodeQ.Push(StartNId);
+  NodeQ.Push(SeedNode);
   TExeTm ExeTm;
   while (! NodeQ.Empty()) {
     const int NId = NodeQ.Top(); NodeQ.Pop();
