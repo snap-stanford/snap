@@ -20,6 +20,7 @@ MakeAll:
 	$(MAKE) -C agmgen
 	$(MAKE) -C cascades
 	$(MAKE) -C centrality
+	$(MAKE) -C circles
 	$(MAKE) -C cliques
 	$(MAKE) -C community
 	$(MAKE) -C concomp
@@ -42,6 +43,7 @@ clean:
 	$(MAKE) clean -C agmgen
 	$(MAKE) clean -C cascades
 	$(MAKE) clean -C centrality
+	$(MAKE) clean -C circles
 	$(MAKE) clean -C cliques
 	$(MAKE) clean -C community
 	$(MAKE) clean -C concomp
