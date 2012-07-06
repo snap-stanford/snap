@@ -13,7 +13,9 @@ template <class PGraph> PGraph LoadEdgeListStr(const TStr& InFNm, const int& Src
 /// Loads a (directed, undirected or multi) graph from a text file InFNm with 1 node and all its edges in a single line.
 template <class PGraph> PGraph LoadConnList(const TStr& InFNm);
 
-/// Loads a (directed, undirected or multi) graph from Pajek .NET file.
+/// Loads a (directed, undirected or multi) graph from Pajek .PAJ format file.
+/// Function supports both the 1 edge per line (<source> <destination> <weight>)
+/// as well as the 1 node per line (<source> <destination1> <destination2> ...) formats.
 template <class PGraph> PGraph LoadPajek(const TStr& InFNm);
 /// Loads a directed network in the DyNetML format. Loads only the first network in the file FNm.
 PNGraph LoadDyNet(const TStr& FNm);
@@ -147,18 +149,33 @@ PGraph LoadConnList(const TStr& InFNm) {
 template <class PGraph>
 PGraph LoadPajek(const TStr& InFNm) {
   PGraph Graph = PGraph::TObj::New();
-  TSsParser Ss(InFNm, ssfSpaceSep, true, true);
-  Ss.Next();  Ss.ToLc();
+  TSsParser Ss(InFNm, ssfSpaceSep, true, true, true);
+  while ((Ss.Len()==0 || strstr(Ss[0], "*vertices") == NULL) && ! Ss.Eof()) {
+    Ss.Next();  Ss.ToLc(); }
   // nodes
+  bool EdgeList = true;
   EAssert(strstr(Ss[0], "*vertices") != NULL);
   while (Ss.Next()) {
     Ss.ToLc();
+    if (Ss.Len()>0 && Ss[0][0] == '%') { continue; } // comment
+    if (strstr(Ss[0], "*arcslist")!=NULL || strstr(Ss[0],"*edgeslist")!=NULL) { EdgeList=false; break; } 
     if (strstr(Ss[0], "*arcs")!=NULL || strstr(Ss[0],"*edges")!=NULL) { break; } // arcs are directed, edges are undirected
     Graph->AddNode(Ss.GetInt(0));
   }
   // edges
   while (Ss.Next()) {
-    Graph->AddEdge(Ss.GetInt(0), Ss.GetInt(1));
+    if (Ss.Len()>0 && Ss[0][0] == '%') { continue; } // comment
+    if (Ss.Len()>0 && Ss[0][0] == '*') { break; }
+    if (EdgeList) {
+      // <source> <destination> <weight>
+      if (Ss.Len() == 3 && Ss.IsInt(0) && Ss.IsInt(1)) {
+        Graph->AddEdge(Ss.GetInt(0), Ss.GetInt(1)); }
+    } else {
+      // <soruce> <destination1> <destination2> <destination3> ...
+      const int SrcNId = Ss.GetInt(0);
+      for (int i = 1; i < Ss.Len(); i++) {
+        Graph->AddEdge(SrcNId, Ss.GetInt(i)); }
+    }
   }
   return Graph;
 }
