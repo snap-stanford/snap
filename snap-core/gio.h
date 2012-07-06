@@ -1,3 +1,5 @@
+// ROK TODO, Jure included basic documentation, finalize reference doc
+
 /////////////////////////////////////////////////
 // Loading and saving graphs from/to various file formats.
 namespace TSnap {
