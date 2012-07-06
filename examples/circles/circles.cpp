@@ -112,7 +112,7 @@ void TCluster::train(TInt outerReps, TInt gradientReps, TInt mcmcReps) {
       ll_prev = ll;
     }
     float llf = ll;
-    printf("\nll = %f\n", llf);
+    printf("\nIteration %d, ll = %f\n", outerRep + 1, llf);
   }
 }
 
@@ -289,14 +289,28 @@ TFlt TCluster::loglikelihood(void) {
 }
 
 int main(int argc, char** argv) {
+  // Number of circles and regularization constant
+  TInt K = 4;
+  TFlt lambda = 1;
+  
   // Load an example graph
   PUNGraph Graph = TSnap::LoadEdgeList<PUNGraph>("fb1.edges");
   // Load attributes for that graph
   PGraphAttributes PGA = new TGraphAttributes(Graph, "fb1.features");
-  // Predict 4 clusters with lambda=1
-  PCluster PC = new TCluster(PGA, 4, 1);
+  // Predict K circles
+  PCluster PC = new TCluster(PGA, K, lambda);
   // Train for 50 iterations of coordinate ascent, with 100 iterations of gradient ascent, and 100 iterations of MCMC
   PC->train(50, 100, 100);
+  // Get the predicted circles
+  TVec<TIntSet> circles = PC->getCircles();
+  for (int k = 0; k < K; k ++) {
+    printf("Circle %d:", k + 1);
+    for (THashSetKeyI<TInt> it = circles[k].BegI(); it != circles[k].EndI(); it ++) {
+      int c = it.GetKey();
+      printf(" %d", c);
+    }
+    printf("\n");
+  }
 
   return 0;
 }

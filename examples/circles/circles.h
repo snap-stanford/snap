@@ -57,9 +57,9 @@ public:
   void train(TInt outerReps, TInt gradientReps, TInt mcmcReps);
 
   /**
-   * @return the predicted communities
+   * @return the predicted circles
    */
-  TVec<TIntSet> getCommunities(void) {
+  TVec<TIntSet> getCircles(void) {
     return chat;
   }
   TCRef CRef;
