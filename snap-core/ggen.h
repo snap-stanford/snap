@@ -1,3 +1,5 @@
+// ROK TODO, Jure included basic documentation, finalize reference doc
+
 /////////////////////////////////////////////////
 // Graph Generators
 namespace TSnap {

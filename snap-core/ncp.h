@@ -1,3 +1,5 @@
+// ROK TODO, Jure included basic documentation, finalize reference doc
+
 #ifndef snap_network_community_profile_h
 #define snap_network_community_profile_h
 
