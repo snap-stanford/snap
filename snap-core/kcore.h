@@ -1,6 +1,12 @@
+// ROK TODO, Jure included basic documentation, finalize reference doc
+
 /////////////////////////////////////////////////
-// Graph K-Cores
-// get a subgraph where every node has degree at least K
+/// K-Core decomposition of a network.
+/// K-core is defined as a maximal subgraph of the original graph where every node points to at least K other nodes.
+/// K-core is obtained by repeatedly deleting nodes of degree < K from the graph until no nodes of degree < K exist.
+/// If the input graph is directed we treat it as undirected, i.e., we ignore the edge directions.
+/// See the kcores example (examples/kcores/kcores.cpp) for how to use the code.
+/// For example: for (KCore(Graph); KCore.GetNextCore()!=0; ) { } will produce a sequence of K-cores for K=1...
 template<class PGraph>
 class TKCore {
 private:
@@ -12,12 +18,24 @@ private:
   void Init();
 public:
   TKCore(const PGraph& _Graph) : Graph(_Graph) { Init(); }
-  int GetCurK() const { return CurK; } // currrent value value of k
-  int GetNextCore();                   // start with k=1 -core and proceed (until GetCoreNodes()==0)
-  int GetCoreK(const int& K);          // get k-core directly
+  /// Gets the currrent value of K.
+  /// For every call of GetNextCore() the value of K increases by 1.
+  int GetCurK() const { return CurK; } 
+  /// Returns the number of nodes in the next (K=K+1) core.
+  /// The function starts with K=1-core and every time we call it it increases the value of K by 1 and
+  /// generates the core. The function proceeds until GetCoreNodes() returns 0. Return value of the function
+  /// is the size (the number of nodes) in the K-core (for the current value of K).
+  int GetNextCore();                   
+  /// Directly generates the core of order K. 
+  /// The function has the same effect as calling GetNextCore() K times.
+  int GetCoreK(const int& K);
+  /// Gets the number of nodes in the K-core (for the current value of K).
   int GetCoreNodes() const { return NIdV.Len(); }
+  /// Gets the number of edges in the K-core (for the current value of K).
   int GetCoreEdges() const;
-  const TIntV& GetNIdV() const { return NIdV; } // nodes in the current core GetK()
+  /// Returns the IDs of the nodes in the current K-core.
+  const TIntV& GetNIdV() const { return NIdV; }
+  /// Returrns the graph of the current K-core.
   PGraph GetCoreG() const { return TSnap::GetSubGraph(Graph, NIdV); }
 };
 
@@ -82,7 +100,8 @@ int TKCore<PGraph>::GetCoreK(const int& K) {
 /////////////////////////////////////////////////
 // Snap
 namespace TSnap {
-
+/// Returns the K-core of a graph.
+/// If the core of order K does not exist the function returns an empty graph.
 template<class PGraph>
 PGraph GetKCore(const PGraph& Graph, const int& K) {
   TKCore<PGraph> KCore(Graph);
