@@ -14,6 +14,8 @@ template <class PGraph> PGraph LoadEdgeListStr(const TStr& InFNm, const int& Src
 template <class PGraph> PGraph LoadEdgeListStr(const TStr& InFNm, const int& SrcColId, const int& DstColId, TStrHash<TInt>& StrToNIdH);
 /// Loads a (directed, undirected or multi) graph from a text file InFNm with 1 node and all its edges in a single line.
 template <class PGraph> PGraph LoadConnList(const TStr& InFNm);
+/// Loads a (directed, undirected or multi) graph from a text file InFNm with 1 node and all its edges in a single line.
+template <class PGraph> PGraph LoadConnListStr(const TStr& InFNm, TStrHash<TInt>& StrToNIdH);
 
 /// Loads a (directed, undirected or multi) graph from Pajek .PAJ format file.
 /// Function supports both the 1 edge per line (<source> <destination> <weight>)
@@ -132,7 +134,7 @@ PGraph LoadEdgeListStr(const TStr& InFNm, const int& SrcColId, const int& DstCol
 /// For example, '1 2 3' encodes edges 1-->2 and 1-->3. Note that this format allows for saving isolated nodes.
 template <class PGraph>
 PGraph LoadConnList(const TStr& InFNm) {
-  TSsParser Ss(InFNm, ssfWhiteSep);
+  TSsParser Ss(InFNm, ssfWhiteSep, true, true, true);
   PGraph Graph = PGraph::TObj::New();
   while (Ss.Next()) {
     if (! Ss.IsInt(0)) { continue; }
@@ -140,6 +142,27 @@ PGraph LoadConnList(const TStr& InFNm) {
     if (! Graph->IsNode(SrcNId)) { Graph->AddNode(SrcNId); }
     for (int dst = 1; dst < Ss.Len(); dst++) {
       const int DstNId = Ss.GetInt(dst);
+      if (! Graph->IsNode(DstNId)) { Graph->AddNode(DstNId); }
+      Graph->AddEdge(SrcNId, DstNId);
+    }
+  }
+  Graph->Defrag();
+  return Graph;
+}
+
+/// Whitespace separated file of several columns: <source node name> <destination node name 1> <destination node name 2> ... 
+/// First colum of each line contains a source node name followed by ids of the destination nodes.
+/// For example, 'A B C' encodes edges A-->B and A-->C. Note that this format allows for saving isolated nodes.
+/// @StrToNIdH stores the mapping from node names to node ids.
+template <class PGraph> 
+PGraph LoadConnListStr(const TStr& InFNm, TStrHash<TInt>& StrToNIdH) {
+  TSsParser Ss(InFNm, ssfWhiteSep, true, true, true);
+  PGraph Graph = PGraph::TObj::New();
+  while (Ss.Next()) {
+    const int SrcNId = StrToNIdH.AddDatId(Ss[0]);
+    if (! Graph->IsNode(SrcNId)) { Graph->AddNode(SrcNId); }
+    for (int dst = 1; dst < Ss.Len(); dst++) {
+      const int DstNId = StrToNIdH.AddDatId(Ss[dst]);
       if (! Graph->IsNode(DstNId)) { Graph->AddNode(DstNId); }
       Graph->AddEdge(SrcNId, DstNId);
     }

@@ -92,7 +92,7 @@ void PrintInfo(const PGraph& Graph, const TStr& Desc, const TStr& OutFNm, const 
     if (NI.GetInDeg()==0) ZeroInNodes++;
     if (NI.GetOutDeg()==0) ZeroOutNodes++;
     if (NI.GetInDeg()!=0 && NI.GetOutDeg()!=0) NonZIODegNodes++;
-    if (! Fast) {
+    if (! Fast || Graph->GetNodes() < 1000) {
       const int NId = NI.GetId();
       for (int edge = 0; edge < NI.GetOutDeg(); edge++) {
         const int DstNId = NI.GetOutNId(edge);
