@@ -194,6 +194,46 @@ Range of NodeN: 0 <= NodeN < GetOutDeg().
 Range of NodeN: 0 <= NodeN < GetNbrDeg().
 ///
 
+/// TNEGraph::New
+Call: PNEGraph Graph = TNEGraph::New(Nodes, Edges).
+///
+    
+/// TNEGraph::AddNode (int NId = -1)
+Return value is the ID of the node being added.
+If NId=-1 node id will be automatically assigned (and returned).
+If node of ID NId already exists, do nothing.
+/// 
+
+/// TNEGraph::DelNode
+If the node of ID NId does not exist the function aborts.
+///
+
+/// TNEGraph::AddEdge
+Returns an ID of the edge added.
+The function aborts if SrcNId or DstNId are not nodes in the graph.
+///
+
+/// TNEGraph::DelEdge
+If the edge (SrcNId, DstNId) does not exist in the graph function still
+completes.
+But the function aborts if SrcNId or DstNId are not nodes in the graph.
+///
+
+/// TNEGraph::Defrag
+After performing many node and edge insertions and deletions to a graph,
+the graph data structure will be fragmented in memory.
+This function compacts down the graph data structure and frees unneeded
+memory.
+///
+
+/// TNEGraph::IsOk
+For each node in the graph check that its neighbors are also nodes in the
+graph.
+///
+
+
+
+
 /// Bipartite_graph
 ///
 
