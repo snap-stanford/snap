@@ -1,5 +1,3 @@
-// ROK TODO, Jure included basic documentation, finalize reference doc
-
 #ifndef snap_network_community_profile_h
 #define snap_network_community_profile_h
 
@@ -10,18 +8,7 @@ class TLocClustStat;
 class TNcpGraphsBase;
 
 //////////////////////////////////////////////////
-/// Local Spectral Clustering algorithm.
-/// The code implements the PageRank Nibble local clustering algorithm of Andersen, Chung and Lang.
-/// Given a single starting seed node, the algorithm will then find the clusters around that node.
-/// This is achieved by the algorithm finding the approximate personalized PageRank score of every 
-/// node with respect to the Seed node. Nodes are then ordered by the PageRank score and the idea
-/// is then that by 'sweeping' the vector of PageRank scores one can find communities around the chosen seed node.
-/// The idea is to try out K = 1...N/2 and then for a set of {node_1 ... node_K} test the value
-/// of the conductance (Phi). If the conductance at certain value of K achieves a local minima,
-/// then we found a good cut in the graph.
-/// This method is also used for computing the Network Community Profile plots.
-/// See: Local Graph Partitioning using PageRank Vectors by R. Andersen, F. Chung and K. Lang
-/// URL: http://www.math.ucsd.edu/~fan/wp/localpartition.pdf 
+/// Local Spectral Clustering algorithm. ##Local_Spectral_Clustering_algorithm
 class TLocClust {
 public:
   static bool Verbose;
@@ -37,36 +24,32 @@ private:
   TFltV PhiV;              // Conductance
   int BestCutIdx;          // Index K to vectors where the conductance of the bounding cut (PhiV[K]) achieves its minimum
 private:
-  /// Vector of node IDs sorted in the random walk order
+  /// Vector of node IDs sorted in the random walk order.
   const TIntV& GetNIdV() const { return NIdV; }
   /// Volume (sum of the degrees) of first K-nodes in the node-id vector (GetNIdV()).
   const TIntV& GetVolV() const { return VolV; } 
-  /// Edges cut to seperate the first K-nodes in the node-id vector (GetNIdV()) from the rest of the graph.
+  /// Edges cut to separate the first K-nodes in the node-id vector (GetNIdV()) from the rest of the graph.
   const TIntV& GetCutV() const { return CutV; } 
   /// Conducatance of the cut separating first K-nodes in the node-id vector (GetNIdV()) from the rest of the graph.
   const TFltV& GetPhiV() const { return PhiV; } 
 public:
   TLocClust(const PUNGraph& GraphPt, const double& AlphaVal) :
     Graph(GraphPt), Nodes(GraphPt->GetNodes()), Edges2(2*GraphPt->GetEdges()), Alpha(AlphaVal) { }
-  /// Returns the support of the approximate random walk. That is the number of nodes with non-zero PageRank score.   
+  /// Returns the support of the approximate random walk, the number of nodes with non-zero PageRank score.   
   int Len() const { return GetRndWalkSup(); }
-  /// Returns the support of the approximate random walk. That is the number of nodes with non-zero PageRank score.
+  /// Returns the support of the approximate random walk, the number of nodes with non-zero PageRank score.
   int GetRndWalkSup() const { return VolV.Len(); }
 
   /// Returns the ID of the NodeN-th node in the sweep vector.
   int GetNId(const int& NodeN) const { return NIdV[NodeN]; }
-  /// Returns the volume of the set of first NodeN nodes in the sweep vector. 
-  /// Volume is defined as the sum of the degrees of the first Nodes nodes. Or in other words volume = 2* edges inside the ste + the edges pointing outside the set.
+  /// Returns the volume of the set of first NodeN nodes in the sweep vector. ##TLocClust::GetVol
   int GetVol(const int& Nodes) const { return VolV[Nodes]; }
-  /// Returns the size of the cut of the first Nodes nodes in the sweep vector.
-  /// Size of the cut is the number of edges pointing betweent the first Nodes nodes and the remainder of the graph.
+  /// Returns the size of the cut of the first Nodes nodes in the sweep vector. ##TLocClust::GetCut
   int GetCut(const int& Nodes) const { return CutV[Nodes]; }
-  /// Returns the conducance of the cut separating the first Nodes nodes in the sweep vector from the rest of the graph.
-  /// Conducatance is the ration Cut/Volume. The lower the conductance the 'better' the cluster (higher volume, less edges cut).
+  /// Returns the conductance of the cut separating the first Nodes nodes in the sweep vector from the rest of the graph. ##TLocClust::GetPhi
   double GetPhi(const int& ValId) const { return PhiV[ValId]; }
 
-  /// Index K of the cut of the minimum conductance around the seed node.
-  /// This means that the set of GetNId(0)...GetNId(K) forms the best cut around the seed node.
+  /// Index K of the cut of the minimum conductance around the seed node. ##TLocClust::BestCut
   int BestCut() const { return BestCutIdx; }
   /// Number of nodes inside the 'best' (minimum conductance) cut.
   int BestCutNodes() const { return BestCutIdx+1; }
@@ -74,39 +57,33 @@ public:
   int GetCutEdges() const { return GetCut(BestCut()); }
   /// Volume of the 'best' (minimum conductance) cut.
   int GetCutVol() const { return GetVol(BestCut()); }
-  /// Conducatance of the 'best' (minimum conductance) cut.
+  /// Conductance of the 'best' (minimum conductance) cut.
   double GetCutPhi() const { return GetPhi(BestCut()); }
 
-  /// Computes Approximate PageRank from the seed node SeedNId and with tolerance Eps.
-  /// The algorithm basically sets the PageRank scores of nodes with score <Eps to zero. So the lower the value of Eps the longer the algorithm will run.
+  /// Computes Approximate PageRank from the seed node SeedNId and with tolerance Eps. ##TLocClust::ApproxPageRank
   int ApproxPageRank(const int& SeedNode, const double& Eps);
-  /// After the function ApproxPageRank() has been run the SupportSweep() will compute the volume, cut size, node ids, conductance vectors. 
+  /// After the function ApproxPageRank() has been run the SupportSweep() computes the volume, cut size, node ids, conductance vectors. 
   void SupportSweep();
-  /// Finds minimum conductance cut in the graph around the seed node.
-  /// Function first computes the ApproxPageRank(), initializes the SupportSweep() and then find the minimum conductance cluster.
-  /// Parameter ClustSz controls the expected cluster size and is used to determine the tolerance (Eps) of the approximate PageRank calculation.
+  /// Finds minimum conductance cut in the graph around the seed node. ##TLocClust::FindBestCut
   void FindBestCut(const int& SeedNode, const int& ClustSz, const double& MinSizeFrac=0.2);
 
-  /// Plots the cluster volume vs. cluster size K (cluster is composes of nodes NIdV[1...K]).
+  /// Plots the cluster volume vs. cluster size K (cluster is composed of nodes NIdV[1...K]).
   void PlotVolDistr(const TStr& OutFNm, TStr Desc=TStr()) const;
-  /// Plots the cluster cut size vs. cluster size K (cluster is composes of nodes NIdV[1...K]).
+  /// Plots the cluster cut size vs. cluster size K (cluster is composed of nodes NIdV[1...K]).
   void PlotCutDistr(const TStr& OutFNm, TStr Desc=TStr()) const;
-  /// Plots the cluster conductance vs. cluster size K (cluster is composes of nodes NIdV[1...K]).
+  /// Plots the cluster conductance vs. cluster size K (cluster is composed of nodes NIdV[1...K]).
   void PlotPhiDistr(const TStr& OutFNm, TStr Desc=TStr()) const;
   /// Saves the network in the Pajek format so it can be visualized. Red node represents the seed and color the cluster membership.
   void SavePajek(const TStr& OutFNm) const;
 
-  /// Draws teh 'whiskers' of the graph. Whiskers are small sub-graphs that are attached to the rest of the graph via a single edge.
+  /// Draws the 'whiskers' of the graph. Whiskers are small sub-graphs that are attached to the rest of the graph via a single edge.
   static void DrawWhiskers(const PUNGraph& Graph, TStr FNmPref, const int& PlotN);
   /// For a given Graph and a set of nodes NIdV the function returns the Volume, CutSize and the Conductance of the cut.
   static void GetCutStat(const PUNGraph& Graph, const TIntV& NIdV, int& Vol, int& Cut, double& Phi, int GraphEdges=-1);
   /// For a given Graph and a set of nodes NIdV the function returns the Volume, CutSize and the Conductance of the cut.
   static void GetCutStat(const PUNGraph& Graph, const TIntSet& NIdSet, int& Vol, int& Cut, double& Phi, int GraphEdges=-1);
   /// Plots the Network Community Profile (NCP) of a given graph Graph.
-  /// The NCP plot of a network captures the global community structure of the network. 
-  /// Refer to 'Community Structure in Large Networks: Natural Cluster Sizes and the Absence of Large Well-Defined Clusters by J. Leskovec, K. Lang, A. Dasgupta, M. Mahoney. Internet Mathematics 6(1) 29--123, 2009'
-  /// for the explanation of how to read these plots.
-  /// URL: http://arxiv.org/abs/0810.1355
+  /// The NCP plot of a network captures the global community structure of the network. ##TLocClust::PlotNCP
   static void PlotNCP(const PUNGraph& Graph, const TStr& FNm, const TStr Desc="", const bool& BagOfWhiskers=true, const bool& RewireNet=false,
     const int& KMin=10, const int& KMax=Mega(100), const int& Coverage=10, const bool& SaveTxtStat=false, const bool& PlotBoltzman=false);
 

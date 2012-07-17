@@ -6,7 +6,7 @@ namespace TSnap {
 
 /// Loads a (directed, undirected or multi) graph from a text file InFNm with 1 edge per line (whitespace separated columns, integer node ids).
 template <class PGraph> PGraph LoadEdgeList(const TStr& InFNm, const int& SrcColId=0, const int& DstColId=1);
-/// Loads a (directed, undirected or multi) graph from a text file InFNm with 1 edge per line ('Separtor' separated columns, integer node ids).
+/// Loads a (directed, undirected or multi) graph from a text file InFNm with 1 edge per line ('Separator' separated columns, integer node ids).
 template <class PGraph> PGraph LoadEdgeList(const TStr& InFNm, const int& SrcColId, const int& DstColId, const char& Separator);
 /// Loads a (directed, undirected or multi) graph from a text file InFNm with 1 edge per line (whitespace separated columns, arbitrary string node ids).
 template <class PGraph> PGraph LoadEdgeListStr(const TStr& InFNm, const int& SrcColId=0, const int& DstColId=1);
@@ -196,7 +196,7 @@ PGraph LoadPajek(const TStr& InFNm) {
       if (Ss.Len() == 3 && Ss.IsInt(0) && Ss.IsInt(1)) {
         Graph->AddEdge(Ss.GetInt(0), Ss.GetInt(1)); }
     } else {
-      // <soruce> <destination1> <destination2> <destination3> ...
+      // <source> <destination1> <destination2> <destination3> ...
       const int SrcNId = Ss.GetInt(0);
       for (int i = 1; i < Ss.Len(); i++) {
         Graph->AddEdge(SrcNId, Ss.GetInt(i)); }

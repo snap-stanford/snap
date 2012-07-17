@@ -8,7 +8,7 @@ CXXFLAGS += -O3
 
 ## Main application file
 MAIN = run-all-tests
-TESTS = test-TUNGraph.cpp test-TNGraph.cpp
+TESTS = test-TUNGraph.cpp test-TNGraph.cpp test-TNEGraph.cpp
 DEPH = 
 DEPCPP =
 LIBS += -lrt -lproc -lsnap -lgtest

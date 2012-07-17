@@ -1,0 +1,46 @@
+/// Local_Spectral_Clustering_algorithm
+The code implements the PageRank Nibble local clustering algorithm of Andersen, Chung and Lang.
+Given a single starting seed node, the algorithm will then find the clusters around that node.
+This is achieved by the algorithm finding the approximate personalized PageRank score of every 
+node with respect to the Seed node. Nodes are then ordered by the PageRank score and the idea
+is then that by 'sweeping' the vector of PageRank scores one can find communities around the chosen seed node.
+The idea is to try out K = 1...N/2 and then for a set of {node_1 ... node_K} test the value
+of the conductance (Phi). If the conductance at certain value of K achieves a local minima,
+then we found a good cut in the graph.
+This method is also used for computing the Network Community Profile plots.
+See: Local Graph Partitioning using PageRank Vectors by R. Andersen, F. Chung and K. Lang
+URL: http://www.math.ucsd.edu/~fan/wp/localpartition.pdf
+///
+
+/// TLocClust::GetVol
+Volume is defined as the sum of the degrees of the first Nodes nodes. Or in other words volume = 2* edges inside the set + the edges pointing outside the set.
+///
+
+/// TLocClust::GetCut
+Size of the cut is the number of edges pointing between the first Nodes nodes and the remainder of the graph.
+///
+
+/// TLocClust::GetPhi
+Conductance is the ration Cut/Volume. The lower the conductance the 'better' the cluster (higher volume, less edges cut).
+///
+
+/// TLocClust::BestCut
+This means that the set of GetNId(0)...GetNId(K) forms the best cut around the seed node.
+///
+
+/// TLocClust::ApproxPageRank
+The algorithm basically sets the PageRank scores of nodes with score <Eps to zero. So the lower the value of Eps the longer the algorithm will run.
+///
+
+/// TLocClust::FindBestCut
+Function first computes the ApproxPageRank(), initializes the SupportSweep() and then find the minimum conductance cluster.
+Parameter ClustSz controls the expected cluster size and is used to determine the tolerance (Eps) of the approximate PageRank calculation.
+///
+
+/// TLocClust::PlotNCP
+The NCP plot of a network captures the global community structure of the network. 
+Refer to 'Community Structure in Large Networks: Natural Cluster Sizes and the Absence of Large Well-Defined Clusters by J. Leskovec, K. Lang, A. Dasgupta, M. Mahoney. Internet Mathematics 6(1) 29--123, 2009'
+for the explanation of how to read these plots.
+URL: http://arxiv.org/abs/0810.1355
+///
+

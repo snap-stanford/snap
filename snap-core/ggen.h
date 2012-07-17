@@ -144,11 +144,15 @@ PGraph GenTree(const int& Fanout, const int& Levels, const bool& IsDir, const bo
 /// exponent 1+ln(5)/ln(4) and clustering coefficient with power-law decay 
 /// exponent -1.
 /// Base graph:
+
+/// \verbatim
 ///   o---o
 ///   |\ /|
 ///   | o |
 ///   |/ \|
 ///   o---o
+/// \endverbatim
+
 /// See: Hierarchical organization in complex networks. Ravasz and Barabasi.
 /// URL: http://arxiv.org/abs/cond-mat/0206130
 template <class PGraph>
