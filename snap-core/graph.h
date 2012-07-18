@@ -124,7 +124,7 @@ public:
   /// Constructor that reserves enough memory for a graph of Nodes nodes and Edges edges.
   explicit TUNGraph(const int& Nodes, const int& Edges) : MxNId(0) { Reserve(Nodes, Edges); }
   TUNGraph(const TUNGraph& Graph) : MxNId(Graph.MxNId), NodeH(Graph.NodeH) { }
-  /// Constructor for loading the graph from a (binary) stream SIn.
+  /// Constructor that loads the graph from a (binary) stream SIn.
   TUNGraph(TSIn& SIn) : MxNId(SIn), NodeH(SIn) { }
   /// Saves the graph to a (binary) stream SOut.
   void Save(TSOut& SOut) const { MxNId.Save(SOut);  NodeH.Save(SOut); }

@@ -1,32 +1,38 @@
 /////////////////////////////////////////////////
 // Defines
-#define Kilo(n) (1000*(n))
+#define Kilo(n) (1000*(n))            ///
 #define Mega(n) (1000*1000*(n))
 #define Giga(n) (1000*1000*1000*(n))
 
 /////////////////////////////////////////////////
-// Graph Flags
+/// Graph Flags, used for quick testing of graph types
 typedef enum {
-  gfUndef=0,
-  gfDirected,   // directed graph (TNGraph, TNEGraph), else graph is undirected(TUNGraph)
-  gfMultiGraph, // have explicit edges (multigraph): TNEGraph, TNodeEdgeNet
-  gfNodeDat,    // network with data on nodes
-  gfEdgeDat,    // network with data on edges
-  gfSources,    // nodes only store out-edges (but not in-edges). See TBigNet
-  gfBipart,     // bipartite graph
-  gfMx
+  gfUndef=0,    ///< default value, no flags
+  gfDirected,   ///< directed graph (TNGraph, TNEGraph), else graph is undirected(TUNGraph)
+  gfMultiGraph, ///< have explicit edges (multigraph): TNEGraph, TNodeEdgeNet
+  gfNodeDat,    ///< network with data on nodes
+  gfEdgeDat,    ///< network with data on edges
+  gfSources,    ///< nodes only store out-edges (but not in-edges). See TBigNet
+  gfBipart,     ///< bipartite graph
+  gfMx          ///< sentinel, last value for iteration
 } TGraphFlag;
 
 namespace TSnap {
 
+/// Tests if the graph is directed.
 template <class TGraph> struct IsDirected   { enum { Val = 0 }; };
+/// Tests if the graph is a multigraph with multiple edges between the same nodes.
 template <class TGraph> struct IsMultiGraph { enum { Val = 0 }; };
+/// Tests if the graph is a network with data on nodes.
 template <class TGraph> struct IsNodeDat    { enum { Val = 0 }; };
+/// Tests if the graph is a network with data on edges.
 template <class TGraph> struct IsEdgeDat    { enum { Val = 0 }; };
+/// Tests if the nodes store only out-edges, but not in-edges.
 template <class TGraph> struct IsSources    { enum { Val = 0 }; };
+/// Tests if the graph is a bipartite graph type.
 template <class TGraph> struct IsBipart     { enum { Val = 0 }; };
 
-// test whether TDerivClass is derived from TBaseClass
+/// Tests if TDerivClass is derived from TBaseClass
 template<class TDerivClass, class TBaseClass>
 class IsDerivedFrom {
 private:
@@ -64,16 +70,17 @@ public:
 // Graph Base
 namespace TSnap {
 
+/// Returns a string representation of a flag.
 TStr GetFlagStr(const TGraphFlag& GraphFlag);
+/// Prints basic graph statistics.
 template <class PGraph> void PrintInfo(const PGraph& Graph, const TStr& Desc="", const TStr& OutFNm="", const bool& Fast=true);
 
 /////////////////////////////////////////////////
 // Implementation
 
-// Forward declaration
+/// Forward declaration, definition in triad.h
 template <class PGraph> int GetTriads(const PGraph& Graph, int& ClosedTriads, int& OpenTriads, int SampleNodes=-1);
 
-/// Print basic graph statistics.
 template <class PGraph>
 void PrintInfo(const PGraph& Graph, const TStr& Desc, const TStr& OutFNm, const bool& Fast) {
   int BiDirEdges=0, ZeroNodes=0, ZeroInNodes=0, ZeroOutNodes=0, SelfEdges=0, NonZIODegNodes=0;
@@ -128,7 +135,7 @@ void PrintInfo(const PGraph& Graph, const TStr& Desc, const TStr& OutFNm, const 
 }  // namespace TSnap
 
 /////////////////////////////////////////////////
-// Fast Queue (uses memcpy to move object around)
+/// Fast Queue (uses memcpy to move object around).
 template <class TVal>
 class TSnapQueue {
 private:
@@ -137,30 +144,42 @@ private:
   TVec<TVal> ValV;
 public:
   TSnapQueue() : MxFirst(1024), First(0), Last(0), ValV(MxFirst, 0) { }
+  /// Constructor that reserves enough memory for a queue with MxVals elements.
   TSnapQueue(const int& MxVals) : MxFirst(1024+MxVals/10), First(0), Last(0), ValV(TInt::GetMx(MxFirst, MxVals), 0) { }
   TSnapQueue(const int& MxVals, const int& MaxFirst) : MxFirst(MaxFirst),
     First(0), Last(0), ValV(TInt::GetMx(MxFirst, MxVals), 0) { }
   TSnapQueue(const TSnapQueue& Queue) : MxFirst(Queue.MxFirst), First(Queue.First), Last(Queue.Last), ValV(Queue.ValV) { }
+  /// Constructor that loads the queue from a (binary) stream SIn.
   explicit TSnapQueue(TSIn& SIn): MxFirst(SIn), First(SIn), Last(SIn), ValV(SIn) { }
+  /// Saves the queue to a (binary) stream SOut.
   void Save(TSOut& SOut) const { MxFirst.Save(SOut); First.Save(SOut); Last.Save(SOut); ValV.Save(SOut); }
 
   TSnapQueue& operator=(const TSnapQueue& Queue) { if (this != &Queue) { MxFirst=Queue.MxFirst;
     First=Queue.First; Last=Queue.Last; ValV=Queue.ValV; } return *this; }
+  /// Returns the value of the ValN element in the queue, but does not remove the element.
   const TVal& operator[](const int& ValN) const { return ValV[First+ValN]; }
 
+  /// Deletes all elements from the queue.
   void Clr(const bool& DoDel=true) { ValV.Clr(DoDel);  First=Last=0; }
   void Gen(const int& MxVals, const int& MaxFirst=1024) {
     MxFirst=MaxFirst; First=Last=0; ValV.Gen(MxVals, 0); }
 
+  /// Tests whether the queue is empty (contains no elements).
   bool Empty() const {return First==Last;}
+  /// Returns the number of elements in the queue.
   int Len() const {return Last-First;}
+  /// Returns the location of the first element in the queue.
   int GetFirst() const { return First; }
+  /// Returns the location of the last element in the queue.
   int GetLast() const { return Last; }
   int Reserved() const { return ValV.Reserved(); }
 
+  /// Returns the value of the first element in the queue, but does not remove the element.
   const TVal& Top() const { return ValV[First]; }
+  /// Removes the first element from the queue.
   void Pop() { First++;
     if (First==Last) { ValV.Clr(false); First=Last=0; } }
+  /// Adds an element at the end of the queue.
   void Push(const TVal& Val) {
     if (First>0 && (First > MxFirst || ValV.Len() == ValV.Reserved()) && ! ValV.Empty()) {
       //printf("[move cc queue.Len:%d-->%d]", ValV.Len(),Len()); TExeTm Tm;
@@ -174,27 +193,38 @@ public:
 };
 
 /////////////////////////////////////////////////
-/// Union Find (Disjoint-set data structure)
+/// Union Find (Disjoint-set data structure).
 /// http://en.wikipedia.org/wiki/Disjoint-set_data_structure)
 class TUnionFind {
 private:
   THash<TInt, TIntPr> KIdSetH; // key id to (parent, rank)
 public:
+  /// Returns the parent of element Key.
   TInt& Parent(const int& Key) { return KIdSetH.GetDat(Key).Val1; }
+  /// Returns the rank of element Key.
   TInt& Rank(const int& Key) { return KIdSetH.GetDat(Key).Val2; }
 public:
   TUnionFind() : KIdSetH() { }
+  /// Constructor that reserves enough memory for ExpectKeys elements.
   TUnionFind(const int& ExpectKeys) : KIdSetH(ExpectKeys, true) { }
   TUnionFind(const TUnionFind& UnionFind) : KIdSetH(UnionFind.KIdSetH) { }
   TUnionFind& operator = (const TUnionFind& UF) { KIdSetH=UF.KIdSetH; return *this; }
 
+  /// Returns the number of elements in the structure.
   int Len() const { return KIdSetH.Len(); }
+  /// Returns true if the structure contains element Key.
   bool IsKey(const int& Key) const { return KIdSetH.IsKey(Key); }
+  /// Returns the element KeyN.
   int GetKeyI(const int& KeyN) const { return KIdSetH.GetKey(KeyN); }
+  /// Returns the set that contains element Key.
   int Find(const int& Key);
+  /// Adds an element Key to the structure.
   int Add(const int& Key) { KIdSetH.AddDat(Key, TIntPr(-1, 0));  return Key; }
+  /// Merges sets with elements Key1 and Key2.
   void Union(const int& Key1, const int& Key2);
+  /// Returns true if elements Key1 and Key2 are in the same set.
   bool IsSameSet(const int& Key1, const int& Key2) {
     return Find(Key1) == Find(Key2); }
+  /// Prints out the structure to standard output.
   void Dump();
 };
