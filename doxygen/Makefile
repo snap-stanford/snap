@@ -1,4 +1,5 @@
 DATE := $(shell date +%Y%m%d)
+TIME := $(shell date +%Y%m%d-%H%M%S)
 
 dummy:
 
@@ -24,6 +25,14 @@ doxycopy:
 	python doxyblock.py ../examples snap/examples
 	python doxyblock.py ../projects snap/projects
 	python doxyblock.py ../utils snap/utils
+
+install:
+	#ssh rok@snap mv public_html/snapdoc-dev public_html/snapdoc-dev-$(TIME)
+	scp -r snapdoc-dev rok@snap:public_html/snapdoc-dev-$(TIME)
+	ssh rok@snap ln -fsn snapdoc-dev-$(TIME) public_html/snapdoc-dev
+	#ssh rok@snap mv public_html/snapdoc-user public_html/snapdoc-user-$(TIME)
+	scp -r snapdoc-user rok@snap:public_html/snapdoc-user-$(TIME)
+	ssh rok@snap ln -fsn snapdoc-user-$(TIME) public_html/snapdoc-user
 
 clean:
 	rm -rf snap
