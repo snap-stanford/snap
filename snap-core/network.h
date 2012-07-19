@@ -9,7 +9,7 @@
 //  };
 
 /////////////////////////////////////////////////
-/// Node Network (TNGraph with data on nodes only).
+/// Node Network (directed graph, TNGraph, with data on nodes only).
 template <class TNodeData>
 class TNodeNet {
 public:
@@ -166,8 +166,11 @@ public:
   TNodeI EndNI() const { return TNodeI(NodeH.EndI(), this); }
   /// Returns an iterator referring to the node of ID NId in the network.
   TNodeI GetNI(const int& NId) const { return TNodeI(NodeH.GetI(NId), this); }
+  /// Returns node element for the node of ID NId in the network.
   const TNode& GetNode(const int& NId) const { return NodeH.GetDat(NId); }
+  /// Returns node data for the node of ID NId in the network.
   TNodeData& GetNDat(const int& NId) { return NodeH.GetDat(NId).NodeDat; }
+  /// Returns node data for the node of ID NId in the network.
   const TNodeData& GetNDat(const int& NId) const { return NodeH.GetDat(NId).NodeDat; }
   /// Returns the maximum id of a any node in the network.
   int GetMxNId() const { return MxNId; }
@@ -206,7 +209,9 @@ public:
     MxNId = 0;  NodeH.Clr(DoDel, -1, ResetDat); }
   /// Reserves memory for a network of Nodes nodes and Edges edges.
   void Reserve(const int& Nodes, const int& Edges) { if (Nodes>0) { NodeH.Gen(Nodes/2); } }
+  /// Sorts nodes by node IDs.
   void SortNIdById(const bool& Asc=true) { NodeH.SortByKey(Asc); }
+  /// Sorts nodes by node data.
   void SortNIdByDat(const bool& Asc=true) { NodeH.SortByDat(Asc); }
   /// Defragments the network. ##TNodeNet::Defrag
   void Defrag(const bool& OnlyNodeLinks=false);

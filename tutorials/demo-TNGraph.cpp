@@ -90,7 +90,7 @@ void ManipulateNodesEdges() {
   for (TNGraph::TEdgeI EI = Graph->BegEI(); EI < Graph->EndEI(); EI++) {
     ECount2++;
   }
-  printf("graph ManipulateNodesEdges:Graph, nodes %d, edges1 %d, edges2 %d\n",
+  printf("ManipulateNodesEdges:Graph, nodes %d, edges1 %d, edges2 %d\n",
       NCount, ECount1, ECount2);
 
   // assignment

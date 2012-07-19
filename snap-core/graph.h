@@ -613,9 +613,9 @@ public:
   int GetRndNId(TRnd& Rnd=TInt::Rnd) { return NodeH.GetKey(NodeH.GetRndKeyId(Rnd, 0.8)); }
   /// Returns an interator referring to a random node in the graph.
   TNodeI GetRndNI(TRnd& Rnd=TInt::Rnd) { return GetNI(GetRndNId(Rnd)); }
-  // TODO document TNEGraph::GetRndEId()
+  /// Returns an ID of a random edge in the graph.
   int GetRndEId(TRnd& Rnd=TInt::Rnd) { return EdgeH.GetKey(EdgeH.GetRndKeyId(Rnd, 0.8)); }
-  // TODO document TNEGraph::GetRndEId()
+  /// Returns an interator referring to a random edge in the graph.
   TEdgeI GetRndEI(TRnd& Rnd=TInt::Rnd) { return GetEI(GetRndEId(Rnd)); }
   /// Gets a vector IDs of all nodes in the graph.
   void GetNIdV(TIntV& NIdV) const;
