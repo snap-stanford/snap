@@ -12,8 +12,14 @@ Range of NodeN: 0 <= NodeN < GetNbrDeg().
 
 /// TNodeNet::AddNode (int NId = -1)
 Return value is the ID of the node being added.
-If NId=-1 node id will be automatically assigned (and returned).
+If NId=-1 node ID will be automatically assigned (and returned).
 If node of ID NId already exists, do nothing.
+///
+
+/// TNodeNet::AddNode-1 (int NId, const TNodeData& NodeDat)
+Return value is the ID of the node being added.
+If the node NId does not exists, it will be added to the graph.
+If NId=-1 node ID will be automatically assigned (and returned).
 ///
 
 /// TNodeNet::DelNode
@@ -42,6 +48,60 @@ memory.
 ///
 
 /// TNodeNet::IsOk
+For each node in the network check that its neighbors are also nodes in the
+network.
+///
+
+/// TNodeEDatNet::TNodeI::GetInNId
+Range of NodeN: 0 <= NodeN < GetInDeg().
+///
+
+/// TNodeEDatNet::TNodeI::GetOutNId
+Range of NodeN: 0 <= NodeN < GetOutDeg().
+///
+
+/// TNodeEDatNet::TNodeI::GetNbrNId
+Range of NodeN: 0 <= NodeN < GetNbrDeg().
+///
+
+/// TNodeEDatNet::AddNode (int NId = -1)
+Return value is the ID of the node being added.
+If NId=-1 node ID will be automatically assigned (and returned).
+If node of ID NId already exists, do nothing.
+///
+
+/// TNodeEDatNet::AddNode-1 (int NId, const TNodeData& NodeDat)
+Return value is the ID of the node being added.
+If the node NId does not exists, it will be added to the graph.
+If NId=-1 node ID will be automatically assigned (and returned).
+///
+
+/// TNodeEDatNet::DelNode
+If the node of ID NId does not exist the function aborts.
+///
+
+/// TNodeEDatNet::AddEdge
+If the edge already exists return -2. If the edge was successfully added
+return -1.
+Normally the function should return an ID of the edge added but since edges in
+TNodeEDatNet have no IDs we return -1.
+Function aborts if SrcNId or DstNId are not nodes in the network.
+///
+
+/// TNodeEDatNet::DelEdge
+If the edge (SrcNId, DstNId) does not exist in the network function still
+completes.
+But the function aborts if SrcNId or DstNId are not nodes in the network.
+///
+
+/// TNodeEDatNet::Defrag
+After performing many node and edge insertions and deletions to a network,
+the network data structure will be fragmented in memory.
+This function compacts down the network data structure and frees unneeded
+memory.
+///
+
+/// TNodeEDatNet::IsOk
 For each node in the network check that its neighbors are also nodes in the
 network.
 ///

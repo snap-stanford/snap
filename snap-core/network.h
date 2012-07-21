@@ -9,7 +9,7 @@
 //  };
 
 /////////////////////////////////////////////////
-/// Node Network (directed graph, TNGraph, with data on nodes only).
+/// Node Network (directed graph, TNGraph with data on nodes only).
 template <class TNodeData>
 class TNodeNet {
 public:
@@ -138,7 +138,7 @@ public:
   virtual ~TNodeNet() { }
   /// Saves the network to a (binary) stream SOut.
   virtual void Save(TSOut& SOut) const { MxNId.Save(SOut);  NodeH.Save(SOut); }
-  /// Static constructor that returns a pointer to the network. Call: PNet Net = TNet::New().
+  /// Static constructor that returns a pointer to the network. Call: TPt <TNodeNet<TNodeData> > Net = TNodeNet<TNodeData>::New().
   static PNet New() { return PNet(new TNodeNet()); }
   /// Static constructor that loads the network from a stream SIn and returns a pointer to it.
   static PNet Load(TSIn& SIn) { return PNet(new TNodeNet(SIn)); }
@@ -149,8 +149,9 @@ public:
   // nodes
   /// Returns the number of nodes in the network.
   int GetNodes() const { return NodeH.Len(); }
-  /// Adds a node of ID NId to the network. ##TNodeNet::AddNode (int NId = -1)
+  /// Adds a node of ID NId to the network. ##TNodeNet::AddNode
   int AddNode(int NId = -1);
+  /// Adds node data to node with ID NId. ##TNodeNet::AddNode-1
   int AddNode(int NId, const TNodeData& NodeDat);
   /// Adds a node of ID NodeI.GetId() to the network.
   int AddNode(const TNodeI& NodeId) { return AddNode(NodeId.GetId(), NodeId.GetDat()); }
@@ -388,7 +389,7 @@ typedef TNodeNet<TStr> TStrNNet;
 typedef TPt<TStrNNet> PStrNNet;
 
 /////////////////////////////////////////////////
-// Directed Node Edge Data Network (TNGraph with data on nodes and edges)
+/// Node Edge Network (directed graph, TNGraph with data on nodes and edges).
 template <class TNodeData, class TEdgeData>
 class TNodeEDatNet {
 public:
@@ -429,6 +430,7 @@ public:
     friend class TNodeEDatNet<TNodeData, TEdgeData>;
   };
 
+  /// Node iterator. Only forward iteration (operator++) is supported.
   class TNodeI {
   private:
     typedef typename THash<TInt, TNode>::TIter THashIter;
@@ -439,18 +441,30 @@ public:
     TNodeI(const THashIter& NodeHIter, const TNodeEDatNet* NetPt) : NodeHI(NodeHIter), Net((TNodeEDatNet *) NetPt) { }
     TNodeI(const TNodeI& NodeI) : NodeHI(NodeI.NodeHI), Net(NodeI.Net) { }
     TNodeI& operator = (const TNodeI& NodeI) { NodeHI=NodeI.NodeHI; Net=NodeI.Net; return *this; }
+    /// Increment iterator.
     TNodeI& operator++ (int) { NodeHI++;  return *this; }
     bool operator < (const TNodeI& NodeI) const { return NodeHI < NodeI.NodeHI; }
     bool operator == (const TNodeI& NodeI) const { return NodeHI == NodeI.NodeHI; }
+
+    /// Returns ID of the current node.
     int GetId() const { return NodeHI.GetDat().GetId(); }
+    /// Returns degree of the current node.
     int GetDeg() const { return NodeHI.GetDat().GetDeg(); }
+    /// Returns in-degree of the current node.
     int GetInDeg() const { return NodeHI.GetDat().GetInDeg(); }
+    /// Returns out-degree of the current node.
     int GetOutDeg() const { return NodeHI.GetDat().GetOutDeg(); }
+    /// Returns ID of NodeN-th in-node (the node pointing to the current node). ##TNodeEDatNet::TNodeI::GetInNId
     int GetInNId(const int& NodeN) const { return NodeHI.GetDat().GetInNId(NodeN); }
+    /// Returns ID of NodeN-th out-node (the node the current node points to). ##TNodeEDatNet::TNodeI::GetOutNId
     int GetOutNId(const int& NodeN) const { return NodeHI.GetDat().GetOutNId(NodeN); }
+    /// Returns ID of NodeN-th neighboring node. ##TNodeEDatNet::TNodeI::GetNbrNId
     int GetNbrNId(const int& NodeN) const { return NodeHI.GetDat().GetNbrNId(NodeN); }
+    /// Tests whether node with ID NId points to the current node.
     bool IsInNId(const int& NId) const { return NodeHI.GetDat().IsInNId(NId); }
+    /// Tests whether the current node points to node with ID NId.
     bool IsOutNId(const int& NId) const { return NodeHI.GetDat().IsOutNId(NId); }
+    /// Tests whether node with ID NId is a neighbor of the current node.
     bool IsNbrNId(const int& NId) const { return IsOutNId(NId) || IsInNId(NId); }
     // node data
     const TNodeData& operator () () const { return NodeHI.GetDat().NodeDat; }
@@ -473,6 +487,7 @@ public:
     friend class TNodeEDatNet<TNodeData, TEdgeData>;
   };
 
+  /// Edge iterator. Only forward iteration (operator++) is supported.
   class TEdgeI {
   private:
     TNodeI CurNode, EndNode;
@@ -482,12 +497,16 @@ public:
     TEdgeI(const TNodeI& NodeI, const TNodeI& EndNodeI, const int& EdgeN=0) : CurNode(NodeI), EndNode(EndNodeI), CurEdge(EdgeN) { }
     TEdgeI(const TEdgeI& EdgeI) : CurNode(EdgeI.CurNode), EndNode(EdgeI.EndNode), CurEdge(EdgeI.CurEdge) { }
     TEdgeI& operator = (const TEdgeI& EdgeI) { if (this!=&EdgeI) { CurNode=EdgeI.CurNode;  EndNode=EdgeI.EndNode;  CurEdge=EdgeI.CurEdge; }  return *this; }
+    /// Increment iterator.
     TEdgeI& operator++ (int) { CurEdge++; if (CurEdge >= CurNode.GetOutDeg()) { CurEdge=0;  CurNode++;
       while (CurNode < EndNode && CurNode.GetOutDeg()==0) { CurNode++; } }  return *this; }
     bool operator < (const TEdgeI& EdgeI) const { return CurNode<EdgeI.CurNode || (CurNode==EdgeI.CurNode && CurEdge<EdgeI.CurEdge); }
     bool operator == (const TEdgeI& EdgeI) const { return CurNode == EdgeI.CurNode && CurEdge == EdgeI.CurEdge; }
+    /// Gets edge ID. Always returns -1 since only edges in multigraphs have explicit IDs.
     int GetId() const { return -1; }
+    /// Gets the source node of an edge.
     int GetSrcNId() const { return CurNode.GetId(); }
+    /// Gets the destination node of an edge.
     int GetDstNId() const { return CurNode.GetOutNId(CurEdge); }
     TEdgeData& operator () () { return CurNode.GetOutEDat(CurEdge); }
     const TEdgeData& operator () () const { return CurNode.GetOutEDat(CurEdge); }
@@ -509,60 +528,98 @@ protected:
   THash<TInt, TNode> NodeH;
 public:
   TNodeEDatNet() : CRef(), MxNId(0), NodeH() { }
+  /// Constructor that reserves enough memory for a network of Nodes nodes and Edges edges.
   explicit TNodeEDatNet(const int& Nodes, const int& Edges) : MxNId(0) { Reserve(Nodes, Edges); }
   TNodeEDatNet(const TNodeEDatNet& NodeNet) : MxNId(NodeNet.MxNId), NodeH(NodeNet.NodeH) { }
+  /// Constructor that loads the network from a (binary) stream SIn.
   TNodeEDatNet(TSIn& SIn) : MxNId(SIn), NodeH(SIn) { }
   virtual ~TNodeEDatNet() { }
+  /// Saves the network to a (binary) stream SOut.
   virtual void Save(TSOut& SOut) const { MxNId.Save(SOut);  NodeH.Save(SOut); }
+  /// Static constructor that returns a pointer to the network. Call: TPt <TNodeEDatNet<TNodeData, TEdgeData> > Net = TNodeEDatNet<TNodeData, TEdgeData>::New().
   static PNet New() { return PNet(new TNet()); }
+  /// Static constructor that loads the network from a stream SIn and returns a pointer to it.
   static PNet Load(TSIn& SIn) { return PNet(new TNet(SIn)); }
+  /// Allows for run-time checking the type of the network (see the TGraphFlag for flags).
   bool HasFlag(const TGraphFlag& Flag) const;
   TNodeEDatNet& operator = (const TNodeEDatNet& NodeNet) { if (this!=&NodeNet) {
     NodeH=NodeNet.NodeH;  MxNId=NodeNet.MxNId; }  return *this; }
   // nodes
+  /// Returns the number of nodes in the network.
   int GetNodes() const { return NodeH.Len(); }
+  /// Adds a node of ID NId to the network. ##TNodeEDatNet::AddNode
   int AddNode(int NId = -1);
+  /// Adds node data to node with ID NId. ##TNodeEDatNet::AddNode-1
   int AddNode(int NId, const TNodeData& NodeDat);
+  /// Adds a node of ID NodeI.GetId() to the network.
   int AddNode(const TNodeI& NodeId) { return AddNode(NodeId.GetId(), NodeId.GetDat()); }
+  /// Deletes node of ID NId from the network. ##TNodeEDatNet::DelNode
   void DelNode(const int& NId);
+  /// Deletes node of ID NodeI.GetId() from the network.
   void DelNode(const TNode& NodeI) { DelNode(NodeI.GetId()); }
+  /// Tests whether ID NId is a node.
   bool IsNode(const int& NId) const { return NodeH.IsKey(NId); }
+  /// Returns an iterator referring to the first node in the network.
   TNodeI BegNI() const { return TNodeI(NodeH.BegI(), this); }
+  /// Returns an iterator referring to the past-the-end node in the network.
   TNodeI EndNI() const { return TNodeI(NodeH.EndI(), this); }
+  /// Returns an iterator referring to the node of ID NId in the network.
   TNodeI GetNI(const int& NId) const { return TNodeI(NodeH.GetI(NId), this); }
+  /// Returns node element for the node of ID NId in the network.
   const TNode& GetNode(const int& NId) const { return NodeH.GetDat(NId); }
+  /// Returns node data for the node of ID NId in the network.
   TNodeData& GetNDat(const int& NId) { return NodeH.GetDat(NId).NodeDat; }
+  /// Returns node data for the node of ID NId in the network.
   const TNodeData& GetNDat(const int& NId) const { return NodeH.GetDat(NId).NodeDat; }
   /// Returns the maximum id of a any node in the network.
   int GetMxNId() const { return MxNId; }
 
   // edges
+  /// Returns the number of edges in the network.
   int GetEdges() const;
+  /// Adds an edge from node IDs SrcNId to node DstNId to the network. ##TNodeEDatNet::AddEdge
   int AddEdge(const int& SrcNId, const int& DstNId);
   int AddEdge(const int& SrcNId, const int& DstNId, const TEdgeData& EdgeData);
+  /// Adds an edge from EdgeI.GetSrcNId() to EdgeI.GetDstNId() to the network.
   int AddEdge(const TEdgeI& EdgeI) { return AddEdge(EdgeI.GetSrcNId(), EdgeI.GetDstNId(), EdgeI()); }
+  /// Deletes an edge from node IDs SrcNId to DstNId from the network. ##TNodeEDatNet::DelEdge
   void DelEdge(const int& SrcNId, const int& DstNId, const bool& IsDir = true);
+  /// Tests whether an edge from node IDs SrcNId to DstNId exists in the network.
   bool IsEdge(const int& SrcNId, const int& DstNId, const bool& IsDir = true) const;
+  /// Returns an iterator referring to the first edge in the network.
   TEdgeI BegEI() const { TNodeI NI=BegNI();  while(NI<EndNI() && NI.GetOutDeg()==0) NI++; return TEdgeI(NI, EndNI()); }
+  /// Returns an iterator referring to the past-the-end edge in the network.
   TEdgeI EndEI() const { return TEdgeI(EndNI(), EndNI()); }
+  /// Not supported/implemented!
   TEdgeI GetEI(const int& EId) const; // not supported
+  /// Returns an iterator referring to edge (SrcNId, DstNId) in the network.
   TEdgeI GetEI(const int& SrcNId, const int& DstNId) const;
   bool GetEDat(const int& SrcNId, const int& DstNId, TEdgeData& Data) const;
   TEdgeData& GetEDat(const int& SrcNId, const int& DstNId);
   const TEdgeData& GetEDat(const int& SrcNId, const int& DstNId) const;
   void SetAllEDat(const TEdgeData& EDat);
 
+  /// Returns an ID of a random node in the network.
   int GetRndNId(TRnd& Rnd=TInt::Rnd) { return NodeH.GetKey(NodeH.GetRndKeyId(Rnd, 0.8)); }
+  /// Returns an interator referring to a random node in the network.
   TNodeI GetRndNI(TRnd& Rnd=TInt::Rnd) { return GetNI(GetRndNId(Rnd)); }
+  /// Gets a vector IDs of all nodes in the network.
   void GetNIdV(TIntV& NIdV) const;
 
+  /// Tests whether the network is empty (has zero nodes).
   bool Empty() const { return GetNodes()==0; }
+  /// Deletes all nodes and edges from the network.
   void Clr(const bool& DoDel=true, const bool& ResetDat=true) {
     MxNId = 0;  NodeH.Clr(DoDel, -1, ResetDat); }
+  /// Reserves memory for a network of Nodes nodes and Edges edges.
   void Reserve(const int& Nodes, const int& Edges) { if (Nodes>0) { NodeH.Gen(Nodes/2); } }
+  /// Sorts nodes by node IDs.
   void SortNIdById(const bool& Asc=true) { NodeH.SortByKey(Asc); }
+  /// Sorts nodes by node data.
   void SortNIdByDat(const bool& Asc=true) { NodeH.SortByDat(Asc); }
+  /// Defragments the network. ##TNodeEDatNet::Defrag
   void Defrag(const bool& OnlyNodeLinks=false);
+  /// Checks the network data structure for internal consistency. ##TNodeEDatNet::IsOk
   bool IsOk(const bool& ThrowExcept=true) const;
 
   friend class TPt<TNodeEDatNet<TNodeData, TEdgeData> >;
