@@ -80,9 +80,17 @@ If NId=-1 node ID will be automatically assigned (and returned).
 If the node of ID NId does not exist the function aborts.
 ///
 
-/// TNodeEDatNet::AddEdge
-If the edge already exists return -2. If the edge was successfully added
-return -1.
+/// TNodeEDatNet::AddEdge (const int& SrcNId, const int& DstNId)
+If the edge already exists return -2.
+If the edge does not exist and was successfully added return -1.
+Normally the function should return an ID of the edge added but since edges in
+TNodeEDatNet have no IDs we return -1.
+Function aborts if SrcNId or DstNId are not nodes in the network.
+///
+
+/// TNodeEDatNet::AddEdge-1 (const int& SrcNId, const int& DstNId, const TEdgeData& EdgeData)
+If the edge already exists return -2.
+If the edge does not exist and was successfully added return -1.
 Normally the function should return an ID of the edge added but since edges in
 TNodeEDatNet have no IDs we return -1.
 Function aborts if SrcNId or DstNId are not nodes in the network.
@@ -92,6 +100,10 @@ Function aborts if SrcNId or DstNId are not nodes in the network.
 If the edge (SrcNId, DstNId) does not exist in the network function still
 completes.
 But the function aborts if SrcNId or DstNId are not nodes in the network.
+///
+
+/// TNodeEDatNet::GetEDat (const int& SrcNId, const int& DstNId, TEdgeData& Data)
+Returns true, if the edge was found. Otherwise, returns false.
 ///
 
 /// TNodeEDatNet::Defrag

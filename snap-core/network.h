@@ -579,6 +579,7 @@ public:
   int GetEdges() const;
   /// Adds an edge from node IDs SrcNId to node DstNId to the network. ##TNodeEDatNet::AddEdge
   int AddEdge(const int& SrcNId, const int& DstNId);
+  /// Adds edge data to an edge from node IDs SrcNId to node DstNId. ##TNodeEDatNet::AddEdge-1
   int AddEdge(const int& SrcNId, const int& DstNId, const TEdgeData& EdgeData);
   /// Adds an edge from EdgeI.GetSrcNId() to EdgeI.GetDstNId() to the network.
   int AddEdge(const TEdgeI& EdgeI) { return AddEdge(EdgeI.GetSrcNId(), EdgeI.GetDstNId(), EdgeI()); }
@@ -594,9 +595,13 @@ public:
   TEdgeI GetEI(const int& EId) const; // not supported
   /// Returns an iterator referring to edge (SrcNId, DstNId) in the network.
   TEdgeI GetEI(const int& SrcNId, const int& DstNId) const;
+  /// Returns edge data in Data for the edge from node IDs SrcNId to DstNId. ##TNodeEDatNet::GetEDat
   bool GetEDat(const int& SrcNId, const int& DstNId, TEdgeData& Data) const;
+  /// Returns edge data for the edge from node IDs SrcNId to DstNId.
   TEdgeData& GetEDat(const int& SrcNId, const int& DstNId);
+  /// Returns edge data for the edge from node IDs SrcNId to DstNId.
   const TEdgeData& GetEDat(const int& SrcNId, const int& DstNId) const;
+  /// Sets edge data for all the edges in the network to EDat.
   void SetAllEDat(const TEdgeData& EDat);
 
   /// Returns an ID of a random node in the network.
