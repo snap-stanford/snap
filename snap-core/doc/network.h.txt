@@ -118,3 +118,59 @@ For each node in the network check that its neighbors are also nodes in the
 network.
 ///
 
+/// TNodeEdgeNet::TNodeI::GetInNId
+Range of NodeN: 0 <= NodeN < GetInDeg().
+///
+
+/// TNodeEdgeNet::TNodeI::GetOutNId
+Range of NodeN: 0 <= NodeN < GetOutDeg().
+///
+
+/// TNodeEdgeNet::TNodeI::GetNbrNId
+Range of NodeN: 0 <= NodeN < GetNbrDeg().
+///
+
+/// TNodeEdgeNet::AddNode (int NId = -1)
+Return value is the ID of the node being added.
+If NId=-1 node ID will be automatically assigned (and returned).
+If node of ID NId already exists, do nothing.
+///
+
+/// TNodeEdgeNet::AddNode-1 (int NId, const TNodeData& NodeDat)
+Return value is the ID of the node being added.
+If the node NId does not exists, it will be added to the graph.
+If NId=-1 node ID will be automatically assigned (and returned).
+///
+
+/// TNodeEdgeNet::DelNode
+If the node of ID NId does not exist the function aborts.
+///
+
+/// TNodeEdgeNet::AddEdge (const int& SrcNId, const int& DstNId, int EId = -1)
+Returns an ID of the edge added.
+The function aborts if SrcNId or DstNId are not nodes in the graph.
+///
+
+/// TNodeEdgeNet::AddEdge-1 (const int& SrcNId, const int& DstNId, int EId, const TEdgeData& EdgeDat);
+Returns an ID of the edge added.
+The function aborts if SrcNId or DstNId are not nodes in the graph.
+///
+
+/// TNodeEdgeNet::DelEdge
+If the edge (SrcNId, DstNId) does not exist in the network function still
+completes.
+But the function aborts if SrcNId or DstNId are not nodes in the network.
+///
+
+/// TNodeEdgeNet::Defrag
+After performing many node and edge insertions and deletions to a network,
+the network data structure will be fragmented in memory.
+This function compacts down the network data structure and frees unneeded
+memory.
+///
+
+/// TNodeEdgeNet::IsOk
+For each node in the network check that its neighbors are also nodes in the
+network.
+///
+
