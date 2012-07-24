@@ -1,0 +1,433 @@
+#include <float.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <time.h>
+#include <unistd.h>
+
+#include <proc/readproc.h>
+#include <sys/time.h>
+#include <sys/resource.h>
+
+#include <gtest/gtest.h>
+
+#include <snap/Snap.h>
+
+// Test the default constructor
+TEST(TNodeEdgeNet, DefaultConstructor) {
+  TPt <TNodeEdgeNet<TInt, TInt> > Net;
+
+  Net = TNodeEdgeNet<TInt, TInt>::New();
+
+  EXPECT_EQ(0,Net->GetNodes());
+  EXPECT_EQ(0,Net->GetEdges());
+
+  EXPECT_EQ(1,Net->IsOk());
+  EXPECT_EQ(1,Net->Empty());
+  EXPECT_EQ(1,Net->HasFlag(gfDirected));
+  EXPECT_EQ(1,Net->HasFlag(gfNodeDat));
+}
+
+// Test node, edge creation
+TEST(TNodeEdgeNet, ManipulateNodesEdges) {
+  int NNodes = 10000;
+  int NEdges = 100000;
+  const char *FName = "test.net";
+
+  TPt <TNodeEdgeNet<TInt, TInt> > Net;
+  TPt <TNodeEdgeNet<TInt, TInt> > Net1;
+  TPt <TNodeEdgeNet<TInt, TInt> > Net2;
+  int i;
+  int n;
+  int NCount;
+  int x,y;
+  int Deg, InDeg, OutDeg;
+
+  Net = TNodeEdgeNet<TInt, TInt>::New();
+  EXPECT_EQ(1,Net->Empty());
+
+  // create the nodes
+  for (i = 0; i < NNodes; i++) {
+    Net->AddNode(i);
+  }
+  EXPECT_EQ(0,Net->Empty());
+  EXPECT_EQ(NNodes,Net->GetNodes());
+
+  // create random edges
+  NCount = NEdges;
+  while (NCount > 0) {
+    x = (long) (drand48() * NNodes);
+    y = (long) (drand48() * NNodes);
+    n = Net->AddEdge(x, y);
+    NCount--;
+  }
+
+  EXPECT_EQ(NEdges,Net->GetEdges());
+
+  EXPECT_EQ(0,Net->Empty());
+  EXPECT_EQ(1,Net->IsOk());
+
+  for (i = 0; i < NNodes; i++) {
+    EXPECT_EQ(1,Net->IsNode(i));
+  }
+
+  EXPECT_EQ(0,Net->IsNode(NNodes));
+  EXPECT_EQ(0,Net->IsNode(NNodes+1));
+  EXPECT_EQ(0,Net->IsNode(2*NNodes));
+
+  // nodes iterator
+  NCount = 0;
+  for (TNodeEdgeNet<TInt, TInt>::TNodeI NI = Net->BegNI(); NI < Net->EndNI(); NI++) {
+    NCount++;
+  }
+  EXPECT_EQ(NNodes,NCount);
+
+  // edges per node iterator
+  NCount = 0;
+  for (TNodeEdgeNet<TInt, TInt>::TNodeI NI = Net->BegNI(); NI < Net->EndNI(); NI++) {
+    for (int e = 0; e < NI.GetOutDeg(); e++) {
+      NCount++;
+    }
+  }
+  EXPECT_EQ(NEdges,NCount);
+
+  // edges iterator
+  NCount = 0;
+  for (TNodeEdgeNet<TInt, TInt>::TEdgeI EI = Net->BegEI(); EI < Net->EndEI(); EI++) {
+    NCount++;
+  }
+  EXPECT_EQ(NEdges,NCount);
+
+  // node degree
+  for (TNodeEdgeNet<TInt, TInt>::TNodeI NI = Net->BegNI(); NI < Net->EndNI(); NI++) {
+    Deg = NI.GetDeg();
+    InDeg = NI.GetInDeg();
+    OutDeg = NI.GetOutDeg();
+
+    EXPECT_EQ(Deg,InDeg+OutDeg);
+  }
+
+  // assignment
+  Net1 = TNodeEdgeNet<TInt, TInt>::New();
+  *Net1 = *Net;
+
+  EXPECT_EQ(NNodes,Net1->GetNodes());
+  EXPECT_EQ(NEdges,Net1->GetEdges());
+  EXPECT_EQ(0,Net1->Empty());
+  EXPECT_EQ(1,Net1->IsOk());
+
+  // saving and loading
+  {
+    TFOut FOut(FName);
+    Net->Save(FOut);
+    FOut.Flush();
+  }
+
+  {
+    TFIn FIn(FName);
+    Net2 = TNodeEdgeNet<TInt, TInt>::Load(FIn);
+  }
+
+  EXPECT_EQ(NNodes,Net2->GetNodes());
+  EXPECT_EQ(NEdges,Net2->GetEdges());
+  EXPECT_EQ(0,Net2->Empty());
+  EXPECT_EQ(1,Net2->IsOk());
+
+  // remove all the nodes and edges
+  for (i = 0; i < NNodes; i++) {
+    n = Net->GetRndNId();
+    Net->DelNode(n);
+  }
+
+  EXPECT_EQ(0,Net->GetNodes());
+  EXPECT_EQ(0,Net->GetEdges());
+
+  EXPECT_EQ(1,Net->IsOk());
+  EXPECT_EQ(1,Net->Empty());
+
+  Net1->Clr();
+
+  EXPECT_EQ(0,Net1->GetNodes());
+  EXPECT_EQ(0,Net1->GetEdges());
+
+  EXPECT_EQ(1,Net1->IsOk());
+  EXPECT_EQ(1,Net1->Empty());
+}
+
+// Test set node data
+TEST(TNodeEdgeNet, NodeData) {
+  int NNodes = 10000;
+  int NEdges = 100000;
+
+  TPt <TNodeEdgeNet<TInt, TInt> > Net;
+  TPt <TNodeEdgeNet<TInt, TInt> > Net1;
+  TPt <TNodeEdgeNet<TInt, TInt> > Net2;
+  int i;
+  int n;
+  int NCount;
+  int x,y;
+
+  Net = TNodeEdgeNet<TInt, TInt>::New();
+  EXPECT_EQ(1,Net->Empty());
+
+  // create the nodes
+  for (i = 0; i < NNodes; i++) {
+    Net->AddNode(i);
+  }
+  EXPECT_EQ(0,Net->Empty());
+  EXPECT_EQ(NNodes,Net->GetNodes());
+
+  // create random edges
+  NCount = NEdges;
+  while (NCount > 0) {
+    x = (long) (drand48() * NNodes);
+    y = (long) (drand48() * NNodes);
+    n = Net->AddEdge(x, y);
+    NCount--;
+  }
+
+  EXPECT_EQ(NEdges,Net->GetEdges());
+
+  EXPECT_EQ(0,Net->Empty());
+  EXPECT_EQ(1,Net->IsOk());
+
+  for (i = 0; i < NNodes; i++) {
+    EXPECT_EQ(1,Net->IsNode(i));
+  }
+
+  EXPECT_EQ(0,Net->IsNode(NNodes));
+  EXPECT_EQ(0,Net->IsNode(NNodes+1));
+  EXPECT_EQ(0,Net->IsNode(2*NNodes));
+
+  // add data to nodes, square of node ID
+  for (TNodeEdgeNet<TInt, TInt>::TNodeI NI = Net->BegNI(); NI < Net->EndNI(); NI++) {
+    Net->AddNode(NI.GetId(), NI.GetId()*NI.GetId());
+  }
+
+  // test node data
+  for (TNodeEdgeNet<TInt, TInt>::TNodeI NI = Net->BegNI(); NI < Net->EndNI(); NI++) {
+    EXPECT_EQ(NI.GetId()*NI.GetId(), Net->GetNDat(NI.GetId()));
+  }
+}
+
+// Test set edge data
+TEST(TNodeEdgeNet, EdgeData) {
+  int NNodes = 10000;
+  int NEdges = 100000;
+
+  TPt <TNodeEdgeNet<TInt, TInt> > Net;
+  TPt <TNodeEdgeNet<TInt, TInt> > Net1;
+  TPt <TNodeEdgeNet<TInt, TInt> > Net2;
+  int i;
+  int n;
+  int NCount;
+  int x,y;
+
+  // TODO finalize EdgeData test
+  return;
+
+  Net = TNodeEdgeNet<TInt, TInt>::New();
+  EXPECT_EQ(1,Net->Empty());
+
+  // create the nodes
+  for (i = 0; i < NNodes; i++) {
+    Net->AddNode(i);
+  }
+  EXPECT_EQ(0,Net->Empty());
+  EXPECT_EQ(NNodes,Net->GetNodes());
+
+  // create random edges
+  NCount = NEdges;
+  while (NCount > 0) {
+    x = (long) (drand48() * NNodes);
+    y = (long) (drand48() * NNodes);
+    n = Net->AddEdge(x, y);
+    // printf("0a %d %d %d\n",x,y,n);
+    NCount--;
+  }
+
+  EXPECT_EQ(NEdges,Net->GetEdges());
+
+  EXPECT_EQ(0,Net->Empty());
+  EXPECT_EQ(1,Net->IsOk());
+
+  for (i = 0; i < NNodes; i++) {
+    EXPECT_EQ(1,Net->IsNode(i));
+  }
+
+  EXPECT_EQ(0,Net->IsNode(NNodes));
+  EXPECT_EQ(0,Net->IsNode(NNodes+1));
+  EXPECT_EQ(0,Net->IsNode(2*NNodes));
+
+  // add data to nodes, square of node ID
+  for (TNodeEdgeNet<TInt, TInt>::TNodeI NI = Net->BegNI(); NI < Net->EndNI(); NI++) {
+    Net->AddNode(NI.GetId(), NI.GetId()*NI.GetId());
+  }
+
+  // test node data
+  for (TNodeEdgeNet<TInt, TInt>::TNodeI NI = Net->BegNI(); NI < Net->EndNI(); NI++) {
+    EXPECT_EQ(NI.GetId()*NI.GetId(), Net->GetNDat(NI.GetId()));
+  }
+
+  // add data to edges, set to 42.
+  Net->SetAllEDat(42);
+
+  // verify edge data
+  for (TNodeEdgeNet<TInt, TInt>::TEdgeI EI = Net->BegEI(); EI < Net->EndEI(); EI++) {
+    EXPECT_EQ(42, Net->GetEDat(EI.GetId()));
+  }
+
+  // update edge data, source node ID * dest node ID
+  for (TNodeEdgeNet<TInt, TInt>::TEdgeI EI = Net->BegEI(); EI < Net->EndEI(); EI++) {
+    // printf("1a %d %d %d\n", EI.GetSrcNId(), EI.GetDstNId(), EI.GetId());
+    Net->AddEdge(EI.GetSrcNId(),EI.GetDstNId(),EI.GetId(),EI.GetSrcNId()*EI.GetDstNId());
+  }
+
+  // verify edge data
+  for (TNodeEdgeNet<TInt, TInt>::TEdgeI EI = Net->BegEI(); EI < Net->EndEI(); EI++) {
+    EXPECT_EQ(EI.GetSrcNId()*EI.GetDstNId(), Net->GetEDat(EI.GetId()));
+  }
+
+  // test node data again
+  for (TNodeEdgeNet<TInt, TInt>::TNodeI NI = Net->BegNI(); NI < Net->EndNI(); NI++) {
+    EXPECT_EQ(NI.GetId()*NI.GetId(), Net->GetNDat(NI.GetId()));
+  }
+}
+
+// Test data sorting
+TEST(TNodeEdgeNet, SortNodeData) {
+  int NNodes = 10000;
+  int NEdges = 100000;
+
+  TPt <TNodeEdgeNet<TInt, TInt> > Net;
+  TPt <TNodeEdgeNet<TInt, TInt> > Net1;
+  TPt <TNodeEdgeNet<TInt, TInt> > Net2;
+  int i;
+  int n;
+  int NCount;
+  int x,y;
+  bool Sorted;
+  int Min;
+  int Value;
+
+  Net = TNodeEdgeNet<TInt, TInt>::New();
+  EXPECT_EQ(1,Net->Empty());
+
+  // create the nodes
+  for (i = 0; i < NNodes; i++) {
+    Net->AddNode((i*13) % NNodes);
+  }
+  EXPECT_EQ(0,Net->Empty());
+  EXPECT_EQ(NNodes,Net->GetNodes());
+
+  // create random edges
+  NCount = NEdges;
+  while (NCount > 0) {
+    x = (long) (drand48() * NNodes);
+    y = (long) (drand48() * NNodes);
+    n = Net->AddEdge(x, y);
+    NCount--;
+  }
+
+  EXPECT_EQ(NEdges,Net->GetEdges());
+
+  EXPECT_EQ(0,Net->Empty());
+  EXPECT_EQ(1,Net->IsOk());
+
+  for (i = 0; i < NNodes; i++) {
+    EXPECT_EQ(1,Net->IsNode(i));
+  }
+
+  EXPECT_EQ(0,Net->IsNode(NNodes));
+  EXPECT_EQ(0,Net->IsNode(NNodes+1));
+  EXPECT_EQ(0,Net->IsNode(2*NNodes));
+
+  // add data to nodes, square of node ID % NNodes
+  for (TNodeEdgeNet<TInt, TInt>::TNodeI NI = Net->BegNI(); NI < Net->EndNI(); NI++) {
+    Net->AddNode(NI.GetId(), (NI.GetId()*NI.GetId()) % NNodes);
+  }
+
+  // test node data
+  for (TNodeEdgeNet<TInt, TInt>::TNodeI NI = Net->BegNI(); NI < Net->EndNI(); NI++) {
+    EXPECT_EQ((NI.GetId()*NI.GetId()) % NNodes, Net->GetNDat(NI.GetId()));
+  }
+
+  // test sorting of node IDs (unsorted)
+  Min = -1;
+  Sorted = true;
+  for (TNodeEdgeNet<TInt, TInt>::TNodeI NI = Net->BegNI(); NI < Net->EndNI(); NI++) {
+    Value = NI.GetId();
+    if (Min > Value) {
+      Sorted = false;
+    }
+    Min = Value;
+  }
+  EXPECT_EQ(false,Sorted);
+
+  // sort the nodes by node IDs (sorted)
+  Net->SortNIdById();
+
+  // test sorting of node IDs
+  Min = -1;
+  Sorted = true;
+  for (TNodeEdgeNet<TInt, TInt>::TNodeI NI = Net->BegNI(); NI < Net->EndNI(); NI++) {
+    Value = NI.GetId();
+    if (Min > Value) {
+      Sorted = false;
+    }
+    Min = Value;
+  }
+  EXPECT_EQ(true,Sorted);
+
+  // test sorting of node data (unsorted)
+  Min = -1;
+  Sorted = true;
+  for (TNodeEdgeNet<TInt, TInt>::TNodeI NI = Net->BegNI(); NI < Net->EndNI(); NI++) {
+    Value = Net->GetNDat(NI.GetId());
+    if (Min > Value) {
+      Sorted = false;
+    }
+    Min = Value;
+  }
+  EXPECT_EQ(false,Sorted);
+
+  // sort the nodes by node data
+  Net->SortNIdByDat();
+
+  // test sorting of node data (sorted)
+  Min = -1;
+  Sorted = true;
+  for (TNodeEdgeNet<TInt, TInt>::TNodeI NI = Net->BegNI(); NI < Net->EndNI(); NI++) {
+    Value = Net->GetNDat(NI.GetId());
+    if (Min > Value) {
+      Sorted = false;
+    }
+    Min = Value;
+  }
+  EXPECT_EQ(true,Sorted);
+
+  // test sorting of node IDs (unsorted)
+  Min = -1;
+  Sorted = true;
+  for (TNodeEdgeNet<TInt, TInt>::TNodeI NI = Net->BegNI(); NI < Net->EndNI(); NI++) {
+    Value = NI.GetId();
+    if (Min > Value) {
+      Sorted = false;
+    }
+    Min = Value;
+  }
+  EXPECT_EQ(false,Sorted);
+
+  // test node data
+  for (TNodeEdgeNet<TInt, TInt>::TNodeI NI = Net->BegNI(); NI < Net->EndNI(); NI++) {
+    EXPECT_EQ((NI.GetId()*NI.GetId()) % NNodes, Net->GetNDat(NI.GetId()));
+  }
+}
+
+// Test small graph
+TEST(TNodeEdgeNet, GetSmallGraph) {
+  // not implemented
+}
+
