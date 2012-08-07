@@ -169,6 +169,8 @@ public:
   TNodeI GetNI(const int& NId) const { return TNodeI(NodeH.GetI(NId), this); }
   /// Returns node element for the node of ID NId in the network.
   const TNode& GetNode(const int& NId) const { return NodeH.GetDat(NId); }
+  /// Sets node data for the node of ID NId in the network.
+  void SetNDat(const int& NId, const TNodeData& NodeDat);
   /// Returns node data for the node of ID NId in the network.
   TNodeData& GetNDat(const int& NId) { return NodeH.GetDat(NId).NodeDat; }
   /// Returns node data for the node of ID NId in the network.
@@ -270,6 +272,12 @@ void TNodeNet<TNodeData>::DelNode(const int& NId) {
     if (n!= -1) { N.OutNIdV.Del(n); }
   } }
   NodeH.DelKey(NId);
+}
+
+template <class TNodeData>
+void TNodeNet<TNodeData>::SetNDat(const int& NId, const TNodeData& NodeDat) {
+  IAssertR(IsNode(NId), TStr::Fmt("NodeId %d does not exist.", NId).CStr());
+  NodeH.GetDat(NId).NodeDat = NodeDat;
 }
 
 template <class TNodeData>
@@ -567,6 +575,8 @@ public:
   TNodeI GetNI(const int& NId) const { return TNodeI(NodeH.GetI(NId), this); }
   /// Returns node element for the node of ID NId in the network.
   const TNode& GetNode(const int& NId) const { return NodeH.GetDat(NId); }
+  /// Sets node data for the node of ID NId in the network.
+  void SetNDat(const int& NId, const TNodeData& NodeDat);
   /// Returns node data for the node of ID NId in the network.
   TNodeData& GetNDat(const int& NId) { return NodeH.GetDat(NId).NodeDat; }
   /// Returns node data for the node of ID NId in the network.
@@ -580,7 +590,7 @@ public:
   /// Adds an edge from node IDs SrcNId to node DstNId to the network. ##TNodeEDatNet::AddEdge
   int AddEdge(const int& SrcNId, const int& DstNId);
   /// Adds edge data to an edge from node IDs SrcNId to node DstNId. ##TNodeEDatNet::AddEdge-1
-  int AddEdge(const int& SrcNId, const int& DstNId, const TEdgeData& EdgeData);
+  int AddEdge(const int& SrcNId, const int& DstNId, const TEdgeData& EdgeDat);
   /// Adds an edge from EdgeI.GetSrcNId() to EdgeI.GetDstNId() and its edge data to the network.
   int AddEdge(const TEdgeI& EdgeI) { return AddEdge(EdgeI.GetSrcNId(), EdgeI.GetDstNId(), EdgeI()); }
   /// Deletes an edge from node IDs SrcNId to DstNId from the network. ##TNodeEDatNet::DelEdge
@@ -595,14 +605,16 @@ public:
   TEdgeI GetEI(const int& EId) const; // not supported
   /// Returns an iterator referring to edge (SrcNId, DstNId) in the network.
   TEdgeI GetEI(const int& SrcNId, const int& DstNId) const;
+  /// Sets edge data for the edge between nodes SrcNId and DstNId in the network.
+  void SetEDat(const int& SrcNId, const int& DstNId, const TEdgeData& EdgeDat);
   /// Returns edge data in Data for the edge from node IDs SrcNId to DstNId. ##TNodeEDatNet::GetEDat
-  bool GetEDat(const int& SrcNId, const int& DstNId, TEdgeData& Data) const;
+  bool GetEDat(const int& SrcNId, const int& DstNId, TEdgeData& EdgeDat) const;
   /// Returns edge data for the edge from node IDs SrcNId to DstNId.
   TEdgeData& GetEDat(const int& SrcNId, const int& DstNId);
   /// Returns edge data for the edge from node IDs SrcNId to DstNId.
   const TEdgeData& GetEDat(const int& SrcNId, const int& DstNId) const;
   /// Sets edge data for all the edges in the network to EDat.
-  void SetAllEDat(const TEdgeData& EDat);
+  void SetAllEDat(const TEdgeData& EdgeDat);
 
   /// Returns an ID of a random node in the network.
   int GetRndNId(TRnd& Rnd=TInt::Rnd) { return NodeH.GetKey(NodeH.GetRndKeyId(Rnd, 0.8)); }
@@ -677,6 +689,12 @@ int TNodeEDatNet<TNodeData, TEdgeData>::AddNode(int NId, const TNodeData& NodeDa
 }
 
 template <class TNodeData, class TEdgeData>
+void TNodeEDatNet<TNodeData, TEdgeData>::SetNDat(const int& NId, const TNodeData& NodeDat) {
+  IAssertR(IsNode(NId), TStr::Fmt("NodeId %d does not exist.", NId).CStr());
+  NodeH.GetDat(NId).NodeDat = NodeDat;
+}
+
+template <class TNodeData, class TEdgeData>
 void TNodeEDatNet<TNodeData, TEdgeData>::DelNode(const int& NId) {
   const TNode& Node = GetNode(NId);
   for (int out = 0; out < Node.GetOutDeg(); out++) {
@@ -710,14 +728,14 @@ int TNodeEDatNet<TNodeData, TEdgeData>::AddEdge(const int& SrcNId, const int& Ds
 }
 
 template <class TNodeData, class TEdgeData>
-int TNodeEDatNet<TNodeData, TEdgeData>::AddEdge(const int& SrcNId, const int& DstNId, const TEdgeData& EdgeData) {
+int TNodeEDatNet<TNodeData, TEdgeData>::AddEdge(const int& SrcNId, const int& DstNId, const TEdgeData& EdgeDat) {
   IAssert(IsNode(SrcNId) && IsNode(DstNId));
   //IAssert(! IsEdge(SrcNId, DstNId));
   if (IsEdge(SrcNId, DstNId)) {
-    GetEDat(SrcNId, DstNId) = EdgeData;
+    GetEDat(SrcNId, DstNId) = EdgeDat;
     return -2;
   }
-  GetNode(SrcNId).OutNIdV.AddSorted(TPair<TInt, TEdgeData>(DstNId, EdgeData));
+  GetNode(SrcNId).OutNIdV.AddSorted(TPair<TInt, TEdgeData>(DstNId, EdgeDat));
   GetNode(DstNId).InNIdV.AddSorted(SrcNId);
   return -1; // edge id
 }
@@ -745,10 +763,17 @@ bool TNodeEDatNet<TNodeData, TEdgeData>::IsEdge(const int& SrcNId, const int& Ds
 }
 
 template <class TNodeData, class TEdgeData>
-bool TNodeEDatNet<TNodeData, TEdgeData>::GetEDat(const int& SrcNId, const int& DstNId, TEdgeData& Data) const {
+void TNodeEDatNet<TNodeData, TEdgeData>::SetEDat(const int& SrcNId, const int& DstNId, const TEdgeData& EdgeDat) {
+  IAssertR(IsNode(SrcNId) && IsNode(DstNId), TStr::Fmt("%d or %d not a node.", SrcNId, DstNId).CStr());
+  IAssertR(IsEdge(SrcNId, DstNId), TStr::Fmt("Edge between %d and %d does not exist.", SrcNId, DstNId).CStr());
+  GetEDat(SrcNId, DstNId) = EdgeDat;
+}
+
+template <class TNodeData, class TEdgeData>
+bool TNodeEDatNet<TNodeData, TEdgeData>::GetEDat(const int& SrcNId, const int& DstNId, TEdgeData& EdgeDat) const {
   if (! IsEdge(SrcNId, DstNId)) { return false; }
   const TNode& N = GetNode(SrcNId);
-  Data = N.GetOutEDat(GetNIdPos(N.OutNIdV, DstNId));
+  EdgeDat = N.GetOutEDat(GetNIdPos(N.OutNIdV, DstNId));
   return true;
 }
 
@@ -767,9 +792,9 @@ const TEdgeData& TNodeEDatNet<TNodeData, TEdgeData>::GetEDat(const int& SrcNId, 
 }
 
 template <class TNodeData, class TEdgeData>
-void TNodeEDatNet<TNodeData, TEdgeData>::SetAllEDat(const TEdgeData& EDat) {
+void TNodeEDatNet<TNodeData, TEdgeData>::SetAllEDat(const TEdgeData& EdgeDat) {
   for (TEdgeI EI = BegEI(); EI < EndEI(); EI++) {
-    EI() = EDat;
+    EI() = EdgeDat;
   }
 }
 
@@ -1073,6 +1098,8 @@ public:
   TNodeI EndNI() const { return TNodeI(NodeH.EndI(), this); }
   /// Returns an iterator referring to the node of ID NId in the network.
   TNodeI GetNI(const int& NId) const { return TNodeI(NodeH.GetI(NId), this); }
+  /// Sets node data for the node of ID NId in the network.
+  void SetNDat(const int& NId, const TNodeData& NodeDat);
   /// Returns node data for the node of ID NId in the network.
   TNodeData& GetNDat(const int& NId) { return NodeH.GetDat(NId).NodeDat; }
   /// Returns node data for the node of ID NId in the network.
@@ -1110,12 +1137,14 @@ public:
   TEdgeI GetEI(const int& EId) const { return TEdgeI(EdgeH.GetI(EId), this); }
   // TODO document TNodeEdgeNet::GetEI()
   TEdgeI GetEI(const int& SrcNId, const int& DstNId) const { return GetEI(GetEId(SrcNId, DstNId)); }
+  /// Sets edge data for the edge of ID NId in the network.
+  void SetEDat(const int& EId, const TEdgeData& EdgeDat);
   /// Returns edge data for the edge with ID EId.
   TEdgeData& GetEDat(const int& EId) { return EdgeH.GetDat(EId).EdgeDat; }
   /// Returns edge data for the edge with ID EId.
   const TEdgeData& GetEDat(const int& EId) const { return EdgeH.GetDat(EId).EdgeDat; }
   /// Sets edge data for all the edges in the network to EDat.
-  void SetAllEDat(const TEdgeData& EDat);
+  void SetAllEDat(const TEdgeData& EdgeDat);
 
   /// Returns an ID of a random node in the network.
   int GetRndNId(TRnd& Rnd=TInt::Rnd) { return NodeH.GetKey(NodeH.GetRndKeyId(Rnd, 0.8)); }
@@ -1228,6 +1257,12 @@ void TNodeEdgeNet<TNodeData, TEdgeData>::DelNode(const int& NId) {
 }
 
 template <class TNodeData, class TEdgeData>
+void TNodeEdgeNet<TNodeData, TEdgeData>::SetNDat(const int& NId, const TNodeData& NodeDat) {
+  IAssertR(IsNode(NId), TStr::Fmt("NodeId %d does not exist.", NId).CStr());
+  NodeH.GetDat(NId).NodeDat = NodeDat;
+}
+
+template <class TNodeData, class TEdgeData>
 int TNodeEdgeNet<TNodeData, TEdgeData>::GetUniqEdges(const bool& IsDir) const {
   TIntPrSet UniqESet(GetEdges());
   for (TEdgeI EI = BegEI(); EI < EndEI(); EI++) {
@@ -1303,9 +1338,15 @@ bool TNodeEdgeNet<TNodeData, TEdgeData>::IsEdge(const int& SrcNId, const int& Ds
 }
 
 template <class TNodeData, class TEdgeData>
-void TNodeEdgeNet<TNodeData, TEdgeData>::SetAllEDat(const TEdgeData& EDat) {
+void TNodeEdgeNet<TNodeData, TEdgeData>::SetEDat(const int& EId, const TEdgeData& EdgeDat) {
+  IAssertR(IsEdge(EId), TStr::Fmt("EdgeId %d does not exist.", EId).CStr());
+  GetEI(EId).GetDat() = EdgeDat;
+}
+
+template <class TNodeData, class TEdgeData>
+void TNodeEdgeNet<TNodeData, TEdgeData>::SetAllEDat(const TEdgeData& EdgeDat) {
   for (TEdgeI EI = BegEI(); EI < EndEI(); EI++) {
-    EI() = EDat;
+    EI() = EdgeDat;
   }
 }
 

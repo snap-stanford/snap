@@ -16,8 +16,8 @@ lib: Snap.o
 	rm -f libsnap.a
 	ar -cvq libsnap.a Snap.o
 
-libinstall: libsnap.a
-	sudo cp libsnap.a /usr/local/lib/libsnap.a
+libinstall: lib
+	cp libsnap.a /usr/local/lib/libsnap.a
 
 clean:
 	rm -f *.o testSnap testSnap.exe *.plt *.tab *.png

@@ -218,6 +218,16 @@ TEST(TNodeNet, NodeData) {
   for (TNodeNet<TInt>::TNodeI NI = Net->BegNI(); NI < Net->EndNI(); NI++) {
     EXPECT_EQ(NI.GetId()*NI.GetId(), Net->GetNDat(NI.GetId()));
   }
+
+  // update node data, node ID + 10
+  for (TNodeNet<TInt>::TNodeI NI = Net->BegNI(); NI < Net->EndNI(); NI++) {
+    Net->SetNDat(NI.GetId(), NI.GetId()+10);
+  }
+
+  // test node data
+  for (TNodeNet<TInt>::TNodeI NI = Net->BegNI(); NI < Net->EndNI(); NI++) {
+    EXPECT_EQ(NI.GetId()+10, Net->GetNDat(NI.GetId()));
+  }
 }
 
 // Test data sorting

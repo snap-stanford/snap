@@ -218,6 +218,16 @@ TEST(TNodeEDatNet, NodeData) {
   for (TNodeEDatNet<TInt, TInt>::TNodeI NI = Net->BegNI(); NI < Net->EndNI(); NI++) {
     EXPECT_EQ(NI.GetId()*NI.GetId(), Net->GetNDat(NI.GetId()));
   }
+
+  // update node data, node ID + 10
+  for (TNodeEDatNet<TInt, TInt>::TNodeI NI = Net->BegNI(); NI < Net->EndNI(); NI++) {
+    Net->SetNDat(NI.GetId(), NI.GetId()+10);
+  }
+
+  // test node data
+  for (TNodeEDatNet<TInt, TInt>::TNodeI NI = Net->BegNI(); NI < Net->EndNI(); NI++) {
+    EXPECT_EQ(NI.GetId()+10, Net->GetNDat(NI.GetId()));
+  }
 }
 
 // Test set edge data
@@ -289,7 +299,8 @@ TEST(TNodeEDatNet, EdgeData) {
 
   // update edge data, source node ID * dest node ID
   for (TNodeEDatNet<TInt, TInt>::TEdgeI EI = Net->BegEI(); EI < Net->EndEI(); EI++) {
-    Net->AddEdge(EI.GetSrcNId(),EI.GetDstNId(),EI.GetSrcNId()*EI.GetDstNId());
+    Net->SetEDat(EI.GetSrcNId(),EI.GetDstNId(),EI.GetSrcNId()*EI.GetDstNId());
+    //Net->AddEdge(EI.GetSrcNId(),EI.GetDstNId(),EI.GetSrcNId()*EI.GetDstNId());
   }
 
   // verify edge data
