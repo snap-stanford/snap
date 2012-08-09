@@ -11,15 +11,15 @@ Range of NodeN: 0 <= NodeN < GetNbrDeg().
 ///
 
 /// TNodeNet::AddNode (int NId = -1)
-Return value is the ID of the node being added.
-If NId=-1 node ID will be automatically assigned (and returned).
-If node of ID NId already exists, do nothing.
+Returns the ID of the node being added.
+If NId is -1, node ID is automatically assigned.
+Aborts, if a node with ID NId already exists.
 ///
 
 /// TNodeNet::AddNode-1 (int NId, const TNodeData& NodeDat)
-Return value is the ID of the node being added.
-If the node NId does not exists, it will be added to the graph.
-If NId=-1 node ID will be automatically assigned (and returned).
+Returns the ID of the node being added.
+If NId is -1, node ID is automatically assigned.
+Aborts, if a node with ID NId already exists.
 ///
 
 /// TNodeNet::DelNode
@@ -65,15 +65,15 @@ Range of NodeN: 0 <= NodeN < GetNbrDeg().
 ///
 
 /// TNodeEDatNet::AddNode (int NId = -1)
-Return value is the ID of the node being added.
-If NId=-1 node ID will be automatically assigned (and returned).
-If node of ID NId already exists, do nothing.
+Returns the ID of the node being added.
+If NId is -1, node ID is automatically assigned.
+Aborts, if a node with ID NId already exists.
 ///
 
 /// TNodeEDatNet::AddNode-1 (int NId, const TNodeData& NodeDat)
-Return value is the ID of the node being added.
-If the node NId does not exists, it will be added to the graph.
-If NId=-1 node ID will be automatically assigned (and returned).
+Returns the ID of the node being added.
+If NId is -1, node ID is automatically assigned.
+Aborts, if a node with ID NId already exists.
 ///
 
 /// TNodeEDatNet::DelNode
@@ -89,10 +89,10 @@ Function aborts if SrcNId or DstNId are not nodes in the network.
 ///
 
 /// TNodeEDatNet::AddEdge-1 (const int& SrcNId, const int& DstNId, const TEdgeData& EdgeData)
-If the edge already exists return -2.
-If the edge does not exist and was successfully added return -1.
+If the edge already exists, set edges data and returns -2.
+If the edge does not exist and was successfully added returns -1.
 Normally the function should return an ID of the edge added but since edges in
-TNodeEDatNet have no IDs we return -1.
+TNodeEDatNet have no IDs it returns -1.
 Function aborts if SrcNId or DstNId are not nodes in the network.
 ///
 
@@ -131,15 +131,15 @@ Range of NodeN: 0 <= NodeN < GetNbrDeg().
 ///
 
 /// TNodeEdgeNet::AddNode (int NId = -1)
-Return value is the ID of the node being added.
-If NId=-1 node ID will be automatically assigned (and returned).
-If node of ID NId already exists, do nothing.
+Returns the ID of the node being added.
+If NId is -1, node ID is automatically assigned.
+Aborts, if a node with ID NId already exists.
 ///
 
 /// TNodeEdgeNet::AddNode-1 (int NId, const TNodeData& NodeDat)
-Return value is the ID of the node being added.
-If the node NId does not exists, it will be added to the graph.
-If NId=-1 node ID will be automatically assigned (and returned).
+Returns the ID of the node being added.
+If NId is -1, node ID is automatically assigned.
+Aborts, if a node with ID NId already exists.
 ///
 
 /// TNodeEdgeNet::DelNode
@@ -147,13 +147,17 @@ If the node of ID NId does not exist the function aborts.
 ///
 
 /// TNodeEdgeNet::AddEdge (const int& SrcNId, const int& DstNId, int EId = -1)
-Returns an ID of the edge added.
-The function aborts if SrcNId or DstNId are not nodes in the graph.
+Returns the ID of the edge being added.
+If EId is -1, edge ID is automatically assigned.
+Aborts, if an edge with ID EId already exists.
+Aborts, if SrcNId or DstNId are not nodes in the graph.
 ///
 
 /// TNodeEdgeNet::AddEdge-1 (const int& SrcNId, const int& DstNId, int EId, const TEdgeData& EdgeDat);
-Returns an ID of the edge added.
-The function aborts if SrcNId or DstNId are not nodes in the graph.
+Returns the ID of the edge being added.
+If EId is -1, edge ID is automatically assigned.
+Aborts, if an edge with ID EId already exists.
+Aborts, if SrcNId or DstNId are not nodes in the graph.
 ///
 
 /// TNodeEdgeNet::DelEdge

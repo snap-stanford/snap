@@ -211,7 +211,8 @@ TEST(TNodeEDatNet, NodeData) {
 
   // add data to nodes, square of node ID
   for (TNodeEDatNet<TInt, TInt>::TNodeI NI = Net->BegNI(); NI < Net->EndNI(); NI++) {
-    Net->AddNode(NI.GetId(), NI.GetId()*NI.GetId());
+    // Net->AddNode(NI.GetId(), NI.GetId()*NI.GetId());
+    Net->SetNDat(NI.GetId(), NI.GetId()*NI.GetId());
   }
 
   // test node data
@@ -281,7 +282,8 @@ TEST(TNodeEDatNet, EdgeData) {
 
   // add data to nodes, square of node ID
   for (TNodeEDatNet<TInt, TInt>::TNodeI NI = Net->BegNI(); NI < Net->EndNI(); NI++) {
-    Net->AddNode(NI.GetId(), NI.GetId()*NI.GetId());
+    // Net->AddNode(NI.GetId(), NI.GetId()*NI.GetId());
+    Net->SetNDat(NI.GetId(), NI.GetId()*NI.GetId());
   }
 
   // test node data
@@ -368,7 +370,8 @@ TEST(TNodeEDatNet, SortNodeData) {
 
   // add data to nodes, square of node ID % NNodes
   for (TNodeEDatNet<TInt, TInt>::TNodeI NI = Net->BegNI(); NI < Net->EndNI(); NI++) {
-    Net->AddNode(NI.GetId(), (NI.GetId()*NI.GetId()) % NNodes);
+    // Net->AddNode(NI.GetId(), (NI.GetId()*NI.GetId()) % NNodes);
+    Net->SetNDat(NI.GetId(), (NI.GetId()*NI.GetId()) % NNodes);
   }
 
   // test node data

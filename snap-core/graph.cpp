@@ -6,35 +6,48 @@ bool TUNGraph::HasFlag(const TGraphFlag& Flag) const {
 
 // Add a node of ID NId to the graph.
 int TUNGraph::AddNode(int NId) {
-  if (NId == -1) { NId = MxNId;  MxNId++; }
-  else if (IsNode(NId)) { return NId; } // already a node
-  else { MxNId = TMath::Mx(NId+1, MxNId()); }
+  if (NId == -1) {
+    NId = MxNId;  MxNId++;
+  } else {
+    IAssertR(!IsNode(NId), TStr::Fmt("NodeId %d already exists", NId));
+    MxNId = TMath::Mx(NId+1, MxNId());
+  }
   NodeH.AddDat(NId, TNode(NId));
   return NId;
 }
 
 // Add a node of ID NId to the graph and create edges to all nodes in vector NbrNIdV.
 int TUNGraph::AddNode(const int& NId, const TIntV& NbrNIdV) {
-  IAssert(NId != -1);
-  IAssertR(! IsNode(NId), TStr::Fmt("NodeId %d already exists", NId));
-  MxNId = TMath::Mx(NId+1, MxNId());
-  TNode& Node = NodeH.AddDat(NId);
-  Node.Id = NId;
+  int NewNId;
+  if (NId == -1) {
+    NewNId = MxNId;  MxNId++;
+  } else {
+    IAssertR(!IsNode(NId), TStr::Fmt("NodeId %d already exists", NId));
+    NewNId = NId;
+    MxNId = TMath::Mx(NewNId+1, MxNId());
+  }
+  TNode& Node = NodeH.AddDat(NewNId);
+  Node.Id = NewNId;
   Node.NIdV = NbrNIdV;
   Node.NIdV.Sort();
-  return NId;
+  return NewNId;
 }
 
 // Add a node of ID NId to the graph and create edges to all nodes in the vector NIdVId in the vector pool Pool).
 int TUNGraph::AddNode(const int& NId, const TVecPool<TInt>& Pool, const int& NIdVId) {
-  IAssert(NId != -1);
-  IAssertR(! IsNode(NId), TStr::Fmt("NodeId %d already exists", NId));
-  MxNId = TMath::Mx(NId+1, MxNId());
-  TNode& Node = NodeH.AddDat(NId);
-  Node.Id = NId;
+  int NewNId;
+  if (NId == -1) {
+    NewNId = MxNId;  MxNId++;
+  } else {
+    IAssertR(!IsNode(NId), TStr::Fmt("NodeId %d already exists", NId));
+    NewNId = NId;
+    MxNId = TMath::Mx(NewNId+1, MxNId());
+  }
+  TNode& Node = NodeH.AddDat(NewNId);
+  Node.Id = NewNId;
   Node.NIdV.GenExt(Pool.GetValVPt(NIdVId), Pool.GetVLen(NIdVId));
   Node.NIdV.Sort();
-  return NId;
+  return NewNId;
 }
 
 // Delete node of ID NId from the graph.
@@ -177,9 +190,12 @@ bool TNGraph::HasFlag(const TGraphFlag& Flag) const {
 }
 
 int TNGraph::AddNode(int NId) {
-  if (NId == -1) { NId = MxNId;  MxNId++; }
-  else if (IsNode(NId)) { return NId; } // already a node
-  else { MxNId = TMath::Mx(NId+1, MxNId()); }
+  if (NId == -1) {
+    NId = MxNId;  MxNId++;
+  } else {
+    IAssertR(!IsNode(NId), TStr::Fmt("NodeId %d already exists", NId));
+    MxNId = TMath::Mx(NId+1, MxNId());
+  }
   NodeH.AddDat(NId, TNode(NId));
   return NId;
 }
@@ -187,31 +203,41 @@ int TNGraph::AddNode(int NId) {
 // add a node with a list of neighbors
 // (use TNGraph::IsOk to check whether the graph is consistent)
 int TNGraph::AddNode(const int& NId, const TIntV& InNIdV, const TIntV& OutNIdV) {
-  IAssert(NId != -1);
-  IAssertR(! IsNode(NId), TStr::Fmt("NodeId %d already exists", NId));
-  MxNId = TMath::Mx(NId+1, MxNId());
-  TNode& Node = NodeH.AddDat(NId);
-  Node.Id = NId;
+  int NewNId;
+  if (NId == -1) {
+    NewNId = MxNId;  MxNId++;
+  } else {
+    IAssertR(!IsNode(NId), TStr::Fmt("NodeId %d already exists", NId));
+    NewNId = NId;
+    MxNId = TMath::Mx(NewNId+1, MxNId());
+  }
+  TNode& Node = NodeH.AddDat(NewNId);
+  Node.Id = NewNId;
   Node.InNIdV = InNIdV;
   Node.OutNIdV = OutNIdV;
   Node.InNIdV.Sort();
   Node.OutNIdV.Sort();
-  return NId;
+  return NewNId;
 }
 
 // add a node from a vector pool
 // (use TNGraph::IsOk to check whether the graph is consistent)
 int TNGraph::AddNode(const int& NId, const TVecPool<TInt>& Pool, const int& SrcVId, const int& DstVId) {
-  IAssert(NId!=-1);
-  IAssertR(! IsNode(NId), TStr::Fmt("NodeId %d already exists", NId));
-  MxNId = TMath::Mx(NId+1, MxNId());
-  TNode& Node = NodeH.AddDat(NId);
-  Node.Id = NId;
+  int NewNId;
+  if (NId == -1) {
+    NewNId = MxNId;  MxNId++;
+  } else {
+    IAssertR(!IsNode(NId), TStr::Fmt("NodeId %d already exists", NId));
+    NewNId = NId;
+    MxNId = TMath::Mx(NewNId+1, MxNId());
+  }
+  TNode& Node = NodeH.AddDat(NewNId);
+  Node.Id = NewNId;
   Node.InNIdV.GenExt(Pool.GetValVPt(SrcVId), Pool.GetVLen(SrcVId));
   Node.OutNIdV.GenExt(Pool.GetValVPt(DstVId), Pool.GetVLen(DstVId));
   Node.InNIdV.Sort();
   Node.OutNIdV.Sort();
-  return NId;
+  return NewNId;
 }
 
 void TNGraph::DelNode(const int& NId) {
@@ -394,9 +420,12 @@ bool TNEGraph::TNodeI::IsOutNId(const int& NId) const {
 }
 
 int TNEGraph::AddNode(int NId) {
-  if (NId == -1) { NId = MxNId;  MxNId++; }
-  else if (IsNode(NId)) { return NId; } // already a node
-  else { MxNId = TMath::Mx(NId+1, MxNId()); }
+  if (NId == -1) {
+    NId = MxNId;  MxNId++;
+  } else {
+    IAssertR(!IsNode(NId), TStr::Fmt("NodeId %d already exists", NId));
+    MxNId = TMath::Mx(NId+1, MxNId());
+  }
   NodeH.AddDat(NId, TNode(NId));
   return NId;
 }
@@ -423,7 +452,7 @@ void TNEGraph::DelNode(const int& NId) {
 int TNEGraph::AddEdge(const int& SrcNId, const int& DstNId, int EId) {
   if (EId == -1) { EId = MxEId;  MxEId++; }
   else { MxEId = TMath::Mx(EId+1, MxEId()); }
-  IAssert(! IsEdge(EId));
+  IAssertR(!IsEdge(EId), TStr::Fmt("EdgeId %d already exists", EId));
   IAssertR(IsNode(SrcNId) && IsNode(DstNId), TStr::Fmt("%d or %d not a node.", SrcNId, DstNId).CStr());
   EdgeH.AddDat(EId, TEdge(EId, SrcNId, DstNId));
   GetNode(SrcNId).OutEIdV.AddSorted(EId);

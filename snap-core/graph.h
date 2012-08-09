@@ -337,9 +337,9 @@ public:
   int AddNode(int NId = -1);
   /// Adds a node of ID NodeI.GetId() to the graph.
   int AddNode(const TNodeI& NodeId) { return AddNode(NodeId.GetId()); }
-  /// Adds a node of ID NId to the graph, create edges to the node from all nodes in vector InNIdV, create edges from the node to all nodes in vector OutNIdV. ##TNGraph::AddNode-1
+  /// Adds a node of ID NId to the graph, creates edges to the node from all nodes in vector InNIdV, creates edges from the node to all nodes in vector OutNIdV. ##TNGraph::AddNode-1
   int AddNode(const int& NId, const TIntV& InNIdV, const TIntV& OutNIdV);
-  /// Adds a node of ID NId to the graph, create edges to the node from all nodes in vector InNIdV in the vector pool Pool, create edges from the node to all nodes in vector OutNIdVin the vector pool Pool . ##TNGraph::AddNode-2
+  /// Adds a node of ID NId to the graph, creates edges to the node from all nodes in vector InNIdV in the vector pool Pool, creates edges from the node to all nodes in vector OutNIdVin the vector pool Pool . ##TNGraph::AddNode-2
   int AddNode(const int& NId, const TVecPool<TInt>& Pool, const int& SrcVId, const int& DstVId);
   /// Deletes node of ID NId from the graph. ##TNGraph::DelNode
   void DelNode(const int& NId);
@@ -584,7 +584,7 @@ public:
 
   /// Returns the number of edges in the graph.
   int GetEdges() const { return EdgeH.Len(); }
-  /// Adds an edge between node IDs SrcNId and DstNId to the graph. ##TNEGraph::AddEdge
+  /// Adds an edge with ID EId between node IDs SrcNId and DstNId to the graph. ##TNEGraph::AddEdge
   int AddEdge(const int& SrcNId, const int& DstNId, int EId  = -1);
   /// Adds an edge between EdgeI.GetSrcNId() and EdgeI.GetDstNId() to the graph.
   int AddEdge(const TEdgeI& EdgeI) { return AddEdge(EdgeI.GetSrcNId(), EdgeI.GetDstNId(), EdgeI.GetId()); }

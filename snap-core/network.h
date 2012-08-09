@@ -151,7 +151,7 @@ public:
   int GetNodes() const { return NodeH.Len(); }
   /// Adds a node of ID NId to the network. ##TNodeNet::AddNode
   int AddNode(int NId = -1);
-  /// Adds node data to node with ID NId. ##TNodeNet::AddNode-1
+  /// Adds a node of ID NId and node data NodeDat to the network. ##TNodeNet::AddNode-1
   int AddNode(int NId, const TNodeData& NodeDat);
   /// Adds a node NodeId and its node data to the network.
   int AddNode(const TNodeI& NodeId) { return AddNode(NodeId.GetId(), NodeId.GetDat()); }
@@ -237,19 +237,24 @@ bool TNodeNet<TNodeData>::HasFlag(const TGraphFlag& Flag) const {
 
 template <class TNodeData>
 int TNodeNet<TNodeData>::AddNode(int NId) {
-  if (NId == -1) { NId = MxNId;  MxNId++; }
-  else if (IsNode(NId)) { return NId; } // already a node
-  else { MxNId = TMath::Mx(NId+1, MxNId()); }
+  if (NId == -1) {
+    NId = MxNId;  MxNId++;
+  } else {
+    IAssertR(!IsNode(NId), TStr::Fmt("NodeId %d already exists", NId));
+    MxNId = TMath::Mx(NId+1, MxNId());
+  }
   NodeH.AddDat(NId, TNode(NId));
   return NId;
 }
 
 template <class TNodeData>
 int TNodeNet<TNodeData>::AddNode(int NId, const TNodeData& NodeDat) {
-  if (NId == -1) { NId = MxNId;  MxNId++; }
-  else if (IsNode(NId)) {
-    NodeH.GetDat(NId).NodeDat=NodeDat;  return NId; } // already a node
-  else { MxNId = TMath::Mx(NId+1, MxNId()); }
+  if (NId == -1) {
+    NId = MxNId;  MxNId++;
+  } else {
+    IAssertR(!IsNode(NId), TStr::Fmt("NodeId %d already exists", NId));
+    MxNId = TMath::Mx(NId+1, MxNId());
+  }
   NodeH.AddDat(NId, TNode(NId, NodeDat));
   return NId;
 }
@@ -290,7 +295,7 @@ int TNodeNet<TNodeData>::GetEdges() const {
 
 template <class TNodeData>
 int TNodeNet<TNodeData>::AddEdge(const int& SrcNId, const int& DstNId) {
-  IAssert(IsNode(SrcNId) && IsNode(DstNId));
+  IAssertR(IsNode(SrcNId) && IsNode(DstNId), TStr::Fmt("%d or %d not a node.", SrcNId, DstNId).CStr());
   if (IsEdge(SrcNId, DstNId)) { return -2; }
   GetNode(SrcNId).OutNIdV.AddSorted(DstNId);
   GetNode(DstNId).InNIdV.AddSorted(SrcNId);
@@ -557,7 +562,7 @@ public:
   int GetNodes() const { return NodeH.Len(); }
   /// Adds a node of ID NId to the network. ##TNodeEDatNet::AddNode
   int AddNode(int NId = -1);
-  /// Adds node data to node with ID NId. ##TNodeEDatNet::AddNode-1
+  /// Adds a node of ID NId and node data NodeDat to the network. ##TNodeEDatNet::AddNode-1
   int AddNode(int NId, const TNodeData& NodeDat);
   /// Adds a node NodeId and its node data to the network.
   int AddNode(const TNodeI& NodeId) { return AddNode(NodeId.GetId(), NodeId.GetDat()); }
@@ -589,7 +594,7 @@ public:
   int GetEdges() const;
   /// Adds an edge from node IDs SrcNId to node DstNId to the network. ##TNodeEDatNet::AddEdge
   int AddEdge(const int& SrcNId, const int& DstNId);
-  /// Adds edge data to an edge from node IDs SrcNId to node DstNId. ##TNodeEDatNet::AddEdge-1
+  /// Adds an edge and edge data from node IDs SrcNId to node DstNId. ##TNodeEDatNet::AddEdge-1
   int AddEdge(const int& SrcNId, const int& DstNId, const TEdgeData& EdgeDat);
   /// Adds an edge from EdgeI.GetSrcNId() to EdgeI.GetDstNId() and its edge data to the network.
   int AddEdge(const TEdgeI& EdgeI) { return AddEdge(EdgeI.GetSrcNId(), EdgeI.GetDstNId(), EdgeI()); }
@@ -669,21 +674,24 @@ int TNodeEDatNet<TNodeData, TEdgeData>::GetNIdPos(const TVec<TPair<TInt, TEdgeDa
 
 template <class TNodeData, class TEdgeData>
 int TNodeEDatNet<TNodeData, TEdgeData>::AddNode(int NId) {
-  if (NId == -1) { NId = MxNId;  MxNId++; }
-  else if (IsNode(NId)) { return NId; } // already a node
-  else { MxNId = TMath::Mx(NId+1, MxNId()); }
-  IAssertR(! IsNode(NId), TStr::Fmt("NodeId %d already exists", NId));
+  if (NId == -1) {
+    NId = MxNId;  MxNId++;
+  } else {
+    IAssertR(!IsNode(NId), TStr::Fmt("NodeId %d already exists", NId));
+    MxNId = TMath::Mx(NId+1, MxNId());
+  }
   NodeH.AddDat(NId, TNode(NId));
   return NId;
 }
 
 template <class TNodeData, class TEdgeData>
 int TNodeEDatNet<TNodeData, TEdgeData>::AddNode(int NId, const TNodeData& NodeDat) {
-  if (NId == -1) { NId = MxNId;  MxNId++; }
-  else if (IsNode(NId)) {
-    NodeH.GetDat(NId).NodeDat=NodeDat;  return NId; } // already a node
-  else { MxNId = TMath::Mx(NId+1, MxNId()); }
-  IAssertR(! IsNode(NId), TStr::Fmt("NodeId %d already exists", NId));
+  if (NId == -1) {
+    NId = MxNId;  MxNId++;
+  } else {
+    IAssertR(!IsNode(NId), TStr::Fmt("NodeId %d already exists", NId));
+    MxNId = TMath::Mx(NId+1, MxNId());
+  }
   NodeH.AddDat(NId, TNode(NId, NodeDat));
   return NId;
 }
@@ -729,7 +737,7 @@ int TNodeEDatNet<TNodeData, TEdgeData>::AddEdge(const int& SrcNId, const int& Ds
 
 template <class TNodeData, class TEdgeData>
 int TNodeEDatNet<TNodeData, TEdgeData>::AddEdge(const int& SrcNId, const int& DstNId, const TEdgeData& EdgeDat) {
-  IAssert(IsNode(SrcNId) && IsNode(DstNId));
+  IAssertR(IsNode(SrcNId) && IsNode(DstNId), TStr::Fmt("%d or %d not a node.", SrcNId, DstNId).CStr());
   //IAssert(! IsEdge(SrcNId, DstNId));
   if (IsEdge(SrcNId, DstNId)) {
     GetEDat(SrcNId, DstNId) = EdgeDat;
@@ -1114,7 +1122,7 @@ public:
   int GetUniqEdges(const bool& IsDir=true) const;
   /// Adds an edge between node IDs SrcNId and DstNId to the graph. ##TNodeEdgeNet::AddEdge
   int AddEdge(const int& SrcNId, const int& DstNId, int EId = -1);
-  /// Adds edge data to an edge from node IDs SrcNId to node DstNId. ##TNodeEdgeNet::AddEdge-1
+  /// Adds an edge and edge data from node IDs SrcNId to node DstNId. ##TNodeEdgeNet::AddEdge-1
   int AddEdge(const int& SrcNId, const int& DstNId, int EId, const TEdgeData& EdgeDat);
   /// Adds an edge from EdgeI.GetSrcNId() to EdgeI.GetDstNId() and its edge data to the network.
   int AddEdge(const TEdgeI& EdgeI) { return AddEdge(EdgeI.GetSrcNId(), EdgeI.GetDstNId(), EdgeI.GetId(), EdgeI.GetDat()); }
@@ -1217,21 +1225,24 @@ bool TNodeEdgeNet<TNodeData, TEdgeData>::TNodeI::IsOutNId(const int& NId) const 
 
 template <class TNodeData, class TEdgeData>
 int TNodeEdgeNet<TNodeData, TEdgeData>::AddNode(int NId) {
-  if (NId == -1) { NId = MxNId;  MxNId++; }
-  else if (IsNode(NId)) { return NId; } // already a node
-  else { MxNId = TMath::Mx(NId+1, MxNId()); }
-  IAssertR(! IsNode(NId), TStr::Fmt("NodeId %d already exists", NId));
+  if (NId == -1) {
+    NId = MxNId;  MxNId++;
+  } else {
+    IAssertR(!IsNode(NId), TStr::Fmt("NodeId %d already exists", NId));
+    MxNId = TMath::Mx(NId+1, MxNId());
+  }
   NodeH.AddDat(NId, TNode(NId));
   return NId;
 }
 
 template <class TNodeData, class TEdgeData>
 int TNodeEdgeNet<TNodeData, TEdgeData>::AddNode(int NId, const TNodeData& NodeDat) {
-  if (NId == -1) { NId = MxNId;  MxNId++; }
-  else if (IsNode(NId)) {
-    NodeH.GetDat(NId).NodeDat=NodeDat;  return NId; } // already a node
-  else { MxNId = TMath::Mx(NId+1, MxNId()); }
-  IAssertR(! IsNode(NId), TStr::Fmt("NodeId %d already exists", NId));
+  if (NId == -1) {
+    NId = MxNId;  MxNId++;
+  } else {
+    IAssertR(!IsNode(NId), TStr::Fmt("NodeId %d already exists", NId));
+    MxNId = TMath::Mx(NId+1, MxNId());
+  }
   NodeH.AddDat(NId, TNode(NId, NodeDat));
   return NId;
 }
@@ -1278,8 +1289,8 @@ template <class TNodeData, class TEdgeData>
 int TNodeEdgeNet<TNodeData, TEdgeData>::AddEdge(const int& SrcNId, const int& DstNId, int EId) {
   if (EId == -1) { EId = MxEId;  MxEId++; }
   else { MxEId = TMath::Mx(EId+1, MxEId()); }
-  IAssert(! IsEdge(EId));
-  IAssert(IsNode(SrcNId) && IsNode(DstNId));
+  IAssertR(!IsEdge(EId), TStr::Fmt("EdgeId %d already exists", EId));
+  IAssertR(IsNode(SrcNId) && IsNode(DstNId), TStr::Fmt("%d or %d not a node.", SrcNId, DstNId).CStr());
   EdgeH.AddDat(EId, TEdge(EId, SrcNId, DstNId));
   GetNode(SrcNId).OutEIdV.AddSorted(EId);
   GetNode(DstNId).InEIdV.AddSorted(EId);
@@ -1290,8 +1301,8 @@ template <class TNodeData, class TEdgeData>
 int TNodeEdgeNet<TNodeData, TEdgeData>::AddEdge(const int& SrcNId, const int& DstNId, int EId, const TEdgeData& EdgeDat) {
   if (EId == -1) { EId = MxEId;  MxEId++; }
   else { MxEId = TMath::Mx(EId+1, MxEId()); }
-  IAssert(! IsEdge(EId));
-  IAssert(IsNode(SrcNId) && IsNode(DstNId));
+  IAssertR(!IsEdge(EId), TStr::Fmt("EdgeId %d already exists", EId));
+  IAssertR(IsNode(SrcNId) && IsNode(DstNId), TStr::Fmt("%d or %d not a node.", SrcNId, DstNId).CStr());
   EdgeH.AddDat(EId, TEdge(EId, SrcNId, DstNId, EdgeDat));
   GetNode(SrcNId).OutEIdV.AddSorted(EId);
   GetNode(DstNId).InEIdV.AddSorted(EId);

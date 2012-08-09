@@ -27,24 +27,30 @@ Call: PUNGraph Graph = TUNGraph::New(Nodes, Edges).
 ///
 
 /// TUNGraph::AddNode (int NId = -1)
-Return value is the ID of the node being added.
-If NId=-1 node id will be automatically assigned (and returned).
-If node of ID NId already exists, do nothing.
+Returns the ID of the node being added.
+If NId is -1, node ID is automatically assigned.
+Aborts, if a node with ID NId already exists.
 ///
 
 /// TUNGraph::AddNode-1 (const int& NId, const TIntV& NbrNIdV)
-The operation can create inconsistent graphs unless the neighboring nodes (in NbrNIdV vector) exist.
-Use TUNGraph::IsOk to check that the resulting graph is consistent after the operation.
-Return value is the ID of the node being added.
-If node NId already exists the function aborts.
+Returns the ID of the node being added.
+If NId is -1, node ID is automatically assigned.
+Aborts, if a node with ID NId already exists.
+
+The operation can create inconsistent graphs when the neighboring nodes
+in NbrNIdV vector do not exist.
+Use TUNGraph::IsOk to check that the resulting graph is consistent
+after the operation.
 ///
 
 /// TUNGraph::AddNode-2 (const int& NId, const TVecPool<TInt>& Pool, const int& NIdVId)
-The operation can create inconsistent graphs unless the neighboring nodes (stored in the vector)
-are also explicitly added to the graph.
+Returns the ID of the node being added.
+If NId is -1, node ID is automatically assigned.
+Aborts, if a node with ID NId already exists.
+
+The operation can create inconsistent graphs when the neighboring nodes
+stored in the Pool vector are not explicitly added to the graph.
 Use TUNGraph::IsOk to check that the resulting graph is consistent.
-Return value is the ID of the node being added.
-If node NId already exists the function aborts.
 ///
 
 /// TUNGraph::DelNode
@@ -117,24 +123,30 @@ Call: PNGraph Graph = TNGraph::New(Nodes, Edges).
 ///
     
 /// TNGraph::AddNode (int NId = -1)
-Return value is the ID of the node being added.
-If NId=-1 node id will be automatically assigned (and returned).
-If node of ID NId already exists, do nothing.
+Returns the ID of the node being added.
+If NId is -1, node ID is automatically assigned.
+Aborts, if a node with ID NId already exists.
 ///
     
 /// TNGraph::AddNode-1 (const int& NId, const TIntV& InNIdV, const TIntV& OutNIdV)
-The operation can create inconsistent graphs unless the neighboring nodes (in
-vectors InNIdV and OutNIdV) exist.
-Use TUNGraph::IsOk to check that the resulting graph is consistent.
-Return value is the ID of the node being added.
-If node NId already exists the function aborts.
+Returns the ID of the node being added.
+If NId is -1, node ID is automatically assigned.
+Aborts, if a node with ID NId already exists.
+
+The operation can create inconsistent graphs when the neighboring nodes
+in vectors InNIdV and OutNIdV do not exist.
+Use TNGraph::IsOk to check that the resulting graph is consistent
+after the operation.
 ///
 
 /// TNGraph::AddNode-2 (const int& NId, const TVecPool<TInt>& Pool, const int& NIdVId)
-The operation can create inconsistent graphs unless the neighboring nodes (stored in the vector) exist.
+Returns the ID of the node being added.
+If NId is -1, node ID is automatically assigned.
+Aborts, if a node with ID NId already exists.
+
+The operation can create inconsistent graphs when the neighboring nodes
+stored in the Pool vector are not explicitly added to the graph.
 Use TNGraph::IsOk to check that the resulting graph is consistent.
-Return value is the ID of the node being added.
-If node NId already exists the function aborts.
 ///
 
 /// TNGraph::DelNode
@@ -199,9 +211,9 @@ Call: PNEGraph Graph = TNEGraph::New(Nodes, Edges).
 ///
     
 /// TNEGraph::AddNode (int NId = -1)
-Return value is the ID of the node being added.
-If NId=-1 node id will be automatically assigned (and returned).
-If node of ID NId already exists, do nothing.
+Returns the ID of the node being added.
+If NId is -1, node ID is automatically assigned.
+Aborts, if a node with ID NId already exists.
 /// 
 
 /// TNEGraph::DelNode
@@ -209,8 +221,10 @@ If the node of ID NId does not exist the function aborts.
 ///
 
 /// TNEGraph::AddEdge
-Returns an ID of the edge added.
-The function aborts if SrcNId or DstNId are not nodes in the graph.
+Returns the ID of the edge being added.
+If EId is -1, edge ID is automatically assigned.
+Aborts, if an edge with ID EId already exists.
+Aborts, if SrcNId or DstNId are not nodes in the graph.
 ///
 
 /// TNEGraph::DelEdge
