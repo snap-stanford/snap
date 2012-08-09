@@ -161,7 +161,7 @@ TEST(TNodeNet, ManipulateNodesEdges) {
 }
 
 // Test set node data
-TEST(TNodeNet, NodeData) {
+TEST(TNodeNet, SetNodeData) {
   int NNodes = 10000;
   int NEdges = 100000;
 
@@ -209,15 +209,69 @@ TEST(TNodeNet, NodeData) {
   EXPECT_EQ(0,Net->IsNode(NNodes+1));
   EXPECT_EQ(0,Net->IsNode(2*NNodes));
 
-  // add data to nodes, square of node ID
+  // set node data, node ID + 10
   for (TNodeNet<TInt>::TNodeI NI = Net->BegNI(); NI < Net->EndNI(); NI++) {
-    // Net->AddNode(NI.GetId(), NI.GetId()*NI.GetId());
-    Net->SetNDat(NI.GetId(), NI.GetId()*NI.GetId());
+    Net->SetNDat(NI.GetId(), NI.GetId()+10);
   }
 
   // test node data
   for (TNodeNet<TInt>::TNodeI NI = Net->BegNI(); NI < Net->EndNI(); NI++) {
-    EXPECT_EQ(NI.GetId()*NI.GetId(), Net->GetNDat(NI.GetId()));
+    EXPECT_EQ(NI.GetId()+10, Net->GetNDat(NI.GetId()));
+  }
+}
+
+// Test update node data
+TEST(TNodeNet, UpdateNodeData) {
+  int NNodes = 10000;
+  int NEdges = 100000;
+
+  TPt <TNodeNet<TInt> > Net;
+  TPt <TNodeNet<TInt> > Net1;
+  TPt <TNodeNet<TInt> > Net2;
+  int i;
+  int n;
+  int NCount;
+  int x,y;
+
+  Net = TNodeNet<TInt>::New();
+  EXPECT_EQ(1,Net->Empty());
+
+  // create the nodes with node data
+  for (i = 0; i < NNodes; i++) {
+    Net->AddNode(i,i+5);
+  }
+  EXPECT_EQ(0,Net->Empty());
+  EXPECT_EQ(NNodes,Net->GetNodes());
+
+  // create random edges
+  NCount = NEdges;
+  while (NCount > 0) {
+    x = (long) (drand48() * NNodes);
+    y = (long) (drand48() * NNodes);
+    // Net->GetEdges() is not correct for the loops (x == y),
+    // skip the loops in this test
+    if (x != y  &&  !Net->IsEdge(x,y)) {
+      n = Net->AddEdge(x, y);
+      NCount--;
+    }
+  }
+
+  EXPECT_EQ(NEdges,Net->GetEdges());
+
+  EXPECT_EQ(0,Net->Empty());
+  EXPECT_EQ(1,Net->IsOk());
+
+  for (i = 0; i < NNodes; i++) {
+    EXPECT_EQ(1,Net->IsNode(i));
+  }
+
+  EXPECT_EQ(0,Net->IsNode(NNodes));
+  EXPECT_EQ(0,Net->IsNode(NNodes+1));
+  EXPECT_EQ(0,Net->IsNode(2*NNodes));
+
+  // test node data
+  for (TNodeNet<TInt>::TNodeI NI = Net->BegNI(); NI < Net->EndNI(); NI++) {
+    EXPECT_EQ(NI.GetId()+5, Net->GetNDat(NI.GetId()));
   }
 
   // update node data, node ID + 10
@@ -231,7 +285,7 @@ TEST(TNodeNet, NodeData) {
   }
 }
 
-// Test data sorting
+// Test node data sorting
 TEST(TNodeNet, SortNodeData) {
   int NNodes = 10000;
   int NEdges = 100000;
@@ -285,7 +339,6 @@ TEST(TNodeNet, SortNodeData) {
 
   // add data to nodes, square of node ID % NNodes
   for (TNodeNet<TInt>::TNodeI NI = Net->BegNI(); NI < Net->EndNI(); NI++) {
-    // Net->AddNode(NI.GetId(), (NI.GetId()*NI.GetId()) % NNodes);
     Net->SetNDat(NI.GetId(), (NI.GetId()*NI.GetId()) % NNodes);
   }
 

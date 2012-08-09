@@ -9,7 +9,7 @@ CXXFLAGS += -O3
 ## Main application file
 DEMOS = \
 	demo-TUNGraph demo-TNGraph demo-TNEGraph \
-	demo-TNodeNet demo-TNodeEDatNet
+	demo-TNodeNet demo-TNodeEDatNet demo-TNodeEdgeNet
 DEPH = 
 DEPCPP =
 LIBS += -lrt -lproc -lsnap -lgtest
@@ -31,6 +31,9 @@ demo-TNodeNet: demo-TNodeNet.cpp
 
 demo-TNodeEDatNet: demo-TNodeEDatNet.cpp
 	$(CC) $(CXXFLAGS) -o demo-TNodeEDatNet demo-TNodeEDatNet.cpp $(DEPCPP) $(LDFLAGS) $(LIBS)
+
+demo-TNodeEdgeNet: demo-TNodeEdgeNet.cpp
+	$(CC) $(CXXFLAGS) -o demo-TNodeEdgeNet demo-TNodeEdgeNet.cpp $(DEPCPP) $(LDFLAGS) $(LIBS)
 
 clean:
 	rm -f *.o $(DEMOS) $(DEMOS).exe
