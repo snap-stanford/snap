@@ -134,8 +134,12 @@ PGraph GetEDatSubGraph(const PGraph& Graph, const TEdgeDat& EDat, const int& Cmp
   typename PGraph::TObj& NewGraph = *NewGraphPt;
   for (typename PGraph::TObj::TEdgeI EI = Graph->BegEI(); EI < Graph->EndEI(); EI++) {
     if ((Cmp==1 && EI()>EDat) || (Cmp==-1 && EI()<EDat) || (Cmp==0 && EI()==EDat)) {
-      NewGraph.AddNode(Graph->GetNI(EI.GetSrcNId()));
-      NewGraph.AddNode(Graph->GetNI(EI.GetDstNId()));
+      if (! NewGraph.IsNode(EI.GetSrcNId())) {
+        NewGraph.AddNode(Graph->GetNI(EI.GetSrcNId()));
+      }
+      if (! NewGraph.IsNode(EI.GetDstNId())) {
+        NewGraph.AddNode(Graph->GetNI(EI.GetDstNId()));
+      }
       NewGraph.AddEdge(EI); 
     }
   }
