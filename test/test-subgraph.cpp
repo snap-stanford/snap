@@ -11,6 +11,8 @@
 #include <sys/time.h>
 #include <sys/resource.h>
 
+#include <gtest/gtest.h>
+
 #include <snap/Snap.h>
 
 PUNGraph GetTestTUNGraph();
@@ -19,23 +21,8 @@ PNEGraph GetTestTNEGraph();
 TPt <TNodeEDatNet<TInt, TInt> > GetTestTNodeEDatNet();
 TPt <TNodeEdgeNet<TInt, TInt> > GetTestTNodeEdgeNet();
 
-// Dump the graph 
-template <class PGraph>
-void PrintGraph(const char s[], const PGraph& Graph) {
-  printf("---- %s -----\n",s);
-  Graph->Dump();
-}
-
-// Print net stats
-template <class TNet>
-void PrintNet(const char s[], const TNet& Net) {
-  printf("---- %s -----\n",s);
-  printf("nodes: %d, edges: %d\n", Net->GetNodes(), Net->GetEdges());
-  printf("\n");
-}
-
 // Test subgraphs
-void TestSubTUNGraphs() {
+TEST(subgraph, TestSubTUNGraphs) {
   PUNGraph Graph;
   PUNGraph Graph1;
   PUNGraph Graph2;
@@ -45,28 +32,32 @@ void TestSubTUNGraphs() {
   TIntV NIdV1;
 
   Graph = GetTestTUNGraph();
-  PrintGraph("TUNGraph", Graph);
+  EXPECT_EQ(20,Graph->GetNodes());
+  EXPECT_EQ(60,Graph->GetEdges());
 
   for (i = 10; i < 15; i++) {
     NIdV.Add(i);
   }
 
   Graph1 = TSnap::GetSubGraph(Graph, NIdV);
-  PrintGraph("TUNGraph1", Graph1);
+  EXPECT_EQ(5,Graph1->GetNodes());
+  EXPECT_EQ(9,Graph1->GetEdges());
 
   Graph2 = TSnap::GetSubGraph(Graph, NIdV, true);
-  PrintGraph("TUNGraph2", Graph2);
+  EXPECT_EQ(5,Graph2->GetNodes());
+  EXPECT_EQ(9,Graph2->GetEdges());
 
   for (i = 0; i < 20; i += 2) {
     NIdV1.Add(i);
   }
 
   Graph3 = TSnap::GetSubGraph(Graph, NIdV1, true);
-  PrintGraph("TUNGraph3", Graph3);
+  EXPECT_EQ(10,Graph3->GetNodes());
+  EXPECT_EQ(10,Graph3->GetEdges());
 }
 
 // Test subgraphs
-void TestSubTNGraphs() {
+TEST(subgraph, TestSubTNGraphs) {
   PNGraph Graph;
   PNGraph Graph1;
   PNGraph Graph2;
@@ -76,28 +67,32 @@ void TestSubTNGraphs() {
   TIntV NIdV1;
 
   Graph = GetTestTNGraph();
-  PrintGraph("TNGraph", Graph);
+  EXPECT_EQ(20,Graph->GetNodes());
+  EXPECT_EQ(60,Graph->GetEdges());
 
   for (i = 10; i < 15; i++) {
     NIdV.Add(i);
   }
 
   Graph1 = TSnap::GetSubGraph(Graph, NIdV);
-  PrintGraph("TNGraph1", Graph1);
+  EXPECT_EQ(5,Graph1->GetNodes());
+  EXPECT_EQ(9,Graph1->GetEdges());
 
   Graph2 = TSnap::GetSubGraph(Graph, NIdV, true);
-  PrintGraph("TNGraph2", Graph2);
+  EXPECT_EQ(5,Graph2->GetNodes());
+  EXPECT_EQ(9,Graph2->GetEdges());
 
   for (i = 0; i < 20; i += 2) {
     NIdV1.Add(i);
   }
 
   Graph3 = TSnap::GetSubGraph(Graph, NIdV1, true);
-  PrintGraph("TNGraph3", Graph3);
+  EXPECT_EQ(10,Graph3->GetNodes());
+  EXPECT_EQ(10,Graph3->GetEdges());
 }
 
 // Test subgraphs
-void TestSubTNEGraphs() {
+TEST(subgraph, TestSubTNEGraphs) {
   PNEGraph Graph;
   PNEGraph Graph1;
   PNEGraph Graph2;
@@ -108,32 +103,36 @@ void TestSubTNEGraphs() {
   TIntV EIdV;
 
   Graph = GetTestTNEGraph();
-  PrintGraph("TNEGraph", Graph);
+  EXPECT_EQ(20,Graph->GetNodes());
+  EXPECT_EQ(120,Graph->GetEdges());
 
   for (i = 10; i < 15; i++) {
     NIdV.Add(i);
   }
 
   Graph1 = TSnap::GetSubGraph(Graph, NIdV);
-  PrintGraph("TNEGraph1", Graph1);
+  EXPECT_EQ(5,Graph1->GetNodes());
+  EXPECT_EQ(18,Graph1->GetEdges());
 
   for (i = 0; i < 20; i += 2) {
     NIdV1.Add(i);
   }
 
   Graph2 = TSnap::GetSubGraph(Graph, NIdV1);
-  PrintGraph("TNEGraph2", Graph2);
+  EXPECT_EQ(10,Graph2->GetNodes());
+  EXPECT_EQ(20,Graph2->GetEdges());
 
   for (i = 0; i < 120; i += 2) {
     EIdV.Add(i);
   }
 
   Graph3 = TSnap::GetESubGraph(Graph, EIdV);
-  PrintGraph("TNEGraph3", Graph3);
+  EXPECT_EQ(20,Graph3->GetNodes());
+  EXPECT_EQ(60,Graph3->GetEdges());
 }
 
-// Test subgraphs
-void TestEDatSubNets() {
+// Test node subgraphs
+TEST(subgraph, TestEDatSubNets) {
   TPt <TNodeEDatNet<TInt, TInt> > Net;
   TPt <TNodeEDatNet<TInt, TInt> > Net1;
   TPt <TNodeEDatNet<TInt, TInt> > Net2;
@@ -144,31 +143,36 @@ void TestEDatSubNets() {
   TIntV NIdV1;
 
   Net = GetTestTNodeEDatNet();
-  PrintNet("TestEDatSubNets", Net);
+  EXPECT_EQ(20,Net->GetNodes());
+  EXPECT_EQ(60,Net->GetEdges());
 
   for (i = 10; i < 15; i++) {
     NIdV.Add(i);
   }
 
   Net1 = TSnap::GetSubGraph(Net, NIdV);
-  PrintNet("TestEDatSubNets1", Net1);
+  EXPECT_EQ(5,Net1->GetNodes());
+  EXPECT_EQ(9,Net1->GetEdges());
 
   for (i = 0; i < 20; i += 2) {
     NIdV1.Add(i);
   }
 
   Net2 = TSnap::GetSubGraph(Net, NIdV1);
-  PrintNet("TestEDatSubNets2", Net2);
+  EXPECT_EQ(10,Net2->GetNodes());
+  EXPECT_EQ(10,Net2->GetEdges());
 
   Net3 = TSnap::GetEDatSubGraph(Net, 1, 0);
-  PrintNet("TestEDatSubNets3", Net3);
+  EXPECT_EQ(20,Net3->GetNodes());
+  EXPECT_EQ(15,Net3->GetEdges());
 
   Net4 = TSnap::GetEDatSubGraph(Net, 2, -1);
-  PrintNet("TestEDatSubNets4", Net4);
+  EXPECT_EQ(20,Net4->GetNodes());
+  EXPECT_EQ(30,Net4->GetEdges());
 }
 
-// Test subgraphs
-void TestEdgeSubNets() {
+// Test edge subgraphs
+TEST(subgraph, TestEdgeSubNets) {
   TPt <TNodeEdgeNet<TInt, TInt> > Net;
   TPt <TNodeEdgeNet<TInt, TInt> > Net1;
   TPt <TNodeEdgeNet<TInt, TInt> > Net2;
@@ -179,65 +183,62 @@ void TestEdgeSubNets() {
   TIntV NIdV1;
 
   Net = GetTestTNodeEdgeNet();
-  PrintNet("TestEdgeSubNets", Net);
+  EXPECT_EQ(20,Net->GetNodes());
+  EXPECT_EQ(120,Net->GetEdges());
 
   for (i = 10; i < 15; i++) {
     NIdV.Add(i);
   }
 
   Net1 = TSnap::GetSubGraph(Net, NIdV);
-  PrintNet("TestEdgeSubNets1", Net1);
+  EXPECT_EQ(5,Net1->GetNodes());
+  EXPECT_EQ(18,Net1->GetEdges());
 
   for (i = 0; i < 20; i += 2) {
     NIdV1.Add(i);
   }
 
   Net2 = TSnap::GetSubGraph(Net, NIdV1);
-  PrintNet("TestEdgeSubNets2", Net2);
+  EXPECT_EQ(10,Net2->GetNodes());
+  EXPECT_EQ(20,Net2->GetEdges());
 
   Net3 = TSnap::GetEDatSubGraph(Net, 1, 0);
-  PrintNet("TestEdgeSubNets3", Net3);
+  EXPECT_EQ(20,Net3->GetNodes());
+  EXPECT_EQ(30,Net3->GetEdges());
 
   Net4 = TSnap::GetEDatSubGraph(Net, 2, -1);
-  PrintNet("TestEdgeSubNets4", Net4);
+  EXPECT_EQ(20,Net4->GetNodes());
+  EXPECT_EQ(60,Net4->GetEdges());
 }
 
 // Test graph conversion
-void TestConvertGraphs() {
+TEST(subgraph, TestConvertGraphs) {
   PNGraph NGraph;
   PUNGraph UNGraph;
-  int N1, N2, N3;
-  int E1, E2, E3;
 
   NGraph = GetTestTNGraph();
-  N1 = NGraph->GetNodes();
-  E1 = NGraph->GetEdges();
+  EXPECT_EQ(20,NGraph->GetNodes());
+  EXPECT_EQ(60,NGraph->GetEdges());
 
   UNGraph = TSnap::ConvertGraph<PUNGraph>(NGraph);
-  N2 = UNGraph->GetNodes();
-  E2 = UNGraph->GetEdges();
+  EXPECT_EQ(20,UNGraph->GetNodes());
+  EXPECT_EQ(60,UNGraph->GetEdges());
 
   NGraph = TSnap::ConvertGraph<PNGraph>(UNGraph);
-  N3 = NGraph->GetNodes();
-  E3 = NGraph->GetEdges();
-
-  printf("---- TestConvertGraphs -----\n");
-  printf("nodes: %d,%d,%d,  edges: %d,%d,%d\n", N1, N2, N3, E1, E2, E3);
-  printf("\n");
+  EXPECT_EQ(20,NGraph->GetNodes());
+  EXPECT_EQ(120,NGraph->GetEdges());
 }
 
 // Test node subgraph conversion
-void TestConvertSubGraphs() {
+TEST(subgraph, TestConvertSubGraphs) {
   PNGraph NGraph;
   PUNGraph UNGraph;
-  int N1, N2, N3;
-  int E1, E2, E3;
   TIntV NIdV;
   int i;
 
   NGraph = GetTestTNGraph();
-  N1 = NGraph->GetNodes();
-  E1 = NGraph->GetEdges();
+  EXPECT_EQ(20,NGraph->GetNodes());
+  EXPECT_EQ(60,NGraph->GetEdges());
 
   for (i = 0; i < 20; i += 2) {
     NIdV.Add(i);
@@ -246,31 +247,25 @@ void TestConvertSubGraphs() {
   // TODO: fix TSnap::ConvertSubGraph<PUNGraph>(NGraph, NIdV, true), it fails
   // UNGraph = TSnap::ConvertSubGraph<PUNGraph>(NGraph, NIdV, true);
   UNGraph = TSnap::ConvertSubGraph<PUNGraph>(NGraph, NIdV);
-  N2 = UNGraph->GetNodes();
-  E2 = UNGraph->GetEdges();
+  EXPECT_EQ(10,UNGraph->GetNodes());
+  EXPECT_EQ(10,UNGraph->GetEdges());
 
   NGraph = TSnap::ConvertSubGraph<PNGraph>(UNGraph, NIdV);
-  N3 = NGraph->GetNodes();
-  E3 = NGraph->GetEdges();
-
-  printf("---- TestConvertSubGraphs -----\n");
-  printf("nodes: %d,%d,%d,  edges: %d,%d,%d\n", N1, N2, N3, E1, E2, E3);
-  printf("\n");
+  EXPECT_EQ(10,NGraph->GetNodes());
+  EXPECT_EQ(20,NGraph->GetEdges());
 }
 
 // Test edge subgraph conversion
-void TestConvertESubGraphs() {
+TEST(subgraph, TestConvertESubGraphs) {
   PNEGraph NEGraph;
   PNGraph NGraph;
-  int N1, N2, N3;
-  int E1, E2, E3;
   TIntV NIdV;
   TIntV EIdV;
   int i;
 
   NGraph = GetTestTNGraph();
-  N1 = NGraph->GetNodes();
-  E1 = NGraph->GetEdges();
+  EXPECT_EQ(20,NGraph->GetNodes());
+  EXPECT_EQ(60,NGraph->GetEdges());
 
   for (i = 0; i < 20; i += 2) {
     NIdV.Add(i);
@@ -279,8 +274,8 @@ void TestConvertESubGraphs() {
   // TODO: fix TSnap::ConvertSubGraph<PUNGraph>(NGraph, NIdV, true), it fails
   // UNGraph = TSnap::ConvertSubGraph<PUNGraph>(NGraph, NIdV, true);
   NEGraph = TSnap::ConvertGraph<PNEGraph>(NGraph);
-  N2 = NEGraph->GetNodes();
-  E2 = NEGraph->GetEdges();
+  EXPECT_EQ(20,NEGraph->GetNodes());
+  EXPECT_EQ(60,NEGraph->GetEdges());
 
   // select every second edge
   i = 0;
@@ -292,53 +287,35 @@ void TestConvertESubGraphs() {
   }
 
   NGraph = TSnap::ConvertESubGraph<PNGraph>(NEGraph, EIdV);
-  N3 = NGraph->GetNodes();
-  E3 = NGraph->GetEdges();
-
-  printf("---- TestConvertESubGraphs -----\n");
-  printf("nodes: %d,%d,%d,  edges: %d,%d,%d\n", N1, N2, N3, E1, E2, E3);
-  printf("\n");
+  EXPECT_EQ(20,NGraph->GetNodes());
+  EXPECT_EQ(30,NGraph->GetEdges());
 }
 
 // Test get random graphs
-void TestGetRndGraphs() {
+TEST(subgraph, TestGetRndGraphs) {
   PUNGraph UNGraph1, UNGraph2, UNGraph3;
   PNGraph NGraph1, NGraph2, NGraph3;
   PNEGraph NEGraph1, NEGraph2, NEGraph3;
-  int N1, N2, N3;
-  int E1, E2, E3;
 
   UNGraph1 = GetTestTUNGraph();
-  N1 = UNGraph1->GetNodes();
-  E1 = UNGraph1->GetEdges();
+  EXPECT_EQ(20,UNGraph1->GetNodes());
+  EXPECT_EQ(60,UNGraph1->GetEdges());
 
   UNGraph2 = TSnap::GetRndSubGraph(UNGraph1,10);
-  N2 = UNGraph2->GetNodes();
-  E2 = UNGraph2->GetEdges();
+  EXPECT_EQ(10,UNGraph2->GetNodes());
 
   UNGraph3 = TSnap::GetRndESubGraph(UNGraph1,10);
-  N3 = UNGraph3->GetNodes();
-  E3 = UNGraph3->GetEdges();
-
-  printf("---- TestGetRndGraphs1 -----\n");
-  printf("nodes: %d,%d,%d,  edges: %d,%d,%d\n", N1, N2, N3, E1, E2, E3);
-  printf("\n");
+  EXPECT_EQ(10,UNGraph3->GetEdges());
 
   NGraph1 = GetTestTNGraph();
-  N1 = NGraph1->GetNodes();
-  E1 = NGraph1->GetEdges();
+  EXPECT_EQ(20,NGraph1->GetNodes());
+  EXPECT_EQ(60,NGraph1->GetEdges());
 
   NGraph2 = TSnap::GetRndSubGraph(NGraph1,10);
-  N2 = NGraph2->GetNodes();
-  E2 = NGraph2->GetEdges();
+  EXPECT_EQ(10,NGraph2->GetNodes());
 
   NGraph3 = TSnap::GetRndESubGraph(NGraph1,10);
-  N3 = NGraph3->GetNodes();
-  E3 = NGraph3->GetEdges();
-
-  printf("---- TestGetRndGraphs2 -----\n");
-  printf("nodes: %d,%d,%d,  edges: %d,%d,%d\n", N1, N2, N3, E1, E2, E3);
-  printf("\n");
+  EXPECT_EQ(10,NGraph3->GetEdges());
 }
 
 // Generate TUNGraph
@@ -452,17 +429,5 @@ TPt <TNodeEdgeNet<TInt, TInt> > GetTestTNodeEdgeNet() {
   }
 
   return Net;
-}
-
-int main(int argc, char* argv[]) {
-  TestSubTUNGraphs();
-  TestSubTNGraphs();
-  TestSubTNEGraphs();
-  TestEDatSubNets();
-  TestEdgeSubNets();
-  TestConvertGraphs();
-  TestConvertSubGraphs();
-  TestConvertESubGraphs();
-  TestGetRndGraphs();
 }
 

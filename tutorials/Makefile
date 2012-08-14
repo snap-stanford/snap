@@ -14,7 +14,7 @@ DEMOS = \
 	
 DEPH = 
 DEPCPP =
-LIBS += -lrt -lproc -lsnap -lgtest
+LIBS += -lrt -lproc -lsnap
 
 all: $(DEMOS)
 
@@ -43,5 +43,5 @@ demo-subgraph: demo-subgraph.cpp
 clean:
 	rm -f *.o $(DEMOS) $(DEMOS).exe
 	rm -rf Debug Release
-	rm -rf *.graph
+	rm -rf *.Err *.graph *.net
 

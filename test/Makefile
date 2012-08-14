@@ -10,7 +10,8 @@ CXXFLAGS += -O3
 MAIN = run-all-tests
 TESTS = \
 	test-TUNGraph.cpp test-TNGraph.cpp test-TNEGraph.cpp \
-	test-TNodeNet.cpp test-TNodeEDatNet.cpp test-TNodeEdgeNet.cpp
+	test-TNodeNet.cpp test-TNodeEDatNet.cpp test-TNodeEdgeNet.cpp \
+	test-subgraph.cpp
 DEPH = 
 DEPCPP =
 LIBS += -lrt -lproc -lsnap -lgtest
@@ -24,5 +25,5 @@ $(MAIN): $(MAIN).cpp $(DEPH) $(DEPCPP) $(TESTS)
 clean:
 	rm -f *.o $(MAIN) $(MAIN).exe
 	rm -rf Debug Release
-	rm -rf *.graph
+	rm -rf *.graph *.net *.Err
 

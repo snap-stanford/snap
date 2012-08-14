@@ -11,8 +11,6 @@
 #include <sys/time.h>
 #include <sys/resource.h>
 
-#include <gtest/gtest.h>
-
 #include <snap/Snap.h>
 
 // Print graph statistics

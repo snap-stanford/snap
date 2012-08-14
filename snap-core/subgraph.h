@@ -17,7 +17,9 @@ template<class PGraph, class TEdgeDat> PGraph GetEDatSubGraph(const PGraph& Grap
 // convert between the graphs. Does NOT copy the data
 template<class POutGraph, class PInGraph> POutGraph ConvertGraph(const PInGraph& InGraph, const bool& RenumberNodes=false);
 template<class POutGraph, class PInGraph> POutGraph ConvertSubGraph(const PInGraph& InGraph, const TIntV& NIdV, const bool& RenumberNodes=false);
+// TODO RS 2012/08/14 find out why TSnap::ConvertSubGraph<PUNGraph>(NGraph, NIdV, true) aborts
 template<class POutGraph, class PInGraph> POutGraph ConvertESubGraph(const PInGraph& InGraph, const TIntV& EIdV, const bool& RenumberNodes=false);
+// does not work on multigraphs
 
 // get random (induced) subgraphs 
 template<class PGraph> PGraph GetRndSubGraph(const PGraph& Graph, const int& NNodes);

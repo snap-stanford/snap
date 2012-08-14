@@ -11,8 +11,6 @@
 #include <sys/time.h>
 #include <sys/resource.h>
 
-#include <gtest/gtest.h>
-
 #include <snap/Snap.h>
 
 // Print network statistics
@@ -659,11 +657,6 @@ void SortEdgeData() {
     Min = Value;
   }
   printf("network SortEdgeData:Net, status7 %s\n", (Sorted == false) ? "ok" : "ERROR");
-
-  // test edge data
-  for (TNodeEdgeNet<TInt, TInt>::TEdgeI EI = Net->BegEI(); EI < Net->EndEI(); EI++) {
-    EXPECT_EQ((EI.GetSrcNId()*EI.GetDstNId()) % NEdges, Net->GetEDat(EI.GetId()));
-  }
 
   // test edge data
   ok = true;
