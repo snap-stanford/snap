@@ -13,7 +13,7 @@ namespace TSnap {
 template<class PGraph> PGraph GetSubGraph(const PGraph& Graph, const TIntV& NIdV);
 /// Returns an induced subgraph of an undirected graph Graph with NIdV nodes with an optional node renumbering. ##TSnap::GetSubGraph-1
 PUNGraph GetSubGraph(const PUNGraph& Graph, const TIntV& NIdV, const bool& RenumberNodes=false);
-/// Returns an induced subgraph of a directed graph Graph with NIdV nodes with an optional node renumbering. ##TSnap::GetSubGraph-2
+// Returns an induced subgraph of a directed graph Graph with NIdV nodes with an optional node renumbering. ##TSnap::GetSubGraph-2
 PNGraph GetSubGraph(const PNGraph& Graph, const TIntV& NIdV, const bool& RenumberNodes=false);
 // TODO ROK 2012/08/15 PNGraph GetSubGraph is not documented by doxygen.
 //  It is combined with PUNGraph GetSubGraph.
@@ -21,7 +21,7 @@ PNGraph GetSubGraph(const PNGraph& Graph, const TIntV& NIdV, const bool& Renumbe
 // edge subgraphs
 /// Returns a subgraph of graph Graph with EIdV edges. ##TSnap::GetESubGraph
 template<class PGraph> PGraph GetESubGraph(const PGraph& Graph, const TIntV& EIdV);
-/// Returns a subgraph of graph Graph with EdgeV edges. ##TSnap::GetESubGraph-1
+// Returns a subgraph of graph Graph with EdgeV edges. ##TSnap::GetESubGraph-1
 template<class PGraph> PGraph GetESubGraph(const PGraph& Graph, const TIntPrV& EdgeV);
 // TODO ROK 2012/08/15 PGraph GetESubGraph TIntPrV is not documented by doxygen.
 //  It is combined with PGraph GetESubGraph TIntV.
@@ -41,9 +41,9 @@ template<class POutGraph, class PInGraph> POutGraph ConvertESubGraph(const PInGr
 // does not work on multigraphs
 
 // get random (induced) subgraphs 
-/// Returns an induced random subgraph of graph Graph with NNodes nodes.
+/// Returns an induced random subgraph of graph Graph with NNodes nodes. ##TSnap::GetRndSubGraph
 template<class PGraph> PGraph GetRndSubGraph(const PGraph& Graph, const int& NNodes);
-/// Returns a random subgraph of graph Graph with NEdges edges.
+/// Returns a random subgraph of graph Graph with NEdges edges. ##TSnap::GetRndESubGraph
 template<class PGraph> PGraph GetRndESubGraph(const PGraph& Graph, const int& NEdges);
 
 /////////////////////////////////////////////////

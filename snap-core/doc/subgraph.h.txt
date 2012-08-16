@@ -38,7 +38,7 @@ Use this function for multi-graphs, where the edges have edge IDs.
 
 /// TSnap::GetESubGraph-1
 The resulting subgraph contains all the edges from Graph, which are
-in the EdgeV vector and all the nodes which connect to at least edge
+in the EdgeV vector and all the nodes which connect to at least one edge
 in EdgeV. Node and edge IDs are preserved.
 Node IDs are preserved. Nodes in the resulting subgraph have the same node
 IDs as nodes in Graph.
@@ -52,7 +52,7 @@ as pairs of nodes.
 EDat provides the value for edge data matching. Cmp determines the
 comparison function. Edges whose edge data matches EDat
 are included in the resulting subgraph
-as well as all the nodes which connect to at least edge in the subgraph.
+as well as all the nodes which connect to at least one edge in the subgraph.
 Node IDs are preserved. Nodes in the resulting subgraph have the same node
 IDs as nodes in Graph.
 
@@ -116,5 +116,15 @@ or not. If RenumberNodes is false, then nodes in the resulting graph
 have the same node IDs as nodes in InGraph.
 If RenumberNodes is true, then nodes in the resulting graph are
 renumbered sequentially from 0 to N-1. By default, the nodes are not renumbered.
+///
+
+/// TSnap::GetRndSubGraph
+Randomly selects NNodes nodes from the input graph and returns an induced
+graph on those nodes.
+///
+
+/// TSnap::GetRndESubGraph
+Randomly selects NEdges edges from the input graph and returns a subgraph
+on those edges.
 ///
 
