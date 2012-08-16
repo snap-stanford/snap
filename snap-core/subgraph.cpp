@@ -3,7 +3,7 @@ namespace TSnap {
 /////////////////////////////////////////////////
 // Graph Algorithms
 
-/// RenumberNodes ... Renumber node ids in the subgraph to 0...N-1
+// RenumberNodes ... Renumber node ids in the subgraph to 0...N-1
 PUNGraph GetSubGraph(const PUNGraph& Graph, const TIntV& NIdV, const bool& RenumberNodes) {
   //if (! RenumberNodes) { return TSnap::GetSubGraph(Graph, NIdV); }
   PUNGraph NewGraphPt = TUNGraph::New();
@@ -41,7 +41,7 @@ PUNGraph GetSubGraph(const PUNGraph& Graph, const TIntV& NIdV, const bool& Renum
   return NewGraphPt;
 }
 
-/// RenumberNodes ... Renumber node ids in the subgraph to 0...N-1
+// RenumberNodes ... Renumber node ids in the subgraph to 0...N-1
 PNGraph GetSubGraph(const PNGraph& Graph, const TIntV& NIdV, const bool& RenumberNodes) {
   //if (! RenumberNodes) { return TSnap::GetSubGraph(Graph, NIdV); }
   PNGraph NewGraphPt = TNGraph::New();

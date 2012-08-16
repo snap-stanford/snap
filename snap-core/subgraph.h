@@ -1,28 +1,49 @@
+/*! \file subgraph.h
+    \brief Functions and templates to generate subgraphs.
+*/
+
+/// Main namespace for all the Snap global entities.
 namespace TSnap {
 
 /////////////////////////////////////////////////
 // Convert between graph types and get subgraphs
 
 // node subgraphs
+/// Returns an induced subgraph of graph Graph with NIdV nodes. ##TSnap::GetSubGraph
 template<class PGraph> PGraph GetSubGraph(const PGraph& Graph, const TIntV& NIdV);
+/// Returns an induced subgraph of an undirected graph Graph with NIdV nodes with an optional node renumbering. ##TSnap::GetSubGraph-1
 PUNGraph GetSubGraph(const PUNGraph& Graph, const TIntV& NIdV, const bool& RenumberNodes=false);
+/// Returns an induced subgraph of a directed graph Graph with NIdV nodes with an optional node renumbering. ##TSnap::GetSubGraph-2
 PNGraph GetSubGraph(const PNGraph& Graph, const TIntV& NIdV, const bool& RenumberNodes=false);
+// TODO ROK 2012/08/15 PNGraph GetSubGraph is not documented by doxygen.
+//  It is combined with PUNGraph GetSubGraph.
 
 // edge subgraphs
+/// Returns a subgraph of graph Graph with EIdV edges. ##TSnap::GetESubGraph
 template<class PGraph> PGraph GetESubGraph(const PGraph& Graph, const TIntV& EIdV);
+/// Returns a subgraph of graph Graph with EdgeV edges. ##TSnap::GetESubGraph-1
 template<class PGraph> PGraph GetESubGraph(const PGraph& Graph, const TIntPrV& EdgeV);
+// TODO ROK 2012/08/15 PGraph GetESubGraph TIntPrV is not documented by doxygen.
+//  It is combined with PGraph GetESubGraph TIntV.
+/// Returns a subgraph of graph Graph with edges where edge data matches the parameters. ##TSnap::GetEDatSubGraph
 template<class PGraph, class TEdgeDat> PGraph GetEDatSubGraph(const PGraph& Graph, const TEdgeDat& EDat, const int& Cmp);
+/// Returns a subgraph of graph Graph with NIdV nodes and edges where edge data matches the parameters. ##TSnap::GetEDatSubGraph-1
 template<class PGraph, class TEdgeDat> PGraph GetEDatSubGraph(const PGraph& Graph, const TIntV& NIdV, const TEdgeDat& EDat, const int& Cmp);
 
 // convert between the graphs. Does NOT copy the data
+/// Performs conversion of graph InGraph with an optional node renumbering. ##TSnap::ConvertGraph
 template<class POutGraph, class PInGraph> POutGraph ConvertGraph(const PInGraph& InGraph, const bool& RenumberNodes=false);
+/// Returns an induced subgraph of graph InGraph with NIdV nodes with an optional node renumbering. ##TSnap::ConvertSubGraph
 template<class POutGraph, class PInGraph> POutGraph ConvertSubGraph(const PInGraph& InGraph, const TIntV& NIdV, const bool& RenumberNodes=false);
 // TODO RS 2012/08/14 find out why TSnap::ConvertSubGraph<PUNGraph>(NGraph, NIdV, true) aborts
+/// Returns a subgraph of graph InGraph with EIdV edges with an optional node renumbering. ##TSnap::ConvertESubGraph
 template<class POutGraph, class PInGraph> POutGraph ConvertESubGraph(const PInGraph& InGraph, const TIntV& EIdV, const bool& RenumberNodes=false);
 // does not work on multigraphs
 
 // get random (induced) subgraphs 
+/// Returns an induced random subgraph of graph Graph with NNodes nodes.
 template<class PGraph> PGraph GetRndSubGraph(const PGraph& Graph, const int& NNodes);
+/// Returns a random subgraph of graph Graph with NEdges edges.
 template<class PGraph> PGraph GetRndESubGraph(const PGraph& Graph, const int& NEdges);
 
 /////////////////////////////////////////////////
