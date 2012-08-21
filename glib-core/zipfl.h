@@ -19,6 +19,7 @@ private:
     FILE* ZipStdoutRd, *ZipStdoutWr;
   #endif
   uint64 FLen, CurFPos;
+  bool UnknownLength;
   char* Bf;
   int BfC, BfL;
 private:
@@ -36,8 +37,8 @@ public:
   static PSIn New(const TStr& FNm, bool& OpenedP);
   ~TZipIn();
 
-  bool Eof() { return CurFPos==FLen && BfC==BfL; }
-  int Len() const { return int(FLen-CurFPos+BfL-BfC); }
+  bool Eof() { return ((CurFPos==FLen) && ((UnknownLength && CurFPos > 0) || !UnknownLength)) && BfC==BfL; }
+  int Len() const;
   char GetCh() { if (BfC==BfL){FillBf();} return Bf[BfC++]; }
   char PeekCh() { if (BfC==BfL){FillBf();} return Bf[BfC]; }
   int GetBf(const void* LBf, const TSize& LBfL);
@@ -45,6 +46,7 @@ public:
   uint64 GetFLen() const { return FLen; }
   uint64 GetCurFPos() const { return CurFPos; }
 
+  static void AddZipExtCmd(const TStr& ZipFNmExt, const TStr& ZipCmd);
   /// Check whether the file extension of FNm is that of a compressed file (.gz, .7z, .rar, .zip, .cab, .arj. bzip2).
   static bool IsZipFNm(const TStr& FNm) { return IsZipExt(FNm.GetFExt()); }
   /// Check whether the file extension FNmExt is that of a compressed file (.gz, .7z, .rar, .zip, .cab, .arj. bzip2).
@@ -52,7 +54,7 @@ public:
   /// Return a command-line string that is executed in order to decompress a file to standard output. 
   static TStr GetCmd(const TStr& ZipFNm);
   /// Return the uncompressed size (in bytes) of the compressed file ZipFNm.
-  static uint64 GetFLen(const TStr& ZipFNm);
+  static uint64 GetFLen(const TStr& ZipFNm, bool& UnknownLength);
 };
 
 /////////////////////////////////////////////////
@@ -73,6 +75,7 @@ private:
   #endif
   char* Bf;
   TSize BfL;
+  int CompressionLevel;
 private:
   void FlushBf();
   void CreateZipProcess(const TStr& Cmd, const TStr& ZipFNm);
@@ -82,14 +85,17 @@ private:
   TZipOut(const TZipOut&);
   TZipOut& operator=(const TZipOut&);
 public:
-  TZipOut(const TStr& _FNm);
-  static PSOut New(const TStr& FNm);
+  /** Use arbitrary compression level:
+   ** 0 - none, 1 - fastest, 3 - fast, 5 - normal, 7 - maximum, 9 - ultra */
+  TZipOut(const TStr& _FNm, int CompressionLevel = 5);
+  static PSOut New(const TStr& FNm, int CompressionLevel = 5);
   ~TZipOut();
 
   int PutCh(const char& Ch);
   int PutBf(const void* LBf, const TSize& LBfL);
   void Flush();
 
+  static void AddZipExtCmd(const TStr& ZipFNmExt, const TStr& ZipCmd);
   /// Check whether the file extension of FNm is that of a compressed file (.gz, .7z, .rar, .zip, .cab, .arj. bzip2).
   static bool IsZipFNm(const TStr& FNm) { return IsZipExt(FNm.GetFExt()); }
   /// Check whether the file extension FNmExt is that of a compressed file (.gz, .7z, .rar, .zip, .cab, .arj. bzip2).

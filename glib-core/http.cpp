@@ -26,10 +26,15 @@ const TStr THttp::TextPlainFldVal="text/plain";
 const TStr THttp::TextHtmlFldVal="text/html";
 const TStr THttp::TextXmlFldVal="text/xml";
 const TStr THttp::TextWmlFldVal="text/vnd.wap.wml";
+const TStr THttp::TextJavaScriptFldVal="text/javascript";
+const TStr THttp::TextCssFldVal="text/css";
+const TStr THttp::ImagePngFldVal="image/png";
 const TStr THttp::ImageGifFldVal="image/gif";
+const TStr THttp::ImageJpgFldVal="image/jpg";
 const TStr THttp::AppOctetFldVal="application/octet-stream";
 const TStr THttp::AppSoapXmlFldVal="application/soap+xml";
 const TStr THttp::AppW3FormFldVal="application/x-www-form-urlencoded";
+const TStr THttp::AppJSonFldVal = "application/json";
 const TStr THttp::ConnKeepAliveFldVal="keep-alive";
 
 // file extensions
@@ -51,6 +56,7 @@ const int THttp::RedirStatusCd=300;
 const int THttp::BadRqStatusCd=400;
 const int THttp::ErrStatusCd=400;
 const int THttp::ErrNotFoundStatusCd=404;
+const int THttp::InternalErrStatusCd=500;
 
 TStr THttp::GetReasonPhrase(const int& StatusCd){
   switch (StatusCd){
@@ -78,6 +84,7 @@ TStr THttp::GetReasonPhrase(const int& StatusCd){
 const TStr THttp::GetMethodNm="GET";
 const TStr THttp::HeadMethodNm="HEAD";
 const TStr THttp::PostMethodNm="POST";
+const TStr THttp::UndefMethodNm="UndefinedMethod";
 
 /////////////////////////////////////////////////
 // Http-Chars
@@ -455,6 +462,7 @@ void THttpRq::ParseSearch(const TStr& SearchStr){
   PSIn SIn=TStrIn::New(SearchStr);
   THttpChRet ChRet(SIn, heBadSearchStr);
 
+  try {
   // check empty search string
   if (ChRet.Eof()){return;}
   // require '?' at the beginning
@@ -468,7 +476,10 @@ void THttpRq::ParseSearch(const TStr& SearchStr){
     while ((Ch=ChRet.GetCh())!='='){
       switch (Ch){
         case '%':{
-          char Ch1=ChRet.GetCh(); char Ch2=ChRet.GetCh();
+          char Ch1=ChRet.GetCh();
+		  if (!TCh::IsHex(Ch1)) { throw THttpEx(heBadSearchStr); }
+		  char Ch2=ChRet.GetCh();
+		  if (!TCh::IsHex(Ch2)) { throw THttpEx(heBadSearchStr); }
           KeyNm.AddCh(char(16*TCh::GetHex(Ch1)+TCh::GetHex(Ch2)));} break;
         case '+': KeyNm.AddCh(' '); break;
         case '&': throw THttpEx(heBadSearchStr);
@@ -483,7 +494,9 @@ void THttpRq::ParseSearch(const TStr& SearchStr){
       switch (Ch){
         case '%':{
           char Ch1=ChRet.GetCh();
+		  if (!TCh::IsHex(Ch1)) { throw THttpEx(heBadSearchStr); }
           char Ch2=ChRet.GetCh();
+		  if (!TCh::IsHex(Ch2)) { throw THttpEx(heBadSearchStr); }
           ValStr.AddCh(char(16*TCh::GetHex(Ch1)+TCh::GetHex(Ch2)));} break;
         case '+': ValStr.AddCh(' '); break;
         case '&': throw THttpEx(heBadSearchStr);
@@ -492,7 +505,9 @@ void THttpRq::ParseSearch(const TStr& SearchStr){
     }
     // save key-value pair
     UrlEnv->AddToKeyVal(KeyNm, ValStr);
+    }
   }
+  catch (THttpEx){Ok=false;}
 }
 
 void THttpRq::ParseHttpRq(const PSIn& SIn){
@@ -619,12 +634,12 @@ THttpRq::THttpRq(
   Ok=true;
 }
 
-TStr THttpRq::GetMethodNm() const {
+const TStr& THttpRq::GetMethodNm() const {
   switch (Method){
     case hrmGet: return THttp::GetMethodNm;
     case hrmHead: return THttp::HeadMethodNm;
     case hrmPost: return THttp::PostMethodNm;
-    default: return "UndefinedMethod";
+    default: return  THttp::UndefMethodNm;
   }
 }
 
@@ -645,6 +660,16 @@ bool THttpRq::IsFldVal(const TStr& FldNm, const TStr& FldVal) const {
   return THttpLx::GetNrStr(FldVal)==THttpLx::GetNrStr(GetFldVal(FldNm));
 }
 
+
+void THttpRq::AddFldVal(const TStr& FldNm, const TStr& FldVal){
+  TStr NrFldNm=THttpLx::GetNrStr(FldNm);
+  FldNmToValH.AddDat(NrFldNm, FldVal);
+}
+
+const TStrStrH& THttpRq::GetFldValH() const {
+	return FldNmToValH;
+}
+
 TStr THttpRq::GetStr() const {
   TChA ChA;
   ChA+=GetMethodNm(); ChA+=' ';
@@ -653,6 +678,10 @@ TStr THttpRq::GetStr() const {
   for (int FldN=0; FldN<FldNmToValH.Len(); FldN++){
     ChA+=FldNmToValH.GetKey(FldN); ChA+=": ";
     ChA+=FldNmToValH[FldN]; ChA+="\r\n";
+  }
+  if (!BodyMem.Empty()) {
+    ChA+=THttp::ContLenFldNm; ChA+=": ";
+    ChA+=TInt::GetStr(BodyMem.Len()); ChA+="\r\n";
   }
   ChA+="\r\n";
   ChA+=BodyMem.GetAsStr();

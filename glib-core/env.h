@@ -46,6 +46,7 @@ public:
   bool IsEndOfRun() const;
 
   // arguments value retrieval
+  bool IsArgStr(const TStr& ArgStr);
   TStr GetIfArgPrefixStr(
    const TStr& PrefixStr, const TStr& DfVal="", const TStr& DNm="") const;
   TStrV GetIfArgPrefixStrV(

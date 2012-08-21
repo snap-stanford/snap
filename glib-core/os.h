@@ -188,6 +188,13 @@ public:
   int Read(char *Bf, const int& BfMxLen);
 };
 
+/////////////////////////////////////////////////
+// GUID
+class TGuid {
+public:
+	static TStr GenGuid();
+};
+
 #elif defined(GLib_UNIX)
 
 /////////////////////////////////////////////////
@@ -256,4 +263,14 @@ public:
   int Write(const char* Bf, const int& BfLen);
   int Read(char *Bf, const int& BfMxLen);
 };
+
+
+/////////////////////////////////////////////////
+// GUID
+class TGuid {
+public:
+	static TStr GenGuid();
+};
+
+
 #endif

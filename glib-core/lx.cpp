@@ -372,17 +372,30 @@ TLxSym TILx::GetSym(const TFSet& Expect){
       Str.Clr(); UcStr.Clr(); QuoteP=true; QuoteCh=Ch;
       GetCh();
       forever{
-        while ((Ch!=QuoteCh)&&(Ch!=TCh::EofCh)){
+        while ((Ch!=QuoteCh)&&(Ch!='\\')&&(Ch!=TCh::EofCh)){
           Str.AddCh(Ch); UcStr.AddCh(ChDef->GetUc(Ch)); GetCh();}
         if (Ch==TCh::EofCh){
           Sym=syUndef; break;
+        } else if (Ch==QuoteCh){
+          GetCh(); break;
         } else {
           GetCh();
-          if (Ch==QuoteCh){
-            Str.AddCh(Ch); UcStr.AddCh(ChDef->GetUc(Ch)); GetCh();
-          } else {
-            break;
+          switch (Ch){
+            case '"': Str.AddCh(Ch); UcStr.AddCh(ChDef->GetUc(Ch)); GetCh(); break;
+            case '\'': Str.AddCh(Ch); UcStr.AddCh(ChDef->GetUc(Ch)); GetCh(); break;
+            case '/': Str.AddCh(Ch); UcStr.AddCh(ChDef->GetUc(Ch)); GetCh(); break;
+            case 'b': Str.AddCh('\b'); UcStr.AddCh(ChDef->GetUc(Ch)); GetCh(); break;
+            case 'f': Str.AddCh('\f'); UcStr.AddCh(ChDef->GetUc(Ch)); GetCh(); break;
+            case 'n': Str.AddCh('\n'); UcStr.AddCh(ChDef->GetUc(Ch)); GetCh(); break;
+            case 'r': Str.AddCh('\r'); UcStr.AddCh(ChDef->GetUc(Ch)); GetCh(); break;
+            case 't': Str.AddCh('\t'); UcStr.AddCh(ChDef->GetUc(Ch)); GetCh(); break;
+            case 'u': 
+              // needs unicode support to be JSON compatible - now it replaces the code with blank
+              GetCh(); GetCh(); GetCh(); Str.AddCh(' '); UcStr.AddCh(ChDef->GetUc(' ')); GetCh(); break; 
+            default: Sym=syUndef; break;
           }
+          if (Sym==syUndef){
+            throw PExcept(new TExcept("Invalid Escape Sequence in Quoted String"));}
         }
       }
     } else

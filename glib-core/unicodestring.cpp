@@ -68,6 +68,14 @@ TStr TUStr::GetStr() const {
   return Str;
 }
 
+TStr TUStr::GetStarterStr() const {
+  TIntV UniChV1; TIntV UniChV2;
+  TUnicodeDef::GetDef()->ExtractStarters(UniChV, UniChV1);
+  TUnicodeDef::GetDef()->Decompose(UniChV1, UniChV2, true);
+  TStr Str=TUnicodeDef::GetDef()->EncodeUtf8Str(UniChV2);
+  return Str;
+}
+
 TStr TUStr::GetStarterLowerCaseStr() const {
   TIntV UniChV1; TIntV UniChV2; TIntV UniChV3;
   TUnicodeDef::GetDef()->GetSimpleLowerCase(UniChV, UniChV1);
@@ -146,4 +154,7 @@ bool TUStr::IsMath(const int& UniCh){
   else {return false;}
 }
 
-
+TStr TUStr::EncodeUtf8(const int& UniCh) {
+  AssertUnicodeDefOk();
+  return TUnicodeDef::GetDef()->EncodeUtf8Str(TIntV::GetV(UniCh));
+}

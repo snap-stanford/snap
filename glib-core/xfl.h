@@ -76,3 +76,24 @@ public:
   static bool DelDir(const TStr& FPathFNm);
 };
 
+//////////////////////////////////////
+// File-Path-Log
+class TFPathNotify : public TNotify {
+private:
+	TStr LogFPath;
+	TStr PrefixFNm;
+	TTm LastTm;
+	PSOut LogSOut;
+	TBool FlushP;
+
+private:
+	void UpdateSOut(const TTm& NowTm);
+	UndefDefaultCopyAssign(TFPathNotify);
+
+public:
+	TFPathNotify(const TStr& _LogFPath, const TStr& _PrefixFNm, const bool& _FlushP);
+	static PNotify New(const TStr& LogFPath, const TStr& PrefixFNm, const bool& FlushP) {
+		return PNotify(new TFPathNotify(LogFPath, PrefixFNm, FlushP));}
+
+	void OnStatus(const TStr& MsgStr);
+};

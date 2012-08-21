@@ -249,3 +249,32 @@ bool TDir::GenDir(const TStr& FPathFNm){
 bool TDir::DelDir(const TStr& FPathFNm){
   return RemoveDirectory(FPathFNm.CStr())!=0;
 }
+
+//////////////////////////////////////
+// File-Log
+void TFPathNotify::UpdateSOut(const TTm& Tm) {
+	if (!LogSOut.Empty()) { LogSOut->Flush(); LogSOut.Clr(); }
+	TStr FNm = TStr::Fmt("%s-Y%04d-M%02d-D%02d-H%02d.log", PrefixFNm.CStr(),
+		Tm.GetYear(), Tm.GetMonth(), Tm.GetDay(), Tm.GetHour());
+	LogSOut = TFOut::New(LogFPath + FNm, true);
+}
+
+TFPathNotify::TFPathNotify(const TStr& _LogFPath, const TStr& _PrefixFNm,
+		const bool& _FlushP): LogFPath(_LogFPath), PrefixFNm(_PrefixFNm),
+			FlushP(_FlushP) { 
+
+	LastTm = TTm::GetCurUniTm();
+	UpdateSOut(LastTm);
+}
+
+void TFPathNotify::OnStatus(const TStr& MsgStr) {
+	// check if new hour so we switch to new log file
+	TTm NowTm = TTm::GetCurUniTm();
+	if (NowTm.GetHour() != LastTm.GetHour()) { 
+		LastTm = NowTm; UpdateSOut(LastTm);
+	}
+	// write log line
+	LogSOut->PutStrLn(MsgStr); 
+	// we flush for each line when in debug mode
+	if (FlushP) { LogSOut->Flush(); }
+}

@@ -212,7 +212,11 @@ void TRnd::SaveTxt(TOLx& Lx) const {
 // Memory
 void TMem::Resize(const int& _MxBfL){
   if (_MxBfL<=MxBfL){return;}
-  else {if (MxBfL*2<_MxBfL){MxBfL=_MxBfL;} else {MxBfL*=2;}}
+  else if (MxBfL==0){MxBfL=_MxBfL;} 
+  else if (MxBfL*2<_MxBfL){MxBfL=_MxBfL;} 
+  else {
+	  while (_MxBfL > MxBfL) MxBfL *= 2;
+  }
   char* NewBf=new char[MxBfL]; IAssert(NewBf!=NULL);
   if (BfL>0){memcpy(NewBf, Bf, BfL);}
   if (Bf!=NULL){delete[] Bf;}
@@ -276,12 +280,16 @@ void TMem::Del(const int& BChN, const int& EChN){
 //  int FChN=BfL; BfL+=LBfL; return FChN;
 //}
 
-void TMem::AddBf(const void* Bf, const int& BfL){
-  char* ChBf=(char*)Bf;
-  for (int BfC=0; BfC<BfL; BfC++){
-    char Ch=ChBf[BfC];
-    operator+=(Ch);
-  }
+void TMem::AddBf(const void* _Bf, const int& _BfL){
+	IAssert((_BfL>=0) && (_Bf != NULL));
+  Reserve(Len() + _BfL, false);
+  memcpy(Bf + BfL, _Bf, _BfL);  
+   BfL+=_BfL;
+  //char* ChBf=(char*)Bf;
+  //for (int BfC=0; BfC<BfL; BfC++){
+  //  char Ch=ChBf[BfC];
+  //  operator+=(Ch);
+  //}
 }
 
 TStr TMem::GetAsStr(const char& NewNullCh) const {
@@ -360,6 +368,11 @@ TChA& TChA::operator=(const char* CStr){
   if (CStrLen>MxBfL){delete[] Bf; Bf=new char[(MxBfL=CStrLen)+1];}
   BfL=CStrLen; strcpy(Bf, CStr);
   return *this;
+}
+
+TChA& TChA::operator+=(const TMem& Mem) {
+  Resize(BfL+Mem.Len());
+  strcpy(Bf+BfL, Mem.GetBf()); BfL+=Mem.Len(); return *this;
 }
 
 TChA& TChA::operator+=(const TChA& ChA){
@@ -469,15 +482,15 @@ int TChA::SearchStr(const char* CStr, const int& BChN) const {
   else {return int(BegPos-Bf);}
 }
 
-bool TChA::IsPrefix(const char* CStr) const { //J:
-  if ((int)strlen(CStr) > Len()) { return false; }
-  const char* B = Bf;
+bool TChA::IsPrefix(const char* CStr, const int& BChN) const {
+  if (BChN+(int)strlen(CStr)>Len()){return false;}
+  const char* B = Bf+BChN;
   const char* C = CStr;
   while (*C!=0 && *B==*C) {
-    B++;  C++;
+    B++; C++;
   }
-  if (*C == 0) { return true; }
-  else { return false; }
+  if (*C==0){return true;}
+  else {return false;}
 }
 
 bool TChA::IsPrefix(const TStr& Str) const {
@@ -837,6 +850,34 @@ bool TStr::DelStr(const TStr& Str){
   }
 }
 
+TStr TStr::LeftOf(const char& SplitCh) const {
+  int ThisLen=Len(); const char* ThisBf=CStr();
+  int ChN=0;
+  while ((ChN<ThisLen)&&(ThisBf[ChN]!=SplitCh)){ChN++;}
+  return (ChN==ThisLen) ? "" : GetSubStr(0, ChN-1);
+}
+
+TStr TStr::LeftOfLast(const char& SplitCh) const {
+  const char* ThisBf=CStr();
+  int ChN=Len()-1;
+  while ((ChN>=0)&&(ThisBf[ChN]!=SplitCh)){ChN--;}
+  return (ChN==-1) ? "" : GetSubStr(0, ChN-1);
+}
+
+TStr TStr::RightOf(const char& SplitCh) const {
+  int ThisLen=Len(); const char* ThisBf=CStr();
+  int ChN=0;
+  while ((ChN<ThisLen)&&(ThisBf[ChN]!=SplitCh)){ChN++;}
+  return (ChN==ThisLen) ? "" : GetSubStr(ChN+1, ThisLen-1);
+}
+
+TStr TStr::RightOfLast(const char& SplitCh) const {
+  int ThisLen=Len(); const char* ThisBf=CStr();
+  int ChN=Len()-1;
+  while ((ChN>=0)&&(ThisBf[ChN]!=SplitCh)){ChN--;}
+  return (ChN==-1) ? "" : GetSubStr(ChN+1, ThisLen-1);
+}
+
 void TStr::SplitOnCh(TStr& LStr, const char& SplitCh, TStr& RStr) const {
   int ThisLen=Len(); const char* ThisBf=CStr();
   int ChN=0;
@@ -914,9 +955,9 @@ void TStr::SplitOnWs(TStrV& StrV) const {
   strcpy(Bf, CStr());
   char* StrBf=Bf;
   forever{
-    while ((*StrBf!=0)&&(isspace(*StrBf))){StrBf++;}
+    while ((*StrBf!=0)&&(TCh::IsWs(*StrBf))){StrBf++;}
     char* BfC=StrBf;
-    while ((*BfC!=0)&&(!isspace(*BfC))){BfC++;}
+    while ((*BfC!=0)&&(!TCh::IsWs(*BfC))){BfC++;}
     bool IsEnd=(*BfC=='\0');
     *BfC=0;
     if (BfC>StrBf){StrV.Add(TStr(StrBf));}
@@ -1017,6 +1058,32 @@ int TStr::SearchStr(const TStr& Str, const int& BChN) const {
   return -1;*/
 }
 
+bool TStr::IsPrefix(const char *Str) const {
+	size_t len = strlen(Str);
+	size_t thisLen = Len();
+	if (len > thisLen) {
+		return false;
+	} else {
+		size_t minLen = min(len, thisLen);
+		int cmp = strncmp(Str, RStr->Bf, minLen);
+		return cmp == 0;
+	}
+}
+
+bool TStr::IsSuffix(const char *Str) const {
+	size_t len = strlen(Str);
+	size_t thisLen = Len();
+	if (len > thisLen) {
+		// too long to be a suffix anyway
+		return false;
+	} else {
+		// move to the point in the buffer where we would expect the suffix to be
+		const char *ending = RStr->Bf + thisLen - len;
+		int cmp = strncmp(Str, ending, len);
+		return cmp == 0;
+	}
+}
+
 int TStr::ChangeCh(const char& SrcCh, const char& DstCh, const int& BChN){
   int ChN=SearchCh(SrcCh, BChN);
   if (ChN!=-1){PutCh(ChN, DstCh);}
@@ -1051,11 +1118,12 @@ int TStr::ChangeStr(const TStr& SrcStr, const TStr& DstStr, const int& BChN){
   }
 }
 
-int TStr::ChangeStrAll(const TStr& SrcStr, const TStr& DstStr){
+int TStr::ChangeStrAll(const TStr& SrcStr, const TStr& DstStr, const bool& FromStartP){
   const int DstStrLen=DstStr.Len();
   int Changes=0-1; int BChN=0-DstStrLen;
   do {
     Changes++;
+    if (FromStartP){BChN=0-DstStrLen;}
     BChN+=DstStrLen;
     BChN=ChangeStr(SrcStr, DstStr, BChN);
   } while (BChN!=-1);
@@ -1570,6 +1638,7 @@ void TStrPool::Resize(uint _MxBfL) {
     if (newSize >= GrowBy && GrowBy > 0) newSize += GrowBy;
     else if (newSize > 0) newSize *= 2;
     else newSize = TInt::GetMn(GrowBy, 1024);
+    IAssert(newSize >= MxBfL); // check for overflow at 4GB
   }
   if (newSize > MxBfL) {
     Bf = (char *) realloc(Bf, newSize);
@@ -1626,6 +1695,87 @@ int TStrPool::GetPrimHashCd(const char *CStr) {
 
 int TStrPool::GetSecHashCd(const char *CStr) {
   return TStrHashF_DJB::GetSecHashCd(CStr);
+}
+
+/////////////////////////////////////////////////
+// String-Pool-64bit
+void TStrPool64::Resize(const ::TSize& _MxBfL) {
+    ::TSize newSize = MxBfL;
+    while (newSize < _MxBfL) {
+        if (newSize >= GrowBy && GrowBy > 0) newSize += GrowBy;
+        else if (newSize > 0) newSize *= 2;
+        else newSize = (GrowBy > ::TSize(1024)) ? ::TSize(1024) : GrowBy;
+        IAssert(newSize >= MxBfL); // assert we are growing
+    }
+    if (newSize > MxBfL) {
+        Bf = (char *) realloc(Bf, newSize);
+        IAssertR(Bf, TStr::Fmt("old Bf size: %u, new size: %u", MxBfL, newSize).CStr());
+        MxBfL = newSize;
+    }
+    IAssert(MxBfL >= _MxBfL);
+}
+
+TStrPool64::TStrPool64(::TSize _MxBfL, ::TSize _GrowBy):
+        MxBfL(_MxBfL), BfL(0), GrowBy(_GrowBy), Bf(NULL) {
+
+    if (MxBfL > 0) { Bf = (char*)malloc(MxBfL); IAssert(Bf != NULL); }
+    AddStr("");
+}
+
+TStrPool64::TStrPool64(const TStrPool64& StrPool): 
+  MxBfL(StrPool.MxBfL), BfL(StrPool.BfL), GrowBy(StrPool.GrowBy) {
+    if (Bf != NULL) { free(Bf); } else { IAssert(MxBfL == 0); }
+    Bf = (char*)malloc(StrPool.MxBfL); IAssert(Bf != NULL); 
+    memcpy(Bf, StrPool.Bf, BfL);
+}
+
+TStrPool64::TStrPool64(TSIn& SIn, bool LoadCompact): 
+  MxBfL(0), BfL(0), GrowBy(0), Bf(0) {
+    uint64 _GrowBy, _MxBfL, _BfL;
+    SIn.Load(_GrowBy); SIn.Load(_MxBfL); SIn.Load(_BfL);
+    GrowBy = (::TSize)_GrowBy; MxBfL = (::TSize)_MxBfL; BfL = (::TSize)_BfL;
+    if (LoadCompact) { MxBfL = BfL; }
+    if (MxBfL > 0) { Bf = (char*)malloc(MxBfL); IAssert(Bf != NULL); }
+    for (::TSize BfN = 0; BfN < _BfL; BfN++) { Bf[BfN] = SIn.GetCh(); }
+    SIn.LoadCs();
+}
+
+void TStrPool64::Save(TSOut& SOut) const {
+    uint64 _GrowBy = GrowBy, _MxBfL = MxBfL, _BfL = BfL;
+    SOut.Save(_GrowBy);  SOut.Save(_MxBfL);  SOut.Save(_BfL);
+    for (::TSize BfN = 0; BfN < _BfL; BfN++) { SOut.PutCh(Bf[BfN]); }
+    SOut.SaveCs();
+}
+
+TStrPool64& TStrPool64::operator=(const TStrPool64& StrPool) {
+  if (this != &StrPool) {
+    GrowBy = StrPool.GrowBy;  MxBfL = StrPool.MxBfL;  BfL = StrPool.BfL;
+    if (Bf != NULL) { free(Bf); } else { IAssert(MxBfL == 0); }
+    Bf = (char*)malloc(MxBfL); IAssert(Bf != NULL); 
+    memcpy(Bf, StrPool.Bf, BfL);
+  }
+  return *this;
+}
+
+void TStrPool64::Clr(bool DoDel) { 
+    BfL = 0; 
+    if (DoDel && (Bf!=NULL)) { 
+        free(Bf); 
+        Bf = NULL; MxBfL = 0; 
+    } 
+}
+
+uint64 TStrPool64::AddStr(const TStr& Str) {
+    const int Len = Str.Len() + 1;
+    if (BfL + Len > MxBfL) { Resize(BfL + Len); }
+    memcpy(Bf + BfL, Str.CStr(), Len);
+    ::TSize Offset = BfL;  BfL += Len;
+    return uint64(Offset);
+}
+
+TStr TStrPool64::GetStr(const uint64& StrId) const {
+    ::TSize Offset = (::TSize)StrId;
+    return TStr(Bf + Offset);
 }
 
 /////////////////////////////////////////////////
@@ -1915,13 +2065,24 @@ TStr TUInt::GetStr(const uint& Val, const char* FmtStr){
   }
 }
 
+bool TUInt::IsIpStr(const TStr& IpStr, uint& Ip, const char& SplitCh) {
+	TStrV IpStrV; IpStr.SplitOnAllCh(SplitCh, IpStrV);
+    Ip = 0; int Byte = 0;
+	if (!IpStrV[0].IsInt(true, 0, 255, Byte)) { return false; }; Ip = (uint)Byte;
+	if (!IpStrV[1].IsInt(true, 0, 255, Byte)) { return false; }; Ip = (Ip << 8) | (uint)Byte;
+	if (!IpStrV[2].IsInt(true, 0, 255, Byte)) { return false; }; Ip = (Ip << 8) | (uint)Byte;
+	if (!IpStrV[3].IsInt(true, 0, 255, Byte)) { return false; }; Ip = (Ip << 8) | (uint)Byte;
+	return true;
+}
+
 uint TUInt::GetUIntFromIpStr(const TStr& IpStr, const char& SplitCh) {
-  TStrV IpStrV; IpStr.SplitOnAllCh(SplitCh, IpStrV);
-  const uchar Ch1 = (uchar)IpStrV[0].GetInt();
-  const uchar Ch2 = (uchar)IpStrV[1].GetInt();
-  const uchar Ch3 = (uchar)IpStrV[2].GetInt();
-  const uchar Ch4 = (uchar)IpStrV[3].GetInt();
-  return uint((Ch1<<24) | (Ch2<<16) | (Ch3<<8) | (Ch4));
+	TStrV IpStrV; IpStr.SplitOnAllCh(SplitCh, IpStrV);
+    uint Ip = 0; int Byte = 0;
+	EAssertR(IpStrV[0].IsInt(true, 0, 255, Byte), TStr::Fmt("Bad IP: '%s;", IpStr.CStr())); Ip = (uint)Byte;
+	EAssertR(IpStrV[1].IsInt(true, 0, 255, Byte), TStr::Fmt("Bad IP: '%s;", IpStr.CStr())); Ip = (Ip << 8) | (uint)Byte;
+	EAssertR(IpStrV[2].IsInt(true, 0, 255, Byte), TStr::Fmt("Bad IP: '%s;", IpStr.CStr())); Ip = (Ip << 8) | (uint)Byte;
+	EAssertR(IpStrV[3].IsInt(true, 0, 255, Byte), TStr::Fmt("Bad IP: '%s;", IpStr.CStr())); Ip = (Ip << 8) | (uint)Byte;
+	return Ip;
 }
 
 TStr TUInt::GetStrFromIpUInt(const uint& Ip) {

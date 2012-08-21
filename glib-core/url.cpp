@@ -87,6 +87,11 @@ public:
   char GetCh(const char& Ch){EAssertR(GetCh()==Ch, ""); return Ch;}
   TStr GetStr(const TStr& Str){
     for (int ChN=0; ChN<Str.Len(); ChN++){GetCh(Str[ChN]);} return Str;}
+  const char* GetStr(const char *Str){
+	int Len = (int) strlen(Str);
+    for (int ChN=0; ChN<Len; ChN++){GetCh(Str[ChN]);} 
+	return Str;
+  }
 
   bool IsSchemeCh() const {return ChDef.IsSchemeCh(PeekCh());}
   char GetSchemeCh(){EAssertR(IsSchemeCh(), ""); return GetCh();}
@@ -107,6 +112,7 @@ public:
   TStr GetHPath(TStrV& PathSegV);
   TStr GetSearch(){return GetToCh('#');}
 };
+
 const TUrlLxChDef TUrlLx::ChDef;
 const char TUrlLx::EofCh=TUrlLxChDef::EofCh;
 
@@ -261,7 +267,7 @@ TUrl::TUrl(const TStr& _RelUrlStr, const TStr& _BaseUrlStr):
 }
 
 TStr TUrl::GetDmNm(const int& MxDmSegs) const {
-  IAssert(IsOk());
+  EAssert(IsOk());
   TChA DmChA; int DmSegs=0;
   for (int ChN=HostNm.Len()-1; ChN>=0; ChN--){
     if (HostNm[ChN]=='.'){
@@ -276,8 +282,8 @@ TStr TUrl::GetDmNm(const int& MxDmSegs) const {
 }
 
 void TUrl::DefFinalUrl(const TStr& _FinalHostNm){
-  IAssert(IsOk(usHttp));
-  IAssert(!IsDefFinalUrl());
+  EAssert(IsOk(usHttp));
+  EAssert(!IsDefFinalUrl());
   FinalHostNm=_FinalHostNm.GetLc();
   if (HostNm==FinalHostNm){
     FinalUrlStr=UrlStr;
@@ -372,6 +378,27 @@ TStr TUrl::GetUrlSearchStr(const TStr& Str){
       OutChA+='%';
       OutChA+=TInt::GetHexStr(uchar(Ch)/16);
       OutChA+=TInt::GetHexStr(uchar(Ch)%16);
+    }
+  }
+  return OutChA;
+}
+
+TStr TUrl::DecodeUrlStr(const TStr& UrlStr) {
+  TChA InChA=UrlStr; TChA OutChA;
+  for (int ChN=0; ChN<InChA.Len(); ChN++){
+    char Ch=InChA[ChN];
+    if (Ch=='+'){
+      OutChA+=' ';
+    } else if (Ch=='%') {
+      ChN++; if (ChN==InChA.Len()) { break; }
+      char FirstCh = InChA[ChN];
+      if (!TCh::IsHex(FirstCh)) { break; }
+      ChN++; if (ChN==InChA.Len()) { break; }
+      char SecondCh = InChA[ChN];
+      if (!TCh::IsHex(SecondCh)) { break; }
+      OutChA+=char(TCh::GetHex(FirstCh)*16 + TCh::GetHex(SecondCh));
+    } else {
+      OutChA+=Ch;
     }
   }
   return OutChA;
