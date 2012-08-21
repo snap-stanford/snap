@@ -31,7 +31,7 @@ public:
         else { PMultiply(Vec, Result); }
     }
     // Result = A' * B(:,ColId)
-    void MultiplyT(const TFltVV& B, int ColId, TFltV& Result) {
+    void MultiplyT(const TFltVV& B, int ColId, TFltV& Result) const {
         if (Transposed) { PMultiply(B, ColId, Result); }
         else { PMultiplyT(B, ColId, Result); }
     }
@@ -57,7 +57,7 @@ public:
     // number of rows and columns of matrix
     int RowN, ColN;
     // vector of sparse columns
-    TVec<TIntFltKdV> DocSpVV;
+    TVec<TIntFltKdV> ColSpVV;
 protected:
     // Result = A * B(:,ColId)
     virtual void PMultiply(const TFltVV& B, int ColId, TFltV& Result) const;
@@ -73,10 +73,15 @@ protected:
 
 public:
     TSparseColMatrix(): TMatrix() {}
+    TSparseColMatrix(TVec<TIntFltKdV> _ColSpVV): TMatrix(), ColSpVV(_ColSpVV) {}
+    TSparseColMatrix(TVec<TIntFltKdV> _ColSpVV, const int& _RowN, const int& _ColN): 
+		TMatrix(), RowN(_RowN), ColN(_ColN), ColSpVV(_ColSpVV) {}
+    // loads Matlab sparse matrix format: row, column, value.
+    //   Indexes start with 1.
     void Save(TSOut& SOut) {
-        SOut.Save(RowN); SOut.Save(ColN); DocSpVV.Save(SOut); }
+        SOut.Save(RowN); SOut.Save(ColN); ColSpVV.Save(SOut); }
     void Load(TSIn& SIn) {
-        SIn.Load(RowN); SIn.Load(ColN); DocSpVV = TVec<TIntFltKdV>(SIn); }
+        SIn.Load(RowN); SIn.Load(ColN); ColSpVV = TVec<TIntFltKdV>(SIn); }
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -87,7 +92,7 @@ public:
     // number of rows and columns of matrix
     int RowN, ColN;
     // vector of sparse rows
-    TVec<TIntFltKdV> DocSpVV;
+    TVec<TIntFltKdV> RowSpVV;
 protected:
     // Result = A * B(:,ColId)
     virtual void PMultiply(const TFltVV& B, int ColId, TFltV& Result) const;
@@ -103,13 +108,16 @@ protected:
 
 public:
     TSparseRowMatrix(): TMatrix() {}
-    // loads Matlab sparse matrix format: row, column, value.
+    TSparseRowMatrix(TVec<TIntFltKdV> _RowSpVV): TMatrix(), RowSpVV(_RowSpVV) {}
+    TSparseRowMatrix(TVec<TIntFltKdV> _RowSpVV, const int& _RowN, const int& _ColN): 
+		TMatrix(), RowN(_RowN), ColN(_ColN), RowSpVV(_RowSpVV) {}
+	// loads Matlab sparse matrix format: row, column, value.
     //   Indexes start with 1.
     TSparseRowMatrix(const TStr& MatlabMatrixFNm);
     void Save(TSOut& SOut) {
-        SOut.Save(RowN); SOut.Save(ColN); DocSpVV.Save(SOut); }
+        SOut.Save(RowN); SOut.Save(ColN); RowSpVV.Save(SOut); }
     void Load(TSIn& SIn) {
-        SIn.Load(RowN); SIn.Load(ColN); DocSpVV = TVec<TIntFltKdV>(SIn); }
+        SIn.Load(RowN); SIn.Load(ColN); RowSpVV = TVec<TIntFltKdV>(SIn); }
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -177,6 +185,8 @@ public:
     static void AddVec(double k, const TFltVV& X, int ColIdX, TFltVV& Y, int ColIdY);
     // Result += k * X(:,Col)
     static void AddVec(double k, const TFltVV& X, int ColId, TFltV& Result);
+	// z = x + y
+    static void AddVec(const TIntFltKdV& x, const TIntFltKdV& y, TIntFltKdV& z);
 
     // Result = SUM(x)
     static double SumVec(const TFltV& x);
@@ -246,6 +256,20 @@ public:
 
     // C = A * B
     static void Multiply(const TFltVV& A, const TFltVV& B, TFltVV& C);
+	
+	// D = alpha * A(') * B(') + beta * C(')
+	typedef enum { GEMM_NO_T = 0, GEMM_A_T = 1, GEMM_B_T = 2, GEMM_C_T = 4 } TLinAlgGemmTranspose;
+	static void Gemm(const double& Alpha, const TFltVV& A, const TFltVV& B, const double& Beta, 
+		const TFltVV& C, TFltVV& D, const int& TransposeFlags);
+	
+	// B = A^(-1)
+	typedef enum { DECOMP_SVD } TLinAlgInverseType;
+	static void Inverse(const TFltVV& A, TFltVV& B, const TLinAlgInverseType& DecompType);
+	// subtypes of finding an inverse
+	static void InverseSVD(const TFltVV& A, TFltVV& B);
+
+	// transpose matrix - B = A'
+	static void Transpose(const TFltVV& A, TFltVV& B);
 
     // performes Gram-Schmidt ortogonalization on elements of Q
     static void GS(TVec<TFltV>& Q);
@@ -293,44 +317,44 @@ public:
     // useful information on output. Otherwise they are to be included.
     static void SymetricToTridiag(TFltVV& a, int n, TFltV& d, TFltV& e);
 
-  // QL algorithm with implicit shifts, to determine the eigenvalues
-  // and eigenvectors of a real, symmetric, tridiagonal matrix, or of
-  // a real, symmetric matrix previously reduced by tred2 x11.2. On
-  // input, d[1..n] contains the diagonal elements of the tridiagonal
-  // matrix. On output, it returns the eigenvalues. The vector e[1..n]
-  // inputs the subdiagonal elements of the tridiagonal matrix, with
-  // e[1] arbitrary. On output e is destroyed. When finding only the
-  // eigenvalues, several lines may be omitted, as noted in the comments.
-  // If the eigenvectors of a tridiagonal matrix are desired, the matrix
-  // z[1..n][1..n] is input as the identity matrix. If the eigenvectors
-  // of a matrix that has been reduced by tred2 are required, then z is
-  // input as the matrix output by tred2. In either case, the kth column
-  // of z returns the normalized eigenvector corresponding to d[k].
-  static void EigSymmetricTridiag(TFltV& d, TFltV& e, int n, TFltVV& z);
+	// QL algorithm with implicit shifts, to determine the eigenvalues
+	// and eigenvectors of a real, symmetric, tridiagonal matrix, or of
+	// a real, symmetric matrix previously reduced by tred2 x11.2. On
+	// input, d[1..n] contains the diagonal elements of the tridiagonal
+	// matrix. On output, it returns the eigenvalues. The vector e[1..n]
+	// inputs the subdiagonal elements of the tridiagonal matrix, with
+	// e[1] arbitrary. On output e is destroyed. When finding only the
+	// eigenvalues, several lines may be omitted, as noted in the comments.
+	// If the eigenvectors of a tridiagonal matrix are desired, the matrix
+	// z[1..n][1..n] is input as the identity matrix. If the eigenvectors
+	// of a matrix that has been reduced by tred2 are required, then z is
+	// input as the matrix output by tred2. In either case, the kth column
+	// of z returns the normalized eigenvector corresponding to d[k].
+	static void EigSymmetricTridiag(TFltV& d, TFltV& e, int n, TFltVV& z);
 
-  // Given a positive-dedinite symmetric matrix A(n,n), this routine
-  // constructs its Cholesky decomposition, A = L * L^T . On input, only
-  // the upper triangle of A need be given; it is not modified. The
-  // Cholesky factor L is returned in the lower triangle of A, except for
-  // its diagonal elements which are returned in p(n).
-  static void CholeskyDecomposition(TFltVV& A, TFltV& p);
+	// Given a positive-dedinite symmetric matrix A(n,n), this routine
+	// constructs its Cholesky decomposition, A = L * L^T . On input, only
+	// the upper triangle of A need be given; it is not modified. The
+	// Cholesky factor L is returned in the lower triangle of A, except for
+	// its diagonal elements which are returned in p(n).
+	static void CholeskyDecomposition(TFltVV& A, TFltV& p);
 
-  // Solves the set of n linear equations A * x = b, where A is a
-  // positive-definite symmetric matrix. A(n,n) and p[1..n] are input
-  // as the output of the routine choldc. Only the lower triangle of A
-  // is accessed. b(n) is input as the right-hand side vector. The
-  // solution vector is returned in x(n). A  and p are not modified and
-  // can be left in place for successive calls with diferent right-hand
-  // sides b. b is not modified unless you identify b and x in the calling
-  // sequence, which is allowed.
-  static void CholeskySolve(const TFltVV& A, const TFltV& p, const TFltV& b, TFltV& x);
+	// Solves the set of n linear equations A * x = b, where A is a
+	// positive-definite symmetric matrix. A(n,n) and p[1..n] are input
+	// as the output of the routine choldc. Only the lower triangle of A
+	// is accessed. b(n) is input as the right-hand side vector. The
+	// solution vector is returned in x(n). A  and p are not modified and
+	// can be left in place for successive calls with diferent right-hand
+	// sides b. b is not modified unless you identify b and x in the calling
+	// sequence, which is allowed.
+	static void CholeskySolve(const TFltVV& A, const TFltV& p, const TFltV& b, TFltV& x);
 
-    // Solves system of linear equations A * x = b, where A is symetric
-  // positive-definite matrix. A is first decomposed using
-  // CholeskyDecomposition and after solved using CholeskySolve. Only
-  // upper triangle of A need be given and it is not modified. However,
-  // lower triangle is modified!
-  static void SolveSymetricSystem(TFltVV& A, const TFltV& b, TFltV& x);
+	// Solves system of linear equations A * x = b, where A is symetric
+	// positive-definite matrix. A is first decomposed using
+	// CholeskyDecomposition and after solved using CholeskySolve. Only
+	// upper triangle of A need be given and it is not modified. However,
+	// lower triangle is modified!
+	static void SolveSymetricSystem(TFltVV& A, const TFltV& b, TFltV& x);
 
     // solve system A x_i = e_i for i = 1..n, where A and p are output
     // from CholeskyDecomposition. Result is stored to upper triangule
@@ -447,7 +471,7 @@ private:
 public:
     TSigmoid() { };
     TSigmoid(const double& A_, const double& B_): A(A_), B(B_) { };
-  // Tries to find a pair (A, B) that minimizes J(A, B).
+	// Tries to find a pair (A, B) that minimizes J(A, B).
     // Uses gradient descent.
     TSigmoid(const TFltIntKdV& data);
 
@@ -467,39 +491,43 @@ public:
 // Useful stuff (hopefuly)
 class TLAMisc {
 public:
-  // Dumps vector to file so Excel can read it
+	// Dumps vector to file so Excel can read it
     static void SaveCsvTFltV(const TFltV& Vec, TSOut& SOut);
-  // Dumps sparse vector to file so Matlab can read it
+	// Dumps sparse vector to file so Matlab can read it
     static void SaveMatlabTFltIntKdV(const TIntFltKdV& SpV, const int& ColN, TSOut& SOut);
-  // Dumps vector to file so Matlab can read it
+	// Dumps vector to file so Matlab can read it
     static void SaveMatlabTFltV(const TFltV& m, const TStr& FName);
-  // Dumps vector to file so Matlab can read it
+	// Dumps vector to file so Matlab can read it
     static void SaveMatlabTIntV(const TIntV& m, const TStr& FName);
-  // Dumps column ColId from m to file so Matlab can read it
+	// Dumps column ColId from m to file so Matlab can read it
     static void SaveMatlabTFltVVCol(const TFltVV& m, int ColId, const TStr& FName);
-  // Dumps matrix to file so Matlab can read it
+	// Dumps matrix to file so Matlab can read it
     static void SaveMatlabTFltVV(const TFltVV& m, const TStr& FName);
-  // Dumps main minor rowN x colN to file so Matlab can read it
-  static void SaveMatlabTFltVVMjrSubMtrx(const TFltVV& m, int rowN, int colN, const TStr& FName);
+	// Dumps main minor rowN x colN to file so Matlab can read it
+	static void SaveMatlabTFltVVMjrSubMtrx(const TFltVV& m, int rowN, int colN, const TStr& FName);
     // loads matlab full matrix
     static void LoadMatlabTFltVV(const TStr& FNm, TVec<TFltV>& ColV);
     // loads matlab full matrix
     static void LoadMatlabTFltVV(const TStr& FNm, TFltVV& MatrixVV);
     // prints vector to screen
     static void PrintTFltV(const TFltV& Vec, const TStr& VecNm);
+	// print matrixt to screen
+	static void PrintTFltVV(const TFltVV& A, const TStr& MatrixNm);
     // prints vector to screen
     static void PrintTIntV(const TIntV& Vec, const TStr& VecNm);
     // fills vector with random numbers
-    static void FillRnd(TFltV& Vec, TRnd& Rnd = TInt::Rnd);
-    // sets all compnents to Val
-    static void Fill(TFltV& Vec, const double& Val);
+    static void FillRnd(TFltV& Vec) { TRnd Rnd(0); FillRnd(Vec, Rnd); }
+    static void FillRnd(TFltV& Vec, TRnd& Rnd);
+    // set all components
     static void Fill(TFltVV& M, const double& Val);
     // sets all compnents to zero
-    static void FillZero(TFltV& Vec) { Fill(Vec, 0.0); }
+    static void FillZero(TFltV& Vec) { Vec.PutAll(0.0); }
     static void FillZero(TFltVV& M) { Fill(M, 0.0); }
     // set matrix to identity
     static void FillIdentity(TFltVV& M);
+    static void FillIdentity(TFltVV& M, const double& Elt);
     // sums elements in vector
+    static int SumVec(const TIntV& Vec);
     static double SumVec(const TFltV& Vec);
     // converts full vector to sparse
     static void ToSpVec(const TFltV& Vec, TIntFltKdV& SpVec,
@@ -507,3 +535,32 @@ public:
     // converts sparse vector to full
     static void ToVec(const TIntFltKdV& SpVec, TFltV& Vec, const int& VecLen);
 };
+
+//////////////////////////////////////////////////////////////////////
+// Template-ised Sparse Operations
+template <class TKey, class TDat>
+class TSparseOps {
+private:
+	typedef TVec<TKeyDat<TKey, TDat> > TKeyDatV;
+public:
+	static void SparseMerge(const TKeyDatV& SrcV1, const TKeyDatV& SrcV2, TKeyDatV& DstV) {
+		DstV.Clr();
+		const int Src1Len = SrcV1.Len();
+		const int Src2Len = SrcV2.Len();
+		int Src1N = 0, Src2N = 0;
+		while (Src1N < Src1Len && Src2N < Src2Len) {
+			if (SrcV1[Src1N].Key < SrcV2[Src2N].Key) { 
+				DstV.Add(SrcV1[Src1N]); Src1N++;
+			} else if (SrcV1[Src1N].Key > SrcV2[Src2N].Key) { 
+				DstV.Add(SrcV2[Src2N]); Src2N++;
+			} else { 
+				DstV.Add(TKeyDat<TKey, TDat>(SrcV1[Src1N].Key, SrcV1[Src1N].Dat + SrcV2[Src2N].Dat));
+				Src1N++;  Src2N++; 
+			}
+		}
+		while (Src1N < Src1Len) { DstV.Add(SrcV1[Src1N]); Src1N++; }
+		while (Src2N < Src2Len) { DstV.Add(SrcV2[Src2N]); Src2N++; }
+	}
+};
+
+typedef TSparseOps<TInt, TFlt> TSparseOpsIntFlt;

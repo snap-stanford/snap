@@ -38,6 +38,12 @@ public:
   virtual void OnLn(const TStr& /*MsgStr*/){}
   virtual void OnTxt(const TStr& /*MsgStr*/){}
 
+  // shortcuts for easier formationg
+  void OnNotifyFmt(const TNotifyType& Type, const char *FmtStr, ...);
+  void OnStatusFmt(const char *FmtStr, ...);
+  void OnLnFmt(const char *FmtStr, ...);
+  void OnTxtFmt(const char *FmtStr, ...);
+
   static TStr GetTypeStr(
    const TNotifyType& Type, const bool& Brief=true);
   static void OnNotify(const PNotify& Notify,
@@ -53,6 +59,7 @@ public:
 
   static const PNotify NullNotify;
   static const PNotify StdNotify;
+  static const PNotify StdErrNotify;
 };
 
 /////////////////////////////////////////////////
@@ -121,6 +128,30 @@ public:
 
   void OnNotify(const TNotifyType& Type, const TStr& MsgStr);
   void OnStatus(const TStr& MsgStr);
+};
+
+/////////////////////////////////////////////////
+// Standard-Error-Notifier
+class TStdErrNotify: public TNotify{
+public:
+  TStdErrNotify(){}
+  static PNotify New(){return PNotify(new TStdErrNotify());}
+
+  void OnNotify(const TNotifyType& Type, const TStr& MsgStr);
+  void OnStatus(const TStr& MsgStr);
+};
+
+//////////////////////////////////////
+// Log-Notify
+class TLogNotify : public TNotify {
+private:
+	PNotify Notify;
+
+public:
+	TLogNotify(const PNotify& _Notify): Notify(_Notify) { }
+	static PNotify New(const PNotify& Notify) { return new TLogNotify(Notify); }
+
+	void OnStatus(const TStr& MsgStr);
 };
 
 /////////////////////////////////////////////////

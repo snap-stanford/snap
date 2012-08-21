@@ -35,34 +35,35 @@ public:
   TStr GetRelUrlStr() const {return RelUrlStr;}
   bool IsBaseUrl(){return !BaseUrlStr.Empty();}
   TStr GetBaseUrlStr() const {return BaseUrlStr;}
-  TStr GetSchemeNm() const {IAssert(IsOk()); return SchemeNm;}
-  TStr GetHostNm() const {IAssert(IsOk()); return HostNm;}
+  TStr GetSchemeNm() const {EAssert(IsOk()); return SchemeNm;}
+  TStr GetHostNm() const {EAssert(IsOk()); return HostNm;}
   TStr GetDmNm(const int& MxDmSegs=-1) const;
-  TStr GetPortStr() const {IAssert(IsOk()); return PortStr;}
-  int GetPortN() const {IAssert(IsOk()&&(PortN!=-1)); return PortN;}
-  TStr GetPathStr() const {IAssert(IsOk()); return PathStr;}
+  bool IsPortOk() const { EAssert(IsOk()); return (PortN > 0); }
+  TStr GetPortStr() const {EAssert(IsOk()); return PortStr;}
+  int GetPortN() const {EAssert(IsOk()&&(PortN!=-1)); return PortN;}
+  TStr GetPathStr() const {EAssert(IsOk()); return PathStr;}
   int GetPathSegs() const {return PathSegV.Len();}
   TStr GetPathSeg(const int& PathSegN) const {return PathSegV[PathSegN];}
-  TStr GetSearchStr() const {IAssert(IsOk()); return SearchStr;}
-  TStr GetFragIdStr() const {IAssert(IsOk()); return FragIdStr;}
+  TStr GetSearchStr() const {EAssert(IsOk()); return SearchStr;}
+  TStr GetFragIdStr() const {EAssert(IsOk()); return FragIdStr;}
 
   bool IsIpNum() const {return !IpNum.Empty();}
   void PutIpNum(const TStr& _IpNum){IpNum=_IpNum;}
-  TStr GetIpNum() const {IAssert(IsIpNum()); return IpNum;}
+  TStr GetIpNum() const {EAssert(IsIpNum()); return IpNum;}
   TStr GetIpNumOrHostNm() const {return IsIpNum() ? GetIpNum() : GetHostNm();}
 
   bool IsDefFinalUrl() const {
-    IAssert(IsOk(usHttp)); return !FinalUrlStr.Empty();}
+    EAssert(IsOk(usHttp)); return !FinalUrlStr.Empty();}
   TStr GetFinalUrlStr() const {
-    IAssert(IsDefFinalUrl()); return FinalUrlStr;}
+    EAssert(IsDefFinalUrl()); return FinalUrlStr;}
   TStr GetAsFinalUrlStr() const {
     if (IsDefFinalUrl()){return FinalUrlStr;} else {return UrlStr;}}
   TStr GetFinalHostNm() const {
-    IAssert(IsDefFinalUrl()); return FinalHostNm;}
+    EAssert(IsDefFinalUrl()); return FinalHostNm;}
   TStr GetAsFinalHostNm() const {
     if (IsDefFinalUrl()){return FinalHostNm;} else {return HostNm;}}
   void DefUrlAsFinal(){
-    IAssert(IsOk(usHttp)); IAssert(!IsDefFinalUrl());
+    EAssert(IsOk(usHttp)); EAssert(!IsDefFinalUrl());
     FinalUrlStr=UrlStr; FinalHostNm=HostNm;}
   void DefFinalUrl(const TStr& _FinalHostNm);
 
@@ -73,9 +74,9 @@ public:
     HttpRqStr.ChangeStr(SrcStr, DstStr);}
 
   bool IsInHost(const TStr& _HostNm) const {
-    IAssert(IsOk()); return HostNm.GetUc().IsSuffix(_HostNm.GetUc());}
+    EAssert(IsOk()); return HostNm.GetUc().IsSuffix(_HostNm.GetUc());}
   bool IsInPath(const TStr& _PathStr) const {
-    IAssert(IsOk()); return PathStr.GetUc().IsPrefix(_PathStr.GetUc());}
+    EAssert(IsOk()); return PathStr.GetUc().IsPrefix(_PathStr.GetUc());}
   void ToLcPath();
 
   static bool IsAbs(const TStr& UrlStr);
@@ -85,6 +86,7 @@ public:
   static PUrl GetUrlFromShortcut(const TStr& ShortcutUrlStr,
    const TStr& DfHostNmPrefix, const TStr& DfHostNmSufix);
   static TStr GetUrlSearchStr(const TStr& Str);
+  static TStr DecodeUrlStr(const TStr& UrlStr);
   static TStr GetDocStrFromUrlStr(const TStr& UrlStr, const int& Copies=1);
   static TStr GetTopDownDocNm(
    const TStr& UrlStr, const int& MxLen=-1, const bool& HostOnlyP=false);

@@ -34,28 +34,53 @@ void TZipIn::CreateZipProcess(const TStr& Cmd, const TStr& ZipFNm) {
 }
 
 void TZipIn::FillBf(){
-  EAssertR(CurFPos < FLen, "End of file "+GetSNm()+" reached.");
+  EAssertR(CurFPos < FLen || UnknownLength, "End of file "+GetSNm()+" reached.");
   EAssertR((BfC==BfL)/*&&((BfL==-1)||(BfL==MxBfL))*/, "Error reading file '"+GetSNm()+"'.");
   #ifdef GLib_WIN
-  // Read output from the child process
-  DWORD BytesRead;
-  EAssert(ReadFile(ZipStdoutRd, Bf, MxBfL, &BytesRead, NULL) != 0);
+   // Read output from the child process
+   DWORD BytesRead;
+  if(ReadFile(ZipStdoutRd, Bf, MxBfL, &BytesRead, NULL) == 0) {
+	  DWORD error = GetLastError();
+	  if (error != ERROR_HANDLE_EOF) {
+		  EFailR(TStr::Fmt("Error reading archive. %d", error));
+	  }
+  }
   #else
-  size_t BytesRead = fread(Bf, 1, MxBfL, ZipStdoutRd);
-  EAssert(BytesRead != 0);
+  size_t BytesRead = 0;
+  if (UnknownLength && feof(ZipStdoutRd)) {
+	  // if full length is unknown, check EOF flag
+	  // useful in case the last read was final but stilled filled the buffer
+	  FLen = CurFPos;
+	  BfL = 0;
+	  BfC = 0;
+  } else {
+	  BytesRead = fread(Bf, 1, MxBfL, ZipStdoutRd);
+	  EAssertR(BytesRead != 0, "Error reading archive.");
+  }
   #endif
+
+  if (UnknownLength && (BytesRead < static_cast<size_t>(MxBfL))) {
+	  // if full length is unknown and this read did not fill the buffer,
+	  // consider this to be the final read and set the computed length
+	  FLen = CurFPos + BytesRead;
+  }
+
   BfL = (int) BytesRead;
   CurFPos += BytesRead;
   EAssertR((BfC!=0)||(BfL!=0), "Error reading file '"+GetSNm()+"'.");
   BfC = 0;
+
 }
 
 TZipIn::TZipIn(const TStr& FNm) : TSBase(FNm.CStr()), TSIn(FNm), ZipStdoutRd(NULL), ZipStdoutWr(NULL),
-  FLen(0), CurFPos(0), Bf(NULL), BfC(0), BfL(0) {
+  FLen(0), CurFPos(0), UnknownLength(false), Bf(NULL), BfC(0), BfL(0) {
   EAssertR(! FNm.Empty(), "Empty file-name.");
   EAssertR(TFile::Exists(FNm), TStr::Fmt("File %s does not exist", FNm.CStr()).CStr());
-  FLen = TZipIn::GetFLen(FNm);
-  if (FLen == 0) { return; } // empty file
+  FLen = TZipIn::GetFLen(FNm, UnknownLength);
+  if (FLen == 0 && !UnknownLength) { 
+	  // empty file
+	  return; 
+  }
   #ifdef GLib_WIN
   // create pipes
   SECURITY_ATTRIBUTES saAttr;
@@ -76,9 +101,9 @@ TZipIn::TZipIn(const TStr& FNm) : TSBase(FNm.CStr()), TSIn(FNm), ZipStdoutRd(NUL
 }
 
 TZipIn::TZipIn(const TStr& FNm, bool& OpenedP) : TSBase(FNm.CStr()), TSIn(FNm), ZipStdoutRd(NULL), ZipStdoutWr(NULL),
-  FLen(0), CurFPos(0), Bf(NULL), BfC(0), BfL(0) {
+  FLen(0), CurFPos(0), UnknownLength(false), Bf(NULL), BfC(0), BfL(0) {
   EAssertR(! FNm.Empty(), "Empty file-name.");
-  FLen = TZipIn::GetFLen(FNm);
+  FLen = TZipIn::GetFLen(FNm, UnknownLength);
   OpenedP = TFile::Exists(FNm);
   if (OpenedP) {
     #ifdef GLib_WIN
@@ -120,17 +145,29 @@ TZipIn::~TZipIn(){
   if (Bf != NULL) { delete[] Bf; }
 }
 
+int TZipIn::Len() const { 
+  if (UnknownLength && FLen == 0) { return 0; }
+  return int(FLen-CurFPos+BfL-BfC);
+}
+
 int TZipIn::GetBf(const void* LBf, const TSize& LBfL){
   int LBfS=0;
   if (TSize(BfC+LBfL)>TSize(BfL)){
     for (TSize LBfC=0; LBfC<LBfL; LBfC++){
-      if (BfC==BfL){FillBf();}
+      if (BfC==BfL && !Eof()){
+		FillBf();
+	  }
       LBfS+=((char*)LBf)[LBfC]=Bf[BfC++];}
   } else {
     for (TSize LBfC=0; LBfC<LBfL; LBfC++){
       LBfS+=(((char*)LBf)[LBfC]=Bf[BfC++]);}
   }
   return LBfS;
+}
+
+void TZipIn::AddZipExtCmd(const TStr& ZipFNmExt, const TStr& ZipCmd) {
+  if (FExtToCmdH.Empty()) FillFExtToCmdH();
+  FExtToCmdH.AddDat(ZipFNmExt, ZipCmd);
 }
 
 bool TZipIn::IsZipExt(const TStr& FNmExt) {
@@ -164,7 +201,14 @@ TStr TZipIn::GetCmd(const TStr& ZipFNm) {
   return FExtToCmdH.GetDat(Ext);
 }
 
-uint64 TZipIn::GetFLen(const TStr& ZipFNm) {
+uint64 TZipIn::GetFLen(const TStr& ZipFNm, bool& UnknownLength) {
+  if (ZipFNm.IsSuffix(".gz") || ZipFNm.IsSuffix(".bz2") || ZipFNm.IsSuffix(".bzip2")) {
+	  // gzip is a liar, reporting its uncompressed size modulo 2^32, causing errors on archives > 4GB
+	  // bzip2 does not store uncompressed size at all
+	  // decompression will therefore take place by checking for EoF
+	  UnknownLength = true;
+	  return 0;
+  }
   #ifdef GLib_WIN
   HANDLE ZipStdoutRd, ZipStdoutWr;
   // create pipes
@@ -222,7 +266,15 @@ uint64 TZipIn::GetFLen(const TStr& ZipFNm) {
     SaveToErrLog(TStr::Fmt("Corrupt file %s. Message:\n:%s\n", ZipFNm.CStr(), Str.CStr()).CStr());
     return 0;
   }
-  return StrV[n-7].GetInt64();
+  int64 Len;
+  if (StrV[n-7].IsInt64(Len)) {
+	  return Len;
+  } else {
+	  // if size is unknown, return 0. (e.g. bzip2 does not store uncompressed size)
+	  UnknownLength = true;
+	  return 0;
+  }
+
 }
 
 /////////////////////////////////////////////////
@@ -242,7 +294,7 @@ void TZipOut::FlushBf() {
 }
 
 void TZipOut::CreateZipProcess(const TStr& Cmd, const TStr& ZipFNm) {
-  const TStr CmdLine = TStr::Fmt("%s %s", Cmd.CStr(), ZipFNm.CStr());
+  const TStr CmdLine = TStr::Fmt("%s -mx%d %s", Cmd.CStr(), CompressionLevel, ZipFNm.CStr());
   #ifdef GLib_WIN
   PROCESS_INFORMATION piProcInfo;
   STARTUPINFO siStartInfo;
@@ -271,8 +323,9 @@ void TZipOut::CreateZipProcess(const TStr& Cmd, const TStr& ZipFNm) {
   #endif
 }
 
-TZipOut::TZipOut(const TStr& FNm) : TSBase(FNm.CStr()), TSOut(FNm), ZipStdinRd(NULL), ZipStdinWr(NULL), Bf(NULL), BfL(0){
+TZipOut::TZipOut(const TStr& FNm, int Compression) : TSBase(FNm.CStr()), TSOut(FNm), ZipStdinRd(NULL), ZipStdinWr(NULL), Bf(NULL), BfL(0), CompressionLevel(Compression){
   EAssertR(! FNm.Empty(), "Empty file-name.");
+  EAssertR(Compression >= 0 && Compression <= 9, "Invalid compression level (use 0/none to 9/ultra)");
   #ifdef GLib_WIN
   // create pipes
   SECURITY_ATTRIBUTES saAttr;
@@ -290,8 +343,8 @@ TZipOut::TZipOut(const TStr& FNm) : TSBase(FNm.CStr()), TSOut(FNm), ZipStdinRd(N
   Bf=new char[MxBfL];  BfL=0;
 }
 
-PSOut TZipOut::New(const TStr& FNm){
-  return PSOut(new TZipOut(FNm));
+PSOut TZipOut::New(const TStr& FNm, int Compression){
+  return PSOut(new TZipOut(FNm, Compression));
 }
 
 TZipOut::~TZipOut() {
@@ -329,6 +382,11 @@ void TZipOut::Flush(){
   #else
   EAssertR(fflush(ZipStdinWr)==0, "Can not flush file '"+GetSNm()+"'.");
   #endif
+}
+
+void TZipOut::AddZipExtCmd(const TStr& ZipFNmExt, const TStr& ZipCmd) {
+  if (FExtToCmdH.Empty()) FillFExtToCmdH();
+  FExtToCmdH.AddDat(ZipFNmExt, ZipCmd);
 }
 
 bool TZipOut::IsZipExt(const TStr& FNmExt) {

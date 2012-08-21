@@ -5,7 +5,7 @@ void TSparseColMatrix::PMultiply(const TFltVV& B, int ColId, TFltV& Result) cons
     int i, j; TFlt *ResV = Result.BegI();
     for (i = 0; i < RowN; i++) ResV[i] = 0.0;
     for (j = 0; j < ColN; j++) {
-        const TIntFltKdV& ColV = DocSpVV[j]; int len = ColV.Len();
+        const TIntFltKdV& ColV = ColSpVV[j]; int len = ColV.Len();
         for (i = 0; i < len; i++) {
             ResV[ColV[i].Key] += ColV[i].Dat * B(j,ColId);
         }
@@ -17,7 +17,7 @@ void TSparseColMatrix::PMultiply(const TFltV& Vec, TFltV& Result) const {
     int i, j; TFlt *ResV = Result.BegI();
     for (i = 0; i < RowN; i++) ResV[i] = 0.0;
     for (j = 0; j < ColN; j++) {
-        const TIntFltKdV& ColV = DocSpVV[j]; int len = ColV.Len();
+        const TIntFltKdV& ColV = ColSpVV[j]; int len = ColV.Len();
         for (i = 0; i < len; i++) {
             ResV[ColV[i].Key] += ColV[i].Dat * Vec[j];
         }
@@ -28,7 +28,7 @@ void TSparseColMatrix::PMultiplyT(const TFltVV& B, int ColId, TFltV& Result) con
     Assert(B.GetRows() >= RowN && Result.Len() >= ColN);
     int i, j, len; TFlt *ResV = Result.BegI();
     for (j = 0; j < ColN; j++) {
-        const TIntFltKdV& ColV = DocSpVV[j];
+        const TIntFltKdV& ColV = ColSpVV[j];
         len = ColV.Len(); ResV[j] = 0.0;
         for (i = 0; i < len; i++) {
             ResV[j] += ColV[i].Dat * B(ColV[i].Key, ColId);
@@ -40,7 +40,7 @@ void TSparseColMatrix::PMultiplyT(const TFltV& Vec, TFltV& Result) const {
     Assert(Vec.Len() >= RowN && Result.Len() >= ColN);
     int i, j, len; TFlt *VecV = Vec.BegI(), *ResV = Result.BegI();
     for (j = 0; j < ColN; j++) {
-        const TIntFltKdV& ColV = DocSpVV[j];
+        const TIntFltKdV& ColV = ColSpVV[j];
         len = ColV.Len(); ResV[j] = 0.0;
         for (i = 0; i < len; i++) {
             ResV[j] += ColV[i].Dat * VecV[ColV[i].Key];
@@ -66,11 +66,11 @@ TSparseRowMatrix::TSparseRowMatrix(const TStr& MatlabMatrixFNm) {
    fclose(F);
    // create matrix
    MtxV.Sort();
-   DocSpVV.Gen(RowN);
+   RowSpVV.Gen(RowN);
    int cnt = 0;
    for (int row = 1; row <= RowN; row++) {
      while (cnt < MtxV.Len() && MtxV[cnt].Val1 == row) {
-       DocSpVV[row-1].Add(TIntFltKd(MtxV[cnt].Val2-1, MtxV[cnt].Val3()));
+       RowSpVV[row-1].Add(TIntFltKd(MtxV[cnt].Val2-1, MtxV[cnt].Val3()));
        cnt++;
      }
    }
@@ -80,7 +80,7 @@ void TSparseRowMatrix::PMultiplyT(const TFltVV& B, int ColId, TFltV& Result) con
     Assert(B.GetRows() >= RowN && Result.Len() >= ColN);
     for (int i = 0; i < ColN; i++) Result[i] = 0.0;
     for (int j = 0; j < RowN; j++) {
-        const TIntFltKdV& RowV = DocSpVV[j]; int len = RowV.Len();
+        const TIntFltKdV& RowV = RowSpVV[j]; int len = RowV.Len();
         for (int i = 0; i < len; i++) {
             Result[RowV[i].Key] += RowV[i].Dat * B(j,ColId);
         }
@@ -91,7 +91,7 @@ void TSparseRowMatrix::PMultiplyT(const TFltV& Vec, TFltV& Result) const {
     Assert(Vec.Len() >= RowN && Result.Len() >= ColN);
     for (int i = 0; i < ColN; i++) Result[i] = 0.0;
     for (int j = 0; j < RowN; j++) {
-        const TIntFltKdV& RowV = DocSpVV[j]; int len = RowV.Len();
+        const TIntFltKdV& RowV = RowSpVV[j]; int len = RowV.Len();
         for (int i = 0; i < len; i++) {
             Result[RowV[i].Key] += RowV[i].Dat * Vec[j];
         }
@@ -101,7 +101,7 @@ void TSparseRowMatrix::PMultiplyT(const TFltV& Vec, TFltV& Result) const {
 void TSparseRowMatrix::PMultiply(const TFltVV& B, int ColId, TFltV& Result) const {
     Assert(B.GetRows() >= ColN && Result.Len() >= RowN);
     for (int j = 0; j < RowN; j++) {
-        const TIntFltKdV& RowV = DocSpVV[j];
+        const TIntFltKdV& RowV = RowSpVV[j];
         int len = RowV.Len(); Result[j] = 0.0;
         for (int i = 0; i < len; i++) {
             Result[j] += RowV[i].Dat * B(RowV[i].Key, ColId);
@@ -112,7 +112,7 @@ void TSparseRowMatrix::PMultiply(const TFltVV& B, int ColId, TFltV& Result) cons
 void TSparseRowMatrix::PMultiply(const TFltV& Vec, TFltV& Result) const {
     Assert(Vec.Len() >= ColN && Result.Len() >= RowN);
     for (int j = 0; j < RowN; j++) {
-        const TIntFltKdV& RowV = DocSpVV[j];
+        const TIntFltKdV& RowV = RowSpVV[j];
         int len = RowV.Len(); Result[j] = 0.0;
         for (int i = 0; i < len; i++) {
             Result[j] += RowV[i].Dat * Vec[RowV[i].Key];
@@ -229,7 +229,7 @@ void TLinAlg::ConvexComb(const double& p, const TFltV& x, const TFltV& y, TFltV&
     LinComb(p, x, 1.0 - p, y, z);
 }
 
-inline void TLinAlg::AddVec(const double& k, const TFltV& x, const TFltV& y, TFltV& z) {
+void TLinAlg::AddVec(const double& k, const TFltV& x, const TFltV& y, TFltV& z) {
     LinComb(k, x, 1.0, y, z);
 }
 
@@ -272,6 +272,10 @@ void TLinAlg::AddVec(double k, const TFltVV& X, int ColId, TFltV& Result){
     }
 }
 
+void TLinAlg::AddVec(const TIntFltKdV& x, const TIntFltKdV& y, TIntFltKdV& z) {
+	TSparseOpsIntFlt::SparseMerge(x, y, z);
+}
+
 double TLinAlg::SumVec(const TFltV& x) {
     const int len = x.Len();
     double Res = 0.0;
@@ -305,11 +309,11 @@ double TLinAlg::EuclDist(const TFltV& x, const TFltV& y) {
     return sqrt(EuclDist2(x, y));
 }
 
-inline double TLinAlg::Norm2(const TFltV& x) {
+double TLinAlg::Norm2(const TFltV& x) {
     return DotProduct(x, x);
 }
 
-inline double TLinAlg::Norm(const TFltV& x) {
+double TLinAlg::Norm(const TFltV& x) {
     return sqrt(Norm2(x));
 }
 
@@ -326,19 +330,19 @@ double TLinAlg::Norm2(const TIntFltKdV& x) {
     return Result;
 }
 
-inline double TLinAlg::Norm(const TIntFltKdV& x) {
+double TLinAlg::Norm(const TIntFltKdV& x) {
     return sqrt(Norm2(x));
 }
 
-inline void TLinAlg::Normalize(TIntFltKdV& x) {
+void TLinAlg::Normalize(TIntFltKdV& x) {
     MultiplyScalar(1/Norm(x), x, x);
 }
 
-inline double TLinAlg::Norm2(const TFltVV& X, int ColId) {
+double TLinAlg::Norm2(const TFltVV& X, int ColId) {
     return DotProduct(X, ColId, X, ColId);
 }
 
-inline double TLinAlg::Norm(const TFltVV& X, int ColId) {
+double TLinAlg::Norm(const TFltVV& X, int ColId) {
     return sqrt(Norm2(X, ColId));
 }
 
@@ -477,6 +481,94 @@ void TLinAlg::Multiply(const TFltVV& A, const TFltVV& B, TFltVV& C) {
     }
 }
 
+// general matrix multiplication (GEMM)
+void TLinAlg::Gemm(const double& Alpha, const TFltVV& A, const TFltVV& B, const double& Beta, 
+		const TFltVV& C, TFltVV& D, const int& TransposeFlags) {
+
+	bool tA = (TransposeFlags & GEMM_A_T) == GEMM_A_T;
+	bool tB = (TransposeFlags & GEMM_B_T) == GEMM_B_T;
+	bool tC = (TransposeFlags & GEMM_C_T) == GEMM_C_T;
+
+	// setting dimensions
+	int a_i = tA ? A.GetRows() : A.GetCols();
+	int a_j = tA ? A.GetCols() : A.GetRows();
+
+	int b_i = tB ? A.GetRows() : A.GetCols();
+	int b_j = tB ? A.GetCols() : A.GetRows();
+
+	int c_i = tC ? A.GetRows() : A.GetCols();
+	int c_j = tC ? A.GetCols() : A.GetRows();
+
+	int d_i = D.GetCols();
+	int d_j = D.GetRows();
+	
+	// assertions for dimensions
+	Assert(a_i == c_j && b_i == c_i && a_i == b_j && c_i == d_i && c_j == d_j);
+
+	double Aij, Bij, Cij;
+
+	// rows
+	for (int j = 0; j < a_j; j++) {
+		// cols
+		for (int i = 0; i < a_i; i++) {
+			// not optimized for speed (!)
+			double sum = 0;
+			for (int k = 0; k < a_i; k++) {
+				Aij = tA ? A.At(j, k) : A.At(k, j);
+				Bij = tB ? B.At(k, i) : B.At(i, k);
+				sum += Alpha * Aij * Bij;
+			}
+			Cij = tC ? C.At(i, j) : C.At(j, i);
+			sum += Beta * Cij;
+			D.At(i, j) = sum;
+		}
+	}
+}
+
+void TLinAlg::Transpose(const TFltVV& A, TFltVV& B) {
+	Assert(B.GetRows() == A.GetCols() && B.GetCols() == A.GetRows());
+	for (int j = 0; j < A.GetRows(); j++) {
+		for (int i = 0; i < B.GetCols(); i++) {
+			B.At(j, i) = A.At(i, j);
+		}
+	}
+}
+
+void TLinAlg::Inverse(const TFltVV& A, TFltVV& B, const TLinAlgInverseType& DecompType) {
+	switch (DecompType) {
+		case DECOMP_SVD:
+			InverseSVD(A, B);
+	}
+}
+
+void TLinAlg::InverseSVD(const TFltVV& M, TFltVV& B) {
+	// create temp matrices
+	TFltVV U, V;
+	TFltV E;
+	TSvd SVD;
+
+	U.Gen(M.GetRows(), M.GetRows());	
+	V.Gen(M.GetCols(), M.GetCols());
+
+	// do the SVD decompostion
+	SVD.Svd(M, U, E, V);
+
+	// calculate reciprocal values for diagonal matrix = inverse diagonal
+	for (int i = 0; i < E.Len(); i++) {
+		E[i] = 1 / E[i];
+	}
+
+	// calculate pseudoinverse: M^(-1) = V * E^(-1) * U'
+	for (int i = 0; i < U.GetCols(); i++) {
+		for (int j = 0; j < V.GetRows(); j++) {
+			double sum = 0;
+			for (int k = 0; k < U.GetCols(); k++) {
+				sum += E[k] * V.At(i, k) * U.At(j, k);
+			}
+			B.At(i, j) = sum;
+		}
+	}	
+}
 
 void TLinAlg::GS(TVec<TFltV>& Q) {
     IAssert(Q.Len() > 0);
@@ -846,7 +938,7 @@ void TNumericalStuff::LUDecomposition(TFltVV& A, TIntV& indx, double& d) {
             //Yes, do so...
             for (k=1;k<=n;k++) {
                 dum=A(imax-1,k-1);
-            A(imax-1,k)=A(j-1,k-1);
+            A(imax-1,k-1)=A(j-1,k-1); // Tadej: imax-1,k looks wrong
             A(j-1,k-1)=dum;
             }
             //...and change the parity of d.
@@ -1605,8 +1697,20 @@ void TLAMisc::PrintTFltV(const TFltV& Vec, const TStr& VecNm) {
     printf("%s = [", VecNm.CStr());
     for (int i = 0; i < Vec.Len(); i++) {
         printf("%.5f", Vec[i]());
-        if (i < Vec.Len() - 1) printf(", ");
+		if (i < Vec.Len() - 1) { printf(", "); }
     }
+    printf("]\n");
+}
+
+
+void TLAMisc::PrintTFltVV(const TFltVV& A, const TStr& MatrixNm) {
+    printf("%s = [\n", MatrixNm.CStr());
+	for (int j = 0; j < A.GetRows(); j++) {
+		for (int i = 0; i < A.GetCols(); i++) {
+			printf("%f\t", A.At(i, j).Val);
+		}
+		printf("\n");
+	}
     printf("]\n");
 }
 
@@ -1635,9 +1739,25 @@ void TLAMisc::FillIdentity(TFltVV& M) {
     }
 }
 
+void TLAMisc::FillIdentity(TFltVV& M, const double& Elt) {
+    IAssert(M.GetRows() == M.GetCols());
+    int Len = M.GetRows();
+    for (int i = 0; i < Len; i++) {
+        for (int j = 0; j < Len; j++) M(i,j) = 0.0;
+        M(i,i) = Elt;
+    }
+}
+
+int TLAMisc::SumVec(const TIntV& Vec) {
+    const int Len = Vec.Len();
+    int res = 0;
+    for (int i = 0; i < Len; i++)
+        res += Vec[i];
+    return res;
+}
 
 double TLAMisc::SumVec(const TFltV& Vec) {
-    int Len = Vec.Len();
+    const int Len = Vec.Len();
     double res = 0.0;
     for (int i = 0; i < Len; i++)
         res += Vec[i];
@@ -1649,7 +1769,7 @@ void TLAMisc::ToSpVec(const TFltV& Vec, TIntFltKdV& SpVec,
 
     // determine minimal element value
     IAssert(0.0 <= CutSumPrc && CutSumPrc <= 1.0);
-    int Elts = Vec.Len();
+    const int Elts = Vec.Len();
     double EltSum = 0.0;
     for (int EltN = 0; EltN < Elts; EltN++) {
         EltSum += TFlt::Abs(Vec[EltN]); }
@@ -1657,7 +1777,7 @@ void TLAMisc::ToSpVec(const TFltV& Vec, TIntFltKdV& SpVec,
     // create sparse vector
     SpVec.Clr();
     for (int EltN = 0; EltN < Elts; EltN++) {
-        if (TFlt::Abs(Vec[EltN]) >= MnEltVal) {
+        if (TFlt::Abs(Vec[EltN]) > MnEltVal) {
             SpVec.Add(TIntFltKd(EltN, Vec[EltN]));
         }
     }
@@ -1666,7 +1786,7 @@ void TLAMisc::ToSpVec(const TFltV& Vec, TIntFltKdV& SpVec,
 
 void TLAMisc::ToVec(const TIntFltKdV& SpVec, TFltV& Vec, const int& VecLen) {
     Vec.Gen(VecLen); Vec.PutAll(0.0);
-    int Elts = Vec.Len();
+    int Elts = SpVec.Len();
     for (int EltN = 0; EltN < Elts; EltN++) {
         if (SpVec[EltN].Key < VecLen) {
             Vec[SpVec[EltN].Key] = SpVec[EltN].Dat;

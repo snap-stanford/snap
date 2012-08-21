@@ -32,7 +32,7 @@ typedef TVec<TUStr> TUStrV;
 class TUStr{
 private:
   TIntV UniChV;
-  void AssertUnicodeDefOk(){
+  static void AssertUnicodeDefOk(){
     EAssertR(TUnicodeDef::IsDef(), "Unicode-Definition-File not loaded!");}
 public:
   TUStr(): UniChV(){AssertUnicodeDefOk();}
@@ -68,6 +68,7 @@ public:
 
   // conversions to string
   TStr GetStr() const;
+  TStr GetStarterStr() const;
   TStr GetStarterLowerCaseStr() const;
 
   // scripts
@@ -84,4 +85,7 @@ public:
   static bool IsLowerCase(const int& UniCh);
   static bool IsAlphabetic(const int& UniCh);
   static bool IsMath(const int& UniCh);
+
+  // converstions to/from UTF8
+  static TStr EncodeUtf8(const int& UniCh);
 };

@@ -88,7 +88,7 @@ public:
   TMd5Sig(const TChA& ChA);
   TMd5Sig(const char* CStr);
   TMd5Sig(const TMem& Mem);
-  TMd5Sig(const TMd5& Md5){memcpy(CdT, Md5.Sig, 16);} 
+  TMd5Sig(const TMd5& Md5){memcpy(CdT, Md5.Sig, 16);}
   TMd5Sig(TSIn& SIn){SIn.LoadBf(CdT, 16);}
   void Save(TSOut& SOut) const {SOut.SaveBf(CdT, 16);}
 
@@ -96,7 +96,7 @@ public:
     if (this!=&Md5Sig){memcpy(CdT, Md5Sig.CdT, 16);} return *this;}
   bool operator==(const TMd5Sig& Md5Sig) const {
     return memcmp(CdT, Md5Sig.CdT, 16)==0;}
-  bool operator<(const TMd5Sig& Md5Sig) const { 
+  bool operator<(const TMd5Sig& Md5Sig) const {
     return memcmp(CdT, Md5Sig.CdT, 16)==-1;}
   int operator[](const int& CdN) const {
     Assert((0<=CdN)&&(CdN<16)); return CdT[CdN];}
@@ -105,8 +105,10 @@ public:
   int GetPrimHashCd() const;
   int GetSecHashCd() const;
 
-  // string representation
+  // alternative representations
   TStr GetStr() const;
+  void GetUInt(const int& StartCd, uint& UInt) const {
+    memcpy(&UInt, CdT+StartCd, sizeof(uint));}
 };
 typedef TVec<TMd5Sig> TMd5SigV;
 

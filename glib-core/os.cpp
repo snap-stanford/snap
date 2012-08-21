@@ -544,6 +544,14 @@ int TStdIOPipe::Read(char *Bf, const int& BfMxLen) {
 }
 
 #elif defined(GLib_UNIX)
+
+#if 0
+// 2012/08/20 ROK uuid excluded for the merge, move out from the base
+extern "C" {
+  #include <uuid/uuid.h>
+}
+#endif
+
 /////////////////////////////////////////////////
 // Compatibility functions
 int GetModuleFileName(void *hModule, char *Bf, int MxBfL) {
@@ -621,7 +629,7 @@ uint64 TSysTm::GetMSecsFromTm(const TTm& Tm){
   t = mktime(&tms);
 
   t -= timezone;
-  FailR("BUG!: miliseconds start Jan 1 1601 (and not Jan 1 1970)!!!"); //J:BUG
+  //FailR("BUG!: miliseconds start Jan 1 1601 (and not Jan 1 1970)!!!"); //J:BUG
 
   return (1000*(uint64)t) + (uint64)Tm.GetMSec();
 }
@@ -629,7 +637,8 @@ uint64 TSysTm::GetMSecsFromTm(const TTm& Tm){
 TTm TSysTm::GetTmFromMSecs(const uint64& TmNum){
   int MSec = TmNum % 1000;
   time_t Sec = time_t(uint64(TmNum / 1000)-uint64(1970-1601)*365*3600*24);
-  FailR("BUG!: miliseconds start Jan 1 1601 (and not Jan 1 1970)!!!"); //J:BUG
+
+  //FailR("BUG!: miliseconds start Jan 1 1601 (and not Jan 1 1970)!!!"); //J:BUG
   struct tm tms;
   gmtime_r(&Sec, &tms);
 
@@ -757,10 +766,10 @@ void TSysProc::Sleep(const uint& MSecs) {
 
   while (true) {
 #if defined(GLib_POSIX_1j) && defined(_POSIX_MONOTONIC_CLOCK)
-    //int ret = clock_nanosleep(CLOCK_MONOTONIC, 0, &tsp, &trem); //J: troubles compiling
-    //if ((ret == -1) && (errno == ENOTSUP)) {
-    int ret = nanosleep(&tsp, &trem);
-    //}
+    int ret = clock_nanosleep(CLOCK_MONOTONIC, 0, &tsp, &trem);
+    if ((ret == -1) && (errno == ENOTSUP)) {
+      ret = nanosleep(&tsp, &trem);
+    }
 #else
     int ret = nanosleep(&tsp, &trem);
 #endif
@@ -796,7 +805,7 @@ bool TSysProc::ExeProc(const TStr& ExeFNm, TStr& ParamStr) {
 
   execvp(argv[0], argv);
 
-  Fail;
+  TSysMsg::Quit();
   return false;
 }
 
@@ -838,5 +847,20 @@ int TStdIOPipe::Read(char *Bf, const int& BfMxLen) {
   FailR("Not intended for use under Linux!");
   return -1;
 }
+
+
+/////////////////////////////////////////////////
+// GUID
+#if 0
+// 2012/08/20 ROK uuid excluded for the merge, move out from the base
+TStr TGuid::GenGuid() {
+	uuid_t Uuid;
+	uuid_generate_random(Uuid);
+	char s[37];
+	uuid_unparse(Uuid, s);
+	TStr UuidStr = s;
+	return UuidStr;
+}
+#endif
 
 #endif

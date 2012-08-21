@@ -1,7 +1,7 @@
 /////////////////////////////////////////////////
 // Spread-Sheet
 typedef enum {ssfUndef,
- ssfTabSep, ssfCommaSep, ssfSemicolonSep, ssfSpaceSep, ssfWhiteSep, ssfMx} TSsFmt;
+ ssfTabSep, ssfCommaSep, ssfSemicolonSep, ssfVBar, ssfSpaceSep, ssfWhiteSep, ssfMx} TSsFmt;
 
 ClassTP(TSs, PSs)//{
 private:

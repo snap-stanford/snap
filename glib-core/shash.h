@@ -3,7 +3,7 @@
 
 /////////////////////////////////////////////////
 // Hash-List-File
-//J: saves and loads hash tables into files and allows fast
+// saves and loads hash tables into files and allows fast
 // iteration over the saved hash table file
 
 template<class TKey, class TDat, class THashFunc = TDefaultHashFunc<TKey> >
@@ -1151,6 +1151,26 @@ public:
 
   void Defrag();
   void Pack() {KeyV.Pack(); }
+
+  static THashSet<TKey> GetSet(const TKey& Key1){
+	THashSet<TKey> Set(1); Set.AddKey(Key1); return Set;}
+  static THashSet<TKey> GetSet(const TKey& Key1, const TKey& Key2){
+    THashSet<TKey> Set(2); Set.AddKey(Key1); Set.AddKey(Key2); return Set;}
+  static THashSet<TKey> GetSet(const TKey& Key1, const TKey& Key2, const TKey& Key3){
+    THashSet<TKey> Set(3); Set.AddKey(Key1); Set.AddKey(Key2); Set.AddKey(Key3); return Set;}
+  static THashSet<TKey> GetSet(const TKey& Key1, const TKey& Key2, const TKey& Key3, const TKey& Key4){
+    THashSet<TKey> Set(4); Set.AddKey(Key1); Set.AddKey(Key2); Set.AddKey(Key3); Set.AddKey(Key4); return Set;}
+  static THashSet<TKey> GetSet(const TKey& Key1, const TKey& Key2, const TKey& Key3, const TKey& Key4, const TKey& Key5){
+    THashSet<TKey> Set(5); Set.AddKey(Key1); Set.AddKey(Key2); Set.AddKey(Key3); Set.AddKey(Key4); Set.AddKey(Key5); return Set;}
+  static THashSet<TKey> GetSet(const TKey& Key1, const TKey& Key2, const TKey& Key3, const TKey& Key4, const TKey& Key5, const TKey& Key6){
+    THashSet<TKey> Set(6); Set.AddKey(Key1); Set.AddKey(Key2); Set.AddKey(Key3); Set.AddKey(Key4); Set.AddKey(Key5); Set.AddKey(Key6); return Set;}
+  static THashSet<TKey> GetSet(const TKey& Key1, const TKey& Key2, const TKey& Key3, const TKey& Key4, const TKey& Key5, const TKey& Key6, const TKey& Key7){
+    THashSet<TKey> Set(7); Set.AddKey(Key1); Set.AddKey(Key2); Set.AddKey(Key3); Set.AddKey(Key4); Set.AddKey(Key5); Set.AddKey(Key6); Set.AddKey(Key7); return Set;}
+  static THashSet<TKey> GetSet(const TKey& Key1, const TKey& Key2, const TKey& Key3, const TKey& Key4, const TKey& Key5, const TKey& Key6, const TKey& Key7, const TKey& Key8){
+    THashSet<TKey> Set(8); Set.AddKey(Key1); Set.AddKey(Key2); Set.AddKey(Key3); Set.AddKey(Key4); Set.AddKey(Key5); Set.AddKey(Key6); Set.AddKey(Key7); Set.AddKey(Key8); return Set;}
+  static THashSet<TKey> GetSet(const TKey& Key1, const TKey& Key2, const TKey& Key3, const TKey& Key4, const TKey& Key5, const TKey& Key6, const TKey& Key7, const TKey& Key8, const TKey& Key9){
+    THashSet<TKey> Set(9); Set.AddKey(Key1); Set.AddKey(Key2); Set.AddKey(Key3); Set.AddKey(Key4); Set.AddKey(Key5); Set.AddKey(Key6); Set.AddKey(Key7); Set.AddKey(Key8); Set.AddKey(Key9); return Set;}
+
 };
 
 template <class TKey, class THashFunc>
@@ -1352,9 +1372,13 @@ void THashSet<TKey, THashFunc>::Defrag() {
 
 /////////////////////////////////////////////////
 // Common Hash Set Types
+typedef THashSet<TUCh> TUChSet;
 typedef THashSet<TInt> TIntSet;
+typedef THashSet<TUInt64> TUInt64Set;
 typedef THashSet<TFlt> TFltSet;
 typedef THashSet<TStr> TStrSet;
+typedef THashSet<TUChIntPr> TUChIntPrSet;
+typedef THashSet<TUChUInt64Pr> TUChUInt64PrSet;
 typedef THashSet<TIntPr> TIntPrSet;
 
 /////////////////////////////////////////////////

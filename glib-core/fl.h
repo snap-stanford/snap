@@ -146,17 +146,19 @@ public:
   int PutCh(const char& Ch, const int& Chs);
   int PutBool(const bool& Bool);
   int PutInt(const int& Int);
-  int PutInt(const int& Int, char* FmtStr);
+  int PutInt(const int& Int, const char* FmtStr);
   int PutUInt(const uint& Int);
-  int PutUInt(const uint& Int, char* FmtStr);
+  int PutUInt(const uint& Int, const char* FmtStr);
   int PutFlt(const double& Flt);
-  int PutFlt(const double& Flt, char* FmtStr);
+  int PutFlt(const double& Flt, const char* FmtStr);
   int PutStr(const char* CStr);
   int PutStr(const TChA& ChA);
-  int PutStr(const TStr& Str, char* FmtStr);
+  int PutStr(const TStr& Str, const char* FmtStr);
   int PutStr(const TStr& Str, const bool& ForceInLn=false);
   int PutStrLn(const TStr& Str, const bool& ForceInLn=false){
     int Cs=PutStr(Str,ForceInLn); Cs+=PutLn(); return Cs;}
+  int PutStrFmt(const char *FmtStr, ...); 
+  int PutStrFmtLn(const char *FmtStr, ...); 
   int PutIndent(const int& IndentLev=1);
   int PutLn(const int& Lns=1);
   int PutDosLn(const int& Lns=1);
@@ -556,9 +558,15 @@ public:
   static const TStr JarFExt;
 public:
   static bool Exists(const TStr& FNm);
+  static void Copy(const TStr& SrcFNm, const TStr& DstFNm, 
+    const bool& ThrowExceptP=true, const bool& FailIfExistsP=false);
   static void Del(const TStr& FNm, const bool& ThrowExceptP=true);
   static void DelWc(const TStr& WcStr, const bool& RecurseDirP=false);
   static void Rename(const TStr& SrcFNm, const TStr& DstFNm);
   static TStr GetUniqueFNm(const TStr& FNm);
+  static uint64 GetSize(const TStr& FNm);
+  static uint64 GetCreateTm(const TStr& FNm);
+  static uint64 GetLastAccessTm(const TStr& FNm);
+  static uint64 GetLastWriteTm(const TStr& FNm);
 };
 

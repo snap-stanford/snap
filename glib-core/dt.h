@@ -112,6 +112,11 @@ public:
 
   void Gen(const int& _BfL){
     Clr(); Resize(_BfL); BfL=_BfL;}
+  void GenZeros(const int& _BfL){
+    Clr(false); Resize(_BfL); BfL=_BfL;
+    if (BfL > 0) memset(Bf, 0, BfL);}
+  void Reserve(const int& _MxBfL, const bool& DoClr = true){
+	  if (DoClr){ Clr(); } Resize(_MxBfL);}
   void Del(const int& BChN, const int& EChN);
   void Clr(const bool& DoDel=true){
     if (DoDel){if (Bf!=NULL){delete[] Bf;} MxBfL=0; BfL=0; Bf=NULL;}
@@ -221,6 +226,7 @@ public:
   bool operator!=(const char& Ch) const {return !((BfL==1)&&(Bf[0]==Ch));}
   bool operator<(const TChA& ChA) const {return strcmp(CStr(), ChA.CStr())<0;}
 
+  TChA& operator+=(const TMem& Mem);
   TChA& operator+=(const TChA& ChA);
   TChA& operator+=(const TStr& Str);
   TChA& operator+=(const char* CStr);
@@ -231,7 +237,7 @@ public:
     Assert((0<=ChN)&&(ChN<BfL)); return Bf[ChN];}
   char& operator[](const int& ChN){
     Assert((0<=ChN)&&(ChN<BfL)); return Bf[ChN];}
-  int GetMemUsed() const {return 2*sizeof(int)+sizeof(char*)+MxBfL;}
+  int GetMemUsed() const {return 2*sizeof(int)+sizeof(char*)+sizeof(char)*MxBfL;}
 
   char* operator ()(){return Bf;}
   const char* operator ()() const {return Bf;}
@@ -269,7 +275,8 @@ public:
   int SearchStr(const TChA& Str, const int& BChN=0) const;
   int SearchStr(const TStr& Str, const int& BChN=0) const;
   int SearchStr(const char* CStr, const int& BChN=0) const;
-  bool IsPrefix(const char* CStr) const;
+  bool IsStrIn(const TStr& Str) const {return SearchStr(Str)!=-1;}
+  bool IsPrefix(const char* CStr, const int& BChN=0) const;
   bool IsPrefix(const TStr& Str) const;
   bool IsPrefix(const TChA& Str) const;
   bool IsSuffix(const char* CStr) const;
@@ -290,7 +297,7 @@ public:
 
   static void LoadTxt(const PSIn& SIn, TChA& ChA);
   void SaveTxt(const PSOut& SOut) const;
-
+  
   //friend TChA operator+(const TChA& LStr, const TChA& RStr);
   //friend TChA operator+(const TChA& LStr, const TStr& RStr);
   //friend TChA operator+(const TChA& LStr, const char* RCStr);
@@ -492,10 +499,15 @@ public:
   TStr GetFromHex() const {return TStr(*this).FromHex();}
 
   TStr GetSubStr(const int& BChN, const int& EChN) const;
+  TStr GetSubStr(const int& BChN) const { return GetSubStr(BChN, Len()-1); }
   void InsStr(const int& BChN, const TStr& Str);
   void DelChAll(const char& Ch);
   void DelSubStr(const int& BChN, const int& EChN);
   bool DelStr(const TStr& Str);
+  TStr LeftOf(const char& SplitCh) const;
+  TStr LeftOfLast(const char& SplitCh) const;
+  TStr RightOf(const char& SplitCh) const;
+  TStr RightOfLast(const char& SplitCh) const;
   void SplitOnCh(TStr& LStr, const char& SplitCh, TStr& RStr) const;
   void SplitOnLastCh(TStr& LStr, const char& SplitCh, TStr& RStr) const;
   void SplitOnAllCh(
@@ -525,14 +537,24 @@ public:
   int SearchStr(const TStr& Str, const int& BChN=0) const;
   bool IsChIn(const char& Ch) const {return SearchCh(Ch)!=-1;}
   bool IsStrIn(const TStr& Str) const {return SearchStr(Str)!=-1;}
+
+
+  bool IsPrefix(const char *Str) const;
   bool IsPrefix(const TStr& Str) const {
-    return GetSubStr(0, Str.Len()-1)==Str;}
+	  return IsPrefix(Str.CStr());
+  }
+
+
+
+  bool IsSuffix(const char *Str) const;
   bool IsSuffix(const TStr& Str) const {
-    return GetSubStr(Len()-Str.Len(), Len()-1)==Str;}
+	  return IsSuffix(Str.CStr());
+  }
+
   int ChangeCh(const char& SrcCh, const char& DstCh, const int& BChN=0);
   int ChangeChAll(const char& SrcCh, const char& DstCh);
   int ChangeStr(const TStr& SrcStr, const TStr& DstStr, const int& BChN=0);
-  int ChangeStrAll(const TStr& SrcStr, const TStr& DstStr);
+  int ChangeStrAll(const TStr& SrcStr, const TStr& DstStr, const bool& FromStartP=false);
   TStr Reverse() const {
     TChA ChA(*this); ChA.Reverse(); return ChA;}
 
@@ -720,27 +742,27 @@ public:
 
 /////////////////////////////////////////////////
 // Simple-String-Pool
-ClassTP(TSStrPool, PSStrPool)//{
-private:
-  TMem Bf;
-public:
-  TSStrPool(const int& MxLen=0): Bf(MxLen){}
-  TSStrPool(TSStrPool& StrPool): Bf(StrPool.Bf){}
-  TSStrPool(TSIn& SIn): Bf(SIn){}
-  void Save(TSOut& SOut) const {Bf.Save(SOut);}
-
-  TSStrPool& operator=(const TSStrPool& StrPool){
-    Bf=StrPool.Bf; return *this;}
-
-  int Len() const {return Bf.Len();}
-  void Clr(){Bf.Clr();}
-  int AddStr(const TStr& Str){
-    if (Str.Empty()){return -1;}
-    else {int StrId=Bf.Len(); Bf+=Str; Bf+=char(0); return StrId;}}
-  TStr GetStr(const int& StrId) const {
-    if (StrId==-1){return "";}
-    else {return TStr(Bf()+StrId);}}
-};
+//ClassTP(TSStrPool, PSStrPool)//{
+//private:
+//  TMem Bf;
+//public:
+//  TSStrPool(const int& MxLen=0): Bf(MxLen){}
+//  TSStrPool(TSStrPool& StrPool): Bf(StrPool.Bf){}
+//  TSStrPool(TSIn& SIn): Bf(SIn){}
+//  void Save(TSOut& SOut) const {Bf.Save(SOut);}
+//
+//  TSStrPool& operator=(const TSStrPool& StrPool){
+//    Bf=StrPool.Bf; return *this;}
+//
+//  int Len() const {return Bf.Len();}
+//  void Clr(){Bf.Clr();}
+//  int AddStr(const TStr& Str){
+//    if (Str.Empty()){return -1;}
+//    else {int StrId=Bf.Len(); Bf+=Str; Bf+=char(0); return StrId;}}
+//  TStr GetStr(const int& StrId) const {
+//    if (StrId==-1){return "";}
+//    else {return TStr(Bf()+StrId);}}
+//};
 
 /////////////////////////////////////////////////
 // String-Pool
@@ -789,6 +811,41 @@ public:
     if (Offset != 0) return GetPrimHashCd(Bf + Offset); else return GetPrimHashCd(""); }
   int GetSecHashCd(uint Offset) { Assert(Offset < BfL);
     if (Offset != 0) return GetSecHashCd(Bf + Offset); else return GetSecHashCd(""); }
+};
+
+/////////////////////////////////////////////////
+// String-Pool-64bit
+ClassTP(TStrPool64, PStrPool64)//{
+private:
+  ::TSize MxBfL, BfL, GrowBy;
+  char *Bf;
+private:
+  void Resize(const ::TSize& _MxBfL);
+public:
+  TStrPool64(::TSize _MxBfL = 0, ::TSize _GrowBy = 16*1024*1024);
+  TStrPool64(const TStrPool64& StrPool);
+  TStrPool64(TSIn& SIn, bool LoadCompact = true);
+  ~TStrPool64() { Clr(true); }
+  void Save(TSOut& SOut) const;
+
+  static PStrPool64 New(::TSize MxBfL = 0, ::TSize GrowBy = 16*1024*1024) { 
+      return PStrPool64(new TStrPool64(MxBfL, GrowBy)); }
+  static PStrPool64 Load(TSIn& SIn, bool LoadCompact = true) { 
+      return PStrPool64(new TStrPool64(SIn, LoadCompact)); }
+
+  TStrPool64& operator=(const TStrPool64& StrPool);
+
+  uint64 GetMemUsed() const { return 3*sizeof(::TSize) + uint64(MxBfL); }
+
+  bool Empty() const { return (BfL == 0); }
+  uint64 Len() const {return BfL;}
+  uint64 Reserved() const { return MxBfL; }
+  void Clr(bool DoDel = false);
+  int Cmp(uint64 Offset, const char *Str) const { Assert(Offset < BfL);
+    if (Offset != 0) return strcmp(Bf + Offset, Str); else return strcmp("", Str); }
+
+  uint64 AddStr(const TStr& Str);
+  TStr GetStr(const uint64& StrId) const;
 };
 
 /////////////////////////////////////////////////
@@ -1085,6 +1142,8 @@ public:
 
   TUInt& operator=(const TUInt& UInt){Val=UInt.Val; return *this;}
   TUInt& operator=(const uint& _Val){Val=_Val; return *this;}
+  TUInt operator++(int){Val++; return *this;}
+  TUInt operator--(int){Val--; return *this;}
   //bool operator==(const TUInt& UInt) const {return Val==UInt.Val;}
   //bool operator==(const uint& UInt) const {return Val==UInt;}
   //bool operator!=(const uint& UInt) const {return Val!=UInt;}
@@ -1131,6 +1190,8 @@ public:
     uint CppUInt=(B4<<24)+(B3<<16)+(B2<<8)+(B1<<0);
     return CppUInt;}
 
+  static bool IsIpStr(const TStr& IpStr, uint& Ip, const char& SplitCh = '.');
+  static bool IsIpStr(const TStr& IpStr, const char& SplitCh = '.') { uint Ip; return IsIpStr(IpStr, Ip, SplitCh); }
   static uint GetUIntFromIpStr(const TStr& IpStr, const char& SplitCh = '.');
   static TStr GetStrFromIpUInt(const uint& Ip);
 };
@@ -1165,8 +1226,8 @@ public:
   TUInt64 operator--(int){Val--; return *this;}
   int GetMemUsed() const {return sizeof(TUInt64);}
 
-  int GetPrimHashCd() const { return (int)GetMsVal(); }
-  int GetSecHashCd() const { return (int)GetLsVal(); }
+  int GetPrimHashCd() const { return (int)GetMsVal() + (int)GetLsVal(); } //TODO: to check
+  int GetSecHashCd() const { return ((int)GetMsVal() + (int)GetLsVal()) / 0x10; } //TODO: to check
 
   uint GetMsVal() const {
     return (uint)(Val >> 32);}
@@ -1257,8 +1318,18 @@ public:
 
   static double GetMn(const double& Flt1, const double& Flt2){
     return Flt1<Flt2?Flt1:Flt2;}
+  static double GetMn(const double& Flt1, const double& Flt2, const double& Flt3){
+    return GetMn(GetMn(Flt1, Flt2), Flt3); }
+  static double GetMn(const double& Flt1, const double& Flt2, const double& Flt3, const double& Flt4){
+    return GetMn(GetMn(Flt1, Flt2), GetMn(Flt3, Flt4)); }
+
   static double GetMx(const double& Flt1, const double& Flt2){
     return Flt1>Flt2?Flt1:Flt2;}
+  static double GetMx(const double& Flt1, const double& Flt2, const double Flt3){
+    return GetMx(GetMx(Flt1, Flt2), Flt3); }
+  static double GetMx(const double& Flt1, const double& Flt2, const double Flt3, const double& Flt4){
+    return GetMx(GetMx(Flt1, Flt2), GetMx(Flt3, Flt4)); }
+
   static double GetInRng(const double& Val, const double& Mn, const double& Mx){
     IAssert(Mn<=Mx); return Val<Mn?Mn:(Val>Mx?Mx:Val);}
   static double IsNum(const double& Val){

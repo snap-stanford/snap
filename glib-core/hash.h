@@ -1,3 +1,4 @@
+
 /////////////////////////////////////////////////
 // Hash-Table-Key-Data
 #pragma pack(push, 1) // pack class size
@@ -68,6 +69,7 @@ public:
   const TKey& GetKey() const {Assert((KeyDatI!=NULL)&&(KeyDatI->HashCd!=-1)); return KeyDatI->Key;}
   const TDat& GetDat() const {Assert((KeyDatI!=NULL)&&(KeyDatI->HashCd!=-1)); return KeyDatI->Dat;}
   TDat& GetDat() {Assert((KeyDatI!=NULL)&&(KeyDatI->HashCd!=-1)); return KeyDatI->Dat;}
+  bool IsEnd() { return EndI == KeyDatI; }
 };
 
 /////////////////////////////////////////////////
@@ -232,6 +234,8 @@ public:
   void GetDatV(TVec<TDat>& DatV) const;
   void GetKeyDatPrV(TVec<TPair<TKey, TDat> >& KeyDatPrV) const;
   void GetDatKeyPrV(TVec<TPair<TDat, TKey> >& DatKeyPrV) const;
+  void GetKeyDatKdV(TVec<TKeyDat<TKey, TDat> >& KeyDatKdV) const;
+  void GetDatKeyKdV(TVec<TKeyDat<TDat, TKey> >& DatKeyKdV) const;
 
   void Swap(THash& Hash);
   void Defrag();
@@ -466,6 +470,28 @@ void THash<TKey, TDat, THashFunc>::GetDatKeyPrV(TVec<TPair<TDat, TKey> >& DatKey
 }
 
 template<class TKey, class TDat, class THashFunc>
+void THash<TKey, TDat, THashFunc>::GetKeyDatKdV(TVec<TKeyDat<TKey, TDat> >& KeyDatKdV) const {
+  KeyDatKdV.Gen(Len(), 0);
+  TKey Key; TDat Dat;
+  int KeyId=FFirstKeyId();
+  while (FNextKeyId(KeyId)){
+    GetKeyDat(KeyId, Key, Dat);
+    KeyDatKdV.Add(TKeyDat<TKey, TDat>(Key, Dat));
+  }
+}
+
+template<class TKey, class TDat, class THashFunc>
+void THash<TKey, TDat, THashFunc>::GetDatKeyKdV(TVec<TKeyDat<TDat, TKey> >& DatKeyKdV) const {
+  DatKeyKdV.Gen(Len(), 0);
+  TKey Key; TDat Dat;
+  int KeyId=FFirstKeyId();
+  while (FNextKeyId(KeyId)){
+    GetKeyDat(KeyId, Key, Dat);
+    DatKeyKdV.Add(TKeyDat<TDat, TKey>(Dat, Key));
+  }
+}
+
+template<class TKey, class TDat, class THashFunc>
 void THash<TKey, TDat, THashFunc>::Swap(THash& Hash) {
   if (this!=&Hash){
     PortV.Swap(Hash.PortV);
@@ -533,6 +559,7 @@ typedef THash<TInt, TInt> TIntH;
 typedef THash<TUInt64, TInt> TUInt64H;
 typedef THash<TInt, TBool> TIntBoolH;
 typedef THash<TInt, TInt> TIntIntH;
+typedef THash<TInt, TUInt64> TIntUInt64H;
 typedef THash<TInt, TIntFltPr> TIntIntFltPrH;
 typedef THash<TInt, TIntV> TIntIntVH;
 typedef THash<TInt, TIntH> TIntIntHH;
@@ -544,6 +571,7 @@ typedef THash<TInt, TStr> TIntStrH;
 typedef THash<TInt, TStrV> TIntStrVH;
 typedef THash<TInt, TIntPr> TIntIntPrH;
 typedef THash<TInt, TIntPrV> TIntIntPrVH;
+typedef THash<TUInt64, TStrV> TUInt64StrVH;
 typedef THash<TIntPr, TInt> TIntPrIntH;
 typedef THash<TIntPr, TIntV> TIntPrIntVH;
 typedef THash<TIntPr, TIntPrV> TIntPrIntPrVH;
@@ -563,6 +591,7 @@ typedef THash<TStr, TBool> TStrBoolH;
 typedef THash<TStr, TInt> TStrIntH;
 typedef THash<TStr, TIntPr> TStrIntPrH;
 typedef THash<TStr, TIntV> TStrIntVH;
+typedef THash<TStr, TUInt64V> TStrUInt64VH;
 typedef THash<TStr, TIntPrV> TStrIntPrVH;
 typedef THash<TStr, TFlt> TStrFltH;
 typedef THash<TStr, TFltV> TStrFltVH;
@@ -950,7 +979,7 @@ public:
 
   TCache& operator=(const TCache&);
   int64 GetMemUsed() const;
-  void RefreshMemUsed();
+  bool RefreshMemUsed();
 
   void Put(const TKey& Key, const TDat& Dat);
   bool Get(const TKey& Key, TDat& Dat);
@@ -966,7 +995,8 @@ public:
 
 template <class TKey, class TDat, class THashFunc>
 void TCache<TKey, TDat, THashFunc>::Purge(const int64& MemToPurge){
-  while (!TimeKeyL.Empty()&&(MxMemUsed-CurMemUsed<MemToPurge)){
+  const int64 StartMemUsed = CurMemUsed;
+  while (!TimeKeyL.Empty()&&(StartMemUsed-CurMemUsed<MemToPurge)){
     TKey Key=TimeKeyL.Last()->GetVal();
     Del(Key);
   }
@@ -986,10 +1016,13 @@ int64 TCache<TKey, TDat, THashFunc>::GetMemUsed() const {
 }
 
 template <class TKey, class TDat, class THashFunc>
-void TCache<TKey, TDat, THashFunc>::RefreshMemUsed(){
+bool TCache<TKey, TDat, THashFunc>::RefreshMemUsed(){
   CurMemUsed=GetMemUsed();
   if (CurMemUsed>MxMemUsed){
-    Purge(CurMemUsed-MxMemUsed);}
+    Purge(CurMemUsed-MxMemUsed);
+    return true;
+  }
+  return false;
 }
 
 template <class TKey, class TDat, class THashFunc>
@@ -1039,13 +1072,17 @@ void TCache<TKey, TDat, THashFunc>::Del(const TKey& Key, const bool& DoEventCall
 
 template <class TKey, class TDat, class THashFunc>
 void TCache<TKey, TDat, THashFunc>::Flush(){
-  int KeyId=KeyDatH.FFirstKeyId();
+  printf("To flush: %d\n", KeyDatH.Len());
+  int KeyId=KeyDatH.FFirstKeyId(); int Done = 0;
   while (KeyDatH.FNextKeyId(KeyId)){
+    if (Done%10000==0){printf("%d\r", Done);}
     const TKey& Key=KeyDatH.GetKey(KeyId);
     TKeyLNDatPr& KeyLNDatPr=KeyDatH[KeyId];
     TDat Dat=KeyLNDatPr.Val2;
     Dat->OnDelFromCache(Key, RefToBs);
+    Done++;
   }
+  printf("Done %d\n", KeyDatH.Len());
 }
 
 template <class TKey, class TDat, class THashFunc>

@@ -367,8 +367,14 @@ TStr TXmlLx::GetReference(){
     }
     if ((!RefChA.Empty())&&(Ch==';')){
       GetCh();
-      uchar RefCh=uchar(RefCd);
-      return TStr(RefCh);
+	  if (RefCd < 0x100) {
+		  // 8-bit char
+	      uchar RefCh=uchar(RefCd);
+		  return TStr(RefCh);
+	  } else {
+		  TStr ResStr = TUStr::EncodeUtf8(RefCd);
+		  return ResStr;
+	  }
     } else {
       EThrow("Invalid Char-Reference."); Fail; return TStr();
     }

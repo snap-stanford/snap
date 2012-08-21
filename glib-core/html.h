@@ -147,27 +147,32 @@ public:
   void MoveToBTagOrEof(const TStr& TagNm);
   void MoveToBTag2OrEof(const TStr& TagNm1, const TStr& TagNm2);
   void MoveToBTag3OrEof(const TStr& TagNm1, const TStr& TagNm2, const TStr& TagNm3);
+  void MoveToBTagOrETagOrEof(const TStr& BTagNm, const TStr& ETagNm);
   void MoveToBTagArgOrEof(
    const TStr& TagNm, const TStr& ArgNm, const TStr& ArgVal);
   void MoveToBTagArg2OrEof(const TStr& TagNm,
    const TStr& ArgNm1, const TStr& ArgVal1,
-   const TStr& ArgNm2, const TStr& ArgVal2);
+   const TStr& ArgNm2, const TStr& ArgVal2, const bool& AndOpP=true);
   void MoveToBTagOrEof(
    const TStr& TagNm1, const TStr& ArgNm1, const TStr& ArgVal1,
    const TStr& TagNm2, const TStr& ArgNm2, const TStr& ArgVal2);
   void MoveToETagOrEof(const TStr& TagNm);
+  TStr GetTextOnlyStrToEof();
   TStr GetStrToBTag(const TStr& TagNm, const bool& TxtOnlyP=false);
   TStr GetStrToBTag(const TStr& TagNm, const TStr& ArgNm,
    const TStr& ArgVal, const bool& TxtOnlyP=false);
   TStr GetStrToETag(const TStr& TagNm, const bool& TxtOnlyP=false);
+  TStr GetStrToETag2(const TStr& TagNm1, const TStr& TagNm2, const bool& TxtOnlyP=false);
   TStr GetStrInTag(const TStr& TagNm, const bool& TxtOnlyP=false);
   TStr GetHRefBeforeStr(const TStr& Str);
   bool IsGetBTag(const TStr& TagNm);
+  bool IsGetETag(const TStr& TagNm);
 
   static TStr GetSymStr(const THtmlLxSym& Sym);
   static TStr GetEscapedStr(const TChA& ChA);
   static TStr GetAsciiStr(const TChA& ChA, const char& GenericCh='_');
   static void GetTokStrV(const TStr& Str, TStrV& TokStrV);
+  static TStr GetNoTag(const TStr& Str);
 };
 
 /////////////////////////////////////////////////
