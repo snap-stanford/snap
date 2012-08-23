@@ -461,7 +461,6 @@ public:
 void THttpRq::ParseSearch(const TStr& SearchStr){
   PSIn SIn=TStrIn::New(SearchStr);
   THttpChRet ChRet(SIn, heBadSearchStr);
-
   try {
   // check empty search string
   if (ChRet.Eof()){return;}
@@ -815,7 +814,7 @@ void THttpResp::AddFldVal(const TStr& FldNm, const TStr& FldVal){
   FldNmToValVH.AddDat(NrFldNm).Add(FldVal);
   if (HdStr.IsSuffix("\r\n\r\n")){
     TChA HdChA=HdStr;
-    HdChA.Pop(); HdChA.Pop();
+    HdChA.Pop(); HdChA.Pop(); 
     HdChA+=NrFldNm; HdChA+=": "; HdChA+=FldVal;
     HdChA+="\r\n\r\n";
     HdStr=HdChA;

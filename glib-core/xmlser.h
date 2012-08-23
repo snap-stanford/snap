@@ -125,7 +125,7 @@ void THashKeyDat< TKey, TDat>::SaveXml(TSOut& SOut, const TStr& Nm) const {
 
 template<class TKey, class TDat, class THashFunc>
 void THash< TKey, TDat, THashFunc>::LoadXml(const PXmlTok& XmlTok, const TStr& Nm){
-  XLoadHd(Nm); TVec<TKeyDat<TKey, TDat> > KeyDatV; XLoad(KeyDatV); XLoad(AutoSizeP);
+  XLoadHd(Nm); TVec<THashKeyDat<TKey, TDat> > KeyDatV; XLoad(KeyDatV); XLoad(AutoSizeP);
 	for (int KeyDatN=0; KeyDatN<KeyDatV.Len(); KeyDatN++){
 		AddDat(KeyDatV[KeyDatN].Key, KeyDatV[KeyDatN].Dat);}}
 

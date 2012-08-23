@@ -127,7 +127,7 @@
               </script></head><body><h1>SNAP C++ Programming Guide</h1>
 
 <p align="right">
-Revision 06-28-2012
+Revision 08-23-2012
 </p>
 
 
@@ -1066,10 +1066,12 @@ static PUNGraph Load(TSIn& SIn) { return PUNGraph(new TUNGraph(SIn)); }</pre></d
         Assertion names in SNAP use the following convention for the
         first letter:
         <ul>
-          <li><code>A</code>: compiled only in the debug mode.</li>
-          <li><code>I</code>: always compiled.</li>
-          <li><code>E</code>: exceptions.</li>
+          <li><code>Assert</code>: compiled only in the debug mode, aborts when the assertion is false.</li>
+          <li><code>IAssert</code>: always compiled, aborts if the assertion is false.</li>
+	  <li><code>EAssert</code>: always compiled, does not abort, but throws an exception.</li>
         </ul>
+	If the assertion name ends with letter R, a failed assertion
+	prints out the reason for the failure.
       </p>
       <p>
         Some common SNAP assertions are:
