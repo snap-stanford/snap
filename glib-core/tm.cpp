@@ -431,7 +431,7 @@ TSecTm::TSecTm(const int& YearN, const int& MonthN, const int& DayN,
 
 TSecTm::TSecTm(const TTm& Tm): AbsSecs(
  TSecTm(Tm.GetYear(), Tm.GetMonth(), Tm.GetDay(), Tm.GetHour(),
-   Tm.GetMin(), int(TMath::Round(Tm.GetSec()*1000+Tm.GetMSec()))).GetAbsSecs()){}
+   Tm.GetMin(), Tm.GetSec()).GetAbsSecs()) { }
 
 TSecTm::TSecTm(const PXmlTok& XmlTok) {
   const int Year = XmlTok->GetIntArgVal("Year");
@@ -606,6 +606,17 @@ int TSecTm::GetSecN() const {
   return Tm.tm_sec;
 }
 
+void TSecTm::GetComps(int& Year, int& Month, int& Day, int& Hour, int& Min, int& Sec) const {
+  struct tm Tm;
+  EAssert(IsDef() && GetTmStruct(AbsSecs(), Tm));
+  Year = Tm.tm_year+1900;
+  Month = Tm.tm_mon+1;
+  Day = Tm.tm_mday;
+  Hour = Tm.tm_hour;
+  Min = Tm.tm_min;
+  Sec = Tm.tm_sec;
+}
+
 TSecTm TSecTm::Round(const TTmUnit& TmUnit) const {
   if (TmUnit == tmu1Sec) { return *this; }
   struct tm Time;
@@ -653,6 +664,15 @@ uint TSecTm::GetInUnits(const TTmUnit& TmUnit) const {
     default : Fail;
   }
   return TUInt::Mx;
+}
+
+TStr TSecTm::GetDayPart() const {
+  const int Hour = GetHourN();
+  if (0 <= Hour && Hour < 6) { return "Night"; }
+  else if (6 <= Hour && Hour < 12) { return "Morning"; }
+  else if (12 <= Hour && Hour < 18) { return "Afternoon"; }
+  else if (18 <= Hour && Hour < 24) { return "Evening"; }
+  return "";
 }
 
 uint TSecTm::GetDSecs(const TSecTm& SecTm1, const TSecTm& SecTm2){
@@ -1064,6 +1084,21 @@ uint64 TTm::GetPerfTimerTicks(){
   return TSysTm::GetPerfTimerTicks();
 }
 
+void TTm::GetDiff(const TTm& Tm1, const TTm& Tm2, int& Days, 
+    int& Hours, int& Mins, int& Secs, int& MSecs) {
+
+  const uint64 DiffMSecs = TTm::GetDiffMSecs(Tm1, Tm2);
+  const uint64 DiffSecs = DiffMSecs / 1000;
+  const uint64 DiffMins = DiffSecs / 60;
+  const uint64 DiffHours = DiffMins / 60;	
+
+  MSecs = DiffMSecs % 1000;
+  Secs = DiffSecs % 60;
+  Mins = DiffMins % 60;
+  Hours = DiffHours % 24;
+  Days = (int)DiffHours / 24;
+}
+
 uint64 TTm::GetDiffMSecs(const TTm& Tm1, const TTm& Tm2){
   uint64 Tm1MSecs=GetMSecsFromTm(Tm1);
   uint64 Tm2MSecs=GetMSecsFromTm(Tm2);
@@ -1082,30 +1117,43 @@ TTm TTm::GetUniTmFromLocTm(const TTm& Tm){
   return TSysTm::GetUniTmFromLocTm(Tm);
 }
 
-
-/*
-//!!peter
-class TMonthParser{
-private:
-  TStrIntH MonH;
-public:
-  TMonthParser() {
-    for (int i=1; i<=12; i++) {
-      TStr Us=TTmInfo::GetMonthNm(i,lUs).GetUc();
-      TStr Si=TTmInfo::GetMonthNm(i,lSi).GetUc();
-      MonH.AddDat(Us,i); if (Us!=Si) MonH.AddDat(Si,i);
-    }
-  }
-  int GetMonthN(const TStr &Month) {
-    TInt MonN=-1;
-    MonH.IsKeyGetDat(Month.GetUc(),MonN);
-    return MonN;
-  }
-};
-static TMonthParser MonthParser;*/
+TTm TTm::GetTmFromWebLogTimeStr(const TStr& TimeStr,
+ const char TimeSepCh, const char MSecSepCh){
+  int TimeStrLen=TimeStr.Len();
+  // year
+  TChA ChA; int ChN=0;
+  while ((ChN<TimeStrLen)&&(TimeStr[ChN]!=TimeSepCh)){
+    ChA+=TimeStr[ChN]; ChN++;}
+  TStr HourStr=ChA;
+  // minute
+  ChA.Clr(); ChN++;
+  while ((ChN<TimeStrLen)&&(TimeStr[ChN]!=TimeSepCh)){
+    ChA+=TimeStr[ChN]; ChN++;}
+  TStr MinStr=ChA;
+  // second
+  ChA.Clr(); ChN++;
+  while ((ChN<TimeStrLen)&&(TimeStr[ChN]!=MSecSepCh)){
+    ChA+=TimeStr[ChN]; ChN++;}
+  TStr SecStr=ChA;
+  // mili-second
+  ChA.Clr(); ChN++;
+  while (ChN<TimeStrLen){
+    ChA+=TimeStr[ChN]; ChN++;}
+  TStr MSecStr=ChA;
+  // transform to numbers
+  int HourN=HourStr.GetInt(0);
+  int MinN=MinStr.GetInt(0);
+  int SecN=SecStr.GetInt(0);
+  int MSecN=MSecStr.GetInt(0);
+  // construct time
+  TTm Tm(-1, -1, -1, -1, HourN, MinN, SecN, MSecN);
+  // return time
+  return Tm;
+}
 
 TTm TTm::GetTmFromWebLogDateTimeStr(const TStr& DateTimeStr,
- const char DateSepCh, const char TimeSepCh, const char MSecSepCh){
+ const char DateSepCh, const char TimeSepCh, const char MSecSepCh,
+ const char DateTimeSepCh){
   int DateTimeStrLen=DateTimeStr.Len();
   // year
   TChA ChA; int ChN=0;
@@ -1119,7 +1167,7 @@ TTm TTm::GetTmFromWebLogDateTimeStr(const TStr& DateTimeStr,
   TStr MonthStr=ChA;
   // day
   ChA.Clr(); ChN++;
-  while ((ChN<DateTimeStrLen)&&(DateTimeStr[ChN]!=' ')){
+  while ((ChN<DateTimeStrLen)&&(DateTimeStr[ChN]!=DateTimeSepCh)){
     ChA+=DateTimeStr[ChN]; ChN++;}
   TStr DayStr=ChA;
   // hour
@@ -1151,16 +1199,6 @@ TTm TTm::GetTmFromWebLogDateTimeStr(const TStr& DateTimeStr,
   int SecN=SecStr.GetInt(0);
   int MSecN=MSecStr.GetInt(0);
   // construct time
-
-/*
-  //!!peter: convert month name to number and flip date/day (oracle: 10-FEB-05)
-  if ((MonthN==-1)&&(isalpha(MonthStr.CStr()[0]))){
-    if ((MonthN=MonthParser.GetMonthN(MonthStr))!=-1){
-      int Y=DayN; DayN=YearN; YearN=Y<100?Y+2000:Y;
-    }
-  }
-*/
-
   TTm Tm;
   if ((YearN!=-1)&&(MonthN!=-1)&&(DayN!=-1)){
     Tm=TTm(YearN, MonthN, DayN, -1, HourN, MinN, SecN, MSecN);
@@ -1191,66 +1229,83 @@ TTm TTm::GetTmFromIdStr(const TStr& IdStr){
 }
 
 uint TTm::GetDateTimeInt(const int& Year, const int& Month,
-      const int& Day, const int& Hour, const int& Min) {
+      const int& Day, const int& Hour, const int& Min, const int& Sec) {
 
-    TTmDateTime DateTime; DateTime.Int = 0;
-    DateTime.Bits.Year = Year;
-    DateTime.Bits.Month = Month;
-    DateTime.Bits.Day = Day;
-    DateTime.Bits.Hour = Hour;
-    DateTime.Bits.Min = Min;
-    return DateTime.Int;
+	return TSecTm(Year, Month, Day, Hour, Min, Sec).GetAbsSecs();
 }
 
 uint TTm::GetDateIntFromTm(const TTm& Tm) {
-    return GetDateTimeInt(Tm.GetYear(), Tm.GetMonth(), Tm.GetDay());
+    return Tm.IsDef() ? GetDateTimeInt(Tm.GetYear(), Tm.GetMonth(), Tm.GetDay()) : 0;
 }
 
 uint TTm::GetMonthIntFromTm(const TTm& Tm) {
-    return GetDateTimeInt(Tm.GetYear(), Tm.GetMonth());
+    return Tm.IsDef() ? GetDateTimeInt(Tm.GetYear(), Tm.GetMonth()) : 0;
 }
 
 uint TTm::GetYearIntFromTm(const TTm& Tm) {
-    return GetDateTimeInt(Tm.GetYear());
+    return Tm.IsDef() ? GetDateTimeInt(Tm.GetYear()) : 0;
 }
 
 uint TTm::GetDateTimeIntFromTm(const TTm& Tm) {
-    return GetDateTimeInt(Tm.GetYear(), Tm.GetMonth(),
-        Tm.GetDay(), Tm.GetHour(), Tm.GetMin());
+    return Tm.IsDef() ? 
+		GetDateTimeInt(Tm.GetYear(), Tm.GetMonth(),
+        Tm.GetDay(), Tm.GetHour(), Tm.GetMin(), Tm.GetSec()) : 0;
 }
 
 TTm TTm::GetTmFromDateTimeInt(const uint& DateTimeInt) {
-    TTmDateTime DateTime; DateTime.Int = DateTimeInt;
-    return TTm(DateTime.Bits.Year, DateTime.Bits.Month, DateTime.Bits.Day,
-        -1, DateTime.Bits.Hour, DateTime.Bits.Min, 0, 0);
+	if (DateTimeInt == 0) { return TTm(); }
+	return TTm(TSecTm(DateTimeInt));
 }
 
-uint TTm::KeepMonthInDateTimeInt(const uint& DateTimeInt) {
-    TTmDateTime DateTime;
-    DateTime.Int = DateTimeInt;
-    DateTime.Bits.Year = 2000;
-    DateTime.Bits.Day = 1;
-    DateTime.Bits.Hour = 0;
-    DateTime.Bits.Min = 0;
-    return DateTime.Int;
+TSecTm TTm::GetSecTmFromDateTimeInt(const uint& DateTimeInt) {
+	if (DateTimeInt == 0) { return TSecTm(); }
+	return TSecTm(DateTimeInt);
 }
 
-uint TTm::KeepDayInDateTimeInt(const uint& DateTimeInt) {
-    TTmDateTime DateTime;
-    DateTime.Int = DateTimeInt;
-    DateTime.Bits.Year = 2000;
-    DateTime.Bits.Month = 1;
-    DateTime.Bits.Hour = 0;
-    DateTime.Bits.Min = 0;
-    return DateTime.Int;
+/////////////////////////////////////////////////
+// Time-Profiler - poor-man's profiler
+int TTmProfiler::AddTimer(const TStr& TimerNm) { 
+	MxNmLen = TInt::GetMx(MxNmLen, TimerNm.Len());
+	return TimerH.AddKey(TimerNm); 
 }
 
-uint TTm::KeepHourInDateTimeInt(const uint& DateTimeInt) {
-    TTmDateTime DateTime;
-    DateTime.Int = DateTimeInt;
-    DateTime.Bits.Year = 2000;
-    DateTime.Bits.Month = 1;
-    DateTime.Bits.Day = 1;
-    DateTime.Bits.Min = 0;
-    return DateTime.Int;
+void TTmProfiler::ResetAll() {
+    int TimerId = GetTimerIdFFirst();
+	while (GetTimerIdFNext(TimerId)) {
+		ResetTimer(TimerId);
+	}
+}
+
+double TTmProfiler::GetTimerSumSec() const {
+	double Sum = 0.0;
+    int TimerId = GetTimerIdFFirst();
+	while (GetTimerIdFNext(TimerId)) {
+		Sum += GetTimerSec(TimerId);
+	}
+    return Sum;
+}
+
+double TTmProfiler::GetTimerSec(const int& TimerId) const {
+    return TimerH[TimerId].GetSec();
+}
+
+void TTmProfiler::PrintReport(const TStr& ProfileNm) const {
+    const double TimerSumSec = GetTimerSumSec();
+	printf("-- %s --\n", ProfileNm.CStr());
+    printf("Sum: (%.2f sec):\n", TimerSumSec);
+    int TimerId = GetTimerIdFFirst();
+	while (GetTimerIdFNext(TimerId)) {
+        // get timer name
+        TStr TimerNm = GetTimerNm(TimerId);
+        TimerNm = TStr::GetSpaceStr(TimerNm.Len() - MxNmLen) + TimerNm;
+        // get timer time and precentage
+        if (TimerSumSec > 0.0) {
+            const double TimerSec = GetTimerSec(TimerId);
+            const double TimerPerc =  TimerSec / TimerSumSec * 100.0;
+            printf(" %s: %.2fs [%.2f%%]\n", TimerNm.CStr(), TimerSec, TimerPerc);
+        } else {
+            printf(" %s: -\n", TimerNm.CStr());
+        }
+    }
+	printf("--\n");
 }

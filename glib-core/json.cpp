@@ -120,30 +120,55 @@ PJsonVal TJsonVal::GetValFromStr(const TStr& JsonStr){
 }
 
 void TJsonVal::AddEscapeChAFromStr(const TStr& Str, TChA& ChA){
-	// parse the UTF8 string (old: TUStr InUStr(InStr);)
-	TIntV UStr; TUnicodeDef::GetDef()->DecodeUtf8(Str, UStr);
-	// escape the string
-	for (int ChN = 0; ChN < UStr.Len(); ChN++) {
-		const int UCh = UStr[ChN];
-		if (UCh < 0x80) {
-			// 7-bit ascii
-			const char Ch = (char)UCh;
-			switch (Ch) {
-				case '"' : ChA.AddCh('\\'); ChA.AddCh('"'); break;
-				case '\\' : ChA.AddCh('\\'); ChA.AddCh('\\'); break;
-				case '/' : ChA.AddCh('\\'); ChA.AddCh('/'); break;
-				case '\b' : ChA.AddCh('\\'); ChA.AddCh('b'); break;
-				case '\f' : ChA.AddCh('\\'); ChA.AddCh('f'); break;
-				case '\n' : ChA.AddCh('\\'); ChA.AddCh('n'); break;
-				case '\r' : ChA.AddCh('\\'); ChA.AddCh('r'); break;
-				case '\t' : ChA.AddCh('\\'); ChA.AddCh('t'); break;
-				default :
-					ChA.AddCh(Ch);
+	if (TUnicodeDef::IsDef()) {
+		// parse the UTF8 string (old: TUStr InUStr(InStr);)
+		TIntV UStr; TUnicodeDef::GetDef()->DecodeUtf8(Str, UStr);
+		// escape the string
+		for (int ChN = 0; ChN < UStr.Len(); ChN++) {
+			const int UCh = UStr[ChN];
+			if (UCh < 0x80) {
+				// 7-bit ascii
+				const char Ch = (char)UCh;
+				switch (Ch) {
+					case '"' : ChA.AddCh('\\'); ChA.AddCh('"'); break;
+					case '\\' : ChA.AddCh('\\'); ChA.AddCh('\\'); break;
+					case '/' : ChA.AddCh('\\'); ChA.AddCh('/'); break;
+					case '\b' : ChA.AddCh('\\'); ChA.AddCh('b'); break;
+					case '\f' : ChA.AddCh('\\'); ChA.AddCh('f'); break;
+					case '\n' : ChA.AddCh('\\'); ChA.AddCh('n'); break;
+					case '\r' : ChA.AddCh('\\'); ChA.AddCh('r'); break;
+					case '\t' : ChA.AddCh('\\'); ChA.AddCh('t'); break;
+					default :
+						ChA.AddCh(Ch);
+				}
+			} else {
+				// escape
+				ChA += "\\u";
+				ChA += TStr::Fmt("%04x", UCh);
 			}
-		} else {
-			// escape
-			ChA += "\\u";
-			ChA += TStr::Fmt("%04x", UCh);
+		}
+	} else {
+		// escape the string
+		for (int ChN = 0; ChN < Str.Len(); ChN++) {
+			const char Ch = Str[ChN];
+			if (Ch < 0x80) {
+				// 7-bit ascii
+				switch (Ch) {
+					case '"' : ChA.AddCh('\\'); ChA.AddCh('"'); break;
+					case '\\' : ChA.AddCh('\\'); ChA.AddCh('\\'); break;
+					case '/' : ChA.AddCh('\\'); ChA.AddCh('/'); break;
+					case '\b' : ChA.AddCh('\\'); ChA.AddCh('b'); break;
+					case '\f' : ChA.AddCh('\\'); ChA.AddCh('f'); break;
+					case '\n' : ChA.AddCh('\\'); ChA.AddCh('n'); break;
+					case '\r' : ChA.AddCh('\\'); ChA.AddCh('r'); break;
+					case '\t' : ChA.AddCh('\\'); ChA.AddCh('t'); break;
+					default : ChA.AddCh(Ch);
+				}
+			} else {
+				// escape
+				ChA += "\\u";
+				ChA += TStr::Fmt("%02x", (int)Ch);
+			}
 		}
 	}
 }

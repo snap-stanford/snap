@@ -143,21 +143,33 @@ public:
   int GetHourN() const;
   int GetMinN() const;
   int GetSecN() const;
+  void GetComps(int& Year, int& Month, int& Day, int& Hour, int& Min, int& Sec) const;
   uint GetAbsSecs() const {return AbsSecs();}
   TSecTm Round(const TTmUnit& TmUnit) const;
   uint GetInUnits(const TTmUnit& TmUnit) const;
+  TStr GetDayPart() const;
 
   // additions/substractions
   TSecTm& AddSecs(const int& Secs){
-    IAssert(IsDef()); AbsSecs.Val+=(Secs); return *this;} //J: remove uint since we may want to subtract seconds
+    IAssert(IsDef()); AbsSecs.Val+=uint(Secs); return *this;}
+  TSecTm& SubSecs(const int& Secs){
+    IAssert(IsDef() && uint(Secs) < AbsSecs); AbsSecs.Val-=uint(Secs); return *this;}
   TSecTm& AddMins(const int& Mins){
     IAssert(IsDef()); AbsSecs.Val+=uint(Mins*60); return *this;}
+  TSecTm& SubMins(const int& Mins){
+    IAssert(IsDef() && uint(Mins*60) < AbsSecs); AbsSecs.Val-=uint(Mins*60); return *this;}
   TSecTm& AddHours(const int& Hours){
     IAssert(IsDef()); AbsSecs.Val+=uint(Hours*3600); return *this;}
+  TSecTm& SubHours(const int& Hours){
+    IAssert(IsDef() && uint(Hours*3600) < AbsSecs); AbsSecs.Val-=uint(Hours*3600); return *this;}
   TSecTm& AddDays(const int& Days){
     IAssert(IsDef()); AbsSecs.Val+=uint(Days*24*3600); return *this;}
+  TSecTm& SubDays(const int& Days){
+    IAssert(IsDef() && uint(Days*24*3600) < AbsSecs); AbsSecs.Val-=uint(Days*24*3600); return *this;}
   TSecTm& AddWeeks(const int& Weeks){
     IAssert(IsDef()); AbsSecs.Val+=uint(Weeks*7*24*3600); return *this;}
+  TSecTm& SubWeeks(const int& Weeks){
+    IAssert(IsDef() && uint(Weeks*7*24*3600) < AbsSecs); AbsSecs.Val-=uint(Weeks*7*24*3600); return *this;}
   static uint GetDSecs(const TSecTm& SecTm1, const TSecTm& SecTm2);
   /*friend TSecTm operator+(const TSecTm& SecTm, const uint& Secs){
     return TSecTm(SecTm)+=Secs;}
@@ -196,18 +208,6 @@ typedef TVec<TSecTmStrKd> TSecTmStrKdV;
 /////////////////////////////////////////////////
 // Time
 class TTm{
-private:
-  typedef struct { 
-    unsigned int Min:6;
-    unsigned int Hour:5;
-    unsigned int Day:5;
-    unsigned int Month:4;
-    unsigned int Year:12;
-  } TTmDateTimeBits;
-  typedef union {
-    TTmDateTimeBits Bits;
-    int Int;
-  } TTmDateTime;
 private:
   TInt Year, Month, Day, DayOfWeek;
   TInt Hour, Min, Sec, MSec;
@@ -284,8 +284,8 @@ public:
   TStr GetHMSTColonDotStr(const bool& FullP=false, const bool& MSecP=true) const;
   TStr GetWebLogDateStr() const {return GetYMDDashStr();}
   TStr GetWebLogTimeStr() const {return GetHMSTColonDotStr(false);}
-  TStr GetWebLogDateTimeStr(const bool& FullP=false) const {
-    return GetYMDDashStr()+" "+GetHMSTColonDotStr(FullP);}
+  TStr GetWebLogDateTimeStr(const bool& FullP=false, const TStr& DateTimeSepCh=" ", const bool& MSecP=true) const {
+    return GetYMDDashStr()+DateTimeSepCh+GetHMSTColonDotStr(FullP, MSecP);}
   TStr GetIdStr() const;
   TSecTm GetSecTm() const {
     return TSecTm(Year, Month, Day, Hour, Min, Sec);}
@@ -308,30 +308,42 @@ public:
   static uint GetMSecsFromOsStart();
   static uint64 GetPerfTimerFq();
   static uint64 GetPerfTimerTicks();
+  static void GetDiff(const TTm& Tm1, const TTm& Tm2, int& Days, 
+	  int& Hours, int& Mins, int& Secs, int& MSecs);
   static uint64 GetDiffMSecs(const TTm& Tm1, const TTm& Tm2);
+  static uint64 GetDiffSecs(const TTm& Tm1, const TTm& Tm2){
+	return GetDiffMSecs(Tm1, Tm2)/uint64(1000);}
+  static uint64 GetDiffMins(const TTm& Tm1, const TTm& Tm2){
+	return GetDiffMSecs(Tm1, Tm2)/uint64(1000*60);}
+  static uint64 GetDiffHrs(const TTm& Tm1, const TTm& Tm2){
+	return GetDiffMSecs(Tm1, Tm2)/uint64(1000*60*60);}
   static uint64 GetDiffDays(const TTm& Tm1, const TTm& Tm2){
     return GetDiffMSecs(Tm1, Tm2)/uint64(1000*60*60*24);}
   static TTm GetLocTmFromUniTm(const TTm& Tm);
   static TTm GetUniTmFromLocTm(const TTm& Tm);
+  static TTm GetTmFromWebLogTimeStr(const TStr& TimeStr,
+   const char TimeSepCh=':', const char MSecSepCh='.');
   static TTm GetTmFromWebLogDateTimeStr(const TStr& DateTimeStr,
-   const char DateSepCh='-', const char TimeSepCh=':', const char MSecSepCh='.');
+   const char DateSepCh='-', const char TimeSepCh=':', 
+   const char MSecSepCh='.', const char DateTimeSepCh=' ');
   static TTm GetTmFromIdStr(const TStr& IdStr);
   
-  // unique sortable 32-bit integer from date and time (TTmDateTime)
+  // get unix timestamp
   static uint GetDateTimeInt(const int& Year = 0, const int& Month = 1, 
-    const int& Day = 1, const int& Hour = 0, const int& Min = 0);   
+    const int& Day = 1, const int& Hour = 0, const int& Min = 0,
+	const int& Sec = 0);   
   static uint GetDateIntFromTm(const TTm& Tm);   
   static uint GetMonthIntFromTm(const TTm& Tm);
   static uint GetYearIntFromTm(const TTm& Tm);
   static uint GetDateTimeIntFromTm(const TTm& Tm);   
   static TTm GetTmFromDateTimeInt(const uint& DateTimeInt);
-  static uint KeepMonthInDateTimeInt(const uint& DateTimeInt);
-  static uint KeepDayInDateTimeInt(const uint& DateTimeInt);
-  static uint KeepHourInDateTimeInt(const uint& DateTimeInt);
+  static TSecTm GetSecTmFromDateTimeInt(const uint& DateTimeInt);
 };
 typedef TVec<TTm> TTmV;
 typedef TPair<TTm, TStr> TTmStrPr;
+typedef TPair<TStr, TTm> TStrTmPr;
 typedef TVec<TTmStrPr> TTmStrPrV;
+typedef TVec<TStrTmPr> TStrTmPrV;
 
 /////////////////////////////////////////////////
 // Execution-Time
@@ -345,8 +357,9 @@ public:
     LastTick=Tm.LastTick; return *this;}
 
   void Tick(){LastTick=clock();}
-  int GetTime(){return clock()-LastTick;}
+  int GetTime() const {return clock()-LastTick;}
   double GetSecs() const {return double(clock()-LastTick)/double(CLOCKS_PER_SEC);}
+  int GetSecInt() { return TFlt::Round(GetSecs()); }
   const char* GetStr() const {return GetTmStr();}
   TStr GetStr2() const {return GetTmStr();}
   const char* GetTmStr() const { static char TmStr[32];
@@ -363,7 +376,6 @@ private:
   clock_t TmSoFar;
   bool RunningP;
   TExeTm ExeTm;
-  UndefCopyAssign(TTmStopWatch);
 public:
   TTmStopWatch(const bool& Start = false): TmSoFar(0), RunningP(Start) { }
 
@@ -371,7 +383,59 @@ public:
   void Stop() { if (RunningP) { RunningP = false; TmSoFar += ExeTm.GetTime(); } }
   void Reset(const bool& Start) { TmSoFar = 0; RunningP = Start; ExeTm.Tick(); }
 
-  clock_t GetTime() { return TmSoFar + (RunningP ? ExeTm.GetTime() : 0); }
-  double GetSec() { return double(GetTime()) / double(CLOCKS_PER_SEC); }
-  int GetSecInt() { return TFlt::Round(GetSec()); }
+  clock_t GetTime() const { return TmSoFar + (RunningP ? ExeTm.GetTime() : 0); }
+  double GetSec() const { return double(GetTime()) / double(CLOCKS_PER_SEC); }
+  int GetSecInt() const { return TFlt::Round(GetSec()); }
+  double GetMSec() const { return double(GetTime()) / double(CLOCKS_PER_SEC/1000); }
+  int GetMSecInt() const { return TFlt::Round(GetMSec()); }
+};
+
+/////////////////////////////////////////////////
+// Time-Profiler - poor-man's profiler
+ClassTP(TTmProfiler, PTmProfiler)//{
+private:
+	TInt MxNmLen;
+	THash<TStr, TTmStopWatch> TimerH;
+
+public:
+	TTmProfiler() { }
+	static PTmProfiler New() { return new TTmProfiler; }
+
+	int AddTimer(const TStr& TimerNm);
+	int GetTimerId(const TStr& TimerNm) const { return TimerH.GetKeyId(TimerNm); }
+    TStr GetTimerNm(const int& TimerId) const { return TimerH.GetKey(TimerId); }
+	int GetTimers() const { return TimerH.Len(); }
+	int GetTimerIdFFirst() const { return TimerH.FFirstKeyId(); }
+	bool GetTimerIdFNext(int& TimerId) const { return TimerH.FNextKeyId(TimerId); }
+	// starts counting
+	void StartTimer(const TStr& TimerNm) { TimerH.GetDat(TimerNm).Start(); }
+	void StartTimer(const int& TimerId) { TimerH[TimerId].Start(); }
+	// stops counting
+	void StopTimer(const TStr& TimerNm) { TimerH.GetDat(TimerNm).Stop(); }
+	void StopTimer(const int& TimerId) { TimerH[TimerId].Stop(); }
+    // reset
+    void ResetAll();
+    void ResetTimer(const TStr& TimerNm) { TimerH.GetDat(TimerNm).Reset(false); }
+    void ResetTimer(const int& TimerId) { TimerH[TimerId].Reset(false); }
+	// report
+	double GetTimerSumSec() const;
+	double GetTimerSec(const int& TimerId) const;
+	void PrintReport(const TStr& ProfileNm = "") const;
+};
+
+/////////////////////////////////////////////////
+// Timer
+class TTmTimer {
+private:
+    int MxMSecs; 
+    TTmStopWatch StopWatch;
+
+    UndefDefaultCopyAssign(TTmTimer);
+public:
+    TTmTimer(const int& _MxMSecs): MxMSecs(_MxMSecs), StopWatch(true) { }
+
+    // restarts the timer from 0
+    void Restart() { StopWatch.Reset(true); }
+    // returns true if the time has ran out
+    bool IsTimeUp() const { return (StopWatch.GetMSecInt() > MxMSecs); }
 };
