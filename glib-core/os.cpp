@@ -766,10 +766,10 @@ void TSysProc::Sleep(const uint& MSecs) {
 
   while (true) {
 #if defined(GLib_POSIX_1j) && defined(_POSIX_MONOTONIC_CLOCK)
-    int ret = clock_nanosleep(CLOCK_MONOTONIC, 0, &tsp, &trem);
-    if ((ret == -1) && (errno == ENOTSUP)) {
-      ret = nanosleep(&tsp, &trem);
-    }
+    //int ret = clock_nanosleep(CLOCK_MONOTONIC, 0, &tsp, &trem);
+    //if ((ret == -1) && (errno == ENOTSUP)) {
+    int ret = nanosleep(&tsp, &trem);
+    //}
 #else
     int ret = nanosleep(&tsp, &trem);
 #endif
