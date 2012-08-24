@@ -157,7 +157,7 @@ void TUrl::GetAbs(const TStr& AbsUrlStr){
   Str+=SchemeNm=Lx.GetScheme(); Str+=Lx.GetCh(':');
   if (SchemeNm=="http"){
     Scheme=usHttp;
-    static const TStr DbSlashStr="//";
+    const char *DbSlashStr="//";
     Str+=Lx.GetStr(DbSlashStr);
     Str+=Lx.GetHostPort(HostNm, PortStr, PortN);
     if (PortN==-1){PortN=THttp::DfPortN; PortStr.Clr();}
@@ -211,15 +211,15 @@ void TUrl::GetAbsFromBase(const TStr& RelUrlStr, const TStr& BaseUrlStr){
     }
   }
 
-  static const TStr PrevDirStr="/../";
+  const char *PrevDirStr="/../";
   {int ChN;
   while ((ChN=AbsUrlStr.SearchStr(PrevDirStr))!=-1){
-    int BChN=ChN; int EChN=ChN+PrevDirStr.Len()-1;
+    int BChN=ChN; int EChN=ChN+(int) strlen(PrevDirStr)-1;
     while ((BChN-1>=0)&&(AbsUrlStr[BChN-1]!='/')){BChN--;}
     AbsUrlStr.DelSubStr(BChN, EChN);
   }}
 
-  static const TStr CurDirStr="/.";
+  const char *CurDirStr="/.";
   while (AbsUrlStr.DelStr(CurDirStr)){}
 
   GetAbs(AbsUrlStr);
