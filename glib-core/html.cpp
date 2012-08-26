@@ -415,12 +415,12 @@ void THtmlLx::MoveToBTagArg2OrEof(const TStr& TagNm,
     if (Sym==hsyEof){break;}
     if (AndOpP){
       if ((Sym==hsyBTag)&&(UcChA==TagNm)&&
-       (IsArg(ArgNm1))&&(GetArg(ArgNm1)==ArgVal1)&&
-       (IsArg(ArgNm2))&&(GetArg(ArgNm2)==ArgVal2)){break;}
+       (IsArg(ArgNm1)&&(GetArg(ArgNm1)==ArgVal1))&&
+       (IsArg(ArgNm2)&&(GetArg(ArgNm2)==ArgVal2))){break;}
     } else {
-      if ((Sym==hsyBTag)&&(UcChA==TagNm)&&
-       ((IsArg(ArgNm1))&&(GetArg(ArgNm1)==ArgVal1)||
-       (IsArg(ArgNm2))&&(GetArg(ArgNm2)==ArgVal2))){break;}
+      if (((Sym==hsyBTag)&&(UcChA==TagNm))&&
+       ((IsArg(ArgNm1)&&(GetArg(ArgNm1)==ArgVal1))||
+        (IsArg(ArgNm2)&&(GetArg(ArgNm2)==ArgVal2)))){break;}
     }
   }
 }
