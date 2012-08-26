@@ -212,11 +212,7 @@ void TRnd::SaveTxt(TOLx& Lx) const {
 // Memory
 void TMem::Resize(const int& _MxBfL){
   if (_MxBfL<=MxBfL){return;}
-  else if (MxBfL==0){MxBfL=_MxBfL;} 
-  else if (MxBfL*2<_MxBfL){MxBfL=_MxBfL;} 
-  else {
-	  while (_MxBfL > MxBfL) MxBfL *= 2;
-  }
+  else {if (MxBfL*2<_MxBfL){MxBfL=_MxBfL;} else {MxBfL*=2;}}
   char* NewBf=new char[MxBfL]; IAssert(NewBf!=NULL);
   if (BfL>0){memcpy(NewBf, Bf, BfL);}
   if (Bf!=NULL){delete[] Bf;}

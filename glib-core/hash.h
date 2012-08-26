@@ -391,8 +391,6 @@ void THash<TKey, TDat, THashFunc>::MarkDelKey(const TKey& Key){
   KeyDatV[KeyId].HashCd=TInt(-1);
 }
 
-// return random KeyId even if the hash table contains deleted keys
-// defrags the table if necessary
 template<class TKey, class TDat, class THashFunc>
 int THash<TKey, TDat, THashFunc>::GetRndKeyId(TRnd& Rnd) const  {
   IAssert(! Empty());
@@ -402,6 +400,8 @@ int THash<TKey, TDat, THashFunc>::GetRndKeyId(TRnd& Rnd) const  {
   return KeyId; 
 }
 
+// return random KeyId even if the hash table contains deleted keys
+// defrags the table if necessary
 template<class TKey, class TDat, class THashFunc>
 int THash<TKey, TDat, THashFunc>::GetRndKeyId(TRnd& Rnd, const double& EmptyFrac) {
   IAssert(! Empty());
