@@ -64,42 +64,42 @@ THtmlLxChDef::THtmlLxChDef():
   // Upper-Case
   {for (int Ch=TCh::Mn; Ch<=TCh::Mx; Ch++){
     SetUcCh(char(Ch), char(Ch));}}
-  SetUcCh("Aa"); SetUcCh("��"); SetUcCh("��"); SetUcCh("��");
-  SetUcCh("��"); SetUcCh("��"); SetUcCh("��"); SetUcCh("��");
-  SetUcCh("Bb"); SetUcCh("Cc"); SetUcCh("��"); SetUcCh("Dd");
-  SetUcCh("��"); SetUcCh("Ee"); SetUcCh("��"); SetUcCh("��");
-  SetUcCh("��"); SetUcCh("��"); SetUcCh("Ff"); SetUcCh("Gg");
-  SetUcCh("Hh"); SetUcCh("Ii"); SetUcCh("��"); SetUcCh("��");
-  SetUcCh("��"); SetUcCh("��"); SetUcCh("Jj"); SetUcCh("Kk");
-  SetUcCh("Ll"); SetUcCh("Mm"); SetUcCh("Nn"); SetUcCh("��");
-  SetUcCh("Oo"); SetUcCh("��"); SetUcCh("��"); SetUcCh("��");
-  SetUcCh("��"); SetUcCh("��"); SetUcCh("��"); SetUcCh("Pp");
-  SetUcCh("Qq"); SetUcCh("Rr"); SetUcCh("Ss"); SetUcCh("��");
-  SetUcCh("Tt"); SetUcCh("Uu"); SetUcCh("��"); SetUcCh("��");
-  SetUcCh("��"); SetUcCh("��"); SetUcCh("Vv"); SetUcCh("Ww");
-  SetUcCh("Xx"); SetUcCh("Yy�"); SetUcCh("��"); SetUcCh("Zz");
-  SetUcCh("��");
+  SetUcCh("Aa"); SetUcCh("Àà"); SetUcCh("Áá"); SetUcCh("Ââ");
+  SetUcCh("Ãã"); SetUcCh("Ää"); SetUcCh("Åå"); SetUcCh("Ææ");
+  SetUcCh("Bb"); SetUcCh("Cc"); SetUcCh("Çç"); SetUcCh("Dd");
+  SetUcCh("Ðð"); SetUcCh("Ee"); SetUcCh("Èè"); SetUcCh("Éé");
+  SetUcCh("Êê"); SetUcCh("Ëë"); SetUcCh("Ff"); SetUcCh("Gg");
+  SetUcCh("Hh"); SetUcCh("Ii"); SetUcCh("Ìì"); SetUcCh("Íí");
+  SetUcCh("Îî"); SetUcCh("Ïï"); SetUcCh("Jj"); SetUcCh("Kk");
+  SetUcCh("Ll"); SetUcCh("Mm"); SetUcCh("Nn"); SetUcCh("Ññ");
+  SetUcCh("Oo"); SetUcCh("Òò"); SetUcCh("Óó"); SetUcCh("Ôô");
+  SetUcCh("Õõ"); SetUcCh("Öö"); SetUcCh("Øø"); SetUcCh("Pp");
+  SetUcCh("Qq"); SetUcCh("Rr"); SetUcCh("Ss"); SetUcCh("Šš");
+  SetUcCh("Tt"); SetUcCh("Uu"); SetUcCh("Ùù"); SetUcCh("Úú");
+  SetUcCh("Ûû"); SetUcCh("Üü"); SetUcCh("Vv"); SetUcCh("Ww");
+  SetUcCh("Xx"); SetUcCh("Yyÿ"); SetUcCh("Ýý"); SetUcCh("Zz");
+  SetUcCh("Žž");
   // ISO-CE
-  //SetUcCh(uchar(169), uchar(185)); /*Sh - ��*/
-  //SetUcCh(uchar(174), uchar(190)); /*Zh - ��*/
-  //SetUcCh(uchar(200), uchar(232)); /*Ch - ��*/
-  //SetUcCh(uchar(198), uchar(230)); /*Cs - ��*/
-  //SetUcCh(uchar(208), uchar(240)); /*Dz - ��*/
+  //SetUcCh(uchar(169), uchar(185)); /*Sh - ©¹*/
+  //SetUcCh(uchar(174), uchar(190)); /*Zh - ®¾*/
+  //SetUcCh(uchar(200), uchar(232)); /*Ch - Èè*/
+  //SetUcCh(uchar(198), uchar(230)); /*Cs - Ææ*/
+  //SetUcCh(uchar(208), uchar(240)); /*Dz - Ðð*/
 
   // Annoying Unicode-characters
-  //SetChTy(hlctSpace, "��");
+  //SetChTy(hlctSpace, "Âï");
 
   // Escape-Sequences
   SetEscStr("&quot", "\""); SetEscStr("&amp", "&");
   SetEscStr("&lt", "<"); SetEscStr("&gt", ">");
   SetEscStr("&nbsp", " ");
 
-  SetEscStr("&auml", "�"); SetEscStr("&Auml", "�");
-  SetEscStr("&ouml", "�"); SetEscStr("&Ouml", "�");
-  SetEscStr("&uuml", "�"); SetEscStr("&Uuml", "�");
-  SetEscStr("&aring", "�"); SetEscStr("&Aring", "�");
-  SetEscStr("&oslash", "�"); SetEscStr("&Oslash", "�");
-  SetEscStr("&Aelig", "�"); SetEscStr("&aelig", "�");
+  SetEscStr("&auml", "ä"); SetEscStr("&Auml", "Ä");
+  SetEscStr("&ouml", "ö"); SetEscStr("&Ouml", "Ö");
+  SetEscStr("&uuml", "ü"); SetEscStr("&Uuml", "Ü");
+  SetEscStr("&aring", "å"); SetEscStr("&Aring", "Å");
+  SetEscStr("&oslash", "ø"); SetEscStr("&Oslash", "Ø");
+  SetEscStr("&Aelig", "Æ"); SetEscStr("&aelig", "æ");
 
   SetEscStr("&eacute", "e"); SetEscStr("&Eacute", "E");
   SetEscStr("&egrave", "e"); SetEscStr("&Egrave", "E");
@@ -419,8 +419,8 @@ void THtmlLx::MoveToBTagArg2OrEof(const TStr& TagNm,
        (IsArg(ArgNm2))&&(GetArg(ArgNm2)==ArgVal2)){break;}
     } else {
       if ((Sym==hsyBTag)&&(UcChA==TagNm)&&
-       (((IsArg(ArgNm1))&&(GetArg(ArgNm1)==ArgVal1))||
-        ((IsArg(ArgNm2))&&(GetArg(ArgNm2)==ArgVal2)))){break;}
+       ((IsArg(ArgNm1))&&(GetArg(ArgNm1)==ArgVal1)||
+       (IsArg(ArgNm2))&&(GetArg(ArgNm2)==ArgVal2))){break;}
     }
   }
 }
@@ -442,21 +442,6 @@ void THtmlLx::MoveToETagOrEof(const TStr& TagNm){
   do {
     GetSym();
   } while ((Sym!=hsyEof)&&((Sym!=hsyETag)||(UcChA!=TagNm)));
-}
-
-TStr THtmlLx::GetTextOnlyStrToEof(){
-  TChA OutChA;
-  forever {
-    GetSym();
-    if (Sym==hsyEof){
-      break;
-    } else {
-      if (PreSpaces>0){OutChA+=' ';}
-      if ((Sym!=hsyBTag)&&(Sym!=hsyETag)){
-        OutChA+=ChA;}
-    }
-  }
-  return OutChA;
 }
 
 TStr THtmlLx::GetStrToBTag(const TStr& TagNm, const bool& TxtOnlyP){
@@ -837,7 +822,7 @@ TStr THtmlDoc::GetTxtLnDoc(const TStr& HtmlStr){
   return LnDocChA;
 }
 
-TStr THtmlDoc::GetTxtLnDoc(const TStr& HtmlStr, 
+TStr THtmlDoc::GetTxtLnDoc(const TStr& HtmlStr,
  const TStr& BaseUrlStr, const bool& OutUrlP, const bool& OutTagsP){
   // prepare output-string
   TChA OutChA; OutChA+=' ';
