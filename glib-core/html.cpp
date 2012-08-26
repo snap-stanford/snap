@@ -207,10 +207,10 @@ void THtmlLx::GetEscCh(){
         PutCh('#'); PutCh('&');
       }
     } else
-    if (('a'<=Ch)&&(Ch<='z')||('A'<=Ch)&&(Ch<='Z')){
+    if ((('a'<=Ch)&&(Ch<='z'))||(('A'<=Ch)&&(Ch<='Z'))){
       do {
         EscChA.AddCh(Ch); GetCh();
-      } while (('A'<=Ch)&&(Ch<='Z')||('a'<=Ch)&&(Ch<='z')||('0'<=Ch)&&(Ch<='9'));
+      } while ((('A'<=Ch)&&(Ch<='Z'))||(('a'<=Ch)&&(Ch<='z'))||(('0'<=Ch)&&(Ch<='9')));
       if (Ch==';'){
         GetCh(); PutStr(ChDef.GetEscStr(EscChA));
       } else {
@@ -419,8 +419,8 @@ void THtmlLx::MoveToBTagArg2OrEof(const TStr& TagNm,
        (IsArg(ArgNm2))&&(GetArg(ArgNm2)==ArgVal2)){break;}
     } else {
       if ((Sym==hsyBTag)&&(UcChA==TagNm)&&
-       ((IsArg(ArgNm1))&&(GetArg(ArgNm1)==ArgVal1)||
-       (IsArg(ArgNm2))&&(GetArg(ArgNm2)==ArgVal2))){break;}
+       (((IsArg(ArgNm1))&&(GetArg(ArgNm1)==ArgVal1))||
+        ((IsArg(ArgNm2))&&(GetArg(ArgNm2)==ArgVal2)))){break;}
     }
   }
 }
