@@ -770,8 +770,8 @@ public:
   TStrPool(uint MxBfLen = 0, uint _GrowBy = 16*1024*1024);
   TStrPool(TSIn& SIn, bool LoadCompact = true);
   TStrPool(const TStrPool& Pool) : MxBfL(Pool.MxBfL), BfL(Pool.BfL), GrowBy(Pool.GrowBy) {
-    Bf = (char *) malloc(Pool.MxBfL); IAssert(Bf); memcpy(Bf, Pool.Bf, Pool.BfL); }
-  ~TStrPool() { if (Bf) free(Bf); else IAssert(MxBfL == 0);  MxBfL = 0; BfL = 0; }
+    Bf = (char *) malloc(Pool.MxBfL); IAssertR(Bf, TStr::Fmt("Can not resize buffer to %u bytes. [Program failed to allocate more memory. Solution: Get a bigger machine.]", MxBfL).CStr()); memcpy(Bf, Pool.Bf, Pool.BfL); }
+  ~TStrPool() { if (Bf) free(Bf); else IAssertR(MxBfL == 0, TStr::Fmt("size: %u, expected size: 0", MxBfL).CStr());  Bf = 0; MxBfL = 0; BfL = 0; }
 
   static PStrPool New(uint _MxBfLen = 0, uint _GrowBy = 16*1024*1024) { return PStrPool(new TStrPool(_MxBfLen, _GrowBy)); }
   static PStrPool New(TSIn& SIn) { return new TStrPool(SIn); }
@@ -795,6 +795,8 @@ public:
   const char *GetCStr(uint Offset) const { Assert(Offset < BfL);
     if (Offset == 0) return TStr::GetNullStr().CStr(); else return Bf + Offset; }
 
+  // Clr() removes the empty string at the start.
+  // Call AddStr("") after Clr(), if you want to use the pool again.
   void Clr(bool DoDel = false) { BfL = 0; if (DoDel && Bf) { free(Bf); Bf = 0; MxBfL = 0; } }
   int Cmp(uint Offset, const char *Str) const { Assert(Offset < BfL);
     if (Offset != 0) return strcmp(Bf + Offset, Str); else return strcmp("", Str); }
