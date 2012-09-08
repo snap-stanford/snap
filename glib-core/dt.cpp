@@ -1634,27 +1634,28 @@ void TStrPool::Resize(uint _MxBfL) {
     if (newSize >= GrowBy && GrowBy > 0) newSize += GrowBy;
     else if (newSize > 0) newSize *= 2;
     else newSize = TInt::GetMn(GrowBy, 1024);
-    IAssert(newSize >= MxBfL); // check for overflow at 4GB
+    // check for overflow at 4GB
+    IAssertR(newSize >= MxBfL, TStr::Fmt("TStrPool::Resize: %u, %u [Size larger than 4Gb, which is not supported by TStrPool]", newSize, MxBfL).CStr());
   }
   if (newSize > MxBfL) {
     Bf = (char *) realloc(Bf, newSize);
     IAssertR(Bf, TStr::Fmt("old Bf size: %u, new size: %u", MxBfL, newSize).CStr());
     MxBfL = newSize;
   }
-  IAssert(MxBfL >= _MxBfL);
+  IAssertR(MxBfL >= _MxBfL, TStr::Fmt("new size: %u, requested size: %u", MxBfL, _MxBfL).CStr());
 }
 
 TStrPool::TStrPool(uint MxBfLen, uint _GrowBy) : MxBfL(MxBfLen), BfL(0), GrowBy(_GrowBy), Bf(0) {
   //IAssert(MxBfL >= 0); IAssert(GrowBy >= 0);
-  if (MxBfL > 0) { Bf = (char *) malloc(MxBfL);  IAssert(Bf); }
-  AddStr(""); // add empty string
+  if (MxBfL > 0) { Bf = (char *) malloc(MxBfL);  IAssertR(Bf, TStr::Fmt("Can not resize buffer to %u bytes. [Program failed to allocate more memory. Solution: Get a bigger machine.]", MxBfL).CStr()); }
+  AddStr(""); // add an empty string at the beginning for fast future access
 }
 
 TStrPool::TStrPool(TSIn& SIn, bool LoadCompact) : MxBfL(0), BfL(0), GrowBy(0), Bf(0) {
   SIn.Load(MxBfL);  SIn.Load(BfL);  SIn.Load(GrowBy);
   //IAssert(MxBfL >= BfL);  IAssert(BfL >= 0);  IAssert(GrowBy >= 0);
   if (LoadCompact) MxBfL = BfL;
-  if (MxBfL > 0) { Bf = (char *) malloc(MxBfL); IAssert(Bf); }
+  if (MxBfL > 0) { Bf = (char *) malloc(MxBfL); IAssertR(Bf, TStr::Fmt("Can not resize buffer to %u bytes. [Program failed to allocate more memory. Solution: Get a bigger machine.]", MxBfL).CStr()); }
   if (BfL > 0) SIn.LoadBf(Bf, BfL);
   SIn.LoadCs();
 }
@@ -1668,8 +1669,8 @@ void TStrPool::Save(TSOut& SOut) const {
 TStrPool& TStrPool::operator = (const TStrPool& Pool) {
   if (this != &Pool) {
     GrowBy = Pool.GrowBy;  MxBfL = Pool.MxBfL;  BfL = Pool.BfL;
-    if (Bf) free(Bf); else IAssert(MxBfL == 0);
-    Bf = (char *) malloc(MxBfL);  IAssert(Bf);  memcpy(Bf, Pool.Bf, BfL);
+    if (Bf) free(Bf); else IAssertR(MxBfL == 0, TStr::Fmt("size: %u, expected size: 0", MxBfL).CStr());
+    Bf = (char *) malloc(MxBfL);  IAssertR(Bf, TStr::Fmt("Can not resize buffer to %u bytes. [Program failed to allocate more memory. Solution: Get a bigger machine.]", MxBfL).CStr());  memcpy(Bf, Pool.Bf, BfL);
   }
   return *this;
 }
@@ -1677,7 +1678,7 @@ TStrPool& TStrPool::operator = (const TStrPool& Pool) {
 // Adds Len characters to pool. To append a null
 // terminated string Len must be equal to strlen(s) + 1
 uint TStrPool::AddStr(const char *Str, uint Len) {
-  IAssertR(Len > 0, "String too short (lenght includes the null character)");  //J: if (! Len) return -1;
+  IAssertR(Len > 0, "String too short (length includes the null character)");  //J: if (! Len) return -1;
   if (Len == 1 && BfL > 0) { return 0; } // empty string
   Assert(Str);  Assert(Len > 0);
   if (BfL + Len > MxBfL) Resize(BfL + Len);
