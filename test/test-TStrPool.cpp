@@ -136,10 +136,14 @@ TEST(TStrPool, PoolAsserts) {
   int i;
   char Str[32];
   PStrPool Pool;
-  PStrPool Pool1;
+  TStrPool Tool;
   uint Pos;
 
-  // Pool = TStrPool::New();
+  Pool = TStrPool::New();
+  for (i = 0; i < 10000; i++) {
+    sprintf(Str, "%d", i);
+    Pos = Pool->AddStr(Str);
+  }
   
 #if 0
   // test the 4GB overflow
@@ -159,21 +163,9 @@ TEST(TStrPool, PoolAsserts) {
 
 #if 0
   // test the copy constructor
-  for (i = 0; i < 10000; i++) {
-    sprintf(Str, "%d", i);
-    Pos = Pool->AddStr(Str);
-    // printf("Pos %d\n", Pos);
-    // printf("Len %d\n", Pool->Len());
-    // printf("Size %d\n", Pool->Size());
-    // printf("Empty %d\n", Pool->Empty());
-  }
 
-  // printf("copy constructor in\n");
-  // Pool1 = TStrPool::New(Pool);
-  // Pool1 = TStrPool(Pool);
-  // Pool1 = Pool();
-  // Pool1 = Pool;
-  // printf("copy constructor out\n");
+  // TStrPool Tool1(Tool);
+  PStrPool Pool7 = PStrPool(new TStrPool(*Pool));
 #endif
 
 #if 0
@@ -181,6 +173,19 @@ TEST(TStrPool, PoolAsserts) {
   Pool = TStrPool::New(1000000);
 #endif
 }
+
+#if 0
+  // ignore this code, included for a future reference
+  // Pool1 = TStrPool::New(Pool);
+  // Pool1 = TStrPool(Pool);
+  // PStrPool Pool1(Pool);
+  // PStrPool Pool2(Pool());
+  // PStrPool Pool3(TStrPool(Pool));
+  // PStrPool Pool4(TStrPool(Pool()));
+  // PStrPool Pool5(TStrPool(*Pool));
+  // TPt <TStrPool> Pool6 = Pool;
+  // Pool1 = Pool;
+#endif
 
 void TestDestructor() {
   int i;
