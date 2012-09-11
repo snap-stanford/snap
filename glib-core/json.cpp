@@ -151,7 +151,7 @@ void TJsonVal::AddEscapeChAFromStr(const TStr& Str, TChA& ChA){
 		// escape the string
 		for (int ChN = 0; ChN < Str.Len(); ChN++) {
 			const char Ch = Str[ChN];
-			if (Ch < 0x80) {
+			if ((Ch & 0x80) == 0) {
 				// 7-bit ascii
 				switch (Ch) {
 					case '"' : ChA.AddCh('\\'); ChA.AddCh('"'); break;
