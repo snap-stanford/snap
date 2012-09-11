@@ -375,45 +375,6 @@ TSsParser::~TSsParser() {
   //if (Bf != NULL) { delete [] Bf; }
 }
 
-/*
-// Old implementation that loaded a line into a fixed size buffer (which limited the maximum line lenght).
-// New implementation below has no limit on the line lenght.
-bool TSsParser::Next() { // split on SplitCh
-  const char* EndBf = Bf+BfLen-1;
-  memset(Bf, 0, BfLen);
-  char *cur = Bf, *last = Bf;
-  FldV.Clr(false);
-  TSIn& FIn = *FInPt;
-  if (SkipLeadBlanks) { // skip leadning blanks
-    while (! FIn.Eof() && cur < EndBf && (FIn.PeekCh()=='\t' || FIn.PeekCh()==' ')) { FIn.GetCh(); } 
-  }
-  while (! FIn.Eof() && cur < EndBf) {
-    if (SsFmt == ssfWhiteSep) {
-      while (! FIn.Eof() && cur < EndBf && ! TCh::IsWs(*cur=FIn.GetCh())) { cur++; }
-    } else {
-      while (! FIn.Eof() && cur < EndBf && (*cur=FIn.GetCh())!=SplitCh && *cur!='\r' && *cur!='\n') { cur++; }
-    }
-    if (*cur=='\r' || *cur=='\n') {
-      *cur = 0; cur++;
-      if (*last) { FldV.Add(last); }
-      last = cur;
-      break;
-    }
-    *cur = 0;  cur++;
-    FldV.Add(last);  last = cur;
-    if (SkipEmpty && strlen(FldV.Last())==0) { FldV.DelLast(); }
-  }
-  if (SkipEmpty && FldV.Len()>0 && strlen(FldV.Last())==0) { 
-    FldV.DelLast(); 
-  }
-  LineCnt++;
-  if (! FldV.Empty() && cur < EndBf) { 
-    if (SkipCmt && IsCmt()) { return Next(); }
-    else { return true; } }
-  else if (! FIn.Eof() && ! SkipEmpty) { return true; }
-  else { return false; }
-}*/
-
 bool TSsParser::Next() { // split on SplitCh
   FldV.Clr(false);
   LineStr.Clr();

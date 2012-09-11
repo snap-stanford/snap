@@ -153,23 +153,23 @@ public:
   TSecTm& AddSecs(const int& Secs){
     IAssert(IsDef()); AbsSecs.Val+=uint(Secs); return *this;}
   TSecTm& SubSecs(const int& Secs){
-    IAssert(IsDef() && uint(Secs) < AbsSecs); AbsSecs.Val-=uint(Secs); return *this;}
+    IAssert(IsDef()); AbsSecs.Val-=uint(Secs); return *this;}
   TSecTm& AddMins(const int& Mins){
     IAssert(IsDef()); AbsSecs.Val+=uint(Mins*60); return *this;}
   TSecTm& SubMins(const int& Mins){
-    IAssert(IsDef() && uint(Mins*60) < AbsSecs); AbsSecs.Val-=uint(Mins*60); return *this;}
+    IAssert(IsDef()); AbsSecs.Val-=uint(Mins*60); return *this;}
   TSecTm& AddHours(const int& Hours){
     IAssert(IsDef()); AbsSecs.Val+=uint(Hours*3600); return *this;}
   TSecTm& SubHours(const int& Hours){
-    IAssert(IsDef() && uint(Hours*3600) < AbsSecs); AbsSecs.Val-=uint(Hours*3600); return *this;}
+    IAssert(IsDef()); AbsSecs.Val-=uint(Hours*3600); return *this;}
   TSecTm& AddDays(const int& Days){
     IAssert(IsDef()); AbsSecs.Val+=uint(Days*24*3600); return *this;}
   TSecTm& SubDays(const int& Days){
-    IAssert(IsDef() && uint(Days*24*3600) < AbsSecs); AbsSecs.Val-=uint(Days*24*3600); return *this;}
+    IAssert(IsDef()); AbsSecs.Val-=uint(Days*24*3600); return *this;}
   TSecTm& AddWeeks(const int& Weeks){
     IAssert(IsDef()); AbsSecs.Val+=uint(Weeks*7*24*3600); return *this;}
   TSecTm& SubWeeks(const int& Weeks){
-    IAssert(IsDef() && uint(Weeks*7*24*3600) < AbsSecs); AbsSecs.Val-=uint(Weeks*7*24*3600); return *this;}
+    IAssert(IsDef()); AbsSecs.Val-=uint(Weeks*7*24*3600); return *this;}
   static uint GetDSecs(const TSecTm& SecTm1, const TSecTm& SecTm2);
   /*friend TSecTm operator+(const TSecTm& SecTm, const uint& Secs){
     return TSecTm(SecTm)+=Secs;}
@@ -265,6 +265,8 @@ public:
   void Undef(){
     Year=-1; Month=-1; Day=-1; DayOfWeek=-1;
     Hour=-1; Min=-1; Sec=-1; MSec=-1;}
+  // check if time is defined
+  bool IsTimeDef() const { return !(Hour==0 && Min==0 && Sec==0 && MSec==0); }
 
   // get components
   int GetYear() const {return Year;}
@@ -328,7 +330,7 @@ public:
    const char MSecSepCh='.', const char DateTimeSepCh=' ');
   static TTm GetTmFromIdStr(const TStr& IdStr);
   
-  // get unix timestamp
+  // unique sortable 32-bit integer from date and time (TTmDateTime)
   static uint GetDateTimeInt(const int& Year = 0, const int& Month = 1, 
     const int& Day = 1, const int& Hour = 0, const int& Min = 0,
 	const int& Sec = 0);   
@@ -338,6 +340,9 @@ public:
   static uint GetDateTimeIntFromTm(const TTm& Tm);   
   static TTm GetTmFromDateTimeInt(const uint& DateTimeInt);
   static TSecTm GetSecTmFromDateTimeInt(const uint& DateTimeInt);
+  static uint KeepMonthInDateTimeInt(const uint& DateTimeInt);
+  static uint KeepDayInDateTimeInt(const uint& DateTimeInt);
+  static uint KeepHourInDateTimeInt(const uint& DateTimeInt);
 };
 typedef TVec<TTm> TTmV;
 typedef TPair<TTm, TStr> TTmStrPr;
@@ -349,7 +354,7 @@ typedef TVec<TStrTmPr> TStrTmPrV;
 // Execution-Time
 class TExeTm{
 private:
-  clock_t LastTick;
+  int LastTick;
 public:
   TExeTm(): LastTick(0) { Tick(); }
   TExeTm(const TExeTm& Tm): LastTick(Tm.LastTick) { }
@@ -373,21 +378,21 @@ public:
 // Time-Stop-Watch
 class TTmStopWatch {
 private:
-  clock_t TmSoFar;
-  bool RunningP;
-  TExeTm ExeTm;
+    int TmSoFar;
+    bool RunningP;
+    TExeTm ExeTm;
 public:
-  TTmStopWatch(const bool& Start = false): TmSoFar(0), RunningP(Start) { }
+    TTmStopWatch(const bool& Start = false): TmSoFar(0), RunningP(Start) { }
 
-  void Start() { if (!RunningP) { RunningP = true; ExeTm.Tick(); } }
-  void Stop() { if (RunningP) { RunningP = false; TmSoFar += ExeTm.GetTime(); } }
-  void Reset(const bool& Start) { TmSoFar = 0; RunningP = Start; ExeTm.Tick(); }
+    void Start() { if (!RunningP) { RunningP = true; ExeTm.Tick(); } }
+    void Stop() { if (RunningP) { RunningP = false; TmSoFar += ExeTm.GetTime(); } }
+    void Reset(const bool& Start) { TmSoFar = 0; RunningP = Start; ExeTm.Tick(); }
 
-  clock_t GetTime() const { return TmSoFar + (RunningP ? ExeTm.GetTime() : 0); }
-  double GetSec() const { return double(GetTime()) / double(CLOCKS_PER_SEC); }
-  int GetSecInt() const { return TFlt::Round(GetSec()); }
-  double GetMSec() const { return double(GetTime()) / double(CLOCKS_PER_SEC/1000); }
-  int GetMSecInt() const { return TFlt::Round(GetMSec()); }
+    int GetTime() const { return TmSoFar + (RunningP ? ExeTm.GetTime() : 0); }
+    double GetSec() const { return double(GetTime()) / double(CLOCKS_PER_SEC); }
+    int GetSecInt() const { return TFlt::Round(GetSec()); }
+    double GetMSec() const { return double(GetTime()) / double(CLOCKS_PER_SEC/1000); }
+    int GetMSecInt() const { return TFlt::Round(GetMSec()); }
 };
 
 /////////////////////////////////////////////////

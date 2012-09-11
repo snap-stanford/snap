@@ -388,7 +388,7 @@ private:
   bool IsAsc;
 public:
   TCmpKeyDatByDat(const bool& AscSort=true) : IsAsc(AscSort) { }
-  bool operator () (const TPair<TVal1, TVal2>& P1, const TPair<TVal1, TVal2>& P2) const {
+  bool operator () (const TKeyDat<TVal1, TVal2>& P1, const TKeyDat<TVal1, TVal2>& P2) const {
     if (IsAsc) { return P1.Dat < P2.Dat; } else { return P2.Dat < P1.Dat; }
   }
 };
@@ -565,7 +565,7 @@ public:
   template <class TCmp>
   static TIter GetPivotValNCmp(const TIter& BI, const TIter& EI, const TCmp& Cmp) {
     const int SubVals=int(EI-BI);
-    const int ValN1=TInt::GetRnd(SubVals);;
+    const int ValN1=TInt::GetRnd(SubVals);
     const int ValN2=TInt::GetRnd(SubVals);
     const int ValN3=TInt::GetRnd(SubVals);
     const TVal& Val1 = *(BI+ValN1);
@@ -1517,7 +1517,7 @@ void TVecPool<TVal>::Resize(const ::TSize& _MxVals){
     IAssert(ValBf != NULL);
     if (EmptyVal != TVal()) { PutAll(EmptyVal); }
   } else {
-    printf("*** Resize vector pool: %llu -> %llu\n", uint64(Vals), uint64(MxVals));
+    // printf("*** Resize vector pool: %llu -> %llu\n", uint64(Vals), uint64(MxVals));
     TVal* NewValBf = NULL;
     try { NewValBf = new TVal [MxVals]; }
     catch (std::exception Ex) { EFailR(TStr::Fmt("TVecPool::Resize: %s, MxVals: %d. [Program failed to allocate more memory. Solution: Get a bigger machine and a 64-bit compiler.]", Ex.what(), _MxVals)); }
@@ -1629,9 +1629,9 @@ int TVecPool<TVal>::AddEmptyV(const int& ValVLen) {
 template<class TVal>
 void TVecPool<TVal>::CompactPool(const TVal& DelVal) {
   ::TSize TotalDel=0, NDel=0;
-  printf("Compacting %d vectors\n", IdToOffV.Len());
+  // printf("Compacting %d vectors\n", IdToOffV.Len());
   for (int vid = 1; vid < IdToOffV.Len(); vid++) {
-    if (vid % 10000000 == 0) { printf(" %dm", vid/1000000);  fflush(stdout); }
+    // if (vid % 10000000 == 0) { printf(" %dm", vid/1000000);  fflush(stdout); }
     const uint Len = GetVLen(vid);
     TVal* ValV = GetValVPt(vid);
     if (TotalDel > 0) { IdToOffV[vid-1] -= TotalDel; } // update end of vector
@@ -1651,7 +1651,7 @@ void TVecPool<TVal>::CompactPool(const TVal& DelVal) {
   IdToOffV.Last() -= TotalDel;
   for (::TSize i = Vals-TotalDel; i < Vals; i++) { ValBf[i] = EmptyVal; }
   Vals -= TotalDel;
-  printf("  deleted %llu elements from the pool\n", TotalDel);
+  // printf("  deleted %llu elements from the pool\n", TotalDel);
 }
 
 // shuffles all the order of elements in the pool (does not respect vector boundaries)
