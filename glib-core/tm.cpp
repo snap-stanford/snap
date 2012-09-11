@@ -406,7 +406,7 @@ time_t TSecTm::MkGmTime(struct tm *t) {
 
 bool TSecTm::GetTmSec(struct tm& Tm, uint& AbsSec) {
   const time_t GmtTime = MkGmTime(&Tm);
-  EAssertR(uint(GmtTime) < TUInt::Mx,
+  IAssertR(uint(GmtTime) < TUInt::Mx,
     TStr::Fmt("Time out of range: %d/%d/%d %02d:%02d:%02d",
     Tm.tm_year, Tm.tm_mon, Tm.tm_mday, Tm.tm_hour, Tm.tm_min, Tm.tm_sec).CStr());
   AbsSec = uint(GmtTime);
@@ -432,6 +432,7 @@ TSecTm::TSecTm(const int& YearN, const int& MonthN, const int& DayN,
 TSecTm::TSecTm(const TTm& Tm): AbsSecs(
  TSecTm(Tm.GetYear(), Tm.GetMonth(), Tm.GetDay(), Tm.GetHour(),
    Tm.GetMin(), Tm.GetSec()).GetAbsSecs()) { }
+   //int(TMath::Round(Tm.GetSec()*1000+Tm.GetMSec()))).GetAbsSecs()){}
 
 TSecTm::TSecTm(const PXmlTok& XmlTok) {
   const int Year = XmlTok->GetIntArgVal("Year");
@@ -667,12 +668,12 @@ uint TSecTm::GetInUnits(const TTmUnit& TmUnit) const {
 }
 
 TStr TSecTm::GetDayPart() const {
-  const int Hour = GetHourN();
-  if (0 <= Hour && Hour < 6) { return "Night"; }
-  else if (6 <= Hour && Hour < 12) { return "Morning"; }
-  else if (12 <= Hour && Hour < 18) { return "Afternoon"; }
-  else if (18 <= Hour && Hour < 24) { return "Evening"; }
-  return "";
+	const int Hour = GetHourN();
+	if (0 <= Hour && Hour < 6) { return "Night"; }
+	else if (6 <= Hour && Hour < 12) { return "Morning"; }
+	else if (12 <= Hour && Hour < 18) { return "Afternoon"; }
+	else if (18 <= Hour && Hour < 24) { return "Evening"; }
+	return "";
 }
 
 uint TSecTm::GetDSecs(const TSecTm& SecTm1, const TSecTm& SecTm2){
@@ -1085,18 +1086,18 @@ uint64 TTm::GetPerfTimerTicks(){
 }
 
 void TTm::GetDiff(const TTm& Tm1, const TTm& Tm2, int& Days, 
-    int& Hours, int& Mins, int& Secs, int& MSecs) {
+	  int& Hours, int& Mins, int& Secs, int& MSecs) {
 
-  const uint64 DiffMSecs = TTm::GetDiffMSecs(Tm1, Tm2);
-  const uint64 DiffSecs = DiffMSecs / 1000;
-  const uint64 DiffMins = DiffSecs / 60;
-  const uint64 DiffHours = DiffMins / 60;	
+	const uint64 DiffMSecs = TTm::GetDiffMSecs(Tm1, Tm2);
+	const uint64 DiffSecs = DiffMSecs / 1000;
+	const uint64 DiffMins = DiffSecs / 60;
+	const uint64 DiffHours = DiffMins / 60;	
 
-  MSecs = DiffMSecs % 1000;
-  Secs = DiffSecs % 60;
-  Mins = DiffMins % 60;
-  Hours = DiffHours % 24;
-  Days = (int)DiffHours / 24;
+	MSecs = DiffMSecs % 1000;
+	Secs = DiffSecs % 60;
+	Mins = DiffMins % 60;
+	Hours = DiffHours % 24;
+	Days = (int)DiffHours / 24;
 }
 
 uint64 TTm::GetDiffMSecs(const TTm& Tm1, const TTm& Tm2){
@@ -1260,6 +1261,24 @@ TTm TTm::GetTmFromDateTimeInt(const uint& DateTimeInt) {
 TSecTm TTm::GetSecTmFromDateTimeInt(const uint& DateTimeInt) {
 	if (DateTimeInt == 0) { return TSecTm(); }
 	return TSecTm(DateTimeInt);
+}
+
+uint TTm::KeepMonthInDateTimeInt(const uint& DateTimeInt) {
+	EAssert(DateTimeInt != 0);
+	TSecTm SecTm(DateTimeInt);
+	return GetDateTimeInt(2000, SecTm.GetMonthN(), 1);
+}
+
+uint TTm::KeepDayInDateTimeInt(const uint& DateTimeInt) {
+	EAssert(DateTimeInt != 0);
+	TSecTm SecTm(DateTimeInt);
+	return GetDateTimeInt(2000, 1, SecTm.GetDayN());
+}
+
+uint TTm::KeepHourInDateTimeInt(const uint& DateTimeInt) {
+	EAssert(DateTimeInt != 0);
+	TSecTm SecTm(DateTimeInt);
+	return GetDateTimeInt(2000, 1, 1, SecTm.GetHourN());
 }
 
 /////////////////////////////////////////////////
