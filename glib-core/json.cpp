@@ -1,187 +1,219 @@
 /////////////////////////////////////////////////
-// JSON object
-const char* TJsonObj::GetStr(const char* Beg, TChA& Str) const {
-  Str.Clr();
-  const char* c = Beg+1;  
-  EAssertR(*Beg=='"', TStr::Fmt("JSON error: Strings should start with '\"': %s", Beg));
-  while (*c && *c != '"') {
-    if (*c!='\\') { Str.Push(*c); }
-    else {  c++;
-      switch (*c) {
-        case '"' : Str.Push('"'); break;
-        case '\\' : Str.Push('\\'); break;
-        case '/' : Str.Push('/'); break;
-        case 'b' : Str.Push('\b'); break;
-        case 'f' : Str.Push('\f'); break;
-        case 'n' : Str.Push('\n'); break;
-        case 't' : Str.Push('\t'); break;
-        case 'r' : Str.Push('\r'); break;
-        case 'u' : break; //printf("Unicode not supported: '%s'", Beg); break;
-        default : EFailR(TStr::Fmt("JSON Error: Unknown escape sequence: '%s'", Beg).CStr());
-      };
-    }
-    c++;
-  }
-  if (*c && *c=='"') { c++; }
-  return c;
+// Json-Value
+PJsonVal TJsonVal::NewArr(const TJsonValV& ValV) {
+	PJsonVal Val = TJsonVal::NewArr();
+	for (int ValN = 0; ValN < ValV.Len(); ValN++) {
+		Val->AddToArr(ValV[ValN]);
+	}
+	return Val;
 }
 
-const char* TJsonObj::ParseArrayVal(const char* JsonStr) {
-  const char *c = JsonStr;
-  bool Nested = false;
-  TChA ValStr;
-  Clr();
-  while (*c && TCh::IsWs(*c)) { c++; }
-  if (*c == '"') { c = GetStr(c, ValStr); } // string
-  else if (TCh::IsNum(*c) || (*c=='-' &&  TCh::IsNum(*(c+1)))) {  // number
-    while (*c && *c!=',' && *c!='}' && *c!=']' && ! TCh::IsWs(*c)) { ValStr.Push(*c); c++; } }
-  else if (*c=='t' || *c=='f' || *c=='n') { // true, false, null
-    while (*c && *c!=',' && *c!='}' && *c!=']') { ValStr.Push(*c); c++; } }
-  else if (*c=='{') { // nested object
-    EAssertR(! KeyArrayH.IsKey("key"), "JSON error: object with key 'key' already exists");
-    TJsonObj& Obj = KeyObjH.AddDat("key");
-    c = Obj.Parse(c) + 1;  Nested = true;
-  }
-  else if (*c=='[') { // array
-    EAssertR(! KeyArrayH.IsKey("key"), "JSON error: array with key 'key' already exists");
-    TVec<TJsonObj>& Array = KeyArrayH.AddDat("key");
-      c++;
-      while (*c && *c!=']') {
-        while (*c && TCh::IsWs(*c)) { c++; }
-        Array.Add();
-        if (*c=='{') { c = Array.Last().Parse(c) + 1; } // nested object
-        else { c = Array.Last().ParseArrayVal(c); }
-        if (*c && *c==',') { c++; }
+PJsonVal TJsonVal::NewArr(const TStrV& StrV) {
+	PJsonVal Val = TJsonVal::NewArr();
+	for (int StrN = 0; StrN < StrV.Len(); StrN++) {
+		Val->AddToArr(TJsonVal::NewStr(StrV[StrN]));
+	}
+	return Val;
+}
+
+PJsonVal TJsonVal::GetObjKey(const TStr& Key) const {
+  EAssert(IsObj());
+  EAssert(IsObjKey(Key)); 
+  return KeyValH.GetDat(Key);
+}
+
+PJsonVal TJsonVal::GetObjKey(const char *Key) const {
+  EAssert(IsObj());
+  EAssert(IsObjKey(Key));
+  return KeyValH.GetDat(Key);
+}
+
+bool TJsonVal::GetObjBool(const TStr& Key, const bool& DefBool) const { 
+  EAssert(IsObj());
+  return (IsObjKey(Key)) ? KeyValH.GetDat(Key)->GetBool() : DefBool;
+}
+
+bool TJsonVal::GetObjBool(const char *Key, const bool& DefBool) const { 
+  EAssert(IsObj());
+  return (IsObjKey(Key)) ? KeyValH.GetDat(Key)->GetBool() : DefBool;
+}
+
+double TJsonVal::GetObjNum(const TStr& Key, const double& DefNum) const { 
+  EAssert(IsObj());
+  return (IsObjKey(Key)) ? KeyValH.GetDat(Key)->GetNum() : DefNum;
+} 
+
+double TJsonVal::GetObjNum(const char *Key, const double& DefNum) const { 
+  EAssert(IsObj());
+  return (IsObjKey(Key)) ? KeyValH.GetDat(Key)->GetNum() : DefNum;
+}
+
+TStr TJsonVal::GetObjStr(const TStr& Key, const TStr& DefStr) const { 
+  EAssert(IsObj());
+  return (IsObjKey(Key)) ? KeyValH.GetDat(Key)->GetStr() : DefStr;
+}
+
+TStr TJsonVal::GetObjStr(const char *Key, const TStr& DefStr) const { 
+  EAssert(IsObj());
+  return (IsObjKey(Key)) ? KeyValH.GetDat(Key)->GetStr() : DefStr;
+}
+  
+PJsonVal TJsonVal::GetValFromLx(TILx& Lx){
+  static TFSet ValExpect=TFSet()|syIdStr|syFlt|syQStr|syLBracket|syLBrace;
+  PJsonVal Val=TJsonVal::New();
+  if ((Lx.Sym==syIdStr)&&(Lx.Str=="null")){
+    Val->PutNull(); Lx.GetSym();
+  } else if ((Lx.Sym==syIdStr)&&(Lx.Str=="true")){
+    Val->PutBool(true); Lx.GetSym();
+  } else if ((Lx.Sym==syIdStr)&&(Lx.Str=="false")){
+    Val->PutBool(false); Lx.GetSym();
+  } else if (Lx.Sym==syFlt){
+    Val->PutNum(Lx.Flt); Lx.GetSym();
+  } else if (Lx.Sym==syQStr){
+    Val->PutStr(Lx.Str); Lx.GetSym();
+  } else if ((Lx.Sym==syLBracket)){
+    Val->PutArr(); Lx.GetSym(ValExpect); // added ValExpect to correctyl parse arrays of floats
+    if (Lx.Sym!=syRBracket){
+      forever{
+        PJsonVal SubVal=TJsonVal::GetValFromLx(Lx);
+        Val->AddToArr(SubVal);
+        if (Lx.Sym==syComma){Lx.GetSym(ValExpect);} 
+        else if (Lx.Sym==syRBracket){break;} 
+        else {TExcept::Throw("JSON Array not properly formed.");}
       }
-      c++; Nested = true;
-  }
-  if (! Nested) {
-    EAssertR(! KeyArrayH.IsKey("key"), "JSON error: object with key 'key' already exists");
-    KeyValH.AddDat("key", ValStr); 
-  }
-  while (*c && TCh::IsWs(*c)) { c++; }
-  return c;
-}
-
-const char* TJsonObj::Parse(const char* JsonStr) {
-  TChA KeyStr, ValStr;
-  Clr();
-  const char *c = JsonStr;
-  bool Nested = false;
-  while (*c && *c!='{') { c++; } // find first '{'
-  if (*c) { c++; }
-  while (*c && *c!='}') {
-    while (*c && *c!='"') { c++; }
-    c = GetStr(c, KeyStr); // key -- string
-    while (*c && TCh::IsWs(*c)) { c++; }
-    EAssertR(*c==':', TStr::Fmt("JSON error: Expect ':' at character %d", int(c-JsonStr)));
-    c++;
-    while (*c && TCh::IsWs(*c)) { c++; }
-    // value
-    ValStr.Clr();
-    if (*c == '"') { c = GetStr(c, ValStr); } // string
-    else if (TCh::IsNum(*c) || (*c=='-' &&  TCh::IsNum(*(c+1)))) {  // number
-      while (*c && *c!=',' && *c!='}' && *c!=']' && ! TCh::IsWs(*c)) { ValStr.Push(*c); c++; } }
-    else if (*c=='t' || *c=='f' || *c=='n') { // true, false, null
-      while (*c && *c!=',' && *c!='}' && *c!=']') { ValStr.Push(*c); c++; } }
-    else if (*c=='{') { // nested object
-      EAssertR(! KeyObjH.IsKey(KeyStr), TStr::Fmt("JSON error: object with key '%s' already exists", KeyStr.CStr()));
-      TJsonObj& Obj = KeyObjH.AddDat(KeyStr);
-      c = Obj.Parse(c) + 1;  
-      Nested = true;
     }
-    else if (*c=='[') { // array
-      EAssertR(! KeyArrayH.IsKey(KeyStr), TStr::Fmt("JSON error: array with key '%s' already exists", KeyStr.CStr()));
-      TVec<TJsonObj>& Array = KeyArrayH.AddDat(KeyStr);
-      c++;
-      while (*c && *c!=']') {
-        while (*c && TCh::IsWs(*c)) { c++; }
-        Array.Add();
-        if (*c=='{') { c = Array.Last().Parse(c) + 1; } // nested object
-        else { c = Array.Last().ParseArrayVal(c); }
-        if (*c && *c==',') { c++; }
+    Lx.GetSym();
+  } else if ((Lx.Sym==syLBrace)){
+    Val->PutObj(); Lx.GetSym(TFSet()|syRBrace|syQStr);
+    if (Lx.Sym!=syRBrace){
+      forever{
+        TStr SubKey=Lx.Str; 
+        Lx.GetSym(syColon); 
+        Lx.GetSym(ValExpect);
+        PJsonVal SubVal=TJsonVal::GetValFromLx(Lx);
+        Val->AddToObj(SubKey, SubVal);
+        if (Lx.Sym==syComma){Lx.GetSym(TFSet()|syQStr);} 
+        else if (Lx.Sym==syRBrace){break;} 
+        else {TExcept::Throw("JSON Object not properly formed.");}
       }
-      c++; Nested = true;
     }
-    else { EFailR(TStr::Fmt("JSON error: Unknown character '%c' at position %d in %s", *c, int(c-JsonStr), JsonStr).CStr()); }
-    if (! Nested) {
-      EAssertR(! KeyValH.IsKey(KeyStr), TStr::Fmt("JSON error: value with key '%s' already exists", KeyStr.CStr()));
-      KeyValH.AddDat(KeyStr, ValStr); }
-    while (*c && TCh::IsWs(*c)) { c++; }
-    if (*c && *c==',') { c++; }
-    while (*c && TCh::IsWs(*c)) { c++; }
+    Lx.GetSym();
+  } else {
+    TExcept::Throw("Unexpected JSON symbol.");
   }
-  return c;
+  return Val;
 }
 
-void TJsonObj::Clr() { 
-  KeyValH.Clr(false, 1000, false);
-  KeyObjH.Clr(false, 1000, false);
-  KeyArrayH.Clr(false, 1000, false);
-}
-
-void TJsonObj::Dump(const int& Indent) const {
-  // short outputs
-  if (KeyValH.Len()==0 && KeyArrayH.Len()==0 && KeyObjH.Len()==0) {
-    for (int x=0;x<Indent;x++){printf(" ");} 
-    printf("{ }\n");
-    return;
-  }
-  if (KeyValH.Len()==1 && KeyArrayH.Len()==0 && KeyObjH.Len()==0) {
-    for (int x=0;x<Indent;x++){printf(" ");} 
-    printf("{ %s : %s }\n", KeyValH.GetKey(0).CStr(), KeyValH[0].CStr());
-    return;
-  }
-  // long output
-  for (int x=0;x<Indent;x++){printf(" ");} printf("{\n");
-  for (int i = 0; i < KeyValH.Len(); i++) {
-    for (int x=0;x<Indent;x++){printf(" ");}
-    printf("%s : %s\n", KeyValH.GetKey(i).CStr(), KeyValH[i].CStr());
-  }
-  if (KeyArrayH.Len() > 0) {
-    for (int i = 0; i < KeyArrayH.Len(); i++) {
-      const TVec<TJsonObj>& Array = KeyArrayH[i];
-      for (int x=0;x<Indent;x++){printf(" ");} printf("%s : [\n", KeyArrayH.GetKey(i).CStr());
-      for (int a = 0; a < Array.Len(); a++) { Array[a].Dump(Indent+2); }
-      for (int x=0;x<Indent;x++){printf(" ");} printf("]\n");
-    }
-  }
-  if (KeyObjH.Len() > 0) {
-    for (int i = 0; i < KeyObjH.Len(); i++) {
-      for (int x=0;x<Indent;x++){printf(" ");} 
-      printf("%s : \n", KeyObjH.GetKey(i).CStr());
-      KeyObjH[i].Dump(Indent+2);
-    }
-  }
-  for (int x=0;x<Indent;x++){printf(" ");} printf("}\n");
-}
-
-/////////////////////////////////////////////////
-// Simple JSON parser
-bool TJsonLoader::Next() {
-  if (SIn.Empty() || SIn->Eof()) {
-    TStr FNm;
-    if (! SIn.Empty()) { 
-      printf("  %d items in file. %d items total. [%s]\n", LineNo, ItemCnt, ExeTm.GetTmStr()); }
-    if (! FFile.Next(FNm)) { return false; }
-    printf("JSON parse file %d: %s\n", ++FileCnt, FNm.CStr());  LineNo=0;
-    if (TZipIn::IsZipExt(FNm.GetFExt())) { SIn=TZipIn::New(FNm); }
-    else { SIn=TFIn::New(FNm); }
-    ExeTm.Tick();
-  }
+PJsonVal TJsonVal::GetValFromStr(const TStr& JsonStr){
+  PSIn SIn=TStrIn::New(JsonStr);
+  TILx Lx(SIn, TFSet()|iloCmtAlw|iloCsSens|iloExcept|iloSigNum);
+  PJsonVal Val; bool Ok=true; TStr MsgStr="Ok";
   try {
-    SIn->GetNextLn(Line);
-    LineNo++;  ItemCnt++;
-    Item.Parse(Line.CStr());
+    Lx.GetSym(TFSet()|syLBracket|syLBrace);
+    Val=GetValFromLx(Lx);
   }
-  catch (PExcept Except) {
-    TStr FullMsgCStr = TStr::Fmt("%s while pasing '%s' in line %d\nBEGIN LINE\n", 
-      Except->GetStr().CStr(), GetCurFNm().CStr(), GetLineNo());
-    FullMsgCStr += Line;
-    FullMsgCStr += "\nEND LINE\n";
-    SaveToErrLog(FullMsgCStr.CStr());
-    ErrNotify(FullMsgCStr.CStr());
-    return Next();
+  catch (PExcept Except){
+    Ok=false; MsgStr=Except->GetMsgStr();
+    Val=TJsonVal::New();
   }
-  return true;
+  return Val;
+}
+
+void TJsonVal::AddEscapeChAFromStr(const TStr& Str, TChA& ChA){
+	if (TUnicodeDef::IsDef()) {
+		// parse the UTF8 string (old: TUStr InUStr(InStr);)
+		TIntV UStr; TUnicodeDef::GetDef()->DecodeUtf8(Str, UStr);
+		// escape the string
+		for (int ChN = 0; ChN < UStr.Len(); ChN++) {
+			const int UCh = UStr[ChN];
+			if (UCh < 0x80) {
+				// 7-bit ascii
+				const char Ch = (char)UCh;
+				switch (Ch) {
+					case '"' : ChA.AddCh('\\'); ChA.AddCh('"'); break;
+					case '\\' : ChA.AddCh('\\'); ChA.AddCh('\\'); break;
+					case '/' : ChA.AddCh('\\'); ChA.AddCh('/'); break;
+					case '\b' : ChA.AddCh('\\'); ChA.AddCh('b'); break;
+					case '\f' : ChA.AddCh('\\'); ChA.AddCh('f'); break;
+					case '\n' : ChA.AddCh('\\'); ChA.AddCh('n'); break;
+					case '\r' : ChA.AddCh('\\'); ChA.AddCh('r'); break;
+					case '\t' : ChA.AddCh('\\'); ChA.AddCh('t'); break;
+					default :
+						ChA.AddCh(Ch);
+				}
+			} else {
+				// escape
+				ChA += "\\u";
+				ChA += TStr::Fmt("%04x", UCh);
+			}
+		}
+	} else {
+		// escape the string
+		for (int ChN = 0; ChN < Str.Len(); ChN++) {
+			const char Ch = Str[ChN];
+			if ((Ch & 0x80) == 0) {
+				// 7-bit ascii
+				switch (Ch) {
+					case '"' : ChA.AddCh('\\'); ChA.AddCh('"'); break;
+					case '\\' : ChA.AddCh('\\'); ChA.AddCh('\\'); break;
+					case '/' : ChA.AddCh('\\'); ChA.AddCh('/'); break;
+					case '\b' : ChA.AddCh('\\'); ChA.AddCh('b'); break;
+					case '\f' : ChA.AddCh('\\'); ChA.AddCh('f'); break;
+					case '\n' : ChA.AddCh('\\'); ChA.AddCh('n'); break;
+					case '\r' : ChA.AddCh('\\'); ChA.AddCh('r'); break;
+					case '\t' : ChA.AddCh('\\'); ChA.AddCh('t'); break;
+					default : ChA.AddCh(Ch);
+				}
+			} else {
+				// escape
+				ChA += "\\u";
+				ChA += TStr::Fmt("%02x", (int)Ch);
+			}
+		}
+	}
+}
+
+void TJsonVal::AddQChAFromStr(const TStr& Str, TChA& ChA){
+  ChA+="\"";
+  AddEscapeChAFromStr(Str, ChA);
+  ChA+="\"";
+}
+
+void TJsonVal::GetChAFromVal(const PJsonVal& Val, TChA& ChA){
+  switch (Val->GetJsonValType()){
+    case jvtNull: 
+      ChA+="null"; break;
+    case jvtBool:
+      if (Val->GetBool()){ChA+="true";} else {ChA+="false";} break;
+    case jvtNum: 
+      ChA+=TStr::Fmt("%g", Val->GetNum()); break;
+    case jvtStr:
+      AddQChAFromStr(Val->GetStr(), ChA); break;
+    case jvtArr:
+      ChA+="[";
+      for (int ArrValN=0; ArrValN<Val->GetArrVals(); ArrValN++){
+        if (ArrValN>0){ChA+=", ";}
+        GetChAFromVal(Val->GetArrVal(ArrValN), ChA);
+      }
+      ChA+="]"; 
+      break;
+    case jvtObj:
+      ChA+="{";
+      for (int ObjKeyN=0; ObjKeyN<Val->GetObjKeys(); ObjKeyN++){
+        if (ObjKeyN>0){ChA+=", ";}
+        TStr ObjKey; PJsonVal ObjVal; Val->GetObjKeyVal(ObjKeyN, ObjKey, ObjVal);
+        AddQChAFromStr(ObjKey, ChA);
+        ChA+=":";
+        GetChAFromVal(ObjVal, ChA);
+      }
+      ChA+="}"; 
+      break;
+	default: TExcept::Throw("Error parsing json");
+  }
+}
+
+TStr TJsonVal::GetStrFromVal(const PJsonVal& Val){
+  TChA ChA;
+  GetChAFromVal(Val, ChA);
+  return ChA;
 }

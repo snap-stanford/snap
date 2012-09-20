@@ -8,7 +8,8 @@ public:
 
   static double Inv(const double& x){IAssert(x!=0.0); return (1.0/x);}
   static double Sqr(const double& x){return x*x;}
-  static double Sqrt(const double& x){IAssert(x>0.0); return sqrt(x);}
+  static double Sqrt(const double& x){IAssert(!(x<0.0)); return sqrt(x);}
+  static double Log(const double& Val){return log(Val);}
   static double Log2(const double& Val){return log(Val)/LogOf2;}
   static double Round(const double& Val){
     return (Val>0)?floor(Val+0.5):ceil(Val-0.5);}
@@ -450,39 +451,28 @@ public:
 // Histogram
 class THist {
 private:
-    TInt Vals;
-    TInt BucketSize;
+	TFlt MnVal;
+	TFlt MxVal;
     TIntV BucketV;
+	TFlt BucketSize;
+    TInt Vals;
 public:
     THist() { }
-    THist(const int& _BucketSize, const double& MxVal):
-      BucketSize(_BucketSize), BucketV(int(ceil(MxVal / _BucketSize) + 1)) { }
+    THist(const double& _MnVal, const double& _MxVal, const int& Buckets):
+      MnVal(_MnVal), MxVal(_MxVal), BucketV(Buckets),
+	  BucketSize(1.01 * double(MxVal - MnVal) / double(Buckets)) { }
 
-    void Add(const double& Val) {
-        const int BucketN = int(floor(Val / BucketSize));
-        IAssert(BucketN >= 0);
-        if (BucketN < BucketV.Len()) {
-            BucketV[BucketN]++;
-        } else {
-            BucketV.Last()++;
-        }
-        Vals++;
-    }
+    void Add(const double& Val, const bool& OnlyInP);
 
-    void SaveStat(const TStr& ValNm, TSOut& FOut) const {
-        FOut.PutStrLn("#" + ValNm + ": " + Vals.GetStr());
-        const int Buckets = BucketV.Len() - 1;
-        for (int BucketN = 0; BucketN < Buckets; BucketN++) {
-            FOut.PutStrLn(TStr::Fmt("%d-%d\t%d", BucketSize*BucketN,
-                BucketSize*(BucketN+1), BucketV[BucketN]()));
-        }
-        if (BucketV.Last() > 0) {
-            FOut.PutStrLn(TStr::Fmt("%d-\t%d", BucketSize*Buckets, BucketV.Last()()));
-        }
+	int GetVals() const { return Vals; }
+	int GetBuckets() const { return BucketV.Len(); }
+	double GetBucketMn(const int& BucketN) const { return MnVal + BucketN * BucketSize; }
+	double GetBucketMx(const int& BucketN) const { return MnVal + (BucketN + 1) * BucketSize; }
+	int GetBucketVal(const int& BucketN) const { return BucketV[BucketN]; }
+	double GetBucketValPerc(const int& BucketN) const { 
+		return (Vals > 0) ? (double(BucketV[BucketN]) / double(Vals)) : 0.0; }
 
-    }
-
+    void SaveStat(const TStr& ValNm, TSOut& FOut) const;
     void SaveTxt(const TStr& ValNm, const TStr& FNm) const {
-        TFOut FOut(FNm); SaveStat(ValNm, FOut);
-    }
+        TFOut FOut(FNm); SaveStat(ValNm, FOut); }
 };

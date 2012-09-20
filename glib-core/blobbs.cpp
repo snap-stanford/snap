@@ -3,7 +3,7 @@
 const int TBlobPt::Flags=24;
 
 void TBlobPt::PutFlag(const int& FlagN, const bool& Val){
-  IAssert((0<=FlagN)&&(FlagN<Flags));
+  EAssert((0<=FlagN)&&(FlagN<Flags));
   switch (FlagN/8){
     case 0: FSet1.SetBit(7-FlagN%8, Val); break;
     case 1: FSet2.SetBit(7-FlagN%8, Val); break;
@@ -13,7 +13,7 @@ void TBlobPt::PutFlag(const int& FlagN, const bool& Val){
 }
 
 bool TBlobPt::IsFlag(const int& FlagN) const {
-  IAssert((0<=FlagN)&&(FlagN<Flags));
+  EAssert((0<=FlagN)&&(FlagN<Flags));
   switch (FlagN/8){
     case 0: return FSet1.GetBit(7-FlagN%8);
     case 1: return FSet2.GetBit(7-FlagN%8);
@@ -69,7 +69,7 @@ void TBlobBs::AssertVersionStr(const PFRnd& FBlobBs){
   TStr CorrVersionStr=GetVersionStr();
   bool IsOk=false;
   TStr TestVersionStr=FBlobBs->GetStr(CorrVersionStr.Len(), IsOk);
-  IAssert(IsOk && (CorrVersionStr==TestVersionStr));
+  EAssert(IsOk && (CorrVersionStr==TestVersionStr));
 }
 
 TStr TBlobBs::GetBlobBsStateStr(const TBlobBsState& BlobBsState){
@@ -79,7 +79,7 @@ TStr TBlobBs::GetBlobBsStateStr(const TBlobBsState& BlobBsState){
     case bbsClosed: StateStr="Closed"; break;
     default: Fail; return TStr();
   }
-  IAssert(StateStr.Len()==GetStateStrLen());
+  EAssert(StateStr.Len()==GetStateStrLen());
   return StateStr;
 }
 
@@ -92,7 +92,9 @@ void TBlobBs::AssertBlobBsStateStr(
   TStr CorrStateStr=GetBlobBsStateStr(State);
   bool IsOk;
   TStr TestStateStr=FBlobBs->GetStr(GetStateStrLen(), IsOk);
-  IAssert(IsOk && (CorrStateStr==TestStateStr));
+  if (!(IsOk && (CorrStateStr==TestStateStr))) {
+	TExcept::ThrowFull("Error in AssertBlobBsStateStr!", TStr(__FILE__)+" line "+TInt::GetStr(__LINE__));
+  }
 }
 
 const TStr TBlobBs::MxSegLenVNm="MxSegLen";
@@ -103,7 +105,7 @@ void TBlobBs::PutMxSegLen(const PFRnd& FBlobBs, const int& MxSegLen){
 }
 
 int TBlobBs::GetMxSegLen(const PFRnd& FBlobBs){
-  IAssert(FBlobBs->GetStr(MxSegLenVNm.Len())==MxSegLenVNm);
+  EAssert(FBlobBs->GetStr(MxSegLenVNm.Len())==MxSegLenVNm);
   return FBlobBs->GetInt();
 }
 
@@ -113,7 +115,7 @@ void TBlobBs::GenBlockLenV(TIntV& BlockLenV){
   BlockLenV.Clr();
   for (int P2Exp=0; P2Exp<TB4Def::MxP2Exp; P2Exp++){
     BlockLenV.Add(TInt(TB4Def::GetP2(P2Exp)));}
-  IAssert(int(BlockLenV.Last())<2000000000);
+  EAssert(int(BlockLenV.Last())<2000000000);
 
   {for (int Len=10; Len<100; Len+=10){BlockLenV.Add(Len);}}
   {for (int Len=100; Len<10000; Len+=100){BlockLenV.Add(Len);}}
@@ -134,11 +136,11 @@ void TBlobBs::PutBlockLenV(const PFRnd& FBlobBs, const TIntV& BlockLenV){
 }
 
 void TBlobBs::GetBlockLenV(const PFRnd& FBlobBs, TIntV& BlockLenV){
-  IAssert(FBlobBs->GetStr(BlockLenVNm.Len())==BlockLenVNm);
+  EAssert(FBlobBs->GetStr(BlockLenVNm.Len())==BlockLenVNm);
   BlockLenV.Gen(FBlobBs->GetInt());
   for (int BlockLenN=0; BlockLenN<BlockLenV.Len(); BlockLenN++){
     BlockLenV[BlockLenN]=FBlobBs->GetInt();}
-  IAssert(FBlobBs->GetInt()==-1);
+  EAssert(FBlobBs->GetInt()==-1);
 }
 
 const TStr TBlobBs::FFreeBlobPtVNm="FFreeBlobPtV";
@@ -156,11 +158,11 @@ void TBlobBs::PutFFreeBlobPtV(const PFRnd& FBlobBs, const TBlobPtV& FFreeBlobPtV
 }
 
 void TBlobBs::GetFFreeBlobPtV(const PFRnd& FBlobBs, TBlobPtV& FFreeBlobPtV){
-  IAssert(FBlobBs->GetStr(FFreeBlobPtVNm.Len())==FFreeBlobPtVNm);
+  EAssert(FBlobBs->GetStr(FFreeBlobPtVNm.Len())==FFreeBlobPtVNm);
   FFreeBlobPtV.Gen(FBlobBs->GetInt());
   for (int FFreeBlobPtN=0; FFreeBlobPtN<FFreeBlobPtV.Len(); FFreeBlobPtN++){
     FFreeBlobPtV[FFreeBlobPtN]=TBlobPt::Load(FBlobBs);}
-  IAssert(FBlobBs->GetInt()==-1);
+  EAssert(FBlobBs->GetInt()==-1);
 }
 
 void TBlobBs::GetAllocInfo(
@@ -168,7 +170,7 @@ void TBlobBs::GetAllocInfo(
   int BlockLenN=0;
   while ((BlockLenN<BlockLenV.Len())&&(BfL>BlockLenV[BlockLenN])){
     BlockLenN++;}
-  IAssert(BlockLenN<BlockLenV.Len());
+  EAssert(BlockLenN<BlockLenV.Len());
   MxBfL=BlockLenV[BlockLenN]; FFreeBlobPtN=BlockLenN;
 }
 
@@ -182,9 +184,9 @@ void TBlobBs::PutBlobTag(const PFRnd& FBlobBs, const TBlobTag& BlobTag){
 
 void TBlobBs::AssertBlobTag(const PFRnd& FBlobBs, const TBlobTag& BlobTag){
   switch (BlobTag){
-    case btBegin: IAssert(FBlobBs->GetUInt()==GetBeginBlobTag()); break;
-    case btEnd: IAssert(FBlobBs->GetUInt()==GetEndBlobTag()); break;
-    default: Fail;
+    case btBegin: EAssert(FBlobBs->GetUInt()==GetBeginBlobTag()); break;
+    case btEnd: EAssert(FBlobBs->GetUInt()==GetEndBlobTag()); break;
+	default: TExcept::Throw("Error asserting BlobTag");
   }
 }
 
@@ -197,13 +199,13 @@ TBlobState TBlobBs::GetBlobState(const PFRnd& FBlobBs){
 }
 
 void TBlobBs::AssertBlobState(const PFRnd& FBlobBs, const TBlobState& State){
-  IAssert(TBlobState(FBlobBs->GetCh())==State);
+  EAssert(TBlobState(FBlobBs->GetCh())==State);
 }
 
 void TBlobBs::AssertBfCsEqFlCs(const TCs& BfCs, const TCs& FCs){
   if (BfCs!=FCs){
     printf("[%d:%d]\n", BfCs.Get(), FCs.Get());}
-  //IAssert(BfCs==FCs);
+  //EAssert(BfCs==FCs);
 }
 
 /////////////////////////////////////////////////
@@ -271,7 +273,7 @@ TGBlobBs::~TGBlobBs(){
 }
 
 TBlobPt TGBlobBs::PutBlob(const PSIn& SIn){
-  IAssert((Access==faCreate)||(Access==faUpdate)||(Access==faRestore));
+  EAssert((Access==faCreate)||(Access==faUpdate)||(Access==faRestore));
   int BfL=SIn->Len();
   int MxBfL; int FFreeBlobPtN;
   GetAllocInfo(BfL, BlockLenV, MxBfL, FFreeBlobPtN);
@@ -279,7 +281,7 @@ TBlobPt TGBlobBs::PutBlob(const PSIn& SIn){
   if (FFreeBlobPtV[FFreeBlobPtN].Empty()){
     int FLen=FBlobBs->GetFLen();
     if (FLen<=MxSegLen){
-      IAssert(FLen<=MxBlobFLen);
+      EAssert(FLen<=MxBlobFLen);
       BlobPt=TBlobPt(FLen);
       FBlobBs->SetFPos(BlobPt.GetAddr());
       PutBlobTag(FBlobBs, btBegin);
@@ -312,7 +314,7 @@ TBlobPt TGBlobBs::PutBlob(const PSIn& SIn){
 }
 
 TBlobPt TGBlobBs::PutBlob(const TBlobPt& BlobPt, const PSIn& SIn){
-  IAssert((Access==faCreate)||(Access==faUpdate)||(Access==faRestore));
+  EAssert((Access==faCreate)||(Access==faUpdate)||(Access==faRestore));
   int BfL=SIn->Len();
 
   FBlobBs->SetFPos(BlobPt.GetAddr());
@@ -349,7 +351,7 @@ PSIn TGBlobBs::GetBlob(const TBlobPt& BlobPt){
 }
 
 void TGBlobBs::DelBlob(const TBlobPt& BlobPt){
-  IAssert((Access==faCreate)||(Access==faUpdate)||(Access==faRestore));
+  EAssert((Access==faCreate)||(Access==faUpdate)||(Access==faRestore));
   FBlobBs->SetFPos(BlobPt.GetAddr());
   AssertBlobTag(FBlobBs, btBegin);
   int MxBfL=FBlobBs->GetInt();
@@ -360,7 +362,7 @@ void TGBlobBs::DelBlob(const TBlobPt& BlobPt){
   PutBlobState(FBlobBs, bsFree);
   int _MxBfL; int FFreeBlobPtN;
   GetAllocInfo(MxBfL, BlockLenV, _MxBfL, FFreeBlobPtN);
-  IAssert(MxBfL==_MxBfL);
+  EAssert(MxBfL==_MxBfL);
   FFreeBlobPtV[FFreeBlobPtN].SaveAddr(FBlobBs);
   FFreeBlobPtV[FFreeBlobPtN]=BlobPt;
   FBlobBs->PutCh(TCh::NullCh, MxBfL+sizeof(TCs));
@@ -431,7 +433,7 @@ TStr TMBlobBs::GetSegFNm(
 void TMBlobBs::LoadMain(int& Segs){
   PSIn SIn=TFIn::New(GetMainFNm(NrFPath, NrFMid));
   TILx Lx(SIn, TFSet()|oloFrcEoln|oloSigNum|oloCsSens);
-  IAssert(Lx.GetVarStr("Version")==GetVersionStr());
+  EAssert(Lx.GetVarStr("Version")==GetVersionStr());
   MxSegLen=Lx.GetVarInt("MxSegLen");
   Segs=Lx.GetVarInt("Segments");
 }
@@ -505,7 +507,7 @@ TMBlobBs::~TMBlobBs(){
 }
 
 TBlobPt TMBlobBs::PutBlob(const PSIn& SIn){
-  IAssert((Access==faCreate)||(Access==faUpdate)||(Access==faRestore));
+  EAssert((Access==faCreate)||(Access==faUpdate)||(Access==faRestore));
   TBlobPt BlobPt=SegV[CurSegN]->PutBlob(SIn);
   if (BlobPt.Empty()){
     for (uchar SegN=0; SegN<SegV.Len(); SegN++){
@@ -515,7 +517,7 @@ TBlobPt TMBlobBs::PutBlob(const PSIn& SIn){
     if (BlobPt.Empty()){
       TStr SegFNm=GetSegFNm(NrFPath, NrFMid, SegV.Len());
       PBlobBs Seg=TGBlobBs::New(SegFNm, faCreate, MxSegLen);
-      CurSegN=SegV.Add(Seg); IAssert(CurSegN<=255);
+      CurSegN=SegV.Add(Seg); EAssert(CurSegN<=255);
       BlobPt=SegV[CurSegN]->PutBlob(SIn);
     }
   }
@@ -525,7 +527,7 @@ TBlobPt TMBlobBs::PutBlob(const PSIn& SIn){
 }
 
 TBlobPt TMBlobBs::PutBlob(const TBlobPt& BlobPt, const PSIn& SIn){
-  IAssert((Access==faCreate)||(Access==faUpdate)||(Access==faRestore));
+  EAssert((Access==faCreate)||(Access==faUpdate)||(Access==faRestore));
   int SegN=BlobPt.GetSeg();
   TBlobPt NewBlobPt=SegV[SegN]->PutBlob(BlobPt, SIn);
   if (NewBlobPt.Empty()){

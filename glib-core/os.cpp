@@ -544,6 +544,14 @@ int TStdIOPipe::Read(char *Bf, const int& BfMxLen) {
 }
 
 #elif defined(GLib_UNIX)
+
+#if 0
+// 2012/08/20 ROK uuid excluded for the merge, move out from the base
+extern "C" {
+  #include <uuid/uuid.h>
+}
+#endif
+
 /////////////////////////////////////////////////
 // Compatibility functions
 int GetModuleFileName(void *hModule, char *Bf, int MxBfL) {
@@ -568,6 +576,25 @@ int CreateDirectory(const char *FNm, void *useless) {
 
 int RemoveDirectory(const char *FNm) {
   return unlink(FNm)==0;
+}
+
+#define TICKS_PER_SECOND 10000000
+#define EPOCH_DIFFERENCE 11644473600LL
+
+/// Converts Unix epoch time to Windows FILETIME.
+uint64 Epoch2Ft(time_t Epoch){
+  uint64 Ft;
+  Ft = Epoch + EPOCH_DIFFERENCE;  // Adds seconds between epochs
+  Ft *= TICKS_PER_SECOND;         // Converts from seconds to 100ns intervals
+  return Ft;
+}
+
+/// Converts Windows FILETIME to Unix epoch time.
+time_t Ft2Epoch(uint64 Ft){
+  uint64 Epoch;
+  Epoch = Ft / TICKS_PER_SECOND;  // Converts from 100ns intervals to seconds
+  Epoch -= EPOCH_DIFFERENCE;      // Subtracts seconds between epochs
+  return (time_t) Epoch;
 }
 
 /////////////////////////////////////////////////
@@ -608,7 +635,6 @@ uint64 TSysTm::GetCurLocMSecs(){
   return TTm::GetMSecsFromTm(GetCurUniTm());
 }
 
-// !bn: timezone needs to be correctly loaded first...
 uint64 TSysTm::GetMSecsFromTm(const TTm& Tm){
   time_t t;
   struct tm tms;
@@ -618,18 +644,15 @@ uint64 TSysTm::GetMSecsFromTm(const TTm& Tm){
   tms.tm_hour = Tm.GetHour();
   tms.tm_min = Tm.GetMin();
   tms.tm_sec = Tm.GetSec();
-  t = mktime(&tms);
 
-  t -= timezone;
-  FailR("BUG!: miliseconds start Jan 1 1601 (and not Jan 1 1970)!!!"); //J:BUG
-
-  return (1000*(uint64)t) + (uint64)Tm.GetMSec();
+  t = timegm(&tms);
+  return Epoch2Ft(t)/10000 + (uint64)Tm.GetMSec();
 }
 
 TTm TSysTm::GetTmFromMSecs(const uint64& TmNum){
   int MSec = TmNum % 1000;
-  time_t Sec = time_t(uint64(TmNum / 1000)-uint64(1970-1601)*365*3600*24);
-  FailR("BUG!: miliseconds start Jan 1 1601 (and not Jan 1 1970)!!!"); //J:BUG
+  time_t Sec = Ft2Epoch(TmNum*10000);
+
   struct tm tms;
   gmtime_r(&Sec, &tms);
 
@@ -637,7 +660,6 @@ TTm TSysTm::GetTmFromMSecs(const uint64& TmNum){
    tms.tm_hour, tms.tm_min, tms.tm_sec, MSec);
 }
 
-// !bn: timezone needs to be correctly loaded first...
 TTm TSysTm::GetLocTmFromUniTm(const TTm& Tm) {
   struct tm tms, tmr;
 
@@ -649,8 +671,7 @@ TTm TSysTm::GetLocTmFromUniTm(const TTm& Tm) {
   tms.tm_sec = Tm.GetSec();
   int MSec = Tm.GetMSec();
 
-  time_t Sec = mktime(&tms);
-  Sec -= timezone;
+  time_t Sec = timegm(&tms);
   localtime_r(&Sec, &tmr);
 
   return TTm(1900+tmr.tm_year, tmr.tm_mon, tmr.tm_mday, tmr.tm_wday,
@@ -666,6 +687,7 @@ TTm TSysTm::GetUniTmFromLocTm(const TTm& Tm) {
   tms.tm_hour = Tm.GetHour();
   tms.tm_min = Tm.GetMin();
   tms.tm_sec = Tm.GetSec();
+  tms.tm_isdst = -1;      // ask the system to figure out DST
   int MSec = Tm.GetMSec();
 
   time_t Sec = mktime(&tms);
@@ -750,24 +772,21 @@ uint64 TSysTm::GetPerfTimerTicks(){
 
 /////////////////////////////////////////////////
 // System-Processes
-void TSysProc::Sleep(const uint& MSecs) {
+int TSysProc::Sleep(const uint& MSecs) {
+  int ret;
   struct timespec tsp, trem;
   tsp.tv_sec = MSecs / 1000;
   tsp.tv_nsec = (MSecs % 1000) * 1000000;
 
   while (true) {
-#if defined(GLib_POSIX_1j) && defined(_POSIX_MONOTONIC_CLOCK)
-    //int ret = clock_nanosleep(CLOCK_MONOTONIC, 0, &tsp, &trem); //J: troubles compiling
-    //if ((ret == -1) && (errno == ENOTSUP)) {
-    int ret = nanosleep(&tsp, &trem);
-    //}
-#else
-    int ret = nanosleep(&tsp, &trem);
-#endif
-    if ((ret == -1) && (errno == EINTR)) {
-      tsp = trem;
-    } else break;
+    ret = nanosleep(&tsp, &trem);
+    if ((ret != -1)  ||  (errno != EINTR)) {
+      break;
+    }
+    tsp = trem;
   }
+
+  return ret;
 }
 
 TStr TSysProc::GetExeFNm() {
@@ -796,7 +815,7 @@ bool TSysProc::ExeProc(const TStr& ExeFNm, TStr& ParamStr) {
 
   execvp(argv[0], argv);
 
-  Fail;
+  TSysMsg::Quit();
   return false;
 }
 
@@ -838,5 +857,20 @@ int TStdIOPipe::Read(char *Bf, const int& BfMxLen) {
   FailR("Not intended for use under Linux!");
   return -1;
 }
+
+
+/////////////////////////////////////////////////
+// GUID
+#if 0
+// 2012/08/20 ROK uuid excluded for the merge, move out from the base
+TStr TGuid::GenGuid() {
+	uuid_t Uuid;
+	uuid_generate_random(Uuid);
+	char s[37];
+	uuid_unparse(Uuid, s);
+	TStr UuidStr = s;
+	return UuidStr;
+}
+#endif
 
 #endif

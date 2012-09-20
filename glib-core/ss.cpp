@@ -138,6 +138,11 @@ PSs TSs::LoadTxt(
             ChA+=Ch; Ch=SIn->GetCh();
           }
         } else
+        if (SsFmt==ssfVBar){
+          while ((!SIn->Eof())&&(Ch!='|')&&(Ch!='\r')&&((Ch!='\n')||IsExcelEoln)){
+            ChA+=Ch; Ch=SIn->GetCh();
+          }
+        } else
         if (SsFmt==ssfSpaceSep){
           while ((!SIn->Eof())&&(Ch!=' ')&&(Ch!='\r')&&((Ch!='\n')||IsExcelEoln)){
             ChA+=Ch; Ch=SIn->GetCh();
@@ -169,6 +174,9 @@ PSs TSs::LoadTxt(
         X++; Ch=SIn->GetCh();
       } else
       if ((SsFmt==ssfSemicolonSep)&&(Ch==';')){
+        X++; Ch=SIn->GetCh();
+      } else
+      if ((SsFmt==ssfVBar)&&(Ch=='|')){
         X++; Ch=SIn->GetCh();
       } else
       if ((SsFmt==ssfSpaceSep)&&(Ch==' ')){
@@ -259,6 +267,12 @@ void TSs::LoadTxtFldV(
            ((Ch!='\n')||IsExcelEoln)){
             ChA+=Ch; Ch=SIn->GetCh();
           }
+        } else
+        if (SsFmt==ssfVBar){
+          while ((!SIn->Eof())&&(Ch!='|')&&(Ch!='\r')&&
+           ((Ch!='\n')||IsExcelEoln)){
+            ChA+=Ch; Ch=SIn->GetCh();
+          }
         } else {
           Fail;
         }
@@ -277,6 +291,9 @@ void TSs::LoadTxtFldV(
         X++; Ch=SIn->GetCh();
       } else
       if ((SsFmt==ssfSemicolonSep)&&(Ch==';')){
+        X++; Ch=SIn->GetCh();
+      } else
+      if ((SsFmt==ssfVBar)&&(Ch=='|')){
         X++; Ch=SIn->GetCh();
       } else
       if (Ch=='\r'){
@@ -300,6 +317,7 @@ TSsFmt TSs::GetSsFmtFromStr(const TStr& SsFmtNm){
   if (LcSsFmtNm=="tab"){return ssfTabSep;}
   else if (LcSsFmtNm=="comma"){return ssfCommaSep;}
   else if (LcSsFmtNm=="semicolon"){return ssfSemicolonSep;}
+  else if (LcSsFmtNm=="vbar"){return ssfVBar;}
   else if (LcSsFmtNm=="space"){return ssfSpaceSep;}
   else if (LcSsFmtNm=="white"){return ssfWhiteSep;}
   else {return ssfUndef;}
@@ -310,6 +328,7 @@ TStr TSs::GetStrFromSsFmt(const TSsFmt& SsFmt){
     case ssfTabSep: return "tab";
     case ssfCommaSep: return "comma";
     case ssfSemicolonSep: return "semicolon";
+    case ssfVBar: return "vbar";
     case ssfSpaceSep: return "space";
     case ssfWhiteSep: return "white";
     default: return "undef";
@@ -338,6 +357,7 @@ TSsParser::TSsParser(const TStr& FNm, const TSsFmt _SsFmt, const bool& _SkipLead
     case ssfTabSep : SplitCh = '\t'; break;
     case ssfCommaSep : SplitCh = ','; break;
     case ssfSemicolonSep : SplitCh = ';'; break;
+    case ssfVBar : SplitCh = '|'; break;
     case ssfSpaceSep : SplitCh = ' '; break;
     case ssfWhiteSep: SplitCh = ' '; break;
     default: FailR("Unknown separator character.");
@@ -354,45 +374,6 @@ TSsParser::TSsParser(const TStr& FNm, const char& Separator, const bool& _SkipLe
 TSsParser::~TSsParser() {
   //if (Bf != NULL) { delete [] Bf; }
 }
-
-/*
-// Old implementation that loaded a line into a fixed size buffer (which limited the maximum line lenght).
-// New implementation below has no limit on the line lenght.
-bool TSsParser::Next() { // split on SplitCh
-  const char* EndBf = Bf+BfLen-1;
-  memset(Bf, 0, BfLen);
-  char *cur = Bf, *last = Bf;
-  FldV.Clr(false);
-  TSIn& FIn = *FInPt;
-  if (SkipLeadBlanks) { // skip leadning blanks
-    while (! FIn.Eof() && cur < EndBf && (FIn.PeekCh()=='\t' || FIn.PeekCh()==' ')) { FIn.GetCh(); } 
-  }
-  while (! FIn.Eof() && cur < EndBf) {
-    if (SsFmt == ssfWhiteSep) {
-      while (! FIn.Eof() && cur < EndBf && ! TCh::IsWs(*cur=FIn.GetCh())) { cur++; }
-    } else {
-      while (! FIn.Eof() && cur < EndBf && (*cur=FIn.GetCh())!=SplitCh && *cur!='\r' && *cur!='\n') { cur++; }
-    }
-    if (*cur=='\r' || *cur=='\n') {
-      *cur = 0; cur++;
-      if (*last) { FldV.Add(last); }
-      last = cur;
-      break;
-    }
-    *cur = 0;  cur++;
-    FldV.Add(last);  last = cur;
-    if (SkipEmpty && strlen(FldV.Last())==0) { FldV.DelLast(); }
-  }
-  if (SkipEmpty && FldV.Len()>0 && strlen(FldV.Last())==0) { 
-    FldV.DelLast(); 
-  }
-  LineCnt++;
-  if (! FldV.Empty() && cur < EndBf) { 
-    if (SkipCmt && IsCmt()) { return Next(); }
-    else { return true; } }
-  else if (! FIn.Eof() && ! SkipEmpty) { return true; }
-  else { return false; }
-}*/
 
 bool TSsParser::Next() { // split on SplitCh
   FldV.Clr(false);
@@ -440,7 +421,7 @@ bool TSsParser::GetInt(const int& FldN, int& Val) const {
     _Val = 10 * _Val + TCh::GetNum(*c); 
     c++; 
   }
-  if (Minus) { _Val =- _Val; }
+  if (Minus) { _Val = -_Val; }
   if (*c != 0) { return false; }
   Val = _Val;
   return true;

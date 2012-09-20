@@ -214,6 +214,9 @@ public:
   static PXmlTok New(
    const TXmlLxSym& Sym, const TStr& Str, const TStrKdV& ArgNmValV){
     return PXmlTok(new TXmlTok(Sym, Str, ArgNmValV));}
+  static PXmlTok New(
+   const TStr& TagNm, const TStrKdV& ArgNmValV){
+    return PXmlTok(new TXmlTok(xsyTag, TagNm, ArgNmValV));}
   static PXmlTok New(const TStr& TagNm){
     return PXmlTok(new TXmlTok(xsyTag, TagNm));}
   static PXmlTok New(const TStr& TagNm, const TStr& ValStr){
@@ -248,6 +251,8 @@ public:
     ArgNmValV.Add(TStrKd(ArgNm, TBool::GetStr(ArgVal)));}
   void AddArg(const TStr& ArgNm, const int& ArgVal){
     ArgNmValV.Add(TStrKd(ArgNm, TInt::GetStr(ArgVal)));}
+  void AddArg(const TStr& ArgNm, const uint64& ArgVal){
+    ArgNmValV.Add(TStrKd(ArgNm, TUInt64::GetStr(ArgVal)));}
   void AddArg(const TStr& ArgNm, const double& ArgVal){
     ArgNmValV.Add(TStrKd(ArgNm, TFlt::GetStr(ArgVal)));}
   void AddArg(const TStr& ArgNm, const TStr& ArgVal){

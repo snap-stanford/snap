@@ -1,3 +1,10 @@
+#ifdef GLib_LINUX
+extern "C" {
+	#include <sys/mman.h>
+}
+
+#endif
+
 /////////////////////////////////////////////////
 // Check-Sum
 const int TCs::MxMask=0x0FFFFFFF;
@@ -87,7 +94,7 @@ int TSOut::PutInt(const int& Int){
   return PutStr(TInt::GetStr(Int));
 }
 
-int TSOut::PutInt(const int& Int, char* FmtStr){
+int TSOut::PutInt(const int& Int, const char* FmtStr){
   return PutStr(TInt::GetStr(Int, FmtStr));
 }
 
@@ -95,7 +102,7 @@ int TSOut::PutUInt(const uint& UInt){
   return PutStr(TUInt::GetStr(UInt));
 }
 
-int TSOut::PutUInt(const uint& UInt, char* FmtStr){
+int TSOut::PutUInt(const uint& UInt, const char* FmtStr){
   return PutStr(TUInt::GetStr(UInt, FmtStr));
 }
 
@@ -103,7 +110,7 @@ int TSOut::PutFlt(const double& Flt){
   return PutStr(TFlt::GetStr(Flt));
 }
 
-int TSOut::PutFlt(const double& Flt, char* FmtStr){
+int TSOut::PutFlt(const double& Flt, const char* FmtStr){
   return PutStr(TFlt::GetStr(Flt, FmtStr));
 }
 
@@ -117,13 +124,31 @@ int TSOut::PutStr(const TChA& ChA){
   return Cs+PutBf(ChA.CStr(), ChA.Len());
 }
 
-int TSOut::PutStr(const TStr& Str, char* FmtStr){
+int TSOut::PutStr(const TStr& Str, const char* FmtStr){
   return PutStr(TStr::GetStr(Str, FmtStr));
 }
 
 int TSOut::PutStr(const TStr& Str, const bool& ForceInLn){
   int Cs=UpdateLnLen(Str.Len(), ForceInLn);
   return Cs+PutBf(Str.CStr(), Str.Len());
+}
+
+int TSOut::PutStrFmt(const char *FmtStr, ...){
+  char Bf[10*1024];
+  va_list valist;
+  va_start(valist, FmtStr);
+  const int RetVal=vsnprintf(Bf, 10*1024-2, FmtStr, valist);
+  va_end(valist);
+  return RetVal!=-1 ? PutStr(TStr(Bf)) : 0;	
+}
+
+int TSOut::PutStrFmtLn(const char *FmtStr, ...){
+  char Bf[10*1024];
+  va_list valist;
+  va_start(valist, FmtStr);
+  const int RetVal=vsnprintf(Bf, 10*1024-2, FmtStr, valist);
+  va_end(valist);
+  return RetVal!=-1 ? PutStrLn(TStr(Bf)) : PutLn();	
 }
 
 int TSOut::PutIndent(const int& IndentLev){
@@ -792,10 +817,102 @@ const TStr TFile::GifFExt=".Gif";
 const TStr TFile::JarFExt=".Jar";
 
 bool TFile::Exists(const TStr& FNm){
+  if (FNm.Empty()) { return false; }
   bool DoExists;
   TFIn FIn(FNm, DoExists);
   return DoExists;
 }
+
+#if defined(GLib_WIN32)
+
+void TFile::Copy(const TStr& SrcFNm, const TStr& DstFNm, 
+ const bool& ThrowExceptP, const bool& FailIfExistsP){
+  if (ThrowExceptP){
+    if (CopyFile(SrcFNm.CStr(), DstFNm.CStr(), FailIfExistsP) == 0) {
+        int ErrorCode = (int)GetLastError();
+        TExcept::Throw(TStr::Fmt(
+            "Error %d copying file '%s' to '%s'.", 
+            ErrorCode, SrcFNm.CStr(), DstFNm.CStr()));
+    }
+  } else {
+    CopyFile(SrcFNm.CStr(), DstFNm.CStr(), FailIfExistsP);
+  }
+}
+
+#elif defined(GLib_LINUX)
+
+void TFile::Copy(const TStr& SrcFNm, const TStr& DstFNm,
+ const bool& ThrowExceptP, const bool& FailIfExistsP){
+	int input, output;
+	size_t filesize;
+	void *source, *target;
+
+	if( (input = open(SrcFNm.CStr(), O_RDONLY)) == -1) {
+		if (ThrowExceptP) {
+			TExcept::Throw(TStr::Fmt(
+			            "Error copying file '%s' to '%s': cannot open source file for reading.",
+			            SrcFNm.CStr(), DstFNm.CStr()));
+		} else {
+			return;
+		}
+	}
+
+
+	if( (output = open(DstFNm.CStr(), O_RDWR | O_CREAT | O_TRUNC, 0666)) == -1)	{
+		close(input);
+
+		if (ThrowExceptP) {
+			TExcept::Throw(TStr::Fmt(
+			            "Error copying file '%s' to '%s': cannot open destination file for writing.",
+			            SrcFNm.CStr(), DstFNm.CStr()));
+		} else {
+			return;
+		}
+	}
+
+
+	filesize = lseek(input, 0, SEEK_END);
+	lseek(output, filesize - 1, SEEK_SET);
+	write(output, '\0', 1);
+
+	if((source = mmap(0, filesize, PROT_READ, MAP_SHARED, input, 0)) == (void *) -1) {
+		close(input);
+		close(output);
+		if (ThrowExceptP) {
+			TExcept::Throw(TStr::Fmt(
+						"Error copying file '%s' to '%s': cannot mmap input file.",
+						SrcFNm.CStr(), DstFNm.CStr()));
+		} else {
+			return;
+		}
+	}
+
+	if((target = mmap(0, filesize, PROT_WRITE, MAP_SHARED, output, 0)) == (void *) -1) {
+		munmap(source, filesize);
+		close(input);
+		close(output);
+		if (ThrowExceptP) {
+			TExcept::Throw(TStr::Fmt(
+						"Error copying file '%s' to '%s': cannot mmap output file.",
+						SrcFNm.CStr(), DstFNm.CStr()));
+		} else {
+			return;
+		}
+	}
+
+	memcpy(target, source, filesize);
+
+	munmap(source, filesize);
+	munmap(target, filesize);
+
+	close(input);
+	close(output);
+
+}
+
+
+
+#endif
 
 void TFile::Del(const TStr& FNm, const bool& ThrowExceptP){
   if (ThrowExceptP){
@@ -841,4 +958,123 @@ TStr TFile::GetUniqueFNm(const TStr& FNm){
   return NewFNm;
 }
 
+#ifdef GLib_WIN
 
+uint64 TFile::GetSize(const TStr& FNm) {
+    // open 
+    HANDLE hFile = CreateFile(
+       FNm.CStr(),            // file to open
+       GENERIC_READ,          // open for reading
+       FILE_SHARE_READ | FILE_SHARE_WRITE,       // share for reading
+       NULL,                  // default security
+       OPEN_EXISTING,         // existing file only
+       FILE_ATTRIBUTE_NORMAL, // normal file
+       NULL);                 // no attr. template
+    // check if we could open it
+    if (hFile == INVALID_HANDLE_VALUE) {
+        TExcept::Throw("Can not open file " + FNm + "!"); }
+    // read file times
+    LARGE_INTEGER lpFileSizeHigh;
+	if (!GetFileSizeEx(hFile, &lpFileSizeHigh)) {
+        TExcept::Throw("Can not read size of file " + FNm + "!"); }
+    // close file
+    CloseHandle(hFile);
+    // convert to uint64
+	return uint64(lpFileSizeHigh.QuadPart);
+}
+
+uint64 TFile::GetCreateTm(const TStr& FNm) {
+    // open 
+    HANDLE hFile = CreateFile(
+       FNm.CStr(),            // file to open
+       GENERIC_READ,          // open for reading
+       FILE_SHARE_READ | FILE_SHARE_WRITE,       // share for reading
+       NULL,                  // default security
+       OPEN_EXISTING,         // existing file only
+       FILE_ATTRIBUTE_NORMAL, // normal file
+       NULL);                 // no attr. template
+    // check if we could open it
+    if (hFile == INVALID_HANDLE_VALUE) {
+        TExcept::Throw("Can not open file " + FNm + "!"); }
+    // read file times
+    FILETIME lpCreationTime;
+    if (!GetFileTime(hFile, &lpCreationTime, NULL, NULL)) {
+        TExcept::Throw("Can not read time from file " + FNm + "!"); }
+    // close file
+    CloseHandle(hFile);
+    // convert to uint64
+    TUInt64 UInt64(uint(lpCreationTime.dwHighDateTime), 
+        uint(lpCreationTime.dwLowDateTime));
+    return UInt64.Val / uint64(10000);
+}
+
+uint64 TFile::GetLastAccessTm(const TStr& FNm) {
+    // open 
+    HANDLE hFile = CreateFile(
+       FNm.CStr(),            // file to open
+       GENERIC_READ,          // open for reading
+       FILE_SHARE_READ | FILE_SHARE_WRITE,       // share for reading
+       NULL,                  // default security
+       OPEN_EXISTING,         // existing file only
+       FILE_ATTRIBUTE_NORMAL, // normal file
+       NULL);                 // no attr. template
+    // check if we could open it
+    if (hFile == INVALID_HANDLE_VALUE) {
+        TExcept::Throw("Can not open file " + FNm + "!"); }
+    // read file times
+    FILETIME lpLastAccessTime;
+    if (!GetFileTime(hFile, NULL, &lpLastAccessTime, NULL)) {
+        TExcept::Throw("Can not read time from file " + FNm + "!"); }
+    // close file
+    CloseHandle(hFile);
+    // convert to uint64
+    TUInt64 UInt64(uint(lpLastAccessTime.dwHighDateTime), 
+        uint(lpLastAccessTime.dwLowDateTime));
+    return UInt64.Val / uint64(10000);
+}
+
+uint64 TFile::GetLastWriteTm(const TStr& FNm) {
+    // open 
+    HANDLE hFile = CreateFile(
+       FNm.CStr(),            // file to open
+       GENERIC_READ,          // open for reading
+       FILE_SHARE_READ | FILE_SHARE_WRITE,       // share for reading
+       NULL,                  // default security
+       OPEN_EXISTING,         // existing file only
+       FILE_ATTRIBUTE_NORMAL, // normal file
+       NULL);                 // no attr. template
+    // check if we could open it
+    if (hFile == INVALID_HANDLE_VALUE) {
+        TExcept::Throw("Can not open file " + FNm + "!"); }
+    // read file times
+    FILETIME lpLastWriteTime;
+    if (!GetFileTime(hFile, NULL, NULL, &lpLastWriteTime)) {
+        TExcept::Throw("Can not read time from file " + FNm + "!"); }
+    // close file
+    CloseHandle(hFile);
+    // convert to uint64
+    TUInt64 UInt64(uint(lpLastWriteTime.dwHighDateTime), 
+        uint(lpLastWriteTime.dwLowDateTime));
+    return UInt64.Val / uint64(10000);
+}
+
+#elif defined(GLib_LINUX)
+
+uint64 TFile::GetSize(const TStr& FNm) {
+	Fail; return 0;
+}
+
+uint64 TFile::GetCreateTm(const TStr& FNm) {
+	return GetLastWriteTm(FNm);
+}
+
+uint64 TFile::GetLastWriteTm(const TStr& FNm) {
+	struct stat st;
+	if (stat(FNm.CStr(), &st) != 0) {
+		TExcept::Throw("Cannot read tile from file " + FNm + "!");
+	}
+	return uint64(st.st_mtime);
+}
+
+
+#endif

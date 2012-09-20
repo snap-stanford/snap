@@ -631,7 +631,7 @@ void TStatTest::ChiSquareTwo(
   int Constraints=0;
   int DegreesOfFreedom=Bins-Constraints;
   ChiSquareVal=0.0;
-  for (int BinN=1; BinN<=Bins; BinN++){
+  for (int BinN=0; BinN<Bins; BinN++){
     if ((ObservedBin1V[BinN]==0.0) && (ObservedBin2V[BinN]==0.0)){
       DegreesOfFreedom--;
     } else {
@@ -1265,3 +1265,38 @@ void TSvd::Wr() const {
   }}
 }
 
+/////////////////////////////////////////////////
+// Histogram
+void THist::Add(const double& Val, const bool& OnlyInP) {
+	// get bucket number
+    const int BucketN = int(floor((Val - MnVal) / BucketSize));
+	if (OnlyInP) { 
+		// value should be inside
+		EAssert(MnVal <= Val && Val <= MxVal);
+		BucketV[BucketN]++;
+	} else {
+		// value does not need to be inside
+		if (BucketN < 0) {
+			BucketV[0]++;
+		} else if (BucketN < BucketV.Len()) {
+			BucketV[BucketN]++;
+		} else {
+			BucketV.Last()++;
+		}
+	}
+	// for computing percentage
+	Vals++;
+}
+
+void THist::SaveStat(const TStr& ValNm, TSOut& FOut) const {
+    FOut.PutStrLn("#" + ValNm + ": " + Vals.GetStr());
+    const int Buckets = BucketV.Len() - 1;
+    for (int BucketN = 0; BucketN < Buckets; BucketN++) {
+        FOut.PutStrLn(TStr::Fmt("%d-%d\t%d", BucketSize*BucketN,
+            BucketSize*(BucketN+1), BucketV[BucketN]()));
+    }
+    if (BucketV.Last() > 0) {
+        FOut.PutStrLn(TStr::Fmt("%d-\t%d", BucketSize*Buckets, BucketV.Last()()));
+    }
+
+}

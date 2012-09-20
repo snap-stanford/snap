@@ -25,10 +25,15 @@ public:
   static const TStr TextHtmlFldVal;
   static const TStr TextXmlFldVal;
   static const TStr TextWmlFldVal;
+  static const TStr TextJavaScriptFldVal;
+  static const TStr TextCssFldVal;
+  static const TStr ImagePngFldVal;
   static const TStr ImageGifFldVal;
+  static const TStr ImageJpgFldVal;
   static const TStr AppOctetFldVal;
   static const TStr AppSoapXmlFldVal;
   static const TStr AppW3FormFldVal;
+  static const TStr AppJSonFldVal;
   static const TStr ConnKeepAliveFldVal;
   // file extensions
   static bool IsHtmlFExt(const TStr& FExt);
@@ -42,11 +47,13 @@ public:
   static const int BadRqStatusCd;
   static const int ErrStatusCd;
   static const int ErrNotFoundStatusCd;
+  static const int InternalErrStatusCd;
   static TStr GetReasonPhrase(const int& StatusCd);
   // method names
   static const TStr GetMethodNm;
   static const TStr HeadMethodNm;
   static const TStr PostMethodNm;
+  static const TStr UndefMethodNm;
 };
 
 /////////////////////////////////////////////////
@@ -91,19 +98,22 @@ public:
   bool IsOk() const {return Ok;}
   bool IsComplete() const {return CompleteP;}
   THttpRqMethod GetMethod() const {return Method;}
-  TStr GetMethodNm() const;
+  const TStr& GetMethodNm() const;
   PUrl GetUrl() const {return Url;}
   PUrlEnv GetUrlEnv() const {return UrlEnv;}
   bool IsFldNm(const TStr& FldNm) const;
   TStr GetFldVal(const TStr& FldNm) const;
   bool IsFldVal(const TStr& FldNm, const TStr& FldVal) const;
+  void AddFldVal(const TStr& FldNm, const TStr& FldVal);
+  const TStrStrH& GetFldValH() const;
 
   // header & body
   TStr GetHdStr() const {return HdStr;}
-  TStr GetBodyAsStr() const {
-    return BodyMem.GetAsStr(' ');}
-  void GetAsMem(TMem& Mem) const {
-    Mem.Clr(); Mem+=HdStr; Mem+=BodyMem;}
+  int GetBodyLen() const { return BodyMem.Len(); }
+  TStr GetBodyAsStr() const { return BodyMem.GetAsStr(' ');}
+  PSIn GetBodyAsSIn() const { return TMemIn::New(BodyMem); }
+  void GetBodyAsMem(TMem& Mem) const {Mem.Clr(); Mem += BodyMem;}
+  void GetAsMem(TMem& Mem) const {Mem.Clr(); Mem+=HdStr; Mem+=BodyMem;}
 
   // content-type
   bool IsContType(const TStr& ContTypeStr) const {
@@ -152,10 +162,8 @@ public:
   void GetAsMem(TMem& Mem) const {
     Mem.Clr(); Mem+=HdStr; Mem+=BodyMem;}
   TStr GetHdStr() const {return HdStr;}
-  TMem GetBodyAsMem() const {
-    return BodyMem;}
-  TStr GetBodyAsStr() const {
-    return BodyMem.GetAsStr(' ');}
+  const TMem& GetBodyAsMem() const {return BodyMem;}
+  TStr GetBodyAsStr() const {return BodyMem.GetAsStr(' ');}
   int GetStatusCd() const {return StatusCd;}
   TStr GetReasonPhrase() const {return THttp::GetReasonPhrase(StatusCd);}
   int GetFlds() const {return FldNmToValVH.Len();}

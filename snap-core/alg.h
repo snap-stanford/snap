@@ -2,24 +2,41 @@ namespace TSnap {
 
 /////////////////////////////////////////////////
 // Node Degrees
+
+/// Returns the number of nodes with in-degree NodeInDeg.
 template <class PGraph> int CntInDegNodes(const PGraph& Graph, const int& NodeInDeg);
+/// Returns the number of nodes with out-degree NodeOutDeg.
 template <class PGraph> int CntOutDegNodes(const PGraph& Graph, const int& NodeOutDeg);
+/// Returns the number of nodes with degree NodeDeg.
 template <class PGraph> int CntDegNodes(const PGraph& Graph, const int& NodeDeg);
+/// Returns the number of nodes with degree greater than 0.
 template <class PGraph> int CntNonZNodes(const PGraph& Graph);
+/// TODO ROK document CntEdgesToSet()
 template <class PGraph> int CntEdgesToSet(const PGraph& Graph, const int& NId, const TIntSet& NodeSet);
 
+/// Returns a randomly chosen node from all the nodes with the maximum degree.
 template <class PGraph> int GetMxDegNId(const PGraph& Graph);
+/// Returns a randomly chosen node from all the nodes with the maximum in-degree.
 template <class PGraph> int GetMxInDegNId(const PGraph& Graph);
+/// Returns a randomly chosen node from all the nodes with the maximum out-degree.
 template <class PGraph> int GetMxOutDegNId(const PGraph& Graph);
 
 // degree histograms
+/// TODO ROK document GetInDegCnt()
 template <class PGraph> void GetInDegCnt(const PGraph& Graph, TIntPrV& DegToCntV);
+/// TODO ROK document GetInDegCnt()
 template <class PGraph> void GetInDegCnt(const PGraph& Graph, TFltPrV& DegToCntV);
+/// TODO ROK document GetOutDegCnt()
 template <class PGraph> void GetOutDegCnt(const PGraph& Graph, TIntPrV& DegToCntV);
+/// TODO ROK document GetOutDegCnt()
 template <class PGraph> void GetOutDegCnt(const PGraph& Graph, TFltPrV& DegToCntV);
+/// TODO ROK document GetDegCnt()
 template <class PGraph> void GetDegCnt(const PGraph& Graph, TIntPrV& DegToCntV);
+/// TODO ROK document GetDegCnt()
 template <class PGraph> void GetDegCnt(const PGraph& Graph, TFltPrV& DegToCntV);
+/// TODO ROK document GetDegSeqV()
 template <class PGraph> void GetDegSeqV(const PGraph& Graph, TIntV& DegV);
+/// TODO ROK document GetDegSeqV()
 template <class PGraph> void GetDegSeqV(const PGraph& Graph, TIntV& InDegV, TIntV& OutDegV);
 
 template <class PGraph> void GetNodeInDegV(const PGraph& Graph, TIntPrV& NIdInDegV);

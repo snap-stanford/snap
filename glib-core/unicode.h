@@ -3277,7 +3277,7 @@ ToDos:
   Funkcija g(s) = NFKC(toCaseFold(s)) pa ni -- ce hocemo to, moramo pri foldingu
   upostevati se nekaj dodatnih mappingov (glej 5.18, zadnji odstavek; DerivedNormalizationProps.txt).
 - Zdi se, da je CaseFolding.txt v bistvu cisto navaden folding v lowercase.
-  Ker hoèemo imeti tudi ostale foldinge, glejmo raje SpecialCasing.txt
+  Ker hocemo imeti tudi ostale foldinge, glejmo raje SpecialCasing.txt
   (+ simple case mappinge v UnicodeData.txt).
   Predlagam, da pri branju SpecialCasing.txt conditional mappinge kar ignoriramo
   in jih potem upostevamo posebej kar v source kodi nasih programov [za

@@ -83,6 +83,15 @@ bool TEnv::IsEndOfRun() const {
   return Env.GetArgs()<=MnArgs;
 }
 
+bool TEnv::IsArgStr(const TStr& ArgStr) {
+  int ArgN=0;
+  while (ArgN<GetArgs()){
+    if (GetArg(ArgN)==ArgStr){return true;}
+    ArgN++;
+  }
+  return false;
+}
+
 TStr TEnv::GetIfArgPrefixStr(
  const TStr& PrefixStr, const TStr& DfVal, const TStr& DNm) const {
   if (Env.GetArgs()<=MnArgs){

@@ -77,9 +77,13 @@ void GetSwitchedPrV(
 
 typedef TPair<TBool, TCh> TBoolChPr;
 typedef TPair<TBool, TFlt> TBoolFltPr;
+typedef TPair<TUCh, TInt> TUChIntPr;
+typedef TPair<TUCh, TUInt64> TUChUInt64Pr;
+typedef TPair<TUCh, TStr> TUChStrPr;
 typedef TPair<TInt, TBool> TIntBoolPr;
 typedef TPair<TInt, TCh> TIntChPr;
 typedef TPair<TInt, TInt> TIntPr;
+typedef TPair<TInt, TUInt64> TIntUInt64Pr;
 typedef TPair<TInt, TIntPr> TIntIntPrPr;
 typedef TPair<TInt, TVec<TInt> > TIntIntVPr;
 typedef TPair<TInt, TFlt> TIntFltPr;
@@ -88,8 +92,12 @@ typedef TPair<TInt, TStrV> TIntStrVPr;
 typedef TPair<TIntPr, TInt> TIntPrIntPr;
 typedef TPair<TUInt, TUInt> TUIntUIntPr;
 typedef TPair<TUInt, TInt> TUIntIntPr;
+typedef TPair<TUInt64, TInt> TUInt64IntPr;
 typedef TPair<TUInt64, TUInt64> TUInt64Pr;
+typedef TPair<TUInt64, TFlt> TUInt64FltPr;
+typedef TPair<TUInt64, TStr> TUInt64StrPr;
 typedef TPair<TFlt, TInt> TFltIntPr;
+typedef TPair<TFlt, TUInt64> TFltUInt64Pr;
 typedef TPair<TFlt, TFlt> TFltPr;
 typedef TPair<TFlt, TStr> TFltStrPr;
 typedef TPair<TAscFlt, TInt> TAscFltIntPr;
@@ -105,7 +113,6 @@ typedef TPair<TInt, TIntPr> TIntIntPrPr;
 typedef TPair<TInt, TStrPr> TIntStrPrPr;
 typedef TPair<TFlt, TStrPr> TFltStrPrPr;
 
-/////////////////////////////////////////////////
 // Pair comparator
 template <class TVal1, class TVal2>
 class TCmpPairByVal2 {
@@ -153,15 +160,20 @@ public:
     return Val1.GetSecHashCd()+Val2.GetSecHashCd()+Val3.GetSecHashCd();}
   //int GetPrimHashCd() const {return 193*Val1.GetPrimHashCd() ^ 24593 * Val2.GetPrimHashCd() ^ ; } //J: multiply by prime and xor
   //int GetSecHashCd() const {return Val1.GetSecHashCd() ^ 24593*Val2.GetSecHashCd();}    //J: multiply by prime and xor
+  int GetMemUsed() const {return Val1.GetMemUsed()+Val2.GetMemUsed()+Val3.GetMemUsed();}
 
   void GetVal(TVal1& _Val1, TVal2& _Val2, TVal3& _Val3) const {
     _Val1=Val1; _Val2=Val2; _Val3=Val3;}
 };
 
 typedef TTriple<TCh, TCh, TCh> TChTr;
+typedef TTriple<TCh, TInt, TInt> TChIntIntTr;
+typedef TTriple<TUCh, TInt, TInt> TUChIntIntTr;
 typedef TTriple<TInt, TInt, TInt> TIntTr;
 typedef TTriple<TUInt64, TUInt64, TUInt64> TUInt64Tr;
 typedef TTriple<TInt, TStr, TInt> TIntStrIntTr;
+typedef TTriple<TInt, TInt, TStr> TIntIntStrTr;
+typedef TTriple<TInt, TInt, TFlt> TIntIntFltTr;
 typedef TTriple<TInt, TFlt, TInt> TIntFltIntTr;
 typedef TTriple<TInt, TFlt, TFlt> TIntFltFltTr;
 typedef TTriple<TInt, TVec<TInt>, TInt> TIntIntVIntTr;
@@ -170,10 +182,12 @@ typedef TTriple<TFlt, TFlt, TFlt> TFltTr;
 typedef TTriple<TFlt, TInt, TInt> TFltIntIntTr;
 typedef TTriple<TFlt, TFlt, TInt> TFltFltIntTr;
 typedef TTriple<TFlt, TFlt, TStr> TFltFltStrTr;
+typedef TTriple<TChA, TChA, TChA> TChATr;
 typedef TTriple<TStr, TStr, TStr> TStrTr;
 typedef TTriple<TStr, TInt, TInt> TStrIntIntTr;
 typedef TTriple<TStr, TFlt, TFlt> TStrFltFltTr;
 typedef TTriple<TStr, TStr, TInt> TStrStrIntTr;
+typedef TTriple<TStr, TInt, TStrV> TStrIntStrVTr;
 
 /////////////////////////////////////////////////
 // Quad
@@ -282,7 +296,7 @@ int TTuple<TVal, NVals>::FindMx() const {
   int ValN = 0;
   for (int i = 1; i < NVals; i++) {
     if (MxVal<ValV[i]) {
-      MxVal=ValV[i];  ValN=i;
+      MxVal=ValV[i]; ValN=i;
     }
   }
   return ValN;
@@ -294,7 +308,7 @@ int TTuple<TVal, NVals>::FindMn() const {
   int ValN = 0;
   for (int i = 1; i < NVals; i++) {
     if (MnVal>ValV[i]) {
-      MnVal=ValV[i];  ValN=i;
+      MnVal=ValV[i]; ValN=i;
     }
   }
   return ValN;
@@ -339,14 +353,20 @@ void GetSwitchedKdV(
 }
 
 typedef TKeyDat<TInt, TInt> TIntKd;
+typedef TKeyDat<TInt, TUInt64> TIntUInt64Kd;
 typedef TKeyDat<TInt, TFlt> TIntFltKd;
 typedef TKeyDat<TIntPr, TFlt> TIntPrFltKd;
 typedef TKeyDat<TInt, TFltPr> TIntFltPrKd;
 typedef TKeyDat<TInt, TSFlt> TIntSFltKd;
 typedef TKeyDat<TInt, TStr> TIntStrKd;
 typedef TKeyDat<TUInt, TInt> TUIntIntKd;
+typedef TKeyDat<TUInt, TUInt> TUIntKd;
+typedef TKeyDat<TUInt64, TInt> TUInt64IntKd;
+typedef TKeyDat<TUInt64, TFlt> TUInt64FltKd;
+typedef TKeyDat<TUInt64, TStr> TUInt64StrKd;
 typedef TKeyDat<TFlt, TBool> TFltBoolKd;
 typedef TKeyDat<TFlt, TInt> TFltIntKd;
+typedef TKeyDat<TFlt, TUInt64> TFltUInt64Kd;
 typedef TKeyDat<TFlt, TIntPr> TFltIntPrKd;
 typedef TKeyDat<TFlt, TUInt> TFltUIntKd;
 typedef TKeyDat<TFlt, TFlt> TFltKd;
@@ -360,7 +380,6 @@ typedef TKeyDat<TStr, TFlt> TStrFltKd;
 typedef TKeyDat<TStr, TAscFlt> TStrAscFltKd;
 typedef TKeyDat<TStr, TStr> TStrKd;
 
-/////////////////////////////////////////////////
 // Key-Data comparator
 
 template <class TVal1, class TVal2>
@@ -369,7 +388,7 @@ private:
   bool IsAsc;
 public:
   TCmpKeyDatByDat(const bool& AscSort=true) : IsAsc(AscSort) { }
-  bool operator () (const TPair<TVal1, TVal2>& P1, const TPair<TVal1, TVal2>& P2) const {
+  bool operator () (const TKeyDat<TVal1, TVal2>& P1, const TKeyDat<TVal1, TVal2>& P2) const {
     if (IsAsc) { return P1.Dat < P2.Dat; } else { return P2.Dat < P1.Dat; }
   }
 };
@@ -512,7 +531,7 @@ public:
   template <class TCmp> void PushHeap(const TVal& Val, const TCmp& Cmp) { Add(Val); PushHeap(0, Len()-1, 0, Val, Cmp); }
   template <class TCmp> TVal PopHeap(const TCmp& Cmp) { IAssert(! Empty()); const TVal Top=ValT[0];
     ValT[0]=Last(); DelLast(); if (! Empty()) { AdjustHeap(0, 0, Len(), ValT[0], Cmp); } return Top; }
-  // heap helper functions //J:
+  // heap helper functions
   template <class TCmp>
   void PushHeap(const int& First, int HoleIdx, const int& Top, TVal Val, const TCmp& Cmp) {
     int Parent = (HoleIdx-1)/2;
@@ -546,7 +565,7 @@ public:
   template <class TCmp>
   static TIter GetPivotValNCmp(const TIter& BI, const TIter& EI, const TCmp& Cmp) {
     const int SubVals=int(EI-BI);
-    const int ValN1=TInt::GetRnd(SubVals);;
+    const int ValN1=TInt::GetRnd(SubVals);
     const int ValN2=TInt::GetRnd(SubVals);
     const int ValN3=TInt::GetRnd(SubVals);
     const TVal& Val1 = *(BI+ValN1);
@@ -1341,6 +1360,7 @@ int TVec<TVal>::GetMxValN() const {
 // Common-Vector-Types
 typedef TVec<TBool> TBoolV;
 typedef TVec<TCh> TChV;
+typedef TVec<TUCh> TUChV;
 typedef TVec<TUInt> TUIntV;
 typedef TVec<TInt> TIntV;
 typedef TVec<TUInt64> TUInt64V;
@@ -1355,12 +1375,19 @@ typedef TVec<TIntQu> TIntQuV;
 typedef TVec<TFltPr> TFltPrV;
 typedef TVec<TFltTr> TFltTrV;
 typedef TVec<TIntKd> TIntKdV;
+typedef TVec<TUChIntPr> TUChIntPrV;
+typedef TVec<TUChUInt64Pr> TUChUInt64PrV;
+typedef TVec<TIntUInt64Pr> TIntUInt64PrV;
+typedef TVec<TIntUInt64Kd> TIntUInt64KdV;
 typedef TVec<TIntFltPr> TIntFltPrV;
 typedef TVec<TIntFltPrKd> TIntFltPrKdV;
 typedef TVec<TFltIntPr> TFltIntPrV;
+typedef TVec<TFltUInt64Pr> TFltUInt64PrV;
 typedef TVec<TFltStrPr> TFltStrPrV;
 typedef TVec<TAscFltStrPr> TAscFltStrPrV;
 typedef TVec<TIntStrPr> TIntStrPrV;
+typedef TVec<TIntIntStrTr> TIntIntStrTrV;
+typedef TVec<TIntIntFltTr> TIntIntFltTrV;
 typedef TVec<TIntFltIntTr> TIntFltIntTrV;
 typedef TVec<TIntStrIntTr> TIntStrIntTrV;
 typedef TVec<TIntKd> TIntKdV;
@@ -1372,8 +1399,15 @@ typedef TVec<TIntStrPrPr> TIntStrPrPrV;
 typedef TVec<TIntStrVPr> TIntStrVPrV;
 typedef TVec<TIntIntVIntTr> TIntIntVIntTrV;
 typedef TVec<TIntIntIntVTr> TIntIntIntVTrV;
+typedef TVec<TUInt64IntPr> TUInt64IntPrV;
+typedef TVec<TUInt64FltPr> TUInt64FltPrV;
+typedef TVec<TUInt64StrPr> TUInt64StrPrV;
+typedef TVec<TUInt64IntKd> TUInt64IntKdV;
+typedef TVec<TUInt64FltKd> TUInt64FltKdV;
+typedef TVec<TUInt64StrKd> TUInt64StrKdV;
 typedef TVec<TFltBoolKd> TFltBoolKdV;
 typedef TVec<TFltIntKd> TFltIntKdV;
+typedef TVec<TFltUInt64Kd> TFltUInt64KdV;
 typedef TVec<TFltIntPrKd> TFltIntPrKdV;
 typedef TVec<TFltKd> TFltKdV;
 typedef TVec<TFltStrKd> TFltStrKdV;
@@ -1483,7 +1517,7 @@ void TVecPool<TVal>::Resize(const ::TSize& _MxVals){
     IAssert(ValBf != NULL);
     if (EmptyVal != TVal()) { PutAll(EmptyVal); }
   } else {
-    printf("*** Resize vector pool: %I64d -> %I64d\n", uint64(Vals), uint64(MxVals));
+    // printf("*** Resize vector pool: %llu -> %llu\n", uint64(Vals), uint64(MxVals));
     TVal* NewValBf = NULL;
     try { NewValBf = new TVal [MxVals]; }
     catch (std::exception Ex) { EFailR(TStr::Fmt("TVecPool::Resize: %s, MxVals: %d. [Program failed to allocate more memory. Solution: Get a bigger machine and a 64-bit compiler.]", Ex.what(), _MxVals)); }
@@ -1595,9 +1629,9 @@ int TVecPool<TVal>::AddEmptyV(const int& ValVLen) {
 template<class TVal>
 void TVecPool<TVal>::CompactPool(const TVal& DelVal) {
   ::TSize TotalDel=0, NDel=0;
-  printf("Compacting %d vectors\n", IdToOffV.Len());
+  // printf("Compacting %d vectors\n", IdToOffV.Len());
   for (int vid = 1; vid < IdToOffV.Len(); vid++) {
-    if (vid % 10000000 == 0) { printf(" %dm", vid/1000000);  fflush(stdout); }
+    // if (vid % 10000000 == 0) { printf(" %dm", vid/1000000);  fflush(stdout); }
     const uint Len = GetVLen(vid);
     TVal* ValV = GetValVPt(vid);
     if (TotalDel > 0) { IdToOffV[vid-1] -= TotalDel; } // update end of vector
@@ -1617,7 +1651,7 @@ void TVecPool<TVal>::CompactPool(const TVal& DelVal) {
   IdToOffV.Last() -= TotalDel;
   for (::TSize i = Vals-TotalDel; i < Vals; i++) { ValBf[i] = EmptyVal; }
   Vals -= TotalDel;
-  printf("  deleted %d elements from the pool\n", TotalDel);
+  // printf("  deleted %llu elements from the pool\n", TotalDel);
 }
 
 // shuffles all the order of elements in the pool (does not respect vector boundaries)
@@ -1631,6 +1665,8 @@ void TVecPool<TVal>::ShuffleAll(TRnd& Rnd) {
   }
 }
 
+typedef TVecPool<TInt> TIntVecPool;
+typedef TPt<TIntVecPool> PIntVecPool;
 
 /////////////////////////////////////////////////
 // Vector-Pointer
@@ -1885,7 +1921,9 @@ public:
     XDim.Save(SOut); YDim.Save(SOut); ZDim.Save(SOut); ValV.Save(SOut);}
 
   TVVVec<TVal>& operator=(const TVVVec<TVal>& Vec){
-    XDim=Vec.XDim; YDim=Vec.YDim; ZDim=Vec.ZDim; ValV=Vec.ValV;}
+	  XDim=Vec.XDim; YDim=Vec.YDim; ZDim=Vec.ZDim; ValV=Vec.ValV;
+	  return *this;
+  }
   bool operator==(const TVVVec& Vec) const {
     return (XDim==Vec.XDim)&&(YDim==Vec.YDim)&&(ZDim==Vec.ZDim)&&
      (ValV==Vec.ValV);}
@@ -1914,6 +1952,120 @@ public:
 // Common-3D-Vector-Types
 typedef TVVVec<TInt> TIntVVV;
 typedef TVVVec<TFlt> TFltVVV;
+
+/////////////////////////////////////////////////
+// Tree
+template <class TVal>
+class TTree{
+private:
+  TVec<TTriple<TInt, TIntV, TVal> > NodeV; // (ParentNodeId, ChildNodeIdV, NodeVal)
+public:
+  TTree(): NodeV(){}
+  TTree(const TTree& Tree): NodeV(Tree.NodeV){}
+  explicit TTree(TSIn& SIn): NodeV(SIn){}
+  void Save(TSOut& SOut) const {NodeV.Save(SOut);}
+  void LoadXml(const PXmlTok& XmlTok, const TStr& Nm="");
+  void SaveXml(TSOut& SOut, const TStr& Nm) const;
+
+  TTree& operator=(const TTree& Tree){if (this!=&Tree){NodeV=Tree.NodeV;} return *this;}
+  bool operator==(const TTree& Tree) const {return NodeV==Tree.NodeV;}
+  bool operator<(const TTree& Tree) const {return false;}
+
+  int GetPrimHashCd() const {return NodeV.GetPrimHashCd();}
+  int GetSecHashCd() const {return NodeV.GetSecHashCd();}
+
+  int GetMemUsed() const {return NodeV.GetMemUsed();}
+
+  void Clr(){NodeV.Clr();}
+
+  int AddNode(const int& ParentNodeId, const TVal& NodeVal=TVal()){
+    IAssert(((ParentNodeId==-1)&&(NodeV.Len()==0))||(NodeV.Len()>0));
+    if (ParentNodeId!=-1){NodeV[ParentNodeId].Val2.Add(NodeV.Len());}
+    return NodeV.Add(TTriple<TInt, TIntV, TVal>(ParentNodeId, TIntV(), NodeVal));}
+  int AddRoot(const TVal& NodeVal=TVal()){
+    return AddNode(-1, NodeVal);}
+ 
+  int GetNodes() const {return NodeV.Len();}
+  void GetNodeIdV(TIntV& NodeIdV, const int& NodeId=0);
+  int GetParentNodeId(const int& NodeId) const {return NodeV[NodeId].Val1;} 
+  int GetChildren(const int& NodeId) const {return NodeV[NodeId].Val2.Len();}
+  int GetChildNodeId(const int& NodeId, const int& ChildN) const {return NodeV[NodeId].Val2[ChildN];}
+  TVal& GetNodeVal(const int& NodeId){return NodeV[NodeId].Val3;}
+
+  void GenRandomTree(const int& Nodes, TRnd& Rnd=TRnd());
+
+  void DelNode(const int& NodeId);
+  void CopyTree(const int& SrcNodeId, TTree& DstTree, const int& DstParentNodeId=-1);
+
+  void WrTree(const int& NodeId=0, const int& Lev=0);
+};
+
+template <class TVal>
+void TTree<TVal>::GetNodeIdV(TIntV& NodeIdV, const int& NodeId){
+  if (NodeId==0){NodeIdV.Clr(); if (GetNodes()==0){return;}}
+  else if (GetParentNodeId(NodeId)==-1){return;}
+  NodeIdV.Add(NodeId);
+  for (int ChildN=0; ChildN<GetChildren(NodeId); ChildN++){
+    int ChildNodeId=GetChildNodeId(NodeId, ChildN);
+    if (ChildNodeId!=-1){
+      GetNodeIdV(NodeIdV, ChildNodeId);
+    }
+  }
+}
+
+template <class TVal>
+void TTree<TVal>::GenRandomTree(const int& Nodes, TRnd& Rnd){
+  Clr();
+  if (Nodes>0){
+    AddRoot(TVal());
+    for (int NodeN=1; NodeN<Nodes; NodeN++){
+      int ParentNodeId=Rnd.GetUniDevInt(0, GetNodes()-1);
+      AddNode(ParentNodeId, TVal());
+    }
+  }
+}
+
+template <class TVal>
+void TTree<TVal>::DelNode(const int& NodeId){
+  if (NodeId==0){
+    Clr();
+  } else {
+    TIntV& ChildNodeIdV=NodeV[GetParentNodeId(NodeId)].Val2;
+    int ChildNodeIdN=ChildNodeIdV.SearchForw(NodeId);
+    ChildNodeIdV[ChildNodeIdN]=-1;
+  }
+}
+
+template <class TVal>
+void TTree<TVal>::CopyTree(const int& SrcNodeId, TTree& DstTree, const int& DstParentNodeId){
+  int DstNodeId=DstTree.AddNode(DstParentNodeId, GetNodeVal(SrcNodeId));
+  for (int ChildN=0; ChildN<GetChildren(SrcNodeId); ChildN++){
+    int ChildNodeId=GetChildNodeId(SrcNodeId, ChildN);
+    if (ChildNodeId!=-1){
+      CopyTree(ChildNodeId, DstTree, DstNodeId);
+    }
+  }
+}
+
+template <class TVal>
+void TTree<TVal>::WrTree(const int& NodeId, const int& Lev){
+  for (int LevN=0; LevN<Lev; LevN++){printf("| ");}
+  printf("%d (%d)\n", NodeId, GetChildren(NodeId));
+  for (int ChildN=0; ChildN<GetChildren(NodeId); ChildN++){
+    int ChildNodeId=GetChildNodeId(NodeId, ChildN);
+    if (ChildNodeId!=-1){
+      WrTree(ChildNodeId, Lev+1);
+    }
+  }
+}
+
+/////////////////////////////////////////////////
+// Common-Tree-Types
+typedef TTree<TInt> TIntTree;
+typedef TTree<TFlt> TFltTree;
+typedef TTree<TStr> TStrTree;
+typedef TTree<TStrIntPr> TStrIntPrTree;
+typedef TTree<TStrIntStrVTr> TStrIntStrVTrTree;
 
 /////////////////////////////////////////////////
 // Stack
@@ -2016,6 +2168,7 @@ typedef TQQueue<TIntPr> TIntPrQ;
 typedef TQQueue<TIntStrPr> TIntStrPrQ;
 typedef TQQueue<TFltV> TFltVQ;
 typedef TQQueue<TAscFltV> TAscFltVQ;
+typedef TVec<TQQueue<TInt> > TIntQV;
 
 /////////////////////////////////////////////////
 // List-Node
@@ -2036,6 +2189,7 @@ public:
   TLstNd* Prev() const {Assert(this!=NULL); return PrevNd;}
   TLstNd* Next() const {Assert(this!=NULL); return NextNd;}
   TVal& GetVal(){Assert(this!=NULL); return Val;}
+  const TVal& GetVal() const {Assert(this!=NULL); return Val;}
 };
 
 /////////////////////////////////////////////////
@@ -2066,6 +2220,8 @@ public:
   int Len() const {return Nds;}
   PLstNd First() const {return FirstNd;}
   PLstNd Last() const {return LastNd;}
+  TVal& FirstVal() const {return FirstNd->GetVal();}
+  TVal& LastVal() const {return LastNd->GetVal();}
 
   PLstNd AddFront(const TVal& Val);
   PLstNd AddBack(const TVal& Val);
@@ -2076,6 +2232,8 @@ public:
   PLstNd Ins(const PLstNd& Nd, const TVal& Val);
   void Del(const TVal& Val);
   void Del(const PLstNd& Nd);
+  void DelFirst() { PLstNd DelNd = FirstNd; Del(DelNd); }
+  void DelLast() { PLstNd DelNd = LastNd; Del(DelNd); }
 
   PLstNd SearchForw(const TVal& Val);
   PLstNd SearchBack(const TVal& Val);
@@ -2119,13 +2277,13 @@ TLstNd<TVal>* TLst<TVal>::AddBack(const TVal& Val){
 template <class TVal>
 TLstNd<TVal>* TLst<TVal>::AddFrontSorted(const TVal& Val, const bool& Asc){
   PLstNd Nd=First();
-  if (Nd=NULL){
+  if (Nd==NULL){
     return Ins(Nd, Val);
   } else {
     while ((Nd!=NULL)&&((Asc&&(Val>Nd()))||(!Asc&&(Val<Nd())))){
-      Nd=Nd.Next();}
-    if (Nd==NULL){return Ins(Nd.Last(), Val);}
-    else {return Ins(Nd.Prev(), Val);}
+      Nd=Nd->Next();}
+    if (Nd==NULL){return Ins(Nd->Last(), Val);}
+    else {return Ins(Nd->Prev(), Val);}
   }
 }
 
