@@ -41,6 +41,7 @@ private:
       return SeriesV[Left] > SeriesV[Right]; }
   };
 private:
+  static int Tics42;        // 1 - "set ticks", 0 - "set ticscale", -1 - unknown
   TStr DataFNm, PlotFNm;
   TStr Title, LblX, LblY;
   TGpScaleTy ScaleTy;
@@ -48,6 +49,7 @@ private:
   bool SetGrid, SetPause;
   TVec<TGpSeries> SeriesV;
   TStrV MoreCmds;
+  static int GetTics42();
 public:
   TStr GetSeriesPlotStr(const int& PlotN);
   int IsSameXCol(const int& CurId, const int& PrevId) const;

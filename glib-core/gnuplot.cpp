@@ -9,6 +9,50 @@
   TStr TGnuPlot::GnuPlotPath = "/usr/bin/";
 #endif*/
 
+// Determines the gnuplot version and the tics command syntax.
+// Gnuplot changed the syntax with version 4.2:
+// - before 4.2: set ticscale 2 1
+// - 4.2 and later: set tics 2
+int TGnuPlot::GetTics42() {
+  FILE* p;
+  char Buf[1024];
+  char Version[1024];
+  size_t n;
+  char *s;
+
+  // get gnuplot version
+  p = popen("gnuplot -V","r");
+  if (p == NULL) {
+    return -1;
+  }
+  n = fread(Buf, 1, 100, p);
+  if (n <= 0) {
+    return -1;
+  }
+  Buf[n] = '\0';
+  pclose(p);
+
+  // printf("Buf %d .%s.\n", n, Buf);
+  n = sscanf(Buf, "gnuplot %s", Version);
+  if (n <= 0) {
+    return -1;
+  }
+  // printf("Version %d .%s.\n", n, Version);
+  if ((strlen(Version) < 3) || (Version[1] != '.')) {
+    return -1;
+  }
+
+  // test version < 4.2
+  if ((Version[0] < '4') || ((Version[0] == '4') && (Version[2] < '2'))) {
+    // printf("TGnuPlot::GetTics42 0\n");
+    return 0;
+  }
+  // printf("TGnuPlot::GetTics42 1\n");
+  return 1;
+}
+
+int TGnuPlot::Tics42 = TGnuPlot::GetTics42();
+
 TStr TGnuPlot::DefPlotFNm = "GnuPlot.plt";
 TStr TGnuPlot::DefDataFNm = "GnuPlot.tab";
 
@@ -795,8 +839,11 @@ void TGnuPlot::CreatePlotFile(const TStr& Comment) {
   if (YRange.Val1 != YRange.Val2) fprintf(F, "set yrange [%g:%g]\n", YRange.Val1(), YRange.Val2());
   if (! LblX.Empty()) fprintf(F, "set xlabel \"%s\"\n", LblX.CStr());
   if (! LblY.Empty()) fprintf(F, "set ylabel \"%s\"\n", LblY.CStr());
-  //fprintf(F, "set tics scale 2\n"); // New in version 4.2
-  fprintf(F, "set ticscale 2 1\n"); // Old (depreciated)
+  if (Tics42) {
+    fprintf(F, "set tics scale 2\n"); // New in version 4.2
+  } else {
+    fprintf(F, "set ticscale 2 1\n"); // Old (deprecated)
+  }
   // custom commands
   for (int i = 0; i < MoreCmds.Len(); i++) {
     fprintf(F, "%s\n", MoreCmds[i].CStr()); }
