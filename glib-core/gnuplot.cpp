@@ -18,7 +18,6 @@ int TGnuPlot::GetTics42() {
   char Buf[1024];
   char Version[1024];
   size_t n;
-  char *s;
 
   // get gnuplot version
   p = popen("gnuplot -V","r");
