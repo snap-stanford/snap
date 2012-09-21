@@ -39,7 +39,7 @@ public:
 };
 
 // set flags
-namespace TSNap {
+namespace TSnap {
 template <> struct IsDirected<TWgtNet> { enum { Val = 1 }; };
 template <> struct IsNodeDat<TWgtNet> { enum { Val = 1 }; };
 template <> struct IsEdgeDat<TWgtNet> { enum { Val = 1 }; };

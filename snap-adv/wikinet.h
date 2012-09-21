@@ -124,7 +124,7 @@ public:
 };
 
 // set flags
-namespace TSNap {
+namespace TSnap {
 template <> struct IsDirected<TWikiTalkNet> { enum { Val = 1 }; };
 template <> struct IsNodeDat<TWikiTalkNet> { enum { Val = 1 }; };
 template <> struct IsEdgeDat<TWikiTalkNet> { enum { Val = 1 }; };

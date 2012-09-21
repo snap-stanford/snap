@@ -19,14 +19,13 @@ user: doxycopy
 doxycopy:
 	rm -rf snap
 	mkdir snap
-	mkdir snap/glib-core snap/snap-core snap/snap-adv \
-		snap/examples snap/projects snap/utils
+	mkdir snap/glib-core snap/snap-core snap/snap-adv
 	python doxyblock.py ../glib-core snap/glib-core
 	python doxyblock.py ../snap-core snap/snap-core
 	python doxyblock.py ../snap-adv snap/snap-adv
-	python doxyblock.py ../examples snap/examples
-	python doxyblock.py ../projects snap/projects
-	python doxyblock.py ../utils snap/utils
+	#python doxyblock.py ../examples snap/examples
+	#python doxyblock.py ../projects snap/projects
+	#python doxyblock.py ../utils snap/utils
 
 install:
 	#ssh rok@snap mv public_html/snapdoc-dev public_html/snapdoc-dev-$(TIME)

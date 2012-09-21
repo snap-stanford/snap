@@ -68,7 +68,7 @@ public:
 };
 
 // set flags
-namespace TSNap {
+namespace TSnap {
 template <> struct IsDirected<TSignNet> { enum { Val = 1 }; };
 template <> struct IsNodeDat<TSignNet> { enum { Val = 1 }; };
 template <> struct IsEdgeDat<TSignNet> { enum { Val = 1 }; };
