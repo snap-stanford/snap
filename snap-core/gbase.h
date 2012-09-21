@@ -33,7 +33,16 @@ template <class TGraph> struct IsSources    { enum { Val = 0 }; };
 /// Tests (at compile time) if the graph is a bipartite graph type.
 template <class TGraph> struct IsBipart     { enum { Val = 0 }; };
 
-/// Tests if TDerivClass is derived from TBaseClass
+/// For quick testing of the properties of the graph/network object (see TGraphFlag).
+#define HasGraphFlag(TGraph, Flag) \
+  ((Flag)==gfDirected ? TSnap::IsDirected<TGraph::TNet>::Val : \
+  (Flag)==gfMultiGraph ? TSnap::IsMultiGraph<TGraph::TNet>::Val : \
+  (Flag)==gfNodeDat ? TSnap::IsNodeDat<TGraph::TNet>::Val : \
+  (Flag)==gfEdgeDat ? TSnap::IsEdgeDat<TGraph::TNet>::Val : \
+  (Flag)==gfSources ? TSnap::IsSources<TGraph::TNet>::Val : \
+  (Flag)==gfBipart ? TSnap::IsBipart<TGraph::TNet>::Val : 0)
+
+/// Tests (at complile time) whether TDerivClass is derived from TBaseClass
 template<class TDerivClass, class TBaseClass>
 class IsDerivedFrom {
 private:
@@ -45,31 +54,8 @@ public:
   enum { Val = sizeof(Test(static_cast<TDerivClass*>(0))) == sizeof(Yes) ? 1 : 0 };
 };
 
-//template<class TGraph>
-//bool __HasFlag(const TGraphFlag& Flag) {
-//  switch(Flag) {
-//    case gfDirected :  return IsDirected<TGraph>::Val;
-//    case gfMultiGraph : return IsMultiGraph<TGraph>::Val;
-//    case gfNodeDat :   return IsNodeDat<TGraph>::Val;
-//    case gfEdgeDat :   return IsEdgeDat<TGraph>::Val;
-//    case gfSources :   return IsSources<TGraph>::Val;
-//    default : return 0;
-//  };
-//}
-
-} // namespace TSnap
-
-#define HasGraphFlag(TGraph, Flag) \
-  ((Flag)==gfDirected ? TSnap::IsDirected<TGraph::TNet>::Val : \
-  (Flag)==gfMultiGraph ? TSnap::IsMultiGraph<TGraph::TNet>::Val : \
-  (Flag)==gfNodeDat ? TSnap::IsNodeDat<TGraph::TNet>::Val : \
-  (Flag)==gfEdgeDat ? TSnap::IsEdgeDat<TGraph::TNet>::Val : \
-  (Flag)==gfSources ? TSnap::IsSources<TGraph::TNet>::Val : \
-  (Flag)==gfBipart ? TSnap::IsBipart<TGraph::TNet>::Val : 0)
-
 /////////////////////////////////////////////////
 // Graph Base
-namespace TSnap {
 
 /// Returns a string representation of a flag.
 TStr GetFlagStr(const TGraphFlag& GraphFlag);
