@@ -1,11 +1,12 @@
 /////////////////////////////////////////////////
 // Defines
-#define Kilo(n) (1000*(n))            ///
+#define Kilo(n) (1000*(n))
 #define Mega(n) (1000*1000*(n))
 #define Giga(n) (1000*1000*1000*(n))
 
 /////////////////////////////////////////////////
-/// Graph Flags, used for quick testing of graph types
+/// Graph Flags, used for quick testing of graph types.
+/// This is very useful for testing graph properties at compile time for partial template specialization as well as compile time assert (CAssert)
 typedef enum {
   gfUndef=0,    ///< default value, no flags
   gfDirected,   ///< directed graph (TNGraph, TNEGraph), else graph is undirected(TUNGraph)
@@ -19,17 +20,17 @@ typedef enum {
 
 namespace TSnap {
 
-/// Tests if the graph is directed.
+/// Tests (at compile time) if the graph is directed.
 template <class TGraph> struct IsDirected   { enum { Val = 0 }; };
-/// Tests if the graph is a multigraph with multiple edges between the same nodes.
+/// Tests (at compile time) if the graph is a multigraph with multiple edges between the same nodes.
 template <class TGraph> struct IsMultiGraph { enum { Val = 0 }; };
-/// Tests if the graph is a network with data on nodes.
+/// Tests (at compile time) if the graph is a network with data on nodes.
 template <class TGraph> struct IsNodeDat    { enum { Val = 0 }; };
-/// Tests if the graph is a network with data on edges.
+/// Tests (at compile time) if the graph is a network with data on edges.
 template <class TGraph> struct IsEdgeDat    { enum { Val = 0 }; };
-/// Tests if the nodes store only out-edges, but not in-edges.
+/// Tests (at compile time) if the nodes store only out-edges, but not in-edges.
 template <class TGraph> struct IsSources    { enum { Val = 0 }; };
-/// Tests if the graph is a bipartite graph type.
+/// Tests (at compile time) if the graph is a bipartite graph type.
 template <class TGraph> struct IsBipart     { enum { Val = 0 }; };
 
 /// Tests if TDerivClass is derived from TBaseClass
