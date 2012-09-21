@@ -39,7 +39,7 @@ public:
 };
 
 // set flags
-namespace TGBase {
+namespace TSNap {
 template <> struct IsNodeGraph<TWgtNet> { enum { Val = 1 }; };
 template <> struct IsDirected<TWgtNet> { enum { Val = 1 }; };
 template <> struct IsNetwork<TWgtNet> { enum { Val = 1 }; };

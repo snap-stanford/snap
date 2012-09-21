@@ -34,7 +34,6 @@ public:
   void GetPartStat(const TVec<TIntV>& PartNIdV, const TStr& Desc=TStr()) const;
   void MakeStatusConsistent();
 
-
   // signed triad
   PSignNet GetTriad(const int& NId1, const int& NId2, const int& NId3) const;
   bool IsClosedTriad() const;
