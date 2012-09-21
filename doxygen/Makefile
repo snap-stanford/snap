@@ -19,10 +19,11 @@ user: doxycopy
 doxycopy:
 	rm -rf snap
 	mkdir snap
-	mkdir snap/glib-core snap/snap-core \
+	mkdir snap/glib-core snap/snap-core snap/snap-adv \
 		snap/examples snap/projects snap/utils
 	python doxyblock.py ../glib-core snap/glib-core
 	python doxyblock.py ../snap-core snap/snap-core
+	python doxyblock.py ../snap-adv snap/snap-adv
 	python doxyblock.py ../examples snap/examples
 	python doxyblock.py ../projects snap/projects
 	python doxyblock.py ../utils snap/utils

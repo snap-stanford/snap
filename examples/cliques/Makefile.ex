@@ -3,6 +3,6 @@
 
 ## Main application file
 MAIN = cliquesmain
-DEPH = $(EXSNAP)/cliques.h
-DEPCPP = $(EXSNAP)/cliques.cpp
+DEPH = $(EXSNAPADV)/cliques.h
+DEPCPP = $(EXSNAPADV)/cliques.cpp
 

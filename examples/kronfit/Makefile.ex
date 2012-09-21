@@ -3,6 +3,6 @@
 
 ## Main application file
 MAIN = kronfit
-DEPH = $(EXSNAP)/kronecker.h
-DEPCPP = $(EXSNAP)/kronecker.cpp
+DEPH = $(EXSNAPADV)/kronecker.h
+DEPCPP = $(EXSNAPADV)/kronecker.cpp
 

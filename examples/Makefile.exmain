@@ -6,7 +6,7 @@ all: $(MAIN)
 
 # COMPILE
 $(MAIN): $(MAIN).cpp $(DEPH) $(DEPCPP) $(EXSNAP)/Snap.o 
-	$(CC) $(CXXFLAGS) -o $(MAIN) $(MAIN).cpp $(DEPCPP) $(EXSNAP)/Snap.o -I$(EXGLIB) -I$(EXSNAP) $(LDFLAGS) $(LIBS)
+	$(CC) $(CXXFLAGS) -o $(MAIN) $(MAIN).cpp $(DEPCPP) $(EXSNAP)/Snap.o -I$(EXSNAPADV) -I$(EXSNAP) -I$(EXGLIBADV) -I$(EXGLIB) $(LDFLAGS) $(LIBS)
 
 $(EXSNAP)/Snap.o: 
 	make -C $(EXSNAP)

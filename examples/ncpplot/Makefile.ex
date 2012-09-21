@@ -3,6 +3,6 @@
 
 ## Main application file
 MAIN = ncpplot
-DEPH = $(EXSNAP)/ncp.h
-DEPCPP = $(EXSNAP)/ncp.cpp
+DEPH = $(EXSNAPADV)/ncp.h
+DEPCPP = $(EXSNAPADV)/ncp.cpp
 

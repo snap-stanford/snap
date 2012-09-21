@@ -3,6 +3,6 @@
 
 ## Main application file
 MAIN = magfit
-DEPH = $(EXSNAP)/mag.h
-DEPCPP = $(EXSNAP)/mag.cpp
+DEPH = $(EXSNAPADV)/mag.h
+DEPCPP = $(EXSNAPADV)/mag.cpp
 
