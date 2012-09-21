@@ -218,8 +218,6 @@ PGraph GenRndGnm(const int& Nodes, const int& Edges, const bool& IsDir, TRnd& Rn
   return GraphPt;
 }
 
-}; // namespace TSnap
-
 namespace TSnapDetail {
 /// Returns a random edge in a graph Graph where the edge does not touch nodes NId1 and NId2.
 template <class PGraph>
@@ -244,3 +242,5 @@ TIntPr GetRndEdgeNonAdjNode(const PGraph& Graph, int NId1, int NId2) {
 }
 
 } // namespace TSnapDetail
+
+}; // namespace TSnap
