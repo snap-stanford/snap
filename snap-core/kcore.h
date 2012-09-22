@@ -4,7 +4,7 @@
 /// K-Core decomposition of a network.
 /// K-core is defined as a maximal subgraph of the original graph where every node points to at least K other nodes.
 /// K-core is obtained by repeatedly deleting nodes of degree < K from the graph until no nodes of degree < K exist.
-/// If the input graph is directed we treat it as undirected, i.e., we ignore the edge directions.
+/// If the input graph is directed we treat it as undirected multigraph, i.e., we ignore the edge directions but there may be up to two edges between a pair of nodes.
 /// See the kcores example (examples/kcores/kcores.cpp) for how to use the code.
 /// For example: for (KCore(Graph); KCore.GetNextCore()!=0; ) { } will produce a sequence of K-cores for K=1...
 template<class PGraph>
