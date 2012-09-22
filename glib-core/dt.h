@@ -526,6 +526,7 @@ public:
   //TStr Slice(const int& BChN, const int& EChNP1) const {return GetSubStr(BChN, EChNP1-1);}
   //TStr operator()(const int& BChN, const int& EChNP1) const {return Slice(BChN, EChNP1);}
   //J: as in python or matlab: 1 is 1st character, -1 is last character
+  // TODO ROK, ask Jure about this comment
   TStr Left(const int& EChN) const { return EChN>0 ? GetSubStr(0, EChN-1) : GetSubStr(0, Len()+EChN-1);}
   TStr Right(const int& BChN) const {return BChN>=0 ? GetSubStr(BChN, Len()-1) : GetSubStr(Len()+BChN, Len()-1);}
   TStr Slice(int BChN, int EChNP1) const { if(BChN<0){BChN=Len()+BChN;} if(EChNP1<=0){EChNP1=Len()+EChNP1;} return GetSubStr(BChN, EChNP1-1); }
@@ -537,19 +538,12 @@ public:
   int SearchStr(const TStr& Str, const int& BChN=0) const;
   bool IsChIn(const char& Ch) const {return SearchCh(Ch)!=-1;}
   bool IsStrIn(const TStr& Str) const {return SearchStr(Str)!=-1;}
-
-
   bool IsPrefix(const char *Str) const;
   bool IsPrefix(const TStr& Str) const {
-	  return IsPrefix(Str.CStr());
-  }
-
-
-
+    return IsPrefix(Str.CStr());}
   bool IsSuffix(const char *Str) const;
   bool IsSuffix(const TStr& Str) const {
-	  return IsSuffix(Str.CStr());
-  }
+    return IsSuffix(Str.CStr());}
 
   int ChangeCh(const char& SrcCh, const char& DstCh, const int& BChN=0);
   int ChangeChAll(const char& SrcCh, const char& DstCh);
@@ -776,8 +770,8 @@ public:
   TStrPool(uint MxBfLen = 0, uint _GrowBy = 16*1024*1024);
   TStrPool(TSIn& SIn, bool LoadCompact = true);
   TStrPool(const TStrPool& Pool) : MxBfL(Pool.MxBfL), BfL(Pool.BfL), GrowBy(Pool.GrowBy) {
-    Bf = (char *) malloc(Pool.MxBfL); IAssert(Bf); memcpy(Bf, Pool.Bf, Pool.BfL); }
-  ~TStrPool() { if (Bf) free(Bf); else IAssert(MxBfL == 0);  MxBfL = 0; BfL = 0; }
+    Bf = (char *) malloc(Pool.MxBfL); IAssertR(Bf, TStr::Fmt("Can not resize buffer to %u bytes. [Program failed to allocate more memory. Solution: Get a bigger machine.]", MxBfL).CStr()); memcpy(Bf, Pool.Bf, Pool.BfL); }
+  ~TStrPool() { if (Bf) free(Bf); else IAssertR(MxBfL == 0, TStr::Fmt("size: %u, expected size: 0", MxBfL).CStr());  Bf = 0; MxBfL = 0; BfL = 0; }
 
   static PStrPool New(uint _MxBfLen = 0, uint _GrowBy = 16*1024*1024) { return PStrPool(new TStrPool(_MxBfLen, _GrowBy)); }
   static PStrPool New(TSIn& SIn) { return new TStrPool(SIn); }
@@ -801,6 +795,8 @@ public:
   const char *GetCStr(uint Offset) const { Assert(Offset < BfL);
     if (Offset == 0) return TStr::GetNullStr().CStr(); else return Bf + Offset; }
 
+  // Clr() removes the empty string at the start.
+  // Call AddStr("") after Clr(), if you want to use the pool again.
   void Clr(bool DoDel = false) { BfL = 0; if (DoDel && Bf) { free(Bf); Bf = 0; MxBfL = 0; } }
   int Cmp(uint Offset, const char *Str) const { Assert(Offset < BfL);
     if (Offset != 0) return strcmp(Bf + Offset, Str); else return strcmp("", Str); }

@@ -127,7 +127,7 @@
               </script></head><body><h1>SNAP C++ Programming Guide</h1>
 
 <p align="right">
-Revision 06-28-2012
+Revision 09-06-2012
 </p>
 
 
@@ -249,8 +249,7 @@ Heavily customized for the SNAP Library<br>
         parenthesis and the curly brace.
       </p>
       <div class=""><pre class="badcode">if(condition)     // Bad - space missing after IF.
-if (condition){   // Bad - space missing before {.
-if(condition){    // Doubly bad.</pre></div>
+</pre></div>
       <div class=""><pre>if (condition) {  // Good - proper space after IF and before {.</pre></div>
       <p>
         Short conditional statements may be written on one line if
@@ -260,13 +259,6 @@ if(condition){    // Doubly bad.</pre></div>
       </p>
       <div class=""><pre>if (x == kFoo) { return new Foo(); }
 if (x == kBar) { return new Bar(); }</pre></div>
-      <p>
-        A one line if statement is not allowed when the statement has an
-        <code>else</code>:
-      </p>
-      <div class=""><pre class="badcode">// Not allowed - IF statement on one line when there is an ELSE clause
-if (x) { DoThis(); }
-else { DoThat(); }</pre></div>
       <p>
         Single-line statements without curly braces are prohibited:
       </p>
@@ -354,7 +346,7 @@ x = r-&gt;y;</pre></div>
         adjacent to the type:
       </p>
       <div class=""><pre>
-char *C;
+char* C;
 const int&amp; P;
 </pre></div>
     </div></div>
@@ -366,8 +358,8 @@ const int&amp; P;
       line ends:
     </div>
     <div class=""><div style="display: inline;" id="Boolean_Expressions__body" name="Boolean_Expressions__body" class="stylepoint_body">
-      <div class=""><pre>if (ThisOneThing &gt; ThisOtherThing &amp;&amp;
-    AThirdThing == AFourthThing &amp;&amp;
+      <div class=""><pre>if ((ThisOneThing &gt; ThisOtherThing) &amp;&amp;
+    (AThirdThing == AFourthThing) &amp;&amp;
     YetAnother &amp;&amp; LastOne) {
   ...
 }</pre></div>
@@ -391,7 +383,7 @@ const int&amp; P;
       </p>
       <div class=""><pre>
 DoSomethingThatRequiresALongFunctionName(Argument1,
-    Argument2, Argument3, Argument4);
+ Argument2, Argument3, Argument4);
 </pre></div>
       <p>
         If the parameter names are very long and there is not much
@@ -400,10 +392,10 @@ DoSomethingThatRequiresALongFunctionName(Argument1,
       </p>
       <div class=""><pre>
 DoSomethingElseThatRequiresAEvenLongerFunctionName(
-    Argument1,
-    Argument2,
-    Argument3,
-    Argument4);
+ Argument1,
+ Argument2,
+ Argument3,
+ Argument4);
 </pre></div>
     </div></div>
   </div>
@@ -426,7 +418,7 @@ DoSomethingElseThatRequiresAEvenLongerFunctionName(
         over several lines:
       </p>
       <div class=""><pre>ReturnType ClassName::ReallyLongFunctionName(Type ParName1,
-    Type ParName2, Type ParName3) {
+ Type ParName2, Type ParName3) {
   DoSomething();
   ...
 }</pre></div>
@@ -461,7 +453,7 @@ DoSomethingElseThatRequiresAEvenLongerFunctionName(
              </li>
         <li> All parameters should be aligned if possible.
              </li>
-        <li> Default indentation is 4 spaces.
+        <li> Default indentation for parameters is 1 space.
              </li>
       </ul>
     </div></div>
@@ -515,21 +507,21 @@ public:
       <p>
         Each public SNAP class must define the following methods:
         a default constructor, a copy constructor,
-        a<code>TSIn</code> constructor,
-        an assignment operator <code>=</code>,
-        a <code>Load()</code> method and
-        a <code>Save()</code> method:
+        a <code>TSIn</code> constructor,
+        a <code>Load()</code> method,
+        a <code>Save()</code> method and
+        an assignment operator <code>=</code>:
       </p>
       <div class=""><pre>class TMyClass : public TOtherClass {
 ...
 public:
   TMyClass();                                 // default constructor
-  explicit TMyClass(int Var);
+  explicit TMyClass(int Var);                 // an explicit constructor (optional)
   TMyClass(const TMyClass& MCVar);            // copy constructor
   TMyClass(TSIn& SIn);                        // TSIn constructor
-  TMyClass& operator = (const TMyClass& MCVar);   // '=' operator
   void Load(TSIn& SIn);                       // Load() method
   void Save(TSOut& SOut) const;               // Save() method
+  TMyClass& operator = (const TMyClass& MCVar);   // '=' operator
   ...
   int GetVar() const;                         // get value of Var
   int SetVar(const int N);                    // set value of Var
@@ -667,15 +659,17 @@ int GetMxDegNId(const PGraph& Graph) {
         <ul>
           <li><code>T...</code>: a type (<code>TInt</code>).</li>
           <li><code>P...</code>: a smart pointer (<code>PUNGraph</code>).</li>
-          <li><code>...V</code>: a vector (<code>InNIdV</code>).</li>
-          <li><code>...VV</code>: a matrix (<code>TFltVV</code>).</li>
-          <li><code>...H</code>: a hash table (<code>NodeH</code>).</li>
-          <li><code>...HH</code>: a hash of hashes (<code>TIntIntHH</code>).</li>
+          <li><code>...V</code>: a vector (variable <code>InNIdV</code>).</li>
+          <li><code>...VV</code>: a matrix (variable <code>FltVV</code>, type <code>TFltVV</code> with floating point elements).</li>
+          <li><code>...H</code>: a hash table (variable <code>NodeH</code>, type <code>TIntStrH</code> with Int keys, Str values).</li>
+          <li><code>...HH</code>: a hash of hashes (variable <code>NodeHH</code>, type <code>TIntIntHH</code> with Int key 1 and Int key 2).</li>
           <li><code>...I</code>: an iterator (<code>NodeI</code>).</li>
-          <li><code>...Pt</code>: a pointer (<code>NetPt</code>).</li>
+          <li><code>...Pt</code>: an address pointer, used rarely (<code>NetPt</code>).</li>
           <li><code>Get...</code>: an access method (<code>GetDeg()</code>).</li>
           <li><code>Set...</code>: a set method (<code>SetXYLabel()</code>).</li>
-          <li><code>...Str</code>: a string operation (<code>CStr()</code>).</li>
+          <li><code>...Int</code>: an integer operation (<code>GetValInt()</code>).</li>
+          <li><code>...Flt</code>: a floating point operation (<code>GetValFlt()</code>).</li>
+          <li><code>...Str</code>: a string operation (<code>DateStr()</code>).</li>
           <li><code>Id</code>: an identifier (<code>GetUId()</code>).</li>
           <li><code>NId</code>: a node identifier (<code>GetNIdV()</code>).</li>
           <li><code>EId</code>: an edge identifier (<code>GetEIdV()</code>).</li>
@@ -725,6 +719,11 @@ bignet.h</pre></div>
       the use of short index names for loop iterations, such as
       <code>i, j, k</code>.
     </div>
+    <div class=""><div style="display: inline;" id="File_Names__body" name="File_Names__body" class="stylepoint_body">
+      <p>
+        Variable names should typically be nouns, <code>ErrCnt</code>.
+      </p>
+    </div>
   </div>
 
   <div class=""><h3><a id="Function_Names" name="Function_Names">Function Names</a></h3>
@@ -732,6 +731,12 @@ bignet.h</pre></div>
       Function names start with a capital letter and have a
       capital letter for each new word, with no underscores:
       <code>GetInNId()</code>.
+    <div class=""><div style="display: inline;" id="File_Names__body" name="File_Names__body" class="stylepoint_body">
+      <p>
+        Function names should typically be "command" verbs,
+        <code>OpenFile()</code>.
+      </p>
+    </div>
     </div>
   </div>
 
@@ -1066,10 +1071,12 @@ static PUNGraph Load(TSIn& SIn) { return PUNGraph(new TUNGraph(SIn)); }</pre></d
         Assertion names in SNAP use the following convention for the
         first letter:
         <ul>
-          <li><code>A</code>: compiled only in the debug mode.</li>
-          <li><code>I</code>: always compiled.</li>
-          <li><code>E</code>: exceptions.</li>
+          <li><code>Assert</code>: compiled only in the debug mode, aborts when the assertion is false.</li>
+          <li><code>IAssert</code>: always compiled, aborts if the assertion is false.</li>
+	  <li><code>EAssert</code>: always compiled, does not abort, but throws an exception.</li>
         </ul>
+	If the assertion name ends with letter R, a failed assertion
+	prints out the reason for the failure.
       </p>
       <p>
         Some common SNAP assertions are:
@@ -1109,12 +1116,24 @@ EFailR(TStr::Fmt("JSON Error: Unknown escape sequence: '%s'", Beg).CStr());
           but don't assume that it has more than 32 bits.
         </p>
         <p>
+          Functions should not return values of type
+          <code>TSize (size_t)</code>.
+          Instead, use fixed size arguments for function return values,
+          like <code>int32</code>, <code>int64</code>.
+        </p>
+        <p>
           Do not use the unsigned integer types,
           unless the quantity you are representing is really a bit pattern
           rather than a number, or unless you need defined
           twos-complement overflow. In particular, do not use unsigned
           types to say a number will never be negative.  Instead, use
           assertions for this purpose.
+        </p>
+        <p>
+          To print 64-bit integers, use <code>TUInt64::GetStr()</code> for
+          conversion to string and the <code>%s</code> print formatting conversion:
+          <div class=""><pre>TStr Note = TStr::Fmt("64-bit integer value is %s", TUInt64::GetStr(Val));</pre></div>
+
         </p>
     </div></div>
   </div>
@@ -1625,7 +1644,7 @@ bool AtEof() { return pos_ == kEOF; }  // Uses our namespace's EOF.
 <hr>
 
 <p align="right">
-Revision 06-28-2012
+Revision 09-06-2012
 </p>
 
 <!-- TODO (future) 64-bit portability, printf() -->

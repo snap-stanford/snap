@@ -64,42 +64,42 @@ THtmlLxChDef::THtmlLxChDef():
   // Upper-Case
   {for (int Ch=TCh::Mn; Ch<=TCh::Mx; Ch++){
     SetUcCh(char(Ch), char(Ch));}}
-  SetUcCh("Aa"); SetUcCh("ï¿½ï¿½"); SetUcCh("ï¿½ï¿½"); SetUcCh("ï¿½ï¿½");
-  SetUcCh("ï¿½ï¿½"); SetUcCh("ï¿½ï¿½"); SetUcCh("ï¿½ï¿½"); SetUcCh("ï¿½ï¿½");
-  SetUcCh("Bb"); SetUcCh("Cc"); SetUcCh("ï¿½ï¿½"); SetUcCh("Dd");
-  SetUcCh("ï¿½ï¿½"); SetUcCh("Ee"); SetUcCh("ï¿½ï¿½"); SetUcCh("ï¿½ï¿½");
-  SetUcCh("ï¿½ï¿½"); SetUcCh("ï¿½ï¿½"); SetUcCh("Ff"); SetUcCh("Gg");
-  SetUcCh("Hh"); SetUcCh("Ii"); SetUcCh("ï¿½ï¿½"); SetUcCh("ï¿½ï¿½");
-  SetUcCh("ï¿½ï¿½"); SetUcCh("ï¿½ï¿½"); SetUcCh("Jj"); SetUcCh("Kk");
-  SetUcCh("Ll"); SetUcCh("Mm"); SetUcCh("Nn"); SetUcCh("ï¿½ï¿½");
-  SetUcCh("Oo"); SetUcCh("ï¿½ï¿½"); SetUcCh("ï¿½ï¿½"); SetUcCh("ï¿½ï¿½");
-  SetUcCh("ï¿½ï¿½"); SetUcCh("ï¿½ï¿½"); SetUcCh("ï¿½ï¿½"); SetUcCh("Pp");
-  SetUcCh("Qq"); SetUcCh("Rr"); SetUcCh("Ss"); SetUcCh("ï¿½ï¿½");
-  SetUcCh("Tt"); SetUcCh("Uu"); SetUcCh("ï¿½ï¿½"); SetUcCh("ï¿½ï¿½");
-  SetUcCh("ï¿½ï¿½"); SetUcCh("ï¿½ï¿½"); SetUcCh("Vv"); SetUcCh("Ww");
-  SetUcCh("Xx"); SetUcCh("Yyï¿½"); SetUcCh("ï¿½ï¿½"); SetUcCh("Zz");
-  SetUcCh("ï¿½ï¿½");
+  SetUcCh("Aa"); SetUcCh("Àà"); SetUcCh("Áá"); SetUcCh("Ââ");
+  SetUcCh("Ãã"); SetUcCh("Ää"); SetUcCh("Åå"); SetUcCh("Ææ");
+  SetUcCh("Bb"); SetUcCh("Cc"); SetUcCh("Çç"); SetUcCh("Dd");
+  SetUcCh("Ðð"); SetUcCh("Ee"); SetUcCh("Èè"); SetUcCh("Éé");
+  SetUcCh("Êê"); SetUcCh("Ëë"); SetUcCh("Ff"); SetUcCh("Gg");
+  SetUcCh("Hh"); SetUcCh("Ii"); SetUcCh("Ìì"); SetUcCh("Íí");
+  SetUcCh("Îî"); SetUcCh("Ïï"); SetUcCh("Jj"); SetUcCh("Kk");
+  SetUcCh("Ll"); SetUcCh("Mm"); SetUcCh("Nn"); SetUcCh("Ññ");
+  SetUcCh("Oo"); SetUcCh("Òò"); SetUcCh("Óó"); SetUcCh("Ôô");
+  SetUcCh("Õõ"); SetUcCh("Öö"); SetUcCh("Øø"); SetUcCh("Pp");
+  SetUcCh("Qq"); SetUcCh("Rr"); SetUcCh("Ss"); SetUcCh("Šš");
+  SetUcCh("Tt"); SetUcCh("Uu"); SetUcCh("Ùù"); SetUcCh("Úú");
+  SetUcCh("Ûû"); SetUcCh("Üü"); SetUcCh("Vv"); SetUcCh("Ww");
+  SetUcCh("Xx"); SetUcCh("Yyÿ"); SetUcCh("Ýý"); SetUcCh("Zz");
+  SetUcCh("Žž");
   // ISO-CE
-  //SetUcCh(uchar(169), uchar(185)); /*Sh - ï¿½ï¿½*/
-  //SetUcCh(uchar(174), uchar(190)); /*Zh - ï¿½ï¿½*/
-  //SetUcCh(uchar(200), uchar(232)); /*Ch - ï¿½ï¿½*/
-  //SetUcCh(uchar(198), uchar(230)); /*Cs - ï¿½ï¿½*/
-  //SetUcCh(uchar(208), uchar(240)); /*Dz - ï¿½ï¿½*/
+  //SetUcCh(uchar(169), uchar(185)); /*Sh - ©¹*/
+  //SetUcCh(uchar(174), uchar(190)); /*Zh - ®¾*/
+  //SetUcCh(uchar(200), uchar(232)); /*Ch - Èè*/
+  //SetUcCh(uchar(198), uchar(230)); /*Cs - Ææ*/
+  //SetUcCh(uchar(208), uchar(240)); /*Dz - Ðð*/
 
   // Annoying Unicode-characters
-  //SetChTy(hlctSpace, "ï¿½ï¿½");
+  //SetChTy(hlctSpace, "Âï");
 
   // Escape-Sequences
   SetEscStr("&quot", "\""); SetEscStr("&amp", "&");
   SetEscStr("&lt", "<"); SetEscStr("&gt", ">");
   SetEscStr("&nbsp", " ");
 
-  SetEscStr("&auml", "ï¿½"); SetEscStr("&Auml", "ï¿½");
-  SetEscStr("&ouml", "ï¿½"); SetEscStr("&Ouml", "ï¿½");
-  SetEscStr("&uuml", "ï¿½"); SetEscStr("&Uuml", "ï¿½");
-  SetEscStr("&aring", "ï¿½"); SetEscStr("&Aring", "ï¿½");
-  SetEscStr("&oslash", "ï¿½"); SetEscStr("&Oslash", "ï¿½");
-  SetEscStr("&Aelig", "ï¿½"); SetEscStr("&aelig", "ï¿½");
+  SetEscStr("&auml", "ä"); SetEscStr("&Auml", "Ä");
+  SetEscStr("&ouml", "ö"); SetEscStr("&Ouml", "Ö");
+  SetEscStr("&uuml", "ü"); SetEscStr("&Uuml", "Ü");
+  SetEscStr("&aring", "å"); SetEscStr("&Aring", "Å");
+  SetEscStr("&oslash", "ø"); SetEscStr("&Oslash", "Ø");
+  SetEscStr("&Aelig", "Æ"); SetEscStr("&aelig", "æ");
 
   SetEscStr("&eacute", "e"); SetEscStr("&Eacute", "E");
   SetEscStr("&egrave", "e"); SetEscStr("&Egrave", "E");

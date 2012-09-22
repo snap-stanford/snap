@@ -1,4 +1,4 @@
-// ROK TODO, Jure included basic documentation, finalize reference doc
+// TODO ROK, Jure included basic documentation, finalize reference doc
 
 /////////////////////////////////////////////////
 /// K-Core decomposition of a network.

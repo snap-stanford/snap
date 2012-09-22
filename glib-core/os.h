@@ -204,12 +204,14 @@ int GetModuleFileName(void *hModule, char *Bf, int MxBfL);
 int GetCurrentDirectory(const int MxBfL, char *Bf);
 int CreateDirectory(const char *FNm, void *useless);
 int RemoveDirectory(const char *FNm);
+uint64 Epoch2Ft(time_t Epoch);
+time_t Ft2Epoch(uint64 Ft);
 
 /////////////////////////////////////////////////
 // System-Processes
 class TSysProc{
 public:
-  static void Sleep(const uint& MSecs);
+  static int Sleep(const uint& MSecs);
   static TStr GetExeFNm();
   static void SetLowPriority();
   static bool ExeProc(const TStr& ExeFNm, TStr& ParamStr);

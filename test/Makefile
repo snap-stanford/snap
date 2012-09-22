@@ -11,7 +11,11 @@ MAIN = run-all-tests
 TESTS = \
 	test-TUNGraph.cpp test-TNGraph.cpp test-TNEGraph.cpp \
 	test-TNodeNet.cpp test-TNodeEDatNet.cpp test-TNodeEdgeNet.cpp \
-	test-subgraph.cpp
+	test-subgraph.cpp \
+	test-TStrPool.cpp \
+	test-TSysTm.cpp
+#TESTS = \
+	#test-TSysTm.cpp
 DEPH = 
 DEPCPP =
 LIBS += -lrt -lproc -lsnap -lgtest

@@ -133,6 +133,24 @@ int TSOut::PutStr(const TStr& Str, const bool& ForceInLn){
   return Cs+PutBf(Str.CStr(), Str.Len());
 }
 
+int TSOut::PutStrFmt(const char *FmtStr, ...){
+  char Bf[10*1024];
+  va_list valist;
+  va_start(valist, FmtStr);
+  const int RetVal=vsnprintf(Bf, 10*1024-2, FmtStr, valist);
+  va_end(valist);
+  return RetVal!=-1 ? PutStr(TStr(Bf)) : 0;	
+}
+
+int TSOut::PutStrFmtLn(const char *FmtStr, ...){
+  char Bf[10*1024];
+  va_list valist;
+  va_start(valist, FmtStr);
+  const int RetVal=vsnprintf(Bf, 10*1024-2, FmtStr, valist);
+  va_end(valist);
+  return RetVal!=-1 ? PutStrLn(TStr(Bf)) : PutLn();	
+}
+
 int TSOut::PutIndent(const int& IndentLev){
   return PutCh(' ', IndentLev*2);
 }
