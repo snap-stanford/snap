@@ -166,11 +166,11 @@
 	</References>
 	<Files>
 		<File
-			RelativePath="..\..\snap-core\kronecker.cpp"
+			RelativePath="..\..\snap-adv\kronecker.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\snap-core\kronecker.h"
+			RelativePath="..\..\snap-adv\kronecker.h"
 			>
 		</File>
 		<File

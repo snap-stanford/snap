@@ -81,20 +81,20 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\snap-core\graphcounter.cpp" />
+    <ClCompile Include="..\..\snap-adv\graphcounter.cpp" />
     <ClCompile Include="motifs.cpp" />
     <ClCompile Include="..\..\snap-core\Snap.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\..\snap-core\subgraphenum.cpp" />
+    <ClCompile Include="..\..\snap-adv\subgraphenum.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\snap-core\graphcounter.h" />
+    <ClInclude Include="..\..\snap-adv\graphcounter.h" />
     <ClInclude Include="..\..\snap-core\Snap.h" />
     <ClInclude Include="stdafx.h" />
-    <ClInclude Include="..\..\snap-core\subgraphenum.h" />
+    <ClInclude Include="..\..\snap-adv\subgraphenum.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>

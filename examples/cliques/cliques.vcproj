@@ -166,11 +166,11 @@
 	</References>
 	<Files>
 		<File
-			RelativePath="..\..\snap-core\cliques.cpp"
+			RelativePath="..\..\snap-adv\cliques.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\snap-core\cliques.h"
+			RelativePath="..\..\snap-adv\cliques.h"
 			>
 		</File>
 		<File

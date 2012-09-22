@@ -166,11 +166,11 @@
 	</References>
 	<Files>
 		<File
-			RelativePath="..\..\snap-core\graphcounter.cpp"
+			RelativePath="..\..\snap-adv\graphcounter.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\snap-core\graphcounter.h"
+			RelativePath="..\..\snap-adv\graphcounter.h"
 			>
 		</File>
 		<File
@@ -214,11 +214,11 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\snap-core\subgraphenum.cpp"
+			RelativePath="..\..\snap-adv\subgraphenum.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\snap-core\subgraphenum.h"
+			RelativePath="..\..\snap-adv\subgraphenum.h"
 			>
 		</File>
 		<File

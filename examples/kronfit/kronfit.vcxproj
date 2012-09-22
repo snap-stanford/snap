@@ -81,7 +81,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\snap-core\kronecker.cpp" />
+    <ClCompile Include="..\..\snap-adv\kronecker.cpp" />
     <ClCompile Include="kronfit.cpp" />
     <ClCompile Include="..\..\snap-core\Snap.cpp" />
     <ClCompile Include="stdafx.cpp">
@@ -90,7 +90,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\snap-core\kronecker.h" />
+    <ClInclude Include="..\..\snap-adv\kronecker.h" />
     <ClInclude Include="..\..\snap-core\Snap.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />

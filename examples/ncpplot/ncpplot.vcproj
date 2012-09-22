@@ -166,11 +166,11 @@
 	</References>
 	<Files>
 		<File
-			RelativePath="..\..\snap-core\ncp.cpp"
+			RelativePath="..\..\snap-adv\ncp.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\snap-core\ncp.h"
+			RelativePath="..\..\snap-adv\ncp.h"
 			>
 		</File>
 		<File

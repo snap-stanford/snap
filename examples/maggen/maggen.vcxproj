@@ -81,7 +81,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\snap-core\mag.cpp" />
+    <ClCompile Include="..\..\snap-adv\mag.cpp" />
     <ClCompile Include="maggen.cpp" />
     <ClCompile Include="..\..\snap-core\Snap.cpp" />
     <ClCompile Include="stdafx.cpp">
@@ -93,7 +93,7 @@
     <None Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\snap-core\mag.h" />
+    <ClInclude Include="..\..\snap-adv\mag.h" />
     <ClInclude Include="..\..\snap-core\Snap.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />

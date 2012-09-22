@@ -166,11 +166,11 @@
 	</References>
 	<Files>
 		<File
-			RelativePath="..\..\snap-core\mag.cpp"
+			RelativePath="..\..\snap-adv\mag.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\snap-core\mag.h"
+			RelativePath="..\..\snap-adv\mag.h"
 			>
 		</File>
 		<File
