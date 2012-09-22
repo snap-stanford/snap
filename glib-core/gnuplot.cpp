@@ -14,6 +14,9 @@
 // - before 4.2: set ticscale 2 1
 // - 4.2 and later: set tics 2
 int TGnuPlot::GetTics42() {
+#ifdef GLib_WIN
+  return -1;
+#else	
   FILE* p;
   char Buf[1024];
   char Version[1024];
@@ -48,6 +51,7 @@ int TGnuPlot::GetTics42() {
   }
   // printf("TGnuPlot::GetTics42 1\n");
   return 1;
+#endif
 }
 
 int TGnuPlot::Tics42 = TGnuPlot::GetTics42();
