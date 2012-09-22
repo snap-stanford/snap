@@ -76,4 +76,10 @@ public:
   friend class TPt<TImdbNet>;
 };
 
+// set flags
+namespace TSnap {
+template <> struct IsDirected<TImdbNet> { enum { Val = 1 }; };
+template <> struct IsNodeDat<TImdbNet> { enum { Val = 1 }; };
+}
+
 #endif

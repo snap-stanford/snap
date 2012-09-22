@@ -34,7 +34,6 @@ public:
   void GetPartStat(const TVec<TIntV>& PartNIdV, const TStr& Desc=TStr()) const;
   void MakeStatusConsistent();
 
-
   // signed triad
   PSignNet GetTriad(const int& NId1, const int& NId2, const int& NId3) const;
   bool IsClosedTriad() const;
@@ -67,6 +66,13 @@ public:
   static PSignNet GetSmallNet();
   friend class TPt<TSignNet>;
 };
+
+// set flags
+namespace TSnap {
+template <> struct IsDirected<TSignNet> { enum { Val = 1 }; };
+template <> struct IsNodeDat<TSignNet> { enum { Val = 1 }; };
+template <> struct IsEdgeDat<TSignNet> { enum { Val = 1 }; };
+}
 
 /////////////////////////////////////////////////
 // Hopfield energy minimization (find sets that satisfy structural balance)

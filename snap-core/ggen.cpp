@@ -76,7 +76,7 @@ PUNGraph GenDegSeq(const TIntV& DegSeqV, TRnd& Rnd) {
     if (NId1 == NId2) {
       if (DegH.GetDat(NId1) == 1) { continue; }
       // find rnd edge, break it, and connect the endpoints to the nodes
-      const TIntPr Edge = ::TSnapDetail::GetRndEdgeNonAdjNode(GraphPt, NId1, -1);
+      const TIntPr Edge = TSnapDetail::GetRndEdgeNonAdjNode(GraphPt, NId1, -1);
       if (Edge.Val1==-1) { continue; }
       Graph.DelEdge(Edge.Val1, Edge.Val2);
       Graph.AddEdge(Edge.Val1, NId1);
@@ -88,7 +88,7 @@ PUNGraph GenDegSeq(const TIntV& DegSeqV, TRnd& Rnd) {
         Graph.AddEdge(NId1, NId2); }  // good edge
       else {
         // find rnd edge, break and cross-connect
-        const TIntPr Edge = ::TSnapDetail::GetRndEdgeNonAdjNode(GraphPt, NId1, NId2);
+        const TIntPr Edge = TSnapDetail::GetRndEdgeNonAdjNode(GraphPt, NId1, NId2);
         if (Edge.Val1==-1) {continue; }
         Graph.DelEdge(Edge.Val1, Edge.Val2);
         Graph.AddEdge(NId1, Edge.Val1);

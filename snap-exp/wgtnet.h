@@ -39,13 +39,12 @@ public:
 };
 
 // set flags
-namespace TGBase {
-template <> struct IsNodeGraph<TWgtNet> { enum { Val = 1 }; };
+namespace TSnap {
 template <> struct IsDirected<TWgtNet> { enum { Val = 1 }; };
-template <> struct IsNetwork<TWgtNet> { enum { Val = 1 }; };
 template <> struct IsNodeDat<TWgtNet> { enum { Val = 1 }; };
 template <> struct IsEdgeDat<TWgtNet> { enum { Val = 1 }; };
 }
+
 
 // For bipartite graph with edges A to B
 // TakeLeft=True: build a graph on A (where two nodes in A are linked

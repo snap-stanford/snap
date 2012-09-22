@@ -65,6 +65,12 @@ public:
   friend class TPt<TTimeNet>;
 };
 
+// set flags
+namespace TSnap {
+template <> struct IsDirected<TTimeNet> { enum { Val = 1 }; };
+template <> struct IsNodeDat<TTimeNet> { enum { Val = 1 }; };
+}
+
 /////////////////////////////////////////////////
 // Time Node-Edge Network
 class TTimeNENet : public TNodeEdgeNet<TSecTm, TSecTm> {
@@ -120,3 +126,11 @@ public:
 
   friend class TPt<TTimeNENet>;
 };
+
+// set flags
+namespace TSnap {
+template <> struct IsMultiGraph<TTimeNENet> { enum { Val = 1 }; };
+template <> struct IsDirected<TTimeNENet> { enum { Val = 1 }; };
+template <> struct IsNodeDat<TTimeNENet> { enum { Val = 1 }; };
+template <> struct IsEdgeDat<TTimeNENet> { enum { Val = 1 }; };
+}

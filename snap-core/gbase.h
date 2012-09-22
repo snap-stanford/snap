@@ -1,11 +1,12 @@
 /////////////////////////////////////////////////
 // Defines
-#define Kilo(n) (1000*(n))            ///
+#define Kilo(n) (1000*(n))
 #define Mega(n) (1000*1000*(n))
 #define Giga(n) (1000*1000*1000*(n))
 
 /////////////////////////////////////////////////
-/// Graph Flags, used for quick testing of graph types
+/// Graph Flags, used for quick testing of graph types.
+/// This is very useful for testing graph properties at compile time for partial template specialization as well as compile time assert (CAssert)
 typedef enum {
   gfUndef=0,    ///< default value, no flags
   gfDirected,   ///< directed graph (TNGraph, TNEGraph), else graph is undirected(TUNGraph)
@@ -19,20 +20,29 @@ typedef enum {
 
 namespace TSnap {
 
-/// Tests if the graph is directed.
+/// Tests (at compile time) if the graph is directed.
 template <class TGraph> struct IsDirected   { enum { Val = 0 }; };
-/// Tests if the graph is a multigraph with multiple edges between the same nodes.
+/// Tests (at compile time) if the graph is a multigraph with multiple edges between the same nodes.
 template <class TGraph> struct IsMultiGraph { enum { Val = 0 }; };
-/// Tests if the graph is a network with data on nodes.
+/// Tests (at compile time) if the graph is a network with data on nodes.
 template <class TGraph> struct IsNodeDat    { enum { Val = 0 }; };
-/// Tests if the graph is a network with data on edges.
+/// Tests (at compile time) if the graph is a network with data on edges.
 template <class TGraph> struct IsEdgeDat    { enum { Val = 0 }; };
-/// Tests if the nodes store only out-edges, but not in-edges.
+/// Tests (at compile time) if the nodes store only out-edges, but not in-edges.
 template <class TGraph> struct IsSources    { enum { Val = 0 }; };
-/// Tests if the graph is a bipartite graph type.
+/// Tests (at compile time) if the graph is a bipartite graph type.
 template <class TGraph> struct IsBipart     { enum { Val = 0 }; };
 
-/// Tests if TDerivClass is derived from TBaseClass
+/// For quick testing of the properties of the graph/network object (see TGraphFlag).
+#define HasGraphFlag(TGraph, Flag) \
+  ((Flag)==gfDirected ? TSnap::IsDirected<TGraph::TNet>::Val : \
+  (Flag)==gfMultiGraph ? TSnap::IsMultiGraph<TGraph::TNet>::Val : \
+  (Flag)==gfNodeDat ? TSnap::IsNodeDat<TGraph::TNet>::Val : \
+  (Flag)==gfEdgeDat ? TSnap::IsEdgeDat<TGraph::TNet>::Val : \
+  (Flag)==gfSources ? TSnap::IsSources<TGraph::TNet>::Val : \
+  (Flag)==gfBipart ? TSnap::IsBipart<TGraph::TNet>::Val : 0)
+
+/// Tests (at complile time) whether TDerivClass is derived from TBaseClass
 template<class TDerivClass, class TBaseClass>
 class IsDerivedFrom {
 private:
@@ -44,31 +54,8 @@ public:
   enum { Val = sizeof(Test(static_cast<TDerivClass*>(0))) == sizeof(Yes) ? 1 : 0 };
 };
 
-//template<class TGraph>
-//bool __HasFlag(const TGraphFlag& Flag) {
-//  switch(Flag) {
-//    case gfDirected :  return IsDirected<TGraph>::Val;
-//    case gfMultiGraph : return IsMultiGraph<TGraph>::Val;
-//    case gfNodeDat :   return IsNodeDat<TGraph>::Val;
-//    case gfEdgeDat :   return IsEdgeDat<TGraph>::Val;
-//    case gfSources :   return IsSources<TGraph>::Val;
-//    default : return 0;
-//  };
-//}
-
-} // namespace TSnap
-
-#define HasGraphFlag(TGraph, Flag) \
-  ((Flag)==gfDirected ? TSnap::IsDirected<TGraph::TNet>::Val : \
-  (Flag)==gfMultiGraph ? TSnap::IsMultiGraph<TGraph::TNet>::Val : \
-  (Flag)==gfNodeDat ? TSnap::IsNodeDat<TGraph::TNet>::Val : \
-  (Flag)==gfEdgeDat ? TSnap::IsEdgeDat<TGraph::TNet>::Val : \
-  (Flag)==gfSources ? TSnap::IsSources<TGraph::TNet>::Val : \
-  (Flag)==gfBipart ? TSnap::IsBipart<TGraph::TNet>::Val : 0)
-
 /////////////////////////////////////////////////
 // Graph Base
-namespace TSnap {
 
 /// Returns a string representation of a flag.
 TStr GetFlagStr(const TGraphFlag& GraphFlag);
