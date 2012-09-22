@@ -3,6 +3,74 @@
 class TCnCom;
 typedef TVec<TCnCom> TCnComV;
 
+namespace TSnap {
+
+/// Returns (via output parameter CnCom) all nodes that are in the same connected component as node NId.
+template <class PGraph> void GetNodeWcc(const PGraph& Graph, const int& NId, TIntV& CnCom);
+/// Tests whether the Graph is (weakly) connected.
+template <class PGraph> bool IsConnected(const PGraph& Graph);
+/// Tests whether the Graph is weakly connected.
+template <class PGraph> bool IsWeaklyConn(const PGraph& Graph);
+/// Returns a distribution of weakly connected component sizes.
+/// @param WccSzCnt returns a set of pairs (number of nodes in the component, number of such components)
+template <class PGraph> void GetWccSzCnt(const PGraph& Graph, TIntPrV& WccSzCnt);
+/// Returns all weakly connected components in a Graph.
+/// @param CnComV is a vector of connected components. Each component is defined by the IDs of its member nodes.
+template <class PGraph> void GetWccs(const PGraph& Graph, TCnComV& CnComV);
+/// Returns a distribution of strongly connected component sizes.
+/// @param SccSzCnt returns a set of pairs (number of nodes in the component, number of such components)
+template <class PGraph> void GetSccSzCnt(const PGraph& Graph, TIntPrV& SccSzCnt);
+/// Returns all strongly connected components in a Graph.
+/// @param CnComV is a vector of connected components. Each component is defined by the IDs of its member nodes.
+template <class PGraph> void GetSccs(const PGraph& Graph, TCnComV& CnComV);
+/// Returns the fraction of nodes in the largest weakly connected component of a Graph.
+template <class PGraph> double GetMxWccSz(const PGraph& Graph);
+
+/// Returns a graph representing the largest weakly connected component on an input Graph.
+/// A directed/undirected graph is connected if there exist an undirected path between any pair of nodes.
+/// See http://en.wikipedia.org/wiki/Connected_component_(graph_theory)
+template <class PGraph> PGraph GetMxWcc(const PGraph& Graph);
+/// Returns a graph representing the largest strongly connected component on an input Graph.
+/// A directed graph is strongly connected if there exists a directed path from any vertex to any other vertex in the graph.
+/// See http://en.wikipedia.org/wiki/Strongly_connected_component
+template <class PGraph> PGraph GetMxScc(const PGraph& Graph);
+/// Returns a graph representing the largest bi-connected component on an input Graph.
+/// An undirected graph is bi-connected if by removing any single node does not disconnect the graph.
+/// http://en.wikipedia.org/wiki/Biconnected_component
+template <class PGraph> PGraph GetMxBiCon(const PGraph& Graph);
+
+/// Returns a distribution of bi-connected component sizes.
+/// @param SzCntV returns a set of pairs (number of nodes in the bi-component, number of such components)
+void GetBiConSzCnt(const PUNGraph& Graph, TIntPrV& SzCntV);
+/// Returns all bi-connected components of a Graph.
+/// @param BiCnComV is a vector of bi-connected components. Each component is defined by the IDs of its member nodes.
+void GetBiCon(const PUNGraph& Graph, TCnComV& BiCnComV);
+/// Returns articulartion points of a Graph.
+/// Articulation point (or a cut vertex) is any node that when removed increases the number of connected components.
+void GetArtPoints(const PUNGraph& Graph, TIntV& ArtNIdV);
+/// Returns bridge edges of a Graph.
+/// Edge is a bridge if when removed increases the number of connected components.
+/// See http://en.wikipedia.org/wiki/Bridge_(graph_theory)
+void GetEdgeBridges(const PUNGraph& Graph, TIntPrV& EdgeV);
+/// Distribution of sizes of 1-components, maximal components of that can be disconnected from the Graph by removing a single edge.
+/// We find such components as follows: Find all bridge edges, remove them from the Graph, find largest component K and
+/// add back all bridges that do not touch K. Now, find the connected components of this graph.
+void Get1CnComSzCnt(const PUNGraph& Graph, TIntPrV& SzCntV);
+/// Returns 1-components: maximal connected components of that can be disconnected from the Graph by removing a single edge.
+/// We find such components as follows: Find all bridge edges, remove them from the Graph, find largest component K and
+/// add back all bridges that do not touch K. Now, find the connected components of this graph.
+void Get1CnCom(const PUNGraph& Graph, TCnComV& Cn1ComV);
+/// Returns a graph representing the largest bi-connected component on an undirected Graph.
+/// An undirected graph is bi-connected if by removing any single node does not disconnect the graph.
+/// http://en.wikipedia.org/wiki/Biconnected_component
+/// @param RenumberNodes if true, then node IDs of the returned graph will not match those of Graph, instead they will have a range 0...N-1.
+PUNGraph GetMxBiCon(const PUNGraph& Graph, const bool& RenumberNodes=false);
+
+}; // namespace TSnap
+
+/////////////////////////////////////////////////
+/// Connected Component.
+/// Connected component is defined by a vector of its node IDs.
 class TCnCom {
 public:
   TIntV NIdV;
@@ -22,45 +90,66 @@ public:
   void Add(const int& NodeId) { NIdV.Add(NodeId); }
   const TInt& operator [] (const int& NIdN) const { return NIdV[NIdN]; }
   const TIntV& operator () () const { return NIdV; }
+  TIntV& operator () () { return NIdV; }
   void Sort(const bool& Asc = true) { NIdV.Sort(Asc); }
   bool IsNIdIn(const int& NId) const { return NIdV.SearchBin(NId) != -1; }
   const TInt& GetRndNId() const { return NIdV[TInt::Rnd.GetUniDevInt(Len())]; }
   static void Dump(const TCnComV& CnComV, const TStr& Desc=TStr());
   static void SaveTxt(const TCnComV& CnComV, const TStr& FNm, const TStr& Desc=TStr());
-    
+
+  /// Depth-First-Search.
+  /// Depending on the stage of DFS a different member function of Visitor class is called.
+  /// See source code for details.
   template <class PGraph, class TVisitor>
   static void GetDfsVisitor(const PGraph& Graph, TVisitor& Visitor);
 };
 
-namespace TSnap {
-template <class PGraph> void GetNodeWcc(const PGraph& Graph, const int& NId, TIntV& CnCom);
+template <class PGraph, class TVisitor>
+void TCnCom::GetDfsVisitor(const PGraph& Graph, TVisitor& Visitor) {
+  const int Nodes = Graph->GetNodes();
+  TSStack<TIntTr> Stack(Nodes);
+  int edge=0, Deg=0, U=0;
+  TIntH ColorH(Nodes);
+  typename PGraph::TObj::TNodeI NI, UI;
+  for (NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
+    U = NI.GetId();
+    if (! ColorH.IsKey(U)) {         // is unvisited node
+      ColorH.AddDat(U, 1); 
+      Visitor.DiscoverNode(U);       // discover
+      Stack.Push(TIntTr(U, 0, Graph->GetNI(U).GetOutDeg()));
+      while (! Stack.Empty()) {
+        const TIntTr& Top = Stack.Top();
+        U=Top.Val1; edge=Top.Val2; Deg=Top.Val3;
+        typename PGraph::TObj::TNodeI UI = Graph->GetNI(U);
+        Stack.Pop();
+        while (edge != Deg) {
+          const int V = UI.GetOutNId(edge);
+          Visitor.ExamineEdge(U, V); // examine edge
+          if (! ColorH.IsKey(V)) {
+            Visitor.TreeEdge(U, V);  // tree edge
+            Stack.Push(TIntTr(U, ++edge, Deg));
+            U = V;
+            ColorH.AddDat(U, 1); 
+            Visitor.DiscoverNode(U); // discover
+            UI = Graph->GetNI(U);
+            edge = 0;  Deg = UI.GetOutDeg();
+          }
+          else if (ColorH.GetDat(V) == 1) {
+            Visitor.BackEdge(U, V);  // edge upward
+            ++edge; }
+          else {
+            Visitor.FwdEdge(U, V);   // edge downward
+            ++edge; }
+        }
+        ColorH.AddDat(U, 2); 
+        Visitor.FinishNode(U);       // finish
+      }
+    }
+  }
+}
 
-// weakly and strongly connected components
-template <class PGraph> bool IsConnected(const PGraph& Graph);
-template <class PGraph> bool IsWeaklyConn(const PGraph& Graph);
-template <class PGraph> void GetWccSzCnt(const PGraph& Graph, TIntPrV& WccSzCnt);
-template <class PGraph> void GetWccs(const PGraph& Graph, TCnComV& CnComV);
-template <class PGraph> void GetSccSzCnt(const PGraph& Graph, TIntPrV& SccSzCnt);
-template <class PGraph> void GetSccs(const PGraph& Graph, TCnComV& CnComV);
-template <class PGraph> double GetMxWccSz(const PGraph& Graph);
-
-// get largest weakly/strongly/bi-connected component
-template <class PGraph> PGraph GetMxWcc(const PGraph& Graph);
-template <class PGraph> PGraph GetMxScc(const PGraph& Graph);
-template <class PGraph> PGraph GetMxBiCon(const PGraph& Graph);
-
-// bi-connected components
-void GetBiConSzCnt(const PUNGraph& Graph, TIntPrV& SzCntV);
-void GetBiCon(const PUNGraph& Graph, TCnComV& BiCnComV);
-void GetArtPoints(const PUNGraph& Graph, TIntV& ArtNIdV);
-void GetEdgeBridges(const PUNGraph& Graph, TIntPrV& EdgeV);
-void Get1CnComSzCnt(const PUNGraph& Graph, TIntPrV& SzCntV);
-void Get1CnCom(const PUNGraph& Graph, TCnComV& Cn1ComV);
-PUNGraph GetMxBiCon(const PUNGraph& Graph, const bool& RenumberNodes=false);
-
-}; // namespace TSnap
-
-// Articulation points DFS visitor
+/////////////////////////////////////////////////
+/// Articulation point Depth-First-Search visitor class.
 class TArtPointVisitor {
 public:
   THash<TInt, TIntPr> VnLowH;
@@ -85,7 +174,8 @@ public:
     VnLowH.GetDat(NId1).Val2 = TMath::Mn(VnLowH.GetDat(NId1).Val2, VnLowH.GetDat(NId2).Val1); }
 };
 
-// Biconnected componetns DFS visitor
+/////////////////////////////////////////////////
+/// Biconnected componetns Depth-First-Search visitor class.
 class TBiConVisitor {
 public:
   THash<TInt, TIntPr> VnLowH;
@@ -122,7 +212,8 @@ public:
   void FwdEdge(const int& NId1, const int& NId2) { }
 };
 
-// Strongly connected componetn DFS visitor
+/////////////////////////////////////////////////
+/// Strongly connected componetns Depht-First-Search visitor class.
 template <class PGraph, bool OnlyCount = false>
 class TSccVisitor {
 public:
@@ -161,50 +252,6 @@ public:
   int GetMinDiscTm(const int& NId1, const int& NId2) const {
     return abs(TmRtH.GetDat(NId1).Val1) < abs(TmRtH.GetDat(NId2).Val1) ? NId1 : NId2; }
 };
-
-template <class PGraph, class TVisitor>
-void TCnCom::GetDfsVisitor(const PGraph& Graph, TVisitor& Visitor) {
-  const int Nodes = Graph->GetNodes();
-  TSStack<TIntTr> Stack(Nodes);
-  int edge=0, Deg=0, U=0;
-  TIntH ColorH(Nodes);
-  typename PGraph::TObj::TNodeI NI, UI;
-  for (NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
-    U = NI.GetId();
-    if (! ColorH.IsKey(U)) {
-      ColorH.AddDat(U, 1); 
-      Visitor.DiscoverNode(U);       // discover
-      Stack.Push(TIntTr(U, 0, Graph->GetNI(U).GetOutDeg()));
-      while (! Stack.Empty()) {
-        const TIntTr& Top = Stack.Top();
-        U=Top.Val1; edge=Top.Val2; Deg=Top.Val3;
-        typename PGraph::TObj::TNodeI UI = Graph->GetNI(U);
-        Stack.Pop();
-        while (edge != Deg) {
-          const int V = UI.GetOutNId(edge);
-          Visitor.ExamineEdge(U, V); // examine edge
-          if (! ColorH.IsKey(V)) {
-            Visitor.TreeEdge(U, V);  // tree edge
-            Stack.Push(TIntTr(U, ++edge, Deg));
-            U = V;
-            ColorH.AddDat(U, 1); 
-            Visitor.DiscoverNode(U); // discover
-            UI = Graph->GetNI(U);
-            edge = 0;  Deg = UI.GetOutDeg();
-          }
-          else if (ColorH.GetDat(V) == 1) {
-            Visitor.BackEdge(U, V);  // edge upward
-            ++edge; }
-          else {
-            Visitor.FwdEdge(U, V);   // edge downward
-            ++edge; }
-        }
-        ColorH.AddDat(U, 2); 
-        Visitor.FinishNode(U);       // finish
-      }
-    }
-  }
-}
 
 /////////////////////////////////////////////////
 // Implementation

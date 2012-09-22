@@ -65,11 +65,9 @@ void GetEdgeBridges(const PUNGraph& Graph, TIntPrV& EdgeV) {
   EdgeSet.GetKeyV(EdgeV);
 }
 
-// distribution sizes of maximal components of that can be disconnected
-// from the network by removing a single edge
+// Algorithm: Find all bridges, remove them from the graph, find largest component K
+// now add all bridges that do not touch K, find connected components
 void Get1CnComSzCnt(const PUNGraph& Graph, TIntPrV& SzCntV) {
-  // Algorithm: find all bridges, remove them from the graph, find largest component K
-  // now add all bridges that do not touch K, find connected components
   //TCnCom::GetWccCnt(Graph, SzCntV);  IAssertR(SzCntV.Len() == 1, "Graph is not connected.");
   TIntPrV EdgeV;
   GetEdgeBridges(Graph, EdgeV);
