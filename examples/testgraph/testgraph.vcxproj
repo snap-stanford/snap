@@ -47,7 +47,7 @@
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>C:\cygwin\home\rok\git\snap\glib-core;C:\cygwin\home\rok\git\snap\snap-core;$(IncludePath)</IncludePath>
+    <IncludePath>W:\snap-git\snap-adv;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

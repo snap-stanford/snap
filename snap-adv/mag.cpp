@@ -329,8 +329,8 @@ void TMAGNodeBeta::AttrGen(TIntVV& AttrVV, const int& NNodes) {
 	
 	for(int i = 0; i < NNodes; i++) {
 		for(int l = 0; l < Dim; l++) {
-			double x = TMAGNodeBeta::Rnd.GetGammaDev(AlphaV[l]);
-			double y = TMAGNodeBeta::Rnd.GetGammaDev(BetaV[l]);
+			double x = TMAGNodeBeta::Rnd.GetGammaDev((int)AlphaV[l]);
+			double y = TMAGNodeBeta::Rnd.GetGammaDev((int)BetaV[l]);
 			MuV[l] = x / (x + y);
 			if((TMAGNodeBeta::Rnd).GetUniDev() > MuV[l]) {
 				AttrVV.At(i, l) = 1;
@@ -1853,14 +1853,14 @@ void TMAGFitBern::SortAttrOrdering(const TFltV& TrueMuV, TIntV& IndexV) const {
 				TrueIdxV.Swap(i, j);
 			}
 			if(SortedEstMuV[i] < SortedEstMuV[j]) {
-				EstIdxV.Swap(SortedEstMuV[i], SortedEstMuV[j]);
+				EstIdxV.Swap((int)SortedEstMuV[i], (int)SortedEstMuV[j]);
 				SortedEstMuV.Swap(i, j);
 			}
 		}
 	}
 
 	for(int l = 0; l < NAttrs; l++) {
-		IndexV[l] = TrueIdxV[EstIdxV[l]];
+		IndexV[l] = (int)TrueIdxV[(int)EstIdxV[l]];
 	}
 }
 
