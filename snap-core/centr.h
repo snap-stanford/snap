@@ -1,30 +1,53 @@
 namespace TSnap {
 
 /////////////////////////////////////////////////
-// Centrality measures (see: http://en.wikipedia.org/wiki/Centrality)
+// Node centrality measures (See: http://en.wikipedia.org/wiki/Centrality)
 
-// Degree and Closeness centrality
+/// Computes Degree centrality of a given node NId.
+/// Degree centrality if a node is defined as its degree/(N-1), where N is the number of nodes in the network.
 double GetDegreeCentr(const PUNGraph& Graph, const int& NId);
+/// Computes Farness centrality of a given node NId. 
+/// Farness centrality of a node is the average shortest path lenght to all other nodes that reside is the same connected component as the given node.
+double GetFarnessCentr(const PUNGraph& Graph, const int& NId);
+/// Computes Closeness centrality of a given node NId.
+/// Closeness centrality of a node is defined as 1/FarnessCentrality.
 double GetClosenessCentr(const PUNGraph& Graph, const int& NId);
 
-// Betweenness centrality (exact and fast approximate calculations)
+/// Computes (approximate) Node Beetweenness Centrality based on a sample of NodeFrac nodes.
+/// @param NIdBtwH hash table mapping node ids to their corresponding betweenness centrality values.
+/// @param NodeFrac quality of approximation. NodeFrac=1.0 gives exact betweenness values.
 void GetBetweennessCentr(const PUNGraph& Graph, TIntFltH& NIdBtwH, const double& NodeFrac=1.0);
+/// Computes (approximate) Edge Beetweenness Centrality based on a sample of NodeFrac nodes.
+/// @param EdgeBtwH hash table mapping edges (pairs of node ids) to their corresponding betweenness centrality values.
+/// @param NodeFrac quality of approximation. NodeFrac=1.0 gives exact betweenness values.
 void GetBetweennessCentr(const PUNGraph& Graph, TIntPrFltH& EdgeBtwH, const double& NodeFrac=1.0);
-void GetBetweennessCentr(const PUNGraph& Graph, TIntFltH& NodeBtwH, TIntPrFltH& EdgeBtwH, const double& NodeFrac=1.0);
+/// Computes (approximate) Node and Edge Beetweenness Centrality based on a sample of NodeFrac nodes.
+/// @param NIdBtwH hash table mapping node ids to their corresponding betweenness centrality values.
+/// @param EdgeBtwH hash table mapping edges (pairs of node ids) to their corresponding betweenness centrality values.
+/// @param NodeFrac quality of approximation. NodeFrac=1.0 gives exact betweenness values.
+void GetBetweennessCentr(const PUNGraph& Graph, TIntFltH& NIdBtwH, TIntPrFltH& EdgeBtwH, const double& NodeFrac=1.0);
+/// Computes (approximate) Beetweenness Centrality of all nodes and all edges of the network.
+/// To obtain exact betweenness values one needs to solve single-source shortest-path problem for every node.
+/// To speed up the algorithm we solve the shortest-path problem for the BtwNIdV subset of nodes. This gives centrality values that are about Graph->GetNodes()/BtwNIdV.Len() times lower than the exact betweenness centrality valus.
+/// See "A Faster Algorithm for Beetweenness Centrality", Ulrik Brandes, Journal of Mathematical Sociology, 2001, and 
+/// "Centrality Estimation in Large Networks", Urlik Brandes and Christian Pich, 2006 for more details.
 void GetBetweennessCentr(const PUNGraph& Graph, const TIntV& BtwNIdV, TIntFltH& NodeBtwH, const bool& DoNodeCent, TIntPrFltH& EdgeBtwH, const bool& DoEdgeCent);
 
-// Eigenvector centrality
-void GetEigenVectorCentr(const PUNGraph& Graph, TIntFltH& EigenH, const double& Eps=1e-4, const int& MaxIter=100);
+/// Computes Eigenvector Centrality of all nodes in the network
+/// Eigenvector Centrality of a node N is defined recursively as the average of centrality values of N's neighbors in the network.
+void GetEigenVectorCentr(const PUNGraph& Graph, TIntFltH& NIdEigenH, const double& Eps=1e-4, const int& MaxIter=100);
 
-// PageRank and HITS (Hubs and Authorities)
+/// PageRank
+/// For more info see: http://en.wikipedia.org/wiki/PageRank
 template<class PGraph> void GetPageRank(const PGraph& Graph, TIntFltH& PRankH, const double& C=0.85, const double& Eps=1e-4, const int& MaxIter=100);
+/// HITS: Hubs and Authorities
+/// For more info see: http://en.wikipedia.org/wiki/HITS_algorithm)
 template<class PGraph> void GetHits(const PGraph& Graph, TIntFltH& NIdHubH, TIntFltH& NIdAuthH, const int& MaxIter=20);
 
-
 /////////////////////////////////////////////////
-/// Page Rank -- there are two different implementations (uncomment the desired 2 lines):
-///   Berkhin -- (the correct way) see Algorithm 1 of P. Berkhin, A Survey on PageRank Computing, Internet Mathematics, 2005
-///   iGraph -- iGraph implementation(which treats leaked PageRank in a funny way)
+// Page Rank -- there are two different implementations (uncomment the desired 2 lines):
+//   Berkhin -- (the correct way) see Algorithm 1 of P. Berkhin, A Survey on PageRank Computing, Internet Mathematics, 2005
+//   iGraph -- iGraph implementation(which treats leaked PageRank in a funny way)
 template<class PGraph>
 void GetPageRank(const PGraph& Graph, TIntFltH& PRankH, const double& C, const double& Eps, const int& MaxIter) {
   const int NNodes = Graph->GetNodes();
@@ -61,7 +84,6 @@ void GetPageRank(const PGraph& Graph, TIntFltH& PRankH, const double& C, const d
   }
 }
 
-/// HITS: Hubs and Authorities (by J. Kleinberg, see http://en.wikipedia.org/wiki/HITS_algorithm)
 template<class PGraph>
 void GetHits(const PGraph& Graph, TIntFltH& NIdHubH, TIntFltH& NIdAuthH, const int& MaxIter) {
   const int NNodes = Graph->GetNodes();

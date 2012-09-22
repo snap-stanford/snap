@@ -1,8 +1,8 @@
 /////////////////////////////////////////////////
-// Approximate Neighborhood Function
-// C. R. Palmer, P. B. Gibbons and C. Faloutsos,
-// ANF: A Fast and Scalable Tool for Data Mining in Massive Graphs,
-// KDD 2002 http://www.cs.cmu.edu/~christos/PUBLICATIONS/kdd02-anf.ps.gz
+/// Approximate Neighborhood Function.
+/// Implements the algorithm for computing the diameter of a given graph.
+/// The method is based on the approximate counting argument by Flajolet-Martin.
+/// For more details see C. R. Palmer, P. B. Gibbons and C. Faloutsos, ANF: A Fast and Scalable Tool for Data Mining in Massive Graphs, KDD 2002 (http://www.cs.cmu.edu/~christos/PUBLICATIONS/kdd02-anf.ps.gz)
 
 template <class PGraph>
 class TGraphAnf {
@@ -153,7 +153,7 @@ double CalcEffDiamPdf(const TFltPrV& DistNbrsPdfV, const double& Percentile=0.9)
 double CalcAvgDiamPdf(const TIntFltKdV& DistNbrsPdfV);
 double CalcAvgDiamPdf(const TFltPrV& DistNbrsPdfV);
 
-template <class PGraph> void Test() {
+template <class PGraph> void TestAnf() {
   PGraph Graph = PGraph::TObj::New();
   //Graph:
   //  0    2 ----> 3

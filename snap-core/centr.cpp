@@ -8,8 +8,7 @@ double GetDegreeCentr(const PUNGraph& Graph, const int& NId) {
   else { return 0.0; }
 }
 
-/// Closeness centrality: Average shortest path lenght to any other node in the graph
-double GetClosenessCentr(const PUNGraph& Graph, const int& NId) {
+double GetFarnessCentr(const PUNGraph& Graph, const int& NId) {
   TIntH NDistH(Graph->GetNodes());
   TSnap::GetShortPath<PUNGraph>(Graph, NId, NDistH, true, TInt::Mx);
   double sum = 0;
@@ -20,10 +19,12 @@ double GetClosenessCentr(const PUNGraph& Graph, const int& NId) {
   else { return 0.0; }
 }
 
-/// Beetweenness Centrality. To get exact results we solve single-source shortest-path problem for every node.
-/// Solving it for a BtwNIdV subset of nodes gives centralitiy values that are about Graph->GetNodes()/BtwNIdV.Len() times lower than exact centrality.
-/// "A Faster Algorithm for Beetweenness Centrality", Ulrik Brandes, Journal of Mathematical Sociology, 2001
-/// "Centrality Estimation in Large Networks", Urlik Brandes and Christian Pich, 2006
+double GetClosenessCentr(const PUNGraph& Graph, const int& NId) {
+  const double Farness = GetFarnessCentr(Graph, NId);
+  if (Farness != 0.0) { return 1.0/Farness; }
+  else { return 0.0; }
+}
+
 void GetBetweennessCentr(const PUNGraph& Graph, const TIntV& BtwNIdV, TIntFltH& NodeBtwH, const bool& DoNodeCent, TIntPrFltH& EdgeBtwH, const bool& DoEdgeCent) {
   if (DoNodeCent) { NodeBtwH.Clr(); }
   if (DoEdgeCent) { EdgeBtwH.Clr(); }
@@ -97,8 +98,8 @@ void GetBetweennessCentr(const PUNGraph& Graph, const TIntV& BtwNIdV, TIntFltH& 
   }
 }
 
-/// Approximate beetweenness centrality scores. The implementation scales to large networks.
-/// NodeFrac ... calculate Beetweenness Centrality for a fraction of nodes. Gives approximate.
+// Approximate beetweenness centrality scores. The implementation scales to large networks.
+// NodeFrac ... calculate Beetweenness Centrality for a fraction of nodes. Gives approximate.
 void GetBetweennessCentr(const PUNGraph& Graph, TIntFltH& NodeBtwH, const double& NodeFrac) {
   TIntPrFltH EdgeBtwH;
   TIntV NIdV;  Graph->GetNIdV(NIdV);
@@ -131,12 +132,12 @@ void GetBetweennessCentr(const PUNGraph& Graph, TIntFltH& NodeBtwH, TIntPrFltH& 
   GetBetweennessCentr(Graph, NIdV, NodeBtwH, true, EdgeBtwH, true);
 }
 
-void GetEigenVectorCentr(const PUNGraph& Graph, TIntFltH& EigenH, const double& Eps, const int& MaxIter) {
+void GetEigenVectorCentr(const PUNGraph& Graph, TIntFltH& NIdEigenH, const double& Eps, const int& MaxIter) {
   const int NNodes = Graph->GetNodes();
-  EigenH.Gen(NNodes);
+  NIdEigenH.Gen(NNodes);
   for (TUNGraph::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
-    EigenH.AddDat(NI.GetId(), 1.0/NNodes);
-    IAssert(NI.GetId() == EigenH.GetKey(EigenH.Len()-1));
+    NIdEigenH.AddDat(NI.GetId(), 1.0/NNodes);
+    IAssert(NI.GetId() == NIdEigenH.GetKey(NIdEigenH.Len()-1));
   }
   TFltV TmpV(NNodes);
   double diff = TFlt::Mx;
@@ -145,15 +146,15 @@ void GetEigenVectorCentr(const PUNGraph& Graph, TIntFltH& EigenH, const double& 
     for (TUNGraph::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++, j++) {
       TmpV[j] = 0;
       for (int e = 0; e < NI.GetOutDeg(); e++) {
-        TmpV[j] += EigenH.GetDat(NI.GetOutNId(e)); }
+        TmpV[j] += NIdEigenH.GetDat(NI.GetOutNId(e)); }
     }
     double sum = 0;
     for (int i = 0; i < TmpV.Len(); i++) {
-      EigenH[i] = TmpV[i];
-      sum += EigenH[i];
+      NIdEigenH[i] = TmpV[i];
+      sum += NIdEigenH[i];
     }
-    for (int i = 0; i < EigenH.Len(); i++) {
-      EigenH[i] /= sum; }
+    for (int i = 0; i < NIdEigenH.Len(); i++) {
+      NIdEigenH[i] /= sum; }
     if (fabs(diff-sum) < Eps) { break; }
     //printf("\tdiff:%f\tsum:%f\n", fabs(diff-sum), sum);
     diff = sum;
