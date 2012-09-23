@@ -184,7 +184,7 @@ void TLocClust::DrawWhiskers(const PUNGraph& Graph, TStr FNmPref, const int& Plo
     for (TUNGraph::TNodeI NI = BrClust->BegNI(); NI < BrClust->EndNI(); NI++) {
       if (NI.GetOutDeg() != Graph->GetNI(NI.GetId()).GetOutDeg()) { BrNodeId=NI.GetId(); break; } }
     TIntStrH ClrH;  ClrH.AddDat(BrNodeId, "red");
-    TGraphViz::Plot(BrClust, gvlNeato, TStr::Fmt("whisk-%s-%02d.gif", FNmPref.CStr(), c+1),
+    TSnap::DrawGViz(BrClust, gvlNeato, TStr::Fmt("whisk-%s-%02d.gif", FNmPref.CStr(), c+1),
       TStr::Fmt("Bridge node id: %d, n=%d, e=%d", BrNodeId, BrClust->GetNodes(), BrClust->GetEdges()), false, ClrH);
   }
 }

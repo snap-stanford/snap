@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////
-// Graph Utilities
+/// Graph Utilities
 class TGUtil {
 public:
   static void GetCdf(const TIntPrV& PdfV, TIntPrV& CdfV);
@@ -30,7 +30,7 @@ public:
 };
 
 /////////////////////////////////////////////////
-// String helper functions and utilities
+/// String helper functions and utilities. Quick and ditry!
 class TStrUtil {
 public:
   static TChA& GetXmlTagVal(TXmlLx& XmlLx, const TChA& TagNm);
@@ -56,9 +56,11 @@ public:
   static bool IsLatinStr(const TChA& Str, const double& MinAlFrac);
   static void GetWIdV(const TStrHash<TInt>& StrH, const char *CStr, TIntV& WIdV);
   static void GetAddWIdV(TStrHash<TInt>& StrH, const char *CStr, TIntV& WIdV);
+  /// Parses time in many different text formats. See source code for details.
   static bool GetTmFromStr(const char* TmStr, TSecTm& Tm);
 
-  // Name Splitter and Standardizer
+  /// Puts person's name (fist middle last) in a standard form: <last_name>_<first name innitial>
   static TStr GetStdName(TStr AuthorName);
+  /// Splits a list of people's names.
   static void GetStdNameV(TStr AuthorNames, TStrV& StdNameV);
 };

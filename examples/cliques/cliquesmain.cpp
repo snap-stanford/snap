@@ -23,7 +23,7 @@ int main(int argc, char* argv[]) {
     G->AddEdge(5,6); G->AddEdge(5,7);
     G->AddEdge(6,7);
     // draw the small graph using GraphViz
-    TGraphViz::Plot(G, gvlNeato, "small_graph.png", "", true); 
+    TSnap::DrawGViz(G, gvlNeato, "small_graph.png", "", true); 
   }
   // load graph
   else if (InFNm.GetFExt().GetLc()==".ungraph") {

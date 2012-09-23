@@ -61,7 +61,7 @@ public:
 		}
 		fprintf(F, "}\n");
 		fclose(F);
-		TGraphViz::DoLayout(GraphFNm, OutFNm, gvlNeato);
+		TSnap::TSnapDetail::GVizDoLayout(GraphFNm, OutFNm, gvlNeato);
 	}
 };
 #endif

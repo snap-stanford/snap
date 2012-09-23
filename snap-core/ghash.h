@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////
-// Graph Hash Table Key
+/// Graph Hash Table Key.
 class TGraphKey {
 public:
   static const int RoundTo;
@@ -37,14 +37,15 @@ public:
 
   void SaveTxt(FILE *F) const;
   void SaveGViz(const TStr& OutFNm, const TStr& Desc = TStr(), const TStr& NodeAttrs="", const int& Size=-1) const;
-  void PlotGViz(const TStr& OutFNm, const TStr& Desc = TStr(), const TStr& NodeAttrs="", const int& Size=-1) const;
+  void DrawGViz(const TStr& OutFNm, const TStr& Desc = TStr(), const TStr& NodeAttrs="", const int& Size=-1) const;
   static bool IsIsomorph(const TGraphKey& Key1, const TGraphKey& Key2, const TIntV& NodeIdMap);
   static bool IsIsomorph(const TGraphKey& Key1, const TGraphKey& Key2, const TVec<TIntV>& NodeIdMapV);
   static bool IsIsomorph(const TGraphKey& Key1, const TGraphKey& Key2, const TVec<TIntV>& NodeIdMapV, int& IsoPermId);
 };
 
 /////////////////////////////////////////////////
-// Graph Hash Table
+/// Graph Hash Table, a hash table where keys are (little) undirected graphs.
+/// Class is useful for counting frequencies of small subgraphs or information cascades.
 template <class TDat>
 class TGHash {
 public:
@@ -121,8 +122,8 @@ public:
   void Defrag() { GraphH.Defrag(); }
   void Pack() { GraphH.Pack(); }
 
-  void PlotGViz(const int& KeyId, const TStr& OutFNmPref, const TStr& OutputType = "gif", TStr Desc="") const;
-  void PlotGViz(const TIntV& KeyIdV, const TStr& OutFNmPref, const TStr& OutputType = "gif") const;
+  void DrawGViz(const int& KeyId, const TStr& OutFNmPref, const TStr& OutputType = "gif", TStr Desc="") const;
+  void DrawGViz(const TIntV& KeyIdV, const TStr& OutFNmPref, const TStr& OutputType = "gif") const;
   void SaveTxt(const TStr& OutFNm, const TStr& Desc, const TStr& DatColNm, const bool& SortByKeyVal=true) const;
   void SaveDetailTxt(const TStr& OutFNm, const TStr& Desc, const TStr& DatColNm) const;
 };
@@ -256,8 +257,6 @@ bool TGHash<TDat>::GetNodeMap(const PNGraph& Graph, TIntPrV& NodeMapV) const {
   return GetNodeMap(Graph, NodeMapV, KeyId);
 }
 
-
-
 template <class TDat>
 bool TGHash<TDat>::GetNodeMap(const PNGraph& Graph, TIntPrV& NodeMapV, int& KeyId) const {
   NodeMapV.Clr(false);
@@ -326,16 +325,16 @@ void TGHash<TDat>::GetKeyIdByGSz(TIntV& KeyIdV, const bool& Asc) const {
 }
 
 template <class TDat>
-void TGHash<TDat>::PlotGViz(const int& KeyId, const TStr& OutFNmPref, const TStr& OutputType, TStr Desc) const {
+void TGHash<TDat>::DrawGViz(const int& KeyId, const TStr& OutFNmPref, const TStr& OutputType, TStr Desc) const {
   IAssert(OutputType == "ps" || OutputType == "gif" || OutputType == "png");
   const TGraphKey& GKey = GetKey(KeyId);
   const TStr Desc1 = TStr::Fmt("%s (%d, %d)", Desc.CStr(), GKey.GetNodes(), GKey.GetEdges());
   GKey.SaveGViz(OutFNmPref+".dot", Desc1);
-  TGraphViz::DoLayout(OutFNmPref+".dot", OutFNmPref+"."+OutputType, gvlDot);
+  TSnap::TSnapDetail::GVizDoLayout(OutFNmPref+".dot", OutFNmPref+"."+OutputType, gvlDot);
 }
 
 template <class TDat>
-void TGHash<TDat>::PlotGViz(const TIntV& KeyIdV, const TStr& OutFNmPref, const TStr& OutputType) const {
+void TGHash<TDat>::DrawGViz(const TIntV& KeyIdV, const TStr& OutFNmPref, const TStr& OutputType) const {
   IAssert(OutputType == "ps" || OutputType == "gif" || OutputType == "png");
   TExeTm ExeTm;
   printf("Plotting %d graphs\n", KeyIdV.Len());
@@ -345,7 +344,7 @@ void TGHash<TDat>::PlotGViz(const TIntV& KeyIdV, const TStr& OutFNmPref, const T
     const TGraphKey& GKey = GetKey(KeyIdV[i]);
     printf("\r  %d  g(%d, %d)    ", i, GKey.GetNodes(), GKey.GetEdges());
     GKey.SaveGViz(FNm+"dot", Desc);
-    TGraphViz::DoLayout(FNm+"dot", FNm+OutputType, gvlDot);
+    TSnap::TSnapDetail::GVizDoLayout(FNm+"dot", FNm+OutputType, gvlDot);
   }
   printf("done [%s].\n", ExeTm.GetTmStr());
 }
@@ -384,7 +383,7 @@ void TGHash<TDat>::SaveDetailTxt(const TStr& OutFNm, const TStr& Desc, const TSt
 }
 
 /////////////////////////////////////////////////
-// Simple Edge Graph
+/// Simple directed/undirected graph defined by its edges.
 class TSimpleGraph {
 private:
   TIntPrV EdgeV;
@@ -405,7 +404,7 @@ public:
 typedef TVec<TSimpleGraph> TSimpleGraphV;
 
 /////////////////////////////////////////////////
-// Connected Sub-graph Enumeration
+/// Connected Sub-graph Enumeration.
 class TSubGraphsEnum {
 private:
   TSimpleGraphV SgV, NextSgV;

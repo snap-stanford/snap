@@ -43,7 +43,7 @@ int main(int argc, char* argv[]) {
     const int gid = GraphCounter.GetId(i);
     PNGraph SG = GraphCounter.GetGraph(gid);
     if (DrawMotifs) {
-      TGraphViz::Plot(SG, gvlNeato, TStr::Fmt("%s-motif%03d.gif", OutFNm.CStr(), i), 
+      TSnap::DrawGViz(SG, gvlNeato, TStr::Fmt("%s-motif%03d.gif", OutFNm.CStr(), i), 
         TStr::Fmt("GId:%d  Count: %llu", gid, GraphCounter.GetCnt(gid)));
     }
     fprintf(F, "%d\t%d\t%d\t%llu\n", gid, SG->GetNodes(), SG->GetEdges(), static_cast<long long unsigned int>(GraphCounter.GetCnt(gid)));

@@ -1,9 +1,9 @@
 /////////////////////////////////////////////////
 // GraphViz
-namespace TGraphViz {
-
-void DoLayout(const TStr& GraphInFNm, TStr OutFNm, const TGVizLayout& Layout) {
-  TStr LayoutExe = GetLayoutStr(Layout), Ext = OutFNm.GetFExt(), GvPath;
+namespace TSnap {
+namespace TSnapDetail {
+void GVizDoLayout(const TStr& GraphInFNm, TStr OutFNm, const TGVizLayout& Layout) {
+  TStr LayoutExe = TSnap::TSnapDetail::GVizGetLayoutStr(Layout), Ext = OutFNm.GetFExt(), GvPath;
   #if defined(GLib_WIN)
     GvPath = "C:\\Prog\\GraphViz\\bin\\";
   #else
@@ -28,7 +28,7 @@ void DoLayout(const TStr& GraphInFNm, TStr OutFNm, const TGVizLayout& Layout) {
   //#endif
 }
 
-TStr GetLayoutStr(const TGVizLayout& Layout) {
+TStr GVizGetLayoutStr(const TGVizLayout& Layout) {
   switch(Layout) {
     case gvlDot : return "dot";
     case gvlNeato : return "neato";
@@ -39,4 +39,6 @@ TStr GetLayoutStr(const TGVizLayout& Layout) {
   return TStr::GetNullStr();
 }
 
-} // TGraphViz
+} // namespace TSnapDetail
+} // namespace TSnap
+

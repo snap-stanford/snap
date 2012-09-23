@@ -31,7 +31,7 @@ typedef enum {
 } TGStatDistr;
 
 /////////////////////////////////////////////////
-// Statistics of a Graph Snapshot
+/// Statistics of a Graph Snapshot
 class TGStat {
 public:
   static int NDiamRuns;
@@ -143,7 +143,7 @@ public:
 };
 
 /////////////////////////////////////////////////
-// Graph Statistisc Sequence
+/// Graph Statistisc Sequence
 class TGStatVec {
 public:
   static uint MinNodesEdges;

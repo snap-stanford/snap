@@ -176,10 +176,10 @@ void TGraphKey::SaveGViz(const TStr& OutFNm, const TStr& Desc, const TStr& NodeA
 }
 
 // width=0.3, height=0.3, label=\"\", style=filled, color=black
-void TGraphKey::PlotGViz(const TStr& OutFNm, const TStr& Desc, const TStr& NodeAttrs, const int& Size) const {
+void TGraphKey::DrawGViz(const TStr& OutFNm, const TStr& Desc, const TStr& NodeAttrs, const int& Size) const {
   const TStr DotFNm = OutFNm.GetFMid()+".dot";
   SaveGViz(DotFNm, Desc, NodeAttrs, Size);
-  TGraphViz::DoLayout(DotFNm, OutFNm, gvlDot);
+  TSnap::TSnapDetail::GVizDoLayout(DotFNm, OutFNm, gvlDot);
 }
 
 bool TGraphKey::IsIsomorph(const TGraphKey& Key1, const TGraphKey& Key2, const TIntV& NodeIdMap) {
