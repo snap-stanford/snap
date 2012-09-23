@@ -2,6 +2,8 @@
 // Community detection algorithms
 namespace TSnap {
 
+
+namespace TSnapDetail {
 // GIRVAN-NEWMAN algorithm
 //	1. The betweenness of all existing edges in the network is calculated first.
 //	2. The edge with the highest betweenness is removed.
@@ -48,6 +50,8 @@ double _GirvanNewmanGetModularity(const PUNGraph& G, const TIntH& OutDegH, const
   else { return Mod/(2.0*OrigEdges); }
 }
 
+} // namespace TSnapDetail
+
 // Maximum modularity clustering by Girvan-Newman algorithm (slow)
 //  Girvan M. and Newman M. E. J., Community structure in social and biological networks, Proc. Natl. Acad. Sci. USA 99, 7821–7826 (2002)
 double CommunityGirvanNewman(PUNGraph& Graph, TCnComV& CmtyV) {
@@ -61,8 +65,8 @@ double CommunityGirvanNewman(PUNGraph& Graph, TCnComV& CmtyV) {
   CmtyV.Clr();
   TIntV Cmty1, Cmty2;
   while (true) {
-    CmtyGirvanNewmanStep(Graph, Cmty1, Cmty2);
-    const double Q = _GirvanNewmanGetModularity(Graph, OutDegH, NEdges, CurCmtyV);
+    TSnapDetail::CmtyGirvanNewmanStep(Graph, Cmty1, Cmty2);
+    const double Q = TSnapDetail::_GirvanNewmanGetModularity(Graph, OutDegH, NEdges, CurCmtyV);
     //printf("current modularity: %f\n", Q);
     if (Q > BestQ) {
       BestQ = Q; 
@@ -73,8 +77,10 @@ double CommunityGirvanNewman(PUNGraph& Graph, TCnComV& CmtyV) {
   return BestQ;
 }
 
-// At every step two communities that contribute maximum positive value to global modularity are merged.
-// see: Finding community structure in very large networks, A. Clauset, M.E.J. Newman, C. Moore, 2004
+namespace TSnapDetail {
+/// Clauset-Newman-Moore community detection method.
+/// At every step two communities that contribute maximum positive value to global modularity are merged.
+/// See: Finding community structure in very large networks, A. Clauset, M.E.J. Newman, C. Moore, 2004
 class TCNMQMatrix {
 private:
   struct TCmtyDat {
@@ -185,8 +191,10 @@ public:
   }
 };
 
+} // namespace TSnapDetail
+
 double CommunityCNM(const PUNGraph& Graph, TCnComV& CmtyV) {
-  return TCNMQMatrix::CmtyCMN(Graph, CmtyV);
+  return TSnapDetail::TCNMQMatrix::CmtyCMN(Graph, CmtyV);
 }
 
 }; //namespace TSnap
