@@ -2,21 +2,39 @@ namespace TSnap {
 
 /////////////////////////////////////////////////
 // Plot graph properties
+
+/// Plots the in-degree distribution of a Graph.
+/// @param PlotCCdf Plots the distribution as a Complementary Cummulative distribution function.
+/// @param PowerFit Fits a Power-Law to the distribution.
 template <class PGraph> void PlotInDegDistr(const PGraph& Graph, const TStr& FNmPref, TStr DescStr=TStr(), const bool& PlotCCdf=false, const bool& PowerFit=false);
+/// Plots the out-degree distribution of a Graph.
+/// @param PlotCCdf Plots the distribution as a Complementary Cumulative Distribution Function (CCDF).
+/// @param PowerFit Fits a Power-Law to the distribution.
 template <class PGraph> void PlotOutDegDistr(const PGraph& Graph, const TStr& FNmPref, TStr DescStr=TStr(), const bool& PlotCCdf=false, const bool& PowerFit=false);
+/// Plots the distribution of sizes of weakly connected components of a Graph.
 template <class PGraph> void PlotWccDistr(const PGraph& Graph, const TStr& FNmPref, TStr DescStr=TStr());
+/// Plots the distribution of sizes of strongly connected components of a Graph.
 template <class PGraph> void PlotSccDistr(const PGraph& Graph, const TStr& FNmPref, TStr DescStr=TStr());
+/// Plots the distribution of clustering coefficient of a Graph.
 template <class PGraph> void PlotClustCf(const PGraph& Graph, const TStr& FNmPref, TStr DescStr=TStr());
+/// Plots the cumulative distribution of the shortest path lengths of a Graph. Implementation is based on ANF.
+/// @param IsDir false: ignore edge directions and consider graph as undirected.
 template <class PGraph> void PlotHops(const PGraph& Graph, const TStr& FNmPref, const TStr& DescStr, const bool& IsDir=false, const int& NApprox=32);
+/// Plots the distribution of the shortest path lengths of a Graph. Implementation is based on BFS.
 template <class PGraph> void PlotShortPathDistr(const PGraph& Graph, const TStr& FNmPref, TStr DescStr=TStr(), int TestNodes=TInt::Mx);
 
-// Spectral graph properties
+/// Plots the eigen-value rank distribution of the Graph adjacency matrix. Plots first EigVals eigenvalues.
 void PlotEigValRank(const PUNGraph& Graph, const int& EigVals, const TStr& FNmPref, TStr DescStr=TStr());
+/// Plots the distribution of components of the leading eigen-vector of the Graph adjacency matrix. Plots first EigVals values.
 void PlotEigValDistr(const PUNGraph& Graph, const int& EigVals, const TStr& FNmPref, TStr DescStr=TStr());
+/// Plots the inverse participation ratio.
+/// See Spectra of "real-world" graphs: Beyond the semicircle law by Farkas, Derenyi, Barabasi and Vicsek.
 void PlotInvParticipRat(const PUNGraph& Graph, const int& MaxEigVecs, const int& TimeLimit, const TStr& FNmPref, TStr DescStr=TStr());
-
+/// Plots the rank distribution of singular values of the Graph adjacency matrix. Plots first SngVals values.
 void PlotSngValRank(const PNGraph& Graph, const int& SngVals, const TStr& FNmPref, TStr DescStr=TStr());
+/// Plots the rank distribution of singular values of the Graph adjacency matrix. Plots first SngVals values.
 void PlotSngValDistr(const PNGraph& Graph, const int& SngVals, const TStr& FNmPref, TStr DescStr=TStr());
+/// Plots the distribution of the values of the leading left singular vector of the Graph adjacency matrix. Plots first SngVals values.
 void PlotSngVec(const PNGraph& Graph, const TStr& FNmPref, TStr DescStr=TStr());
 
 /////////////////////////////////////////////////
