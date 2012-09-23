@@ -324,7 +324,7 @@ void TGStat::TakeDiam(const PGraph& Graph, TFSet StatFSet, const bool& IsMxWcc) 
       TIntFltKdV DistNbrsV;
       for (int r = 0; r < NDiamRuns; r++) {
         TSnap::GetAnf(Graph, DistNbrsV, -1, false, 32);
-        DiamMom.Add(TAnf::CalcEffDiam(DistNbrsV, 0.9));
+        DiamMom.Add(TSnap::TSnapDetail::CalcEffDiam(DistNbrsV, 0.9));
         printf(".");
       }
       DiamMom.Def();
@@ -357,7 +357,7 @@ void TGStat::TakeDiam(const PGraph& Graph, TFSet StatFSet, const bool& IsMxWcc) 
       TIntFltKdV DistNbrsV;
       for (int r = 0; r < NDiamRuns; r++) {
         TSnap::GetAnf(Graph, DistNbrsV, -1, false, 32);
-        DiamMom.Add(TAnf::CalcEffDiam(DistNbrsV, 0.9));
+        DiamMom.Add(TSnap::TSnapDetail::CalcEffDiam(DistNbrsV, 0.9));
         printf(".");
       }
       DiamMom.Def();

@@ -1,15 +1,40 @@
 /////////////////////////////////////////////////
+// Approximate Neighborhood Function.
+namespace TSnap {
+/// Approximate Neighborhood Function of a node: Returns the (approximate) number of nodes reachable from SrcNId in less than H hops.
+/// @param SrcNId Starting node.
+/// @param DistNbrsV Maps between the distance H (in hops) and the number of nodes reachable in <=H hops.
+/// @param MxDist Maximum number of hops the algorithm spreads from SrcNId.
+/// @param IsDir false: consider links as undirected (drop link directions).
+/// @param NApprox Quality of approximation. See the ANF paper.
+template <class PGraph> void GetAnf(const PGraph& Graph, const int& SrcNId, TIntFltKdV& DistNbrsV, const int& MxDist, const bool& IsDir, const int& NApprox=32); 
+/// Approximate Neighborhood Function of a Graph: Returns the number of pairs of nodes reachable in less than H hops.
+/// For example, DistNbrsV.GetDat(0) is the number of nodes in the graph, DistNbrsV.GetDat(1) is the number of nodes+edges and so on.
+/// @param DistNbrsV Maps between the distance H (in hops) and the number of nodes reachable in <=H hops.
+/// @param MxDist Maximum number of hops the algorithm spreads from SrcNId.
+/// @param IsDir false: consider links as undirected (drop link directions).
+/// @param NApprox Quality of approximation. See the ANF paper.
+template <class PGraph> void GetAnf(const PGraph& Graph, TIntFltKdV& DistNbrsV, const int& MxDist, const bool& IsDir, const int& NApprox=32);
+/// Returns a given Percentile of the shortest path length distribution of a Graph (based on a single run of ANF of approximation quality NApprox).
+/// @param IsDir false: consider links as undirected (drop link directions).
+template <class PGraph> double GetAnfEffDiam(const PGraph& Graph, const bool& IsDir, const double& Percentile, const int& NApprox);
+/// Returns a 90-th percentile of the shortest path length distribution of a Graph (based on a NRuns runs of ANF of approximation quality NApprox).
+/// @param IsDir false: consider links as undirected (drop link directions).
+template <class PGraph> double GetAnfEffDiam(const PGraph& Graph, const int NRuns=1, int NApprox=-1);
+} // namespace TSnap
+
+/////////////////////////////////////////////////
 /// Approximate Neighborhood Function.
 /// Implements the algorithm for computing the diameter of a given graph.
 /// The method is based on the approximate counting argument by Flajolet-Martin.
 /// For more details see C. R. Palmer, P. B. Gibbons and C. Faloutsos, ANF: A Fast and Scalable Tool for Data Mining in Massive Graphs, KDD 2002 (http://www.cs.cmu.edu/~christos/PUBLICATIONS/kdd02-anf.ps.gz)
-
+/// See TSnap::TestAnf() for example of how to use the class.
 template <class PGraph>
 class TGraphAnf {
 private:
   typedef TVec<uint64> TAnfBitV;
-  THash<TInt, uint64> NIdToBitPosH; // NId to byte(!) offset in BitV
-  TInt NApprox; // maintain N parallel approximations (multiple of 8)
+  THash<TInt, uint64> NIdToBitPosH;  // NId to byte(!) offset in BitV
+  TInt NApprox;                      // maintain N parallel approximations (multiple of 8)
   TInt NBits, MoreBits, ApproxBytes; // NBits=logNodes+MoreBits;  MoreBits: additional R bits;  ApproxBytes: Approx/8;
   PGraph Graph;
   TRnd Rnd;
@@ -23,9 +48,18 @@ public:
   void Union(TAnfBitV& BitV1, const uint64& NId1Offset, TAnfBitV& BitV2, const uint64& NId2Offset) const;
   double AvgLstZero(const TAnfBitV& BitV, const uint64& NIdOffset) const;
   double GetCount(const TAnfBitV& BitV, const uint64& NIdOffset) const {
-    return pow(2.0, AvgLstZero(BitV, NIdOffset)) / 0.77351;
-  }
+    return pow(2.0, AvgLstZero(BitV, NIdOffset)) / 0.77351; }
+  /// Returns the number of nodes reachable from SrcNId in less than H hops.
+  /// @param SrcNId Starting node.
+  /// @param DistNbrsV Maps between the distance H (in hops) and the number of nodes reachable in <=H hops.
+  /// @param MxDist Maximum number of hops the algorithm spreads from SrcNId.
+  /// @param IsDir false: consider links as undirected (drop link directions).
   void GetNodeAnf(const int& SrcNId, TIntFltKdV& DistNbrsV, const int& MxDist, const bool& IsDir);
+  /// Returns the number of pairs of nodes reachable in less than H hops.
+  /// For example, DistNbrsV.GetDat(0) is the number of nodes in the graph, DistNbrsV.GetDat(1) is the number of nodes+edges and so on.
+  /// @param DistNbrsV Maps between the distance H (in hops) and the number of nodes reachable in <=H hops.
+  /// @param MxDist Maximum number of hops the algorithm spreads from SrcNId.
+  /// @param IsDir false: consider links as undirected (drop link directions).
   void GetGraphAnf(TIntFltKdV& DistNbrsV, const int& MxDist, const bool& IsDir);
 };
 
@@ -63,7 +97,7 @@ void TGraphAnf<PGraph>::Union(TAnfBitV& BitV1, const uint64& NId1Offset, TAnfBit
   for (int b=0; b < ApproxBytes*NBits; b++, DstI++, SrcI++) { *DstI |= *SrcI; }
 }
 
-//average least zero bit position (least significant zero)
+// Average least zero bit position (least significant zero)
 template <class PGraph>
 double TGraphAnf<PGraph>::AvgLstZero(const TAnfBitV& BitV, const uint64& NIdOffset) const { //average least zero bit position (least significant zero)
   int approx, bit, AvgBitPos = 0;
@@ -145,13 +179,59 @@ void TGraphAnf<PGraph>::GetGraphAnf(TIntFltKdV& DistNbrsV, const int& MxDist, co
 }
 /////////////////////////////////////////////////
 // Approximate Neighborhood Function
-namespace TAnf {
+namespace TSnap {
+
+namespace TSnapDetail {
+/// Helper function for computing a given Percentile of a (unnormalized) cumulative distribution function.
 double CalcEffDiam(const TIntFltKdV& DistNbrsCdfV, const double& Percentile=0.9);
+/// Helper function for computing a given Percentile of a (unnormalized) cumulative distribution function.
 double CalcEffDiam(const TFltPrV& DistNbrsCdfV, const double& Percentile=0.9);
+/// Helper function for computing a given Percentile of a (unnormalized) probability distribution function.
 double CalcEffDiamPdf(const TIntFltKdV& DistNbrsPdfV, const double& Percentile=0.9);
+/// Helper function for computing a given Percentile of a (unnormalized) probability distribution function.
 double CalcEffDiamPdf(const TFltPrV& DistNbrsPdfV, const double& Percentile=0.9);
+/// Helper function for computing the mean of a (unnormalized) probability distribution function.
 double CalcAvgDiamPdf(const TIntFltKdV& DistNbrsPdfV);
+/// Helper function for computing the mean of a (unnormalized) probability distribution function.
 double CalcAvgDiamPdf(const TFltPrV& DistNbrsPdfV);
+} // TSnapDetail
+
+template <class PGraph>
+void GetAnf(const PGraph& Graph, const int& SrcNId, TIntFltKdV& DistNbrsV, const int& MxDist, const bool& IsDir, const int& NApprox) {
+  TGraphAnf<PGraph> Anf(Graph, NApprox, 5, 0);
+  Anf.GetNodeAnf(SrcNId, DistNbrsV, MxDist, IsDir);
+}
+
+template <class PGraph>
+void GetAnf(const PGraph& Graph, TIntFltKdV& DistNbrsV, const int& MxDist, const bool& IsDir, const int& NApprox) {
+  TGraphAnf<PGraph> Anf(Graph, NApprox, 5, 0);
+  Anf.GetGraphAnf(DistNbrsV, MxDist, IsDir);
+}
+
+template <class PGraph>
+double GetAnfEffDiam(const PGraph& Graph, const bool& IsDir, const double& Percentile, const int& NApprox) {
+  TIntFltKdV DistNbrsV;
+  TGraphAnf<PGraph> Anf(Graph, NApprox, 5, 0);
+  Anf.GetGraphAnf(DistNbrsV, -1, IsDir);
+  return TSnap::TSnapDetail::CalcEffDiam(DistNbrsV, Percentile);
+}
+
+template<class PGraph>
+double GetAnfEffDiam(const PGraph& Graph, const int NRuns, int NApprox) {
+  //return TSnap::GetEffDiam(Graph, IsDir, 0.9, 32);
+  TMom Mom;
+  if (NApprox == -1) {
+    if (Graph->GetNodes() < 100000) { NApprox = 64; }
+    else if (Graph->GetNodes() < 1000000) { NApprox = 32; }
+    else { NApprox = 16; }
+  }
+  const bool IsDir = false;
+  for (int r = 0; r < NRuns; r++) {
+    Mom.Add(TSnap::GetAnfEffDiam(Graph, IsDir, 0.9, NApprox));
+  }
+  Mom.Def();
+  return Mom.GetMean();
+}
 
 template <class PGraph> void TestAnf() {
   PGraph Graph = PGraph::TObj::New();
@@ -207,54 +287,6 @@ template <class PGraph> void TestAnf() {
   for(int j = 0; j < DistToPairsV.Len(); j++) {
     printf("\t%d\t%f\n", DistToPairsV[j].Key, DistToPairsV[j].Dat); }
   }//*/
-}
-
-}; // namespace TAnf
-
-/////////////////////////////////////////////////
-// Snap functions
-namespace TSnap {
-
-template <class PGraph> void GetAnf(const PGraph& Graph, const int& SrcNId, TIntFltKdV& DistNbrsV, const int& MxDist, const bool& IsDir, const int& NApprox=32); // number of reachable nodes at distance Dist
-template <class PGraph> void GetAnf(const PGraph& Graph, TIntFltKdV& DistNbrsV, const int& MxDist, const bool& IsDir, const int& NApprox=32); // number of pairs of reachable nodes at distance Dist
-template <class PGraph> double GetAnfEffDiam(const PGraph& Graph, const bool& IsDir, const double& Percentile, const int& NApprox);
-template <class PGraph> double GetAnfEffDiam(const PGraph& Graph, const int NRuns=1, int NApprox=-1);
-
-template <class PGraph>
-void GetAnf(const PGraph& Graph, const int& SrcNId, TIntFltKdV& DistNbrsV, const int& MxDist, const bool& IsDir, const int& NApprox) {
-  TGraphAnf<PGraph> Anf(Graph, NApprox, 5, 0);
-  Anf.GetNodeAnf(SrcNId, DistNbrsV, MxDist, IsDir);
-}
-
-template <class PGraph>
-void GetAnf(const PGraph& Graph, TIntFltKdV& DistNbrsV, const int& MxDist, const bool& IsDir, const int& NApprox) {
-  TGraphAnf<PGraph> Anf(Graph, NApprox, 5, 0);
-  Anf.GetGraphAnf(DistNbrsV, MxDist, IsDir);
-}
-
-template <class PGraph>
-double GetAnfEffDiam(const PGraph& Graph, const bool& IsDir, const double& Percentile, const int& NApprox) {
-  TIntFltKdV DistNbrsV;
-  TGraphAnf<PGraph> Anf(Graph, NApprox, 5, 0);
-  Anf.GetGraphAnf(DistNbrsV, -1, IsDir);
-  return TAnf::CalcEffDiam(DistNbrsV, Percentile);
-}
-
-template<class PGraph>
-double GetAnfEffDiam(const PGraph& Graph, const int NRuns, int NApprox) {
-  //return TSnap::GetEffDiam(Graph, IsDir, 0.9, 32);
-  TMom Mom;
-  if (NApprox == -1) {
-    if (Graph->GetNodes() < 100000) { NApprox = 64; }
-    else if (Graph->GetNodes() < 1000000) { NApprox = 32; }
-    else { NApprox = 16; }
-  }
-  const bool IsDir = false;
-  for (int r = 0; r < NRuns; r++) {
-    Mom.Add(TSnap::GetAnfEffDiam(Graph, IsDir, 0.9, NApprox));
-  }
-  Mom.Def();
-  return Mom.GetMean();
 }
 
 } // namespace TSnap

@@ -1,6 +1,7 @@
 /////////////////////////////////////////////////
 // Approximate Neighborhood Function
-namespace TAnf {
+namespace TSnap {
+namespace TSnapDetail {
 
 // interpolate effective diameter
 double CalcEffDiam(const TIntFltKdV& DistNbrsCdfV, const double& Percentile) {
@@ -55,4 +56,6 @@ double CalcAvgDiamPdf(const TFltPrV& DistNbrsPdfV) {
   return SumLen/Paths;
 }
 
-} // namespace TAnf
+} // namespace TSnapDetail
+} // namespace TSnap
+

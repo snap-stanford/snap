@@ -64,7 +64,7 @@ int main(int argc, char* argv[]) {
   IAssert(NEG->IsOk());
   TSnap::ConvertSubGraph<PNGraph>(G, NIdV)->Dump(); }
 
-  TAnf::Test<PUNGraph>();
+  TSnap::TestAnf<PUNGraph>();
   return 0;
 }
 

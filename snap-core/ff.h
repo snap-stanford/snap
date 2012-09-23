@@ -1,5 +1,6 @@
 /////////////////////////////////////////////////
-// Forest Fire
+/// Simulates a single Forest Fire on a directed graph starting for a given starting node.
+/// For more details is "Graph Evolution: Densification and Shrinking Diameters" by J. Leskovec, J. Kleinberg, C. Faloutsos. ACM Transactions on Knowledge Discovery from Data (TKDD), 1(1), 2007.
 class TForestFire {
 private:
   TRnd Rnd;
@@ -41,7 +42,8 @@ public:
 
 
 /////////////////////////////////////////////////
-// Forest Fire Graph Generator
+/// Forest Fire Graph Generator.
+/// For more details is "Graph Evolution: Densification and Shrinking Diameters" by J. Leskovec, J. Kleinberg, C. Faloutsos. ACM Transactions on Knowledge Discovery from Data (TKDD), 1(1), 2007.
 class TFfGGen {
 public:
   typedef enum { srUndef, srOk, srFlood, srTimeLimit } TStopReason;
@@ -124,7 +126,7 @@ public:
 //*/
 
 /////////////////////////////////////////////////
-// Undirected Forest Fire (does not densify!)
+/// Simulates a single Forest Fire on a undirected graph starting for a given starting node (does not densify!).
 class TUndirFFire {
 private:
   TRnd Rnd;

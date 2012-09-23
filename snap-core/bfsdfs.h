@@ -59,7 +59,7 @@ template <class PGraph> double GetBfsEffDiam(const PGraph& Graph, const int& NTe
 //template <class PGraph> PGraph GetWccPathsSubGraph(const PGraph& Graph, const TIntV& NIdV);
 //template <class PGraph> void GetSubTreeSz(const PGraph& Graph, const int& StartNId, const bool& FollowOutEdges, int& TreeSz, int& TreeDepth);
 
-}; // namespace TSnap
+} // namespace TSnap
 
 /////////////////////////////////////////////////
 /// Breath-First-Search class.
@@ -246,7 +246,7 @@ int GetShortPath(const PGraph& Graph, const int& SrcNId, TIntH& NIdToDistH, cons
   BFS.DoBfs(SrcNId, true, ! IsDir, -1, MaxDist);
   NIdToDistH.Clr();
   NIdToDistH.Swap(BFS.NIdDistH);
-  return NIdToDistH[NIdToDistH.Len()-1]; }
+  return NIdToDistH[NIdToDistH.Len()-1];
 }
 
 template <class PGraph> 
@@ -301,7 +301,7 @@ double GetBfsEffDiam(const PGraph& Graph, const int& NTestNodes, const bool& IsD
     PathCnt += DistToCntH[i];
   }
   DistNbrsPdfV.Sort();
-  EffDiam = TAnf::CalcEffDiamPdf(DistNbrsPdfV, 0.9); // effective diameter (90-th percentile)
+  EffDiam = TSnap::TSnapDetail::CalcEffDiamPdf(DistNbrsPdfV, 0.9); // effective diameter (90-th percentile)
   FullDiam = DistNbrsPdfV.Last().Key;                // approximate full diameter (max shortest path length over the sampled nodes)
   AvgDiam = SumPathL/PathCnt;                        // average shortest path length
   return EffDiam;
@@ -329,7 +329,7 @@ double GetBfsEffDiam(const PGraph& Graph, const int& NTestNodes, const TIntV& Su
     DistNbrsPdfV.Add(TIntFltKd(DistToCntH.GetKey(i), DistToCntH[i]));
   }
   DistNbrsPdfV.Sort();
-  EffDiam = TAnf::CalcEffDiamPdf(DistNbrsPdfV, 0.9);  // effective diameter (90-th percentile)
+  EffDiam = TSnap::TSnapDetail::CalcEffDiamPdf(DistNbrsPdfV, 0.9);  // effective diameter (90-th percentile)
   FullDiam = DistNbrsPdfV.Last().Key;                 // approximate full diameter (max shortest path length over the sampled nodes)
   return EffDiam;                                     // average shortest path length
 }
