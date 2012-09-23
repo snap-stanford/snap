@@ -60,12 +60,13 @@ public:
 /// Returns a string representation of a flag.
 TStr GetFlagStr(const TGraphFlag& GraphFlag);
 /// Prints basic graph statistics.
+/// @param Fast true: only computes basic statistics (that can be computed fast). For more extensive information (and longer execution times) set Fast = false.
 template <class PGraph> void PrintInfo(const PGraph& Graph, const TStr& Desc="", const TStr& OutFNm="", const bool& Fast=true);
 
 /////////////////////////////////////////////////
 // Implementation
 
-/// Forward declaration, definition in triad.h
+// Forward declaration, definition in triad.h
 template <class PGraph> int GetTriads(const PGraph& Graph, int& ClosedTriads, int& OpenTriads, int SampleNodes=-1);
 
 template <class PGraph>
@@ -122,7 +123,7 @@ void PrintInfo(const PGraph& Graph, const TStr& Desc, const TStr& OutFNm, const 
 }  // namespace TSnap
 
 /////////////////////////////////////////////////
-/// Fast Queue (uses memcpy to move object around).
+/// Fast Queue used by the TBreathFS (uses memcpy to move objects TVal around).
 template <class TVal>
 class TSnapQueue {
 private:
@@ -180,8 +181,8 @@ public:
 };
 
 /////////////////////////////////////////////////
-/// Union Find (Disjoint-set data structure).
-/// http://en.wikipedia.org/wiki/Disjoint-set_data_structure)
+/// Union Find class (Disjoint-set data structure).
+/// For more info see: http://en.wikipedia.org/wiki/Disjoint-set_data_structure)
 class TUnionFind {
 private:
   THash<TInt, TIntPr> KIdSetH; // key id to (parent, rank)

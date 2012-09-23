@@ -96,7 +96,6 @@ public:
   const TInt& GetRndNId() const { return NIdV[TInt::Rnd.GetUniDevInt(Len())]; }
   static void Dump(const TCnComV& CnComV, const TStr& Desc=TStr());
   static void SaveTxt(const TCnComV& CnComV, const TStr& FNm, const TStr& Desc=TStr());
-
   /// Depth-First-Search.
   /// Depending on the stage of DFS a different member function of Visitor class is called.
   /// See source code for details.

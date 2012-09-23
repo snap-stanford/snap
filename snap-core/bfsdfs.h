@@ -2,25 +2,50 @@ namespace TSnap {
 
 /////////////////////////////////////////////////
 // BFS and DFS
+/// Returns a directed Breath-First-Search tree rooted at StardNId. 
+/// Returns a directed graph where a parent points to its childer.
+/// Tree is created by following in-links (parameter FollowIn = true) and/or out-links (parameter FollowOut = true).
 template <class PGraph> PNGraph GetBfsTree(const PGraph& Graph, const int& StartNId, const bool& FollowOut, const bool& FollowIn);
+/// Returns the BFS tree size (number of nodes) and depth (number of levels) by following in-links (parameter FollowIn = true) and/or out-links (parameter FollowOut = true) of node StartNId.
 template <class PGraph> int GetSubTreeSz(const PGraph& Graph, const int& StartNId, const bool& FollowOut, const bool& FollowIn, int& TreeSz, int& TreeDepth);
+/// Finds IDs of all nodes that are at distance Hop from node StartNId.
+/// @IsDir false: ignore edge directions and consider edges/paths as undirected (in case they are directed).
 template <class PGraph> int GetNodesAtHop(const PGraph& Graph, const int& StartNId, const int& Hop, TIntV& NIdV, const bool& IsDir=false);
+/// Returns the number of nodes at each hop distance from the starting node StartNId.
+/// @IsDir false: ignore edge directions and consider edges/paths as undirected (in case they are directed).
 template <class PGraph> int GetNodesAtHops(const PGraph& Graph, const int& StartNId, TIntPrV& HopCntV, const bool& IsDir=false);
 
 /////////////////////////////////////////////////
-// Paths
+// Shortest paths
+/// Returns the lenght of the shortest path from node SrcNId to node DstNId.
+/// @param IsDir false: ignore edge directions and consider edges/paths as undirected (in case they are directed).
 template <class PGraph> int GetShortPath(const PGraph& Graph, const int& SrcNId, const int& DstNId, const bool& IsDir=false);
+/// Returns the lenght of the shortest path from node SrcNId to all other nodes in the network.
+/// @param IsDir false: ignore edge directions and consider edges/paths as undirected (in case they are directed).
+/// @param MaxDist Maximum number of hops that BFS expands to. This is helpful for speeding-up the code if one in interested only in nodes less than MaxDist away from SrcNId.
+/// @param NIdToDistH Maps node ID to shortest path distance. NIdToDistH contains only nodes that are reachable from SrcNId.
 template <class PGraph> int GetShortPath(const PGraph& Graph, const int& SrcNId, TIntH& NIdToDistH, const bool& IsDir=false, const int& MaxDist=TInt::Mx);
 
 /////////////////////////////////////////////////
 // Diameter
-template <class PGraph> int GetBfsFullDiam(const PGraph& Graph, const int& NTestNodes, const bool& IsDir=false);
-template <class PGraph> double GetBfsEffDiam(const PGraph& Graph, const int& NTestNodes, const bool& IsDir=false);
-template <class PGraph> double GetBfsEffDiam(const PGraph& Graph, const int& NTestNodes, const bool& IsDir, double& EffDiam, int& FullDiam);
-template <class PGraph> double GetBfsEffDiam(const PGraph& Graph, const int& NTestNodes, const bool& IsDir, double& EffDiam, int& FullDiam, double& AvgDiam);
-template <class PGraph> double GetBfsEffDiam(const PGraph& Graph, const int& NTestNodes, const TIntV& SubGraphNIdV, const bool& IsDir, double& EffDiam, int& FullDiam);
-template <class PGraph> int GetNodeEcc(const PGraph& Graph, const int& NId, const bool& IsDir=false);
 
+/// Returns the (approximation of the) Diameter (maximum shortest path length) of a graph (by performing BFS from NTestNodes random starting nodes).
+/// @param IsDir false: ignore edge directions and consider edges/paths as undirected (in case they are directed).
+template <class PGraph> int GetBfsFullDiam(const PGraph& Graph, const int& NTestNodes, const bool& IsDir=false);
+/// Returns the (approximation of the) Effective Diameter (90-th percentile of the distribution of shortest path lenghts) of a graph (by performing BFS from NTestNodes random starting nodes).
+/// @param IsDir false: ignore edge directions and consider edges/paths as undirected (in case they are directed).
+template <class PGraph> double GetBfsEffDiam(const PGraph& Graph, const int& NTestNodes, const bool& IsDir=false);
+/// Returns the (approximation of the) Effective Diameter and the Diameter of a graph (by performing BFS from NTestNodes random starting nodes).
+/// @param IsDir false: ignore edge directions and consider edges/paths as undirected (in case they are directed).
+template <class PGraph> double GetBfsEffDiam(const PGraph& Graph, const int& NTestNodes, const bool& IsDir, double& EffDiam, int& FullDiam);
+/// Returns the (approximation of the) Effective Diameter, the Diameter and the Average Shortest Path lenght in a graph (by performing BFS from NTestNodes random starting nodes).
+/// @param IsDir false: ignore edge directions and consider edges/paths as undirected (in case they are directed).
+template <class PGraph> double GetBfsEffDiam(const PGraph& Graph, const int& NTestNodes, const bool& IsDir, double& EffDiam, int& FullDiam, double& AvgDiam);
+/// Use the whole graph (all edges) to measure the shortest path lenghts but report the path lengths only between nodes in the SubGraphNIdV.
+/// @param IsDir false: ignore edge directions and consider edges/paths as undirected (in case they are directed).
+template <class PGraph> double GetBfsEffDiam(const PGraph& Graph, const int& NTestNodes, const TIntV& SubGraphNIdV, const bool& IsDir, double& EffDiam, int& FullDiam);
+
+// TODO: Implement in the future
 //template <class PGraph> int GetRangeDist(const PGraph& Graph, const int& SrcNId, const int& DstNId, const bool& IsDir=false);
 //template <class PGraph> int GetShortPath(const PGraph& Graph, const int& SrcNId, TIntH& NIdToDistH, const bool& IsDir=false, const int& MaxDist=1000);
 //template <class PGraph> int GetShortPath(const PGraph& Graph, const int& SrcNId, const TIntSet& TargetSet, const bool& IsDir, TIntV& PathNIdV);
@@ -30,19 +55,15 @@ template <class PGraph> int GetNodeEcc(const PGraph& Graph, const int& NId, cons
 //template <class PGraph> int GetMxShortDist(const PGraph& Graph, const int& SrcNId, const bool& IsDir, int& MxDistNId, TCcQueue<int>& NIdQ, TCcQueue<int>& DistQ, TIntSet& VisitedH);
 //template <class PGraph> int GetMxGreedyDist(const PGraph& Graph, const int& SrcNId, const bool& IsDir=false);
 //template <class PGraph> int GetMxGreedyDist(const PGraph& Graph, const int& SrcNId, const bool& IsDir, TCcQueue<int>& NIdQ, TCcQueue<int>& DistQ, TIntSet& VisitedH);
-
-//template <class PGraph> PNGraph GetBfsTree(const PGraph& Graph, const int& StartNId, TIntH& TargetNIdH, const bool& IsDir);
 //template <class PGraph> PNGraph GetShortPathsSubGraph(const PGraph& Graph, const TIntV& SubGraphNIdV);
 //template <class PGraph> PGraph GetWccPathsSubGraph(const PGraph& Graph, const TIntV& NIdV);
 //template <class PGraph> void GetSubTreeSz(const PGraph& Graph, const int& StartNId, const bool& FollowOutEdges, int& TreeSz, int& TreeDepth);
-//template <class PGraph> PNGraph GetDfsTree(const PGraph& Graph, const int& StartNId, const bool& IsDir);
-//template <class PGraph> void GetDfsNumber(const PGraph& Graph, THash<TInt, TIntPr>& DfsBegEndH);
-//template <class PGraph, class TVisitor> void GetDfsVisitor(const PGraph& Graph, TVisitor& Visitor);
 
 }; // namespace TSnap
 
 /////////////////////////////////////////////////
-// Breath First Search
+/// Breath-First-Search class.
+/// The class is meant for executing many BFSs over a fixed graph. This means that the class can keep the hash tables and queues initialized between different calls of the DoBfs() function.
 template<class PGraph>
 class TBreathFS {
 public:
@@ -53,11 +74,19 @@ public:
 public:
   TBreathFS(const PGraph& GraphPt, const bool& InitBigQ=true) :
     Graph(GraphPt), Queue(InitBigQ?Graph->GetNodes():1024), NIdDistH(InitBigQ?Graph->GetNodes():1024) { }
+  /// Sets the graph to be used by the BFS to GraphPt and resets the data structures.
   void SetGraph(const PGraph& GraphPt);
+  /// Performs BFS from node id StartNode for at maps MxDist steps by only following in-links (parameter FollowIn = true) and/or out-links (parameter FollowOut = true).
   int DoBfs(const int& StartNode, const bool& FollowOut, const bool& FollowIn, const int& TargetNId=-1, const int& MxDist=TInt::Mx);
+  /// Returns the number of nodes visited/reached by the BFS.
   int GetNVisited() const { return NIdDistH.Len(); }
+  /// Returns the IDs of the nodes visited/reached by the BFS.
   void GetVisitedNIdV(TIntV& NIdV) const { NIdDistH.GetKeyV(NIdV); }
+  /// Returns the shortst path distance between SrcNId and DistNId.
+  /// Note you have to first call DoBFs(). SrcNId must be equal to StartNode, otherwise return value is -1.
   int GetHops(const int& SrcNId, const int& DstNId) const;
+  /// Returns a random shortest path from SrcNId to DstNId.
+  /// Note you have to first call DoBFs(). SrcNId must be equal to StartNode, otherwise return value is -1.
   int GetRndPath(const int& SrcNId, const int& DstNId, TIntV& PathNIdV) const;
 };
 
@@ -115,7 +144,6 @@ int TBreathFS<PGraph>::GetHops(const int& SrcNId, const int& DstNId) const {
   return Dist.Val;
 }
 
-/// Get a random shortest path from SrcNId to DstNId
 template<class PGraph>
 int TBreathFS<PGraph>::GetRndPath(const int& SrcNId, const int& DstNId, TIntV& PathNIdV) const {
   PathNIdV.Clr(false);
@@ -145,8 +173,6 @@ int TBreathFS<PGraph>::GetRndPath(const int& SrcNId, const int& DstNId, TIntV& P
 // Implementation
 namespace TSnap {
 
-/// Get a directed Breath First Search tree rooted from StardNId (by following in-links (FollowIn=true) or out-links (FollowOut=true).
-/// Returnes a directed graph where a parent points to its childer.
 template <class PGraph>
 PNGraph GetBfsTree(const PGraph& Graph, const int& StartNId, const bool& FollowOut, const bool& FollowIn) {
   TBreathFS<PGraph> BFS(Graph, false);
@@ -189,7 +215,6 @@ int GetSubTreeSz(const PGraph& Graph, const int& StartNId, const bool& FollowOut
   return TreeSz;
 }
 
-/// Get IDs of all nodes that are at distance Hop from nodes StartNId
 template <class PGraph>
 int GetNodesAtHop(const PGraph& Graph, const int& StartNId, const int& Hop, TIntV& NIdV, const bool& IsDir) {
   TBreathFS<PGraph> BFS(Graph);
@@ -202,7 +227,6 @@ int GetNodesAtHop(const PGraph& Graph, const int& StartNId, const int& Hop, TInt
   return NIdV.Len();
 }
 
-/// Returns the number of nodes at each hop distance from node StartNId
 template <class PGraph>
 int GetNodesAtHops(const PGraph& Graph, const int& StartNId, TIntPrV& HopCntV, const bool& IsDir) {
   TBreathFS<PGraph> BFS(Graph);
@@ -222,7 +246,7 @@ int GetShortPath(const PGraph& Graph, const int& SrcNId, TIntH& NIdToDistH, cons
   BFS.DoBfs(SrcNId, true, ! IsDir, -1, MaxDist);
   NIdToDistH.Clr();
   NIdToDistH.Swap(BFS.NIdDistH);
-  return NIdToDistH[NIdToDistH.Len()-1];
+  return NIdToDistH[NIdToDistH.Len()-1]; }
 }
 
 template <class PGraph> 
@@ -248,7 +272,6 @@ double GetBfsEffDiam(const PGraph& Graph, const int& NTestNodes, const bool& IsD
   return EffDiam;
 }
 
-/// Returns the Effective Diameter and the (approximation of the) Diameter of a graph (by performing BFS from a random starting node NTestNodes times)
 template <class PGraph>
 double GetBfsEffDiam(const PGraph& Graph, const int& NTestNodes, const bool& IsDir, double& EffDiam, int& FullDiam) {
   double AvgDiam;
@@ -256,7 +279,6 @@ double GetBfsEffDiam(const PGraph& Graph, const int& NTestNodes, const bool& IsD
   return GetBfsEffDiam(Graph, NTestNodes, IsDir, EffDiam, FullDiam, AvgDiam);
 }
 
-/// Returns the (approximation of the) Effective Diameter, the Diameter and the Average Shortest Path Lenght of a graph (by performing BFS from a random starting node NTestNodes times)
 template <class PGraph>
 double GetBfsEffDiam(const PGraph& Graph, const int& NTestNodes, const bool& IsDir, double& EffDiam, int& FullDiam, double& AvgDiam) {
   EffDiam = -1;  FullDiam = -1;  AvgDiam = -1;
@@ -285,7 +307,6 @@ double GetBfsEffDiam(const PGraph& Graph, const int& NTestNodes, const bool& IsD
   return EffDiam;
 }
 
-/// Use the whole graph (all links) to measure the distances but report the path lengths only between nodes in SubGraphNIdV
 template <class PGraph>
 double GetBfsEffDiam(const PGraph& Graph, const int& NTestNodes, const TIntV& SubGraphNIdV, const bool& IsDir, double& EffDiam, int& FullDiam) {
   EffDiam = -1;
@@ -311,26 +332,6 @@ double GetBfsEffDiam(const PGraph& Graph, const int& NTestNodes, const TIntV& Su
   EffDiam = TAnf::CalcEffDiamPdf(DistNbrsPdfV, 0.9);  // effective diameter (90-th percentile)
   FullDiam = DistNbrsPdfV.Last().Key;                 // approximate full diameter (max shortest path length over the sampled nodes)
   return EffDiam;                                     // average shortest path length
-}
-
-/// Return node eccentricity, the largest distance from the node to any other node.
-template <class PGraph>
-int GetNodeEcc(const PGraph& Graph, const int& NId, const bool& IsDir) {
-  int NodeEcc;
-  int Dist;
-  TBreathFS<PGraph> BFS(Graph);
-  // get shortest paths to all the nodes
-  BFS.DoBfs(NId, true, ! IsDir, -1, TInt::Mx);
-
-  NodeEcc = 0;
-  // find the largest value
-  for (int i = 0; i < BFS.NIdDistH.Len(); i++) {
-    Dist = BFS.NIdDistH[i];
-    if (Dist > NodeEcc) {
-      NodeEcc = Dist;
-    }
-  }
-  return NodeEcc;
 }
 
 } // namespace TSnap

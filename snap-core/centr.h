@@ -3,15 +3,18 @@ namespace TSnap {
 /////////////////////////////////////////////////
 // Node centrality measures (See: http://en.wikipedia.org/wiki/Centrality)
 
-/// Computes Degree centrality of a given node NId.
+/// Returns Degree centrality of a given node NId.
 /// Degree centrality if a node is defined as its degree/(N-1), where N is the number of nodes in the network.
 double GetDegreeCentr(const PUNGraph& Graph, const int& NId);
-/// Computes Farness centrality of a given node NId. 
-/// Farness centrality of a node is the average shortest path lenght to all other nodes that reside is the same connected component as the given node.
+/// Returns Farness centrality of a given node NId. 
+/// Farness centrality of a node is the average shortest path length to all other nodes that reside is the same connected component as the given node.
 double GetFarnessCentr(const PUNGraph& Graph, const int& NId);
-/// Computes Closeness centrality of a given node NId.
+/// Returns Closeness centrality of a given node NId.
 /// Closeness centrality of a node is defined as 1/FarnessCentrality.
 double GetClosenessCentr(const PUNGraph& Graph, const int& NId);
+/// Returns node Eccentricity, the largest shortest-path distance from the node NId to any other node in the Graph.
+/// @param IsDir false: ignore edge directions and consider edges as undirected (in case they are directed).
+template <class PGraph> int GetEccentricutyCentr(const PGraph& Graph, const int& NId, const bool& IsDir);
 
 /// Computes (approximate) Node Beetweenness Centrality based on a sample of NodeFrac nodes.
 /// @param NIdBtwH hash table mapping node ids to their corresponding betweenness centrality values.
@@ -45,6 +48,26 @@ template<class PGraph> void GetPageRank(const PGraph& Graph, TIntFltH& PRankH, c
 template<class PGraph> void GetHits(const PGraph& Graph, TIntFltH& NIdHubH, TIntFltH& NIdAuthH, const int& MaxIter=20);
 
 /////////////////////////////////////////////////
+// Implementation 
+template <class PGraph>
+int GetNodeEcc(const PGraph& Graph, const int& NId, const bool& IsDir) {
+  int NodeEcc;
+  int Dist;
+  TBreathFS<PGraph> BFS(Graph);
+  // get shortest paths to all the nodes
+  BFS.DoBfs(NId, true, ! IsDir, -1, TInt::Mx);
+
+  NodeEcc = 0;
+  // find the largest value
+  for (int i = 0; i < BFS.NIdDistH.Len(); i++) {
+    Dist = BFS.NIdDistH[i];
+    if (Dist > NodeEcc) {
+      NodeEcc = Dist;
+    }
+  }
+  return NodeEcc;
+}
+
 // Page Rank -- there are two different implementations (uncomment the desired 2 lines):
 //   Berkhin -- (the correct way) see Algorithm 1 of P. Berkhin, A Survey on PageRank Computing, Internet Mathematics, 2005
 //   iGraph -- iGraph implementation(which treats leaked PageRank in a funny way)
