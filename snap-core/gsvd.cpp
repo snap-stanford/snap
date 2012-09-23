@@ -372,6 +372,8 @@ void GetEigVec(const PUNGraph& Graph, const int& EigVecs, TFltV& EigValV, TVec<T
   IsAllValVNeg(EigVecV[0], true);
 }
 
+// Inverse participation ratio: normalize EigVec to have L2=1 and then I=sum_k EigVec[i]^4
+// see Spectra of "real-world" graphs: Beyond the semicircle law by Farkas, Derenyi, Barabasi and Vicsek
 void GetInvParticipRat(const PUNGraph& Graph, int MaxEigVecs, int TimeLimit, TFltPrV& EigValIprV) {
   TUNGraphMtx GraphMtx(Graph);
   TFltVV EigVecVV;
@@ -390,13 +392,12 @@ void GetInvParticipRat(const PUNGraph& Graph, int MaxEigVecs, int TimeLimit, TFl
   if (EigValV.Empty()) { return; }
   for (int v = 0; v < EigVecVV.GetCols(); v++) {
     EigVecVV.GetCol(v, EigVec);
-    EigValIprV.Add(TFltPr(EigValV[v], GetInvParticipRat(EigVec)));
+    EigValIprV.Add(TFltPr(EigValV[v], TSnapDetail::GetInvParticipRat(EigVec)));
   }
   EigValIprV.Sort();
 }
 
-// Inverse participation ratio: normalize EigVec to have L2=1 and then I=sum_k EigVec[i]^4
-// see Spectra of "real-world" graphs: Beyond the semicircle law by Farkas, Derenyi, Barabasi and Vicsek
+namespace TSnapDetail {
 double GetInvParticipRat(const TFltV& EigVec) {
   double Sum2=0.0, Sum4=0.0;
   for (int i = 0; i < EigVec.Len(); i++) {
@@ -405,5 +406,6 @@ double GetInvParticipRat(const TFltV& EigVec) {
   }
   return Sum4/(Sum2*Sum2);
 }
+} // namespace TSnapDetail
 
 }; // namespace TSnap
