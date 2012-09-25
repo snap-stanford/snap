@@ -128,56 +128,76 @@ Network types:
 SNAP files: http://snap.stanford.edu/snap/description.html
 
 snap-core:
-  alg.h : basic algorithms for manipulating graphs
-  anf.h : Approximate Neighborhood Function for measuring graph diameter. 
-  	Avoids node sampling and scales to large graphs
-  bfsdfs.h
-  bignet.h : TBigNet -- memory efficient implementation of TNodeNet (avoids 
-  	memory fragmentation)
-  centr.h : node centrality (closeness, eigen, degree, betweenness, page rank)
-  cmty.h
-  cncom.h : extracting connected components
-  ff.h : Forest Fire model (see our KDD '05 paper)
-  gbase.h
-  ggen.h : basic graph generation models
-  ghash.h : hash table where key is a graph. Used for counting graphs.
-  gio.h
-  graph.h : graphs (TNGraph, TNEGraph)
-  gstat.h : calculates various statistics of graphs
-  gsvd.h : spectral analysis of graphs (singular value decomposition)
-  gviz.h : interface to GraphViz for plotting small graphs
-  kcore.h
-  network.h
-  Snap.h
-  statplot.h
-  subgraph.h
-  timenet.h : time evolving networks
-  triad.h
-  util.h
+  alg.h : Simple algorithms like counting node degrees, simple graph
+        manipulation (adding/deleting self edges, deleting isolated nodes)
+        and testing whether graph is a tree or a star.
+  anf.h : Approximate Neighborhood Function: linear time algorithm to
+        approximately calculate the diameter of massive graphs.
+  bfsdfs.h : Algorithms based on Breath First Search (BFS) and Depth First
+        Search (DFS): shortest paths, spanning trees, graph diameter, and
+        similar.
+  bignet.h : Memory efficient implementation of a network with data on
+        nodes. Use when working with very large networks.
+  centr.h : Node centrality measures: closeness, betweenness, PageRank, ...
+  cmty.h : Algorithms for network community detection: Modularity,
+        Girvan-Newman, Clauset-Newman-Moore.
+  cncom.h : Connected components: weakly, strongly and biconnected
+        components, articular nodes and bridge edges.
+  ff.h : Forest Fire model for generating networks that densify and have
+        shrinking diameters.
+  gbase.h : Defines flags that are used to identify functionality of graphs.
+  ggen.h : Various graph generators: random graphs, copying model,
+        preferential attachment, RMAT, configuration model, Small world model.
+  ghash.h : Hash table with directed graphs (<tt>TNGraph</tt>) as keys. Uses
+        efficient adaptive approximate graph isomorphism testing to scale to
+        large graphs. Useful when one wants to count frequencies of various
+        small subgraphs or cascades.
+  gio.h : Graph input output. Methods for loading and saving various textual
+        and XML based graph formats: Pajek, ORA, DynNet, GraphML (GML), 
+        Matlab.
+  graph.h : Implements graph types TUNGraph, TNGraph and TNEGraph.
+  gstat.h : Computes many structural properties of static and evolving networks.
+  gsvd.h : Eigen and singular value decomposition of graph adjacency matrix.
+  gviz.h : Interface to GraphViz for plotting small graphs.
+  kcore.h : K-core decomposition of networks.
+  network.h : Implements network types TNodeNet, TNodeEDatNet and TNodeEdgeNet.
+  Snap.h : Main include file of the library.
+  statplot.h : Plots of various structural network properties: clustering,
+        degrees, diameter, spectrum, connected components.
+  subgraph.h : Extracting subgraphs and converting between different
+        graph/network types.
+  timenet.h : Temporally evolving networks.
+  triad.h : Functions for counting triads (triples of connected nodes in the
+        network) and computing clustering coefficient.
+  util.h : Utilities to manipulate PDFs, CDFs and CCDFs. Quick and dirty
+        string manipulation, URL and domain manipulation routines.
 
 snap-adv:
-  agm.h
-  cliques.h
+  agm.h : Implements the Affiliation Graph Model (AGM).
+  cliques.h : Maximal clique detection and Clique Percolation method.
   graphcounter.h
-  kronecker.h : Kronecker graphs (see PKDD '05 and ICML '07)
-  mag.h
-  ncp.h
-  subgraphenum.h
+  kronecker.h : Kronecker Graph generator and KronFit algorithm for
+        estimating parameters of Kronecker graphs.
+  mag.h : Implements the Multiplicative Attribute Graph (MAG).
+  ncp.h : Network community profile plot. Implements local spectral graph
+        partitioning method to efficiently find communities in networks.
+  subgraphenum.h : Sub-graph enumeration and network motif computations.
 
 snap-exp:
-  arxiv.h
-  dblp.h
-  imdbnet.h : IMDB network
+  arxiv.h : Functions for parsing Arxiv data and standardizing author names.
+  dblp.h : Parser for XML dump of DBLP data.
+  imdbnet.h : Actors-to-movies bipartite network of IMDB.
   linkpred.h
   memenet.h
   memes.h
   mxdag.h
-  signnet.h
-  sir.h
-  spinn3r.h
-  trawling.h
-  wgtnet.h
-  wikinet.h
+  signnet.h : Networks with signed (+1, -1) edges that can denote
+        trust/distrust between the nodes of the network.
+  sir.h : SIR epidemic model and SIR parameter estimation.
+  spinn3r.h : Past parser for loading blog post data from Spinn3r.
+  trawling.h : Algorithm of extracting bipartite cliques from the network.
+  wgtnet.h : Weighted networks.
+  wikinet.h : Networks based on Wikipedia.
 
 NOTFOUND:
   bigalg.h : some algorithms for TBigNet
