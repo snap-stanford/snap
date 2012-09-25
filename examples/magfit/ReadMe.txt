@@ -18,9 +18,6 @@ For more information about the procedure see:
   Multiplicative Attribute Graph Model
   Myunghwan Kim and Jure Leskovec
 
-Depending on the platform (Windows or Linux) you need to edit the Makefile.
-Use 'make opt' to compile the optimized (fast) version of the code.
-
 /////////////////////////////////////////////////////////////////////////////
 Parameters:
    -i:Input graph file name (default:'../as20graph.txt')

@@ -7,9 +7,6 @@ The program loads a sequence of snapshots and produces plots of densification
 power law, shrining diameter, fraction of nodes in largest connected component
 over time and similar.
 
-Depending on the platform (Windows or Linux) you need to edit the Makefile.
-Use 'make opt' to compile the optimized (fast) version of the code.
-
 /////////////////////////////////////////////////////////////////////////////
 Parameters:
 

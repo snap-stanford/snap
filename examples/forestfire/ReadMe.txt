@@ -12,9 +12,6 @@ For more information about the model see:
   Jure Leskovec, Jon Kleinberg, Christos Faloutsos. 
   ACM Transactions on Knowledge Discovery from Data (ACM TKDD), 1(1), 2007. 
   http://arxiv.org/abs/physics/0603229
-  
-Depending on the platform (Windows or Linux) you need to edit the Makefile.
-Use 'make opt' to compile the optimized (fast) version of the code.
 
 /////////////////////////////////////////////////////////////////////////////
 Parameters:

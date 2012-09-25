@@ -14,9 +14,6 @@ implemented in SNAP :
   - Copying model by Kleinberg et al. Required parameters: n (number of nodes), p (copying probability Beta)
   - Small-world model. Required parameters: n (number of nodes), k (each node is connected to k nearest neighbors in ring topology), p (rewiring probability)
 
-Depending on the platform (Windows or Linux) you need to edit the Makefile.
-Use 'make opt' to compile the optimized (fast) version of the code.
-
 /////////////////////////////////////////////////////////////////////////////
 Parameters:
    -o:Output graph filename (default:'')

@@ -16,9 +16,6 @@ For information about network motifs refer to Network motifs: Simple
 building blocks of complex networks by R. Milo, S. Shen-Orr, S. Itzkovitz, 
 N. Kashtan, D. Chklovskii and U. Alon. Science, October 2002.
 
-Depending on the platform (Windows or Linux) you need to edit the Makefile.
-Use 'make opt' to compile the optimized (fast) version of the code.
-
 /////////////////////////////////////////////////////////////////////////////
 Parameters:
    -i:Input directed graph file (single directed edge per line) (default:'../as20graph.txt')

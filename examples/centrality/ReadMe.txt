@@ -15,9 +15,6 @@ Measures defined on (the original) directed graph
 
 For more details on defitions of these measures see 
 http://en.wikipedia.org/wiki/Centrality
-  
-Depending on the platform (Windows or Linux) you need to edit the Makefile.
-Use 'make opt' to compile the optimized (fast) version of the code.
 
 /////////////////////////////////////////////////////////////////////////////
 Parameters:

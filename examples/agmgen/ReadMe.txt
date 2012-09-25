@@ -9,9 +9,6 @@ of the nodes.
 The Affiliation Graph Model is described in J. Yang and J. Leskovec,
 Real Communities in Real Networks: Structure and a Model.
 
-Depending on the platform (Windows or Linux) you need to edit the Makefile.
-Use 'make opt' to compile the optimized (fast) version of the code.
-
 /////////////////////////////////////////////////////////////////////////////
 Parameters:
    -i:Group affiliation data (one group per line). 

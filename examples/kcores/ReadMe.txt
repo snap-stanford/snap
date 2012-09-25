@@ -13,9 +13,6 @@ A k-core of G can be obtained by recursively removing all the vertices of
 degree less than k, until all vertices in the remaining graph have degree
 at least k.
 
-Depending on the platform (Windows or Linux) you need to edit the Makefile.
-Use 'make opt' to compile the optimized (fast) version of the code.
-
 /////////////////////////////////////////////////////////////////////////////
 Parameters:
    -i:Input undirected graph file (single directed edge per line) (default:'../as20graph.txt')

@@ -22,9 +22,6 @@ For more information about the procedure see:
   Myunghwan Kim and Jure Leskovec
   http://www-cs.stanford.edu/people/jure/pubs/kronEM-sdm11.pdf
 
-Depending on the platform (Windows or Linux) you need to edit the Makefile.
-Use 'make opt' to compile the optimized (fast) version of the code.
-
 /////////////////////////////////////////////////////////////////////////////
 Parameters:
 usage: kronem

@@ -2,7 +2,7 @@
     Clique Percolation Method for detecting overlapping communities
 ========================================================================
 
-The example find overlapping dense groups of nodes in networks, based on the 
+The example finds overlapping dense groups of nodes in networks, based on the 
 Clique Percolation Method (CPM). For example, see 
 http://cfinder.org/wiki/?n=Main.ImageWords
 
@@ -14,9 +14,6 @@ The maximal clique enumeration procedure implements the method by E. Tomita,
 A. Tanaka, H. Takahashi. The worst-case time complexity for generating all 
 maximal cliques and computational experiments. Theoretical Computer Science, 
 Volume 363, Issue 1, 2006.
-
-Depending on the platform (Windows or Linux) you need to edit the Makefile.
-Use 'make opt' to compile the optimized (fast) version of the code.
 
 /////////////////////////////////////////////////////////////////////////////
 Parameters:

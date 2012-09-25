@@ -14,9 +14,6 @@ Loads a directed (or undirected) graph and computes:
      disconnect the graph
   -- bridge edges: (undirected graph) edges that if removed disconnect the
      graph
-  
-Depending on the platform (Windows or Linux) you need to edit the Makefile.
-Use 'make opt' to compile the optimized (fast) version of the code.
 
 /////////////////////////////////////////////////////////////////////////////
 Parameters:

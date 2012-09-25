@@ -15,9 +15,6 @@ For more information about the procedure see:
   Zoubin Ghahramani. 
   http://arxiv.org/abs/0812.4905
 
-Depending on the platform (Windows or Linux) you need to edit the Makefile.
-Use 'make opt' to compile the optimized (fast) version of the code.
-
 /////////////////////////////////////////////////////////////////////////////
 Parameters:
    -i:Input graph file (single directed edge per line) (default:'../as20graph.txt')

@@ -12,9 +12,6 @@ Computes the structural properties of a network:
 	- singular values
 	- left and right singular vector
 
-Depending on the platform (Windows or Linux) you need to edit the Makefile.
-Use 'make opt' to compile the optimized (fast) version of the code.
-
 /////////////////////////////////////////////////////////////////////////////
 Parameters:
    -i:Input graph (one edge per line, tab/space separated) (default:'graph.txt')

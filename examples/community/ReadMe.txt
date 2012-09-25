@@ -8,9 +8,6 @@ Implements two community detection algoritms:
   USA 99, 7821–7826 (2002))
   -- fast modularity maximization algoritm by 'Finding Large community 
   in networks', A. Clauset, M.E.J. Newman, C. Moore, 2004
-  
-Depending on the platform (Windows or Linux) you need to edit the Makefile.
-Use 'make opt' to compile the optimized (fast) version of the code.
 
 /////////////////////////////////////////////////////////////////////////////
 Parameters:

@@ -38,9 +38,6 @@ Here we provide two versions of generators.
   MAG graph, you need to specify both a Bernoulli parameter and an affinity matrix
   for every node attribute (in the configuration file).
 
-Depending on the platform (Windows or Linux) you need to edit the Makefile.
-Use 'make opt' to compile the optimized (fast) version of the code.
-
 /////////////////////////////////////////////////////////////////////////////
 Parameters:
 
