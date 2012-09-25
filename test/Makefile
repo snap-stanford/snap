@@ -4,7 +4,6 @@
 #
 
 include ../Makefile.config
-SNAP = ../snap-core
 LIBS += -lgtest
 
 ## Main application file
@@ -19,11 +18,11 @@ TESTS = \
 all: $(MAIN)
 
 # COMPILE
-$(MAIN): $(MAIN).cpp $(TESTS) ../snap-core/Snap.o
-	$(CC) $(CXXFLAGS) -o $(MAIN) $(MAIN).cpp $(TESTS) ../snap-core/Snap.o $(LDFLAGS) $(LIBS)
+$(MAIN): $(MAIN).cpp $(TESTS) $(CSNAP)/Snap.o
+	$(CC) $(CXXFLAGS) -o $(MAIN) $(MAIN).cpp $(TESTS) $(CSNAP)/Snap.o -I$(CSNAP) $(LDFLAGS) $(LIBS)
 
-../snap-core/Snap.o:
-	$(MAKE) -C ../snap-core
+$(CSNAP)/Snap.o:
+	$(MAKE) -C $(CSNAP)
 
 clean:
 	rm -f *.o $(MAIN) $(MAIN).exe

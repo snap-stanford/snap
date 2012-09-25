@@ -4,10 +4,6 @@
 
 all: MakeAll
 
-opt: CXXFLAGS += -O4
-opt: LDFLAGS += -O4
-opt: MakeAll
-
 MakeAll:
 	$(MAKE) -C snap-core
 	$(MAKE) -C examples
@@ -15,3 +11,5 @@ MakeAll:
 clean:
 	$(MAKE) clean -C snap-core
 	$(MAKE) clean -C examples
+	$(MAKE) clean -C test
+	$(MAKE) clean -C tutorials
