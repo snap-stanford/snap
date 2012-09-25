@@ -1,19 +1,6 @@
-#include <float.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <time.h>
-#include <unistd.h>
-
-#include <proc/readproc.h>
-#include <sys/time.h>
-#include <sys/resource.h>
-
 #include <gtest/gtest.h>
 
-#include <snap/Snap.h>
+#include "Snap.h"
 
 PUNGraph GetTestTUNGraph();
 PNGraph GetTestTNGraph();

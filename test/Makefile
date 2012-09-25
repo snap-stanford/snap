@@ -1,10 +1,11 @@
 #
 # Makefile for non-Microsoft compilers
+# 	tested only on Linux
 #
 
-CC = g++
-CXXFLAGS += -std=c++98 -Wall
-CXXFLAGS += -O3
+include ../Makefile.config
+SNAP = ../snap-core
+LIBS += -lgtest
 
 ## Main application file
 MAIN = run-all-tests
@@ -14,17 +15,15 @@ TESTS = \
 	test-subgraph.cpp \
 	test-TStrPool.cpp \
 	test-TSysTm.cpp
-#TESTS = \
-	#test-TSysTm.cpp
-DEPH = 
-DEPCPP =
-LIBS += -lrt -lproc -lsnap -lgtest
 
 all: $(MAIN)
 
 # COMPILE
-$(MAIN): $(MAIN).cpp $(DEPH) $(DEPCPP) $(TESTS)
-	$(CC) $(CXXFLAGS) -o $(MAIN) $(MAIN).cpp $(TESTS) $(DEPCPP) $(LDFLAGS) $(LIBS)
+$(MAIN): $(MAIN).cpp $(TESTS) ../snap-core/Snap.o
+	$(CC) $(CXXFLAGS) -o $(MAIN) $(MAIN).cpp $(TESTS) ../snap-core/Snap.o $(LDFLAGS) $(LIBS)
+
+../snap-core/Snap.o:
+	$(MAKE) -C ../snap-core
 
 clean:
 	rm -f *.o $(MAIN) $(MAIN).exe
