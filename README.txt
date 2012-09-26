@@ -1,11 +1,12 @@
 ========================================================================
-  SNAP : Stanford Network Analysis library
+  SNAP : Stanford Network Analysis Platform
 	http://snap.stanford.edu
 ========================================================================
 
-SNAP is a general purpose graph mining and modeling library. The library
-is written in C++ and it scales to massive graphs with billions of nodes,
-and tens of billions of edges.
+Stanford Network Analysis Platform (SNAP) is a general purpose, high
+performance system for graph and network manipulation and analysis.
+SNAP is written in C++ and it scales to massive graphs with billions
+of nodes and tens of billions of edges.
 
 /////////////////////////////////////////////////////////////////////////////
 Directory structure: http://snap.stanford.edu/snap/description.html
@@ -31,7 +32,7 @@ Directory structure: http://snap.stanford.edu/snap/description.html
         SNAP reference manuals
 
 Code compiles under Windows (Microsoft Visual Studio, CygWin with gcc) and
-Linux and Mac (gcc). Use the SnapExamples.vcproj or the provided Makefile.
+Linux and Mac (gcc). Use the SnapExamples.vcproj or provided makefiles.
 
 Some of applications expect that GnuPlot and GraphViz are installed and
 accessible -- paths are in the system PATH variable or they reside in the
@@ -175,22 +176,20 @@ snap-core:
 snap-adv:
   agm.h : Implements the Affiliation Graph Model (AGM).
   cliques.h : Maximal clique detection and Clique Percolation method.
-  graphcounter.h
+  graphcounter.h : Performs fast graph isomorphism testing to count the
+        frequency of topologically distinct sub-graphs.
   kronecker.h : Kronecker Graph generator and KronFit algorithm for
         estimating parameters of Kronecker graphs.
   mag.h : Implements the Multiplicative Attribute Graph (MAG).
   ncp.h : Network community profile plot. Implements local spectral graph
         partitioning method to efficiently find communities in networks.
-  subgraphenum.h : Sub-graph enumeration and network motif computations.
+  subgraphenum.h : Enumerates all connected induced sub-graphs of particular
+        size.
 
 snap-exp:
   arxiv.h : Functions for parsing Arxiv data and standardizing author names.
   dblp.h : Parser for XML dump of DBLP data.
   imdbnet.h : Actors-to-movies bipartite network of IMDB.
-  linkpred.h
-  memenet.h
-  memes.h
-  mxdag.h
   signnet.h : Networks with signed (+1, -1) edges that can denote
         trust/distrust between the nodes of the network.
   sir.h : SIR epidemic model and SIR parameter estimation.
@@ -198,18 +197,4 @@ snap-exp:
   trawling.h : Algorithm of extracting bipartite cliques from the network.
   wgtnet.h : Weighted networks.
   wikinet.h : Networks based on Wikipedia.
-
-NOTFOUND:
-  bigalg.h : some algorithms for TBigNet
-  bigg.h : TBigGraph -- big disk based graphs that do not fit into memory
-  blognet.h : blog network -- posts on blogs linking each other
-  casc.h : cascade analysis and counting
-  cga.h : Community Guided Attachment (see our KDD '05 paper)
-  clust.h : graph clustering and community finding
-  emailnet.h : email network
-  GMine.h : main file 
-  gnet.h : networks (TNodeNet, TNodeEdgeNet)
-  gproj.h : graph projections (see our WWW '07 paper)
-  layout.h : positions the nodes on the plane for drawing
-  plots.h : plots graph properties (degree distributions, etc.)
 

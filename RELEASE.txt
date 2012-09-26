@@ -1,0 +1,24 @@
+Stanford Network Analysis Platform (SNAP) is a general purpose, high
+performance library for graph and network manipulation and analysis.
+
+This file contains a high-level description of changes in SNAP releases.
+
+Release 1.9, Sep 26, 2012
+
+- names of functions in gviz.h have been changed, not backward compatible
+- neighbor abbreviations have been changed thoughout the code,
+    nbh -> nbr, Nbh -> Nbr, not backward compatible
+- a new class TBPGraph has been added to support bipartite graphs
+- new examples have been added agmgen, circles, kronem, magfit, maggen
+- code automatically detects gnuplot version to address "set ticks"
+- makefiles automatically detect OS version
+- snap directory has been split to snap-core, snap-adv, snap-exp
+- glib directory has been split to glib-core and glib-adv
+- reference manuals have been created for users and developers
+- tutorials have been created for many classes
+- tests have been created for many classes
+- programming guide has been created for developers
+- code has been changed to remove compilation warnings
+- merged with the latest glib version
+- numerous code improvements and bug fixes
+
