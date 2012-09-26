@@ -13,6 +13,12 @@ For more information about the model see:
   ACM Transactions on Knowledge Discovery from Data (ACM TKDD), 1(1), 2007. 
   http://arxiv.org/abs/physics/0603229
 
+The code works under Windows with Visual Studio or Cygwin with GCC,
+Mac OS X, Linux and other Unix variants with GCC. Make sure that a
+C++ compiler is installed on the system. Visual Studio project files
+and makefiles are provided. For makefiles, compile the code with
+"make all".
+
 /////////////////////////////////////////////////////////////////////////////
 Parameters:
    -o:Output graph file name (default:'graph.txt')

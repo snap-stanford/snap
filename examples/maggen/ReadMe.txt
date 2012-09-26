@@ -38,6 +38,12 @@ Here we provide two versions of generators.
   MAG graph, you need to specify both a Bernoulli parameter and an affinity matrix
   for every node attribute (in the configuration file).
 
+The code works under Windows with Visual Studio or Cygwin with GCC,
+Mac OS X, Linux and other Unix variants with GCC. Make sure that a
+C++ compiler is installed on the system. Visual Studio project files
+and makefiles are provided. For makefiles, compile the code with
+"make all".
+
 /////////////////////////////////////////////////////////////////////////////
 Parameters:
 

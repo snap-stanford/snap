@@ -9,6 +9,12 @@ Implements two community detection algoritms:
   -- fast modularity maximization algoritm by 'Finding Large community 
   in networks', A. Clauset, M.E.J. Newman, C. Moore, 2004
 
+The code works under Windows with Visual Studio or Cygwin with GCC,
+Mac OS X, Linux and other Unix variants with GCC. Make sure that a
+C++ compiler is installed on the system. Visual Studio project files
+and makefiles are provided. For makefiles, compile the code with
+"make all".
+
 /////////////////////////////////////////////////////////////////////////////
 Parameters:
 

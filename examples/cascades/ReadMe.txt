@@ -12,6 +12,12 @@ For more details and motivation what this code is trying to achive see
 "Correcting for Missing Data in Information Cascades" by E. Sadikov, M. 
 Medina, J. Leskovec, H. Garcia-Molina. WSDM, 2011.
 
+The code works under Windows with Visual Studio or Cygwin with GCC,
+Mac OS X, Linux and other Unix variants with GCC. Make sure that a
+C++ compiler is installed on the system. Visual Studio project files
+and makefiles are provided. For makefiles, compile the code with
+"make all".
+
 /////////////////////////////////////////////////////////////////////////////
 Parameters:
    -i:Input graph (tab separated list of edges) (default:'demo')
