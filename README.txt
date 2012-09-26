@@ -4,7 +4,7 @@
 ========================================================================
 
 Stanford Network Analysis Platform (SNAP) is a general purpose, high
-performance system for graph and network manipulation and analysis.
+performance system for analysis and manipulation of large networks.
 SNAP is written in C++ and it scales to massive graphs with billions
 of nodes and tens of billions of edges.
 
