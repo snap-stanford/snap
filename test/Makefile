@@ -27,5 +27,5 @@ $(CSNAP)/Snap.o:
 clean:
 	rm -f *.o $(MAIN) $(MAIN).exe
 	rm -rf Debug Release
-	rm -rf *.graph *.net *.Err
+	rm -rf *.graph *.pool *.net *.Err
 
