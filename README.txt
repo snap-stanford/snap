@@ -12,20 +12,19 @@ of nodes and tens of billions of edges.
 Directory structure: http://snap.stanford.edu/snap/description.html
 
   snap-core: 
-        the SNAP graph library (more info below)
+        the core SNAP graph library
   snap-adv: 
         advanced SNAP components, not in the core, but used by examples
   snap-exp:
         experimental SNAP components, still in development
-  glib-core: 
-        contains the library that provides basic data structures (vectors,
-        strings, hash tables), infrastructure (serialization, xml and html
-        parsing), interface to GnuPlot and linear algebra (SVD).
   examples:
-        sample applications and examples of use. With every .cpp file there
-        is a corresponding .txt readme file for application description.
+        small sample applications that demonstrate SNAP functionality
   tutorials:
         simple programs, demonstrating use of various classes
+  glib-core: 
+        STL-like library that implements basic data structures, like vectors
+        (TVec), hash-tables (THash) and strings (TStr), provides
+        serialization and so on
   test:
         unit tests for various classes
   doxygen:
@@ -67,14 +66,14 @@ Examples:
         articulation points and bridge edges of a graph.
   forestfire : 
         Generates graphs using the Forest Fire model.
-  graphhen : 
+  graphgen : 
         Generates undirected graphs using one of the many SNAP graph generators.
   kcores :
         Plots the number of nodes in a k-core of a graph as a function of k.
   kronem : 
         Estimates Kronecker graph parameter matrix using EM algorithm.
   kronfit : 
-        Estimates Kronecker graph parameter matrix
+        Estimates Kronecker graph parameter matrix.
   krongen :
         Generates Kronecker graphs.
   magfit : 
