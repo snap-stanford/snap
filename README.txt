@@ -190,6 +190,8 @@ snap-exp:
   arxiv.h : Functions for parsing Arxiv data and standardizing author names.
   dblp.h : Parser for XML dump of DBLP data.
   imdbnet.h : Actors-to-movies bipartite network of IMDB.
+  mxdag.h  Finds the maximum directed-acyclic subgraph of a given
+        directed graph.
   signnet.h : Networks with signed (+1, -1) edges that can denote
         trust/distrust between the nodes of the network.
   sir.h : SIR epidemic model and SIR parameter estimation.
