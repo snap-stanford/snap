@@ -24,7 +24,7 @@ int main(int argc, char* argv[]) {
 
   if (Env.IsEndOfRun()) { return 0; }
   TExeTm ExeTm;
-  TInt::Rnd.PutSeed(-1); // initialize random seed
+  TInt::Rnd.PutSeed(0); // initialize random seed
   printf("Generating...\n");
   PUNGraph G;
   TStr DescStr;

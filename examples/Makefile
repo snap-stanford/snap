@@ -2,19 +2,7 @@
 # Makefile for non-Microsoft compilers
 #
 
-## Linux  (uncomment the 2 lines below for compilation on Linux)
-#CXXFLAGS += -std=c++98 -Wall
-#LDFLAGS += -lrt
-
-## CygWin (uncomment the 2 lines below for compilation on CygWin)
-#CXXFLAGS += -Wall
-#LDFLAGS += 
-
 all: MakeAll
-
-opt: CXXFLAGS += -O4
-opt: LDFLAGS += -O4
-opt: MakeAll
 
 MakeAll:
 	$(MAKE) -C agmgen
