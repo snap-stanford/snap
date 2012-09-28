@@ -14,7 +14,7 @@ double GetFarnessCentr(const PUNGraph& Graph, const int& NId);
 double GetClosenessCentr(const PUNGraph& Graph, const int& NId);
 /// Returns node Eccentricity, the largest shortest-path distance from the node NId to any other node in the Graph.
 /// @param IsDir false: ignore edge directions and consider edges as undirected (in case they are directed).
-template <class PGraph> int GetEccentricutyCentr(const PGraph& Graph, const int& NId, const bool& IsDir);
+template <class PGraph> int GetNodeEcc(const PGraph& Graph, const int& NId, const bool& IsDir=false);
 
 /// Computes (approximate) Node Beetweenness Centrality based on a sample of NodeFrac nodes.
 /// @param NIdBtwH hash table mapping node ids to their corresponding betweenness centrality values.
