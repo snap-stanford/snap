@@ -258,9 +258,9 @@ void TGStat::TakeBasicStat(const PGraph& Graph, TFSet FSet, const bool& IsMxWcc)
     SetVal(gsvDstNodes, Nodes - TSnap::CntInDegNodes(Graph, 0));
     SetVal(gsvEdges, Graph->GetEdges());
     if (! Graph->HasFlag(gfMultiGraph)) { SetVal(gsvUniqEdges, Graph->GetEdges()); }
-    else { SetVal(gsvUniqEdges, TSnap::GetUniqDirEdges(Graph)); }
+    else { SetVal(gsvUniqEdges, TSnap::CntUniqDirEdges(Graph)); }
     if (FSet.In(gsvBiDirEdges)) {
-      if (Graph->HasFlag(gfDirected)) { SetVal(gsvBiDirEdges, TSnap::GetUniqBiDirEdges(Graph)); }
+      if (Graph->HasFlag(gfDirected)) { SetVal(gsvBiDirEdges, TSnap::CntUniqBiDirEdges(Graph)); }
       else { SetVal(gsvUniqEdges, GetVal(gsvEdges)); }
     }
     printf("\n");
@@ -273,9 +273,9 @@ void TGStat::TakeBasicStat(const PGraph& Graph, TFSet FSet, const bool& IsMxWcc)
     SetVal(gsvWccDstNodes, Nodes - TSnap::CntInDegNodes(Graph, 0));
     SetVal(gsvWccEdges, Graph->GetEdges());
     if (! Graph->HasFlag(gfMultiGraph)) { SetVal(gsvWccUniqEdges, Graph->GetEdges()); }
-    else { SetVal(gsvWccUniqEdges, TSnap::GetUniqDirEdges(Graph)); }
+    else { SetVal(gsvWccUniqEdges, TSnap::CntUniqDirEdges(Graph)); }
     if (FSet.In(gsvBiDirEdges)) {
-      if (Graph->HasFlag(gfDirected)) { SetVal(gsvWccBiDirEdges, TSnap::GetUniqBiDirEdges(Graph)); }
+      if (Graph->HasFlag(gfDirected)) { SetVal(gsvWccBiDirEdges, TSnap::CntUniqBiDirEdges(Graph)); }
       else { SetVal(gsvUniqEdges, GetVal(gsvEdges)); }
     }
     printf("\n");

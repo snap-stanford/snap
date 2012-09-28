@@ -260,13 +260,14 @@ void GetNodeOutDegV(const PGraph& Graph, TIntPrV& NIdOutDegV) {
   }
 }
 
+/// Counts unique undirected edges in the graph Graph.
 template <class PGraph>
-int GetUniqUndirEdges(const PGraph& Graph) {
+int CntUniqUndirEdges(const PGraph& Graph) {
   TIntSet NbrSet;
   int Cnt = 0;
   for (typename PGraph::TObj::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
     NbrSet.Clr(false);
-    for (int e = 0; e < NI.GetDeg(); e++) { // unqiue neighbors of a node
+    for (int e = 0; e < NI.GetDeg(); e++) { // unique neighbors of a node
       NbrSet.AddKey(NI.GetNbrNId(e));
     }
     Cnt += NbrSet.Len();
@@ -274,13 +275,14 @@ int GetUniqUndirEdges(const PGraph& Graph) {
   return Cnt / 2;
 }
 
+/// Counts unique directed edges in the graph Graph.
 template <class PGraph>
-int GetUniqDirEdges(const PGraph& Graph) {
+int CntUniqDirEdges(const PGraph& Graph) {
   TIntSet NbrSet;
   int Cnt = 0;
   for (typename PGraph::TObj::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
     NbrSet.Clr(false);
-    for (int e = 0; e < NI.GetOutDeg(); e++) { // unqiue out-neighbors of a node
+    for (int e = 0; e < NI.GetOutDeg(); e++) { // unique out-neighbors of a node
       NbrSet.AddKey(NI.GetOutNId(e));
     }
     Cnt += NbrSet.Len();
@@ -288,10 +290,11 @@ int GetUniqDirEdges(const PGraph& Graph) {
   return Cnt;
 }
 
+/// Counts unique bidirectional edges in the graph Graph.
 template <class PGraph>
-int GetUniqBiDirEdges(const PGraph& Graph) {
+int CntUniqBiDirEdges(const PGraph& Graph) {
   if (! Graph->HasFlag(gfDirected)) { // graph is undirected
-    return GetUniqUndirEdges(Graph);  // then every edge is bi-directional
+    return CntUniqUndirEdges(Graph);  // then every edge is bi-directional
   }
   TIntSet NbrSet;
   int Cnt = 0;
