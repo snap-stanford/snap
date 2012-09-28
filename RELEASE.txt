@@ -3,6 +3,11 @@ performance system for graph and network manipulation and analysis.
 
 This file contains a high-level description of changes in SNAP releases.
 
+Release 1.9.1, Sep 28, 2012
+
+- fixed name mismatch between GetUniq... and CntUniq... to CntUniq...
+- reversed the changes in centr.h:GetNodeEcc() name and definition to pre-1.9
+
 Release 1.9, Sep 26, 2012
 
 - names of functions in gviz.h have been changed, not backward compatible
