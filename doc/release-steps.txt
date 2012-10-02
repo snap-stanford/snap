@@ -2,8 +2,8 @@ Steps to Release a New Version of SNAP
 Sep 28, 2012
 
 # update the versions here for the current update
-OLDVER=1.9
-NEWVER=1.9.1
+OLDVER=1.9.1
+NEWVER=1.9.2
 
 #
 # prepare the distribution package and the documentation

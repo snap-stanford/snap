@@ -3,6 +3,12 @@ performance system for graph and network manipulation and analysis.
 
 This file contains a high-level description of changes in SNAP releases.
 
+Release 1.9.2, Oct 2, 2012
+
+- removed a default parameter in triad.h so that the code compiles in
+  Visual Studio 2010
+- in source code converted all 8bit characters to 7bit characters \xnn
+
 Release 1.9.1, Sep 28, 2012
 
 - fixed name mismatch between GetUniq... and CntUniq... to CntUniq...
