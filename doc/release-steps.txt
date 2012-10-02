@@ -1,5 +1,5 @@
 Steps to Release a New Version of SNAP
-Sep 28, 2012
+Oct 2, 2012
 
 # update the versions here for the current update
 OLDVER=1.9.1
@@ -9,22 +9,28 @@ NEWVER=1.9.2
 # prepare the distribution package and the documentation
 #
 
+# update release notes RELEASE.txt (MANUAL STEP)
+cd $HOME/git/snap; vi RELEASE.txt
+git commit -a
+git push
+
 # get the latest code release
+# TODO add repository cloning the next time to prevent any local work files
+#	being in the release
 cd $HOME/git/snap
 git checkout master
 git pull
-
-# update release notes RELEASE.txt (MANUAL STEP)
-cd $HOME/git/snap; vi RELEASE.txt
 
 # make sure to clean up any work files
 cd $HOME/git/snap; make clean
 cd $HOME/git/snap/doxygen; make clean
 
+#
 # build the package
-cd $HOME/git/snap/utils
-vi mksnap.sh
+#
+
 # edit VERSION (MANUAL STEP)
+cd $HOME/git/snap/utils; vi mksnap.sh
 cd $HOME/git/snap/utils; mksnap.sh
 # the package will be in
 #   $HOME/snaprelease/Snap-${NEWVER}.zip
@@ -39,11 +45,12 @@ cd $HOME/git/snap/doxygen; make all
 #
 
 # copy the package to the web site
-scp $HOME/snaprelease/Snap-${OLDVER}.zip snap@snap:httpd/htdocs/releases
+scp $HOME/snaprelease/Snap-${NEWVER}.zip snap@snap:httpd/htdocs/releases
 
 # vvvvv ===== host SNAP ===== vvvvvv
 # create the new release directory (host SNAP)
 ssh snap@snap
+# !!! set OLDVER and NEWVER variables !!!
 cd $HOME/httpd/htdocs; cp -a snap-${OLDVER} snap-${NEWVER}
 
 # add the new release to the page (MANUAL STEP)

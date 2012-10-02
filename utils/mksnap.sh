@@ -4,7 +4,7 @@
 #	create a SNAP release package
 #
 
-VERSION=1.9.1
+VERSION=1.9.2
 GITDIR=$HOME/git/snap
 WORKDIR=$HOME/snaprelease
 
