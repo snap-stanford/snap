@@ -9,7 +9,7 @@ namespace TSnapDetail {
 //	2. The edge with the highest betweenness is removed.
 //	3. The betweenness of all edges affected by the removal is recalculated.
 //	4. Steps 2 and 3 are repeated until no edges remain.
-//  Girvan M. and Newman M. E. J., Community structure in social and biological networks, Proc. Natl. Acad. Sci. USA 99, 7821–7826 (2002)
+//  Girvan M. and Newman M. E. J., Community structure in social and biological networks, Proc. Natl. Acad. Sci. USA 99, 7821-7826 (2002)
 // Keep removing edges from Graph until one of the connected components of Graph splits into two.
 void CmtyGirvanNewmanStep(PUNGraph& Graph, TIntV& Cmty1, TIntV& Cmty2) {
   TIntPrFltH BtwEH;
@@ -53,7 +53,7 @@ double _GirvanNewmanGetModularity(const PUNGraph& G, const TIntH& OutDegH, const
 } // namespace TSnapDetail
 
 // Maximum modularity clustering by Girvan-Newman algorithm (slow)
-//  Girvan M. and Newman M. E. J., Community structure in social and biological networks, Proc. Natl. Acad. Sci. USA 99, 7821–7826 (2002)
+//  Girvan M. and Newman M. E. J., Community structure in social and biological networks, Proc. Natl. Acad. Sci. USA 99, 7821-7826 (2002)
 double CommunityGirvanNewman(PUNGraph& Graph, TCnComV& CmtyV) {
   TIntH OutDegH;
   const int NEdges = Graph->GetEdges();

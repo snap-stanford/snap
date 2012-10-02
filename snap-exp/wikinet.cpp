@@ -2817,7 +2817,7 @@ bool TWikiElecBs::AddElecRes(const TWikiMetaHist& WMH, const THash<TStr, TStr>& 
   WikiElec.RfaTitle = RfaTitle;
   TIntTr V = WikiElec.GetVotes();
   // custom ifs to correct errors
-  if (RfaTitle.IsSuffix("_Couriano")) { RfaTitle = "Couriano"; } // J+¬sk+¬_Couriano --> Couriano
+  if (RfaTitle.IsSuffix("_Couriano")) { RfaTitle = "Couriano"; } // J sk _Couriano --> Couriano
   if (ElecSumH.IsKey(RfaTitle)) {
     const TElecSum& ElSum = ElecSumH.GetDat(RfaTitle);
     WikiElec.IsSucc = true;

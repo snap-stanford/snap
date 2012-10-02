@@ -14,7 +14,7 @@ template<typename PGraph> double GetModularity(const PGraph& G, const TCnComV& C
 template<typename PGraph> void GetEdgesInOut(const PGraph& Graph, const TIntV& NIdV, int& EdgesIn, int& EdgesOut);
 
 /// Girvan-Newman community detection algorithm based on Betweenness centrality.
-/// See: Girvan M. and Newman M. E. J., Community structure in social and biological networks, Proc. Natl. Acad. Sci. USA 99, 7821–7826 (2002)
+/// See: Girvan M. and Newman M. E. J., Community structure in social and biological networks, Proc. Natl. Acad. Sci. USA 99, 7821-7826 (2002)
 double CommunityGirvanNewman(PUNGraph& Graph, TCnComV& CmtyV);
 
 /// Clauset-Newman-Moore community detection method for large networks.

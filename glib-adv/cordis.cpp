@@ -62,21 +62,21 @@ TStr TCordisEuPart::GetNrOrgNm(const TStr& Str){
   THtmlLx Lx(HtmlSIn);
   while (Lx.Sym!=hsyEof){
     if ((Lx.Sym==hsyStr)||(Lx.Sym==hsyNum)){
-      Lx.UcChA.ChangeCh('Â', 'A');
-      Lx.UcChA.ChangeCh('Á', 'A');
-      Lx.UcChA.ChangeCh('Ä', 'A');
-      Lx.UcChA.ChangeCh('Ã', 'A');
-      Lx.UcChA.ChangeCh('À', 'A');
-      Lx.UcChA.ChangeCh('Ç', 'C');
-      Lx.UcChA.ChangeCh('É', 'E');
-      Lx.UcChA.ChangeCh('È', 'E');
-      Lx.UcChA.ChangeCh('Ê', 'E');
-      Lx.UcChA.ChangeCh('Í', 'I');
-      Lx.UcChA.ChangeCh('Ó', 'O');
-      Lx.UcChA.ChangeCh('Ö', 'O');
-      Lx.UcChA.ChangeCh('Ñ', 'N');
-      Lx.UcChA.ChangeCh('Ü', 'U');
-      Lx.UcChA.ChangeCh('Ú', 'U');
+      Lx.UcChA.ChangeCh('\xc2', 'A');
+      Lx.UcChA.ChangeCh('\xc1', 'A');
+      Lx.UcChA.ChangeCh('\xc4', 'A');
+      Lx.UcChA.ChangeCh('\xc3', 'A');
+      Lx.UcChA.ChangeCh('\xc0', 'A');
+      Lx.UcChA.ChangeCh('\xc7', 'C');
+      Lx.UcChA.ChangeCh('\xc9', 'E');
+      Lx.UcChA.ChangeCh('\xc8', 'E');
+      Lx.UcChA.ChangeCh('\xca', 'E');
+      Lx.UcChA.ChangeCh('\xcd', 'I');
+      Lx.UcChA.ChangeCh('\xd3', 'O');
+      Lx.UcChA.ChangeCh('\xd6', 'O');
+      Lx.UcChA.ChangeCh('\xd1', 'N');
+      Lx.UcChA.ChangeCh('\xdc', 'U');
+      Lx.UcChA.ChangeCh('\xda', 'U');
       TStr NrStr=THtmlLx::GetAsciiStr(Lx.UcChA);
       if ((NrStr.Len()==1)||(SwSet->IsIn(NrStr))||
        (NrStr=="AG")||(NrStr=="GMBH")||(NrStr=="LTD")||(NrStr=="SRL")||

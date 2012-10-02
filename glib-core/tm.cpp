@@ -166,15 +166,15 @@ TStr TTmInfo::GetTmZoneDiffStr(const TStr& TmZoneStr){
   if (TmZoneStr=="G"){/* Golf Time Zone	Military */ return "+0700";}
   if (TmZoneStr=="GMT"){/* Greenwich Mean Time	Europe */ return "+0000";}
   if (TmZoneStr=="H"){/* Hotel Time Zone	Military */ return "+0800";}
-  if (TmZoneStr=="HAA"){/* Heure Avancée de l'Atlantique	North America */ return "-0300";}
-  if (TmZoneStr=="HAC"){/* Heure Avancée du Centre	North America */ return "-0500";}
+  if (TmZoneStr=="HAA"){/* Heure Avancee de l'Atlantique	North America */ return "-0300";}
+  if (TmZoneStr=="HAC"){/* Heure Avancee du Centre	North America */ return "-0500";}
   if (TmZoneStr=="HADT"){/* Hawaii-Aleutian Daylight Time	North America */ return "-0900";}
-  if (TmZoneStr=="HAE"){/* Heure Avancée de l'Est	North America */ return "-0400";}
-  if (TmZoneStr=="HAP"){/* Heure Avancée du Pacifique	North America */ return "-0700";}
-  if (TmZoneStr=="HAR"){/* Heure Avancée des Rocheuses	North America */ return "-0600";}
+  if (TmZoneStr=="HAE"){/* Heure Avancee de l'Est	North America */ return "-0400";}
+  if (TmZoneStr=="HAP"){/* Heure Avancee du Pacifique	North America */ return "-0700";}
+  if (TmZoneStr=="HAR"){/* Heure Avancee des Rocheuses	North America */ return "-0600";}
   if (TmZoneStr=="HAST"){/* Hawaii-Aleutian Standard Time	North America */ return "-1000";}
-  if (TmZoneStr=="HAT"){/* Heure Avancée de Terre-Neuve	North America */ return "-0230";}
-  if (TmZoneStr=="HAY"){/* Heure Avancée du Yukon	North America */ return "-0800";}
+  if (TmZoneStr=="HAT"){/* Heure Avancee de Terre-Neuve	North America */ return "-0230";}
+  if (TmZoneStr=="HAY"){/* Heure Avancee du Yukon	North America */ return "-0800";}
   if (TmZoneStr=="HNA"){/* Heure Normale de l'Atlantique	North America */ return "-0400";}
   if (TmZoneStr=="HNC"){/* Heure Normale du Centre	North America */ return "-0600";}
   if (TmZoneStr=="HNE"){/* Heure Normale de l'Est	North America */ return "-0500";}
@@ -188,8 +188,8 @@ TStr TTmInfo::GetTmZoneDiffStr(const TStr& TmZoneStr){
   if (TmZoneStr=="L"){/* Lima Time Zone	Military */ return "+1100";}
   if (TmZoneStr=="M"){/* Mike Time Zone	Military */ return "+1200";}
   if (TmZoneStr=="MDT"){/* Mountain Daylight Time	North America */ return "-0600";}
-  if (TmZoneStr=="MESZ"){/* Mitteleuroäische Sommerzeit	Europe */ return "+0200";}
-  if (TmZoneStr=="MEZ"){/* Mitteleuropäische Zeit	Europe */ return "+0100";}
+  if (TmZoneStr=="MESZ"){/* Mitteleuropeische Sommerzeit	Europe */ return "+0200";}
+  if (TmZoneStr=="MEZ"){/* Mitteleuropeische Zeit	Europe */ return "+0100";}
   if (TmZoneStr=="MSD"){/* Moscow Daylight Time	Europe */ return "+0400";}
   if (TmZoneStr=="MSK"){/* Moscow Standard Time	Europe */ return "+0300";}
   if (TmZoneStr=="MST"){/* Mountain Standard Time	North America */ return "-0700";}

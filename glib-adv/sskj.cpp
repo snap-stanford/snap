@@ -45,32 +45,32 @@ TSskjLxChDef::TSskjLxChDef():
 
   // Upper-Case
   {for (int Ch=TCh::Mn; Ch<=TCh::Mx; Ch++){UcChV[Ch-TCh::Mn]=TCh(char(Ch));}}
-  SetUcCh("Aa"); SetUcCh("Àà"); SetUcCh("Áá"); SetUcCh("Ââ");
-  SetUcCh("Ãã"); SetUcCh("Ää"); SetUcCh("Åå"); SetUcCh("Ææ");
-  SetUcCh("Bb"); SetUcCh("Cc"); SetUcCh("Çç"); SetUcCh("Dd");
-  SetUcCh("Ðð"); SetUcCh("Ee"); SetUcCh("Èè"); SetUcCh("Éé");
-  SetUcCh("Êê"); SetUcCh("Ëë"); SetUcCh("Ff"); SetUcCh("Gg");
-  SetUcCh("Hh"); SetUcCh("Ii"); SetUcCh("Ìì"); SetUcCh("Íí");
-  SetUcCh("Îî"); SetUcCh("Ïï"); SetUcCh("Jj"); SetUcCh("Kk");
-  SetUcCh("Ll"); SetUcCh("Mm"); SetUcCh("Nn"); SetUcCh("Ññ");
-  SetUcCh("Oo"); SetUcCh("Òò"); SetUcCh("Óó"); SetUcCh("Ôô");
-  SetUcCh("Õõ"); SetUcCh("Öö"); SetUcCh("Øø"); SetUcCh("Pp");
+  SetUcCh("Aa"); SetUcCh("\xc0\xe0"); SetUcCh("\xc1\xe1"); SetUcCh("\xc2\xe2");
+  SetUcCh("\xc3\xe3"); SetUcCh("\xc4\xe4"); SetUcCh("\xc5\xe5"); SetUcCh("\xc6\xe6");
+  SetUcCh("Bb"); SetUcCh("Cc"); SetUcCh("\xc7\xe7"); SetUcCh("Dd");
+  SetUcCh("\xd0\xf0"); SetUcCh("Ee"); SetUcCh("\xc8\xe8"); SetUcCh("\xc9\xe9");
+  SetUcCh("\xca\xea"); SetUcCh("\xcb\xeb"); SetUcCh("Ff"); SetUcCh("Gg");
+  SetUcCh("Hh"); SetUcCh("Ii"); SetUcCh("\xcc\xec"); SetUcCh("\xcd\xed");
+  SetUcCh("\xce\xee"); SetUcCh("\xcf\xef"); SetUcCh("Jj"); SetUcCh("Kk");
+  SetUcCh("Ll"); SetUcCh("Mm"); SetUcCh("Nn"); SetUcCh("\xd1\xf1");
+  SetUcCh("Oo"); SetUcCh("\xd2\xf2"); SetUcCh("\xd3\xf3"); SetUcCh("\xd4\xf4");
+  SetUcCh("\xd5\xf5"); SetUcCh("\xd6\xf6"); SetUcCh("\xd8\xf8"); SetUcCh("Pp");
   SetUcCh("Qq"); SetUcCh("Rr"); SetUcCh("Ss"); SetUcCh("Tt");
-  SetUcCh("Uu"); SetUcCh("Ùù"); SetUcCh("Úú"); SetUcCh("Ûû");
-  SetUcCh("Üü"); SetUcCh("Vv"); SetUcCh("Ww"); SetUcCh("Xx");
-  SetUcCh("Yyÿ"); SetUcCh("Ýý"); SetUcCh("Zz");
+  SetUcCh("Uu"); SetUcCh("\xd9\xf9"); SetUcCh("\xda\xfa"); SetUcCh("\xdb\xfb");
+  SetUcCh("\xdc\xfc"); SetUcCh("Vv"); SetUcCh("Ww"); SetUcCh("Xx");
+  SetUcCh("Yy\xff"); SetUcCh("\xdd\xfd"); SetUcCh("Zz");
 
   // Escape-Sequences
   SetEscStr("&quot", "\""); SetEscStr("&amp", "&");
   SetEscStr("&lt", "<"); SetEscStr("&gt", ">");
   SetEscStr("&nbsp", " ");
 
-  SetEscStr("&auml", "ä"); SetEscStr("&Auml", "Ä");
-  SetEscStr("&ouml", "ö"); SetEscStr("&Ouml", "Ö");
-  SetEscStr("&uuml", "ü"); SetEscStr("&Uuml", "Ü");
-  SetEscStr("&aring", "å"); SetEscStr("&Aring", "Å");
-  SetEscStr("&oslash", "ø"); SetEscStr("&Oslash", "Ø");
-  SetEscStr("&Aelig", "Æ"); SetEscStr("&aelig", "æ");
+  SetEscStr("&auml", "\xe4"); SetEscStr("&Auml", "\xc4");
+  SetEscStr("&ouml", "\xf6"); SetEscStr("&Ouml", "\xd6");
+  SetEscStr("&uuml", "\xfc"); SetEscStr("&Uuml", "\xdc");
+  SetEscStr("&aring", "\xe5"); SetEscStr("&Aring", "\xc5");
+  SetEscStr("&oslash", "\xf8"); SetEscStr("&Oslash", "\xd8");
+  SetEscStr("&Aelig", "\xc6"); SetEscStr("&aelig", "\xe6");
 
   SetEscStr("&eacute", "e"); SetEscStr("&Eacute", "E");
   SetEscStr("&egrave", "e"); SetEscStr("&Egrave", "E");
