@@ -361,8 +361,8 @@ public:
   TExeTm& operator=(const TExeTm& Tm){
     LastTick=Tm.LastTick; return *this;}
 
-  void Tick(){LastTick=clock();}
-  int GetTime() const {return clock()-LastTick;}
+  void Tick(){LastTick=(int)clock();}
+  int GetTime() const {return int(clock()-LastTick);}
   double GetSecs() const {return double(clock()-LastTick)/double(CLOCKS_PER_SEC);}
   int GetSecInt() { return TFlt::Round(GetSecs()); }
   const char* GetStr() const {return GetTmStr();}

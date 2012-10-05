@@ -321,7 +321,7 @@ int TJulianDate::GetJulianDateN(int d, int m, int y){
      - 3 * ((y + 4900L + (m - 14) / 12) / 100) / 4
      + 1;            /* correction by rdg */
   }
-  return jdn;
+  return (int) jdn;
 }
 
 void TJulianDate::GetCalendarDate(int jdn, int& dd, int& mm, int& yy){

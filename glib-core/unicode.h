@@ -1279,7 +1279,7 @@ public:
 		specialCasingLower.Save(SOut); specialCasingUpper.Save(SOut); specialCasingTitle.Save(SOut);
 		SOut.SaveCs(); }
 	void Load(TSIn& SIn) {
-		h.Load(SIn); charNames.~TStrPool(); new (&charNames) TStrPool(SIn);
+		h.Load(SIn); charNames.~TStrPool(); //new (&charNames) TStrPool(SIn); //J: !!! Does not compile on apple xcode
 		decompositions.Load(SIn);
 		inverseDec.Load(SIn); caseFolding.Load(SIn); scripts.Load(SIn);
 		specialCasingLower.Load(SIn); specialCasingUpper.Load(SIn); specialCasingTitle.Load(SIn);

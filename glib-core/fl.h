@@ -363,7 +363,7 @@ public:
 
   void SetPos(const int& Pos) { IAssert(fseek(FileId, Pos, SEEK_SET)==0); }
   void MovePos(const int& DPos) { IAssert(fseek(FileId, DPos, SEEK_CUR)==0); }
-  int GetPos() const { return ftell(FileId); }
+  int GetPos() const { return (int) ftell(FileId); }
   int GetSize() const;
   void Clr() { Fail; }
 

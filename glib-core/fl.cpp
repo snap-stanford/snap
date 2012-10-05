@@ -241,7 +241,7 @@ void TFIn::SetFPos(const int& FPos) const {
 }
 
 int TFIn::GetFPos() const {
-  const int FPos=ftell(FileId);
+  const int FPos=(int)ftell(FileId);
   EAssertR(FPos!=-1, "Error seeking into file '"+GetSNm()+"'.");
   return FPos;
 }
@@ -680,7 +680,7 @@ void TFRnd::MoveFPos(const int& DFPos){
 }
 
 int TFRnd::GetFPos(){
-  int FPos=ftell(FileId);
+  int FPos= (int) ftell(FileId);
   EAssertR(FPos!=-1, "Error seeking into file '"+TStr(FNm)+"'.");
   return FPos;
 }

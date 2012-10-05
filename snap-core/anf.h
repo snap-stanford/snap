@@ -113,7 +113,7 @@ double TGraphAnf<PGraph>::AvgLstZero(const TAnfBitV& BitV, const uint64& NIdOffs
 
 template <class PGraph>
 void TGraphAnf<PGraph>::GetNodeAnf(const int& SrcNId, TIntFltKdV& DistNbrsV, const int& MxDist, const bool& IsDir) {
-  const int NNodes = Graph->GetNodes();
+  //const int NNodes = Graph->GetNodes();
   TAnfBitV CurBitsV, LastBitsV;
   InitAnfBits(CurBitsV);          IAssert(CurBitsV.BegI() != NULL);
   LastBitsV.Gen(CurBitsV.Len());  IAssert(LastBitsV.BegI() != NULL);

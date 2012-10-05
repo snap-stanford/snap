@@ -555,7 +555,7 @@ extern "C" {
 /////////////////////////////////////////////////
 // Compatibility functions
 int GetModuleFileName(void *hModule, char *Bf, int MxBfL) {
-  int retlen = readlink("/proc/self/exe", Bf, MxBfL);
+  int retlen = (int) readlink("/proc/self/exe", Bf, MxBfL);
   if (retlen == -1) {
     if (MxBfL > 0) Bf[0] = '\0';
     return 0;
@@ -567,7 +567,7 @@ int GetModuleFileName(void *hModule, char *Bf, int MxBfL) {
 
 int GetCurrentDirectory(const int MxBfL, char *Bf) {
   getcwd(Bf, MxBfL);
-  return strlen(Bf);
+  return (int) strlen(Bf);
 }
 
 int CreateDirectory(const char *FNm, void *useless) {

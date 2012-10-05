@@ -1992,7 +1992,7 @@ public:
   int GetChildNodeId(const int& NodeId, const int& ChildN) const {return NodeV[NodeId].Val2[ChildN];}
   TVal& GetNodeVal(const int& NodeId){return NodeV[NodeId].Val3;}
 
-  void GenRandomTree(const int& Nodes, TRnd& Rnd=TRnd());
+  void GenRandomTree(const int& Nodes, TRnd& Rnd);
 
   void DelNode(const int& NodeId);
   void CopyTree(const int& SrcNodeId, TTree& DstTree, const int& DstParentNodeId=-1);

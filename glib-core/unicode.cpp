@@ -1391,7 +1391,7 @@ void TUniChDb::Test(const TStr& basePath)
 	}
 	// Test Load.
 	this->~TUniChDb();
-	new(this) TUniChDb();
+	// new(this) TUniChDb(); //J: !!! Does not compile on mac xcode
 	{PSIn SIn = TFIn::New(fnBin);
 	Load(*SIn);}
 	// Test the case folding.
