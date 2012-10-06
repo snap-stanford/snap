@@ -54,22 +54,25 @@ int TUNGraph::AddNode(const int& NId, const TVecPool<TInt>& Pool, const int& NId
 void TUNGraph::DelNode(const int& NId) {
   { AssertR(IsNode(NId), TStr::Fmt("NodeId %d does not exist", NId));
   TNode& Node = GetNode(NId);
+  NEdges -= Node.GetDeg();
   for (int e = 0; e < Node.GetDeg(); e++) {
-  const int nbr = Node.GetNbrNId(e);
-  if (nbr == NId) { continue; }
+    const int nbr = Node.GetNbrNId(e);
+    if (nbr == NId) { continue; }
     TNode& N = GetNode(nbr);
     const int n = N.NIdV.SearchBin(NId);
+    IAssert(n != -1); // if NId points to N, then N also should point back
     if (n!= -1) { N.NIdV.Del(n); }
   } }
   NodeH.DelKey(NId);
 }
 
 int TUNGraph::GetEdges() const {
-  int Edges = 0;
-  for (int N=NodeH.FFirstKeyId(); NodeH.FNextKeyId(N); ) {
-    Edges += NodeH[N].GetDeg();
-  }
-  return Edges/2;
+  //int Edges = 0;
+  //for (int N=NodeH.FFirstKeyId(); NodeH.FNextKeyId(N); ) {
+  //  Edges += NodeH[N].GetDeg();
+  //}
+  //return Edges/2;
+  return NEdges;
 }
 
 // Add an edge between SrcNId and DstNId to the graph.
@@ -79,6 +82,7 @@ int TUNGraph::AddEdge(const int& SrcNId, const int& DstNId) {
   GetNode(SrcNId).NIdV.AddSorted(DstNId);
   if (SrcNId!=DstNId) { // not a self edge
     GetNode(DstNId).NIdV.AddSorted(SrcNId); }
+  NEdges++;
   return -1; // edge id
 }
 
@@ -87,7 +91,7 @@ void TUNGraph::DelEdge(const int& SrcNId, const int& DstNId) {
   IAssertR(IsNode(SrcNId) && IsNode(DstNId), TStr::Fmt("%d or %d not a node.", SrcNId, DstNId).CStr());
   { TNode& N = GetNode(SrcNId);
   int n = N.NIdV.SearchBin(DstNId);
-  if (n!= -1) { N.NIdV.Del(n); } }
+  if (n!= -1) { N.NIdV.Del(n);  NEdges--; } }
   if (SrcNId != DstNId) { // not a self edge
     TNode& N = GetNode(DstNId);
     int n = N.NIdV.SearchBin(SrcNId);
@@ -112,7 +116,7 @@ TUNGraph::TEdgeI TUNGraph::GetEI(const int& SrcNId, const int& DstNId) const {
 }
 
 
-// Get a vector IDs of all nodes in the graph
+// Get a vector IDs of all nodes in the graph.
 void TUNGraph::GetNIdV(TIntV& NIdV) const {
   NIdV.Gen(GetNodes(), 0);
   for (int N=NodeH.FFirstKeyId(); NodeH.FNextKeyId(N); ) {

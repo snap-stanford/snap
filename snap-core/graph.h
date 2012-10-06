@@ -114,20 +114,20 @@ public:
   };
 private:
   TCRef CRef;
-  TInt MxNId;
+  TInt MxNId, NEdges;
   THash<TInt, TNode> NodeH;
 private:
   TNode& GetNode(const int& NId) { return NodeH.GetDat(NId); }
   const TNode& GetNode(const int& NId) const { return NodeH.GetDat(NId); }
 public:
-  TUNGraph() : CRef(), MxNId(0), NodeH() { }
+  TUNGraph() : CRef(), MxNId(0), NEdges(0), NodeH() { }
   /// Constructor that reserves enough memory for a graph of Nodes nodes and Edges edges.
-  explicit TUNGraph(const int& Nodes, const int& Edges) : MxNId(0) { Reserve(Nodes, Edges); }
-  TUNGraph(const TUNGraph& Graph) : MxNId(Graph.MxNId), NodeH(Graph.NodeH) { }
+  explicit TUNGraph(const int& Nodes, const int& Edges) : MxNId(0), NEdges(0) { Reserve(Nodes, Edges); }
+  TUNGraph(const TUNGraph& Graph) : MxNId(Graph.MxNId), NEdges(Graph.NEdges), NodeH(Graph.NodeH) { }
   /// Constructor that loads the graph from a (binary) stream SIn.
-  TUNGraph(TSIn& SIn) : MxNId(SIn), NodeH(SIn) { }
+  TUNGraph(TSIn& SIn) : MxNId(SIn), NEdges(SIn), NodeH(SIn) { }
   /// Saves the graph to a (binary) stream SOut.
-  void Save(TSOut& SOut) const { MxNId.Save(SOut);  NodeH.Save(SOut); }
+  void Save(TSOut& SOut) const { MxNId.Save(SOut); NEdges.Save(SOut); NodeH.Save(SOut); }
   /// Static constructor that returns a pointer to the graph. Call: PUNGraph Graph = TUNGraph::New().
   static PUNGraph New() { return new TUNGraph(); }
   /// Static constructor that returns a pointer to the graph and reserves enough memory for Nodes nodes and Edges edges. ##TUNGraph::New
@@ -137,7 +137,7 @@ public:
   /// Allows for run-time checking the type of the graph (see the TGraphFlag for flags).
   bool HasFlag(const TGraphFlag& Flag) const;
   TUNGraph& operator = (const TUNGraph& Graph) {
-    if (this!=&Graph) { MxNId=Graph.MxNId;  NodeH=Graph.NodeH; }  return *this; }
+    if (this!=&Graph) { MxNId=Graph.MxNId; NEdges=Graph.NEdges; NodeH=Graph.NodeH; }  return *this; }
   
   /// Returns the number of nodes in the graph.
   int GetNodes() const { return NodeH.Len(); }
