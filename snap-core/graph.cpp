@@ -22,7 +22,7 @@ int TUNGraph::AddNode(const int& NId, const TIntV& NbrNIdV) {
   if (NId == -1) {
     NewNId = MxNId;  MxNId++;
   } else {
-    IAssertR(!IsNode(NId), TStr::Fmt("NodeId %d already exists", NId));
+    IAssertR(! IsNode(NId), TStr::Fmt("NodeId %d already exists", NId));
     NewNId = NId;
     MxNId = TMath::Mx(NewNId+1, MxNId());
   }
@@ -30,6 +30,7 @@ int TUNGraph::AddNode(const int& NId, const TIntV& NbrNIdV) {
   Node.Id = NewNId;
   Node.NIdV = NbrNIdV;
   Node.NIdV.Sort();
+  NEdges += Node.GetDeg();
   return NewNId;
 }
 
@@ -47,6 +48,7 @@ int TUNGraph::AddNode(const int& NId, const TVecPool<TInt>& Pool, const int& NId
   Node.Id = NewNId;
   Node.NIdV.GenExt(Pool.GetValVPt(NIdVId), Pool.GetVLen(NIdVId));
   Node.NIdV.Sort();
+  NEdges += Node.GetDeg();
   return NewNId;
 }
 
@@ -90,11 +92,11 @@ int TUNGraph::AddEdge(const int& SrcNId, const int& DstNId) {
 void TUNGraph::DelEdge(const int& SrcNId, const int& DstNId) {
   IAssertR(IsNode(SrcNId) && IsNode(DstNId), TStr::Fmt("%d or %d not a node.", SrcNId, DstNId).CStr());
   { TNode& N = GetNode(SrcNId);
-  int n = N.NIdV.SearchBin(DstNId);
+  const int n = N.NIdV.SearchBin(DstNId);
   if (n!= -1) { N.NIdV.Del(n);  NEdges--; } }
   if (SrcNId != DstNId) { // not a self edge
     TNode& N = GetNode(DstNId);
-    int n = N.NIdV.SearchBin(SrcNId);
+    const int n = N.NIdV.SearchBin(SrcNId);
     if (n!= -1) { N.NIdV.Del(n); }
   }
 }
@@ -152,13 +154,20 @@ bool TUNGraph::IsOk(const bool& ThrowExcept) const {
         RetVal=false;
       }
       if (e > 0 && prevNId == Node.GetNbrNId(e)) {
-        const TStr Msg = TStr::Fmt("Node %d has duplidate edge %d --> %d.",
+        const TStr Msg = TStr::Fmt("Node %d has duplicate edge %d --> %d.",
           Node.GetId(), Node.GetId(), Node.GetNbrNId(e));
         if (ThrowExcept) { EAssertR(false, Msg); } else { ErrNotify(Msg.CStr()); }
         RetVal=false;
       }
       prevNId = Node.GetNbrNId(e);
     }
+  }
+  int EdgeCnt = 0;
+  for (TEdgeI EI = BegEI(); EI < EndEI(); EI++) { EdgeCnt++; }
+  if (EdgeCnt != GetEdges()) {
+    const TStr Msg = TStr::Fmt("Number of edges counter is corrupted: GetEdges():%d, EdgeCount:%d.", GetEdges(), EdgeCnt);
+    if (ThrowExcept) { EAssertR(false, Msg); } else { ErrNotify(Msg.CStr()); }
+    RetVal=false;
   }
   return RetVal;
 }
@@ -250,14 +259,14 @@ void TNGraph::DelNode(const int& NId) {
   const int nbr = Node.GetOutNId(e);
   if (nbr == NId) { continue; }
     TNode& N = GetNode(nbr);
-    int n = N.InNIdV.SearchBin(NId);
+    const int n = N.InNIdV.SearchBin(NId);
     if (n!= -1) { N.InNIdV.Del(n); }
   }
   for (int e = 0; e < Node.GetInDeg(); e++) {
   const int nbr = Node.GetInNId(e);
   if (nbr == NId) { continue; }
     TNode& N = GetNode(nbr);
-    int n = N.OutNIdV.SearchBin(NId);
+    const int n = N.OutNIdV.SearchBin(NId);
     if (n!= -1) { N.OutNIdV.Del(n); }
   } }
   NodeH.DelKey(NId);
@@ -283,17 +292,17 @@ int TNGraph::AddEdge(const int& SrcNId, const int& DstNId) {
 void TNGraph::DelEdge(const int& SrcNId, const int& DstNId, const bool& IsDir) {
   IAssertR(IsNode(SrcNId) && IsNode(DstNId), TStr::Fmt("%d or %d not a node.", SrcNId, DstNId).CStr());
   { TNode& N = GetNode(SrcNId);
-  int n = N.OutNIdV.SearchBin(DstNId);
+  const int n = N.OutNIdV.SearchBin(DstNId);
   if (n!= -1) { N.OutNIdV.Del(n); } }
   { TNode& N = GetNode(DstNId);
-  int n = N.InNIdV.SearchBin(SrcNId);
+  const int n = N.InNIdV.SearchBin(SrcNId);
   if (n!= -1) { N.InNIdV.Del(n); } }
   if (! IsDir) {
     { TNode& N = GetNode(SrcNId);
-    int n = N.InNIdV.SearchBin(DstNId);
+    const int n = N.InNIdV.SearchBin(DstNId);
     if (n!= -1) { N.InNIdV.Del(n); } }
     { TNode& N = GetNode(DstNId);
-    int n = N.OutNIdV.SearchBin(SrcNId);
+    const int n = N.OutNIdV.SearchBin(SrcNId);
     if (n!= -1) { N.OutNIdV.Del(n); } }
   }
 }
@@ -655,10 +664,10 @@ void TBPGraph::DelEdge(const int& LeftNId, const int& RightNId) {
   const int LNId = IsLL ? LeftNId : RightNId; // the real left node
   const int RNId = IsLL ? RightNId : LeftNId; // the real right node
   { TIntV& NIdV = LeftH.GetDat(LNId).NIdV;
-  int n = NIdV.SearchBin(RNId);
+  const int n = NIdV.SearchBin(RNId);
   if (n != -1) { NIdV.Del(n); } }
   { TIntV& NIdV = RightH.GetDat(RNId).NIdV;
-  int n = NIdV.SearchBin(LNId);
+  const int n = NIdV.SearchBin(LNId);
   if (n != -1) { NIdV.Del(n); } }
 }
 
