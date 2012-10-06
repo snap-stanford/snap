@@ -193,7 +193,7 @@ public:
   /// Tests whether the graph is empty (has zero nodes).
   bool Empty() const { return GetNodes()==0; }
   /// Deletes all nodes and edges from the graph.
-  void Clr() { MxNId=0;  NodeH.Clr(); }
+  void Clr() { MxNId=0;  NEdges=0;  NodeH.Clr(); }
   /// Reserves memory for a graph of Nodes nodes and Edges edges.
   void Reserve(const int& Nodes, const int& Edges) { if (Nodes>0) NodeH.Gen(Nodes/2); }
   /// Reserves memory for node ID NId having Deg edges.
