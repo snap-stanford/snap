@@ -102,6 +102,7 @@ void TGraphKey::TakeSig(const PNGraph& Graph, const int& MnSvdGraph, const int& 
     DegV.Add(TIntPr(NodeI.GetInDeg(), NodeI.GetOutDeg()));
   }
   DegV.Sort(false);
+  // compose the signature: nodes, edges, sorted in- and out- degree sequence
   SigV.Add(TFlt(Nodes));
   SigV.Add(TFlt(Edges));
   for (int i = 0; i < DegV.Len(); i++) {
@@ -144,7 +145,7 @@ void TGraphKey::TakeSig(const PNGraph& Graph, const int& MnSvdGraph, const int& 
 }
 
 void TGraphKey::SaveTxt(FILE *F) const {
-  fprintf(F, "nodes: %d.  edges: %d\n", GetNodes(), GetEdges());
+  fprintf(F, "#GraphKey. Nodes: %d.  Edges: %d\n", GetNodes(), GetEdges());
   for (int i = 0; i < EdgeV.Len(); i++) {
     fprintf(F,"  %d\t%d\n", EdgeV[i].Val1(), EdgeV[i].Val2());
   }
@@ -185,7 +186,7 @@ void TGraphKey::DrawGViz(const TStr& OutFNm, const TStr& Desc, const TStr& NodeA
 bool TGraphKey::IsIsomorph(const TGraphKey& Key1, const TGraphKey& Key2, const TIntV& NodeIdMap) {
   const TIntPrV& EdgeV1 = Key1.EdgeV;
   const TIntPrV& EdgeV2 = Key2.EdgeV;
-  if (Key1.Nodes != Key2.Nodes || EdgeV1.Len() != EdgeV2.Len()) return false;
+  if (Key1.Nodes != Key2.Nodes || EdgeV1.Len() != EdgeV2.Len()) { return false; }
   for (int e1 = 0; e1 < EdgeV1.Len(); e1++) {
     const TIntPr Edge2(NodeIdMap[EdgeV1[e1].Val1], NodeIdMap[EdgeV1[e1].Val2]);
     if (EdgeV2.SearchBin(Edge2) == -1) return false;

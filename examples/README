@@ -44,6 +44,8 @@ Examples:
   	Forest Fire graph generator
   graphhen : 
 	  Common graph generators (Small-world, Preferential Attachment, etc.)
+  graphhash : 
+    Graph hash table for counting frequencies of small graphs
   kcores :
   	Computes the k-core decomposition of the network
   kronem : 
@@ -57,7 +59,7 @@ Examples:
   magfit : 
   	Estimates MAG model parameter
   motifs : 
-  	Counts the number of occurence of every possible subgraph on K nodes 
+  	Counts the number of occurrence of every possible subgraph on K nodes 
   	in the network
   ncpplot : 
   	Computes Network Community Profile (NCP) plot 
