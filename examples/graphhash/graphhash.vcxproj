@@ -11,7 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{CCB155FF-3FA8-45CF-A1DD-54770FDD2EAX}</ProjectGuid>
+    <ProjectGuid>{CCB155FF-3FA8-45CF-A1DD-54770FDD2E00}</ProjectGuid>
     <RootNamespace>graphhash</RootNamespace>
     <Keyword>Win32Proj</Keyword>
   </PropertyGroup>
