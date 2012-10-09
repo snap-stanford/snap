@@ -29,7 +29,7 @@ int main(int argc, char* argv[]) {
     TFFile FFile(InFNm);  TStr FNm;
     for (int t = 0; FFile.Next(FNm); t++) {
       printf("Loading graph: %d: %s\n", t+1, FNm.CStr());
-      PNGraph Graph = TSnap::LoadEdgeList<PNGraph>(InFNm, 0, 1);
+      PNGraph Graph = TSnap::LoadEdgeList<PNGraph>(FNm.CStr(), 0, 1);
       printf("nodes:%d  edges:%d\nCreating plots...\n", Graph->GetNodes(), Graph->GetEdges());
       GStatVec->Add(Graph, TSecTm(t+1), FNm.GetFBase());
     }
