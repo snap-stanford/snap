@@ -1,14 +1,14 @@
 /////////////////////////////////////////////////
-/// Graph Hash Table Key stores small directed graphs. These graphs are then used as keys of the TGHash graph hash table. The main functionality of TGraphKey is that it performs fast graph isomorphism checking to determine whehter two graphs (two keys) are the same (i.e., isomorphic).
+/// Small Directed Graphs. ##TGraphKey
 class TGraphKey {
 public:
   static const int RoundTo;
 private:
 public:
   TInt Nodes;
-  TIntPrV EdgeV;  // renumbers the graph (node ids 0..nodes-1)
+  TIntPrV EdgeV;  // renumbers the graph (node Ids 0..nodes-1)
   TFltV SigV;     // signature (for hashing)
-  TInt VariantId; // if graphs have the same signature but are not-isomorphic. Variant Ids start with 1.
+  TInt VariantId; // graphs can have the same signature but are not-isomorphic. VariantId starts with 1.
 public:
   TGraphKey() : Nodes(-1), EdgeV(), SigV(), VariantId(0) { }
   TGraphKey(const TSFltV& GraphSigV);
@@ -27,41 +27,41 @@ public:
   int GetNodes() const { return Nodes; }
   /// Returns the number of edges in the graph.
   int GetEdges() const { return EdgeV.Len(); }
-  /// Returns the lenght of the signature vector of a graph. Signature is a set of statistics that is used to quickly determine whether the two graphs could be isomorphic. Graphs that differ in their signatures are guaranteed to be non-isomorphic while graphs with identical signatures could still be isomorphic.
+  /// Returns the length of the signature vector of a graph. ##TGraphKey::GetSigLen
   int GetSigLen() const { return SigV.Len(); }
-  /// If the hash table contains multiple non-isomorphic graphs with identical signatures we assign each a unique Variant id.
+  /// Returns the graph variant Id. ##TGraphKey::GetVariant
   int GetVariant() const { return VariantId; }
-  /// Sets the Variant id of a given graph.
+  /// Sets the Variant Id of a given graph.
   void SetVariant(const int& Variant) { VariantId = Variant; }
   /// Returns a vector of directed edges of a graph.
   void SetEdgeV(const TIntPrV& EdgeIdV) { EdgeV = EdgeIdV; }
 
   /// Returns the directed graph stored in the GraphKey object.
   PNGraph GetNGraph() const;
-  /// Creates a key from a given directed graph. Nodes get renumbered to have ids 0...N-1. Does not create a graph signature.
+  /// Creates a key from a given directed graph. ##TGraphKey::TakeGraph
   void TakeGraph(const PNGraph& Graph);
-  /// Creates a key from a given directed graph. Parameter NodeMap stores the correspondence of old to new node ids (0...N-1). Does not create a graph signature.
-  void TakeGraph(const PNGraph& Graph, TIntPrV& NodeMap); // renumbers the nodes
-  /// Creates a signature for a given directed graph. The function only creates the signature vector but does not copy the graph.
+  /// Creates a key from a given directed graph. ##TGraphKey::TakeGraph-1
+  void TakeGraph(const PNGraph& Graph, TIntPrV& NodeMap);
+  /// Creates a signature for a given directed graph. ##TGraphKey::TakeSig
   void TakeSig(const PNGraph& Graph, const int& MnSvdGraph, const int& MxSvdGraph);
   
   /// Saves the graph as a list of edges.
   void SaveTxt(FILE *F) const;
-  /// Saves the graph to the .DOT file format used by GraphViz. Use ".dot" as file extension for OutFNm.
+  /// Saves the graph to the .DOT file format used by GraphViz. ##TGraphKey::SaveGViz
   void SaveGViz(const TStr& OutFNm, const TStr& Desc = TStr(), const TStr& NodeAttrs="", const int& Size=-1) const;
-  /// Saves the graph to the .DOT file format and calls GraphViz to draw it. Output type is determined by the OutFNm file extension (.ps, .png).
+  /// Saves the graph to the .DOT file format and calls GraphViz to draw it. ##TGraphKey::DrawGViz
   void DrawGViz(const TStr& OutFNm, const TStr& Desc = TStr(), const TStr& NodeAttrs="", const int& Size=-1) const;
 
-  /// Checks whether directed graph Key1 is isomorphic to the directed graph Key2 under node id permutation NodeIdMap. The function does not consider all possible permutations (mappings) betwee node ids but only considers mapping in NodeIdMap.
+  /// Checks whether directed graph Key1 is isomorphic to the directed graph Key2 under node Id permutation NodeIdMap. ##TGraphKey::IsIsomorph
   static bool IsIsomorph(const TGraphKey& Key1, const TGraphKey& Key2, const TIntV& NodeIdMap);
-  /// Checks whether directed graph Key1 is isomorphic to the directed graph Key2 under all the permutations of node ids stored in NodeIdMapV.
+  /// Checks whether directed graph Key1 is isomorphic to the directed graph Key2 under all the permutations of node Ids stored in NodeIdMapV.
   static bool IsIsomorph(const TGraphKey& Key1, const TGraphKey& Key2, const TVec<TIntV>& NodeIdMapV);
-  /// Checks whether directed graph Key1 is isomorphic to the directed graph Key2 under all the permutations of node ids stored in NodeIdMapV and returns the ID of the permutation of node ids (IsoPermId) which makes the two graphs isomorphic.
+  /// Checks whether directed graph Key1 is isomorphic to the directed graph Key2 under all the permutations of node Ids stored in NodeIdMapV and returns the Id of the permutation of node Ids (IsoPermId) which makes the two graphs isomorphic.
   static bool IsIsomorph(const TGraphKey& Key1, const TGraphKey& Key2, const TVec<TIntV>& NodeIdMapV, int& IsoPermId);
 };
 
 /////////////////////////////////////////////////
-/// Graph Hash Table, a hash table where keys are (little) directed graphs. The class is useful for counting frequencies of small subgraphs or information cascades. For small graphs with less than MxIsoCheck nodes the class performs exact isomorphism checking. For graphs with less than MxSvdGraph nodes the class performs approximate isomorphism checking by comparing a numeric SVD-based signatures of two graphs. For graphs with more than MxSvdGraph nodes thec class performs approximate isorphism checking by comparing only the signature based on simple graph statistics. For hashing trees (tree is encoded as a directed graph where children point to the parent) the class always performs exact isomorphism testing.
+/// Graph Hash Table. ##TGHash
 template <class TDat>
 class TGHash {
 public:
@@ -78,7 +78,7 @@ private:
   int IsGetKeyId(const PNGraph& Graph, TGraphKey& GKey) const;
   int IsGetKeyId(const PNGraph& Graph, TGraphKey& GKey, TIntPrV& NodeMap) const;
 public:
-  /// If hashing trees (and not general graphs) set HashTrees=true (tree is a directed graph where children point to the parent). In this case exact isomorphism checking will be performed. For hashing general graphs set HashTrees=false. MaxIsoCheck is the maximum number of nodes for which we perform brute force exact isomorphism check (for larger graph the isomorphism test is only approximate).
+  /// Default contructor. ##TGHash::TGHash
   TGHash(const bool& HashTrees, const int& MaxIsoCheck=8, const int& MaxSvdGraph=500);
   TGHash(TSIn& SIn);
   void Save(TSOut& SOut) const;
@@ -98,12 +98,12 @@ public:
   /// Returns iterator to a key at position index KeyId.
   TIter GetI(const int& KeyId) const  { return GraphH.GetI(KeyId); }
 
-  /// Returns whether the hash table only hashes trees (and not arbitrary directed graphs).
+  /// Returns whether the hash table only hashes trees and not arbitrary directed graphs.
   bool HashTrees() const { return HashOnlyTrees; }
 
   /// Initializes the hash table for the expected number of keys ExpectVals.
   void Gen(const int& ExpectVals) { GraphH.Gen(ExpectVals); }
-  /// Removes all the elements from the hash table. If DoDel=true the data structure will free the memory, otherwise the object stays initialized (which makes subsequent insertion of keys much faster).
+  /// Removes all the elements from the hash table. ##TGHash::Clr
   void Clr(const bool& DoDel=true, const int& NoDelLim=-1) { GraphH.Clr(DoDel, NoDelLim); }
   /// Tests whether the hash table is empty.
   bool Empty() const { return GraphH.Empty(); }
@@ -113,30 +113,30 @@ public:
   int GetPorts() const { return GraphH.GetPorts(); }
   /// Tests whether the hash table automatically adjusts the number of ports based on the number of keys.
   bool IsAutoSize() const { return GraphH.IsAutoSize(); }
-  /// Returns the maximum key id of any element in the hash table.
+  /// Returns the maximum key Id of any element in the hash table.
   int GetMxKeyIds() const { return GraphH.GetMxKeyIds(); }
-  /// Tests whether there are any unused slots in the hash table. Slots get freed after removing keys from the table.
+  /// Tests whether there are any unused slots in the hash table. ##TGHash::IsKeyIdEqKeyN
   bool IsKeyIdEqKeyN() const { return GraphH.IsKeyIdEqKeyN(); }
 
-  /// Adds a key Graph to the table and returns its KeyId (position index in the hash table). If the key already exists the function returns KeyId of that existing key.
+  /// Adds a key Graph to the table and returns its KeyId. ##TGHash::AddKey
   int AddKey(const PNGraph& Graph);
-  /// Adds a key Graph to the table and returns its data value. If the key already exists the function returns the data associated with that existing key.
+  /// Adds a key Graph to the table and returns its data value. ##TGHash::AddDat
   TDat& AddDat(const PNGraph& Graph) { return GraphH[AddKey(Graph)]; }
-  /// Adds a key Graph to the table and sets its data value to value of Dat. If the key already exists the function sets the data value of that existing key.
+  /// Adds a key Graph to the table, sets its data value to value of Dat and returns Dat. ##TGHash::AddDat-1
   TDat& AddDat(const PNGraph& Graph, const TDat& Dat) { return GraphH[AddKey(Graph)] = Dat; }
 
   /// Test whether Graph is an existing key in the hash table.
   bool IsKey(const PNGraph& Graph) const { int k=IsGetKeyId(Graph); return k!=-1; }
-  /// Returns the KeyId (position index) of key Graph. If the key does not exist the function returns -1.
+  /// Returns the KeyId (position index) of key Graph. ##TGHash::GetKeyId
   int GetKeyId(const PNGraph& Graph) const { return IsGetKeyId(Graph); }
-  /// Returns the data associated with key Graph. If the key does not exist the function aborts.
+  /// Returns the data associated with key Graph. ##TGHash::GetDat
   const TDat& GetDat(const PNGraph& Graph) const { return GraphH[GetKeyId(Graph)]; }
-  /// Returns the data associated with key Graph. If the key does not exist the function aborts.
+  /// Returns the data associated with key Graph. ##TGHash::GetDat-1
   TDat& GetDat(const PNGraph& Graph) { return GraphH[GetKeyId(Graph)]; }
 
   /// Returns the GraphKey with position index KeyId.
   const TGraphKey& GetKey(const int& KeyId) const { return GraphH.GetKey(KeyId); }
-  /// Returns the KeyId for a given Key. If they Key does not exist return value is -1.
+  /// Returns the KeyId for a given Key. ##TGHash::GetKeyId
   int GetKeyId(const TGraphKey& Key) const { return GraphH.GetKeyId(Key); }
   /// Tests whether a given Key exists in the hash table.
   bool IsKey(const TGraphKey& Key) const { return GraphH.IsKey(Key); }
@@ -144,13 +144,13 @@ public:
   bool IsKey(const TGraphKey& Key, int& KeyId) const { return GraphH.IsKey(Key, KeyId); }
   /// Tests whether there exists a key at given position index KeyId.
   bool IsKeyId(const int& KeyId) const { return GraphH.IsKeyId(KeyId); }
-  /// Returns data with a given graph Key. If the key does not exist the function aborts.
+  /// Returns data with a given graph Key. ##TGHash::GetDat-2
   const TDat& GetDat(const TGraphKey& Key) const { return GraphH.GetDat(Key); }
-  /// Returns data with a given graph Key. If the key does not exist the function aborts.
+  /// Returns data with a given graph Key. ##TGHash::GetDat-3
   TDat& GetDat(const TGraphKey& Key) { return GraphH.GetDat(Key); }
-  /// Returns data at a given position index KeyId. Function will fail if the KeyId is out of bounds.
+  /// Returns data at a given position index KeyId. ##TGHash::GetDatId
   const TDat& GetDatId(const int& KeyId) const { return GraphH[KeyId]; }
-  /// Returns data at a given position index KeyId. Function will fail if the KeyId is out of bounds.
+  /// Returns data at a given position index KeyId. ##TGHash::GetDatId-1
   TDat& GetDatId(const int& KeyId) { return GraphH[KeyId]; }
 
   /// Returns Key and Data at a given position index KeyId.
@@ -158,36 +158,36 @@ public:
   /// Test whether Key exists and sets its data to Dat.
   bool IsKeyGetDat(const TGraphKey& Key, TDat& Dat) const { return GraphH.IsKeyGetDat(Key, Dat); }
 
-  /// Assuming the Graph exists as a key in the table, the function returns the mapping of node ids of the Graph to those of the graph-key in the hash table. Otherwise the function returns false.
+  /// Returns the mapping of node Ids of the Graph to those of the graph-key in the hash table. ##TGHash::GetNodeMap
   bool GetNodeMap(const PNGraph& Graph, TIntPrV& NodeMapV) const;
-  /// Assuming the Graph exists as a key in the table, the function returns its KeyId and the mapping of node ids of the Graph to those of the graph-key in the hash table. Otherwise the function returns false.
+  /// Returns the mapping of node Ids of the Graph to those of the graph-key in the hash table and the Graph KeyId. ##TGHash::GetNodeMap-1
   bool GetNodeMap(const PNGraph& Graph, TIntPrV& NodeMapV, int& KeyId) const;
 
-  /// Finds first KeyId. Used for traversing the elements of the hash table: for (int KeyId = GHash.FFirstKeyId(); GHash.FNextKeyId(KeyId); ) { }
+  /// Finds first KeyId. ##TGHash::FFirstKeyId
   int FFirstKeyId() const { return 0-1; }
-  /// Finds next KeyId. Used for traversing the elements of the hash table: for (int KeyId = GHash.FFirstKeyId(); GHash.FNextKeyId(KeyId); ) { }
+  /// Finds next KeyId. ##TGHash::FNextKeyId
   bool FNextKeyId(int& KeyId) const { return GraphH.FNextKeyId(KeyId); }
   /// Returns a vector of keys stored in the hash table.
   void GetKeyV(TVec<TGraphKey>& KeyV) const { GraphH.GetKeyV(KeyV); }
   /// Returns a vector of data elements stored in the hash table.
   void GetDatV(TVec<TDat>& DatV) const { GraphH.GetDatV(DatV); }
-  /// Returns a vector of KeyIds of hash table elements sorted by their data value. Asc=true: ascending order, otherwise in descending order.
-  void GetKeyIdByDat(TIntV& KeyIdV, const bool& Asc = true) const; // order keyIds by data
-  /// Returns a vector of KeyIds of hash table elements sorted by ther size (number of nodes and edges). Asc=true: ascending order, otherwise in descending order.
-  void GetKeyIdByGSz(TIntV& KeyIdV, const bool& Asc = true) const; // order keyIds by graph size
+  /// Returns a vector of KeyIds of hash table elements sorted by their data value. ##TGHash::GetKeyIdByDat
+  void GetKeyIdByDat(TIntV& KeyIdV, const bool& Asc = true) const;
+  /// Returns a vector of KeyIds of hash table elements sorted by their graph size. ##TGHash::GetKeyIdByGSz
+  void GetKeyIdByGSz(TIntV& KeyIdV, const bool& Asc = true) const;
   /// Returns a vector of pairs (Key, Data) elements stored in the hash table.
   void GetKeyDatPrV(TVec<TPair<TGraphKey, TDat> >& KeyDatPrV) const { GraphH.GetKeyDatPrV(KeyDatPrV); }
   /// Returns a vector of pairs (Data, Key) elements stored in the hash table.
   void GetDatKeyPrV(TVec<TPair<TDat, TGraphKey> >& DatKeyPrV) const { GraphH.GetDatKeyPrV(DatKeyPrV); }
 
-  /// Removes unused slots from the hash table. Slots get freed after removing keys from the table.
+  /// Removes unused slots from the hash table. ##TGHash::Defrag
   void Defrag() { GraphH.Defrag(); }
   /// Frees the unused memory by the hash table.
   void Pack() { GraphH.Pack(); }
 
-  /// Saves a given graph with key id KeyId in DOT format and calls the GraphViz to draw it.
+  /// Saves a given graph with key Id KeyId in DOT format and calls the GraphViz to draw it.
   void DrawGViz(const int& KeyId, const TStr& OutFNmPref, const TStr& OutputType = "gif", TStr Desc="") const;
-  /// Saves a set of graphs with key ids KeyIdV in DOT format and calls the GraphViz to draw them.
+  /// Saves a set of graphs with key Ids KeyIdV in DOT format and calls the GraphViz to draw them.
   void DrawGViz(const TIntV& KeyIdV, const TStr& OutFNmPref, const TStr& OutputType = "gif") const;
   /// Saves all graphs stored in the hash table into a text file.
   void SaveTxt(const TStr& OutFNm, const TStr& Desc, const TStr& DatColNm, const bool& SortByKeyVal=true) const;

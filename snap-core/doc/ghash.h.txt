@@ -1,0 +1,150 @@
+/// TGraphKey
+These graphs are used as keys of the TGHash graph hash table. The main
+functionality of TGraphKey is that it performs fast graph isomorphism checking
+to determine whether two graphs (two keys) are the same (i.e., isomorphic).
+///
+
+/// TGraphKey::GetSigLen
+Signature is a set of statistics that is used to quickly determine whether the
+two graphs could be isomorphic. Graphs that differ in their signatures are
+guaranteed to be non-isomorphic while graphs with identical signatures could
+still be isomorphic.
+///
+
+/// TGraphKey::GetVariant
+When the hash table contains multiple non-isomorphic graphs with identical
+signatures we assign each a unique VariantId.
+///
+
+/// TGraphKey::TakeGraph
+Nodes get renumbered to have Ids 0...N-1. Does not create a graph signature.
+///
+
+/// TGraphKey::TakeGraph-1
+Parameter NodeMap stores the correspondence of old to new node Ids (0...N-1).
+Does not create a graph signature. Nodes are renumbered.
+///
+
+/// TGraphKey::TakeSig
+The function only creates the signature vector but does not copy the graph.
+///
+
+/// TGraphKey::SaveGViz
+Use ".dot" as file extension for OutFNm.
+///
+
+/// TGraphKey::DrawGViz
+Output type is determined by the OutFNm file extension (.ps, .png).
+///
+
+/// TGraphKey::IsIsomorph
+The function does not consider all possible permutations (mappings) between
+node Ids but only considers mapping in NodeIdMap.
+///
+
+/// TGHash
+Keys in this hash table are (little) directed graphs. The class is useful for
+counting frequencies of small subgraphs or information cascades. For small
+graphs with less than MxIsoCheck nodes the class performs exact isomorphism
+checking. For graphs with less than MxSvdGraph nodes the class performs
+approximate isomorphism checking by comparing a numeric SVD-based signatures
+of two graphs. For graphs with more than MxSvdGraph nodes the class performs
+approximate isorphism checking by comparing only the signature based on simple
+graph statistics. For hashing trees (tree is encoded as a directed graph where
+children point to the parent) the class always performs exact isomorphism
+testing.
+///
+
+/// TGHash::TGHash
+For hashing trees and not general graphs, set HashTrees=true. A tree is a
+directed graph where children point to the parent. In this case exact
+isomorphism checking will be performed. For hashing general graphs, set
+HashTrees=false. MaxIsoCheck is the maximum number of nodes for which we
+perform brute force exact isomorphism check. For larger graph the isomorphism
+test is only approximate.
+///
+
+/// TGHash::Clr
+If DoDel=true the data structure will free the memory, otherwise the object
+stays initialized (which makes subsequent insertion of keys much faster).
+///
+
+/// TGHash::IsKeyIdEqKeyN
+Slots get freed after removing keys from the table.
+///
+
+/// TGHash::AddKey
+KeyId is position index in the hash table. If the key already exists the function returns KeyId of that existing key.
+///
+
+/// TGHash::AddDat
+If the key already exists the function returns the data associated with that existing key.
+///
+
+/// TGHash::AddDat-1
+If the key already exists the function sets the data value of that existing key.
+///
+
+/// TGHash::GetKeyId
+If the key does not exist, the function returns -1.
+///
+
+/// TGHash::GetDat
+If the key does not exist the function aborts.
+///
+
+/// TGHash::GetDat-1
+If the key does not exist the function aborts.
+///
+
+/// TGHash::GetKeyId
+If they Key does not exist return value is -1.
+///
+
+/// TGHash::GetDat-2
+If the key does not exist the function aborts.
+///
+
+/// TGHash::GetDat-3
+If the key does not exist the function aborts.
+///
+
+/// TGHash::GetDatId
+If KeyId is out of bounds the function fails.
+///
+
+/// TGHash::GetDatId-1
+If KeyId is out of bounds the function fails.
+///
+
+/// TGHash::GetNodeMap
+The function assumes the Graph exists as a key in the table. Otherwise it returns false.
+///
+
+/// TGHash::GetNodeMap-1
+The function assumes the Graph exists as a key in the table. Otherwise it returns false.
+///
+
+/// TGHash::FFirstKeyId
+Used for traversing the elements of the hash table: for (int KeyId =
+GHash.FFirstKeyId(); GHash.FNextKeyId(KeyId); ) { }
+///
+
+/// TGHash::FNextKeyId
+Used for traversing the elements of the hash table: for (int KeyId =
+GHash.FFirstKeyId(); GHash.FNextKeyId(KeyId); ) { }
+///
+
+/// TGHash::GetKeyIdByDat
+Asc=true: sort in ascending order, otherwise in descending order.
+///
+
+/// TGHash::GetKeyIdByGSz
+Asc=true: sort in ascending order, otherwise in descending order. Graph size
+is the number of nodes and edges.
+///
+
+/// TGHash::Defrag
+Slots get freed after removing keys from the table.
+///
+
