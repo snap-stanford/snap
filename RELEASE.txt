@@ -3,6 +3,17 @@ performance system for graph and network manipulation and analysis.
 
 This file contains a high-level description of changes in SNAP releases.
 
+Release Current Dev, Oct 9, 2012
+
+- fixed TUNGraph to return correct number of edges, not backward compatible.
+  This version is not able to read binary TUNGraphs, saved by previous SNAP
+  versions.
+- added a new example graphhash
+- fixed #13, GHash incorrectly handles non-existent keys
+- fixed #12, Graphviz keeps outputting a PostScript file on non-Windows
+- fixed #15, bug in netevol.cpp
+- fixed #14, TSnap::GenCircle creates self-loops
+
 Release 1.9.2, Oct 2, 2012
 
 - removed a default parameter in triad.h so that the code compiles in
