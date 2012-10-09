@@ -93,7 +93,7 @@ PGraph GenCircle(const int& Nodes, const int& NodeOutDeg, const bool& IsDir) {
     Graph->AddNode(n); }
   for (int n = 0; n < Nodes; n++) {
     for (int x = 0; x < NodeOutDeg; x++) {
-      Graph->AddEdge(n, (n+x) % Nodes);
+      Graph->AddEdge(n, (n+x+1) % Nodes);
       if (Graph->HasFlag(gfDirected) && ! IsDir) { Graph->AddEdge((n+x) % Nodes, n); }
     }
   }
