@@ -8,8 +8,7 @@ void GVizDoLayout(const TStr& GraphInFNm, TStr OutFNm, const TGVizLayout& Layout
     GvPath = "C:\\Prog\\GraphViz\\bin\\";
   #else
     GvPath = "/usr/bin/";
-    Ext = ".ps";
-    OutFNm = OutFNm.GetFMid() + Ext;
+    //OutFNm = OutFNm.GetFMid() + Ext;
   #endif
   IAssert(Ext==".ps" || Ext==".gif" || Ext==".png");
   const TStr ExeCmd = TStr::Fmt("%s -T%s %s -o %s", LayoutExe.CStr(),

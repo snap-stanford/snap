@@ -13,6 +13,7 @@ MakeAll:
 	$(MAKE) -C concomp
 	$(MAKE) -C forestfire
 	$(MAKE) -C graphgen
+	$(MAKE) -C graphhash
 	$(MAKE) -C kcores
 	$(MAKE) -C kronem
 	$(MAKE) -C krongen
@@ -35,6 +36,7 @@ clean:
 	$(MAKE) clean -C concomp
 	$(MAKE) clean -C forestfire
 	$(MAKE) clean -C graphgen
+	$(MAKE) clean -C graphhash
 	$(MAKE) clean -C kcores
 	$(MAKE) clean -C kronem
 	$(MAKE) clean -C krongen

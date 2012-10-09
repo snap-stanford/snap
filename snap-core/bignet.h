@@ -634,7 +634,6 @@ void TBigNet<TNodeData, IsDir>::InvertFromSources(uint ExpectNodes) {
   TIntV InNIdV;  c = 0;
   for (TNodeI NI = BegNI(); NI < EndNI(); NI++, c++) {
     Pool.GetV(NI.GetInVId(), InNIdV);
-    int nid = NI.GetId();
     InNIdV.Sort();
     if (c%100000==0) printf("\r%s [%g]    ", TInt::GetMegaStr(c).CStr(), ExeTm.GetSecs());
   }

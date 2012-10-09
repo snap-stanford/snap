@@ -180,8 +180,8 @@ PGraph GetEDatSubGraph(const PGraph& Graph, const TIntV& NIdV, const TEdgeDat& E
     NewGraph.AddNode(Graph->GetNI(NIdV[n])); 
   }
   for (typename PGraph::TObj::TEdgeI EI = Graph->BegEI(); EI < Graph->EndEI(); EI++) {
-    if (NewGraph.IsNode(EI.GetSrcNId()) && NewGraph.IsNode(EI.GetDstNId()) && 
-     (Cmp==1 && EI()>EDat) || (Cmp==-1 && EI()<EDat) || (Cmp==0 && EI()==EDat)) {
+    if (NewGraph.IsNode(EI.GetSrcNId()) && NewGraph.IsNode(EI.GetDstNId()) &&
+     ((Cmp==1 && EI()>EDat)|| (Cmp==-1 && EI()<EDat) || (Cmp==0 && EI()==EDat))) {
       NewGraph.AddEdge(EI); }
   }
   NewGraph.Defrag();

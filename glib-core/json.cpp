@@ -71,7 +71,7 @@ PJsonVal TJsonVal::GetValFromLx(TILx& Lx){
     Val->PutNum(Lx.Flt); Lx.GetSym();
   } else if (Lx.Sym==syQStr){
     Val->PutStr(Lx.Str); Lx.GetSym();
-  } else if ((Lx.Sym==syLBracket)){
+  } else if (Lx.Sym==syLBracket){
     Val->PutArr(); Lx.GetSym(ValExpect); // added ValExpect to correctyl parse arrays of floats
     if (Lx.Sym!=syRBracket){
       forever{
@@ -83,7 +83,7 @@ PJsonVal TJsonVal::GetValFromLx(TILx& Lx){
       }
     }
     Lx.GetSym();
-  } else if ((Lx.Sym==syLBrace)){
+  } else if (Lx.Sym==syLBrace){
     Val->PutObj(); Lx.GetSym(TFSet()|syRBrace|syQStr);
     if (Lx.Sym!=syRBrace){
       forever{

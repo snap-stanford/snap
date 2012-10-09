@@ -30,20 +30,22 @@ Execute:
 Examples:
   cascades :
   	Simulate a SI (susceptible-infected) model on a network and compute
-  	structural properties of cascades
+	structural properties of cascades
   centrality :
-    Node centrality measures (closeness, eigen, degree, betweenness, 
-    page rank, hubs and authorities)
+	Node centrality measures (closeness, eigen, degree, betweenness, 
+	page rank, hubs and authorities)
   cliques :
-	  Overlapping network community detection (Clique Percolation Method)
+	Overlapping network community detection (Clique Percolation Method)
   community :
-    Network Community detection (Girvan-Newman and Clauset-Newman-Moore)
+	Network Community detection (Girvan-Newman and Clauset-Newman-Moore)
   concomp :
   	Manipulates connected components of a graph
   forestfire : 
   	Forest Fire graph generator
   graphhen : 
-	  Common graph generators (Small-world, Preferential Attachment, etc.)
+	Common graph generators (Small-world, Preferential Attachment, etc.)
+  graphhash : 
+	Graph hash table for counting frequencies of small graphs
   kcores :
   	Computes the k-core decomposition of the network
   kronem : 
@@ -57,7 +59,7 @@ Examples:
   magfit : 
   	Estimates MAG model parameter
   motifs : 
-  	Counts the number of occurence of every possible subgraph on K nodes 
+  	Counts the number of occurrence of every possible subgraph on K nodes 
   	in the network
   ncpplot : 
   	Computes Network Community Profile (NCP) plot 
@@ -73,3 +75,4 @@ Examples:
 /////////////////////////////////////////////////////////////////////////////
 SNAP documentation:
   http://snap.stanford.edu/snap/doc.html
+
