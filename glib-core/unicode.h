@@ -4,6 +4,7 @@
 /////////////////////////////////////////////////
 // Includes
 //#include "base.h"
+#include <new>
 
 typedef int TUniVecIdx;
 
