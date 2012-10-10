@@ -179,7 +179,6 @@ PNGraph GetBfsTree(const PGraph& Graph, const int& StartNId, const bool& FollowO
   BFS.DoBfs(StartNId, FollowOut, FollowIn, -1, TInt::Mx);
   PNGraph Tree = TNGraph::New();
   BFS.NIdDistH.SortByDat();
-  Tree->AddNode(StartNId);
   for (int i = 0; i < BFS.NIdDistH.Len(); i++) {
     const int NId = BFS.NIdDistH.GetKey(i);
     const int Dist = BFS.NIdDistH[i];
