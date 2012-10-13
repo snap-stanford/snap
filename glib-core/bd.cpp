@@ -1,3 +1,5 @@
+// #include <execinfo.h>
+
 /////////////////////////////////////////////////
 // Mathmatical-Errors
 #if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__==0x0530)
@@ -64,6 +66,14 @@ void ExeStop(
  const char* MsgCStr, const char* ReasonCStr,
  const char* CondCStr, const char* FNm, const int& LnN){
   char ReasonMsgCStr[1000];
+
+  // stack dump, works for g++
+  //void *array[20];
+  //size_t size;
+  // get the trace and print it out
+  //size = backtrace(array, 20);
+  //backtrace_symbols_fd(array, size, 2);
+
   // construct reason message
   if (ReasonCStr==NULL){ReasonMsgCStr[0]=0;}
   else {sprintf(ReasonMsgCStr, " [Reason:'%s']", ReasonCStr);}
