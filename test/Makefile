@@ -24,6 +24,9 @@ $(MAIN): $(MAIN).cpp $(TESTS) $(CSNAP)/Snap.o
 $(CSNAP)/Snap.o:
 	$(MAKE) -C $(CSNAP)
 
+test: $(MAIN)
+	./$(MAIN)
+
 clean:
 	rm -f *.o $(MAIN) $(MAIN).exe
 	rm -rf Debug Release
