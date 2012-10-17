@@ -70,7 +70,12 @@ void TGraphAnf<PGraph>::InitAnfBits(TAnfBitV& BitV) {
   ApproxBytes = NApprox / 8;
   NBits = LogNodes + MoreBits; // bits per node
   const int BytesPerNd = ApproxBytes * NBits; // total bytes per node
-  BitV.Gen((NNodes * BytesPerNd)/sizeof(uint)+1);  IAssert(BitV.BegI() != NULL);
+  int64 VSize = ((static_cast<int64>(NNodes) * static_cast<int64>(BytesPerNd))/sizeof(uint)) + 1;
+  IAssertR(VSize <= TInt::Mx,
+    TStr::Fmt("Your graph is too large for Approximate Neighborhood Function, %s is larger than %d",
+    TUInt64::GetStr(VSize).CStr(),TInt::Mx));
+  printf("size %d\n", static_cast<int>(VSize));
+  BitV.Gen(VSize);  IAssert(BitV.BegI() != NULL);
   BitV.PutAll(0);
   int SetBit = 0;
   uint64 NodeOff = 0;
