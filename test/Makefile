@@ -19,7 +19,7 @@ all: $(MAIN)
 
 # COMPILE
 $(MAIN): $(MAIN).cpp $(TESTS) $(CSNAP)/Snap.o
-	$(CC) $(CXXFLAGS) -o $(MAIN) $(MAIN).cpp $(TESTS) $(CSNAP)/Snap.o -I$(CSNAP) $(LDFLAGS) $(LIBS)
+	$(CC) $(CXXFLAGS) -o $(MAIN) $(MAIN).cpp $(TESTS) $(CSNAP)/Snap.o -I$(CSNAP) -I$(CGLIB) $(LDFLAGS) $(LIBS)
 
 $(CSNAP)/Snap.o:
 	$(MAKE) -C $(CSNAP)
