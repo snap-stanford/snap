@@ -1477,8 +1477,7 @@
 				842E46C31635CEC500522573 /* subgraphenum.cpp */,
 				842E46C41635CEC500522573 /* subgraphenum.h */,
 			);
-			name = "snap-adv";
-			path = "../snap-adv";
+			path = "snap-adv";
 			sourceTree = "<group>";
 		};
 		842E46B91635CEC500522573 /* doc */ = {
@@ -1541,8 +1540,7 @@
 				842E46F81635CEC500522573 /* util.cpp */,
 				842E46F91635CEC500522573 /* util.h */,
 			);
-			name = "snap-core";
-			path = "../snap-core";
+			path = "snap-core";
 			sourceTree = "<group>";
 		};
 		842E46D21635CEC500522573 /* doc */ = {
@@ -1587,8 +1585,7 @@
 				842E471D1635CEC500522573 /* wikinet.cpp */,
 				842E471E1635CEC500522573 /* wikinet.h */,
 			);
-			name = "snap-exp";
-			path = "../snap-exp";
+			path = "snap-exp";
 			sourceTree = "<group>";
 		};
 		842E46FD1635CEC500522573 /* circles */ = {
@@ -1622,8 +1619,7 @@
 				842E47291635CEC500522573 /* test-TSysTm.cpp */,
 				842E472A1635CEC500522573 /* test-TUNGraph.cpp */,
 			);
-			name = test;
-			path = ../test;
+			path = test;
 			sourceTree = "<group>";
 		};
 		842E472B1635CEC500522573 /* tutorials */ = {
@@ -1638,8 +1634,7 @@
 				842E47311635CEC500522573 /* demo-TNodeNet.cpp */,
 				842E47321635CEC500522573 /* demo-TUNGraph.cpp */,
 			);
-			name = tutorials;
-			path = ../tutorials;
+			path = tutorials;
 			sourceTree = "<group>";
 		};
 		84F6FDB11635CE7C0091D84D = {
@@ -1672,7 +1667,7 @@
 			buildPhases = (
 			);
 			buildToolPath = /usr/bin/make;
-			buildWorkingDirectory = ../tutorials;
+			buildWorkingDirectory = tutorials;
 			dependencies = (
 			);
 			name = tutorials;
@@ -1686,26 +1681,12 @@
 			buildPhases = (
 			);
 			buildToolPath = /usr/bin/make;
-			buildWorkingDirectory = ../test;
+			buildWorkingDirectory = test;
 			dependencies = (
 			);
 			name = test;
 			passBuildSettingsInEnvironment = 1;
 			productName = test;
-		};
-		842E47481635F86300522573 /* gtest */ = {
-			isa = PBXLegacyTarget;
-			buildArgumentsString = "$(ACTION)";
-			buildConfigurationList = 842E47491635F86300522573 /* Build configuration list for PBXLegacyTarget "gtest" */;
-			buildPhases = (
-			);
-			buildToolPath = /usr/bin/make;
-			buildWorkingDirectory = /Users/sheridan/snap_proj/snap/test;
-			dependencies = (
-			);
-			name = gtest;
-			passBuildSettingsInEnvironment = 1;
-			productName = gtest;
 		};
 		84F6FDB81635CE7C0091D84D /* snap-osx */ = {
 			isa = PBXLegacyTarget;
@@ -1714,7 +1695,7 @@
 			buildPhases = (
 			);
 			buildToolPath = /usr/bin/make;
-			buildWorkingDirectory = ..;
+			buildWorkingDirectory = .;
 			dependencies = (
 			);
 			name = "snap-osx";
@@ -1744,7 +1725,6 @@
 				84F6FDB81635CE7C0091D84D /* snap-osx */,
 				842E47351635E5A600522573 /* tutorials */,
 				842E47441635F12800522573 /* test */,
-				842E47481635F86300522573 /* gtest */,
 			);
 		};
 /* End PBXProject section */
@@ -1784,27 +1764,6 @@
 			name = Debug;
 		};
 		842E47471635F12800522573 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-			};
-			name = Release;
-		};
-		842E474A1635F86300522573 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				DEBUGGING_SYMBOLS = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-			};
-			name = Debug;
-		};
-		842E474B1635F86300522573 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				OTHER_CFLAGS = "";
@@ -1902,15 +1861,6 @@
 			buildConfigurations = (
 				842E47461635F12800522573 /* Debug */,
 				842E47471635F12800522573 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		842E47491635F86300522573 /* Build configuration list for PBXLegacyTarget "gtest" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				842E474A1635F86300522573 /* Debug */,
-				842E474B1635F86300522573 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
