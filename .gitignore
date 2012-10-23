@@ -19,27 +19,12 @@ build/
 # Backup files
 *~.nib
 
-# Ignore executables (could add executable extension in Makefile and use regex here)
+# Ignore executables (could add extension to executables or build to bin directory instead of regex))
 snap-core/testSnap
 test/run-all-tests
-examples/agmgen/agmgen
-examples/cascades/cascades
-examples/centrality/centrality
-examples/cliques/cliquesmain
-examples/community/community
-examples/concomp/concomp
-examples/forestfire/forestfire
-examples/graphgen/graphgen
-examples/graphhash/graphhash
-examples/kcores/kcores
-examples/kronem/kronem
-examples/kronfit/kronfit
-examples/krongen/krongen
-examples/magfit/magfit
-examples/maggen/maggen
-examples/mkdatasets/mkdatasets
-examples/motifs/motifs
-examples/ncpplot/ncpplot
-examples/netevol/netevol
-examples/netstat/netstat
-examples/testgraph/testgraph
+examples/*/*
+!examples/*/*.*
+!examples/*/Makefile
+tutorials/*
+!tutorials/*.*
+!tutorials/Makefile
