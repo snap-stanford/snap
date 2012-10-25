@@ -1,5 +1,5 @@
 # Mac OS X
-*.DS_Store
+.DS_Store
 
 # Xcode
 *.pbxuser
@@ -19,12 +19,19 @@ build/
 # Backup files
 *~.nib
 
-# Ignore executables (could add extension to executables or build to bin directory instead of regex))
+# Ignore generated files
+*.graph
+*.net
+*.pool
+
+# Ignore executables, but keep everything else
 snap-core/testSnap
 test/run-all-tests
 examples/*/*
 !examples/*/*.*
 !examples/*/Makefile
+examples/*/.DS_Store
 tutorials/*
 !tutorials/*.*
 !tutorials/Makefile
+tutorials/.DS_Store
