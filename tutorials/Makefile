@@ -8,7 +8,7 @@ include ../Makefile.config
 DEMOS = \
 	demo-TUNGraph demo-TNGraph demo-TNEGraph \
 	demo-TNodeNet demo-TNodeEDatNet demo-TNodeEdgeNet \
-	demo-subgraph
+	demo-subgraph demo-ggen
 
 all: $(DEMOS)
 
@@ -33,6 +33,10 @@ demo-TNodeEdgeNet: demo-TNodeEdgeNet.cpp $(CSNAP)/Snap.o
 
 demo-subgraph: demo-subgraph.cpp $(CSNAP)/Snap.o
 	$(CC) $(CXXFLAGS) -o demo-subgraph demo-subgraph.cpp $(CSNAP)/Snap.o -I$(CSNAP) -I$(CGLIB) $(LDFLAGS) $(LIBS)
+  
+demo-ggen: demo-ggen.cpp $(CSNAP)/Snap.o
+	$(CC) $(CXXFLAGS) -o demo-ggen demo-ggen.cpp $(CSNAP)/Snap.o -I$(CSNAP) -I$(CGLIB) $(LDFLAGS) $(LIBS)
+
 
 $(CSNAP)/Snap.o:
 	$(MAKE) -C $(CSNAP)
