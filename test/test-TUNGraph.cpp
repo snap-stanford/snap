@@ -158,12 +158,12 @@ void print_nodes(PUNGraph Graph) {
 // Test edge iterator, manipulate edges
 TEST(TUNGraph, ManipulateEdges) {
   int NNodes;
-  int NNodesStart = 8;
+  int NNodesStart = 3;
   int NNodesEnd = 50;
   
   int NEdges;
   int NEdgesStart = 0;
-  int NEdgesEnd = 25;
+  int NEdgesEnd = 50;
   
   PUNGraph Graph;
   PUNGraph Graph1;
@@ -171,21 +171,25 @@ TEST(TUNGraph, ManipulateEdges) {
   int NCount;
   int x,y;
   TIntV NodeIds;
-  
   THashSet<TIntPr> EdgeSet;
+  
   for (NEdges = NEdgesStart; NEdges <= NEdgesEnd; NEdges++) {
     
     for (NNodes = NNodesStart; NNodes <= NNodesEnd; NNodes++) {
       
+      // Skip if too many edges required per NNodes (n*(n+1)/2)
+      if (NEdges > (NNodes * (NNodes+1)/2)) {
+        continue;
+      }
+      
       Graph = TUNGraph::New();
       EXPECT_TRUE(Graph->Empty());
       
-      // Generate NNodes in random order
+      // Generate NNodes
       NodeIds.Gen(NNodes);
       for (int n = 0; n < NNodes; n++) {
         NodeIds[n] = n;
       }
-            
       // Add the nodes in random order
       NodeIds.Shuffle(TInt::Rnd);
       for (int n = 0; n < NNodes; n++) {
@@ -194,6 +198,7 @@ TEST(TUNGraph, ManipulateEdges) {
       EXPECT_FALSE(Graph->Empty());
         
       // Create random edges
+      EdgeSet.Clr();
       NCount = NEdges;
       while (NCount > 0) {
         x = (long) (drand48() * NNodes);
@@ -206,14 +211,13 @@ TEST(TUNGraph, ManipulateEdges) {
           NCount--;
         }
       }
-          
+      
       // Check edge iterator to make sure all edges are valid and no more (in hash set)
       TIntPrV DelEdgeV;
       for (TUNGraph::TEdgeI EI = Graph->BegEI(); EI < Graph->EndEI(); EI++) {
         
         TIntPr Edge(EI.GetSrcNId(), EI.GetDstNId());
         TIntPr EdgeR(EI.GetDstNId(), EI.GetSrcNId());
-//        printf("Edge %d, %d\n", (int)Edge.Val1, (int)Edge.Val2);
         
         EXPECT_TRUE(EdgeSet.IsKey(Edge) || EdgeSet.IsKey(EdgeR));
         if (EdgeSet.IsKey(Edge)) {
@@ -245,7 +249,7 @@ TEST(TUNGraph, ManipulateEdges) {
         EXPECT_FALSE(Graph->IsNode(n));
         EXPECT_TRUE(Graph->IsOk());
         
-        // Make sure all the edges are gone
+        // Make sure all the edges to deleted node are gone
         for (int e = 0; e < DelEdgeNodeV.Len(); e++) {
           EXPECT_FALSE(Graph->IsEdge(DelEdgeNodeV[e].Val1, DelEdgeNodeV[e].Val2));
         }
@@ -257,6 +261,8 @@ TEST(TUNGraph, ManipulateEdges) {
       }
 
       EXPECT_TRUE(0 == Graph->GetEdges());
+      Graph->Clr();
+      EXPECT_TRUE(Graph->Empty());
     }
   }
 
