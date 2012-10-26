@@ -34,6 +34,7 @@
 		8426627B1639AC900090A656 /* demo-TUNGraph in Resources */ = {isa = PBXBuildFile; fileRef = 842662601639AC900090A656 /* demo-TUNGraph */; };
 		8426627C1639AC900090A656 /* demo-TUNGraph.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 842662611639AC900090A656 /* demo-TUNGraph.cpp */; };
 		8426627D1639AC900090A656 /* Makefile in Sources */ = {isa = PBXBuildFile; fileRef = 842662621639AC900090A656 /* Makefile */; };
+		842662A4163A6B070090A656 /* gtest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 842662A3163A6B070090A656 /* gtest.framework */; };
 		84B78DEE1637AC7600C7745E /* alg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 842E46C61635CEC500522573 /* alg.cpp */; };
 		84B795CF1637ADAC00546AF3 /* anf.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 842E46C81635CEC500522573 /* anf.cpp */; };
 		84B795D01637ADAC00546AF3 /* anf.h in Sources */ = {isa = PBXBuildFile; fileRef = 842E46C91635CEC500522573 /* anf.h */; };
@@ -485,6 +486,10 @@
 		842662601639AC900090A656 /* demo-TUNGraph */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; path = "demo-TUNGraph"; sourceTree = "<group>"; };
 		842662611639AC900090A656 /* demo-TUNGraph.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "demo-TUNGraph.cpp"; sourceTree = "<group>"; };
 		842662621639AC900090A656 /* Makefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
+		84266299163A632A0090A656 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		8426629B163A632A0090A656 /* snaptests.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = snaptests.1; sourceTree = "<group>"; };
+		842662A3163A6B070090A656 /* gtest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = gtest.framework; sourceTree = "<group>"; };
+		842662A5163A6B070090A656 /* docs.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = docs.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		842E44631635CEC400522573 /* CREDITS.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = CREDITS.txt; path = snap/CREDITS.txt; sourceTree = "<group>"; };
 		842E44651635CEC400522573 /* doxyblock.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = doxyblock.py; sourceTree = "<group>"; };
 		842E44661635CEC400522573 /* Doxyfile-dev */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "Doxyfile-dev"; sourceTree = "<group>"; };
@@ -1154,34 +1159,6 @@
 		842E471C1635CEC500522573 /* wgtnet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = wgtnet.h; sourceTree = "<group>"; };
 		842E471D1635CEC500522573 /* wikinet.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = wikinet.cpp; sourceTree = "<group>"; };
 		842E471E1635CEC500522573 /* wikinet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = wikinet.h; sourceTree = "<group>"; };
-		84B78D9716377EAE00C7745E /* Makefile */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
-		84B78D9816377EAE00C7745E /* run-all-tests */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; path = "run-all-tests"; sourceTree = "<group>"; };
-		84B78D9916377EAE00C7745E /* run-all-tests.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "run-all-tests.cpp"; sourceTree = "<group>"; };
-		84B78D9A16377EAE00C7745E /* test-subgraph.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "test-subgraph.cpp"; sourceTree = "<group>"; };
-		84B78D9B16377EAE00C7745E /* test-TNEGraph.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "test-TNEGraph.cpp"; sourceTree = "<group>"; };
-		84B78D9C16377EAE00C7745E /* test-TNGraph.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "test-TNGraph.cpp"; sourceTree = "<group>"; };
-		84B78D9D16377EAE00C7745E /* test-TNodeEDatNet.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "test-TNodeEDatNet.cpp"; sourceTree = "<group>"; };
-		84B78D9E16377EAE00C7745E /* test-TNodeEdgeNet.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "test-TNodeEdgeNet.cpp"; sourceTree = "<group>"; };
-		84B78D9F16377EAE00C7745E /* test-TNodeNet.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "test-TNodeNet.cpp"; sourceTree = "<group>"; };
-		84B78DA016377EAE00C7745E /* test-TStrPool.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "test-TStrPool.cpp"; sourceTree = "<group>"; };
-		84B78DA116377EAE00C7745E /* test-TSysTm.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "test-TSysTm.cpp"; sourceTree = "<group>"; };
-		84B78DA216377EAE00C7745E /* test-TUNGraph.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "test-TUNGraph.cpp"; sourceTree = "<group>"; };
-		84B78DA416377EAE00C7745E /* demo-subgraph */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; path = "demo-subgraph"; sourceTree = "<group>"; };
-		84B78DA516377EAE00C7745E /* demo-subgraph.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "demo-subgraph.cpp"; sourceTree = "<group>"; };
-		84B78DA616377EAE00C7745E /* demo-TNEGraph */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; path = "demo-TNEGraph"; sourceTree = "<group>"; };
-		84B78DA716377EAE00C7745E /* demo-TNEGraph.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "demo-TNEGraph.cpp"; sourceTree = "<group>"; };
-		84B78DA816377EAE00C7745E /* demo-TNGraph */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; path = "demo-TNGraph"; sourceTree = "<group>"; };
-		84B78DA916377EAE00C7745E /* demo-TNGraph.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "demo-TNGraph.cpp"; sourceTree = "<group>"; };
-		84B78DAA16377EAE00C7745E /* demo-TNodeEDatNet */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; path = "demo-TNodeEDatNet"; sourceTree = "<group>"; };
-		84B78DAB16377EAE00C7745E /* demo-TNodeEDatNet.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "demo-TNodeEDatNet.cpp"; sourceTree = "<group>"; };
-		84B78DAC16377EAE00C7745E /* demo-TNodeEdgeNet */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; path = "demo-TNodeEdgeNet"; sourceTree = "<group>"; };
-		84B78DAD16377EAE00C7745E /* demo-TNodeEdgeNet.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "demo-TNodeEdgeNet.cpp"; sourceTree = "<group>"; };
-		84B78DAE16377EAE00C7745E /* demo-TNodeNet */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; path = "demo-TNodeNet"; sourceTree = "<group>"; };
-		84B78DAF16377EAE00C7745E /* demo-TNodeNet.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "demo-TNodeNet.cpp"; sourceTree = "<group>"; };
-		84B78DB016377EAE00C7745E /* demo-TUNGraph */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; path = "demo-TUNGraph"; sourceTree = "<group>"; };
-		84B78DB116377EAE00C7745E /* demo-TUNGraph.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "demo-TUNGraph.cpp"; sourceTree = "<group>"; };
-		84B78DB216377EAE00C7745E /* Makefile */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
-		84B78DB816379F9500C7745E /* docs.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = docs.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1189,6 +1166,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				842662A4163A6B070090A656 /* gtest.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1211,7 +1189,8 @@
 				842662511639AC900090A656 /* test-TSysTm.cpp */,
 				842662521639AC900090A656 /* test-TUNGraph.cpp */,
 			);
-			path = test;
+			name = test;
+			path = snap/test;
 			sourceTree = "<group>";
 		};
 		842662531639AC900090A656 /* tutorials */ = {
@@ -1233,7 +1212,20 @@
 				842662601639AC900090A656 /* demo-TUNGraph */,
 				842662611639AC900090A656 /* demo-TUNGraph.cpp */,
 			);
-			path = tutorials;
+			name = tutorials;
+			path = snap/tutorials;
+			sourceTree = "<group>";
+		};
+		84266298163A632A0090A656 /* docs */ = {
+			isa = PBXGroup;
+			children = (
+				842662A5163A6B070090A656 /* docs.app */,
+				842662A3163A6B070090A656 /* gtest.framework */,
+				84266299163A632A0090A656 /* main.cpp */,
+				8426629B163A632A0090A656 /* snaptests.1 */,
+			);
+			name = docs;
+			path = snaptests;
 			sourceTree = "<group>";
 		};
 		842E44641635CEC400522573 /* doxygen */ = {
@@ -2151,8 +2143,8 @@
 		84B78D5A16377DB600C7745E /* snap */ = {
 			isa = PBXGroup;
 			children = (
-				84B78D9616377EAE00C7745E /* test */,
-				84B78DA316377EAE00C7745E /* tutorials */,
+				842662461639AC900090A656 /* test */,
+				842662531639AC900090A656 /* tutorials */,
 				842E44691635CEC400522573 /* examples */,
 				842E45441635CEC400522573 /* glib-adv */,
 				842E46681635CEC500522573 /* glib-core */,
@@ -2170,64 +2162,11 @@
 			path = ..;
 			sourceTree = "<group>";
 		};
-		84B78D9616377EAE00C7745E /* test */ = {
-			isa = PBXGroup;
-			children = (
-				84B78D9716377EAE00C7745E /* Makefile */,
-				84B78D9816377EAE00C7745E /* run-all-tests */,
-				84B78D9916377EAE00C7745E /* run-all-tests.cpp */,
-				84B78D9A16377EAE00C7745E /* test-subgraph.cpp */,
-				84B78D9B16377EAE00C7745E /* test-TNEGraph.cpp */,
-				84B78D9C16377EAE00C7745E /* test-TNGraph.cpp */,
-				84B78D9D16377EAE00C7745E /* test-TNodeEDatNet.cpp */,
-				84B78D9E16377EAE00C7745E /* test-TNodeEdgeNet.cpp */,
-				84B78D9F16377EAE00C7745E /* test-TNodeNet.cpp */,
-				84B78DA016377EAE00C7745E /* test-TStrPool.cpp */,
-				84B78DA116377EAE00C7745E /* test-TSysTm.cpp */,
-				84B78DA216377EAE00C7745E /* test-TUNGraph.cpp */,
-			);
-			name = test;
-			path = snap/test;
-			sourceTree = "<group>";
-		};
-		84B78DA316377EAE00C7745E /* tutorials */ = {
-			isa = PBXGroup;
-			children = (
-				84B78DA416377EAE00C7745E /* demo-subgraph */,
-				84B78DA516377EAE00C7745E /* demo-subgraph.cpp */,
-				84B78DA616377EAE00C7745E /* demo-TNEGraph */,
-				84B78DA716377EAE00C7745E /* demo-TNEGraph.cpp */,
-				84B78DA816377EAE00C7745E /* demo-TNGraph */,
-				84B78DA916377EAE00C7745E /* demo-TNGraph.cpp */,
-				84B78DAA16377EAE00C7745E /* demo-TNodeEDatNet */,
-				84B78DAB16377EAE00C7745E /* demo-TNodeEDatNet.cpp */,
-				84B78DAC16377EAE00C7745E /* demo-TNodeEdgeNet */,
-				84B78DAD16377EAE00C7745E /* demo-TNodeEdgeNet.cpp */,
-				84B78DAE16377EAE00C7745E /* demo-TNodeNet */,
-				84B78DAF16377EAE00C7745E /* demo-TNodeNet.cpp */,
-				84B78DB016377EAE00C7745E /* demo-TUNGraph */,
-				84B78DB116377EAE00C7745E /* demo-TUNGraph.cpp */,
-				84B78DB216377EAE00C7745E /* Makefile */,
-			);
-			name = tutorials;
-			path = snap/tutorials;
-			sourceTree = "<group>";
-		};
-		84B78DB916379F9500C7745E /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				84B78DB816379F9500C7745E /* docs.app */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
 		84F6FDB11635CE7C0091D84D = {
 			isa = PBXGroup;
 			children = (
 				84B78D5A16377DB600C7745E /* snap */,
-				842662461639AC900090A656 /* test */,
-				842662531639AC900090A656 /* tutorials */,
-				84B78DB916379F9500C7745E /* Products */,
+				84266298163A632A0090A656 /* docs */,
 			);
 			sourceTree = "<group>";
 		};
@@ -2293,7 +2232,7 @@
 			);
 			name = docs;
 			productName = docs;
-			productReference = 84B78DB816379F9500C7745E /* docs.app */;
+			productReference = 842662A5163A6B070090A656 /* docs.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -2313,7 +2252,7 @@
 				en,
 			);
 			mainGroup = 84F6FDB11635CE7C0091D84D;
-			productRefGroup = 84B78DB916379F9500C7745E /* Products */;
+			productRefGroup = 84F6FDB11635CE7C0091D84D;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -2841,6 +2780,10 @@
 			buildSettings = {
 				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/snaptests\"",
+				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "docs/docs-Prefix.pch";
 				INFOPLIST_FILE = "docs/docs-Info.plist";
@@ -2854,6 +2797,10 @@
 			buildSettings = {
 				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/snaptests\"",
+				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "docs/docs-Prefix.pch";
 				INFOPLIST_FILE = "docs/docs-Info.plist";
@@ -2944,6 +2891,7 @@
 				842662811639ACB30090A656 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		842662831639ACD00090A656 /* Build configuration list for PBXLegacyTarget "tutorials" */ = {
 			isa = XCConfigurationList;
@@ -2952,6 +2900,7 @@
 				842662851639ACD00090A656 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		84B78DE816379F9600C7745E /* Build configuration list for PBXNativeTarget "docs" */ = {
 			isa = XCConfigurationList;
