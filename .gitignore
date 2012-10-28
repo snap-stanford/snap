@@ -11,6 +11,7 @@ project.xcworkspace/
 xcuserdata/
 
 # Generated files
+*.dSYM/
 *.o
 *.pyc
 
@@ -31,6 +32,7 @@ examples/*/*
 !examples/*/*.*
 !examples/*/Makefile
 examples/*/.DS_Store
+examples/*/*.dSYM
 tutorials/*
 !tutorials/*.*
 !tutorials/Makefile
