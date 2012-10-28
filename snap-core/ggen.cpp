@@ -6,7 +6,7 @@ PBPGraph GenRndBipart(const int& LeftNodes, const int& RightNodes, const int& Ed
   PBPGraph G = TBPGraph::New();
   for (int i = 0; i < LeftNodes; i++) { G->AddNode(i, true); }
   for (int i = 0; i < RightNodes; i++) { G->AddNode(LeftNodes+i, false); }
-  IAssertR(Edges < LeftNodes*RightNodes, "Too many edges in the bipartite graph!");
+  IAssertR(Edges <= LeftNodes*RightNodes, "Too many edges in the bipartite graph!");
   for (int edges = 0; edges < Edges; ) {
     const int LNId = Rnd.GetUniDevInt(LeftNodes);
     const int RNId = LeftNodes + Rnd.GetUniDevInt(RightNodes);
@@ -30,7 +30,7 @@ PUNGraph GenRndDegK(const int& Nodes, const int& NodeDeg, const int& NSwitch, TR
 
 /// Generates a random scale-free graph with power-law degree distribution with
 /// exponent PowerExp. The method uses either the Configuration model (fast but
-/// the the result is approximate) or the Edge Rewiring method (slow but exact).
+/// the result is approximate) or the Edge Rewiring method (slow but exact).
 PUNGraph GenRndPowerLaw(const int& Nodes, const double& PowerExp, const bool& ConfModel, TRnd& Rnd) {
   TIntV DegSeqV;
   uint DegSum=0;
@@ -61,6 +61,10 @@ PUNGraph GenDegSeq(const TIntV& DegSeqV, TRnd& Rnd) {
   TUNGraph& Graph = *GraphPt;
   Graph.Reserve(Nodes, -1);
   TIntH DegH(DegSeqV.Len(), true);
+  
+  for (int i=0; i < DegSeqV.Len()-1; i++) {
+    IAssertR(DegSeqV[i] >= DegSeqV[i+1], "DegSeqV must be sorted in descending  order.");
+  }
   int DegSum=0, edge=0;
   for (int node = 0; node < Nodes; node++) {
     IAssert(Graph.AddNode(node) == node);
@@ -403,6 +407,8 @@ PUNGraph GenGeoPrefAttach(const int& Nodes, const int& OutDeg, const double& Bet
 /// URL: http://research.yahoo.com/files/w_s_NATURE_0.pdf
 PUNGraph GenSmallWorld(const int& Nodes, const int& NodeOutDeg, const double& RewireProb, TRnd& Rnd) {
   THashSet<TIntPr> EdgeSet(Nodes*NodeOutDeg);
+  
+  IAssertR(Nodes > NodeOutDeg, TStr::Fmt("Insufficient nodes for out degree, %d!", NodeOutDeg));
   for (int node = 0; node < Nodes; node++) {
     const int src = node;
     for (int edge = 1; edge <= NodeOutDeg; edge++) {
