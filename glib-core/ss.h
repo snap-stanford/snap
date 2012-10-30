@@ -1,3 +1,5 @@
+#include "bd.h"
+
 /////////////////////////////////////////////////
 // Spread-Sheet
 typedef enum {ssfUndef,

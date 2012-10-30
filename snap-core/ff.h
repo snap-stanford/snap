@@ -1,3 +1,5 @@
+#include "bd.h"
+
 /////////////////////////////////////////////////
 /// Simulates a single Forest Fire on a directed graph starting for a given starting node.
 /// For more details is "Graph Evolution: Densification and Shrinking Diameters" by J. Leskovec, J. Kleinberg, C. Faloutsos. ACM Transactions on Knowledge Discovery from Data (TKDD), 1(1), 2007.

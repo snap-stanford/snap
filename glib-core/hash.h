@@ -1,3 +1,5 @@
+#include "bd.h"
+
 /////////////////////////////////////////////////
 // Hash-Table-Key-Data
 #pragma pack(push, 1) // pack class size

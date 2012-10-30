@@ -1,3 +1,5 @@
+#include "bd.h"
+
 /////////////////////////////////////////////////
 // Lexical-Char-Definition
 typedef enum {lctUndef, lctSpace, lctNum, lctAlpha, lctSSym, lctTerm} TLxChTy;

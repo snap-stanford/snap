@@ -1,3 +1,5 @@
+#include "bd.h"
+
 /////////////////////////////////////////////////
 // Expression-Value-Type
 typedef enum {evtUndef, evtFlt, evtStr, evtVec, evtLst} TExpValType;
