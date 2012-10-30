@@ -1,6 +1,8 @@
 #ifndef snap_main_h
 #define snap_main_h
 
+/// ##mainpage
+
 /////////////////////////////////////////////////
 // SNAP library
 #include "base.h"
