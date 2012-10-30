@@ -1628,7 +1628,7 @@ int TStrIn::GetBf(const void* LBf, const TSize& LBfL){
 
 /////////////////////////////////////////////////
 // String-Pool
-void TStrPool::Resize(uint _MxBfL) {
+void TStrPool::Resize(const uint& _MxBfL) {
   uint newSize = MxBfL;
   while (newSize < _MxBfL) {
     if (newSize >= GrowBy && GrowBy > 0) newSize += GrowBy;
@@ -1645,7 +1645,7 @@ void TStrPool::Resize(uint _MxBfL) {
   IAssertR(MxBfL >= _MxBfL, TStr::Fmt("new size: %u, requested size: %u", MxBfL, _MxBfL).CStr());
 }
 
-TStrPool::TStrPool(uint MxBfLen, uint _GrowBy) : MxBfL(MxBfLen), BfL(0), GrowBy(_GrowBy), Bf(0) {
+TStrPool::TStrPool(const uint& MxBfLen, const uint& _GrowBy) : MxBfL(MxBfLen), BfL(0), GrowBy(_GrowBy), Bf(0) {
   //IAssert(MxBfL >= 0); IAssert(GrowBy >= 0);
   if (MxBfL > 0) { Bf = (char *) malloc(MxBfL);  IAssertR(Bf, TStr::Fmt("Can not resize buffer to %u bytes. [Program failed to allocate more memory. Solution: Get a bigger machine.]", MxBfL).CStr()); }
   AddStr(""); // add an empty string at the beginning for fast future access
@@ -1677,7 +1677,7 @@ TStrPool& TStrPool::operator = (const TStrPool& Pool) {
 
 // Adds Len characters to pool. To append a null
 // terminated string Len must be equal to strlen(s) + 1
-uint TStrPool::AddStr(const char *Str, uint Len) {
+uint TStrPool::AddStr(const char *Str, const uint& Len) {
   IAssertR(Len > 0, "String too short (length includes the null character)");  //J: if (! Len) return -1;
   if (Len == 1 && BfL > 0) { return 0; } // empty string
   Assert(Str);  Assert(Len > 0);
