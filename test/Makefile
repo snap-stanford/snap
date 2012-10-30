@@ -16,6 +16,7 @@ TESTS = \
 	test-TSysTm.cpp
 
 all: $(MAIN)
+run: test
 
 # COMPILE
 $(MAIN): $(MAIN).cpp $(TESTS) $(CSNAP)/Snap.o

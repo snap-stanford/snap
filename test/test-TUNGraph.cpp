@@ -28,6 +28,7 @@ TEST(TUNGraph, ManipulateNodesEdges) {
   int i;
   int n;
   int NCount;
+  int LCount;
   int x,y;
   int Deg, InDeg, OutDeg;
 
@@ -43,14 +44,16 @@ TEST(TUNGraph, ManipulateNodesEdges) {
 
   // create random edges
   NCount = NEdges;
+  LCount = 0;
   while (NCount > 0) {
     x = (long) (drand48() * NNodes);
     y = (long) (drand48() * NNodes);
-    // Graph->GetEdges() is not correct for the loops (x == y),
-    // skip the loops in this test
-    if (x != y  &&  !Graph->IsEdge(x,y)) {
+    if (!Graph->IsEdge(x,y)) {
       n = Graph->AddEdge(x, y);
       NCount--;
+      if (x == y) {
+        LCount++;
+      }
     }
   }
 
@@ -74,16 +77,16 @@ TEST(TUNGraph, ManipulateNodesEdges) {
   }
   EXPECT_EQ(NNodes,NCount);
 
-  // edges per node iterator
+  // edges per node iterator, each non-loop is visited twice, each loop once
   NCount = 0;
   for (TUNGraph::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
     for (int e = 0; e < NI.GetOutDeg(); e++) {
       NCount++;
     }
   }
-  EXPECT_EQ(NEdges*2,NCount);
+  EXPECT_EQ(NEdges*2-LCount,NCount);
 
-  // edges iterator
+  // edges iterator, each edge is visited once
   NCount = 0;
   for (TUNGraph::TEdgeI EI = Graph->BegEI(); EI < Graph->EndEI(); EI++) {
     NCount++;
