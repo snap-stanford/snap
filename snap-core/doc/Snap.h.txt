@@ -40,5 +40,5 @@ GLib developed at Jozef Stefan Institute. SNAP and GLib are being actively
 developed and used in numerous academic and industrial projects.
 
 Complete source code for the core SNAP and GLib libraries is available
-under the BSD license. Download it at http://snap.stanford.edu.
+under the BSD license. Download the package at http://snap.stanford.edu.
 ///
