@@ -8,7 +8,8 @@ include ../Makefile.config
 DEMOS = \
 	demo-TUNGraph demo-TNGraph demo-TNEGraph \
 	demo-TNodeNet demo-TNodeEDatNet demo-TNodeEdgeNet \
-	demo-subgraph demo-ggen
+	demo-subgraph \
+  demo-ggen
 
 all: $(DEMOS)
 
