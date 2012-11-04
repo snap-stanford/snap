@@ -162,7 +162,7 @@ TEST(TUNGraph, ManipulateEdges) {
   PUNGraph Graph;
   PUNGraph Graph1;
   PUNGraph Graph2;
-  int NCount;
+  int NCount, ECount;
   int x,y;
   TIntV NodeIds;
   THashSet<TIntPr> EdgeSet;
@@ -234,16 +234,20 @@ TEST(TUNGraph, ManipulateEdges) {
         for (int n = 0; n < NNodes; n++) {
 
           TIntPrV DelEdgeNodeV;
+          int DelNodeId = NodeIds[n];
+          
+          // Get edges for node to be deleted (to verify all deleted)
           int EdgesBeforeDel;
           EdgesBeforeDel = Graph->GetEdges();
           for (TUNGraph::TEdgeI EI = Graph->BegEI(); EI < Graph->EndEI(); EI++) {
-            if (EI.GetSrcNId() == n || EI.GetDstNId() == n) {
+            if (EI.GetSrcNId() == DelNodeId || EI.GetDstNId() == DelNodeId) {
               DelEdgeNodeV.Add(TIntPr(EI.GetSrcNId(), EI.GetDstNId()));
             }
           }
-          Graph->DelNode(n);
+          
+          Graph->DelNode(DelNodeId);
           EXPECT_TRUE(EdgesBeforeDel == DelEdgeNodeV.Len() + Graph->GetEdges());
-          EXPECT_FALSE(Graph->IsNode(n));
+          EXPECT_FALSE(Graph->IsNode(DelNodeId));
           EXPECT_TRUE(Graph->IsOk());
           
           // Make sure all the edges to deleted node are gone
@@ -252,9 +256,13 @@ TEST(TUNGraph, ManipulateEdges) {
           }
           
           // Make sure no edge on graph is connected to deleted node
+          ECount = 0;
           for (TUNGraph::TEdgeI EI = Graph->BegEI(); EI < Graph->EndEI(); EI++) {
-            EXPECT_FALSE(EI.GetSrcNId() == n || EI.GetDstNId() == n);
+            EXPECT_FALSE(EI.GetSrcNId() == DelNodeId || EI.GetDstNId() == DelNodeId);
+            ECount++;
           }
+          // Make sure iterator returns all of the edges
+          EXPECT_TRUE(ECount == Graph->GetEdges());
         }
 
         EXPECT_TRUE(0 == Graph->GetEdges());
