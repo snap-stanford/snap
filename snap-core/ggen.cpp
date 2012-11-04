@@ -62,9 +62,7 @@ PUNGraph GenDegSeq(const TIntV& DegSeqV, TRnd& Rnd) {
   Graph.Reserve(Nodes, -1);
   TIntH DegH(DegSeqV.Len(), true);
   
-  for (int i=0; i < DegSeqV.Len()-1; i++) {
-    IAssertR(DegSeqV[i] >= DegSeqV[i+1], "DegSeqV must be sorted in descending  order.");
-  }
+  IAssertR(DegSeqV.IsSorted(false), "DegSeqV must be sorted in descending order.");
   int DegSum=0, edge=0;
   for (int node = 0; node < Nodes; node++) {
     IAssert(Graph.AddNode(node) == node);
