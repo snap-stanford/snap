@@ -1,0 +1,42 @@
+# Mac OS X
+.DS_Store
+
+# Xcode
+*.pbxuser
+*.mode1v3
+*.mode2v3
+*.perspectivev3
+*.xcuserstate
+project.xcworkspace/
+xcuserdata/
+
+# Generated files
+*.dSYM/
+*.o
+*.pyc
+*.log
+*.graph
+*.out
+
+build/
+
+# Backup files
+*~.nib
+
+# Ignore generated files
+*.graph
+*.net
+*.pool
+
+# Ignore executables, but keep everything else
+snap-core/testSnap
+test/run-all-tests
+examples/*/*
+!examples/*/*.*
+!examples/*/Makefile
+examples/*/.DS_Store
+examples/*/*.dSYM
+tutorials/*
+!tutorials/*.*
+!tutorials/Makefile
+tutorials/.DS_Store

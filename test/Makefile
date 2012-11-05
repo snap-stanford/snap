@@ -13,7 +13,8 @@ TESTS = \
 	test-TNodeNet.cpp test-TNodeEDatNet.cpp test-TNodeEdgeNet.cpp \
 	test-subgraph.cpp \
 	test-TStrPool.cpp \
-	test-TSysTm.cpp
+	test-TSysTm.cpp \
+	test-ggen.cpp
 
 all: $(MAIN)
 run: test
