@@ -533,7 +533,6 @@ void TestSaveGViz() {
 // @param NIdLabelH Maps node ids to node string labels.
 TEST(GIOTest, SaveGViz) {
   
-  
   // Undirected graph - save and loading
   TestSaveGViz<PUNGraph>();
   
@@ -543,5 +542,45 @@ TEST(GIOTest, SaveGViz) {
   // Multi graph - save and loading
   TestSaveGViz<PNEGraph>();
 
+}
+
+// Tests loading directed networks in the DyNetML format. Loads all the networks in the file FNm.
+TEST(GIOTest, LoadDyNet) {
+  
+  const int NNodes = 10000;
+  const int NEdges = 100000;
+  
+  const char *FName = "test.xml";
+  
+  PNGraph GOut, GIn;
+  GOut = GenRndGnm<PNGraph>(NNodes, NEdges);
+  
+  // Create XML graph file
+  FILE *F = fopen(FName, "w");
+  
+  fprintf(F, "<network>\n");
+  for (TNGraph::TEdgeI EI = GOut->BegEI(); EI < GOut->EndEI(); EI++) {
+    TInt Src = EI.GetSrcNId();
+    TInt Dst = EI.GetDstNId();
+    fprintf(F, "\t<link source=\"%d\" target=\"%d\"/>\n", Src.Val, Dst.Val);
+  }
+  fprintf(F, "</network>\n");
+  fclose(F);
+  
+  GIn = LoadDyNet(FName);
+  
+  // Verify all nodes exist in input and output graphs (and no more)
+  EXPECT_TRUE(GIn->GetNodes() == GOut->GetNodes());
+  
+  // Verify all degree counts are the same in both input and output graphs
+  TIntV GOutInDegV, GOutOutDegV, GInInDegV, GInOutDegV;
+  GetDegSeqV(GOut, GOutInDegV, GOutOutDegV);
+  GetDegSeqV(GOut, GInInDegV, GInOutDegV);
+  
+  EXPECT_TRUE(GOutInDegV == GInInDegV);
+  EXPECT_TRUE(GOutOutDegV == GInOutDegV);
+  
+  EXPECT_TRUE(GIn->GetEdges() == GOut->GetEdges());
+  
 }
 
