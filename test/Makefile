@@ -14,7 +14,8 @@ TESTS = \
 	test-subgraph.cpp \
 	test-TStrPool.cpp \
 	test-TSysTm.cpp \
-	test-ggen.cpp
+	test-ggen.cpp \
+	test-gio.cpp
 
 all: $(MAIN)
 
