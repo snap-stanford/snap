@@ -10,6 +10,7 @@ The following people also contributed to the development of SNAP
 
 Myunghwan Kim
 Julian McAuley
+Manuel Gomez Rodriguez
 Nicholas Shelly
 Rok Sosic
 Jaewon Yang

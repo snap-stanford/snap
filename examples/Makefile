@@ -11,6 +11,7 @@ MakeAll:
 	$(MAKE) -C cliques
 	$(MAKE) -C community
 	$(MAKE) -C concomp
+	$(MAKE) -C dynetinf
 	$(MAKE) -C forestfire
 	$(MAKE) -C graphgen
 	$(MAKE) -C graphhash
@@ -24,6 +25,7 @@ MakeAll:
 	$(MAKE) -C motifs
 	$(MAKE) -C ncpplot
 	$(MAKE) -C netevol
+	$(MAKE) -C netinf
 	$(MAKE) -C netstat
 	$(MAKE) -C testgraph
 
@@ -34,6 +36,7 @@ clean:
 	$(MAKE) clean -C cliques
 	$(MAKE) clean -C community
 	$(MAKE) clean -C concomp
+	$(MAKE) clean -C dynetinf
 	$(MAKE) clean -C forestfire
 	$(MAKE) clean -C graphgen
 	$(MAKE) clean -C graphhash
@@ -47,6 +50,7 @@ clean:
 	$(MAKE) clean -C motifs
 	$(MAKE) clean -C ncpplot
 	$(MAKE) clean -C netevol
+	$(MAKE) clean -C netinf
 	$(MAKE) clean -C netstat
 	$(MAKE) clean -C testgraph
 	rm -rf Debug Release ipch

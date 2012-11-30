@@ -45,6 +45,12 @@ public:
   double GetPowerDev(const double& AlphaSlope){ // power-law degree distribution (AlphaSlope>0)
     IAssert(AlphaSlope>1.0);
     return pow(1.0-GetUniDev(), -1.0/(AlphaSlope-1.0));}
+  double GetRayleigh(const double& Sigma) { // 1/sqrt(alpha) = sigma
+    IAssert(Sigma>0.0);
+    return Sigma*sqrt(-2*log(1-GetUniDev()));}
+  double GetWeibull(const double& K, const double& Lambda) { // 1/alpha = lambda
+    IAssert(Lambda>0.0 && K>0.0);
+    return Lambda*pow(-log(1-GetUniDev()), 1.0/K);}
   //void GetSphereDev(const int& Dim, TFltV& ValV);
 
   void PutSeed(const int& _Seed);
