@@ -1,0 +1,59 @@
+/// LoadPajek
+Function supports both the 1 edge per line (<source> <destination> <weight>) as well as the 1 node per line (<source> <destination1> <destination2> ...) formats.
+///
+
+/// SaveGViz_NIdColorH
+  Save a graph in GraphVizp .DOT format.
+  @param NIdColorH Maps node ids to node colors (see GraphViz documentation for more details).
+///
+
+/// SaveGViz_NIdLabelH
+  Save a graph in GraphVizp .DOT format.
+  @param NIdLabelH Maps node ids to node string labels.
+///
+
+
+/// LoadEdgeList
+  Whitespace separated file of several columns: ... <source node id> ... <destination node id> ...
+  SrcColId and DstColId are column indexes of source/destination (integer!) node ids.
+  This means there is one edge per line and node IDs are assumed to be integers.
+///
+
+/// LoadEdgeList_Separator
+'Separator' separated file of several columns: ... <source node id> ... <destination node id> ...
+SrcColId and DstColId are column indexes of source/destination (integer!) node ids.
+This means there is one edge per line and node IDs are assumed to be integers.
+///
+
+/// LoadEdgeListStr
+  Whitespace separated file of several columns: ... <source node id> ... <destination node id> ...
+  SrcColId and DstColId are column indexes of source/destination (string) node ids.
+  This means there is one edge per line and node IDs can be arbitrary STRINGs.
+  Note that the mapping of node names to ids is discarded.
+///
+
+/// LoadEdgeListStr_StrToNIdH
+  Whitespace separated file of several columns: ... <source node id> ... <destination node id> ...
+  SrcColId and DstColId are column indexes of source/destination (string) node ids.
+  This means there is one edge per line and node IDs can be arbitrary STRINGs.
+  The mapping of strings to node ids in stored in StrToNIdH.
+  To map between node names and ids use: NId = StrToNIdH.GetKeyId(NodeName) and TStr NodeName = StrToNIdH.GetKey(NId);
+///
+
+/// LoadConnList
+  Whitespace separated file of several columns: <source node id> <destination node id1> <destination node id2> ...
+  First column of each line contains a source node id followed by ids of the destination nodes.
+  For example, '1 2 3' encodes edges 1-->2 and 1-->3. Note that this format allows for saving isolated nodes.
+///  
+
+
+/// LoadConnListStr
+  Whitespace separated file of several columns: <source node name> <destination node name 1> <destination node name 2> ... 
+  First colum of each line contains a source node name followed by ids of the destination nodes.
+  For example, 'A B C' encodes edges A-->B and A-->C. Note that this format allows for saving isolated nodes.
+  @StrToNIdH stores the mapping from node names to node ids.
+///
+
+
+
+
