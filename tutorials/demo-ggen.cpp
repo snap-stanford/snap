@@ -21,6 +21,14 @@ void PrintGStats(const char s[], PBPGraph Graph) {
          Graph->GetEdges(), Graph->Empty() ? "yes" : "no");
 }
 
+template <class PGraph>
+void PrintGStats(const char s[], PGraph Graph) {
+  printf("graph %s, nodes %d, edges %d, empty %s\n",
+         s, Graph->GetNodes(), Graph->GetEdges(),
+         Graph->Empty() ? "yes" : "no");
+}
+
+
 // Generate Grid graph 
 void GenerateGridGraph() {
   PNGraph NGraph;
