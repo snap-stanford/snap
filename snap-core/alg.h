@@ -132,7 +132,7 @@ int GetMxDegNId(const PGraph& Graph) {
     if (MxDeg < NI.GetDeg()) { MxDegV.Clr(); MxDeg = NI.GetDeg(); }
     if (MxDeg == NI.GetDeg()) { MxDegV.Add(NI.GetId()); }
   }
-  EAssertR(! MxDegV.Empty(), "Input graph is emptry!");
+  EAssertR(! MxDegV.Empty(), "Input graph is empty!");
   return MxDegV[TInt::Rnd.GetUniDevInt(MxDegV.Len())];
 }
 
@@ -144,7 +144,7 @@ int GetMxInDegNId(const PGraph& Graph) {
     if (MxDeg < NI.GetInDeg()) { MxDegV.Clr(); MxDeg = NI.GetInDeg(); }
     if (MxDeg == NI.GetInDeg()) { MxDegV.Add(NI.GetId()); }
   }
-  EAssertR(! MxDegV.Empty(), "Input graph is emptry!");
+  EAssertR(! MxDegV.Empty(), "Input graph is empty!");
   return MxDegV[TInt::Rnd.GetUniDevInt(MxDegV.Len())];
 }
 
@@ -156,7 +156,7 @@ int GetMxOutDegNId(const PGraph& Graph) {
     if (MxDeg < NI.GetOutDeg()) { MxDegV.Clr(); MxDeg = NI.GetOutDeg(); }
     if (MxDeg == NI.GetOutDeg()) { MxDegV.Add(NI.GetId()); }
   }
-  EAssertR(! MxDegV.Empty(), "Input graph is emptry!");
+  EAssertR(! MxDegV.Empty(), "Input graph is empty!");
   return MxDegV[TInt::Rnd.GetUniDevInt(MxDegV.Len())];
 }
 
