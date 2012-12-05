@@ -11,10 +11,10 @@ MakeAll:
 	$(MAKE) -C cliques
 	$(MAKE) -C community
 	$(MAKE) -C concomp
-	$(MAKE) -C dynetinf
 	$(MAKE) -C forestfire
 	$(MAKE) -C graphgen
 	$(MAKE) -C graphhash
+	$(MAKE) -C infopath
 	$(MAKE) -C kcores
 	$(MAKE) -C kronem
 	$(MAKE) -C krongen
@@ -36,10 +36,10 @@ clean:
 	$(MAKE) clean -C cliques
 	$(MAKE) clean -C community
 	$(MAKE) clean -C concomp
-	$(MAKE) clean -C dynetinf
 	$(MAKE) clean -C forestfire
 	$(MAKE) clean -C graphgen
 	$(MAKE) clean -C graphhash
+	$(MAKE) clean -C infopath
 	$(MAKE) clean -C kcores
 	$(MAKE) clean -C kronem
 	$(MAKE) clean -C krongen

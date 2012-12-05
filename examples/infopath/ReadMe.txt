@@ -24,9 +24,9 @@ Usage:
 
 Infer the network given a text file with cascades (nodes and timestamps):
 
-./infer -i:cascades.txt
+./infopath -i:cascades.txt
 
-All arguments are shown any time ./infer is run.
+All arguments are shown any time ./infopath is run.
 
 /////////////////////////////////////////////////////////////////////////////
 Format input cascades:

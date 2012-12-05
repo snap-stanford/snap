@@ -12,7 +12,7 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{345EFCD5-A5BA-4C41-928C-AE5BD9A5FE08}</ProjectGuid>
-    <RootNamespace>dynetinf</RootNamespace>
+    <RootNamespace>infopath</RootNamespace>
     <Keyword>Win32Proj</Keyword>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -83,7 +83,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\snap-adv\cascdynetinf.cpp" />
-    <ClCompile Include="dynetinf.cpp" />
+    <ClCompile Include="infopath.cpp" />
     <ClCompile Include="..\..\snap-core\Snap.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

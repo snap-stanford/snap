@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="dynetinf"
+	Name="infopath"
 	ProjectGUID="{345EFCD5-A5BA-4C41-928C-AE5BD9A5FE08}"
-	RootNamespace="dynetinf"
+	RootNamespace="infopath"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="196613"
 	>
@@ -174,7 +174,7 @@
 			>
 		</File>
 		<File
-			RelativePath=".\dynetinf.cpp"
+			RelativePath=".\infopath.cpp"
 			>
 		</File>
 		<File

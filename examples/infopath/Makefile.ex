@@ -2,7 +2,7 @@
 #	configuration variables for the example
 
 ## Main application file
-MAIN = dynetinf
+MAIN = infopath
 DEPH = $(EXSNAPADV)/cascdynetinf.h
 DEPCPP = $(EXSNAPADV)/cascdynetinf.cpp
 
