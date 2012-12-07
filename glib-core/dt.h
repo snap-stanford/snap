@@ -172,6 +172,7 @@ public:
   char PeekCh(){Assert(BfC<BfL); return Bf[BfC];}
   int GetBf(const void* LBf, const TSize& LBfL);
   void Reset(){Cs=TCs(); BfC=0;}
+  bool GetNextLnBf(TChA& LnChA);
 };
 
 /////////////////////////////////////////////////
@@ -269,6 +270,9 @@ public:
     if ((MxLen==-1)||(BfL<MxLen)){operator+=(Ch);}}
   void AddChTo(const char& Ch, const int& ToChN){
     while (Len()<ToChN){AddCh(Ch);}}
+  void AddBf(char *NewBf, const int& BfS){
+    if ((BfL+BfS+1)>MxBfL){Resize(BfL+BfS+1);}
+    strncpy(Bf+BfL,NewBf,BfS); BfL+=BfS; Bf[BfL]=0;}
   void PutCh(const int& ChN, const char& Ch){
     Assert((0<=ChN)&&(ChN<BfL)); Bf[ChN]=Ch;}
   char GetCh(const int& ChN) const {return operator[](ChN);}
@@ -332,6 +336,7 @@ public:
   char PeekCh(){Assert(BfC<BfL); return Bf[BfC];}
   int GetBf(const void* LBf, const TSize& LBfL);
   void Reset(){Cs=TCs(); BfC=0;}
+  bool GetNextLnBf(TChA& LnChA);
 };
 
 /////////////////////////////////////////////////
@@ -708,6 +713,7 @@ public:
   char PeekCh(){Assert(BfC<BfL); return Bf[BfC];}
   int GetBf(const void* LBf, const TSize& LBfL);
   void Reset(){Cs=TCs(); BfC=0;}
+  bool GetNextLnBf(TChA& LnChA);
 };
 
 /////////////////////////////////////////////////

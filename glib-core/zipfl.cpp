@@ -133,6 +133,11 @@ int TZipIn::GetBf(const void* LBf, const TSize& LBfL){
   return LBfS;
 }
 
+bool TZipIn::GetNextLnBf(TChA& LnChA){
+  // not implemented
+  return false;
+}
+
 bool TZipIn::IsZipExt(const TStr& FNmExt) {
   if (FExtToCmdH.Empty()) FillFExtToCmdH();
   return FExtToCmdH.IsKey(FNmExt);

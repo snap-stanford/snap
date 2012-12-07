@@ -41,6 +41,7 @@ public:
   char GetCh() { if (BfC==BfL){FillBf();} return Bf[BfC++]; }
   char PeekCh() { if (BfC==BfL){FillBf();} return Bf[BfC]; }
   int GetBf(const void* LBf, const TSize& LBfL);
+  bool GetNextLnBf(TChA& LnChA);
 
   uint64 GetFLen() const { return FLen; }
   uint64 GetCurFPos() const { return CurFPos; }

@@ -311,6 +311,11 @@ int TMemIn::GetBf(const void* LBf, const TSize& LBfL){
   return LBfS;
 }
 
+bool TMemIn::GetNextLnBf(TChA& LnChA){
+  // not implemented
+  return false;
+}
+
 /////////////////////////////////////////////////
 // Output-Memory
 TMemOut::TMemOut(const PMem& _Mem): TSBase("Output-Memory"), TSOut("Output-Memory"), Mem(_Mem){}
@@ -629,6 +634,11 @@ int TChAIn::GetBf(const void* LBf, const TSize& LBfL){
   for (TSize LBfC=0; LBfC<LBfL; LBfC++){
     LBfS+=(((char*)LBf)[LBfC]=Bf[BfC++]);}
   return LBfS;
+}
+
+bool TChAIn::GetNextLnBf(TChA& LnChA){
+  // not implemented
+  return false;
 }
 
 /////////////////////////////////////////////////
@@ -1624,6 +1634,11 @@ int TStrIn::GetBf(const void* LBf, const TSize& LBfL){
   for (TSize LBfC=0; LBfC<LBfL; LBfC++){
     LBfS+=(((char*)LBf)[LBfC]=Bf[BfC++]);}
   return LBfS;
+}
+
+bool TStrIn::GetNextLnBf(TChA& LnChA){
+  // not implemented
+  return false;
 }
 
 /////////////////////////////////////////////////

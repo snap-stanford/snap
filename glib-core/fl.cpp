@@ -221,6 +221,11 @@ int TStdIn::GetBf(const void* LBf, const TSize& LBfL){
   return LBfS;
 }
 
+bool TStdIn::GetNextLnBf(TChA& LnChA){
+  // not implemented
+  return false;
+}
+
 /////////////////////////////////////////////////
 // Standard-Output
 int TStdOut::PutBf(const void* LBf, const TSize& LBfL){
@@ -306,6 +311,72 @@ int TFIn::GetBf(const void* LBf, const TSize& LBfL){
       LBfS+=(((char*)LBf)[LBfC]=Bf[BfC++]);}
   }
   return LBfS;
+}
+
+// Gets the next line to LnChA.
+// Returns true, if LnChA contains a valid line.
+// Returns false, if LnChA is empty, such as end of file was encountered.
+
+bool TFIn::GetNextLnBf(TChA& LnChA) {
+  int Status;
+  int BfN;        // new pointer to the end of line
+  int BfP;        // previous pointer to the line start
+
+  LnChA.Clr();
+
+  do {
+    if (BfC >= BfL) {
+      // reset the current pointer, FindEol() will read a new buffer
+      BfP = 0;
+    } else {
+      BfP = BfC;
+    }
+    Status = FindEol(BfN);
+    if (Status >= 0) {
+      LnChA.AddBf(&Bf[BfP],BfN-BfP);
+      if (Status == 1) {
+        // got a complete line
+        return true;
+      }
+    }
+    // get more data, if the line is incomplete
+  } while (Status == 0);
+
+  // eof or the last line has no newline
+  return !LnChA.Empty();
+}
+    
+// Sets BfN to the end of line or end of buffer. Reads more data, if needed.
+// Returns 1, when an end of line was found, BfN is end of line.
+// Returns 0, when an end of line was not found and more data is required,
+//    BfN is end of buffer.
+// Returns -1, when an end of file was found, BfN is not defined.
+
+int TFIn::FindEol(int& BfN) {
+  char Ch;
+
+  if (BfC >= BfL) {
+    // read more data, check for eof
+    if (Eof()) {
+      return -1;
+    }
+  }
+
+  while (BfC < BfL) {
+    Ch = Bf[BfC++];
+    if (Ch=='\n') {
+      BfN = BfC-1;
+      return 1;
+    }
+    if (Ch=='\r' && Bf[BfC+1]=='\n') {
+      BfC++;
+      BfN = BfC-2;
+      return 1;
+    }
+  }
+  BfN = BfC;
+
+  return 0;
 }
 
 /////////////////////////////////////////////////
@@ -428,6 +499,11 @@ int TFInOut::GetBf(const void* LBf, const TSize& LBfL) {
   return LBfS;
 }
 
+bool TFInOut::GetNextLnBf(TChA& LnChA){
+  // not implemented
+  return false;
+}
+
 TStr TFInOut::GetFNm() const {
   return GetSNm();
 }
@@ -492,6 +568,11 @@ int TMIn::GetBf(const void* LBf, const TSize& LBfL){
   for (TSize LBfC=0; LBfC<LBfL; LBfC++){
     LBfS+=(((char*)LBf)[LBfC]=Bf[BfC++]);}
   return LBfS;
+}
+
+bool TMIn::GetNextLnBf(TChA& LnChA){
+  // not implemented
+  return false;
 }
 
 /////////////////////////////////////////////////
