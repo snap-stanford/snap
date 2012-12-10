@@ -23,6 +23,7 @@ private:
   int BfC, BfL;
 private:
   void FillBf();
+  int FindEol(int& BfN);
   void CreateZipProcess(const TStr& Cmd, const TStr& ZipFNm);
   static void FillFExtToCmdH();
 private:
