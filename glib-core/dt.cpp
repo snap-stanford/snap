@@ -313,6 +313,7 @@ int TMemIn::GetBf(const void* LBf, const TSize& LBfL){
 
 bool TMemIn::GetNextLnBf(TChA& LnChA){
   // not implemented
+  FailR(TStr::Fmt("TMemIn::GetNextLnBf: not implemented").CStr());
   return false;
 }
 
@@ -638,6 +639,7 @@ int TChAIn::GetBf(const void* LBf, const TSize& LBfL){
 
 bool TChAIn::GetNextLnBf(TChA& LnChA){
   // not implemented
+  FailR(TStr::Fmt("TChAIn::GetNextLnBf: not implemented").CStr());
   return false;
 }
 
@@ -1638,6 +1640,7 @@ int TStrIn::GetBf(const void* LBf, const TSize& LBfL){
 
 bool TStrIn::GetNextLnBf(TChA& LnChA){
   // not implemented
+  FailR(TStr::Fmt("TStrIn::GetNextLnBf: not implemented").CStr());
   return false;
 }
 

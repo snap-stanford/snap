@@ -409,7 +409,7 @@ bool TSsParser::NextQ() { // split on SplitCh
   FldV.Clr();
   LineCnt++;
   if (! FInPt->GetNextLnBf(LineStr)) { return false; }
-  if (SkipCmt && !LineStr.Empty() && LineStr[0]=='#') { return Next(); }
+  if (SkipCmt && !LineStr.Empty() && LineStr[0]=='#') { return NextQ(); }
 
   char* cur = LineStr.CStr();
   if (SkipLeadBlanks) { // skip leading blanks
@@ -425,7 +425,7 @@ bool TSsParser::NextQ() { // split on SplitCh
     if (SkipEmptyFld && strlen(FldV.Last())==0) { FldV.DelLast(); } // skip empty fields
   }
   FldV.Add(last);  // add last field
-  if (SkipEmptyFld && FldV.Empty()) { return Next(); } // skip empty lines
+  if (SkipEmptyFld && FldV.Empty()) { return NextQ(); } // skip empty lines
   return true; 
 }
 
