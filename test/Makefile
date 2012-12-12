@@ -15,7 +15,8 @@ TESTS = \
 	test-TStrPool.cpp \
 	test-TSysTm.cpp \
 	test-ggen.cpp \
-	test-gio.cpp
+	test-gio.cpp \
+	test-THash.cpp
 
 all: $(MAIN)
 run: test
@@ -33,5 +34,5 @@ test: $(MAIN)
 clean:
 	rm -f *.o $(MAIN) $(MAIN).exe
 	rm -rf Debug Release
-	rm -rf *.graph *.pool *.net *.Err
+	rm -rf test*.dat *.Err
 

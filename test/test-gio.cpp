@@ -32,7 +32,7 @@ void TestEdgeList() {
   const int NNodes = 10000;
   const int NEdges = 100000;
 
-  const char *FName = "test.graph";
+  const char *FName = "test.graph.dat";
   const char *Desc = "Randomly generated graph for input/output.";
   
   PGraph GOut, GIn;
@@ -99,7 +99,7 @@ void TestEdgeListStr() {
   const int NNodes = 1000;
   const int NEdges = 10000;
   
-  const char *FName = "test.graph";
+  const char *FName = "test.graph.dat";
   
   PGraph GOut, GIn;
   GOut = GenRndGnm<PGraph>(NNodes, NEdges);
@@ -187,7 +187,7 @@ void TestConnList() {
   const int NNodes = 10000;
   const int NEdges = 100000;
   
-  const char *FName = "test.graph";
+  const char *FName = "test.graph.dat";
   
   PGraph GOut, GIn;
   GOut = GenRndGnm<PGraph>(NNodes, NEdges);
@@ -262,7 +262,7 @@ void TestConnListStr() {
   const int NNodes = 10000;
   const int NEdges = 100000;
   
-  const char *FName = "test.graph";
+  const char *FName = "test.graph.dat";
   
   PGraph GOut, GIn;
   GOut = GenRndGnm<PGraph>(NNodes, NEdges);
@@ -352,7 +352,7 @@ void TestPajek() {
   const int NNodes = 10000;
   const int NEdges = 100000;
   
-  const char *FName = "test.paj";
+  const char *FName = "test.paj.dat";
   
   PGraph GOut, GIn;
   GOut = GenRndGnm<PGraph>(NNodes, NEdges);
@@ -418,7 +418,7 @@ void TestMatlabSparseMtx() {
   const int NNodes = 10000;
   const int NEdges = 100000;
   
-  const char *FName = "test.dat";
+  const char *FName = "test.graph.dat";
   
   PGraph GOut, GIn;
   GOut = GenRndGnm<PGraph>(NNodes, NEdges);
@@ -502,7 +502,7 @@ void TestSaveGViz() {
 //  const int NNodes = 10000;
 //  const int NEdges = 100000;
   
-  const char *FName1 = "test1.dot", *FName2 = "test2.dot";
+  const char *FName1 = "test1.dot.dat", *FName2 = "test2.dot.dat";
   const char *Desc = "Randomly generated GgraphVizp for input/output.";
 
   PGraph GOut;
@@ -550,7 +550,7 @@ TEST(GIOTest, LoadDyNet) {
   const int NNodes = 10000;
   const int NEdges = 100000;
   
-  const char *FName = "test.xml";
+  const char *FName = "test.xml.dat";
   
   PNGraph GOut, GIn;
   GOut = GenRndGnm<PNGraph>(NNodes, NEdges);
