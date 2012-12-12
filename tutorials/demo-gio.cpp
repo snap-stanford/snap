@@ -26,7 +26,7 @@ void SaveLoadEdgeList() {
   const int NNodes = 500;
   const int NEdges = 2000;
   
-  const char *FName = "demo.graph";
+  const char *FName = "demo.graph.dat";
   const char *Desc = "Randomly generated graph for input/output.";
   
   PNGraph GOut, GIn;
@@ -62,7 +62,7 @@ void IOEdgeListStr() {
   const int NNodes = 1000;
   const int NEdges = 5000;
   
-  const char *FName = "demo.graph";
+  const char *FName = "demo.graph.dat";
   
   PNEGraph GOut, GIn;      // Can also be PUNGraph or PNGraph
   GOut = GenRndGnm<PNEGraph>(NNodes, NEdges);
@@ -111,7 +111,7 @@ void IOConnList() {
   const int NNodes = 500;
   const int NEdges = 2000;
   
-  const char *FName = "demo.graph";
+  const char *FName = "demo.graph.dat";
   
   PNEGraph GOut, GIn;
   GOut = GenRndGnm<PNEGraph>(NNodes, NEdges);
@@ -140,7 +140,7 @@ void IOConnListStr() {
   const int NNodes = 500;
   const int NEdges = 2000;
   
-  const char *FName = "demo.graph";
+  const char *FName = "demo.graph.dat";
   
   PUNGraph GOut, GIn;
   GOut = GenRndGnm<PUNGraph>(NNodes, NEdges);
@@ -192,7 +192,7 @@ void IOPajek() {
   const int NNodes = 500;
   const int NEdges = 2000;
   
-  const char *FName = "demo.paj";
+  const char *FName = "demo.paj.dat";
   
   PNEGraph GOut, GIn;
   GOut = GenRndGnm<PNEGraph>(NNodes, NEdges);
@@ -224,7 +224,7 @@ void IOMatlabSparseMtx() {
   const int NNodes = 500;
   const int NEdges = 2000;
   
-  const char *FName = "demo.dat";
+  const char *FName = "demo.matlab.dat";
   
   PNGraph GOut, GIn;
   GOut = GenRndGnm<PNGraph>(NNodes, NEdges);
@@ -274,7 +274,7 @@ void IOGViz() {
   const int NNodes = 500;
   const int NEdges = 2000;
   
-  const char *FName1 = "test1.dot", *FName2 = "test2.dot";
+  const char *FName1 = "demo1.dot.dat", *FName2 = "demo2.dot.dat";
   const char *Desc = "Randomly generated GgraphVizp for input/output.";
   
   PNGraph GOut;     // Can be PNEGraph or PUNGraph
@@ -301,7 +301,7 @@ void IODyNet() {
   const int NNodes = 500;
   const int NEdges = 2000;
   
-  const char *FName = "demo.xml";
+  const char *FName = "demo.xml.dat";
   
   PNGraph GOut, GIn;
   GOut = GenRndGnm<PNGraph>(NNodes, NEdges);

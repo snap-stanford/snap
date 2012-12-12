@@ -124,7 +124,6 @@ TEST(TIntIntH, ManipulateTable) {
     DatSumDel += TableInt[Id];
     TableInt.DelKeyId(Id);
     DelCount++;
-    n += 10;
   }
   EXPECT_EQ(0,TableInt.Empty());
   EXPECT_EQ(NElems-DelCount,TableInt.Len());
@@ -377,7 +376,6 @@ TEST(TStrIntH, ManipulateTable) {
     DatSumDel += TableStr[Id];
     TableStr.DelKeyId(Id);
     DelCount++;
-    n += 10;
   }
   EXPECT_EQ(0,TableStr.Empty());
   EXPECT_EQ(NElems-DelCount,TableStr.Len());
