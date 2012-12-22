@@ -23,7 +23,7 @@ template <class PGraph> void GetNodeClustCf(const PGraph& Graph, TIntFltH& NIdCC
 template <class PGraph> int64 GetTriads(const PGraph& Graph, int SampleNodes=-1);
 /// Computes the number of Closed and Open triads. Considers the graph as undirected.
 /// @param SampleNodes If !=-1 then compute triads only for a random sample of SampleNodes nodes. Useful for approximate but quick computations.
-template <class PGraph> int64 GetTriads(const PGraph& Graph, int64& ClosedTriads, int64& OpenTriads, int SampleNodes=-1);
+template <class PGraph> int64 GetTriads(const PGraph& Graph, int64& ClosedTriads, int64& OpenTriads, int SampleNodes);
 /// Computes the number of open and close triads for every node of the network. Considers the graph as undirected.
 /// @param NIdCOTriadV Triple (node id, open triads: number of pairs of node's neighbors that are not connected, closed triads: number of pairs of node's neighbors that are connected between themselves).
 /// @param SampleNodes If !=-1 then compute triads only for a random sample of SampleNodes nodes. Useful for approximate but quick computations.
