@@ -3,7 +3,7 @@ performance system for graph and network manipulation and analysis.
 
 This file contains a high-level description of changes in SNAP releases.
 
-Release Current Dev, Oct 9, 2012
+Release 1.10, Oct 15, 2012
 
 - fixed TUNGraph to return correct number of edges, not backward compatible.
   This version is not able to read binary TUNGraphs, saved by previous SNAP
@@ -13,6 +13,9 @@ Release Current Dev, Oct 9, 2012
 - fixed #12, Graphviz keeps outputting a PostScript file on non-Windows
 - fixed #15, bug in netevol.cpp
 - fixed #14, TSnap::GenCircle creates self-loops
+- fixed a bug in TSnap::GetBfsTree which failed for revised AddNode()
+- included "<new>" in unicode.h to support Xcode with the Apple compiler
+- fixed bug in TUNGraph:BegEI(), some edges could be missed by the iterator
 
 Release 1.9.2, Oct 2, 2012
 

@@ -1,3 +1,5 @@
+#include "bd.h"
+
 /////////////////////////////////////////////////
 // Macro-Processor
 ClassTP(TMacro, PMacro)//{

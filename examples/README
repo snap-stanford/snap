@@ -40,6 +40,9 @@ Examples:
 	Network Community detection (Girvan-Newman and Clauset-Newman-Moore)
   concomp :
   	Manipulates connected components of a graph
+  dynetinf :
+        Implements stochastic algorithm for dynamic network inference from
+        cascade data (more at http://snap.stanford.edu/proj/dynamic/)
   forestfire : 
   	Forest Fire graph generator
   graphhen : 
@@ -66,6 +69,9 @@ Examples:
   netevol :
   	Computes properties of an evolving network, like evolution of 
   	diameter, densification power law, degree distribution, etc.
+  netinf :
+	Implements netinf algorithm for network inference from
+	cascade data (more at http://snap.stanford.edu/netinf)
   netstat :
   	Computes statistical properties of a static network, like degree
 	distribution, hop plot, clustering coefficient, distribution of sizes

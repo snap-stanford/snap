@@ -1,3 +1,5 @@
+#include "bd.h"
+
 /////////////////////////////////////////////////
 // Url
 typedef enum {usUndef, usHttp, usOther} TUrlScheme;

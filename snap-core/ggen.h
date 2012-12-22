@@ -28,20 +28,31 @@ template <class PGraph> PGraph GenRndGnm(const int& Nodes, const int& Edges, con
 PBPGraph GenRndBipart(const int& LeftNodes, const int& RightNodes, const int& Edges, TRnd& Rnd=TInt::Rnd);
 /// Generates a random graph where each node has degree exactly NodeDeg.
 PUNGraph GenRndDegK(const int& Nodes, const int& NodeDeg, const int& NSwitch=100, TRnd& Rnd=TInt::Rnd);
+/// Generates a random scale-free graph with power-law degree distribution.
 PUNGraph GenRndPowerLaw(const int& Nodes, const double& PowerExp, const bool& ConfModel=true, TRnd& Rnd=TInt::Rnd);
+/// Generates a random graph with exact degree sequence.
 PUNGraph GenDegSeq(const TIntV& DegSeqV, TRnd& Rnd=TInt::Rnd);
+/// Generates a power-law degree distribution using Barabasi-Albert model of scale-free graphs.
 PUNGraph GenPrefAttach(const int& Nodes, const int& NodeOutDeg, TRnd& Rnd=TInt::Rnd);
+/// Generates a random scale-free graph using the Geometric Preferential model.
 PUNGraph GenGeoPrefAttach(const int& Nodes, const int& OutDeg, const double& Beta, TRnd& Rnd=TInt::Rnd);
+/// Generates a randomly small-world graph using the Watts-Strogatz model.
 PUNGraph GenSmallWorld(const int& Nodes, const int& NodeOutDeg, const double& RewireProb, TRnd& Rnd=TInt::Rnd);
-
+/// Generates a random undirect graph with a given degree sequence.
 PUNGraph GenConfModel(const TIntV& DegSeqV, TRnd& Rnd=TInt::Rnd);
+/// Rewire a random undirected graph. Keeps node degrees the same, but randomly rewires the edges.
 PUNGraph GenRewire(const PUNGraph& Graph, const int& NSwitch=100, TRnd& Rnd=TInt::Rnd);
+/// Rewire a random directed graph. Keeps node degrees the same, but randomly rewires the edges.
 PNGraph  GenRewire(const PNGraph& Graph, const int& NSwitch=100, TRnd& Rnd=TInt::Rnd);
+/// Rewire a random bipartite graph. Keeps node degrees the same, but randomly rewires the edges.
 PBPGraph GenRewire(const PBPGraph& Graph, const int& NSwitch=100, TRnd& Rnd=TInt::Rnd);
-
+/// Generates a random Forest Fire, directed graph with given probabilities.
 PNGraph GenForestFire(const int& Nodes, const double& FwdProb, const double& BckProb);
+/// Generates a random scale-free network using the Copying Model.
 PNGraph GenCopyModel(const int& Nodes, const double& Beta, TRnd& Rnd=TInt::Rnd);
+/// Generates a R-MAT graph using recursive descent into a 2x2 matrix [A,B; C, 1-(A+B+C)].
 PNGraph GenRMat(const int& Nodes, const int& Edges, const double& A, const double& B, const double& C, TRnd& Rnd=TInt::Rnd);
+/// Generates a R-Mat graph, with a synthetic copy of the Epinions social network.
 PNGraph GenRMatEpinions();
 
 /////////////////////////////////////////////////
@@ -204,6 +215,7 @@ PGraph GenRndGnm(const int& Nodes, const int& Edges, const bool& IsDir, TRnd& Rn
   PGraph GraphPt = PGraph::New();
   typename PGraph::TObj& Graph = *GraphPt;
   Graph.Reserve(Nodes, Edges);
+  IAssertR(Nodes * (Nodes-1) / 2 * (IsDir ? 2 : 1) >= Edges, TStr::Fmt("Not enough nodes (%d), for edges (%d).", Nodes, Edges));
   for (int node = 0; node < Nodes; node++) {
     IAssert(Graph.AddNode(node) == node);
   }

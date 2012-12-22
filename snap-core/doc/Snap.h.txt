@@ -1,0 +1,44 @@
+/// mainpage
+\mainpage
+
+\section general_doc About this Document
+
+This document provides reference documentation for the SNAP APIs.
+The documentation also includes a complete reference to the source code.
+To start, browse the sections about Classes or Files in the left column or
+search for a specific item in the search box in the upper right.
+
+Two versions of this document are available, User Reference and Developer
+Reference. The Developer Reference document is more extensive. It includes
+inheritance and collaboration diagrams for classes, and call and caller graphs
+for functions. These diagrams and graphs are not included in the
+User Reference document.
+
+\section general_snap About Snap
+
+Stanford Network Analysis Platform (SNAP) is a general purpose, high
+performance system for analysis and manipulation of large networks.
+Graphs consists of nodes and directed/undirected/multiple edges between
+the graph nodes. Networks are graphs with data on nodes and/or edges of
+the network.
+
+The core SNAP library is written in C++ and optimized for maximum
+performance and compact graph representation. It easily scales to
+massive networks with hundreds of millions of nodes, and billions of
+edges. It efficiently manipulates large graphs, calculates structural
+properties, generates regular and random graphs, and supports attributes
+on nodes and edges. Besides scalability to large graphs, an additional
+strength of SNAP is that nodes, edges and attributes in a graph or
+a network can be changed dynamically during the computation.
+
+SNAP works on Windows with Visual Studio or Cygwin with GCC, Mac OS X,
+Linux and other Unix variants with GCC installed. SNAP is largely
+self-contained and has minimal dependency requirements on other packages. 
+
+SNAP uses a general purpose STL (Standard Template Library)-like library
+GLib developed at Jozef Stefan Institute. SNAP and GLib are being actively
+developed and used in numerous academic and industrial projects.
+
+Complete source code for the core SNAP and GLib libraries is available
+under the BSD license. Download the package at http://snap.stanford.edu.
+///

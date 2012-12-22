@@ -26,19 +26,21 @@ DOXYFILE_ENCODING      = UTF-8
 # identify the project. Note that if you do not use Doxywizard you need
 # to put quotes around the project name if it contains spaces.
 
-PROJECT_NAME           = "SNAP Library, User Reference"
+# 11111111 is replaced with a version number
+PROJECT_NAME           = "SNAP Library 11111111, User Reference"
 
 # The PROJECT_NUMBER tag can be used to enter a project or revision number.
 # This could be handy for archiving the generated documentation or
 # if some version control system is used.
 
+# 00000000 is replaced with a timestamp
 PROJECT_NUMBER         = "00000000"
 
 # Using the PROJECT_BRIEF tag one can provide an optional one line description
 # for a project that appears at the top of each page and should give viewer
 # a quick idea about the purpose of the project. Keep the description short.
 
-PROJECT_BRIEF          = "SNAP, a general purpose network analysis and graph mining library"
+PROJECT_BRIEF          = "SNAP, a general purpose, high performance system for analysis and manipulation of large networks"
 
 # With the PROJECT_LOGO tag one can specify an logo or icon that is
 # included in the documentation. The maximum height of the logo should not

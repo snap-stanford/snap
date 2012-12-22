@@ -43,7 +43,7 @@ template <class PGraph> int GetNodeTriads(const PUNGraph& Graph, const int& NId,
 /// Returns the number of triads between a node NId and a subset of its neighbors GroupSet.
 /// @param InGroupEdges Number of triads (NId, g1, g2), where g1 and g2 are in GroupSet
 /// @param InOutGroupEdges Number of triads (NId, g1, o1), where g1 in GroupSet and o1 not in GroupSet
-/// @param OutGroupEdges Number of triads (NId, p1, o1), where o1 and o2 are not in GroupSet
+/// @param OutGroupEdges Number of triads (NId, o1, o2), where o1 and o2 are not in GroupSet
 template <class PGraph> int GetNodeTriads(const PUNGraph& Graph, const int& NId, const TIntSet& GroupSet, int& InGroupEdges, int& InOutGroupEdges, int& OutGroup);
 /// Triangle Participation Ratio: For each node counts how many triangles it participates in and then returns a set of pairs (number of triangles, number of such nodes).
 template <class PGraph> void GetTriadParticip(const PGraph& Graph, TIntPrV& TriadCntV);
@@ -329,7 +329,7 @@ int GetNodeTriads(const PGraph& Graph, const int& NId, const TIntSet& GroupSet, 
 // Node NId and a subset of its neighbors GroupSet
 //   InGroupEdges ... triads (NId, g1, g2), where g1 and g2 are in GroupSet
 //   InOutGroupEdges ... triads (NId, g1, o1), where g1 in GroupSet and o1 not in GroupSet
-//   OutGroupEdges ... triads (NId, p1, o1), where o1 and o2 are not in GroupSet
+//   OutGroupEdges ... triads (NId, o1, o2), where o1 and o2 are not in GroupSet
 template <class PGraph>
 int GetNodeTriads(const PGraph& Graph, const int& NId, const TIntSet& GroupSet, int& InGroupEdges, int& InOutGroupEdges, int& OutGroupEdges) {
   const typename PGraph::TObj::TNodeI NI = Graph->GetNI(NId);

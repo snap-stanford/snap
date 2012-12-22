@@ -34,7 +34,7 @@ TEST(TStrPool, DefaultConstructor) {
 // Test the pool operations
 TEST(TStrPool, PoolOps) {
   int NStr = 1000000;
-  const char *FName = "test.pool";
+  const char *FName = "test.pool.dat";
   int i;
   char Str[32];
   PStrPool Pool;

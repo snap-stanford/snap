@@ -20,7 +20,7 @@ TEST(TNGraph, DefaultConstructor) {
 TEST(TNGraph, ManipulateNodesEdges) {
   int NNodes = 10000;
   int NEdges = 100000;
-  const char *FName = "test.graph";
+  const char *FName = "test.graph.dat";
 
   PNGraph Graph;
   PNGraph Graph1;

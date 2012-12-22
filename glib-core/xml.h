@@ -1,3 +1,5 @@
+#include "bd.h"
+
 /////////////////////////////////////////////////
 // Xml-Object-Serialization
 class TXmlObjSer{

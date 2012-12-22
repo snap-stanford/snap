@@ -14,6 +14,7 @@ MakeAll:
 	$(MAKE) -C forestfire
 	$(MAKE) -C graphgen
 	$(MAKE) -C graphhash
+	$(MAKE) -C infopath
 	$(MAKE) -C kcores
 	$(MAKE) -C kronem
 	$(MAKE) -C krongen
@@ -24,6 +25,7 @@ MakeAll:
 	$(MAKE) -C motifs
 	$(MAKE) -C ncpplot
 	$(MAKE) -C netevol
+	$(MAKE) -C netinf
 	$(MAKE) -C netstat
 	$(MAKE) -C testgraph
 
@@ -37,6 +39,7 @@ clean:
 	$(MAKE) clean -C forestfire
 	$(MAKE) clean -C graphgen
 	$(MAKE) clean -C graphhash
+	$(MAKE) clean -C infopath
 	$(MAKE) clean -C kcores
 	$(MAKE) clean -C kronem
 	$(MAKE) clean -C krongen
@@ -47,6 +50,7 @@ clean:
 	$(MAKE) clean -C motifs
 	$(MAKE) clean -C ncpplot
 	$(MAKE) clean -C netevol
+	$(MAKE) clean -C netinf
 	$(MAKE) clean -C netstat
 	$(MAKE) clean -C testgraph
 	rm -rf Debug Release ipch

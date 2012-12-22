@@ -13,19 +13,26 @@ TESTS = \
 	test-TNodeNet.cpp test-TNodeEDatNet.cpp test-TNodeEdgeNet.cpp \
 	test-subgraph.cpp \
 	test-TStrPool.cpp \
-	test-TSysTm.cpp
+	test-TSysTm.cpp \
+	test-ggen.cpp \
+	test-gio.cpp \
+	test-THash.cpp
 
 all: $(MAIN)
+run: test
 
 # COMPILE
 $(MAIN): $(MAIN).cpp $(TESTS) $(CSNAP)/Snap.o
-	$(CC) $(CXXFLAGS) -o $(MAIN) $(MAIN).cpp $(TESTS) $(CSNAP)/Snap.o -I$(CSNAP) $(LDFLAGS) $(LIBS)
+	$(CC) $(CXXFLAGS) -o $(MAIN) $(MAIN).cpp $(TESTS) $(CSNAP)/Snap.o -I$(CSNAP) -I$(CGLIB) $(LDFLAGS) $(LIBS)
 
 $(CSNAP)/Snap.o:
 	$(MAKE) -C $(CSNAP)
 
+test: $(MAIN)
+	./$(MAIN)
+
 clean:
 	rm -f *.o $(MAIN) $(MAIN).exe
 	rm -rf Debug Release
-	rm -rf *.graph *.pool *.net *.Err
+	rm -rf test*.dat *.Err
 

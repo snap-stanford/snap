@@ -1,3 +1,5 @@
+#include "bd.h"
+
 /////////////////////////////////////////////////
 // Forward
 ClassHdTP(THtmlTok, PHtmlTok)

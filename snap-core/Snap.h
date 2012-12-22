@@ -1,6 +1,8 @@
 #ifndef snap_main_h
 #define snap_main_h
 
+/// ##mainpage
+
 /////////////////////////////////////////////////
 // SNAP library
 #include "base.h"
@@ -33,9 +35,9 @@
 #include "ggen.h"            // graph generators (preferential attachment, small-world, ...)
 #include "ff.h"              // forest fire graph generator
 
+#include "gio.h"
 #include "gviz.h"
 #include "ghash.h"
 #include "statplot.h"
-#include "gio.h"
 
 #endif

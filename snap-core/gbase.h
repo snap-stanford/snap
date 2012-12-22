@@ -42,7 +42,7 @@ template <class TGraph> struct IsBipart     { enum { Val = 0 }; };
   (Flag)==gfSources ? TSnap::IsSources<TGraph::TNet>::Val : \
   (Flag)==gfBipart ? TSnap::IsBipart<TGraph::TNet>::Val : 0)
 
-/// Tests (at complile time) whether TDerivClass is derived from TBaseClass
+/// Tests (at compile time) whether TDerivClass is derived from TBaseClass
 template<class TDerivClass, class TBaseClass>
 class IsDerivedFrom {
 private:

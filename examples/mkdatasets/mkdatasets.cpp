@@ -75,7 +75,7 @@ void PrintGraphStatTable(const PGraph& G, TStr OutFNm, TStr Desc="") {
 
 // LiveJournal network from Matt Richardson, ISWC '03
 void MakeEpinions() {
-  PNGraph G = TSnap::LoadEdgeList<PNGraph>("W:\\Data\\Epinions\\epinions.txt", 0, 1);
+  PNGraph G = TSnap::LoadEdgeList<PNGraph>("soc-Epinions1.txt", 0, 1);
   PrintGraphStatTable(G, "soc-Epinions1", "Directed Epinions social network");
 }
 

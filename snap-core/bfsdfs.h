@@ -183,7 +183,9 @@ PNGraph GetBfsTree(const PGraph& Graph, const int& StartNId, const bool& FollowO
     const int NId = BFS.NIdDistH.GetKey(i);
     const int Dist = BFS.NIdDistH[i];
     typename PGraph::TObj::TNodeI NI = Graph->GetNI(NId);
-    Tree->AddNode(NId);
+    if (!Tree->IsNode(NId)) {
+      Tree->AddNode(NId);
+    }
     if (FollowOut) {
       for (int e = 0; e < NI.GetInDeg(); e++) {
         const int Prev = NI.GetInNId(e);

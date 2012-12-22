@@ -1,5 +1,3 @@
-// TODO ROK, Jure included basic documentation, finalize reference doc
-
 /////////////////////////////////////////////////
 // Loading and saving graphs from/to various file formats.
 namespace TSnap {
@@ -17,9 +15,7 @@ template <class PGraph> PGraph LoadConnList(const TStr& InFNm);
 /// Loads a (directed, undirected or multi) graph from a text file InFNm with 1 node and all its edges in a single line.
 template <class PGraph> PGraph LoadConnListStr(const TStr& InFNm, TStrHash<TInt>& StrToNIdH);
 
-/// Loads a (directed, undirected or multi) graph from Pajek .PAJ format file.
-/// Function supports both the 1 edge per line (<source> <destination> <weight>)
-/// as well as the 1 node per line (<source> <destination1> <destination2> ...) formats.
+/// Loads a (directed, undirected or multi) graph from Pajek .PAJ format file. ##LoadPajek
 template <class PGraph> PGraph LoadPajek(const TStr& InFNm);
 /// Loads a directed network in the DyNetML format. Loads only the first network in the file FNm.
 PNGraph LoadDyNet(const TStr& FNm);
@@ -32,7 +28,7 @@ TVec<PNGraph> LoadDyNetGraphV(const TStr& FNm);
 //template <class PGraph> PGraph LoadGml(const TStr& FNm, const int Thresh);
 
 
-/// Saves a graph into a text file. Each line contains two columsn and encodes a single edge: <source node id><tab><destination node id>
+/// Saves a graph into a text file. Each line contains two columns and encodes a single edge: <source node id><tab><destination node id>
 template <class PGraph> void SaveEdgeList(const PGraph& Graph, const TStr& OutFNm, const TStr& Desc=TStr());
 /// Saves a graph in a Pajek .NET format.
 template <class PGraph> void SavePajek(const PGraph& Graph, const TStr& OutFNm);
@@ -44,11 +40,9 @@ template <class PGraph> void SavePajek(const PGraph& Graph, const TStr& OutFNm, 
 template <class PGraph> void SavePajek(const PGraph& Graph, const TStr& OutFNm, const TIntStrH& NIdColorH, const TIntStrH& NIdLabelH, const TIntStrH& EIdColorH);
 /// Saves a graph in a MATLAB sparse matrix format.
 template <class PGraph> void SaveMatlabSparseMtx(const PGraph& Graph, const TStr& OutFNm);
-/// Save a graph in GraphVizp .DOT format.
-/// @param NIdColorH Maps node ids to node colors (see GraphViz documentation for more details).
+/// Save a graph in GraphVizp .DOT format. ##SaveGViz_NIdColorH
 template<class PGraph> void SaveGViz(const PGraph& Graph, const TStr& OutFNm, const TStr& Desc=TStr(), const bool& NodeLabels=false, const TIntStrH& NIdColorH=TIntStrH());
-/// Save a graph in GraphVizp .DOT format.
-/// @param NIdLabelH Maps node ids to node string labels.
+/// Save a graph in GraphVizp .DOT format.  ##SaveGViz_NIdLabelH
 template<class PGraph> void SaveGViz(const PGraph& Graph, const TStr& OutFNm, const TStr& Desc, const TIntStrH& NIdLabelH);
 
 //TODO:  Save to a GML file format (http://en.wikipedia.org/wiki/Graph_Modelling_Language)
@@ -57,10 +51,7 @@ template<class PGraph> void SaveGViz(const PGraph& Graph, const TStr& OutFNm, co
 /////////////////////////////////////////////////
 // Implementation
 
-/// Whitespace separated file of several columns: ... <source node id> ... <destination node id> ...
-/// SrcColId and DstColId are column indexes of source/destination (integer!) node ids.
-/// This means there is one edge per line and node IDs are assumed to be integers.
-/// The function loads the format saved by TSnap::SaveEdgeList()
+/// Loads the format saved by TSnap::SaveEdgeList() ##LoadEdgeList
 template <class PGraph>
 PGraph LoadEdgeList(const TStr& InFNm, const int& SrcColId, const int& DstColId) {
   TSsParser Ss(InFNm, ssfWhiteSep, true, true, true);
@@ -76,10 +67,7 @@ PGraph LoadEdgeList(const TStr& InFNm, const int& SrcColId, const int& DstColId)
   return Graph;
 }
 
-/// 'Separator' separated file of several columns: ... <source node id> ... <destination node id> ...
-/// SrcColId and DstColId are column indexes of source/destination (integer!) node ids.
-/// This means there is one edge per line and node IDs are assumed to be integers.
-/// The function loads the format saved by TSnap::SaveEdgeList() if we set Separator='\t'.
+/// Loads the format saved by TSnap::SaveEdgeList() if we set Separator='\t'. ##LoadEdgeList_Separator
 template <class PGraph>
 PGraph LoadEdgeList(const TStr& InFNm, const int& SrcColId, const int& DstColId, const char& Separator) {
   TSsParser Ss(InFNm, Separator);
@@ -95,10 +83,7 @@ PGraph LoadEdgeList(const TStr& InFNm, const int& SrcColId, const int& DstColId,
   return Graph;
 }
 
-/// Whitespace separated file of several columns: ... <source node id> ... <destination node id> ...
-/// SrcColId and DstColId are column indexes of source/destination (string) node ids.
-/// This means there is one edge per line and node IDs can be arbitrary STRINGs. 
-/// Note that the mapping of node names to ids is discarded.
+/// Loads the format saved by TSnap::SaveEdgeList(), where node IDs are strings ##LoadEdgeListStr
 template <class PGraph>
 PGraph LoadEdgeListStr(const TStr& InFNm, const int& SrcColId, const int& DstColId) {
   TSsParser Ss(InFNm, ssfWhiteSep);
@@ -115,11 +100,7 @@ PGraph LoadEdgeListStr(const TStr& InFNm, const int& SrcColId, const int& DstCol
   return Graph;
 }
 
-/// Whitespace separated file of several columns: ... <source node id> ... <destination node id> ...
-/// SrcColId and DstColId are column indexes of source/destination (string) node ids.
-/// This means there is one edge per line and node IDs can be arbitrary STRINGs.
-/// The mapping of strings to node ids in stored in StrToNIdH.
-/// To map between node names and ids use: NId = StrToNIdH.GetKeyId(NodeName) and TStr NodeName = StrToNIdH[NId];
+/// Loads the format saved by TSnap::SaveEdgeList(), where node IDs are strings and mapping of strings to node ids are stored ##LoadEdgeListStr_StrToNIdH
 template <class PGraph>
 PGraph LoadEdgeListStr(const TStr& InFNm, const int& SrcColId, const int& DstColId, TStrHash<TInt>& StrToNIdH) {
   TSsParser Ss(InFNm, ssfWhiteSep);
@@ -135,9 +116,7 @@ PGraph LoadEdgeListStr(const TStr& InFNm, const int& SrcColId, const int& DstCol
   return Graph;
 }
 
-/// Whitespace separated file of several columns: <source node id> <destination node id1> <destination node id2> ... 
-/// First colum of each line contains a source node id followed by ids of the destination nodes.
-/// For example, '1 2 3' encodes edges 1-->2 and 1-->3. Note that this format allows for saving isolated nodes.
+/// Loads Whitespace separated file of several columns: <source node id> <destination node id1> <destination node id2> ##LoadConnList
 template <class PGraph>
 PGraph LoadConnList(const TStr& InFNm) {
   TSsParser Ss(InFNm, ssfWhiteSep, true, true, true);
@@ -156,10 +135,7 @@ PGraph LoadConnList(const TStr& InFNm) {
   return Graph;
 }
 
-/// Whitespace separated file of several columns: <source node name> <destination node name 1> <destination node name 2> ... 
-/// First colum of each line contains a source node name followed by ids of the destination nodes.
-/// For example, 'A B C' encodes edges A-->B and A-->C. Note that this format allows for saving isolated nodes.
-/// @StrToNIdH stores the mapping from node names to node ids.
+/// Loads Whitespace separated file of several columns: <source node id> <destination node id1> <destination node id2>, with a mapping of strings to node IDs. ##LoadConnListStr
 template <class PGraph> 
 PGraph LoadConnListStr(const TStr& InFNm, TStrHash<TInt>& StrToNIdH) {
   TSsParser Ss(InFNm, ssfWhiteSep, true, true, true);
@@ -199,7 +175,7 @@ PGraph LoadPajek(const TStr& InFNm) {
     if (Ss.Len()>0 && Ss[0][0] == '*') { break; }
     if (EdgeList) {
       // <source> <destination> <weight>
-      if (Ss.Len() == 3 && Ss.IsInt(0) && Ss.IsInt(1)) {
+      if (Ss.Len() >= 3 && Ss.IsInt(0) && Ss.IsInt(1)) {
         Graph->AddEdge(Ss.GetInt(0), Ss.GetInt(1)); }
     } else {
       // <source> <destination1> <destination2> <destination3> ...
