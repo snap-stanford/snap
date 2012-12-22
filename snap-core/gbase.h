@@ -67,7 +67,7 @@ template <class PGraph> void PrintInfo(const PGraph& Graph, const TStr& Desc="",
 // Implementation
 
 // Forward declaration, definition in triad.h
-template <class PGraph> int GetTriads(const PGraph& Graph, int& ClosedTriads, int& OpenTriads, int SampleNodes=-1);
+template <class PGraph> int64 GetTriads(const PGraph& Graph, int64& ClosedTriads, int64& OpenTriads, int SampleNodes=-1);
 
 template <class PGraph>
 void PrintInfo(const PGraph& Graph, const TStr& Desc, const TStr& OutFNm, const bool& Fast) {
@@ -98,7 +98,7 @@ void PrintInfo(const PGraph& Graph, const TStr& Desc, const TStr& OutFNm, const 
       }
     }
   }
-  int Closed=0, Open=0;
+  int64 Closed=0, Open=0;
   if (! Fast) { TSnap::GetTriads(Graph, Closed, Open); }
   // print info
   fprintf(F, "\n");
@@ -113,8 +113,8 @@ void PrintInfo(const PGraph& Graph, const TStr& Desc, const TStr& OutFNm, const 
     fprintf(F, "  Unique undirected edges:  %d\n", UniqUnDirE.Len());
     fprintf(F, "  Self Edges:               %d\n", SelfEdges);
     fprintf(F, "  BiDir Edges:              %d\n", BiDirEdges);
-    fprintf(F, "  Closed triangles          %d\n", Closed);
-    fprintf(F, "  Open triangles            %d\n", Open);
+    fprintf(F, "  Closed triangles          %s\n", TUInt64::GetStr(Closed).CStr());
+    fprintf(F, "  Open triangles            %s\n", TUInt64::GetStr(Open).CStr());
     fprintf(F, "  Frac. of closed triads    %f\n", Closed/double(Closed+Open));
   }
   if (! OutFNm.Empty()) { fclose(F); }

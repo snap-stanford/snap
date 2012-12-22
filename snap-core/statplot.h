@@ -106,7 +106,7 @@ void PlotSccDistr(const PGraph& Graph, const TStr& FNmPref, TStr DescStr) {
 template <class PGraph>
 void PlotClustCf(const PGraph& Graph, const TStr& FNmPref, TStr DescStr) {
   TFltPrV DegToCCfV;
-  int ClosedTriads, OpenTriads;
+  int64 ClosedTriads, OpenTriads;
   const double CCF = GetClustCf(Graph, DegToCCfV, ClosedTriads, OpenTriads);
   if (DescStr.Empty()) { DescStr = FNmPref; }
   TGnuPlot GnuPlot("ccf."+FNmPref,

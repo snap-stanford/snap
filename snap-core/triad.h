@@ -12,7 +12,7 @@ template <class PGraph> double GetClustCf(const PGraph& Graph, TFltPrV& DegToCCf
 /// Computes the distribution of average clustering coefficient as well as the number of open and closed triads in the graph.
 /// @param DegToCCfV Vector of pairs (degree, avg. clustering coefficient of nodes of that degree).
 /// @param SampleNodes If !=-1 then compute clustering coefficient only for a random sample of SampleNodes nodes. Useful for approximate but quick computations.
-template <class PGraph> double GetClustCf(const PGraph& Graph, TFltPrV& DegToCCfV, int& ClosedTriads, int& OpenTriads, int SampleNodes=-1);
+template <class PGraph> double GetClustCf(const PGraph& Graph, TFltPrV& DegToCCfV, int64& ClosedTriads, int64& OpenTriads, int SampleNodes=-1);
 /// Returns clustering coefficient of a particular node.
 template <class PGraph> double GetNodeClustCf(const PGraph& Graph, const int& NId);
 /// Computes clustering coefficient of each node of the Graph.
@@ -20,10 +20,10 @@ template <class PGraph> void GetNodeClustCf(const PGraph& Graph, TIntFltH& NIdCC
 
 /// Returns the number of triangles in a graph. Function returns the number of unique triples of connected nodes (regardless of the number of edges between each pair of nodes).
 /// @param SampleNodes If !=-1 then compute triads only for a random sample of SampleNodes nodes. Useful for approximate but quick computations.
-template <class PGraph> int GetTriads(const PGraph& Graph, int SampleNodes=-1);
+template <class PGraph> int64 GetTriads(const PGraph& Graph, int SampleNodes=-1);
 /// Computes the number of Closed and Open triads.
 /// @param SampleNodes If !=-1 then compute triads only for a random sample of SampleNodes nodes. Useful for approximate but quick computations.
-template <class PGraph> int GetTriads(const PGraph& Graph, int& ClosedTriads, int& OpenTriads, int SampleNodes);
+template <class PGraph> int64 GetTriads(const PGraph& Graph, int64& ClosedTriads, int64& OpenTriads, int SampleNodes=-1);
 /// Computes the number of open and close triads for every node of the network.
 /// @param NIdCOTriadV Triple (node id, open triads: number of pairs of node's neighbors that are not connected, closed triads: number of pairs of node's neighbors that are connected between themselves).
 /// @param SampleNodes If !=-1 then compute triads only for a random sample of SampleNodes nodes. Useful for approximate but quick computations.
@@ -98,7 +98,7 @@ template <class PGraph> double GetClustCf(const PGraph& Graph, TFltPrV& DegToCCf
 }
 
 template <class PGraph>
-double GetClustCf(const PGraph& Graph, TFltPrV& DegToCCfV, int& ClosedTriads, int& OpenTriads, int SampleNodes) {
+double GetClustCf(const PGraph& Graph, TFltPrV& DegToCCfV, int64& ClosedTriads, int64& OpenTriads, int SampleNodes) {
   TIntTrV NIdCOTriadV;
   GetTriads(Graph, NIdCOTriadV, SampleNodes);
   THash<TInt, TFltPr> DegSumCnt;
@@ -120,8 +120,8 @@ double GetClustCf(const PGraph& Graph, TFltPrV& DegToCCfV, int& ClosedTriads, in
   for (int d = 0; d  < DegSumCnt.Len(); d++) {
     DegToCCfV.Add(TFltPr(DegSumCnt.GetKey(d).Val, DegSumCnt[d].Val1()/DegSumCnt[d].Val2()));
   }
-  if(closedTriads/3 > (uint64) TInt::Mx) { WarnNotify(TStr::Fmt("[%s line %d] %g closed triads.\n", __FILE__, __LINE__, float(closedTriads/3)).CStr());  }
-  if(openTriads > (uint64) TInt::Mx) { WarnNotify(TStr::Fmt("[%s line %d] %g open triads.\n", __FILE__, __LINE__, float(openTriads/3)).CStr());  }
+  //if(closedTriads/3 > (uint64) TInt::Mx) { WarnNotify(TStr::Fmt("[%s line %d] %g closed triads.\n", __FILE__, __LINE__, float(closedTriads/3)).CStr());  }
+  //if(openTriads > (uint64) TInt::Mx) { WarnNotify(TStr::Fmt("[%s line %d] %g open triads.\n", __FILE__, __LINE__, float(openTriads/3)).CStr());  }
   ClosedTriads = int(closedTriads/3); // each triad is counted 3 times
   OpenTriads = int(openTriads);
   DegToCCfV.Sort();
@@ -149,13 +149,13 @@ void GetNodeClustCf(const PGraph& Graph, TIntFltH& NIdCCfH) {
 }
 
 template <class PGraph>
-int GetTriads(const PGraph& Graph, int SampleNodes) {
-  int OpenTriads, ClosedTriads;
+int64 GetTriads(const PGraph& Graph, int SampleNodes) {
+  int64 OpenTriads, ClosedTriads;
   return GetTriads(Graph, ClosedTriads, OpenTriads, SampleNodes);
 }
 
 template <class PGraph>
-int GetTriads(const PGraph& Graph, int& ClosedTriads, int& OpenTriads, int SampleNodes) {
+int64 GetTriads(const PGraph& Graph, int64& ClosedTriads, int64& OpenTriads, int SampleNodes) {
   TIntTrV NIdCOTriadV;
   GetTriads(Graph, NIdCOTriadV, SampleNodes);
   uint64 closedTriads = 0;
@@ -164,10 +164,10 @@ int GetTriads(const PGraph& Graph, int& ClosedTriads, int& OpenTriads, int Sampl
     closedTriads += NIdCOTriadV[i].Val2;
     openTriads += NIdCOTriadV[i].Val3;
   }
-  IAssert(closedTriads/3 < (uint64) TInt::Mx);
-  IAssert(openTriads < (uint64) TInt::Mx);
-  ClosedTriads = int(closedTriads/3); // each triad is counted 3 times
-  OpenTriads = int(openTriads);
+  //IAssert(closedTriads/3 < (uint64) TInt::Mx);
+  //IAssert(openTriads < (uint64) TInt::Mx);
+  ClosedTriads = int64(closedTriads/3); // each triad is counted 3 times
+  OpenTriads = int64(openTriads);
   return ClosedTriads;
 }
 

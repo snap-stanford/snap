@@ -406,7 +406,7 @@ template <class PGraph>
 void TGStat::TakeClustCf(const PGraph& Graph, const int& SampleNodes) {
   printf("clustCf ");
   TFltPrV& ClustCfV = DistrStatH.AddDat(gsdClustCf);
-  int Open, Close;
+  int64 Open, Close;
   const double ClustCf =  TSnap::GetClustCf(Graph, ClustCfV, Close, Open, SampleNodes);
   SetVal(gsvClustCf, ClustCf);
   SetVal(gsvOpenTriads, Open);
