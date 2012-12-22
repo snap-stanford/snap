@@ -103,8 +103,8 @@ double GetClustCf(const PGraph& Graph, TFltPrV& DegToCCfV, int64& ClosedTriads, 
   GetTriads(Graph, NIdCOTriadV, SampleNodes);
   THash<TInt, TFltPr> DegSumCnt;
   double SumCcf = 0.0;
-  uint64 closedTriads = 0;
-  uint64 openTriads = 0;
+  int64 closedTriads = 0;
+  int64 openTriads = 0;
   for (int i = 0; i < NIdCOTriadV.Len(); i++) {
     const int D = NIdCOTriadV[i].Val2()+NIdCOTriadV[i].Val3();
     const double Ccf = D!=0 ? NIdCOTriadV[i].Val2() / double(D) : 0.0;
@@ -122,8 +122,8 @@ double GetClustCf(const PGraph& Graph, TFltPrV& DegToCCfV, int64& ClosedTriads, 
   }
   //if(closedTriads/3 > (uint64) TInt::Mx) { WarnNotify(TStr::Fmt("[%s line %d] %g closed triads.\n", __FILE__, __LINE__, float(closedTriads/3)).CStr());  }
   //if(openTriads > (uint64) TInt::Mx) { WarnNotify(TStr::Fmt("[%s line %d] %g open triads.\n", __FILE__, __LINE__, float(openTriads/3)).CStr());  }
-  ClosedTriads = int(closedTriads/3); // each triad is counted 3 times
-  OpenTriads = int(openTriads);
+  ClosedTriads = closedTriads/int64(3); // each triad is counted 3 times
+  OpenTriads = openTriads;
   DegToCCfV.Sort();
   return SumCcf / double(NIdCOTriadV.Len());
 }

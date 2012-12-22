@@ -113,7 +113,7 @@ typedef TPair<TInt, TIntPr> TIntIntPrPr;
 typedef TPair<TInt, TStrPr> TIntStrPrPr;
 typedef TPair<TFlt, TStrPr> TFltStrPrPr;
 
-// Pair comparator
+/// Compares the pair by the second value.
 template <class TVal1, class TVal2>
 class TCmpPairByVal2 {
 private:
@@ -188,6 +188,30 @@ typedef TTriple<TStr, TInt, TInt> TStrIntIntTr;
 typedef TTriple<TStr, TFlt, TFlt> TStrFltFltTr;
 typedef TTriple<TStr, TStr, TInt> TStrStrIntTr;
 typedef TTriple<TStr, TInt, TStrV> TStrIntStrVTr;
+    
+/// Compares the triple by the second value.
+template <class TVal1, class TVal2, class TVal3>
+class TCmpTripleByVal2 {
+private:
+  bool IsAsc;
+public:
+  TCmpTripleByVal2(const bool& AscSort=true) : IsAsc(AscSort) { }
+  bool operator () (const TTriple<TVal1, TVal2, TVal3>& T1, const TTriple<TVal1, TVal2, TVal3>& T2) const {
+    if (IsAsc) { return T1.Val2 < T2.Val2; } else { return T2.Val2 < T1.Val2; }
+  }
+};
+    
+/// Compares the triple by the third value.
+template <class TVal1, class TVal2, class TVal3>
+class TCmpTripleByVal3 {
+private:
+  bool IsAsc;
+public:
+  TCmpTripleByVal3(const bool& AscSort=true) : IsAsc(AscSort) { }
+  bool operator () (const TTriple<TVal1, TVal2, TVal3>& T1, const TTriple<TVal1, TVal2, TVal3>& T2) const {
+    if (IsAsc) { return T1.Val3 < T2.Val3; } else { return T2.Val3 < T1.Val3; }
+  }
+};
 
 /////////////////////////////////////////////////
 // Quad
