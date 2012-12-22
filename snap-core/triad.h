@@ -585,7 +585,7 @@ void TNetConstraint<PGraph>::Dump() const {
 }
 
 // example from page 56 of Structural Holes by Ronald S. Burt
-// (http://www.amazon.com/Structural-Holes-Social-Structure-Competition)
+// (http://www.amazon.com/Structural-Holes-Social-Structure-Competition/dp/0674843711)
 template <class PGraph>
 void TNetConstraint<PGraph>::Test() {
   PUNGraph G = TUNGraph::New();

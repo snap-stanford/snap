@@ -108,7 +108,7 @@ public:
   TMem& operator+=(const PSIn& SIn);
   char& operator[](const int& ChN) const {
     Assert((0<=ChN)&&(ChN<BfL)); return Bf[ChN];}
-  int GetMemUsed() const {return 2*sizeof(int)+sizeof(char*)+MxBfL;}
+  int GetMemUsed() const {return int(2*sizeof(int)+sizeof(char*)+MxBfL);}
 
   void Gen(const int& _BfL){
     Clr(); Resize(_BfL); BfL=_BfL;}
@@ -237,7 +237,7 @@ public:
     Assert((0<=ChN)&&(ChN<BfL)); return Bf[ChN];}
   char& operator[](const int& ChN){
     Assert((0<=ChN)&&(ChN<BfL)); return Bf[ChN];}
-  int GetMemUsed() const {return 2*sizeof(int)+sizeof(char*)+sizeof(char)*MxBfL;}
+  int GetMemUsed() const {return int(2*sizeof(int)+sizeof(char*)+sizeof(char)*MxBfL);}
 
   char* operator ()(){return Bf;}
   const char* operator ()() const {return Bf;}
@@ -454,7 +454,7 @@ public:
   bool operator<(const TStr& Str) const {
     return strcmp(RStr->CStr(), Str.RStr->CStr())<0;}
   char operator[](const int& ChN) const {return RStr->GetCh(ChN);}
-  int GetMemUsed() const {return sizeof(TRStr*)+RStr->GetMemUsed();}
+  int GetMemUsed() const {return int(sizeof(TRStr*)+RStr->GetMemUsed());}
 
   char* operator()(){return RStr->CStr();}
   const char* operator()() const {return RStr->CStr();}

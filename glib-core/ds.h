@@ -434,7 +434,7 @@ public:
     AssertR((0<=ValN)&&(ValN<Vals), GetXOutOfBoundsErrMsg(ValN));
     return ValT[ValN];}
   int GetMemUsed() const {
-    return 2*sizeof(int)+sizeof(TVal*)+MxVals*sizeof(TVal);}
+    return int(2*sizeof(int)+sizeof(TVal*)+MxVals*sizeof(TVal));}
 
   int GetPrimHashCd() const;
   int GetSecHashCd() const;
