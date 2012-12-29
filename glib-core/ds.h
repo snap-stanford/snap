@@ -1945,8 +1945,8 @@ public:
     XDim.Save(SOut); YDim.Save(SOut); ZDim.Save(SOut); ValV.Save(SOut);}
 
   TVVVec<TVal>& operator=(const TVVVec<TVal>& Vec){
-	  XDim=Vec.XDim; YDim=Vec.YDim; ZDim=Vec.ZDim; ValV=Vec.ValV;
-	  return *this;
+    XDim=Vec.XDim; YDim=Vec.YDim; ZDim=Vec.ZDim; ValV=Vec.ValV;
+    return *this;
   }
   bool operator==(const TVVVec& Vec) const {
     return (XDim==Vec.XDim)&&(YDim==Vec.YDim)&&(ZDim==Vec.ZDim)&&

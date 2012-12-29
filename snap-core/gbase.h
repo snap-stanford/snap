@@ -123,7 +123,7 @@ void PrintInfo(const PGraph& Graph, const TStr& Desc, const TStr& OutFNm, const 
 }  // namespace TSnap
 
 /////////////////////////////////////////////////
-/// Fast Queue used by the TBreathFS (uses memcpy to move objects TVal around).
+/// Fast Queue used by the \v TBreathFS (uses \v memcpy to move objects \v TVal around).
 template <class TVal>
 class TSnapQueue {
 private:
@@ -216,3 +216,97 @@ public:
   /// Prints out the structure to standard output.
   void Dump();
 };
+
+/////////////////////////////////////////////////
+/// Simple heap data structure.
+/// Data structure provides insertion of elements, and inspection and removal of the top element. It is guaranteed that the top element is the largest element in the heap, where the function object \v TCmp is used for comparisons.
+template <class TVal, class TCmp = TLss<TVal> >
+class THeap {
+private:
+  TCmp Cmp;
+  TVec<TVal> HeapV;
+private:
+  void PushHeap(const int& First, int HoleIdx, const int& Top, TVal Val);
+  void AdjustHeap(const int& First, int HoleIdx, const int& Len, TVal Val);
+  void MakeHeap(const int& First, const int& Len);
+public:
+  THeap() : HeapV() { }
+  THeap(const int& MxVals) : Cmp(), HeapV(0, MxVals) { }
+  THeap(const TCmp& _Cmp) : Cmp(_Cmp), HeapV() { }
+  THeap(const TVec<TVal>& Vec) : Cmp(), HeapV(Vec) { MakeHeap(); }
+  THeap(const TVec<TVal>& Vec, const TCmp& _Cmp) : Cmp(_Cmp), HeapV(Vec) { MakeHeap(); }
+  THeap(const THeap& Heap) : Cmp(Heap.Cmp), HeapV(Heap.HeapV) { }
+  THeap& operator = (const THeap& H) { Cmp=H.Cmp; HeapV=H.HeapV; return *this; }
+
+  /// Returns a reference to the element at the top of the heap (the largest element of the heap).
+  const TVal& TopHeap() const { return HeapV[0]; }
+  /// Pushes an element \v Val to the heap.
+  void PushHeap(const TVal& Val);
+  /// Removes the top element from the heap.
+  TVal PopHeap();
+  /// Returns the number of elements in the heap.
+  int Len() const { return HeapV.Len(); }
+  /// Tests whether the heap is empty.
+  bool Empty() const { return HeapV.Empty(); }
+  /// Returns a reference to the vector containing the elements of the heap.
+  const TVec<TVal>& operator()() const { return HeapV; }
+  /// Returns a reference to the vector containing the elements of the heap.
+  TVec<TVal>& operator()() { return HeapV; }
+  /// Adds an element to the data structure. Heap property is not maintained by \v Add() and thus after all the elements are added \v MakeHeap() needs to be called.
+  void Add(const TVal& Val) { HeapV.Add(Val); }
+  /// Builds a heap from a set of elements.
+  void MakeHeap() { MakeHeap(0, Len()); }
+};
+
+template <class TVal, class TCmp>
+void THeap<TVal, TCmp>::PushHeap(const TVal& Val) {
+  HeapV.Add(Val);
+  PushHeap(0, HeapV.Len()-1, 0, Val);
+}
+
+template <class TVal, class TCmp>
+TVal THeap<TVal, TCmp>::PopHeap() {
+  IAssert(! HeapV.Empty());
+  const TVal Top = HeapV[0];
+  HeapV[0] = HeapV.Last();
+  HeapV.DelLast();
+  if (! HeapV.Empty()) {
+    AdjustHeap(0, 0, HeapV.Len(), HeapV[0]);
+  }
+  return Top;
+}
+
+template <class TVal, class TCmp>
+void THeap<TVal, TCmp>::PushHeap(const int& First, int HoleIdx, const int& Top, TVal Val) {
+  int Parent = (HoleIdx-1)/2;
+  while (HoleIdx > Top && Cmp(HeapV[First+Parent], Val)) {
+    HeapV[First+HoleIdx] = HeapV[First+Parent];
+    HoleIdx = Parent;  Parent = (HoleIdx-1)/2;
+  }
+  HeapV[First+HoleIdx] = Val;
+}
+
+template <class TVal, class TCmp>
+void THeap<TVal, TCmp>::AdjustHeap(const int& First, int HoleIdx, const int& Len, TVal Val) {
+  const int Top = HoleIdx;
+  int Right = 2*HoleIdx+2;
+  while (Right < Len) {
+    if (Cmp(HeapV[First+Right], HeapV[First+Right-1])) { Right--; }
+    HeapV[First+HoleIdx] = HeapV[First+Right];
+    HoleIdx = Right;  Right = 2*(Right+1); }
+  if (Right == Len) {
+    HeapV[First+HoleIdx] = HeapV[First+Right-1];
+    HoleIdx = Right-1; }
+  PushHeap(First, HoleIdx, Top, Val);
+}
+
+template <class TVal, class TCmp>
+void THeap<TVal, TCmp>::MakeHeap(const int& First, const int& Len) {
+  if (Len < 2) { return; }
+  int Parent = (Len-2)/2;
+  while (true) {
+    AdjustHeap(First, Parent, Len, HeapV[First+Parent]);
+    if (Parent == 0) { return; }
+    Parent--;
+  }
+}

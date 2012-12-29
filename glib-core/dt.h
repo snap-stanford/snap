@@ -124,7 +124,7 @@ public:
     Clr(false); Resize(_BfL); BfL=_BfL;
     if (BfL > 0) memset(Bf, 0, BfL);}
   void Reserve(const int& _MxBfL, const bool& DoClr = true){
-	  if (DoClr){ Clr(); } Resize(_MxBfL);}
+    if (DoClr){ Clr(); } Resize(_MxBfL);}
   void Del(const int& BChN, const int& EChN);
   void Clr(const bool& DoDel=true){
     if (DoDel){if (Bf!=NULL){delete[] Bf;} MxBfL=0; BfL=0; Bf=NULL;}
@@ -1094,13 +1094,21 @@ public:
     IAssert(Mn<=Mx); return Val<Mn?Mn:(Val>Mx?Mx:Val);}
 
   TStr GetStr() const {return TInt::GetStr(Val);}
-  static TStr GetStr(const int& Val){
-    char Bf[255]; sprintf(Bf, "%d", Val); return TStr(Bf);}
-  static TStr GetStr(const TInt& Int){
-    return GetStr(Int.Val);}
+  
+  static TStr GetStr(const int& Val){ return TStr::Fmt("%d", Val); }
+  static TStr GetStr(const TInt& Int){ return GetStr(Int.Val);}
   static TStr GetStr(const int& Val, const char* FmtStr);
-  static TStr GetStr(const int& Val, const TStr& FmtStr){
-    return GetStr(Val, FmtStr.CStr());}
+  static TStr GetStr(const int& Val, const TStr& FmtStr){ return GetStr(Val, FmtStr.CStr());}
+
+  //J: So that TInt can convert any kind of integer to a string
+  static TStr GetStr(const uint& Val){ return TStr::Fmt("%u", Val); }
+  #ifdef GLib_WIN
+  static TStr GetStr(const int64& Val) {return TStr::Fmt("%I64d", Val);}
+  static TStr GetStr(const uint64& Val) {return TStr::Fmt("%I64u", Val);}
+  #else
+  static TStr GetStr(const int64& Val) {return TStr::Fmt("%lld", Val);}
+  static TStr GetStr(const uint64& Val) {return TStr::Fmt("%llu", Val);}
+  #endif
 
   static TStr GetHexStr(const int& Val){
     char Bf[255]; sprintf(Bf, "%X", Val); return TStr(Bf);}
@@ -1170,7 +1178,7 @@ public:
   TStr GetStr() const {return TUInt::GetStr(Val);}
   static TStr GetStr(const uint& Val){
     char Bf[255]; sprintf(Bf, "%u", Val); return TStr(Bf);}
-  static TStr GetStr(const TInt& UInt){
+  static TStr GetStr(const TUInt& UInt){
     return GetStr(UInt.Val);}
   static TStr GetStr(const uint& Val, const char* FmtStr);
   static TStr GetStr(const uint& Val, const TStr& FmtStr){
@@ -1497,4 +1505,3 @@ public:
   // string
   TStr GetStr() const;
 };
-
