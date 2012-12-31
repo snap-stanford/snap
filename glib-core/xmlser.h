@@ -99,20 +99,20 @@ template <class TKey, class TDat>
 void TKeyDat< TKey, TDat>::SaveXml(TSOut& SOut, const TStr& Nm) const {
 	XSaveHd(Nm); XSave(Key); XSave(Dat);}
 
-template <class TVal>
-void TVec<TVal>::LoadXml(const PXmlTok& XmlTok, const TStr& Nm){
+template <class TVal, class TSizeTy>
+void TVec<TVal, TSizeTy>::LoadXml(const PXmlTok& XmlTok, const TStr& Nm){
   XLoadHd(Nm);
-  int SubToks=XmlTok->GetSubToks(); Gen(SubToks, 0);
-  for (int SubTokN=0; SubTokN<SubToks; SubTokN++){
+  TSizeTy SubToks=XmlTok->GetSubToks(); Gen(SubToks, 0);
+  for (TSizeTy SubTokN=0; SubTokN<SubToks; SubTokN++){
     PXmlTok SubTok=XmlTok->GetSubTok(SubTokN);
     TVal Val; Val.LoadXml(SubTok, TStr()); Add(Val);
   }
 }
 
-template <class TVal>
-void TVec<TVal>::SaveXml(TSOut& SOut, const TStr& Nm) const {
+template <class TVal, class TSizeTy>
+void TVec<TVal, TSizeTy>::SaveXml(TSOut& SOut, const TStr& Nm) const {
   XSaveHdArg(Nm, "Vals", TInt::GetStr(Vals));
-  for (int ValN=0; ValN<Vals; ValN++){ValT[ValN].SaveXml(SOut, TStr());}
+  for (TSizeTy ValN=0; ValN<Vals; ValN++){ValT[ValN].SaveXml(SOut, TStr());}
 }
 
 template <class TKey, class TDat>

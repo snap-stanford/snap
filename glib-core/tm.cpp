@@ -1093,11 +1093,11 @@ void TTm::GetDiff(const TTm& Tm1, const TTm& Tm2, int& Days,
 	const uint64 DiffMins = DiffSecs / 60;
 	const uint64 DiffHours = DiffMins / 60;	
 
-	MSecs = DiffMSecs % 1000;
-	Secs = DiffSecs % 60;
-	Mins = DiffMins % 60;
-	Hours = DiffHours % 24;
-	Days = (int)DiffHours / 24;
+	MSecs = int(DiffMSecs % 1000);
+	Secs = int(DiffSecs % 60);
+	Mins = int(DiffMins % 60);
+	Hours = int(DiffHours % 24);
+	Days = int((int)DiffHours / 24);
 }
 
 uint64 TTm::GetDiffMSecs(const TTm& Tm1, const TTm& Tm2){

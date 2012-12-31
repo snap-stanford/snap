@@ -102,12 +102,12 @@ private:
   };
 private:
   THash<TInt, TCmtyDat> CmtyQH;
-  TVec<TFltIntIntTr> MxQHeap;
+  THeap<TFltIntIntTr> MxQHeap;
   TUnionFind CmtyIdUF;
   double Q;
 public:
   TCNMQMatrix(const PUNGraph& Graph) : CmtyQH(Graph->GetNodes()), 
-    MxQHeap(Graph->GetNodes(), 0), CmtyIdUF(Graph->GetNodes()) { Init(Graph); }
+    MxQHeap(Graph->GetNodes()), CmtyIdUF(Graph->GetNodes()) { Init(Graph); }
   void Init(const PUNGraph& Graph) {
     const double M = 0.5/Graph->GetEdges(); // 1/2m
     Q = 0.0;
