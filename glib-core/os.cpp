@@ -650,7 +650,7 @@ uint64 TSysTm::GetMSecsFromTm(const TTm& Tm){
 }
 
 TTm TSysTm::GetTmFromMSecs(const uint64& TmNum){
-  int MSec = TmNum % 1000;
+  const int MSec = int(TmNum % 1000);
   time_t Sec = Ft2Epoch(TmNum*10000);
 
   struct tm tms;

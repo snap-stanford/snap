@@ -315,8 +315,8 @@ public:
     Edges /= 2.0;
     Hairpins /= 2.0;
     Tripins /= 6.0;
-    int ot,ct;
-    Triads = TSnap::GetTriads(G, ot, ct)/3.0;
+    int64 ot,ct;
+    Triads = (int) TSnap::GetTriads(G, ot, ct)/3.0;
     printf("E:%g\tH:%g\tT:%g\tD:%g\n", Edges, Hairpins, Tripins, Triads);
   }
 

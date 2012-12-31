@@ -48,6 +48,18 @@ uint TRnd::GetUniDevUInt(const uint& Range){
   else {return Seed%Range;}
 }
 
+int64 TRnd::GetUniDevInt64(const int64& Range){
+  const int64 RndVal = int64((uint64(GetUniDevInt())<<32) | uint64(GetUniDevInt()));
+  if (Range==0){return RndVal;}
+  else {return RndVal%Range;}
+}
+
+uint64 TRnd::GetUniDevUInt64(const uint64& Range){
+ const uint64 RndVal = uint64((uint64(GetUniDevInt())<<32) | uint64(GetUniDevInt()));
+ if (Range==0){return RndVal;}
+ else {return RndVal%Range;}
+}
+
 double TRnd::GetNrmDev(){
   double v1, v2, rsq;
   do {
