@@ -256,7 +256,7 @@ void ExeStop(
 #define AssertR(Cond, Reason)
 #else
 #define AssertR(Cond, Reason) ((Cond) ? static_cast<void>(0) : \
-  ExeStop(NULL, Reason.CStr(), #Cond, __FILE__, __LINE__))
+  ExeStop(NULL, TStr(Reason).CStr(), #Cond, __FILE__, __LINE__))
 #endif
 
 #define IAssert(Cond) \
