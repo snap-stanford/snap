@@ -399,8 +399,8 @@ public:
 /////////////////////////////////////////////////
 // String
 class TStr;
-template <class TVal> class TVec;
-typedef TVec<TStr> TStrV;
+template <class TVal, class TSizeTy> class TVec;
+typedef TVec<TStr, int> TStrV;
 
 class TStr{
 private:
@@ -1129,8 +1129,8 @@ public:
   static char* SaveFrugalInt(char *pDest, int i);
   static char* LoadFrugalInt(char *pSrc, int& i);
   static void TestFrugalInt();
-  static void SaveFrugalIntV(TSOut& SOut, const TVec<TInt>& IntV);
-  static void LoadFrugalIntV(TSIn& SIn, TVec<TInt>& IntV, bool ClrP=true);
+  static void SaveFrugalIntV(TSOut& SOut, const TVec<TInt, int>& IntV);
+  static void LoadFrugalIntV(TSIn& SIn, TVec<TInt, int>& IntV, bool ClrP=true);
 };
 
 /////////////////////////////////////////////////

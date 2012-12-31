@@ -53,23 +53,19 @@ public:
 
   int GetMemUsed() const {return Val1.GetMemUsed()+Val2.GetMemUsed();}
 
-  //int GetPrimHashCd() const {return Val1.GetPrimHashCd()+Val2.GetPrimHashCd();} //J: terrible hash function!
-  //int GetSecHashCd() const {return Val1.GetSecHashCd()+Val2.GetSecHashCd();}    //J: terrible hash function!
-  int GetPrimHashCd() const {return 12289*Val1.GetPrimHashCd() ^ Val2.GetPrimHashCd();} //J: multiply by prime and xor
-  int GetSecHashCd() const {return Val1.GetSecHashCd() ^ 24593*Val2.GetSecHashCd();}    //J: multiply by prime and xor
+  int GetPrimHashCd() const {return TPairHashImpl::GetHashCd(Val1.GetPrimHashCd(), Val2.GetPrimHashCd()); }
+  int GetSecHashCd() const {return TPairHashImpl::GetHashCd(Val2.GetSecHashCd(), Val1.GetSecHashCd()); }
 
   void GetVal(TVal1& _Val1, TVal2& _Val2) const {_Val1=Val1; _Val2=Val2;}
   TStr GetStr() const {
     return TStr("Pair(")+Val1.GetStr()+", "+Val2.GetStr()+")";}
 };
 
-template <class TVal1, class TVal2>
-void GetSwitchedPrV(
- const TVec<TPair<TVal1, TVal2> >& SrcPrV,
- TVec<TPair<TVal2, TVal1> >& DstPrV){
-  int Prs=SrcPrV.Len();
+template <class TVal1, class TVal2, class TSizeTy>
+void GetSwitchedPrV(const TVec<TPair<TVal1, TVal2>, TSizeTy>& SrcPrV, TVec<TPair<TVal2, TVal1>, TSizeTy>& DstPrV){
+  const TSizeTy Prs = SrcPrV.Len();
   DstPrV.Gen(Prs, 0);
-  for (int PrN=0; PrN<Prs; PrN++){
+  for (TSizeTy PrN=0; PrN<Prs; PrN++){
     const TPair<TVal1, TVal2>& SrcPr=SrcPrV[PrN];
     DstPrV.Add(TPair<TVal2, TVal1>(SrcPr.Val2, SrcPr.Val1));
   }
@@ -85,7 +81,7 @@ typedef TPair<TInt, TCh> TIntChPr;
 typedef TPair<TInt, TInt> TIntPr;
 typedef TPair<TInt, TUInt64> TIntUInt64Pr;
 typedef TPair<TInt, TIntPr> TIntIntPrPr;
-typedef TPair<TInt, TVec<TInt> > TIntIntVPr;
+typedef TPair<TInt, TVec<TInt, int> > TIntIntVPr;
 typedef TPair<TInt, TFlt> TIntFltPr;
 typedef TPair<TInt, TStr> TIntStrPr;
 typedef TPair<TInt, TStrV> TIntStrVPr;
@@ -154,12 +150,8 @@ public:
     return (Val1<Triple.Val1)||((Val1==Triple.Val1)&&(Val2<Triple.Val2))||
      ((Val1==Triple.Val1)&&(Val2==Triple.Val2)&&(Val3<Triple.Val3));}
 
-  int GetPrimHashCd() const {
-    return Val1.GetPrimHashCd()+Val2.GetPrimHashCd()+Val3.GetPrimHashCd();}
-  int GetSecHashCd() const {
-    return Val1.GetSecHashCd()+Val2.GetSecHashCd()+Val3.GetSecHashCd();}
-  //int GetPrimHashCd() const {return 193*Val1.GetPrimHashCd() ^ 24593 * Val2.GetPrimHashCd() ^ ; } //J: multiply by prime and xor
-  //int GetSecHashCd() const {return Val1.GetSecHashCd() ^ 24593*Val2.GetSecHashCd();}    //J: multiply by prime and xor
+  int GetPrimHashCd() const {return  TPairHashImpl::GetHashCd(TPairHashImpl::GetHashCd(Val1.GetPrimHashCd(), Val2.GetPrimHashCd()), Val3.GetPrimHashCd()); }
+  int GetSecHashCd() const {return TPairHashImpl::GetHashCd(TPairHashImpl::GetHashCd(Val2.GetSecHashCd(), Val3.GetSecHashCd()), Val1.GetSecHashCd()); }
   int GetMemUsed() const {return Val1.GetMemUsed()+Val2.GetMemUsed()+Val3.GetMemUsed();}
 
   void GetVal(TVal1& _Val1, TVal2& _Val2, TVal3& _Val3) const {
@@ -176,8 +168,8 @@ typedef TTriple<TInt, TInt, TStr> TIntIntStrTr;
 typedef TTriple<TInt, TInt, TFlt> TIntIntFltTr;
 typedef TTriple<TInt, TFlt, TInt> TIntFltIntTr;
 typedef TTriple<TInt, TFlt, TFlt> TIntFltFltTr;
-typedef TTriple<TInt, TVec<TInt>, TInt> TIntIntVIntTr;
-typedef TTriple<TInt, TInt, TVec<TInt> > TIntIntIntVTr;
+typedef TTriple<TInt, TVec<TInt, int>, TInt> TIntIntVIntTr;
+typedef TTriple<TInt, TInt, TVec<TInt, int> > TIntIntIntVTr;
 typedef TTriple<TFlt, TFlt, TFlt> TFltTr;
 typedef TTriple<TFlt, TInt, TInt> TFltIntIntTr;
 typedef TTriple<TFlt, TFlt, TInt> TFltFltIntTr;
@@ -247,10 +239,8 @@ public:
      ((Val1==Quad.Val1)&&(Val2==Quad.Val2)&&(Val3<Quad.Val3))||
      ((Val1==Quad.Val1)&&(Val2==Quad.Val2)&&(Val3==Quad.Val3)&&(Val4<Quad.Val4));}
 
-  int GetPrimHashCd() const {
-    return Val1.GetPrimHashCd()+Val2.GetPrimHashCd()+Val3.GetPrimHashCd()+Val4.GetPrimHashCd();}
-  int GetSecHashCd() const {
-    return Val1.GetSecHashCd()+Val2.GetSecHashCd()+Val3.GetSecHashCd()+Val4.GetSecHashCd();}
+  int GetPrimHashCd() const {return  TPairHashImpl::GetHashCd(TPairHashImpl::GetHashCd(Val1.GetPrimHashCd(), Val2.GetPrimHashCd()), TPairHashImpl::GetHashCd(Val3.GetPrimHashCd(), Val4.GetPrimHashCd())); }
+  int GetSecHashCd() const {return TPairHashImpl::GetHashCd(TPairHashImpl::GetHashCd(Val2.GetSecHashCd(), Val3.GetSecHashCd()), TPairHashImpl::GetHashCd(Val4.GetSecHashCd(), Val1.GetSecHashCd())); }
 
   void GetVal(TVal1& _Val1, TVal2& _Val2, TVal3& _Val3, TVal4& _Val4) const {
     _Val1=Val1; _Val2=Val2; _Val3=Val3; _Val4=Val4;}
@@ -293,14 +283,14 @@ public:
   void Sort(const bool& Asc=true);
   int FindMx() const;
   int FindMn() const;
-  //int GetPrimHashCd() const { int HashCd=0;
-  //  for (int i=0; i<Len(); i++) { HashCd += ValV[i].GetPrimHashCd(); } return HashCd; }
-  //int GetSecHashCd() const { int HashCd=0;
-  //  for (int i=0; i<Len(); i++) { HashCd += ValV[i].GetSecHashCd(); } return HashCd; }
-  int GetPrimHashCd() const { uint HashCd = 5381;
-    for (int i=0; i<Len(); i++) { HashCd = ((HashCd << 13) + HashCd) + ValV[i].GetPrimHashCd(); } return int(HashCd&0x7fffffff); }
-  int GetSecHashCd() const { uint HashCd = 5381;
-    for (int i=0; i<Len(); i++) { HashCd = ((HashCd << 19) + HashCd) + ValV[i].GetSecHashCd(); } return int(HashCd&0x7fffffff); }
+  int GetPrimHashCd() const { int hc = 0;
+    for (int i = 0; i < NVals; i++) { hc = TPairHashImpl::GetHashCd(hc, ValV[i].GetPrimHashCd()); }
+    return hc; }
+  int GetSecHashCd() const { int hc = 0;
+    for (int i = 1; i < NVals; i++) { hc = TPairHashImpl::GetHashCd(hc, ValV[i].GetSecHashCd()); }
+    if (NVals > 0) { hc = TPairHashImpl::GetHashCd(hc, ValV[0].GetSecHashCd()); }
+    return hc; }
+  
   TStr GetStr() const { TChA ValsStr;
     for (int i=0; i<Len(); i++) { ValsStr+=" "+ValV[i].GetStr(); }
     return TStr::Fmt("Tuple(%d):", Len())+ValsStr; }
@@ -308,7 +298,7 @@ public:
 
 template<class TVal, int NVals>
 void TTuple<TVal, NVals>::Sort(const bool& Asc) {
-  TVec<TVal> V(NVals);
+  TVec<TVal, int> V(NVals);
   for (int i=0; i<NVals; i++) { V.Add(ValV[i]); }
   V.Sort(Asc);
   for (int i=0; i<NVals; i++) { ValV[i] = V[i]; }
@@ -365,10 +355,8 @@ public:
 };
 
 template <class TKey, class TDat>
-void GetSwitchedKdV(
- const TVec<TKeyDat<TKey, TDat> >& SrcKdV,
- TVec<TKeyDat<TDat, TKey> >& DstKdV){
-  int Kds=SrcKdV.Len();
+void GetSwitchedKdV(const TVec<TKeyDat<TKey, TDat>, int>& SrcKdV, TVec<TKeyDat<TDat, TKey>, int>& DstKdV){
+  const int Kds=SrcKdV.Len();
   DstKdV.Gen(Kds, 0);
   for (int KdN=0; KdN<Kds; KdN++){
     const TKeyDat<TKey, TDat>& SrcKd=SrcKdV[KdN];
@@ -923,7 +911,7 @@ TSizeTy TVec<TVal, TSizeTy>::AddV(const TVec<TVal, TSizeTy>& ValV){
 template <class TVal, class TSizeTy>
 TSizeTy TVec<TVal, TSizeTy>::AddSorted(const TVal& Val, const bool& Asc, const TSizeTy& _MxVals){
   AssertR(MxVals!=-1, "This is a vector from a TVecPool. Vector cannot change its size!");
-  const TSizeTy ValN=Add(Val);
+  TSizeTy ValN=Add(Val);
   if (Asc){
     while ((ValN>0)&&(ValT[ValN]<ValT[ValN-1])){
       Swap(ValN, ValN-1); ValN--;}
