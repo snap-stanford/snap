@@ -32,6 +32,8 @@ public:
   int GetUniDevInt(const int& MnVal, const int& MxVal){
     IAssert(MnVal<=MxVal); return MnVal+GetUniDevInt(MxVal-MnVal+1);}
   uint GetUniDevUInt(const uint& Range=0);
+  int64 GetUniDevInt64(const int64& Range=0);
+  uint64 GetUniDevUInt64(const uint64& Range=0);
   double GetNrmDev();
   double GetNrmDev(
    const double& Mean, const double& SDev, const double& Mn, const double& Mx);
