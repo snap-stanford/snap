@@ -1,0 +1,78 @@
+/*****
+Circo
+*****/
+
+digraph G {
+  graph [splines=false overlap=false]
+  node  [shape=ellipse, width=0.3, height=0.3]
+  0 [style=filled, fillcolor="cyan"];
+  7 [style=filled, fillcolor="green"];
+  14 [style=filled, fillcolor="yellow"];
+  2 [style=filled, fillcolor="magenta"];
+  28 [style=filled, fillcolor="white"];
+  3 [style=filled, fillcolor="yellow"];
+  26 [style=filled, fillcolor="black"];
+  5 [style=filled, fillcolor="black"];
+  15 [style=filled, fillcolor="cyan"];
+  16 [style=filled, fillcolor="white"];
+  22 [style=filled, fillcolor="yellow"];
+  21 [style=filled, fillcolor="white"];
+  27 [style=filled, fillcolor="cyan"];
+  8 [style=filled, fillcolor="red"];
+  24 [style=filled, fillcolor="cyan"];
+  11 [style=filled, fillcolor="green"];
+  12 [style=filled, fillcolor="white"];
+  13 [style=filled, fillcolor="black"];
+  18 [style=filled, fillcolor="yellow"];
+  9 [style=filled, fillcolor="white"];
+  4 [style=filled, fillcolor="green"];
+  20 [style=filled, fillcolor="red"];
+  17 [style=filled, fillcolor="cyan"];
+  23 [style=filled, fillcolor="blue"];
+  19 [style=filled, fillcolor="blue"];
+  25 [style=filled, fillcolor="magenta"];
+  10 [style=filled, fillcolor="yellow"];
+  6 [style=filled, fillcolor="white"];
+  29 [style=filled, fillcolor="black"];
+  0 -> 7;
+  0 -> 14;
+  7 -> 21;
+  7 -> 27;
+  2 -> 28;
+  3 -> 26;
+  26 -> 24;
+  5 -> 15;
+  5 -> 16;
+  5 -> 22;
+  15 -> 8;
+  15 -> 9;
+  15 -> 22;
+  16 -> 4;
+  16 -> 12;
+  16 -> 20;
+  16 -> 27;
+  22 -> 19;
+  22 -> 25;
+  21 -> 11;
+  21 -> 27;
+  8 -> 2;
+  8 -> 24;
+  8 -> 27;
+  24 -> 23;
+  24 -> 28;
+  11 -> 8;
+  12 -> 26;
+  13 -> 18;
+  18 -> 4;
+  18 -> 23;
+  20 -> 19;
+  20 -> 21;
+  17 -> 8;
+  23 -> 10;
+  23 -> 20;
+  19 -> 20;
+  25 -> 6;
+  25 -> 18;
+  29 -> 11;
+  label = "\nCirco\n";  fontsize=24;
+}
