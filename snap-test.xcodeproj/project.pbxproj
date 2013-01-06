@@ -7,6 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		840B147916994D680012A197 /* demo-gviz.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 840B147816994D680012A197 /* demo-gviz.cpp */; };
+		840B147D16994DC70012A197 /* demo-cncom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 840B147B16994DC70012A197 /* demo-cncom.cpp */; };
+		840B147E16994DC70012A197 /* demo-bfsdfs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 840B147C16994DC70012A197 /* demo-bfsdfs.cpp */; };
+		840B148116994DFF0012A197 /* test-bfsdfs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 840B147F16994DFF0012A197 /* test-bfsdfs.cpp */; };
+		840B148216994DFF0012A197 /* test-cncom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 840B148016994DFF0012A197 /* test-cncom.cpp */; };
 		849666E6163BC35300A299D8 /* acquis.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 842E45451635CEC400522573 /* acquis.cpp */; };
 		849666E7163BC35300A299D8 /* acquis.h in Sources */ = {isa = PBXBuildFile; fileRef = 842E45461635CEC400522573 /* acquis.h */; };
 		849666E8163BC35300A299D8 /* adox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 842E45471635CEC400522573 /* adox.cpp */; };
@@ -352,6 +357,8 @@
 		8496683C163BC3C400A299D8 /* test-TUNGraph.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 842662521639AC900090A656 /* test-TUNGraph.cpp */; };
 		8496683D163BC3C900A299D8 /* demo-ggen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8418CCF9163B3B8E00D7CA96 /* demo-ggen.cpp */; };
 		8496683E163BC3CE00A299D8 /* gtest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 849666D5163BC27B00A299D8 /* gtest.framework */; };
+		84D29F0D164879B600996ED4 /* test-gio.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 84D29F0B164879B600996ED4 /* test-gio.cpp */; };
+		84D29F0E164879B600996ED4 /* test-gviz.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 84D29F0C164879B600996ED4 /* test-gviz.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -367,6 +374,13 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		840B147116911F8B0012A197 /* test-helper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "test-helper.cpp"; sourceTree = "<group>"; };
+		840B147216911F8C0012A197 /* test-helper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "test-helper.h"; sourceTree = "<group>"; };
+		840B147816994D680012A197 /* demo-gviz.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "demo-gviz.cpp"; sourceTree = "<group>"; };
+		840B147B16994DC70012A197 /* demo-cncom.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "demo-cncom.cpp"; sourceTree = "<group>"; };
+		840B147C16994DC70012A197 /* demo-bfsdfs.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "demo-bfsdfs.cpp"; sourceTree = "<group>"; };
+		840B147F16994DFF0012A197 /* test-bfsdfs.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "test-bfsdfs.cpp"; sourceTree = "<group>"; };
+		840B148016994DFF0012A197 /* test-cncom.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "test-cncom.cpp"; sourceTree = "<group>"; };
 		8418CCF9163B3B8E00D7CA96 /* demo-ggen.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "demo-ggen.cpp"; sourceTree = "<group>"; };
 		8418CD03163BB40000D7CA96 /* test-ggen.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "test-ggen.cpp"; sourceTree = "<group>"; };
 		842662471639AC900090A656 /* Makefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
@@ -1060,6 +1074,10 @@
 		842E471E1635CEC500522573 /* wikinet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = wikinet.h; sourceTree = "<group>"; };
 		849666D5163BC27B00A299D8 /* gtest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = gtest.framework; path = "../googletest-read-only/xcode/build/Debug/gtest.framework"; sourceTree = "<group>"; };
 		849666DC163BC32500A299D8 /* docs */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = docs; sourceTree = BUILT_PRODUCTS_DIR; };
+		849D1EF9166D6AED000EE3E6 /* gio.h.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = gio.h.txt; sourceTree = "<group>"; };
+		84D29F0B164879B600996ED4 /* test-gio.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "test-gio.cpp"; sourceTree = "<group>"; };
+		84D29F0C164879B600996ED4 /* test-gviz.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "test-gviz.cpp"; sourceTree = "<group>"; };
+		84EEFFC616635A7000BC661B /* demo-gio.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "demo-gio.cpp"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1090,6 +1108,12 @@
 				842662511639AC900090A656 /* test-TSysTm.cpp */,
 				842662521639AC900090A656 /* test-TUNGraph.cpp */,
 				8418CD03163BB40000D7CA96 /* test-ggen.cpp */,
+				840B147116911F8B0012A197 /* test-helper.cpp */,
+				840B147216911F8C0012A197 /* test-helper.h */,
+				84D29F0B164879B600996ED4 /* test-gio.cpp */,
+				84D29F0C164879B600996ED4 /* test-gviz.cpp */,
+				840B147F16994DFF0012A197 /* test-bfsdfs.cpp */,
+				840B148016994DFF0012A197 /* test-cncom.cpp */,
 			);
 			name = test;
 			path = snap/test;
@@ -1107,6 +1131,10 @@
 				8426625F1639AC900090A656 /* demo-TNodeNet.cpp */,
 				842662611639AC900090A656 /* demo-TUNGraph.cpp */,
 				8418CCF9163B3B8E00D7CA96 /* demo-ggen.cpp */,
+				84EEFFC616635A7000BC661B /* demo-gio.cpp */,
+				840B147816994D680012A197 /* demo-gviz.cpp */,
+				840B147B16994DC70012A197 /* demo-cncom.cpp */,
+				840B147C16994DC70012A197 /* demo-bfsdfs.cpp */,
 			);
 			name = tutorials;
 			path = snap/tutorials;
@@ -1975,6 +2003,7 @@
 		842E46D21635CEC500522573 /* doc */ = {
 			isa = PBXGroup;
 			children = (
+				849D1EF9166D6AED000EE3E6 /* gio.h.txt */,
 				842E46D31635CEC500522573 /* ghash.h.txt */,
 				842E46D41635CEC500522573 /* graph.h.txt */,
 				842E46D51635CEC500522573 /* network.h.txt */,
@@ -2507,6 +2536,13 @@
 				8496683C163BC3C400A299D8 /* test-TUNGraph.cpp in Sources */,
 				8496683B163BC3C000A299D8 /* test-ggen.cpp in Sources */,
 				8496683D163BC3C900A299D8 /* demo-ggen.cpp in Sources */,
+				84D29F0D164879B600996ED4 /* test-gio.cpp in Sources */,
+				84D29F0E164879B600996ED4 /* test-gviz.cpp in Sources */,
+				840B147916994D680012A197 /* demo-gviz.cpp in Sources */,
+				840B147D16994DC70012A197 /* demo-cncom.cpp in Sources */,
+				840B147E16994DC70012A197 /* demo-bfsdfs.cpp in Sources */,
+				840B148116994DFF0012A197 /* test-bfsdfs.cpp in Sources */,
+				840B148216994DFF0012A197 /* test-cncom.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
