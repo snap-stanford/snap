@@ -18,9 +18,9 @@ build/
 *.pyc
 
 # Test-generated files 
-*.dat
-*.dot
-*.gif
+test_*.dat
+test_*.dot
+test_*.gif
 *.graph
 *.log
 *.m
