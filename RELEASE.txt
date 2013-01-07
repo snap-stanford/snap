@@ -3,6 +3,48 @@ performance system for graph and network manipulation and analysis.
 
 This file contains a high-level description of changes in SNAP releases.
 
+Release 1.11, Dec 21, 2012
+
+- added new examples netinf, infopath
+- added new advanced modules cascnetinf, cascdynetinf
+- added new distribution functions to glib-core/dt.h::TRnd: GetRayleigh(),
+  GetWeibull()
+- added demo programs for graph input/output (gio.h), graph generators
+  (ggen.h), THash
+- added tests for graph input/output (gio.h), graph generators (ggen.h), THash
+- unified the names of intermediate files for demos and tests to demo*.dat
+  and test*.dat
+- added cases to test edge iterator with very few nodes
+- expanded TUNGraph test to include graphs with loops and the number of
+  edges in such graphs
+- added ManipulateEdges test for TUNGraph
+- added test in TUNGraph for checking edge iterator following deletion
+- added OSX Xcode project
+- updated snap-test Xcode project with gtest code completion/syntax.
+- improved tutorial and test Makefiles to work on Mac OS X
+- improved Snap.o make rule, added dependencies for *.h, *.cpp in glib-core
+  and snap-core
+- improved demo Makefile so that individual targets do not need to be
+  specified
+- added path to snap-exp to examples makefiles
+- changed function parameters in TStrPool to const reference
+- added assertion for DegSeq vector to be sorted
+- added an assertion for edges in random graphs to prevent infinite loops
+- fixed #27 - No node checking when load Epinions in signnet.cpp
+- fixed #28 - no TGraphViz class in signnet.cpp
+- fixed #29 - no check for inserting node in bfsdfs.h
+- fixed #21, undetected 32-bit overflow in TGraphAnf<PGraph>::InitAnfBits(),
+- fixed #17 "example/cliques" does not compile with gcc 4.7
+  the calculation is now done in 64-bits and an exception is thrown if the
+  final result is more than 32-bit
+- fixed bug in LoadPajek for graph files with colors
+- changed EFailR() to FailR() when out of memory
+- included bd.h in all files that use Class... macros, so that doxygen
+  correctly documents those classes
+- added #7, add Snap version number to reference manuals
+- implemented #8, improve the front page for reference manuals
+- added .gitignore file for Xcode project
+
 Release 1.10, Oct 15, 2012
 
 - fixed TUNGraph to return correct number of edges, not backward compatible.
