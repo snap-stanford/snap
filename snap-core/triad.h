@@ -3,49 +3,35 @@ namespace TSnap {
 /////////////////////////////////////////////////
 // Triads and clustering coefficient
 
-/// Computes the average clustering coefficient as defined in Watts and Strogatz, Collective dynamics of 'small-world' networks. Considers the graph as undirected.
+/// Computes the average clustering coefficient as defined in Watts and Strogatz, Collective dynamics of 'small-world' networks. ##TSnap::GetClustCf
 template <class PGraph> double GetClustCf(const PGraph& Graph, int SampleNodes=-1);
-/// Computes the distribution of average clustering coefficient. Considers the graph as undirected.
-/// @param DegToCCfV Vector of pairs (degree, avg. clustering coefficient of nodes of that degree).
-/// @param SampleNodes If !=-1 then compute clustering coefficient only for a random sample of SampleNodes nodes. Useful for approximate but quick computations.
+/// Computes the distribution of average clustering coefficient. ##TSnap::GetClustCf1
 template <class PGraph> double GetClustCf(const PGraph& Graph, TFltPrV& DegToCCfV, int SampleNodes=-1);
-/// Computes the distribution of average clustering coefficient as well as the number of open and closed triads in the graph. Considers the graph as undirected.
-/// @param DegToCCfV Vector of pairs (degree, avg. clustering coefficient of nodes of that degree).
-/// @param SampleNodes If !=-1 then compute clustering coefficient only for a random sample of SampleNodes nodes. Useful for approximate but quick computations.
+/// Computes the distribution of average clustering coefficient as well as the number of open and closed triads in the graph. ##TSnap::GetClustCf2
 template <class PGraph> double GetClustCf(const PGraph& Graph, TFltPrV& DegToCCfV, int64& ClosedTriads, int64& OpenTriads, int SampleNodes=-1);
-/// Returns clustering coefficient of a particular node. Considers the graph as undirected.
+/// Returns clustering coefficient of a particular node. ##TSnap::GetNodeClustCf
 template <class PGraph> double GetNodeClustCf(const PGraph& Graph, const int& NId);
-/// Computes clustering coefficient of each node of the Graph. Considers the graph as undirected.
+/// Computes clustering coefficient of each node of the Graph. ##TSnap::GetClustCf1
 template <class PGraph> void GetNodeClustCf(const PGraph& Graph, TIntFltH& NIdCCfH);
 
-/// Returns the number of triangles in a graph. The function returns the number of unique triples of connected nodes (regardless of the number of edges between each pair of nodes). In other words, the function consideres the Graph to as a simple undirected graph.
-/// @param SampleNodes If !=-1 then compute triads only for a random sample of SampleNodes nodes. Useful for approximate but quick computations.
+/// Returns the number of triangles in a graph. ##TSnap::GetTriads
 template <class PGraph> int64 GetTriads(const PGraph& Graph, int SampleNodes=-1);
-/// Computes the number of Closed and Open triads. Considers the graph as undirected.
-/// @param SampleNodes If !=-1 then compute triads only for a random sample of SampleNodes nodes. Useful for approximate but quick computations.
+/// Computes the number of Closed and Open triads. ##TSnap::GetTriads1
 template <class PGraph> int64 GetTriads(const PGraph& Graph, int64& ClosedTriads, int64& OpenTriads, int SampleNodes);
-/// Computes the number of open and close triads for every node of the network. Considers the graph as undirected.
-/// @param NIdCOTriadV Triple (node id, open triads: number of pairs of node's neighbors that are not connected, closed triads: number of pairs of node's neighbors that are connected between themselves).
-/// @param SampleNodes If !=-1 then compute triads only for a random sample of SampleNodes nodes. Useful for approximate but quick computations.
+/// Computes the number of open and close triads for every node of the network. ##TSnap::GetTriads2
 template <class PGraph> void GetTriads(const PGraph& Graph, TIntTrV& NIdCOTriadV, int SampleNodes=-1);
-/// Counts the number of edges that participate in at least one triad. Considers the graph as undirected.
-/// @param SampleNodes If !=-1 then compute triads only for a random sample of SampleNodes nodes. Useful for approximate but quick computations.
+/// Counts the number of edges that participate in at least one triad. ##TSnap::GetTriadEdges
 template <class PGraph> int GetTriadEdges(const PGraph& Graph, int SampleEdges=-1);
 
-/// Returns number of triads a node NId participates in. Considers the graph as undirected.
+/// Returns number of triads a node NId participates in. ##TSnap::GetNodeTriads
 template <class PGraph> int GetNodeTriads(const PGraph& Graph, const int& NId);
-/// Returns number of Open and Closed triads a node NId participates in. Considers the graph as undirected.
+/// Returns number of Open and Closed triads a node NId participates in. ##TSnap::GetNodeTriads1
 template <class PGraph> int GetNodeTriads(const PGraph& Graph, const int& NId, int& ClosedTriads, int& OpenTriads);
-/// Returns the number of triads between a node NId and a subset of its neighbors GroupSet. Considers the graph as undirected.
-/// @param InGroupEdges  Number of triads (NId, G1, G2), where G1 and G2 are in GroupSet
-/// @param InOutGroupEdges Number of triads (NId, G1, O1), where G1 in GroupSet and O1 not in GroupSet
+/// Returns the number of triads between a node NId and a subset of its neighbors GroupSet. ##TSnap::GetNodeTriads2
 template <class PGraph> int GetNodeTriads(const PUNGraph& Graph, const int& NId, const TIntSet& GroupSet, int& InGroupEdges, int& InOutGroupEdges);
-/// Returns the number of triads between a node NId and a subset of its neighbors GroupSet. Considers the graph as undirected.
-/// @param InGroupEdges Number of triads (NId, G1, G2), where G1 and G2 are in GroupSet
-/// @param InOutGroupEdges Number of triads (NId, G1, O1), where G1 in GroupSet and O1 not in GroupSet
-/// @param OutGroupEdges Number of triads (NId, O1, O2), where O1 and O2 are not in GroupSet
+/// Returns the number of triads between a node NId and a subset of its neighbors GroupSet. ##TSnap::GetNodeTriads3
 template <class PGraph> int GetNodeTriads(const PUNGraph& Graph, const int& NId, const TIntSet& GroupSet, int& InGroupEdges, int& InOutGroupEdges, int& OutGroup);
-/// Triangle Participation Ratio: For each node counts how many triangles it participates in and then returns a set of pairs (number of triangles, number of such nodes). Considers the graph as undirected.
+/// Triangle Participation Ratio: For each node counts how many triangles it participates in and then returns a set of pairs (number of triangles, number of such nodes). ##TSnap::GetTriadParticip
 template <class PGraph> void GetTriadParticip(const PGraph& Graph, TIntPrV& TriadCntV);
 
 /// Returns a number of shared neighbors between a pair of nodes NId1 and NId2.
@@ -54,9 +40,8 @@ template<class PGraph> int GetCmnNbrs(const PGraph& Graph, const int& NId1, cons
 template<class PGraph> int GetCmnNbrs(const PGraph& Graph, const int& NId1, const int& NId2, TIntV& NbrV);
 /// Returns the number of length 2 directed paths between a pair of nodes NId1, NId2 (NId1 --> U --> NId2).
 template<class PGraph> int GetLen2Paths(const PGraph& Graph, const int& NId1, const int& NId2);
-/// Returns the 2 directed paths between a pair of nodes NId1, NId2 (NId1 --> U --> NId2). NbrV intermediary stores nodes U.
+/// Returns the 2 directed paths between a pair of nodes NId1, NId2 (NId1 --> U --> NId2). ##TSnap::GetLen2Paths
 template<class PGraph> int GetLen2Paths(const PGraph& Graph, const int& NId1, const int& NId2, TIntV& NbrV);
-
 
 /////////////////////////////////////////////////
 // Implementation

@@ -11,7 +11,7 @@ template <class PGraph> int CntOutDegNodes(const PGraph& Graph, const int& NodeO
 template <class PGraph> int CntDegNodes(const PGraph& Graph, const int& NodeDeg);
 /// Returns the number of nodes with degree greater than 0.
 template <class PGraph> int CntNonZNodes(const PGraph& Graph);
-/// TODO ROK document CntEdgesToSet()
+// TODO ROK document CntEdgesToSet()
 template <class PGraph> int CntEdgesToSet(const PGraph& Graph, const int& NId, const TIntSet& NodeSet);
 
 /// Returns a randomly chosen node from all the nodes with the maximum degree.
@@ -22,21 +22,21 @@ template <class PGraph> int GetMxInDegNId(const PGraph& Graph);
 template <class PGraph> int GetMxOutDegNId(const PGraph& Graph);
 
 // degree histograms
-/// TODO ROK document GetInDegCnt()
+// TODO ROK document GetInDegCnt()
 template <class PGraph> void GetInDegCnt(const PGraph& Graph, TIntPrV& DegToCntV);
-/// TODO ROK document GetInDegCnt()
+// TODO ROK document GetInDegCnt()
 template <class PGraph> void GetInDegCnt(const PGraph& Graph, TFltPrV& DegToCntV);
-/// TODO ROK document GetOutDegCnt()
+// TODO ROK document GetOutDegCnt()
 template <class PGraph> void GetOutDegCnt(const PGraph& Graph, TIntPrV& DegToCntV);
-/// TODO ROK document GetOutDegCnt()
+// TODO ROK document GetOutDegCnt()
 template <class PGraph> void GetOutDegCnt(const PGraph& Graph, TFltPrV& DegToCntV);
-/// TODO ROK document GetDegCnt()
+// TODO ROK document GetDegCnt()
 template <class PGraph> void GetDegCnt(const PGraph& Graph, TIntPrV& DegToCntV);
-/// TODO ROK document GetDegCnt()
+// TODO ROK document GetDegCnt()
 template <class PGraph> void GetDegCnt(const PGraph& Graph, TFltPrV& DegToCntV);
-/// TODO ROK document GetDegSeqV()
+// TODO ROK document GetDegSeqV()
 template <class PGraph> void GetDegSeqV(const PGraph& Graph, TIntV& DegV);
-/// TODO ROK document GetDegSeqV()
+// TODO ROK document GetDegSeqV()
 template <class PGraph> void GetDegSeqV(const PGraph& Graph, TIntV& InDegV, TIntV& OutDegV);
 
 template <class PGraph> void GetNodeInDegV(const PGraph& Graph, TIntPrV& NIdInDegV);

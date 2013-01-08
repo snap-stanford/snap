@@ -1,7 +1,6 @@
 /////////////////////////////////////////////////
-/// Big Network. This class implements similar interface to TNGraph and TUNGraph. The class is meant for storing particularly large static directed or undirected networks.
-/// The network representation is optimized for low memory footprint. This means that when a particular node is added
-/// to the network its (maximum) in- and out-degree need to be specified (and the class allocates enough memory for that number of edges being adjacent to a node). This means that the class nicely supports adding as well as deleting nodes (but the memory does not get freed). Deleting edges is supported, while adding edges is supported only up to the point until the node reaches its prespecified in- or out-degree.
+
+/// Big Network. ##Big_network
 template <class TNodeData, bool IsDir>
 class TBigNet {
 public:
@@ -15,13 +14,12 @@ public:
   typedef TVecPool<TInt> TVPool;
   typedef TPt<TVPool> PVPool;
 
-  /// Node container class.
-  /// For memory efficiency we store edge lists in a vector pool.
+  /// Node container class. ##TBigNet::TNode
   class TNode {
   public:
     /// Id of the vector storing nodes that point to the current node. 
     TInt InVId;
-    /// Id of the vector storing nodes that the current node points to. If the graph is undirected (IsDir=false) then InVId==OutVId.
+    /// Id of the vector storing nodes that the current node points to. ##TBigNet::OutVId
     TInt OutVId; 
     ///  Data associated with the node.
     TNodeDat Dat;
@@ -36,7 +34,7 @@ public:
     /// Tests whether the node is deleted then it is unused (and its InVId==OutVId==-1)
     bool IsUnused() const { return InVId==-1 && OutVId==-1; }
   };
-  /// Node iterator. Only forward iteration (operator++) is supported.
+  /// Node iterator. ##TBigNet::TNodeI
   class TNodeI {
   protected:
     typedef typename TNodeH::TIter THashIter;
@@ -81,6 +79,7 @@ public:
     friend class TBigNet<TNodeData, IsDir>;
   };
 
+  /// Edge iterator. ##TBigNet::TEdgeI
   class TEdgeI {
   private:
     TNodeI CurNode, EndNode;

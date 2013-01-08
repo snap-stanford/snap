@@ -150,6 +150,11 @@ if __name__ == '__main__':
             if file[0] == ".":
                 continue
 
+            # skip files that do not end with ".cpp" or ".h"
+            fname, fext = os.path.splitext(file)
+            if not fext in [ ".cpp", ".h", ".txt" ]:
+                continue
+
             # copy file from path/file to workdir/dstpath/file
             #shutil.copyfile(
             convert(srcpath,
