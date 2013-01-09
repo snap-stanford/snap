@@ -496,7 +496,6 @@ public:
   void Swap(TVec<TVal, TSizeTy>& Vec);
   
   /// Tests whether the vector is empty. ##TVec::Empty
- This means the vector contains zero elements (while its capacity may be greater than zero).
   bool Empty() const {return Vals==0;}
   /// Returns the number of elements in the vector. ##TVec::Len
   TSizeTy Len() const {return Vals;}
@@ -673,7 +672,6 @@ public:
   /// Returns the position of an element with value \c Val. ##TVec::SearchBack
   TSizeTy SearchBack(const TVal& Val) const;
   /// Returns the starting position of vector \c ValV. ##TVec::SearchVForw
-If the vector is not found return value is -1.
   TSizeTy SearchVForw(const TVec<TVal, TSizeTy>& ValV, const TSizeTy& BValN=0) const;
 
   /// Checks whether element \c Val is a member of the vector.
