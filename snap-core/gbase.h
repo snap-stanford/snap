@@ -5,11 +5,11 @@
 #define Giga(n) (1000*1000*1000*(n))
 
 /////////////////////////////////////////////////
-/// Graph Flags, used for quick testing of graph types.
-/// This is very useful for testing graph properties at compile time for partial template specialization as well as compile time assert (CAssert)
+
+/// Graph Flags, used for quick testing of graph types. ##TGraphFlag
 typedef enum {
   gfUndef=0,    ///< default value, no flags
-  gfDirected,   ///< directed graph (TNGraph, TNEGraph), else graph is undirected(TUNGraph)
+  gfDirected,   ///< directed graph (TNGraph, TNEGraph), else graph is undirected TUNGraph
   gfMultiGraph, ///< have explicit edges (multigraph): TNEGraph, TNodeEdgeNet
   gfNodeDat,    ///< network with data on nodes
   gfEdgeDat,    ///< network with data on edges
@@ -59,8 +59,7 @@ public:
 
 /// Returns a string representation of a flag.
 TStr GetFlagStr(const TGraphFlag& GraphFlag);
-/// Prints basic graph statistics.
-/// @param Fast true: only computes basic statistics (that can be computed fast). For more extensive information (and longer execution times) set Fast = false.
+/// Prints basic graph statistics. ##TSnap::PrintInfo
 template <class PGraph> void PrintInfo(const PGraph& Graph, const TStr& Desc="", const TStr& OutFNm="", const bool& Fast=true);
 
 /////////////////////////////////////////////////
@@ -123,7 +122,8 @@ void PrintInfo(const PGraph& Graph, const TStr& Desc, const TStr& OutFNm, const 
 }  // namespace TSnap
 
 /////////////////////////////////////////////////
-/// Fast Queue used by the \v TBreathFS (uses \v memcpy to move objects \v TVal around).
+
+/// Fast Queue used by the \c TBreathFS (uses \c memcpy to move objects \c TVal around).
 template <class TVal>
 class TSnapQueue {
 private:
@@ -181,8 +181,8 @@ public:
 };
 
 /////////////////////////////////////////////////
-/// Union Find class (Disjoint-set data structure).
-/// For more info see: http://en.wikipedia.org/wiki/Disjoint-set_data_structure)
+
+/// Union Find class (Disjoint-set data structure). ##TUnionFind
 class TUnionFind {
 private:
   THash<TInt, TIntPr> KIdSetH; // key id to (parent, rank)
@@ -218,8 +218,8 @@ public:
 };
 
 /////////////////////////////////////////////////
-/// Simple heap data structure.
-/// Data structure provides insertion of elements, and inspection and removal of the top element. It is guaranteed that the top element is the largest element in the heap, where the function object \v TCmp is used for comparisons.
+
+/// Simple heap data structure. ##THeap
 template <class TVal, class TCmp = TLss<TVal> >
 class THeap {
 private:
@@ -240,7 +240,7 @@ public:
 
   /// Returns a reference to the element at the top of the heap (the largest element of the heap).
   const TVal& TopHeap() const { return HeapV[0]; }
-  /// Pushes an element \v Val to the heap.
+  /// Pushes an element \c Val to the heap.
   void PushHeap(const TVal& Val);
   /// Removes the top element from the heap.
   TVal PopHeap();
@@ -252,7 +252,7 @@ public:
   const TVec<TVal>& operator()() const { return HeapV; }
   /// Returns a reference to the vector containing the elements of the heap.
   TVec<TVal>& operator()() { return HeapV; }
-  /// Adds an element to the data structure. Heap property is not maintained by \v Add() and thus after all the elements are added \v MakeHeap() needs to be called.
+  /// Adds an element to the data structure. Heap property is not maintained by \c Add() and thus after all the elements are added \c MakeHeap() needs to be called.
   void Add(const TVal& Val) { HeapV.Add(Val); }
   /// Builds a heap from a set of elements.
   void MakeHeap() { MakeHeap(0, Len()); }
@@ -310,3 +310,4 @@ void THeap<TVal, TCmp>::MakeHeap(const int& First, const int& Len) {
     Parent--;
   }
 }
+

@@ -406,34 +406,32 @@ public:
 };
 
 /////////////////////////////////////////////////
-/// Vector is a sequence \v TVal objects representing an array that can change in size.
-/// Internally, vectors use a dynamically allocated array to store their elements. This array may need to be reallocated in order to grow in size when new elements are inserted, which implies allocating a new array and moving all elements to it. This is a relatively expensive task in terms of processing time.
-/// Vectors may allocate some extra storage to accommodate for possible growth, and thus the container may have an actual capacity greater than the storage strictly needed to contain its elements (i.e., its size). The reallocations only happen at logarithmically growing intervals of size so that the insertion of individual elements at the end of the vector can be provided with amortized constant time complexity.
-/// Use <tt>TSizeTy=int</tt> for vectors of maximum size of 2 billion (2^31) and <tt>TSizeTy=int64</tt> for vectors that can store up to 2^61 elements.
+
+/// Vector is a sequence \c TVal objects representing an array that can change in size. ##TVec
 template <class TVal, class TSizeTy = int>
 class TVec{
 public:
-  typedef TVal* TIter;  //!< Random access iterator to \v TVal.
+  typedef TVal* TIter;  //!< Random access iterator to \c TVal.
 protected:
-  TSizeTy MxVals; //!< Vector capacity.  Capacity is the size of allocated storage. If <tt>MxVals==-1</tt>, then \v ValT is not owned by the vector, and it won't free it at destruction.
+  TSizeTy MxVals; //!< Vector capacity. Capacity is the size of allocated storage. If <tt>MxVals==-1</tt>, then \c ValT is not owned by the vector, and it won't free it at destruction.
   TSizeTy Vals;   //!< Vector length. Length is the number of elements stored in the vector.
   TVal* ValT;     //!< Pointer to the memory where the elements of the vector are stored.
-  /// Resizes the vector so that it can store at least \v _MxVals.
+  /// Resizes the vector so that it can store at least \c _MxVals.
   void Resize(const TSizeTy& _MxVals=-1);
   /// Constructs the out of bounds error message.
   TStr GetXOutOfBoundsErrMsg(const TSizeTy& ValN) const;
 public:
   TVec(): MxVals(0), Vals(0), ValT(NULL){}
   TVec(const TVec<TVal, TSizeTy>& Vec);
-  /// Constructs a vector (an array) of length \v _Vals.
+  /// Constructs a vector (an array) of length \c _Vals.
   explicit TVec(const TSizeTy& _Vals){
     IAssert(0<=_Vals); MxVals=Vals=_Vals;
     if (_Vals==0){ValT=NULL;} else {ValT=new TVal[_Vals];}}
-  /// Constructs a vector (an array) of length \v _Vals, while reserving enough memory to store \v _MxVals elements.
+  /// Constructs a vector (an array) of length \c _Vals, while reserving enough memory to store \c _MxVals elements.
   TVec(const TSizeTy& _MxVals, const TSizeTy& _Vals){
     IAssert((0<=_Vals)&&(_Vals<=_MxVals)); MxVals=_MxVals; Vals=_Vals;
     if (_MxVals==0){ValT=NULL;} else {ValT=new TVal[_MxVals];}}
-  /// Constructs a vector of \v _Vals elements of memory array \v _ValT. The data is not copied and the vector does not own the memory (i.e., the vector won't free the memory at destruction).
+  /// Constructs a vector of \c _Vals elements of memory array \c _ValT. ##TVec::TVec
   explicit TVec(TVal *_ValT, const TSizeTy& _Vals):
     MxVals(-1), Vals(_Vals), ValT(_ValT){}
   ~TVec(){if ((ValT!=NULL) && (MxVals!=-1)){delete[] ValT;}}
@@ -445,17 +443,17 @@ public:
   
   /// Assigns new contents to the vector, replacing its current content.
   TVec<TVal, TSizeTy>& operator=(const TVec<TVal, TSizeTy>& Vec);
-  /// Appends value \v Val to the vector.
+  /// Appends value \c Val to the vector.
   TVec<TVal, TSizeTy>& operator+(const TVal& Val){Add(Val); return *this;}
   /// Checks that the two vectors have the same contents.
   bool operator==(const TVec<TVal, TSizeTy>& Vec) const;
-  /// Lexicographically compares two vectors. For example, <tt>(a,b) < (a',b')</tt> if and only if <tt>a < a'</tt> or <tt>(a = a' and b < b')</tt>.
+  /// Lexicographically compares two vectors. ##TVec::Less
   bool operator<(const TVec<TVal, TSizeTy>& Vec) const;
-  /// Returns a reference to the element at position \v ValN in the vector.
+  /// Returns a reference to the element at position \c ValN in the vector.
   const TVal& operator[](const TSizeTy& ValN) const {
     AssertR((0<=ValN)&&(ValN<Vals), GetXOutOfBoundsErrMsg(ValN));
     return ValT[ValN];}
-  /// Returns a reference to the element at position \v ValN in the vector.
+  /// Returns a reference to the element at position \c ValN in the vector.
   TVal& operator[](const TSizeTy& ValN){
     AssertR((0<=ValN)&&(ValN<Vals), GetXOutOfBoundsErrMsg(ValN));
     return ValT[ValN];}
@@ -463,43 +461,44 @@ public:
   TSizeTy GetMemUsed() const {
     return TSizeTy(2*sizeof(TSizeTy)+sizeof(TVal*)+MxVals*sizeof(TVal));}
   
-  /// Returns primary hash code of the vector. Used by \v THash.
+  /// Returns primary hash code of the vector. Used by \c THash.
   int GetPrimHashCd() const;
-  /// Returns secondary hash code of the vector. Used by \v THash.
+  /// Returns secondary hash code of the vector. Used by \c THash.
   int GetSecHashCd() const;
   
-  /// Constructs a vector (an array) of \v _Vals elements.
+  /// Constructs a vector (an array) of \c _Vals elements.
   void Gen(const TSizeTy& _Vals){ IAssert(0<=_Vals);
     if (ValT!=NULL && MxVals!=-1){delete[] ValT;} MxVals=Vals=_Vals;
     if (MxVals==0){ValT=NULL;} else {ValT=new TVal[MxVals];}}
-  /// Constructs a vector (an array) of \v _Vals elements, while reserving enough memory for \v _MxVals elements.
+  /// Constructs a vector (an array) of \c _Vals elements, while reserving enough memory for \c _MxVals elements.
   void Gen(const TSizeTy& _MxVals, const TSizeTy& _Vals){ IAssert((0<=_Vals)&&(_Vals<=_MxVals));
     if (ValT!=NULL  && MxVals!=-1){delete[] ValT;} MxVals=_MxVals; Vals=_Vals;
     if (_MxVals==0){ValT=NULL;} else {ValT=new TVal[_MxVals];}}
-  /// Constructs a vector of \v _Vals elements of memory array \v _ValT. The data is not copied and the vector does not own the memory (the vector won't free the memory at destruction).
+  /// Constructs a vector of \c _Vals elements of memory array \c _ValT. ##TVec::GenExt
   void GenExt(TVal *_ValT, const TSizeTy& _Vals){
     if (ValT!=NULL && MxVals!=-1){delete[] ValT;}
     MxVals=-1; Vals=_Vals; ValT=_ValT;}
-  /// Returns true if the vector was created using the \v GenExt(). In this case the vector does not own the memory (and won't free the memory at destruction).
+  /// Returns true if the vector was created using the \c GenExt(). ##TVec::IsExt
   bool IsExt() const {return MxVals==-1;}
-  /// Reserves enough memory for the vector to store \v _MxVals elements.
+  /// Reserves enough memory for the vector to store \c _MxVals elements.
   void Reserve(const TSizeTy& _MxVals){Resize(_MxVals);}
-  /// Reserves enough memory for the vector to store \v _MxVals elements and sets its length to \v _Vals.
+  /// Reserves enough memory for the vector to store \c _MxVals elements and sets its length to \c _Vals.
   void Reserve(const TSizeTy& _MxVals, const TSizeTy& _Vals){ IAssert((0<=_Vals)&&(_Vals<=_MxVals)); Resize(_MxVals); Vals=_Vals;}
-  /// Clears the contents of the vector. Vector's memory gets deallocated only if <tt>DoDel=true</tt> or if vector's capacity is greater than \v NoDelLim.
+  /// Clears the contents of the vector. ##TVec::Clr
   void Clr(const bool& DoDel=true, const TSizeTy& NoDelLim=-1);
-  /// Truncates the vector's length and capacity to \v _Vals elements. If <tt>_Vals=-1</tt> then the capacity is reduced to match vector's length.
+  /// Truncates the vector's length and capacity to \c _Vals elements. ##TVec::Trunc
   void Trunc(const TSizeTy& _Vals=-1);
   /// The vector reduces its capacity (frees memory) to match its size.
   void Pack();
-  /// Takes over the data and the capacity from \v Vec. No memory gets copied and \v Vec gets destroyed.
+  /// Takes over the data and the capacity from \c Vec. ##TVec::MoveFrom
   void MoveFrom(TVec<TVal, TSizeTy>& Vec);
-  /// Swaps the contents of the vector with \v Vec.
+  /// Swaps the contents of the vector with \c Vec.
   void Swap(TVec<TVal, TSizeTy>& Vec);
   
-  /// Tests whether the vector is empty. This means the vector contains zero elements (while its capacity may be greater than zero).
+  /// Tests whether the vector is empty. ##TVec::Empty
+ This means the vector contains zero elements (while its capacity may be greater than zero).
   bool Empty() const {return Vals==0;}
-  /// Returns the number of elements in the vector. This is the number of actual objects held in the vector, which is not necessarily equal to its storage capacity.
+  /// Returns the number of elements in the vector. ##TVec::Len
   TSizeTy Len() const {return Vals;}
   /// Returns the size of allocated storage capacity.
   TSizeTy Reserved() const {return MxVals;}
@@ -518,82 +517,75 @@ public:
   TIter BegI() const {return ValT;}
   /// Returns an iterator referring to the past-the-end element in the vector.
   TIter EndI() const {return ValT+Vals;}
-  /// Returns an iterator an element at position \v ValN.
+  /// Returns an iterator an element at position \c ValN.
   TIter GetI(const TSizeTy& ValN) const {return ValT+ValN;}
   
-  /// Adds a new element at the end of the vector, after its current last element. This increases the vector size by one.
+  /// Adds a new element at the end of the vector, after its current last element. ##TVec::Add
   TSizeTy Add(){ AssertR(MxVals!=-1, "This vector was obtained from TVecPool. Such vectors cannot change its size!");
     if (Vals==MxVals){Resize();} return Vals++;}
-  /// Adds a new element at the end of the vector, after its current last element. The content of \v Val is copied to the new element.
+  /// Adds a new element at the end of the vector, after its current last element. ##TVec::Add1
   TSizeTy Add(const TVal& Val){ AssertR(MxVals!=-1, "This vector was obtained from TVecPool. Such vectors cannot change its size!");
     if (Vals==MxVals){Resize();} ValT[Vals]=Val; return Vals++;}
-  /// Adds element \v Val at the end of the vector. If vector's capacity needs to be increased, it is increased by \v ResizeLen elements.
+  /// Adds element \c Val at the end of the vector. #TVec::Add2
   TSizeTy Add(const TVal& Val, const TSizeTy& ResizeLen){ AssertR(MxVals!=-1, "This vector was obtained from TVecPool. Such vectors cannot change its size!");
     if (Vals==MxVals){Resize(MxVals+ResizeLen);} ValT[Vals]=Val; return Vals++;}
-  /// Adds the elements of the vector \v ValV to the to end of the vector.
+  /// Adds the elements of the vector \c ValV to the to end of the vector.
   TSizeTy AddV(const TVec<TVal, TSizeTy>& ValV);
-  /// Adds element \v Val to a sorted vector.
-  /// @param Asc Adds the element so that ascending (if \v true) or descending (if \v false) order is maintained.
+  /// Adds element \c Val to a sorted vector. ##TVec::AddSorted
   TSizeTy AddSorted(const TVal& Val, const bool& Asc=true, const TSizeTy& _MxVals=-1);
-  /// Adds element \v Val to a sorted vector.
-  /// @param Asc Adds the element so that ascending (if \v true) or descending (if \v false) order is maintained.
+  /// Adds element \c Val to a sorted vector. ##TVec::AddBackSorted
   TSizeTy AddBackSorted(const TVal& Val, const bool& Asc);
-  /// Adds element \v Val to a sorted vector only if the element \v Val is not already in the vector. Uses binary search to check whether an element is already in the vector.
+  /// Adds element \c Val to a sorted vector only if the element \c Val is not already in the vector. ##TVec::AddMerged
   TSizeTy AddMerged(const TVal& Val);
-  /// Adds elements of \v ValV to a sorted vector only if a particular element is not already in the vector. Uses binary search to check whether an element is already in the vector.
+  /// Adds elements of \c ValV to a sorted vector only if a particular element is not already in the vector. ##TVec::AddMerged1
   TSizeTy AddVMerged(const TVec<TVal, TSizeTy>& ValV);
-  /// Adds element \v Val to a vector only if the element \v Val is not already in the vector. Does not assume the vector to be sorted and thus uses linear search to check whether \v Val is already in the vector.
+  /// Adds element \c Val to a vector only if the element \c Val is not already in the vector. ##TVec::AddUnique
   TSizeTy AddUnique(const TVal& Val);
-  /// Returns a reference to the element at position \v ValN in the vector.
+  /// Returns a reference to the element at position \c ValN in the vector.
   const TVal& GetVal(const TSizeTy& ValN) const {return operator[](ValN);}
-  /// Returns a reference to the element at position \v ValN in the vector.
+  /// Returns a reference to the element at position \c ValN in the vector.
   TVal& GetVal(const TSizeTy& ValN){return operator[](ValN);}
   /// Returns a vector on elements at positions <tt>BValN...EValN</tt>.
   void GetSubValV(const TSizeTy& BValN, const TSizeTy& EValN, TVec<TVal, TSizeTy>& ValV) const;
-  /// Inserts new element \v Val before the element at position \v ValN.
+  /// Inserts new element \c Val before the element at position \c ValN.
   void Ins(const TSizeTy& ValN, const TVal& Val);
-  /// Removes the element at position \v ValN.
+  /// Removes the element at position \c ValN.
   void Del(const TSizeTy& ValN);
   /// Removes the elements at positions <tt>MnValN...MxValN</tt>.
   void Del(const TSizeTy& MnValN, const TSizeTy& MxValN);
   /// Removes the last element of the vector.
   void DelLast(){Del(Len()-1);}
-  /// Removes the first occurrence of element \v Val.
+  /// Removes the first occurrence of element \c Val.
   bool DelIfIn(const TVal& Val);
-  /// Removes all occurrences of element \v Val.
+  /// Removes all occurrences of element \c Val.
   void DelAll(const TVal& Val);
-  /// Sets all elements of the vector to value \v Val.
+  /// Sets all elements of the vector to value \c Val.
   void PutAll(const TVal& Val);
   
-  /// Swaps elements at positions \v ValN1 and \v ValN2.
+  /// Swaps elements at positions \c ValN1 and \c ValN2.
   void Swap(const TSizeTy& ValN1, const TSizeTy& ValN2){ const TVal Val=ValT[ValN1]; ValT[ValN1]=ValT[ValN2]; ValT[ValN2]=Val;}
-  /// Swaps the elements that iterators \v LVal and \v RVal point to.
+  /// Swaps the elements that iterators \c LVal and \c RVal point to.
   static void SwapI(TIter LVal, TIter RVal){ const TVal Val=*LVal; *LVal=*RVal; *RVal=Val;}
   
-  /// Generates next permutation of the elements in the vector. Assuming we started with a sorted vector repeated calls to \v NextPerm() will generate all permutations of the elements of the vector. Returns \v false when the last permutation is reached.
+  /// Generates next permutation of the elements in the vector. ##TVec::NextPerm
   bool NextPerm();
-  /// Generates previous permutation of the elements in the vector. Returns \v false when the first permutation is reached.
+  /// Generates previous permutation of the elements in the vector. ##TVec::PrevPerm
   bool PrevPerm();
   
   // Sorting functions
   /// Picks three random elements at positions <tt>LValN...RValN</tt> and returns the middle one.
   TSizeTy GetPivotValN(const TSizeTy& LValN, const TSizeTy& RValN) const;
-  /// Bubble sorts the values between positions <tt>MnLValN...MxLValN</tt>.
-  /// @param Asc Sorts the elements in ascending (if \v true) or descending (if \v false) order.
+  /// Bubble sorts the values between positions <tt>MnLValN...MxLValN</tt>. ##TVec::BSort
   void BSort(const TSizeTy& MnLValN, const TSizeTy& MxRValN, const bool& Asc);
-  /// Insertion sorts the values between positions <tt>MnLValN...MxLValN</tt>.
-  /// @param Asc Sorts the elements in ascending (if \v true) or descending (if \v false) order.
+  /// Insertion sorts the values between positions <tt>MnLValN...MxLValN</tt>. ##TVec::ISort
   void ISort(const TSizeTy& MnLValN, const TSizeTy& MxRValN, const bool& Asc);
-  /// Partitions the values between positions <tt>MnLValN...MxLValN</tt>. Helper function used by \v QSort().
-  /// @param Asc Sorts the elements in ascending (if \v true) or descending (if \v false) order.
+  /// Partitions the values between positions <tt>MnLValN...MxLValN</tt>. ##TVec::Partition
   TSizeTy Partition(const TSizeTy& MnLValN, const TSizeTy& MxRValN, const bool& Asc);
-  /// Quick sorts the values between positions <tt>MnLValN...MxLValN</tt>. Helper function used by \v Sort().
-  /// @param Asc Sorts the elements in ascending (if \v true) or descending (if \v false) order.
+  /// Quick sorts the values between positions <tt>MnLValN...MxLValN</tt>. ##TVec::QSort
   void QSort(const TSizeTy& MnLValN, const TSizeTy& MxRValN, const bool& Asc);
-  /// Sorts the elements of the vector. Use a combination if quicksort and insertion sort.
-  /// @param Asc Sorts the elements in ascending (if \v true) or descending (if \v false) order.
+  /// Sorts the elements of the vector. ##TVec::Sort
   void Sort(const bool& Asc=true);
-  /// Checks whether the vector is sorted in ascending (if \v Asc=true) or descending (if \v Asc=false) order.
+  /// Checks whether the vector is sorted in ascending (if \c Asc=true) or descending (if \c Asc=false) order.
   bool IsSorted(const bool& Asc=true) const;
   /// Randomly shuffles the elements of the vector.
   void Shuffle(TRnd& Rnd);
@@ -604,7 +596,7 @@ public:
   /// Sorts the vector and only keeps a single element of each value.
   void Merge();
 
-  /// Picks three random elements at positions <tt>BI...EI</tt> and returns the middle one under the comparator \v Cmp.
+  /// Picks three random elements at positions <tt>BI...EI</tt> and returns the middle one under the comparator \c Cmp.
   template <class TCmp>
   static TIter GetPivotValNCmp(const TIter& BI, const TIter& EI, const TCmp& Cmp) {
     TSizeTy SubVals=TSizeTy(EI-BI); if (SubVals > TInt::Mx-1) { SubVals = TInt::Mx-1; }
@@ -618,26 +610,26 @@ public:
       if (Cmp(Val1, Val3)) return BI+ValN1;
       else if (Cmp(Val3, Val2)) return BI+ValN2;
       else return BI+ValN3; } }
-  /// Partitions the values between positions <tt>BI...EI</tt> under the comparator \v Cmp.
+  /// Partitions the values between positions <tt>BI...EI</tt> under the comparator \c Cmp.
   template <class TCmp>
   static TIter PartitionCmp(TIter BI, TIter EI, const TVal Pivot, const TCmp& Cmp) {
     forever {
       while (Cmp(*BI, Pivot)){++BI;}  --EI;
       while (Cmp(Pivot, *EI)){--EI;}
       if (!(BI<EI)){return BI;}  SwapI(BI, EI);  ++BI; } }
-  /// Bubble sorts the values between positions <tt>BI...EI</tt> under the comparator \v Cmp.
+  /// Bubble sorts the values between positions <tt>BI...EI</tt> under the comparator \c Cmp.
   template <class TCmp>
   static void BSortCmp(TIter BI, TIter EI, const TCmp& Cmp) {
     for (TIter i = BI; i != EI; ++i) {
       for (TIter j = EI-1; j != i; --j) {
         if (Cmp(*j, *(j-1))) { SwapI(j, j-1); } } } }
-  /// Insertion sorts the values between positions <tt>BI...EI</tt> under the comparator \v Cmp.
+  /// Insertion sorts the values between positions <tt>BI...EI</tt> under the comparator \c Cmp.
   template <class TCmp>
   static void ISortCmp(TIter BI, TIter EI, const TCmp& Cmp) {
     if (BI + 1 < EI) {
       for (TIter i = BI, j; i != EI; ++i) { TVal Tmp=*i;  j=i;
         while (j > BI && Cmp(Tmp, *(j-1))) { *j = *(j-1); --j; } *j=Tmp; } } }
-  /// Quick sorts the values between positions <tt>BI...EI</tt> under the comparator \v Cmp.
+  /// Quick sorts the values between positions <tt>BI...EI</tt> under the comparator \c Cmp.
   template <class TCmp>
   static void QSortCmp(TIter BI, TIter EI, const TCmp& Cmp) {
     if (BI + 1 < EI) {
@@ -645,62 +637,63 @@ public:
       else { const TVal Val = *GetPivotValNCmp(BI, EI, Cmp);
         TIter Split = PartitionCmp(BI, EI, Val, Cmp);
         QSortCmp(BI, Split, Cmp);  QSortCmp(Split, EI, Cmp); } } }
-  /// Sorts the elements of the vector using the comparator \v Cmp.
+  /// Sorts the elements of the vector using the comparator \c Cmp.
   template <class TCmp>
   void SortCmp(const TCmp& Cmp){ QSortCmp(BegI(), EndI(), Cmp);}
-  /// Checks whether the vector is sorted according to the comparator \v Cmp.
+  /// Checks whether the vector is sorted according to the comparator \c Cmp.
   template <class TCmp>
   bool IsSortedCmp(const TCmp& Cmp) const {
     if (EndI() == BegI()) return true;
     for (TIter i = BegI(); i != EndI()-1; ++i) {
       if (Cmp(*(i+1), *i)){return false;} } return true; }
   
-  /// Result is the intersection of \v this vector with \v ValV. Assumes the vectors are sorted!
+  /// Result is the intersection of \c this vector with \c ValV. ##TVec::Intrs
   void Intrs(const TVec<TVal, TSizeTy>& ValV);
-  /// Result is the union of \v this vector with \v ValV. Assumes the vectors are sorted!
+  /// Result is the union of \c this vector with \c ValV. ##TVec::Union
   void Union(const TVec<TVal, TSizeTy>& ValV);
-  /// Subtracts \v ValV from \v this vector. This means \v this vector keeps only the elements that do not appear in \v ValV. Assumes the vectors are sorted!
+  /// Subtracts \c ValV from \c this vector. ##TVec::Diff
   void Diff(const TVec<TVal, TSizeTy>& ValV);
-  /// \v DstValV is the intersection of vectors \v this and \v ValV. Assumes the vectors are sorted!
+  /// \c DstValV is the intersection of vectors \c this and \c ValV. ##TVec::Intrs1
   void Intrs(const TVec<TVal, TSizeTy>& ValV, TVec<TVal, TSizeTy>& DstValV) const;
-  /// \v DstValV is the union of vectors \v this and \v ValV. Assumes the vectors are sorted!
+  /// \c DstValV is the union of vectors \c this and \c ValV. ##TVec::Union1
   void Union(const TVec<TVal, TSizeTy>& ValV, TVec<TVal, TSizeTy>& DstValV) const;
-  /// \v DstValV is the difference of vectors \v this and \v ValV. This means \v DstValV has all the elements of \v this that do not appear in \v ValV. Assumes the vectors are sorted!
+  /// \c DstValV is the difference of vectors \c this and \c ValV. ##TVec::Diff1
   void Diff(const TVec<TVal, TSizeTy>& ValV, TVec<TVal, TSizeTy>& DstValV) const;
-  /// Returns the size of the intersection of vectors \v this and \v ValV. Assumes both vectors are sorted in ascending order!
+  /// Returns the size of the intersection of vectors \c this and \c ValV. ##TVec::IntrsLen
   TSizeTy IntrsLen(const TVec<TVal, TSizeTy>& ValV) const;
   
-  /// Counts the number of occurrences of \v Val in the vector.
+  /// Counts the number of occurrences of \c Val in the vector.
   TSizeTy Count(const TVal& Val) const;
-  /// Returns the position of an element with value \v Val. If the element is not found return value is -1. Uses binary search and thus assumes the vector is sorted.
+  /// Returns the position of an element with value \c Val. ##TVec::SearchBin
   TSizeTy SearchBin(const TVal& Val) const;
-  /// Returns the position of an element with value \v Val. If the element is not found return value is -1. Uses binary search and thus assumes the vector is sorted.
+  /// Returns the position of an element with value \c Val. ##TVec::SearchBin1
   TSizeTy SearchBin(const TVal& Val, TSizeTy& InsValN) const;
-  /// Returns the position of an element with value \v Val. If the element is not found return value is -1. Uses linear search starting at position \v BValN.
+  /// Returns the position of an element with value \c Val. ##TVec::SearchForw
   TSizeTy SearchForw(const TVal& Val, const TSizeTy& BValN=0) const;
-  /// Returns the position of an element with value \v Val. If the element is not found return value is -1. Uses backward linear search.
+  /// Returns the position of an element with value \c Val. ##TVec::SearchBack
   TSizeTy SearchBack(const TVal& Val) const;
-  /// Returns the starting position of vector \v ValV. If the vector is not found return value is -1.
+  /// Returns the starting position of vector \c ValV. ##TVec::SearchVForw
+If the vector is not found return value is -1.
   TSizeTy SearchVForw(const TVec<TVal, TSizeTy>& ValV, const TSizeTy& BValN=0) const;
 
-  /// Checks whether element \v Val is a member of the vector.
+  /// Checks whether element \c Val is a member of the vector.
   bool IsIn(const TVal& Val) const {return SearchForw(Val)!=-1;}
-  /// Checks whether element \v Val is a member of the vector. Position of \v Val is returned in \v ValN.
+  /// Checks whether element \c Val is a member of the vector. ##TVec::IsIn
   bool IsIn(const TVal& Val, TSizeTy& ValN) const { ValN=SearchForw(Val); return ValN!=-1;}
-  /// Checks whether element \v Val is a member of the vector. Uses binary search and thus assumes the vector is sorted.
+  /// Checks whether element \c Val is a member of the vector. ##TVec::IsInBin
   bool IsInBin(const TVal& Val) const {return SearchBin(Val)!=-1;}
-  /// Returns reference to the first occurrence of element \v Val.
+  /// Returns reference to the first occurrence of element \c Val.
   TVal& GetDat(const TVal& Val) const { return GetVal(SearchForw(Val));}
-  /// Returns reference to the first occurrence of element \v Val. If the element does not exist, we add it at the end of the vector.
+  /// Returns reference to the first occurrence of element \c Val. ##TVec::GetAddDat
   TVal& GetAddDat(const TVal& Val){ AssertR(MxVals!=-1, "This vector was obtained from TVecPool. Such vectors cannot change its size!");
     const TSizeTy ValN=SearchForw(Val); if (ValN==-1){Add(Val); return Last();} else {return GetVal(ValN);}}
   /// Returns the position of the largest element in the vector.
   TSizeTy GetMxValN() const;
   
-  /// Returns a vector on element \v Val1.
+  /// Returns a vector on element \c Val1.
   static TVec<TVal, TSizeTy> GetV(const TVal& Val1){
     TVec<TVal, TSizeTy> V(1, 0); V.Add(Val1); return V;}
-  /// Returns a vector on elements \v Val1, \v Val2.
+  /// Returns a vector on elements \c Val1, \c Val2.
   static TVec<TVal, TSizeTy> GetV(const TVal& Val1, const TVal& Val2){
     TVec<TVal, TSizeTy> V(2, 0); V.Add(Val1); V.Add(Val2); return V;}
   /// Returns a vector on elements <tt>Val1...Val3</tt>.
@@ -2385,8 +2378,8 @@ typedef TVec<TIntStrIntIntQu> TIntStrIntIntQuV;
 typedef TVec<TIntIntPrPr> TIntIntPrPrV;
 
 /////////////////////////////////////////////////
-/// Vector Pool. Used for storing a large number of small vectors.
-/// The pool can store up to 2G different vectors, each with up to 2G elements. Each vector in the pool gets a consecutive integer ID. IDs range <tt>0...GetVecs()</tt>. Once a vector is added to the pool, the vector can modify the values of its elements (e.g., be sorted), but the vector is not allowed to change its length --- it cannot grow or shrink.
+
+/// Vector Pool. ##TVecPool
 template <class TVal, class TSizeTy=int>
 class TVecPool {
 public:
@@ -2402,11 +2395,7 @@ private:
 private:
   void Resize(const TSize& _MxVals);
 public:
-  /// Vector pool constructor.
-  /// @param ExpectVals At creation the pool allocates enough memory for storing the total of \v ExpectVals elements (not vectors).
-  /// @param _GrowBy  Whenever the size of the pool needs to be expanded, it will be expanded to be able to store additional \v _GrowBy elements.
-  /// @param _FastCopy If \v true, then vectors are copied using \v memcpy(), otherwise the assignment operator is used for copying. This option is slower but useful for complex objects where assignment operator is non-trivial.
-  /// @param _EmptyVal Empty (not yet used) elements in the pool are assigned to this value. By default <tt>_EmptyVal = TVal()</tt>.
+  /// Vector pool constructor. ##TVecPool::TVecPool
   TVecPool(const TSize& ExpectVals=0, const TSize& _GrowBy=1000000, const bool& _FastCopy=false, const TVal& _EmptyVal=TVal());
   TVecPool(const TVecPool<TVal, TSizeTy>& Pool);
   TVecPool(TSIn& SIn);
@@ -2422,11 +2411,11 @@ public:
   int GetVecs() const { return IdToOffV.Len(); }
   /// Returns the total number of values stored in the vector pool.
   TSize GetVals() const { return Vals; }
-  /// Tests whether vector of id \v VId is in the pool.
+  /// Tests whether vector of id \c VId is in the pool.
   bool IsVId(const int& VId) const { return (0 <= VId) && (VId < IdToOffV.Len()); }
   /// Returns the total capacity of the pool.
   uint64 Reserved() const { return MxVals; }
-  /// Reserves enough capacity for the pool to store \v MxVals elements.
+  /// Reserves enough capacity for the pool to store \c MxVals elements.
   void Reserve(const TSize& MxVals) { Resize(MxVals); }
   /// Returns the reference to an empty value.
   const TVal& GetEmptyVal() const { return EmptyVal; }
@@ -2436,21 +2425,21 @@ public:
   uint64 GetMemUsed() const {
     return sizeof(TCRef)+sizeof(TBool)+3*sizeof(TSize)+sizeof(TVal*)+MxVals*sizeof(TVal);}
   
-  /// Adds vector \v ValV to the pool and returns its id.
+  /// Adds vector \c ValV to the pool and returns its id.
   int AddV(const TValV& ValV);
-  /// Adds a vector of length \v ValVLen to the pool and returns its id. Elements of the vector are initialized to \v EmptyVal.
+  /// Adds a vector of length \c ValVLen to the pool and returns its id. ##TVecPool::AddEmptyV
   int AddEmptyV(const int& ValVLen);
-  /// Returns the number of elements in the vector with id \v VId.
+  /// Returns the number of elements in the vector with id \c VId.
   int GetVLen(const int& VId) const { if (VId==0){return 0;} else {return int(IdToOffV[VId]-IdToOffV[VId-1]);}}
-  /// Returns pointer to the first element of the vector with id \v VId.
+  /// Returns pointer to the first element of the vector with id \c VId.
   TVal* GetValVPt(const int& VId) const {
     if (GetVLen(VId)==0){return (TVal*)&EmptyVal;}
     else {return ValBf+IdToOffV[VId-1];}}
-  /// Returns \v ValV which is a reference (not a copy) to vector with id \v VId. No data is copied. Elements of the vector \v ValV can be modified but the vector cannot change its size.
+  /// Returns \c ValV which is a reference (not a copy) to vector with id \c VId. ##TVecPool::GetV
   void GetV(const int& VId, TValV& ValV) const {
     if (GetVLen(VId)==0){ValV.Clr();}
     else { ValV.GenExt(GetValVPt(VId), GetVLen(VId)); } }
-  /// Sets the values of vector \v VId with those in \v ValV.
+  /// Sets the values of vector \c VId with those in \c ValV.
   void PutV(const int& VId, const TValV& ValV) {
     IAssert(IsVId(VId) && GetVLen(VId) == ValV.Len());
     if (FastCopy) {
@@ -2458,17 +2447,17 @@ public:
     else { TVal* ValPt = GetValVPt(VId);
       for (::TSize ValN=0; ValN < ::TSize(ValV.Len()); ValN++, ValPt++) { *ValPt=ValV[ValN]; }
     } }
-  /// Deletes all elements of value \v DelVal from all vectors. Empty space is left at the end of the pool.
+  /// Deletes all elements of value \c DelVal from all vectors. ##TVecPool::CompactPool
   void CompactPool(const TVal& DelVal);
-  /// Shuffles the order of all elements in the pool. It does not respect vector boundaries!
+  /// Shuffles the order of all elements in the pool. ##TVecPool::ShuffleAll
   void ShuffleAll(TRnd& Rnd=TInt::Rnd);
   
-  /// Clears the contents of the pool. If <tt>DoDel=true</tt> memory is freed, otherwise all vectors are deleted and all element values in the pool are set to \v EmptyVal.
+  /// Clears the contents of the pool. ##TVecPool::Clr
   void Clr(bool DoDel = true) {
     IdToOffV.Clr(DoDel);  MxVals=0;  Vals=0;
     if (DoDel && ValBf!=NULL) { delete [] ValBf; ValBf=NULL;}
     if (! DoDel) { PutAll(EmptyVal); } }
-  /// Sets the values of all elements in the pool to \v Val.
+  /// Sets the values of all elements in the pool to \c Val.
   void PutAll(const TVal& Val) {
     for (TSize ValN = 0; ValN < MxVals; ValN++) { ValBf[ValN]=Val; } }
   friend class TPt<TVecPool<TVal> >;

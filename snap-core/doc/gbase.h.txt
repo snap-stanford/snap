@@ -1,0 +1,17 @@
+/// TGraphFlag
+This is very useful for testing graph properties at compile time for partial template specialization as well as compile time assert (CAssert).
+///
+
+/// TSnap::PrintInfo
+@param Fast true: only computes basic statistics (that can be computed fast). For more extensive information (and longer execution times) set <tt>Fast = false</tt>.
+///
+
+/// TUnionFind
+For more info see: http://en.wikipedia.org/wiki/Disjoint-set_data_structure).
+///
+
+/// THeap
+Data structure provides insertion of elements, and inspection and removal of the top element. It is guaranteed that the top element is the largest element in the heap, where the function object \c TCmp is used for comparisons.
+///
+
+

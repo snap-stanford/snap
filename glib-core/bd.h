@@ -570,8 +570,8 @@ void Swap(TRec& Rec1, TRec& Rec2){
 }
 
 /////////////////////////////////////////////////
-/// Computes a hash code from a pair of hash codes. 
-/// Both \v TPairHashImpl1 and \v TPairHashImpl2 implement the same function: ((a + b) * (a + b + 1) / 2) + a.
+
+/// Computes a hash code from a pair of hash codes. ##TPairHashImpl1
 class TPairHashImpl1 {
 public:
   static inline int GetHashCd(const int hc1, const int hc2) {
@@ -580,8 +580,7 @@ public:
     return (int) (c % 0x7fffffffULL); }
 };
 
-/// Computes a hash code from a pair of hash codes. 
-/// Both \v TPairHashImpl1 and \v TPairHashImpl2 implement the same function: ((a + b) * (a + b + 1) / 2) + a.
+/// Computes a hash code from a pair of hash codes. ##TPairHashImpl2
 class TPairHashImpl2 {
 public:
   static inline int GetHashCd(const int hc1, const int hc2) {
