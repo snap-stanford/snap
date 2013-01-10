@@ -28,8 +28,6 @@ template <class PGraph> int GetNodeTriads(const PGraph& Graph, const int& NId);
 /// Returns number of Open and Closed triads a node NId participates in. ##TSnap::GetNodeTriads1
 template <class PGraph> int GetNodeTriads(const PGraph& Graph, const int& NId, int& ClosedTriads, int& OpenTriads);
 /// Returns the number of triads between a node NId and a subset of its neighbors GroupSet. ##TSnap::GetNodeTriads2
-template <class PGraph> int GetNodeTriads(const PUNGraph& Graph, const int& NId, const TIntSet& GroupSet, int& InGroupEdges, int& InOutGroupEdges);
-/// Returns the number of triads between a node NId and a subset of its neighbors GroupSet. ##TSnap::GetNodeTriads3
 template <class PGraph> int GetNodeTriads(const PUNGraph& Graph, const int& NId, const TIntSet& GroupSet, int& InGroupEdges, int& InOutGroupEdges, int& OutGroup);
 /// Triangle Participation Ratio: For each node counts how many triangles it participates in and then returns a set of pairs (number of triangles, number of such nodes). ##TSnap::GetTriadParticip
 template <class PGraph> void GetTriadParticip(const PGraph& Graph, TIntPrV& TriadCntV);
@@ -274,41 +272,6 @@ int GetNodeTriads(const PGraph& Graph, const int& NId, int& ClosedTriads, int& O
     }
   }
   return ClosedTriads;
-}
-
-// Node NId and a subset of its neighbors GroupSet
-//   InGroupEdges ... triads (NId, g1, g2), where g1 and g2 are in GroupSet
-//   InOutGroupEdges ... triads (NId, g1, o1), where g1 in GroupSet and o1 not in GroupSet
-template <class PGraph>
-int GetNodeTriads(const PGraph& Graph, const int& NId, const TIntSet& GroupSet, int& InGroupEdges, int& InOutGroupEdges) {
-  const typename PGraph::TObj::TNodeI NI = Graph->GetNI(NId);
-  const bool IsDir = Graph->HasFlag(gfDirected);
-  InGroupEdges=0;   InOutGroupEdges=0;
-  if (NI.GetDeg() < 2 || GroupSet.Empty()) { return 0; }
-  // find neighborhood
-  TIntSet NbrSet(NI.GetDeg());
-  for (int e = 0; e < NI.GetOutDeg(); e++) {
-    if (NI.GetOutNId(e) != NI.GetId()) { // exclude self edges
-      NbrSet.AddKey(NI.GetOutNId(e)); }
-  }
-  if (IsDir) {
-    for (int e = 0; e < NI.GetInDeg(); e++) {
-      if (NI.GetInNId(e) != NI.GetId()) {
-        NbrSet.AddKey(NI.GetInNId(e)); }
-    }
-  }
-  // count connected neighbors
-  for (int srcGrp = 0; srcGrp < GroupSet.Len(); srcGrp++) {
-    IAssert(NbrSet.IsKey(GroupSet[srcGrp]));
-    const typename PGraph::TObj::TNodeI SrcNode = Graph->GetNI(GroupSet.GetKey(srcGrp));
-    for (int i = 0; i < SrcNode.GetOutDeg(); i++) {
-      const int dst = SrcNode.GetOutNId(i);
-      if (! NbrSet.IsKey(dst)) { continue; } // not triangle
-      if (GroupSet.IsKey(dst)) { InGroupEdges++; }
-      else { InOutGroupEdges++; }
-    }
-  }
-  return InGroupEdges;
 }
 
 // Node NId and a subset of its neighbors GroupSet
