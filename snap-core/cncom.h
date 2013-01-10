@@ -45,14 +45,14 @@ void GetBiConSzCnt(const PUNGraph& Graph, TIntPrV& SzCntV);
 /// Returns all bi-connected components of a Graph.
 /// @param BiCnComV is a vector of bi-connected components. Each component is defined by the IDs of its member nodes.
 void GetBiCon(const PUNGraph& Graph, TCnComV& BiCnComV);
-/// Returns articulartion points of a Graph.
+/// Returns articulation points of a Graph.
 /// Articulation point (or a cut vertex) is any node that when removed increases the number of connected components.
 void GetArtPoints(const PUNGraph& Graph, TIntV& ArtNIdV);
 /// Returns bridge edges of a Graph.
-/// Edge is a bridge if when removed increases the number of connected components.
+/// Edge is a bridge if, when removed, increases the number of connected components.
 /// See http://en.wikipedia.org/wiki/Bridge_(graph_theory)
 void GetEdgeBridges(const PUNGraph& Graph, TIntPrV& EdgeV);
-/// Distribution of sizes of 1-components, maximal components of that can be disconnected from the Graph by removing a single edge.
+/// Distribution of sizes of 1-components, maximal number of components that can be disconnected from the Graph by removing a single edge.
 /// We find such components as follows: Find all bridge edges, remove them from the Graph, find largest component K and
 /// add back all bridges that do not touch K. Now, find the connected components of this graph.
 void Get1CnComSzCnt(const PUNGraph& Graph, TIntPrV& SzCntV);
