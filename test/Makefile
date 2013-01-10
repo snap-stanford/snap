@@ -16,7 +16,8 @@ TESTS = \
 	test-TSysTm.cpp \
 	test-ggen.cpp \
 	test-gio.cpp \
-	test-THash.cpp
+	test-THash.cpp \
+	test-triad.cpp
 
 all: $(MAIN)
 run: test
