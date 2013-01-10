@@ -17,7 +17,7 @@ template <class PGraph> void GetNodeClustCf(const PGraph& Graph, TIntFltH& NIdCC
 /// Returns the number of triangles in a graph. ##TSnap::GetTriads
 template <class PGraph> int64 GetTriads(const PGraph& Graph, int SampleNodes=-1);
 /// Computes the number of Closed and Open triads. ##TSnap::GetTriads1
-template <class PGraph> int64 GetTriads(const PGraph& Graph, int64& ClosedTriads, int64& OpenTriads, int SampleNodes);
+template <class PGraph> int64 GetTriads(const PGraph& Graph, int64& ClosedTriads, int64& OpenTriads, int SampleNodes=-1);
 /// Computes the number of open and close triads for every node of the network. ##TSnap::GetTriads2
 template <class PGraph> void GetTriads(const PGraph& Graph, TIntTrV& NIdCOTriadV, int SampleNodes=-1);
 /// Counts the number of edges that participate in at least one triad. ##TSnap::GetTriadEdges
