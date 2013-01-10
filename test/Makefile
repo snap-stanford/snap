@@ -15,7 +15,9 @@ TESTS = \
 	test-TStrPool.cpp \
 	test-TSysTm.cpp \
 	test-ggen.cpp \
-	test-gio.cpp
+	test-gio.cpp \
+	test-gviz.cpp \
+	test-cncom.cpp
 
 all: $(MAIN)
 
