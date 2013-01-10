@@ -283,7 +283,7 @@ int GetNodeTriads(const PGraph& Graph, const int& NId, const TIntSet& GroupSet, 
   const typename PGraph::TObj::TNodeI NI = Graph->GetNI(NId);
   const bool IsDir = Graph->HasFlag(gfDirected);
   InGroupEdges=0;  InOutGroupEdges=0;  OutGroupEdges=0;
-  if (NI.GetDeg() < 2 || GroupSet.Empty()) { return 0; }
+  if (NI.GetDeg() < 2) { return 0; }
   // find neighborhood
   TIntSet NbrSet(NI.GetDeg());
   for (int e = 0; e < NI.GetOutDeg(); e++) {
