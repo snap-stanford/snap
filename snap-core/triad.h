@@ -389,11 +389,11 @@ int GetLen2Paths(const PGraph& Graph, const int& NId1, const int& NId2) {
 // for a pair of nodes (i,j): {u: (i,u) and (u,j) }
 template<class PGraph>
 int GetLen2Paths(const PGraph& Graph, const int& NId1, const int& NId2, TIntV& NbrV) {
-  const typename PGraph::TNodeI NI = Graph->GetNI(NId1);
+  const typename PGraph::TObj::TNodeI NI = Graph->GetNI(NId1);
   NbrV.Clr(false);
   NbrV.Reserve(NI.GetOutDeg());
   for (int e = 0; e < NI.GetOutDeg(); e++) {
-    const typename PGraph::TNodeI MidNI = GetNI(NI.GetOutNId(e));
+    const typename PGraph::TObj::TNodeI MidNI = Graph->GetNI(NI.GetOutNId(e));
     if (MidNI.IsOutNId(NId2)) {
       NbrV.Add(MidNI.GetId());
     }
