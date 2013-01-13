@@ -1,7 +1,4 @@
-<<<<<<< HEAD
 #include "stdafx.h"
-=======
->>>>>>> 00c083695c031071a085a915a1fc8798cf13c8ba
 #include "agmfit.h"
 #include "agm.h"
 #include "commtool.h"

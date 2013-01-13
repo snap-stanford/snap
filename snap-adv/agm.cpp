@@ -1,9 +1,6 @@
 #include "stdafx.h"
-<<<<<<< HEAD
 #include "Snap.h"
-=======
-#include "../snap/Snap.h"
->>>>>>> 00c083695c031071a085a915a1fc8798cf13c8ba
+#include "Snap.h"
 #include "agm.h"
 #include "agmfit.h"
 #include "logreg_light.h"
