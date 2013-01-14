@@ -12,7 +12,7 @@ int main(int argc, char* argv[]) {
 	TStr OutFPrx  = Env.GetIfArgPrefixStr("-o:", "", "Output file name prefix");
 	const TStr InFNm = Env.GetIfArgPrefixStr("-i:", "football.edgelist", "Input edgelist file name. DEMO: AGM with 2 communities");
 	const TStr LabelFNm = Env.GetIfArgPrefixStr("-l:", "football.labels", "Input file name for node names (Node ID, Node label) ");
-	const TInt RndSeed = Env.GetIfArgPrefixInt("-s:", 10, "Random seed for AGM");
+	const TInt RndSeed = Env.GetIfArgPrefixInt("-s:", 0, "Random seed for AGM");
 	const TFlt Epsilon = Env.GetIfArgPrefixFlt("-e:", 0, "Edge probability between the nodes that do not share any community (default (0.0): set it to be 1 / N^2)");
 	const TInt Coms = Env.GetIfArgPrefixInt("-c:", 0, "Number of communities (0: determine it by AGM)");
 
