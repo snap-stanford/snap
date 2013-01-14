@@ -648,7 +648,7 @@ double TAGMFit::CalcPNoComByCmtyVV(const int& SamplePairs) {
   } else {
     PNoCom = DefaultVal;
   }
-  printf("%llu / %llu edges without joint com detected (PNoCom = %f)\n", EdgesNoCom, PairNoCom, PNoCom.Val);
+  printf("%s / %s edges without joint com detected (PNoCom = %f)\n", TUInt64::GetStr(EdgesNoCom).CStr(), TUInt64::GetStr(PairNoCom).CStr(), PNoCom.Val);
   return PNoCom;
 }
 
