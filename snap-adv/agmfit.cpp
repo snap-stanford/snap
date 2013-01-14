@@ -131,7 +131,6 @@ int TAGMFit::MLEGradAscentGivenCAG(const double& Thres, const int& MaxIter, cons
   TFltV GradV(LambdaV.Len());
   int iter = 0;
   TIntFltPrV IterLV, IterGradNormV;
-  double InitLearnRate = 0.01;
   double GradCutOff = 1000;
   for (iter = 0; iter < MaxIter; iter++) {
     GradLogLForLambda(GradV);    //if gradient is going out of the boundary, cut off
@@ -372,7 +371,6 @@ void TAGMFit::RunMCMC(const int& MaxIter, const int& EvalLambdaIter, const TStr&
   TIntV IterV;
   TFltV BestLV;
   TVec<TIntSet> BestCmtySetV;
-  int IterAfterBurn = 0;
   int SwitchCnt = 0, LeaveCnt = 0, JoinCnt = 0, AcceptCnt = 0, ProbBinSz;
   int Nodes = G->GetNodes(), Edges = G->GetEdges();
   TExeTm PlotTm;
@@ -441,7 +439,6 @@ void TAGMFit::RunMCMC(const int& MaxIter, const int& EvalLambdaIter, const TStr&
   }
   CIDNSetV = BestCmtySetV;
   LambdaV = BestLV;
-  int DelCnt = RemoveEmptyCom();
 
   InitNodeData();
   MLEGradAscentGivenCAG(0.001, 100);
@@ -631,7 +628,7 @@ double TAGMFit::SelectLambdaSum(const TFltV& NewLambdaV, const TIntSet& ComK) {
 double TAGMFit::CalcPNoComByCmtyVV(const int& SamplePairs) {
   TIntV NIdV;
   G->GetNIdV(NIdV);
-  uint64 PairNoCom = 0,EdgesNoCom = 0;
+  uint64 PairNoCom = 0, EdgesNoCom = 0;
   for (int u = 0; u < NIdV.Len(); u++) {
     for (int v = u + 1; v < NIdV.Len(); v++) {
       int SrcNID = NIdV[u], DstNID = NIdV[v];
@@ -639,11 +636,11 @@ double TAGMFit::CalcPNoComByCmtyVV(const int& SamplePairs) {
       TAGMUtil::GetIntersection(NIDComVH.GetDat(SrcNID),NIDComVH.GetDat(DstNID),JointCom);
       if(JointCom.Len() == 0) {
         PairNoCom++;
-        if(G->IsEdge(SrcNID,DstNID)) {EdgesNoCom++;}
-        if (SamplePairs > 0 && PairNoCom >= SamplePairs) { break; }
+        if (G->IsEdge(SrcNID, DstNID)) { EdgesNoCom++; }
+        if (SamplePairs > 0 && PairNoCom >= (uint64) SamplePairs) { break; }
       }
     }
-    if (SamplePairs > 0 && PairNoCom >= SamplePairs) { break; }
+    if (SamplePairs > 0 && PairNoCom >= (uint64) SamplePairs) { break; }
   }
   double DefaultVal = 1.0 / (double)G->GetNodes() / (double)G->GetNodes();
   if (EdgesNoCom > 0) {
@@ -651,7 +648,7 @@ double TAGMFit::CalcPNoComByCmtyVV(const int& SamplePairs) {
   } else {
     PNoCom = DefaultVal;
   }
-  printf("%llu / %llu edges without joint com detected (PNoCom = %f)\n",EdgesNoCom, PairNoCom, PNoCom.Val);
+  printf("%llu / %llu edges without joint com detected (PNoCom = %f)\n", EdgesNoCom, PairNoCom, PNoCom.Val);
   return PNoCom;
 }
 

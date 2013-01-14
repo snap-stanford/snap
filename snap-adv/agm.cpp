@@ -151,8 +151,6 @@ void TAGMUtil::ConnectCmtyVV(TVec<TIntV>& CmtyVV, const TIntPrV& CIDSzPrV, const
     NDegV.Add(NIDMemPrV[Rnd.GetUniDevInt(Nodes)].Val1);
   }
   printf("Total Mem: %d, Total Sz: %d\n",NDegV.Len(), CDegV.Len());
-
-  int TotalComSz = CDegV.Len();
   int c=0;
   while (c++ < 15 && CDegV.Len() > 1) {
     for (int i = 0; i < CDegV.Len(); i++) {
@@ -213,7 +211,6 @@ void TAGMUtil::RewireCmtyNID(THash<TInt,TIntV >& CmtyVH, TRnd& Rnd) {
       CDegV.Add(CID);
     }
   }
-  int TotalComSz = CDegV.Len();
   TIntPrSet CNIDSet(CDegV.Len());
   int c=0;
   while (c++ < 15 && CDegV.Len() > 1){
@@ -307,7 +304,6 @@ int TAGMUtil::TotalMemberships(const TVec<TIntV>& CmtyVV){
 void TAGMUtil::GetNodeMembership(TIntH& NIDComVH, const THash<TInt,TIntV >& CmtyVH) {
   NIDComVH.Clr();
   for (THash<TInt,TIntV>::TIter HI = CmtyVH.BegI(); HI < CmtyVH.EndI(); HI++){
-    int CID = HI.GetKey();
     for (int j = 0;j < HI.GetDat().Len(); j++) {
       int NID = HI.GetDat()[j];
       NIDComVH.AddDat(NID)++;
@@ -497,7 +493,6 @@ void TAGMUtil::SaveBipartiteGephi(const TStr& OutFNm, const TIntV& NIDV, const T
     int NID = NIDV[u];
     TStr Label = NIDNameH.IsKey(NID)? NIDNameH.GetDat(NID): "";
     double Size = MinSz;
-    double SizeStep = (MaxSz - MinSz) / (double) CmtyVV.Len();
     double XPos = NXMin + u * NStep;
     TIntTr Color = NIDColorH.IsKey(NID)? NIDColorH.GetDat(NID) : TIntTr(120, 120, 120);
     double Alpha = 1.0;
@@ -516,7 +511,6 @@ void TAGMUtil::SaveBipartiteGephi(const TStr& OutFNm, const TIntV& NIDV, const T
     if (NIDComVH.IsKey(NID)) {
       for (int c = 0; c < NIDComVH.GetDat(NID).Len(); c++) {
         int CID = NIDComVH.GetDat(NID)[c];
-        int Label = 'A' + CID;
         fprintf(F, "\t\t\t<edge id='%d' source='C%d' target='%d'/>\n", EID++, CID, NID);
       }
     }
@@ -551,9 +545,7 @@ int TAGMUtil::FindComsByAGM(const PUNGraph& Graph, const int InitComs, const int
     double RegCoef = RegV[r];
     AGMFitM.SetRegCoef(RegCoef);
     AGMFitM.MLEGradAscentGivenCAG(0.01, 1000);
-    double RegL = AGMFitM.Likelihood();
     AGMFitM.SetRegCoef(0.0);
-    double WORegL = AGMFitM.Likelihood();
         
     TVec<TIntV> EstCmtyVV;
     AGMFitM.GetCmtyVV(EstCmtyVV, 0.99);
@@ -787,7 +779,6 @@ int TLogRegFit::MLEGradient(const double& ChangeEps, const int& MaxStep, const T
 	TFltV GradV(Theta.Len());
 	int iter = 0;
 	TIntFltPrV IterLV, IterGradNormV;
-	double InitLearnRate = 0.01;
 	double MinVal = -1e10, MaxVal = 1e10;
 	double GradCutOff = 100000;
 	for(iter = 0; iter < MaxStep; iter++) {

@@ -24,9 +24,9 @@ private:
 public:
 	TAGMFit(){}
 	~TAGMFit(){}
-	TAGMFit(const PUNGraph& GraphPt, const TVec<TIntV>& CmtyVVPt, const int RndSeed = 0): Rnd(RndSeed), PNoCom(0.0), MinLambda(0.00001), MaxLambda(10.0), RegCoef(0), G(GraphPt), BaseCID(-1) { SetCmtyVV(CmtyVVPt);  }
-  TAGMFit(const PUNGraph& GraphPt, const int InitComs, const int RndSeed = 0): Rnd(RndSeed), PNoCom(0.0), MinLambda(0.00001), MaxLambda(10.0), RegCoef(0), G(GraphPt), BaseCID(-1) { NeighborComInit(InitComs); }//RandomInitCmtyVV(InitComs);  }
-	TAGMFit(const PUNGraph& GraphPt, const TVec<TIntV>& CmtyVVPt, const TRnd& RndPt): Rnd(RndPt), PNoCom(0.0), MinLambda(0.00001), MaxLambda(10.0), RegCoef(0), G(GraphPt), BaseCID(-1) { SetCmtyVV(CmtyVVPt); }
+	TAGMFit(const PUNGraph& GraphPt, const TVec<TIntV>& CmtyVVPt, const int RndSeed = 0): G(GraphPt), PNoCom(0.0), Rnd(RndSeed), MinLambda(0.00001), MaxLambda(10.0), RegCoef(0), BaseCID(-1) { SetCmtyVV(CmtyVVPt);  }
+  TAGMFit(const PUNGraph& GraphPt, const int InitComs, const int RndSeed = 0): G(GraphPt), PNoCom(0.0), Rnd(RndSeed), MinLambda(0.00001), MaxLambda(10.0), RegCoef(0), BaseCID(-1) { NeighborComInit(InitComs); }//RandomInitCmtyVV(InitComs);  }
+	TAGMFit(const PUNGraph& GraphPt, const TVec<TIntV>& CmtyVVPt, const TRnd& RndPt): G(GraphPt), PNoCom(0.0), Rnd(RndPt), MinLambda(0.00001), MaxLambda(10.0), RegCoef(0), BaseCID(-1) { SetCmtyVV(CmtyVVPt); }
 	void RandomInitCmtyVV(const int InitComs, const double ComSzAlpha = 1.3, const double MemAlpha = 1.8, const int MinComSz = 8, const int MaxComSz = 200, const int MinMem = 1, const int MaxMem = 10);
 	void AddBaseCmty(); // Include the epsilon community to fitting
 	double Likelihood();

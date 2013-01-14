@@ -1,5 +1,6 @@
 #ifndef yanglib_agmfast_h
 #define yanglib_agmfast_h
+#include "Snap.h"
 
 class TAGMFast { //sparse AGM-fast with coordinate ascent
 private:
@@ -19,8 +20,8 @@ public:
 	TFlt PNoCom; // base probability \varepsilon (edge probability between a pair of nodes sharing no community
 	TBool DoParallel; // whether to use parallelism for computation
 
-	TAGMFast(const PUNGraph& GraphPt, const int& InitComs, const int RndSeed = 0): Rnd(RndSeed), RegCoef(0), MinVal(0.0), 
-    MaxVal(1000.0), NodesOk(true), NegWgt(1.0) { SetGraph(GraphPt); RandomInit(InitComs); }
+	TAGMFast(const PUNGraph& GraphPt, const int& InitComs, const int RndSeed = 0): Rnd(RndSeed), RegCoef(0), 
+    NodesOk(true), MinVal(0.0), MaxVal(1000.0), NegWgt(1.0) { SetGraph(GraphPt); RandomInit(InitComs); }
 	void SetGraph(const PUNGraph& GraphPt);
 	void SetRegCoef(const double _RegCoef) { RegCoef = _RegCoef; }
 	double GetRegCoef() { return RegCoef; }

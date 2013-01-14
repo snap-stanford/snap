@@ -414,7 +414,6 @@ double TAGMFast::HessianForOneVar(const TFltV& AlphaKV, const int UID, const int
 
 /// Newton method: DEPRECATED
 int TAGMFast::MLENewton(const double& Thres, const int& MaxIter, const TStr PlotNm) {
-	int Edges = G->GetEdges();
 	TExeTm ExeTm;
 	int iter = 0, PrevIter = 0;
 	TIntFltPrV IterLV;
@@ -542,7 +541,7 @@ int TAGMFast::FindComsByCV(const int NumThreads, const int MaxComs, const int Mi
     TIntV ComsV;
     ComsV.Add(MinComs);
     while (ComsV.Len() < DivComs) {
-      int NewComs = ComsV.Last() * ComsGap;
+      int NewComs = int(ComsV.Last() * ComsGap);
       if (NewComs == ComsV.Last().Val) { NewComs++; }
       ComsV.Add(NewComs);
     }
@@ -551,7 +550,6 @@ int TAGMFast::FindComsByCV(const int NumThreads, const int MaxComs, const int Mi
 }
 
 int TAGMFast::FindComsByCV(TIntV& ComsV, const double HOFrac, const int NumThreads, const TStr PlotLFNm, const double StepAlpha, const double StepBeta) {
-	const int Edges = G->GetEdges();
 	if (ComsV.Len() == 0) {
 		int MaxComs = G->GetNodes() / 5;
 		ComsV.Add(2);
@@ -573,9 +571,9 @@ int TAGMFast::FindComsByCV(TIntV& ComsV, const double HOFrac, const int NumThrea
     for (int IterCV = 0; IterCV < MaxIterCV; IterCV++) {
 	    // generate holdout sets
 	    HoldOutSets[IterCV].Gen(G->GetNodes());
-	    const int HOTotal = HOFrac * G->GetNodes() * (G->GetNodes() - 1) / 2;
+	    const int HOTotal = int(HOFrac * G->GetNodes() * (G->GetNodes() - 1) / 2.0);
 	    int HOCnt = 0;
-      int HOEdges = TMath::Round(HOFrac * G->GetEdges());
+      int HOEdges = (int) TMath::Round(HOFrac * G->GetEdges());
       printf("holding out %d edges...\n", HOEdges);
       for (int he = 0; he < (int) HOEdges; he++) {
 		    HoldOutSets[IterCV][EdgeV[he].Val1].AddKey(EdgeV[he].Val2);
@@ -583,7 +581,6 @@ int TAGMFast::FindComsByCV(TIntV& ComsV, const double HOFrac, const int NumThrea
 		    HOCnt++;
 	    }
 	    printf("%d Edges hold out\n", HOCnt);
-      int i = 0, NumRows = (int) TMath::Sqrt((double) HOTotal);
       while(HOCnt++ < HOTotal) {
         int SrcNID = Rnd.GetUniDevInt(G->GetNodes());
 		    int DstNID = Rnd.GetUniDevInt(G->GetNodes());
@@ -690,13 +687,10 @@ double TAGMFast::GetStepSizeByLineSearch(const int UID, const TIntFltH& DeltaV, 
 
 int TAGMFast::MLEGradAscent(const double& Thres, const int& MaxIter, const TStr PlotNm, const double StepAlpha, const double StepBeta) {
   time_t InitTime = time(NULL);
-	int Edges = G->GetEdges();
 	TExeTm ExeTm, CheckTm;
 	int iter = 0, PrevIter = 0;
 	TIntFltPrV IterLV;
-	double InitLearnRate = 0.1;
 	TUNGraph::TNodeI UI;
-	double GradCutOff = 1000;
 	double PrevL = TFlt::Mn, CurL = 0.0;
 	TIntV NIdxV(F.Len(), 0);
 	for (int i = 0; i < F.Len(); i++) { NIdxV.Add(i); }
@@ -740,7 +734,7 @@ int TAGMFast::MLEGradAscent(const double& Thres, const int& MaxIter, const TStr 
 				IterLV.Add(TIntFltPr(iter, Likelihood(false)));
 			}
 		}
-		printf("\r%d iterations (%f) [%d sec]", iter, CurL, time(NULL) - InitTime);
+		printf("\r%d iterations (%f) [%lu sec]", iter, CurL, time(NULL) - InitTime);
 		fflush(stdout);
 		if (iter - PrevIter >= 2 * G->GetNodes() && iter > 10000) {
 			PrevIter = iter;
@@ -765,12 +759,11 @@ int TAGMFast::MLEGradAscent(const double& Thres, const int& MaxIter, const TStr 
 int TAGMFast::MLEGradAscentParallel(const double& Thres, const int& MaxIter, const int ChunkNum, const int ChunkSize, const TStr PlotNm, const double StepAlpha, const double StepBeta) {
 	//parallel
   time_t InitTime = time(NULL);
-	int Edges = G->GetEdges();
 	uint64 StartTm = TSecTm::GetCurTm().GetAbsSecs();
 	TExeTm ExeTm, CheckTm;
 	double PrevL = Likelihood(true);
 	TIntFltPrV IterLV;
-	int TotalIter = 0, PrevIter = 0;
+	int PrevIter = 0;
 	int iter = 0;
 	TIntV NIdxV(F.Len(), 0);
 	for (int i = 0; i < F.Len(); i++) { NIdxV.Add(i); }
@@ -870,7 +863,7 @@ int TAGMFast::MLEGradAscentParallel(const double& Thres, const int& MaxIter, con
 		int OPTCnt = 0;
 		for (int i = 0; i < NIDOPTV.Len(); i++) { if (NIDOPTV[i] == 1) { OPTCnt++; } }
 		if (! PlotNm.Empty()) {
-			printf("\r%d iterations [%s] %d secs", iter * ChunkSize * ChunkNum, ExeTm.GetTmStr(), TSecTm::GetCurTm().GetAbsSecs() - StartTm);
+			printf("\r%d iterations [%s] %lu secs", iter * ChunkSize * ChunkNum, ExeTm.GetTmStr(), TSecTm::GetCurTm().GetAbsSecs() - StartTm);
 			if (PrevL > TFlt::Mn) { printf(" (%f) %d g %d s %d OPT", PrevL, NumNoChangeGrad, NumNoChangeStepSize, OPTCnt); }
 			fflush(stdout);
 		}
@@ -878,7 +871,7 @@ int TAGMFast::MLEGradAscentParallel(const double& Thres, const int& MaxIter, con
 			PrevIter = iter;
 			double CurL = Likelihood(true);
 			IterLV.Add(TIntFltPr(iter * ChunkSize * ChunkNum, CurL));
-			printf("\r%d iterations, Likelihood: %f, Diff: %f [%d secs]", iter, CurL,  CurL - PrevL, time(NULL) - InitTime);
+			printf("\r%d iterations, Likelihood: %f, Diff: %f [%lu secs]", iter, CurL,  CurL - PrevL, time(NULL) - InitTime);
  			fflush(stdout);
 			if (CurL - PrevL <= Thres * fabs(PrevL)) { 
 				break;
@@ -889,10 +882,10 @@ int TAGMFast::MLEGradAscentParallel(const double& Thres, const int& MaxIter, con
 		}
 	}
 	if (! PlotNm.Empty()) {
-		printf("\nMLE completed with %d iterations(%d secs)\n", iter, TSecTm::GetCurTm().GetAbsSecs() - StartTm);
+		printf("\nMLE completed with %d iterations(%lu secs)\n", iter, TSecTm::GetCurTm().GetAbsSecs() - StartTm);
 		TGnuPlot::PlotValV(IterLV, PlotNm + ".likelihood_Q");
 	} else {
-    printf("\rMLE completed with %d iterations(%d secs)", iter, time(NULL) - InitTime);
+    printf("\rMLE completed with %d iterations(%lu secs)", iter, time(NULL) - InitTime);
     fflush(stdout);
   }
 	return iter;
