@@ -1,5 +1,5 @@
-#ifndef yanglib_agmrelaxed_h
-#define yanglib_agmrelaxed_h
+#ifndef yanglib_agmfast_h
+#define yanglib_agmfast_h
 
 class TAGMFast { //sparse AGM-fast with coordinate ascent
 private:

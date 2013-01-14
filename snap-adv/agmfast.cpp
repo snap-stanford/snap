@@ -1,5 +1,8 @@
+
+#include "stdafx.h"
 #include "agmfast.h"
 #include "Snap.h"
+#include "agm.h"
 
 void TAGMFast::Save(TSOut& SOut) {
 	G->Save(SOut);
@@ -78,12 +81,9 @@ void TAGMFast::NeighborComInit(const int InitComs) {
     }
 		//NCPhiH.AddDat(u, Phi);
     NIdPhiV.Add(TFltIntPr(Phi, u));
-    if (u % (G->GetNodes() / 100) == 0) { 
-      printf("\r%d nodes completed for neighborhood community calculation", u);
-    }
 	}
   NIdPhiV.Sort(true);
-	printf("conductance computation completed [%s]", RunTm.GetTmStr());
+	printf("conductance computation completed [%s]\n", RunTm.GetTmStr());
   fflush(stdout);
 	//choose nodes with local minimum in conductance
 	int CurCID = 0;
@@ -754,8 +754,9 @@ int TAGMFast::MLEGradAscent(const double& Thres, const int& MaxIter, const TStr 
 		}
 		
 	}
+  printf("\n");
+  printf("MLE for Lambda completed with %d iterations(%s)\n", iter, ExeTm.GetTmStr());
 	if (! PlotNm.Empty()) {
-		printf("\nMLE for Lambda completed with %d iterations(%s)\n", iter, ExeTm.GetTmStr());
 		TGnuPlot::PlotValV(IterLV, PlotNm + ".likelihood_Q");
 	}
 	return iter;

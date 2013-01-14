@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "agmfit.h"
 #include "agm.h"
-#include "commtool.h"
 
 /////////////////////////////////////////////////////////////////////
 /// AGM fitting
@@ -206,7 +205,7 @@ void TAGMFit::NeighborComInit(const int InitComs) {
     NIdPhiV.Add(TFltIntPr(Phi, NIdV[u]));
   }
   NIdPhiV.Sort(true);
-  printf("conductance computation completed [%s]", RunTm.GetTmStr());
+  printf("conductance computation completed [%s]\n", RunTm.GetTmStr());
   fflush(stdout);
   //choose nodes with local minimum in conductance
   int CurCID = 0;
