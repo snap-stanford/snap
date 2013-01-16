@@ -11,59 +11,37 @@ template <class PGraph> void GetNodeWcc(const PGraph& Graph, const int& NId, TIn
 template <class PGraph> bool IsConnected(const PGraph& Graph);
 /// Tests whether the Graph is weakly connected.
 template <class PGraph> bool IsWeaklyConn(const PGraph& Graph);
-/// Returns a distribution of weakly connected component sizes.
-/// @param WccSzCnt returns a set of pairs (number of nodes in the component, number of such components)
+/// Returns a distribution of weakly connected component sizes. ##GetWccSzCnt
 template <class PGraph> void GetWccSzCnt(const PGraph& Graph, TIntPrV& WccSzCnt);
-/// Returns all weakly connected components in a Graph.
-/// @param CnComV is a vector of connected components. Each component is defined by the IDs of its member nodes.
+/// Returns all weakly connected components in a Graph. ##GetWccs
 template <class PGraph> void GetWccs(const PGraph& Graph, TCnComV& CnComV);
-/// Returns a distribution of strongly connected component sizes.
-/// @param SccSzCnt returns a set of pairs (number of nodes in the component, number of such components)
+/// Returns a distribution of strongly connected component sizes. ##GetSccSzCnt
 template <class PGraph> void GetSccSzCnt(const PGraph& Graph, TIntPrV& SccSzCnt);
-/// Returns all strongly connected components in a Graph.
-/// @param CnComV is a vector of connected components. Each component is defined by the IDs of its member nodes.
+/// Returns all strongly connected components in a Graph. ##GetSccs
 template <class PGraph> void GetSccs(const PGraph& Graph, TCnComV& CnComV);
 /// Returns the fraction of nodes in the largest weakly connected component of a Graph.
 template <class PGraph> double GetMxWccSz(const PGraph& Graph);
 
-/// Returns a graph representing the largest weakly connected component on an input Graph.
-/// A directed/undirected graph is connected if there exist an undirected path between any pair of nodes.
-/// See http://en.wikipedia.org/wiki/Connected_component_(graph_theory)
+/// Returns a graph representing the largest weakly connected component on an input Graph. ##GetMxWcc
 template <class PGraph> PGraph GetMxWcc(const PGraph& Graph);
-/// Returns a graph representing the largest strongly connected component on an input Graph.
-/// A directed graph is strongly connected if there exists a directed path from any vertex to any other vertex in the graph.
-/// See http://en.wikipedia.org/wiki/Strongly_connected_component
+/// Returns a graph representing the largest strongly connected component on an input Graph.  ##GetMxScc
 template <class PGraph> PGraph GetMxScc(const PGraph& Graph);
-/// Returns a graph representing the largest bi-connected component on an input Graph.
-/// An undirected graph is bi-connected if by removing any single node does not disconnect the graph.
-/// http://en.wikipedia.org/wiki/Biconnected_component
+/// Returns a graph representing the largest bi-connected component on an input Graph. ##GetMxBiCon
 template <class PGraph> PGraph GetMxBiCon(const PGraph& Graph);
 
-/// Returns a distribution of bi-connected component sizes.
-/// @param SzCntV returns a set of pairs (number of nodes in the bi-component, number of such components)
+/// Returns a distribution of bi-connected component sizes. ##GetBiConSzCnt
 void GetBiConSzCnt(const PUNGraph& Graph, TIntPrV& SzCntV);
-/// Returns all bi-connected components of a Graph.
-/// @param BiCnComV is a vector of bi-connected components. Each component is defined by the IDs of its member nodes.
+/// Returns all bi-connected components of a Graph. ##GetBiCon
 void GetBiCon(const PUNGraph& Graph, TCnComV& BiCnComV);
-/// Returns articulation points of a Graph.
-/// Articulation point (or a cut vertex) is any node that when removed increases the number of connected components.
+/// Returns articulation points of a Graph. ##GetArtPoints
 void GetArtPoints(const PUNGraph& Graph, TIntV& ArtNIdV);
-/// Returns bridge edges of a Graph.
-/// Edge is a bridge if, when removed, increases the number of connected components.
-/// See http://en.wikipedia.org/wiki/Bridge_(graph_theory)
+/// Returns bridge edges of a Graph. ##GetEdgeBridges
 void GetEdgeBridges(const PUNGraph& Graph, TIntPrV& EdgeV);
-/// Distribution of sizes of 1-components, maximal number of components that can be disconnected from the Graph by removing a single edge.
-/// We find such components as follows: Find all bridge edges, remove them from the Graph, find largest component K and
-/// add back all bridges that do not touch K. Now, find the connected components of this graph.
+/// Distribution of sizes of 1-components, maximal number of components that can be disconnected from the Graph by removing a single edge.  ##Get1CnComSzCnt
 void Get1CnComSzCnt(const PUNGraph& Graph, TIntPrV& SzCntV);
-/// Returns 1-components: maximal connected components of that can be disconnected from the Graph by removing a single edge.
-/// We find such components as follows: Find all bridge edges, remove them from the Graph, find largest component K and
-/// add back all bridges that do not touch K. Now, find the connected components of this graph.
+/// Returns 1-components: maximal connected components of that can be disconnected from the Graph by removing a single edge. ##Get1CnCom
 void Get1CnCom(const PUNGraph& Graph, TCnComV& Cn1ComV);
-/// Returns a graph representing the largest bi-connected component on an undirected Graph.
-/// An undirected graph is bi-connected if by removing any single node does not disconnect the graph.
-/// http://en.wikipedia.org/wiki/Biconnected_component
-/// @param RenumberNodes if true, then node IDs of the returned graph will not match those of Graph, instead they will have a range 0...N-1.
+/// Returns a graph representing the largest bi-connected component on an undirected Graph. ##GetMxBiCon
 PUNGraph GetMxBiCon(const PUNGraph& Graph, const bool& RenumberNodes=false);
 
 }; // namespace TSnap
