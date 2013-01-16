@@ -35,6 +35,12 @@ test_*.gif
 # Backup files
 *~.nib
 
+# Doxygen-produced files
+doxygen/snapdoc-dev
+doxygen/snapdoc-user
+doxygen/log*.txt
+doxygen/snap
+
 # Ignore executables, but keep everything else
 snap-core/testSnap
 test/run-all-tests
@@ -46,4 +52,7 @@ examples/*/*.dSYM
 tutorials/*
 !tutorials/*.*
 !tutorials/Makefile
+!tutorials/cncom
+!tutorials/graphviz
 tutorials/.DS_Store
+tutorials/*.dSYM
