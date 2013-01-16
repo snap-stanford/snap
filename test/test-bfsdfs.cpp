@@ -54,25 +54,19 @@ void TestFullBfsDfs() {
   StartNId = 1;
   Hop = 1;
   Nodes = GetNodesAtHop(G, StartNId, Hop, NIdV, HasGraphFlag(typename PGraph::TObj, gfDirected));
-  printf("Nodes = %d, GetNodesAtHop NIdV.Len() = %d\n", Nodes, NIdV.Len());
   
   TIntPrV HopCntV;
   Nodes = GetNodesAtHops(G, StartNId, HopCntV, HasGraphFlag(typename PGraph::TObj, gfDirected));
-  printf("Nodes = %d, GetNodesAtHops HopCntV.Len() = %d\n", Nodes, HopCntV.Len());
 
   int Length, SrcNId, DstNId;
   SrcNId = 1;
   DstNId = NNodes-1;
   
   Length = GetShortPath(G, SrcNId, DstNId, HasGraphFlag(typename PGraph::TObj, gfDirected));
-  printf("SPL Length = %d\n", Length);
   
   TIntH NIdToDistH;
   int MaxDist = 9;
   Length = GetShortPath(G, SrcNId, NIdToDistH, HasGraphFlag(typename PGraph::TObj, gfDirected), MaxDist);
-  for (int i = 0; i < min(5,NIdToDistH.Len()); i++) {
-    printf("NIdToDistH[%d] = %d\n", i, NIdToDistH[i].Val);
-  }
   EXPECT_TRUE(NIdToDistH[0] == 0);
   EXPECT_TRUE(NIdToDistH[1] == 1);
   EXPECT_TRUE(NIdToDistH[2] == 1);
@@ -84,24 +78,18 @@ void TestFullBfsDfs() {
   int NTestNodes = 10;
   
   for (int IsDir = 0; IsDir < 2; IsDir++) {
-    printf("IsDir = %d:\n", IsDir);
     
     FullDiam = GetBfsFullDiam(G, NTestNodes, IsDir);
-    printf("FullDiam = %d\n", FullDiam);
     EXPECT_TRUE(FullDiam == 1);
-
     
     EffDiam = GetBfsEffDiam (G, NTestNodes, IsDir);
-    printf("EffDiam = %.4f\n", EffDiam);
     EXPECT_TRUE(EffDiam > 0.8 - EPSILON && EffDiam < 0.95 + EPSILON);
 
     EffDiam = GetBfsEffDiam (G, NTestNodes, IsDir, EffDiam, FullDiam);
-    printf("EffDiam = %.4f, FullDiam = %d\n", EffDiam, FullDiam);
     EXPECT_TRUE(EffDiam > 0.8 - EPSILON && EffDiam < 0.95 + EPSILON);
     EXPECT_TRUE(FullDiam == 1);
     
     EffDiam = GetBfsEffDiam (G, NTestNodes, IsDir, EffDiam, FullDiam, AvgDiam);
-    printf("EffDiam = %.4f, FullDiam = %d, AvgDiam = %.4f\n", EffDiam, FullDiam, AvgDiam);
     EXPECT_TRUE(EffDiam > 0.8 - EPSILON && EffDiam < 0.95 + EPSILON);
     EXPECT_TRUE(FullDiam == 1);
     EXPECT_TRUE(AvgDiam > 0.9980 - EPSILON && AvgDiam < 0.9980 + EPSILON);
@@ -112,7 +100,6 @@ void TestFullBfsDfs() {
     }
 
     EffDiam = GetBfsEffDiam(G, NTestNodes, SubGraphNIdV, IsDir, EffDiam, FullDiam);
-    printf("For subgraph: EffDiam = %.4f, FullDiam = %d\n", EffDiam, FullDiam);
     EXPECT_TRUE(EffDiam > 0.8 - EPSILON && EffDiam < 0.95 + EPSILON);
     EXPECT_TRUE(FullDiam == 1);
 
@@ -140,49 +127,36 @@ TEST(BfsDfsTest, UndirectedRandom) {
   DrawGViz(G, gvlNeato, TStr::Fmt("%s/sample_bfsdfs_unpower.png", DIRNAME), "Sample bfsdfs Graph", NodeLabelH);
   
   TIntV NIdV;
-  int StartNId, Hop, Nodes;
-  
+  int StartNId, Hop, Nodes; 
   int IsDir = 0;
-  printf("IsDir = %d:\n", IsDir);
-  
+    
   StartNId = 1;
   Hop = 1;
   Nodes = GetNodesAtHop(G, StartNId, Hop, NIdV, IsDir);
-  printf("Nodes = %d, GetNodesAtHop NIdV.Len() = %d, NIdV[0] = %d\n", Nodes, NIdV.Len(), NIdV[0].Val);
-  EXPECT_TRUE(Nodes == 1);
+    EXPECT_TRUE(Nodes == 1);
   EXPECT_TRUE(NIdV.Len() == 1);
   EXPECT_TRUE(NIdV[0] = 46);
   
   TIntPrV HopCntV;
   Nodes = GetNodesAtHops(G, StartNId, HopCntV, IsDir);
-  printf("Nodes = %d, GetNodesAtHops HopCntV.Len() = %d\n", Nodes, HopCntV.Len());
-  EXPECT_TRUE(Nodes == 8);
+    EXPECT_TRUE(Nodes == 8);
   EXPECT_TRUE(HopCntV.Len() == 8);
-  for (int N = 0; N < HopCntV.Len(); N++) {
-    printf("HopCntV[%d] = (%d, %d)\n", N, HopCntV[N].Val1.Val, HopCntV[N].Val2.Val);
-  }
-
   
   int Length, SrcNId, DstNId;
   SrcNId = 1;
   DstNId = G->GetNodes() - 1;
   
   Length = GetShortPath(G, SrcNId, DstNId, IsDir);
-  printf("%d -> %d: SPL Length = %d\n", SrcNId, DstNId, Length);
   EXPECT_TRUE(Length == -1);
   
   SrcNId = 1;
   DstNId = 33;
   Length = GetShortPath(G, SrcNId, DstNId, IsDir);
-  printf("%d -> %d: SPL Length = %d\n", SrcNId, DstNId, Length);
   EXPECT_TRUE(Length == 7);
 
   TIntH NIdToDistH;
   int MaxDist = 9;
   Length = GetShortPath(G, SrcNId, NIdToDistH, IsDir, MaxDist);
-  for (int i = 0; i < min(5,NIdToDistH.Len()); i++) {
-    printf("NIdToDistH[%d] = %d\n", i, NIdToDistH[i].Val);
-  }
   EXPECT_TRUE(NIdToDistH[0] == 0);
   EXPECT_TRUE(NIdToDistH[1] == 1);
   EXPECT_TRUE(NIdToDistH[2] == 2);
@@ -196,20 +170,16 @@ TEST(BfsDfsTest, UndirectedRandom) {
   int NTestNodes = G->GetNodes() / 3 * 2;
   
   FullDiam = GetBfsFullDiam(G, NTestNodes, IsDir);
-  printf("FullDiam = %d\n", FullDiam);
   EXPECT_TRUE(FullDiam <= 8 && FullDiam >= 5);
   
   EffDiam = GetBfsEffDiam(G, NTestNodes, IsDir);
-  printf("EffDiam = %.3f\n", EffDiam);
   EXPECT_TRUE(EffDiam > 3.5 && EffDiam < 4.5);
   
   EffDiam = GetBfsEffDiam(G, NTestNodes, IsDir, EffDiam, FullDiam);
-  printf("EffDiam = %.3f, FullDiam = %d\n", EffDiam, FullDiam);
   EXPECT_TRUE(EffDiam > 3.5 && EffDiam < 4.5);
   EXPECT_TRUE(FullDiam > 5 && FullDiam < 8);
   
   EffDiam = GetBfsEffDiam(G, NTestNodes, IsDir, EffDiam, FullDiam, AvgSPL);
-  printf("EffDiam = %.3f, FullDiam = %d, AvgDiam = %.3f\n", EffDiam, FullDiam, AvgSPL);
   EXPECT_TRUE(EffDiam > 3.5 && EffDiam < 4.5);
   EXPECT_TRUE(FullDiam > 5 && FullDiam < 8);
   EXPECT_TRUE(AvgSPL > 1.5 && AvgSPL < 5.0);
@@ -227,7 +197,6 @@ TEST(BfsDfsTest, UndirectedRandom) {
   SubGraphNIdV.Add(30);
 
   EffDiam = GetBfsEffDiam(G, NTestNodes, SubGraphNIdV, IsDir, EffDiam, FullDiam);
-  printf("For subgraph: EffDiam = %.4f, FullDiam = %d\n", EffDiam, FullDiam);
   EXPECT_TRUE(EffDiam > 2.7385 - EPSILON && EffDiam < 2.7385 + EPSILON);
   EXPECT_TRUE(FullDiam == 3);
 
@@ -271,22 +240,14 @@ TEST(BfsDfsTest, DirectedRandom) {
   }
   DrawGViz(G, gvlDot, TStr::Fmt("%s/sample_bfsdfs_ngraph.png", DIRNAME), "Sample BFS Graph", NodeLabelH);
   
-  printf("G->GetNodes() = %d, G->GetEdges() = %d\n", G->GetNodes(), G->GetEdges());
-
   TIntV NIdV;
   int StartNId, Hop, Nodes;
   
   //  for (int IsDir = 0; IsDir < 2; IsDir++) {
   int IsDir = 1;
-  printf("IsDir = %d:\n", IsDir);
-  
   StartNId = 11;
   Hop = 1;
   Nodes = GetNodesAtHop(G, StartNId, Hop, NIdV, IsDir);
-  printf("Nodes = %d, GetNodesAtHop NIdV.Len() = %d\n", Nodes, NIdV.Len());
-  for (int i = 0; i < NIdV.Len(); i++) {
-    printf("NIdV[%d] = %d\n", i, NIdV[i].Val);
-  }
   EXPECT_TRUE(Nodes == 2);
   EXPECT_TRUE(NIdV.Len() == 2);
   EXPECT_TRUE(NIdV[0] = 20);
@@ -294,12 +255,8 @@ TEST(BfsDfsTest, DirectedRandom) {
   
   TIntPrV HopCntV;
   Nodes = GetNodesAtHops(G, StartNId, HopCntV, IsDir);
-  printf("Nodes = %d, GetNodesAtHops HopCntV.Len() = %d\n", Nodes, HopCntV.Len());
   EXPECT_TRUE(Nodes == 10);
   EXPECT_TRUE(HopCntV.Len() == 10);
-  for (int N = 0; N < HopCntV.Len(); N++) {
-    printf("HopCntV[%d] = (%d, %d)\n", N, HopCntV[N].Val1.Val, HopCntV[N].Val2.Val);
-  }
   EXPECT_TRUE(HopCntV[0] == TIntPr(0, 1));
   EXPECT_TRUE(HopCntV[1] == TIntPr(1, 2));
   EXPECT_TRUE(HopCntV[2] == TIntPr(2, 3));
@@ -316,21 +273,16 @@ TEST(BfsDfsTest, DirectedRandom) {
   DstNId = G->GetNodes() - 1;
   
   Length = GetShortPath(G, SrcNId, DstNId, IsDir);
-  printf("%d -> %d: SPL Length = %d\n", SrcNId, DstNId, Length);
   EXPECT_TRUE(Length == 2);
   
   SrcNId = 11;
   DstNId = 27;
   Length = GetShortPath(G, SrcNId, DstNId, IsDir);
-  printf("%d -> %d: SPL Length = %d\n", SrcNId, DstNId, Length);
   EXPECT_TRUE(Length == 9);
   
   TIntH NIdToDistH;
   int MaxDist = 9;
   Length = GetShortPath(G, SrcNId, NIdToDistH, IsDir, MaxDist);
-  for (int i = 0; i < min(5,NIdToDistH.Len()); i++) {
-    printf("NIdToDistH[%d] = %d\n", i, NIdToDistH[i].Val);
-  }
   EXPECT_TRUE(NIdToDistH[0] == 0);
   EXPECT_TRUE(NIdToDistH[1] == 1);
   EXPECT_TRUE(NIdToDistH[2] == 1);
@@ -344,20 +296,16 @@ TEST(BfsDfsTest, DirectedRandom) {
   int NTestNodes = G->GetNodes() / 2;
   
   FullDiam = GetBfsFullDiam(G, NTestNodes, IsDir);
-  printf("FullDiam = %d\n", FullDiam);
   EXPECT_TRUE(FullDiam >= 7 && FullDiam <= 9);
   
   EffDiam = GetBfsEffDiam(G, NTestNodes, IsDir);
-  printf("EffDiam = %.3f\n", EffDiam);
   EXPECT_TRUE(EffDiam > 4.0 && EffDiam < 6.0);
   
   EffDiam = GetBfsEffDiam(G, NTestNodes, IsDir, EffDiam, FullDiam);
-  printf("EffDiam = %.3f, FullDiam = %d\n", EffDiam, FullDiam);
   EXPECT_TRUE(EffDiam > 4.0 && EffDiam < 6.0);
   EXPECT_TRUE(FullDiam >= 7 && FullDiam <= 9);
   
   EffDiam = GetBfsEffDiam(G, NTestNodes, IsDir, EffDiam, FullDiam, AvgSPL);
-  printf("EffDiam = %.3f, FullDiam = %d, AvgDiam = %.3f\n", EffDiam, FullDiam, AvgSPL);
   EXPECT_TRUE(EffDiam > 4.0 && EffDiam < 6.0);
   EXPECT_TRUE(FullDiam >= 7 && FullDiam <= 9);
   EXPECT_TRUE(AvgSPL > 2.75 && AvgSPL < 4.0);
@@ -378,7 +326,6 @@ TEST(BfsDfsTest, DirectedRandom) {
   SubGraphNIdV.Add(18);
   
   EffDiam = GetBfsEffDiam(G, NTestNodes, SubGraphNIdV, IsDir, EffDiam, FullDiam);
-  printf("For subgraph: EffDiam = %.4f, FullDiam = %d\n", EffDiam, FullDiam);
   EXPECT_TRUE(EffDiam > 4.0 && EffDiam < 6.0);
   EXPECT_TRUE(FullDiam == 9);
   
@@ -389,13 +336,10 @@ TEST(BfsDfsTest, CompleteGraph) {
   
   mkdir(DIRNAME, S_IRWXU | S_IRWXG | S_IRWXO);
   
-  printf("\nTesting undirected complete graph:\n");
   TestFullBfsDfs<PUNGraph>();
 
-  printf("\nTesting directed complete graph:\n");
   TestFullBfsDfs<PNGraph>();
 
-  printf("\nTesting undirected complete graph:\n");
   TestFullBfsDfs<PNEGraph>();
   
 }

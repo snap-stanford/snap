@@ -223,7 +223,6 @@ TEST(CnComTest, DirectedDisconnected) {
   // Get all nodes in same component
   TIntV CnCom;
   GetNodeWcc(G, 1, CnCom);
-  printf("CnCom.Len() = %d\n", CnCom.Len());
   EXPECT_TRUE(CnCom.Len() == 30);
   
   TCnComV WCnComV;
