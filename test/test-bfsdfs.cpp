@@ -3,16 +3,16 @@
 #include <iostream>
 #include "Snap.h"
 
-#define EPSILON 0.0001
+#define EPSILON 0.001
 #define DIRNAME "bfsdfs"
 
 class BfsDfsTest { };  // For gtest highlighting
 
 using namespace TSnap;
 
-// Get connected components on full graph
+// Test BFS functions on full graph
 template <class PGraph>
-void TestFull() {
+void TestFullBfsDfs() {
   
   const int NNodes = 500;
   
@@ -73,7 +73,11 @@ void TestFull() {
   for (int i = 0; i < min(5,NIdToDistH.Len()); i++) {
     printf("NIdToDistH[%d] = %d\n", i, NIdToDistH[i].Val);
   }
-  
+  EXPECT_TRUE(NIdToDistH[0] == 0);
+  EXPECT_TRUE(NIdToDistH[1] == 1);
+  EXPECT_TRUE(NIdToDistH[2] == 1);
+  EXPECT_TRUE(NIdToDistH[3] == 1);
+  EXPECT_TRUE(NIdToDistH[4] == 1);
   
   int FullDiam;
   double EffDiam, AvgDiam;
@@ -84,275 +88,314 @@ void TestFull() {
     
     FullDiam = GetBfsFullDiam(G, NTestNodes, IsDir);
     printf("FullDiam = %d\n", FullDiam);
+    EXPECT_TRUE(FullDiam == 1);
+
     
     EffDiam = GetBfsEffDiam (G, NTestNodes, IsDir);
-    printf("EffDiam = %.3f\n", EffDiam);
+    printf("EffDiam = %.4f\n", EffDiam);
+    EXPECT_TRUE(EffDiam > 0.8 - EPSILON && EffDiam < 0.95 + EPSILON);
 
     EffDiam = GetBfsEffDiam (G, NTestNodes, IsDir, EffDiam, FullDiam);
-    printf("EffDiam = %.3f, FullDiam = %d\n", EffDiam, FullDiam);
+    printf("EffDiam = %.4f, FullDiam = %d\n", EffDiam, FullDiam);
+    EXPECT_TRUE(EffDiam > 0.8 - EPSILON && EffDiam < 0.95 + EPSILON);
+    EXPECT_TRUE(FullDiam == 1);
     
     EffDiam = GetBfsEffDiam (G, NTestNodes, IsDir, EffDiam, FullDiam, AvgDiam);
-    printf("EffDiam = %.3f, FullDiam = %d, AvgDiam = %.3f\n", EffDiam, FullDiam, AvgDiam);
+    printf("EffDiam = %.4f, FullDiam = %d, AvgDiam = %.4f\n", EffDiam, FullDiam, AvgDiam);
+    EXPECT_TRUE(EffDiam > 0.8 - EPSILON && EffDiam < 0.95 + EPSILON);
+    EXPECT_TRUE(FullDiam == 1);
+    EXPECT_TRUE(AvgDiam > 0.9980 - EPSILON && AvgDiam < 0.9980 + EPSILON);
     
     TIntV SubGraphNIdV;
     for (int i = 0; i < NTestNodes; i++) {
       SubGraphNIdV.Add(G->GetRndNId());
     }
-    for (int i = 0; i < SubGraphNIdV.Len(); i++) {
-      printf("SubGraphNIdV[%d] = %d\n", i, SubGraphNIdV[i].Val);
-    }
 
     EffDiam = GetBfsEffDiam(G, NTestNodes, SubGraphNIdV, IsDir, EffDiam, FullDiam);
-    printf("For subgraph: EffDiam = %.3f, FullDiam = %d\n", EffDiam, FullDiam);
-    
-  }
+    printf("For subgraph: EffDiam = %.4f, FullDiam = %d\n", EffDiam, FullDiam);
+    EXPECT_TRUE(EffDiam > 0.8 - EPSILON && EffDiam < 0.95 + EPSILON);
+    EXPECT_TRUE(FullDiam == 1);
 
-//  // Tests whether the Graph is (weakly) connected
-//  // Note: these are equivalent functions
-//  EXPECT_TRUE(IsConnected(G));
-//  EXPECT_TRUE(IsWeaklyConn(G));
-//  
-//  // Get all nodes in same component
-//  TIntV CnCom;
-//  GetNodeWcc(G, 1, CnCom);
-//  EXPECT_TRUE(CnCom.Len() == G->GetNodes());
-//  
-//  // Get weakly connected component counts
-//  TIntPrV WccSzCnt;
-//  GetWccSzCnt(G, WccSzCnt);
-//  EXPECT_TRUE(WccSzCnt[0] == TIntPr(NNodes, 1));
-//  EXPECT_TRUE(WccSzCnt.Len() == 1);
-//  
-//  // Get weakly connected components
-//  TCnComV WCnComV;
-//  GetWccs(G, WCnComV);
-//  EXPECT_TRUE(WCnComV[0].Len() == G->GetNodes());
-//  EXPECT_TRUE(WCnComV.Len() == 1);
-//  
-//  double MxWccSz = GetMxWccSz(G);
-//  EXPECT_TRUE(MxWccSz == 1.0);
-//  
-//  // Get graph with largest SCC
-//  PGraph GMx = GetMxWcc(G);
-//  EXPECT_TRUE(GMx->GetNodes() == G->GetNodes());
-//  EXPECT_TRUE(GMx->GetEdges() == G->GetEdges());
-//  
-//  // Get strongly connected components
-//  TCnComV SCnComV;
-//  GetSccs(G, SCnComV);
-//  EXPECT_TRUE(SCnComV[0].Len() == G->GetNodes());
-//  EXPECT_TRUE(SCnComV.Len() == 1);
-//  
-//  // Get largest bi-connected component
-//  PGraph GMxBi = GetMxBiCon(G);
-//  EXPECT_TRUE(GMxBi->GetNodes() == G->GetNodes());
-//  EXPECT_TRUE(GMxBi->GetEdges() == G->GetEdges());
+  }
   
 }
 
-//// Get connected components on undirected graph that is not fully connected
-//TEST(BfsDfsTest, UndirectedDisconnected) {
-//  
-//  PUNGraph G;
-//  
-//  // As benchmark, this is done once and compared visually to confirm values are correct
-//  //  const int NNodes = 30;
-//  //  G = GenRndPowerLaw(NNodes, 2.5);
-//  //  SaveEdgeList(G, "sample_cncom_power.txt");
-//  
-//  G = LoadEdgeList<PUNGraph>(TStr::Fmt("%s/sample_cncom_unpower.txt", DIRNAME));
-//  TIntStrH NodeLabelH;
-//  for (int i = 0; i < G->GetNodes(); i++) {
-//    NodeLabelH.AddDat(i, TStr::Fmt("%d", i));
-//  }
-//  DrawGViz(G, gvlNeato, TStr::Fmt("%s/sample_cncom_unpower.png", DIRNAME), "Sample CnCom Graph", NodeLabelH);
-//  
-//  EXPECT_FALSE(IsConnected(G));
-//  EXPECT_FALSE(IsWeaklyConn(G));
-//  
-//  // Get weakly connected component counts
-//  TIntPrV WccSzCnt;
-//  GetWccSzCnt(G, WccSzCnt);
-//  EXPECT_TRUE(WccSzCnt[0] == TIntPr(2, 2));
-//  EXPECT_TRUE(WccSzCnt[1] == TIntPr(26,1));
-//  
-//  // Get all nodes in same component
-//  TIntV CnCom;
-//  GetNodeWcc(G, 1, CnCom);
-//  EXPECT_TRUE(CnCom.Len() == 26);
-//  
-//  TCnComV WCnComV;
-//  GetWccs(G, WCnComV);
-//  EXPECT_TRUE(WCnComV[0].Len() == 26);
-//  EXPECT_TRUE(WCnComV[1].Len() == 2);
-//  EXPECT_TRUE(WCnComV[2].Len() == 2);
-//  
-//  double MxWccSz = GetMxWccSz(G);
-//  EXPECT_TRUE(MxWccSz > 0.86667 - EPSILON && MxWccSz < 0.86667 + EPSILON);
-//  
-//  // Get graph with largest SCC
-//  PUNGraph GMx = GetMxWcc(G);
-//  EXPECT_TRUE(GMx->GetNodes() == 26);
-//  EXPECT_TRUE(GMx->GetEdges() == 27);
-//  
-//  // Get strongly connected components
-//  TCnComV SCnComV;
-//  GetSccs(G, SCnComV);
-//  EXPECT_TRUE(SCnComV[0].Len() == 26);
-//  EXPECT_TRUE(SCnComV[1].Len() == 2);
-//  EXPECT_TRUE(SCnComV[2].Len() == 2);
-//  
-//  // Get largest bi-connected component
-//  PUNGraph GMxBi = GetMxBiCon(G);
-//  EXPECT_TRUE(GMxBi->GetNodes() == 6);
-//  EXPECT_TRUE(GMxBi->GetEdges() == 6);
-//  
-//  // Get bi-connected size components counts
-//  TIntPrV SzCntV;
-//  GetBiConSzCnt(G, SzCntV);
-//  EXPECT_TRUE(SzCntV[0] == TIntPr(2, 18));
-//  EXPECT_TRUE(SzCntV[1] == TIntPr(5, 1));
-//  EXPECT_TRUE(SzCntV[2] == TIntPr(6, 1));
-//  
-//  // Get bi-connected components
-//  TCnComV BiCnComV;
-//  GetBiCon(G, BiCnComV);
-//  for (int i = 0; i < BiCnComV.Len(); i++) {
-//    if (i != 6 && i != 13) {
-//      EXPECT_TRUE(BiCnComV[i].Len() == 2);
-//    }
-//  }
-//  EXPECT_TRUE(BiCnComV[6].Len() == 6);
-//  EXPECT_TRUE(BiCnComV[13].Len() == 5);
-//  
-//  // Get articulation points of a graph
-//  TIntV ArtNIdV;
-//  GetArtPoints(G, ArtNIdV);
-//  EXPECT_TRUE(ArtNIdV.Len() == 12);
-//  EXPECT_TRUE(ArtNIdV[0] == 24);
-//  EXPECT_TRUE(ArtNIdV[1] == 21);
-//  EXPECT_TRUE(ArtNIdV[2] == 8);
-//  EXPECT_TRUE(ArtNIdV[3] == 9);
-//  EXPECT_TRUE(ArtNIdV[4] == 23);
-//  EXPECT_TRUE(ArtNIdV[5] == 2);
-//  
-//  // Get edge bridges of a graph
-//  TIntPrV EdgeV;
-//  GetEdgeBridges(G, EdgeV);
-//  EXPECT_TRUE(EdgeV.Len() == 18);
-//  
-//  EXPECT_TRUE(EdgeV[0] == TIntPr(6, 24));
-//  EXPECT_TRUE(EdgeV[1] == TIntPr(14, 24));
-//  EXPECT_TRUE(EdgeV[2] == TIntPr(21, 24));
-//  EXPECT_TRUE(EdgeV[3] == TIntPr(8, 21));
-//  EXPECT_TRUE(EdgeV[4] == TIntPr(8, 9));
-//  EXPECT_TRUE(EdgeV[5] == TIntPr(1, 23));
-//  
-//  // Get 1-components counts
-//  TIntPrV SzCnt1ComV;
-//  Get1CnComSzCnt(G, SzCnt1ComV);
-//  EXPECT_TRUE(SzCnt1ComV.Len() == 2);
-//  EXPECT_TRUE(SzCnt1ComV[0] == TIntPr(2, 2));
-//  EXPECT_TRUE(SzCnt1ComV[1] == TIntPr(20, 1));
-//  
-//  // Get 1-components
-//  TCnComV Cn1ComV;
-//  Get1CnCom(G, Cn1ComV);
-//  EXPECT_TRUE(Cn1ComV.Len() == 3);
-//  EXPECT_TRUE(Cn1ComV[0].Len() == 20);
-//  EXPECT_TRUE(Cn1ComV[1].Len() == 2);
-//  EXPECT_TRUE(Cn1ComV[2].Len() == 2);
-//  
-//}
-//
-//// Get connected components on directed graph that is not fully connected
-//TEST(BfsDfsTest, DirectedDisconnected) {
-//  
-//  PNGraph G;
-//  
-//  // Create benchmark graph, initially visually to confirm values are correct
-//  //  const int NNodes = 30;
-//  //  G = GenRndGnm<PNGraph>(NNodes, NNodes);
-//  //  // Add some more random edges
-//  //  for (int i = 0; i < 10; i++) {
-//  //    TInt Src, Dst;
-//  //    do {
-//  //      Src = G->GetRndNId();
-//  //      Dst = G->GetRndNId();
-//  //    }
-//  //    while (Src == Dst || G->IsEdge(Src, Dst));
-//  //    G->AddEdge(Src, Dst);
-//  //  }
-//  //
-//  //  // Add isolated component
-//  //  G->AddNode(NNodes);
-//  //  G->AddNode(NNodes+1);
-//  //  G->AddNode(NNodes+2);
-//  //  G->AddEdge(NNodes, NNodes+1);
-//  //  G->AddEdge(NNodes+1, NNodes+2);
-//  //  G->AddEdge(NNodes+2, NNodes+1);//
-//  //  SaveEdgeList(G, "sample_cncom_ngraph.txt");
-//  
-//  G = LoadEdgeList<PNGraph>(TStr::Fmt("%s/sample_cncom_ngraph.txt", DIRNAME));
-//  TIntStrH NodeLabelH;
-//  for (int i = 0; i < G->GetNodes(); i++) {
-//    NodeLabelH.AddDat(i, TStr::Fmt("%d", i));
-//  }
-//  DrawGViz(G, gvlDot, TStr::Fmt("%s/sample_cncom_ngraph.png", DIRNAME), "Sample CnCom Graph", NodeLabelH);
-//  
-//  EXPECT_FALSE(IsConnected(G));
-//  EXPECT_FALSE(IsWeaklyConn(G));
-//  
-//  // Get weakly connected component counts
-//  TIntPrV WccSzCnt;
-//  GetWccSzCnt(G, WccSzCnt);
-//  EXPECT_TRUE(WccSzCnt[0] == TIntPr(3, 1));
-//  EXPECT_TRUE(WccSzCnt[1] == TIntPr(30,1));
-//  
-//  // Get all nodes in same component
-//  TIntV CnCom;
-//  GetNodeWcc(G, 1, CnCom);
-//  printf("CnCom.Len() = %d\n", CnCom.Len());
-//  EXPECT_TRUE(CnCom.Len() == 30);
-//  
-//  TCnComV WCnComV;
-//  GetWccs(G, WCnComV);
-//  EXPECT_TRUE(WCnComV[0].Len() == 30);
-//  EXPECT_TRUE(WCnComV[1].Len() == 3);
-//  
-//  double MxWccSz = GetMxWccSz(G);
-//  EXPECT_TRUE(MxWccSz > 0.90909 - EPSILON && MxWccSz < 0.90909 + EPSILON);
-//  
-//  // Get graph with largest SCC
-//  PNGraph GMx = GetMxWcc(G);
-//  EXPECT_TRUE(GMx->GetNodes() == 30);
-//  EXPECT_TRUE(GMx->GetEdges() == 40);
-//  
-//  // Get strongly connected components
-//  TCnComV SCnComV;
-//  GetSccs(G, SCnComV);
-//  EXPECT_TRUE(SCnComV[3].Len() == 4);
-//  EXPECT_TRUE(SCnComV[27].Len() == 2);
-//  
-//  // Get largest bi-connected component
-//  PNGraph GMxBi = GetMxBiCon(G);
-//  EXPECT_TRUE(GMxBi->GetNodes() == 25);
-//  EXPECT_TRUE(GMxBi->GetEdges() == 35);
-//  
-//}
+// Test BFS functions on undirected graph that is not fully connected
+TEST(BfsDfsTest, UndirectedRandom) {
+  
+  PUNGraph G;
 
-// Test connected components on full graphs of each type
+  TStr FName = TStr::Fmt("%s/sample_bfsdfs_unpower.txt", DIRNAME);
+  
+  // For a benchmark, this is done once and compared visually to confirm values are correct
+//  const int NNodes = 50;
+//  G = GenRndPowerLaw(NNodes, 2.5);
+//  SaveEdgeList(G, FName);
+  
+  G = LoadEdgeList<PUNGraph>(FName);
+  TIntStrH NodeLabelH;
+  for (int i = 0; i < G->GetNodes(); i++) {
+    NodeLabelH.AddDat(i, TStr::Fmt("%d", i));
+  }
+  DrawGViz(G, gvlNeato, TStr::Fmt("%s/sample_bfsdfs_unpower.png", DIRNAME), "Sample bfsdfs Graph", NodeLabelH);
+  
+  TIntV NIdV;
+  int StartNId, Hop, Nodes;
+  
+  int IsDir = 0;
+  printf("IsDir = %d:\n", IsDir);
+  
+  StartNId = 1;
+  Hop = 1;
+  Nodes = GetNodesAtHop(G, StartNId, Hop, NIdV, IsDir);
+  printf("Nodes = %d, GetNodesAtHop NIdV.Len() = %d, NIdV[0] = %d\n", Nodes, NIdV.Len(), NIdV[0].Val);
+  EXPECT_TRUE(Nodes == 1);
+  EXPECT_TRUE(NIdV.Len() == 1);
+  EXPECT_TRUE(NIdV[0] = 46);
+  
+  TIntPrV HopCntV;
+  Nodes = GetNodesAtHops(G, StartNId, HopCntV, IsDir);
+  printf("Nodes = %d, GetNodesAtHops HopCntV.Len() = %d\n", Nodes, HopCntV.Len());
+  EXPECT_TRUE(Nodes == 8);
+  EXPECT_TRUE(HopCntV.Len() == 8);
+  for (int N = 0; N < HopCntV.Len(); N++) {
+    printf("HopCntV[%d] = (%d, %d)\n", N, HopCntV[N].Val1.Val, HopCntV[N].Val2.Val);
+  }
+
+  
+  int Length, SrcNId, DstNId;
+  SrcNId = 1;
+  DstNId = G->GetNodes() - 1;
+  
+  Length = GetShortPath(G, SrcNId, DstNId, IsDir);
+  printf("%d -> %d: SPL Length = %d\n", SrcNId, DstNId, Length);
+  EXPECT_TRUE(Length == -1);
+  
+  SrcNId = 1;
+  DstNId = 33;
+  Length = GetShortPath(G, SrcNId, DstNId, IsDir);
+  printf("%d -> %d: SPL Length = %d\n", SrcNId, DstNId, Length);
+  EXPECT_TRUE(Length == 7);
+
+  TIntH NIdToDistH;
+  int MaxDist = 9;
+  Length = GetShortPath(G, SrcNId, NIdToDistH, IsDir, MaxDist);
+  for (int i = 0; i < min(5,NIdToDistH.Len()); i++) {
+    printf("NIdToDistH[%d] = %d\n", i, NIdToDistH[i].Val);
+  }
+  EXPECT_TRUE(NIdToDistH[0] == 0);
+  EXPECT_TRUE(NIdToDistH[1] == 1);
+  EXPECT_TRUE(NIdToDistH[2] == 2);
+  EXPECT_TRUE(NIdToDistH[3] == 3);
+  EXPECT_TRUE(NIdToDistH[4] == 3);
+
+  TInt::Rnd.PutSeed(0);
+
+  int FullDiam;
+  double EffDiam, AvgSPL;
+  int NTestNodes = G->GetNodes() / 3 * 2;
+  
+  FullDiam = GetBfsFullDiam(G, NTestNodes, IsDir);
+  printf("FullDiam = %d\n", FullDiam);
+  EXPECT_TRUE(FullDiam <= 8 && FullDiam >= 5);
+  
+  EffDiam = GetBfsEffDiam(G, NTestNodes, IsDir);
+  printf("EffDiam = %.3f\n", EffDiam);
+  EXPECT_TRUE(EffDiam > 3.5 && EffDiam < 4.5);
+  
+  EffDiam = GetBfsEffDiam(G, NTestNodes, IsDir, EffDiam, FullDiam);
+  printf("EffDiam = %.3f, FullDiam = %d\n", EffDiam, FullDiam);
+  EXPECT_TRUE(EffDiam > 3.5 && EffDiam < 4.5);
+  EXPECT_TRUE(FullDiam > 5 && FullDiam < 8);
+  
+  EffDiam = GetBfsEffDiam(G, NTestNodes, IsDir, EffDiam, FullDiam, AvgSPL);
+  printf("EffDiam = %.3f, FullDiam = %d, AvgDiam = %.3f\n", EffDiam, FullDiam, AvgSPL);
+  EXPECT_TRUE(EffDiam > 3.5 && EffDiam < 4.5);
+  EXPECT_TRUE(FullDiam > 5 && FullDiam < 8);
+  EXPECT_TRUE(AvgSPL > 1.5 && AvgSPL < 5.0);
+
+  TIntV SubGraphNIdV;
+  SubGraphNIdV.Add(0);
+  SubGraphNIdV.Add(4);
+  SubGraphNIdV.Add(31);
+  SubGraphNIdV.Add(45);
+  SubGraphNIdV.Add(18);
+  SubGraphNIdV.Add(11);
+  SubGraphNIdV.Add(11);
+  SubGraphNIdV.Add(48);
+  SubGraphNIdV.Add(34);
+  SubGraphNIdV.Add(30);
+
+  EffDiam = GetBfsEffDiam(G, NTestNodes, SubGraphNIdV, IsDir, EffDiam, FullDiam);
+  printf("For subgraph: EffDiam = %.4f, FullDiam = %d\n", EffDiam, FullDiam);
+  EXPECT_TRUE(EffDiam > 2.7385 - EPSILON && EffDiam < 2.7385 + EPSILON);
+  EXPECT_TRUE(FullDiam == 3);
+
+}
+
+// Test BFS functions on directed graph that is not fully connected
+TEST(BfsDfsTest, DirectedRandom) {
+  
+  PNGraph G = TNGraph::New();
+  
+  TStr FName = TStr::Fmt("%s/sample_bfsdfs_ngraph.txt", DIRNAME);
+
+// Create benchmark graph, initially visually to confirm values are correct
+//  const int NNodes = 30;
+//  G = GenRndGnm<PNGraph>(NNodes, NNodes*2);  
+//  // Add some more random edges
+//  for (int i = 0; i < 10; i++) {
+//    TInt Src, Dst;
+//    do {
+//      Src = G->GetRndNId();
+//      Dst = G->GetRndNId();
+//    }
+//    while (Src == Dst || G->IsEdge(Src, Dst));
+//    printf("Adding edge %d, %d\n", Src.Val, Dst.Val);
+//    G->AddEdge(Src, Dst);
+//  }
+//  // Add isolated component
+//  G->AddNode(NNodes);
+//  G->AddNode(NNodes+1);
+//  G->AddNode(NNodes+2);
+//  G->AddEdge(NNodes, NNodes+1);
+//  G->AddEdge(NNodes+1, NNodes+2);
+//  G->AddEdge(NNodes+2, NNodes+1);
+//  printf("G->GetNodes() = %d, G->GetEdges() = %d\n", G->GetNodes(), G->GetEdges());
+//  SaveEdgeList(G, FName);
+  
+  G = LoadEdgeList<PNGraph>(FName);
+  TIntStrH NodeLabelH;
+  for (int i = 0; i < G->GetNodes(); i++) {
+    NodeLabelH.AddDat(i, TStr::Fmt("%d", i));
+  }
+  DrawGViz(G, gvlDot, TStr::Fmt("%s/sample_bfsdfs_ngraph.png", DIRNAME), "Sample BFS Graph", NodeLabelH);
+  
+  printf("G->GetNodes() = %d, G->GetEdges() = %d\n", G->GetNodes(), G->GetEdges());
+
+  TIntV NIdV;
+  int StartNId, Hop, Nodes;
+  
+  //  for (int IsDir = 0; IsDir < 2; IsDir++) {
+  int IsDir = 1;
+  printf("IsDir = %d:\n", IsDir);
+  
+  StartNId = 11;
+  Hop = 1;
+  Nodes = GetNodesAtHop(G, StartNId, Hop, NIdV, IsDir);
+  printf("Nodes = %d, GetNodesAtHop NIdV.Len() = %d\n", Nodes, NIdV.Len());
+  for (int i = 0; i < NIdV.Len(); i++) {
+    printf("NIdV[%d] = %d\n", i, NIdV[i].Val);
+  }
+  EXPECT_TRUE(Nodes == 2);
+  EXPECT_TRUE(NIdV.Len() == 2);
+  EXPECT_TRUE(NIdV[0] = 20);
+  EXPECT_TRUE(NIdV[1] = 25);
+  
+  TIntPrV HopCntV;
+  Nodes = GetNodesAtHops(G, StartNId, HopCntV, IsDir);
+  printf("Nodes = %d, GetNodesAtHops HopCntV.Len() = %d\n", Nodes, HopCntV.Len());
+  EXPECT_TRUE(Nodes == 10);
+  EXPECT_TRUE(HopCntV.Len() == 10);
+  for (int N = 0; N < HopCntV.Len(); N++) {
+    printf("HopCntV[%d] = (%d, %d)\n", N, HopCntV[N].Val1.Val, HopCntV[N].Val2.Val);
+  }
+  EXPECT_TRUE(HopCntV[0] == TIntPr(0, 1));
+  EXPECT_TRUE(HopCntV[1] == TIntPr(1, 2));
+  EXPECT_TRUE(HopCntV[2] == TIntPr(2, 3));
+  EXPECT_TRUE(HopCntV[3] == TIntPr(3, 4));
+  EXPECT_TRUE(HopCntV[4] == TIntPr(4, 5));
+  EXPECT_TRUE(HopCntV[5] == TIntPr(5, 4));
+  EXPECT_TRUE(HopCntV[6] == TIntPr(6, 1));
+  EXPECT_TRUE(HopCntV[7] == TIntPr(7, 1));
+  EXPECT_TRUE(HopCntV[8] == TIntPr(8, 3));
+  EXPECT_TRUE(HopCntV[9] == TIntPr(9, 1));
+  
+  int Length, SrcNId, DstNId;
+  SrcNId = 11;
+  DstNId = G->GetNodes() - 1;
+  
+  Length = GetShortPath(G, SrcNId, DstNId, IsDir);
+  printf("%d -> %d: SPL Length = %d\n", SrcNId, DstNId, Length);
+  EXPECT_TRUE(Length == 2);
+  
+  SrcNId = 11;
+  DstNId = 27;
+  Length = GetShortPath(G, SrcNId, DstNId, IsDir);
+  printf("%d -> %d: SPL Length = %d\n", SrcNId, DstNId, Length);
+  EXPECT_TRUE(Length == 9);
+  
+  TIntH NIdToDistH;
+  int MaxDist = 9;
+  Length = GetShortPath(G, SrcNId, NIdToDistH, IsDir, MaxDist);
+  for (int i = 0; i < min(5,NIdToDistH.Len()); i++) {
+    printf("NIdToDistH[%d] = %d\n", i, NIdToDistH[i].Val);
+  }
+  EXPECT_TRUE(NIdToDistH[0] == 0);
+  EXPECT_TRUE(NIdToDistH[1] == 1);
+  EXPECT_TRUE(NIdToDistH[2] == 1);
+  EXPECT_TRUE(NIdToDistH[3] == 2);
+  EXPECT_TRUE(NIdToDistH[4] == 2);
+  
+  TInt::Rnd.PutSeed(0);
+  
+  int FullDiam;
+  double EffDiam, AvgSPL;
+  int NTestNodes = G->GetNodes() / 2;
+  
+  FullDiam = GetBfsFullDiam(G, NTestNodes, IsDir);
+  printf("FullDiam = %d\n", FullDiam);
+  EXPECT_TRUE(FullDiam >= 7 && FullDiam <= 9);
+  
+  EffDiam = GetBfsEffDiam(G, NTestNodes, IsDir);
+  printf("EffDiam = %.3f\n", EffDiam);
+  EXPECT_TRUE(EffDiam > 4.0 && EffDiam < 6.0);
+  
+  EffDiam = GetBfsEffDiam(G, NTestNodes, IsDir, EffDiam, FullDiam);
+  printf("EffDiam = %.3f, FullDiam = %d\n", EffDiam, FullDiam);
+  EXPECT_TRUE(EffDiam > 4.0 && EffDiam < 6.0);
+  EXPECT_TRUE(FullDiam >= 7 && FullDiam <= 9);
+  
+  EffDiam = GetBfsEffDiam(G, NTestNodes, IsDir, EffDiam, FullDiam, AvgSPL);
+  printf("EffDiam = %.3f, FullDiam = %d, AvgDiam = %.3f\n", EffDiam, FullDiam, AvgSPL);
+  EXPECT_TRUE(EffDiam > 4.0 && EffDiam < 6.0);
+  EXPECT_TRUE(FullDiam >= 7 && FullDiam <= 9);
+  EXPECT_TRUE(AvgSPL > 2.75 && AvgSPL < 4.0);
+  
+  TIntV SubGraphNIdV;
+  SubGraphNIdV.Add(8);
+  SubGraphNIdV.Add(29);
+  SubGraphNIdV.Add(16);
+  SubGraphNIdV.Add(0);
+  SubGraphNIdV.Add(19);
+  SubGraphNIdV.Add(17);
+  SubGraphNIdV.Add(26);
+  SubGraphNIdV.Add(14);
+  SubGraphNIdV.Add(10);
+  SubGraphNIdV.Add(24);
+  SubGraphNIdV.Add(27);
+  SubGraphNIdV.Add(2);
+  SubGraphNIdV.Add(18);
+  
+  EffDiam = GetBfsEffDiam(G, NTestNodes, SubGraphNIdV, IsDir, EffDiam, FullDiam);
+  printf("For subgraph: EffDiam = %.4f, FullDiam = %d\n", EffDiam, FullDiam);
+  EXPECT_TRUE(EffDiam > 4.0 && EffDiam < 6.0);
+  EXPECT_TRUE(FullDiam == 9);
+  
+}
+
+// Test BFS functions on full graphs of each type
 TEST(BfsDfsTest, CompleteGraph) {
   
   mkdir(DIRNAME, S_IRWXU | S_IRWXG | S_IRWXO);
   
   printf("\nTesting undirected complete graph:\n");
-  TestFull<PUNGraph>();
+  TestFullBfsDfs<PUNGraph>();
 
   printf("\nTesting directed complete graph:\n");
-  TestFull<PNGraph>();
+  TestFullBfsDfs<PNGraph>();
 
   printf("\nTesting undirected complete graph:\n");
-  TestFull<PNEGraph>();
+  TestFullBfsDfs<PNEGraph>();
   
 }
