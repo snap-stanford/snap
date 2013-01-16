@@ -998,10 +998,6 @@
 		842E46CF1635CEC500522573 /* cmty.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cmty.h; sourceTree = "<group>"; };
 		842E46D01635CEC500522573 /* cncom.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = cncom.cpp; sourceTree = "<group>"; };
 		842E46D11635CEC500522573 /* cncom.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cncom.h; sourceTree = "<group>"; };
-		842E46D31635CEC500522573 /* ghash.h.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ghash.h.txt; sourceTree = "<group>"; };
-		842E46D41635CEC500522573 /* graph.h.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = graph.h.txt; sourceTree = "<group>"; };
-		842E46D51635CEC500522573 /* network.h.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = network.h.txt; sourceTree = "<group>"; };
-		842E46D61635CEC500522573 /* subgraph.h.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = subgraph.h.txt; sourceTree = "<group>"; };
 		842E46D71635CEC500522573 /* ff.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ff.cpp; sourceTree = "<group>"; };
 		842E46D81635CEC500522573 /* ff.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ff.h; sourceTree = "<group>"; };
 		842E46D91635CEC500522573 /* gbase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = gbase.cpp; sourceTree = "<group>"; };
@@ -1074,9 +1070,16 @@
 		842E471E1635CEC500522573 /* wikinet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = wikinet.h; sourceTree = "<group>"; };
 		849666D5163BC27B00A299D8 /* gtest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = gtest.framework; path = "../googletest-read-only/xcode/build/Debug/gtest.framework"; sourceTree = "<group>"; };
 		849666DC163BC32500A299D8 /* docs */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = docs; sourceTree = BUILT_PRODUCTS_DIR; };
-		849D1EF9166D6AED000EE3E6 /* gio.h.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = gio.h.txt; sourceTree = "<group>"; };
 		84D29F0B164879B600996ED4 /* test-gio.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "test-gio.cpp"; sourceTree = "<group>"; };
 		84D29F0C164879B600996ED4 /* test-gviz.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "test-gviz.cpp"; sourceTree = "<group>"; };
+		84E13F3516A6585000BB9E41 /* bfsdfs.h.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = bfsdfs.h.txt; sourceTree = "<group>"; };
+		84E13F3616A6585000BB9E41 /* ghash.h.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = ghash.h.txt; sourceTree = "<group>"; };
+		84E13F3716A6585000BB9E41 /* gio.h.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = gio.h.txt; sourceTree = "<group>"; };
+		84E13F3816A6585000BB9E41 /* graph.h.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = graph.h.txt; sourceTree = "<group>"; };
+		84E13F3916A6585000BB9E41 /* gviz.h.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = gviz.h.txt; sourceTree = "<group>"; };
+		84E13F3A16A6585000BB9E41 /* network.h.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = network.h.txt; sourceTree = "<group>"; };
+		84E13F3B16A6585000BB9E41 /* subgraph.h.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = subgraph.h.txt; sourceTree = "<group>"; };
+		84E13F3D16A65AAD00BB9E41 /* cncom.h.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = cncom.h.txt; sourceTree = "<group>"; };
 		84EEFFC616635A7000BC661B /* demo-gio.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "demo-gio.cpp"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -2003,11 +2006,14 @@
 		842E46D21635CEC500522573 /* doc */ = {
 			isa = PBXGroup;
 			children = (
-				849D1EF9166D6AED000EE3E6 /* gio.h.txt */,
-				842E46D31635CEC500522573 /* ghash.h.txt */,
-				842E46D41635CEC500522573 /* graph.h.txt */,
-				842E46D51635CEC500522573 /* network.h.txt */,
-				842E46D61635CEC500522573 /* subgraph.h.txt */,
+				84E13F3516A6585000BB9E41 /* bfsdfs.h.txt */,
+				84E13F3616A6585000BB9E41 /* ghash.h.txt */,
+				84E13F3716A6585000BB9E41 /* gio.h.txt */,
+				84E13F3816A6585000BB9E41 /* graph.h.txt */,
+				84E13F3D16A65AAD00BB9E41 /* cncom.h.txt */,
+				84E13F3916A6585000BB9E41 /* gviz.h.txt */,
+				84E13F3A16A6585000BB9E41 /* network.h.txt */,
+				84E13F3B16A6585000BB9E41 /* subgraph.h.txt */,
 			);
 			path = doc;
 			sourceTree = "<group>";

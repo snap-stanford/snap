@@ -21,6 +21,7 @@ build/
 test_*.dat
 test_*.dot
 test_*.gif
+sample_*.dot
 *.graph
 *.log
 *.m
