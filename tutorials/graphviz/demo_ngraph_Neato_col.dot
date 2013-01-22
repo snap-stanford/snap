@@ -1,0 +1,79 @@
+/*****
+Neato
+*****/
+
+digraph G {
+  graph [splines=false overlap=false]
+  node  [shape=ellipse, width=0.3, height=0.3]
+  0 [style=filled, fillcolor="magenta"];
+  1 [style=filled, fillcolor="white"];
+  2 [style=filled, fillcolor="green"];
+  3 [style=filled, fillcolor="green"];
+  4 [style=filled, fillcolor="white"];
+  5 [style=filled, fillcolor="red"];
+  6 [style=filled, fillcolor="green"];
+  7 [style=filled, fillcolor="red"];
+  8 [style=filled, fillcolor="green"];
+  9 [style=filled, fillcolor="magenta"];
+  10 [style=filled, fillcolor="white"];
+  11 [style=filled, fillcolor="magenta"];
+  12 [style=filled, fillcolor="green"];
+  13 [style=filled, fillcolor="black"];
+  14 [style=filled, fillcolor="black"];
+  15 [style=filled, fillcolor="red"];
+  16 [style=filled, fillcolor="black"];
+  17 [style=filled, fillcolor="white"];
+  18 [style=filled, fillcolor="red"];
+  19 [style=filled, fillcolor="red"];
+  20 [style=filled, fillcolor="yellow"];
+  21 [style=filled, fillcolor="black"];
+  22 [style=filled, fillcolor="black"];
+  23 [style=filled, fillcolor="cyan"];
+  24 [style=filled, fillcolor="green"];
+  25 [style=filled, fillcolor="magenta"];
+  26 [style=filled, fillcolor="yellow"];
+  27 [style=filled, fillcolor="green"];
+  28 [style=filled, fillcolor="green"];
+  29 [style=filled, fillcolor="cyan"];
+  0 -> 24;
+  3 -> 11;
+  3 -> 13;
+  4 -> 10;
+  4 -> 27;
+  8 -> 6;
+  8 -> 24;
+  8 -> 29;
+  9 -> 3;
+  9 -> 19;
+  9 -> 27;
+  10 -> 22;
+  10 -> 26;
+  13 -> 17;
+  14 -> 11;
+  14 -> 27;
+  15 -> 3;
+  15 -> 6;
+  16 -> 2;
+  16 -> 8;
+  17 -> 1;
+  17 -> 26;
+  17 -> 27;
+  18 -> 0;
+  18 -> 24;
+  19 -> 13;
+  20 -> 0;
+  20 -> 15;
+  20 -> 26;
+  21 -> 4;
+  21 -> 8;
+  21 -> 9;
+  23 -> 2;
+  23 -> 4;
+  23 -> 11;
+  27 -> 4;
+  27 -> 15;
+  28 -> 15;
+  29 -> 0;
+  29 -> 25;
+  label = "\nNeato\n";  fontsize=24;
+}

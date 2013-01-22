@@ -1,0 +1,71 @@
+/// GetWccSzCnt
+  @param WccSzCnt returns a set of pairs (number of nodes in the component, number of such components)
+///
+
+/// GetWccs
+  @param CnComV is a vector of connected components. Each component is defined by the IDs of its member nodes.
+///
+
+/// GetSccSzCnt
+  @param SccSzCnt returns a set of pairs (number of nodes in the component, number of such components)
+///
+
+/// GetSccs
+  @param CnComV is a vector of connected components. Each component is defined by the IDs of its member nodes.
+///  
+
+
+/// GetMxWcc
+  A directed/undirected graph is connected if there exist an undirected path between any pair of nodes.
+  See http://en.wikipedia.org/wiki/Connected_component_(graph_theory)
+///
+
+/// GetMxScc
+  A directed graph is strongly connected if there exists a directed path from any vertex to any other vertex in the graph.
+  See http://en.wikipedia.org/wiki/Strongly_connected_component
+///
+
+
+/// GetMxBiCon
+  An undirected graph is bi-connected if by removing any single node does not disconnect the graph.
+  http://en.wikipedia.org/wiki/Biconnected_component
+///
+
+
+/// GetBiConSzCnt
+  @param SzCntV returns a set of pairs (number of nodes in the bi-component, number of such components)
+///
+
+/// GetBiCon
+  @param BiCnComV is a vector of bi-connected components. Each component is defined by the IDs of its member nodes.
+///
+
+/// GetArtPoints
+  Articulation point (or a cut vertex) is any node that when removed increases the number of connected components.
+///
+
+/// GetEdgeBridges
+  Edge is a bridge if, when removed, increases the number of connected components.
+  See http://en.wikipedia.org/wiki/Bridge_(graph_theory)
+///
+
+/// Get1CnComSzCnt
+  We find such components as follows: Find all bridge edges, remove them from the Graph, find largest component K and add back all bridges that do not touch K. Now, find the connected components of this graph.
+///
+
+/// Get1CnCom
+  We find such components as follows: Find all bridge edges, remove them from the Graph, find largest component K and
+  add back all bridges that do not touch K. Now, find the connected components of this graph.
+///
+
+/// GetMxBiCon
+  An undirected graph is bi-connected if by removing any single node does not disconnect the graph.
+  http://en.wikipedia.org/wiki/Biconnected_component
+  @param RenumberNodes if true, then node IDs of the returned graph will not match those of Graph, instead they will have a range 0...N-1.
+/// 
+
+
+
+
+
+

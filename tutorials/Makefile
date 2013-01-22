@@ -9,7 +9,8 @@ DEMOS = \
 	demo-TUNGraph demo-TNGraph demo-TNEGraph \
 	demo-TNodeNet demo-TNodeEDatNet demo-TNodeEdgeNet \
 	demo-subgraph demo-ggen \
-	demo-gio
+	demo-gio demo-gviz \
+	demo-cncom demo-bfsdfs
 
 all: $(DEMOS)
 
@@ -40,6 +41,15 @@ demo-ggen: demo-ggen.cpp $(CSNAP)/Snap.o
 
 demo-gio: demo-gio.cpp $(CSNAP)/Snap.o
 	$(CC) $(CXXFLAGS) -o demo-gio demo-gio.cpp $(CSNAP)/Snap.o -I$(CSNAP) -I$(CGLIB) $(LDFLAGS) $(LIBS)
+
+demo-gviz: demo-gviz.cpp $(CSNAP)/Snap.o
+	$(CC) $(CXXFLAGS) -o demo-gviz demo-gviz.cpp $(CSNAP)/Snap.o -I$(CSNAP) -I$(CGLIB) $(LDFLAGS) $(LIBS)
+
+demo-cncom: demo-cncom.cpp $(CSNAP)/Snap.o
+	$(CC) $(CXXFLAGS) -o demo-cncom demo-cncom.cpp $(CSNAP)/Snap.o -I$(CSNAP) -I$(CGLIB) $(LDFLAGS) $(LIBS)
+
+demo-bfsdfs: demo-bfsdfs.cpp $(CSNAP)/Snap.o
+	$(CC) $(CXXFLAGS) -o demo-bfsdfs demo-bfsdfs.cpp $(CSNAP)/Snap.o -I$(CSNAP) -I$(CGLIB) $(LDFLAGS) $(LIBS)
 
 
 $(CSNAP)/Snap.o:

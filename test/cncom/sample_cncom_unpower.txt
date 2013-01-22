@@ -1,0 +1,32 @@
+# Undirected graph (each unordered pair of nodes is saved once): sample_cncom_power.txt
+# Nodes: 30 Edges: 29
+# NodeId	NodeId
+0	9
+1	23
+2	23
+2	25
+2	27
+3	4
+3	25
+4	29
+5	23
+6	24
+7	15
+7	17
+8	9
+8	21
+9	12
+9	16
+9	22
+9	28
+10	20
+11	12
+11	23
+12	18
+13	19
+14	24
+15	23
+16	23
+21	24
+22	26
+27	29
