@@ -56,10 +56,12 @@ TEST(GVizTest, DrawGViz) {
         // Check if file exists
         EXPECT_TRUE(fileExists(FNameTest.CStr()));
         
+#ifdef __linux
         // Compare directly for ps files, (can't compare png and gif due to EXIF-labels)
         if (Exts[e] == "ps") {
           EXPECT_TRUE(compareFiles(FNameBase.CStr(), FNameTest.CStr()));
         }
+#endif
       }
     }
   }
@@ -115,18 +117,22 @@ TEST(GVizTest, DrawGVizColor) {
         
         // Draw new graph and check if created and equal to baseline (for ps only)
         if (d) {
+          TSnap::DrawGViz(NGraph1, TGVizLayout(i), FNameBase, LNames[i], true, NIdColorH);
           TSnap::DrawGViz(NGraph1, TGVizLayout(i), FNameTest, LNames[i], true, NIdColorH);
         }
         else {
+          TSnap::DrawGViz(UNGraph1, TGVizLayout(i), FNameBase, LNames[i], true, NIdColorH);
           TSnap::DrawGViz(UNGraph1, TGVizLayout(i), FNameTest, LNames[i], true, NIdColorH);
         }
         // Check if file exists
         EXPECT_TRUE(fileExists(FNameTest.CStr()));
         
-        // Compare directly for ps files, (can't compare png and gif due to EXIF-labels)
+#ifdef __linux
+        // Compare directly for ps files on Linux, (can't compare png and gif due to EXIF-labels)
         if (Exts[e] == "ps") {
           EXPECT_TRUE(compareFiles(FNameBase.CStr(), FNameTest.CStr()));
         }
+#endif
       }
     }
   }
