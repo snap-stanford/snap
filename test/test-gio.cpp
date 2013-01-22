@@ -1,27 +1,9 @@
 #include <gtest/gtest.h>
 
 #include "Snap.h"
+#include "test-helper.h"
 
 class GIOTest { };  // For gtest highlighting
-
-bool fileExists(const std::string& filename)
-{
-  struct stat buf;
-  if (stat(filename.c_str(), &buf) != -1)
-  {
-    return true;
-  }
-  return false;
-}
-
-void printv(TIntV IntV) {
-  
-  printf("{ ");
-  for (int i = 0; i < IntV.Len(); i++){
-    printf("%d ", IntV[i].Val);
-  }
-  printf("}\n");
-}
 
 using namespace TSnap;
 

@@ -1,0 +1,52 @@
+/// GetBfsTree1
+  Returns a directed graph where a parent points to its child node.
+  Tree is created by following in-links (parameter FollowIn = true) and/or out-links (parameter FollowOut = true).
+///
+
+
+/// GetSubTreeSz
+  @IsDir false: ignore edge directions and consider edges/paths as undirected (in case they are directed).
+///
+
+/// GetNodesAtHops
+  @IsDir false: ignore edge directions and consider edges/paths as undirected (in case they are directed).
+///
+
+/// GetShortPath1
+  @param IsDir false: ignore edge directions and consider edges/paths as undirected (in case they are directed).
+///
+
+/// GetShortPath2
+  @param IsDir false: ignore edge directions and consider edges/paths as undirected (in case they are directed).
+  @param MaxDist Maximum number of hops that BFS expands to. This is helpful for speeding-up the code if one in interested only in nodes less than MaxDist away from SrcNId.
+  @param NIdToDistH Maps node ID to shortest path distance. NIdToDistH contains only nodes that are reachable from SrcNId.
+///
+
+
+/// GetBfsFullDiam
+  @param IsDir false: ignore edge directions and consider edges/paths as undirected (in case they are directed).
+///
+
+/// GetBfsEffDiam1
+  @param IsDir false: ignore edge directions and consider edges/paths as undirected (in case they are directed).
+///
+
+/// GetBfsEffDiam2
+  @param IsDir false: ignore edge directions and consider edges/paths as undirected (in case they are directed).
+///
+
+/// GetBfsEffDiam3
+  @param IsDir false: ignore edge directions and consider edges/paths as undirected (in case they are directed).
+///
+
+/// GetBfsEffDiam4
+@param IsDir false: ignore edge directions and consider edges/paths as undirected (in case they are directed).
+///
+
+
+
+
+
+
+
+

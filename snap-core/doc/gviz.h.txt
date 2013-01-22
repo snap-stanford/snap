@@ -1,0 +1,14 @@
+/// DrawGViz1
+    Useful for drawing small (<100 node) graphs.
+
+    @param PltFNm Output filename (extension .ps, .png, .gif) determines the output format.
+    @param NIdColorH Maps node ids to node colors (see GraphViz documentation for more details).
+///
+
+
+/// DrawGViz2
+    Useful for drawing small (<100 node) graphs.
+
+    @param PltFNm Output filename (extension .ps, .png, .gif) determines the output format.
+    @param NIdColorH Maps node ids to node colors (see GraphViz documentation for more details).
+///

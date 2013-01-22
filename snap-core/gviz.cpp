@@ -21,7 +21,7 @@ void GVizDoLayout(const TStr& GraphInFNm, TStr OutFNm, const TGVizLayout& Layout
   if (system(TStr::Fmt("./%s", ExeCmd.CStr()).CStr())==0) { return; }
   #endif
   if (system(TStr::Fmt("%s%s", GvPath.CStr(), ExeCmd.CStr()).CStr())==0) { return; }
-  fprintf(stderr, "[%s:%d] Cat not find GraphViz (%s). Set the PATH.\n", __FILE__, __LINE__, ExeCmd.CStr());
+  fprintf(stderr, "[%s:%d] Cannot find GraphViz (%s). Set the PATH.\n", __FILE__, __LINE__, ExeCmd.CStr());
   //#if defined(GLib_WIN)
   //if (ShowPlot) system(TStr::Fmt("start %s", OutFNm.CStr()).CStr());
   //#endif
