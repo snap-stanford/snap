@@ -3,5 +3,5 @@
 
 ## Main application file
 MAIN = circles
-DEPH = 
+DEPH = $(EXSNAPADV)/circles.h
 DEPCPP = 

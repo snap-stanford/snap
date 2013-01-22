@@ -6,36 +6,36 @@
 /// AGM fitting
 
 void TAGMFit::Save(TSOut& SOut) {
-	G->Save(SOut);
-	CIDNSetV.Save(SOut);
-	EdgeComVH.Save(SOut);
-	NIDComVH.Save(SOut);
-	ComEdgesV.Save(SOut);
-	PNoCom.Save(SOut);
-	LambdaV.Save(SOut);
-	NIDCIDPrH.Save(SOut);
-	NIDCIDPrS.Save(SOut);
-	MinLambda.Save(SOut);
-	MaxLambda.Save(SOut);
-	RegCoef.Save(SOut);
-	BaseCID.Save(SOut);
+  G->Save(SOut);
+  CIDNSetV.Save(SOut);
+  EdgeComVH.Save(SOut);
+  NIDComVH.Save(SOut);
+  ComEdgesV.Save(SOut);
+  PNoCom.Save(SOut);
+  LambdaV.Save(SOut);
+  NIDCIDPrH.Save(SOut);
+  NIDCIDPrS.Save(SOut);
+  MinLambda.Save(SOut);
+  MaxLambda.Save(SOut);
+  RegCoef.Save(SOut);
+  BaseCID.Save(SOut);
 }
 
 void TAGMFit::Load(TSIn& SIn, const int& RndSeed) {
-	G->Load(SIn);
-	CIDNSetV.Load(SIn);
-	EdgeComVH.Load(SIn);
-	NIDComVH.Load(SIn);
-	ComEdgesV.Load(SIn);
-	PNoCom.Load(SIn);
-	LambdaV.Load(SIn);
-	NIDCIDPrH.Load(SIn);
-	NIDCIDPrS.Load(SIn);
-	MinLambda.Load(SIn);
-	MaxLambda.Load(SIn);
-	RegCoef.Load(SIn);
-	BaseCID.Load(SIn);
-	Rnd.PutSeed(RndSeed);
+  G->Load(SIn);
+  CIDNSetV.Load(SIn);
+  EdgeComVH.Load(SIn);
+  NIDComVH.Load(SIn);
+  ComEdgesV.Load(SIn);
+  PNoCom.Load(SIn);
+  LambdaV.Load(SIn);
+  NIDCIDPrH.Load(SIn);
+  NIDCIDPrS.Load(SIn);
+  MinLambda.Load(SIn);
+  MaxLambda.Load(SIn);
+  RegCoef.Load(SIn);
+  BaseCID.Load(SIn);
+  Rnd.PutSeed(RndSeed);
 }
 
 ///randomly initialize bipartite community affiliation graph
