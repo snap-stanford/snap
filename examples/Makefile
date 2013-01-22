@@ -6,8 +6,10 @@ all: MakeAll
 
 MakeAll:
 	$(MAKE) -C agmgen
+	$(MAKE) -C bigclam
 	$(MAKE) -C cascades
 	$(MAKE) -C centrality
+	$(MAKE) -C circles
 	$(MAKE) -C cliques
 	$(MAKE) -C community
 	$(MAKE) -C concomp
@@ -31,8 +33,10 @@ MakeAll:
 
 clean:
 	$(MAKE) clean -C agmgen
+	$(MAKE) clean -C bigclam
 	$(MAKE) clean -C cascades
 	$(MAKE) clean -C centrality
+	$(MAKE) clean -C circles
 	$(MAKE) clean -C cliques
 	$(MAKE) clean -C community
 	$(MAKE) clean -C concomp

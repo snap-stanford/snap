@@ -32,6 +32,8 @@ public:
   int GetUniDevInt(const int& MnVal, const int& MxVal){
     IAssert(MnVal<=MxVal); return MnVal+GetUniDevInt(MxVal-MnVal+1);}
   uint GetUniDevUInt(const uint& Range=0);
+  int64 GetUniDevInt64(const int64& Range=0);
+  uint64 GetUniDevUInt64(const uint64& Range=0);
   double GetNrmDev();
   double GetNrmDev(
    const double& Mean, const double& SDev, const double& Mn, const double& Mx);
@@ -116,7 +118,7 @@ public:
   TMem& operator+=(const PSIn& SIn);
   char& operator[](const int& ChN) const {
     Assert((0<=ChN)&&(ChN<BfL)); return Bf[ChN];}
-  int GetMemUsed() const {return 2*sizeof(int)+sizeof(char*)+MxBfL;}
+  int GetMemUsed() const {return int(2*sizeof(int)+sizeof(char*)+MxBfL);}
 
   void Gen(const int& _BfL){
     Clr(); Resize(_BfL); BfL=_BfL;}
@@ -124,7 +126,7 @@ public:
     Clr(false); Resize(_BfL); BfL=_BfL;
     if (BfL > 0) memset(Bf, 0, BfL);}
   void Reserve(const int& _MxBfL, const bool& DoClr = true){
-	  if (DoClr){ Clr(); } Resize(_MxBfL);}
+    if (DoClr){ Clr(); } Resize(_MxBfL);}
   void Del(const int& BChN, const int& EChN);
   void Clr(const bool& DoDel=true){
     if (DoDel){if (Bf!=NULL){delete[] Bf;} MxBfL=0; BfL=0; Bf=NULL;}
@@ -246,7 +248,7 @@ public:
     Assert((0<=ChN)&&(ChN<BfL)); return Bf[ChN];}
   char& operator[](const int& ChN){
     Assert((0<=ChN)&&(ChN<BfL)); return Bf[ChN];}
-  int GetMemUsed() const {return 2*sizeof(int)+sizeof(char*)+sizeof(char)*MxBfL;}
+  int GetMemUsed() const {return int(2*sizeof(int)+sizeof(char*)+sizeof(char)*MxBfL);}
 
   char* operator ()(){return Bf;}
   const char* operator ()() const {return Bf;}
@@ -404,8 +406,8 @@ public:
 /////////////////////////////////////////////////
 // String
 class TStr;
-template <class TVal> class TVec;
-typedef TVec<TStr> TStrV;
+template <class TVal, class TSizeTy> class TVec;
+typedef TVec<TStr, int> TStrV;
 
 class TStr{
 private:
@@ -467,7 +469,7 @@ public:
   bool operator<(const TStr& Str) const {
     return strcmp(RStr->CStr(), Str.RStr->CStr())<0;}
   char operator[](const int& ChN) const {return RStr->GetCh(ChN);}
-  int GetMemUsed() const {return sizeof(TRStr*)+RStr->GetMemUsed();}
+  int GetMemUsed() const {return int(sizeof(TRStr*)+RStr->GetMemUsed());}
 
   char* operator()(){return RStr->CStr();}
   const char* operator()() const {return RStr->CStr();}
@@ -1100,13 +1102,21 @@ public:
     IAssert(Mn<=Mx); return Val<Mn?Mn:(Val>Mx?Mx:Val);}
 
   TStr GetStr() const {return TInt::GetStr(Val);}
-  static TStr GetStr(const int& Val){
-    char Bf[255]; sprintf(Bf, "%d", Val); return TStr(Bf);}
-  static TStr GetStr(const TInt& Int){
-    return GetStr(Int.Val);}
+  
+  static TStr GetStr(const int& Val){ return TStr::Fmt("%d", Val); }
+  static TStr GetStr(const TInt& Int){ return GetStr(Int.Val);}
   static TStr GetStr(const int& Val, const char* FmtStr);
-  static TStr GetStr(const int& Val, const TStr& FmtStr){
-    return GetStr(Val, FmtStr.CStr());}
+  static TStr GetStr(const int& Val, const TStr& FmtStr){ return GetStr(Val, FmtStr.CStr());}
+
+  //J: So that TInt can convert any kind of integer to a string
+  static TStr GetStr(const uint& Val){ return TStr::Fmt("%u", Val); }
+  #ifdef GLib_WIN
+  static TStr GetStr(const int64& Val) {return TStr::Fmt("%I64d", Val);}
+  static TStr GetStr(const uint64& Val) {return TStr::Fmt("%I64u", Val);}
+  #else
+  static TStr GetStr(const int64& Val) {return TStr::Fmt("%lld", Val);}
+  static TStr GetStr(const uint64& Val) {return TStr::Fmt("%llu", Val);}
+  #endif
 
   static TStr GetHexStr(const int& Val){
     char Bf[255]; sprintf(Bf, "%X", Val); return TStr(Bf);}
@@ -1127,8 +1137,8 @@ public:
   static char* SaveFrugalInt(char *pDest, int i);
   static char* LoadFrugalInt(char *pSrc, int& i);
   static void TestFrugalInt();
-  static void SaveFrugalIntV(TSOut& SOut, const TVec<TInt>& IntV);
-  static void LoadFrugalIntV(TSIn& SIn, TVec<TInt>& IntV, bool ClrP=true);
+  static void SaveFrugalIntV(TSOut& SOut, const TVec<TInt, int>& IntV);
+  static void LoadFrugalIntV(TSIn& SIn, TVec<TInt, int>& IntV, bool ClrP=true);
 };
 
 /////////////////////////////////////////////////
@@ -1176,7 +1186,7 @@ public:
   TStr GetStr() const {return TUInt::GetStr(Val);}
   static TStr GetStr(const uint& Val){
     char Bf[255]; sprintf(Bf, "%u", Val); return TStr(Bf);}
-  static TStr GetStr(const TInt& UInt){
+  static TStr GetStr(const TUInt& UInt){
     return GetStr(UInt.Val);}
   static TStr GetStr(const uint& Val, const char* FmtStr);
   static TStr GetStr(const uint& Val, const TStr& FmtStr){
@@ -1503,4 +1513,3 @@ public:
   // string
   TStr GetStr() const;
 };
-

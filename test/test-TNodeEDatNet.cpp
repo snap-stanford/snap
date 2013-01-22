@@ -21,7 +21,7 @@ TEST(TNodeEDatNet, DefaultConstructor) {
 TEST(TNodeEDatNet, ManipulateNodesEdges) {
   int NNodes = 10000;
   int NEdges = 100000;
-  const char *FName = "test.net";
+  const char *FName = "test.net.dat";
 
   TPt <TNodeEDatNet<TInt, TInt> > Net;
   TPt <TNodeEDatNet<TInt, TInt> > Net1;

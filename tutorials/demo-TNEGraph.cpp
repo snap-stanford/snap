@@ -19,7 +19,7 @@ void DefaultConstructor() {
 void ManipulateNodesEdges() {
   int NNodes = 1000;
   int NEdges = 100000;
-  const char *FName = "test.graph";
+  const char *FName = "demo.graph.dat";
 
   PNEGraph Graph;
   PNEGraph Graph1;

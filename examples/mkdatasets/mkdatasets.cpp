@@ -4,7 +4,8 @@ void PrintGraphStat(const PNGraph& G) {
   PNGraph WCC = TSnap::GetMxWcc(G);
   PNGraph SCC = TSnap::GetMxScc(G);
   TFltPrV DegCCfV;
-  int ClosedTriads, OpenTriads, FullDiam;
+  int64 ClosedTriads, OpenTriads;
+  int FullDiam;
   double EffDiam;
   printf("Nodes\t%d\n", G->GetNodes());
   printf("Edges\t%d\n", G->GetEdges());
@@ -14,7 +15,7 @@ void PrintGraphStat(const PNGraph& G) {
   printf("Edges in largest SCC\t%d (%.3f)\n", SCC->GetEdges(), SCC->GetEdges()/double(G->GetEdges()));
   const double CCF = TSnap::GetClustCf(G, DegCCfV, ClosedTriads, OpenTriads);
   printf("Average clustering coefficient\t%.4f\n", CCF);
-  printf("Number of triangles\t%d\n", ClosedTriads);
+  printf("Number of triangles\t%s\n", TUInt64(ClosedTriads).GetStr().CStr());
   printf("Fraction of closed triangles\t%.4g\n", ClosedTriads/double(ClosedTriads+OpenTriads));
   TSnap::GetBfsEffDiam(G, 1000, false, EffDiam, FullDiam);
   printf("Diameter (longest shortest path)\t%d\n", FullDiam);
@@ -24,7 +25,8 @@ void PrintGraphStat(const PNGraph& G) {
 template<class PGraph> 
 void PrintGraphStatTable(const PGraph& G, TStr OutFNm, TStr Desc="") {
   TFltPrV DegCCfV;
-  int ClosedTriads, FullDiam, OpenTriads;
+  int64 ClosedTriads, OpenTriads;
+  int FullDiam;
   double EffDiam;
   TSnap::PrintInfo(G, OutFNm);
   TExeTm ExeTm; printf("C");
@@ -48,7 +50,7 @@ void PrintGraphStatTable(const PGraph& G, TStr OutFNm, TStr Desc="") {
   fprintf(F, "  <tr><td>Nodes in largest SCC</td> <td>%d (%.3f)</td></tr>\n", SCC->GetNodes(), SCC->GetNodes()/double(G->GetNodes()));
   fprintf(F, "  <tr><td>Edges in largest SCC</td> <td>%d (%.3f)</td></tr>\n", SCC->GetEdges(), SCC->GetEdges()/double(G->GetEdges()));
   fprintf(F, "  <tr><td>Average clustering coefficient</td> <td>%.4f</td></tr>\n", CCF);
-  fprintf(F, "  <tr><td>Number of triangles</td> <td>%d</td></tr>\n", ClosedTriads);
+  fprintf(F, "  <tr><td>Number of triangles</td> <td>%s</td></tr>\n", TUInt64(ClosedTriads).GetStr().CStr());
   fprintf(F, "  <tr><td>Fraction of closed triangles</td> <td>%.4g</td></tr>\n", ClosedTriads/double(ClosedTriads+OpenTriads));
   fprintf(F, "  <tr><td>Diameter (longest shortest path)</td> <td>%d</td></tr>\n", FullDiam);
   fprintf(F, "  <tr><td>90-percentile effective diameter</td> <td>%.2g</td></tr>\n", EffDiam);
@@ -73,7 +75,7 @@ void PrintGraphStatTable(const PGraph& G, TStr OutFNm, TStr Desc="") {
 
 // LiveJournal network from Matt Richardson, ISWC '03
 void MakeEpinions() {
-  PNGraph G = TSnap::LoadEdgeList<PNGraph>("W:\\Data\\Epinions\\epinions.txt", 0, 1);
+  PNGraph G = TSnap::LoadEdgeList<PNGraph>("soc-Epinions1.txt", 0, 1);
   PrintGraphStatTable(G, "soc-Epinions1", "Directed Epinions social network");
 }
 

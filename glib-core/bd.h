@@ -256,7 +256,7 @@ void ExeStop(
 #define AssertR(Cond, Reason)
 #else
 #define AssertR(Cond, Reason) ((Cond) ? static_cast<void>(0) : \
-  ExeStop(NULL, Reason.CStr(), #Cond, __FILE__, __LINE__))
+  ExeStop(NULL, TStr(Reason).CStr(), #Cond, __FILE__, __LINE__))
 #endif
 
 #define IAssert(Cond) \
@@ -343,11 +343,11 @@ typedef enum {roUndef, roLs, roLEq, roEq, roNEq, roGEq, roGt} TRelOp;
 /////////////////////////////////////////////////
 // Comparation-Macros
 #ifndef min
- #define min(a,b) ((a)<(b)?(a):(b))
+  #define min(a,b) ((a)<(b)?(a):(b))
 #endif
 
 #ifndef max
- #define max(a,b) ((a)>(b)?(a):(b))
+  #define max(a,b) ((a)>(b)?(a):(b))
 #endif
 
 /////////////////////////////////////////////////
@@ -568,5 +568,38 @@ template <class TRec>
 void Swap(TRec& Rec1, TRec& Rec2){
   TRec Rec=Rec1; Rec1=Rec2; Rec2=Rec;
 }
+
+/////////////////////////////////////////////////
+
+/// Computes a hash code from a pair of hash codes. ##TPairHashImpl1
+class TPairHashImpl1 {
+public:
+  static inline int GetHashCd(const int hc1, const int hc2) {
+    unsigned long long sum = ((unsigned long long) hc1) + ((unsigned long long) hc2);
+    unsigned long long c = ((sum * (sum + 1)) >> 1) + hc1;
+    return (int) (c % 0x7fffffffULL); }
+};
+
+/// Computes a hash code from a pair of hash codes. ##TPairHashImpl2
+class TPairHashImpl2 {
+public:
+  static inline int GetHashCd(const int hc1, const int hc2) {
+    unsigned long long sum = ((unsigned long long) hc1) + ((unsigned long long) hc2);
+    unsigned long long c = ((sum * (sum + 1)) >> 1) + hc1;
+    unsigned int R = (unsigned int) (c >> 31), Q = (unsigned int) (c & 0x7fffffffULL);
+    if ((R & 0x80000000U) != 0) R -= 0x7fffffffU;
+    unsigned int RQ = R + Q;
+    if (RQ < 0x7fffffffU) return (int) RQ;
+    RQ -= 0x7fffffffU;
+    return (RQ == 0x7fffffffU) ? 0 : (int) RQ; }
+};
+
+// Depending on the platform and compiler settings choose the faster implementation
+#if (defined(GLib_64Bit)) && ! (defined(DEBUG) || defined(_DEBUG))
+  typedef TPairHashImpl1 TPairHashImpl;
+#else
+  typedef TPairHashImpl2 TPairHashImpl;
+#endif
+
 
 #endif

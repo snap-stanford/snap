@@ -1,0 +1,75 @@
+/// TSnap::GetClustCf
+Considers the graph as undirected.
+///
+
+/// TSnap::GetClustCf1
+Considers the graph as undirected.
+@param DegToCCfV Vector of pairs (degree, avg. clustering coefficient of nodes of that degree).
+@param SampleNodes If !=-1 then compute clustering coefficient only for a random sample of SampleNodes nodes. Useful for approximate but quick computations.
+///
+
+/// TSnap::GetClustCf2
+Considers the graph as undirected.
+@param DegToCCfV Vector of pairs (degree, avg. clustering coefficient of nodes of that degree).
+@param SampleNodes If !=-1 then compute clustering coefficient only for a random sample of SampleNodes nodes. Useful for approximate but quick computations.
+///
+
+/// TSnap::GetNodeClustCf
+Considers the graph as undirected.
+///
+
+/// TSnap::GetClustCf1
+Considers the graph as undirected.
+///
+
+/// TSnap::GetTriads
+The function returns the number of unique triples of connected nodes (regardless of the number of edges between each pair of nodes).
+In other words, the function consideres the Graph as a simple undirected graph.
+@param SampleNodes If !=-1 then compute triads only for a random sample of SampleNodes nodes. Useful for approximate but quick computations.
+///
+
+/// TSnap::GetTriads1
+Considers the graph as undirected.
+@param SampleNodes If !=-1 then compute triads only for a random sample of SampleNodes nodes. Useful for approximate but quick computations.
+///
+
+/// TSnap::GetTriads2
+Considers the graph as undirected.
+@param NIdCOTriadV Triple (node id, open triads: number of pairs of node's neighbors that are not connected, closed triads: number of pairs of node's neighbors that are connected between themselves).
+@param SampleNodes If !=-1 then compute triads only for a random sample of SampleNodes nodes. Useful for approximate but quick computations.
+///
+
+/// TSnap::GetTriadEdges
+Considers the graph as undirected.
+@param SampleNodes If !=-1 then compute triads only for a random sample of SampleNodes nodes. Useful for approximate but quick computations.
+///
+
+/// TSnap::GetNodeTriads
+Considers the graph as undirected.
+///
+
+/// TSnap::GetNodeTriads1
+Considers the graph as undirected.
+///
+
+/// TSnap::GetNodeTriads2
+Considers the graph as undirected.
+@param InGroupEdges  Number of triads (NId, G1, G2), where G1 and G2 are in GroupSet
+@param InOutGroupEdges Number of triads (NId, G1, O1), where G1 in GroupSet and O1 not in GroupSet
+///
+
+/// TSnap::GetNodeTriads3
+Considers the graph as undirected.
+@param InGroupEdges Number of triads (NId, G1, G2), where G1 and G2 are in GroupSet
+@param InOutGroupEdges Number of triads (NId, G1, O1), where G1 in GroupSet and O1 not in GroupSet
+@param OutGroupEdges Number of triads (NId, O1, O2), where O1 and O2 are not in GroupSet
+///
+
+/// TSnap::GetTriadParticip
+Considers the graph as undirected.
+///
+
+/// TSnap::GetLen2Paths
+NbrV intermediary stores nodes U.
+///
+

@@ -1,0 +1,25 @@
+/// Big_network
+This class implements similar interface to TNGraph and TUNGraph.
+The class is meant for storing particularly large static directed or undirected networks.
+The network representation is optimized for low memory footprint.
+This means that when a particular node is added to the network its (maximum) in- and out-degree need to be specified, so that the class allocates enough memory for that number of edges being adjacent to a node.
+The class nicely supports adding as well as deleting nodes, although the memory does not get freed.
+Deleting edges is supported, while adding edges is supported only up to the point until the node reaches its prespecified in- or out-degree.
+///
+
+/// TBigNet::TNode
+For memory efficiency we store edge lists in a vector pool.
+///
+
+/// TBigNet::OutVId
+If the graph is undirected (IsDir=false) then InVId==OutVId.
+///
+
+/// TBigNet::TNodeI
+Only forward iteration (operator++) is supported.
+///
+
+/// TBigNet::TEdgeI
+Only forward iteration (operator++) is supported.
+///
+
