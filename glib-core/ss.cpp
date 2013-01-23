@@ -375,12 +375,44 @@ TSsParser::~TSsParser() {
   //if (Bf != NULL) { delete [] Bf; }
 }
 
-bool TSsParser::Next() { // split on SplitCh
+// Gets and parses the next line.
+// This version of Next() is older, slower, works with chars.
+// RS 01/22/13 obsolete, can be removed in the future
+
+bool TSsParser::NextSlow() { // split on SplitCh
   FldV.Clr(false);
   LineStr.Clr();
   FldV.Clr();
   LineCnt++;
   if (! FInPt->GetNextLn(LineStr)) { return false; }
+  if (SkipCmt && !LineStr.Empty() && LineStr[0]=='#') { return NextSlow(); }
+
+  char* cur = LineStr.CStr();
+  if (SkipLeadBlanks) { // skip leading blanks
+    while (*cur && TCh::IsWs(*cur)) { cur++; }
+  }
+  char *last = cur;
+  while (*cur) {
+    if (SsFmt == ssfWhiteSep) { while (*cur && ! TCh::IsWs(*cur)) { cur++; } } 
+    else { while (*cur && *cur!=SplitCh) { cur++; } }
+    if (*cur == 0) { break; }
+    *cur = 0;  cur++;
+    FldV.Add(last);  last = cur;
+    if (SkipEmptyFld && strlen(FldV.Last())==0) { FldV.DelLast(); } // skip empty fields
+  }
+  FldV.Add(last);  // add last field
+  if (SkipEmptyFld && FldV.Empty()) { return NextSlow(); } // skip empty lines
+  return true; 
+}
+
+// Gets and parses the next line, quick version, works with buffers, not chars.
+
+bool TSsParser::Next() { // split on SplitCh
+  FldV.Clr(false);
+  LineStr.Clr();
+  FldV.Clr();
+  LineCnt++;
+  if (! FInPt->GetNextLnBf(LineStr)) { return false; }
   if (SkipCmt && !LineStr.Empty() && LineStr[0]=='#') { return Next(); }
 
   char* cur = LineStr.CStr();
@@ -398,34 +430,6 @@ bool TSsParser::Next() { // split on SplitCh
   }
   FldV.Add(last);  // add last field
   if (SkipEmptyFld && FldV.Empty()) { return Next(); } // skip empty lines
-  return true; 
-}
-
-// Gets and parses the next line, quick version, works with buffers, not chars.
-
-bool TSsParser::NextQ() { // split on SplitCh
-  FldV.Clr(false);
-  LineStr.Clr();
-  FldV.Clr();
-  LineCnt++;
-  if (! FInPt->GetNextLnBf(LineStr)) { return false; }
-  if (SkipCmt && !LineStr.Empty() && LineStr[0]=='#') { return NextQ(); }
-
-  char* cur = LineStr.CStr();
-  if (SkipLeadBlanks) { // skip leading blanks
-    while (*cur && TCh::IsWs(*cur)) { cur++; }
-  }
-  char *last = cur;
-  while (*cur) {
-    if (SsFmt == ssfWhiteSep) { while (*cur && ! TCh::IsWs(*cur)) { cur++; } } 
-    else { while (*cur && *cur!=SplitCh) { cur++; } }
-    if (*cur == 0) { break; }
-    *cur = 0;  cur++;
-    FldV.Add(last);  last = cur;
-    if (SkipEmptyFld && strlen(FldV.Last())==0) { FldV.DelLast(); } // skip empty fields
-  }
-  FldV.Add(last);  // add last field
-  if (SkipEmptyFld && FldV.Empty()) { return NextQ(); } // skip empty lines
   return true; 
 }
 

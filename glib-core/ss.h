@@ -74,7 +74,7 @@ public:
   static PSsParser New(const TStr& FNm, const TSsFmt SsFmt) { return new TSsParser(FNm, SsFmt); }
 
   bool Next();
-  bool NextQ();
+  bool NextSlow();
   int Len() const { return FldV.Len(); }
   int GetFlds() const { return Len(); }
   uint64 GetLineNo() const { return LineCnt; }
