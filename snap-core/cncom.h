@@ -46,7 +46,7 @@ PUNGraph GetMxBiCon(const PUNGraph& Graph, const bool& RenumberNodes=false);
 
 }; // namespace TSnap
 
-/////////////////////////////////////////////////
+//#//////////////////////////////////////////////
 /// Connected Component.
 /// Connected component is defined by a vector of its node IDs.
 class TCnCom {
@@ -125,7 +125,7 @@ void TCnCom::GetDfsVisitor(const PGraph& Graph, TVisitor& Visitor) {
   }
 }
 
-/////////////////////////////////////////////////
+//#//////////////////////////////////////////////
 /// Articulation point Depth-First-Search visitor class.
 class TArtPointVisitor {
 public:
@@ -151,7 +151,7 @@ public:
     VnLowH.GetDat(NId1).Val2 = TMath::Mn(VnLowH.GetDat(NId1).Val2, VnLowH.GetDat(NId2).Val1); }
 };
 
-/////////////////////////////////////////////////
+//#//////////////////////////////////////////////
 /// Biconnected componetns Depth-First-Search visitor class.
 class TBiConVisitor {
 public:
@@ -189,7 +189,7 @@ public:
   void FwdEdge(const int& NId1, const int& NId2) { }
 };
 
-/////////////////////////////////////////////////
+//#//////////////////////////////////////////////
 /// Strongly connected componetns Depht-First-Search visitor class.
 template <class PGraph, bool OnlyCount = false>
 class TSccVisitor {

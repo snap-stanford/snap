@@ -7,7 +7,7 @@ class TLocClust;
 class TLocClustStat;
 class TNcpGraphsBase;
 
-//////////////////////////////////////////////////
+//#///////////////////////////////////////////////
 /// Local Spectral Clustering algorithm. ##Local_Spectral_Clustering_algorithm
 class TLocClust {
 public:
@@ -90,7 +90,7 @@ public:
   friend class TLocClustStat;
 };
 
-//////////////////////////////////////////////////
+//#///////////////////////////////////////////////
 /// Local-Spectral-Clustering statistics of a given Graph.
 class TLocClustStat {
 public:
@@ -206,7 +206,7 @@ public:
   static void MakeExpBins(const TFltV& ValV, TFltV& NewV);
 };
 
-//////////////////////////////////////////////////
+//#///////////////////////////////////////////////
 /// Local-Spectral-Clustering for a set of graphs (loads ncp-*.tab files)
 class TNcpGraphsBase {
 private:

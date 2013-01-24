@@ -8,7 +8,7 @@
 //    void Save(TSOut& SOut) const { }
 //  };
 
-/////////////////////////////////////////////////
+//#//////////////////////////////////////////////
 /// Node Network (directed graph, TNGraph with data on nodes only).
 template <class TNodeData>
 class TNodeNet {
@@ -401,7 +401,7 @@ typedef TPt<TFltNNet> PFltNNet;
 typedef TNodeNet<TStr> TStrNNet;
 typedef TPt<TStrNNet> PStrNNet;
 
-/////////////////////////////////////////////////
+//#//////////////////////////////////////////////
 /// Node Edge Network (directed graph, TNGraph with data on nodes and edges).
 template <class TNodeData, class TEdgeData>
 class TNodeEDatNet {
@@ -896,7 +896,7 @@ typedef TPt<TIntFltNEDNet> PIntFltNEDNet;
 typedef TNodeEDatNet<TStr, TInt> TStrIntNEDNet;
 typedef TPt<TStrIntNEDNet> PStrIntNEDNet;
 
-/////////////////////////////////////////////////
+//#//////////////////////////////////////////////
 /// Node Edge Network (directed multigraph, TNEGraph with data on nodes and edges).
 template <class TNodeData, class TEdgeData>
 class TNodeEdgeNet {

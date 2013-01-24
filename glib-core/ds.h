@@ -405,8 +405,7 @@ public:
   }
 };
 
-/////////////////////////////////////////////////
-
+//#//////////////////////////////////////////////
 /// Vector is a sequence \c TVal objects representing an array that can change in size. ##TVec
 template <class TVal, class TSizeTy = int>
 class TVec{
@@ -2375,8 +2374,7 @@ typedef TVec<TFltIntIntIntQu> TFltIntIntIntQuV;
 typedef TVec<TIntStrIntIntQu> TIntStrIntIntQuV;
 typedef TVec<TIntIntPrPr> TIntIntPrPrV;
 
-/////////////////////////////////////////////////
-
+//#//////////////////////////////////////////////
 /// Vector Pool. ##TVecPool
 template <class TVal, class TSizeTy=int>
 class TVecPool {

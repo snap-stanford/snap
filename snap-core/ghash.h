@@ -1,4 +1,4 @@
-/////////////////////////////////////////////////
+//#//////////////////////////////////////////////
 /// Small Directed Graphs. ##TGraphKey
 class TGraphKey {
 public:
@@ -60,7 +60,7 @@ public:
   static bool IsIsomorph(const TGraphKey& Key1, const TGraphKey& Key2, const TVec<TIntV>& NodeIdMapV, int& IsoPermId);
 };
 
-/////////////////////////////////////////////////
+//#//////////////////////////////////////////////
 /// Graph Hash Table. ##TGHash
 template <class TDat>
 class TGHash {
@@ -446,7 +446,7 @@ void TGHash<TDat>::SaveDetailTxt(const TStr& OutFNm, const TStr& Desc, const TSt
   fclose(F);
 }
 
-/////////////////////////////////////////////////
+//#//////////////////////////////////////////////
 /// Simple directed/undirected graph defined by its edges.
 class TSimpleGraph {
 private:
@@ -467,7 +467,7 @@ public:
 };
 typedef TVec<TSimpleGraph> TSimpleGraphV;
 
-/////////////////////////////////////////////////
+//#//////////////////////////////////////////////
 /// Connected Sub-graph Enumeration.
 class TSubGraphsEnum {
 private:

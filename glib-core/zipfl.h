@@ -1,7 +1,7 @@
 #ifndef zipfl_h
 #define zipfl_h
 
-/////////////////////////////////////////////////
+//#//////////////////////////////////////////////
 /// Compressed File Input Stream. The class reads from a compressed file without explicitly uncompressing it.
 /// This is eachieved by running external 7ZIP program which uncompresses to standard output, which is then piped to TZipFl.
 /// The class requires 7ZIP to be installed on the machine. Go to http://www.7-zip.org to install the software.
@@ -55,7 +55,7 @@ public:
   static uint64 GetFLen(const TStr& ZipFNm);
 };
 
-/////////////////////////////////////////////////
+//#//////////////////////////////////////////////
 /// Compressed File Output Stream. The class directly writes to a compressed file.
 /// This is eachieved by TZipFl outputing into a pipe from which 7ZIP then reads and compresses.
 /// The class requires 7ZIP to be installed on the machine. Go to http://www.7-zip.org to install the software.
