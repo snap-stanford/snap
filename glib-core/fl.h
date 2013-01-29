@@ -1,3 +1,5 @@
+#include "bd.h"
+
 /////////////////////////////////////////////////
 // Forward-Definitions
 class TMem;
@@ -69,6 +71,7 @@ public:
   virtual char GetCh()=0;     // get one char and advance
   virtual char PeekCh()=0;    // get one char and do NOT advance
   virtual int GetBf(const void* Bf, const TSize& BfL)=0; // get BfL chars and advance
+  virtual bool GetNextLnBf(TChA& LnChA)=0;  // get the next line and advance
   virtual void Reset(){Fail;}
 
   bool IsFastMode() const {return FastMode;}
@@ -249,6 +252,7 @@ public:
     int Ch=getchar(); ungetc(Ch, stdin); return char(Ch);}
   int GetBf(const void* LBf, const TSize& LBfL);
   void Reset(){Cs=TCs();}
+  bool GetNextLnBf(TChA& LnChA);
 };
 
 /////////////////////////////////////////////////
@@ -279,6 +283,7 @@ private:
   int GetFPos() const;
   int GetFLen() const;
   void FillBf();
+  int FindEol(int& BfN);
 private:
   TFIn();
   TFIn(const TFIn&);
@@ -302,10 +307,11 @@ public:
     else {return Bf[BfC];}}
   int GetBf(const void* LBf, const TSize& LBfL);
   void Reset(){rewind(FileId); Cs=TCs(); BfC=BfL=-1; FillBf();}
+  bool GetNextLnBf(TChA& LnChA);
 
-  //J:ne rabim
+  //J:not needed
   //TFileId GetFileId() const {return FileId;} //J:
-  //void SetFileId(const FileId& FlId) {FileId=FlId; BfC=BfL=-1; FillBf(); } //J: za grde low level manipulacije
+  //void SetFileId(const FileId& FlId) {FileId=FlId; BfC=BfL=-1; FillBf(); } //J: for low level manipulations
 };
 
 /////////////////////////////////////////////////
@@ -360,6 +366,7 @@ public:
   char GetCh() { return char(fgetc(FileId)); }
   char PeekCh() { const char Ch = GetCh();  MovePos(-1);  return Ch; }
   int GetBf(const void* LBf, const TSize& LBfL);
+  bool GetNextLnBf(TChA& LnChA);
 
   void SetPos(const int& Pos) { IAssert(fseek(FileId, Pos, SEEK_SET)==0); }
   void MovePos(const int& DPos) { IAssert(fseek(FileId, DPos, SEEK_CUR)==0); }
@@ -399,6 +406,7 @@ public:
   char PeekCh();
   int GetBf(const void* LBf, const TSize& LBfL);
   void Reset(){Cs=TCs(); BfC=0;}
+  bool GetNextLnBf(TChA& LnChA);
 
   char* GetBfAddr(){return Bf;}
 };

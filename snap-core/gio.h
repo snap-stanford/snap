@@ -51,7 +51,7 @@ template<class PGraph> void SaveGViz(const PGraph& Graph, const TStr& OutFNm, co
 /////////////////////////////////////////////////
 // Implementation
 
-/// The function loads the format saved by TSnap::SaveEdgeList() ##LoadEdgeList
+/// Loads the format saved by TSnap::SaveEdgeList() ##LoadEdgeList
 template <class PGraph>
 PGraph LoadEdgeList(const TStr& InFNm, const int& SrcColId, const int& DstColId) {
   TSsParser Ss(InFNm, ssfWhiteSep, true, true, true);
@@ -67,7 +67,7 @@ PGraph LoadEdgeList(const TStr& InFNm, const int& SrcColId, const int& DstColId)
   return Graph;
 }
 
-/// The function loads the format saved by TSnap::SaveEdgeList() if we set Separator='\t'. ##LoadEdgeList_Separator
+/// Loads the format saved by TSnap::SaveEdgeList() if we set Separator='\t'. ##LoadEdgeList_Separator
 template <class PGraph>
 PGraph LoadEdgeList(const TStr& InFNm, const int& SrcColId, const int& DstColId, const char& Separator) {
   TSsParser Ss(InFNm, Separator);
@@ -83,7 +83,7 @@ PGraph LoadEdgeList(const TStr& InFNm, const int& SrcColId, const int& DstColId,
   return Graph;
 }
 
-/// The function loads the format saved by TSnap::SaveEdgeList(), where node IDs are strings ##LoadEdgeListStr
+/// Loads the format saved by TSnap::SaveEdgeList(), where node IDs are strings ##LoadEdgeListStr
 template <class PGraph>
 PGraph LoadEdgeListStr(const TStr& InFNm, const int& SrcColId, const int& DstColId) {
   TSsParser Ss(InFNm, ssfWhiteSep);
@@ -100,7 +100,7 @@ PGraph LoadEdgeListStr(const TStr& InFNm, const int& SrcColId, const int& DstCol
   return Graph;
 }
 
-/// The function loads the format saved by TSnap::SaveEdgeList(), where node IDs are strings and mapping of strings to node ids are stored ##LoadEdgeListStr_StrToNIdH
+/// Loads the format saved by TSnap::SaveEdgeList(), where node IDs are strings and mapping of strings to node ids are stored ##LoadEdgeListStr_StrToNIdH
 template <class PGraph>
 PGraph LoadEdgeListStr(const TStr& InFNm, const int& SrcColId, const int& DstColId, TStrHash<TInt>& StrToNIdH) {
   TSsParser Ss(InFNm, ssfWhiteSep);
@@ -116,7 +116,7 @@ PGraph LoadEdgeListStr(const TStr& InFNm, const int& SrcColId, const int& DstCol
   return Graph;
 }
 
-/// The function loads Whitespace separated file of several columns: <source node id> <destination node id1> <destination node id2> ##LoadConnList
+/// Loads Whitespace separated file of several columns: <source node id> <destination node id1> <destination node id2> ##LoadConnList
 template <class PGraph>
 PGraph LoadConnList(const TStr& InFNm) {
   TSsParser Ss(InFNm, ssfWhiteSep, true, true, true);
@@ -135,7 +135,7 @@ PGraph LoadConnList(const TStr& InFNm) {
   return Graph;
 }
 
-/// The function loads Whitespace separated file of several columns: <source node id> <destination node id1> <destination node id2>, with a mapping of strings to node IDs. ##LoadConnListStr
+/// Loads Whitespace separated file of several columns: <source node id> <destination node id1> <destination node id2>, with a mapping of strings to node IDs. ##LoadConnListStr
 template <class PGraph> 
 PGraph LoadConnListStr(const TStr& InFNm, TStrHash<TInt>& StrToNIdH) {
   TSsParser Ss(InFNm, ssfWhiteSep, true, true, true);

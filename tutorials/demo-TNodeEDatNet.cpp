@@ -19,7 +19,7 @@ void DefaultConstructor() {
 void ManipulateNodesEdges() {
   int NNodes = 10000;
   int NEdges = 100000;
-  const char *FName = "test.net";
+  const char *FName = "demo.net.dat";
 
   TPt <TNodeEDatNet<TInt, TInt> > Net;
   TPt <TNodeEDatNet<TInt, TInt> > Net1;

@@ -843,8 +843,12 @@ PSignNet TSignNet::LoadEpinions(const TStr& FNm) {
     const int src = Ss.GetInt(0);
     const int dst = Ss.GetInt(1);
     if (src == dst) { continue; } // skip self edges
-    Net->AddNode(Ss.GetInt(0));
-    Net->AddNode(Ss.GetInt(1));
+    if (!Net->IsNode(Ss.GetInt(0))) {
+      Net->AddNode(Ss.GetInt(0));
+    }
+    if (!Net->IsNode(Ss.GetInt(0))) {
+      Net->AddNode(Ss.GetInt(1));
+    }
     Net->AddEdge(Ss.GetInt(0), Ss.GetInt(1), Ss.GetInt(2));
   }
   return Net;
@@ -1432,7 +1436,7 @@ void TSignMicroEvol::DrawCloseTriad(const TStr& FNmPref, const int& OpnTriadId, 
   if (! Label.Empty()) { fprintf(F, "label = \"%s\";\n", Label.CStr()); }
   fprintf(F, "}\n");
   fclose(F);
-  TGraphViz::DoLayout(FNm, FNm.GetFMid()+".gif", gvlNeato);
+  TSnap::TSnapDetail::GVizDoLayout(FNm, FNm.GetFMid()+".gif", gvlNeato);
 }
 
 bool IsBalancedSwapEdge(const PSignNet& Net, const TIntPr& BackEdge, const int& Sign) {

@@ -2,7 +2,7 @@ namespace TSnap {
 
 /////////////////////////////////////////////////
 // BFS and DFS
-/// Returns a directed Breath-First-Search tree rooted at StartNId. ##GetBfsTree1
+/// Returns a directed Breadth-First-Search tree rooted at StartNId. ##GetBfsTree1
   template <class PGraph> PNGraph GetBfsTree(const PGraph& Graph, const int& StartNId, const bool& FollowOut, const bool& FollowIn);
 /// Returns the BFS tree size (number of nodes) and depth (number of levels) by following in-links (parameter FollowIn = true) and/or out-links (parameter FollowOut = true) of node StartNId.
 template <class PGraph> int GetSubTreeSz(const PGraph& Graph, const int& StartNId, const bool& FollowOut, const bool& FollowIn, int& TreeSz, int& TreeDepth);
@@ -48,7 +48,7 @@ template <class PGraph> double GetBfsEffDiam(const PGraph& Graph, const int& NTe
 
 } // namespace TSnap
 
-/////////////////////////////////////////////////
+//#//////////////////////////////////////////////
 /// Breath-First-Search class.
 /// The class is meant for executing many BFSs over a fixed graph. This means that the class can keep the hash tables and queues initialized between different calls of the DoBfs() function.
 template<class PGraph>
@@ -172,7 +172,9 @@ PNGraph GetBfsTree(const PGraph& Graph, const int& StartNId, const bool& FollowO
     const int NId = BFS.NIdDistH.GetKey(i);
     const int Dist = BFS.NIdDistH[i];
     typename PGraph::TObj::TNodeI NI = Graph->GetNI(NId);
-    Tree->AddNode(NId);
+    if (!Tree->IsNode(NId)) {
+      Tree->AddNode(NId);
+    }
     if (FollowOut) {
       for (int e = 0; e < NI.GetInDeg(); e++) {
         const int Prev = NI.GetInNId(e);

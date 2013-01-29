@@ -273,7 +273,7 @@ void TTimeNet::PlotCCfOverTm(const TStr& FNmPref, TStr Desc, const TTmUnit& TmUn
   for (int t = 0; t < TmBucketV.Len(); t++) {
     printf("\r  %d/%d: ", t+1, TmBucketV.Len());
     NodeIdV.AddV(TmBucketV[t].NIdV); // edges up to time T
-    int Open=0, Close=0;
+    int64 Open=0, Close=0;
     const PUNGraph Graph = TSnap::GetSubGraph(UNGraph, NodeIdV);
     const double CCf = TSnap::GetClustCf(Graph, DegToCCfV, Open, Close);
     if (TmUnit == tmuNodes) { XVal = Graph->GetNodes(); }

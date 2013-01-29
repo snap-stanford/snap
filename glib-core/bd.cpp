@@ -1,4 +1,8 @@
-// #include <execinfo.h>
+#define SW_TRACE 0
+
+#if SW_TRACE
+#include <execinfo.h>
+#endif
 
 /////////////////////////////////////////////////
 // Mathmatical-Errors
@@ -58,6 +62,27 @@ void SaveToErrLog(const char* MsgCStr){
   delete[] FNm;
 }
 
+#if SW_TRACE
+void PrintBacktrace() {
+  // stack dump, works for g++
+  void *array[20];
+  size_t size;
+
+  // flush stdout
+  fflush(0);
+
+  // get the trace and print it to stdout
+  size = backtrace(array, 20);
+  backtrace_symbols_fd(array, size, 1);
+}
+
+void Crash() {
+  char *p;
+  p = (char *) 0;
+  *p = 1234;
+}
+#endif
+
 /////////////////////////////////////////////////
 // Assertions
 TOnExeStop::TOnExeStopF TOnExeStop::OnExeStopF=NULL;
@@ -67,12 +92,10 @@ void ExeStop(
  const char* CondCStr, const char* FNm, const int& LnN){
   char ReasonMsgCStr[1000];
 
-  // stack dump, works for g++
-  //void *array[20];
-  //size_t size;
-  // get the trace and print it out
-  //size = backtrace(array, 20);
-  //backtrace_symbols_fd(array, size, 2);
+#if SW_TRACE
+  PrintBacktrace();
+  Crash();
+#endif
 
   // construct reason message
   if (ReasonCStr==NULL){ReasonMsgCStr[0]=0;}

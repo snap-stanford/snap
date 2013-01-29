@@ -1,3 +1,5 @@
+#include "bd.h"
+
 /////////////////////////////////////////////////
 // Forward
 class TILx;
@@ -30,6 +32,8 @@ public:
   int GetUniDevInt(const int& MnVal, const int& MxVal){
     IAssert(MnVal<=MxVal); return MnVal+GetUniDevInt(MxVal-MnVal+1);}
   uint GetUniDevUInt(const uint& Range=0);
+  int64 GetUniDevInt64(const int64& Range=0);
+  uint64 GetUniDevUInt64(const uint64& Range=0);
   double GetNrmDev();
   double GetNrmDev(
    const double& Mean, const double& SDev, const double& Mn, const double& Mx);
@@ -43,6 +47,12 @@ public:
   double GetPowerDev(const double& AlphaSlope){ // power-law degree distribution (AlphaSlope>0)
     IAssert(AlphaSlope>1.0);
     return pow(1.0-GetUniDev(), -1.0/(AlphaSlope-1.0));}
+  double GetRayleigh(const double& Sigma) { // 1/sqrt(alpha) = sigma
+    IAssert(Sigma>0.0);
+    return Sigma*sqrt(-2*log(1-GetUniDev()));}
+  double GetWeibull(const double& K, const double& Lambda) { // 1/alpha = lambda
+    IAssert(Lambda>0.0 && K>0.0);
+    return Lambda*pow(-log(1-GetUniDev()), 1.0/K);}
   //void GetSphereDev(const int& Dim, TFltV& ValV);
 
   void PutSeed(const int& _Seed);
@@ -108,7 +118,7 @@ public:
   TMem& operator+=(const PSIn& SIn);
   char& operator[](const int& ChN) const {
     Assert((0<=ChN)&&(ChN<BfL)); return Bf[ChN];}
-  int GetMemUsed() const {return 2*sizeof(int)+sizeof(char*)+MxBfL;}
+  int GetMemUsed() const {return int(2*sizeof(int)+sizeof(char*)+MxBfL);}
 
   void Gen(const int& _BfL){
     Clr(); Resize(_BfL); BfL=_BfL;}
@@ -116,7 +126,7 @@ public:
     Clr(false); Resize(_BfL); BfL=_BfL;
     if (BfL > 0) memset(Bf, 0, BfL);}
   void Reserve(const int& _MxBfL, const bool& DoClr = true){
-	  if (DoClr){ Clr(); } Resize(_MxBfL);}
+    if (DoClr){ Clr(); } Resize(_MxBfL);}
   void Del(const int& BChN, const int& EChN);
   void Clr(const bool& DoDel=true){
     if (DoDel){if (Bf!=NULL){delete[] Bf;} MxBfL=0; BfL=0; Bf=NULL;}
@@ -164,6 +174,7 @@ public:
   char PeekCh(){Assert(BfC<BfL); return Bf[BfC];}
   int GetBf(const void* LBf, const TSize& LBfL);
   void Reset(){Cs=TCs(); BfC=0;}
+  bool GetNextLnBf(TChA& LnChA);
 };
 
 /////////////////////////////////////////////////
@@ -237,7 +248,7 @@ public:
     Assert((0<=ChN)&&(ChN<BfL)); return Bf[ChN];}
   char& operator[](const int& ChN){
     Assert((0<=ChN)&&(ChN<BfL)); return Bf[ChN];}
-  int GetMemUsed() const {return 2*sizeof(int)+sizeof(char*)+sizeof(char)*MxBfL;}
+  int GetMemUsed() const {return int(2*sizeof(int)+sizeof(char*)+sizeof(char)*MxBfL);}
 
   char* operator ()(){return Bf;}
   const char* operator ()() const {return Bf;}
@@ -261,6 +272,9 @@ public:
     if ((MxLen==-1)||(BfL<MxLen)){operator+=(Ch);}}
   void AddChTo(const char& Ch, const int& ToChN){
     while (Len()<ToChN){AddCh(Ch);}}
+  void AddBf(char *NewBf, const int& BfS){
+    if ((BfL+BfS+1)>MxBfL){Resize(BfL+BfS+1);}
+    strncpy(Bf+BfL,NewBf,BfS); BfL+=BfS; Bf[BfL]=0;}
   void PutCh(const int& ChN, const char& Ch){
     Assert((0<=ChN)&&(ChN<BfL)); Bf[ChN]=Ch;}
   char GetCh(const int& ChN) const {return operator[](ChN);}
@@ -324,6 +338,7 @@ public:
   char PeekCh(){Assert(BfC<BfL); return Bf[BfC];}
   int GetBf(const void* LBf, const TSize& LBfL);
   void Reset(){Cs=TCs(); BfC=0;}
+  bool GetNextLnBf(TChA& LnChA);
 };
 
 /////////////////////////////////////////////////
@@ -391,8 +406,8 @@ public:
 /////////////////////////////////////////////////
 // String
 class TStr;
-template <class TVal> class TVec;
-typedef TVec<TStr> TStrV;
+template <class TVal, class TSizeTy> class TVec;
+typedef TVec<TStr, int> TStrV;
 
 class TStr{
 private:
@@ -454,7 +469,7 @@ public:
   bool operator<(const TStr& Str) const {
     return strcmp(RStr->CStr(), Str.RStr->CStr())<0;}
   char operator[](const int& ChN) const {return RStr->GetCh(ChN);}
-  int GetMemUsed() const {return sizeof(TRStr*)+RStr->GetMemUsed();}
+  int GetMemUsed() const {return int(sizeof(TRStr*)+RStr->GetMemUsed());}
 
   char* operator()(){return RStr->CStr();}
   const char* operator()() const {return RStr->CStr();}
@@ -700,6 +715,7 @@ public:
   char PeekCh(){Assert(BfC<BfL); return Bf[BfC];}
   int GetBf(const void* LBf, const TSize& LBfL);
   void Reset(){Cs=TCs(); BfC=0;}
+  bool GetNextLnBf(TChA& LnChA);
 };
 
 /////////////////////////////////////////////////
@@ -765,15 +781,15 @@ private:
   uint MxBfL, BfL, GrowBy;
   char *Bf;
 private:
-  void Resize(uint _MxBfL);
+  void Resize(const uint& _MxBfL);
 public:
-  TStrPool(uint MxBfLen = 0, uint _GrowBy = 16*1024*1024);
+  TStrPool(const uint& MxBfLen = 0, const uint& _GrowBy = 16*1024*1024);
   TStrPool(TSIn& SIn, bool LoadCompact = true);
   TStrPool(const TStrPool& Pool) : MxBfL(Pool.MxBfL), BfL(Pool.BfL), GrowBy(Pool.GrowBy) {
     Bf = (char *) malloc(Pool.MxBfL); IAssertR(Bf, TStr::Fmt("Can not resize buffer to %u bytes. [Program failed to allocate more memory. Solution: Get a bigger machine.]", MxBfL).CStr()); memcpy(Bf, Pool.Bf, Pool.BfL); }
   ~TStrPool() { if (Bf) free(Bf); else IAssertR(MxBfL == 0, TStr::Fmt("size: %u, expected size: 0", MxBfL).CStr());  Bf = 0; MxBfL = 0; BfL = 0; }
 
-  static PStrPool New(uint _MxBfLen = 0, uint _GrowBy = 16*1024*1024) { return PStrPool(new TStrPool(_MxBfLen, _GrowBy)); }
+  static PStrPool New(const uint& _MxBfLen = 0, const uint& _GrowBy = 16*1024*1024) { return PStrPool(new TStrPool(_MxBfLen, _GrowBy)); }
   static PStrPool New(TSIn& SIn) { return new TStrPool(SIn); }
   static PStrPool New(const TStr& fileName) { PSIn SIn = TFIn::New(fileName); return new TStrPool(*SIn); }
   static PStrPool Load(TSIn& SIn, bool LoadCompacted = true) { return PStrPool(new TStrPool(SIn, LoadCompacted)); }
@@ -786,26 +802,26 @@ public:
   char* operator () () const { return Bf; }
   TStrPool& operator = (const TStrPool& Pool);
 
-  uint AddStr(const char *Str, uint Len);
+  uint AddStr(const char *Str, const uint& Len);
   uint AddStr(const char *Str) { return AddStr(Str, uint(strlen(Str)) + 1); }
   uint AddStr(const TStr& Str) { return AddStr(Str.CStr(), Str.Len() + 1); }
 
-  TStr GetStr(uint Offset) const { Assert(Offset < BfL);
+  TStr GetStr(const uint& Offset) const { Assert(Offset < BfL);
     if (Offset == 0) return TStr::GetNullStr(); else return TStr(Bf + Offset); }
-  const char *GetCStr(uint Offset) const { Assert(Offset < BfL);
+  const char *GetCStr(const uint& Offset) const { Assert(Offset < BfL);
     if (Offset == 0) return TStr::GetNullStr().CStr(); else return Bf + Offset; }
 
   // Clr() removes the empty string at the start.
   // Call AddStr("") after Clr(), if you want to use the pool again.
   void Clr(bool DoDel = false) { BfL = 0; if (DoDel && Bf) { free(Bf); Bf = 0; MxBfL = 0; } }
-  int Cmp(uint Offset, const char *Str) const { Assert(Offset < BfL);
+  int Cmp(const uint& Offset, const char *Str) const { Assert(Offset < BfL);
     if (Offset != 0) return strcmp(Bf + Offset, Str); else return strcmp("", Str); }
 
   static int GetPrimHashCd(const char *CStr);
   static int GetSecHashCd(const char *CStr);
-  int GetPrimHashCd(uint Offset) { Assert(Offset < BfL);
+  int GetPrimHashCd(const uint& Offset) { Assert(Offset < BfL);
     if (Offset != 0) return GetPrimHashCd(Bf + Offset); else return GetPrimHashCd(""); }
-  int GetSecHashCd(uint Offset) { Assert(Offset < BfL);
+  int GetSecHashCd(const uint& Offset) { Assert(Offset < BfL);
     if (Offset != 0) return GetSecHashCd(Bf + Offset); else return GetSecHashCd(""); }
 };
 
@@ -1086,13 +1102,21 @@ public:
     IAssert(Mn<=Mx); return Val<Mn?Mn:(Val>Mx?Mx:Val);}
 
   TStr GetStr() const {return TInt::GetStr(Val);}
-  static TStr GetStr(const int& Val){
-    char Bf[255]; sprintf(Bf, "%d", Val); return TStr(Bf);}
-  static TStr GetStr(const TInt& Int){
-    return GetStr(Int.Val);}
+  
+  static TStr GetStr(const int& Val){ return TStr::Fmt("%d", Val); }
+  static TStr GetStr(const TInt& Int){ return GetStr(Int.Val);}
   static TStr GetStr(const int& Val, const char* FmtStr);
-  static TStr GetStr(const int& Val, const TStr& FmtStr){
-    return GetStr(Val, FmtStr.CStr());}
+  static TStr GetStr(const int& Val, const TStr& FmtStr){ return GetStr(Val, FmtStr.CStr());}
+
+  //J: So that TInt can convert any kind of integer to a string
+  static TStr GetStr(const uint& Val){ return TStr::Fmt("%u", Val); }
+  #ifdef GLib_WIN
+  static TStr GetStr(const int64& Val) {return TStr::Fmt("%I64d", Val);}
+  static TStr GetStr(const uint64& Val) {return TStr::Fmt("%I64u", Val);}
+  #else
+  static TStr GetStr(const int64& Val) {return TStr::Fmt("%lld", Val);}
+  static TStr GetStr(const uint64& Val) {return TStr::Fmt("%llu", Val);}
+  #endif
 
   static TStr GetHexStr(const int& Val){
     char Bf[255]; sprintf(Bf, "%X", Val); return TStr(Bf);}
@@ -1113,8 +1137,8 @@ public:
   static char* SaveFrugalInt(char *pDest, int i);
   static char* LoadFrugalInt(char *pSrc, int& i);
   static void TestFrugalInt();
-  static void SaveFrugalIntV(TSOut& SOut, const TVec<TInt>& IntV);
-  static void LoadFrugalIntV(TSIn& SIn, TVec<TInt>& IntV, bool ClrP=true);
+  static void SaveFrugalIntV(TSOut& SOut, const TVec<TInt, int>& IntV);
+  static void LoadFrugalIntV(TSIn& SIn, TVec<TInt, int>& IntV, bool ClrP=true);
 };
 
 /////////////////////////////////////////////////
@@ -1162,7 +1186,7 @@ public:
   TStr GetStr() const {return TUInt::GetStr(Val);}
   static TStr GetStr(const uint& Val){
     char Bf[255]; sprintf(Bf, "%u", Val); return TStr(Bf);}
-  static TStr GetStr(const TInt& UInt){
+  static TStr GetStr(const TUInt& UInt){
     return GetStr(UInt.Val);}
   static TStr GetStr(const uint& Val, const char* FmtStr);
   static TStr GetStr(const uint& Val, const TStr& FmtStr){
@@ -1489,4 +1513,3 @@ public:
   // string
   TStr GetStr() const;
 };
-

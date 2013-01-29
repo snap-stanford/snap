@@ -1,0 +1,212 @@
+/// TVec
+Internally, vectors use a dynamically allocated array to store their elements.
+This array may need to be reallocated in order to grow in size when new elements are inserted, which implies allocating a new array and moving all elements to it.
+This is a relatively expensive task in terms of processing time.
+Vectors may allocate some extra storage to accommodate for possible growth, and thus the container may have an actual capacity greater than the storage strictly needed to contain its elements (i.e., its size).
+The reallocations only happen at logarithmically growing intervals of size so that the insertion of individual elements at the end of the vector can be provided with amortized constant time complexity.
+Use <tt>TSizeTy=int</tt> for vectors of maximum size of 2 billion (2^31) and <tt>TSizeTy=int64</tt> for vectors that can store up to 2^61 elements.
+///
+
+/// TVec::TVec
+The data is not copied and the vector does not own the memory (i.e., the
+vector won't free the memory at destruction).
+///
+
+/// TVec::Less
+For example, <tt>(a,b) < (a',b')</tt> if and only if <tt>a < a'</tt> or <tt>(a = a' and b < b')</tt>.
+///
+
+/// TVec::GenExt
+The data is not copied and the vector does not own the memory (the vector
+won't free the memory at destruction).
+///
+
+/// TVec::IsExt
+In this case the vector does not own the memory (and won't free the memory at
+destruction).
+///
+
+/// TVec::Clr
+Vector's memory gets deallocated only if <tt>DoDel=true</tt> or if vector's
+capacity is greater than \c NoDelLim.
+///
+
+/// TVec::Trunc
+If <tt>_Vals=-1</tt> then the capacity is reduced to match vector's length.
+///
+
+/// TVec::MoveFrom
+No memory gets copied and \c Vec gets destroyed.
+///
+
+/// TVec::Empty
+This means the vector contains zero elements (while its capacity may be greater than zero).
+///
+
+/// TVec::Len
+This is the number of actual objects held in the vector, which is not
+necessarily equal to its storage capacity.
+///
+
+/// TVec::Add
+This increases the vector size by one.
+///
+
+/// TVec::Add1
+The content of \c Val is copied to the new element.
+///
+
+/// TVec::Add2
+If vector's capacity needs to be increased, it is increased by \c ResizeLen elements.
+///
+
+/// TVec::AddSorted
+@param Asc Adds the element so that ascending (if \c true) or descending (if \c false) order is maintained.
+///
+
+/// TVec::AddBackSorted
+@param Asc Adds the element so that ascending (if \c true) or descending (if \c false) order is maintained.
+///
+
+/// TVec::AddMerged
+Uses binary search to check whether an element is already in the vector.
+///
+
+/// TVec::AddMerged1
+Uses binary search to check whether an element is already in the vector.
+///
+
+/// TVec::AddUnique
+Does not assume the vector to be sorted and thus uses linear search to check
+whether \c Val is already in the vector.
+///
+
+/// TVec::NextPerm
+Assuming we started with a sorted vector repeated calls to \c NextPerm() will
+generate all permutations of the elements of the vector. Returns \c false when
+the last permutation is reached.
+///
+
+/// TVec::PrevPerm
+Returns \c false when the first permutation is reached.
+///
+
+/// TVec::BSort
+@param Asc Sorts the elements in ascending (if \c true) or descending (if \c false) order.
+///
+
+/// TVec::ISort
+@param Asc Sorts the elements in ascending (if \c true) or descending (if \c false) order.
+///
+
+/// TVec::Partition
+Helper function used by \c QSort().
+@param Asc Sorts the elements in ascending (if \c true) or descending (if \c false) order.
+///
+
+/// TVec::QSort
+Helper function used by \c Sort().
+@param Asc Sorts the elements in ascending (if \c true) or descending (if \c false) order.
+///
+
+/// TVec::Sort
+Use a combination if quicksort and insertion sort.
+@param Asc Sorts the elements in ascending (if \c true) or descending (if \c false) order.
+///
+
+/// TVec::Intrs
+Assumes the vectors are sorted!
+///
+
+/// TVec::Union
+Assumes the vectors are sorted!
+///
+
+/// TVec::Diff
+This means \c this vector keeps only the elements that do not appear in \c
+ValV. Assumes the vectors are sorted!
+///
+
+/// TVec::Intrs1
+Assumes the vectors are sorted!
+///
+
+/// TVec::Union1
+Assumes the vectors are sorted!
+///
+
+/// TVec::Diff1
+This means \c DstValV has all the elements of \c this that do not appear in \c
+ValV. Assumes the vectors are sorted!
+///
+
+/// TVec::IntrsLen
+Assumes both vectors are sorted in ascending order!
+///
+
+/// TVec::SearchBin
+If the element is not found return value is -1. Uses binary search and thus
+assumes the vector is sorted.
+///
+
+/// TVec::SearchBin1
+If the element is not found return value is -1. Uses binary search and thus assumes the vector is sorted.
+///
+
+/// TVec::SearchForw
+If the element is not found return value is -1. Uses linear search starting at
+position \c BValN.
+///
+
+/// TVec::SearchBack
+If the element is not found return value is -1. Uses backward linear search.
+///
+
+/// TVec::SearchVForw
+If the vector is not found return value is -1.
+///
+
+/// TVec::IsIn
+Position of \c Val is returned in \c ValN.
+///
+
+/// TVec::IsInBin
+Uses binary search and thus assumes the vector is sorted.
+///
+
+/// TVec::GetAddDat
+If the element does not exist, we add it at the end of the vector.
+///
+
+/// TVecPool
+Used for storing a large number of small vectors.
+The pool can store up to 2G different vectors, each with up to 2G elements. Each vector in the pool gets a consecutive integer ID. IDs range <tt>0...GetVecs()</tt>. Once a vector is added to the pool, the vector can modify the values of its elements (e.g., be sorted), but the vector is not allowed to change its length --- it cannot grow or shrink.
+///
+
+/// TVecPool::TVecPool
+@param ExpectVals At creation the pool allocates enough memory for storing the total of \c ExpectVals elements (not vectors).
+@param _GrowBy  Whenever the size of the pool needs to be expanded, it will be expanded to be able to store additional \c _GrowBy elements.
+@param _FastCopy If \c true, then vectors are copied using \c memcpy(), otherwise the assignment operator is used for copying. This option is slower but useful for complex objects where assignment operator is non-trivial.
+@param _EmptyVal Empty (not yet used) elements in the pool are assigned to this value. By default <tt>_EmptyVal = TVal()</tt>.
+///
+
+/// TVecPool::AddEmptyV
+Elements of the vector are initialized to \c EmptyVal.
+///
+
+/// TVecPool::GetV
+No data is copied. Elements of the vector \c ValV can be modified but the vector cannot change its size.
+///
+
+/// TVecPool::CompactPool
+Empty space is left at the end of the pool.
+///
+
+/// TVecPool::ShuffleAll
+It does not respect vector boundaries!
+///
+
+/// TVecPool::Clr
+If <tt>DoDel=true</tt> memory is freed, otherwise all vectors are deleted and all element values in the pool are set to \c EmptyVal.
+///
+

@@ -4,12 +4,11 @@
 #define Mega(n) (1000*1000*(n))
 #define Giga(n) (1000*1000*1000*(n))
 
-/////////////////////////////////////////////////
-/// Graph Flags, used for quick testing of graph types.
-/// This is very useful for testing graph properties at compile time for partial template specialization as well as compile time assert (CAssert)
+//#//////////////////////////////////////////////
+/// Graph Flags, used for quick testing of graph types. ##TGraphFlag
 typedef enum {
   gfUndef=0,    ///< default value, no flags
-  gfDirected,   ///< directed graph (TNGraph, TNEGraph), else graph is undirected(TUNGraph)
+  gfDirected,   ///< directed graph (TNGraph, TNEGraph), else graph is undirected TUNGraph
   gfMultiGraph, ///< have explicit edges (multigraph): TNEGraph, TNodeEdgeNet
   gfNodeDat,    ///< network with data on nodes
   gfEdgeDat,    ///< network with data on edges
@@ -42,7 +41,7 @@ template <class TGraph> struct IsBipart     { enum { Val = 0 }; };
   (Flag)==gfSources ? TSnap::IsSources<TGraph::TNet>::Val : \
   (Flag)==gfBipart ? TSnap::IsBipart<TGraph::TNet>::Val : 0)
 
-/// Tests (at complile time) whether TDerivClass is derived from TBaseClass
+/// Tests (at compile time) whether TDerivClass is derived from TBaseClass
 template<class TDerivClass, class TBaseClass>
 class IsDerivedFrom {
 private:
@@ -59,15 +58,14 @@ public:
 
 /// Returns a string representation of a flag.
 TStr GetFlagStr(const TGraphFlag& GraphFlag);
-/// Prints basic graph statistics.
-/// @param Fast true: only computes basic statistics (that can be computed fast). For more extensive information (and longer execution times) set Fast = false.
+/// Prints basic graph statistics. ##TSnap::PrintInfo
 template <class PGraph> void PrintInfo(const PGraph& Graph, const TStr& Desc="", const TStr& OutFNm="", const bool& Fast=true);
 
 /////////////////////////////////////////////////
 // Implementation
 
 // Forward declaration, definition in triad.h
-template <class PGraph> int GetTriads(const PGraph& Graph, int& ClosedTriads, int& OpenTriads, int SampleNodes=-1);
+template <class PGraph> int64 GetTriads(const PGraph& Graph, int64& ClosedTriads, int64& OpenTriads, int SampleNodes=-1);
 
 template <class PGraph>
 void PrintInfo(const PGraph& Graph, const TStr& Desc, const TStr& OutFNm, const bool& Fast) {
@@ -98,7 +96,7 @@ void PrintInfo(const PGraph& Graph, const TStr& Desc, const TStr& OutFNm, const 
       }
     }
   }
-  int Closed=0, Open=0;
+  int64 Closed=0, Open=0;
   if (! Fast) { TSnap::GetTriads(Graph, Closed, Open); }
   // print info
   fprintf(F, "\n");
@@ -113,8 +111,8 @@ void PrintInfo(const PGraph& Graph, const TStr& Desc, const TStr& OutFNm, const 
     fprintf(F, "  Unique undirected edges:  %d\n", UniqUnDirE.Len());
     fprintf(F, "  Self Edges:               %d\n", SelfEdges);
     fprintf(F, "  BiDir Edges:              %d\n", BiDirEdges);
-    fprintf(F, "  Closed triangles          %d\n", Closed);
-    fprintf(F, "  Open triangles            %d\n", Open);
+    fprintf(F, "  Closed triangles          %s\n", TUInt64::GetStr(Closed).CStr());
+    fprintf(F, "  Open triangles            %s\n", TUInt64::GetStr(Open).CStr());
     fprintf(F, "  Frac. of closed triads    %f\n", Closed/double(Closed+Open));
   }
   if (! OutFNm.Empty()) { fclose(F); }
@@ -122,8 +120,8 @@ void PrintInfo(const PGraph& Graph, const TStr& Desc, const TStr& OutFNm, const 
 
 }  // namespace TSnap
 
-/////////////////////////////////////////////////
-/// Fast Queue used by the TBreathFS (uses memcpy to move objects TVal around).
+//#//////////////////////////////////////////////
+/// Fast Queue used by the \c TBreathFS (uses \c memcpy to move objects \c TVal around).
 template <class TVal>
 class TSnapQueue {
 private:
@@ -180,9 +178,8 @@ public:
   }
 };
 
-/////////////////////////////////////////////////
-/// Union Find class (Disjoint-set data structure).
-/// For more info see: http://en.wikipedia.org/wiki/Disjoint-set_data_structure)
+//#//////////////////////////////////////////////
+/// Union Find class (Disjoint-set data structure). ##TUnionFind
 class TUnionFind {
 private:
   THash<TInt, TIntPr> KIdSetH; // key id to (parent, rank)
@@ -216,3 +213,97 @@ public:
   /// Prints out the structure to standard output.
   void Dump();
 };
+
+//#//////////////////////////////////////////////
+/// Simple heap data structure. ##THeap
+template <class TVal, class TCmp = TLss<TVal> >
+class THeap {
+private:
+  TCmp Cmp;
+  TVec<TVal> HeapV;
+private:
+  void PushHeap(const int& First, int HoleIdx, const int& Top, TVal Val);
+  void AdjustHeap(const int& First, int HoleIdx, const int& Len, TVal Val);
+  void MakeHeap(const int& First, const int& Len);
+public:
+  THeap() : HeapV() { }
+  THeap(const int& MxVals) : Cmp(), HeapV(0, MxVals) { }
+  THeap(const TCmp& _Cmp) : Cmp(_Cmp), HeapV() { }
+  THeap(const TVec<TVal>& Vec) : Cmp(), HeapV(Vec) { MakeHeap(); }
+  THeap(const TVec<TVal>& Vec, const TCmp& _Cmp) : Cmp(_Cmp), HeapV(Vec) { MakeHeap(); }
+  THeap(const THeap& Heap) : Cmp(Heap.Cmp), HeapV(Heap.HeapV) { }
+  THeap& operator = (const THeap& H) { Cmp=H.Cmp; HeapV=H.HeapV; return *this; }
+
+  /// Returns a reference to the element at the top of the heap (the largest element of the heap).
+  const TVal& TopHeap() const { return HeapV[0]; }
+  /// Pushes an element \c Val to the heap.
+  void PushHeap(const TVal& Val);
+  /// Removes the top element from the heap.
+  TVal PopHeap();
+  /// Returns the number of elements in the heap.
+  int Len() const { return HeapV.Len(); }
+  /// Tests whether the heap is empty.
+  bool Empty() const { return HeapV.Empty(); }
+  /// Returns a reference to the vector containing the elements of the heap.
+  const TVec<TVal>& operator()() const { return HeapV; }
+  /// Returns a reference to the vector containing the elements of the heap.
+  TVec<TVal>& operator()() { return HeapV; }
+  /// Adds an element to the data structure. Heap property is not maintained by \c Add() and thus after all the elements are added \c MakeHeap() needs to be called.
+  void Add(const TVal& Val) { HeapV.Add(Val); }
+  /// Builds a heap from a set of elements.
+  void MakeHeap() { MakeHeap(0, Len()); }
+};
+
+template <class TVal, class TCmp>
+void THeap<TVal, TCmp>::PushHeap(const TVal& Val) {
+  HeapV.Add(Val);
+  PushHeap(0, HeapV.Len()-1, 0, Val);
+}
+
+template <class TVal, class TCmp>
+TVal THeap<TVal, TCmp>::PopHeap() {
+  IAssert(! HeapV.Empty());
+  const TVal Top = HeapV[0];
+  HeapV[0] = HeapV.Last();
+  HeapV.DelLast();
+  if (! HeapV.Empty()) {
+    AdjustHeap(0, 0, HeapV.Len(), HeapV[0]);
+  }
+  return Top;
+}
+
+template <class TVal, class TCmp>
+void THeap<TVal, TCmp>::PushHeap(const int& First, int HoleIdx, const int& Top, TVal Val) {
+  int Parent = (HoleIdx-1)/2;
+  while (HoleIdx > Top && Cmp(HeapV[First+Parent], Val)) {
+    HeapV[First+HoleIdx] = HeapV[First+Parent];
+    HoleIdx = Parent;  Parent = (HoleIdx-1)/2;
+  }
+  HeapV[First+HoleIdx] = Val;
+}
+
+template <class TVal, class TCmp>
+void THeap<TVal, TCmp>::AdjustHeap(const int& First, int HoleIdx, const int& Len, TVal Val) {
+  const int Top = HoleIdx;
+  int Right = 2*HoleIdx+2;
+  while (Right < Len) {
+    if (Cmp(HeapV[First+Right], HeapV[First+Right-1])) { Right--; }
+    HeapV[First+HoleIdx] = HeapV[First+Right];
+    HoleIdx = Right;  Right = 2*(Right+1); }
+  if (Right == Len) {
+    HeapV[First+HoleIdx] = HeapV[First+Right-1];
+    HoleIdx = Right-1; }
+  PushHeap(First, HoleIdx, Top, Val);
+}
+
+template <class TVal, class TCmp>
+void THeap<TVal, TCmp>::MakeHeap(const int& First, const int& Len) {
+  if (Len < 2) { return; }
+  int Parent = (Len-2)/2;
+  while (true) {
+    AdjustHeap(First, Parent, Len, HeapV[First+Parent]);
+    if (Parent == 0) { return; }
+    Parent--;
+  }
+}
+

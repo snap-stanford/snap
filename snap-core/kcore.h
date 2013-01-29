@@ -1,6 +1,6 @@
 // TODO ROK, Jure included basic documentation, finalize reference doc
 
-/////////////////////////////////////////////////
+//#//////////////////////////////////////////////
 /// K-Core decomposition of a network.
 /// K-core is defined as a maximal subgraph of the original graph where every node points to at least K other nodes.
 /// K-core is obtained by repeatedly deleting nodes of degree < K from the graph until no nodes of degree < K exist.

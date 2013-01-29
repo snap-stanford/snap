@@ -1,5 +1,5 @@
-/////////////////////////////////////////////////
-// Big Network
+//#//////////////////////////////////////////////
+/// Big Network. ##Big_network
 template <class TNodeData, bool IsDir>
 class TBigNet {
 public:
@@ -8,15 +8,19 @@ public:
   typedef TPt<TNet> PNet;
 public:
   class TNode;
-  //typedef TSparseHash<TInt, TNode> TNodeH;
   typedef THash<TInt, TNode> TNodeH; // use SaveToDisk to convert between the two hash table types
   typedef TPt<TBigNet<TNodeData, IsDir> > PBigNet;
-  typedef TVecPool<TInt> TPool;
-  typedef TPt<TPool> PPool;
+  typedef TVecPool<TInt> TVPool;
+  typedef TPt<TVPool> PVPool;
 
+  /// Node container class. ##TBigNet::TNode
   class TNode {
   public:
-    TInt InVId, OutVId; // if undirected, InNIdV == OutNIdV
+    /// Id of the vector storing nodes that point to the current node. 
+    TInt InVId;
+    /// Id of the vector storing nodes that the current node points to. ##TBigNet::OutVId
+    TInt OutVId; 
+    ///  Data associated with the node.
     TNodeDat Dat;
   public:
     TNode() : InVId(-1), OutVId(-1), Dat() { }
@@ -26,14 +30,15 @@ public:
     TNode(const TNode& Node) : InVId(Node.InVId), OutVId(Node.OutVId), Dat(Node.Dat) { }
     TNode(TSIn& SIn) : InVId(SIn), OutVId(SIn), Dat(SIn) { }
     void Save(TSOut& SOut) const { SOut.Save(InVId); SOut.Save(OutVId); Dat.Save(SOut); }
+    /// Tests whether the node is deleted then it is unused (and its InVId==OutVId==-1)
     bool IsUnused() const { return InVId==-1 && OutVId==-1; }
   };
-
+  /// Node iterator. ##TBigNet::TNodeI
   class TNodeI {
   protected:
     typedef typename TNodeH::TIter THashIter;
     THashIter NodeHI;
-    TPool *Pool;
+    TVPool *Pool;
     int InDeg, OutDeg, *InNIdV, *OutNIdV; // if undirected, InNIdV==OutNIdV
   public:
     inline void GetInOutNIdV();
@@ -41,9 +46,10 @@ public:
     int GetOutVId() const { return NodeHI->Dat.OutVId; }
   public:
     TNodeI() : NodeHI(), Pool(NULL), InDeg(0), OutDeg(0), InNIdV(NULL), OutNIdV(NULL) { }
-    TNodeI(const THashIter& NodeHIter, TPool *PoolPt) : NodeHI(NodeHIter), Pool(PoolPt) { GetInOutNIdV(); }
+    TNodeI(const THashIter& NodeHIter, TVPool *PoolPt) : NodeHI(NodeHIter), Pool(PoolPt) { GetInOutNIdV(); }
     TNodeI(const TNodeI& NodeI) : NodeHI(NodeI.NodeHI), Pool(NodeI.Pool) { GetInOutNIdV(); }
     TNodeI& operator = (const TNodeI& NI) { NodeHI=NI.NodeHI; Pool=NI.Pool; GetInOutNIdV(); return *this; }
+    /// Increment iterator.  
     TNodeI& operator++ (int) { NodeHI++; GetInOutNIdV(); return *this; }
     bool operator < (const TNodeI& NI) const { return NodeHI < NI.NodeHI; }
     bool operator == (const TNodeI& NI) const { return NodeHI == NI.NodeHI; }
@@ -72,6 +78,7 @@ public:
     friend class TBigNet<TNodeData, IsDir>;
   };
 
+  /// Edge iterator. ##TBigNet::TEdgeI
   class TEdgeI {
   private:
     TNodeI CurNode, EndNode;
@@ -107,7 +114,7 @@ protected:
   TCRef CRef;
   TInt MxNId;
   TB32Set Flags;
-  TPool Pool;
+  TVPool Pool;
   TNodeH NodeH;
 public:
   TBigNet(const int& Nodes, const TSize& Edges, const bool& Sources=false);
@@ -141,9 +148,9 @@ public:
   void GetInNIdV(int NId, TIntV& OutNIdV) const;
   void GetOutNIdV(int NId, TIntV& OutNIdV) const;
   bool IsNode(const int& NId) const { return NodeH.IsKey(NId); }
-  TNodeI BegNI() const { return TNodeI(NodeH.BegI(), (TPool *)&Pool); }
-  TNodeI EndNI() const { return TNodeI(NodeH.EndI(), (TPool *)&Pool); }
-  TNodeI GetNI(const int& NId) const { return TNodeI(NodeH.GetI(NId), (TPool *)&Pool); }
+  TNodeI BegNI() const { return TNodeI(NodeH.BegI(), (TVPool *)&Pool); }
+  TNodeI EndNI() const { return TNodeI(NodeH.EndI(), (TVPool *)&Pool); }
+  TNodeI GetNI(const int& NId) const { return TNodeI(NodeH.GetI(NId), (TVPool *)&Pool); }
   TNodeDat& GetNDat(const int& NId) { return NodeH.GetDat(NId).Dat; }
   const TNodeDat& GetNDat(const int& NId) const { return NodeH.GetDat(NId).Dat; }
   // edges
@@ -153,7 +160,7 @@ public:
 
   // delete nodes
   int IsolateNode(int NId); // isolate the node by setting edge endpoints to point to node id DelNId, IsNode(DelNId)==false)
-  int DelNode(int NId); // set neigbors to point to DelNId, delete node from the node table
+  int DelNode(int NId); // set neighbors to point to DelNId, delete node from the node table
   bool IsIsoNode(const int& NId) const;
   uint GetDelEdges(); // the number deleted edges
   void CompactEdgePool(); // after nodes are isolated and deleted, we compact the empty space
@@ -923,7 +930,7 @@ void TBigNet<TNodeData, IsDir>::GetSubGraph(const TIntV& NIdV, TBigNet* NewNetPt
 template <class TNodeData, bool IsDir>
 void TBigNet<TNodeData, IsDir>::Reserve(const int& Nodes, const TSize& Edges) {
   NodeH.Gen(TMath::Mx(int(1.1*Nodes), 100));
-  Pool = TPool(TMath::Mx(Edges, (TSize) Mega(1)), Mega(100), true);
+  Pool = TVPool(TMath::Mx(Edges, (TSize) Mega(1)), Mega(100), true);
 }
 
 // check that in- and out-edges matchs, the table is sorted and so on
@@ -1076,7 +1083,7 @@ void TBigNet<TNodeData, IsDir>::SaveToDisk(const TStr& InFNm, const TStr& OutFNm
   TFOut FOut(OutFNm);
   { TInt MxNId(FIn);  MxNId.Save(FOut);
   TB32Set Flags(FIn);  Flags.Save(FOut);
-  TPool Pool(FIn);  Pool.Save(FOut); }
+  TVPool Pool(FIn);  Pool.Save(FOut); }
   { TNodeH NodeH(FIn);
   if (! SaveSparseHash) {
     THash<TInt, TNode> NewH(NodeH.Len(), true);

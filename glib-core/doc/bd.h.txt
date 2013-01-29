@@ -1,0 +1,8 @@
+/// TPairHashImpl1
+Both \c TPairHashImpl1 and \c TPairHashImpl2 implement the same function: <tt>((a + b) * (a + b + 1) / 2) + a</tt>.
+///
+
+/// TPairHashImpl2
+Both \c TPairHashImpl1 and \c TPairHashImpl2 implement the same function: <tt>((a + b) * (a + b + 1) / 2) + a</tt>.
+///
+

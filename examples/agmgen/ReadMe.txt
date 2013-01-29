@@ -1,13 +1,14 @@
 ========================================================================
-    Affiliation Graph Model 
+    Community-Affiliation Graph Model 
 ========================================================================
 
-The example implements the Affiliation Graph Model (AGM). 
+The example implements the community-Affiliation Graph Model (AGM). 
 AGM generates a realistic looking graph from the community affiliation
 of the nodes.
 
-The Affiliation Graph Model is described in J. Yang and J. Leskovec,
-Real Communities in Real Networks: Structure and a Model.
+The community-Affiliation Graph Model is described in the following papers:
+J. Yang and J. Leskovec, Structure and Overlaps of Communities in Networks, SNAKDD '12.
+J. Yang and J. Leskovec, Community-Affiliation Graph Model for Overlapping Community Detection, ICDM '12.
 
 The code works under Windows with Visual Studio or Cygwin with GCC,
 Mac OS X, Linux and other Unix variants with GCC. Make sure that a

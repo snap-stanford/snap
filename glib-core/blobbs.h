@@ -1,3 +1,5 @@
+#include "bd.h"
+
 /////////////////////////////////////////////////
 // Blob-Pointer
 ClassTVQ(TBlobPt, TBlobPtV, TBlobPtQ)//{

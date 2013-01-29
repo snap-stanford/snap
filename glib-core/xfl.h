@@ -1,3 +1,5 @@
+#include "bd.h"
+
 /////////////////////////////////////////////////
 // Find-File-Descriptor
 ClassTP(TFFileDesc, PFFileDesc)//{

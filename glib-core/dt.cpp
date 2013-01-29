@@ -48,6 +48,18 @@ uint TRnd::GetUniDevUInt(const uint& Range){
   else {return Seed%Range;}
 }
 
+int64 TRnd::GetUniDevInt64(const int64& Range){
+  const int64 RndVal = int64((uint64(GetUniDevInt())<<32) | uint64(GetUniDevInt()));
+  if (Range==0){return RndVal;}
+  else {return RndVal%Range;}
+}
+
+uint64 TRnd::GetUniDevUInt64(const uint64& Range){
+ const uint64 RndVal = uint64((uint64(GetUniDevInt())<<32) | uint64(GetUniDevInt()));
+ if (Range==0){return RndVal;}
+ else {return RndVal%Range;}
+}
+
 double TRnd::GetNrmDev(){
   double v1, v2, rsq;
   do {
@@ -309,6 +321,12 @@ int TMemIn::GetBf(const void* LBf, const TSize& LBfL){
   for (TSize LBfC=0; LBfC<LBfL; LBfC++){
     LBfS+=(((char*)LBf)[LBfC]=Bf[BfC++]);}
   return LBfS;
+}
+
+bool TMemIn::GetNextLnBf(TChA& LnChA){
+  // not implemented
+  FailR(TStr::Fmt("TMemIn::GetNextLnBf: not implemented").CStr());
+  return false;
 }
 
 /////////////////////////////////////////////////
@@ -629,6 +647,12 @@ int TChAIn::GetBf(const void* LBf, const TSize& LBfL){
   for (TSize LBfC=0; LBfC<LBfL; LBfC++){
     LBfS+=(((char*)LBf)[LBfC]=Bf[BfC++]);}
   return LBfS;
+}
+
+bool TChAIn::GetNextLnBf(TChA& LnChA){
+  // not implemented
+  FailR(TStr::Fmt("TChAIn::GetNextLnBf: not implemented").CStr());
+  return false;
 }
 
 /////////////////////////////////////////////////
@@ -1626,9 +1650,15 @@ int TStrIn::GetBf(const void* LBf, const TSize& LBfL){
   return LBfS;
 }
 
+bool TStrIn::GetNextLnBf(TChA& LnChA){
+  // not implemented
+  FailR(TStr::Fmt("TStrIn::GetNextLnBf: not implemented").CStr());
+  return false;
+}
+
 /////////////////////////////////////////////////
 // String-Pool
-void TStrPool::Resize(uint _MxBfL) {
+void TStrPool::Resize(const uint& _MxBfL) {
   uint newSize = MxBfL;
   while (newSize < _MxBfL) {
     if (newSize >= GrowBy && GrowBy > 0) newSize += GrowBy;
@@ -1645,7 +1675,7 @@ void TStrPool::Resize(uint _MxBfL) {
   IAssertR(MxBfL >= _MxBfL, TStr::Fmt("new size: %u, requested size: %u", MxBfL, _MxBfL).CStr());
 }
 
-TStrPool::TStrPool(uint MxBfLen, uint _GrowBy) : MxBfL(MxBfLen), BfL(0), GrowBy(_GrowBy), Bf(0) {
+TStrPool::TStrPool(const uint& MxBfLen, const uint& _GrowBy) : MxBfL(MxBfLen), BfL(0), GrowBy(_GrowBy), Bf(0) {
   //IAssert(MxBfL >= 0); IAssert(GrowBy >= 0);
   if (MxBfL > 0) { Bf = (char *) malloc(MxBfL);  IAssertR(Bf, TStr::Fmt("Can not resize buffer to %u bytes. [Program failed to allocate more memory. Solution: Get a bigger machine.]", MxBfL).CStr()); }
   AddStr(""); // add an empty string at the beginning for fast future access
@@ -1677,7 +1707,7 @@ TStrPool& TStrPool::operator = (const TStrPool& Pool) {
 
 // Adds Len characters to pool. To append a null
 // terminated string Len must be equal to strlen(s) + 1
-uint TStrPool::AddStr(const char *Str, uint Len) {
+uint TStrPool::AddStr(const char *Str, const uint& Len) {
   IAssertR(Len > 0, "String too short (length includes the null character)");  //J: if (! Len) return -1;
   if (Len == 1 && BfL > 0) { return 0; } // empty string
   Assert(Str);  Assert(Len > 0);

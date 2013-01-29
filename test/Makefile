@@ -18,11 +18,14 @@ TESTS = \
 	test-helper.cpp \
 	test-ggen.cpp \
 	test-gio.cpp \
-	test-gviz.cpp \
 	test-cncom.cpp \
-	test-bfsdfs.cpp
+	test-bfsdfs.cpp \
+	test-THash.cpp
+
+	#test-gviz.cpp \
 
 all: $(MAIN)
+run: test
 
 # COMPILE
 $(MAIN): $(MAIN).cpp $(TESTS) $(CSNAP)/Snap.o
@@ -37,5 +40,5 @@ test: $(MAIN)
 clean:
 	rm -f *.o $(MAIN) $(MAIN).exe
 	rm -rf Debug Release
-	rm -rf *.graph *.pool *.net *.Err
+	rm -rf test*.dat *.Err
 
