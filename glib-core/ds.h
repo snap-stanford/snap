@@ -590,7 +590,7 @@ public:
   /// Reverses the order of the elements in the vector.
   void Reverse();
   /// Reverses the order of elements between <tt>LValN...RValN</tt>.
-  void Reverse(TSizeTy LValN, TSizeTy RValN){ while (LValN < RValN){Swap(LValN++, RValN--);} }
+  void Reverse(TSizeTy LValN, TSizeTy RValN){ Assert(LValN>=0 && RValN<Len()); while (LValN < RValN){Swap(LValN++, RValN--);} }
   /// Sorts the vector and only keeps a single element of each value.
   void Merge();
 
@@ -1150,7 +1150,7 @@ bool TVec<TVal, TSizeTy>::NextPerm() {
       TSizeTy Mid = Last;
       for (; GetVal(Next) >= GetVal(--Mid); ) { }
       Swap(Next, Mid);
-      Reverse(Next1, Last);
+      Reverse(Next1, Last-1);
       return true;
     }
     if (Next == First) { // pure descending, flip all
