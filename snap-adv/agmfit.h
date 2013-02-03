@@ -54,7 +54,7 @@ public:
   /// Set Epsilon (the probability that two nodes sharing no communities connect) to the default value.
   void SetDefaultPNoCom();
   /// Set Epsilon (the probability that two nodes sharing no communities connect) to the default value.
-  void SetPNoCom(const double& Epsilon) { if (BaseCID == -1 && Input > 0.0) { PNoCom = Epsilon; } }
+  void SetPNoCom(const double& Epsilon) { if (BaseCID == -1 && Epsilon > 0.0) { PNoCom = Epsilon; } }
   double GetPNoCom() { return PNoCom; }
   /// Compute the empirical edge probability between a pair of nodes who share no community (epsilon), based on current community affiliations.
   double CalcPNoComByCmtyVV(const int& SamplePairs = -1);
