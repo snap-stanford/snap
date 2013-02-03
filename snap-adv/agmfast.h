@@ -2,7 +2,10 @@
 #define yanglib_agmfast_h
 #include "Snap.h"
 
-class TAGMFast { //sparse AGM-fast with coordinate ascent
+/////////////////////////////////////////////////
+/// Community detection with AGM. Sparse AGM-fast with coordinate ascent.
+
+class TAGMFast { 
 private:
   PUNGraph G; //graph to fit
   TVec<TIntFltH> F; // membership for each user (Size: Nodes * Coms)
