@@ -1,5 +1,5 @@
-#ifndef yanglib_agm_h
-#define yanglib_agm_h
+#ifndef snap_agm_h
+#define snap_agm_h
 #include "Snap.h"
 
 class TAGM{
@@ -9,7 +9,6 @@ public:
   static PUNGraph GenAGM(TVec<TIntV >& CmtyVV, const double& DensityCoef, const double& ScaleCoef, TRnd& Rnd=TInt::Rnd);
   static PUNGraph GenAGM(TVec<TIntV>& CmtyVV, const double& DensityCoef, const int TargetEdges, TRnd& Rnd);
   static PUNGraph GenAGM(TVec<TIntV>& CmtyVV, const TFltV& CProbV, TRnd& Rnd, const double PNoCom = -1.0);
-
 };
 
 class TAGMUtil{
