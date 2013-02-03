@@ -1,10 +1,18 @@
 #include "bd.h"
 
-/////////////////////////////////////////////////
-// Spread-Sheet
+//#//////////////////////////////////////////////
+/// Spread-Sheet Separator Format.
 typedef enum {ssfUndef,
- ssfTabSep, ssfCommaSep, ssfSemicolonSep, ssfVBar, ssfSpaceSep, ssfWhiteSep, ssfMx} TSsFmt;
+  ssfTabSep,       ///< Tab separated
+  ssfCommaSep,     ///< Comma separated
+  ssfSemicolonSep, ///< Semicolon separated
+  ssfVBar,         ///< Vertical bar separated
+  ssfSpaceSep,     ///< Space separated
+  ssfWhiteSep,     ///< Whitespace (space or tab) separated
+  ssfMx} TSsFmt;
 
+//#//////////////////////////////////////////////
+/// Small Spread-Sheet Parser. #TSs
 ClassTP(TSs, PSs)//{
 private:
   TVec<PStrV> CellStrVV;
@@ -56,46 +64,68 @@ public:
 };
 
 //#//////////////////////////////////////////////
-/// Fast Spread Sheet Parser.
+/// Fast Spread Sheet Parser. #TSsParser
 ClassTP(TSsParser, PSsParser)//{
 private:
-  TSsFmt SsFmt;
-  bool SkipLeadBlanks, SkipCmt, SkipEmptyFld; // skip emptry fields
-  uint64 LineCnt;
-  char SplitCh;
-  TChA LineStr;
-  TVec<char*> FldV;
-  PSIn FInPt;
+  TSsFmt SsFmt;  ///< Separator type.
+  bool SkipLeadBlanks;  ///< Ignore leading whitespace characters in a line.
+  bool SkipCmt;         ///< Skip comments (lines starting with #).
+  bool SkipEmptyFld;    ///< Skip empty fields (i.e., multiple consecutive separators are considered as one).
+  uint64 LineCnt;       ///< Number of processed lines so far.
+  char SplitCh;         ///< Separator character (if one of the non-started separators is used)
+  TChA LineStr;         ///< Current line.
+  TVec<char*> FldV;     ///< Pointers to fields of the current line.
+  PSIn FInPt;           ///< Pointer to the input file stream.
   UndefDefaultCopyAssign(TSsParser);
 public:
+  /// Constructor. #TSsParser::TSsParser1
   TSsParser(const TStr& FNm, const TSsFmt _SsFmt=ssfTabSep, const bool& _SkipLeadBlanks=false, const bool& _SkipCmt=true, const bool& _SkipEmptyFld=false);
+  /// Constructor. #TSsParser::TSsParser2
   TSsParser(const TStr& FNm, const char& Separator, const bool& _SkipLeadBlanks=false, const bool& _SkipCmt=true, const bool& _SkipEmptyFld=false);
   ~TSsParser();
   static PSsParser New(const TStr& FNm, const TSsFmt SsFmt) { return new TSsParser(FNm, SsFmt); }
 
+  /// Loads next line from the input file. #Next
   bool Next();
+  /// Slow implementation of loading a next line from the input file. #NextSlow
   bool NextSlow();
+  /// Returns the number of fields in the current line.
   int Len() const { return FldV.Len(); }
+  /// Returns the number of fields in the current line.
   int GetFlds() const { return Len(); }
+  /// Returns the line number of the current line.
   uint64 GetLineNo() const { return LineCnt; }
+  /// Checks whether the current line is a comment (starts with '#').
   bool IsCmt() const { return Len()>0 && GetFld(0)[0] == '#'; }
+  /// Checks for end of file.
   bool Eof() const { return FInPt->Eof(); }
+  /// Returns the current line
   const TChA& GetLnStr() const { return LineStr; }
+  /// Transforms the current line to lower case.
   void ToLc();
 
+  /// Returns the contents of the field at index \c FldN.
   const char* GetFld(const int& FldN) const { return FldV[FldN]; }
+  /// Returns the contents of the field at index \c FldN.
   char* GetFld(const int& FldN) { return FldV[FldN]; }
+  /// Returns the contents of the field at index \c FldN.
   const char* operator [] (const int& FldN) const { return FldV[FldN]; }
+  /// Returns the contents of the field at index \c FldN.
   char* operator [] (const int& FldN) { return FldV[FldN]; }
+  /// If the field \c FldN is an integer its value is returned in \c Val and the function returns \c true.
   bool GetInt(const int& FldN, int& Val) const;
+  /// Assumes \c FldN is an integer its value is returned. If \c FldN is not an integer an exception is thrown.
   int GetInt(const int& FldN) const {
     int Val=0; IAssertR(GetInt(FldN, Val), TStr::Fmt("Field %d not INT.\n%s", FldN, DumpStr()).CStr()); return Val; }
+  /// Checks whether fields \c FldN is an integer.  
   bool IsInt(const int& FldN) const { int v; return GetInt(FldN, v); }
+  /// If the field \c FldN is a float its value is returned in \c Val and the function returns \c true.
   bool GetFlt(const int& FldN, double& Val) const;
+  /// Checks whether fields \c FldN is a float. 
   bool IsFlt(const int& FldN) const { double v; return GetFlt(FldN, v); }
+  /// Assumes \c FldN is a floating  point number its value is returned. If \c FldN is not an integer an exception is thrown.
   double GetFlt(const int& FldN) const {
     double Val=0.0; IAssert(GetFlt(FldN, Val)); return Val; }
 
   const char* DumpStr() const;
 };
-

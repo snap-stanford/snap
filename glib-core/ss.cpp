@@ -1,4 +1,4 @@
-/////////////////////////////////////////////////
+//#//////////////////////////////////////////////
 // Spread-Sheet
 TStr& TSs::At(const int& X, const int& Y){
 //  Fail;
@@ -346,7 +346,7 @@ TStr TSs::GetSsFmtNmVStr(){
   return ChA;
 }
 
-/////////////////////////////////////////////////
+//#//////////////////////////////////////////////
 // Fast-Spread-Sheet-Parser
 TSsParser::TSsParser(const TStr& FNm, const TSsFmt _SsFmt, const bool& _SkipLeadBlanks, const bool& _SkipCmt, const bool& _SkipEmptyFld) : SsFmt(_SsFmt), 
  SkipLeadBlanks(_SkipLeadBlanks), SkipCmt(_SkipCmt), SkipEmptyFld(_SkipEmptyFld), LineCnt(0), /*Bf(NULL),*/ SplitCh('\t'), LineStr(), FldV(), FInPt(NULL) {
