@@ -445,7 +445,7 @@ bool IsTree(const PGraph& Graph, int& RootNId) {
     }
     if (NI.GetDeg() == 0) { return false; } // isolated nodes
   }
-  if (ZeroOutDegN==1) {
+  if (NZeroOutDeg==1) {
     if (! TSnap::IsConnected(Graph)) { return false; }
     RootNId = ZeroOutDegN;  return true;
   }
