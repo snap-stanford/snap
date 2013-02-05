@@ -1,18 +1,21 @@
-#ifndef yanglib_agm_h
-#define yanglib_agm_h
+#ifndef snap_agm_h
+#define snap_agm_h
 #include "Snap.h"
 
-class TAGM{
+/////////////////////////////////////////////////
+/// Affiliaiton Graph Model (AGM) graph generator.
+class TAGM {
 public:
   static void RndConnectInsideCommunity(PUNGraph& Graph, const TIntV& CmtyV, const double& Prob, TRnd& Rnd);
   static PUNGraph GenAGM(const TIntV& NIdV , THash<TInt,TIntV >& CmtyVH, const TStr& AGMNm, const double& PiCoef, const double& ProbBase, TRnd& Rnd=TInt::Rnd);
   static PUNGraph GenAGM(TVec<TIntV >& CmtyVV, const double& DensityCoef, const double& ScaleCoef, TRnd& Rnd=TInt::Rnd);
   static PUNGraph GenAGM(TVec<TIntV>& CmtyVV, const double& DensityCoef, const int TargetEdges, TRnd& Rnd);
   static PUNGraph GenAGM(TVec<TIntV>& CmtyVV, const TFltV& CProbV, TRnd& Rnd, const double PNoCom = -1.0);
-
 };
 
-class TAGMUtil{
+/////////////////////////////////////////////////
+/// Affiliaiton Graph Model (AGM) graph generator.
+class TAGMUtil {
 public:
   static void GenPLSeq(TIntV& SzSeq,const int& SeqLen, const double& Alpha, TRnd& Rnd, const int& Min, const int& Max);
   static void ConnectCmtyVV(TVec<TIntV>& CmtyVV, const TIntPrV& CIDSzPrV, const TIntPrV& NIDMemPrV, TRnd& Rnd);
@@ -134,6 +137,8 @@ typedef TPt<TLogRegPredict> PLogRegPredict;
 ///////////////////////////////////////////////////////////////////////
 // Logistic Regression using gradient descent
 // X: N * M matrix where N = number of examples and M = number of features.
+//J: JAEWON THIS HAS NOTHING TO DO WITH AGM. THIS NEEDS TO BE MOVED SOMEWHERE ELSE (glib/xmath.h)
+//J: BUT I THINK THERE IS ALREADY A LOGISTIC REGRESSION CLASS THERE!!
 class TLogRegFit {
 private:
   TVec<TFltV> X;
@@ -159,6 +164,8 @@ public:
 
 ///////////////////////////////////////////////////////////////////////
 // Logistic-Regression-Model
+//J: JAEWON THIS HAS NOTHING TO DO WITH AGM. THIS NEEDS TO BE MOVED SOMEWHERE ELSE (glib/xmath.h)
+//J: BUT I THINK THERE IS ALREADY A LOGISTIC REGRESSION CLASS THERE!!
 class TLogRegPredict {
 private: 
     TCRef CRef;

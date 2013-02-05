@@ -3,8 +3,8 @@
 #include "agm.h"
 #include "agmfit.h"
 
-//////////////////////////////////////////////////////////////////
-///AGM graph generation
+/////////////////////////////////////////////////
+// AGM graph generation.
 
 ///Connect members of a given community by Erdos-Renyi
 void TAGM::RndConnectInsideCommunity(PUNGraph& Graph, const TIntV& CmtyV, const double& Prob, TRnd& Rnd){

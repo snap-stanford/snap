@@ -1,0 +1,6 @@
+# Example of a node to group affiliations.
+# Each line represents a group and all members of the group are listed in a single line.
+# If a node belongs to multiple groups, it is listed in multiple lines (for example, node 1).
+0 1 2 3 4 5 6 7 8 9 10
+8 9 10 11 12 13 14 15
+1 2 3 13 14 15
