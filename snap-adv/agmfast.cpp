@@ -882,10 +882,10 @@ int TAGMFast::MLEGradAscentParallel(const double& Thres, const int& MaxIter, con
     }
   }
   if (! PlotNm.Empty()) {
-    printf("\nMLE completed with %d iterations(%s secs)\n", iter, int(TSecTm::GetCurTm().GetAbsSecs() - StartTm));
-    TGnuPlot::PlotValV(IterLV, PlotNm + ".likelihood_Q");[]
+    printf("\nMLE completed with %d iterations(%d secs)\n", iter, int(TSecTm::GetCurTm().GetAbsSecs() - StartTm));
+    TGnuPlot::PlotValV(IterLV, PlotNm + ".likelihood_Q");
   } else {
-    printf("\rMLE completed with %d iterations(%s secs)", iter, int(time(NULL) - InitTime));
+    printf("\rMLE completed with %d iterations(%d secs)", iter, int(time(NULL) - InitTime));
     fflush(stdout);
   }
   return iter;
