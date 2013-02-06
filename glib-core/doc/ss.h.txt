@@ -22,11 +22,11 @@ Useful for fast parsing large files that contain variable number of fields separ
 @param _SkipEmptyFld If \c true then empty fields (consecutive occurrences of the separator) will be ignored.
 ///
 
-/// Next
+/// TSsParser::Next
 If end of file is reached, return value is \c false.
 ///
 
-/// NextSlow
+/// TSsParser::NextSlow
 If end of file is reached, return value is \c false.
-This function is depreciated!
+This function is deprecated, use Next instead.
 ///

@@ -12,7 +12,7 @@ typedef enum {ssfUndef,
   ssfMx} TSsFmt;
 
 //#//////////////////////////////////////////////
-/// Small Spread-Sheet Parser. #TSs
+/// Small Spread-Sheet Parser. ##TSs
 ClassTP(TSs, PSs)//{
 private:
   TVec<PStrV> CellStrVV;
@@ -64,7 +64,7 @@ public:
 };
 
 //#//////////////////////////////////////////////
-/// Fast Spread Sheet Parser. #TSsParser
+/// Fast Spread Sheet Parser. ##TSsParser
 ClassTP(TSsParser, PSsParser)//{
 private:
   TSsFmt SsFmt;  ///< Separator type.
@@ -78,16 +78,16 @@ private:
   PSIn FInPt;           ///< Pointer to the input file stream.
   UndefDefaultCopyAssign(TSsParser);
 public:
-  /// Constructor. #TSsParser::TSsParser1
+  /// Constructor. ##TSsParser::TSsParser1
   TSsParser(const TStr& FNm, const TSsFmt _SsFmt=ssfTabSep, const bool& _SkipLeadBlanks=false, const bool& _SkipCmt=true, const bool& _SkipEmptyFld=false);
-  /// Constructor. #TSsParser::TSsParser2
+  /// Constructor. ##TSsParser::TSsParser2
   TSsParser(const TStr& FNm, const char& Separator, const bool& _SkipLeadBlanks=false, const bool& _SkipCmt=true, const bool& _SkipEmptyFld=false);
   ~TSsParser();
   static PSsParser New(const TStr& FNm, const TSsFmt SsFmt) { return new TSsParser(FNm, SsFmt); }
 
-  /// Loads next line from the input file. #Next
+  /// Loads next line from the input file. ##TSsParser::Next
   bool Next();
-  /// Slow implementation of loading a next line from the input file. #NextSlow
+  /// Loads next line from the input file (older, slow implementation - deprecated). ##TSsParser::NextSlow
   bool NextSlow();
   /// Returns the number of fields in the current line.
   int Len() const { return FldV.Len(); }
