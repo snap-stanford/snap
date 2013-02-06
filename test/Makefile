@@ -20,6 +20,7 @@ TESTS = \
 	test-gio.cpp \
 	test-cncom.cpp \
 	test-bfsdfs.cpp \
+	test-alg.cpp \
 	test-THash.cpp
 
 	#test-gviz.cpp \
