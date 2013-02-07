@@ -2,6 +2,8 @@
 #define SNAP_SUBNETWORK_ISOMORPHISM_H
 
 #include "stdafx.h"
+#undef min
+#undef max
 #include <algorithm>
 
 template<class TPNetwork, int TSize>
@@ -43,7 +45,7 @@ private:
   typedef TVec<TVecNode> TVecVecNode;
 
   PNetwork Network;
-  uint64 NumIsomorphicIds;
+  int NumIsomorphicIds;
   TVecVecNode Permutations;
   TEdgeData NoEdgeData;
 
@@ -59,14 +61,17 @@ public:
   ///Computes the subnetwork id induced by the specified nodes.
   void GetId(const TVecNode &Nodes, TId &Id) const;
   ///Returns the k-th isomorphic subnetwork id based on the specified id.
-  void GetIsomorphicId(const TId &BaseId, size_t K, TId &NextId) const;
+  void GetIsomorphicId(const TId &BaseId, int K, TId &NextId) const;
 
   ///Returns the number of isomorphic subnetworks.
-  uint64 GetNumIsomorphicIds() const;
+  int GetNumIsomorphicIds() const;
 
   ///Returns the subnetwork for the specified subgraph id.
   PNetwork GetNetwork(const TId &Id) const;
 };
+
+template<class TPNetwork, int TSize>
+const int TSubnetworkIsomorphism<TPNetwork,TSize>::SIZE;
 
 template<class TPNetwork, int TSize>
 void TSubnetworkIsomorphism<TPNetwork, TSize>::Init(const PNetwork &Network, const TEdgeData &NoEdgeData) {
@@ -87,7 +92,7 @@ template<class TPNetwork, int TSize>
 void TSubnetworkIsomorphism<TPNetwork, TSize>::GetId(const TVecNode &Nodes, TId &Id) const {
   for (int i = 0; i < SIZE; i++) {
     TNode NodeId = Nodes[i];
-    TNetwork::TNodeI NodeIt = Network->GetNI(NodeId);
+    typename TNetwork::TNodeI NodeIt = Network->GetNI(NodeId);
     Id.Nodes[i] = NodeIt.GetDat();
   }
 
@@ -98,7 +103,7 @@ void TSubnetworkIsomorphism<TPNetwork, TSize>::GetId(const TVecNode &Nodes, TId 
 
       int index = i * SIZE + j;
 
-      TNetwork::TEdgeI EdgeIt = Network->GetEI(u, v);
+      typename TNetwork::TEdgeI EdgeIt = Network->GetEI(u, v);
       if (EdgeIt == Network->EndEI()) {
         Id.Edges[index] = NoEdgeData;
       } else {
@@ -109,12 +114,12 @@ void TSubnetworkIsomorphism<TPNetwork, TSize>::GetId(const TVecNode &Nodes, TId 
 }
 
 template<class TPNetwork, int TSize>
-uint64 TSubnetworkIsomorphism<TPNetwork, TSize>::GetNumIsomorphicIds () const {
+int TSubnetworkIsomorphism<TPNetwork, TSize>::GetNumIsomorphicIds () const {
   return NumIsomorphicIds;
 }
 
 template<class TPNetwork, int TSize>
-void TSubnetworkIsomorphism<TPNetwork, TSize>::GetIsomorphicId(const TId &BaseId, size_t K, TId &NextId) const {
+void TSubnetworkIsomorphism<TPNetwork, TSize>::GetIsomorphicId(const TId &BaseId, int K, TId &NextId) const {
   const TVecNode &Nodes = Permutations[K];
 
   for (int i = 0; i < SIZE; i++) {
@@ -190,12 +195,12 @@ struct TSubnetworkIsomorphismId {
   uint64 GetHashCode() const {
     uint64 hash = 5381;
 
-    for (size_t i = 0; i < SIZE; i++) {
-      hash = ((hash << 5) + hash) + Nodes[i].GetPrimHashCd();
+    for (int i = 0; i < SIZE; i++) {
+      hash = ((hash << 5) + hash) + (uint64)Nodes[i].GetPrimHashCd();
     }
 
-    for (size_t i = 0; i < SIZE * SIZE; i++) {
-      hash = ((hash << 5) + hash) + Edges[i].GetPrimHashCd();
+    for (int i = 0; i < SIZE * SIZE; i++) {
+      hash = ((hash << 5) + hash) + (uint64)Edges[i].GetPrimHashCd();
     }
 
     return hash;
@@ -210,13 +215,13 @@ struct TSubnetworkIsomorphismId {
   }
 
   bool operator==(const TId &Id) const {
-    for (size_t i = 0; i < SIZE; i++) {
+    for (int i = 0; i < SIZE; i++) {
       if (Nodes[i] != Id.Nodes[i]) {
         return false;
       }
     }
 
-    for (size_t i = 0; i < SIZE * SIZE; i++) {
+    for (int i = 0; i < SIZE * SIZE; i++) {
       if (Edges[i] != Id.Edges[i]) {
         return false;
       }
@@ -237,13 +242,13 @@ struct TSubnetworkIsomorphismId {
   }
 
   bool operator<(const TId &Id) const {
-    for (size_t i = 0; i < SIZE; i++) {
+    for (int i = 0; i < SIZE; i++) {
       if (Nodes[i] >= Id.Nodes[i]) {
         return false;
       }
     }
 
-    for (size_t i = 0; i < SIZE * SIZE; i++) {
+    for (int i = 0; i < SIZE * SIZE; i++) {
       if (Edges[i] >= Id.Edges[i]) {
         return false;
       }

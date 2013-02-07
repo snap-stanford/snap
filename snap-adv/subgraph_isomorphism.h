@@ -2,6 +2,8 @@
 #define SNAP_SUBGRAPH_ISOMORPHISM_H
 
 #include "stdafx.h"
+#undef min
+#undef max
 #include <algorithm>
 
 /**
@@ -54,10 +56,11 @@
  */
 template<class TPGraph, int TSize>
 class TSubgraphIsomorphism {
-  static_assert(TSize >= 0,
-                "Template argument TSize must be a nonnegative number.");
-  static_assert(TSize <= 8,
-                "Template argument TSize can be at most of size 8.");
+//  static_assert(TSize >= 0,
+//                "Template argument TSize must be a nonnegative number.");
+//  static_assert(TSize <= 8,
+//                "Template argument TSize can be at most of size 8.");
+
 public:
   typedef TUInt64 TId;
 
@@ -72,7 +75,7 @@ private:
 
   PGraph Graph;
   TVecVecNode Permutations;
-  uint64 NumIsomorphicSubgraphs;
+  int NumIsomorphicSubgraphs;
 
   void ComputePermutations();
 
@@ -83,14 +86,17 @@ public:
   ///Computes the subgraph id induced by the specified nodes.
   void GetId(const TVecNode &Nodes, TId &Id) const;
   ///Returns the k-th isomorphic subgraph id based on the specified id.
-  void GetIsomorphicId(const TId &BaseId, size_t K, TId &NextId) const;
+  void GetIsomorphicId(const TId &BaseId, int K, TId &NextId) const;
 
   ///Returns the number of isomorphic subgraphs
-  uint64 GetNumIsomorphicIds() const;
+  int GetNumIsomorphicIds() const;
 
   ///Returns the graph for the specified subgraph id.
   static PGraph GetGraph(const TId &Id);
 };
+
+template<class TPGraph, int TSize>
+const int TSubgraphIsomorphism<TPGraph, TSize>::SIZE;
 
 template<class TPGraph, int TSize>
 void TSubgraphIsomorphism<TPGraph, TSize>::Init(const PGraph &G) {
@@ -110,8 +116,8 @@ template<class TPGraph, int TSize>
 void TSubgraphIsomorphism<TPGraph, TSize>::GetId(const TVecNode &Nodes, TId &Id) const {
   Id = 0;
 
-  for (size_t i = 0; i < SIZE; i++) {
-    for (size_t j = 0; j < SIZE; j++) {
+  for (int i = 0; i < SIZE; i++) {
+    for (int j = 0; j < SIZE; j++) {
       TNode u = Nodes[i];
       TNode v = Nodes[j];
 
@@ -123,17 +129,17 @@ void TSubgraphIsomorphism<TPGraph, TSize>::GetId(const TVecNode &Nodes, TId &Id)
 }
 
 template<class TPGraph, int TSize>
-uint64 TSubgraphIsomorphism<TPGraph, TSize>::GetNumIsomorphicIds() const {
+int TSubgraphIsomorphism<TPGraph, TSize>::GetNumIsomorphicIds() const {
   return NumIsomorphicSubgraphs;
 }
 
 template<class TPGraph, int TSize>
-void TSubgraphIsomorphism<TPGraph, TSize>::GetIsomorphicId(const TId &BaseId, size_t K, TId &NextId) const {
+void TSubgraphIsomorphism<TPGraph, TSize>::GetIsomorphicId(const TId &BaseId, int K, TId &NextId) const {
   const TVecNode &Nodes = Permutations[K];
   NextId = 0;
 
-  for (size_t i = 0; i < SIZE; i++) {
-    for (size_t j = 0; j < SIZE; j++) {
+  for (int i = 0; i < SIZE; i++) {
+    for (int j = 0; j < SIZE; j++) {
       int u = Nodes[i];
       int v = Nodes[j];
 

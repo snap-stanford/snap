@@ -16,9 +16,9 @@
  *   - Public type TId which is a representative for a subunit.
  *   - void GetId (const TVec<node_t> &Nodes, TId &Id) const, a function that 
  *     computes the id for a subunit based on the specified nodes.
- *   - void GetIsomorphicId (const TId &BaseId, size_t K, TId &NextId) const,
+ *   - void GetIsomorphicId (const TId &BaseId, int K, TId &NextId) const,
  *     a function that returns the K-th isomorphic id based on a specified base id.
- *   - uint64_t GetNumIsomorphicIds () const, a function that return the number of
+ *   - int GetNumIsomorphicIds () const, a function that return the number of
  *     isomorphic ids.
  *
  * Examples of implementations are TSubgraphIsomorphism and TSubnetworkIsomorphism.
@@ -107,7 +107,7 @@ void TSubunitCounter<TPGraph,TSubunitIsomorphism>::ComputeIsomorphism() {
 
     TCount SumCount = 0;
 
-    uint64 n = SubunitIsomorphism->GetNumIsomorphicIds();
+    int n = SubunitIsomorphism->GetNumIsomorphicIds();
 
     for (int k = 0; k < n; k++) {
       SubunitIsomorphism->GetIsomorphicId(BaseId, k, NextId);
