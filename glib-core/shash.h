@@ -1359,10 +1359,9 @@ template <class TKey, class THashFunc>
 void THashSet<TKey, THashFunc>::Defrag() {
   if (!IsKeyIdEqKeyN()) {
     THashSet<TKey> Set(PortV.Len());
-    int KeyId=FFirstKeyId(); TKey Key;
+    int KeyId=FFirstKeyId();
     while (FNextKeyId(KeyId)) {
-      GetKey(KeyId, Key);
-      Set.AddKey(Key);
+      Set.AddKey(GetKey(KeyId));
     }
     Pack();
     operator=(Set);
