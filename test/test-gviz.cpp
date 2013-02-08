@@ -30,7 +30,7 @@ TEST(GVizTest, DrawGViz) {
   
   TStrV Exts;
   Exts.Add("ps");
-  Exts.Add("gif");
+  //Exts.Add("gif");
   Exts.Add("png");
   
   for (int i = 0; i < LNames.Len(); i++) {
@@ -105,8 +105,8 @@ TEST(GVizTest, DrawGVizColor) {
   LNames.Add("Circo");
   
   TStrV Exts;
-  Exts.Add("ps");
-  Exts.Add("gif");
+  //Exts.Add("ps");
+  //Exts.Add("gif");
   Exts.Add("png");
   Exts.Add("dot");
   

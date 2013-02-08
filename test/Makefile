@@ -10,19 +10,19 @@ LIBS += -lgtest
 MAIN = run-all-tests
 
 TESTS = \
+	test-helper.cpp \
 	test-TUNGraph.cpp test-TNGraph.cpp test-TNEGraph.cpp \
 	test-TNodeNet.cpp test-TNodeEDatNet.cpp test-TNodeEdgeNet.cpp \
 	test-subgraph.cpp \
 	test-TStrPool.cpp \
 	test-TSysTm.cpp \
-	test-helper.cpp \
 	test-ggen.cpp \
 	test-gio.cpp \
+	test-gviz.cpp \
 	test-cncom.cpp \
 	test-bfsdfs.cpp \
+	test-alg.cpp \
 	test-THash.cpp
-
-	#test-gviz.cpp \
 
 all: $(MAIN)
 run: test
@@ -41,4 +41,5 @@ clean:
 	rm -f *.o $(MAIN) $(MAIN).exe
 	rm -rf Debug Release
 	rm -rf test*.dat *.Err
+	rm -rf graphviz/test_*
 
