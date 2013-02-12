@@ -3,12 +3,19 @@
 
 #include "stdafx.h"
 #include "typedefs.h"
-#include "lod_utils.h"
+#include "la_utils.h"
 
 /**
  * Author: Klemen Simonic
  *
+ * A property is a (special) type of edge in the graph. As such, each property p
+ * has a set of source nodes (nodes having an out-going edge of type p) and a set 
+ * of destination objects (objects having an in-comming edge of type p).
+ * Typically, we are interested only in special source and destination nodes, 
+ * called objects (see TObjectUtils).
  *
+ * This module provides various functionalities regarding the properties in 
+ * the graph.
  */
 class TPropertyUtils {
 private:
@@ -23,27 +30,27 @@ public:
    */
 	template<class TFunctor>
 	static void GetProperties (const TGraph &G, TFunctor &PropertyFunctor, TIntV &Properties);
-  /// Prints properties.
+  /// Prints the properties.
 	static void PrintProperties (const TIntV &Properties, const TStrSet &PropertyStrs, TSOut &Output);
 
-  /// Returns the source objects for specified properties.
+  /// Returns the source objects for the specified properties.
 	static void GetSrcObjects (const TIntV &Properties, const TIntV &Objects, const TGraph &G, TVec<TIntV> &SrcObjects);
-  /// Returns the destination objects for specified properties.
+  /// Returns the destination objects for the specified properties.
 	static void GetDstObjects (const TIntV &Properties, const TIntV &Objects, const TGraph &G, TVec<TIntV> &DstObjects);
 
-  /// Prints specified objects.
+  /// Prints the specified objects.
   static void PrintObjects (const TIntV &PropertyObjects, const TIntV &Objects, const TStrSet &NodeStrs, TSOut &Output);
-  /// Prints properties and their associated objects.
+  /// Prints the properties and their associated objects.
 	static void PrintPropertyObjects (const TVec<TIntV> &PropertyObjects, const TIntV &Objects, const TIntV &Properties, const TStrSet &NodeStrs, const TStrSet &PropStrs, TSOut &Output);
 
   /**
    * Computes the missing properties of a given object based on specified 
    * similarities to other objects.
-   * The input parameters are the following:
+   * The input parameters:
    * - ObjectIndex: index of a given object.
    * - Similarities: similarities to other objects.
    * - ExistingProperties: sparse column-major matrix of existing properties for
-   *                       each objects (e.g. OutPropertyCountMatrix).
+   *                       all the objects (e.g. OutPropertyCountMatrix).
    * - Sum: dense vector of size at least the number of rows in ExistingProperties 
    *        matrix. Used for intermediate result only.
    *
@@ -54,12 +61,12 @@ public:
   /**
    * Computes the missing properties based on specified similarities between the 
    * objects. 
-   * The input parameters are the following:
+   * The input parameters:
    * - Similarities: similarities between the objects (for each object, there is 
-   *                 a vector of similar objects and their similarities.
+   *                 a vector of similar objects and their similarities).
    * - ExistingProperties: sparse column-major matrix of existing properties for
-   *                       each objects (e.g. OutPropertyCountMatrix).
-   * - N: the maximum number of stored missing properties.
+   *                       all the objects (e.g. OutPropertyCountMatrix).
+   * - N: the maximum number of missing properties stored for every object.
    * - NumThreads: number of parallel computations.
    *
    * The output are ranked missing properties for every objects.
@@ -219,7 +226,7 @@ void TPropertyUtils::GetMissingProperties (int ObjectIndex, const TIntFltKdV &Si
 {
   TLAMisc::FillZero(Sum);
 
-  TLODUtils::GetWeightedSum(ExistingProperties, Similarities, Sum);
+  TLAUtils::GetWeightedSum(ExistingProperties, Similarities, Sum);
 
   ExcludeExistingProperties(Sum, ExistingProperties.ColSpVV[ObjectIndex], MissingProperties);
 

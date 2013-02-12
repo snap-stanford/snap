@@ -4,12 +4,13 @@
 #include "stdafx.h"
 #include "kmeans/kmpp.h"
 #include "typedefs.h"
-#include "lod_utils.h"
+#include "la_utils.h"
 
 /**
  * Author: Klemen Simonic
  *
- * 
+ * A module providing computation of dot products or similarities
+ * between a vector and a matrix.
  */
 class TSimilarityUtils {
 public:
@@ -32,7 +33,7 @@ public:
    *
    * The method has additional inputs:
    * - MaxNumSimilarities: the maximum number of similarities stored for each column.
-   * - NumThreads: number of parallel similarity computations.
+   * - NumThreads: number of parallel computations.
    */
   static void ComputeSimilarities (const TSparseColMatrix &M, int MaxNumSimilarities, int NumThreads, TVec<TIntFltKdV> &Similarities);
 
@@ -40,8 +41,8 @@ public:
    * Returns the similarities between the columns in the specified 
    * sparse column-major matrix. This method is a generalization of
    * the previous method. Instead of computing similarities between 
-   * each pair of columns, which can be extremely expensive, it computes
-   * similarities only between the columns that bellong to the same 
+   * each pair of columns (which can be extremely expensive), it only
+   * computes similarities between the columns that bellong to the same 
    * subset (cluster).
    *
    * The additional input parameters are:
@@ -59,7 +60,6 @@ public:
   /// Prints at most N nearest elements (e.g. objects, properties) for each specified similarity vector.
   static void PrintSimilarities (const TVec<TIntFltKdV> &Similarities, const TIntV &Elements, const TStrSet &ElementStrs, int N, TSOut &Output);
 };
-
 
 void TSimilarityUtils::GetDotProducts (const TFltV &Col, const TSparseColMatrix &M, const TIntV &OtherColIndices, TIntFltKdV &Similarities)
 {
@@ -117,7 +117,7 @@ void TSimilarityUtils::ComputeSimilarities (const TSparseColMatrix &M, const TIn
     int ThreadNum = omp_get_thread_num();
 
     TFltV &DenseVector = TmpDenseVectors[ThreadNum];
-    TLODUtils::ToDenseVector(M.ColSpVV[i], DenseVector);
+    TLAUtils::ToDenseVector(M.ColSpVV[i], DenseVector);
 
     int ClusterIndex = Assigments[i];
     const TIntV &Cluster = Clusters[ClusterIndex];

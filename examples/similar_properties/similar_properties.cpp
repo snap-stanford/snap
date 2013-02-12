@@ -1,7 +1,8 @@
 #include "stdafx.h"
 #include "lod/typedefs.h"
 #include "lod/rdf_parser.h"
-#include "lod/lod_utils.h"
+#include "lod/rdf_graph.h"
+#include "lod/la_utils.h"
 #include "lod/object_utils.h"
 #include "lod/cluster_utils.h"
 #include "lod/similarity_utils.h"
@@ -71,18 +72,15 @@ void ComputeSimilarProperties (const TStr &Dir, const TStr &TriplesFilename)
   TGraph G;
   TStrSet NodeStrs;
   TStrSet PropStrs;
-  bool Parsed = TLODUtils::GetGraphFromRDFParser(DBpediaDataset, G, NodeStrs, PropStrs);
+  bool Parsed = TSnap::GetGraphFromRDFParser(DBpediaDataset, G, NodeStrs, PropStrs);
   if (!Parsed) {
     return;
   }
 
-  // Store the graph and associated data to disk
-  G.Save(TFOut(Dir + "graph.bin"));
-  NodeStrs.Save(TFOut(Dir + "nodeStrs.bin"));
-  PropStrs.Save(TFOut(Dir + "propStrs.bin"));
-  //TGraph G(TFIn(Dir + "graph.bin"));
-  //NodeStrs.Load(TFIn(Dir + "nodeStrs.bin"));
-  //PropStrs.Load(TFIn(Dir + "propStrs.bin"));
+  // Store the graph and associated data
+  G.Save(*TFOut::New(Dir + "graph.bin"));
+  NodeStrs.Save(*TFOut::New(Dir + "nodeStrs.bin"));
+  PropStrs.Save(*TFOut::New(Dir + "propStrs.bin"));
 
   printf("Computing objects...\n");
   // Get the objects of the graph. 
@@ -90,37 +88,33 @@ void ComputeSimilarProperties (const TStr &Dir, const TStr &TriplesFilename)
   // We defined the objects to be the nodes with prefix http://dbpedia.org/resource/. 
   TObjectFunctor ObjectFunctor(NodeStrs);
   TObjectUtils::GetObjects(G, ObjectFunctor, Objects);
-  // Print and store the objects.
-  TObjectUtils::PrintObjects(Objects, NodeStrs, TFOut(Dir + "objects.txt"));
-  Objects.Save(TFOut(Dir + "objects.bin"));
-  //Objects.Load(TFIn(Dir + "/objects.bin"));
+  // Store and print the objects.
+  Objects.Save(*TFOut::New(Dir + "objects.bin"));
+  TObjectUtils::PrintObjects(Objects, NodeStrs, *TFOut::New(Dir + "objects.txt"));
 
   printf("Computing object matrix...\n");
   // Here we choose the descriptors for the objects.
-  // We choose property + nbh (value) descriptors for objects
+  // We chose property + nbh (value) descriptors for objects
+  // We could also use more complicated descriptors such as subgraphs or subnetworks.
   TSparseColMatrix ObjectMatrix1;
   TSparseColMatrix ObjectMatrix2;
   TObjectUtils::GetPropertyCount(Objects, G, ObjectMatrix1);
   TObjectUtils::GetNbhCount(Objects, G, ObjectMatrix2);
-  TObjectUtils::PrintPropertyMatrix(ObjectMatrix1, Objects, NodeStrs, PropStrs, TFOut(Dir + "propertyMatrix.txt"));
-  TObjectUtils::PrintNbhMatrix(ObjectMatrix2, Objects, NodeStrs, TFOut(Dir + "nbhMatrix.txt"));
+  TLAUtils::NormalizeMatrix(ObjectMatrix1);
+  TLAUtils::NormalizeMatrix(ObjectMatrix2);
 
   TSparseColMatrix ObjectMatrix;
-  TLODUtils::ConcatenateMatricesRowWise(ObjectMatrix1, ObjectMatrix2, ObjectMatrix);
-  // Normalize the object descriptors
-  TLODUtils::NormalizeMatrix(ObjectMatrix);
-  // Store the object matrix
-  ObjectMatrix.Save(TFOut(Dir + "objectMatrix.bin"));
-  //ObjectMatrix.Load(TFIn(Dir + "objectMatrix.bin"));
+  TLAUtils::ConcatenateMatricesRowWise(ObjectMatrix1, ObjectMatrix2, ObjectMatrix);
+  TLAUtils::NormalizeMatrix(ObjectMatrix);
+  ObjectMatrix.Save(*TFOut::New(Dir + "objectMatrix.bin"));
 
   printf("Computing properties...\n");
   TIntV Properties;
   int MinNumOccurences = 1000;
   TPropertyFunctor PropertyFunctor(G, MinNumOccurences);
   TPropertyUtils::GetProperties(G, PropertyFunctor, Properties);
-  Properties.Save(TFOut(Dir + "properties.bin"));
-  //Properties.Load(TFIn(Dir + "properties.bin"));
-  TPropertyUtils::PrintProperties(Properties, PropStrs, TFOut(Dir + "properties.txt"));
+  Properties.Save(*TFOut::New(Dir + "properties.bin"));
+  TPropertyUtils::PrintProperties(Properties, PropStrs, *TFOut::New(Dir + "properties.txt"));
 
   printf("Computing source and destination objects for every property...\n");
   TVec<TIntV> SrcObjects;
@@ -130,13 +124,11 @@ void ComputeSimilarProperties (const TStr &Dir, const TStr &TriplesFilename)
   // Get destination objects for every property.
   TPropertyUtils::GetDstObjects(Properties, Objects, G, DstObjects);
   // Store the data.
-  SrcObjects.Save(TFOut(Dir + "SrcObjects.bin"));
-  DstObjects.Save(TFOut(Dir + "DstObjects.bin"));
-  //SrcObjects.Load(TFIn("data2/SrcObjects.bin"));
-  //DstObjects.Load(TFIn("data2/DstObjects.bin"));
+  SrcObjects.Save(*TFOut::New(Dir + "SrcObjects.bin"));
+  DstObjects.Save(*TFOut::New(Dir + "DstObjects.bin"));
   // Print the objects
-  TPropertyUtils::PrintPropertyObjects(SrcObjects, Objects, Properties, NodeStrs, PropStrs, TFOut(Dir + "SrcObjects.txt"));
-  TPropertyUtils::PrintPropertyObjects(DstObjects, Objects, Properties, NodeStrs, PropStrs, TFOut(Dir + "DstObjects.txt"));
+  TPropertyUtils::PrintPropertyObjects(SrcObjects, Objects, Properties, NodeStrs, PropStrs, *TFOut::New(Dir + "SrcObjects.txt"));
+  TPropertyUtils::PrintPropertyObjects(DstObjects, Objects, Properties, NodeStrs, PropStrs, *TFOut::New(Dir + "DstObjects.txt"));
 
   printf("Computing property descriptors...\n");
   // The descriptor for property consits of two parts:
@@ -144,29 +136,27 @@ void ComputeSimilarProperties (const TStr &Dir, const TStr &TriplesFilename)
   // - average of destination objects descriptors
   
   // We first compute source and destination descriptors
-  int MaxNumObjects = 100;
+  int MaxNumObjects = 1000;
   TSparseColMatrix PropertySrcMatrix;
   TSparseColMatrix PropertyDstMatrix;
-  TLODUtils::GetSumVectors(ObjectMatrix, SrcObjects, MaxNumObjects, PropertySrcMatrix); 
-  TLODUtils::GetSumVectors(ObjectMatrix, DstObjects, MaxNumObjects, PropertyDstMatrix); 
+  TLAUtils::GetSumVectors(ObjectMatrix, SrcObjects, MaxNumObjects, PropertySrcMatrix); 
+  TLAUtils::GetSumVectors(ObjectMatrix, DstObjects, MaxNumObjects, PropertyDstMatrix); 
   GetAverageMatrixColWise(PropertySrcMatrix, SrcObjects);
   GetAverageMatrixColWise(PropertyDstMatrix, DstObjects);
 
   // Concatenate the source and destination matrices into one matrix.
   TSparseColMatrix PropertyMatrix;
-  TLODUtils::ConcatenateMatricesRowWise(PropertySrcMatrix, PropertyDstMatrix, PropertyMatrix);
-  TLODUtils::NormalizeMatrix(PropertyMatrix);
-  PropertyMatrix.Save(TFOut(Dir + "propertySrcMatrix.bin"));
-  //PropertyMatrix.Load(TFIn(Dir + "propertySrcMatrix.bin"));
+  TLAUtils::ConcatenateMatricesRowWise(PropertySrcMatrix, PropertyDstMatrix, PropertyMatrix);
+  TLAUtils::NormalizeMatrix(PropertyMatrix);
+  PropertyMatrix.Save(*TFOut::New(Dir + "propertySrcMatrix.bin"));
 
   printf("Computing property similarities...\n");
   int NumThreads = 10;
   int MaxNumSimilarProperties = 100;
   TVec<TIntFltKdV> Similarities;
   TSimilarityUtils::ComputeSimilarities(PropertyMatrix, MaxNumSimilarProperties, NumThreads, Similarities);
-  Similarities.Save(TFOut(Dir + "property_similarities.bin"));
-  //Similarities.Load(TFIn(Dir + "property_similarities.bin"));
-  TSimilarityUtils::PrintSimilarities(Similarities, Properties, PropStrs, 10, TFOut(Dir + "property_similarities.txt"));
+  Similarities.Save(*TFOut::New(Dir + "property_similarities.bin"));
+  TSimilarityUtils::PrintSimilarities(Similarities, Properties, PropStrs, 10, *TFOut::New(Dir + "property_similarities.txt"));
 }
 
 int main (int argc, char *argv[])

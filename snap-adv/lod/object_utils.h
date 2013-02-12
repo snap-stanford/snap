@@ -3,7 +3,7 @@
 
 #include "stdafx.h"
 #include "typedefs.h"
-#include "lod_utils.h"
+#include "la_utils.h"
 
 /**
  * Author: Klemen Simonic
@@ -53,6 +53,11 @@ public:
   /// Returns the sparse column-major matrix consisting of property counts vectors for the specified nodes.
   static void GetPropertyCount (const TIntV &Nodes, const TGraph &G, TSparseColMatrix &PropertyCountMatrix);
 
+  /// Prints any property count vector (InPropertyCount, OutPropertyCount, PropertyCount).
+  static void PrintPropertyVector (const TIntFltKdV &PropertyVector, const TStrSet &PropStrs, TSOut &Output);
+  /// Prints any property count matrix (InPropertyCount, OutPropertyCount, PropertyCount).
+	static void PrintPropertyMatrix (const TSparseColMatrix &PropertyMatrix, const TIntV &Objects, const TStrSet &NodeStrs, const TStrSet &PropStrs, TSOut &Output);
+
   /// Returns the count (number of occurrences) of each in-neighbouring object of a specified node.
 	static void GetInNbhCount (int NodeId, const TGraph &G, const TIntSet &Objects, TIntH &InNbhCount);
   /// Returns the count (number of occurrences) of each out-neighbouring object of a specified node.
@@ -66,11 +71,6 @@ public:
   /// Returns the sparse column-major matrix consisting of neighbouring object counts vectors for the specified objects.
 	static void GetNbhCount (const TIntV &Objects, const TGraph &G, TSparseColMatrix &NbhCountMatrix);
   
-  /// Prints any property count vector (InPropertyCount, OutPropertyCount, PropertyCount).
-  static void PrintPropertyVector (const TIntFltKdV &PropertyVector, const TStrSet &PropStrs, TSOut &Output);
-  /// Prints any property count matrix (InPropertyCount, OutPropertyCount, PropertyCount).
-	static void PrintPropertyMatrix (const TSparseColMatrix &PropertyMatrix, const TIntV &Objects, const TStrSet &NodeStrs, const TStrSet &PropStrs, TSOut &Output);
-
   /// Prints neighbour count vector
 	static void PrintNbhVector (const TIntFltKdV &NbhVector, const TStrSet &NodeStrs, TSOut &Output);
   /// Prints neighbour count matrix.
@@ -88,11 +88,11 @@ void TObjectUtils::GetObjects (const TGraph &G, TFunctor &ObjectFunctor, TIntV &
   }
 }
 
-void TObjectUtils::PrintObjects (const TIntV &Objects, const TStrSet &NodeStrs, TSOut &output)
+void TObjectUtils::PrintObjects (const TIntV &Objects, const TStrSet &NodeStrs, TSOut &Output)
 {
   for (int i = 0; i < Objects.Len(); i++) {
-    output.PutStr(NodeStrs[Objects[i]]);
-    output.PutStr("\n");
+    Output.PutStr(NodeStrs[Objects[i]]);
+    Output.PutStr("\n");
   }
 }
 
@@ -135,7 +135,7 @@ void TObjectUtils::GetInPropertyCount (int NodeId, const TGraph &G, TIntFltKdV &
   TIntH PropertyToCount;
   GetInPropertyCount(NodeId, G, PropertyToCount);
 
-  TLODUtils::ToIntFltKdV(PropertyToCount, InPropertyCount);
+  TLAUtils::ToIntFltKdV(PropertyToCount, InPropertyCount);
 }
 
 void TObjectUtils::GetOutPropertyCount (int NodeId, const TGraph &G, TIntFltKdV &OutPropertyCount)
@@ -143,7 +143,7 @@ void TObjectUtils::GetOutPropertyCount (int NodeId, const TGraph &G, TIntFltKdV 
   TIntH PropertyToCount;
   GetOutPropertyCount(NodeId, G, PropertyToCount);
 
-  TLODUtils::ToIntFltKdV(PropertyToCount, OutPropertyCount);
+  TLAUtils::ToIntFltKdV(PropertyToCount, OutPropertyCount);
 }
 
 void TObjectUtils::GetPropertyCount (int NodeId, const TGraph &G, TIntFltKdV &PropertyCount)
@@ -151,7 +151,7 @@ void TObjectUtils::GetPropertyCount (int NodeId, const TGraph &G, TIntFltKdV &Pr
   TIntH PropertyToCount;
   GetPropertyCount(NodeId, G, PropertyToCount);
 
-  TLODUtils::ToIntFltKdV(PropertyToCount, PropertyCount);
+  TLAUtils::ToIntFltKdV(PropertyToCount, PropertyCount);
 }
 
 void TObjectUtils::GetInPropertyCount (const TIntV &Nodes, const TGraph &G, TSparseColMatrix &M)
@@ -167,7 +167,7 @@ void TObjectUtils::GetInPropertyCount (const TIntV &Nodes, const TGraph &G, TSpa
   }
 
   M.ColN = NumNodes;
-  M.RowN = TLODUtils::GetMaxRowIndex(M) + 1;
+  M.RowN = TLAUtils::GetMaxRowIndex(M) + 1;
 }
 
 void TObjectUtils::GetOutPropertyCount (const TIntV &Nodes, const TGraph &G, TSparseColMatrix &M)
@@ -183,7 +183,7 @@ void TObjectUtils::GetOutPropertyCount (const TIntV &Nodes, const TGraph &G, TSp
   }
 
   M.ColN = NumNodes;
-  M.RowN = TLODUtils::GetMaxRowIndex(M) + 1;
+  M.RowN = TLAUtils::GetMaxRowIndex(M) + 1;
 }
 
 void TObjectUtils::GetPropertyCount (const TIntV &Nodes, const TGraph &G, TSparseColMatrix &M)
@@ -199,7 +199,7 @@ void TObjectUtils::GetPropertyCount (const TIntV &Nodes, const TGraph &G, TSpars
   }
 
   M.ColN = NumNodes;
-  M.RowN = TLODUtils::GetMaxRowIndex(M) + 1;
+  M.RowN = TLAUtils::GetMaxRowIndex(M) + 1;
 }
 
 void TObjectUtils::GetInNbhCount (int NodeId, const TGraph &G, const TIntSet &Objects, TIntH &NbhCount)
@@ -251,7 +251,7 @@ void TObjectUtils::GetNbhCount (int NodeId, const TGraph &G, const TIntSet &Obje
   TIntH NbhToCount;
   GetNbhCount(NodeId, G, Objects, NbhToCount);
 
-  TLODUtils::ToIntFltKdV(NbhToCount, NbhCount);
+  TLAUtils::ToIntFltKdV(NbhToCount, NbhCount);
 }
 
 void TObjectUtils::GetNbhCount (const TIntV &Objects, const TGraph &G, TSparseColMatrix &M)
@@ -268,7 +268,7 @@ void TObjectUtils::GetNbhCount (const TIntV &Objects, const TGraph &G, TSparseCo
   }
 
   M.ColN = NumObjects;
-  M.RowN = TLODUtils::GetMaxRowIndex(M) + 1;
+  M.RowN = TLAUtils::GetMaxRowIndex(M) + 1;
 }
 
 void TObjectUtils::PrintPropertyVector (const TIntFltKdV &PropertyVector, const TStrSet &PropStrs, TSOut &Output)

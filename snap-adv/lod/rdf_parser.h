@@ -6,24 +6,17 @@
 /**
  * Author: Klemen Simonic
  *
- * A simple RDF parser. Each line should be in one of the following format:
- *   - <url> <url> <url>
- *   - <url> <url> "string"
- * where the first field represents a subject, the second field a predicate
- * and the third field an object. The first two fields need to be enclosed
- * with < > characters, while the third field can be enclosed with < > or
- * " " characters. There can be any number of whitespaces between the fields. 
+ * A simple RDF parser. Each line should be in one of the following two formats:
+ * -  <url> <url> <url>
+ * -  <url> <url> "string"
+ * where the first field represents a subject, the second a predicate and the 
+ * third an object. The first two fields need to be enclosed with < > characters, 
+ * while the third field can be enclosed with < > or " " characters. There can 
+ * be any number of whitespaces (except new lines characters) between the fields.
  *
  * Fields enclosed with < > characters represent resources and have a string
  * in the the form of a URL. Fields enclosed with " " characters represent
  * literals or constants.
- *
- * Usage:
- *   TRDFParser Parser(TFin("myInputFile")); //myInputFile is well-formatted.
- *   TStr Subject, Predicate, Object;
- *   while (Parser.GetNextTriple(Subject, Predicate, Object) > 0) {
- *     //Do something with the parsed triple
- *   }
  */
 class TRDFParser {
 private:
@@ -36,14 +29,13 @@ public:
 
   /*
    * Returns the next triple from the input stream.
-   * Semantic of the return value is the following:
+   * Semantic of the return value is as follows:
    * -   1 : success (new triples has been set).
    * -   0 : end of file.
    * -  -1 : parse error (the input is not well-formatted).
    */
   int GetNextTriple (TStr &Subject, TStr &Predicate, TStr &Object);
 };
-
 
 TRDFParser::TRDFParser (TSIn &InputStream)
 : Input(InputStream) {}

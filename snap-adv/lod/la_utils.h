@@ -1,5 +1,5 @@
-#ifndef SNAP_LOD_UTILS_H
-#define SNAP_LOD_UTILS_H
+#ifndef SNAP_LA_UTILS_H
+#define SNAP_LA_UTILS_H
 
 #include "stdafx.h"
 #include "typedefs.h"
@@ -8,24 +8,14 @@
 /**
  * Author: Klemen Simonic
  *
- * A module with various LOD functionalities.
+ * A module with various linear algebra utilities.
  */
-class TLODUtils {
-public:
-  /**
-  * Creates a RDF graph (network) from the specified parser, which only needs to 
-  * implement the following function:
-  * -  int GetNextTriple(TStr &Subject, TStr &Predicate, TStr &Object)
-  * For more details, please see TRDFParser.
-  *
-  * The function also maps the node and edge string data to integers, which are 
-  * used in graph data structured as node and edge data identifiers, while the 
-  * original node and edge strings are stored in the corresponding hash sets (NodeStrs,
-  * EdgeStrs).
-  */
-  template<class TParser>
-  static bool GetGraphFromRDFParser (TParser &Input, TGraph &G, TStrSet &NodeStrs, TStrSet &EdgeStrs);
+class TLAUtils {
+private:
+  /// Creates a sample of size N of the specified vector.
+  static void GetSample (const TIntV &Vector, int N, TRnd &Rnd, TIntV &Sample);
 
+public:
   /// Normalizes the specified sparse column-major matrix.
   static void NormalizeMatrix (TSparseColMatrix &M);
 
@@ -47,9 +37,6 @@ public:
   /// Concatenates the matrices M1 and M2 into matrix M row wise.
 	static void ConcatenateMatricesRowWise (const TSparseColMatrix &M1, const TSparseColMatrix &M2, TSparseColMatrix &M);
   
-  /// Creates a sample of size N of the specified vector.
-  static void GetSample (const TIntV &Vector, int N, TRnd &Rnd, TIntV &Sample);
-
   /// Sums the specified vectors (columns).
 	static void GetSumVectors (const TSparseColMatrix &M, const TIntV &ColIndices, TFltV &Sum);
 
@@ -61,49 +48,7 @@ public:
   static void GetSumVectors (const TSparseColMatrix &M, const TVec<TIntV> &VectorColIndices, int N, TSparseColMatrix &Sums);
 };
 
-
-template<class TParser>
-bool TLODUtils::GetGraphFromRDFParser (TParser &Input, TGraph &G, TStrSet &NodeStrs, TStrSet &EdgeStrs)
-{
-  int Status = 0;
-  int LineNum = 0;
-
-  TStr SubjectStr;
-  TStr PredicateStr;
-  TStr ObjectStr;
-
-  while ( (Status = Input.GetNextTriple(SubjectStr, PredicateStr, ObjectStr)) == 1) {
-    LineNum++;
-
-    int SubjectId = NodeStrs.GetKeyId(SubjectStr);
-    if (SubjectId == -1) {
-      SubjectId = NodeStrs.AddKey(SubjectStr);
-      G.AddNode(SubjectId);
-    }
-
-    int PredicateId = EdgeStrs.GetKeyId(PredicateStr);
-    if (PredicateId == -1) {
-      PredicateId = EdgeStrs.AddKey(PredicateStr);
-    }
-
-    int ObjectId = NodeStrs.GetKeyId(ObjectStr);
-    if (ObjectId == -1) {
-      ObjectId = NodeStrs.AddKey(ObjectStr);
-      G.AddNode(ObjectId);
-    }
-
-    int EdgeId = G.AddEdge(SubjectId, ObjectId);
-    G.GetEDat(EdgeId) = PredicateId;
-  }
-
-  if (Status == -1) {
-      printf("The input is not well formatted. Error at line: %d\n", LineNum + 1);
-  }
-
-  return (Status == 0);
-}
-
-void TLODUtils::NormalizeMatrix (TSparseColMatrix &M)
+void TLAUtils::NormalizeMatrix (TSparseColMatrix &M)
 {
   for (int i = 0; i < M.ColN; i++) {
     TIntFltKdV &Col = M.ColSpVV[i];
@@ -113,7 +58,7 @@ void TLODUtils::NormalizeMatrix (TSparseColMatrix &M)
   }
 }
 
-int TLODUtils::GetMaxRowIndex (const TSparseColMatrix &M)
+int TLAUtils::GetMaxRowIndex (const TSparseColMatrix &M)
 {
   int MaxIndex = 0;
 
@@ -128,7 +73,7 @@ int TLODUtils::GetMaxRowIndex (const TSparseColMatrix &M)
   return MaxIndex;
 }
 
-void TLODUtils::ToDenseVector (const TIntFltKdV &SparseVector, TFltV &DenseVector)
+void TLAUtils::ToDenseVector (const TIntFltKdV &SparseVector, TFltV &DenseVector)
 {
   for (int i = 0; i < DenseVector.Len(); i++) {
     DenseVector[i] = 0;
@@ -140,7 +85,7 @@ void TLODUtils::ToDenseVector (const TIntFltKdV &SparseVector, TFltV &DenseVecto
   }
 }
 
-void TLODUtils::ToSparseVector (const TFltV &DenseVector, TIntFltKdV &SparseVector)
+void TLAUtils::ToSparseVector (const TFltV &DenseVector, TIntFltKdV &SparseVector)
 {
   for (int i = 0; i < DenseVector.Len(); i++) {
     if (DenseVector[i].Val != 0) {
@@ -149,7 +94,7 @@ void TLODUtils::ToSparseVector (const TFltV &DenseVector, TIntFltKdV &SparseVect
   }
 }
 
-void TLODUtils::GetWeightedSum (const TSparseColMatrix &M, const TIntFltKdV &Weights, TFltV &Sum)
+void TLAUtils::GetWeightedSum (const TSparseColMatrix &M, const TIntFltKdV &Weights, TFltV &Sum)
 {
   for (int i = 0; i < Weights.Len(); i++) {
     const TIntFltKd &Pair = Weights[i];
@@ -157,7 +102,7 @@ void TLODUtils::GetWeightedSum (const TSparseColMatrix &M, const TIntFltKdV &Wei
   }
 }
 
-void TLODUtils::ToIntFltKdV (TIntH &Map, TIntFltKdV &Vector)
+void TLAUtils::ToIntFltKdV (TIntH &Map, TIntFltKdV &Vector)
 {
   Map.SortByKey();
 
@@ -168,7 +113,7 @@ void TLODUtils::ToIntFltKdV (TIntH &Map, TIntFltKdV &Vector)
   }
 }
 
-void TLODUtils::ConcatenateMatricesRowWise (const TSparseColMatrix &M1, const TSparseColMatrix &M2, TSparseColMatrix &M)
+void TLAUtils::ConcatenateMatricesRowWise (const TSparseColMatrix &M1, const TSparseColMatrix &M2, TSparseColMatrix &M)
 {
   IAssert(M1.ColN == M2.ColN);
 
@@ -194,14 +139,14 @@ void TLODUtils::ConcatenateMatricesRowWise (const TSparseColMatrix &M1, const TS
   M.RowN = NumRows;
 }
 
-void TLODUtils::GetSumVectors (const TSparseColMatrix &M, const TIntV &ColIndices, TFltV &Sum)
+void TLAUtils::GetSumVectors (const TSparseColMatrix &M, const TIntV &ColIndices, TFltV &Sum)
 {
   for (int i = 0; i < ColIndices.Len(); i++) {
     TLinAlg::AddVec(1.0, M.ColSpVV[ColIndices[i]], Sum);
   }
 }
 
-void TLODUtils::GetSample (const TIntV &Vector, int N, TRnd &Rnd, TIntV &Sample)
+void TLAUtils::GetSample (const TIntV &Vector, int N, TRnd &Rnd, TIntV &Sample)
 {
   IAssert(N <= Vector.Len());
 
@@ -214,7 +159,7 @@ void TLODUtils::GetSample (const TIntV &Vector, int N, TRnd &Rnd, TIntV &Sample)
   Set.GetKeyV(Sample);
 }
 
-void TLODUtils::GetSumVectors (const TSparseColMatrix &M, const TVec<TIntV> &VectorColIndices, int N, TSparseColMatrix &Sums)
+void TLAUtils::GetSumVectors (const TSparseColMatrix &M, const TVec<TIntV> &VectorColIndices, int N, TSparseColMatrix &Sums)
 {
 	int NumCols = VectorColIndices.Len();
 	int NumRows = M.RowN;

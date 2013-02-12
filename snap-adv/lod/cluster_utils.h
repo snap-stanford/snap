@@ -15,21 +15,20 @@ public:
   /**
    * Computes the clusters using K-means++ algorithm.
    * Input:
-   * - M: sparse column-major matrix (data); the matrix columns should be normalized.
-   * - K: mumber of clusters.
+   * - M: sparse column-major matrix (data); the columns should be normalized.
+   * - K: number of clusters.
    * - NumIerations: number of iterations.
    * Output:
-   * - Assigments: cluster assigment for each point (column in the input matrix).
-   * - Clusters: points belonging to each cluster.
+   * - Assigments: mapping from points (columns in the input matrix) to cluster ids.
+   * - Clusters: mapping from cluster ids to a set of points.
    */
 	static void GetClusters (const TSparseColMatrix &M, int K, int NumIterations, TIntV &Assigments, TVec<TIntV> &Clusters);
 
-  /// Prints the sizes of the specified clusters.
+  /// Prints cluster sizes.
 	static void PrintClusterSizes (const TVec<TIntV> &Clusters, TSOut &Output);
-  /// Prints the objects for each cluster.
+  /// Prints points belonging to each cluster.
 	static void PrintClusters (const TVec<TIntV> &Clusters, const TIntV &Objects, const TStrSet &NodeStrs, TSOut &output);
 };
-
 
 void TClusterUtils::GetClusters (const TSparseColMatrix &Matrix, int K, int NumIterations, TIntV &Assigments, TVec<TIntV> &Clusters) 
 {
