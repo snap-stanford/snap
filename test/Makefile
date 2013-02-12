@@ -22,7 +22,8 @@ TESTS = \
 	test-cncom.cpp \
 	test-bfsdfs.cpp \
 	test-alg.cpp \
-	test-THash.cpp
+	test-THash.cpp \
+	test-THashSet.cpp
 
 all: $(MAIN)
 run: test
