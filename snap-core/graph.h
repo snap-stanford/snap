@@ -786,14 +786,22 @@ private:
   TVec<TVec<TInt> > VecOfIntVecs;
   TVec<TVec<TStr> > VecOfStrVecs;
   TVec<TVec<TFlt> > VecOfFltVecs;
-  enum { Int = 0, Str = 1, Flt = 2};
+  enum TypeEnum { Int = 0, Str = 1, Flt = 2};
 public:
-  TNEAGraph() : CRef(), MxNId(0), MxEId(0) { }
+  TNEAGraph() : CRef(), MxNId(0), MxEId(0), NodeH(), EdgeH(),
+    KeyToType(), IntIndex(), StrIndex(), FltIndex(), VecOfIntVecs(),
+    VecOfStrVecs(), VecOfFltVecs() { }
   /// Constructor that reserves enough memory for a graph of Nodes nodes and Edges edges.
-  explicit TNEAGraph(const int& Nodes, const int& Edges) : CRef(), MxNId(0), MxEId(0) { Reserve(Nodes, Edges); }
-  TNEAGraph(const TNEAGraph& Graph) : MxNId(Graph.MxNId), MxEId(Graph.MxEId), NodeH(Graph.NodeH), EdgeH(Graph.EdgeH) { }
+  explicit TNEAGraph(const int& Nodes, const int& Edges) : CRef(), MxNId(0),
+    MxEId(0), NodeH(), EdgeH(), KeyToType(), IntIndex(), StrIndex(), FltIndex(),
+    VecOfIntVecs(), VecOfStrVecs(), VecOfFltVecs() { Reserve(Nodes, Edges); }
+ TNEAGraph(const TNEAGraph& Graph) : MxNId(Graph.MxNId), MxEId(Graph.MxEId), NodeH(Graph.NodeH), EdgeH(Graph.EdgeH),
+    KeyToType(), IntIndex(), StrIndex(), FltIndex(), VecOfIntVecs(),
+    VecOfStrVecs(), VecOfFltVecs() { }
   /// Constructor for loading the graph from a (binary) stream SIn.
-  TNEAGraph(TSIn& SIn) : MxNId(SIn), MxEId(SIn), NodeH(SIn), EdgeH(SIn) { }
+ TNEAGraph(TSIn& SIn) : MxNId(SIn), MxEId(SIn), NodeH(SIn), EdgeH(SIn),
+    KeyToType(), IntIndex(), StrIndex(), FltIndex(), VecOfIntVecs(),
+    VecOfStrVecs(), VecOfFltVecs(){ }
   /// Saves the graph to a (binary) stream SOut.
   void Save(TSOut& SOut) const { MxNId.Save(SOut); MxEId.Save(SOut); NodeH.Save(SOut); EdgeH.Save(SOut); }
   /// Static constructor that returns a pointer to the graph. Call: PNEAGraph Graph = TNEAGraph::New().
@@ -881,6 +889,41 @@ public:
   bool IsOk(const bool& ThrowExcept=true) const;
   /// Print the graph in a human readable form to an output stream OutF.
   void Dump(FILE *OutF=stdout) const;
+
+  // Attribute based functions.
+
+  // adds the key value pair to the corresponding attribute value vector.
+  int AddIntAttrDat(const TNodeI& NodeId, const TInt& value, TStr attribute) { return AddIntAttrDat(NodeId.GetId(), value, attribute); }
+  int AddIntAttrDat(int NId, const TInt& value, TStr attribute);
+  int AddStrAttrDat(const TNodeI& NodeId, const TStr& value, TStr attribute) { return AddStrAttrDat(NodeId.GetId(), value, attribute); }
+  int AddStrAttrDat(int NId, const TStr& value, TStr attribute);
+  int AddFltAttrDat(const TNodeI& NodeId, const TFlt& value, TStr attribute) { return AddFltAttrDat(NodeId.GetId(), value, attribute); }
+  int AddFltAttrDat(int NId, const TFlt& value, TStr attribute);
+  // gets the value of a corresponding key from the corresponding attribute value vector.
+  void GetIntAttrDat(const TNodeI& NodeId, TStr attribute) { return GetIntAttrDat(NodeId.GetId(), attribute); }
+  void GetIntAttrDat(int NId, TStr attribute);
+  void GetStrAttrDat(const TNodeI& NodeId, TStr attribute) { return GetStrAttrDat(NodeId.GetId(), attribute); }
+  void GetStrAttrDat(int NId, TStr attribute);
+  void GetFltAttrDat(const TNodeI& NodeId, TStr attribute) { return GetFltAttrDat(NodeId.GetId(), attribute); }
+  void GetFltAttrDat(int NId, TStr attribute);
+ 
+  // deletes the key value pair from the corresponding attribute value vector.
+  void DelAttrDat(const TNodeI& NodeId, TStr attribute) { return DelAttrDat(NodeId.GetId(), attribute); } 
+  void DelAttrDat(int NId, TStr attribute); 
+  // adds a new attribute to the hashmap
+  void AddIntAttr(TStr attribute);
+  void AddStrAttr(TStr attribute);
+  void AddFltAttr(TStr attribute);
+  // removes all the key values pairs associated with the provided attribute
+  void DelAttr(TStr attribute);
+  // returns a list of the attributes
+  // TODO(nkhadke): Get TStrI implemented.
+  // returns an iterator on the values of a given node
+  // TStrI GetAttrs(const TNodeI& NodeId);
+  // returns an iterator on the values of a given attribute
+  // TODO(nkhadke) : Get iterator on nodes done.
+  // TKeyI GetValues(TStr attribute);
+  
   // TODO implement and document TNEAGraph::GetSmallGraph()
   static PNEGraph GetSmallGraph();
   friend class TPt<TNEAGraph>;
