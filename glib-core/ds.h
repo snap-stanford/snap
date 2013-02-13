@@ -1116,7 +1116,7 @@ void TVec<TVal, TSizeTy>::Shuffle(TRnd& Rnd){
   } else {
     for (TSizeTy ValN=0; ValN<Vals-1; ValN++){
       const TSizeTy Range = Vals-ValN;
-      Swap(ValN, ValN+Rnd.GetUniDevInt64(Range));
+      Swap(ValN, TSizeTy(ValN+Rnd.GetUniDevInt64(Range)));
     }
   }
 }
