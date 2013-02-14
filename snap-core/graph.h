@@ -780,13 +780,13 @@ private:
   THash<TInt, TNode> NodeH;
   THash<TInt, TEdge> EdgeH;
   THash<TStr, TInt> KeyToType;  // (0->int, 1->str, 2->flt)
-  THash<TInt, TInt> IntIndex;
+  THash<TStr, TInt> IntIndex;
   THash<TStr, TInt> StrIndex;
-  THash<TFlt, TInt> FltIndex;
+  THash<TStr, TInt> FltIndex;
   TVec<TVec<TInt> > VecOfIntVecs;
   TVec<TVec<TStr> > VecOfStrVecs;
   TVec<TVec<TFlt> > VecOfFltVecs;
-  enum TypeEnum { Int = 0, Str = 1, Flt = 2};
+  enum { IntType = 0, StrType = 1, FltType = 2};
 public:
   TNEAGraph() : CRef(), MxNId(0), MxEId(0), NodeH(), EdgeH(),
     KeyToType(), IntIndex(), StrIndex(), FltIndex(), VecOfIntVecs(),
@@ -899,13 +899,14 @@ public:
   int AddStrAttrDat(int NId, const TStr& value, TStr attribute);
   int AddFltAttrDat(const TNodeI& NodeId, const TFlt& value, TStr attribute) { return AddFltAttrDat(NodeId.GetId(), value, attribute); }
   int AddFltAttrDat(int NId, const TFlt& value, TStr attribute);
+
   // gets the value of a corresponding key from the corresponding attribute value vector.
-  void GetIntAttrDat(const TNodeI& NodeId, TStr attribute) { return GetIntAttrDat(NodeId.GetId(), attribute); }
-  void GetIntAttrDat(int NId, TStr attribute);
-  void GetStrAttrDat(const TNodeI& NodeId, TStr attribute) { return GetStrAttrDat(NodeId.GetId(), attribute); }
-  void GetStrAttrDat(int NId, TStr attribute);
-  void GetFltAttrDat(const TNodeI& NodeId, TStr attribute) { return GetFltAttrDat(NodeId.GetId(), attribute); }
-  void GetFltAttrDat(int NId, TStr attribute);
+  TInt GetIntAttrDat(const TNodeI& NodeId, TStr attribute) { return GetIntAttrDat(NodeId.GetId(), attribute); }
+  TInt GetIntAttrDat(int NId, TStr attribute);
+  TStr GetStrAttrDat(const TNodeI& NodeId, TStr attribute) { return GetStrAttrDat(NodeId.GetId(), attribute); }
+  TStr GetStrAttrDat(int NId, TStr attribute);
+  TFlt GetFltAttrDat(const TNodeI& NodeId, TStr attribute) { return GetFltAttrDat(NodeId.GetId(), attribute); }
+  TFlt GetFltAttrDat(int NId, TStr attribute);
  
   // deletes the key value pair from the corresponding attribute value vector.
   void DelAttrDat(const TNodeI& NodeId, TStr attribute) { return DelAttrDat(NodeId.GetId(), attribute); } 
