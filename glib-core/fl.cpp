@@ -322,9 +322,11 @@ bool TFIn::GetNextLnBf(TChA& LnChA) {
   int Status;
   int BfN;        // new pointer to the end of line
   int BfP;        // previous pointer to the line start
+  bool CrEnd;     // last character in previous buffer was CR
 
   LnChA.Clr();
 
+  CrEnd = false;
   do {
     if (BfC >= BfL) {
       // reset the current pointer, FindEol() will read a new buffer
@@ -332,9 +334,11 @@ bool TFIn::GetNextLnBf(TChA& LnChA) {
     } else {
       BfP = BfC;
     }
-    Status = FindEol(BfN);
+    Status = FindEol(BfN,CrEnd);
     if (Status >= 0) {
-      LnChA.AddBf(&Bf[BfP],BfN-BfP);
+      if (BfN-BfP > 0) {
+        LnChA.AddBf(&Bf[BfP],BfN-BfP);
+      }
       if (Status == 1) {
         // got a complete line
         return true;
@@ -353,7 +357,7 @@ bool TFIn::GetNextLnBf(TChA& LnChA) {
 //    BfN is end of buffer.
 // Returns -1, when an end of file was found, BfN is not defined.
 
-int TFIn::FindEol(int& BfN) {
+int TFIn::FindEol(int& BfN, bool& CrEnd) {
   char Ch;
 
   if (BfC >= BfL) {
@@ -361,18 +365,30 @@ int TFIn::FindEol(int& BfN) {
     if (Eof()) {
       return -1;
     }
+    if (CrEnd && Bf[BfC]=='\n') {
+      BfC++;
+      BfN = BfC-1;
+      return 1;
+    }
   }
 
+  CrEnd = false;
   while (BfC < BfL) {
     Ch = Bf[BfC++];
     if (Ch=='\n') {
       BfN = BfC-1;
       return 1;
     }
-    if (Ch=='\r' && Bf[BfC+1]=='\n') {
-      BfC++;
-      BfN = BfC-2;
-      return 1;
+    if (Ch=='\r') {
+      if (BfC == BfL) {
+        CrEnd = true;
+        BfN = BfC-1;
+        return 0;
+      } else if (Bf[BfC]=='\n') {
+        BfC++;
+        BfN = BfC-2;
+        return 1;
+      }
     }
   }
   BfN = BfC;
