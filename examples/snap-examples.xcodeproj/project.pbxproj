@@ -1,0 +1,831 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXFileReference section */
+		8485DDF816CE238300535B6B /* agmfitmain.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = agmfitmain.cpp; sourceTree = "<group>"; };
+		8485DDF916CE238300535B6B /* football.edgelist */ = {isa = PBXFileReference; lastKnownFileType = text; path = football.edgelist; sourceTree = "<group>"; };
+		8485DDFA16CE238300535B6B /* football.labels */ = {isa = PBXFileReference; lastKnownFileType = text; path = football.labels; sourceTree = "<group>"; };
+		8485DDFB16CE238300535B6B /* Makefile */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
+		8485DDFC16CE238300535B6B /* Makefile.ex */ = {isa = PBXFileReference; lastKnownFileType = text; path = Makefile.ex; sourceTree = "<group>"; };
+		8485DDFD16CE238300535B6B /* ReadMe.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = ReadMe.txt; sourceTree = "<group>"; };
+		8485DDFE16CE238300535B6B /* stdafx.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = stdafx.cpp; sourceTree = "<group>"; };
+		8485DDFF16CE238300535B6B /* stdafx.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = stdafx.h; sourceTree = "<group>"; };
+		8485DE0016CE238300535B6B /* targetver.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = targetver.h; sourceTree = "<group>"; };
+		8485DE0316CE238300535B6B /* agmgen.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = agmgen.cpp; sourceTree = "<group>"; };
+		8485DE0716CE238300535B6B /* community_affiliations.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = community_affiliations.txt; sourceTree = "<group>"; };
+		8485DE0816CE238300535B6B /* Makefile */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
+		8485DE0916CE238300535B6B /* Makefile.ex */ = {isa = PBXFileReference; lastKnownFileType = text; path = Makefile.ex; sourceTree = "<group>"; };
+		8485DE0A16CE238300535B6B /* ReadMe.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = ReadMe.txt; sourceTree = "<group>"; };
+		8485DE0B16CE238300535B6B /* stdafx.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = stdafx.cpp; sourceTree = "<group>"; };
+		8485DE0C16CE238300535B6B /* stdafx.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = stdafx.h; sourceTree = "<group>"; };
+		8485DE0D16CE238300535B6B /* targetver.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = targetver.h; sourceTree = "<group>"; };
+		8485DE0E16CE238300535B6B /* as20graph.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = as20graph.txt; sourceTree = "<group>"; };
+		8485DE1116CE238300535B6B /* bigclam.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = bigclam.cpp; sourceTree = "<group>"; };
+		8485DE1316CE238300535B6B /* Makefile */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
+		8485DE1416CE238300535B6B /* Makefile.ex */ = {isa = PBXFileReference; lastKnownFileType = text; path = Makefile.ex; sourceTree = "<group>"; };
+		8485DE1516CE238300535B6B /* ReadMe.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = ReadMe.txt; sourceTree = "<group>"; };
+		8485DE1616CE238300535B6B /* stdafx.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = stdafx.cpp; sourceTree = "<group>"; };
+		8485DE1716CE238300535B6B /* stdafx.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = stdafx.h; sourceTree = "<group>"; };
+		8485DE1816CE238300535B6B /* targetver.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = targetver.h; sourceTree = "<group>"; };
+		8485DE1B16CE238300535B6B /* cascades.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = cascades.cpp; sourceTree = "<group>"; };
+		8485DE1F16CE238300535B6B /* Makefile */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
+		8485DE2016CE238300535B6B /* Makefile.ex */ = {isa = PBXFileReference; lastKnownFileType = text; path = Makefile.ex; sourceTree = "<group>"; };
+		8485DE2116CE238300535B6B /* ReadMe.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = ReadMe.txt; sourceTree = "<group>"; };
+		8485DE2216CE238300535B6B /* stdafx.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = stdafx.cpp; sourceTree = "<group>"; };
+		8485DE2316CE238300535B6B /* stdafx.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = stdafx.h; sourceTree = "<group>"; };
+		8485DE2416CE238300535B6B /* targetver.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = targetver.h; sourceTree = "<group>"; };
+		8485DE2616CE238300535B6B /* centrality */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; path = centrality; sourceTree = "<group>"; };
+		8485DE2716CE238300535B6B /* centrality.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = centrality.cpp; sourceTree = "<group>"; };
+		8485DE2816CE238300535B6B /* centrality.dSYM */ = {isa = PBXFileReference; lastKnownFileType = wrapper.dsym; path = centrality.dSYM; sourceTree = "<group>"; };
+		8485DE2916CE238300535B6B /* centrality.vcproj */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = centrality.vcproj; sourceTree = "<group>"; };
+		8485DE2A16CE238300535B6B /* centrality.vcxproj */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = centrality.vcxproj; sourceTree = "<group>"; };
+		8485DE2B16CE238300535B6B /* Makefile */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
+		8485DE2C16CE238300535B6B /* Makefile.ex */ = {isa = PBXFileReference; lastKnownFileType = text; path = Makefile.ex; sourceTree = "<group>"; };
+		8485DE2D16CE238300535B6B /* ReadMe.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = ReadMe.txt; sourceTree = "<group>"; };
+		8485DE2E16CE238300535B6B /* stdafx.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = stdafx.cpp; sourceTree = "<group>"; };
+		8485DE2F16CE238300535B6B /* stdafx.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = stdafx.h; sourceTree = "<group>"; };
+		8485DE3016CE238300535B6B /* targetver.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = targetver.h; sourceTree = "<group>"; };
+		8485DE3216CE238300535B6B /* circles */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; path = circles; sourceTree = "<group>"; };
+		8485DE3316CE238300535B6B /* circles.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = circles.cpp; sourceTree = "<group>"; };
+		8485DE3416CE238300535B6B /* fb1.circles */ = {isa = PBXFileReference; lastKnownFileType = text; path = fb1.circles; sourceTree = "<group>"; };
+		8485DE3516CE238300535B6B /* fb1.edges */ = {isa = PBXFileReference; lastKnownFileType = text; path = fb1.edges; sourceTree = "<group>"; };
+		8485DE3616CE238300535B6B /* fb1.feat */ = {isa = PBXFileReference; lastKnownFileType = text; path = fb1.feat; sourceTree = "<group>"; };
+		8485DE3716CE238300535B6B /* Makefile */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
+		8485DE3816CE238300535B6B /* Makefile.ex */ = {isa = PBXFileReference; lastKnownFileType = text; path = Makefile.ex; sourceTree = "<group>"; };
+		8485DE3916CE238300535B6B /* stdafx.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = stdafx.cpp; sourceTree = "<group>"; };
+		8485DE3A16CE238300535B6B /* stdafx.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = stdafx.h; sourceTree = "<group>"; };
+		8485DE3B16CE238300535B6B /* targetver.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = targetver.h; sourceTree = "<group>"; };
+		8485DE4016CE238300535B6B /* cliquesmain.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = cliquesmain.cpp; sourceTree = "<group>"; };
+		8485DE4216CE238300535B6B /* Makefile */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
+		8485DE4316CE238300535B6B /* Makefile.ex */ = {isa = PBXFileReference; lastKnownFileType = text; path = Makefile.ex; sourceTree = "<group>"; };
+		8485DE4416CE238300535B6B /* ReadMe.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = ReadMe.txt; sourceTree = "<group>"; };
+		8485DE4516CE238300535B6B /* stdafx.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = stdafx.cpp; sourceTree = "<group>"; };
+		8485DE4616CE238300535B6B /* stdafx.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = stdafx.h; sourceTree = "<group>"; };
+		8485DE4716CE238300535B6B /* targetver.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = targetver.h; sourceTree = "<group>"; };
+		8485DE4A16CE238300535B6B /* community.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = community.cpp; sourceTree = "<group>"; };
+		8485DE4E16CE238300535B6B /* Makefile */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
+		8485DE4F16CE238300535B6B /* Makefile.ex */ = {isa = PBXFileReference; lastKnownFileType = text; path = Makefile.ex; sourceTree = "<group>"; };
+		8485DE5016CE238300535B6B /* ReadMe.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = ReadMe.txt; sourceTree = "<group>"; };
+		8485DE5116CE238300535B6B /* stdafx.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = stdafx.cpp; sourceTree = "<group>"; };
+		8485DE5216CE238300535B6B /* stdafx.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = stdafx.h; sourceTree = "<group>"; };
+		8485DE5316CE238300535B6B /* targetver.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = targetver.h; sourceTree = "<group>"; };
+		8485DE5616CE238300535B6B /* concomp.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = concomp.cpp; sourceTree = "<group>"; };
+		8485DE5A16CE238300535B6B /* Makefile */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
+		8485DE5B16CE238300535B6B /* Makefile.ex */ = {isa = PBXFileReference; lastKnownFileType = text; path = Makefile.ex; sourceTree = "<group>"; };
+		8485DE5C16CE238300535B6B /* ReadMe.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = ReadMe.txt; sourceTree = "<group>"; };
+		8485DE5D16CE238300535B6B /* stdafx.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = stdafx.cpp; sourceTree = "<group>"; };
+		8485DE5E16CE238300535B6B /* stdafx.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = stdafx.h; sourceTree = "<group>"; };
+		8485DE5F16CE238300535B6B /* targetver.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = targetver.h; sourceTree = "<group>"; };
+		8485DE6216CE238300535B6B /* forestfire.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = forestfire.cpp; sourceTree = "<group>"; };
+		8485DE6616CE238300535B6B /* Makefile */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
+		8485DE6716CE238300535B6B /* Makefile.ex */ = {isa = PBXFileReference; lastKnownFileType = text; path = Makefile.ex; sourceTree = "<group>"; };
+		8485DE6816CE238300535B6B /* ReadMe.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = ReadMe.txt; sourceTree = "<group>"; };
+		8485DE6916CE238300535B6B /* stdafx.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = stdafx.cpp; sourceTree = "<group>"; };
+		8485DE6A16CE238300535B6B /* stdafx.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = stdafx.h; sourceTree = "<group>"; };
+		8485DE6B16CE238300535B6B /* targetver.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = targetver.h; sourceTree = "<group>"; };
+		8485DE6E16CE238300535B6B /* graphgen.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = graphgen.cpp; sourceTree = "<group>"; };
+		8485DE7216CE238300535B6B /* Makefile */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
+		8485DE7316CE238300535B6B /* Makefile.ex */ = {isa = PBXFileReference; lastKnownFileType = text; path = Makefile.ex; sourceTree = "<group>"; };
+		8485DE7416CE238300535B6B /* ReadMe.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = ReadMe.txt; sourceTree = "<group>"; };
+		8485DE7516CE238300535B6B /* stdafx.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = stdafx.cpp; sourceTree = "<group>"; };
+		8485DE7616CE238300535B6B /* stdafx.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = stdafx.h; sourceTree = "<group>"; };
+		8485DE7716CE238300535B6B /* targetver.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = targetver.h; sourceTree = "<group>"; };
+		8485DE7A16CE238300535B6B /* graphhash.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = graphhash.cpp; sourceTree = "<group>"; };
+		8485DE7E16CE238300535B6B /* Makefile */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
+		8485DE7F16CE238300535B6B /* Makefile.ex */ = {isa = PBXFileReference; lastKnownFileType = text; path = Makefile.ex; sourceTree = "<group>"; };
+		8485DE8016CE238300535B6B /* ReadMe.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = ReadMe.txt; sourceTree = "<group>"; };
+		8485DE8116CE238300535B6B /* stdafx.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = stdafx.cpp; sourceTree = "<group>"; };
+		8485DE8216CE238300535B6B /* stdafx.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = stdafx.h; sourceTree = "<group>"; };
+		8485DE8316CE238300535B6B /* targetver.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = targetver.h; sourceTree = "<group>"; };
+		8485DE8516CE238300535B6B /* example-cascades.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "example-cascades.txt"; sourceTree = "<group>"; };
+		8485DE8616CE238300535B6B /* example-network.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "example-network.txt"; sourceTree = "<group>"; };
+		8485DE8716CE238300535B6B /* generate_nets.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = generate_nets.cpp; sourceTree = "<group>"; };
+		8485DE8916CE238300535B6B /* infopath.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = infopath.cpp; sourceTree = "<group>"; };
+		8485DE8C16CE238300535B6B /* Makefile */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
+		8485DE8D16CE238300535B6B /* Makefile.ex */ = {isa = PBXFileReference; lastKnownFileType = text; path = Makefile.ex; sourceTree = "<group>"; };
+		8485DE8E16CE238300535B6B /* ReadMe.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = ReadMe.txt; sourceTree = "<group>"; };
+		8485DE8F16CE238300535B6B /* stdafx.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = stdafx.cpp; sourceTree = "<group>"; };
+		8485DE9016CE238300535B6B /* stdafx.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = stdafx.h; sourceTree = "<group>"; };
+		8485DE9116CE238300535B6B /* targetver.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = targetver.h; sourceTree = "<group>"; };
+		8485DE9416CE238300535B6B /* kcores.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = kcores.cpp; sourceTree = "<group>"; };
+		8485DE9816CE238300535B6B /* Makefile */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
+		8485DE9916CE238300535B6B /* Makefile.ex */ = {isa = PBXFileReference; lastKnownFileType = text; path = Makefile.ex; sourceTree = "<group>"; };
+		8485DE9A16CE238300535B6B /* ReadMe.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = ReadMe.txt; sourceTree = "<group>"; };
+		8485DE9B16CE238300535B6B /* stdafx.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = stdafx.cpp; sourceTree = "<group>"; };
+		8485DE9C16CE238300535B6B /* stdafx.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = stdafx.h; sourceTree = "<group>"; };
+		8485DE9D16CE238300535B6B /* targetver.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = targetver.h; sourceTree = "<group>"; };
+		8485DEA016CE238300535B6B /* kronem.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = kronem.cpp; sourceTree = "<group>"; };
+		8485DEA416CE238300535B6B /* Makefile */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
+		8485DEA516CE238300535B6B /* Makefile.ex */ = {isa = PBXFileReference; lastKnownFileType = text; path = Makefile.ex; sourceTree = "<group>"; };
+		8485DEA616CE238300535B6B /* ReadMe.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = ReadMe.txt; sourceTree = "<group>"; };
+		8485DEA716CE238300535B6B /* stdafx.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = stdafx.cpp; sourceTree = "<group>"; };
+		8485DEA816CE238300535B6B /* stdafx.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = stdafx.h; sourceTree = "<group>"; };
+		8485DEA916CE238300535B6B /* targetver.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = targetver.h; sourceTree = "<group>"; };
+		8485DEAC16CE238300535B6B /* kronfit.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = kronfit.cpp; sourceTree = "<group>"; };
+		8485DEB016CE238300535B6B /* Makefile */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
+		8485DEB116CE238300535B6B /* Makefile.ex */ = {isa = PBXFileReference; lastKnownFileType = text; path = Makefile.ex; sourceTree = "<group>"; };
+		8485DEB216CE238300535B6B /* ReadMe.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = ReadMe.txt; sourceTree = "<group>"; };
+		8485DEB316CE238300535B6B /* stdafx.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = stdafx.cpp; sourceTree = "<group>"; };
+		8485DEB416CE238300535B6B /* stdafx.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = stdafx.h; sourceTree = "<group>"; };
+		8485DEB516CE238300535B6B /* targetver.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = targetver.h; sourceTree = "<group>"; };
+		8485DEB816CE238300535B6B /* krongen.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = krongen.cpp; sourceTree = "<group>"; };
+		8485DEBC16CE238300535B6B /* Makefile */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
+		8485DEBD16CE238300535B6B /* Makefile.ex */ = {isa = PBXFileReference; lastKnownFileType = text; path = Makefile.ex; sourceTree = "<group>"; };
+		8485DEBE16CE238300535B6B /* ReadMe.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = ReadMe.txt; sourceTree = "<group>"; };
+		8485DEBF16CE238300535B6B /* stdafx.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = stdafx.cpp; sourceTree = "<group>"; };
+		8485DEC016CE238300535B6B /* stdafx.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = stdafx.h; sourceTree = "<group>"; };
+		8485DEC116CE238300535B6B /* targetver.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = targetver.h; sourceTree = "<group>"; };
+		8485DEC316CE238300535B6B /* init.config */ = {isa = PBXFileReference; lastKnownFileType = text; path = init.config; sourceTree = "<group>"; };
+		8485DEC516CE238300535B6B /* magfit.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = magfit.cpp; sourceTree = "<group>"; };
+		8485DECA16CE238300535B6B /* Makefile */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
+		8485DECB16CE238300535B6B /* Makefile.ex */ = {isa = PBXFileReference; lastKnownFileType = text; path = Makefile.ex; sourceTree = "<group>"; };
+		8485DECC16CE238300535B6B /* ReadMe.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = ReadMe.txt; sourceTree = "<group>"; };
+		8485DECD16CE238300535B6B /* stdafx.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = stdafx.cpp; sourceTree = "<group>"; };
+		8485DECE16CE238300535B6B /* stdafx.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = stdafx.h; sourceTree = "<group>"; };
+		8485DECF16CE238300535B6B /* targetver.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = targetver.h; sourceTree = "<group>"; };
+		8485DED116CE238300535B6B /* mag.config */ = {isa = PBXFileReference; lastKnownFileType = text; path = mag.config; sourceTree = "<group>"; };
+		8485DED316CE238300535B6B /* maggen.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = maggen.cpp; sourceTree = "<group>"; };
+		8485DED716CE238300535B6B /* Makefile */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
+		8485DED816CE238300535B6B /* Makefile.ex */ = {isa = PBXFileReference; lastKnownFileType = text; path = Makefile.ex; sourceTree = "<group>"; };
+		8485DED916CE238300535B6B /* ReadMe.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = ReadMe.txt; sourceTree = "<group>"; };
+		8485DEDA16CE238300535B6B /* stdafx.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = stdafx.cpp; sourceTree = "<group>"; };
+		8485DEDB16CE238300535B6B /* stdafx.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = stdafx.h; sourceTree = "<group>"; };
+		8485DEDC16CE238300535B6B /* targetver.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = targetver.h; sourceTree = "<group>"; };
+		8485DEDD16CE238300535B6B /* Makefile */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
+		8485DEDE16CE238300535B6B /* Makefile.exmain */ = {isa = PBXFileReference; lastKnownFileType = text; path = Makefile.exmain; sourceTree = "<group>"; };
+		8485DEE016CE238300535B6B /* Makefile */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
+		8485DEE116CE238300535B6B /* Makefile.ex */ = {isa = PBXFileReference; lastKnownFileType = text; path = Makefile.ex; sourceTree = "<group>"; };
+		8485DEE316CE238300535B6B /* mkdatasets.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = mkdatasets.cpp; sourceTree = "<group>"; };
+		8485DEE716CE238300535B6B /* ReadMe.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = ReadMe.txt; sourceTree = "<group>"; };
+		8485DEE816CE238300535B6B /* stdafx.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = stdafx.cpp; sourceTree = "<group>"; };
+		8485DEE916CE238300535B6B /* stdafx.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = stdafx.h; sourceTree = "<group>"; };
+		8485DEEA16CE238300535B6B /* targetver.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = targetver.h; sourceTree = "<group>"; };
+		8485DEEC16CE238300535B6B /* Makefile */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
+		8485DEED16CE238300535B6B /* Makefile.ex */ = {isa = PBXFileReference; lastKnownFileType = text; path = Makefile.ex; sourceTree = "<group>"; };
+		8485DEEF16CE238300535B6B /* motifs.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = motifs.cpp; sourceTree = "<group>"; };
+		8485DEF316CE238300535B6B /* ReadMe.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = ReadMe.txt; sourceTree = "<group>"; };
+		8485DEF416CE238300535B6B /* stdafx.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = stdafx.cpp; sourceTree = "<group>"; };
+		8485DEF516CE238300535B6B /* stdafx.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = stdafx.h; sourceTree = "<group>"; };
+		8485DEF616CE238300535B6B /* targetver.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = targetver.h; sourceTree = "<group>"; };
+		8485DEF816CE238300535B6B /* Makefile */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
+		8485DEF916CE238300535B6B /* Makefile.ex */ = {isa = PBXFileReference; lastKnownFileType = text; path = Makefile.ex; sourceTree = "<group>"; };
+		8485DEFB16CE238300535B6B /* ncpplot.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ncpplot.cpp; sourceTree = "<group>"; };
+		8485DEFF16CE238300535B6B /* ReadMe.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = ReadMe.txt; sourceTree = "<group>"; };
+		8485DF0016CE238300535B6B /* stdafx.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = stdafx.cpp; sourceTree = "<group>"; };
+		8485DF0116CE238300535B6B /* stdafx.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = stdafx.h; sourceTree = "<group>"; };
+		8485DF0216CE238300535B6B /* targetver.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = targetver.h; sourceTree = "<group>"; };
+		8485DF0416CE238300535B6B /* Makefile */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
+		8485DF0516CE238300535B6B /* Makefile.ex */ = {isa = PBXFileReference; lastKnownFileType = text; path = Makefile.ex; sourceTree = "<group>"; };
+		8485DF0716CE238300535B6B /* netevol.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = netevol.cpp; sourceTree = "<group>"; };
+		8485DF0B16CE238300535B6B /* ReadMe.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = ReadMe.txt; sourceTree = "<group>"; };
+		8485DF0C16CE238300535B6B /* stdafx.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = stdafx.cpp; sourceTree = "<group>"; };
+		8485DF0D16CE238300535B6B /* stdafx.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = stdafx.h; sourceTree = "<group>"; };
+		8485DF0E16CE238300535B6B /* targetver.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = targetver.h; sourceTree = "<group>"; };
+		8485DF1016CE238300535B6B /* example-cascades.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "example-cascades.txt"; sourceTree = "<group>"; };
+		8485DF1116CE238300535B6B /* example-network.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "example-network.txt"; sourceTree = "<group>"; };
+		8485DF1216CE238300535B6B /* Makefile */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
+		8485DF1316CE238300535B6B /* Makefile.ex */ = {isa = PBXFileReference; lastKnownFileType = text; path = Makefile.ex; sourceTree = "<group>"; };
+		8485DF1516CE238300535B6B /* netinf.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = netinf.cpp; sourceTree = "<group>"; };
+		8485DF1816CE238300535B6B /* network-edge.info */ = {isa = PBXFileReference; lastKnownFileType = text; path = "network-edge.info"; sourceTree = "<group>"; };
+		8485DF1916CE238300535B6B /* network.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = network.txt; sourceTree = "<group>"; };
+		8485DF1A16CE238300535B6B /* ReadMe.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = ReadMe.txt; sourceTree = "<group>"; };
+		8485DF1B16CE238300535B6B /* stdafx.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = stdafx.cpp; sourceTree = "<group>"; };
+		8485DF1C16CE238300535B6B /* stdafx.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = stdafx.h; sourceTree = "<group>"; };
+		8485DF1D16CE238300535B6B /* targetver.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = targetver.h; sourceTree = "<group>"; };
+		8485DF1F16CE238300535B6B /* Makefile */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
+		8485DF2016CE238300535B6B /* Makefile.ex */ = {isa = PBXFileReference; lastKnownFileType = text; path = Makefile.ex; sourceTree = "<group>"; };
+		8485DF2216CE238300535B6B /* netstat.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = netstat.cpp; sourceTree = "<group>"; };
+		8485DF2616CE238300535B6B /* ReadMe.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = ReadMe.txt; sourceTree = "<group>"; };
+		8485DF2716CE238300535B6B /* stdafx.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = stdafx.cpp; sourceTree = "<group>"; };
+		8485DF2816CE238300535B6B /* stdafx.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = stdafx.h; sourceTree = "<group>"; };
+		8485DF2916CE238300535B6B /* targetver.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = targetver.h; sourceTree = "<group>"; };
+		8485DF2A16CE238300535B6B /* README */ = {isa = PBXFileReference; lastKnownFileType = text; path = README; sourceTree = "<group>"; };
+		8485DF2F16CE238300535B6B /* SnapExamples-VS08.sln */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SnapExamples-VS08.sln"; sourceTree = "<group>"; };
+		8485DF3016CE238300535B6B /* SnapExamples-VS10.sln */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SnapExamples-VS10.sln"; sourceTree = "<group>"; };
+		8485DF3216CE238300535B6B /* Makefile */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
+		8485DF3316CE238300535B6B /* Makefile.ex */ = {isa = PBXFileReference; lastKnownFileType = text; path = Makefile.ex; sourceTree = "<group>"; };
+		8485DF3416CE238300535B6B /* ReadMe.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = ReadMe.txt; sourceTree = "<group>"; };
+		8485DF3516CE238300535B6B /* stdafx.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = stdafx.cpp; sourceTree = "<group>"; };
+		8485DF3616CE238300535B6B /* stdafx.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = stdafx.h; sourceTree = "<group>"; };
+		8485DF3716CE238300535B6B /* targetver.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = targetver.h; sourceTree = "<group>"; };
+		8485DF3816CE238300535B6B /* testgraph */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; path = testgraph; sourceTree = "<group>"; };
+		8485DF3916CE238300535B6B /* testgraph.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = testgraph.cpp; sourceTree = "<group>"; };
+		8485DF3A16CE238300535B6B /* testgraph.dSYM */ = {isa = PBXFileReference; lastKnownFileType = wrapper.dsym; path = testgraph.dSYM; sourceTree = "<group>"; };
+		8485DF3B16CE238300535B6B /* testgraph.vcproj */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = testgraph.vcproj; sourceTree = "<group>"; };
+		8485DF3C16CE238300535B6B /* testgraph.vcxproj */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = testgraph.vcxproj; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		8485DDC716CE233500535B6B = {
+			isa = PBXGroup;
+			children = (
+				8485DDF516CE238300535B6B /* agmfit */,
+				8485DE0116CE238300535B6B /* agmgen */,
+				8485DE0E16CE238300535B6B /* as20graph.txt */,
+				8485DE0F16CE238300535B6B /* bigclam */,
+				8485DE1916CE238300535B6B /* cascades */,
+				8485DE2516CE238300535B6B /* centrality */,
+				8485DE3116CE238300535B6B /* circles */,
+				8485DE3C16CE238300535B6B /* cliques */,
+				8485DE4816CE238300535B6B /* community */,
+				8485DE5416CE238300535B6B /* concomp */,
+				8485DE6016CE238300535B6B /* forestfire */,
+				8485DE6C16CE238300535B6B /* graphgen */,
+				8485DE7816CE238300535B6B /* graphhash */,
+				8485DE8416CE238300535B6B /* infopath */,
+				8485DE9216CE238300535B6B /* kcores */,
+				8485DE9E16CE238300535B6B /* kronem */,
+				8485DEAA16CE238300535B6B /* kronfit */,
+				8485DEB616CE238300535B6B /* krongen */,
+				8485DEC216CE238300535B6B /* magfit */,
+				8485DED016CE238300535B6B /* maggen */,
+				8485DEDD16CE238300535B6B /* Makefile */,
+				8485DEDE16CE238300535B6B /* Makefile.exmain */,
+				8485DEDF16CE238300535B6B /* mkdatasets */,
+				8485DEEB16CE238300535B6B /* motifs */,
+				8485DEF716CE238300535B6B /* ncpplot */,
+				8485DF0316CE238300535B6B /* netevol */,
+				8485DF0F16CE238300535B6B /* netinf */,
+				8485DF1E16CE238300535B6B /* netstat */,
+				8485DF2A16CE238300535B6B /* README */,
+				8485DF2F16CE238300535B6B /* SnapExamples-VS08.sln */,
+				8485DF3016CE238300535B6B /* SnapExamples-VS10.sln */,
+				8485DF3116CE238300535B6B /* testgraph */,
+			);
+			sourceTree = "<group>";
+		};
+		8485DDF516CE238300535B6B /* agmfit */ = {
+			isa = PBXGroup;
+			children = (
+				8485DDF816CE238300535B6B /* agmfitmain.cpp */,
+				8485DDF916CE238300535B6B /* football.edgelist */,
+				8485DDFA16CE238300535B6B /* football.labels */,
+				8485DDFB16CE238300535B6B /* Makefile */,
+				8485DDFC16CE238300535B6B /* Makefile.ex */,
+				8485DDFD16CE238300535B6B /* ReadMe.txt */,
+				8485DDFE16CE238300535B6B /* stdafx.cpp */,
+				8485DDFF16CE238300535B6B /* stdafx.h */,
+				8485DE0016CE238300535B6B /* targetver.h */,
+			);
+			path = agmfit;
+			sourceTree = "<group>";
+		};
+		8485DE0116CE238300535B6B /* agmgen */ = {
+			isa = PBXGroup;
+			children = (
+				8485DE0316CE238300535B6B /* agmgen.cpp */,
+				8485DE0716CE238300535B6B /* community_affiliations.txt */,
+				8485DE0816CE238300535B6B /* Makefile */,
+				8485DE0916CE238300535B6B /* Makefile.ex */,
+				8485DE0A16CE238300535B6B /* ReadMe.txt */,
+				8485DE0B16CE238300535B6B /* stdafx.cpp */,
+				8485DE0C16CE238300535B6B /* stdafx.h */,
+				8485DE0D16CE238300535B6B /* targetver.h */,
+			);
+			path = agmgen;
+			sourceTree = "<group>";
+		};
+		8485DE0F16CE238300535B6B /* bigclam */ = {
+			isa = PBXGroup;
+			children = (
+				8485DE1116CE238300535B6B /* bigclam.cpp */,
+				8485DE1316CE238300535B6B /* Makefile */,
+				8485DE1416CE238300535B6B /* Makefile.ex */,
+				8485DE1516CE238300535B6B /* ReadMe.txt */,
+				8485DE1616CE238300535B6B /* stdafx.cpp */,
+				8485DE1716CE238300535B6B /* stdafx.h */,
+				8485DE1816CE238300535B6B /* targetver.h */,
+			);
+			path = bigclam;
+			sourceTree = "<group>";
+		};
+		8485DE1916CE238300535B6B /* cascades */ = {
+			isa = PBXGroup;
+			children = (
+				8485DE1B16CE238300535B6B /* cascades.cpp */,
+				8485DE1F16CE238300535B6B /* Makefile */,
+				8485DE2016CE238300535B6B /* Makefile.ex */,
+				8485DE2116CE238300535B6B /* ReadMe.txt */,
+				8485DE2216CE238300535B6B /* stdafx.cpp */,
+				8485DE2316CE238300535B6B /* stdafx.h */,
+				8485DE2416CE238300535B6B /* targetver.h */,
+			);
+			path = cascades;
+			sourceTree = "<group>";
+		};
+		8485DE2516CE238300535B6B /* centrality */ = {
+			isa = PBXGroup;
+			children = (
+				8485DE2616CE238300535B6B /* centrality */,
+				8485DE2716CE238300535B6B /* centrality.cpp */,
+				8485DE2816CE238300535B6B /* centrality.dSYM */,
+				8485DE2916CE238300535B6B /* centrality.vcproj */,
+				8485DE2A16CE238300535B6B /* centrality.vcxproj */,
+				8485DE2B16CE238300535B6B /* Makefile */,
+				8485DE2C16CE238300535B6B /* Makefile.ex */,
+				8485DE2D16CE238300535B6B /* ReadMe.txt */,
+				8485DE2E16CE238300535B6B /* stdafx.cpp */,
+				8485DE2F16CE238300535B6B /* stdafx.h */,
+				8485DE3016CE238300535B6B /* targetver.h */,
+			);
+			path = centrality;
+			sourceTree = "<group>";
+		};
+		8485DE3116CE238300535B6B /* circles */ = {
+			isa = PBXGroup;
+			children = (
+				8485DE3216CE238300535B6B /* circles */,
+				8485DE3316CE238300535B6B /* circles.cpp */,
+				8485DE3416CE238300535B6B /* fb1.circles */,
+				8485DE3516CE238300535B6B /* fb1.edges */,
+				8485DE3616CE238300535B6B /* fb1.feat */,
+				8485DE3716CE238300535B6B /* Makefile */,
+				8485DE3816CE238300535B6B /* Makefile.ex */,
+				8485DE3916CE238300535B6B /* stdafx.cpp */,
+				8485DE3A16CE238300535B6B /* stdafx.h */,
+				8485DE3B16CE238300535B6B /* targetver.h */,
+			);
+			path = circles;
+			sourceTree = "<group>";
+		};
+		8485DE3C16CE238300535B6B /* cliques */ = {
+			isa = PBXGroup;
+			children = (
+				8485DE4016CE238300535B6B /* cliquesmain.cpp */,
+				8485DE4216CE238300535B6B /* Makefile */,
+				8485DE4316CE238300535B6B /* Makefile.ex */,
+				8485DE4416CE238300535B6B /* ReadMe.txt */,
+				8485DE4516CE238300535B6B /* stdafx.cpp */,
+				8485DE4616CE238300535B6B /* stdafx.h */,
+				8485DE4716CE238300535B6B /* targetver.h */,
+			);
+			path = cliques;
+			sourceTree = "<group>";
+		};
+		8485DE4816CE238300535B6B /* community */ = {
+			isa = PBXGroup;
+			children = (
+				8485DE4A16CE238300535B6B /* community.cpp */,
+				8485DE4E16CE238300535B6B /* Makefile */,
+				8485DE4F16CE238300535B6B /* Makefile.ex */,
+				8485DE5016CE238300535B6B /* ReadMe.txt */,
+				8485DE5116CE238300535B6B /* stdafx.cpp */,
+				8485DE5216CE238300535B6B /* stdafx.h */,
+				8485DE5316CE238300535B6B /* targetver.h */,
+			);
+			path = community;
+			sourceTree = "<group>";
+		};
+		8485DE5416CE238300535B6B /* concomp */ = {
+			isa = PBXGroup;
+			children = (
+				8485DE5616CE238300535B6B /* concomp.cpp */,
+				8485DE5A16CE238300535B6B /* Makefile */,
+				8485DE5B16CE238300535B6B /* Makefile.ex */,
+				8485DE5C16CE238300535B6B /* ReadMe.txt */,
+				8485DE5D16CE238300535B6B /* stdafx.cpp */,
+				8485DE5E16CE238300535B6B /* stdafx.h */,
+				8485DE5F16CE238300535B6B /* targetver.h */,
+			);
+			path = concomp;
+			sourceTree = "<group>";
+		};
+		8485DE6016CE238300535B6B /* forestfire */ = {
+			isa = PBXGroup;
+			children = (
+				8485DE6216CE238300535B6B /* forestfire.cpp */,
+				8485DE6616CE238300535B6B /* Makefile */,
+				8485DE6716CE238300535B6B /* Makefile.ex */,
+				8485DE6816CE238300535B6B /* ReadMe.txt */,
+				8485DE6916CE238300535B6B /* stdafx.cpp */,
+				8485DE6A16CE238300535B6B /* stdafx.h */,
+				8485DE6B16CE238300535B6B /* targetver.h */,
+			);
+			path = forestfire;
+			sourceTree = "<group>";
+		};
+		8485DE6C16CE238300535B6B /* graphgen */ = {
+			isa = PBXGroup;
+			children = (
+				8485DE6E16CE238300535B6B /* graphgen.cpp */,
+				8485DE7216CE238300535B6B /* Makefile */,
+				8485DE7316CE238300535B6B /* Makefile.ex */,
+				8485DE7416CE238300535B6B /* ReadMe.txt */,
+				8485DE7516CE238300535B6B /* stdafx.cpp */,
+				8485DE7616CE238300535B6B /* stdafx.h */,
+				8485DE7716CE238300535B6B /* targetver.h */,
+			);
+			path = graphgen;
+			sourceTree = "<group>";
+		};
+		8485DE7816CE238300535B6B /* graphhash */ = {
+			isa = PBXGroup;
+			children = (
+				8485DE7A16CE238300535B6B /* graphhash.cpp */,
+				8485DE7E16CE238300535B6B /* Makefile */,
+				8485DE7F16CE238300535B6B /* Makefile.ex */,
+				8485DE8016CE238300535B6B /* ReadMe.txt */,
+				8485DE8116CE238300535B6B /* stdafx.cpp */,
+				8485DE8216CE238300535B6B /* stdafx.h */,
+				8485DE8316CE238300535B6B /* targetver.h */,
+			);
+			path = graphhash;
+			sourceTree = "<group>";
+		};
+		8485DE8416CE238300535B6B /* infopath */ = {
+			isa = PBXGroup;
+			children = (
+				8485DE8516CE238300535B6B /* example-cascades.txt */,
+				8485DE8616CE238300535B6B /* example-network.txt */,
+				8485DE8716CE238300535B6B /* generate_nets.cpp */,
+				8485DE8916CE238300535B6B /* infopath.cpp */,
+				8485DE8C16CE238300535B6B /* Makefile */,
+				8485DE8D16CE238300535B6B /* Makefile.ex */,
+				8485DE8E16CE238300535B6B /* ReadMe.txt */,
+				8485DE8F16CE238300535B6B /* stdafx.cpp */,
+				8485DE9016CE238300535B6B /* stdafx.h */,
+				8485DE9116CE238300535B6B /* targetver.h */,
+			);
+			path = infopath;
+			sourceTree = "<group>";
+		};
+		8485DE9216CE238300535B6B /* kcores */ = {
+			isa = PBXGroup;
+			children = (
+				8485DE9416CE238300535B6B /* kcores.cpp */,
+				8485DE9816CE238300535B6B /* Makefile */,
+				8485DE9916CE238300535B6B /* Makefile.ex */,
+				8485DE9A16CE238300535B6B /* ReadMe.txt */,
+				8485DE9B16CE238300535B6B /* stdafx.cpp */,
+				8485DE9C16CE238300535B6B /* stdafx.h */,
+				8485DE9D16CE238300535B6B /* targetver.h */,
+			);
+			path = kcores;
+			sourceTree = "<group>";
+		};
+		8485DE9E16CE238300535B6B /* kronem */ = {
+			isa = PBXGroup;
+			children = (
+				8485DEA016CE238300535B6B /* kronem.cpp */,
+				8485DEA416CE238300535B6B /* Makefile */,
+				8485DEA516CE238300535B6B /* Makefile.ex */,
+				8485DEA616CE238300535B6B /* ReadMe.txt */,
+				8485DEA716CE238300535B6B /* stdafx.cpp */,
+				8485DEA816CE238300535B6B /* stdafx.h */,
+				8485DEA916CE238300535B6B /* targetver.h */,
+			);
+			path = kronem;
+			sourceTree = "<group>";
+		};
+		8485DEAA16CE238300535B6B /* kronfit */ = {
+			isa = PBXGroup;
+			children = (
+				8485DEAC16CE238300535B6B /* kronfit.cpp */,
+				8485DEB016CE238300535B6B /* Makefile */,
+				8485DEB116CE238300535B6B /* Makefile.ex */,
+				8485DEB216CE238300535B6B /* ReadMe.txt */,
+				8485DEB316CE238300535B6B /* stdafx.cpp */,
+				8485DEB416CE238300535B6B /* stdafx.h */,
+				8485DEB516CE238300535B6B /* targetver.h */,
+			);
+			path = kronfit;
+			sourceTree = "<group>";
+		};
+		8485DEB616CE238300535B6B /* krongen */ = {
+			isa = PBXGroup;
+			children = (
+				8485DEB816CE238300535B6B /* krongen.cpp */,
+				8485DEBC16CE238300535B6B /* Makefile */,
+				8485DEBD16CE238300535B6B /* Makefile.ex */,
+				8485DEBE16CE238300535B6B /* ReadMe.txt */,
+				8485DEBF16CE238300535B6B /* stdafx.cpp */,
+				8485DEC016CE238300535B6B /* stdafx.h */,
+				8485DEC116CE238300535B6B /* targetver.h */,
+			);
+			path = krongen;
+			sourceTree = "<group>";
+		};
+		8485DEC216CE238300535B6B /* magfit */ = {
+			isa = PBXGroup;
+			children = (
+				8485DEC316CE238300535B6B /* init.config */,
+				8485DEC516CE238300535B6B /* magfit.cpp */,
+				8485DECA16CE238300535B6B /* Makefile */,
+				8485DECB16CE238300535B6B /* Makefile.ex */,
+				8485DECC16CE238300535B6B /* ReadMe.txt */,
+				8485DECD16CE238300535B6B /* stdafx.cpp */,
+				8485DECE16CE238300535B6B /* stdafx.h */,
+				8485DECF16CE238300535B6B /* targetver.h */,
+			);
+			path = magfit;
+			sourceTree = "<group>";
+		};
+		8485DED016CE238300535B6B /* maggen */ = {
+			isa = PBXGroup;
+			children = (
+				8485DED116CE238300535B6B /* mag.config */,
+				8485DED316CE238300535B6B /* maggen.cpp */,
+				8485DED716CE238300535B6B /* Makefile */,
+				8485DED816CE238300535B6B /* Makefile.ex */,
+				8485DED916CE238300535B6B /* ReadMe.txt */,
+				8485DEDA16CE238300535B6B /* stdafx.cpp */,
+				8485DEDB16CE238300535B6B /* stdafx.h */,
+				8485DEDC16CE238300535B6B /* targetver.h */,
+			);
+			path = maggen;
+			sourceTree = "<group>";
+		};
+		8485DEDF16CE238300535B6B /* mkdatasets */ = {
+			isa = PBXGroup;
+			children = (
+				8485DEE016CE238300535B6B /* Makefile */,
+				8485DEE116CE238300535B6B /* Makefile.ex */,
+				8485DEE316CE238300535B6B /* mkdatasets.cpp */,
+				8485DEE716CE238300535B6B /* ReadMe.txt */,
+				8485DEE816CE238300535B6B /* stdafx.cpp */,
+				8485DEE916CE238300535B6B /* stdafx.h */,
+				8485DEEA16CE238300535B6B /* targetver.h */,
+			);
+			path = mkdatasets;
+			sourceTree = "<group>";
+		};
+		8485DEEB16CE238300535B6B /* motifs */ = {
+			isa = PBXGroup;
+			children = (
+				8485DEEC16CE238300535B6B /* Makefile */,
+				8485DEED16CE238300535B6B /* Makefile.ex */,
+				8485DEEF16CE238300535B6B /* motifs.cpp */,
+				8485DEF316CE238300535B6B /* ReadMe.txt */,
+				8485DEF416CE238300535B6B /* stdafx.cpp */,
+				8485DEF516CE238300535B6B /* stdafx.h */,
+				8485DEF616CE238300535B6B /* targetver.h */,
+			);
+			path = motifs;
+			sourceTree = "<group>";
+		};
+		8485DEF716CE238300535B6B /* ncpplot */ = {
+			isa = PBXGroup;
+			children = (
+				8485DEF816CE238300535B6B /* Makefile */,
+				8485DEF916CE238300535B6B /* Makefile.ex */,
+				8485DEFB16CE238300535B6B /* ncpplot.cpp */,
+				8485DEFF16CE238300535B6B /* ReadMe.txt */,
+				8485DF0016CE238300535B6B /* stdafx.cpp */,
+				8485DF0116CE238300535B6B /* stdafx.h */,
+				8485DF0216CE238300535B6B /* targetver.h */,
+			);
+			path = ncpplot;
+			sourceTree = "<group>";
+		};
+		8485DF0316CE238300535B6B /* netevol */ = {
+			isa = PBXGroup;
+			children = (
+				8485DF0416CE238300535B6B /* Makefile */,
+				8485DF0516CE238300535B6B /* Makefile.ex */,
+				8485DF0716CE238300535B6B /* netevol.cpp */,
+				8485DF0B16CE238300535B6B /* ReadMe.txt */,
+				8485DF0C16CE238300535B6B /* stdafx.cpp */,
+				8485DF0D16CE238300535B6B /* stdafx.h */,
+				8485DF0E16CE238300535B6B /* targetver.h */,
+			);
+			path = netevol;
+			sourceTree = "<group>";
+		};
+		8485DF0F16CE238300535B6B /* netinf */ = {
+			isa = PBXGroup;
+			children = (
+				8485DF1016CE238300535B6B /* example-cascades.txt */,
+				8485DF1116CE238300535B6B /* example-network.txt */,
+				8485DF1216CE238300535B6B /* Makefile */,
+				8485DF1316CE238300535B6B /* Makefile.ex */,
+				8485DF1516CE238300535B6B /* netinf.cpp */,
+				8485DF1816CE238300535B6B /* network-edge.info */,
+				8485DF1916CE238300535B6B /* network.txt */,
+				8485DF1A16CE238300535B6B /* ReadMe.txt */,
+				8485DF1B16CE238300535B6B /* stdafx.cpp */,
+				8485DF1C16CE238300535B6B /* stdafx.h */,
+				8485DF1D16CE238300535B6B /* targetver.h */,
+			);
+			path = netinf;
+			sourceTree = "<group>";
+		};
+		8485DF1E16CE238300535B6B /* netstat */ = {
+			isa = PBXGroup;
+			children = (
+				8485DF1F16CE238300535B6B /* Makefile */,
+				8485DF2016CE238300535B6B /* Makefile.ex */,
+				8485DF2216CE238300535B6B /* netstat.cpp */,
+				8485DF2616CE238300535B6B /* ReadMe.txt */,
+				8485DF2716CE238300535B6B /* stdafx.cpp */,
+				8485DF2816CE238300535B6B /* stdafx.h */,
+				8485DF2916CE238300535B6B /* targetver.h */,
+			);
+			path = netstat;
+			sourceTree = "<group>";
+		};
+		8485DF3116CE238300535B6B /* testgraph */ = {
+			isa = PBXGroup;
+			children = (
+				8485DF3216CE238300535B6B /* Makefile */,
+				8485DF3316CE238300535B6B /* Makefile.ex */,
+				8485DF3416CE238300535B6B /* ReadMe.txt */,
+				8485DF3516CE238300535B6B /* stdafx.cpp */,
+				8485DF3616CE238300535B6B /* stdafx.h */,
+				8485DF3716CE238300535B6B /* targetver.h */,
+				8485DF3816CE238300535B6B /* testgraph */,
+				8485DF3916CE238300535B6B /* testgraph.cpp */,
+				8485DF3A16CE238300535B6B /* testgraph.dSYM */,
+				8485DF3B16CE238300535B6B /* testgraph.vcproj */,
+				8485DF3C16CE238300535B6B /* testgraph.vcxproj */,
+			);
+			path = testgraph;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXLegacyTarget section */
+		840B687516CE2978001B305C /* agmfit */ = {
+			isa = PBXLegacyTarget;
+			buildArgumentsString = "$(ACTION)";
+			buildConfigurationList = 840B687616CE2978001B305C /* Build configuration list for PBXLegacyTarget "agmfit" */;
+			buildPhases = (
+			);
+			buildToolPath = /usr/bin/make;
+			buildWorkingDirectory = agmfit;
+			dependencies = (
+			);
+			name = agmfit;
+			passBuildSettingsInEnvironment = 1;
+			productName = agmfit;
+		};
+		8485DDCE16CE233500535B6B /* snap-examples */ = {
+			isa = PBXLegacyTarget;
+			buildArgumentsString = "$(ACTION)";
+			buildConfigurationList = 8485DDD116CE233500535B6B /* Build configuration list for PBXLegacyTarget "snap-examples" */;
+			buildPhases = (
+			);
+			buildToolPath = /usr/bin/make;
+			dependencies = (
+			);
+			name = "snap-examples";
+			passBuildSettingsInEnvironment = 1;
+			productName = "snap-examples";
+		};
+/* End PBXLegacyTarget section */
+
+/* Begin PBXProject section */
+		8485DDC916CE233500535B6B /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0450;
+				ORGANIZATIONNAME = infolab;
+			};
+			buildConfigurationList = 8485DDCC16CE233500535B6B /* Build configuration list for PBXProject "snap-examples" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 8485DDC716CE233500535B6B;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				8485DDCE16CE233500535B6B /* snap-examples */,
+				840B687516CE2978001B305C /* agmfit */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin XCBuildConfiguration section */
+		840B687716CE2978001B305C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DEBUGGING_SYMBOLS = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		840B687816CE2978001B305C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		8485DDCF16CE233500535B6B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		8485DDD016CE233500535B6B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		8485DDD216CE233500535B6B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DEBUGGING_SYMBOLS = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		8485DDD316CE233500535B6B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		840B687616CE2978001B305C /* Build configuration list for PBXLegacyTarget "agmfit" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				840B687716CE2978001B305C /* Debug */,
+				840B687816CE2978001B305C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+		8485DDCC16CE233500535B6B /* Build configuration list for PBXProject "snap-examples" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8485DDCF16CE233500535B6B /* Debug */,
+				8485DDD016CE233500535B6B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		8485DDD116CE233500535B6B /* Build configuration list for PBXLegacyTarget "snap-examples" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8485DDD216CE233500535B6B /* Debug */,
+				8485DDD316CE233500535B6B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 8485DDC916CE233500535B6B /* Project object */;
+}
