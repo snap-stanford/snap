@@ -630,17 +630,34 @@ bool TNEAGraph::TNodeI::IsOutNId(const int& NId) const {
 }
 
 int TNEAGraph::AddNode(int NId) {
+  int i;
+
   if (NId == -1) {
     NId = MxNId;  MxNId++;
   } else {
     IAssertR(!IsNode(NId), TStr::Fmt("NodeId %d already exists", NId));
     MxNId = TMath::Mx(NId+1, MxNId());
   }
+  // update attribute columns
   NodeH.AddDat(NId, TNode(NId));
+  for (i = 0; i < VecOfIntVecs.Len(); i++) {
+    TVec<TInt>& IntVec = VecOfIntVecs[i];
+    IntVec.Ins(NodeH.GetKeyId(NId), TInt::Mn);
+  }
+  for (i = 0; i < VecOfStrVecs.Len(); i++) {
+    TVec<TStr>& StrVec = VecOfStrVecs[i];
+    StrVec.Ins(NodeH.GetKeyId(NId), TStr::GetNullStr());
+  }
+  for (i = 0; i < VecOfFltVecs.Len(); i++) {
+    TVec<TFlt>& FltVec = VecOfFltVecs[i];
+    FltVec.Ins(NodeH.GetKeyId(NId), TFlt::Mn);
+  }
   return NId;
 }
 
 void TNEAGraph::DelNode(const int& NId) {
+  int i;
+  
   const TNode& Node = GetNode(NId);
   for (int out = 0; out < Node.GetOutDeg(); out++) {
     const int EId = Node.GetOutEId(out);
@@ -655,6 +672,19 @@ void TNEAGraph::DelNode(const int& NId) {
     IAssert(Edge.GetDstNId() == NId);
     GetNode(Edge.GetSrcNId()).OutEIdV.DelIfIn(EId);
     EdgeH.DelKey(EId);
+  }
+
+  for (i = 0; i < VecOfIntVecs.Len(); i++) {
+    TVec<TInt>& IntVec = VecOfIntVecs[i];
+    IntVec.Ins(NodeH.GetKeyId(NId), TInt::Mn);
+  }
+  for (i = 0; i < VecOfStrVecs.Len(); i++) {
+    TVec<TStr>& StrVec = VecOfStrVecs[i];
+    StrVec.Ins(NodeH.GetKeyId(NId), TStr::GetNullStr());
+  }
+  for (i = 0; i < VecOfFltVecs.Len(); i++) {
+    TVec<TFlt>& FltVec = VecOfFltVecs[i];
+    FltVec.Ins(NodeH.GetKeyId(NId), TFlt::Mn);
   }
   NodeH.DelKey(NId);
 }
@@ -807,24 +837,23 @@ void TNEAGraph::Dump(FILE *OutF) const {
 int TNEAGraph::AddIntAttrDat(int NId, const TInt& value, TStr attribute) {
   int i;
   TInt CurrLen;
-  TVec<TInt> NewVec;
   if (!IsNode(NId)) {
     AddNode(NId);
   }
   if (KeyToType.IsKey(attribute)) {
-    NewVec = VecOfIntVecs[IntIndex.GetDat(attribute)];
+    TVec<TInt>& NewVec = VecOfIntVecs[IntIndex.GetDat(attribute)];
     NewVec[NodeH.GetKeyId(NId)] = value;
   } else {
     KeyToType.AddDat(attribute, IntType);
     CurrLen = VecOfIntVecs.Len();
-    NewVec = TVec<TInt>();
+    TVec<TInt> NewVec = TVec<TInt>();
     for (i = 0; i < MxNId; i++) {
       // this is the default value for now.
-      NewVec[i] = TInt::Mn;
+      NewVec.Ins(i, TInt::Mn);
     }
     NewVec[NodeH.GetKeyId(NId)] = value;
     VecOfIntVecs.Add(NewVec);
-    IntIndex.AddDat(attribute, CurrLen+1);
+    IntIndex.AddDat(attribute, CurrLen);
   }
   return 0;
 } 
@@ -832,24 +861,23 @@ int TNEAGraph::AddIntAttrDat(int NId, const TInt& value, TStr attribute) {
 int TNEAGraph::AddStrAttrDat(int NId, const TStr& value, TStr attribute) {
   int i;
   TInt CurrLen;
-  TVec<TStr> NewVec;
   if (!IsNode(NId)) {
     AddNode(NId);
   }
   if (KeyToType.IsKey(attribute)) {
-    NewVec = VecOfStrVecs[StrIndex.GetDat(attribute)];
+    TVec<TStr>& NewVec = VecOfStrVecs[StrIndex.GetDat(attribute)];
     NewVec[NodeH.GetKeyId(NId)] = value;
   } else {
     KeyToType.AddDat(attribute, StrType);
     CurrLen = VecOfStrVecs.Len();
-    NewVec = TVec<TStr>();
+    TVec<TStr> NewVec = TVec<TStr>();
     for (i = 0; i < MxNId; i++) {
       // this is the default value for now.
-      NewVec[i] = TStr::GetNullStr();
+      NewVec.Ins(i, TStr::GetNullStr());
     }
     NewVec[NodeH.GetKeyId(NId)] = value;
     VecOfStrVecs.Add(NewVec);
-    StrIndex.AddDat(attribute, CurrLen+1);
+    StrIndex.AddDat(attribute, CurrLen);
   }
   return 0;
 } 
@@ -857,24 +885,24 @@ int TNEAGraph::AddStrAttrDat(int NId, const TStr& value, TStr attribute) {
 int TNEAGraph::AddFltAttrDat(int NId, const TFlt& value, TStr attribute) {
   int i;
   TInt CurrLen;
-  TVec<TFlt> NewVec;
+
   if (!IsNode(NId)) {
     AddNode(NId);
   }
   if (KeyToType.IsKey(attribute)) {
-    NewVec = VecOfFltVecs[IntIndex.GetDat(attribute)];
+    TVec<TFlt>& NewVec = VecOfFltVecs[FltIndex.GetDat(attribute)];
     NewVec[NodeH.GetKeyId(NId)] = value;
   } else {
     KeyToType.AddDat(attribute, FltType);
     CurrLen = VecOfFltVecs.Len();
-    NewVec = TVec<TFlt>();
+    TVec<TFlt> NewVec = TVec<TFlt>();
     for (i = 0; i < MxNId; i++) {
       // this is the default value for now.
-      NewVec[i] = TFlt::Mn;
+      NewVec.Ins(i, TFlt::Mn);
     }
     NewVec[NodeH.GetKeyId(NId)] = value;
     VecOfFltVecs.Add(NewVec);
-    FltIndex.AddDat(attribute, CurrLen+1);
+    FltIndex.AddDat(attribute, CurrLen);
   }
   return 0;
 } 
