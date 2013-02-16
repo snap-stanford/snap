@@ -39,18 +39,13 @@
 		8485DE2216CE238300535B6B /* stdafx.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = stdafx.cpp; sourceTree = "<group>"; };
 		8485DE2316CE238300535B6B /* stdafx.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = stdafx.h; sourceTree = "<group>"; };
 		8485DE2416CE238300535B6B /* targetver.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = targetver.h; sourceTree = "<group>"; };
-		8485DE2616CE238300535B6B /* centrality */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; path = centrality; sourceTree = "<group>"; };
 		8485DE2716CE238300535B6B /* centrality.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = centrality.cpp; sourceTree = "<group>"; };
-		8485DE2816CE238300535B6B /* centrality.dSYM */ = {isa = PBXFileReference; lastKnownFileType = wrapper.dsym; path = centrality.dSYM; sourceTree = "<group>"; };
-		8485DE2916CE238300535B6B /* centrality.vcproj */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = centrality.vcproj; sourceTree = "<group>"; };
-		8485DE2A16CE238300535B6B /* centrality.vcxproj */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = centrality.vcxproj; sourceTree = "<group>"; };
 		8485DE2B16CE238300535B6B /* Makefile */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
 		8485DE2C16CE238300535B6B /* Makefile.ex */ = {isa = PBXFileReference; lastKnownFileType = text; path = Makefile.ex; sourceTree = "<group>"; };
 		8485DE2D16CE238300535B6B /* ReadMe.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = ReadMe.txt; sourceTree = "<group>"; };
 		8485DE2E16CE238300535B6B /* stdafx.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = stdafx.cpp; sourceTree = "<group>"; };
 		8485DE2F16CE238300535B6B /* stdafx.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = stdafx.h; sourceTree = "<group>"; };
 		8485DE3016CE238300535B6B /* targetver.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = targetver.h; sourceTree = "<group>"; };
-		8485DE3216CE238300535B6B /* circles */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; path = circles; sourceTree = "<group>"; };
 		8485DE3316CE238300535B6B /* circles.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = circles.cpp; sourceTree = "<group>"; };
 		8485DE3416CE238300535B6B /* fb1.circles */ = {isa = PBXFileReference; lastKnownFileType = text; path = fb1.circles; sourceTree = "<group>"; };
 		8485DE3516CE238300535B6B /* fb1.edges */ = {isa = PBXFileReference; lastKnownFileType = text; path = fb1.edges; sourceTree = "<group>"; };
@@ -205,8 +200,6 @@
 		8485DF2816CE238300535B6B /* stdafx.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = stdafx.h; sourceTree = "<group>"; };
 		8485DF2916CE238300535B6B /* targetver.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = targetver.h; sourceTree = "<group>"; };
 		8485DF2A16CE238300535B6B /* README */ = {isa = PBXFileReference; lastKnownFileType = text; path = README; sourceTree = "<group>"; };
-		8485DF2F16CE238300535B6B /* SnapExamples-VS08.sln */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SnapExamples-VS08.sln"; sourceTree = "<group>"; };
-		8485DF3016CE238300535B6B /* SnapExamples-VS10.sln */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SnapExamples-VS10.sln"; sourceTree = "<group>"; };
 		8485DF3216CE238300535B6B /* Makefile */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
 		8485DF3316CE238300535B6B /* Makefile.ex */ = {isa = PBXFileReference; lastKnownFileType = text; path = Makefile.ex; sourceTree = "<group>"; };
 		8485DF3416CE238300535B6B /* ReadMe.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = ReadMe.txt; sourceTree = "<group>"; };
@@ -215,9 +208,6 @@
 		8485DF3716CE238300535B6B /* targetver.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = targetver.h; sourceTree = "<group>"; };
 		8485DF3816CE238300535B6B /* testgraph */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; path = testgraph; sourceTree = "<group>"; };
 		8485DF3916CE238300535B6B /* testgraph.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = testgraph.cpp; sourceTree = "<group>"; };
-		8485DF3A16CE238300535B6B /* testgraph.dSYM */ = {isa = PBXFileReference; lastKnownFileType = wrapper.dsym; path = testgraph.dSYM; sourceTree = "<group>"; };
-		8485DF3B16CE238300535B6B /* testgraph.vcproj */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = testgraph.vcproj; sourceTree = "<group>"; };
-		8485DF3C16CE238300535B6B /* testgraph.vcxproj */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = testgraph.vcxproj; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -253,8 +243,6 @@
 				8485DF0F16CE238300535B6B /* netinf */,
 				8485DF1E16CE238300535B6B /* netstat */,
 				8485DF2A16CE238300535B6B /* README */,
-				8485DF2F16CE238300535B6B /* SnapExamples-VS08.sln */,
-				8485DF3016CE238300535B6B /* SnapExamples-VS10.sln */,
 				8485DF3116CE238300535B6B /* testgraph */,
 			);
 			sourceTree = "<group>";
@@ -321,11 +309,7 @@
 		8485DE2516CE238300535B6B /* centrality */ = {
 			isa = PBXGroup;
 			children = (
-				8485DE2616CE238300535B6B /* centrality */,
 				8485DE2716CE238300535B6B /* centrality.cpp */,
-				8485DE2816CE238300535B6B /* centrality.dSYM */,
-				8485DE2916CE238300535B6B /* centrality.vcproj */,
-				8485DE2A16CE238300535B6B /* centrality.vcxproj */,
 				8485DE2B16CE238300535B6B /* Makefile */,
 				8485DE2C16CE238300535B6B /* Makefile.ex */,
 				8485DE2D16CE238300535B6B /* ReadMe.txt */,
@@ -339,7 +323,6 @@
 		8485DE3116CE238300535B6B /* circles */ = {
 			isa = PBXGroup;
 			children = (
-				8485DE3216CE238300535B6B /* circles */,
 				8485DE3316CE238300535B6B /* circles.cpp */,
 				8485DE3416CE238300535B6B /* fb1.circles */,
 				8485DE3516CE238300535B6B /* fb1.edges */,
@@ -639,9 +622,6 @@
 				8485DF3716CE238300535B6B /* targetver.h */,
 				8485DF3816CE238300535B6B /* testgraph */,
 				8485DF3916CE238300535B6B /* testgraph.cpp */,
-				8485DF3A16CE238300535B6B /* testgraph.dSYM */,
-				8485DF3B16CE238300535B6B /* testgraph.vcproj */,
-				8485DF3C16CE238300535B6B /* testgraph.vcxproj */,
 			);
 			path = testgraph;
 			sourceTree = "<group>";
@@ -656,12 +636,362 @@
 			buildPhases = (
 			);
 			buildToolPath = /usr/bin/make;
-			buildWorkingDirectory = agmfit;
+			buildWorkingDirectory = "$(TARGET_NAME)";
 			dependencies = (
 			);
 			name = agmfit;
 			passBuildSettingsInEnvironment = 1;
 			productName = agmfit;
+		};
+		840B687916CE2D05001B305C /* agmgen */ = {
+			isa = PBXLegacyTarget;
+			buildArgumentsString = "$(ACTION)";
+			buildConfigurationList = 840B687A16CE2D05001B305C /* Build configuration list for PBXLegacyTarget "agmgen" */;
+			buildPhases = (
+			);
+			buildToolPath = /usr/bin/make;
+			buildWorkingDirectory = "$(TARGET_NAME)";
+			dependencies = (
+			);
+			name = agmgen;
+			passBuildSettingsInEnvironment = 1;
+			productName = agmgen;
+		};
+		840B687D16CE2D0B001B305C /* bigclam */ = {
+			isa = PBXLegacyTarget;
+			buildArgumentsString = "$(ACTION)";
+			buildConfigurationList = 840B687E16CE2D0B001B305C /* Build configuration list for PBXLegacyTarget "bigclam" */;
+			buildPhases = (
+			);
+			buildToolPath = /usr/bin/make;
+			buildWorkingDirectory = "$(TARGET_NAME)";
+			dependencies = (
+			);
+			name = bigclam;
+			passBuildSettingsInEnvironment = 1;
+			productName = bigclam;
+		};
+		840B688116CE2D11001B305C /* cascades */ = {
+			isa = PBXLegacyTarget;
+			buildArgumentsString = "$(ACTION)";
+			buildConfigurationList = 840B688216CE2D11001B305C /* Build configuration list for PBXLegacyTarget "cascades" */;
+			buildPhases = (
+			);
+			buildToolPath = /usr/bin/make;
+			buildWorkingDirectory = "$(TARGET_NAME)";
+			dependencies = (
+			);
+			name = cascades;
+			passBuildSettingsInEnvironment = 1;
+			productName = cascades;
+		};
+		840B688516CE2D17001B305C /* centrality */ = {
+			isa = PBXLegacyTarget;
+			buildArgumentsString = "$(ACTION)";
+			buildConfigurationList = 840B688616CE2D17001B305C /* Build configuration list for PBXLegacyTarget "centrality" */;
+			buildPhases = (
+			);
+			buildToolPath = /usr/bin/make;
+			buildWorkingDirectory = "$(TARGET_NAME)";
+			dependencies = (
+			);
+			name = centrality;
+			passBuildSettingsInEnvironment = 1;
+			productName = centrality;
+		};
+		840B688916CE2D1E001B305C /* circles */ = {
+			isa = PBXLegacyTarget;
+			buildArgumentsString = "$(ACTION)";
+			buildConfigurationList = 840B688A16CE2D1E001B305C /* Build configuration list for PBXLegacyTarget "circles" */;
+			buildPhases = (
+			);
+			buildToolPath = /usr/bin/make;
+			buildWorkingDirectory = "$(TARGET_NAME)";
+			dependencies = (
+			);
+			name = circles;
+			passBuildSettingsInEnvironment = 1;
+			productName = circles;
+		};
+		840B688D16CE2D23001B305C /* cliques */ = {
+			isa = PBXLegacyTarget;
+			buildArgumentsString = "$(ACTION)";
+			buildConfigurationList = 840B688E16CE2D23001B305C /* Build configuration list for PBXLegacyTarget "cliques" */;
+			buildPhases = (
+			);
+			buildToolPath = /usr/bin/make;
+			buildWorkingDirectory = "$(TARGET_NAME)";
+			dependencies = (
+			);
+			name = cliques;
+			passBuildSettingsInEnvironment = 1;
+			productName = cliques;
+		};
+		840B689116CE2D28001B305C /* community */ = {
+			isa = PBXLegacyTarget;
+			buildArgumentsString = "$(ACTION)";
+			buildConfigurationList = 840B689216CE2D28001B305C /* Build configuration list for PBXLegacyTarget "community" */;
+			buildPhases = (
+			);
+			buildToolPath = /usr/bin/make;
+			buildWorkingDirectory = "$(TARGET_NAME)";
+			dependencies = (
+			);
+			name = community;
+			passBuildSettingsInEnvironment = 1;
+			productName = community;
+		};
+		840B689516CE2D2E001B305C /* concomp */ = {
+			isa = PBXLegacyTarget;
+			buildArgumentsString = "$(ACTION)";
+			buildConfigurationList = 840B689616CE2D2E001B305C /* Build configuration list for PBXLegacyTarget "concomp" */;
+			buildPhases = (
+			);
+			buildToolPath = /usr/bin/make;
+			buildWorkingDirectory = "$(TARGET_NAME)";
+			dependencies = (
+			);
+			name = concomp;
+			passBuildSettingsInEnvironment = 1;
+			productName = concomp;
+		};
+		840B689916CE2D32001B305C /* forestfire */ = {
+			isa = PBXLegacyTarget;
+			buildArgumentsString = "$(ACTION)";
+			buildConfigurationList = 840B689A16CE2D32001B305C /* Build configuration list for PBXLegacyTarget "forestfire" */;
+			buildPhases = (
+			);
+			buildToolPath = /usr/bin/make;
+			buildWorkingDirectory = "$(TARGET_NAME)";
+			dependencies = (
+			);
+			name = forestfire;
+			passBuildSettingsInEnvironment = 1;
+			productName = forestfire;
+		};
+		840B689D16CE2D38001B305C /* graphgen */ = {
+			isa = PBXLegacyTarget;
+			buildArgumentsString = "$(ACTION)";
+			buildConfigurationList = 840B689E16CE2D38001B305C /* Build configuration list for PBXLegacyTarget "graphgen" */;
+			buildPhases = (
+			);
+			buildToolPath = /usr/bin/make;
+			buildWorkingDirectory = "$(TARGET_NAME)";
+			dependencies = (
+			);
+			name = graphgen;
+			passBuildSettingsInEnvironment = 1;
+			productName = graphgen;
+		};
+		840B68A116CE2D3D001B305C /* graphhash */ = {
+			isa = PBXLegacyTarget;
+			buildArgumentsString = "$(ACTION)";
+			buildConfigurationList = 840B68A216CE2D3D001B305C /* Build configuration list for PBXLegacyTarget "graphhash" */;
+			buildPhases = (
+			);
+			buildToolPath = /usr/bin/make;
+			buildWorkingDirectory = "$(TARGET_NAME)";
+			dependencies = (
+			);
+			name = graphhash;
+			passBuildSettingsInEnvironment = 1;
+			productName = graphhash;
+		};
+		840B68A516CE2D42001B305C /* infopath */ = {
+			isa = PBXLegacyTarget;
+			buildArgumentsString = "$(ACTION)";
+			buildConfigurationList = 840B68A616CE2D42001B305C /* Build configuration list for PBXLegacyTarget "infopath" */;
+			buildPhases = (
+			);
+			buildToolPath = /usr/bin/make;
+			buildWorkingDirectory = "$(TARGET_NAME)";
+			dependencies = (
+			);
+			name = infopath;
+			passBuildSettingsInEnvironment = 1;
+			productName = infopath;
+		};
+		840B68A916CE2D45001B305C /* kcores */ = {
+			isa = PBXLegacyTarget;
+			buildArgumentsString = "$(ACTION)";
+			buildConfigurationList = 840B68AA16CE2D45001B305C /* Build configuration list for PBXLegacyTarget "kcores" */;
+			buildPhases = (
+			);
+			buildToolPath = /usr/bin/make;
+			buildWorkingDirectory = "$(TARGET_NAME)";
+			dependencies = (
+			);
+			name = kcores;
+			passBuildSettingsInEnvironment = 1;
+			productName = kcores;
+		};
+		840B68AD16CE2D4D001B305C /* kronem */ = {
+			isa = PBXLegacyTarget;
+			buildArgumentsString = "$(ACTION)";
+			buildConfigurationList = 840B68AE16CE2D4D001B305C /* Build configuration list for PBXLegacyTarget "kronem" */;
+			buildPhases = (
+			);
+			buildToolPath = /usr/bin/make;
+			buildWorkingDirectory = "$(TARGET_NAME)";
+			dependencies = (
+			);
+			name = kronem;
+			passBuildSettingsInEnvironment = 1;
+			productName = kronem;
+		};
+		840B68B116CE2D51001B305C /* kronfit */ = {
+			isa = PBXLegacyTarget;
+			buildArgumentsString = "$(ACTION)";
+			buildConfigurationList = 840B68B216CE2D51001B305C /* Build configuration list for PBXLegacyTarget "kronfit" */;
+			buildPhases = (
+			);
+			buildToolPath = /usr/bin/make;
+			buildWorkingDirectory = "$(TARGET_NAME)";
+			dependencies = (
+			);
+			name = kronfit;
+			passBuildSettingsInEnvironment = 1;
+			productName = kronfit;
+		};
+		840B68B516CE2D56001B305C /* krongen */ = {
+			isa = PBXLegacyTarget;
+			buildArgumentsString = "$(ACTION)";
+			buildConfigurationList = 840B68B616CE2D56001B305C /* Build configuration list for PBXLegacyTarget "krongen" */;
+			buildPhases = (
+			);
+			buildToolPath = /usr/bin/make;
+			buildWorkingDirectory = "$(TARGET_NAME)";
+			dependencies = (
+			);
+			name = krongen;
+			passBuildSettingsInEnvironment = 1;
+			productName = krongen;
+		};
+		840B68B916CE2D59001B305C /* magfit */ = {
+			isa = PBXLegacyTarget;
+			buildArgumentsString = "$(ACTION)";
+			buildConfigurationList = 840B68BA16CE2D59001B305C /* Build configuration list for PBXLegacyTarget "magfit" */;
+			buildPhases = (
+			);
+			buildToolPath = /usr/bin/make;
+			buildWorkingDirectory = "$(TARGET_NAME)";
+			dependencies = (
+			);
+			name = magfit;
+			passBuildSettingsInEnvironment = 1;
+			productName = magfit;
+		};
+		840B68BD16CE2D5D001B305C /* maggen */ = {
+			isa = PBXLegacyTarget;
+			buildArgumentsString = "$(ACTION)";
+			buildConfigurationList = 840B68BE16CE2D5D001B305C /* Build configuration list for PBXLegacyTarget "maggen" */;
+			buildPhases = (
+			);
+			buildToolPath = /usr/bin/make;
+			buildWorkingDirectory = "$(TARGET_NAME)";
+			dependencies = (
+			);
+			name = maggen;
+			passBuildSettingsInEnvironment = 1;
+			productName = maggen;
+		};
+		840B68C116CE2D63001B305C /* mkdatasets */ = {
+			isa = PBXLegacyTarget;
+			buildArgumentsString = "$(ACTION)";
+			buildConfigurationList = 840B68C216CE2D63001B305C /* Build configuration list for PBXLegacyTarget "mkdatasets" */;
+			buildPhases = (
+			);
+			buildToolPath = /usr/bin/make;
+			buildWorkingDirectory = "$(TARGET_NAME)";
+			dependencies = (
+			);
+			name = mkdatasets;
+			passBuildSettingsInEnvironment = 1;
+			productName = mkdatasets;
+		};
+		840B68C516CE2D66001B305C /* motifs */ = {
+			isa = PBXLegacyTarget;
+			buildArgumentsString = "$(ACTION)";
+			buildConfigurationList = 840B68C616CE2D66001B305C /* Build configuration list for PBXLegacyTarget "motifs" */;
+			buildPhases = (
+			);
+			buildToolPath = /usr/bin/make;
+			buildWorkingDirectory = "$(TARGET_NAME)";
+			dependencies = (
+			);
+			name = motifs;
+			passBuildSettingsInEnvironment = 1;
+			productName = motifs;
+		};
+		840B68C916CE2D6A001B305C /* ncpplot */ = {
+			isa = PBXLegacyTarget;
+			buildArgumentsString = "$(ACTION)";
+			buildConfigurationList = 840B68CA16CE2D6A001B305C /* Build configuration list for PBXLegacyTarget "ncpplot" */;
+			buildPhases = (
+			);
+			buildToolPath = /usr/bin/make;
+			buildWorkingDirectory = "$(TARGET_NAME)";
+			dependencies = (
+			);
+			name = ncpplot;
+			passBuildSettingsInEnvironment = 1;
+			productName = ncpplot;
+		};
+		840B68CD16CE2D70001B305C /* netevol */ = {
+			isa = PBXLegacyTarget;
+			buildArgumentsString = "$(ACTION)";
+			buildConfigurationList = 840B68CE16CE2D70001B305C /* Build configuration list for PBXLegacyTarget "netevol" */;
+			buildPhases = (
+			);
+			buildToolPath = /usr/bin/make;
+			buildWorkingDirectory = "$(TARGET_NAME)";
+			dependencies = (
+			);
+			name = netevol;
+			passBuildSettingsInEnvironment = 1;
+			productName = netevol;
+		};
+		840B68D116CE2D75001B305C /* netinf */ = {
+			isa = PBXLegacyTarget;
+			buildArgumentsString = "$(ACTION)";
+			buildConfigurationList = 840B68D216CE2D75001B305C /* Build configuration list for PBXLegacyTarget "netinf" */;
+			buildPhases = (
+			);
+			buildToolPath = /usr/bin/make;
+			buildWorkingDirectory = "$(TARGET_NAME)";
+			dependencies = (
+			);
+			name = netinf;
+			passBuildSettingsInEnvironment = 1;
+			productName = netinf;
+		};
+		840B68D516CE2D78001B305C /* netstat */ = {
+			isa = PBXLegacyTarget;
+			buildArgumentsString = "$(ACTION)";
+			buildConfigurationList = 840B68D616CE2D78001B305C /* Build configuration list for PBXLegacyTarget "netstat" */;
+			buildPhases = (
+			);
+			buildToolPath = /usr/bin/make;
+			buildWorkingDirectory = "$(TARGET_NAME)";
+			dependencies = (
+			);
+			name = netstat;
+			passBuildSettingsInEnvironment = 1;
+			productName = netstat;
+		};
+		840B68D916CE2D8D001B305C /* testgraph */ = {
+			isa = PBXLegacyTarget;
+			buildArgumentsString = "$(ACTION)";
+			buildConfigurationList = 840B68DA16CE2D8D001B305C /* Build configuration list for PBXLegacyTarget "testgraph" */;
+			buildPhases = (
+			);
+			buildToolPath = /usr/bin/make;
+			buildWorkingDirectory = "$(TARGET_NAME)";
+			dependencies = (
+			);
+			name = testgraph;
+			passBuildSettingsInEnvironment = 1;
+			productName = testgraph;
 		};
 		8485DDCE16CE233500535B6B /* snap-examples */ = {
 			isa = PBXLegacyTarget;
@@ -670,6 +1000,7 @@
 			buildPhases = (
 			);
 			buildToolPath = /usr/bin/make;
+			buildWorkingDirectory = .;
 			dependencies = (
 			);
 			name = "snap-examples";
@@ -698,6 +1029,31 @@
 			targets = (
 				8485DDCE16CE233500535B6B /* snap-examples */,
 				840B687516CE2978001B305C /* agmfit */,
+				840B687916CE2D05001B305C /* agmgen */,
+				840B687D16CE2D0B001B305C /* bigclam */,
+				840B688116CE2D11001B305C /* cascades */,
+				840B688516CE2D17001B305C /* centrality */,
+				840B688916CE2D1E001B305C /* circles */,
+				840B688D16CE2D23001B305C /* cliques */,
+				840B689116CE2D28001B305C /* community */,
+				840B689516CE2D2E001B305C /* concomp */,
+				840B689916CE2D32001B305C /* forestfire */,
+				840B689D16CE2D38001B305C /* graphgen */,
+				840B68A116CE2D3D001B305C /* graphhash */,
+				840B68A516CE2D42001B305C /* infopath */,
+				840B68A916CE2D45001B305C /* kcores */,
+				840B68AD16CE2D4D001B305C /* kronem */,
+				840B68B116CE2D51001B305C /* kronfit */,
+				840B68B516CE2D56001B305C /* krongen */,
+				840B68B916CE2D59001B305C /* magfit */,
+				840B68BD16CE2D5D001B305C /* maggen */,
+				840B68C116CE2D63001B305C /* mkdatasets */,
+				840B68C516CE2D66001B305C /* motifs */,
+				840B68C916CE2D6A001B305C /* ncpplot */,
+				840B68CD16CE2D70001B305C /* netevol */,
+				840B68D116CE2D75001B305C /* netinf */,
+				840B68D516CE2D78001B305C /* netstat */,
+				840B68D916CE2D8D001B305C /* testgraph */,
 			);
 		};
 /* End PBXProject section */
@@ -716,6 +1072,531 @@
 			name = Debug;
 		};
 		840B687816CE2978001B305C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		840B687B16CE2D05001B305C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DEBUGGING_SYMBOLS = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		840B687C16CE2D05001B305C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		840B687F16CE2D0B001B305C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DEBUGGING_SYMBOLS = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		840B688016CE2D0B001B305C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		840B688316CE2D11001B305C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DEBUGGING_SYMBOLS = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		840B688416CE2D11001B305C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		840B688716CE2D17001B305C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DEBUGGING_SYMBOLS = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		840B688816CE2D17001B305C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		840B688B16CE2D1E001B305C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DEBUGGING_SYMBOLS = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		840B688C16CE2D1E001B305C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		840B688F16CE2D23001B305C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DEBUGGING_SYMBOLS = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		840B689016CE2D23001B305C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		840B689316CE2D28001B305C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DEBUGGING_SYMBOLS = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		840B689416CE2D28001B305C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		840B689716CE2D2E001B305C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DEBUGGING_SYMBOLS = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		840B689816CE2D2E001B305C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		840B689B16CE2D32001B305C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DEBUGGING_SYMBOLS = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		840B689C16CE2D32001B305C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		840B689F16CE2D38001B305C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DEBUGGING_SYMBOLS = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		840B68A016CE2D38001B305C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		840B68A316CE2D3D001B305C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DEBUGGING_SYMBOLS = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		840B68A416CE2D3D001B305C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		840B68A716CE2D42001B305C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DEBUGGING_SYMBOLS = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		840B68A816CE2D42001B305C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		840B68AB16CE2D45001B305C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DEBUGGING_SYMBOLS = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		840B68AC16CE2D45001B305C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		840B68AF16CE2D4D001B305C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DEBUGGING_SYMBOLS = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		840B68B016CE2D4D001B305C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		840B68B316CE2D51001B305C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DEBUGGING_SYMBOLS = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		840B68B416CE2D51001B305C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		840B68B716CE2D56001B305C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DEBUGGING_SYMBOLS = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		840B68B816CE2D56001B305C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		840B68BB16CE2D59001B305C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DEBUGGING_SYMBOLS = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		840B68BC16CE2D59001B305C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		840B68BF16CE2D5D001B305C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DEBUGGING_SYMBOLS = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		840B68C016CE2D5D001B305C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		840B68C316CE2D63001B305C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DEBUGGING_SYMBOLS = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		840B68C416CE2D63001B305C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		840B68C716CE2D66001B305C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DEBUGGING_SYMBOLS = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		840B68C816CE2D66001B305C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		840B68CB16CE2D6A001B305C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DEBUGGING_SYMBOLS = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		840B68CC16CE2D6A001B305C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		840B68CF16CE2D70001B305C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DEBUGGING_SYMBOLS = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		840B68D016CE2D70001B305C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		840B68D316CE2D75001B305C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DEBUGGING_SYMBOLS = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		840B68D416CE2D75001B305C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		840B68D716CE2D78001B305C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DEBUGGING_SYMBOLS = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		840B68D816CE2D78001B305C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		840B68DB16CE2D8D001B305C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DEBUGGING_SYMBOLS = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		840B68DC16CE2D8D001B305C /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				OTHER_CFLAGS = "";
@@ -806,6 +1687,232 @@
 				840B687816CE2978001B305C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		840B687A16CE2D05001B305C /* Build configuration list for PBXLegacyTarget "agmgen" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				840B687B16CE2D05001B305C /* Debug */,
+				840B687C16CE2D05001B305C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		840B687E16CE2D0B001B305C /* Build configuration list for PBXLegacyTarget "bigclam" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				840B687F16CE2D0B001B305C /* Debug */,
+				840B688016CE2D0B001B305C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		840B688216CE2D11001B305C /* Build configuration list for PBXLegacyTarget "cascades" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				840B688316CE2D11001B305C /* Debug */,
+				840B688416CE2D11001B305C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		840B688616CE2D17001B305C /* Build configuration list for PBXLegacyTarget "centrality" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				840B688716CE2D17001B305C /* Debug */,
+				840B688816CE2D17001B305C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		840B688A16CE2D1E001B305C /* Build configuration list for PBXLegacyTarget "circles" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				840B688B16CE2D1E001B305C /* Debug */,
+				840B688C16CE2D1E001B305C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		840B688E16CE2D23001B305C /* Build configuration list for PBXLegacyTarget "cliques" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				840B688F16CE2D23001B305C /* Debug */,
+				840B689016CE2D23001B305C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		840B689216CE2D28001B305C /* Build configuration list for PBXLegacyTarget "community" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				840B689316CE2D28001B305C /* Debug */,
+				840B689416CE2D28001B305C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		840B689616CE2D2E001B305C /* Build configuration list for PBXLegacyTarget "concomp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				840B689716CE2D2E001B305C /* Debug */,
+				840B689816CE2D2E001B305C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		840B689A16CE2D32001B305C /* Build configuration list for PBXLegacyTarget "forestfire" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				840B689B16CE2D32001B305C /* Debug */,
+				840B689C16CE2D32001B305C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		840B689E16CE2D38001B305C /* Build configuration list for PBXLegacyTarget "graphgen" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				840B689F16CE2D38001B305C /* Debug */,
+				840B68A016CE2D38001B305C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		840B68A216CE2D3D001B305C /* Build configuration list for PBXLegacyTarget "graphhash" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				840B68A316CE2D3D001B305C /* Debug */,
+				840B68A416CE2D3D001B305C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		840B68A616CE2D42001B305C /* Build configuration list for PBXLegacyTarget "infopath" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				840B68A716CE2D42001B305C /* Debug */,
+				840B68A816CE2D42001B305C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		840B68AA16CE2D45001B305C /* Build configuration list for PBXLegacyTarget "kcores" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				840B68AB16CE2D45001B305C /* Debug */,
+				840B68AC16CE2D45001B305C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		840B68AE16CE2D4D001B305C /* Build configuration list for PBXLegacyTarget "kronem" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				840B68AF16CE2D4D001B305C /* Debug */,
+				840B68B016CE2D4D001B305C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		840B68B216CE2D51001B305C /* Build configuration list for PBXLegacyTarget "kronfit" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				840B68B316CE2D51001B305C /* Debug */,
+				840B68B416CE2D51001B305C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		840B68B616CE2D56001B305C /* Build configuration list for PBXLegacyTarget "krongen" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				840B68B716CE2D56001B305C /* Debug */,
+				840B68B816CE2D56001B305C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		840B68BA16CE2D59001B305C /* Build configuration list for PBXLegacyTarget "magfit" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				840B68BB16CE2D59001B305C /* Debug */,
+				840B68BC16CE2D59001B305C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		840B68BE16CE2D5D001B305C /* Build configuration list for PBXLegacyTarget "maggen" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				840B68BF16CE2D5D001B305C /* Debug */,
+				840B68C016CE2D5D001B305C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		840B68C216CE2D63001B305C /* Build configuration list for PBXLegacyTarget "mkdatasets" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				840B68C316CE2D63001B305C /* Debug */,
+				840B68C416CE2D63001B305C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		840B68C616CE2D66001B305C /* Build configuration list for PBXLegacyTarget "motifs" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				840B68C716CE2D66001B305C /* Debug */,
+				840B68C816CE2D66001B305C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		840B68CA16CE2D6A001B305C /* Build configuration list for PBXLegacyTarget "ncpplot" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				840B68CB16CE2D6A001B305C /* Debug */,
+				840B68CC16CE2D6A001B305C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		840B68CE16CE2D70001B305C /* Build configuration list for PBXLegacyTarget "netevol" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				840B68CF16CE2D70001B305C /* Debug */,
+				840B68D016CE2D70001B305C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		840B68D216CE2D75001B305C /* Build configuration list for PBXLegacyTarget "netinf" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				840B68D316CE2D75001B305C /* Debug */,
+				840B68D416CE2D75001B305C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		840B68D616CE2D78001B305C /* Build configuration list for PBXLegacyTarget "netstat" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				840B68D716CE2D78001B305C /* Debug */,
+				840B68D816CE2D78001B305C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		840B68DA16CE2D8D001B305C /* Build configuration list for PBXLegacyTarget "testgraph" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				840B68DB16CE2D8D001B305C /* Debug */,
+				840B68DC16CE2D8D001B305C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		8485DDCC16CE233500535B6B /* Build configuration list for PBXProject "snap-examples" */ = {
 			isa = XCConfigurationList;

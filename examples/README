@@ -27,6 +27,14 @@ Execute:
   make opt  : compiles all sample applications (release mode, 10x faster code!)
   make demo : executes all sample application
   
+In Xcode for Mac OSX:
+  1. From the Toolbar, select Scheme (e.g. 'bigclam').
+  2. Product -> Build.  (or Cmd + B).
+  3. Run executable via the command line; or
+     Choose the scheme's executable (Product -> Edit Scheme -> Run -> Info ).
+     Now run: Product -> Run (or Cmd + R). 
+     Note: If using Gnuplot, add the PATH to the scheme's environment variables.
+
 Examples:
   cascades :
   	Simulate a SI (susceptible-infected) model on a network and compute
