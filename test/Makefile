@@ -23,7 +23,8 @@ TESTS = \
 	test-bfsdfs.cpp \
 	test-alg.cpp \
 	test-THash.cpp \
-	test-THashSet.cpp
+	test-THashSet.cpp \
+	test-triad.cpp
 
 all: $(MAIN)
 run: test
