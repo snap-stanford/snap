@@ -7,7 +7,7 @@ class TLocClust;
 class TLocClustStat;
 class TNcpGraphsBase;
 
-//////////////////////////////////////////////////
+//#///////////////////////////////////////////////
 /// Local Spectral Clustering algorithm. ##Local_Spectral_Clustering_algorithm
 class TLocClust {
 public:
@@ -23,15 +23,6 @@ private:
   TIntV NIdV, VolV, CutV;  // Vol=2*edges_inside+cut (vol = sum of the degrees)
   TFltV PhiV;              // Conductance
   int BestCutIdx;          // Index K to vectors where the conductance of the bounding cut (PhiV[K]) achieves its minimum
-private:
-  /// Vector of node IDs sorted in the random walk order.
-  const TIntV& GetNIdV() const { return NIdV; }
-  /// Volume (sum of the degrees) of first K-nodes in the node-id vector (GetNIdV()).
-  const TIntV& GetVolV() const { return VolV; } 
-  /// Edges cut to separate the first K-nodes in the node-id vector (GetNIdV()) from the rest of the graph.
-  const TIntV& GetCutV() const { return CutV; } 
-  /// Conducatance of the cut separating first K-nodes in the node-id vector (GetNIdV()) from the rest of the graph.
-  const TFltV& GetPhiV() const { return PhiV; } 
 public:
   TLocClust(const PUNGraph& GraphPt, const double& AlphaVal) :
     Graph(GraphPt), Nodes(GraphPt->GetNodes()), Edges2(2*GraphPt->GetEdges()), Alpha(AlphaVal) { }
@@ -48,6 +39,15 @@ public:
   int GetCut(const int& Nodes) const { return CutV[Nodes]; }
   /// Returns the conductance of the cut separating the first Nodes nodes in the sweep vector from the rest of the graph. ##TLocClust::GetPhi
   double GetPhi(const int& ValId) const { return PhiV[ValId]; }
+
+  /// Vector of node IDs sorted in the random walk order.
+  const TIntV& GetNIdV() const { return NIdV; }
+  /// Volume (sum of the degrees) of first K-nodes in the node-id vector (GetNIdV()).
+  const TIntV& GetVolV() const { return VolV; } 
+  /// Edges cut to separate the first K-nodes in the node-id vector (GetNIdV()) from the rest of the graph.
+  const TIntV& GetCutV() const { return CutV; } 
+  /// Conducatance of the cut separating first K-nodes in the node-id vector (GetNIdV()) from the rest of the graph.
+  const TFltV& GetPhiV() const { return PhiV; } 
 
   /// Index K of the cut of the minimum conductance around the seed node. ##TLocClust::BestCut
   int BestCut() const { return BestCutIdx; }
@@ -90,7 +90,7 @@ public:
   friend class TLocClustStat;
 };
 
-//////////////////////////////////////////////////
+//#///////////////////////////////////////////////
 /// Local-Spectral-Clustering statistics of a given Graph.
 class TLocClustStat {
 public:
@@ -206,7 +206,7 @@ public:
   static void MakeExpBins(const TFltV& ValV, TFltV& NewV);
 };
 
-//////////////////////////////////////////////////
+//#///////////////////////////////////////////////
 /// Local-Spectral-Clustering for a set of graphs (loads ncp-*.tab files)
 class TNcpGraphsBase {
 private:

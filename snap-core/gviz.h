@@ -1,19 +1,15 @@
-/////////////////////////////////////////////////
+//#//////////////////////////////////////////////
 /// GraphViz Layout Engines
 typedef enum { gvlDot, gvlNeato, gvlTwopi, gvlCirco } TGVizLayout;
 
 /////////////////////////////////////////////////
 // GraphViz
 namespace TSnap {
-/// Draws a given Graph using a selected GraphViz Layout engine. Useful for drawing small (<100 node) graphs.
-/// @param PltFNm Output filename (extension .ps, .png, .gif) determines the output format.
-/// @param NIdColorH Maps node ids to node colors (see GraphViz documentation for more details).
+/// Draws a given Graph using a selected GraphViz Layout engine with nodes colored. ##DrawGViz1
 template<class PGraph> void DrawGViz(const PGraph& Graph, const TGVizLayout& Layout, const TStr& PltFNm, const TStr& Desc=TStr(), const bool& NodeLabels=false, const TIntStrH& NIdColorH=TIntStrH());
-/// Draws a given Graph using a selected GraphViz Layout engine. Useful for drawing small (<100 node) graphs.
-/// @param PltFNm Output filename (extension .ps, .png, .gif) determines the output format.
-/// @param NIdColorH Maps node ids to node colors (see GraphViz documentation for more details).
-template<class PGraph> void DrawGViz(const PGraph& Graph, const TGVizLayout& Layout, const TStr& PltFNm, const TStr& Desc, const TIntStrH& NIdColorH);
-
+/// Draws a given Graph using a selected GraphViz Layout engine with nodes labeled. ##DrawGViz2
+template<class PGraph> void DrawGViz(const PGraph& Graph, const TGVizLayout& Layout, const TStr& PltFNm, const TStr& Desc, const TIntStrH& NodeLabelH);
+  
 namespace TSnapDetail {
 /// Runs GraphViz layout engine over a graph saved in the file GraphInFNm with output saved to OutFNm.
 void GVizDoLayout(const TStr& GraphInFNm, TStr OutFNm, const TGVizLayout& Layout);

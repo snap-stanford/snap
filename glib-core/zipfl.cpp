@@ -133,6 +133,73 @@ int TZipIn::GetBf(const void* LBf, const TSize& LBfL){
   return LBfS;
 }
 
+// Gets the next line to LnChA.
+// Returns true, if LnChA contains a valid line.
+// Returns false, if LnChA is empty, such as end of file was encountered.
+
+bool TZipIn::GetNextLnBf(TChA& LnChA) {
+  int Status;
+  int BfN;        // new pointer to the end of line
+  int BfP;        // previous pointer to the line start
+
+  LnChA.Clr();
+
+  do {
+    if (BfC >= BfL) {
+      // reset the current pointer, FindEol() will read a new buffer
+      BfP = 0;
+    } else {
+      BfP = BfC;
+    }
+    Status = FindEol(BfN);
+    if (Status >= 0) {
+      LnChA.AddBf(&Bf[BfP],BfN-BfP);
+      if (Status == 1) {
+        // got a complete line
+        return true;
+      }
+    }
+    // get more data, if the line is incomplete
+  } while (Status == 0);
+
+  // eof or the last line has no newline
+  return !LnChA.Empty();
+}
+
+// Sets BfN to the end of line or end of buffer. Reads more data, if needed.
+// Returns 1, when an end of line was found, BfN is end of line.
+// Returns 0, when an end of line was not found and more data is required,
+//    BfN is end of buffer.
+// Returns -1, when an end of file was found, BfN is not defined.
+
+int TZipIn::FindEol(int& BfN) {
+  char Ch;
+
+  if (BfC >= BfL) {
+    // check for eof, read more data
+    if (Eof()) {
+      return -1;
+    }
+    FillBf();
+  }
+
+  while (BfC < BfL) {
+    Ch = Bf[BfC++];
+    if (Ch=='\n') {
+      BfN = BfC-1;
+      return 1;
+    }
+    if (Ch=='\r' && Bf[BfC+1]=='\n') {
+      BfC++;
+      BfN = BfC-2;
+      return 1;
+    }
+  }
+  BfN = BfC;
+
+  return 0;
+}
+
 bool TZipIn::IsZipExt(const TStr& FNmExt) {
   if (FExtToCmdH.Empty()) FillFExtToCmdH();
   return FExtToCmdH.IsKey(FNmExt);

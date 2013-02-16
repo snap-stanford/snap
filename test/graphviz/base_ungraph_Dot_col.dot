@@ -1,0 +1,79 @@
+/*****
+Dot
+*****/
+
+graph G {
+  graph [splines=false overlap=false]
+  node  [shape=ellipse, width=0.3, height=0.3]
+  0 [style=filled, fillcolor="cyan"];
+  5 [style=filled, fillcolor="black"];
+  13 [style=filled, fillcolor="black"];
+  1 [style=filled, fillcolor="red"];
+  8 [style=filled, fillcolor="red"];
+  9 [style=filled, fillcolor="white"];
+  28 [style=filled, fillcolor="white"];
+  2 [style=filled, fillcolor="magenta"];
+  7 [style=filled, fillcolor="green"];
+  10 [style=filled, fillcolor="yellow"];
+  12 [style=filled, fillcolor="white"];
+  3 [style=filled, fillcolor="yellow"];
+  19 [style=filled, fillcolor="blue"];
+  20 [style=filled, fillcolor="red"];
+  4 [style=filled, fillcolor="green"];
+  15 [style=filled, fillcolor="cyan"];
+  17 [style=filled, fillcolor="cyan"];
+  29 [style=filled, fillcolor="black"];
+  6 [style=filled, fillcolor="white"];
+  23 [style=filled, fillcolor="blue"];
+  24 [style=filled, fillcolor="cyan"];
+  26 [style=filled, fillcolor="black"];
+  14 [style=filled, fillcolor="yellow"];
+  18 [style=filled, fillcolor="yellow"];
+  21 [style=filled, fillcolor="white"];
+  22 [style=filled, fillcolor="yellow"];
+  11 [style=filled, fillcolor="green"];
+  25 [style=filled, fillcolor="magenta"];
+  16 [style=filled, fillcolor="white"];
+  27 [style=filled, fillcolor="cyan"];
+  0 -- 5;
+  0 -- 13;
+  5 -- 17;
+  5 -- 29;
+  13 -- 18;
+  13 -- 25;
+  1 -- 8;
+  1 -- 9;
+  1 -- 28;
+  8 -- 23;
+  8 -- 24;
+  9 -- 14;
+  9 -- 17;
+  9 -- 18;
+  9 -- 21;
+  2 -- 7;
+  2 -- 10;
+  2 -- 12;
+  7 -- 19;
+  7 -- 24;
+  7 -- 26;
+  10 -- 22;
+  3 -- 10;
+  3 -- 19;
+  3 -- 20;
+  19 -- 23;
+  20 -- 28;
+  4 -- 15;
+  4 -- 28;
+  6 -- 13;
+  6 -- 23;
+  23 -- 27;
+  24 -- 26;
+  14 -- 15;
+  18 -- 21;
+  18 -- 27;
+  11 -- 13;
+  11 -- 23;
+  25 -- 26;
+  16 -- 22;
+  label = "\nDot\n";  fontsize=24;
+}

@@ -405,8 +405,7 @@ public:
   }
 };
 
-/////////////////////////////////////////////////
-
+//#//////////////////////////////////////////////
 /// Vector is a sequence \c TVal objects representing an array that can change in size. ##TVec
 template <class TVal, class TSizeTy = int>
 class TVec{
@@ -591,7 +590,7 @@ public:
   /// Reverses the order of the elements in the vector.
   void Reverse();
   /// Reverses the order of elements between <tt>LValN...RValN</tt>.
-  void Reverse(TSizeTy LValN, TSizeTy RValN){ while (LValN < RValN){Swap(LValN++, RValN--);} }
+  void Reverse(TSizeTy LValN, TSizeTy RValN){ Assert(LValN>=0 && RValN<Len()); while (LValN < RValN){Swap(LValN++, RValN--);} }
   /// Sorts the vector and only keeps a single element of each value.
   void Merge();
 
@@ -1117,7 +1116,7 @@ void TVec<TVal, TSizeTy>::Shuffle(TRnd& Rnd){
   } else {
     for (TSizeTy ValN=0; ValN<Vals-1; ValN++){
       const TSizeTy Range = Vals-ValN;
-      Swap(ValN, ValN+Rnd.GetUniDevInt64(Range));
+      Swap(ValN, TSizeTy(ValN+Rnd.GetUniDevInt64(Range)));
     }
   }
 }
@@ -1151,7 +1150,7 @@ bool TVec<TVal, TSizeTy>::NextPerm() {
       TSizeTy Mid = Last;
       for (; GetVal(Next) >= GetVal(--Mid); ) { }
       Swap(Next, Mid);
-      Reverse(Next1, Last);
+      Reverse(Next1, Last-1);
       return true;
     }
     if (Next == First) { // pure descending, flip all
@@ -2375,8 +2374,7 @@ typedef TVec<TFltIntIntIntQu> TFltIntIntIntQuV;
 typedef TVec<TIntStrIntIntQu> TIntStrIntIntQuV;
 typedef TVec<TIntIntPrPr> TIntIntPrPrV;
 
-/////////////////////////////////////////////////
-
+//#//////////////////////////////////////////////
 /// Vector Pool. ##TVecPool
 template <class TVal, class TSizeTy=int>
 class TVecPool {

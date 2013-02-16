@@ -142,8 +142,8 @@ public:
   friend class TPt<TGStat>;
 };
 
-/////////////////////////////////////////////////
-/// Graph Statistisc Sequence
+//#//////////////////////////////////////////////
+/// Graph Statistics Sequence
 class TGStatVec {
 public:
   static uint MinNodesEdges;

@@ -1,4 +1,4 @@
-/////////////////////////////////////////////////
+//#//////////////////////////////////////////////
 /// Directed Graph Adjacency Matrix represented as sparse {0,1} row matrix.
 /// The class is used for computing spectral properties of graph adjacency matrices.
 /// The class assumes that node IDs have the range 0...Nodes-1.
@@ -22,7 +22,7 @@ public:
   void PMultiplyT(const TFltV& Vec, TFltV& Result) const;
 };
 
-/////////////////////////////////////////////////
+//#//////////////////////////////////////////////
 /// Undirected Graph Adjacency Matrix represented as sparse {0,1} row matrix.
 /// The class is used for computing spectral properties of graph adjacency matrices.
 /// The class assumes that node IDs have the range 0...Nodes-1.

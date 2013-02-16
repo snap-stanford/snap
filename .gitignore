@@ -10,27 +10,42 @@
 project.xcworkspace/
 xcuserdata/
 
-# Generated files
-*.dSYM/
-*.o
-*.pyc
-*.log
-*.graph
-*.out
-
 build/
+
+# Compiler-generated files
+*.o
+*.dSYM/
+*.pyc
+
+# Test-generated files 
+test_*.dat
+test_*.dot
+test_*.gif
+sample_*.dot
+*.graph
+*.log
+*.m
+*.net
+*.out
+*.paj
+*.png
+*.ps
+*.pool
+*.xml
 
 # Backup files
 *~.nib
 
-# Ignore generated files
-*.graph
-*.net
-*.pool
+# Doxygen-produced files
+doxygen/snapdoc-dev
+doxygen/snapdoc-user
+doxygen/log*.txt
+doxygen/snap
 
 # Ignore executables, but keep everything else
 snap-core/testSnap
 test/run-all-tests
+!test/graphviz/base*
 examples/*/*
 !examples/*/*.*
 !examples/*/Makefile
@@ -39,4 +54,7 @@ examples/*/*.dSYM
 tutorials/*
 !tutorials/*.*
 !tutorials/Makefile
+!tutorials/cncom
+!tutorials/graphviz
 tutorials/.DS_Store
+tutorials/*.dSYM

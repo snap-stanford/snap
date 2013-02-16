@@ -1,4 +1,4 @@
-/////////////////////////////////////////////////
+//#//////////////////////////////////////////////
 // Spread-Sheet
 TStr& TSs::At(const int& X, const int& Y){
 //  Fail;
@@ -346,10 +346,10 @@ TStr TSs::GetSsFmtNmVStr(){
   return ChA;
 }
 
-/////////////////////////////////////////////////
+//#//////////////////////////////////////////////
 // Fast-Spread-Sheet-Parser
 TSsParser::TSsParser(const TStr& FNm, const TSsFmt _SsFmt, const bool& _SkipLeadBlanks, const bool& _SkipCmt, const bool& _SkipEmptyFld) : SsFmt(_SsFmt), 
- SkipLeadBlanks(_SkipLeadBlanks), SkipCmt(_SkipCmt), SkipEmptyFld(_SkipEmptyFld), LineCnt(0), /*Bf(NULL),*/ SplitCh('\t'), FldV(), FInPt(NULL) {
+ SkipLeadBlanks(_SkipLeadBlanks), SkipCmt(_SkipCmt), SkipEmptyFld(_SkipEmptyFld), LineCnt(0), /*Bf(NULL),*/ SplitCh('\t'), LineStr(), FldV(), FInPt(NULL) {
   if (TZipIn::IsZipExt(FNm.GetFExt())) { FInPt = TZipIn::New(FNm); }
   else { FInPt = TFIn::New(FNm); }
   //Bf = new char [BfLen];
@@ -365,7 +365,7 @@ TSsParser::TSsParser(const TStr& FNm, const TSsFmt _SsFmt, const bool& _SkipLead
 }
 
 TSsParser::TSsParser(const TStr& FNm, const char& Separator, const bool& _SkipLeadBlanks, const bool& _SkipCmt, const bool& _SkipEmptyFld) : SsFmt(ssfSpaceSep), 
- SkipLeadBlanks(_SkipLeadBlanks), SkipCmt(_SkipCmt), SkipEmptyFld(_SkipEmptyFld), LineCnt(0), /*Bf(NULL),*/ SplitCh('\t'), FldV(), FInPt(NULL) {
+ SkipLeadBlanks(_SkipLeadBlanks), SkipCmt(_SkipCmt), SkipEmptyFld(_SkipEmptyFld), LineCnt(0), /*Bf(NULL),*/ SplitCh('\t'), LineStr(), FldV(), FInPt(NULL) {
   if (TZipIn::IsZipExt(FNm.GetFExt())) { FInPt = TZipIn::New(FNm); }
   else { FInPt = TFIn::New(FNm); }
   SplitCh = Separator;
@@ -375,16 +375,48 @@ TSsParser::~TSsParser() {
   //if (Bf != NULL) { delete [] Bf; }
 }
 
-bool TSsParser::Next() { // split on SplitCh
+// Gets and parses the next line.
+// This version of Next() is older, slower, works with chars.
+// RS 01/22/13 obsolete, can be removed in the future
+
+bool TSsParser::NextSlow() { // split on SplitCh
   FldV.Clr(false);
   LineStr.Clr();
   FldV.Clr();
   LineCnt++;
   if (! FInPt->GetNextLn(LineStr)) { return false; }
-  if (SkipCmt && LineStr.Len()>0 && LineStr[0]=='#') { return Next(); }
+  if (SkipCmt && !LineStr.Empty() && LineStr[0]=='#') { return NextSlow(); }
 
   char* cur = LineStr.CStr();
-  if (SkipLeadBlanks) { // skip leadning blanks
+  if (SkipLeadBlanks) { // skip leading blanks
+    while (*cur && TCh::IsWs(*cur)) { cur++; }
+  }
+  char *last = cur;
+  while (*cur) {
+    if (SsFmt == ssfWhiteSep) { while (*cur && ! TCh::IsWs(*cur)) { cur++; } } 
+    else { while (*cur && *cur!=SplitCh) { cur++; } }
+    if (*cur == 0) { break; }
+    *cur = 0;  cur++;
+    FldV.Add(last);  last = cur;
+    if (SkipEmptyFld && strlen(FldV.Last())==0) { FldV.DelLast(); } // skip empty fields
+  }
+  FldV.Add(last);  // add last field
+  if (SkipEmptyFld && FldV.Empty()) { return NextSlow(); } // skip empty lines
+  return true; 
+}
+
+// Gets and parses the next line, quick version, works with buffers, not chars.
+
+bool TSsParser::Next() { // split on SplitCh
+  FldV.Clr(false);
+  LineStr.Clr();
+  FldV.Clr();
+  LineCnt++;
+  if (! FInPt->GetNextLnBf(LineStr)) { return false; }
+  if (SkipCmt && !LineStr.Empty() && LineStr[0]=='#') { return Next(); }
+
+  char* cur = LineStr.CStr();
+  if (SkipLeadBlanks) { // skip leading blanks
     while (*cur && TCh::IsWs(*cur)) { cur++; }
   }
   char *last = cur;

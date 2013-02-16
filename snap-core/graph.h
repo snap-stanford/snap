@@ -1,5 +1,4 @@
-/////////////////////////////////////////////////
-
+//#//////////////////////////////////////////////
 /// Undirected graphs
 
 class TUNGraph;
@@ -21,8 +20,7 @@ typedef TPt<TNGraph> PNGraph;
 /// Pointer to a directed multigraph (TNEGraph)
 typedef TPt<TNEGraph> PNEGraph;
 
-/////////////////////////////////////////////////
-
+//#//////////////////////////////////////////////
 /// Undirected graph. ##Undirected_graph
 class TUNGraph {
 public:
@@ -649,8 +647,7 @@ template <> struct IsMultiGraph<TNEGraph> { enum { Val = 1 }; };
 template <> struct IsDirected<TNEGraph> { enum { Val = 1 }; };
 }
 
-/////////////////////////////////////////////////
-
+//#//////////////////////////////////////////////
 /// Bipartite graph. ##Bipartite_graph
 class TBPGraph {
 public:

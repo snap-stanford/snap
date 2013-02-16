@@ -4,8 +4,7 @@
 #define Mega(n) (1000*1000*(n))
 #define Giga(n) (1000*1000*1000*(n))
 
-/////////////////////////////////////////////////
-
+//#//////////////////////////////////////////////
 /// Graph Flags, used for quick testing of graph types. ##TGraphFlag
 typedef enum {
   gfUndef=0,    ///< default value, no flags
@@ -121,8 +120,7 @@ void PrintInfo(const PGraph& Graph, const TStr& Desc, const TStr& OutFNm, const 
 
 }  // namespace TSnap
 
-/////////////////////////////////////////////////
-
+//#//////////////////////////////////////////////
 /// Fast Queue used by the \c TBreathFS (uses \c memcpy to move objects \c TVal around).
 template <class TVal>
 class TSnapQueue {
@@ -180,8 +178,7 @@ public:
   }
 };
 
-/////////////////////////////////////////////////
-
+//#//////////////////////////////////////////////
 /// Union Find class (Disjoint-set data structure). ##TUnionFind
 class TUnionFind {
 private:
@@ -217,8 +214,7 @@ public:
   void Dump();
 };
 
-/////////////////////////////////////////////////
-
+//#//////////////////////////////////////////////
 /// Simple heap data structure. ##THeap
 template <class TVal, class TCmp = TLss<TVal> >
 class THeap {
