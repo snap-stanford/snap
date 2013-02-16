@@ -442,7 +442,6 @@ TEST(triad, TestGetCmnNbrs) {
   }
 }
 
-// TODO: Fix values
 // Test GetLen2Paths: Number of path lengths 2 between pair of nodes
 TEST(triad, TestGetLen2Paths) {
   // Test TUNGraph
