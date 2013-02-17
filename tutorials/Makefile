@@ -6,7 +6,7 @@ include ../Makefile.config
 
 ## Main application file
 DEMOS = \
-	demo-TUNGraph demo-TNGraph demo-TNEGraph \
+	demo-TUNGraph demo-TNGraph demo-TNEAGraph \
 	demo-TNodeNet demo-TNodeEDatNet demo-TNodeEdgeNet \
 	demo-subgraph demo-ggen \
 	demo-gio demo-gviz \
