@@ -31,9 +31,13 @@ In Xcode for Mac OSX:
   1. From the Toolbar, select Scheme (e.g. 'bigclam').
   2. Product -> Build.  (or Cmd + B).
   3. Run executable via the command line; or
-     Choose the scheme's executable (Product -> Edit Scheme -> Run -> Info ).
-     Now run: Product -> Run (or Cmd + R). 
+     Choose the scheme's executable (Product -> Edit Scheme -> Run -> Info)
+     and run: Product -> Run (or Cmd + R). 
      Note: If using Gnuplot, add the PATH to the scheme's environment variables.
+     or create symlink to /usr/bin:
+     sudo ln -s <gnuplot_dir>/gnuplot /usr/bin/
+  For code completion, the "docs" target has been created which includes all
+  Snap-related files and example programs.
 
 Examples:
   cascades :
