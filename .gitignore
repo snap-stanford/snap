@@ -29,6 +29,8 @@ sample_*.dot
 *.out
 *.paj
 *.png
+*.plt
+*.tab
 *.ps
 *.pool
 *.xml
