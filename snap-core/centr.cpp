@@ -135,29 +135,47 @@ void GetBetweennessCentr(const PUNGraph& Graph, TIntFltH& NodeBtwH, TIntPrFltH& 
 void GetEigenVectorCentr(const PUNGraph& Graph, TIntFltH& NIdEigenH, const double& Eps, const int& MaxIter) {
   const int NNodes = Graph->GetNodes();
   NIdEigenH.Gen(NNodes);
+  // initialize vector values
   for (TUNGraph::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
     NIdEigenH.AddDat(NI.GetId(), 1.0/NNodes);
     IAssert(NI.GetId() == NIdEigenH.GetKey(NIdEigenH.Len()-1));
   }
   TFltV TmpV(NNodes);
-  double diff = TFlt::Mx;
   for (int iter = 0; iter < MaxIter; iter++) {
     int j = 0;
+    // add neighbor values
     for (TUNGraph::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++, j++) {
       TmpV[j] = 0;
       for (int e = 0; e < NI.GetOutDeg(); e++) {
         TmpV[j] += NIdEigenH.GetDat(NI.GetOutNId(e)); }
     }
+
+    // normalize
     double sum = 0;
     for (int i = 0; i < TmpV.Len(); i++) {
-      NIdEigenH[i] = TmpV[i];
-      sum += NIdEigenH[i];
+      sum += (TmpV[i]*TmpV[i]);
     }
-    for (int i = 0; i < NIdEigenH.Len(); i++) {
-      NIdEigenH[i] /= sum; }
-    if (fabs(diff-sum) < Eps) { break; }
-    //printf("\tdiff:%f\tsum:%f\n", fabs(diff-sum), sum);
-    diff = sum;
+    sum = sqrt(sum);
+    for (int i = 0; i < TmpV.Len(); i++) {
+      TmpV[i] /= sum;
+    }
+
+    // compute difference
+    double diff = 0.0;
+    j = 0;
+    for (TUNGraph::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++, j++) {
+      diff += fabs(NIdEigenH.GetDat(NI.GetId())-TmpV[j]);
+    }
+
+    // set new values
+    j = 0;
+    for (TUNGraph::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++, j++) {
+      NIdEigenH.AddDat(NI.GetId(), TmpV[j]);
+    }
+
+    if (diff < Eps) {
+      break;
+    }
   }
 }
 

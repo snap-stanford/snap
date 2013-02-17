@@ -283,7 +283,7 @@ private:
   int GetFPos() const;
   int GetFLen() const;
   void FillBf();
-  int FindEol(int& BfN);
+  int FindEol(int& BfN, bool& CrEnd);
 private:
   TFIn();
   TFIn(const TFIn&);
