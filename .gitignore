@@ -47,7 +47,6 @@ snap-core/testSnap
 test/run-all-tests
 !test/graphviz/base*
 examples/*/*
-!examples/*/*.*
 !examples/*/Makefile
 examples/*/.DS_Store
 examples/*/*.dSYM
