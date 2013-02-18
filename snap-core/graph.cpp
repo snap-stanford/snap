@@ -629,6 +629,29 @@ bool TNEAGraph::TNodeI::IsOutNId(const int& NId) const {
   return false;
 }
 
+bool TNEAGraph::TAttrNI::IsDeleted() {
+  bool IntDel = (NodeHI.GetDat() == IntType &&
+    TInt::Mn == Graph->VecOfIntVecs.GetVal(
+    Graph->IntIndex.GetDat(NodeHI.GetKey())).GetVal(NId));
+  bool StrDel = (NodeHI.GetDat() == StrType &&
+    TStr::GetNullStr() == Graph->VecOfStrVecs.GetVal(
+    Graph->StrIndex.GetDat(NodeHI.GetKey())).GetVal(NId));
+  bool FltDel = (NodeHI.GetDat() == FltType &&
+    TFlt::Mn == Graph->VecOfFltVecs.GetVal(
+    Graph->FltIndex.GetDat(NodeHI.GetKey())).GetVal(NId));
+  return IntDel || StrDel || FltDel;
+}
+
+TNEAGraph::TAttrNI& TNEAGraph::TAttrNI::operator++ (int) {
+  NodeHI++;
+  while (NodeHI < Graph->KeyToType.EndI()) {
+    if (!IsDeleted()) break;
+    NodeHI++;
+  }  
+
+  return *this;
+}
+
 int TNEAGraph::AddNode(int NId) {
   int i;
 
@@ -848,7 +871,7 @@ int TNEAGraph::AddIntAttrDat(int NId, const TInt& value, TStr attribute) {
     CurrLen = VecOfIntVecs.Len();
     TVec<TInt> NewVec = TVec<TInt>();
     for (i = 0; i < MxNId; i++) {
-      // this is the default value for now.
+    // this is the default value for now.
       NewVec.Ins(i, TInt::Mn);
     }
     NewVec[NodeH.GetKeyId(NId)] = value;
