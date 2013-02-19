@@ -784,6 +784,8 @@ public:
     TNodeAIntI& operator++ (int) { NodeHI++; return *this; }
     bool operator < (const TNodeAIntI& NodeI) const { return NodeHI < NodeI.NodeHI; }
     bool operator == (const TNodeAIntI& NodeI) const { return NodeHI == NodeI.NodeHI; }
+    /// Returns an attribute of the node.
+    TInt GetDat() const { return NodeHI[0]; }
 
     friend class TNEAGraph;
   };
@@ -803,6 +805,8 @@ public:
     TNodeAStrI& operator++ (int) { NodeHI++; return *this; }
     bool operator < (const TNodeAStrI& NodeI) const { return NodeHI < NodeI.NodeHI; }
     bool operator == (const TNodeAStrI& NodeI) const { return NodeHI == NodeI.NodeHI; }
+    /// Returns an attribute of the node.
+    TStr GetDat() const { return NodeHI[0]; }
 
     friend class TNEAGraph;
   };
@@ -822,6 +826,8 @@ public:
     TNodeAFltI& operator++ (int) { NodeHI++; return *this; }
     bool operator < (const TNodeAFltI& NodeI) const { return NodeHI < NodeI.NodeHI; }
     bool operator == (const TNodeAFltI& NodeI) const { return NodeHI == NodeI.NodeHI; }
+    /// Returns an attribute of the node.
+    TFlt GetDat() const { return NodeHI[0]; }
 
     friend class TNEAGraph;
   };
@@ -835,9 +841,9 @@ public:
     int NId;
   public:
     TAttrNI(const int NId) : NodeHI(), Graph(NULL), NId(NId) { }
-    TAttrNI(const THashIter& NodeHIter, const TNEAGraph* GraphPt, const int NId) : NodeHI(NodeHIter), Graph(GraphPt), NId(NId) {if(IsDeleted()){(*this)++;}}
-    TAttrNI(const TAttrNI& NodeI) : NodeHI(NodeI.NodeHI), Graph(NodeI.Graph), NId(NodeI.NId) {if(IsDeleted()){(*this)++;}}
-    TAttrNI& operator = (const TAttrNI& NodeI) { NodeHI = NodeI.NodeHI; Graph=NodeI.Graph; NId = NodeI.NId; if(IsDeleted()){(*this)++;} return *this; }
+    TAttrNI(const THashIter& NodeHIter, const TNEAGraph* GraphPt, const int NId) : NodeHI(NodeHIter), Graph(GraphPt), NId(NId) {if(!NodeHI.IsEnd() && IsDeleted()){(*this)++;}}
+    TAttrNI(const TAttrNI& NodeI) : NodeHI(NodeI.NodeHI), Graph(NodeI.Graph), NId(NodeI.NId) {if(!NodeHI.IsEnd()&&IsDeleted()){(*this)++;}}
+    TAttrNI& operator = (const TAttrNI& NodeI) { NodeHI = NodeI.NodeHI; Graph=NodeI.Graph; NId = NodeI.NId; if(!NodeHI.IsEnd()&&IsDeleted()){(*this)++;} return *this; }
     bool operator < (const TAttrNI& NodeI) const { return NodeHI < NodeI.NodeHI; }
     bool operator == (const TAttrNI& NodeI) const { return NodeHI == NodeI.NodeHI; }
     /// Returns an attribute of the node.

@@ -644,7 +644,7 @@ bool TNEAGraph::TAttrNI::IsDeleted() {
 
 TNEAGraph::TAttrNI& TNEAGraph::TAttrNI::operator++ (int) {
   NodeHI++;
-  while (NodeHI < Graph->KeyToType.EndI()) {
+  while (!NodeHI.IsEnd()) {
     if (!IsDeleted()) break;
     NodeHI++;
   }  

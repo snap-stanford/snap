@@ -42,16 +42,6 @@ void ManipulateNodesEdges() {
   t = Graph->Empty();
   n = Graph->GetNodes();
 
-  // create attributes and fill all nodes
-  TStr attr1 = "str";
-  TStr attr2 = "double";
-  TStr attr3 = "float";
-  for (i = 0; i <NNodes; i++) {
-    Graph->AddStrAttrDat(i, "n"+i, attr1);
-    Graph->AddIntAttrDat(i, i, attr2);
-    Graph->AddFltAttrDat(i, i, attr3);
-  }
-
   // create random edges
   NCount = NEdges;
   while (NCount > 0) {
@@ -115,6 +105,114 @@ void ManipulateNodesEdges() {
   PrintGStats("ManipulateNodesEdges:Graph1",Graph1);
 }
 
+// Test node attribute functionality
+void ManipulateNodeAttributes() {
+  int NNodes = 1000;
+
+  PNEAGraph Graph;
+  int i;
+  int n;
+  bool t;
+
+  Graph = TNEAGraph::New();
+  t = Graph->Empty();
+
+  // create the nodes
+  for (i = 0; i < NNodes; i++) {
+    Graph->AddNode(i);
+  }
+  t = Graph->Empty();
+  n = Graph->GetNodes();
+
+  // create attributes and fill all nodes
+  TStr attr1 = "str";
+  TStr attr2 = "int";
+  TStr attr3 = "float";
+  TStr attr4 = "default";
+
+  // Test vertical int iterator for node 3, 50, 700, 900
+  Graph->AddIntAttrDat(3, 3*2, attr2);
+  Graph->AddIntAttrDat(50, 50*2, attr2);
+  Graph->AddIntAttrDat(700, 700*2, attr2);
+  Graph->AddIntAttrDat(900, 900*2, attr2);
+  int NodeId = 0;
+  for (TNEAGraph::TNodeAIntI NI = Graph->BegNAIntI(attr2);
+    NI < Graph->EndNAIntI(attr2); NI++) {
+    if (NI.GetDat() != TInt::Mn) {
+      printf("Attribute: %s, Node: %i, Val: %i\n", attr2(), NodeId, NI.GetDat()());
+    }
+    NodeId++;
+  } 
+
+  // Test vertical flt iterator for node 3, 50, 700, 900
+  Graph->AddFltAttrDat(5, 3.41, attr3);
+  Graph->AddFltAttrDat(50, 2.718, attr3);
+  Graph->AddFltAttrDat(300, 150.0, attr3);
+  Graph->AddFltAttrDat(653, 653, attr3);
+  NodeId = 0;
+  for (TNEAGraph::TNodeAFltI NI = Graph->BegNAFltI(attr3);
+    NI < Graph->EndNAFltI(attr3); NI++) {
+    if (NI.GetDat() != TFlt::Mn) {
+      printf("Attribute: %s, Node: %i, Val: %f\n", attr3(), NodeId, NI.GetDat()());
+    }
+    NodeId++;
+  } 
+
+  // Test vertical str iterator for node 3, 50, 700, 900
+  Graph->AddStrAttrDat(10, "abc", attr1);
+  Graph->AddStrAttrDat(20, "def", attr1);
+  Graph->AddStrAttrDat(400, "ghi", attr1);
+  // this does not show since ""=null
+  Graph->AddStrAttrDat(455, "", attr1);
+  NodeId = 0;
+  for (TNEAGraph::TNodeAStrI NI = Graph->BegNAStrI(attr1);
+    NI < Graph->EndNAStrI(attr1); NI++) {
+    if (NI.GetDat() != TStr::GetNullStr()) {
+      printf("Attribute: %s, Node: %i, Val: %s\n", attr1(), NodeId, NI.GetDat()());
+    }
+    NodeId++;
+  } 
+
+  // Test vertical iterator over many types (must skip default/deleted attr) 
+  int NId = 55;
+  Graph->AddStrAttrDat(NId, "aaa", attr1);
+  Graph->AddIntAttrDat(NId, 3*2, attr2);
+  Graph->AddFltAttrDat(NId, 3.41, attr3);
+  Graph->AddStrAttrDat(80, "dont appear", attr4); // should not show up
+  for (TNEAGraph::TAttrNI NI = Graph->BegAttrNI(NId);
+    NI < Graph->EndAttrNI(NId); NI++) {
+    printf("Vertical Node: %i, Attr: %s\n", NId, NI.GetDat()());
+  } 
+
+  Graph->DelAttrDat(NId, attr2);
+  for (TNEAGraph::TAttrNI NI = Graph->BegAttrNI(NId);
+    NI < Graph->EndAttrNI(NId); NI++) {
+    printf("Vertical Node (no int) : %i, Attr: %s\n", NId, NI.GetDat()());
+  } 
+
+  Graph->AddIntAttrDat(NId, 3*2, attr2);
+  Graph->DelAttr(attr1);
+  for (TNEAGraph::TAttrNI NI = Graph->BegAttrNI(NId);
+    NI < Graph->EndAttrNI(NId); NI++) {
+    printf("Vertical Node (no str) : %i, Attr: %s\n", NId, NI.GetDat()());
+  } 
+
+  for (i = 0; i <NNodes; i++) {
+    Graph->AddIntAttrDat(i, 70, attr2);
+  }
+
+  int total = 0;
+  for (TNEAGraph::TNodeAIntI NI = Graph->BegNAIntI(attr2);
+    NI < Graph->EndNAIntI(attr2); NI++) {
+    total += NI.GetDat();
+  }
+
+  printf("Average: %i (should be 70)\n", total/NNodes);
+
+  Graph->Clr();
+}
+
+
 // Test small graph
 void GetSmallGraph() {
   PNEAGraph Graph;
@@ -128,6 +226,7 @@ void GetSmallGraph() {
 int main(int argc, char* argv[]) {
   DefaultConstructor();
   ManipulateNodesEdges();
+  ManipulateNodeAttributes();
   GetSmallGraph();
 }
 
