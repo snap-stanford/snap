@@ -837,7 +837,7 @@ public:
   /// Attr Node iterator. Iterate through all attributes of one node.
   class TAttrNI {
   private:
-    typedef THash<TStr, TInt>::TIter THashIter;
+    typedef TStrIntPrH::TIter THashIter;
     THashIter NodeHI;
     const TNEAGraph *Graph;
     int NId;
@@ -865,29 +865,23 @@ private:
   TInt MxNId, MxEId;
   THash<TInt, TNode> NodeH;
   THash<TInt, TEdge> EdgeH;
-  THash<TStr, TInt> KeyToType;  // (0->int, 1->str, 2->flt)
-  THash<TStr, TInt> IntIndex;
-  THash<TStr, TInt> StrIndex;
-  THash<TStr, TInt> FltIndex;
+  TStrIntPrH KeyToIndexType; // Val1 = Type, Val2 = Index
   TVec<TIntV> VecOfIntVecs;
   TVec<TStrV> VecOfStrVecs;
   TVec<TFltV> VecOfFltVecs;
-  enum { IntType = 0, StrType = 1, FltType = 2};
+  enum { IntType, StrType, FltType};
 public:
   TNEAGraph() : CRef(), MxNId(0), MxEId(0), NodeH(), EdgeH(),
-    KeyToType(), IntIndex(), StrIndex(), FltIndex(), VecOfIntVecs(),
-    VecOfStrVecs(), VecOfFltVecs() { }
+    KeyToIndexType(), VecOfIntVecs(), VecOfStrVecs(), VecOfFltVecs() { }
   /// Constructor that reserves enough memory for a graph of Nodes nodes and Edges edges.
   explicit TNEAGraph(const int& Nodes, const int& Edges) : CRef(), MxNId(0),
-    MxEId(0), NodeH(), EdgeH(), KeyToType(), IntIndex(), StrIndex(), FltIndex(),
-    VecOfIntVecs(), VecOfStrVecs(), VecOfFltVecs() { Reserve(Nodes, Edges); }
+    MxEId(0), NodeH(), EdgeH(), KeyToIndexType(), VecOfIntVecs(), VecOfStrVecs(),
+    VecOfFltVecs() { Reserve(Nodes, Edges); }
  TNEAGraph(const TNEAGraph& Graph) : MxNId(Graph.MxNId), MxEId(Graph.MxEId), NodeH(Graph.NodeH), EdgeH(Graph.EdgeH),
-    KeyToType(), IntIndex(), StrIndex(), FltIndex(), VecOfIntVecs(),
-    VecOfStrVecs(), VecOfFltVecs() { }
+    KeyToIndexType(), VecOfIntVecs(), VecOfStrVecs(), VecOfFltVecs() { }
   /// Constructor for loading the graph from a (binary) stream SIn.
  TNEAGraph(TSIn& SIn) : MxNId(SIn), MxEId(SIn), NodeH(SIn), EdgeH(SIn),
-    KeyToType(), IntIndex(), StrIndex(), FltIndex(), VecOfIntVecs(),
-    VecOfStrVecs(), VecOfFltVecs(){ }
+    KeyToIndexType(), VecOfIntVecs(), VecOfStrVecs(), VecOfFltVecs(){ }
   /// Saves the graph to a (binary) stream SOut.
   void Save(TSOut& SOut) const { MxNId.Save(SOut); MxEId.Save(SOut); NodeH.Save(SOut); EdgeH.Save(SOut); }
   /// Static constructor that returns a pointer to the graph. Call: PNEAGraph Graph = TNEAGraph::New().
@@ -921,44 +915,44 @@ public:
   TNodeI GetNI(const int& NId) const { return TNodeI(NodeH.GetI(NId), this); }
   /// Returns an iterator referring to the first node's int attribute.
   TNodeAIntI BegNAIntI(TStr attr) const {
-    TIntV IntAttrVec = VecOfIntVecs[IntIndex.GetDat(attr)];
+    TIntV IntAttrVec = VecOfIntVecs[KeyToIndexType.GetDat(attr).Val2];
     return TNodeAIntI(IntAttrVec.BegI(), IntAttrVec.EndI(), this); }
   /// Returns an iterator referring to the past-the-end node's attribute.
   TNodeAIntI EndNAIntI(TStr attr) const {
-    TIntV IntAttrVec = VecOfIntVecs[IntIndex.GetDat(attr)];
+    TIntV IntAttrVec = VecOfIntVecs[KeyToIndexType.GetDat(attr).Val2];
     return TNodeAIntI(IntAttrVec.EndI(), IntAttrVec.EndI(), this); }
   /// Returns an iterator referring to the node of ID NId in the graph.
   TNodeAIntI GetNAIntI(TStr attr, const int& NId) const {
-    TIntV IntAttrVec = VecOfIntVecs[IntIndex.GetDat(attr)];
+    TIntV IntAttrVec = VecOfIntVecs[KeyToIndexType.GetDat(attr).Val2];
     return TNodeAIntI(IntAttrVec.GetI(NId), IntAttrVec.EndI(), this); }
   /// Returns an iterator referring to the first node's str attribute.
   TNodeAStrI BegNAStrI(TStr attr) const {
-    TStrV StrAttrVec = VecOfStrVecs[StrIndex.GetDat(attr)];
+    TStrV StrAttrVec = VecOfStrVecs[KeyToIndexType.GetDat(attr).Val2];
     return TNodeAStrI(StrAttrVec.BegI(), StrAttrVec.EndI(), this); }
   /// Returns an iterator referring to the past-the-end node's attribute.
   TNodeAStrI EndNAStrI(TStr attr) const {
-    TStrV StrAttrVec = VecOfStrVecs[StrIndex.GetDat(attr)];
+    TStrV StrAttrVec = VecOfStrVecs[KeyToIndexType.GetDat(attr).Val2];
     return TNodeAStrI(StrAttrVec.EndI(), StrAttrVec.EndI(), this); }
   /// Returns an iterator referring to the node of ID NId in the graph.
   TNodeAStrI GetNAStrI(TStr attr, const int& NId) const {
-    TStrV StrAttrVec = VecOfStrVecs[StrIndex.GetDat(attr)];
+    TStrV StrAttrVec = VecOfStrVecs[KeyToIndexType.GetDat(attr).Val2];
     return TNodeAStrI(StrAttrVec.GetI(NId), StrAttrVec.EndI(), this); }
   /// Returns an iterator referring to the first node's flt attribute.
   TNodeAFltI BegNAFltI(TStr attr) const {
-    TFltV FltAttrVec = VecOfFltVecs[FltIndex.GetDat(attr)];
+    TFltV FltAttrVec = VecOfFltVecs[KeyToIndexType.GetDat(attr).Val2];
     return TNodeAFltI(FltAttrVec.BegI(), FltAttrVec.EndI(), this); }
   /// Returns an iterator referring to the past-the-end node's attribute.
   TNodeAFltI EndNAFltI(TStr attr) const {
-    TFltV FltAttrVec = VecOfFltVecs[FltIndex.GetDat(attr)];
+    TFltV FltAttrVec = VecOfFltVecs[KeyToIndexType.GetDat(attr).Val2];
     return TNodeAFltI(FltAttrVec.EndI(), FltAttrVec.EndI(), this); }
   /// Returns an iterator referring to the node of ID NId in the graph.
   TNodeAFltI GetNAFltI(TStr attr, const int& NId) const {
-    TFltV FltAttrVec = VecOfFltVecs[FltIndex.GetDat(attr)];
+    TFltV FltAttrVec = VecOfFltVecs[KeyToIndexType.GetDat(attr).Val2];
     return TNodeAFltI(FltAttrVec.GetI(NId), FltAttrVec.EndI(), this); }
   /// Returns an iterator referring first attribute of node NId.
-  TAttrNI BegAttrNI(TInt NId) const { return TAttrNI(KeyToType.BegI(), this, NId); }
+  TAttrNI BegAttrNI(TInt NId) const { return TAttrNI(KeyToIndexType.BegI(), this, NId); }
   /// Returns an iterator referring last attribute of node NId.
-  TAttrNI EndAttrNI(TInt NId) const { return TAttrNI(KeyToType.EndI(), this, NId); }
+  TAttrNI EndAttrNI(TInt NId) const { return TAttrNI(KeyToIndexType.EndI(), this, NId); }
 
   /// Returns the maximum id of a any node in the graph.
   int GetMxNId() const { return MxNId; }
@@ -1007,8 +1001,7 @@ public:
   bool Empty() const { return GetNodes()==0; }
   /// Deletes all nodes and edges from the graph.
   void Clr() { MxNId=0; MxEId=0; NodeH.Clr(); EdgeH.Clr(),
-    KeyToType.Clr(), IntIndex.Clr(), StrIndex.Clr(), FltIndex.Clr(),
-    VecOfIntVecs.Clr(), VecOfStrVecs.Clr(), VecOfFltVecs.Clr();}
+    KeyToIndexType.Clr(), VecOfIntVecs.Clr(), VecOfStrVecs.Clr(), VecOfFltVecs.Clr();}
   /// Reserves memory for a graph of Nodes nodes and Edges edges.
   void Reserve(const int& Nodes, const int& Edges) {
     if (Nodes>0) { NodeH.Gen(Nodes/2); } if (Edges>0) { EdgeH.Gen(Edges/2); } }
