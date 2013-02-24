@@ -774,18 +774,19 @@ public:
   private:
     typedef TIntV::TIter TIntVecIter;
     TIntVecIter NodeHI;
+    TIntVecIter NodeHIEnd;
     const TNEAGraph *Graph;
   public:
-    TNodeAIntI() : NodeHI(), Graph(NULL) { }
-    TNodeAIntI(const TIntVecIter& NodeHIter, const TNEAGraph* GraphPt) : NodeHI(NodeHIter), Graph(GraphPt) { }
-    TNodeAIntI(const TNodeAIntI& NodeI) : NodeHI(NodeI.NodeHI), Graph(NodeI.Graph) { }
-    TNodeAIntI& operator = (const TNodeAIntI& NodeI) { NodeHI = NodeI.NodeHI; Graph=NodeI.Graph; return *this; }
-    /// Increment iterator.
-    TNodeAIntI& operator++ (int) { NodeHI++; return *this; }
+    TNodeAIntI() : NodeHI(), NodeHIEnd(), Graph(NULL) { }
+    TNodeAIntI(const TIntVecIter& NodeHIter, const TIntVecIter& NodeHIterEnd, const TNEAGraph* GraphPt) : NodeHI(NodeHIter), NodeHIEnd(NodeHIterEnd), Graph(GraphPt) { if(NodeHI<NodeHIEnd && IsDeleted()){(*this)++;}}
+    TNodeAIntI(const TNodeAIntI& NodeI) : NodeHI(NodeI.NodeHI), NodeHIEnd(NodeI.NodeHIEnd), Graph(NodeI.Graph) { if(NodeHI<NodeHIEnd && IsDeleted()){(*this)++;}}
+    TNodeAIntI& operator = (const TNodeAIntI& NodeI) { NodeHI = NodeI.NodeHI; NodeHIEnd = NodeI.NodeHIEnd; Graph=NodeI.Graph; if(NodeHI<NodeHIEnd && IsDeleted()){(*this)++;} return *this; }
     bool operator < (const TNodeAIntI& NodeI) const { return NodeHI < NodeI.NodeHI; }
     bool operator == (const TNodeAIntI& NodeI) const { return NodeHI == NodeI.NodeHI; }
     /// Returns an attribute of the node.
     TInt GetDat() const { return NodeHI[0]; }
+    bool IsDeleted() { return GetDat() == TInt::Mn; };
+    TNodeAIntI& operator++(int);
 
     friend class TNEAGraph;
   };
@@ -795,18 +796,19 @@ public:
   private:
     typedef TStrV::TIter TStrVecIter;
     TStrVecIter NodeHI;
+    TStrVecIter NodeHIEnd;
     const TNEAGraph *Graph;
   public:
-    TNodeAStrI() : NodeHI(), Graph(NULL) { }
-    TNodeAStrI(const TStrVecIter& NodeHIter, const TNEAGraph* GraphPt) : NodeHI(NodeHIter), Graph(GraphPt) { }
-    TNodeAStrI(const TNodeAStrI& NodeI) : NodeHI(NodeI.NodeHI), Graph(NodeI.Graph) { }
-    TNodeAStrI& operator = (const TNodeAStrI& NodeI) { NodeHI = NodeI.NodeHI; Graph=NodeI.Graph; return *this; }
-    /// Increment iterator.
-    TNodeAStrI& operator++ (int) { NodeHI++; return *this; }
+    TNodeAStrI() : NodeHI(), NodeHIEnd(), Graph(NULL) { }
+    TNodeAStrI(const TStrVecIter& NodeHIter, const TStrVecIter& NodeHIterEnd, const TNEAGraph* GraphPt) : NodeHI(NodeHIter), NodeHIEnd(NodeHIterEnd), Graph(GraphPt) { if(NodeHI<NodeHIEnd && IsDeleted()){(*this)++;}}
+    TNodeAStrI(const TNodeAStrI& NodeI) : NodeHI(NodeI.NodeHI), NodeHIEnd(NodeI.NodeHIEnd), Graph(NodeI.Graph) {if(NodeHI<NodeHIEnd && IsDeleted()){(*this)++;} }
+    TNodeAStrI& operator = (const TNodeAStrI& NodeI) { NodeHI = NodeI.NodeHI; NodeHIEnd = NodeI.NodeHIEnd; Graph=NodeI.Graph; if(NodeHI<NodeHIEnd && IsDeleted()){(*this)++;} return *this; }
     bool operator < (const TNodeAStrI& NodeI) const { return NodeHI < NodeI.NodeHI; }
     bool operator == (const TNodeAStrI& NodeI) const { return NodeHI == NodeI.NodeHI; }
     /// Returns an attribute of the node.
     TStr GetDat() const { return NodeHI[0]; }
+    bool IsDeleted() { return GetDat() == TStr::GetNullStr(); };
+    TNodeAStrI& operator++(int);
 
     friend class TNEAGraph;
   };
@@ -816,19 +818,19 @@ public:
   private:
     typedef TFltV::TIter TFltVecIter;
     TFltVecIter NodeHI;
+    TFltVecIter NodeHIEnd;
     const TNEAGraph *Graph;
   public:
-    TNodeAFltI() : NodeHI(), Graph(NULL) { }
-    TNodeAFltI(const TFltVecIter& NodeHIter, const TNEAGraph* GraphPt) : NodeHI(NodeHIter), Graph(GraphPt) { }
-    TNodeAFltI(const TNodeAFltI& NodeI) : NodeHI(NodeI.NodeHI), Graph(NodeI.Graph) { }
-    TNodeAFltI& operator = (const TNodeAFltI& NodeI) { NodeHI = NodeI.NodeHI; Graph=NodeI.Graph; return *this; }
-    /// Increment iterator.
-    TNodeAFltI& operator++ (int) { NodeHI++; return *this; }
+    TNodeAFltI() : NodeHI(), NodeHIEnd(), Graph(NULL) { }
+    TNodeAFltI(const TFltVecIter& NodeHIter, const TFltVecIter& NodeHIterEnd, const TNEAGraph* GraphPt) : NodeHI(NodeHIter), NodeHIEnd(NodeHIterEnd), Graph(GraphPt) {if(NodeHI<NodeHIEnd && IsDeleted()){(*this)++;}}
+    TNodeAFltI(const TNodeAFltI& NodeI) : NodeHI(NodeI.NodeHI), NodeHIEnd(NodeI.NodeHIEnd), Graph(NodeI.Graph) {if(NodeHI<NodeHIEnd && IsDeleted()){(*this)++;}}
+    TNodeAFltI& operator = (const TNodeAFltI& NodeI) { NodeHI = NodeI.NodeHI; NodeHIEnd = NodeI.NodeHIEnd; Graph=NodeI.Graph; if(NodeHI<NodeHIEnd && IsDeleted()){(*this)++;}return *this; }
     bool operator < (const TNodeAFltI& NodeI) const { return NodeHI < NodeI.NodeHI; }
     bool operator == (const TNodeAFltI& NodeI) const { return NodeHI == NodeI.NodeHI; }
     /// Returns an attribute of the node.
     TFlt GetDat() const { return NodeHI[0]; }
-
+    bool IsDeleted() { return GetDat() == TFlt::Mn; };
+    TNodeAFltI& operator++(int);
     friend class TNEAGraph;
   };
 
@@ -919,40 +921,40 @@ public:
   TNodeI GetNI(const int& NId) const { return TNodeI(NodeH.GetI(NId), this); }
   /// Returns an iterator referring to the first node's int attribute.
   TNodeAIntI BegNAIntI(TStr attr) const {
-    return TNodeAIntI(
-      VecOfIntVecs[IntIndex.GetDat(attr)].BegI(), this); }
+    TIntV IntAttrVec = VecOfIntVecs[IntIndex.GetDat(attr)];
+    return TNodeAIntI(IntAttrVec.BegI(), IntAttrVec.EndI(), this); }
   /// Returns an iterator referring to the past-the-end node's attribute.
   TNodeAIntI EndNAIntI(TStr attr) const {
-    return TNodeAIntI(
-      VecOfIntVecs[IntIndex.GetDat(attr)].EndI(), this); }
+    TIntV IntAttrVec = VecOfIntVecs[IntIndex.GetDat(attr)];
+    return TNodeAIntI(IntAttrVec.EndI(), IntAttrVec.EndI(), this); }
   /// Returns an iterator referring to the node of ID NId in the graph.
   TNodeAIntI GetNAIntI(TStr attr, const int& NId) const {
-    return TNodeAIntI(
-      VecOfIntVecs[IntIndex.GetDat(attr)].GetI(NId), this); }
+    TIntV IntAttrVec = VecOfIntVecs[IntIndex.GetDat(attr)];
+    return TNodeAIntI(IntAttrVec.GetI(NId), IntAttrVec.EndI(), this); }
   /// Returns an iterator referring to the first node's str attribute.
   TNodeAStrI BegNAStrI(TStr attr) const {
-    return TNodeAStrI(
-      VecOfStrVecs[StrIndex.GetDat(attr)].BegI(), this); }
+    TStrV StrAttrVec = VecOfStrVecs[StrIndex.GetDat(attr)];
+    return TNodeAStrI(StrAttrVec.BegI(), StrAttrVec.EndI(), this); }
   /// Returns an iterator referring to the past-the-end node's attribute.
   TNodeAStrI EndNAStrI(TStr attr) const {
-    return TNodeAStrI(
-      VecOfStrVecs[StrIndex.GetDat(attr)].EndI(), this); }
+    TStrV StrAttrVec = VecOfStrVecs[StrIndex.GetDat(attr)];
+    return TNodeAStrI(StrAttrVec.EndI(), StrAttrVec.EndI(), this); }
   /// Returns an iterator referring to the node of ID NId in the graph.
   TNodeAStrI GetNAStrI(TStr attr, const int& NId) const {
-    return TNodeAStrI(
-      VecOfStrVecs[StrIndex.GetDat(attr)].GetI(NId), this); }
+    TStrV StrAttrVec = VecOfStrVecs[StrIndex.GetDat(attr)];
+    return TNodeAStrI(StrAttrVec.GetI(NId), StrAttrVec.EndI(), this); }
   /// Returns an iterator referring to the first node's flt attribute.
   TNodeAFltI BegNAFltI(TStr attr) const {
-    return TNodeAFltI(
-      VecOfFltVecs[FltIndex.GetDat(attr)].BegI(), this); }
+    TFltV FltAttrVec = VecOfFltVecs[FltIndex.GetDat(attr)];
+    return TNodeAFltI(FltAttrVec.BegI(), FltAttrVec.EndI(), this); }
   /// Returns an iterator referring to the past-the-end node's attribute.
   TNodeAFltI EndNAFltI(TStr attr) const {
-    return TNodeAFltI(
-      VecOfFltVecs[FltIndex.GetDat(attr)].EndI(), this); }
+    TFltV FltAttrVec = VecOfFltVecs[FltIndex.GetDat(attr)];
+    return TNodeAFltI(FltAttrVec.EndI(), FltAttrVec.EndI(), this); }
   /// Returns an iterator referring to the node of ID NId in the graph.
   TNodeAFltI GetNAFltI(TStr attr, const int& NId) const {
-    return TNodeAFltI(
-      VecOfFltVecs[FltIndex.GetDat(attr)].GetI(NId), this); }
+    TFltV FltAttrVec = VecOfFltVecs[FltIndex.GetDat(attr)];
+    return TNodeAFltI(FltAttrVec.GetI(NId), FltAttrVec.EndI(), this); }
   /// Returns an iterator referring first attribute of node NId.
   TAttrNI BegAttrNI(TInt NId) const { return TAttrNI(KeyToType.BegI(), this, NId); }
   /// Returns an iterator referring last attribute of node NId.

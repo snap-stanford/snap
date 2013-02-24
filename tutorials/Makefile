@@ -11,7 +11,7 @@ DEMOS = \
 	demo-subgraph demo-ggen \
 	demo-gio demo-gviz \
 	demo-cncom demo-bfsdfs \
-	demo-THash
+	demo-THash demo-THash-2
 
 all: $(DEMOS)
 

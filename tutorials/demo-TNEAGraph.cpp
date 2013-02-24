@@ -1,11 +1,11 @@
 #include "Snap.h"
 
 int main(int argc, char* argv[]) {
-  TNEAGraph *p;
+  PNEAGraph p;
   TStr attr1 = "double";
   TStr attr2 = "triple";
   TStr attr3 = "double-float";
-  p = new TNEAGraph();
+  p = TNEAGraph::New();
   p->AddNode();
   p->AddNode();
   p->AddNode();
@@ -22,7 +22,7 @@ int main(int argc, char* argv[]) {
     printf("Node id: %d, value: %d\n", NI.GetId(), IntVal);
     printf("Node id: %d, value: %d\n", NI.GetId(), p->GetIntAttrDat(NI.GetId(), attr2)());
     printf("Node id: %d, value: %f\n", NI.GetId(), p->GetFltAttrDat(NI.GetId(), attr3)());
-    printf("Node id: %d, value: %s\n", NI.GetId(), p->GetStrAttrDat(NI.GetId(), attr1)());
+    //printf("Node id: %d, value: %s\n", NI.GetId(), p->GetStrAttrDat(NI.GetId(), attr1)());
   }
   p->Clr();
   printf("Yay!\n");

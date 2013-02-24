@@ -138,10 +138,8 @@ void ManipulateNodeAttributes() {
   int NodeId = 0;
   for (TNEAGraph::TNodeAIntI NI = Graph->BegNAIntI(attr2);
     NI < Graph->EndNAIntI(attr2); NI++) {
-    if (NI.GetDat() != TInt::Mn) {
       printf("Attribute: %s, Node: %i, Val: %i\n", attr2(), NodeId, NI.GetDat()());
-    }
-    NodeId++;
+      NodeId++;
   } 
 
   // Test vertical flt iterator for node 3, 50, 700, 900
@@ -152,10 +150,8 @@ void ManipulateNodeAttributes() {
   NodeId = 0;
   for (TNEAGraph::TNodeAFltI NI = Graph->BegNAFltI(attr3);
     NI < Graph->EndNAFltI(attr3); NI++) {
-    if (NI.GetDat() != TFlt::Mn) {
       printf("Attribute: %s, Node: %i, Val: %f\n", attr3(), NodeId, NI.GetDat()());
-    }
-    NodeId++;
+      NodeId++;
   } 
 
   // Test vertical str iterator for node 3, 50, 700, 900
@@ -165,12 +161,11 @@ void ManipulateNodeAttributes() {
   // this does not show since ""=null
   Graph->AddStrAttrDat(455, "", attr1);
   NodeId = 0;
+  
   for (TNEAGraph::TNodeAStrI NI = Graph->BegNAStrI(attr1);
     NI < Graph->EndNAStrI(attr1); NI++) {
-    if (NI.GetDat() != TStr::GetNullStr()) {
       printf("Attribute: %s, Node: %i, Val: %s\n", attr1(), NodeId, NI.GetDat()());
-    }
-    NodeId++;
+      NodeId++;
   } 
 
   // Test vertical iterator over many types (must skip default/deleted attr) 

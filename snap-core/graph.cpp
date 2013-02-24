@@ -629,6 +629,33 @@ bool TNEAGraph::TNodeI::IsOutNId(const int& NId) const {
   return false;
 }
 
+TNEAGraph::TNodeAIntI& TNEAGraph::TNodeAIntI::operator++ (int) {
+  NodeHI++;
+  while (NodeHI < NodeHIEnd) {
+    if (!IsDeleted()) break;
+    NodeHI++;
+  }  
+  return *this;
+}
+
+TNEAGraph::TNodeAStrI& TNEAGraph::TNodeAStrI::operator++ (int) {
+  NodeHI++;
+  while (NodeHI < NodeHIEnd) {
+    if (!IsDeleted()) break;
+    NodeHI++;
+  }  
+  return *this;
+}
+
+TNEAGraph::TNodeAFltI& TNEAGraph::TNodeAFltI::operator++ (int) {
+  NodeHI++;
+  while (NodeHI < NodeHIEnd) {
+    if (!IsDeleted()) break;
+    NodeHI++;
+  }  
+  return *this;
+}
+
 bool TNEAGraph::TAttrNI::IsDeleted() {
   bool IntDel = (NodeHI.GetDat() == IntType &&
     TInt::Mn == Graph->VecOfIntVecs.GetVal(
@@ -648,7 +675,6 @@ TNEAGraph::TAttrNI& TNEAGraph::TAttrNI::operator++ (int) {
     if (!IsDeleted()) break;
     NodeHI++;
   }  
-
   return *this;
 }
 
