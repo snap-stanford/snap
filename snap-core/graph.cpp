@@ -629,43 +629,43 @@ bool TNEAGraph::TNodeI::IsOutNId(const int& NId) const {
   return false;
 }
 
-TNEAGraph::TNodeAIntI& TNEAGraph::TNodeAIntI::operator++ (int) {
-  NodeHI++;
-  while (NodeHI < NodeHIEnd) {
+TNEAGraph::TAIntI& TNEAGraph::TAIntI::operator++ (int) {
+  HI++;
+  while (HI < HIEnd) {
     if (!IsDeleted()) break;
-    NodeHI++;
+    HI++;
   }  
   return *this;
 }
 
-TNEAGraph::TNodeAStrI& TNEAGraph::TNodeAStrI::operator++ (int) {
-  NodeHI++;
-  while (NodeHI < NodeHIEnd) {
+TNEAGraph::TAStrI& TNEAGraph::TAStrI::operator++ (int) {
+  HI++;
+  while (HI < HIEnd) {
     if (!IsDeleted()) break;
-    NodeHI++;
+    HI++;
   }  
   return *this;
 }
 
-TNEAGraph::TNodeAFltI& TNEAGraph::TNodeAFltI::operator++ (int) {
-  NodeHI++;
-  while (NodeHI < NodeHIEnd) {
+TNEAGraph::TAFltI& TNEAGraph::TAFltI::operator++ (int) {
+  HI++;
+  while (HI < HIEnd) {
     if (!IsDeleted()) break;
-    NodeHI++;
+    HI++;
   }  
   return *this;
 }
 
 bool TNEAGraph::TAttrNI::IsDeleted() {
   bool IntDel = (NodeHI.GetDat().Val1 == IntType &&
-    TInt::Mn == Graph->VecOfIntVecs.GetVal(
-    Graph->KeyToIndexType.GetDat(NodeHI.GetKey()).Val2).GetVal(NId));
+    TInt::Mn == Graph->VecOfIntVecsN.GetVal(
+    Graph->KeyToIndexTypeN.GetDat(NodeHI.GetKey()).Val2).GetVal(NId));
   bool StrDel = (NodeHI.GetDat().Val1 == StrType &&
-    TStr::GetNullStr() == Graph->VecOfStrVecs.GetVal(
-    Graph->KeyToIndexType.GetDat(NodeHI.GetKey()).Val2).GetVal(NId));
+    TStr::GetNullStr() == Graph->VecOfStrVecsN.GetVal(
+    Graph->KeyToIndexTypeN.GetDat(NodeHI.GetKey()).Val2).GetVal(NId));
   bool FltDel = (NodeHI.GetDat().Val1 == FltType &&
-    TFlt::Mn == Graph->VecOfFltVecs.GetVal(
-    Graph->KeyToIndexType.GetDat(NodeHI.GetKey()).Val2).GetVal(NId));
+    TFlt::Mn == Graph->VecOfFltVecsN.GetVal(
+    Graph->KeyToIndexTypeN.GetDat(NodeHI.GetKey()).Val2).GetVal(NId));
   return IntDel || StrDel || FltDel;
 }
 
@@ -674,6 +674,28 @@ TNEAGraph::TAttrNI& TNEAGraph::TAttrNI::operator++ (int) {
   while (!NodeHI.IsEnd()) {
     if (!IsDeleted()) break;
     NodeHI++;
+  }  
+  return *this;
+}
+
+bool TNEAGraph::TAttrEI::IsDeleted() {
+  bool IntDel = (EdgeHI.GetDat().Val1 == IntType &&
+    TInt::Mn == Graph->VecOfIntVecsE.GetVal(
+    Graph->KeyToIndexTypeE.GetDat(EdgeHI.GetKey()).Val2).GetVal(EId));
+  bool StrDel = (EdgeHI.GetDat().Val1 == StrType &&
+    TStr::GetNullStr() == Graph->VecOfStrVecsE.GetVal(
+    Graph->KeyToIndexTypeE.GetDat(EdgeHI.GetKey()).Val2).GetVal(EId));
+  bool FltDel = (EdgeHI.GetDat().Val1 == FltType &&
+    TFlt::Mn == Graph->VecOfFltVecsE.GetVal(
+    Graph->KeyToIndexTypeE.GetDat(EdgeHI.GetKey()).Val2).GetVal(EId));
+  return IntDel || StrDel || FltDel;
+}
+
+TNEAGraph::TAttrEI& TNEAGraph::TAttrEI::operator++ (int) {
+  EdgeHI++;
+  while (!EdgeHI.IsEnd()) {
+    if (!IsDeleted()) break;
+    EdgeHI++;
   }  
   return *this;
 }
@@ -689,16 +711,16 @@ int TNEAGraph::AddNode(int NId) {
   }
   // update attribute columns
   NodeH.AddDat(NId, TNode(NId));
-  for (i = 0; i < VecOfIntVecs.Len(); i++) {
-    TVec<TInt>& IntVec = VecOfIntVecs[i];
+  for (i = 0; i < VecOfIntVecsN.Len(); i++) {
+    TVec<TInt>& IntVec = VecOfIntVecsN[i];
     IntVec.Ins(NodeH.GetKeyId(NId), TInt::Mn);
   }
-  for (i = 0; i < VecOfStrVecs.Len(); i++) {
-    TVec<TStr>& StrVec = VecOfStrVecs[i];
+  for (i = 0; i < VecOfStrVecsN.Len(); i++) {
+    TVec<TStr>& StrVec = VecOfStrVecsN[i];
     StrVec.Ins(NodeH.GetKeyId(NId), TStr::GetNullStr());
   }
-  for (i = 0; i < VecOfFltVecs.Len(); i++) {
-    TVec<TFlt>& FltVec = VecOfFltVecs[i];
+  for (i = 0; i < VecOfFltVecsN.Len(); i++) {
+    TVec<TFlt>& FltVec = VecOfFltVecsN[i];
     FltVec.Ins(NodeH.GetKeyId(NId), TFlt::Mn);
   }
   return NId;
@@ -714,6 +736,19 @@ void TNEAGraph::DelNode(const int& NId) {
     IAssert(Edge.GetSrcNId() == NId);
     GetNode(Edge.GetDstNId()).InEIdV.DelIfIn(EId);
     EdgeH.DelKey(EId);
+    // Delete from Edge Attributes
+    for (i = 0; i < VecOfIntVecsE.Len(); i++) {
+      TVec<TInt>& IntVec = VecOfIntVecsE[i];
+      IntVec.Ins(EdgeH.GetKeyId(EId), TInt::Mn);
+    }
+    for (i = 0; i < VecOfStrVecsE.Len(); i++) {
+      TVec<TStr>& StrVec = VecOfStrVecsE[i];
+      StrVec.Ins(EdgeH.GetKeyId(EId), TStr::GetNullStr());
+    }
+    for (i = 0; i < VecOfFltVecsE.Len(); i++) {
+      TVec<TFlt>& FltVec = VecOfFltVecsE[i];
+      FltVec.Ins(EdgeH.GetKeyId(EId), TFlt::Mn);
+    }
   }
   for (int in = 0; in < Node.GetInDeg(); in++) {
     const int EId = Node.GetInEId(in);
@@ -721,24 +756,39 @@ void TNEAGraph::DelNode(const int& NId) {
     IAssert(Edge.GetDstNId() == NId);
     GetNode(Edge.GetSrcNId()).OutEIdV.DelIfIn(EId);
     EdgeH.DelKey(EId);
+    // Delete from Edge Attributes
+    for (i = 0; i < VecOfIntVecsE.Len(); i++) {
+      TVec<TInt>& IntVec = VecOfIntVecsE[i];
+      IntVec.Ins(EdgeH.GetKeyId(EId), TInt::Mn);
+    }
+    for (i = 0; i < VecOfStrVecsE.Len(); i++) {
+      TVec<TStr>& StrVec = VecOfStrVecsE[i];
+      StrVec.Ins(EdgeH.GetKeyId(EId), TStr::GetNullStr());
+    }
+    for (i = 0; i < VecOfFltVecsE.Len(); i++) {
+      TVec<TFlt>& FltVec = VecOfFltVecsE[i];
+      FltVec.Ins(EdgeH.GetKeyId(EId), TFlt::Mn);
+    }
   }
 
-  for (i = 0; i < VecOfIntVecs.Len(); i++) {
-    TVec<TInt>& IntVec = VecOfIntVecs[i];
+  for (i = 0; i < VecOfIntVecsN.Len(); i++) {
+    TVec<TInt>& IntVec = VecOfIntVecsN[i];
     IntVec.Ins(NodeH.GetKeyId(NId), TInt::Mn);
   }
-  for (i = 0; i < VecOfStrVecs.Len(); i++) {
-    TVec<TStr>& StrVec = VecOfStrVecs[i];
+  for (i = 0; i < VecOfStrVecsN.Len(); i++) {
+    TVec<TStr>& StrVec = VecOfStrVecsN[i];
     StrVec.Ins(NodeH.GetKeyId(NId), TStr::GetNullStr());
   }
-  for (i = 0; i < VecOfFltVecs.Len(); i++) {
-    TVec<TFlt>& FltVec = VecOfFltVecs[i];
+  for (i = 0; i < VecOfFltVecsN.Len(); i++) {
+    TVec<TFlt>& FltVec = VecOfFltVecsN[i];
     FltVec.Ins(NodeH.GetKeyId(NId), TFlt::Mn);
   }
   NodeH.DelKey(NId);
 }
 
 int TNEAGraph::AddEdge(const int& SrcNId, const int& DstNId, int EId) {
+  int i;
+
   if (EId == -1) { EId = MxEId;  MxEId++; }
   else { MxEId = TMath::Mx(EId+1, MxEId()); }
   IAssertR(!IsEdge(EId), TStr::Fmt("EdgeId %d already exists", EId));
@@ -746,16 +796,45 @@ int TNEAGraph::AddEdge(const int& SrcNId, const int& DstNId, int EId) {
   EdgeH.AddDat(EId, TEdge(EId, SrcNId, DstNId));
   GetNode(SrcNId).OutEIdV.AddSorted(EId);
   GetNode(DstNId).InEIdV.AddSorted(EId);
+
+  // update attribute columns
+  for (i = 0; i < VecOfIntVecsE.Len(); i++) {
+    TVec<TInt>& IntVec = VecOfIntVecsE[i];
+    IntVec.Ins(EdgeH.GetKeyId(EId), TInt::Mn);
+  }
+  for (i = 0; i < VecOfStrVecsE.Len(); i++) {
+    TVec<TStr>& StrVec = VecOfStrVecsE[i];
+    StrVec.Ins(EdgeH.GetKeyId(EId), TStr::GetNullStr());
+  }
+  for (i = 0; i < VecOfFltVecsE.Len(); i++) {
+    TVec<TFlt>& FltVec = VecOfFltVecsE[i];
+    FltVec.Ins(EdgeH.GetKeyId(EId), TFlt::Mn);
+  }
   return EId;
 }
 
 void TNEAGraph::DelEdge(const int& EId) {
+  int i;
+
   IAssert(IsEdge(EId));
   const int SrcNId = GetEdge(EId).GetSrcNId();
   const int DstNId = GetEdge(EId).GetDstNId();
   GetNode(SrcNId).OutEIdV.DelIfIn(EId);
   GetNode(DstNId).InEIdV.DelIfIn(EId);
   EdgeH.DelKey(EId);
+
+  for (i = 0; i < VecOfIntVecsE.Len(); i++) {
+    TVec<TInt>& IntVec = VecOfIntVecsE[i];
+    IntVec.Ins(EdgeH.GetKeyId(EId), TInt::Mn);
+  }
+  for (i = 0; i < VecOfStrVecsE.Len(); i++) {
+    TVec<TStr>& StrVec = VecOfStrVecsE[i];
+    StrVec.Ins(EdgeH.GetKeyId(EId), TStr::GetNullStr());
+  }
+  for (i = 0; i < VecOfFltVecsE.Len(); i++) {
+    TVec<TFlt>& FltVec = VecOfFltVecsE[i];
+    FltVec.Ins(EdgeH.GetKeyId(EId), TFlt::Mn);
+  }
 }
 
 // delete all edges between the two nodes
@@ -883,157 +962,311 @@ void TNEAGraph::Dump(FILE *OutF) const {
 
 // Attribute related function
 
-int TNEAGraph::AddIntAttrDat(int NId, const TInt& value, TStr attribute) {
+int TNEAGraph::AddIntAttrDatN(int NId, const TInt& value, TStr attribute) {
   int i;
   TInt CurrLen;
   if (!IsNode(NId)) {
     AddNode(NId);
   }
-  if (KeyToIndexType.IsKey(attribute)) {
-    TVec<TInt>& NewVec = VecOfIntVecs[KeyToIndexType.GetDat(attribute).Val2];
+  if (KeyToIndexTypeN.IsKey(attribute)) {
+    TVec<TInt>& NewVec = VecOfIntVecsN[KeyToIndexTypeN.GetDat(attribute).Val2];
     NewVec[NodeH.GetKeyId(NId)] = value;
   } else {
-    CurrLen = VecOfIntVecs.Len();
-    KeyToIndexType.AddDat(attribute, TIntPr(IntType, CurrLen));
+    CurrLen = VecOfIntVecsN.Len();
+    KeyToIndexTypeN.AddDat(attribute, TIntPr(IntType, CurrLen));
     TVec<TInt> NewVec = TVec<TInt>();
     for (i = 0; i < MxNId; i++) {
     // this is the default value for now.
       NewVec.Ins(i, TInt::Mn);
     }
     NewVec[NodeH.GetKeyId(NId)] = value;
-    VecOfIntVecs.Add(NewVec);
+    VecOfIntVecsN.Add(NewVec);
   }
   return 0;
 } 
 
-int TNEAGraph::AddStrAttrDat(int NId, const TStr& value, TStr attribute) {
+int TNEAGraph::AddStrAttrDatN(int NId, const TStr& value, TStr attribute) {
   int i;
   TInt CurrLen;
   if (!IsNode(NId)) {
     AddNode(NId);
   }
-  if (KeyToIndexType.IsKey(attribute)) {
-    TVec<TStr>& NewVec = VecOfStrVecs[KeyToIndexType.GetDat(attribute).Val2];
+  if (KeyToIndexTypeN.IsKey(attribute)) {
+    TVec<TStr>& NewVec = VecOfStrVecsN[KeyToIndexTypeN.GetDat(attribute).Val2];
     NewVec[NodeH.GetKeyId(NId)] = value;
   } else {
-    CurrLen = VecOfStrVecs.Len();
-    KeyToIndexType.AddDat(attribute, TIntPr(StrType, CurrLen));
+    CurrLen = VecOfStrVecsN.Len();
+    KeyToIndexTypeN.AddDat(attribute, TIntPr(StrType, CurrLen));
     TVec<TStr> NewVec = TVec<TStr>();
     for (i = 0; i < MxNId; i++) {
       // this is the default value for now.
       NewVec.Ins(i, TStr::GetNullStr());
     }
     NewVec[NodeH.GetKeyId(NId)] = value;
-    VecOfStrVecs.Add(NewVec);
+    VecOfStrVecsN.Add(NewVec);
   }
   return 0;
 } 
 
-int TNEAGraph::AddFltAttrDat(int NId, const TFlt& value, TStr attribute) {
+int TNEAGraph::AddFltAttrDatN(int NId, const TFlt& value, TStr attribute) {
   int i;
   TInt CurrLen;
 
   if (!IsNode(NId)) {
     AddNode(NId);
   }
-  if (KeyToIndexType.IsKey(attribute)) {
-    TVec<TFlt>& NewVec = VecOfFltVecs[KeyToIndexType.GetDat(attribute).Val2];
+  if (KeyToIndexTypeN.IsKey(attribute)) {
+    TVec<TFlt>& NewVec = VecOfFltVecsN[KeyToIndexTypeN.GetDat(attribute).Val2];
     NewVec[NodeH.GetKeyId(NId)] = value;
   } else {
-    CurrLen = VecOfFltVecs.Len();
-    KeyToIndexType.AddDat(attribute, TIntPr(FltType, CurrLen));
+    CurrLen = VecOfFltVecsN.Len();
+    KeyToIndexTypeN.AddDat(attribute, TIntPr(FltType, CurrLen));
     TVec<TFlt> NewVec = TVec<TFlt>();
     for (i = 0; i < MxNId; i++) {
       // this is the default value for now.
       NewVec.Ins(i, TFlt::Mn);
     }
     NewVec[NodeH.GetKeyId(NId)] = value;
-    VecOfFltVecs.Add(NewVec);
+    VecOfFltVecsN.Add(NewVec);
   }
   return 0;
 } 
 
-TInt TNEAGraph::GetIntAttrDat(int NId, TStr attribute) {
-  return VecOfIntVecs[KeyToIndexType.GetDat(attribute).Val2][NId];
+int TNEAGraph::AddIntAttrDatE(int EId, const TInt& value, TStr attribute) {
+  int i;
+  TInt CurrLen;
+  if (!IsEdge(EId)) {
+    //AddEdge(EId);
+     return -1;
+  }
+  if (KeyToIndexTypeE.IsKey(attribute)) {
+    TVec<TInt>& NewVec = VecOfIntVecsE[KeyToIndexTypeE.GetDat(attribute).Val2];
+    NewVec[EdgeH.GetKeyId(EId)] = value;
+  } else {
+    CurrLen = VecOfIntVecsE.Len();
+    KeyToIndexTypeE.AddDat(attribute, TIntPr(IntType, CurrLen));
+    TVec<TInt> NewVec = TVec<TInt>();
+    for (i = 0; i < MxEId; i++) {
+    // this is the default value for now.
+      NewVec.Ins(i, TInt::Mn);
+    }
+    NewVec[EdgeH.GetKeyId(EId)] = value;
+    VecOfIntVecsE.Add(NewVec);
+  }
+  return 0;
+} 
+
+int TNEAGraph::AddStrAttrDatE(int EId, const TStr& value, TStr attribute) {
+  int i;
+  TInt CurrLen;
+  if (!IsEdge(EId)) {
+    //AddEdge(EId);
+     return -1;
+  }
+  if (KeyToIndexTypeE.IsKey(attribute)) {
+    TVec<TStr>& NewVec = VecOfStrVecsE[KeyToIndexTypeE.GetDat(attribute).Val2];
+    NewVec[EdgeH.GetKeyId(EId)] = value;
+  } else {
+    CurrLen = VecOfStrVecsE.Len();
+    KeyToIndexTypeE.AddDat(attribute, TIntPr(StrType, CurrLen));
+    TVec<TStr> NewVec = TVec<TStr>();
+    for (i = 0; i < MxEId; i++) {
+      // this is the default value for now.
+      NewVec.Ins(i, TStr::GetNullStr());
+    }
+    NewVec[EdgeH.GetKeyId(EId)] = value;
+    VecOfStrVecsE.Add(NewVec);
+  }
+  return 0;
+} 
+
+int TNEAGraph::AddFltAttrDatE(int EId, const TFlt& value, TStr attribute) {
+  int i;
+  TInt CurrLen;
+
+  if (!IsEdge(EId)) {
+    //AddEdge(EId);
+     return -1;
+  }
+  if (KeyToIndexTypeE.IsKey(attribute)) {
+    TVec<TFlt>& NewVec = VecOfFltVecsE[KeyToIndexTypeE.GetDat(attribute).Val2];
+    NewVec[EdgeH.GetKeyId(EId)] = value;
+  } else {
+    CurrLen = VecOfFltVecsE.Len();
+    KeyToIndexTypeE.AddDat(attribute, TIntPr(FltType, CurrLen));
+    TVec<TFlt> NewVec = TVec<TFlt>();
+    for (i = 0; i < MxEId; i++) {
+      // this is the default value for now.
+      NewVec.Ins(i, TFlt::Mn);
+    }
+    NewVec[EdgeH.GetKeyId(EId)] = value;
+    VecOfFltVecsE.Add(NewVec);
+  }
+  return 0;
+} 
+
+TInt TNEAGraph::GetIntAttrDatN(int NId, TStr attribute) {
+  return VecOfIntVecsN[KeyToIndexTypeN.GetDat(attribute).Val2][NId];
 }
 
-TStr TNEAGraph::GetStrAttrDat(int NId, TStr attribute) {
-  return VecOfStrVecs[KeyToIndexType.GetDat(attribute).Val2][NId];
+TStr TNEAGraph::GetStrAttrDatN(int NId, TStr attribute) {
+  return VecOfStrVecsN[KeyToIndexTypeN.GetDat(attribute).Val2][NId];
 }
 
-TFlt TNEAGraph::GetFltAttrDat(int NId, TStr attribute) {
-  return VecOfFltVecs[KeyToIndexType.GetDat(attribute).Val2][NId];
+TFlt TNEAGraph::GetFltAttrDatN(int NId, TStr attribute) {
+  return VecOfFltVecsN[KeyToIndexTypeN.GetDat(attribute).Val2][NId];
 }
 
-void TNEAGraph::DelAttrDat(int NId, TStr attribute) {
+TInt TNEAGraph::GetIntAttrDatE(int EId, TStr attribute) {
+  return VecOfIntVecsE[KeyToIndexTypeE.GetDat(attribute).Val2][EId];
+}
+
+TStr TNEAGraph::GetStrAttrDatE(int EId, TStr attribute) {
+  return VecOfStrVecsE[KeyToIndexTypeE.GetDat(attribute).Val2][EId];
+}
+
+TFlt TNEAGraph::GetFltAttrDatE(int EId, TStr attribute) {
+  return VecOfFltVecsE[KeyToIndexTypeE.GetDat(attribute).Val2][EId];
+}
+
+void TNEAGraph::DelAttrDatN(int NId, TStr attribute) {
   // TODO(nkhadke): add error checking
-  TInt vecType = KeyToIndexType(attribute).Val1;
+  TInt vecType = KeyToIndexTypeN(attribute).Val1;
   if (vecType == IntType) {
-    VecOfIntVecs[KeyToIndexType.GetDat(attribute).Val2][NId] = TInt::Mn;
+    VecOfIntVecsN[KeyToIndexTypeN.GetDat(attribute).Val2][NId] = TInt::Mn;
   } else if (vecType == StrType) {
-    VecOfStrVecs[KeyToIndexType.GetDat(attribute).Val2][NId] = TStr::GetNullStr();
+    VecOfStrVecsN[KeyToIndexTypeN.GetDat(attribute).Val2][NId] = TStr::GetNullStr();
   } else if (vecType == FltType) {
-    VecOfFltVecs[KeyToIndexType.GetDat(attribute).Val2][NId] = TFlt::Mn;
+    VecOfFltVecsN[KeyToIndexTypeN.GetDat(attribute).Val2][NId] = TFlt::Mn;
   }
 }
 			       
+void TNEAGraph::DelAttrDatE(int EId, TStr attribute) {
+  // TODO(nkhadke): add error checking
+  TInt vecType = KeyToIndexTypeE(attribute).Val1;
+  if (vecType == IntType) {
+    VecOfIntVecsE[KeyToIndexTypeE.GetDat(attribute).Val2][EId] = TInt::Mn;
+  } else if (vecType == StrType) {
+    VecOfStrVecsE[KeyToIndexTypeE.GetDat(attribute).Val2][EId] = TStr::GetNullStr();
+  } else if (vecType == FltType) {
+    VecOfFltVecsE[KeyToIndexTypeE.GetDat(attribute).Val2][EId] = TFlt::Mn;
+  }
+}
 
-void TNEAGraph::AddIntAttr(TStr attribute){
+void TNEAGraph::AddIntAttrN(TStr attribute){
   // TODO(nkhadke): add error checking
   int i;
   TInt CurrLen;
   TVec<TInt> NewVec;
-  CurrLen = VecOfIntVecs.Len();
-  KeyToIndexType.AddDat(attribute, TIntPr(IntType, CurrLen+1));
+  CurrLen = VecOfIntVecsN.Len();
+  KeyToIndexTypeN.AddDat(attribute, TIntPr(IntType, CurrLen+1));
   NewVec = TVec<TInt>();
   for (i = 0; i < MxNId; i++) {
     // this is the default value for now.
     NewVec[i] = TInt::Mn;
   }
-  VecOfIntVecs.Add(NewVec);
+  VecOfIntVecsN.Add(NewVec);
 }
 
-void TNEAGraph::AddStrAttr(TStr attribute) {
+void TNEAGraph::AddStrAttrN(TStr attribute) {
   // TODO(nkhadke): add error checking
   int i;
   TInt CurrLen;
   TVec<TStr> NewVec;
-  CurrLen = VecOfStrVecs.Len();
-  KeyToIndexType.AddDat(attribute, TIntPr(StrType, CurrLen+1));
+  CurrLen = VecOfStrVecsN.Len();
+  KeyToIndexTypeN.AddDat(attribute, TIntPr(StrType, CurrLen+1));
   NewVec = TVec<TStr>();
   for (i = 0; i < MxNId; i++) {
     // this is the default value for now.
     NewVec[i] = TStr::GetNullStr();
   }
-  VecOfStrVecs.Add(NewVec);
+  VecOfStrVecsN.Add(NewVec);
 }
 
-void TNEAGraph::AddFltAttr(TStr attribute) {
+void TNEAGraph::AddFltAttrN(TStr attribute) {
   // TODO(nkhadke): add error checking
   int i;
   TInt CurrLen;
   TVec<TFlt> NewVec;
-  CurrLen = VecOfStrVecs.Len();
-  KeyToIndexType.AddDat(attribute, TIntPr(FltType, CurrLen+1));
+  CurrLen = VecOfStrVecsN.Len();
+  KeyToIndexTypeN.AddDat(attribute, TIntPr(FltType, CurrLen+1));
   NewVec = TVec<TFlt>();
   for (i = 0; i < MxNId; i++) {
     // this is the default value for now.
     NewVec[i] = TFlt::Mn;
   }
-  VecOfFltVecs.Add(NewVec);
+  VecOfFltVecsN.Add(NewVec);
 }
 
-void TNEAGraph::DelAttr(TStr attribute) {
-  //TODO(nkhadke): Check that memory is indeed freed upon re-allocation.
-  TInt vecType = KeyToIndexType(attribute).Val1;
-  if (vecType == IntType) {
-    VecOfIntVecs[KeyToIndexType.GetDat(attribute).Val2] = TVec<TInt>();
-  } else if (vecType == StrType) {
-    VecOfStrVecs[KeyToIndexType.GetDat(attribute).Val2] = TVec<TStr>();
-  } else if (vecType == FltType) {
-    VecOfFltVecs[KeyToIndexType.GetDat(attribute).Val2] = TVec<TFlt>();
+void TNEAGraph::AddIntAttrE(TStr attribute){
+  // TODO(nkhadke): add error checking
+  int i;
+  TInt CurrLen;
+  TVec<TInt> NewVec;
+  CurrLen = VecOfIntVecsE.Len();
+  KeyToIndexTypeE.AddDat(attribute, TIntPr(IntType, CurrLen+1));
+  NewVec = TVec<TInt>();
+  for (i = 0; i < MxEId; i++) {
+    // this is the default value for now.
+    NewVec[i] = TInt::Mn;
   }
-  KeyToIndexType.DelKey(attribute);
+  VecOfIntVecsE.Add(NewVec);
+}
+
+void TNEAGraph::AddStrAttrE(TStr attribute) {
+  // TODO(nkhadke): add error checking
+  int i;
+  TInt CurrLen;
+  TVec<TStr> NewVec;
+  CurrLen = VecOfStrVecsE.Len();
+  KeyToIndexTypeE.AddDat(attribute, TIntPr(StrType, CurrLen+1));
+  NewVec = TVec<TStr>();
+  for (i = 0; i < MxEId; i++) {
+    // this is the default value for now.
+    NewVec[i] = TStr::GetNullStr();
+  }
+  VecOfStrVecsE.Add(NewVec);
+}
+
+void TNEAGraph::AddFltAttrE(TStr attribute) {
+  // TODO(nkhadke): add error checking
+  int i;
+  TInt CurrLen;
+  TVec<TFlt> NewVec;
+  CurrLen = VecOfStrVecsE.Len();
+  KeyToIndexTypeE.AddDat(attribute, TIntPr(FltType, CurrLen+1));
+  NewVec = TVec<TFlt>();
+  for (i = 0; i < MxEId; i++) {
+    // this is the default value for now.
+    NewVec[i] = TFlt::Mn;
+  }
+  VecOfFltVecsE.Add(NewVec);
+}
+
+void TNEAGraph::DelAttrN(TStr attribute) {
+  //TODO(nkhadke): Check that memory is indeed freed upon re-allocation.
+  TInt vecType = KeyToIndexTypeN(attribute).Val1;
+  if (vecType == IntType) {
+    VecOfIntVecsN[KeyToIndexTypeN.GetDat(attribute).Val2] = TVec<TInt>();
+  } else if (vecType == StrType) {
+    VecOfStrVecsN[KeyToIndexTypeN.GetDat(attribute).Val2] = TVec<TStr>();
+  } else if (vecType == FltType) {
+    VecOfFltVecsN[KeyToIndexTypeN.GetDat(attribute).Val2] = TVec<TFlt>();
+  }
+  KeyToIndexTypeN.DelKey(attribute);
+}
+
+void TNEAGraph::DelAttrE(TStr attribute) {
+  //TODO(nkhadke): Check that memory is indeed freed upon re-allocation.
+  TInt vecType = KeyToIndexTypeE(attribute).Val1;
+  if (vecType == IntType) {
+    VecOfIntVecsE[KeyToIndexTypeE.GetDat(attribute).Val2] = TVec<TInt>();
+  } else if (vecType == StrType) {
+    VecOfStrVecsE[KeyToIndexTypeE.GetDat(attribute).Val2] = TVec<TStr>();
+  } else if (vecType == FltType) {
+    VecOfFltVecsE[KeyToIndexTypeE.GetDat(attribute).Val2] = TVec<TFlt>();
+  }
+  KeyToIndexTypeE.DelKey(attribute);
 }
 /////////////////////////////////////////////////
 // Bipartite graph
