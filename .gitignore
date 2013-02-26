@@ -29,6 +29,8 @@ sample_*.dot
 *.out
 *.paj
 *.png
+*.plt
+*.tab
 *.ps
 *.pool
 *.xml
@@ -47,7 +49,6 @@ snap-core/testSnap
 test/run-all-tests
 !test/graphviz/base*
 examples/*/*
-!examples/*/*.*
 !examples/*/Makefile
 examples/*/.DS_Store
 examples/*/*.dSYM
