@@ -576,14 +576,13 @@ int TGnuPlot::AddExpFit(const int& PlotId, const TGpSeriesTy& SeriesTy, const do
 void TGnuPlot::SavePng(const TStr& FNm, const int& SizeX, const int& SizeY, const TStr& Comment, const TStr& Terminal) {
   if (Terminal.Empty()) {
     //#ifdef GLib_WIN
+    #ifndef GLib_MACOSX  // The standard GNUPlot for MacOS does not support PNG
     AddCmd(TStr::Fmt("set terminal png small size %d,%d", SizeX, SizeY));
     AddCmd(TStr::Fmt("set output '%s'", FNm.CStr()));
-    /**
     #else // EPS
     AddCmd("set terminal postscript eps 10 enhanced color");
     AddCmd(TStr::Fmt("set output '%s.eps'", FNm.GetFMid().CStr()));
     #endif
-    */
   } else {
     AddCmd(Terminal);
     AddCmd(TStr::Fmt("set output '%s'", FNm.CStr()));
