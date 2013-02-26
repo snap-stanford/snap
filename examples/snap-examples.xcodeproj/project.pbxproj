@@ -226,12 +226,19 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		848A6E6116D0409000E6F7D3 /* PBXContainerItemProxy */ = {
+		848A722F16D1A36700E6F7D3 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 848A6E4A16D0409000E6F7D3 /* snap-core.xcodeproj */;
 			proxyType = 2;
-			remoteGlobalIDString = 8463141516CF5C7D003F2BAE;
-			remoteInfo = "snap-core";
+			remoteGlobalIDString = 848A6F9516D062F800E6F7D3;
+			remoteInfo = testSnap;
+		};
+		848A723116D1A36700E6F7D3 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 848A6E4A16D0409000E6F7D3 /* snap-core.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 848A6FA316D068FB00E6F7D3;
+			remoteInfo = docs;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -934,9 +941,9 @@
 		848A6E8D16D0439C00E6F7D3 /* wgtnet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = wgtnet.h; sourceTree = "<group>"; };
 		848A6E8E16D0439C00E6F7D3 /* wikinet.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = wikinet.cpp; sourceTree = "<group>"; };
 		848A6E8F16D0439C00E6F7D3 /* wikinet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = wikinet.h; sourceTree = "<group>"; };
-		848A6E9616D05E9600E6F7D3 /* docs */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; name = docs; path = /Users/sheridan/GoogleDrive/snap_proj/snap/examples/build/Release/docs; sourceTree = "<absolute>"; };
 		848A6F8316D0604200E6F7D3 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		848A6F8516D0604200E6F7D3 /* snap_examples.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = snap_examples.1; sourceTree = "<group>"; };
+		848A722A16D1A36700E6F7D3 /* docs */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = docs; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -985,6 +992,7 @@
 				8485DF1E16CE238300535B6B /* netstat */,
 				8485DF3116CE238300535B6B /* testgraph */,
 				848A6F8216D0604200E6F7D3 /* snap-examples */,
+				848A722A16D1A36700E6F7D3 /* docs */,
 			);
 			sourceTree = "<group>";
 		};
@@ -1876,7 +1884,8 @@
 		848A6E4B16D0409000E6F7D3 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				848A6E6216D0409000E6F7D3 /* libsnap-core.a */,
+				848A723016D1A36700E6F7D3 /* testSnap */,
+				848A723216D1A36700E6F7D3 /* docs.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -2351,7 +2360,7 @@
 			);
 			name = docs;
 			productName = docs;
-			productReference = 848A6E9616D05E9600E6F7D3 /* docs */;
+			productReference = 848A722A16D1A36700E6F7D3 /* docs */;
 			productType = "com.apple.product-type.tool";
 		};
 /* End PBXNativeTarget section */
@@ -2414,11 +2423,18 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
-		848A6E6216D0409000E6F7D3 /* libsnap-core.a */ = {
+		848A723016D1A36700E6F7D3 /* testSnap */ = {
 			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = "libsnap-core.a";
-			remoteRef = 848A6E6116D0409000E6F7D3 /* PBXContainerItemProxy */;
+			fileType = "compiled.mach-o.executable";
+			path = testSnap;
+			remoteRef = 848A722F16D1A36700E6F7D3 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		848A723216D1A36700E6F7D3 /* docs.app */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.application;
+			path = docs.app;
+			remoteRef = 848A723116D1A36700E6F7D3 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
@@ -3537,6 +3553,7 @@
 				848A6E9F16D05E9600E6F7D3 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		848A6F8B16D0608400E6F7D3 /* Build configuration list for PBXLegacyTarget "snap-examples" */ = {
 			isa = XCConfigurationList;
@@ -3545,6 +3562,7 @@
 				848A6F8D16D0608400E6F7D3 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
