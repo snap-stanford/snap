@@ -164,7 +164,11 @@ void TGStat::Plot(const TGStatDistr& Distr, const TStr& FNmPref, TStr Desc, bool
   GnuPlot.SetScale(Info.Val4);
   const int plotId = GnuPlot.AddPlot(GetDistr(Distr), gpwLinesPoints, "");
   if (PowerFit) { GnuPlot.AddPwrFit(plotId, gpwLines); }
+  #ifdef GLib_MACOSX
+  GnuPlot.SaveEps();
+  #else
   GnuPlot.SavePng();
+  #endif
 }
 
 void TGStat::Plot(const TFSet& FSet, const TStr& FNmPref, TStr Desc, bool PowerFit) const {
