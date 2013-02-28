@@ -44,7 +44,7 @@ typedef ptrdiff_t ssize_t;
 
 #if defined(GLib_UNIX)
 #define _isnan(x) isnan(x)
-#if defined (GLib_MACOSX)
+#if defined(GLib_MACOSX)
   #define _finite(x) isfinite(x)
 #else
   #define _finite(x) finite(x)
