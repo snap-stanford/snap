@@ -215,7 +215,7 @@ PGraph GenRndGnm(const int& Nodes, const int& Edges, const bool& IsDir, TRnd& Rn
   PGraph GraphPt = PGraph::New();
   typename PGraph::TObj& Graph = *GraphPt;
   Graph.Reserve(Nodes, Edges);
-//  IAssertR(Nodes * (Nodes-1) / 2 * (IsDir ? 2 : 1) >= Edges, TStr::Fmt("Not enough nodes (%d), for edges (%d).", Nodes, Edges));
+  IAssertR((1.0 * (Nodes-1) / 2 * (IsDir ? 2 : 1)) >= (1.0 * Edges / Nodes), TStr::Fmt("Not enough nodes (%d), for edges (%d).", Nodes, Edges));
   for (int node = 0; node < Nodes; node++) {
     IAssert(Graph.AddNode(node) == node);
   }

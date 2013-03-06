@@ -12,6 +12,7 @@ Myunghwan Kim
 Julian McAuley
 Manuel Gomez Rodriguez
 Nicholas Shelly
+Richard Hsu
 Rok Sosic
 Jaewon Yang
 Chenguang Zhu
