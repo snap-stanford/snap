@@ -158,3 +158,4 @@ TStr TUStr::EncodeUtf8(const int& UniCh) {
   AssertUnicodeDefOk();
   return TUnicodeDef::GetDef()->EncodeUtf8Str(TIntV::GetV(UniCh));
 }
+
