@@ -30,7 +30,6 @@ int main(int argc, char* argv[]) {
   }
   else {
     int Membs = 0;
-    TVec<TIntV> CmtyVV;
     TSsParser Ss(InFNm, ssfWhiteSep);
     while (Ss.Next()) {
       if(Ss.GetFlds() > 0) {
