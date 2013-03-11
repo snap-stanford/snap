@@ -180,22 +180,31 @@ void ManipulateNodeEdgeAttributes() {
   Graph->AddIntAttrDatN(NId, 3*2, attr2);
   Graph->AddFltAttrDatN(NId, 3.41, attr3);
   Graph->AddStrAttrDatN(80, "dont appear", attr4); // should not show up
-  for (TNEAGraph::TAttrNI NI = Graph->BegAttrNI(NId);
-    NI < Graph->EndAttrNI(NId); NI++) {
-    printf("Vertical Node: %i, Attr: %s\n", NId, NI.GetDat()());
+  TStrV NIdAttrName = Graph->AttrNameNI(NId);
+  int AttrLen = NIdAttrName.Len();
+  for (int i = 0; i < AttrLen; i++) {
+    printf("Vertical Node: %i, Attr: %s\n", NId, NIdAttrName[i]());
   } 
 
   Graph->DelAttrDatN(NId, attr2);
-  for (TNEAGraph::TAttrNI NI = Graph->BegAttrNI(NId);
-    NI < Graph->EndAttrNI(NId); NI++) {
-    printf("Vertical Node (no int) : %i, Attr: %s\n", NId, NI.GetDat()());
+  NIdAttrName = Graph->AttrNameNI(NId);
+  AttrLen = NIdAttrName.Len();
+  for (int i = 0; i < AttrLen; i++) {
+    printf("Vertical Node (no int) : %i, Attr: %s\n", NId, NIdAttrName[i]());
   } 
 
   Graph->AddIntAttrDatN(NId, 3*2, attr2);
   Graph->DelAttrN(attr1);
-  for (TNEAGraph::TAttrNI NI = Graph->BegAttrNI(NId);
-    NI < Graph->EndAttrNI(NId); NI++) {
-    printf("Vertical Node (no str) : %i, Attr: %s\n", NId, NI.GetDat()());
+  NIdAttrName = Graph->AttrNameNI(NId);
+  AttrLen = NIdAttrName.Len();
+  for (int i = 0; i < AttrLen; i++) {
+    printf("Vertical Node (no str) : %i, Attr: %s\n", NId, NIdAttrName[i]());
+  } 
+
+  TStrV NIdAttrValue = Graph->AttrValueNI(NId);
+  AttrLen = NIdAttrValue.Len();
+  for (int i = 0; i < AttrLen; i++) {
+    printf("Vertical Node (no str) : %i, Attr_Val: %s\n", NId, NIdAttrValue[i]());
   } 
 
   for (i = 0; i <NNodes; i++) {
@@ -247,28 +256,38 @@ void ManipulateNodeEdgeAttributes() {
       EdgeId++;
   } 
 
+
   // Test vertical iterator over many types (must skip default/deleted attr) 
   int EId = 55;
   Graph->AddStrAttrDatE(EId, "aaa", attr1);
   Graph->AddIntAttrDatE(EId, 3*2, attr2);
   Graph->AddFltAttrDatE(EId, 3.41, attr3);
   Graph->AddStrAttrDatE(80, "dont appear", attr4); // should not show up
-  for (TNEAGraph::TAttrEI EI = Graph->BegAttrEI(EId);
-    EI < Graph->EndAttrEI(EId); EI++) {
-    printf("Vertical Edge: %i, Attr: %s\n", EId, EI.GetDat()());
+  TStrV EIdAttrName = Graph->AttrNameEI(EId);
+  AttrLen = EIdAttrName.Len();
+  for (int i = 0; i < AttrLen; i++) {
+    printf("Vertical Edge: %i, Attr: %s\n", EId, EIdAttrName[i]());
   } 
 
   Graph->DelAttrDatE(EId, attr2);
-  for (TNEAGraph::TAttrEI EI = Graph->BegAttrEI(EId);
-    EI < Graph->EndAttrEI(EId); EI++) {
-    printf("Vertical Edge (no int) : %i, Attr: %s\n", EId, EI.GetDat()());
+  EIdAttrName = Graph->AttrNameEI(EId);
+  AttrLen = EIdAttrName.Len();
+  for (int i = 0; i < AttrLen; i++) {
+    printf("Vertical Edge (no int) : %i, Attr: %s\n", EId, EIdAttrName[i]());
   } 
 
   Graph->AddIntAttrDatE(EId, 3*2, attr2);
   Graph->DelAttrE(attr1);
-  for (TNEAGraph::TAttrEI EI = Graph->BegAttrEI(EId);
-    EI < Graph->EndAttrEI(EId); EI++) {
-    printf("Vertical Edge (no str) : %i, Attr: %s\n", EId, EI.GetDat()());
+  EIdAttrName = Graph->AttrNameEI(EId);
+  AttrLen = EIdAttrName.Len();
+  for (int i = 0; i < AttrLen; i++) {
+    printf("Vertical Edge (no str) : %i, Attr: %s\n", EId, EIdAttrName[i]());
+  } 
+
+  TStrV EIdAttrValue = Graph->AttrValueEI(EId);
+  AttrLen = EIdAttrValue.Len();
+  for (int i = 0; i < AttrLen; i++) {
+    printf("Vertical Edge (no str) : %i, Attr_Val: %s\n", EId, EIdAttrValue[i]());
   } 
 
   for (i = 0; i <NEdges; i++) {
