@@ -634,7 +634,7 @@ TNEAGraph::TAIntI& TNEAGraph::TAIntI::operator++ (int) {
   while (HI < HIEnd) {
     if (!IsDeleted()) break;
     HI++;
-  }  
+  }
   return *this;
 }
 
@@ -702,7 +702,6 @@ TNEAGraph::TAttrEI& TNEAGraph::TAttrEI::operator++ (int) {
 
 int TNEAGraph::AddNode(int NId) {
   int i;
-
   if (NId == -1) {
     NId = MxNId;  MxNId++;
   } else {
@@ -715,13 +714,34 @@ int TNEAGraph::AddNode(int NId) {
     TVec<TInt>& IntVec = VecOfIntVecsN[i];
     IntVec.Ins(NodeH.GetKeyId(NId), TInt::Mn);
   }
+  TVec<TStr> DefIntVec = TVec<TStr>();
+  IntDefaultsN.GetKeyV(DefIntVec);
+  for (i = 0; i < DefIntVec.Len(); i++) {
+    TStr attr = DefIntVec[i];
+    TVec<TInt>& IntVec = VecOfIntVecsN[KeyToIndexTypeN.GetDat(DefIntVec[i]).Val2];
+    IntVec[NodeH.GetKeyId(NId)] = GetIntAttrDefaultN(attr);
+  }
   for (i = 0; i < VecOfStrVecsN.Len(); i++) {
     TVec<TStr>& StrVec = VecOfStrVecsN[i];
     StrVec.Ins(NodeH.GetKeyId(NId), TStr::GetNullStr());
   }
+  TVec<TStr> DefStrVec = TVec<TStr>();
+  IntDefaultsN.GetKeyV(DefStrVec);
+  for (i = 0; i < DefStrVec.Len(); i++) {
+    TStr attr = DefStrVec[i];
+    TVec<TStr>& StrVec = VecOfStrVecsN[KeyToIndexTypeN.GetDat(DefStrVec[i]).Val2];
+    StrVec[NodeH.GetKeyId(NId)] = GetStrAttrDefaultN(attr);
+  }
   for (i = 0; i < VecOfFltVecsN.Len(); i++) {
     TVec<TFlt>& FltVec = VecOfFltVecsN[i];
     FltVec.Ins(NodeH.GetKeyId(NId), TFlt::Mn);
+  }
+  TVec<TStr> DefFltVec = TVec<TStr>();
+  FltDefaultsN.GetKeyV(DefFltVec);
+  for (i = 0; i < DefFltVec.Len(); i++) {
+    TStr attr = DefFltVec[i];
+    TVec<TFlt>& FltVec = VecOfFltVecsN[KeyToIndexTypeN.GetDat(DefFltVec[i]).Val2];
+    FltVec[NodeH.GetKeyId(NId)] = GetFltAttrDefaultN(attr);
   }
   return NId;
 }
@@ -976,7 +996,6 @@ int TNEAGraph::AddIntAttrDatN(int NId, const TInt& value, TStr attribute) {
     KeyToIndexTypeN.AddDat(attribute, TIntPr(IntType, CurrLen));
     TVec<TInt> NewVec = TVec<TInt>();
     for (i = 0; i < MxNId; i++) {
-    // this is the default value for now.
       NewVec.Ins(i, GetIntAttrDefaultN(attribute));
     }
     NewVec[NodeH.GetKeyId(NId)] = value;
