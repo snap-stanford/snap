@@ -1017,7 +1017,6 @@ int TNEAGraph::AddIntAttrDatN(int NId, const TInt& value, TStr attribute) {
     AddNode(NId);
   }
   if (KeyToIndexTypeN.IsKey(attribute)) {
-    printf("Is an attribute\n");
     TVec<TInt>& NewVec = VecOfIntVecsN[KeyToIndexTypeN.GetDat(attribute).Val2];
     NewVec[NodeH.GetKeyId(NId)] = value;
   } else {
@@ -1204,7 +1203,7 @@ void TNEAGraph::AddIntAttrN(TStr attribute, TInt defaultValue){
   TInt CurrLen;
   TVec<TInt> NewVec;
   CurrLen = VecOfIntVecsN.Len();
-  KeyToIndexTypeN.AddDat(attribute, TIntPr(IntType, CurrLen+1));
+  KeyToIndexTypeN.AddDat(attribute, TIntPr(IntType, CurrLen));
   NewVec = TVec<TInt>();
   for (i = 0; i < MxNId; i++) {
     NewVec.Ins(i, defaultValue);
@@ -1223,7 +1222,7 @@ void TNEAGraph::AddStrAttrN(TStr attribute, TStr defaultValue) {
   TInt CurrLen;
   TVec<TStr> NewVec;
   CurrLen = VecOfStrVecsN.Len();
-  KeyToIndexTypeN.AddDat(attribute, TIntPr(StrType, CurrLen+1));
+  KeyToIndexTypeN.AddDat(attribute, TIntPr(StrType, CurrLen));
   NewVec = TVec<TStr>();
   for (i = 0; i < MxNId; i++) {
     NewVec.Ins(i, defaultValue);
@@ -1242,7 +1241,7 @@ void TNEAGraph::AddFltAttrN(TStr attribute, TFlt defaultValue) {
   TInt CurrLen;
   TVec<TFlt> NewVec;
   CurrLen = VecOfStrVecsN.Len();
-  KeyToIndexTypeN.AddDat(attribute, TIntPr(FltType, CurrLen+1));
+  KeyToIndexTypeN.AddDat(attribute, TIntPr(FltType, CurrLen));
   NewVec = TVec<TFlt>();
   for (i = 0; i < MxNId; i++) {
     NewVec.Ins(i, defaultValue);
@@ -1261,7 +1260,7 @@ void TNEAGraph::AddIntAttrE(TStr attribute, TInt defaultValue){
   TInt CurrLen;
   TVec<TInt> NewVec;
   CurrLen = VecOfIntVecsE.Len();
-  KeyToIndexTypeE.AddDat(attribute, TIntPr(IntType, CurrLen+1));
+  KeyToIndexTypeE.AddDat(attribute, TIntPr(IntType, CurrLen));
   NewVec = TVec<TInt>();
   for (i = 0; i < MxEId; i++) {
     NewVec.Ins(i, defaultValue);
@@ -1280,7 +1279,7 @@ void TNEAGraph::AddStrAttrE(TStr attribute, TStr defaultValue) {
   TInt CurrLen;
   TVec<TStr> NewVec;
   CurrLen = VecOfStrVecsE.Len();
-  KeyToIndexTypeE.AddDat(attribute, TIntPr(StrType, CurrLen+1));
+  KeyToIndexTypeE.AddDat(attribute, TIntPr(StrType, CurrLen));
   NewVec = TVec<TStr>();
   for (i = 0; i < MxEId; i++) {
     NewVec.Ins(i, defaultValue);
@@ -1299,7 +1298,7 @@ void TNEAGraph::AddFltAttrE(TStr attribute, TFlt defaultValue) {
   TInt CurrLen;
   TVec<TFlt> NewVec;
   CurrLen = VecOfStrVecsE.Len();
-  KeyToIndexTypeE.AddDat(attribute, TIntPr(FltType, CurrLen+1));
+  KeyToIndexTypeE.AddDat(attribute, TIntPr(FltType, CurrLen));
   NewVec = TVec<TFlt>();
   for (i = 0; i < MxEId; i++) {
     NewVec.Ins(i, defaultValue);

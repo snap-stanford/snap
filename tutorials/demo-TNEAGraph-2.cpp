@@ -136,9 +136,7 @@ void ManipulateNodeEdgeAttributes() {
   TStr attr3 = "float";
   TStr attr4 = "default";
 
-  printf("Testing Attribute additions\n");
   // Test vertical int iterator for node 3, 50, 700, 900
-  Graph->AddIntAttrN(attr2, 0);
   Graph->AddIntAttrDatN(3, 3*2, attr2);
   Graph->AddIntAttrDatN(50, 50*2, attr2);
   Graph->AddIntAttrDatN(700, 700*2, attr2);
