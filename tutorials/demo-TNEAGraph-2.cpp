@@ -137,6 +137,8 @@ void ManipulateNodeEdgeAttributes() {
   TStr attr4 = "default";
 
   // Test vertical int iterator for node 3, 50, 700, 900
+  // Check if we can set defaults to 0 for Int data.
+  Graph->AddIntAttrN(attr2, 0);
   Graph->AddIntAttrDatN(3, 3*2, attr2);
   Graph->AddIntAttrDatN(50, 50*2, attr2);
   Graph->AddIntAttrDatN(700, 700*2, attr2);
@@ -144,7 +146,8 @@ void ManipulateNodeEdgeAttributes() {
   int NodeId = 0;
   for (TNEAGraph::TAIntI NI = Graph->BegNAIntI(attr2);
     NI < Graph->EndNAIntI(attr2); NI++) {
-    if (NI.GetDat() != TInt::Mn) {
+    // Check if defaults are now 0.
+    if (NI.GetDat()() != 0) {
       printf("Attribute: %s, Node: %i, Val: %i\n", attr2(), NodeId, NI.GetDat()());
       NodeId++;
     }
@@ -240,6 +243,7 @@ void ManipulateNodeEdgeAttributes() {
   } 
   
   // Test vertical flt iterator for edge
+  Graph->AddFltAttrE(attr3, 0.00);
   Graph->AddFltAttrDatE(5, 4.41, attr3);
   Graph->AddFltAttrDatE(50, 3.718, attr3);
   Graph->AddFltAttrDatE(300, 151.0, attr3);
@@ -247,7 +251,8 @@ void ManipulateNodeEdgeAttributes() {
   EdgeId = 0;
   for (TNEAGraph::TAFltI EI = Graph->BegEAFltI(attr3);
     EI < Graph->EndEAFltI(attr3); EI++) {
-    if (EI.GetDat() != TFlt::Mn) {
+    // Check if defaults are set to 0.
+    if (EI.GetDat() != 0.00) {
       printf("E Attribute: %s, Edge: %i, Val: %f\n", attr3(), EdgeId, EI.GetDat()());
       EdgeId++;
     } 
