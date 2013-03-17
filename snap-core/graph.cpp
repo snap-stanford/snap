@@ -629,33 +629,6 @@ bool TNEAGraph::TNodeI::IsOutNId(const int& NId) const {
   return false;
 }
 
-TNEAGraph::TAIntI& TNEAGraph::TAIntI::operator++ (int) {
-  HI++;
-  while (HI < HIEnd) {
-    if (!IsDeleted()) break;
-    HI++;
-  }  
-  return *this;
-}
-
-TNEAGraph::TAStrI& TNEAGraph::TAStrI::operator++ (int) {
-  HI++;
-  while (HI < HIEnd) {
-    if (!IsDeleted()) break;
-    HI++;
-  }  
-  return *this;
-}
-
-TNEAGraph::TAFltI& TNEAGraph::TAFltI::operator++ (int) {
-  HI++;
-  while (HI < HIEnd) {
-    if (!IsDeleted()) break;
-    HI++;
-  }  
-  return *this;
-}
-
 void TNEAGraph::AttrNameNI(TInt NId, TStrIntPrH::TIter NodeHI, TStrV& Names) const {
   Names = TVec<TStr>();
   while (!NodeHI.IsEnd()) {

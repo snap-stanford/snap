@@ -144,8 +144,10 @@ void ManipulateNodeEdgeAttributes() {
   int NodeId = 0;
   for (TNEAGraph::TAIntI NI = Graph->BegNAIntI(attr2);
     NI < Graph->EndNAIntI(attr2); NI++) {
+    if (NI.GetDat() != TInt::Mn) {
       printf("Attribute: %s, Node: %i, Val: %i\n", attr2(), NodeId, NI.GetDat()());
       NodeId++;
+    }
   } 
 
   // Test vertical flt iterator for node 3, 50, 700, 900
@@ -156,9 +158,11 @@ void ManipulateNodeEdgeAttributes() {
   NodeId = 0;
   for (TNEAGraph::TAFltI NI = Graph->BegNAFltI(attr3);
     NI < Graph->EndNAFltI(attr3); NI++) {
+    if (NI.GetDat() != TFlt::Mn) {
       printf("Attribute: %s, Node: %i, Val: %f\n", attr3(), NodeId, NI.GetDat()());
       NodeId++;
-  } 
+    } 
+  }
 
   // Test vertical str iterator for node 3, 50, 700, 900
   Graph->AddStrAttrDatN(10, "abc", attr1);
@@ -170,8 +174,10 @@ void ManipulateNodeEdgeAttributes() {
   
   for (TNEAGraph::TAStrI NI = Graph->BegNAStrI(attr1);
     NI < Graph->EndNAStrI(attr1); NI++) {
+    if (NI.GetDat() != TStr::GetNullStr()) {
       printf("Attribute: %s, Node: %i, Val: %s\n", attr1(), NodeId, NI.GetDat()());
       NodeId++;
+    }
   } 
 
   // Test vertical iterator over many types (must skip default/deleted attr) 
@@ -229,10 +235,12 @@ void ManipulateNodeEdgeAttributes() {
   int EdgeId = 0;
   for (TNEAGraph::TAIntI EI = Graph->BegEAIntI(attr2);
     EI < Graph->EndEAIntI(attr2); EI++) {
-      printf("E Attribute: %s, Edge: %i, Val: %i\n", attr2(), EdgeId, EI.GetDat()());
-      EdgeId++;
+    if (EI.GetDat() != TInt::Mn) {
+       printf("E Attribute: %s, Edge: %i, Val: %i\n", attr2(), EdgeId, EI.GetDat()());
+       EdgeId++;
+    }
   } 
-
+  
   // Test vertical flt iterator for edge
   Graph->AddFltAttrDatE(5, 4.41, attr3);
   Graph->AddFltAttrDatE(50, 3.718, attr3);
@@ -241,9 +249,11 @@ void ManipulateNodeEdgeAttributes() {
   EdgeId = 0;
   for (TNEAGraph::TAFltI EI = Graph->BegEAFltI(attr3);
     EI < Graph->EndEAFltI(attr3); EI++) {
+    if (EI.GetDat() != TFlt::Mn) {
       printf("E Attribute: %s, Edge: %i, Val: %f\n", attr3(), EdgeId, EI.GetDat()());
       EdgeId++;
-  } 
+    } 
+  }
 
   // Test vertical str iterator for edge
   Graph->AddStrAttrDatE(10, "abc", attr1);
@@ -254,8 +264,10 @@ void ManipulateNodeEdgeAttributes() {
   EdgeId = 0;
   for (TNEAGraph::TAStrI EI = Graph->BegEAStrI(attr1);
     EI < Graph->EndEAStrI(attr1); EI++) {
-      printf("E Attribute: %s, Edge: %i, Val: %s\n", attr1(), EdgeId, EI.GetDat()());
-      EdgeId++;
+    if (EI.GetDat() != TStr::GetNullStr()) {
+        printf("E Attribute: %s, Edge: %i, Val: %s\n", attr1(), EdgeId, EI.GetDat()());
+	EdgeId++;
+    }
   } 
 
 
