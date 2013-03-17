@@ -1202,21 +1202,21 @@ public:
   TFlt GetFltAttrDatE(int EId, TStr attribute);
  
   // deletes the key value pair from the corresponding attribute value vector.
-  void DelAttrDatN(const TNodeI& NodeId, TStr attribute) { return DelAttrDatN(NodeId.GetId(), attribute); } 
-  void DelAttrDatN(int NId, TStr attribute); 
-  void DelAttrDatE(const TEdgeI& EdgeId, TStr attribute) { return DelAttrDatE(EdgeId.GetId(), attribute); } 
-  void DelAttrDatE(int EId, TStr attribute); 
+  int DelAttrDatN(const TNodeI& NodeId, TStr attribute) { return DelAttrDatN(NodeId.GetId(), attribute); } 
+  int DelAttrDatN(int NId, TStr attribute); 
+  int DelAttrDatE(const TEdgeI& EdgeId, TStr attribute) { return DelAttrDatE(EdgeId.GetId(), attribute); } 
+  int DelAttrDatE(int EId, TStr attribute); 
 
   // adds a new attribute to the hashmap
-  void AddIntAttrN(TStr attribute, TInt defaultValue=TInt::Mn);
-  void AddStrAttrN(TStr attribute, TStr defaultValue=TStr::GetNullStr());
-  void AddFltAttrN(TStr attribute, TFlt defaultValue=TFlt::Mn);
-  void AddIntAttrE(TStr attribute, TInt defaultValue=TInt::Mn);
-  void AddStrAttrE(TStr attribute, TStr defaultValue=TStr::GetNullStr());
-  void AddFltAttrE(TStr attribute, TFlt defaultValue=TFlt::Mn);
+  int AddIntAttrN(TStr attribute, TInt defaultValue=TInt::Mn);
+  int AddStrAttrN(TStr attribute, TStr defaultValue=TStr::GetNullStr());
+  int AddFltAttrN(TStr attribute, TFlt defaultValue=TFlt::Mn);
+  int AddIntAttrE(TStr attribute, TInt defaultValue=TInt::Mn);
+  int AddStrAttrE(TStr attribute, TStr defaultValue=TStr::GetNullStr());
+  int AddFltAttrE(TStr attribute, TFlt defaultValue=TFlt::Mn);
   // removes all the key values pairs associated with the provided attribute
-  void DelAttrN(TStr attribute);
-  void DelAttrE(TStr attribute);
+  int DelAttrN(TStr attribute);
+  int DelAttrE(TStr attribute);
   
   // TODO implement and document TNEAGraph::GetSmallGraph()
   static PNEGraph GetSmallGraph();
