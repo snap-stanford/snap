@@ -941,25 +941,25 @@ private:
   TVec<TFltV> VecOfFltVecsE;
   enum { IntType, StrType, FltType };
 public:
-  TNEAGraph() : CRef(), MxNId(0), MxEId(0), NodeH(), EdgeH(),
+  TNEAGraph() : CRef(), MxNId(0), MxEId(0), NodeH(), EdgeH(), KeyToIndexTypeN(),
     IntDefaultsN(), StrDefaultsN(), FltDefaultsN(), IntDefaultsE(), StrDefaultsE(), FltDefaultsE(), 
-    KeyToIndexTypeN(), VecOfIntVecsN(), VecOfStrVecsN(), VecOfFltVecsN(),
+    VecOfIntVecsN(), VecOfStrVecsN(), VecOfFltVecsN(),
     KeyToIndexTypeE(), VecOfIntVecsE(), VecOfStrVecsE(), VecOfFltVecsE() { }
   /// Constructor that reserves enough memory for a graph of Nodes nodes and Edges edges.
   explicit TNEAGraph(const int& Nodes, const int& Edges) : CRef(), MxNId(0),
-    MxEId(0), NodeH(), EdgeH(), KeyToIndexTypeN(), VecOfIntVecsN(), VecOfStrVecsN(),
+    MxEId(0), NodeH(), EdgeH(), KeyToIndexTypeN(),
     IntDefaultsN(), StrDefaultsN(), FltDefaultsN(), IntDefaultsE(), StrDefaultsE(), FltDefaultsE(), 
-    VecOfFltVecsN(), KeyToIndexTypeE(), VecOfIntVecsE(), VecOfStrVecsE(),
+    VecOfIntVecsN(), VecOfStrVecsN(), VecOfFltVecsN(), KeyToIndexTypeE(), VecOfIntVecsE(), VecOfStrVecsE(),
     VecOfFltVecsE() { Reserve(Nodes, Edges); }
   TNEAGraph(const TNEAGraph& Graph) : MxNId(Graph.MxNId), MxEId(Graph.MxEId),
-    NodeH(Graph.NodeH), EdgeH(Graph.EdgeH), KeyToIndexTypeN(), VecOfIntVecsN(),
+    NodeH(Graph.NodeH), EdgeH(Graph.EdgeH), KeyToIndexTypeN(),
     IntDefaultsN(), StrDefaultsN(), FltDefaultsN(), IntDefaultsE(), StrDefaultsE(), FltDefaultsE(), 
-    VecOfStrVecsN(), VecOfFltVecsN(), KeyToIndexTypeE(), VecOfIntVecsE(),
+    VecOfIntVecsN(), VecOfStrVecsN(), VecOfFltVecsN(), KeyToIndexTypeE(), VecOfIntVecsE(),
     VecOfStrVecsE(), VecOfFltVecsE() { }
   /// Constructor for loading the graph from a (binary) stream SIn.
- TNEAGraph(TSIn& SIn) : MxNId(SIn), MxEId(SIn), NodeH(SIn), EdgeH(SIn),
+ TNEAGraph(TSIn& SIn) : MxNId(SIn), MxEId(SIn), NodeH(SIn), EdgeH(SIn), KeyToIndexTypeN(),
     IntDefaultsN(), StrDefaultsN(), FltDefaultsN(), IntDefaultsE(), StrDefaultsE(), FltDefaultsE(), 
-    KeyToIndexTypeN(), VecOfIntVecsN(), VecOfStrVecsN(), VecOfFltVecsN(),
+    VecOfIntVecsN(), VecOfStrVecsN(), VecOfFltVecsN(),
     KeyToIndexTypeE(), VecOfIntVecsE(), VecOfStrVecsE(), VecOfFltVecsE(){ }
   /// Saves the graph to a (binary) stream SOut.
   void Save(TSOut& SOut) const { MxNId.Save(SOut); MxEId.Save(SOut); NodeH.Save(SOut); EdgeH.Save(SOut); }
