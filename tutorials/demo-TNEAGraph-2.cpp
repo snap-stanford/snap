@@ -189,14 +189,15 @@ void ManipulateNodeEdgeAttributes() {
   Graph->AddIntAttrDatN(NId, 3*2, attr2);
   Graph->AddFltAttrDatN(NId, 3.41, attr3);
   Graph->AddStrAttrDatN(80, "dont appear", attr4); // should not show up
-  TStrV NIdAttrName = Graph->AttrNameNI(NId);
+  TStrV NIdAttrName;
+  Graph->AttrNameNI(NId, NIdAttrName);
   int AttrLen = NIdAttrName.Len();
   for (int i = 0; i < AttrLen; i++) {
     printf("Vertical Node: %i, Attr: %s\n", NId, NIdAttrName[i]());
   } 
 
   Graph->DelAttrDatN(NId, attr2);
-  NIdAttrName = Graph->AttrNameNI(NId);
+  Graph->AttrNameNI(NId, NIdAttrName);
   AttrLen = NIdAttrName.Len();
   for (int i = 0; i < AttrLen; i++) {
     printf("Vertical Node (no int) : %i, Attr: %s\n", NId, NIdAttrName[i]());
@@ -204,13 +205,14 @@ void ManipulateNodeEdgeAttributes() {
 
   Graph->AddIntAttrDatN(NId, 3*2, attr2);
   Graph->DelAttrN(attr1);
-  NIdAttrName = Graph->AttrNameNI(NId);
+  Graph->AttrNameNI(NId, NIdAttrName);
   AttrLen = NIdAttrName.Len();
   for (int i = 0; i < AttrLen; i++) {
     printf("Vertical Node (no str) : %i, Attr: %s\n", NId, NIdAttrName[i]());
   } 
 
-  TStrV NIdAttrValue = Graph->AttrValueNI(NId);
+  TStrV NIdAttrValue;
+  Graph->AttrValueNI(NId, NIdAttrValue);
   AttrLen = NIdAttrValue.Len();
   for (int i = 0; i < AttrLen; i++) {
     printf("Vertical Node (no str) : %i, Attr_Val: %s\n", NId, NIdAttrValue[i]());
@@ -280,14 +282,15 @@ void ManipulateNodeEdgeAttributes() {
   Graph->AddIntAttrDatE(EId, 3*2, attr2);
   Graph->AddFltAttrDatE(EId, 3.41, attr3);
   Graph->AddStrAttrDatE(80, "dont appear", attr4); // should not show up
-  TStrV EIdAttrName = Graph->AttrNameEI(EId);
+  TStrV EIdAttrName;
+  Graph->AttrNameEI(EId, EIdAttrName);
   AttrLen = EIdAttrName.Len();
   for (int i = 0; i < AttrLen; i++) {
     printf("Vertical Edge: %i, Attr: %s\n", EId, EIdAttrName[i]());
   } 
 
   Graph->DelAttrDatE(EId, attr2);
-  EIdAttrName = Graph->AttrNameEI(EId);
+  Graph->AttrNameEI(EId, EIdAttrName);
   AttrLen = EIdAttrName.Len();
   for (int i = 0; i < AttrLen; i++) {
     printf("Vertical Edge (no int) : %i, Attr: %s\n", EId, EIdAttrName[i]());
@@ -295,13 +298,14 @@ void ManipulateNodeEdgeAttributes() {
 
   Graph->AddIntAttrDatE(EId, 3*2, attr2);
   Graph->DelAttrE(attr1);
-  EIdAttrName = Graph->AttrNameEI(EId);
+  Graph->AttrNameEI(EId, EIdAttrName);
   AttrLen = EIdAttrName.Len();
   for (int i = 0; i < AttrLen; i++) {
     printf("Vertical Edge (no str) : %i, Attr: %s\n", EId, EIdAttrName[i]());
   } 
 
-  TStrV EIdAttrValue = Graph->AttrValueEI(EId);
+  TStrV EIdAttrValue;
+  Graph->AttrValueEI(EId, EIdAttrValue);
   AttrLen = EIdAttrValue.Len();
   for (int i = 0; i < AttrLen; i++) {
     printf("Vertical Edge (no str) : %i, Attr_Val: %s\n", EId, EIdAttrValue[i]());
@@ -321,7 +325,6 @@ void ManipulateNodeEdgeAttributes() {
 
   Graph->Clr();
 }
-
 
 // Test small graph
 void GetSmallGraph() {
