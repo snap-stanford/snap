@@ -437,6 +437,10 @@ public:
   explicit TVec(TSIn& SIn): MxVals(0), Vals(0), ValT(NULL){Load(SIn);}
   void Load(TSIn& SIn);
   void Save(TSOut& SOut) const;
+  /// Sends the vector contents via a socket \c fd.
+  int Send(int sd);
+  /// Writes \c nbytes bytes starting at \c ptr to a file/socket descriptor \c fd.
+  int WriteN(int fd, char *ptr, int nbytes);
   void LoadXml(const PXmlTok& XmlTok, const TStr& Nm="");
   void SaveXml(TSOut& SOut, const TStr& Nm) const;
   
@@ -459,6 +463,9 @@ public:
   /// Returns the memory footprint (the number of bytes) of the vector.
   TSizeTy GetMemUsed() const {
     return TSizeTy(2*sizeof(TSizeTy)+sizeof(TVal*)+MxVals*sizeof(TVal));}
+  /// Returns the memory size (the number of bytes) of a binary representation.
+  TSizeTy GetMemSize() const {
+    return TSizeTy(2*sizeof(TVal)+sizeof(TSizeTy)*Vals);}
   
   /// Returns primary hash code of the vector. Used by \c THash.
   int GetPrimHashCd() const;
@@ -680,7 +687,7 @@ public:
   /// Checks whether element \c Val is a member of the vector. ##TVec::IsInBin
   bool IsInBin(const TVal& Val) const {return SearchBin(Val)!=-1;}
   /// Returns reference to the first occurrence of element \c Val.
-  TVal& GetDat(const TVal& Val) const { return GetVal(SearchForw(Val));}
+  const TVal& GetDat(const TVal& Val) const { return GetVal(SearchForw(Val));}
   /// Returns reference to the first occurrence of element \c Val. ##TVec::GetAddDat
   TVal& GetAddDat(const TVal& Val){ AssertR(MxVals!=-1, "This vector was obtained from TVecPool. Such vectors cannot change its size!");
     const TSizeTy ValN=SearchForw(Val); if (ValN==-1){Add(Val); return Last();} else {return GetVal(ValN);}}
@@ -771,6 +778,45 @@ void TVec<TVal, TSizeTy>::Save(TSOut& SOut) const {
   if (MxVals!=-1){SOut.Save(MxVals);} else {SOut.Save(Vals);}
   SOut.Save(Vals);
   for (TSizeTy ValN=0; ValN<Vals; ValN++){ValT[ValN].Save(SOut);}
+}
+
+template <class TVal, class TSizeTy>
+int TVec<TVal, TSizeTy>::WriteN(int fd, char *ptr, int nbytes) {
+  int nleft;
+  int nwritten;
+
+  nleft = nbytes;
+  while (nleft > 0) {
+    nwritten = write(fd, ptr, nleft);
+    if (nwritten <= 0) {
+      return nwritten;
+    }
+    nleft -= nwritten;
+    ptr += nwritten;
+  }
+  return (nbytes-nleft);
+}
+
+template <class TVal, class TSizeTy>
+int TVec<TVal, TSizeTy>::Send(int sd) {
+  int l;
+  int n;
+  l = 0;
+  if (MxVals!=-1) {
+    l += WriteN(sd, (char *) &MxVals, (int) sizeof(TSizeTy));
+  } else {
+    l += WriteN(sd, (char *) &Vals, (int) sizeof(TSizeTy));
+  }
+  l += WriteN(sd, (char *) &Vals, (int) sizeof(TSizeTy));
+  for (TSizeTy ValN=0; ValN<Vals; ValN += 100000){
+    n = 100000;
+    if ((Vals - ValN) < 100000) {
+      n = Vals - ValN;
+    }
+    l += WriteN(sd, (char *) &ValT[ValN], (int) (n*sizeof(TVal)));
+  }
+
+  return l;
 }
 
 template <class TVal, class TSizeTy>

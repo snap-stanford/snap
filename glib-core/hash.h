@@ -38,8 +38,9 @@ public:
 // Hash-Table-Key-Data-Iterator
 template<class TKey, class TDat>
 class THashKeyDatI{
-private:
+public:
   typedef THashKeyDat<TKey, TDat> THKeyDat;
+private:
   THKeyDat* KeyDatI;
   THKeyDat* EndI;
 public:
@@ -57,10 +58,10 @@ public:
     return KeyDatI<HashKeyDatI.KeyDatI;}
   THashKeyDatI& operator++(int){ KeyDatI++; while (KeyDatI < EndI && KeyDatI->HashCd==-1) { KeyDatI++; } return *this; }
   THashKeyDatI& operator--(int){ do { KeyDatI--; } while (KeyDatI->HashCd==-1); return *this;}
-
   THKeyDat& operator*() const { return *KeyDatI; }
   THKeyDat& operator()() const { return *KeyDatI; }
   THKeyDat* operator->() const { return KeyDatI; }
+  THashKeyDatI& Next(){ operator++(1); return *this; }
 
   /// Tests whether the iterator has been initialized.
   bool IsEmpty() const { return KeyDatI == NULL; }
