@@ -57,6 +57,7 @@
 #endif
 
 #if defined(GLib_UNIX)
+  #undef __STDC_LIMIT_MACROS
   #define __STDC_LIMIT_MACROS
   #include <stdint.h>
   #include <stdarg.h>
