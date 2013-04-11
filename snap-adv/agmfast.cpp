@@ -863,7 +863,7 @@ int TAGMFast::MLEGradAscentParallel(const double& Thres, const int& MaxIter, con
     int OPTCnt = 0;
     for (int i = 0; i < NIDOPTV.Len(); i++) { if (NIDOPTV[i] == 1) { OPTCnt++; } }
     if (! PlotNm.Empty()) {
-      printf("\r%d iterations [%s] %lu secs", iter * ChunkSize * ChunkNum, ExeTm.GetTmStr(), TSecTm::GetCurTm().GetAbsSecs() - StartTm);
+      printf("\r%d iterations [%s] %d secs", iter * ChunkSize * ChunkNum, ExeTm.GetTmStr(), int(TSecTm::GetCurTm().GetAbsSecs() - StartTm));
       if (PrevL > TFlt::Mn) { printf(" (%f) %d g %d s %d OPT", PrevL, NumNoChangeGrad, NumNoChangeStepSize, OPTCnt); }
       fflush(stdout);
     }
@@ -871,7 +871,7 @@ int TAGMFast::MLEGradAscentParallel(const double& Thres, const int& MaxIter, con
       PrevIter = iter;
       double CurL = Likelihood(true);
       IterLV.Add(TIntFltPr(iter * ChunkSize * ChunkNum, CurL));
-      printf("\r%d iterations, Likelihood: %f, Diff: %f [%lu secs]", iter, CurL,  CurL - PrevL, time(NULL) - InitTime);
+      printf("\r%d iterations, Likelihood: %f, Diff: %f [%d secs]", iter, CurL,  CurL - PrevL, int(time(NULL) - InitTime));
        fflush(stdout);
       if (CurL - PrevL <= Thres * fabs(PrevL)) { 
         break;
@@ -882,10 +882,10 @@ int TAGMFast::MLEGradAscentParallel(const double& Thres, const int& MaxIter, con
     }
   }
   if (! PlotNm.Empty()) {
-    printf("\nMLE completed with %d iterations(%lu secs)\n", iter, TSecTm::GetCurTm().GetAbsSecs() - StartTm);
+    printf("\nMLE completed with %d iterations(%d secs)\n", iter, int(TSecTm::GetCurTm().GetAbsSecs() - StartTm));
     TGnuPlot::PlotValV(IterLV, PlotNm + ".likelihood_Q");
   } else {
-    printf("\rMLE completed with %d iterations(%lu secs)", iter, time(NULL) - InitTime);
+    printf("\rMLE completed with %d iterations(%d secs)", iter, int(time(NULL) - InitTime));
     fflush(stdout);
   }
   return iter;

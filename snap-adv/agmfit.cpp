@@ -2,8 +2,8 @@
 #include "agmfit.h"
 #include "agm.h"
 
-/////////////////////////////////////////////////////////////////////
-/// AGM fitting
+/////////////////////////////////////////////////
+// AGM fitting
 
 void TAGMFit::Save(TSOut& SOut) {
   G->Save(SOut);
@@ -22,7 +22,7 @@ void TAGMFit::Save(TSOut& SOut) {
 }
 
 void TAGMFit::Load(TSIn& SIn, const int& RndSeed) {
-  G->Load(SIn);
+  G = TUNGraph::Load(SIn);
   CIDNSetV.Load(SIn);
   EdgeComVH.Load(SIn);
   NIDComVH.Load(SIn);
@@ -38,7 +38,7 @@ void TAGMFit::Load(TSIn& SIn, const int& RndSeed) {
   Rnd.PutSeed(RndSeed);
 }
 
-///randomly initialize bipartite community affiliation graph
+// Randomly initialize bipartite community affiliation graph.
 void TAGMFit::RandomInitCmtyVV(const int InitComs, const double ComSzAlpha, const double MemAlpha, const int MinComSz, const int MaxComSz, const int MinMem, const int MaxMem) {
   TVec<TIntV> InitCmtyVV(InitComs, 0);
   TAGMUtil::GenCmtyVVFromPL(InitCmtyVV, G, G->GetNodes(), InitComs, ComSzAlpha, MemAlpha, MinComSz, MaxComSz,
@@ -46,7 +46,7 @@ void TAGMFit::RandomInitCmtyVV(const int InitComs, const double ComSzAlpha, cons
   SetCmtyVV(InitCmtyVV);
 }
 
-/// for each (u, v) in edges, precompute C_uv (the set of communities u and v share)
+// For each (u, v) in edges, precompute C_uv (the set of communities u and v share).
 void TAGMFit::GetEdgeJointCom() {
   ComEdgesV.Gen(CIDNSetV.Len());
   EdgeComVH.Gen(G->GetEdges());
@@ -68,7 +68,7 @@ void TAGMFit::GetEdgeJointCom() {
   IAssert(EdgeComVH.Len() == G->GetEdges());
 }
 
-/// set epsilon by the default value
+// Set epsilon by the default value.
 void TAGMFit::SetDefaultPNoCom() {
   PNoCom = 1.0 / (double) G->GetNodes() / (double) G->GetNodes();
 }
@@ -101,16 +101,18 @@ double TAGMFit::Likelihood(const TFltV& NewLambdaV, double& LEdges, double& LNoE
   return LEdges + LNoEdges + LReg;
 }
 
-double TAGMFit::Likelihood() { return Likelihood(LambdaV); }
+double TAGMFit::Likelihood() { 
+  return Likelihood(LambdaV); 
+}
 
-///step size search for updating P_c (which is parametarized by lambda)
+// Step size search for updating P_c (which is parametarized by lambda).
 double TAGMFit::GetStepSizeByLineSearchForLambda(const TFltV& DeltaV, const TFltV& GradV, const double& Alpha, const double& Beta) {
   double StepSize = 1.0;
   double InitLikelihood = Likelihood();
   IAssert(LambdaV.Len() == DeltaV.Len());
   TFltV NewLambdaV(LambdaV.Len());
   for (int iter = 0; ; iter++) {
-    for (int i = 0; i < LambdaV.Len(); i++){
+    for (int i = 0; i < LambdaV.Len(); i++) {
       NewLambdaV[i] = LambdaV[i] + StepSize * DeltaV[i];
       if (NewLambdaV[i] < MinLambda) { NewLambdaV[i] = MinLambda; }
       if (NewLambdaV[i] > MaxLambda) { NewLambdaV[i] = MaxLambda; }
@@ -124,7 +126,7 @@ double TAGMFit::GetStepSizeByLineSearchForLambda(const TFltV& DeltaV, const TFlt
   return StepSize;
 }
 
-/// gradient descent for p_c while fixing community affiliation graph (CAG)
+// Gradient descent for p_c while fixing community affiliation graph (CAG).
 int TAGMFit::MLEGradAscentGivenCAG(const double& Thres, const int& MaxIter, const TStr PlotNm) {
   int Edges = G->GetEdges();
   TExeTm ExeTm;
@@ -180,8 +182,8 @@ void TAGMFit::RandomInit(const int& MaxK) {
   SetDefaultPNoCom();
 }
 
+// Initialize node community memberships using best neighborhood communities (see D. Gleich et al. KDD'12).
 void TAGMFit::NeighborComInit(const int InitComs) {
-  //initialize with best neighborhood communities (Gleich et.al. KDD'12)
   CIDNSetV.Gen(InitComs);
   const int Edges = G->GetEdges();
   TFltIntPrV NIdPhiV(G->GetNodes(), 0);
@@ -245,7 +247,7 @@ void TAGMFit::NeighborComInit(const int InitComs) {
   SetDefaultPNoCom();
 }
 
-/// add epsilon community (base community which includes all nodes) into community affiliation graph. It means that we fit for epsilon
+// Add epsilon community (base community which includes all nodes) into community affiliation graph. It means that we fit for epsilon.
 void TAGMFit::AddBaseCmty() {
   TVec<TIntV> CmtyVV;
   GetCmtyVV(CmtyVV);
@@ -259,7 +261,7 @@ void TAGMFit::AddBaseCmty() {
   PNoCom = 0.0;
 }
 
-void TAGMFit::InitNodeData(){
+void TAGMFit::InitNodeData() {
   TSnap::DelSelfEdges(G);
   NIDComVH.Gen(G->GetNodes());
   for (TUNGraph::TNodeI NI = G->BegNI(); NI < G->EndNI(); NI++) {
@@ -287,7 +289,7 @@ void TAGMFit::InitNodeData(){
   }
 }
 
-/// after MCMC, NID leaves community CID
+// After MCMC, NID leaves community CID.
 void TAGMFit::LeaveCom(const int& NID, const int& CID) {
   TUNGraph::TNodeI NI = G->GetNI(NID);
   for (int e = 0; e < NI.GetDeg(); e++) {
@@ -303,12 +305,12 @@ void TAGMFit::LeaveCom(const int& NID, const int& CID) {
   NIDCIDPrS.DelKey(TIntPr(NID, CID));
 }
 
-/// after MCMC, NID joins community CID
-void TAGMFit::JoinCom(const int& NID, const int& JoinCID){
+// After MCMC, NID joins community CID.
+void TAGMFit::JoinCom(const int& NID, const int& JoinCID) {
   TUNGraph::TNodeI NI = G->GetNI(NID);
-  for (int e = 0; e < NI.GetDeg(); e++){
+  for (int e = 0; e < NI.GetDeg(); e++) {
     int VID = NI.GetNbrNId(e);
-    if (NIDComVH.GetDat(VID).IsKey(JoinCID)){
+    if (NIDComVH.GetDat(VID).IsKey(JoinCID)) {
       TIntPr SrcDstNIDPr = TIntPr(TMath::Mn(NID,VID), TMath::Mx(NID,VID));
       EdgeComVH.GetDat(SrcDstNIDPr).AddKey(JoinCID);
       ComEdgesV[JoinCID]++;
@@ -319,8 +321,8 @@ void TAGMFit::JoinCom(const int& NID, const int& JoinCID){
   NIDCIDPrS.AddKey(TIntPr(NID, JoinCID));
 }
 
-/// sample transition: Choose among (join, leave, switch), and then sample (NID, CID) 
-void TAGMFit::SampleTransition(int& NID, int& JoinCID, int& LeaveCID, double& DeltaL){
+// Sample transition: Choose among (join, leave, switch), and then sample (NID, CID).
+void TAGMFit::SampleTransition(int& NID, int& JoinCID, int& LeaveCID, double& DeltaL) {
   int Option = Rnd.GetUniDevInt(3); //0:Join 1:Leave 2:Switch
   if (NIDCIDPrS.Len() <= 1) {    Option = 0;  } //if there is only one node membership, only join is possible.
   int TryCnt = 0;
@@ -445,19 +447,19 @@ void TAGMFit::RunMCMC(const int& MaxIter, const int& EvalLambdaIter, const TStr&
   printf("\nMCMC completed (best likelihood: %.2f) [%s]\n", BestL, TotalTm.GetTmStr());
 }
 
-///QV: vector of (1 - p_c)
-void TAGMFit::GetQV(TFltV& OutV){
+// Returns \v QV, a vector of (1 - p_c) for each community c.
+void TAGMFit::GetQV(TFltV& OutV) {
   OutV.Gen(LambdaV.Len());
   for (int i = 0; i < LambdaV.Len(); i++) {
     OutV[i] = exp(- LambdaV[i]);
   }
 }
 
-/// remove empty communities
+// Remove empty communities.
 int TAGMFit::RemoveEmptyCom() {
   int DelCnt = 0;
   for (int c = 0; c < CIDNSetV.Len(); c++) {
-    if (CIDNSetV[c].Len() == 0){
+    if (CIDNSetV[c].Len() == 0) {
       CIDNSetV[c] = CIDNSetV.Last();
       CIDNSetV.DelLast();
       LambdaV[c] = LambdaV.Last();
@@ -469,14 +471,14 @@ int TAGMFit::RemoveEmptyCom() {
   return DelCnt;
 }
 
-///compute the change in likelihood (Delta) if node UID leaves community CID
+// Compute the change in likelihood (Delta) if node UID leaves community CID.
 double TAGMFit::SeekLeave(const int& UID, const int& CID) {
   IAssert(CIDNSetV[CID].IsKey(UID));
   IAssert(G->IsNode(UID));
   double Delta = 0.0;
   TUNGraph::TNodeI NI = G->GetNI(UID);
   int NbhsInC = 0;
-  for (int e = 0; e < NI.GetDeg(); e++){
+  for (int e = 0; e < NI.GetDeg(); e++) {
     const int VID = NI.GetNbrNId(e);
     if (! NIDComVH.GetDat(VID).IsKey(CID)) { continue; }
     TIntPr SrcDstNIDPr(TMath::Mn(UID,VID), TMath::Mx(UID,VID));
@@ -496,7 +498,7 @@ double TAGMFit::SeekLeave(const int& UID, const int& CID) {
   return Delta;
 }
 
-///compute the change in likelihood (Delta) if node UID joins community CID
+// Compute the change in likelihood (Delta) if node UID joins community CID.
 double TAGMFit::SeekJoin(const int& UID, const int& CID) {
   IAssert(! CIDNSetV[CID].IsKey(UID));
   double Delta = 0.0;
@@ -519,14 +521,14 @@ double TAGMFit::SeekJoin(const int& UID, const int& CID) {
   return Delta;
 }
 
-///compute the change in likelihood (Delta) if node UID switches from CurCID to NewCID
-double TAGMFit::SeekSwitch(const int& UID, const int& CurCID, const int& NewCID){
+// Compute the change in likelihood (Delta) if node UID switches from CurCID to NewCID.
+double TAGMFit::SeekSwitch(const int& UID, const int& CurCID, const int& NewCID) {
   IAssert(! CIDNSetV[NewCID].IsKey(UID));
   IAssert(CIDNSetV[CurCID].IsKey(UID));
   double Delta = SeekJoin(UID, NewCID) + SeekLeave(UID, CurCID);
   //correct only for intersection between new com and current com
   TUNGraph::TNodeI NI = G->GetNI(UID);
-  for (int e = 0; e < NI.GetDeg(); e++){
+  for (int e = 0; e < NI.GetDeg(); e++) {
     const int VID = NI.GetNbrNId(e);
     if (! NIDComVH.GetDat(VID).IsKey(CurCID) || ! NIDComVH.GetDat(VID).IsKey(NewCID)) {continue;}
     TIntPr SrcDstNIDPr(TMath::Mn(UID,VID), TMath::Mx(UID,VID));
@@ -548,13 +550,13 @@ double TAGMFit::SeekSwitch(const int& UID, const int& CurCID, const int& NewCID)
   return Delta;
 }
 
-/// Get communities whose p_c is higher than 1 - QMax
-void TAGMFit::GetCmtyVV(TVec<TIntV>& CmtyVV, const double QMax){
+// Get communities whose p_c is higher than 1 - QMax.
+void TAGMFit::GetCmtyVV(TVec<TIntV>& CmtyVV, const double QMax) {
   TFltV TmpQV;
   GetCmtyVV(CmtyVV, TmpQV, QMax);
 }
 
-void TAGMFit::GetCmtyVV(TVec<TIntV>& CmtyVV, TFltV& QV, const double QMax){
+void TAGMFit::GetCmtyVV(TVec<TIntV>& CmtyVV, TFltV& QV, const double QMax) {
   CmtyVV.Gen(CIDNSetV.Len(), 0);
   QV.Gen(CIDNSetV.Len(), 0);
   TIntFltH CIDLambdaH(CIDNSetV.Len());
@@ -579,7 +581,7 @@ void TAGMFit::GetCmtyVV(TVec<TIntV>& CmtyVV, TFltV& QV, const double QMax){
   }
 }
 
-void TAGMFit::SetCmtyVV(const TVec<TIntV>& CmtyVV){
+void TAGMFit::SetCmtyVV(const TVec<TIntV>& CmtyVV) {
   CIDNSetV.Gen(CmtyVV.Len());
   for (int c = 0; c < CIDNSetV.Len(); c++) {
     CIDNSetV[c].AddKeyV(CmtyVV[c]);
@@ -589,7 +591,7 @@ void TAGMFit::SetCmtyVV(const TVec<TIntV>& CmtyVV){
   SetDefaultPNoCom();
 }
 
-/// gradient of likelihood for P_c
+// Gradient of likelihood for P_c.
 void TAGMFit::GradLogLForLambda(TFltV& GradV) {
   GradV.Gen(LambdaV.Len());
   TFltV SumEdgeProbsV(LambdaV.Len());
@@ -612,8 +614,10 @@ void TAGMFit::GradLogLForLambda(TFltV& GradV) {
   }
 }
 
-/// compute sum of lambda_c (which is log (1 - p_c)) over C_uv (ComK). It is used to compute edge probability P_uv
-double TAGMFit::SelectLambdaSum(const TIntSet& ComK) { return SelectLambdaSum(LambdaV, ComK); }
+// Compute sum of lambda_c (which is log (1 - p_c)) over C_uv (ComK). It is used to compute edge probability P_uv.
+double TAGMFit::SelectLambdaSum(const TIntSet& ComK) { 
+  return SelectLambdaSum(LambdaV, ComK); 
+}
 
 double TAGMFit::SelectLambdaSum(const TFltV& NewLambdaV, const TIntSet& ComK) {
   double Result = 0.0;
@@ -624,7 +628,7 @@ double TAGMFit::SelectLambdaSum(const TFltV& NewLambdaV, const TIntSet& ComK) {
   return Result;
 }
 
-/// Compute the empirical edge probability between a pair of nodes who share no community (epsilon), based on current community affiliations.
+// Compute the empirical edge probability between a pair of nodes who share no community (epsilon), based on current community affiliations.
 double TAGMFit::CalcPNoComByCmtyVV(const int& SamplePairs) {
   TIntV NIdV;
   G->GetNIdV(NIdV);
