@@ -36,9 +36,6 @@ void BenchmarkGraphEdgeI(PGraph Graph, bool isDefrag) {
   for (typename PGraph::TObj::TEdgeI EI = Graph->BegEI(); EI < Graph->EndEI(); EI++) {
     ECount++;
   }
-  if (ECount - Graph->GetEdges()) {
-    printf("Error iterating over edges\n");
-  }
   
   int msec = (clock() - start) * 1000 / CLOCKS_PER_SEC;
   printf("Nodes: %d Edges: %d Time: %d ms\n", Graph->GetNodes(), ECount, msec);
@@ -54,10 +51,7 @@ void BenchmarkGraphDegTrav(PGraph Graph, bool isDefrag) {
       ECount++;
     }
   }
-  if (ECount - Graph->GetEdges()) {
-    printf("Error iterating over edges per node\n");
-  }
-  
+
   int msec = (clock() - start) * 1000 / CLOCKS_PER_SEC;
   printf("Nodes: %d Edges: %d Time: %d ms\n", Graph->GetNodes(), ECount, msec);
 }
@@ -69,9 +63,6 @@ void BenchmarkGraphNodeI(PGraph Graph, bool isDefrag) {
 
   for (typename PGraph::TObj::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
     NCount++;
-  }
-  if (NCount - Graph->GetNodes()) {
-    printf("Error iterating over nodes\n");
   }
   
   int msec = (clock() - start) * 1000 / CLOCKS_PER_SEC;
@@ -90,7 +81,7 @@ void Benchmark(PGraph G) {
 
 int main(int argc, char* argv[]) {
   // benchmark graph creation
-  int OneK = 1000;
+  int OneK = 10;
   int NodeArr[5];
   int EdgeArr[3];
   int i = 0;
@@ -109,9 +100,9 @@ int main(int argc, char* argv[]) {
     TenP *= 10;
     NodeArr[i] = TenP * OneK;
   } 
-  EdgeArr[0] = 10;
-  EdgeArr[1] = 50;
-  EdgeArr[2] = 100;
+  EdgeArr[0] = 1;
+  EdgeArr[1] = 5;
+  EdgeArr[2] = 10;
   
   for (k = 0; k < 4; k++) {
     printf("Starting Benchmarking for ");
