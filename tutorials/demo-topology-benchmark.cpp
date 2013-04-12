@@ -1,11 +1,14 @@
+#include <fstream>
+#include <iostream>
 #include "Snap.h"
 #include <time.h>
 
+
 // Benchmarking prototypes:
-template <class PGraph> void BenchmarkGraphEdgeI(PGraph Graph, bool isDefrag);
-template <class PGraph> void BenchmarkGraphNodeI(PGraph Graph, bool isDefrag);
-template <class PGraph> void BenchmarkGraphDegTrav(PGraph Graph, bool isDefrag);
-template <class PGraph> void Benchmark(PGraph G);
+template <class PGraph> void BenchmarkGraphEdgeI(PGraph Graph, std::ofstream& file, bool isDefrag);
+template <class PGraph> void BenchmarkGraphNodeI(PGraph Graph, std::ofstream& file, bool isDefrag);
+template <class PGraph> void BenchmarkGraphDegTrav(PGraph Graph, std::ofstream& file, bool isDefrag);
+template <class PGraph> void Benchmark(PGraph G, std::ofstream& file);
 
 // Added to pass the assert condition, which overflows for large node values
 template <class PGraph> PGraph GenRndGnm(const int& Nodes, const int& Edges, const bool& IsDir=true, TRnd& Rnd=TInt::Rnd);
@@ -29,7 +32,7 @@ PGraph GenRndGnm(const int& Nodes, const int& Edges, const bool& IsDir, TRnd& Rn
 }
 
 template <class PGraph>
-void BenchmarkGraphEdgeI(PGraph Graph, bool isDefrag) {
+void BenchmarkGraphEdgeI(PGraph Graph, std::ofstream& file, bool isDefrag) {
   int ECount = 0;
   clock_t start = clock();
 
@@ -39,10 +42,11 @@ void BenchmarkGraphEdgeI(PGraph Graph, bool isDefrag) {
   
   int msec = (clock() - start) * 1000 / CLOCKS_PER_SEC;
   printf("Nodes: %d Edges: %d Time: %d ms\n", Graph->GetNodes(), ECount, msec);
+  file << msec << " ";
 }
 
 template <class PGraph>
-void BenchmarkGraphDegTrav(PGraph Graph, bool isDefrag) {
+void BenchmarkGraphDegTrav(PGraph Graph, std::ofstream& file, bool isDefrag) {
   int ECount = 0;
   clock_t start = clock();
 
@@ -54,10 +58,11 @@ void BenchmarkGraphDegTrav(PGraph Graph, bool isDefrag) {
 
   int msec = (clock() - start) * 1000 / CLOCKS_PER_SEC;
   printf("Nodes: %d Edges: %d Time: %d ms\n", Graph->GetNodes(), ECount, msec);
+  file << msec << " ";
 }
 
 template <class PGraph>
-void BenchmarkGraphNodeI(PGraph Graph, bool isDefrag) {
+void BenchmarkGraphNodeI(PGraph Graph, std::ofstream& file, bool isDefrag) {
   int NCount = 0;
   clock_t start = clock();
 
@@ -67,16 +72,17 @@ void BenchmarkGraphNodeI(PGraph Graph, bool isDefrag) {
   
   int msec = (clock() - start) * 1000 / CLOCKS_PER_SEC;
   printf("Nodes: %d Edges: %d Time: %d ms\n", NCount, Graph->GetEdges(), msec);
+  file << msec << " ";
 }
 
 template <class PGraph>
-void Benchmark(PGraph G) {
+void Benchmark(PGraph G, std::ofstream& file) {
   printf("NodeI ");
-  BenchmarkGraphNodeI(G, false);
+  BenchmarkGraphNodeI(G, file, false);
   printf("EdgeI ");
-  BenchmarkGraphEdgeI(G, false);
+  BenchmarkGraphEdgeI(G, file, false);
   printf("NodeE ");
-  BenchmarkGraphDegTrav(G, false);
+  BenchmarkGraphDegTrav(G, file, false);
 }
 
 int main(int argc, char* argv[]) {
@@ -96,6 +102,8 @@ int main(int argc, char* argv[]) {
   PNEGraph G3;
   PNEAGraph G4;
 
+  std::ofstream file;
+
   for (i = 0; i < 5; i++) {
     TenP *= 10;
     NodeArr[i] = TenP * OneK;
@@ -108,15 +116,19 @@ int main(int argc, char* argv[]) {
     printf("Starting Benchmarking for ");
     switch (k) {
     case 0:
+      file.open("tngraph.dat");
       printf("TNGraph\n\n");
       break;
     case 1:
+      file.open("tungraph.dat");
       printf("TUNGraph\n\n");
       break;
     case 2:
+      file.open("tnegraph.dat");
       printf("TNEGraph\n\n");
       break;
     default:
+      file.open("tneagraph.dat");
       printf("TNEAGraph\n\n");
       break;
     }
@@ -133,10 +145,11 @@ int main(int argc, char* argv[]) {
 	G1 = GenRndGnm<PNGraph>(NNodes, NEdges, false);
 	msec = (clock() - start) * 1000 / CLOCKS_PER_SEC;
 	printf("Nodes: %d Edges: %d Time: %d ms\n", NNodes, NEdges, msec);
-	Benchmark(G1);
+        file << NNodes << " " << NEdges << " " << msec << " ";
+	Benchmark(G1, file);
 	printf("Defragmenting...\n");
 	G1->Defrag();
-	Benchmark(G1);
+	Benchmark(G1, file);
 	G1->Clr();
 	break;
       case 1:
@@ -145,10 +158,11 @@ int main(int argc, char* argv[]) {
 	G2 = GenRndGnm<PUNGraph>(NNodes, NEdges, true);
 	msec = (clock() - start) * 1000 / CLOCKS_PER_SEC;
 	printf("Nodes: %d Edges: %d Time: %d ms\n", NNodes, NEdges, msec);
-	Benchmark(G2);    
+        file << NNodes << " " << NEdges << " " << msec << " ";
+	Benchmark(G2, file);    
 	printf("Defragmenting...\n");
 	G2->Defrag();
-	Benchmark(G2);
+	Benchmark(G2, file);
 	G2->Clr();
 	break;
       case 2:
@@ -157,10 +171,11 @@ int main(int argc, char* argv[]) {
 	G3 = GenRndGnm<PNEGraph>(NNodes, NEdges, true);
 	msec = (clock() - start) * 1000 / CLOCKS_PER_SEC;
 	printf("Nodes: %d Edges: %d Time: %d ms\n", NNodes, NEdges, msec);
-	Benchmark(G3);    
+        file << NNodes << " " << NEdges << " " << msec << " ";
+	Benchmark(G3, file);    
 	printf("Defragmenting...\n");
 	G3->Defrag();
-	Benchmark(G3);
+	Benchmark(G3, file);
 	G3->Clr();
 	break;
       default:
@@ -169,15 +184,19 @@ int main(int argc, char* argv[]) {
 	G4 = GenRndGnm<PNEAGraph>(NNodes, NEdges, true);
 	msec = (clock() - start) * 1000 / CLOCKS_PER_SEC;
 	printf("Nodes: %d Edges: %d Time: %d ms\n", NNodes, NEdges, msec);
-	Benchmark(G4);    
+        file << NNodes << " " << NEdges << " " << msec << " ";
+	Benchmark(G4, file);    
 	printf("Defragmenting...\n");
 	G4->Defrag();
-	Benchmark(G4);
+	Benchmark(G4, file);
 	G4->Clr();
 	break;
 	}
+        file << "\n";
       }
     }
+    
+    file.close();
   }
 }
 
