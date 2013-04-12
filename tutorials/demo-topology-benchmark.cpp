@@ -34,44 +34,53 @@ PGraph GenRndGnm(const int& Nodes, const int& Edges, const bool& IsDir, TRnd& Rn
 template <class PGraph>
 void BenchmarkGraphEdgeI(PGraph Graph, std::ofstream& file, bool isDefrag) {
   int ECount = 0;
+  int i = 0;
   clock_t start = clock();
 
-  for (typename PGraph::TObj::TEdgeI EI = Graph->BegEI(); EI < Graph->EndEI(); EI++) {
-    ECount++;
+  for (i = 0; i < 50; i++) {
+    for (typename PGraph::TObj::TEdgeI EI = Graph->BegEI(); EI < Graph->EndEI(); EI++) {
+      ECount++;
+    }
   }
   
-  int msec = (clock() - start) * 1000 / CLOCKS_PER_SEC;
-  printf("Nodes: %d Edges: %d Time: %d ms\n", Graph->GetNodes(), ECount, msec);
+  double msec = (clock() - start) * 1000.0 / CLOCKS_PER_SEC;
+  printf("Nodes: %d Edges: %d Time: %f ms\n", Graph->GetNodes(), ECount, msec/50);
   file << msec << " ";
 }
 
 template <class PGraph>
 void BenchmarkGraphDegTrav(PGraph Graph, std::ofstream& file, bool isDefrag) {
   int ECount = 0;
+  int i = 0;
   clock_t start = clock();
 
-  for (typename PGraph::TObj::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
-    for (int e = 0; e < NI.GetOutDeg(); e++) {
-      ECount++;
+  for (i = 0; i < 50; i++) {
+    for (typename PGraph::TObj::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
+      for (int e = 0; e < NI.GetOutDeg(); e++) {
+	ECount++;
+      }
     }
   }
 
-  int msec = (clock() - start) * 1000 / CLOCKS_PER_SEC;
-  printf("Nodes: %d Edges: %d Time: %d ms\n", Graph->GetNodes(), ECount, msec);
+  double msec = (clock() - start) * 1000.0 / CLOCKS_PER_SEC;
+  printf("Nodes: %d Edges: %d Time: %f ms\n", Graph->GetNodes(), ECount, msec/50);
   file << msec << " ";
 }
 
 template <class PGraph>
 void BenchmarkGraphNodeI(PGraph Graph, std::ofstream& file, bool isDefrag) {
   int NCount = 0;
+  int i = 0;
   clock_t start = clock();
 
-  for (typename PGraph::TObj::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
-    NCount++;
+  for (i = 0; i < 50; i++) {
+    for (typename PGraph::TObj::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
+      NCount++;
+    }
   }
   
-  int msec = (clock() - start) * 1000 / CLOCKS_PER_SEC;
-  printf("Nodes: %d Edges: %d Time: %d ms\n", NCount, Graph->GetEdges(), msec);
+  double msec = (clock() - start) * 1000.0 / CLOCKS_PER_SEC;
+  printf("Nodes: %d Edges: %d Time: %f ms\n", NCount, Graph->GetEdges(), msec/50);
   file << msec << " ";
 }
 
@@ -87,7 +96,7 @@ void Benchmark(PGraph G, std::ofstream& file) {
 
 int main(int argc, char* argv[]) {
   // benchmark graph creation
-  int OneK = 10;
+  int OneK = 1000;
   int NodeArr[5];
   int EdgeArr[3];
   int i = 0;
@@ -109,8 +118,8 @@ int main(int argc, char* argv[]) {
     NodeArr[i] = TenP * OneK;
   } 
   EdgeArr[0] = 1;
-  EdgeArr[1] = 5;
-  EdgeArr[2] = 10;
+  EdgeArr[1] = 20;
+  EdgeArr[2] = 50;
   
   for (k = 0; k < 4; k++) {
     printf("Starting Benchmarking for ");
@@ -133,7 +142,7 @@ int main(int argc, char* argv[]) {
       break;
     }
 
-    for (i = 0; i < 5; i++) {
+    for (i = 0; i < 3; i++) {
       for (j = 0; j < 3; j++) {
 	clock_t start = clock();
 	NNodes = NodeArr[i];
