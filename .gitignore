@@ -57,3 +57,4 @@ tutorials/*
 !tutorials/graphviz
 tutorials/.DS_Store
 tutorials/*.dSYM
+benchmarking/*.dat
