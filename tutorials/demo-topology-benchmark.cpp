@@ -146,6 +146,7 @@ int main(int argc, char* argv[]) {
 	printf("Defragmenting...\n");
 	G1->Defrag();
 	Benchmark(G1);
+	G1->Clr();
 	break;
       case 1:
 	printf("\nGenerating Graph...\n");
@@ -157,6 +158,7 @@ int main(int argc, char* argv[]) {
 	printf("Defragmenting...\n");
 	G2->Defrag();
 	Benchmark(G2);
+	G2->Clr();
 	break;
       case 2:
 	printf("\nGenerating Graph...\n");
@@ -168,6 +170,7 @@ int main(int argc, char* argv[]) {
 	printf("Defragmenting...\n");
 	G3->Defrag();
 	Benchmark(G3);
+	G3->Clr();
 	break;
       default:
 	printf("\nGenerating Graph...\n");
@@ -179,6 +182,7 @@ int main(int argc, char* argv[]) {
 	printf("Defragmenting...\n");
 	G4->Defrag();
 	Benchmark(G4);
+	G4->Clr();
 	break;
 	}
       }
