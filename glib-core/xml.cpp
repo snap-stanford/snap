@@ -367,12 +367,12 @@ TStr TXmlLx::GetReference(){
     }
     if ((!RefChA.Empty())&&(Ch==';')){
       GetCh();
-	  if (RefCd < 0x100) {
+	  if (RefCd < 0x80) {
 		  // 8-bit char
 	      uchar RefCh=uchar(RefCd);
 		  return TStr(RefCh);
 	  } else {
-		  TStr ResStr = TUStr::EncodeUtf8(RefCd);
+		  TStr ResStr = TUnicode::EncodeUtf8(RefCd);
 		  return ResStr;
 	  }
     } else {
@@ -420,7 +420,7 @@ TStr TXmlLx::GetName(){
     do {NmChA+=Ch;} while (ChDef.IsName(GetCh()));
   } else {
     EThrow("Invalid first name character.");
-    // EThrow(TStr::Fmt("Invalid first name character [%u:'%c%c%c%c%c'].",
+    // EThrow(TStr::Fmt("Invalid first name character [%u:'%c%c%c%c%c'].", 
     //  uint(Ch), Ch, RSIn.GetCh(), RSIn.GetCh(), RSIn.GetCh(), RSIn.GetCh()));
   }
   return NmChA;
@@ -1025,8 +1025,14 @@ TStr TXmlLx::GetPlainStrFromXmlStr(const TStr& XmlStr){
         }
         if ((!RefChA.Empty())&&(Ch()==';')){
           Ch.GetCh();
-          uchar RefCh=uchar(RefCd);
-          PlainChA+=RefCh;
+		  if (RefCd < 0x80) {
+			// ascii character
+			uchar RefCh=uchar(RefCd);
+			PlainChA+=RefCh;
+		  } else {
+			// unicode
+			TUnicode::EncodeUtf8(RefCd, PlainChA);
+		  }
         }
       } else {
         // [68]  EntityRef ::=  '&' Name ';'

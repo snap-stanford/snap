@@ -92,6 +92,21 @@ bool TEnv::IsArgStr(const TStr& ArgStr) {
   return false;
 }
 
+bool TEnv::IsArgStr(const TStr& ArgStr, const TStr& DNm) {
+  if (Env.GetArgs()<=MnArgs){
+    // 'usage' argument message
+    if (!SilentP){
+      printf("   %s %s \n", ArgStr.CStr(), DNm.CStr());}
+    return false;
+  } else {
+    // argument & value message
+    bool Val=Env.IsArgStr(ArgStr);
+    TStr MsgStr=DNm+" ("+ArgStr+(Val?")=YES":")=NO");
+    if (!SilentP){TNotify::OnStatus(Notify, MsgStr);}
+    return Val;
+  }
+}
+
 TStr TEnv::GetIfArgPrefixStr(
  const TStr& PrefixStr, const TStr& DfVal, const TStr& DNm) const {
   if (Env.GetArgs()<=MnArgs){

@@ -47,22 +47,21 @@ public:
 
   // arguments value retrieval
   bool IsArgStr(const TStr& ArgStr);
-  TStr GetIfArgPrefixStr(
-   const TStr& PrefixStr, const TStr& DfVal="", const TStr& DNm="") const;
-  TStrV GetIfArgPrefixStrV(
-   const TStr& PrefixStr, TStrV& DfValV, const TStr& DNm="") const;
+  bool IsArgStr(const TStr& ArgStr, const TStr& DNm);
+  TStr GetIfArgPrefixStr(const TStr& PrefixStr, const TStr& DfVal="", const TStr& DNm="") const;
+  TStrV GetIfArgPrefixStrV(const TStr& PrefixStr, TStrV& DfValV, const TStr& DNm="") const;
   TStrV GetIfArgPrefixStrV(const TStr& PrefixStr, const TStr& DNm="") const {
     TStrV DfValV; return GetIfArgPrefixStrV(PrefixStr, DfValV, DNm);}
-  bool GetIfArgPrefixBool(
-   const TStr& PrefixStr, const bool& DfVal=false, const TStr& DNm="") const;
-  int GetIfArgPrefixInt(
-   const TStr& PrefixStr, const int& DfVal=0, const TStr& DNm="") const;
-  TIntV GetIfArgPrefixIntV(
-   const TStr& PrefixStr, TIntV& DfValV, const TStr& DNm="") const;
+  TStrSet GetIfArgPrefixStrSet(const TStr& PrefixStr, TStrV& DfValV, const TStr& DNm="") const {
+    return TStrSet(GetIfArgPrefixStrV(PrefixStr, DfValV, DNm));}
+  TStrSet GetIfArgPrefixStrSet(const TStr& PrefixStr, const TStr& DNm="") const {
+    return TStrSet(GetIfArgPrefixStrV(PrefixStr, DNm));}
+  bool GetIfArgPrefixBool(const TStr& PrefixStr, const bool& DfVal=false, const TStr& DNm="") const;
+  int GetIfArgPrefixInt(const TStr& PrefixStr, const int& DfVal=0, const TStr& DNm="") const;
+  TIntV GetIfArgPrefixIntV(const TStr& PrefixStr, TIntV& DfValV, const TStr& DNm="") const;
   TIntV GetIfArgPrefixIntV(const TStr& PrefixStr, const TStr& DNm="") const {
     TIntV DfValV; return GetIfArgPrefixIntV(PrefixStr, DfValV, DNm);}
-  double GetIfArgPrefixFlt(
-   const TStr& PrefixStr, const double& DfVal=0, const TStr& DNm="") const;
+  double GetIfArgPrefixFlt(const TStr& PrefixStr, const double& DfVal=0, const TStr& DNm="") const;
 
   // environment variables
   static void PutVarVal(const TStr& VarNm, const TStr& VarVal);

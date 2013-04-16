@@ -195,8 +195,10 @@ public:
 
     // Result = ||x-y||^2 (Euclidian)
     static double EuclDist2(const TFltV& x, const TFltV& y);
+    static double EuclDist2(const TFltPr& x, const TFltPr& y);
     // Result = ||x-y|| (Euclidian)
     static double EuclDist(const TFltV& x, const TFltV& y);
+    static double EuclDist(const TFltPr& x, const TFltPr& y);
 
     // ||x||^2 (Euclidian)
     static double Norm2(const TFltV& x);
@@ -286,11 +288,11 @@ public:
 
 //////////////////////////////////////////////////////////////////////
 // Numerical-Recepies-Exception
-class TNSException {
+class TNSException : public TExcept {
 public:
     TStr Message;
 public:
-    TNSException(const TStr& Msg): Message(Msg) {}
+    TNSException(const TStr& Msg): TExcept(Msg) {}
 };
 
 //////////////////////////////////////////////////////////////////////

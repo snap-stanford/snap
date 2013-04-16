@@ -1214,6 +1214,7 @@ public:
   static bool IsIpStr(const TStr& IpStr, const char& SplitCh = '.') { uint Ip; return IsIpStr(IpStr, Ip, SplitCh); }
   static uint GetUIntFromIpStr(const TStr& IpStr, const char& SplitCh = '.');
   static TStr GetStrFromIpUInt(const uint& Ip);
+  static bool IsIpv6Str(const TStr& IpStr, const char& SplitCh = ':');
 };
 
 /////////////////////////////////////////////////
@@ -1352,8 +1353,14 @@ public:
 
   static double GetInRng(const double& Val, const double& Mn, const double& Mx){
     IAssert(Mn<=Mx); return Val<Mn?Mn:(Val>Mx?Mx:Val);}
-  static double IsNum(const double& Val){
+
+  static bool IsNum(const double& Val){
     return (Mn<=Val)&&(Val<=Mx);}
+  static bool IsNan(const double& Val){
+    return (Val!=Val);}
+
+  bool IsNum() const { return IsNum(Val); }
+  bool IsNan() const { return IsNan(Val); }
 
   TStr GetStr() const {return TFlt::GetStr(Val);}
   static TStr GetStr(const double& Val, const int& Width=-1, const int& Prec=-1);
@@ -1513,3 +1520,4 @@ public:
   // string
   TStr GetStr() const;
 };
+

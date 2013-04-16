@@ -22,7 +22,7 @@ public:
 
 // abstract SQL parameter class
 // parameters are used when creating SQL commands
-ClassTP(TSQLParameter, PSQLParameter)
+ClassTPV(TSQLParameter, PSQLParameter, TSQLParameterV)
 //{
 public:
 	TSQLParameter() {}	
@@ -61,9 +61,12 @@ public:
 	// functions to iterate and retrieve data
 	bool ReadNext() const;
 	int GetInt(int colIndex) const;
+	uint64 GetUInt64(int colIndex) const;
 	TFlt GetFloat(int colIndex) const;
 	TStr GetText(int colIndex) const;
-	const void * GetBlob(int colIndex) const;
+	PMem GetBlob(int colIndex) const;
+	uint64 GetMemUsed() const;
+	void OnDelFromCache(const TStr& Key, void *Container) {}
 };
 
 ClassTPE(TSQLIntParameter, PSQLIntParameter, TSQLParameter)
@@ -74,6 +77,18 @@ public:
 	TSQLIntParameter(int val);
 
 	~TSQLIntParameter();
+
+	void Bind(void * stmt, int index) const;
+};
+
+ClassTPE(TSQLUInt64Parameter, PSQLUInt64Parameter, TSQLParameter)
+//{
+private:
+	uint64 val;
+public:
+	TSQLUInt64Parameter(uint64 val);
+
+	~TSQLUInt64Parameter();
 
 	void Bind(void * stmt, int index) const;
 };
@@ -99,6 +114,47 @@ public:
 
 	void Bind(void * stmt, int index) const;
 };
+
+ClassTPE(TSQLBlobParameter, PSQLBlobParameter, TSQLParameter)
+//{
+private:
+	PMem val;
+public:
+	TSQLBlobParameter(const PMem& val);
+	~TSQLBlobParameter();
+
+	void Bind(void * stmt, int index) const;
+};
+
+
+
+typedef TCache<TStr,PSQLCommand> TStrSQLCommandCache; 
+/**
+ * A query cache instance that re-uses SQLCommand objects for a given connection. 
+ * Not thread safe.
+ */
+ClassTPE(TSQLQueryCache, PSQLQueryCache, TStrSQLCommandCache)// 
+protected:
+	PSQLConnection Conn;
+public:
+	TSQLQueryCache() {}
+	TSQLQueryCache(PSQLConnection C) : TCache(1024 * 1024, 32, NULL), Conn(C) {
+		PutRefToBs(this);
+	}
+	PSQLCommand GetQ(const TStr& Query, const TVec<PSQLParameter>& Params = TVec<PSQLParameter>()) {
+		PSQLCommand Cmd;
+		if (Get(Query, Cmd)) {
+			// clean each command before use
+			Cmd->ResetCommand();
+		} else {
+			Cmd = new TSQLCommand(Conn, Query);
+			Put(Query, Cmd);
+		}
+		Cmd->Bind(Params);
+		return Cmd;
+	}
+};
+
 
 
 #endif
