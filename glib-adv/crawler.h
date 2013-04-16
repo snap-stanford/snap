@@ -36,6 +36,7 @@ private:
   TStrV RqContTypeNmV;
   TStrV BadFExtV;
   TStrH BadFExtH;
+  TStr UserAgentStr;
   UndefCopyAssign(TCrawlerDef);
 public:
   TCrawlerDef():
@@ -44,7 +45,7 @@ public:
     MnQLen(1000), QResetMod(1000), MxQSegLen(1000000),
     MxRetries(2), RevisitSecs(-1), RedirDmAllowedP(false),
     StartUrlStrV(), RqDmNmV(), BadDmNmV(), GeoIpBs(), RqCountryNmV(),
-    RqContTypeNmV(), BadFExtV(), BadFExtH(){}
+    RqContTypeNmV(), BadFExtV(), BadFExtH(), UserAgentStr(){}
   static PCrawlerDef New(){
     return PCrawlerDef(new TCrawlerDef());}
 
@@ -152,6 +153,10 @@ public:
     for (int FExtN=0; FExtN<FExtV.Len(); FExtN++){AddBadFExt(FExtV[FExtN]);}}
   bool IsFExtOk(const PUrl& Url) const;
 
+  // user-agent
+  void PutUserAgentStr(const TStr& _UserAgentStr){UserAgentStr=_UserAgentStr;}
+  TStr GetUserAgentStr() const {return UserAgentStr;}
+  
   // optimize crawling
   void OptHtmlCrawling();
 

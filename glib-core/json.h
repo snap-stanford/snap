@@ -19,9 +19,13 @@ public:
   TJsonVal(): JsonValType(jvtUndef){}
   static PJsonVal New(){
     return new TJsonVal();}
-  TJsonVal(TSIn& SIn){}
+  TJsonVal(TSIn& SIn);
   static PJsonVal Load(TSIn& SIn){return new TJsonVal(SIn);}
-  void Save(TSOut& SOut) const {}
+  void Save(TSOut& SOut) const;
+  TStr SaveStr();
+
+  bool operator==(const TJsonVal& JsonVal) const;
+  bool operator!=(const TJsonVal& JsonVal) const;
 
   // putting value
   void PutNull(){JsonValType=jvtNull;}
@@ -40,6 +44,7 @@ public:
   void AddToObj(const TStr& KeyNm, const char* Val){ AddToObj(KeyNm, NewStr(Val)); }
   void AddToObj(const TStr& KeyNm, const bool& Val){ AddToObj(KeyNm, NewBool(Val)); }
   void AddToObj(const TStr& KeyNm, const TJsonValV& ValV){ AddToObj(KeyNm, NewArr(ValV)); }
+  void AddToObj(const PJsonVal& Val);
 
   // simplified coreation of basic elements
   static PJsonVal NewNull() { PJsonVal Val = TJsonVal::New(); Val->PutNull(); return Val; }
@@ -48,7 +53,10 @@ public:
   static PJsonVal NewStr(const TStr& Str) { PJsonVal Val = TJsonVal::New(); Val->PutStr(Str); return Val; }
   static PJsonVal NewArr() { PJsonVal Val = TJsonVal::New(); Val->PutArr(); return Val; }
   static PJsonVal NewArr(const TJsonValV& ValV);
+  static PJsonVal NewArr(const TIntV& IntV);
+  static PJsonVal NewArr(const TFltV& FltV);
   static PJsonVal NewArr(const TStrV& StrV);
+  static PJsonVal NewArr(const TFltPr& FltPr);
   static PJsonVal NewObj() { PJsonVal Val = TJsonVal::New(); Val->PutObj(); return Val; }
   static PJsonVal NewObj(const TStr& KeyNm, const PJsonVal& ObjVal) {
 	  PJsonVal Val = TJsonVal::New(); Val->PutObj(); Val->AddToObj(KeyNm, ObjVal); return Val; }
@@ -63,6 +71,7 @@ public:
 
   // testing value-type
   TJsonValType GetJsonValType() const {return JsonValType;}
+  bool IsDef() const {return JsonValType!=jvtUndef;}
   bool IsNull() const {return JsonValType==jvtNull;}
   bool IsBool() const {return JsonValType==jvtBool;}
   bool IsNum() const {return JsonValType==jvtNum;}
@@ -98,6 +107,7 @@ public:
 
   // (de)serialization
   static PJsonVal GetValFromLx(TILx& Lx);
+  static PJsonVal GetValFromSIn(const PSIn& SIn);
   static PJsonVal GetValFromStr(const TStr& JsonStr);
   static void AddEscapeChAFromStr(const TStr& Str, TChA& ChA);
   static TStr AddEscapeStrFromStr(const TStr& Str) { 

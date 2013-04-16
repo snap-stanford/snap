@@ -197,8 +197,8 @@ public:
     return KeyDatV[AddKey(Key)].Dat=Dat;}
 
   void DelKey(const TKey& Key);
-  void DelIfKey(const TKey& Key){
-    int KeyId; if (IsKey(Key, KeyId)){DelKeyId(KeyId);}}
+  bool DelIfKey(const TKey& Key){
+    int KeyId; if (IsKey(Key, KeyId)){DelKeyId(KeyId); return true;} return false;}
   void DelKeyId(const int& KeyId){DelKey(GetKey(KeyId));}
   void DelKeyIdV(const TIntV& KeyIdV){
     for (int KeyIdN=0; KeyIdN<KeyIdV.Len(); KeyIdN++){DelKeyId(KeyIdV[KeyIdN]);}}
@@ -593,6 +593,7 @@ typedef THash<TStr, TBool> TStrBoolH;
 typedef THash<TStr, TInt> TStrIntH;
 typedef THash<TStr, TIntPr> TStrIntPrH;
 typedef THash<TStr, TIntV> TStrIntVH;
+typedef THash<TStr, TUInt64> TStrUInt64H;
 typedef THash<TStr, TUInt64V> TStrUInt64VH;
 typedef THash<TStr, TIntPrV> TStrIntPrVH;
 typedef THash<TStr, TFlt> TStrFltH;
@@ -981,6 +982,7 @@ public:
 
   TCache& operator=(const TCache&);
   int64 GetMemUsed() const;
+  int64 GetMxMemUsed() const { return MxMemUsed; }
   bool RefreshMemUsed();
 
   void Put(const TKey& Key, const TDat& Dat);

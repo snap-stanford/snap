@@ -1156,7 +1156,7 @@ void TUniChDb::InitWordAndSentenceBoundaryFlags(const TStr& basePath)
 		IAssert(fields.Len() == 2);
 		int from, to; reader.ParseCodePointRange(fields[0], from, to);
 		TStr s = fields[1];
-     TUniChFlags flag = ucfCompatibilityDecomposition;
+		TUniChFlags flag = ucfCompatibilityDecomposition;
 		if (s == "Format") flag = ucfWbFormat;
 		else if (s == "Katakana") flag = ucfWbKatakana;
 		else if (s == "ALetter") flag = ucfWbALetter;
@@ -1192,7 +1192,7 @@ void TUniChDb::InitWordAndSentenceBoundaryFlags(const TStr& basePath)
 		IAssert(fields.Len() == 2);
 		int from, to; reader.ParseCodePointRange(fields[0], from, to);
 		TStr s = fields[1];
-    TUniChFlags flag = ucfCompatibilityDecomposition;
+		TUniChFlags flag = ucfCompatibilityDecomposition;
 		if (s == "Sep") flag = ucfSbSep;
 		else if (s == "Format") flag = ucfSbFormat;
 		else if (s == "Sp") flag = ucfSbSp;
@@ -1695,4 +1695,40 @@ void TUnicode::InitCodecs()
 	RegisterCodec("CP1250 Windows-1250 MS-EE", TCodecBase::New<TCodec_CP1250>());
 	RegisterCodec("CP852 cp852_DOSLatin2 DOSLatin2", TCodecBase::New<TCodec_CP852>());
 	RegisterCodec("CP437 cp437_DOSLatinUS DOSLatinUS", TCodecBase::New<TCodec_CP437>());
+}
+
+void TUnicode::EncodeUtf8(const uint& c, TChA& dest) {
+	if (c > 0x10ffff) {
+		throw TExcept::New(TStr::Fmt("Unkown Unicode character %u", c)); }
+	if (c < 0x80u)
+		dest.AddCh(char(c & 0xffu));
+	else if (c < 0x800u) {
+		dest.AddCh(char(TUniCodec::_1100_0000 | ((c >> 6) & TUniCodec::_0001_1111)));
+		dest.AddCh(char(TUniCodec::_1000_0000 | (c & TUniCodec::_0011_1111))); }
+	else if (c < 0x10000u) {
+		dest.AddCh(char(TUniCodec::_1110_0000 | ((c >> 12) & TUniCodec::_0000_1111)));
+		dest.AddCh(char(TUniCodec::_1000_0000 | ((c >> 6) & TUniCodec::_0011_1111)));
+		dest.AddCh(char(TUniCodec::_1000_0000 | (c & TUniCodec::_0011_1111))); }
+	else if (c < 0x200000u) {
+		dest.AddCh(char(TUniCodec::_1111_0000 | ((c >> 18) & TUniCodec::_0000_0111)));
+		dest.AddCh(char(TUniCodec::_1000_0000 | ((c >> 12) & TUniCodec::_0011_1111)));
+		dest.AddCh(char(TUniCodec::_1000_0000 | ((c >> 6) & TUniCodec::_0011_1111)));
+		dest.AddCh(char(TUniCodec::_1000_0000 | (c & TUniCodec::_0011_1111))); }
+	else if (c < 0x4000000u) {
+		dest.AddCh(char(TUniCodec::_1111_1000 | ((c >> 24) & TUniCodec::_0000_0011)));
+		dest.AddCh(char(TUniCodec::_1000_0000 | ((c >> 18) & TUniCodec::_0011_1111)));
+		dest.AddCh(char(TUniCodec::_1000_0000 | ((c >> 12) & TUniCodec::_0011_1111)));
+		dest.AddCh(char(TUniCodec::_1000_0000 | ((c >> 6) & TUniCodec::_0011_1111)));
+		dest.AddCh(char(TUniCodec::_1000_0000 | (c & TUniCodec::_0011_1111))); }
+	else {
+		dest.AddCh(char(TUniCodec::_1111_1100 | ((c >> 30) & TUniCodec::_0000_0011)));
+		dest.AddCh(char(TUniCodec::_1000_0000 | ((c >> 24) & TUniCodec::_0011_1111)));
+		dest.AddCh(char(TUniCodec::_1000_0000 | ((c >> 18) & TUniCodec::_0011_1111)));
+		dest.AddCh(char(TUniCodec::_1000_0000 | ((c >> 12) & TUniCodec::_0011_1111)));
+		dest.AddCh(char(TUniCodec::_1000_0000 | ((c >> 6) & TUniCodec::_0011_1111)));
+		dest.AddCh(char(TUniCodec::_1000_0000 | (c & TUniCodec::_0011_1111))); }
+}
+
+TStr TUnicode::EncodeUtf8(const uint& Ch) {
+	TChA ChA; EncodeUtf8(Ch, ChA); return ChA;
 }

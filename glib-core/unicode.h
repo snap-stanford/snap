@@ -118,6 +118,7 @@ protected:
 	typedef TUniVecIdx TVecIdx;
 	//friend class TUniChDb;
 	friend class TUniCaseFolding;
+	friend class TUnicode;
 
 public:
 
@@ -1794,6 +1795,10 @@ public:
 	// the UTF-8-encoded version of the input string.
 	TStr EncodeUtf8Str(const TIntV& src) const { return codec.EncodeUtf8Str(src); }
 
+	// encoding one character to UTF8
+	static void EncodeUtf8(const uint& Ch, TChA& Dest);
+	static TStr EncodeUtf8(const uint& Ch);
+
 	//-----------------------------------------------------------------------
 	// UTF-16 Decoder
 	//-----------------------------------------------------------------------
@@ -2216,7 +2221,7 @@ size_t TUniCodec::DecodeUtf16FromBytes(
 	if (srcCount <= 0) return nDecoded;
 	const size_t origSrcIdx = srcIdx, srcEnd = srcIdx + srcCount;
 	bool littleEndian = false;
-  bool leDefault = (defaultByteOrder == boLittleEndian || (defaultByteOrder == boMachineEndian && IsMachineLittleEndian()));
+	bool leDefault = (defaultByteOrder == boLittleEndian || (defaultByteOrder == boMachineEndian && IsMachineLittleEndian()));
 	if (bomHandling == bomIgnored) littleEndian = leDefault;
 	else if (bomHandling == bomAllowed || bomHandling == bomRequired)
 	{
@@ -2299,7 +2304,7 @@ size_t TUniCodec::DecodeUtf16FromWords(
 	if (srcCount <= 0) return nDecoded;
 	const size_t origSrcIdx = srcIdx, srcEnd = srcIdx + srcCount;
 	bool swap = false;
-  bool isMachineLe = IsMachineLittleEndian();
+	bool isMachineLe = IsMachineLittleEndian();
 	bool isDefaultLe = (defaultByteOrder == boLittleEndian || (defaultByteOrder == boMachineEndian && isMachineLe));
 	if (bomHandling == bomIgnored) swap = (isDefaultLe != isMachineLe);
 	else if (bomHandling == bomAllowed || bomHandling == bomRequired)
