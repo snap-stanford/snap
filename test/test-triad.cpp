@@ -21,22 +21,22 @@ void VerifyLen2Paths(int NId1, int NId2, int Len2Paths, int type);
 // Test GetTriads Close/Open Triad Vector for each NId
 TEST(triad, TestGetTriadsVector) {
   // Test TUNGraph
-  PUNGraph Graph_TUNGraph = TriadGetTestTUNGraph();
+  PUNGraph GraphTUN = TriadGetTestTUNGraph();
   TIntTrV NIdCOTriadV;
   
-  TSnap::GetTriads(Graph_TUNGraph, NIdCOTriadV);
+  TSnap::GetTriads(GraphTUN, NIdCOTriadV);
   TestOpenCloseVector(NIdCOTriadV);
 
   // TNGraph should be treated as TUNGraph for calculations
-  PNGraph Graph_TNGraph = TriadGetTestTNGraph();
+  PNGraph GraphTN = TriadGetTestTNGraph();
   NIdCOTriadV.Clr();
   ASSERT_TRUE(NIdCOTriadV.Empty());
 
-  TSnap::GetTriads(Graph_TNGraph, NIdCOTriadV);
+  TSnap::GetTriads(GraphTN, NIdCOTriadV);
   TestOpenCloseVector(NIdCOTriadV);
 
   // TNEGraph should be treated as TUNGraph for calculations
-  PNEGraph Graph_TNEGraph = TriadGetTestTNEGraph();
+  PNEGraph GraphTNE = TriadGetTestTNEGraph();
   NIdCOTriadV.Clr();
   ASSERT_TRUE(NIdCOTriadV.Empty());
   TestOpenCloseVector(NIdCOTriadV);
@@ -45,122 +45,121 @@ TEST(triad, TestGetTriadsVector) {
 
 // Test GetTriads for Whole Graph (Open and Closed)
 TEST(triad, TestGetTriadsOpenClosed) {
-  const int expected_closed = 3;  // Expected closed triads
-  const int expected_open = 9;    // Expected open triads
+  const int ExpClosedTr = 3;  // Expected closed triads
+  const int ExpOpenTr = 9;    // Expected open triads
 
   // Test TUNGraph
-  PUNGraph Graph_TUNGraph = TriadGetTestTUNGraph();
-  int64 closed = 0, open = 0;
+  PUNGraph GraphTUN = TriadGetTestTUNGraph();
+  int64 ClosedTr = 0;
+  int64 OpenTr = 0;
 
-  TSnap::GetTriads(Graph_TUNGraph, closed, open);
-  EXPECT_EQ(expected_closed, closed);
-  EXPECT_EQ(expected_open, open);
+  TSnap::GetTriads(GraphTUN, ClosedTr, OpenTr);
+  EXPECT_EQ(ExpClosedTr, ClosedTr);
+  EXPECT_EQ(ExpOpenTr, OpenTr);
 
   // TNGraph should be treated as TUNGraph for calculations
-  PNGraph Graph_TNGraph = TriadGetTestTNGraph();
-  closed = 0, open = 0;
+  PNGraph GraphTN = TriadGetTestTNGraph();
+  ClosedTr = 0;
+  OpenTr = 0;
 
-  TSnap::GetTriads(Graph_TNGraph, closed, open);
-  EXPECT_EQ(expected_closed, closed);
-  EXPECT_EQ(expected_open, open);
+  TSnap::GetTriads(GraphTN, ClosedTr, OpenTr);
+  EXPECT_EQ(ExpClosedTr, ClosedTr);
+  EXPECT_EQ(ExpOpenTr, OpenTr);
 
   // TNEGraph should be treated as TUNGraph for calculations
-  PNEGraph Graph_TNEGraph = TriadGetTestTNEGraph();
-  closed = 0, open = 0;
+  PNEGraph GraphTNE = TriadGetTestTNEGraph();
+  ClosedTr = 0;
+  OpenTr = 0;
 
-  TSnap::GetTriads(Graph_TNEGraph, closed, open);
-  EXPECT_EQ(expected_closed, closed);
-  EXPECT_EQ(expected_open, open);
+  TSnap::GetTriads(GraphTNE, ClosedTr, OpenTr);
+  EXPECT_EQ(ExpClosedTr, ClosedTr);
+  EXPECT_EQ(ExpOpenTr, OpenTr);
 }
 
 // Test GetTriads for Whole Graph (Only Closed)
 TEST(triad, TestGetTriadsClosed) {
-  const int expected_closed = 3; // Expected closed triads
+  const int ExpClosedTr = 3; // Expected closed triads
+  int64 ClosedTr = 0;
 
   // Test TUNGraph
-  PUNGraph Graph_TUNGraph = TriadGetTestTUNGraph();
-  int closed = 0;
+  PUNGraph GraphTUN = TriadGetTestTUNGraph();
 
-  closed = TSnap::GetTriads(Graph_TUNGraph);
-  EXPECT_EQ(expected_closed, closed);
+  ClosedTr = TSnap::GetTriads(GraphTUN);
+  EXPECT_EQ(ExpClosedTr, ClosedTr);
 
   // TNGraph should be treated as TUNGraph for calculations
-  PNGraph Graph_TNGraph = TriadGetTestTNGraph();
-  closed = 0;
+  PNGraph GraphTN = TriadGetTestTNGraph();
 
-  closed = TSnap::GetTriads(Graph_TNGraph);
-  EXPECT_EQ(expected_closed, closed);
+  ClosedTr = TSnap::GetTriads(GraphTN);
+  EXPECT_EQ(ExpClosedTr, ClosedTr);
 
   // TNEGraph should be treated as TUNGraph for calculations
-  PNEGraph Graph_TNEGraph = TriadGetTestTNEGraph();
-  closed = 0;
+  PNEGraph GraphTNE = TriadGetTestTNEGraph();
 
-  closed = TSnap::GetTriads(Graph_TNEGraph);
-  EXPECT_EQ(expected_closed, closed);
+  ClosedTr = TSnap::GetTriads(GraphTNE);
+  EXPECT_EQ(ExpClosedTr, ClosedTr);
 }
 
 // Test GetClustCf (Average Clustering Coefficient)
 TEST(triad, TestGetClustCf) {
-  const double expected_ClustCf = 109.0/180.0;  // Expected ClustCf (0.60555..)
+  const double ExpClustCf = 109.0/180.0;  // Expected ClustCf (0.60555..)
 
   // Test TUNGraph
-  PUNGraph Graph_TUNGraph = TriadGetTestTUNGraph();
+  PUNGraph GraphTUN = TriadGetTestTUNGraph();
   double ClustCf = 0.0;
 
-  ClustCf = TSnap::GetClustCf(Graph_TUNGraph);
-  EXPECT_EQ(expected_ClustCf, ClustCf);
+  ClustCf = TSnap::GetClustCf(GraphTUN);
+  EXPECT_EQ(ExpClustCf, ClustCf);
 
   // TNGraph should be treated as TUNGraph for calculations
-  PNGraph Graph_TNGraph = TriadGetTestTNGraph();
-  ClustCf = 0.0;
+  PNGraph GraphTN = TriadGetTestTNGraph();
 
-  ClustCf = TSnap::GetClustCf(Graph_TNGraph);
-  EXPECT_EQ(expected_ClustCf, ClustCf);
+  ClustCf = TSnap::GetClustCf(GraphTN);
+  EXPECT_EQ(ExpClustCf, ClustCf);
 
   // TNEGraph should be treated as TUNGraph for calculations
-  PNEGraph Graph_TNEGraph = TriadGetTestTNEGraph();
-  ClustCf = 0.0;
+  PNEGraph GraphTNE = TriadGetTestTNEGraph();
 
-  ClustCf = TSnap::GetClustCf(Graph_TNEGraph);
-  EXPECT_EQ(expected_ClustCf, ClustCf);
+  ClustCf = TSnap::GetClustCf(GraphTNE);
+  EXPECT_EQ(ExpClustCf, ClustCf);
 }
 
 // Test GetClustCf (Distribution of Average Clustering Coefficients)
 TEST(triad, TestGetClustCfDist) {
   // Test TUNGraph
-  PUNGraph Graph_TUNGraph = TriadGetTestTUNGraph();
+  PUNGraph GraphTUN = TriadGetTestTUNGraph();
   TFltPrV DegToCCfV;
 
-  TSnap::GetClustCf(Graph_TUNGraph, DegToCCfV);
+  TSnap::GetClustCf(GraphTUN, DegToCCfV);
   TestDegToCCfVector(DegToCCfV);
 
   // TNGraph should be treated as TUNGraph for calculations
-  PNGraph Graph_TNGraph = TriadGetTestTNGraph();
+  PNGraph GraphTN = TriadGetTestTNGraph();
   DegToCCfV.Clr();
 
-  TSnap::GetClustCf(Graph_TNGraph, DegToCCfV);
+  TSnap::GetClustCf(GraphTN, DegToCCfV);
   TestDegToCCfVector(DegToCCfV);
 
   // TNEGraph is not treated the same! Be careful with multigraphs
-  PNEGraph Graph_TNEGraph = TriadGetTestTNEGraph();
+  PNEGraph GraphTNE = TriadGetTestTNEGraph();
   DegToCCfV.Clr();
   
-  TSnap::GetClustCf(Graph_TNEGraph, DegToCCfV);
-  for (TFltPr *pair = DegToCCfV.BegI(); pair < DegToCCfV.EndI(); pair++) {
-    double diff = pair->Val2 - 5.0/9.0;   // Used for case 4
-    diff = (diff < 0) ? -1.0*diff : diff; // Used for case 4
-    switch ((int) pair->Val1) {
+  TSnap::GetClustCf(GraphTNE, DegToCCfV);
+  for (TFltPr *Pair = DegToCCfV.BegI(); Pair < DegToCCfV.EndI(); Pair++) {
+    double Diff = Pair->Val2 - 5.0/9.0;   // Used for case 4
+    Diff = (Diff < 0) ? -1.0*Diff : Diff; // Used for case 4
+    switch ((int) Pair->Val1) {
       case 2:
-        EXPECT_EQ(1.0, pair->Val2);
+        EXPECT_EQ(1.0, Pair->Val2);
         break;
       case 4:
-        EXPECT_GT(0.00001, diff); // Due to floats being imprecise
+        EXPECT_GT(0.00001, Diff); // Due to floats being imprecise
         break;
       case 7:
-        EXPECT_EQ(2.0/3.0, pair->Val2);
+        EXPECT_EQ(2.0/3.0, Pair->Val2);
         break;
       case 15:
-        EXPECT_EQ(0.3, pair->Val2);
+        EXPECT_EQ(0.3, Pair->Val2);
         break;
       default:
         ASSERT_FALSE(true); // Shouldn't have degrees other than listed
@@ -171,83 +170,86 @@ TEST(triad, TestGetClustCfDist) {
 
 // Test GetClustCf (Distribution and Closed and Open)
 TEST(triad, TestGetClustCfDistCO) {
-  const int expected_closed = 3;  // Expected closed triads
-  const int expected_open = 9;    // Expected open triads
+  const int ExpClosedTr = 3;  // Expected closed triads
+  const int ExpOpenTr = 9;    // Expected open triads
 
   // Test TUNGraph
-  PUNGraph Graph_TUNGraph = TriadGetTestTUNGraph();
+  PUNGraph GraphTUN = TriadGetTestTUNGraph();
   TFltPrV DegToCCfV;
-  int64 closed = 0, open = 0;
+  int64 ClosedTr = 0;
+  int64 OpenTr = 0;
 
-  TSnap::GetClustCf(Graph_TUNGraph, DegToCCfV, closed, open);
+  TSnap::GetClustCf(GraphTUN, DegToCCfV, ClosedTr, OpenTr);
   TestDegToCCfVector(DegToCCfV);
-  EXPECT_EQ(expected_closed, closed);
-  EXPECT_EQ(expected_open, open);
+  EXPECT_EQ(ExpClosedTr, ClosedTr);
+  EXPECT_EQ(ExpOpenTr, OpenTr);
 
   // TNGraph should be treated as TUNGraph for calculations
-  PNGraph Graph_TNGraph = TriadGetTestTNGraph();
+  PNGraph GraphTN = TriadGetTestTNGraph();
   DegToCCfV.Clr();
-  closed = 0, open = 0;
+  ClosedTr = 0;
+  OpenTr = 0;
 
-  TSnap::GetClustCf(Graph_TNGraph, DegToCCfV, closed, open);
+  TSnap::GetClustCf(GraphTN, DegToCCfV, ClosedTr, OpenTr);
   TestDegToCCfVector(DegToCCfV);
-  EXPECT_EQ(expected_closed, closed);
-  EXPECT_EQ(expected_open, open);
+  EXPECT_EQ(ExpClosedTr, ClosedTr);
+  EXPECT_EQ(ExpOpenTr, OpenTr);
 
   // TNEGraph is not treated the same! Be careful with multigraphs
-  PNEGraph Graph_TNEGraph = TriadGetTestTNEGraph();
+  PNEGraph GraphTNE = TriadGetTestTNEGraph();
   DegToCCfV.Clr();
-  closed = 0, open = 0;
+  ClosedTr = 0;
+  OpenTr = 0;
 
-  TSnap::GetClustCf(Graph_TNEGraph, DegToCCfV, closed, open);
-  for (TFltPr *pair = DegToCCfV.BegI(); pair < DegToCCfV.EndI(); pair++) {
-    double diff = pair->Val2 - 5.0/9.0;   // Used for case 4
-    diff = (diff < 0) ? -1.0*diff : diff; // Used for case 4
-    switch ((int) pair->Val1) {
+  TSnap::GetClustCf(GraphTNE, DegToCCfV, ClosedTr, OpenTr);
+  for (TFltPr *Pair = DegToCCfV.BegI(); Pair < DegToCCfV.EndI(); Pair++) {
+    double Diff = Pair->Val2 - 5.0/9.0;   // Used for case 4
+    Diff = (Diff < 0) ? -1.0*Diff : Diff; // Used for case 4
+    switch ((int) Pair->Val1) {
       case 2:
-        EXPECT_EQ(1.0, pair->Val2);
+        EXPECT_EQ(1.0, Pair->Val2);
         break;
       case 4:
-        EXPECT_GT(0.00001, diff); // Due to floats being imprecise
+        EXPECT_GT(0.00001, Diff); // Due to floats being imprecise
         break;
       case 7:
-        EXPECT_EQ(2.0/3.0, pair->Val2);
+        EXPECT_EQ(2.0/3.0, Pair->Val2);
         break;
       case 15:
-        EXPECT_EQ(0.3, pair->Val2);
+        EXPECT_EQ(0.3, Pair->Val2);
         break;
       default:
         ASSERT_FALSE(true); // Shouldn't have degrees other than listed
         break;
     }
   }
-  EXPECT_EQ(expected_closed, closed);
-  EXPECT_EQ(expected_open, open);
+  EXPECT_EQ(ExpClosedTr, ClosedTr);
+  EXPECT_EQ(ExpOpenTr, OpenTr);
 }
 
 // Test GetNodeClustCf (Specific Node)
 TEST(triad, TestGetNodeClustCfSpecific) {
   // Test TUNGraph
-  PUNGraph Graph_TUNGraph = TriadGetTestTUNGraph();
+  PUNGraph GraphTUN = TriadGetTestTUNGraph();
 
-  for (int i = 0; i < Graph_TUNGraph->GetNodes(); i++) {
-    double ClustCf = TSnap::GetNodeClustCf(Graph_TUNGraph, i);
+  for (int i = 0; i < GraphTUN->GetNodes(); i++) {
+    double ClustCf = TSnap::GetNodeClustCf(GraphTUN, i);
     VerifyNodeClustCf(i, ClustCf);
   }
 
   // TNGraph should be treated as TUNGraph for calculations
-  PNGraph Graph_TNGraph = TriadGetTestTNGraph();
+  PNGraph GraphTN = TriadGetTestTNGraph();
 
-  for (int i = 0; i < Graph_TNGraph->GetNodes(); i++) {
-    double ClustCf = TSnap::GetNodeClustCf(Graph_TNGraph, i);
+  for (int i = 0; i < GraphTN->GetNodes(); i++) {
+    double ClustCf = TSnap::GetNodeClustCf(GraphTN, i);
     VerifyNodeClustCf(i, ClustCf);
   }
 
   // TNEGraph should be treated as TUNGraph for calculations
-  PNEGraph Graph_TNEGraph = TriadGetTestTNEGraph();
+  PNEGraph GraphTNE = TriadGetTestTNEGraph();
 
-  for (int i = 0; i < Graph_TNEGraph->GetNodes(); i++) {
-    double ClustCf = TSnap::GetNodeClustCf(Graph_TNEGraph, i);
+  for (int i = 0; i < GraphTNE->GetNodes(); i++) {
+    double ClustCf = TSnap::GetNodeClustCf(GraphTNE, i);
     VerifyNodeClustCf(i, ClustCf);
   }
 }
@@ -255,31 +257,31 @@ TEST(triad, TestGetNodeClustCfSpecific) {
 // Test GetNodeClustCf (Vector)
 TEST(triad, TestGetNodeClustCfVector) {
   // Test TUNGraph
-  PUNGraph Graph_TUNGraph = TriadGetTestTUNGraph();
+  PUNGraph GraphTUN = TriadGetTestTUNGraph();
   TIntFltH NIdCCfH;
 
-  TSnap::GetNodeClustCf(Graph_TUNGraph, NIdCCfH);
-  for (int i = 0; i < Graph_TUNGraph->GetNodes(); i++) {
+  TSnap::GetNodeClustCf(GraphTUN, NIdCCfH);
+  for (int i = 0; i < GraphTUN->GetNodes(); i++) {
     double ClustCf = NIdCCfH.GetDat(i);
     VerifyNodeClustCf(i, ClustCf);
   }
 
   // TNGraph should be treated as TUNGraph for calculations
-  PNGraph Graph_TNGraph = TriadGetTestTNGraph();
+  PNGraph GraphTN = TriadGetTestTNGraph();
   NIdCCfH.Clr();
 
-  TSnap::GetNodeClustCf(Graph_TNGraph, NIdCCfH);
-  for (int i = 0; i < Graph_TNGraph->GetNodes(); i++) {
+  TSnap::GetNodeClustCf(GraphTN, NIdCCfH);
+  for (int i = 0; i < GraphTN->GetNodes(); i++) {
     double ClustCf = NIdCCfH.GetDat(i);
     VerifyNodeClustCf(i, ClustCf);
   }
 
   // TNEGraph should be treated as TUNGraph for calculations
-  PNEGraph Graph_TNEGraph = TriadGetTestTNEGraph();
+  PNEGraph GraphTNE = TriadGetTestTNEGraph();
   NIdCCfH.Clr();
 
-  TSnap::GetNodeClustCf(Graph_TNEGraph, NIdCCfH);
-  for (int i = 0; i < Graph_TNEGraph->GetNodes(); i++) {
+  TSnap::GetNodeClustCf(GraphTNE, NIdCCfH);
+  for (int i = 0; i < GraphTNE->GetNodes(); i++) {
     double ClustCf = NIdCCfH.GetDat(i);
     VerifyNodeClustCf(i, ClustCf);
   }
@@ -288,78 +290,78 @@ TEST(triad, TestGetNodeClustCfVector) {
 // Test GetTriadEdges
 TEST(triad, TestGetTriadEdges) {
   // Test TUNGraph
-  PUNGraph Graph_TUNGraph = TriadGetTestTUNGraph();
-  EXPECT_EQ(7, TSnap::GetTriadEdges(Graph_TUNGraph));
+  PUNGraph GraphTUN = TriadGetTestTUNGraph();
+  EXPECT_EQ(7, TSnap::GetTriadEdges(GraphTUN));
 
   // TNGraph is not treated the same! Each directed will be counted
-  PNGraph Graph_TNGraph = TriadGetTestTNGraph();
-  EXPECT_EQ(7, TSnap::GetTriadEdges(Graph_TNGraph));
+  PNGraph GraphTN = TriadGetTestTNGraph();
+  EXPECT_EQ(7, TSnap::GetTriadEdges(GraphTN));
 
   // TNEGraph is not treated the same! Be careful with multigraphs
-  PNEGraph Graph_TNEGraph = TriadGetTestTNEGraph();
-  EXPECT_EQ(14, TSnap::GetTriadEdges(Graph_TNEGraph));
+  PNEGraph GraphTNE = TriadGetTestTNEGraph();
+  EXPECT_EQ(14, TSnap::GetTriadEdges(GraphTNE));
 }
 
 // Test GetNodeTriads
 TEST(triad, TestGetNodeTriads) {
   // Test TUNGraph
-  PUNGraph Graph_TUNGraph = TriadGetTestTUNGraph();
-  for (int i = 0; i < Graph_TUNGraph->GetNodes(); i++) {
-    VerifyClosedTriads(i, TSnap::GetNodeTriads(Graph_TUNGraph, i));
+  PUNGraph GraphTUN = TriadGetTestTUNGraph();
+  for (int i = 0; i < GraphTUN->GetNodes(); i++) {
+    VerifyClosedTriads(i, TSnap::GetNodeTriads(GraphTUN, i));
   }
   
   // TNGraph is not treated the same! Each directed will be counted
-  PNGraph Graph_TNGraph = TriadGetTestTNGraph();
-  for (int i = 0; i < Graph_TNGraph->GetNodes(); i++) {
-    VerifyClosedTriads(i, TSnap::GetNodeTriads(Graph_TNGraph, i));
+  PNGraph GraphTN = TriadGetTestTNGraph();
+  for (int i = 0; i < GraphTN->GetNodes(); i++) {
+    VerifyClosedTriads(i, TSnap::GetNodeTriads(GraphTN, i));
   }
 
   // TNEGraph is not treated the same! Be careful with multigraphs
-  PNEGraph Graph_TNEGraph = TriadGetTestTNEGraph();
-  for (int i = 0; i < Graph_TNEGraph->GetNodes(); i++) {
-    VerifyClosedTriads(i, TSnap::GetNodeTriads(Graph_TNEGraph, i));
+  PNEGraph GraphTNE = TriadGetTestTNEGraph();
+  for (int i = 0; i < GraphTNE->GetNodes(); i++) {
+    VerifyClosedTriads(i, TSnap::GetNodeTriads(GraphTNE, i));
   }
 }
 
 // Test GetNodeTriads (Open and Closed)
 TEST(triad, TestGetNodeCOTriads) {
   // Test TUNGraph
-  PUNGraph Graph_TUNGraph = TriadGetTestTUNGraph();
-  for (int i = 0; i < Graph_TUNGraph->GetNodes(); i++) {
-    int ClosedTriads = -1, OpenTriads = -1;
-    TSnap::GetNodeTriads(Graph_TUNGraph, i, ClosedTriads, OpenTriads);
-    VerifyClosedTriads(i, ClosedTriads);
-    VerifyOpenTriads(i, OpenTriads);
+  PUNGraph GraphTUN = TriadGetTestTUNGraph();
+  for (int i = 0; i < GraphTUN->GetNodes(); i++) {
+    int ClosedTr = -1, OpenTr = -1;
+    TSnap::GetNodeTriads(GraphTUN, i, ClosedTr, OpenTr);
+    VerifyClosedTriads(i, ClosedTr);
+    VerifyOpenTriads(i, OpenTr);
   }
   
   // Test TNGraph which is treated same as undirected.
-  PNGraph Graph_TNGraph = TriadGetTestTNGraph();
-  for (int i = 0; i < Graph_TNGraph->GetNodes(); i++) {
-    int ClosedTriads = -1, OpenTriads = -1;
-    TSnap::GetNodeTriads(Graph_TNGraph, i, ClosedTriads, OpenTriads);
-    VerifyClosedTriads(i, ClosedTriads);
-    VerifyOpenTriads(i, OpenTriads);
+  PNGraph GraphTN = TriadGetTestTNGraph();
+  for (int i = 0; i < GraphTN->GetNodes(); i++) {
+    int ClosedTr = -1, OpenTr = -1;
+    TSnap::GetNodeTriads(GraphTN, i, ClosedTr, OpenTr);
+    VerifyClosedTriads(i, ClosedTr);
+    VerifyOpenTriads(i, OpenTr);
   }
 
   // Test TNEGraph which is treated same as undirected.
-  PNEGraph Graph_TNEGraph = TriadGetTestTNEGraph();
-  for (int i = 0; i < Graph_TNEGraph->GetNodes(); i++) {
-    int ClosedTriads = -1, OpenTriads = -1;
-    TSnap::GetNodeTriads(Graph_TNEGraph, i, ClosedTriads, OpenTriads);
-    VerifyClosedTriads(i, ClosedTriads);
-    VerifyOpenTriads(i, OpenTriads);
+  PNEGraph GraphTNE = TriadGetTestTNEGraph();
+  for (int i = 0; i < GraphTNE->GetNodes(); i++) {
+    int ClosedTr = -1, OpenTr = -1;
+    TSnap::GetNodeTriads(GraphTNE, i, ClosedTr, OpenTr);
+    VerifyClosedTriads(i, ClosedTr);
+    VerifyOpenTriads(i, OpenTr);
   }
 }
 
 // Test GetNodeTriads (GroupSet, InGroupEdges, InOutGroupEdges, OutGroupEdges)
 TEST(triad, TestGetNodeTriadsGroupSetAndOut) {
   // Test TUNGraph
-  PUNGraph Graph_TUNGraph = TriadGetTestTUNGraph();
-  for (int i = 0; i < Graph_TUNGraph->GetNodes(); i++) {
+  PUNGraph GraphTUN = TriadGetTestTUNGraph();
+  for (int i = 0; i < GraphTUN->GetNodes(); i++) {
     TIntSet GroupSet;
     GetGroupSet(i, GroupSet);
     int InGroupEdges = -1, InOutGroupEdges = -1, OutGroupEdges = -1;
-    TSnap::GetNodeTriads(Graph_TUNGraph, i, GroupSet, 
+    TSnap::GetNodeTriads(GraphTUN, i, GroupSet, 
                          InGroupEdges, InOutGroupEdges, OutGroupEdges);
     VerifyInGroupEdges(i, InGroupEdges);
     VerifyInOutGroupEdges(i, InOutGroupEdges);
@@ -367,12 +369,12 @@ TEST(triad, TestGetNodeTriadsGroupSetAndOut) {
   }
   
   // Test TNGraph which is same as undirected.
-  PNGraph Graph_TNGraph = TriadGetTestTNGraph();
-  for (int i = 0; i < Graph_TNGraph->GetNodes(); i++) {
+  PNGraph GraphTN = TriadGetTestTNGraph();
+  for (int i = 0; i < GraphTN->GetNodes(); i++) {
     TIntSet GroupSet;
     GetGroupSet(i, GroupSet);
     int InGroupEdges = -1, InOutGroupEdges = -1, OutGroupEdges = -1;
-    TSnap::GetNodeTriads(Graph_TNGraph, i, GroupSet, 
+    TSnap::GetNodeTriads(GraphTN, i, GroupSet, 
                          InGroupEdges, InOutGroupEdges, OutGroupEdges);
     VerifyInGroupEdges(i, InGroupEdges);
     VerifyInOutGroupEdges(i, InOutGroupEdges);
@@ -380,12 +382,12 @@ TEST(triad, TestGetNodeTriadsGroupSetAndOut) {
   }
   
   // Test TNEGraph which is same as undirected.
-  PNEGraph Graph_TNEGraph = TriadGetTestTNEGraph();
-  for (int i = 0; i < Graph_TNEGraph->GetNodes(); i++) {
+  PNEGraph GraphTNE = TriadGetTestTNEGraph();
+  for (int i = 0; i < GraphTNE->GetNodes(); i++) {
     TIntSet GroupSet;
     GetGroupSet(i, GroupSet);
     int InGroupEdges = -1, InOutGroupEdges = -1, OutGroupEdges = -1;
-    TSnap::GetNodeTriads(Graph_TNEGraph, i, GroupSet, 
+    TSnap::GetNodeTriads(GraphTNE, i, GroupSet, 
                          InGroupEdges, InOutGroupEdges, OutGroupEdges);
     VerifyInGroupEdges(i, InGroupEdges);
     VerifyInOutGroupEdges(i, InOutGroupEdges);
@@ -397,47 +399,47 @@ TEST(triad, TestGetNodeTriadsGroupSetAndOut) {
 // Number of nodes with x number of triangles it participates in
 TEST(triad, TestGetTriadParticip) {
   // Test TUNGraph
-  PUNGraph Graph_TUNGraph = TriadGetTestTUNGraph();
+  PUNGraph GraphTUN = TriadGetTestTUNGraph();
   TIntPrV TriadCntV;
-  TSnap::GetTriadParticip(Graph_TUNGraph, TriadCntV);
+  TSnap::GetTriadParticip(GraphTUN, TriadCntV);
   VerifyGetTriadParticip(TriadCntV);
 
   // Test TNGraph which is same as undirected.
-  PNGraph Graph_TNGraph = TriadGetTestTNGraph();
+  PNGraph GraphTN = TriadGetTestTNGraph();
   TriadCntV.Clr();
-  TSnap::GetTriadParticip(Graph_TNGraph, TriadCntV);
+  TSnap::GetTriadParticip(GraphTN, TriadCntV);
   VerifyGetTriadParticip(TriadCntV);
   
   // Test TNEGraph which is same as undirected.
-  PNEGraph Graph_TNEGraph = TriadGetTestTNEGraph();
+  PNEGraph GraphTNE = TriadGetTestTNEGraph();
   TriadCntV.Clr();
-  TSnap::GetTriadParticip(Graph_TNGraph, TriadCntV);
+  TSnap::GetTriadParticip(GraphTN, TriadCntV);
   VerifyGetTriadParticip(TriadCntV);
 }
 
 // Test GetCmnNbrs: the number of neighbors in common
 TEST(triad, TestGetCmnNbrs) {
   // Test TUNGraph
-  PUNGraph Graph_TUNGraph = TriadGetTestTUNGraph();
-  for (int i = 0; i < Graph_TUNGraph->GetNodes(); i++) {
-    for (int j = i + 1; j < Graph_TUNGraph->GetNodes(); j++) {
-      VerifyCmnNbrs(i, j, TSnap::GetCmnNbrs(Graph_TUNGraph, i, j));
+  PUNGraph GraphTUN = TriadGetTestTUNGraph();
+  for (int i = 0; i < GraphTUN->GetNodes(); i++) {
+    for (int j = i + 1; j < GraphTUN->GetNodes(); j++) {
+      VerifyCmnNbrs(i, j, TSnap::GetCmnNbrs(GraphTUN, i, j));
     }
   }
   
   // Test TNGraph which is same as undirected.
-  PNGraph Graph_TNGraph = TriadGetTestTNGraph();
-  for (int i = 0; i < Graph_TNGraph->GetNodes(); i++) {
-    for (int j = i + 1; j < Graph_TNGraph->GetNodes(); j++) {
-      VerifyCmnNbrs(i, j, TSnap::GetCmnNbrs(Graph_TNGraph, i, j));
+  PNGraph GraphTN = TriadGetTestTNGraph();
+  for (int i = 0; i < GraphTN->GetNodes(); i++) {
+    for (int j = i + 1; j < GraphTN->GetNodes(); j++) {
+      VerifyCmnNbrs(i, j, TSnap::GetCmnNbrs(GraphTN, i, j));
     }
   }
   
   // Test TNEGraph which is same as undirected.
-  PNEGraph Graph_TNEGraph = TriadGetTestTNEGraph();
-  for (int i = 0; i < Graph_TNEGraph->GetNodes(); i++) {
-    for (int j = i + 1; j < Graph_TNEGraph->GetNodes(); j++) {
-      VerifyCmnNbrs(i, j, TSnap::GetCmnNbrs(Graph_TNEGraph, i, j));
+  PNEGraph GraphTNE = TriadGetTestTNEGraph();
+  for (int i = 0; i < GraphTNE->GetNodes(); i++) {
+    for (int j = i + 1; j < GraphTNE->GetNodes(); j++) {
+      VerifyCmnNbrs(i, j, TSnap::GetCmnNbrs(GraphTNE, i, j));
     }
   }
 }
@@ -445,57 +447,57 @@ TEST(triad, TestGetCmnNbrs) {
 // Test GetLen2Paths: Number of path lengths 2 between pair of nodes
 TEST(triad, TestGetLen2Paths) {
   // Test TUNGraph
-  PUNGraph Graph_TUNGraph = TriadGetTestTUNGraph();
-  for (int i = 0; i < Graph_TUNGraph->GetNodes(); i++) {
-    for (int j = i + 1; j < Graph_TUNGraph->GetNodes(); j++) {
-      VerifyLen2Paths(i, j, TSnap::GetLen2Paths(Graph_TUNGraph, i, j), 0);
+  PUNGraph GraphTUN = TriadGetTestTUNGraph();
+  for (int i = 0; i < GraphTUN->GetNodes(); i++) {
+    for (int j = i + 1; j < GraphTUN->GetNodes(); j++) {
+      VerifyLen2Paths(i, j, TSnap::GetLen2Paths(GraphTUN, i, j), 0);
     }
   }
   
   // Test TNGraph which is different from undirected due to out neighbors.
-  PNGraph Graph_TNGraph = TriadGetTestTNGraph();
-  for (int i = 0; i < Graph_TNGraph->GetNodes(); i++) {
-    for (int j = i + 1; j < Graph_TNGraph->GetNodes(); j++) {
-      VerifyLen2Paths(i, j, TSnap::GetLen2Paths(Graph_TNGraph, i, j), 1);
+  PNGraph GraphTN = TriadGetTestTNGraph();
+  for (int i = 0; i < GraphTN->GetNodes(); i++) {
+    for (int j = i + 1; j < GraphTN->GetNodes(); j++) {
+      VerifyLen2Paths(i, j, TSnap::GetLen2Paths(GraphTN, i, j), 1);
     }
   }
 
   // Test TNEGraph which is different from undirected due to out neighbors.
-  PNEGraph Graph_TNEGraph = TriadGetTestTNEGraph();
-  for (int i = 0; i < Graph_TNEGraph->GetNodes(); i++) {
-    for (int j = i + 1; j < Graph_TNEGraph->GetNodes(); j++) {
-      VerifyLen2Paths(i, j, TSnap::GetLen2Paths(Graph_TNEGraph, i, j), 2);
+  PNEGraph GraphTNE = TriadGetTestTNEGraph();
+  for (int i = 0; i < GraphTNE->GetNodes(); i++) {
+    for (int j = i + 1; j < GraphTNE->GetNodes(); j++) {
+      VerifyLen2Paths(i, j, TSnap::GetLen2Paths(GraphTNE, i, j), 2);
     }
   }
 }
 
 // Helper: Testing Opened/Closed Triads for Specific Generated Graph
 void TestOpenCloseVector(TIntTrV& NIdCOTriadV) {
-  for (TIntTr *vec = NIdCOTriadV.BegI(); vec < NIdCOTriadV.EndI(); vec++) {
-    switch (vec->Val1) {
+  for (TIntTr *Vec = NIdCOTriadV.BegI(); Vec < NIdCOTriadV.EndI(); Vec++) {
+    switch (Vec->Val1) {
       case 0:
-        EXPECT_EQ(3, vec->Val2);
-        EXPECT_EQ(7, vec->Val3);
+        EXPECT_EQ(3, Vec->Val2);
+        EXPECT_EQ(7, Vec->Val3);
         break;
       case 1:
-        EXPECT_EQ(1, vec->Val2);
-        EXPECT_EQ(0, vec->Val3);
+        EXPECT_EQ(1, Vec->Val2);
+        EXPECT_EQ(0, Vec->Val3);
         break;
       case 2:
-        EXPECT_EQ(2, vec->Val2);
-        EXPECT_EQ(1, vec->Val3);
+        EXPECT_EQ(2, Vec->Val2);
+        EXPECT_EQ(1, Vec->Val3);
         break;
       case 3:
-        EXPECT_EQ(1, vec->Val2);
-        EXPECT_EQ(0, vec->Val3);
+        EXPECT_EQ(1, Vec->Val2);
+        EXPECT_EQ(0, Vec->Val3);
         break;
       case 4:
-        EXPECT_EQ(0, vec->Val2);
-        EXPECT_EQ(0, vec->Val3);
+        EXPECT_EQ(0, Vec->Val2);
+        EXPECT_EQ(0, Vec->Val3);
         break;
       case 5:
-        EXPECT_EQ(2, vec->Val2);
-        EXPECT_EQ(1, vec->Val3);
+        EXPECT_EQ(2, Vec->Val2);
+        EXPECT_EQ(1, Vec->Val3);
         break;
       default:
         ASSERT_FALSE(true); // NId Outside Graph Construction FAIL
@@ -506,19 +508,19 @@ void TestOpenCloseVector(TIntTrV& NIdCOTriadV) {
 
 // Helper: Testing Degree to Clustering Coefficient Distribution
 void TestDegToCCfVector(TFltPrV& DegToCCfV) {
-  for (TFltPr *pair = DegToCCfV.BegI(); pair < DegToCCfV.EndI(); pair++) {
-    switch ((int) pair->Val1) {
+  for (TFltPr *Pair = DegToCCfV.BegI(); Pair < DegToCCfV.EndI(); Pair++) {
+    switch ((int) Pair->Val1) {
       case 1:
-        EXPECT_EQ(0.0, pair->Val2);
+        EXPECT_EQ(0.0, Pair->Val2);
         break;
       case 2:
-        EXPECT_EQ(1.0, pair->Val2);
+        EXPECT_EQ(1.0, Pair->Val2);
         break;
       case 3:
-        EXPECT_EQ(2.0/3.0, pair->Val2);
+        EXPECT_EQ(2.0/3.0, Pair->Val2);
         break;
       case 5:
-        EXPECT_EQ(0.3, pair->Val2);
+        EXPECT_EQ(0.3, Pair->Val2);
         break;
       default:
         ASSERT_FALSE(true); // Shouldn't have degrees other than listed
@@ -724,19 +726,19 @@ void VerifyOutGroupEdges(int NId, int OutGroupEdges) {
 
 // Helper: Verify the distribution of how many triangles a node participates in
 void VerifyGetTriadParticip(TIntPrV& TriadCntV) {
-  for (TIntPr *vec = TriadCntV.BegI(); vec < TriadCntV.EndI(); vec++) {
-    switch (vec->Val1) {
+  for (TIntPr *Vec = TriadCntV.BegI(); Vec < TriadCntV.EndI(); Vec++) {
+    switch (Vec->Val1) {
       case 0:
-        EXPECT_EQ(1, vec->Val2);
+        EXPECT_EQ(1, Vec->Val2);
         break;
       case 1:
-        EXPECT_EQ(2, vec->Val2);
+        EXPECT_EQ(2, Vec->Val2);
         break;
       case 2:
-        EXPECT_EQ(2, vec->Val2);
+        EXPECT_EQ(2, Vec->Val2);
         break;
       case 3:
-        EXPECT_EQ(1, vec->Val2);
+        EXPECT_EQ(1, Vec->Val2);
         break;
       default:
         EXPECT_FALSE(true); // Not suppose to have more than 3
