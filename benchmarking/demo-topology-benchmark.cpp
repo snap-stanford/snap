@@ -125,13 +125,12 @@ int main(int argc, char* argv[]) {
   PUNGraph G2;
   PNEGraph G3;
   PNEAGraph G4;
-  double vm, rss;
-  process_mem_usage(vm, rss);
+  struct proc_t usage;
+  double mu0, mu1;
   
   std::ofstream file;
   using std::cout;
   using std::endl;
-  cout << "VM: " << vm << "; RSS: " << rss << endl;
 
   if (argc < 3) {
     printf("Usage: ./demo-topology-benchmark <0-3> <1 for defrag/0 for no defrag>\n0:TNGraph, 1:TUNGraph, 2:TNEGraph, 3:TNEAGraph\n");
@@ -177,6 +176,8 @@ int main(int argc, char* argv[]) {
       case 0:
 	printf("\nGenerating Graph...\n");
 	printf("GrGen ");
+	look_up_our_self(&usage);
+	mu0 = (double) usage.vsize / 1000000;
 	G1 = GenRndGnm<PNGraph>(NNodes, NEdges, true);
 	msec = (clock() - start) * 1000 / CLOCKS_PER_SEC;
 	printf("Nodes: %d Edges: %d Time: %d ms\n", NNodes, NEdges, msec);
@@ -185,10 +186,12 @@ int main(int argc, char* argv[]) {
 	  printf("Defragmenting...\n");
 	  G1->Defrag();
 	}
-	process_mem_usage(vm, rss);
-	cout << "VM: " << vm << "; RSS: " << rss << endl;
+	look_up_our_self(&usage);
+	mu1 = (double) usage.vsize / 1000000;
 	Benchmark(G1, file);
 	G1->Clr();
+	printf("Memory Usage: %.3f\n", mu1-mu0);
+        file << NNodes << " " << NEdges << " " << msec << " ";
 	break;
       case 1:
 	printf("\nGenerating Graph...\n");
@@ -197,12 +200,12 @@ int main(int argc, char* argv[]) {
 	msec = (clock() - start) * 1000 / CLOCKS_PER_SEC;
 	printf("Nodes: %d Edges: %d Time: %d ms\n", NNodes, NEdges, msec);
         file << NNodes << " " << NEdges << " " << msec << " ";
-	process_mem_usage(vm, rss);
+	//process_mem_usage(vm, rss);
 	Benchmark(G2, file);    
 	printf("Defragmenting...\n");
 	G2->Defrag();
-	process_mem_usage(vm, rss);
-	cout << "VM: " << vm << "; RSS: " << rss << endl;
+	//process_mem_usage(vm, rss);
+	//cout << "VM: " << vm << "; RSS: " << rss << endl;
 	Benchmark(G2, file);
 	G2->Clr();
 	break;
@@ -212,13 +215,12 @@ int main(int argc, char* argv[]) {
 	G3 = GenRndGnm<PNEGraph>(NNodes, NEdges, true);
 	msec = (clock() - start) * 1000 / CLOCKS_PER_SEC;
 	printf("Nodes: %d Edges: %d Time: %d ms\n", NNodes, NEdges, msec);
-        file << NNodes << " " << NEdges << " " << msec << " ";
-	process_mem_usage(vm, rss);
-	cout << "VM: " << vm << "; RSS: " << rss << endl;
+        //file << NNodes << " " << NEdges << " " << msec << " ";
+	//process_mem_usage(vm, rss);
 	Benchmark(G3, file);    
 	printf("Defragmenting...\n");
-	process_mem_usage(vm, rss);
-	cout << "VM: " << vm << "; RSS: " << rss << endl;
+	//process_mem_usage(vm, rss);
+	//cout << "VM: " << vm << "; RSS: " << rss << endl;
 	G3->Defrag();
 	Benchmark(G3, file);
 	G3->Clr();
@@ -230,13 +232,13 @@ int main(int argc, char* argv[]) {
 	msec = (clock() - start) * 1000 / CLOCKS_PER_SEC;
 	printf("Nodes: %d Edges: %d Time: %d ms\n", NNodes, NEdges, msec);
         file << NNodes << " " << NEdges << " " << msec << " ";
-	process_mem_usage(vm, rss);
-	cout << "VM: " << vm << "; RSS: " << rss << endl;
+	//process_mem_usage(vm, rss);
+	//cout << "VM: " << vm << "; RSS: " << rss << endl;
 	Benchmark(G4, file);    
 	printf("Defragmenting...\n");
 	G4->Defrag();
-	process_mem_usage(vm, rss);
-	cout << "VM: " << vm << "; RSS: " << rss << endl;
+	//	process_mem_usage(vm, rss);
+	//cout << "VM: " << vm << "; RSS: " << rss << endl;
 	Benchmark(G4, file);
 	G4->Clr();
 	break;
