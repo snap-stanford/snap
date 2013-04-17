@@ -12,7 +12,7 @@ all: $(DEMOS)
 
 # COMPILE
 demo-%: demo-%.cpp $(CSNAP)/Snap.o
-	$(CC) $(CXXFLAGS) -o $@ $@.cpp $(CSNAP)/Snap.o -I$(CSNAP) -I$(CGLIB) $(LDFLAGS) $(LIBS)
+	$(CC) $(CXXFLAGS) -lproc -o $@ $@.cpp $(CSNAP)/Snap.o -I$(CSNAP) -I$(CGLIB) $(LDFLAGS) $(LIBS)
 
 $(CSNAP)/Snap.o:
 	$(MAKE) -C $(CSNAP)
