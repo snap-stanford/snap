@@ -29,6 +29,7 @@ public:
   static const TStr TextWmlFldVal;
   static const TStr TextJavaScriptFldVal;
   static const TStr TextCssFldVal;
+  static const TStr ImageIcoFldVal;
   static const TStr ImagePngFldVal;
   static const TStr ImageGifFldVal;
   static const TStr ImageJpgFldVal;
@@ -111,6 +112,7 @@ public:
 
   // header & body
   TStr GetHdStr() const {return HdStr;}
+  bool IsBody() const { return !BodyMem.Empty(); }
   int GetBodyLen() const { return BodyMem.Len(); }
   TStr GetBodyAsStr() const { return BodyMem.GetAsStr(' ');}
   PSIn GetBodyAsSIn() const { return TMemIn::New(BodyMem); }
@@ -166,6 +168,7 @@ public:
   TStr GetHdStr() const {return HdStr;}
   const TMem& GetBodyAsMem() const {return BodyMem;}
   TStr GetBodyAsStr() const {return BodyMem.GetAsStr(' ');}
+  PSIn GetBodyAsSIn() const {return BodyMem.GetSIn(); }
   int GetStatusCd() const {return StatusCd;}
   TStr GetReasonPhrase() const {return THttp::GetReasonPhrase(StatusCd);}
   int GetFlds() const {return FldNmToValVH.Len();}

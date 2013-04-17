@@ -131,7 +131,7 @@ void TTntEnt::GetDocCentroid(const TTntBs* TntBs,
   // get doc-ids
   TIntV DocIdV; GetDocIdV(TntBs, MnTm, 0, DocIdV);
   if (DocIdV.Len()>0){
-    printf("");
+
   }
   TIntV BowDIdV(DocIdV.Len(), 0);
   for (int DocN=0; DocN<DocIdV.Len(); DocN++){
@@ -162,7 +162,10 @@ void TTntEnt::GetEntClustV(const TTntBs* TntBs,
   PBowDocBs BowDocBs=TBowDocBs::New();
   // collect documents
   TIntV DocIdV; GetDocIdV(TntBs, MnTm, 0, DocIdV);
-  DocIdV.Reverse(); DocIdV.Shuffle(TRnd(1)); DocIdV.Trunc(MxDocs);
+  DocIdV.Reverse();
+  TRnd Rnd(1);
+  DocIdV.Shuffle(Rnd);
+  DocIdV.Trunc(MxDocs);
   if (DocIdV.Len()<MnDocs){return;}
   for (int DocN=0; DocN<DocIdV.Len(); DocN++){
     int DocId=DocIdV[DocN];
@@ -187,7 +190,7 @@ void TTntEnt::GetEntClustV(const TTntBs* TntBs,
    TNotify::StdNotify, // log output
    BowDocBs, // document data
    BowSim, // similarity function
-   TRnd(1), // random generator
+   Rnd, // random generator
    Clusts, // number of clusters
    1, // trials per k-means
    1, // convergence epsilon for k-means
@@ -497,6 +500,16 @@ void TTntBs::GetSchTmV(const TStr& SchNm, const uint64& PivotTm, TUInt64V& SchTm
     SchTmMSecsV.Add(PivotTm-150*TTmInfo::GetDayMSecs());
     SchTmMSecsV.Add(PivotTm-180*TTmInfo::GetDayMSecs());
     SchTmMSecsV.Add(PivotTm-210*TTmInfo::GetDayMSecs());
+  } else 
+	  if (SchNm=="year"){
+    SchTmMSecsV.Add(PivotTm-0*TTmInfo::GetDayMSecs());
+    SchTmMSecsV.Add(PivotTm-364*TTmInfo::GetDayMSecs());
+    SchTmMSecsV.Add(PivotTm-728*TTmInfo::GetDayMSecs());
+    SchTmMSecsV.Add(PivotTm-1092*TTmInfo::GetDayMSecs());
+    SchTmMSecsV.Add(PivotTm-1457*TTmInfo::GetDayMSecs());
+    SchTmMSecsV.Add(PivotTm-1821*TTmInfo::GetDayMSecs());
+    SchTmMSecsV.Add(PivotTm-2185*TTmInfo::GetDayMSecs());
+    SchTmMSecsV.Add(PivotTm-2550*TTmInfo::GetDayMSecs());
   } else {
     FailR("Invalid Time Schedule");
   }

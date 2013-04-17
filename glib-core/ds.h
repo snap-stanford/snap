@@ -3419,6 +3419,8 @@ public:
 
   TLstNd& operator=(const TLstNd&);
 
+  bool IsPrev() const {return (PrevNd != NULL); }
+  bool IsNext() const {return (NextNd != NULL); }
   TLstNd* Prev() const {Assert(this!=NULL); return PrevNd;}
   TLstNd* Next() const {Assert(this!=NULL); return NextNd;}
   TVal& GetVal(){Assert(this!=NULL); return Val;}

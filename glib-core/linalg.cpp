@@ -305,7 +305,15 @@ double TLinAlg::EuclDist2(const TFltV& x, const TFltV& y) {
     return Res;
 }
 
+double TLinAlg::EuclDist2(const TFltPr& x, const TFltPr& y) {
+    return TMath::Sqr(x.Val1 - y.Val1) + TMath::Sqr(x.Val2 - y.Val2);
+}
+
 double TLinAlg::EuclDist(const TFltV& x, const TFltV& y) {
+    return sqrt(EuclDist2(x, y));
+}
+
+double TLinAlg::EuclDist(const TFltPr& x, const TFltPr& y) {
     return sqrt(EuclDist2(x, y));
 }
 
@@ -527,9 +535,9 @@ void TLinAlg::Gemm(const double& Alpha, const TFltVV& A, const TFltVV& B, const 
 
 void TLinAlg::Transpose(const TFltVV& A, TFltVV& B) {
 	Assert(B.GetRows() == A.GetCols() && B.GetCols() == A.GetRows());
-	for (int j = 0; j < A.GetRows(); j++) {
-		for (int i = 0; i < B.GetCols(); i++) {
-			B.At(j, i) = A.At(i, j);
+	for (int i = 0; i < A.GetCols(); i++) {
+		for (int j = 0; j < A.GetRows(); j++) {
+			B.At(i, j) = A.At(j, i);
 		}
 	}
 }

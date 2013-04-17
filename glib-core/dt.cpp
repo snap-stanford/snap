@@ -1201,7 +1201,8 @@ bool TStr::IsHexInt( const bool& Check, const int& MnVal, const int& MxVal, int&
       Ch.GetCh(); if (Ch.Eof()){return false;}
     }
   }
-  if (! Ch.Eof()) _Val = TCh::GetHex(Ch());
+  if (!Ch.Eof() && !TCh::IsHex(Ch())){return false;}
+  if (!Ch.Eof()) _Val = TCh::GetHex(Ch());
   while (TCh::IsHex(Ch.GetCh())){_Val=16*_Val+TCh::GetHex(Ch());}
   if (Minus){_Val=-_Val;}
   if (Check&&((_Val<MnVal)||(_Val>MxVal))){return false;}
@@ -1727,82 +1728,82 @@ int TStrPool::GetSecHashCd(const char *CStr) {
 /////////////////////////////////////////////////
 // String-Pool-64bit
 void TStrPool64::Resize(const ::TSize& _MxBfL) {
-    ::TSize newSize = MxBfL;
-    while (newSize < _MxBfL) {
-        if (newSize >= GrowBy && GrowBy > 0) newSize += GrowBy;
-        else if (newSize > 0) newSize *= 2;
-        else newSize = (GrowBy > ::TSize(1024)) ? ::TSize(1024) : GrowBy;
-        IAssert(newSize >= MxBfL); // assert we are growing
-    }
-    if (newSize > MxBfL) {
-        Bf = (char *) realloc(Bf, newSize);
-        IAssertR(Bf, TStr::Fmt("old Bf size: %u, new size: %u", MxBfL, newSize).CStr());
-        MxBfL = newSize;
-    }
-    IAssert(MxBfL >= _MxBfL);
+  ::TSize newSize = MxBfL;
+  while (newSize < _MxBfL) {
+    if (newSize >= GrowBy && GrowBy > 0) newSize += GrowBy;
+    else if (newSize > 0) newSize *= 2;
+    else newSize = (GrowBy > ::TSize(1024)) ? ::TSize(1024) : GrowBy;
+    IAssert(newSize >= MxBfL); // assert we are growing
+  }
+  if (newSize > MxBfL) {
+    Bf = (char *) realloc(Bf, newSize);
+    IAssertR(Bf, TStr::Fmt("old Bf size: %u, new size: %u", MxBfL, newSize).CStr());
+    MxBfL = newSize;
+  }
+  IAssert(MxBfL >= _MxBfL);
 }
 
 TStrPool64::TStrPool64(::TSize _MxBfL, ::TSize _GrowBy):
-        MxBfL(_MxBfL), BfL(0), GrowBy(_GrowBy), Bf(NULL) {
+    MxBfL(_MxBfL), BfL(0), GrowBy(_GrowBy), Bf(NULL) {
 
-    if (MxBfL > 0) { Bf = (char*)malloc(MxBfL); IAssert(Bf != NULL); }
-    AddStr("");
+  if (MxBfL > 0) { Bf = (char*)malloc(MxBfL); IAssert(Bf != NULL); }
+  AddStr("");
 }
 
 TStrPool64::TStrPool64(const TStrPool64& StrPool): 
   MxBfL(StrPool.MxBfL), BfL(StrPool.BfL), GrowBy(StrPool.GrowBy) {
-    if (Bf != NULL) { free(Bf); } else { IAssert(MxBfL == 0); }
-    Bf = (char*)malloc(StrPool.MxBfL); IAssert(Bf != NULL); 
-    memcpy(Bf, StrPool.Bf, BfL);
+  if (Bf != NULL) { free(Bf); } else { IAssert(MxBfL == 0); }
+  Bf = (char*)malloc(StrPool.MxBfL); IAssert(Bf != NULL); 
+  memcpy(Bf, StrPool.Bf, BfL);
 }
 
 TStrPool64::TStrPool64(TSIn& SIn, bool LoadCompact): 
   MxBfL(0), BfL(0), GrowBy(0), Bf(0) {
-    uint64 _GrowBy, _MxBfL, _BfL;
-    SIn.Load(_GrowBy); SIn.Load(_MxBfL); SIn.Load(_BfL);
-    GrowBy = (::TSize)_GrowBy; MxBfL = (::TSize)_MxBfL; BfL = (::TSize)_BfL;
-    if (LoadCompact) { MxBfL = BfL; }
-    if (MxBfL > 0) { Bf = (char*)malloc(MxBfL); IAssert(Bf != NULL); }
-    for (::TSize BfN = 0; BfN < _BfL; BfN++) { Bf[BfN] = SIn.GetCh(); }
-    SIn.LoadCs();
+  uint64 _GrowBy, _MxBfL, _BfL;
+  SIn.Load(_GrowBy); SIn.Load(_MxBfL); SIn.Load(_BfL);
+  GrowBy = (::TSize)_GrowBy; MxBfL = (::TSize)_MxBfL; BfL = (::TSize)_BfL;
+  if (LoadCompact) { MxBfL = BfL; }
+  if (MxBfL > 0) { Bf = (char*)malloc(MxBfL); IAssert(Bf != NULL); }
+  for (::TSize BfN = 0; BfN < _BfL; BfN++) { Bf[BfN] = SIn.GetCh(); }
+  SIn.LoadCs();
 }
 
 void TStrPool64::Save(TSOut& SOut) const {
-    uint64 _GrowBy = GrowBy, _MxBfL = MxBfL, _BfL = BfL;
-    SOut.Save(_GrowBy);  SOut.Save(_MxBfL);  SOut.Save(_BfL);
-    for (::TSize BfN = 0; BfN < _BfL; BfN++) { SOut.PutCh(Bf[BfN]); }
-    SOut.SaveCs();
+  uint64 _GrowBy = GrowBy, _MxBfL = MxBfL, _BfL = BfL;
+  SOut.Save(_GrowBy);  SOut.Save(_MxBfL);  SOut.Save(_BfL);
+  for (::TSize BfN = 0; BfN < _BfL; BfN++) { SOut.PutCh(Bf[BfN]); }
+  SOut.SaveCs();
 }
 
 TStrPool64& TStrPool64::operator=(const TStrPool64& StrPool) {
   if (this != &StrPool) {
-    GrowBy = StrPool.GrowBy;  MxBfL = StrPool.MxBfL;  BfL = StrPool.BfL;
-    if (Bf != NULL) { free(Bf); } else { IAssert(MxBfL == 0); }
-    Bf = (char*)malloc(MxBfL); IAssert(Bf != NULL); 
-    memcpy(Bf, StrPool.Bf, BfL);
+  GrowBy = StrPool.GrowBy;  MxBfL = StrPool.MxBfL;  BfL = StrPool.BfL;
+  if (Bf != NULL) { free(Bf); } else { IAssert(MxBfL == 0); }
+  Bf = (char*)malloc(MxBfL); IAssert(Bf != NULL); 
+  memcpy(Bf, StrPool.Bf, BfL);
   }
   return *this;
 }
 
 void TStrPool64::Clr(bool DoDel) { 
-    BfL = 0; 
-    if (DoDel && (Bf!=NULL)) { 
-        free(Bf); 
-        Bf = NULL; MxBfL = 0; 
-    } 
+  BfL = 0; 
+  if (DoDel && (Bf!=NULL)) { 
+    free(Bf); 
+    Bf = NULL; MxBfL = 0; 
+  } 
 }
 
 uint64 TStrPool64::AddStr(const TStr& Str) {
-    const int Len = Str.Len() + 1;
-    if (BfL + Len > MxBfL) { Resize(BfL + Len); }
-    memcpy(Bf + BfL, Str.CStr(), Len);
-    ::TSize Offset = BfL;  BfL += Len;
-    return uint64(Offset);
+  const int Len = Str.Len() + 1;
+  if (BfL + Len > MxBfL) { Resize(BfL + Len); }
+  memcpy(Bf + BfL, Str.CStr(), Len);
+  ::TSize Offset = BfL;  BfL += Len;
+  return uint64(Offset);
 }
 
 TStr TStrPool64::GetStr(const uint64& StrId) const {
-    ::TSize Offset = (::TSize)StrId;
-    return TStr(Bf + Offset);
+  ::TSize Offset = (::TSize)StrId;
+  return TStr(Bf + Offset);
 }
 
 /////////////////////////////////////////////////
@@ -2095,6 +2096,7 @@ TStr TUInt::GetStr(const uint& Val, const char* FmtStr){
 bool TUInt::IsIpStr(const TStr& IpStr, uint& Ip, const char& SplitCh) {
 	TStrV IpStrV; IpStr.SplitOnAllCh(SplitCh, IpStrV);
     Ip = 0; int Byte = 0;
+	if (IpStrV.Len() != 4) { return false; }
 	if (!IpStrV[0].IsInt(true, 0, 255, Byte)) { return false; }; Ip = (uint)Byte;
 	if (!IpStrV[1].IsInt(true, 0, 255, Byte)) { return false; }; Ip = (Ip << 8) | (uint)Byte;
 	if (!IpStrV[2].IsInt(true, 0, 255, Byte)) { return false; }; Ip = (Ip << 8) | (uint)Byte;
@@ -2115,6 +2117,21 @@ uint TUInt::GetUIntFromIpStr(const TStr& IpStr, const char& SplitCh) {
 TStr TUInt::GetStrFromIpUInt(const uint& Ip) {
   return TStr::Fmt("%d.%d.%d.%d", ((Ip>>24) & 0xFF),
    ((Ip>>16) & 0xFF), ((Ip>>8) & 0xFF), (Ip & 0xFF));
+}
+
+bool TUInt::IsIpv6Str(const TStr& IpStr, const char& SplitCh) {
+	TStrV IpStrV; IpStr.SplitOnAllCh(SplitCh, IpStrV, false);
+	// check we have 8 groups
+	if (IpStrV.Len() > 8) { return false; }
+	// each group must be in hexa and in range from 0x0000 to 0xFFFF
+	int Group = 0;
+	for (int IpStrN = 0; IpStrN < IpStrV.Len(); IpStrN++) {
+		if (IpStrV[IpStrN].Empty()) { continue; }
+		if (IpStrV[IpStrN].IsHexInt(true, 0x0000, 0xFFFF, Group)) { continue; }
+		return false; 
+	}
+	// all fine
+	return true;
 }
 
 /////////////////////////////////////////////////

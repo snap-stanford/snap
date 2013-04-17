@@ -1122,8 +1122,8 @@ public:
   void AddKeyV(const TVec<TKey>& KeyV);
 
   void DelKey(const TKey& Key);
-  void DelIfKey(const TKey& Key) {
-    int KeyId; if (IsKey(Key, KeyId)) {DelKeyId(KeyId); }}
+  bool DelIfKey(const TKey& Key) {
+    int KeyId; if (IsKey(Key, KeyId)) {DelKeyId(KeyId); return true;} return false;}
   void DelKeyId(const int& KeyId) {DelKey(GetKey(KeyId)); }
   void DelKeyIdV(const TIntV& KeyIdV) {
     for (int KeyIdN=0; KeyIdN<KeyIdV.Len(); KeyIdN++) {DelKeyId(KeyIdV[KeyIdN]); }}

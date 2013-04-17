@@ -88,6 +88,7 @@ public:
   static PUrl GetUrlFromShortcut(const TStr& ShortcutUrlStr,
    const TStr& DfHostNmPrefix, const TStr& DfHostNmSufix);
   static TStr GetUrlSearchStr(const TStr& Str);
+  static TStr EncodeUrlStr(const TStr& Str){return GetUrlSearchStr(Str);}
   static TStr DecodeUrlStr(const TStr& UrlStr);
   static TStr GetDocStrFromUrlStr(const TStr& UrlStr, const int& Copies=1);
   static TStr GetTopDownDocNm(

@@ -155,23 +155,23 @@ public:
   TSecTm& AddSecs(const int& Secs){
     IAssert(IsDef()); AbsSecs.Val+=uint(Secs); return *this;}
   TSecTm& SubSecs(const int& Secs){
-    IAssert(IsDef()); AbsSecs.Val-=uint(Secs); return *this;}
+    IAssert(IsDef() && uint(Secs) < AbsSecs); AbsSecs.Val-=uint(Secs); return *this;}
   TSecTm& AddMins(const int& Mins){
     IAssert(IsDef()); AbsSecs.Val+=uint(Mins*60); return *this;}
   TSecTm& SubMins(const int& Mins){
-    IAssert(IsDef()); AbsSecs.Val-=uint(Mins*60); return *this;}
+    IAssert(IsDef() && uint(Mins*60) < AbsSecs); AbsSecs.Val-=uint(Mins*60); return *this;}
   TSecTm& AddHours(const int& Hours){
     IAssert(IsDef()); AbsSecs.Val+=uint(Hours*3600); return *this;}
   TSecTm& SubHours(const int& Hours){
-    IAssert(IsDef()); AbsSecs.Val-=uint(Hours*3600); return *this;}
+    IAssert(IsDef() && uint(Hours*3600) < AbsSecs); AbsSecs.Val-=uint(Hours*3600); return *this;}
   TSecTm& AddDays(const int& Days){
     IAssert(IsDef()); AbsSecs.Val+=uint(Days*24*3600); return *this;}
   TSecTm& SubDays(const int& Days){
-    IAssert(IsDef()); AbsSecs.Val-=uint(Days*24*3600); return *this;}
+    IAssert(IsDef() && uint(Days*24*3600) < AbsSecs); AbsSecs.Val-=uint(Days*24*3600); return *this;}
   TSecTm& AddWeeks(const int& Weeks){
     IAssert(IsDef()); AbsSecs.Val+=uint(Weeks*7*24*3600); return *this;}
   TSecTm& SubWeeks(const int& Weeks){
-    IAssert(IsDef()); AbsSecs.Val-=uint(Weeks*7*24*3600); return *this;}
+    IAssert(IsDef() && uint(Weeks*7*24*3600) < AbsSecs); AbsSecs.Val-=uint(Weeks*7*24*3600); return *this;}
   static uint GetDSecs(const TSecTm& SecTm1, const TSecTm& SecTm2);
   /*friend TSecTm operator+(const TSecTm& SecTm, const uint& Secs){
     return TSecTm(SecTm)+=Secs;}
@@ -332,7 +332,7 @@ public:
    const char MSecSepCh='.', const char DateTimeSepCh=' ');
   static TTm GetTmFromIdStr(const TStr& IdStr);
   
-  // unique sortable 32-bit integer from date and time (TTmDateTime)
+  // get unix timestamp
   static uint GetDateTimeInt(const int& Year = 0, const int& Month = 1, 
     const int& Day = 1, const int& Hour = 0, const int& Min = 0,
 	const int& Sec = 0);   
@@ -342,9 +342,6 @@ public:
   static uint GetDateTimeIntFromTm(const TTm& Tm);   
   static TTm GetTmFromDateTimeInt(const uint& DateTimeInt);
   static TSecTm GetSecTmFromDateTimeInt(const uint& DateTimeInt);
-  static uint KeepMonthInDateTimeInt(const uint& DateTimeInt);
-  static uint KeepDayInDateTimeInt(const uint& DateTimeInt);
-  static uint KeepHourInDateTimeInt(const uint& DateTimeInt);
 };
 typedef TVec<TTm> TTmV;
 typedef TPair<TTm, TStr> TTmStrPr;

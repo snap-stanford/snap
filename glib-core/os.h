@@ -103,11 +103,11 @@ public:
 
 /////////////////////////////////////////////////
 // System-Messages
-class TSysMsg{
-public:
-  static void Loop();
-  static void Quit();
-};
+//class TSysMsg{
+//public:
+//  static void Loop();
+//  static void Quit();
+//};
 
 /////////////////////////////////////////////////
 // System-Time
@@ -190,13 +190,6 @@ public:
   int Read(char *Bf, const int& BfMxLen);
 };
 
-/////////////////////////////////////////////////
-// GUID
-class TGuid {
-public:
-	static TStr GenGuid();
-};
-
 #elif defined(GLib_UNIX)
 
 /////////////////////////////////////////////////
@@ -267,14 +260,5 @@ public:
   int Write(const char* Bf, const int& BfLen);
   int Read(char *Bf, const int& BfMxLen);
 };
-
-
-/////////////////////////////////////////////////
-// GUID
-class TGuid {
-public:
-	static TStr GenGuid();
-};
-
 
 #endif
