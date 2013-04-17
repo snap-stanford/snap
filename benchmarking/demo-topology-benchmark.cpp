@@ -6,6 +6,11 @@
 #include <fstream>
 #include <string>
 #include <time.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <proc/readproc.h>
+#include <sys/time.h>
+#include <sys/resource.h>
 #include "Snap.h"
 
 // Benchmarking prototypes:
@@ -102,42 +107,6 @@ void Benchmark(PGraph G, std::ofstream& file) {
 }
 
 
-void process_mem_usage(double& vm_usage, double& resident_set) {
-   using std::ios_base;
-   using std::ifstream;
-   using std::string;
-
-   vm_usage     = 0.0;
-   resident_set = 0.0;
-
-   // 'file' stat seems to give the most reliable results
-   //
-   ifstream stat_stream("/proc/self/stat",ios_base::in);
-
-   // dummy vars for leading entries in stat that we don't care about
-   //
-   string pid, comm, state, ppid, pgrp, session, tty_nr;
-   string tpgid, flags, minflt, cminflt, majflt, cmajflt;
-   string utime, stime, cutime, cstime, priority, nice;
-   string O, itrealvalue, starttime;
-
-   // the two fields we want
-   //
-   unsigned long vsize;
-   long rss;
-
-   stat_stream >> pid >> comm >> state >> ppid >> pgrp >> session >> tty_nr
-               >> tpgid >> flags >> minflt >> cminflt >> majflt >> cmajflt
-               >> utime >> stime >> cutime >> cstime >> priority >> nice
-               >> O >> itrealvalue >> starttime >> vsize >> rss; // don't care about the rest
-
-   stat_stream.close();
-
-   long page_size_kb = sysconf(_SC_PAGE_SIZE) / 1024; // in case x86-64 is configured to use 2MB pages
-   vm_usage     = vsize / 1024.0;
-   resident_set = rss * page_size_kb;
-}
-
 int main(int argc, char* argv[]) {
   // benchmark graph creation
   int OneK = 1000;
@@ -164,8 +133,8 @@ int main(int argc, char* argv[]) {
   using std::endl;
   cout << "VM: " << vm << "; RSS: " << rss << endl;
 
-  if (argc < 2) {
-    printf("Usage: ./demo-topology-benchmark <0-3>\n0:TNGraph, 1:TUNGraph, 2:TNEGraph, 3:TNEAGraph\n");
+  if (argc < 3) {
+    printf("Usage: ./demo-topology-benchmark <0-3> <1 for defrag/0 for no defrag>\n0:TNGraph, 1:TUNGraph, 2:TNEGraph, 3:TNEAGraph\n");
     return -1;
   }
 
@@ -179,7 +148,6 @@ int main(int argc, char* argv[]) {
   EdgeArr[2] = 100;
   
   //  for (k = 0; k < 4; k++) {
-    printf("%d\n", k);
     printf("Starting Benchmarking for ");
     switch (k) {
     case 0:
@@ -213,11 +181,10 @@ int main(int argc, char* argv[]) {
 	msec = (clock() - start) * 1000 / CLOCKS_PER_SEC;
 	printf("Nodes: %d Edges: %d Time: %d ms\n", NNodes, NEdges, msec);
         file << NNodes << " " << NEdges << " " << msec << " ";
-	process_mem_usage(vm, rss);
-	cout << "VM: " << vm << "; RSS: " << rss << endl;
-	Benchmark(G1, file);
-	printf("Defragmenting...\n");
-	G1->Defrag();
+	if (atoi(argv[2])) {
+	  printf("Defragmenting...\n");
+	  G1->Defrag();
+	}
 	process_mem_usage(vm, rss);
 	cout << "VM: " << vm << "; RSS: " << rss << endl;
 	Benchmark(G1, file);
@@ -235,6 +202,7 @@ int main(int argc, char* argv[]) {
 	printf("Defragmenting...\n");
 	G2->Defrag();
 	process_mem_usage(vm, rss);
+	cout << "VM: " << vm << "; RSS: " << rss << endl;
 	Benchmark(G2, file);
 	G2->Clr();
 	break;
@@ -246,9 +214,11 @@ int main(int argc, char* argv[]) {
 	printf("Nodes: %d Edges: %d Time: %d ms\n", NNodes, NEdges, msec);
         file << NNodes << " " << NEdges << " " << msec << " ";
 	process_mem_usage(vm, rss);
+	cout << "VM: " << vm << "; RSS: " << rss << endl;
 	Benchmark(G3, file);    
 	printf("Defragmenting...\n");
 	process_mem_usage(vm, rss);
+	cout << "VM: " << vm << "; RSS: " << rss << endl;
 	G3->Defrag();
 	Benchmark(G3, file);
 	G3->Clr();
@@ -261,10 +231,12 @@ int main(int argc, char* argv[]) {
 	printf("Nodes: %d Edges: %d Time: %d ms\n", NNodes, NEdges, msec);
         file << NNodes << " " << NEdges << " " << msec << " ";
 	process_mem_usage(vm, rss);
+	cout << "VM: " << vm << "; RSS: " << rss << endl;
 	Benchmark(G4, file);    
 	printf("Defragmenting...\n");
 	G4->Defrag();
 	process_mem_usage(vm, rss);
+	cout << "VM: " << vm << "; RSS: " << rss << endl;
 	Benchmark(G4, file);
 	G4->Clr();
 	break;
