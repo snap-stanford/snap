@@ -12,13 +12,13 @@
 #include <sys/time.h>
 #include <sys/resource.h>
 #include "Snap.h"
-
+ 
 // Benchmarking prototypes:
 template <class PGraph> void BenchmarkGraphEdgeI(PGraph Graph, std::ofstream& file, bool isDefrag);
 template <class PGraph> void BenchmarkGraphNodeI(PGraph Graph, std::ofstream& file, bool isDefrag);
 template <class PGraph> void BenchmarkGraphDegTrav(PGraph Graph, std::ofstream& file, bool isDefrag);
 template <class PGraph> void Benchmark(PGraph G, std::ofstream& file);
-
+ 
 // Added to pass the assert condition, which overflows for large node values
 template <class PGraph> PGraph GenRndGnm(const int& Nodes, const int& Edges, const bool& IsDir=true, TRnd& Rnd=TInt::Rnd);
 template <class PGraph>
@@ -39,63 +39,63 @@ PGraph GenRndGnm(const int& Nodes, const int& Edges, const bool& IsDir, TRnd& Rn
   }
   return GraphPt;
 }
-
+ 
 template <class PGraph>
 void BenchmarkGraphEdgeI(PGraph Graph, std::ofstream& file, bool isDefrag) {
   int ECount = 0;
   int i = 0;
   clock_t start = clock();
-
+ 
   for (i = 0; i < 50; i++) {
     ECount = 0;
     for (typename PGraph::TObj::TEdgeI EI = Graph->BegEI(); EI < Graph->EndEI(); EI++) {
       ECount++;
     }
   }
-  
+ 
   double msec = (clock() - start) * 1000.0 / CLOCKS_PER_SEC;
-  printf("Nodes: %d Edges: %d Time: %f ms\n", Graph->GetNodes(), ECount, msec/50);
-  file << msec/50 << " ";
+  printf("Nodes: %d Edges: %d Freq: %f ops\n", Graph->GetNodes(), ECount, 50000/msec);
+  file << 50000/msec << " ";
 }
-
+ 
 template <class PGraph>
 void BenchmarkGraphDegTrav(PGraph Graph, std::ofstream& file, bool isDefrag) {
   int ECount = 0;
   int i = 0;
   clock_t start = clock();
-
+ 
   for (i = 0; i < 50; i++) {
     ECount = 0;
     for (typename PGraph::TObj::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
       for (int e = 0; e < NI.GetOutDeg(); e++) {
-	ECount++;
+        ECount++;
       }
     }
   }
-
+ 
   double msec = (clock() - start) * 1000.0 / CLOCKS_PER_SEC;
-  printf("Nodes: %d Edges: %d Time: %f ms\n", Graph->GetNodes(), ECount, msec/50);
-  file << msec/50 << " ";
+  printf("Nodes: %d Edges: %d Freq: %f ms\n", Graph->GetNodes(), ECount, 50000/msec);
+  file << 50000/msec << " ";
 }
-
+ 
 template <class PGraph>
 void BenchmarkGraphNodeI(PGraph Graph, std::ofstream& file, bool isDefrag) {
   int NCount = 0;
   int i = 0;
   clock_t start = clock();
-
+ 
   for (i = 0; i < 50; i++) {
     NCount = 0;
     for (typename PGraph::TObj::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
       NCount++;
     }
   }
-  
+ 
   double msec = (clock() - start) * 1000.0 / CLOCKS_PER_SEC;
-  printf("Nodes: %d Edges: %d Time: %f ms\n", NCount, Graph->GetEdges(), msec/50);
-  file << msec/50 << " ";
+  printf("Nodes: %d Edges: %d Freq: %f ops\n", NCount, Graph->GetEdges(), 50000/msec);
+  file << 50000/msec << " ";
 }
-
+ 
 template <class PGraph>
 void Benchmark(PGraph G, std::ofstream& file) {
   printf("NodeI ");
@@ -105,8 +105,8 @@ void Benchmark(PGraph G, std::ofstream& file) {
   printf("NodeE ");
   BenchmarkGraphDegTrav(G, file, false);
 }
-
-
+ 
+ 
 int main(int argc, char* argv[]) {
   // benchmark graph creation
   int OneK = 1000;
@@ -120,7 +120,7 @@ int main(int argc, char* argv[]) {
   int TenP = 1;
   int NNodes = 0;
   int NEdges = 0;
-  int msec = 0;
+  double msec = 0;
   PNGraph G1;
   PUNGraph G2;
   PNEGraph G3;
@@ -136,43 +136,43 @@ int main(int argc, char* argv[]) {
     printf("Usage: ./demo-topology-benchmark <0-3> <1 for defrag/0 for no defrag>\n0:TNGraph, 1:TUNGraph, 2:TNEGraph, 3:TNEAGraph\n");
     return -1;
   }
-
+ 
   k = atoi(argv[1]);
   for (i = 0; i < 5; i++) {
     TenP *= 10;
     NodeArr[i] = TenP * OneK;
-  } 
+  }
   EdgeArr[0] = 10;
   EdgeArr[1] = 50;
   EdgeArr[2] = 100;
-  
+ 
   //  for (k = 0; k < 4; k++) {
     printf("Starting Benchmarking for ");
     switch (k) {
     case 0:
-      file.open("tngraph.dat");
+      file.open("tngraph.dat", std::ios_base::app);
       printf("TNGraph\n\n");
       break;
     case 1:
-      file.open("tungraph.dat");
+      file.open("tungraph.dat", std::ios_base::app);
       printf("TUNGraph\n\n");
       break;
     case 2:
-      file.open("tnegraph.dat");
+      file.open("tnegraph.dat", std::ios_base::app);
       printf("TNEGraph\n\n");
       break;
     default:
-      file.open("tneagraph.dat");
+      file.open("tneagraph.dat", std::ios_base::app);
       printf("TNEAGraph\n\n");
       break;
     }
-
+    int counters = 0;
     for (i = 1; i < 3; i++) {
       for (j = 1; j < 3; j++) {
-	clock_t start = clock();
-	NNodes = NodeArr[i];
-	NEdges = EdgeArr[j]*NodeArr[i];
-	switch (k) {
+        clock_t start = clock();
+        NNodes = NodeArr[i];
+        NEdges = EdgeArr[j]*NodeArr[i];
+        switch (k) {
       case 0:
 	printf("\nGenerating Graph...\n");
 	printf("GrGen ");
@@ -246,8 +246,7 @@ int main(int argc, char* argv[]) {
         file << "\n";
       }
     }
-    
+ 
     file.close();
     //  }
 }
-
