@@ -54,18 +54,8 @@ void BenchmarkGraphEdgeI(PGraph Graph, std::ofstream& file, bool isDefrag) {
   }
  
   double msec = (clock() - start) * 1000.0 / CLOCKS_PER_SEC;
-<<<<<<< HEAD
-<<<<<<< HEAD
-  printf("Nodes: %d Edges: %d Time: %f ms\n", Graph->GetNodes(), ECount, msec/50);
-  file << msec/50 << " ";
-=======
-  printf("Nodes: %d Edges: %d Freq: %f ops\n", Graph->GetNodes(), ECount, 50/msec);
-  file << 50/msec << " ";
->>>>>>> parent of eecaeaf... More tweaks
-=======
   printf("Nodes: %d Edges: %d Freq: %f ops\n", Graph->GetNodes(), ECount, 50000/msec);
   file << 50000/msec << " ";
->>>>>>> 4c5de2c5e016d04a2753af8f0fea09479e72d1be
 }
  
 template <class PGraph>
