@@ -54,8 +54,8 @@ void BenchmarkGraphEdgeI(PGraph Graph, std::ofstream& file, bool isDefrag) {
   }
  
   double msec = (clock() - start) * 1000.0 / CLOCKS_PER_SEC;
-  printf("Nodes: %d Edges: %d Time: %f ms\n", Graph->GetNodes(), ECount, msec/50);
-  file << msec/50 << " ";
+  printf("Nodes: %d Edges: %d Freq: %f ops\n", Graph->GetNodes(), ECount, 50/msec);
+  file << 50/msec << " ";
 }
  
 template <class PGraph>
@@ -74,8 +74,8 @@ void BenchmarkGraphDegTrav(PGraph Graph, std::ofstream& file, bool isDefrag) {
   }
  
   double msec = (clock() - start) * 1000.0 / CLOCKS_PER_SEC;
-  printf("Nodes: %d Edges: %d Time: %f ms\n", Graph->GetNodes(), ECount, msec/50);
-  file << msec/50 << " ";
+  printf("Nodes: %d Edges: %d Freq: %f ms\n", Graph->GetNodes(), ECount, 50/msec);
+  file << 50/msec << " ";
 }
  
 template <class PGraph>
@@ -92,8 +92,8 @@ void BenchmarkGraphNodeI(PGraph Graph, std::ofstream& file, bool isDefrag) {
   }
  
   double msec = (clock() - start) * 1000.0 / CLOCKS_PER_SEC;
-  printf("Nodes: %d Edges: %d Time: %f ms\n", NCount, Graph->GetEdges(), msec/50);
-  file << msec/50 << " ";
+  printf("Nodes: %d Edges: %d Freq: %f ops\n", NCount, Graph->GetEdges(), 50/msec);
+  file << 50/msec << " ";
 }
  
 template <class PGraph>
