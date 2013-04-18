@@ -54,8 +54,8 @@ void BenchmarkGraphEdgeI(PGraph Graph, std::ofstream& file, bool isDefrag) {
   }
  
   double msec = (clock() - start) * 1000.0 / CLOCKS_PER_SEC;
-  printf("Nodes: %d Edges: %d Freq: %f ops\n", Graph->GetNodes(), ECount, 50/msec);
-  file << 50/msec << " ";
+  printf("Nodes: %d Edges: %d Freq: %f ops\n", Graph->GetNodes(), ECount, 50000/msec);
+  file << 50000/msec << " ";
 }
  
 template <class PGraph>
@@ -74,8 +74,8 @@ void BenchmarkGraphDegTrav(PGraph Graph, std::ofstream& file, bool isDefrag) {
   }
  
   double msec = (clock() - start) * 1000.0 / CLOCKS_PER_SEC;
-  printf("Nodes: %d Edges: %d Freq: %f ms\n", Graph->GetNodes(), ECount, 50/msec);
-  file << 50/msec << " ";
+  printf("Nodes: %d Edges: %d Freq: %f ms\n", Graph->GetNodes(), ECount, 50000/msec);
+  file << 50000/msec << " ";
 }
  
 template <class PGraph>
@@ -92,8 +92,8 @@ void BenchmarkGraphNodeI(PGraph Graph, std::ofstream& file, bool isDefrag) {
   }
  
   double msec = (clock() - start) * 1000.0 / CLOCKS_PER_SEC;
-  printf("Nodes: %d Edges: %d Freq: %f ops\n", NCount, Graph->GetEdges(), 50/msec);
-  file << 50/msec << " ";
+  printf("Nodes: %d Edges: %d Freq: %f ops\n", NCount, Graph->GetEdges(), 50000/msec);
+  file << 50000/msec << " ";
 }
  
 template <class PGraph>
@@ -180,8 +180,8 @@ int main(int argc, char* argv[]) {
         mu0 = (double) usage.vsize / 1000000;
         G1 = GenRndGnm<PNGraph>(NNodes, NEdges, true);
         msec = (clock() - start) * 1000 / CLOCKS_PER_SEC;
-        printf("Nodes: %d Edges: %d Freq: %f ops\n", NNodes, NEdges, 1/msec);
-        file << NNodes << " " << NEdges << " " << 1/msec << " ";
+        printf("Nodes: %d Edges: %d Freq: %f ops\n", NNodes, NEdges, 1000/msec);
+        file << NNodes << " " << NEdges << " " << 1000/msec << " ";
         Benchmark(G1, file);
         counters = 0;
         for (TNGraph::TNodeI NI = G1->BegNI(); NI < G1->EndNI(); NI++) {
@@ -198,7 +198,7 @@ int main(int argc, char* argv[]) {
         mu1 = (double) usage.vsize / 1000000;
         G1->Clr();
         printf("Memory Usage: %.3fMB\n", mu1-mu0);
-        file << NNodes << " " << NEdges << " " << 1/msec << " " << mu1-mu0 << " ";
+        file << NNodes << " " << NEdges << " " << 1000/msec << " " << mu1-mu0 << " ";
         break;
       case 1:
         printf("\nGenerating Graph...\n");
@@ -207,8 +207,8 @@ int main(int argc, char* argv[]) {
         mu0 = (double) usage.vsize / 1000000;
         G2 = GenRndGnm<PUNGraph>(NNodes, NEdges, false);
         msec = (clock() - start) * 1000 / CLOCKS_PER_SEC;
-        printf("Nodes: %d Edges: %d Freq: %f ops\n", NNodes, NEdges, 1/msec);
-        file << NNodes << " " << NEdges << " " << 1/msec << " ";
+        printf("Nodes: %d Edges: %d Freq: %f ops\n", NNodes, NEdges, 1000/msec);
+        file << NNodes << " " << NEdges << " " << 1000/msec << " ";
         //process_mem_usage(vm, rss);
         Benchmark(G2, file);
         //process_mem_usage(vm, rss);
@@ -235,7 +235,7 @@ int main(int argc, char* argv[]) {
         mu1 = (double) usage.vsize / 1000000;
         G2->Clr();
         printf("Memory Usage: %.3fMB\n", mu1-mu0);
-        file << NNodes << " " << NEdges << " " << 1/msec << " " << mu1-mu0 << " ";
+        file << NNodes << " " << NEdges << " " << 1000/msec << " " << mu1-mu0 << " ";
         break;
       case 2:
         printf("\nGenerating Graph...\n");
@@ -244,8 +244,8 @@ int main(int argc, char* argv[]) {
         mu0 = (double) usage.vsize / 1000000;
         G3 = GenRndGnm<PNEGraph>(NNodes, NEdges, true);
         msec = (clock() - start) * 1000 / CLOCKS_PER_SEC;
-        printf("Nodes: %d Edges: %d Freq: %f ops\n", NNodes, NEdges, 1/msec);
-        file << NNodes << " " << NEdges << " " << 1/msec << " ";
+        printf("Nodes: %d Edges: %d Freq: %f ops\n", NNodes, NEdges, 1000/msec);
+        file << NNodes << " " << NEdges << " " << 1000/msec << " ";
         Benchmark(G3, file);
         counters = 0;
         for (TNEGraph::TNodeI NI = G3->BegNI(); NI < G3->EndNI(); NI++) {
@@ -269,7 +269,7 @@ int main(int argc, char* argv[]) {
         mu1 = (double) usage.vsize / 1000000;
         G3->Clr();
         printf("Memory Usage: %.3fMB\n", mu1-mu0);
-        file << NNodes << " " << NEdges << " " << 1/msec << " " << mu1-mu0 << " ";
+        file << NNodes << " " << NEdges << " " << 1000/msec << " " << mu1-mu0 << " ";
         break;
       default:
         printf("\nGenerating Graph...\n");
@@ -278,8 +278,8 @@ int main(int argc, char* argv[]) {
         mu0 = (double) usage.vsize / 1000000;
         G4 = GenRndGnm<PNEAGraph>(NNodes, NEdges, true);
         msec = (clock() - start) * 1000 / CLOCKS_PER_SEC;
-        printf("Nodes: %d Edges: %d Freq: %f ops\n", NNodes, NEdges, 1/msec);
-        file << NNodes << " " << NEdges << " " << 1/msec << " ";
+        printf("Nodes: %d Edges: %d Freq: %f ops\n", NNodes, NEdges, 1000/msec);
+        file << NNodes << " " << NEdges << " " << 1000/msec << " ";
         //process_mem_usage(vm, rss);
         //cout << "VM: " << vm << "; RSS: " << rss << endl;
         Benchmark(G4, file);
@@ -307,7 +307,7 @@ int main(int argc, char* argv[]) {
         mu1 = (double) usage.vsize / 1000000;
         G4->Clr();
         printf("Memory Usage: %.3fMB\n", mu1-mu0);
-        file << NNodes << " " << NEdges << " " << 1/msec << " " << mu1-mu0 << " ";
+        file << NNodes << " " << NEdges << " " << 1000/msec << " " << mu1-mu0 << " ";
         break;
         }
         file << "\n";
