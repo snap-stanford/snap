@@ -180,7 +180,7 @@ int main(int argc, char* argv[]) {
 	mu0 = (double) usage.vsize / 1000000;
 	G1 = GenRndGnm<PNGraph>(NNodes, NEdges, true);
 	msec = (clock() - start) * 1000 / CLOCKS_PER_SEC;
-	printf("Nodes: %d Edges: %d Time: %d ms\n", NNodes, NEdges, msec);
+	printf("Nodes: %d Edges: %d Time: %.3f ms\n", NNodes, NEdges, msec);
         file << NNodes << " " << NEdges << " " << msec << " ";
 	if (atoi(argv[2])) {
 	  printf("Defragmenting...\n");
@@ -198,7 +198,7 @@ int main(int argc, char* argv[]) {
 	printf("GrGen ");
 	G2 = GenRndGnm<PUNGraph>(NNodes, NEdges, false);
 	msec = (clock() - start) * 1000 / CLOCKS_PER_SEC;
-	printf("Nodes: %d Edges: %d Time: %d ms\n", NNodes, NEdges, msec);
+	printf("Nodes: %d Edges: %d Time: %.3f ms\n", NNodes, NEdges, msec);
         file << NNodes << " " << NEdges << " " << msec << " ";
 	//process_mem_usage(vm, rss);
 	Benchmark(G2, file);    
@@ -214,7 +214,7 @@ int main(int argc, char* argv[]) {
 	printf("GrGen ");
 	G3 = GenRndGnm<PNEGraph>(NNodes, NEdges, true);
 	msec = (clock() - start) * 1000 / CLOCKS_PER_SEC;
-	printf("Nodes: %d Edges: %d Time: %d ms\n", NNodes, NEdges, msec);
+	printf("Nodes: %d Edges: %d Time: %.3f ms\n", NNodes, NEdges, msec);
         //file << NNodes << " " << NEdges << " " << msec << " ";
 	//process_mem_usage(vm, rss);
 	Benchmark(G3, file);    
@@ -230,7 +230,7 @@ int main(int argc, char* argv[]) {
 	printf("GrGen ");
 	G4 = GenRndGnm<PNEAGraph>(NNodes, NEdges, true);
 	msec = (clock() - start) * 1000 / CLOCKS_PER_SEC;
-	printf("Nodes: %d Edges: %d Time: %d ms\n", NNodes, NEdges, msec);
+	printf("Nodes: %d Edges: %d Time: %.3f ms\n", NNodes, NEdges, msec);
         file << NNodes << " " << NEdges << " " << msec << " ";
 	//process_mem_usage(vm, rss);
 	//cout << "VM: " << vm << "; RSS: " << rss << endl;
