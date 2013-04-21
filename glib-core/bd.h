@@ -594,7 +594,7 @@ public:
     return (RQ == 0x7fffffffU) ? 0 : (int) RQ; }
 };
 
-// Depending on the platform and compiler settings choose the faster implementation
+// Depending on the platform and compiler settings choose the faster implementation (of the same hash function)
 #if (defined(GLib_64Bit)) && ! (defined(DEBUG) || defined(_DEBUG))
   typedef TPairHashImpl1 TPairHashImpl;
 #else

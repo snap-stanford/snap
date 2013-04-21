@@ -1113,7 +1113,7 @@ bool TCache<TKey, TDat, THashFunc>::FNextKeyDat(void*& KeyDatP, TKey& Key, TDat&
 }
 
 /////////////////////////////////////////////////
-// String-Hash-Functions
+// Old-Hash-Functions
 
 // Old-String-Hash-Function
 class TStrHashF_OldGLib {
@@ -1159,4 +1159,22 @@ public:
     return (int) DJBHash((const char *) p, r - p) & 0x7fffffff; }
   inline static int GetPrimHashCd(const TStr& s) { return GetPrimHashCd(s.CStr()); }
   inline static int GetSecHashCd(const TStr& s) { return GetSecHashCd(s.CStr()); }
+};
+
+// Old-Vector-Hash-Function
+template <class TVec>
+class TVecHashF_OldGLib {
+public:
+  static inline int GetPrimHashCd(const TVec& Vec) {
+    int HashCd=0;
+    for (int ValN=0; ValN<Vec.Len(); ValN++){
+      HashCd+=Vec[ValN].GetPrimHashCd();}
+    return abs(HashCd);
+  }
+  inline static int GetSecHashCd(const TVec& Vec) {
+    int HashCd=0;
+    for (int ValN=0; ValN<Vec.Len(); ValN++){
+      HashCd+=Vec[ValN].GetSecHashCd();}
+    return abs(HashCd);
+  }
 };

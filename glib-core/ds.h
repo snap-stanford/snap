@@ -854,20 +854,28 @@ bool TVec<TVal, TSizeTy>::operator<(const TVec<TVal, TSizeTy>& Vec) const {
   }
 }
 
+// New better hashing of vectors (Jure Apr 20 2013)
+// Old hash functions are available in class TVecHashF_OldGLib
 template <class TVal, class TSizeTy>
 int TVec<TVal, TSizeTy>::GetPrimHashCd() const {
-  int HashCd=0;
-  for (TSizeTy ValN=0; ValN<Vals; ValN++){
-    HashCd+=ValT[ValN].GetPrimHashCd();}  //J: BAD way of combining HASH CODES!!!
-  return abs(HashCd);
+  int hc = 0;
+  for (TSizeTy i=0; i<Vals; i++){
+    hc = TPairHashImpl::GetHashCd(hc, ValT[i].GetPrimHashCd()); 
+  }
+  return hc; 
 }
 
+// New better hashing of vectors (Jure Apr 20 2013)
+// Old hash functions are available in class TVecHashF_OldGLib
 template <class TVal, class TSizeTy>
 int TVec<TVal, TSizeTy>::GetSecHashCd() const {
-  int HashCd=0;
-  for (TSizeTy ValN=0; ValN<Vals; ValN++){
-    HashCd+=ValT[ValN].GetSecHashCd();}  //J: BAD way of combining HASH CODES!!!
-  return abs(HashCd);
+  int hc = 0;
+  for (TSizeTy i=0; i<Vals; i++){
+    hc = TPairHashImpl::GetHashCd(hc, ValT[i].GetSecHashCd()); 
+  }
+  if (Vals > 0) { 
+    hc = TPairHashImpl::GetHashCd(hc, ValT[0].GetSecHashCd()); }
+  return hc; 
 }
 
 template <class TVal, class TSizeTy>
@@ -2663,6 +2671,12 @@ void TVecPool<TVal, TSizeTy>::ShuffleAll(TRnd& Rnd) {
   }
 }
 
+
+/////////////////////////////////////////////////
+// Below are old 32-bit implementations of TVec and other classes.
+// Old TVec can take at most 2G elements. New vector class allows
+// for 32-bit (backward compatibility) or 64-bit number of elements.
+// by Jure (Jan 2013)
 namespace TGLib_OLD {
 /////////////////////////////////////////////////
 // Vector Pool
