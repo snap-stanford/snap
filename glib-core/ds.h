@@ -666,6 +666,8 @@ public:
   void Diff(const TVec<TVal, TSizeTy>& ValV, TVec<TVal, TSizeTy>& DstValV) const;
   /// Returns the size of the intersection of vectors \c this and \c ValV. ##TVec::IntrsLen
   TSizeTy IntrsLen(const TVec<TVal, TSizeTy>& ValV) const;
+  /// Returns the size of the union of vectors \c this and \c ValV. ##TVec::UnionLen
+  TSizeTy UnionLen(const TVec<TVal, TSizeTy>& ValV) const;
   
   /// Counts the number of occurrences of \c Val in the vector.
   TSizeTy Count(const TVal& Val) const;
@@ -1316,6 +1318,24 @@ TSizeTy TVec<TVal, TSizeTy>::IntrsLen(const TVec<TVal, TSizeTy>& ValV) const {
   }
   return Cnt;
 }
+    
+template <class TVal, class TSizeTy>
+TSizeTy TVec<TVal, TSizeTy>::UnionLen(const TVec<TVal, TSizeTy>& ValV) const {
+  TSizeTy Cnt = 0, ValN1 = 0, ValN2 = 0;
+  while ((ValN1 < Len()) && (ValN2 < ValV.Len())) {
+    const TVal& Val1 = GetVal(ValN1);
+    const TVal& Val2 = ValV.GetVal(ValN2);
+    if (Val1 < Val2) {
+      Cnt++; ValN1++;
+    } else if (Val1 > Val2) {
+      Cnt++; ValN2++;
+    } else {
+      Cnt++; ValN1++; ValN2++;
+    }
+  }
+  Cnt += (Len() - ValN1) + (ValV.Len() - ValN2);
+  return Cnt;
+}
 
 template <class TVal, class TSizeTy>
 TSizeTy TVec<TVal, TSizeTy>::Count(const TVal& Val) const {
@@ -1649,6 +1669,8 @@ public:
   void Diff(const TVec<TVal>& ValV, TVec<TVal>& DstValV) const;
   /// Get the size of the intersection (number of common elements) of two vectors. Method assumes both vectors are sorted in ascending order!
   int IntrsLen(const TVec<TVal>& ValV) const;
+  /// Get the size of the union of two vectors. Method assumes both vectors are sorted in ascending order!
+  int UnionLen(const TVec<TVal>& ValV) const;
   void Minus(const TVec<TVal>& ValV, TVec<TVal>& DstValV) const;
 
   int Count(const TVal& Val) const;
@@ -2274,6 +2296,24 @@ int TVec<TVal>::IntrsLen(const TVec<TVal>& ValV) const {
       ValN2++; Cnt++;}
     ValN1++;
   }
+  return Cnt;
+}
+  
+template <class TVal>
+int TVec<TVal>::UnionLen(const TVec<TVal>& ValV) const {
+  int Cnt = 0, ValN1 = 0, ValN2 = 0;
+  while ((ValN1 < Len()) && (ValN2 < ValV.Len())) {
+    const TVal& Val1 = GetVal(ValN1);
+    const TVal& Val2 = ValV.GetVal(ValN2);
+    if (Val1 < Val2) {
+      Cnt++; ValN1++;
+    } else if (Val1 > Val2) {
+      Cnt++; ValN2++;
+    } else {
+      Cnt++; ValN1++; ValN2++;
+    }
+  }
+  Cnt += (Len() - ValN1) + (ValV.Len() - ValN2);
   return Cnt;
 }
 
