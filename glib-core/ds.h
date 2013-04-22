@@ -1667,9 +1667,9 @@ public:
   void Intrs(const TVec<TVal>& ValV, TVec<TVal>& DstValV) const;
   void Union(const TVec<TVal>& ValV, TVec<TVal>& DstValV) const;
   void Diff(const TVec<TVal>& ValV, TVec<TVal>& DstValV) const;
-  /// Get the size of the intersection (number of common elements) of two vectors. Method assumes both vectors are sorted in ascending order!
+  /// Returns the size of the intersection (number of common elements) with vector \c ValV. Method assumes both vectors are sorted in ascending order!
   int IntrsLen(const TVec<TVal>& ValV) const;
-  /// Get the size of the union of two vectors. Method assumes both vectors are sorted in ascending order!
+  /// Returns the size of the union with vector \c ValV. Method assumes both vectors are sorted in ascending order!
   int UnionLen(const TVec<TVal>& ValV) const;
   void Minus(const TVec<TVal>& ValV, TVec<TVal>& DstValV) const;
 
