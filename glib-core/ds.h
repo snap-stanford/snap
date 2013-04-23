@@ -856,8 +856,9 @@ bool TVec<TVal, TSizeTy>::operator<(const TVec<TVal, TSizeTy>& Vec) const {
   }
 }
 
-// New better hashing of vectors (Jure Apr 20 2013)
-// Old hash functions are available in class TVecHashF_OldGLib
+// Improved hashing of vectors (Jure Apr 20 2013)
+// This change makes binary representation of vectors incompatible with previous code.
+// Previous hash functions are available for compatibility in class TVecHashF_OldGLib
 template <class TVal, class TSizeTy>
 int TVec<TVal, TSizeTy>::GetPrimHashCd() const {
   int hc = 0;
@@ -867,8 +868,9 @@ int TVec<TVal, TSizeTy>::GetPrimHashCd() const {
   return hc; 
 }
 
-// New better hashing of vectors (Jure Apr 20 2013)
-// Old hash functions are available in class TVecHashF_OldGLib
+// Improved hashing of vectors (Jure Apr 20 2013)
+// This change makes binary representation of vectors incompatible with previous code.
+// Previous hash functions are available for compatibility in class TVecHashF_OldGLib
 template <class TVal, class TSizeTy>
 int TVec<TVal, TSizeTy>::GetSecHashCd() const {
   int hc = 0;
@@ -2714,8 +2716,9 @@ void TVecPool<TVal, TSizeTy>::ShuffleAll(TRnd& Rnd) {
 
 /////////////////////////////////////////////////
 // Below are old 32-bit implementations of TVec and other classes.
-// Old TVec can take at most 2G elements. New vector class allows
-// for 32-bit (backward compatibility) or 64-bit number of elements.
+// Old TVec takes at most 2G elements.
+// The new vector class supports 64-bits for the number of elements,
+// but also allows 32-bits for backward compatibility.
 // by Jure (Jan 2013)
 namespace TGLib_OLD {
 /////////////////////////////////////////////////
