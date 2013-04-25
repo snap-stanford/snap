@@ -1,6 +1,4 @@
-#ifndef TABLE_H
-#define TABLE_H
-#include "../../snap-1.11/snap-core/Snap.h"
+#include "Snap.h"
 #include "Predicate.h"
 #include "TMetric.h"
 
@@ -29,9 +27,9 @@ protected:
 	TVec<TIntV> IntCols;
 	TVec<TFltV> FltCols;
 	TVec<TStrV> StrCols;  // TODO: use TVec<TIntV> + string pool instead ?
-	THash<TStr,TPair<TYPE,TInt>> ColTypeMap;
+	THash<TStr,TPair<TYPE,TInt> > ColTypeMap;
 	// grouping statement name --> (group index --> rows that belong to that group)
-	THash<TStr,THash<TInt,TIntV>> GroupMapping;
+	THash<TStr,THash<TInt,TIntV> > GroupMapping;
 	TStr WorkingCol;
   // column to serve as src nodes when constructing the graph
   TStr SrcCol;
@@ -79,18 +77,17 @@ public:
 	void Save(TSOut& SOut);
 	//PNEAGraph ToGraph();
 
-	TStr GetSrcCol();
-	TStr GetDstCol();
-	TStrV GetNodeIntAttrs();
-	TStrV GetEdgeIntAttrs();
-	TStrV GetNodeFltAttrs();
-	TStrV GetEdgeFltAttrs();
-	TStrV GetNodeStrAttrs();
-	TStrV GetEdgeStrAttrs();
-	TYPE GetColType(TStr ColName);
+	TStr GetSrcCol() const { return SrcCol; }
+	TStr GetDstCol() const { return DstCol; }
+	TStrV GetNodeIntAttrs() const;
+	TStrV GetEdgeIntAttrs() const;
+	TStrV GetNodeFltAttrs() const;
+	TStrV GetEdgeFltAttrs() const;
+	TStrV GetNodeStrAttrs() const;
+	TStrV GetEdgeStrAttrs() const;
+	TYPE GetColType(TStr ColName) { return ColTypeMap.GetDat(ColName).Val1; };
 
-	// Yonathan
-	// change working column ; not sure if this should be a part of the public interface
+
 	void ChangeWorkingCol(TStr column); 
 	// rename / add a label to a column
 	void AddLabel(TStr column, TStr newLabel);
@@ -121,7 +118,5 @@ public:
 	// compute distances between elements in this->Col1 and Table->Col2 according
 	// to given metric. Store the distances in DistCol, but keep only rows where
 	// distance <= threshold
-	void Dist(TStr Col1, const TTable& Table, TStr Col2, TStr DistColName, const TMetric& Metric, TFlt threshold);
+	// void Dist(TStr Col1, const TTable& Table, TStr Col2, TStr DistColName, const TMetric& Metric, TFlt threshold);
 };
-
-#endif //TABLE_H

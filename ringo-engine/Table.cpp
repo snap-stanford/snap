@@ -1,5 +1,77 @@
 #include "Table.h"
 
+TStrV TTable::GetNodeIntAttrs() const {
+  TStrV IntNA = TStrV();
+
+  for (int i = 0; i < NodeAttrs.Len(); i++) {
+    TStr Attr = NodeAttrs[i];
+    if (ColTypeMap.GetDat(Attr).Val1 == INT) {
+      IntNA.Add(Attr);
+    }
+  }
+  return IntNA;
+}
+
+TStrV TTable::GetEdgeIntAttrs() const {
+  TStrV IntEA = TStrV();
+
+  for (int i = 0; i < EdgeAttrs.Len(); i++) {
+    TStr Attr = EdgeAttrs[i];
+    if (ColTypeMap.GetDat(Attr).Val1 == INT) {
+      IntEA.Add(Attr);
+    }
+  }
+  return IntEA;
+}
+
+TStrV TTable::GetNodeFltAttrs() const {
+  TStrV FltNA = TStrV();
+
+  for (int i = 0; i < NodeAttrs.Len(); i++) {
+    TStr Attr = NodeAttrs[i];
+    if (ColTypeMap.GetDat(Attr).Val1 == FLT) {
+      FltNA.Add(Attr);
+    }
+  }
+  return FltNA;
+}
+
+TStrV TTable::GetEdgeFltAttrs() const {
+  TStrV FltEA = TStrV();
+
+  for (int i = 0; i < EdgeAttrs.Len(); i++) {
+    TStr Attr = EdgeAttrs[i];
+    if (ColTypeMap.GetDat(Attr).Val1 == FLT) {
+      FltEA.Add(Attr);
+    }
+  }
+  return FltEA;
+}
+
+TStrV TTable::GetNodeStrAttrs() const {
+  TStrV StrNA = TStrV();
+
+  for (int i = 0; i < NodeAttrs.Len(); i++) {
+    TStr Attr = NodeAttrs[i];
+    if (ColTypeMap.GetDat(Attr).Val1 == STR) {
+      StrNA.Add(Attr);
+    }
+  }
+  return StrNA;
+}
+
+TStrV TTable::GetEdgeStrAttrs() const {
+  TStrV StrEA = TStrV();
+
+  for (int i = 0; i < EdgeAttrs.Len(); i++) {
+    TStr Attr = EdgeAttrs[i];
+    if (ColTypeMap.GetDat(Attr).Val1 == STR) {
+      StrEA.Add(Attr);
+    }
+  }
+  return StrEA;
+}
+
 void TTable::ChangeWorkingCol(TStr column){
   if(!ColTypeMap.IsKey(column)){TExcept::Throw("no such column " + column);}
   WorkingCol = column;
@@ -108,16 +180,16 @@ void TTable::KeepSortedRowsIntCols(const TIntV& keep){
     }
   // if we keep many rows - delete in-place the ones we don't keep
   } else{
-      for(TInt i = 0; i < IntCols.Len(); i++){
-        TInt k = 0;
-        for(TInt j = 0; j < NumRows; j++){
-          if(j != keep[k]){
-            IntCols[i].Del(j);
-          } else{
-            k++;
-          }
+    for(TInt i = 0; i < IntCols.Len(); i++){
+      TInt k = 0;
+      for(TInt j = 0; j < NumRows; j++){
+        if(j != keep[k]){
+          IntCols[i].Del(j);
+        } else{
+          k++;
         }
       }
+    }
   }
 }
 
@@ -219,7 +291,7 @@ void TTable::GroupByIntCol(TStr GroupBy, THash<TInt,TIntV>& grouping, const TInt
   if(ColDat.Val1 != INT){TExcept::Throw(GroupBy + " values are not of expected type integer");}
   TIntV& Col = IntCols[ColDat.Val2];
   // consider only rows in IndexSet
-  TInt NumOfRelevantRows = (IndexSet == NULL) ? NumRows : IndexSet->Len();
+  TInt NumOfRelevantRows = (IndexSet == NULL) ? NumRows : TInt(IndexSet->Len());
   for(TInt i = 0; i < NumOfRelevantRows; i++){
     TInt idx = (IndexSet == NULL)  ? i : (*IndexSet)[i];
 	  TInt key = Col[idx];
@@ -238,7 +310,7 @@ void TTable::GroupByFltCol(TStr GroupBy, THash<TFlt,TIntV>& grouping, const TInt
   TPair<TYPE,TInt> ColDat = ColTypeMap.GetDat(GroupBy);
   if(ColDat.Val1 != FLT){TExcept::Throw(GroupBy + " values are not of expected type float");}
   TFltV& Col = FltCols[ColDat.Val2];
-  TInt NumOfRelevantRows = (IndexSet == NULL) ? NumRows : IndexSet->Len();
+  TInt NumOfRelevantRows = (IndexSet == NULL) ? NumRows : TInt(IndexSet->Len());
   for(TInt i = 0; i < NumOfRelevantRows; i++){
     TInt idx = (IndexSet == NULL)  ? i : (*IndexSet)[i];
 	  TFlt key = Col[idx];
@@ -257,7 +329,7 @@ void TTable::GroupByStrCol(TStr GroupBy, THash<TStr,TIntV>& grouping, const TInt
   TPair<TYPE,TInt> ColDat = ColTypeMap.GetDat(GroupBy);
   if(ColDat.Val1 != STR){TExcept::Throw(GroupBy + " values are not of expected type string");}
   TStrV& Col = StrCols[ColDat.Val2];
-  TInt NumOfRelevantRows = (IndexSet == NULL) ? NumRows : IndexSet->Len();
+  TInt NumOfRelevantRows = (IndexSet == NULL) ? NumRows : TInt(IndexSet->Len());
   for(TInt i = 0; i < NumOfRelevantRows; i++){
     TInt idx = (IndexSet == NULL)  ? i : (*IndexSet)[i];
 	TStr key = Col[idx];
