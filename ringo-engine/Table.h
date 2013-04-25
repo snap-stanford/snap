@@ -118,5 +118,5 @@ public:
 	// compute distances between elements in this->Col1 and Table->Col2 according
 	// to given metric. Store the distances in DistCol, but keep only rows where
 	// distance <= threshold
-	// void Dist(TStr Col1, const TTable& Table, TStr Col2, TStr DistColName, const TMetric& Metric, TFlt threshold);
+	void Dist(TStr Col1, const TTable& Table, TStr Col2, TStr DistColName, const TMetric& Metric, TFlt threshold);
 };
