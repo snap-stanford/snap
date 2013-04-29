@@ -8,12 +8,15 @@
 TODO:
 1. Bad code duplication everywhere (repetitions for int, flt and str).
    Maybe should probably use templates
-2. Give a-priori memory allocation to vector/hash table constructors
+2. Give a-priori memory allocation to vector/hash table constructors (done)
 3. Smart pointer for Ttable: type PTable; Remove explicit pointrer usages
 4. Create simple classes for complex hash table types
 5. Use string pools instead of big string vectors
 6. Remove recursion from GroupAux
 */
+class TTable;
+typedef TPt<TTable> PTable;
+
 class TTable{
 protected:
 	typedef enum{INT, FLT, STR} TYPE;
@@ -41,7 +44,9 @@ public:
   };
 
 protected:
-    // number of rows in the table
+  // Reference Counter for Garbage Collection
+  TCRef CRef;
+  // number of rows in the table
   TInt NumRows;
   // Meta-data for keeping track of valid (existing) rows
   TInt FirstValidRow;
@@ -107,7 +112,8 @@ public:
 	TTable();
 	TTable(TSIn& SIn);
 	TTable(const TTable& Table);
-	static TTable* Load(TSIn& SIn);
+  static PTable New(){ return new TTable();}
+	static PTable Load(TSIn& SIn);
 	void Save(TSOut& SOut);
 	PNEAGraph ToGraph();
 
@@ -158,6 +164,10 @@ public:
 
   // Yonathan
   // Release memory of deleted rows, and defrag
+  // also updates meta-data as row indices have changed
+  // need some liveness analysis of columns
   void Defrag();
+
+  friend class TPt<TTable>;
 };
 #endif //TABLE_H

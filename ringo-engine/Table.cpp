@@ -4,7 +4,7 @@ TInt const TTable::Last =-1;
 TInt const TTable::Invalid =-2;
 
 TStrV TTable::GetNodeIntAttrV() const {
-  TStrV IntNA = TStrV();
+  TStrV IntNA = TStrV(IntCols.Len(),0);
   for (int i = 0; i < NodeAttrV.Len(); i++) {
     TStr Attr = NodeAttrV[i];
     if (ColTypeMap.GetDat(Attr).Val1 == INT) {
@@ -15,7 +15,7 @@ TStrV TTable::GetNodeIntAttrV() const {
 }
 
 TStrV TTable::GetEdgeIntAttrV() const {
-  TStrV IntEA = TStrV();
+  TStrV IntEA = TStrV(IntCols.Len(),0);
   for (int i = 0; i < EdgeAttrV.Len(); i++) {
     TStr Attr = EdgeAttrV[i];
     if (ColTypeMap.GetDat(Attr).Val1 == INT) {
@@ -26,7 +26,7 @@ TStrV TTable::GetEdgeIntAttrV() const {
 }
 
 TStrV TTable::GetNodeFltAttrV() const {
-  TStrV FltNA = TStrV();
+  TStrV FltNA = TStrV(FltCols.Len(),0);
   for (int i = 0; i < NodeAttrV.Len(); i++) {
     TStr Attr = NodeAttrV[i];
     if (ColTypeMap.GetDat(Attr).Val1 == FLT) {
@@ -37,7 +37,7 @@ TStrV TTable::GetNodeFltAttrV() const {
 }
 
 TStrV TTable::GetEdgeFltAttrV() const {
-  TStrV FltEA = TStrV();
+  TStrV FltEA = TStrV(FltCols.Len(),0);;
   for (int i = 0; i < EdgeAttrV.Len(); i++) {
     TStr Attr = EdgeAttrV[i];
     if (ColTypeMap.GetDat(Attr).Val1 == FLT) {
@@ -48,7 +48,7 @@ TStrV TTable::GetEdgeFltAttrV() const {
 }
 
 TStrV TTable::GetNodeStrAttrV() const {
-  TStrV StrNA = TStrV();
+  TStrV StrNA = TStrV(StrCols.Len(),0);
   for (int i = 0; i < NodeAttrV.Len(); i++) {
     TStr Attr = NodeAttrV[i];
     if (ColTypeMap.GetDat(Attr).Val1 == STR) {
@@ -59,7 +59,7 @@ TStrV TTable::GetNodeStrAttrV() const {
 }
 
 TStrV TTable::GetEdgeStrAttrV() const {
-  TStrV StrEA = TStrV();
+  TStrV StrEA = TStrV(StrCols.Len(),0);
   for (int i = 0; i < EdgeAttrV.Len(); i++) {
     TStr Attr = EdgeAttrV[i];
     if (ColTypeMap.GetDat(Attr).Val1 == STR) {
@@ -100,7 +100,7 @@ void TTable::RemoveRows(const TIntV& RemoveV){
 
 void TTable::KeepSortedRows(const TIntV& KeepV){
   TInt KeepIdx = 0;
-  for(TTable::TRowIterator RowI = BegRI(); RowI < EndRI(); RowI++){
+  for(TRowIterator RowI = BegRI(); RowI < EndRI(); RowI++){
     if((KeepIdx < KeepV.Len()) && (KeepV[KeepIdx] == RowI.GetRowIdx())){
       KeepIdx++;
     } else{
@@ -111,12 +111,12 @@ void TTable::KeepSortedRows(const TIntV& KeepV){
 
 void TTable::Unique(TStr col){
   if(!ColTypeMap.IsKey(col)){TExcept::Throw("no such column " + col);}
-  TIntV RemainingRows;
+  TIntV RemainingRows = TIntV(NumRows,0);
   TPair<TYPE,TInt> ColDat = ColTypeMap.GetDat(col);
   // group by given column (keys) and keep only first row for each key
   switch(ColDat.Val1){
     case INT:{
-      THash<TInt,TIntV> T;
+      THash<TInt,TIntV> T;  // can't really estimate the size of T for constructor hinting
       GroupByIntCol(col, T, TIntV(0));
       for(THash<TInt,TIntV>::TIter it = T.BegI(); it < T.EndI(); it++){
         RemainingRows.Add(it->Dat[0]);
@@ -159,7 +159,7 @@ void TTable::GroupByIntCol(TStr GroupBy, THash<TInt,TIntV>& grouping, const TInt
   if(ColDat.Val1 != INT){TExcept::Throw(GroupBy + " values are not of expected type integer");}
   if(IndexSet.Len() == 0){
      // optimize for the common and most expensive case - itearte over only valid rows
-    for(TTable::TRowIterator it = BegRI(); it < EndRI(); it++){
+    for(TRowIterator it = BegRI(); it < EndRI(); it++){
       UpdateGrouping<TInt>(grouping, it.GetIntAttr(GroupBy), it.GetRowIdx());
     }
   } else{
@@ -180,7 +180,7 @@ void TTable::GroupByFltCol(TStr GroupBy, THash<TFlt,TIntV>& grouping, const TInt
   if(ColDat.Val1 != FLT){TExcept::Throw(GroupBy + " values are not of expected type float");}
    if(IndexSet.Len() == 0){
      // optimize for the common and most expensive case - itearte over only valid rows
-    for(TTable::TRowIterator it = BegRI(); it < EndRI(); it++){
+    for(TRowIterator it = BegRI(); it < EndRI(); it++){
       UpdateGrouping<TFlt>(grouping, it.GetFltAttr(GroupBy), it.GetRowIdx());
     }
   } else{
@@ -201,7 +201,7 @@ void TTable::GroupByStrCol(TStr GroupBy, THash<TStr,TIntV>& grouping, const TInt
   if(ColDat.Val1 != STR){TExcept::Throw(GroupBy + " values are not of expected type string");}
    if(IndexSet.Len() == 0){
      // optimize for the common and most expensive case - itearte over only valid rows
-    for(TTable::TRowIterator it = BegRI(); it < EndRI(); it++){
+    for(TRowIterator it = BegRI(); it < EndRI(); it++){
       UpdateGrouping<TStr>(grouping, it.GetStrAttr(GroupBy), it.GetRowIdx());
     }
   } else{
@@ -230,7 +230,10 @@ void TTable::GroupAux(const TStrV& GroupBy, TInt GroupByStartIdx, THash<TInt,TIn
   switch(GroupByColDat.Val1){
     case INT:{
       // group by current column
-	    THash<TInt,TIntV> T;
+      // not sure of to estimate the size of T for constructor hinting purpose.
+      // It is bounded by the length of the IndexSet or the length of the grouping column if the IndexSet vector is empty
+      // but this bound may be way too big
+	    THash<TInt,TIntV> T;  
 	    GroupByIntCol(GroupBy[GroupByStartIdx], T, IndexSet);
 	    for(THash<TInt,TIntV>::TIter it = T.BegI(); it < T.EndI(); it++){
 	      TIntV& CurrGroup = it->Dat;
@@ -277,7 +280,7 @@ void TTable::Count(TStr CountColName, TStr Col){
   TIntV CntCol(NumRows);
   switch(ColDat.Val1){
     case INT:{
-      THash<TInt,TIntV> T;
+      THash<TInt,TIntV> T;  // can't really estimate the size of T for constructor hinting
       TIntV& Column = IntCols[ColDat.Val2];
       GroupByIntCol(Col, T, TIntV(0));
       for(TRowIterator it = BegRI(); it < EndRI(); it++){
