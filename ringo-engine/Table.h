@@ -1,72 +1,106 @@
+#ifndef TABLE_H
+#define TABLE_H
 #include "Snap.h"
 #include "Predicate.h"
 #include "TMetric.h"
 
 /* 
-Questions:
-1. for loading / saving tables, should we use I/O streams (i.e. TSIn, TSOut) or files ?
-2. Use vectors or lists for columns?
 TODO:
-Bad code duplication everywhere (repetitions for int, flt and str).
-Should probably:
-1. make better usage of templates or
-2. map column values of all types to ints, and keep the columns themselves as
-columns of integers
+1. Bad code duplication everywhere (repetitions for int, flt and str).
+   Maybe should probably use templates
+2. Give a-priori memory allocation to vector/hash table constructors
+3. Smart pointer for Ttable: type PTable; Remove explicit pointrer usages
+4. Create simple classes for complex hash table types
+5. Use string pools instead of big string vectors
+6. Remove recursion from GroupAux
 */
 class TTable{
 protected:
 	typedef enum{INT, FLT, STR} TYPE;
-  // number of rows in the table
+  // special values for Next column
+  static const TInt Last;
+  static const TInt Invalid;
+public:
+  // An iterator class to iterate over all currently existing rows
+  // Iteration over the rows should be done using only this iterator
+  class TRowIterator{
+    TInt CurrRowIdx;
+    const TTable* Table; 
+  public:
+    TRowIterator(): CurrRowIdx(0), Table(NULL){}
+    TRowIterator(TInt RowIdx, const TTable* TablePtr): CurrRowIdx(RowIdx), Table(TablePtr){}
+    TRowIterator(const TRowIterator& RowI): CurrRowIdx(RowI.CurrRowIdx), Table(RowI.Table){}
+    TRowIterator& operator++(int){CurrRowIdx = Table->Next[CurrRowIdx]; return *this;}
+    bool operator < (const TRowIterator& RowI) const{ return CurrRowIdx < RowI.CurrRowIdx;}
+    bool operator == (const TRowIterator& RowI) const{ return CurrRowIdx == RowI.CurrRowIdx;}
+    TInt GetRowIdx(){ return CurrRowIdx;}
+    // we do not check column type in the iterator
+    TInt GetIntAttr(TStr Col) const{ TInt ColIdx = Table->ColTypeMap.GetDat(Col).Val2; return Table->IntCols[ColIdx][CurrRowIdx];}
+    TFlt GetFltAttr(TStr Col) const{ TInt ColIdx = Table->ColTypeMap.GetDat(Col).Val2; return Table->FltCols[ColIdx][CurrRowIdx];}
+    TStr GetStrAttr(TStr Col) const{ TInt ColIdx = Table->ColTypeMap.GetDat(Col).Val2; return Table->StrCols[ColIdx][CurrRowIdx];}   
+  };
+
+protected:
+    // number of rows in the table
   TInt NumRows;
-  // A tuning parameter. Upon removal of rows (for instance, for select),
-  // if the fraction of the rows removed is more than CopyOnRemoveThreshold,
-  // than we replace the columns with new copies containing only the remaining rows.
-  // This is because removing elements from the vector takes O(n) per element.
-  static const TFlt CopyOnRemoveThreshold;
+  // Meta-data for keeping track of valid (existing) rows
+  TInt FirstValidRow;
+  TIntV Next; 
   // The actual columns - divided by types
 	TVec<TIntV> IntCols;
 	TVec<TFltV> FltCols;
-	TVec<TStrV> StrCols;  // TODO: use TVec<TIntV> + string pool instead ?
+	TVec<TStrV> StrCols;  
 	THash<TStr,TPair<TYPE,TInt> > ColTypeMap;
 	// grouping statement name --> (group index --> rows that belong to that group)
-	THash<TStr,THash<TInt,TIntV> > GroupMapping;
-	TStr WorkingCol;
+  // Note that these mappings are invalid after we remove rows
+	THash<TStr,THash<TInt,TIntV> > GroupMapping; // use separate class
+
+	TStr WorkingCol;  // do we even need this here ?
   // column to serve as src nodes when constructing the graph
   TStr SrcCol;
   // column to serve as dst nodes when constructing the graph
   TStr DstCol;
   // list of columns to serve as edge attributes
-  TStrV EdgeAttrs;
+  TStrV EdgeAttrV;
   // list of columns to serve as node attributes
-  TStrV NodeAttrs;
-
+  TStrV NodeAttrV;
+  
+  // Iterators 
+  TRowIterator BegRI() const{ return TRowIterator(FirstValidRow, this);}
+  TRowIterator EndRI() const{ return TRowIterator(NumRows-1, this);}
+  bool IsRowValid(TInt RowIdx){ return Next[RowIdx] != Invalid;}
 
 	// Store a group indices column in GroupMapping
 	void StoreGroupCol(TStr GroupColName, const THash<TInt,TIntV>& grouping);
 	// Group/hash by a single column with integer values. Returns hash table with grouping.
-	void GroupByIntCol(TStr GroupBy, THash<TInt,TIntV>& grouping, const TIntV* IndexSet);
+  // IndexSet tells what rows to consider. It is the callers responsibility to check that 
+  // these rows are valid. An empty IndexSet means taking all rows into consideration.
+	void GroupByIntCol(TStr GroupBy, THash<TInt,TIntV>& grouping, const TIntV& IndexSet); 
 	// Group/hash by a single column with float values. Returns hash table with grouping.
-	void GroupByFltCol(TStr GroupBy, THash<TFlt,TIntV>& grouping, const TIntV* IndexSet);
+	void GroupByFltCol(TStr GroupBy, THash<TFlt,TIntV>& grouping, const TIntV& IndexSet);
 	// Group/hash by a single column with string values. Returns hash table with grouping.
-	void GroupByStrCol(TStr GroupBy, THash<TStr,TIntV>& grouping, const TIntV* IndexSet);
+	void GroupByStrCol(TStr GroupBy, THash<TStr,TIntV>& grouping, const TIntV& IndexSet);
 	// Performs grouping according to the values of columns GroupBy[i] where 
 	// i >= GroupByStartIdx; Considers only tuples whose indices are in IndexSet
 	// Adds the groups to hash table "grouping". Does not write to "GroupMapping"
-	void GroupAux(const TStrV& GroupBy, TInt GroupByStartIdx, THash<TInt,TIntV>& grouping, const TIntV* IndexSet);
+	void GroupAux(const TStrV& GroupBy, TInt GroupByStartIdx, THash<TInt,TIntV>& grouping, const TIntV& IndexSet);
+  /* template for utility functions to be used by GroupByXCol */
+ template <class T>
+  void UpdateGrouping(THash<T,TIntV>& Grouping, T Key, TInt Val){
+    if(Grouping.IsKey(Key)){
+      Grouping.GetDat(Key).Add(Val);
+    } else{
+      TIntV NewGroup;
+      NewGroup.Add(Val);
+      Grouping.AddDat(Key, NewGroup);
+    }
+  }
 
- 
-  // remove all rows / tuples whose index appear in the SORTED vector "remove"
-  void RemoveSortedRows(const TIntV& remove);
-  // the following three functions are called only from RemoveSortedRows
-  void RemoveSortedRowsIntCols(const TIntV& remove);
-  void RemoveSortedRowsFltCols(const TIntV& remove);
-  void RemoveSortedRowsStrCols(const TIntV& remove);
-  // remove all rows / tuples whose index does not appear in the SORTED vector "keep"
-  void KeepSortedRows(const TIntV& keep);
-  // the following three functions are called only from KeepSortedRows
-  void KeepSortedRowsIntCols(const TIntV& keep);
-  void KeepSortedRowsFltCols(const TIntV& keep);
-  void KeepSortedRowsStrCols(const TIntV& keep);
+  void RemoveRow(TInt RowIdx);
+  void RemoveRows(const TIntV& RemoveV);
+  // remove all rows that are not mentioned in the SORTED vector KeepV
+  void KeepSortedRows(const TIntV& KeepV);
+
 
 public:
 	// Nikhil + Jason
@@ -75,19 +109,21 @@ public:
 	TTable(const TTable& Table);
 	static TTable* Load(TSIn& SIn);
 	void Save(TSOut& SOut);
-	//PNEAGraph ToGraph();
+	PNEAGraph ToGraph();
 
+  /* Getters of data required for building a graph out of the table */
 	TStr GetSrcCol() const { return SrcCol; }
 	TStr GetDstCol() const { return DstCol; }
-	TStrV GetNodeIntAttrs() const;
-	TStrV GetEdgeIntAttrs() const;
-	TStrV GetNodeFltAttrs() const;
-	TStrV GetEdgeFltAttrs() const;
-	TStrV GetNodeStrAttrs() const;
-	TStrV GetEdgeStrAttrs() const;
+	TStrV GetNodeIntAttrV() const;
+	TStrV GetEdgeIntAttrV() const;
+	TStrV GetNodeFltAttrV() const;
+	TStrV GetEdgeFltAttrV() const;
+	TStrV GetNodeStrAttrV() const;
+	TStrV GetEdgeStrAttrV() const;
 	TYPE GetColType(TStr ColName) { return ColTypeMap.GetDat(ColName).Val1; };
 
-
+	// Yonathan
+	// change working column ; not sure if this should be a part of the public interface
 	void ChangeWorkingCol(TStr column); 
 	// rename / add a label to a column
 	void AddLabel(TStr column, TStr newLabel);
@@ -119,4 +155,9 @@ public:
 	// to given metric. Store the distances in DistCol, but keep only rows where
 	// distance <= threshold
 	void Dist(TStr Col1, const TTable& Table, TStr Col2, TStr DistColName, const TMetric& Metric, TFlt threshold);
+
+  // Yonathan
+  // Release memory of deleted rows, and defrag
+  void Defrag();
 };
+#endif //TABLE_H
