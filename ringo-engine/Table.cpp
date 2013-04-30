@@ -48,7 +48,7 @@ TStrV TTable::GetEdgeFltAttrV() const {
 }
 
 TStrV TTable::GetNodeStrAttrV() const {
-  TStrV StrNA = TStrV(StrCols.Len(),0);
+  TStrV StrNA = TStrV(StrColMaps.Len(),0);
   for (int i = 0; i < NodeAttrV.Len(); i++) {
     TStr Attr = NodeAttrV[i];
     if (ColTypeMap.GetDat(Attr).Val1 == STR) {
@@ -59,7 +59,7 @@ TStrV TTable::GetNodeStrAttrV() const {
 }
 
 TStrV TTable::GetEdgeStrAttrV() const {
-  TStrV StrEA = TStrV(StrCols.Len(),0);
+  TStrV StrEA = TStrV(StrColMaps.Len(),0);
   for (int i = 0; i < EdgeAttrV.Len(); i++) {
     TStr Attr = EdgeAttrV[i];
     if (ColTypeMap.GetDat(Attr).Val1 == STR) {
@@ -208,9 +208,8 @@ void TTable::GroupByStrCol(TStr GroupBy, THash<TStr,TIntV>& grouping, const TInt
     // consider only rows in IndexSet
     for(TInt i = 0; i < IndexSet.Len(); i++){
       if(IsRowValid(IndexSet[i])){
-        TInt RowIdx = IndexSet[i];
-        TStrV& Col = StrCols[ColDat.Val2];       
-        UpdateGrouping<TStr>(grouping, Col[RowIdx], RowIdx);
+        TInt RowIdx = IndexSet[i];     
+        UpdateGrouping<TStr>(grouping, GetStrVal(GroupBy, RowIdx), RowIdx);
       }
     }
   }
@@ -299,10 +298,9 @@ void TTable::Count(TStr CountColName, TStr Col){
     }
     case STR:{
       THash<TStr,TIntV> T;
-      TStrV& Column = StrCols[ColDat.Val2];
       GroupByStrCol(Col, T, TIntV(0));
       for(TRowIterator it = BegRI(); it < EndRI(); it++){
-        CntCol.Add(T.GetDat(Column[it.GetRowIdx()]).Len());
+        CntCol.Add(T.GetDat(GetStrVal(Col, it.GetRowIdx())).Len());
       }
       break;
     }

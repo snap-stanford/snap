@@ -8,11 +8,12 @@
 TODO:
 1. Bad code duplication everywhere (repetitions for int, flt and str).
    Maybe should probably use templates
-2. Give a-priori memory allocation to vector/hash table constructors (done)
+2. Give a-priori memory allocation to vector/hash table constructors 
 3. Smart pointer for Ttable: type PTable; Remove explicit pointrer usages
-4. Create simple classes for complex hash table types
-5. Use string pools instead of big string vectors
-6. Remove recursion from GroupAux
+4. Create simple classes for complex hash table types <--
+5. Use string pools instead of big string vectors <--
+6. Remove recursion from GroupAux <-- 
+7. Use row ids with uint64
 */
 class TTable;
 typedef TPt<TTable> PTable;
@@ -40,7 +41,7 @@ public:
     // we do not check column type in the iterator
     TInt GetIntAttr(TStr Col) const{ TInt ColIdx = Table->ColTypeMap.GetDat(Col).Val2; return Table->IntCols[ColIdx][CurrRowIdx];}
     TFlt GetFltAttr(TStr Col) const{ TInt ColIdx = Table->ColTypeMap.GetDat(Col).Val2; return Table->FltCols[ColIdx][CurrRowIdx];}
-    TStr GetStrAttr(TStr Col) const{ TInt ColIdx = Table->ColTypeMap.GetDat(Col).Val2; return Table->StrCols[ColIdx][CurrRowIdx];}   
+    TStr GetStrAttr(TStr Col) const{ return Table->GetStrVal(Col, CurrRowIdx);}   
   };
 
 protected:
@@ -54,7 +55,10 @@ protected:
   // The actual columns - divided by types
 	TVec<TIntV> IntCols;
 	TVec<TFltV> FltCols;
-	TVec<TStrV> StrCols;  
+  // string columns are implemented using a string pool to fight memory fragmentation
+  // The value of string column c in row r is StrColVals.GetStr(StrColMaps[c][r])
+	TVec<TIntV> StrColMaps; 
+  TBigStrPool StrColVals;
 	THash<TStr,TPair<TYPE,TInt> > ColTypeMap;
 	// grouping statement name --> (group index --> rows that belong to that group)
   // Note that these mappings are invalid after we remove rows
@@ -69,6 +73,8 @@ protected:
   TStrV EdgeAttrV;
   // list of columns to serve as node attributes
   TStrV NodeAttrV;
+
+  TStr GetStrVal(TStr Col, TInt RowIdx) const{ return StrColVals.GetCStr(StrColMaps[ColTypeMap.GetDat(Col).Val2][RowIdx]);}
   
   // Iterators 
   TRowIterator BegRI() const{ return TRowIterator(FirstValidRow, this);}
