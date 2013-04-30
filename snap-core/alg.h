@@ -11,7 +11,8 @@ template <class PGraph> int CntOutDegNodes(const PGraph& Graph, const int& NodeO
 template <class PGraph> int CntDegNodes(const PGraph& Graph, const int& NodeDeg);
 /// Returns the number of nodes with degree greater than 0.
 template <class PGraph> int CntNonZNodes(const PGraph& Graph);
-// TODO ROK document CntEdgesToSet()
+/// TODO ROK document CntEdgesToSet()
+/// Returns the number of nodes in NodeSet that has an edge to the node corresponding to NId.
 template <class PGraph> int CntEdgesToSet(const PGraph& Graph, const int& NId, const TIntSet& NodeSet);
 
 /// Returns a randomly chosen node from all the nodes with the maximum degree.
@@ -104,7 +105,7 @@ int CntNonZNodes(const PGraph& Graph) {
   return Cnt;
 }
 
-template <class PGraph> 
+template <class PGraph>
 int CntEdgesToSet(const PGraph& Graph, const int& NId, const TIntSet& NodeSet) {
   if (! Graph->IsNode(NId)) { return 0; }
   const bool IsDir = Graph->HasFlag(gfDirected);
@@ -124,7 +125,7 @@ int CntEdgesToSet(const PGraph& Graph, const int& NId, const TIntSet& NodeSet) {
   }
 }
 
-template <class PGraph> 
+template <class PGraph>
 int GetMxDegNId(const PGraph& Graph) {
   TIntV MxDegV;
   int MxDeg=-1;
@@ -136,7 +137,7 @@ int GetMxDegNId(const PGraph& Graph) {
   return MxDegV[TInt::Rnd.GetUniDevInt(MxDegV.Len())];
 }
 
-template <class PGraph> 
+template <class PGraph>
 int GetMxInDegNId(const PGraph& Graph) {
   TIntV MxDegV;
   int MxDeg=-1;
@@ -148,7 +149,7 @@ int GetMxInDegNId(const PGraph& Graph) {
   return MxDegV[TInt::Rnd.GetUniDevInt(MxDegV.Len())];
 }
 
-template <class PGraph> 
+template <class PGraph>
 int GetMxOutDegNId(const PGraph& Graph) {
   TIntV MxDegV;
   int MxDeg=-1;
@@ -226,25 +227,25 @@ void GetDegCnt(const PGraph& Graph, TFltPrV& DegToCntV) {
   DegToCntV.Sort();
 }
 
-template <class PGraph> 
+template <class PGraph>
 void GetDegSeqV(const PGraph& Graph, TIntV& DegV) {
   DegV.Gen(Graph->GetNodes(), 0);
   for (typename PGraph::TObj::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
-    DegV.Add(NI.GetDeg()); 
+    DegV.Add(NI.GetDeg());
   }
 }
 
-template <class PGraph> 
+template <class PGraph>
 void GetDegSeqV(const PGraph& Graph, TIntV& InDegV, TIntV& OutDegV) {
   InDegV.Gen(Graph->GetNodes(), 0);
   OutDegV.Gen(Graph->GetNodes(), 0);
   for (typename PGraph::TObj::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
-    InDegV.Add(NI.GetInDeg()); 
+    InDegV.Add(NI.GetInDeg());
     OutDegV.Add(NI.GetOutDeg());
   }
 }
 
-template <class PGraph> 
+template <class PGraph>
 void GetNodeInDegV(const PGraph& Graph, TIntPrV& NIdInDegV) {
   NIdInDegV.Reserve(Graph->GetNodes(), 0);
   for (typename PGraph::TObj::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
@@ -252,7 +253,7 @@ void GetNodeInDegV(const PGraph& Graph, TIntPrV& NIdInDegV) {
   }
 }
 
-template <class PGraph> 
+template <class PGraph>
 void GetNodeOutDegV(const PGraph& Graph, TIntPrV& NIdOutDegV) {
   NIdOutDegV.Reserve(Graph->GetNodes(), 0);
   for (typename PGraph::TObj::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
@@ -264,15 +265,22 @@ void GetNodeOutDegV(const PGraph& Graph, TIntPrV& NIdOutDegV) {
 template <class PGraph>
 int CntUniqUndirEdges(const PGraph& Graph) {
   TIntSet NbrSet;
+  TIntSet SelfNbrSet;
   int Cnt = 0;
   for (typename PGraph::TObj::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
     NbrSet.Clr(false);
     for (int e = 0; e < NI.GetDeg(); e++) { // unique neighbors of a node
-      NbrSet.AddKey(NI.GetNbrNId(e));
+      const int NbrId = NI.GetNbrNId(e);
+      // add self edges separately
+      if (NbrId == NI.GetId()) {
+        SelfNbrSet.AddKey(NbrId);
+      } else {
+        NbrSet.AddKey(NbrId);
+      }
     }
     Cnt += NbrSet.Len();
   }
-  return Cnt / 2;
+  return Cnt / 2 + SelfNbrSet.Len();
 }
 
 /// Counts unique directed edges in the graph Graph.
@@ -309,7 +317,7 @@ int CntUniqBiDirEdges(const PGraph& Graph) {
   return 2*Cnt;
 }
 
-template <class PGraph> 
+template <class PGraph>
 int CntSelfEdges(const PGraph& Graph) {
   int Cnt = 0;
   for (typename PGraph::TObj::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
