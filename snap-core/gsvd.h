@@ -69,7 +69,7 @@ void GetEigVec(const PUNGraph& Graph, const int& EigVecs, TFltV& EigValV, TVec<T
 void GetInvParticipRat(const PUNGraph& Graph, int MaxEigVecs, int TimeLimit, TFltPrV& EigValIprV);
 
 namespace TSnapDetail {
-double GetInvParticipRat(const TFltV& EigVec);
+double GetInvParticipRatEig(const TFltV& EigVec);
 } // namespace TSnapDetail
 
 }; // namespace TSnap

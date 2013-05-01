@@ -27,7 +27,9 @@ void DrawGVizDemo() {
     for (int e = 0; e < Exts.Len(); e++) {
       for (int d = 0; d < 2; d++) {
         // Baseline file is already created (use as benchmark)
-        TStr FNameDemo = TStr::Fmt("%s/demo_%s_%s.%s", DIRNAME, d ? "ngraph" : "ungraph" , LNames[i].CStr(), Exts[e].CStr());
+        TStr FNameDemo = TStr::Fmt("%s/demo_%s_%s.%s", DIRNAME,
+                                   d ? "ngraph" : "ungraph" ,
+                                   LNames[i].CStr(), Exts[e].CStr());
                 
         // Remove test graph if it already exists
         remove(FNameDemo.CStr());
