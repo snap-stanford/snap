@@ -26,6 +26,9 @@ class GraphTest : public ::testing::Test {
   PUNGraph TUNComplicatedGraph;
   PNGraph TNComplicatedGraph;
   PNEGraph TNEComplicatedGraph;
+  PUNGraph TUNComplicatedGraphWithLoop;
+  PNGraph TNComplicatedGraphWithLoop;
+  PNEGraph TNEComplicatedGraphWithLoop;
 
   virtual void SetUp() {
     TUNLoopGraph = GenerateLoopGraph(TUNGraph::New());
@@ -37,6 +40,12 @@ class GraphTest : public ::testing::Test {
     TUNComplicatedGraph = GenerateComplicatedGraph(TUNGraph::New());
     TNComplicatedGraph = GenerateComplicatedGraph(TNGraph::New());
     TNEComplicatedGraph = GenerateComplicatedGraph(TNEGraph::New());
+    TUNComplicatedGraphWithLoop =
+        GenerateComplicatedGraphWithLoop(TUNGraph::New());
+    TNComplicatedGraphWithLoop =
+        GenerateComplicatedGraphWithLoop(TNGraph::New());
+    TNEComplicatedGraphWithLoop =
+        GenerateComplicatedGraphWithLoop(TNEGraph::New());
   }
 
   template<class PGraph>
@@ -76,11 +85,10 @@ class GraphTest : public ::testing::Test {
   }
 
   // Returns a complicated graph with
-  // no node 3, a self edge on node 0, and two edges from node 1 to node 4
+  // no node 3 and two edges from node 1 to node 4
   template<class PGraph>
   PGraph GenerateComplicatedGraph(const PGraph& Graph) {
     GenerateNodes(Graph);
-    Graph->AddEdge(0, 0);
     Graph->AddEdge(0, 1);
     Graph->AddEdge(0, 2);
     Graph->AddEdge(1, 2);
@@ -88,6 +96,15 @@ class GraphTest : public ::testing::Test {
     Graph->AddEdge(2, 4);
     Graph->AddEdge(1, 4);
     Graph->AddEdge(1, 4);
+    return Graph;
+  }
+
+  // Returns a complicated graph with
+  // no node 3, a self-loop on node 0, and two edges from node 1 to node 4
+  template<class PGraph>
+  PGraph GenerateComplicatedGraphWithLoop(const PGraph& Graph) {
+    GenerateComplicatedGraph(Graph);
+    Graph->AddEdge(0, 0);
     return Graph;
   }
 };
@@ -192,18 +209,18 @@ TEST_F(GraphTest, CntInDegNodesTest) {
 
   EXPECT_EQ(1, TSnap::CntInDegNodes(TUNComplicatedGraph, 0));
   EXPECT_EQ(0, TSnap::CntInDegNodes(TUNComplicatedGraph, 1));
-  EXPECT_EQ(1, TSnap::CntInDegNodes(TUNComplicatedGraph, 2));
-  EXPECT_EQ(3, TSnap::CntInDegNodes(TUNComplicatedGraph, 3));
+  EXPECT_EQ(2, TSnap::CntInDegNodes(TUNComplicatedGraph, 2));
+  EXPECT_EQ(2, TSnap::CntInDegNodes(TUNComplicatedGraph, 3));
   EXPECT_EQ(0, TSnap::CntInDegNodes(TUNComplicatedGraph, 4));
 
-  EXPECT_EQ(1, TSnap::CntInDegNodes(TNComplicatedGraph, 0));
-  EXPECT_EQ(1, TSnap::CntInDegNodes(TNComplicatedGraph, 1));
+  EXPECT_EQ(2, TSnap::CntInDegNodes(TNComplicatedGraph, 0));
+  EXPECT_EQ(0, TSnap::CntInDegNodes(TNComplicatedGraph, 1));
   EXPECT_EQ(3, TSnap::CntInDegNodes(TNComplicatedGraph, 2));
   EXPECT_EQ(0, TSnap::CntInDegNodes(TNComplicatedGraph, 3));
   EXPECT_EQ(0, TSnap::CntInDegNodes(TNComplicatedGraph, 4));
 
-  EXPECT_EQ(1, TSnap::CntInDegNodes(TNEComplicatedGraph, 0));
-  EXPECT_EQ(1, TSnap::CntInDegNodes(TNEComplicatedGraph, 1));
+  EXPECT_EQ(2, TSnap::CntInDegNodes(TNEComplicatedGraph, 0));
+  EXPECT_EQ(0, TSnap::CntInDegNodes(TNEComplicatedGraph, 1));
   EXPECT_EQ(2, TSnap::CntInDegNodes(TNEComplicatedGraph, 2));
   EXPECT_EQ(1, TSnap::CntInDegNodes(TNEComplicatedGraph, 3));
   EXPECT_EQ(0, TSnap::CntInDegNodes(TNEComplicatedGraph, 4));
@@ -256,20 +273,20 @@ TEST_F(GraphTest, CntOutDegNodesTest) {
 
   EXPECT_EQ(1, TSnap::CntOutDegNodes(TUNComplicatedGraph, 0));
   EXPECT_EQ(0, TSnap::CntOutDegNodes(TUNComplicatedGraph, 1));
-  EXPECT_EQ(1, TSnap::CntOutDegNodes(TUNComplicatedGraph, 2));
-  EXPECT_EQ(3, TSnap::CntOutDegNodes(TUNComplicatedGraph, 3));
+  EXPECT_EQ(2, TSnap::CntOutDegNodes(TUNComplicatedGraph, 2));
+  EXPECT_EQ(2, TSnap::CntOutDegNodes(TUNComplicatedGraph, 3));
   EXPECT_EQ(0, TSnap::CntOutDegNodes(TUNComplicatedGraph, 4));
 
   EXPECT_EQ(2, TSnap::CntOutDegNodes(TNComplicatedGraph, 0));
   EXPECT_EQ(0, TSnap::CntOutDegNodes(TNComplicatedGraph, 1));
-  EXPECT_EQ(2, TSnap::CntOutDegNodes(TNComplicatedGraph, 2));
-  EXPECT_EQ(1, TSnap::CntOutDegNodes(TNComplicatedGraph, 3));
+  EXPECT_EQ(3, TSnap::CntOutDegNodes(TNComplicatedGraph, 2));
+  EXPECT_EQ(0, TSnap::CntOutDegNodes(TNComplicatedGraph, 3));
   EXPECT_EQ(0, TSnap::CntOutDegNodes(TNComplicatedGraph, 4));
 
   EXPECT_EQ(2, TSnap::CntOutDegNodes(TNEComplicatedGraph, 0));
   EXPECT_EQ(0, TSnap::CntOutDegNodes(TNEComplicatedGraph, 1));
-  EXPECT_EQ(1, TSnap::CntOutDegNodes(TNEComplicatedGraph, 2));
-  EXPECT_EQ(2, TSnap::CntOutDegNodes(TNEComplicatedGraph, 3));
+  EXPECT_EQ(2, TSnap::CntOutDegNodes(TNEComplicatedGraph, 2));
+  EXPECT_EQ(1, TSnap::CntOutDegNodes(TNEComplicatedGraph, 3));
   EXPECT_EQ(0, TSnap::CntOutDegNodes(TNEComplicatedGraph, 4));
 }
 
@@ -298,13 +315,13 @@ TEST_F(GraphTest, CntDegNodesTest) {
 
   // ComplicatedGraph
 
-//   EXPECT_EQ(2, TSnap::CntDegNodes(TUNComplicatedGraph, 3));
+  EXPECT_EQ(2, TSnap::CntDegNodes(TUNComplicatedGraph, 3));
   EXPECT_EQ(0, TSnap::CntDegNodes(TNComplicatedGraph, 3));
   EXPECT_EQ(1, TSnap::CntDegNodes(TNEComplicatedGraph, 3));
 
-//   EXPECT_EQ(1, TSnap::CntDegNodes(TUNComplicatedGraph, 4));
-  EXPECT_EQ(3, TSnap::CntDegNodes(TNComplicatedGraph, 4));
-  EXPECT_EQ(2, TSnap::CntDegNodes(TNEComplicatedGraph, 4));
+  EXPECT_EQ(0, TSnap::CntDegNodes(TUNComplicatedGraph, 4));
+  EXPECT_EQ(2, TSnap::CntDegNodes(TNComplicatedGraph, 4));
+  EXPECT_EQ(1, TSnap::CntDegNodes(TNEComplicatedGraph, 4));
 }
 
 // Testing CntNonZNodes
@@ -527,19 +544,17 @@ TEST_F(GraphTest, GetInDegCntIntTest) {
   // ComplicatedGraph
 
   TUNExpectedComplicatedGraph.Add(TIntPr(0, 1));
-  TUNExpectedComplicatedGraph.Add(TIntPr(2, 1));
-  TUNExpectedComplicatedGraph.Add(TIntPr(3, 3));
+  TUNExpectedComplicatedGraph.Add(TIntPr(2, 2));
+  TUNExpectedComplicatedGraph.Add(TIntPr(3, 2));
   TSnap::GetInDegCnt(TUNComplicatedGraph, TUNInDegCntComplicatedGraph);
   CheckVectors(TUNExpectedComplicatedGraph, TUNInDegCntComplicatedGraph);
 
-  TNExpectedComplicatedGraph.Add(TIntPr(0, 1));
-  TNExpectedComplicatedGraph.Add(TIntPr(1, 1));
+  TNExpectedComplicatedGraph.Add(TIntPr(0, 2));
   TNExpectedComplicatedGraph.Add(TIntPr(2, 3));
   TSnap::GetInDegCnt(TNComplicatedGraph, TNInDegCntComplicatedGraph);
   CheckVectors(TNExpectedComplicatedGraph, TNInDegCntComplicatedGraph);
 
-  TNEExpectedComplicatedGraph.Add(TIntPr(0, 1));
-  TNEExpectedComplicatedGraph.Add(TIntPr(1, 1));
+  TNEExpectedComplicatedGraph.Add(TIntPr(0, 2));
   TNEExpectedComplicatedGraph.Add(TIntPr(2, 2));
   TNEExpectedComplicatedGraph.Add(TIntPr(3, 1));
   TSnap::GetInDegCnt(TNEComplicatedGraph, TNEInDegCntComplicatedGraph);
@@ -605,19 +620,17 @@ TEST_F(GraphTest, GetInDegCntFltTest) {
   // ComplicatedGraph
 
   TUNExpectedComplicatedGraph.Add(TFltPr(0, 1));
-  TUNExpectedComplicatedGraph.Add(TFltPr(2, 1));
-  TUNExpectedComplicatedGraph.Add(TFltPr(3, 3));
+  TUNExpectedComplicatedGraph.Add(TFltPr(2, 2));
+  TUNExpectedComplicatedGraph.Add(TFltPr(3, 2));
   TSnap::GetInDegCnt(TUNComplicatedGraph, TUNInDegCntComplicatedGraph);
   CheckVectors(TUNExpectedComplicatedGraph, TUNInDegCntComplicatedGraph);
 
-  TNExpectedComplicatedGraph.Add(TFltPr(0, 1));
-  TNExpectedComplicatedGraph.Add(TFltPr(1, 1));
+  TNExpectedComplicatedGraph.Add(TFltPr(0, 2));
   TNExpectedComplicatedGraph.Add(TFltPr(2, 3));
   TSnap::GetInDegCnt(TNComplicatedGraph, TNInDegCntComplicatedGraph);
   CheckVectors(TNExpectedComplicatedGraph, TNInDegCntComplicatedGraph);
 
-  TNEExpectedComplicatedGraph.Add(TFltPr(0, 1));
-  TNEExpectedComplicatedGraph.Add(TFltPr(1, 1));
+  TNEExpectedComplicatedGraph.Add(TFltPr(0, 2));
   TNEExpectedComplicatedGraph.Add(TFltPr(2, 2));
   TNEExpectedComplicatedGraph.Add(TFltPr(3, 1));
   TSnap::GetInDegCnt(TNEComplicatedGraph, TNEInDegCntComplicatedGraph);
@@ -685,20 +698,19 @@ TEST_F(GraphTest, GetOutDegCntIntTest) {
   // ComplicatedGraph
 
   TUNExpectedComplicatedGraph.Add(TIntPr(0, 1));
-  TUNExpectedComplicatedGraph.Add(TIntPr(2, 1));
-  TUNExpectedComplicatedGraph.Add(TIntPr(3, 3));
+  TUNExpectedComplicatedGraph.Add(TIntPr(2, 2));
+  TUNExpectedComplicatedGraph.Add(TIntPr(3, 2));
   TSnap::GetOutDegCnt(TUNComplicatedGraph, TUNOutDegCntComplicatedGraph);
   CheckVectors(TUNExpectedComplicatedGraph, TUNOutDegCntComplicatedGraph);
 
   TNExpectedComplicatedGraph.Add(TIntPr(0, 2));
-  TNExpectedComplicatedGraph.Add(TIntPr(2, 2));
-  TNExpectedComplicatedGraph.Add(TIntPr(3, 1));
+  TNExpectedComplicatedGraph.Add(TIntPr(2, 3));
   TSnap::GetOutDegCnt(TNComplicatedGraph, TNOutDegCntComplicatedGraph);
   CheckVectors(TNExpectedComplicatedGraph, TNOutDegCntComplicatedGraph);
 
   TNEExpectedComplicatedGraph.Add(TIntPr(0, 2));
-  TNEExpectedComplicatedGraph.Add(TIntPr(2, 1));
-  TNEExpectedComplicatedGraph.Add(TIntPr(3, 2));
+  TNEExpectedComplicatedGraph.Add(TIntPr(2, 2));
+  TNEExpectedComplicatedGraph.Add(TIntPr(3, 1));
   TSnap::GetOutDegCnt(TNEComplicatedGraph, TNEOutDegCntComplicatedGraph);
   CheckVectors(TNEExpectedComplicatedGraph, TNEOutDegCntComplicatedGraph);
 }
@@ -764,20 +776,19 @@ TEST_F(GraphTest, GetOutDegCntFltTest) {
   // ComplicatedGraph
 
   TUNExpectedComplicatedGraph.Add(TFltPr(0, 1));
-  TUNExpectedComplicatedGraph.Add(TFltPr(2, 1));
-  TUNExpectedComplicatedGraph.Add(TFltPr(3, 3));
+  TUNExpectedComplicatedGraph.Add(TFltPr(2, 2));
+  TUNExpectedComplicatedGraph.Add(TFltPr(3, 2));
   TSnap::GetOutDegCnt(TUNComplicatedGraph, TUNOutDegCntComplicatedGraph);
   CheckVectors(TUNExpectedComplicatedGraph, TUNOutDegCntComplicatedGraph);
 
   TNExpectedComplicatedGraph.Add(TFltPr(0, 2));
-  TNExpectedComplicatedGraph.Add(TFltPr(2, 2));
-  TNExpectedComplicatedGraph.Add(TFltPr(3, 1));
+  TNExpectedComplicatedGraph.Add(TFltPr(2, 3));
   TSnap::GetOutDegCnt(TNComplicatedGraph, TNOutDegCntComplicatedGraph);
   CheckVectors(TNExpectedComplicatedGraph, TNOutDegCntComplicatedGraph);
 
   TNEExpectedComplicatedGraph.Add(TFltPr(0, 2));
-  TNEExpectedComplicatedGraph.Add(TFltPr(2, 1));
-  TNEExpectedComplicatedGraph.Add(TFltPr(3, 2));
+  TNEExpectedComplicatedGraph.Add(TFltPr(2, 2));
+  TNEExpectedComplicatedGraph.Add(TFltPr(3, 1));
   TSnap::GetOutDegCnt(TNEComplicatedGraph, TNEOutDegCntComplicatedGraph);
   CheckVectors(TNEExpectedComplicatedGraph, TNEOutDegCntComplicatedGraph);
 }
@@ -841,20 +852,21 @@ TEST_F(GraphTest, GetDegCntIntTest) {
   // ComplicatedGraph
 
   TUNExpectedComplicatedGraph.Add(TIntPr(0, 1));
-  TUNExpectedComplicatedGraph.Add(TIntPr(2, 1));
-  TUNExpectedComplicatedGraph.Add(TIntPr(3, 3));
+  TUNExpectedComplicatedGraph.Add(TIntPr(2, 2));
+  TUNExpectedComplicatedGraph.Add(TIntPr(3, 2));
   TSnap::GetDegCnt(TUNComplicatedGraph, TUNDegCntComplicatedGraph);
   CheckVectors(TUNExpectedComplicatedGraph, TUNDegCntComplicatedGraph);
 
   TNExpectedComplicatedGraph.Add(TIntPr(0, 1));
-  TNExpectedComplicatedGraph.Add(TIntPr(2, 1));
-  TNExpectedComplicatedGraph.Add(TIntPr(4, 3));
+  TNExpectedComplicatedGraph.Add(TIntPr(2, 2));
+  TNExpectedComplicatedGraph.Add(TIntPr(4, 2));
   TSnap::GetDegCnt(TNComplicatedGraph, TNDegCntComplicatedGraph);
   CheckVectors(TNExpectedComplicatedGraph, TNDegCntComplicatedGraph);
 
   TNEExpectedComplicatedGraph.Add(TIntPr(0, 1));
+  TNEExpectedComplicatedGraph.Add(TIntPr(2, 1));
   TNEExpectedComplicatedGraph.Add(TIntPr(3, 1));
-  TNEExpectedComplicatedGraph.Add(TIntPr(4, 2));
+  TNEExpectedComplicatedGraph.Add(TIntPr(4, 1));
   TNEExpectedComplicatedGraph.Add(TIntPr(5, 1));
   TSnap::GetDegCnt(TNEComplicatedGraph, TNEDegCntComplicatedGraph);
   CheckVectors(TNEExpectedComplicatedGraph, TNEDegCntComplicatedGraph);
@@ -919,20 +931,21 @@ TEST_F(GraphTest, GetDegCntFltTest) {
   // ComplicatedGraph
 
   TUNExpectedComplicatedGraph.Add(TFltPr(0, 1));
-  TUNExpectedComplicatedGraph.Add(TFltPr(2, 1));
-  TUNExpectedComplicatedGraph.Add(TFltPr(3, 3));
+  TUNExpectedComplicatedGraph.Add(TFltPr(2, 2));
+  TUNExpectedComplicatedGraph.Add(TFltPr(3, 2));
   TSnap::GetDegCnt(TUNComplicatedGraph, TUNDegCntComplicatedGraph);
   CheckVectors(TUNExpectedComplicatedGraph, TUNDegCntComplicatedGraph);
 
   TNExpectedComplicatedGraph.Add(TFltPr(0, 1));
-  TNExpectedComplicatedGraph.Add(TFltPr(2, 1));
-  TNExpectedComplicatedGraph.Add(TFltPr(4, 3));
+  TNExpectedComplicatedGraph.Add(TFltPr(2, 2));
+  TNExpectedComplicatedGraph.Add(TFltPr(4, 2));
   TSnap::GetDegCnt(TNComplicatedGraph, TNDegCntComplicatedGraph);
   CheckVectors(TNExpectedComplicatedGraph, TNDegCntComplicatedGraph);
 
   TNEExpectedComplicatedGraph.Add(TFltPr(0, 1));
+  TNEExpectedComplicatedGraph.Add(TFltPr(2, 1));
   TNEExpectedComplicatedGraph.Add(TFltPr(3, 1));
-  TNEExpectedComplicatedGraph.Add(TFltPr(4, 2));
+  TNEExpectedComplicatedGraph.Add(TFltPr(4, 1));
   TNEExpectedComplicatedGraph.Add(TFltPr(5, 1));
   TSnap::GetDegCnt(TNEComplicatedGraph, TNEDegCntComplicatedGraph);
   CheckVectors(TNEExpectedComplicatedGraph, TNEDegCntComplicatedGraph);
@@ -1015,7 +1028,7 @@ TEST_F(GraphTest, GetDegSeqVTest) {
 
   // ComplicatedGraph
 
-  TUNExpectedComplicatedGraph.Add(3);
+  TUNExpectedComplicatedGraph.Add(2);
   TUNExpectedComplicatedGraph.Add(3);
   TUNExpectedComplicatedGraph.Add(3);
   TUNExpectedComplicatedGraph.Add(0);
@@ -1023,7 +1036,7 @@ TEST_F(GraphTest, GetDegSeqVTest) {
   TSnap::GetDegSeqV(TUNComplicatedGraph, TUNDegVComplicatedGraph);
   CheckVectors(TUNExpectedComplicatedGraph, TUNDegVComplicatedGraph);
 
-  TNExpectedComplicatedGraph.Add(4);
+  TNExpectedComplicatedGraph.Add(2);
   TNExpectedComplicatedGraph.Add(4);
   TNExpectedComplicatedGraph.Add(4);
   TNExpectedComplicatedGraph.Add(0);
@@ -1031,7 +1044,7 @@ TEST_F(GraphTest, GetDegSeqVTest) {
   TSnap::GetDegSeqV(TNComplicatedGraph, TNDegVComplicatedGraph);
   CheckVectors(TNExpectedComplicatedGraph, TNDegVComplicatedGraph);
 
-  TNEExpectedComplicatedGraph.Add(4);
+  TNEExpectedComplicatedGraph.Add(2);
   TNEExpectedComplicatedGraph.Add(5);
   TNEExpectedComplicatedGraph.Add(4);
   TNEExpectedComplicatedGraph.Add(0);
@@ -1137,7 +1150,10 @@ TEST_F(GraphTest, GetDegSeqVInOutDegVTest) {
   TUNExpectedOutDegVReverseTree.Add(2);
   TUNExpectedOutDegVReverseTree.Add(1);
   TUNExpectedOutDegVReverseTree.Add(1);
-  TSnap::GetDegSeqV(TUNReverseTree, TUNInDegVReverseTree, TUNOutDegVReverseTree);
+  TSnap::GetDegSeqV(
+      TUNReverseTree,
+      TUNInDegVReverseTree,
+      TUNOutDegVReverseTree);
   CheckVectors(TUNExpectedInDegVReverseTree, TUNInDegVReverseTree);
   CheckVectors(TUNExpectedOutDegVReverseTree, TUNOutDegVReverseTree);
 
@@ -1165,51 +1181,63 @@ TEST_F(GraphTest, GetDegSeqVInOutDegVTest) {
   TNEExpectedOutDegVReverseTree.Add(1);
   TNEExpectedOutDegVReverseTree.Add(0);
   TNEExpectedOutDegVReverseTree.Add(0);
-  TSnap::GetDegSeqV(TNEReverseTree, TNEInDegVReverseTree, TNEOutDegVReverseTree);
+  TSnap::GetDegSeqV(
+      TNEReverseTree,
+      TNEInDegVReverseTree,
+      TNEOutDegVReverseTree);
   CheckVectors(TNEExpectedInDegVReverseTree, TNEInDegVReverseTree);
   CheckVectors(TNEExpectedOutDegVReverseTree, TNEOutDegVReverseTree);
 
   // ComplicatedGraph
 
-  TUNExpectedInDegVComplicatedGraph.Add(3);
+  TUNExpectedInDegVComplicatedGraph.Add(2);
   TUNExpectedInDegVComplicatedGraph.Add(3);
   TUNExpectedInDegVComplicatedGraph.Add(3);
   TUNExpectedInDegVComplicatedGraph.Add(0);
   TUNExpectedInDegVComplicatedGraph.Add(2);
-  TUNExpectedOutDegVComplicatedGraph.Add(3);
+  TUNExpectedOutDegVComplicatedGraph.Add(2);
   TUNExpectedOutDegVComplicatedGraph.Add(3);
   TUNExpectedOutDegVComplicatedGraph.Add(3);
   TUNExpectedOutDegVComplicatedGraph.Add(0);
   TUNExpectedOutDegVComplicatedGraph.Add(2);
-  TSnap::GetDegSeqV(TUNComplicatedGraph, TUNInDegVComplicatedGraph, TUNOutDegVComplicatedGraph);
+  TSnap::GetDegSeqV(
+      TUNComplicatedGraph,
+      TUNInDegVComplicatedGraph,
+      TUNOutDegVComplicatedGraph);
   CheckVectors(TUNExpectedInDegVComplicatedGraph, TUNInDegVComplicatedGraph);
   CheckVectors(TUNExpectedOutDegVComplicatedGraph, TUNOutDegVComplicatedGraph);
 
-  TNExpectedInDegVComplicatedGraph.Add(1);
+  TNExpectedInDegVComplicatedGraph.Add(0);
   TNExpectedInDegVComplicatedGraph.Add(2);
   TNExpectedInDegVComplicatedGraph.Add(2);
   TNExpectedInDegVComplicatedGraph.Add(0);
   TNExpectedInDegVComplicatedGraph.Add(2);
-  TNExpectedOutDegVComplicatedGraph.Add(3);
+  TNExpectedOutDegVComplicatedGraph.Add(2);
   TNExpectedOutDegVComplicatedGraph.Add(2);
   TNExpectedOutDegVComplicatedGraph.Add(2);
   TNExpectedOutDegVComplicatedGraph.Add(0);
   TNExpectedOutDegVComplicatedGraph.Add(0);
-  TSnap::GetDegSeqV(TNComplicatedGraph, TNInDegVComplicatedGraph, TNOutDegVComplicatedGraph);
+  TSnap::GetDegSeqV(
+      TNComplicatedGraph,
+      TNInDegVComplicatedGraph,
+      TNOutDegVComplicatedGraph);
   CheckVectors(TNExpectedInDegVComplicatedGraph, TNInDegVComplicatedGraph);
   CheckVectors(TNExpectedOutDegVComplicatedGraph, TNOutDegVComplicatedGraph);
 
-  TNEExpectedInDegVComplicatedGraph.Add(1);
+  TNEExpectedInDegVComplicatedGraph.Add(0);
   TNEExpectedInDegVComplicatedGraph.Add(2);
   TNEExpectedInDegVComplicatedGraph.Add(2);
   TNEExpectedInDegVComplicatedGraph.Add(0);
   TNEExpectedInDegVComplicatedGraph.Add(3);
-  TNEExpectedOutDegVComplicatedGraph.Add(3);
+  TNEExpectedOutDegVComplicatedGraph.Add(2);
   TNEExpectedOutDegVComplicatedGraph.Add(3);
   TNEExpectedOutDegVComplicatedGraph.Add(2);
   TNEExpectedOutDegVComplicatedGraph.Add(0);
   TNEExpectedOutDegVComplicatedGraph.Add(0);
-  TSnap::GetDegSeqV(TNEComplicatedGraph, TNEInDegVComplicatedGraph, TNEOutDegVComplicatedGraph);
+  TSnap::GetDegSeqV(
+      TNEComplicatedGraph,
+      TNEInDegVComplicatedGraph,
+      TNEOutDegVComplicatedGraph);
   CheckVectors(TNEExpectedInDegVComplicatedGraph, TNEInDegVComplicatedGraph);
   CheckVectors(TNEExpectedOutDegVComplicatedGraph, TNEOutDegVComplicatedGraph);
 }
@@ -1291,7 +1319,7 @@ TEST_F(GraphTest, GetNodeInDegVTest) {
 
   // ComplicatedGraph
 
-  TUNExpectedInDegVComplicatedGraph.Add(TIntPr(0, 3));
+  TUNExpectedInDegVComplicatedGraph.Add(TIntPr(0, 2));
   TUNExpectedInDegVComplicatedGraph.Add(TIntPr(1, 3));
   TUNExpectedInDegVComplicatedGraph.Add(TIntPr(2, 3));
   TUNExpectedInDegVComplicatedGraph.Add(TIntPr(3, 0));
@@ -1299,7 +1327,7 @@ TEST_F(GraphTest, GetNodeInDegVTest) {
   TSnap::GetNodeInDegV(TUNComplicatedGraph, TUNInDegVComplicatedGraph);
   CheckVectors(TUNExpectedInDegVComplicatedGraph, TUNInDegVComplicatedGraph);
 
-  TNExpectedInDegVComplicatedGraph.Add(TIntPr(0, 1));
+  TNExpectedInDegVComplicatedGraph.Add(TIntPr(0, 0));
   TNExpectedInDegVComplicatedGraph.Add(TIntPr(1, 2));
   TNExpectedInDegVComplicatedGraph.Add(TIntPr(2, 2));
   TNExpectedInDegVComplicatedGraph.Add(TIntPr(3, 0));
@@ -1307,7 +1335,7 @@ TEST_F(GraphTest, GetNodeInDegVTest) {
   TSnap::GetNodeInDegV(TNComplicatedGraph, TNInDegVComplicatedGraph);
   CheckVectors(TNExpectedInDegVComplicatedGraph, TNInDegVComplicatedGraph);
 
-  TNEExpectedInDegVComplicatedGraph.Add(TIntPr(0, 1));
+  TNEExpectedInDegVComplicatedGraph.Add(TIntPr(0, 0));
   TNEExpectedInDegVComplicatedGraph.Add(TIntPr(1, 2));
   TNEExpectedInDegVComplicatedGraph.Add(TIntPr(2, 2));
   TNEExpectedInDegVComplicatedGraph.Add(TIntPr(3, 0));
@@ -1393,7 +1421,7 @@ TEST_F(GraphTest, GetNodeOutDegVTest) {
 
   // ComplicatedGraph
 
-  TUNExpectedOutDegVComplicatedGraph.Add(TIntPr(0, 3));
+  TUNExpectedOutDegVComplicatedGraph.Add(TIntPr(0, 2));
   TUNExpectedOutDegVComplicatedGraph.Add(TIntPr(1, 3));
   TUNExpectedOutDegVComplicatedGraph.Add(TIntPr(2, 3));
   TUNExpectedOutDegVComplicatedGraph.Add(TIntPr(3, 0));
@@ -1401,7 +1429,7 @@ TEST_F(GraphTest, GetNodeOutDegVTest) {
   TSnap::GetNodeOutDegV(TUNComplicatedGraph, TUNOutDegVComplicatedGraph);
   CheckVectors(TUNExpectedOutDegVComplicatedGraph, TUNOutDegVComplicatedGraph);
 
-  TNExpectedOutDegVComplicatedGraph.Add(TIntPr(0, 3));
+  TNExpectedOutDegVComplicatedGraph.Add(TIntPr(0, 2));
   TNExpectedOutDegVComplicatedGraph.Add(TIntPr(1, 2));
   TNExpectedOutDegVComplicatedGraph.Add(TIntPr(2, 2));
   TNExpectedOutDegVComplicatedGraph.Add(TIntPr(3, 0));
@@ -1409,7 +1437,7 @@ TEST_F(GraphTest, GetNodeOutDegVTest) {
   TSnap::GetNodeOutDegV(TNComplicatedGraph, TNOutDegVComplicatedGraph);
   CheckVectors(TNExpectedOutDegVComplicatedGraph, TNOutDegVComplicatedGraph);
 
-  TNEExpectedOutDegVComplicatedGraph.Add(TIntPr(0, 3));
+  TNEExpectedOutDegVComplicatedGraph.Add(TIntPr(0, 2));
   TNEExpectedOutDegVComplicatedGraph.Add(TIntPr(1, 3));
   TNEExpectedOutDegVComplicatedGraph.Add(TIntPr(2, 2));
   TNEExpectedOutDegVComplicatedGraph.Add(TIntPr(3, 0));
@@ -1428,9 +1456,9 @@ TEST_F(GraphTest, CntUniqUndirEdgesTest) {
   EXPECT_EQ(4, TSnap::CntUniqUndirEdges(TNReverseTree));
   EXPECT_EQ(4, TSnap::CntUniqUndirEdges(TNEReverseTree));
 
-  EXPECT_EQ(6, TSnap::CntUniqUndirEdges(TUNComplicatedGraph));
-  EXPECT_EQ(6, TSnap::CntUniqUndirEdges(TNComplicatedGraph));
-  EXPECT_EQ(6, TSnap::CntUniqUndirEdges(TNEComplicatedGraph));
+  EXPECT_EQ(5, TSnap::CntUniqUndirEdges(TUNComplicatedGraph));
+  EXPECT_EQ(5, TSnap::CntUniqUndirEdges(TNComplicatedGraph));
+  EXPECT_EQ(5, TSnap::CntUniqUndirEdges(TNEComplicatedGraph));
 }
 
 // Testing CntUniqDirEdges
@@ -1443,9 +1471,9 @@ TEST_F(GraphTest, CntUniqDirEdgesTest) {
   EXPECT_EQ(4, TSnap::CntUniqDirEdges(TNReverseTree));
   EXPECT_EQ(4, TSnap::CntUniqDirEdges(TNEReverseTree));
 
-  EXPECT_EQ(11, TSnap::CntUniqDirEdges(TUNComplicatedGraph));
-  EXPECT_EQ(7, TSnap::CntUniqDirEdges(TNComplicatedGraph));
-  EXPECT_EQ(7, TSnap::CntUniqDirEdges(TNEComplicatedGraph));
+  EXPECT_EQ(10, TSnap::CntUniqDirEdges(TUNComplicatedGraph));
+  EXPECT_EQ(6, TSnap::CntUniqDirEdges(TNComplicatedGraph));
+  EXPECT_EQ(6, TSnap::CntUniqDirEdges(TNEComplicatedGraph));
 }
 
 // Testing CntUniqBiDirEdges
@@ -1458,7 +1486,7 @@ TEST_F(GraphTest, CntUniqBiDirEdgesTest) {
   EXPECT_EQ(0, TSnap::CntUniqBiDirEdges(TNReverseTree));
   EXPECT_EQ(0, TSnap::CntUniqBiDirEdges(TNEReverseTree));
 
-  EXPECT_EQ(6, TSnap::CntUniqBiDirEdges(TUNComplicatedGraph));
+  EXPECT_EQ(5, TSnap::CntUniqBiDirEdges(TUNComplicatedGraph));
   EXPECT_EQ(2, TSnap::CntUniqBiDirEdges(TNComplicatedGraph));
   EXPECT_EQ(2, TSnap::CntUniqBiDirEdges(TNEComplicatedGraph));
 }
@@ -1473,9 +1501,13 @@ TEST_F(GraphTest, CntSelfEdgesTest) {
   EXPECT_EQ(0, TSnap::CntSelfEdges(TNReverseTree));
   EXPECT_EQ(0, TSnap::CntSelfEdges(TNEReverseTree));
 
-  EXPECT_EQ(1, TSnap::CntSelfEdges(TUNComplicatedGraph));
-  EXPECT_EQ(1, TSnap::CntSelfEdges(TNComplicatedGraph));
-  EXPECT_EQ(1, TSnap::CntSelfEdges(TNEComplicatedGraph));
+  EXPECT_EQ(0, TSnap::CntSelfEdges(TUNComplicatedGraph));
+  EXPECT_EQ(0, TSnap::CntSelfEdges(TNComplicatedGraph));
+  EXPECT_EQ(0, TSnap::CntSelfEdges(TNEComplicatedGraph));
+
+  EXPECT_EQ(1, TSnap::CntSelfEdges(TUNComplicatedGraphWithLoop));
+  EXPECT_EQ(1, TSnap::CntSelfEdges(TNComplicatedGraphWithLoop));
+  EXPECT_EQ(1, TSnap::CntSelfEdges(TNEComplicatedGraphWithLoop));
 }
 
 // Testing GetUnDir
@@ -1489,11 +1521,12 @@ TEST_F(GraphTest, GetUnDirTest) {
   // ComplicatedGraph
 
   TNExpectedDegCnt.Add(TIntPr(0, 1));
-  TNExpectedDegCnt.Add(TIntPr(4, 1));
-  TNExpectedDegCnt.Add(TIntPr(6, 3));
+  TNExpectedDegCnt.Add(TIntPr(4, 2));
+  TNExpectedDegCnt.Add(TIntPr(6, 2));
 
   TNEExpectedDegCnt.Add(TIntPr(0, 1));
-  TNEExpectedDegCnt.Add(TIntPr(6, 3));
+  TNEExpectedDegCnt.Add(TIntPr(4, 1));
+  TNEExpectedDegCnt.Add(TIntPr(6, 2));
   TNEExpectedDegCnt.Add(TIntPr(8, 1));
 
   TNGraphUnDir = TSnap::GetUnDir(TNComplicatedGraph);
@@ -1511,11 +1544,12 @@ TEST_F(GraphTest, MakeUnDirTest) {
   // ComplicatedGraph
 
   TNExpectedDegCnt.Add(TIntPr(0, 1));
-  TNExpectedDegCnt.Add(TIntPr(4, 1));
-  TNExpectedDegCnt.Add(TIntPr(6, 3));
+  TNExpectedDegCnt.Add(TIntPr(4, 2));
+  TNExpectedDegCnt.Add(TIntPr(6, 2));
 
   TNEExpectedDegCnt.Add(TIntPr(0, 1));
-  TNEExpectedDegCnt.Add(TIntPr(6, 3));
+  TNEExpectedDegCnt.Add(TIntPr(4, 1));
+  TNEExpectedDegCnt.Add(TIntPr(6, 2));
   TNEExpectedDegCnt.Add(TIntPr(8, 1));
 
   TSnap::MakeUnDir(TNComplicatedGraph);
@@ -1562,7 +1596,7 @@ TEST_F(GraphTest, DelSelfEdgesTest) {
   TIntPrV TNExpectedDegCnt;
   TIntPrV TNEExpectedDegCnt;
 
-  // ComplicatedGraph
+  // ComplicatedGraphWithLoop
 
   TUNExpectedDegCnt.Add(TIntPr(0, 1));
   TUNExpectedDegCnt.Add(TIntPr(2, 2));
@@ -1578,13 +1612,13 @@ TEST_F(GraphTest, DelSelfEdgesTest) {
   TNEExpectedDegCnt.Add(TIntPr(4, 1));
   TNEExpectedDegCnt.Add(TIntPr(5, 1));
 
-  TSnap::DelSelfEdges(TUNComplicatedGraph);
-  TSnap::DelSelfEdges(TNComplicatedGraph);
-  TSnap::DelSelfEdges(TNEComplicatedGraph);
+  TSnap::DelSelfEdges(TUNComplicatedGraphWithLoop);
+  TSnap::DelSelfEdges(TNComplicatedGraphWithLoop);
+  TSnap::DelSelfEdges(TNEComplicatedGraphWithLoop);
 
-  CheckGraphs(TUNExpectedDegCnt, TUNComplicatedGraph);
-  CheckGraphs(TNExpectedDegCnt, TNComplicatedGraph);
-  CheckGraphs(TNEExpectedDegCnt, TNEComplicatedGraph);
+  CheckGraphs(TUNExpectedDegCnt, TUNComplicatedGraphWithLoop);
+  CheckGraphs(TNExpectedDegCnt, TNComplicatedGraphWithLoop);
+  CheckGraphs(TNEExpectedDegCnt, TNEComplicatedGraphWithLoop);
 }
 
 // Testing DelNodes
@@ -1631,14 +1665,15 @@ TEST_F(GraphTest, DelZeroDegNodesTest) {
 
   // ComplicatedGraph
 
-  TUNExpectedDegCnt.Add(TIntPr(2, 1));
-  TUNExpectedDegCnt.Add(TIntPr(3, 3));
+  TUNExpectedDegCnt.Add(TIntPr(2, 2));
+  TUNExpectedDegCnt.Add(TIntPr(3, 2));
 
-  TNExpectedDegCnt.Add(TIntPr(2, 1));
-  TNExpectedDegCnt.Add(TIntPr(4, 3));
+  TNExpectedDegCnt.Add(TIntPr(2, 2));
+  TNExpectedDegCnt.Add(TIntPr(4, 2));
 
+  TNEExpectedDegCnt.Add(TIntPr(2, 1));
   TNEExpectedDegCnt.Add(TIntPr(3, 1));
-  TNEExpectedDegCnt.Add(TIntPr(4, 2));
+  TNEExpectedDegCnt.Add(TIntPr(4, 1));
   TNEExpectedDegCnt.Add(TIntPr(5, 1));
 
   TSnap::DelZeroDegNodes(TUNComplicatedGraph);
@@ -1658,18 +1693,15 @@ TEST_F(GraphTest, DelDegKNodesTest) {
 
   // ComplicatedGraph
 
-  TUNExpectedDegCnt.Add(TIntPr(0, 2));
+  TUNExpectedDegCnt.Add(TIntPr(0, 3));
 
   TNExpectedDegCnt.Add(TIntPr(0, 1));
-  TNExpectedDegCnt.Add(TIntPr(2, 1));
-  TNExpectedDegCnt.Add(TIntPr(3, 2));
 
-  TNEExpectedDegCnt.Add(TIntPr(0, 1));
-  TNEExpectedDegCnt.Add(TIntPr(1, 2));
+  TNEExpectedDegCnt.Add(TIntPr(2, 2));
 
   TSnap::DelDegKNodes(TUNComplicatedGraph, 3, 3);
-  TSnap::DelDegKNodes(TNComplicatedGraph, 3, 1);
-  TSnap::DelDegKNodes(TNEComplicatedGraph, 3, 1);
+  TSnap::DelDegKNodes(TNComplicatedGraph, 2, 0);
+  TSnap::DelDegKNodes(TNEComplicatedGraph, 2, 0);
 
   CheckGraphs(TUNExpectedDegCnt, TUNComplicatedGraph);
   CheckGraphs(TNExpectedDegCnt, TNComplicatedGraph);
