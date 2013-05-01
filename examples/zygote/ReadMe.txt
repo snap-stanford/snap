@@ -42,6 +42,14 @@ This step can be repeated multiple times for the same graph with different
 parameters:
     ./grow zygote zydemo.so
 
+Generate a graph on 100000 nodes with 200 average node degree:
+    ./zydemo -n:100000 -o:200
+
+Get the shortest path between various nodes:
+    ./grow zygote zydemo.so -s:10 -d:20
+    ./grow zygote zydemo.so -s:1000 -d:8000
+    ./grow zygote zydemo.so -s:1500 -d:9100
+
 /////////////////////////////////////////////////////////////////////////////
 
 "zydemo" parameters:
