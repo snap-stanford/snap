@@ -392,13 +392,13 @@ void GetInvParticipRat(const PUNGraph& Graph, int MaxEigVecs, int TimeLimit, TFl
   if (EigValV.Empty()) { return; }
   for (int v = 0; v < EigVecVV.GetCols(); v++) {
     EigVecVV.GetCol(v, EigVec);
-    EigValIprV.Add(TFltPr(EigValV[v], TSnapDetail::GetInvParticipRat(EigVec)));
+    EigValIprV.Add(TFltPr(EigValV[v], TSnapDetail::GetInvParticipRatEig(EigVec)));
   }
   EigValIprV.Sort();
 }
 
 namespace TSnapDetail {
-double GetInvParticipRat(const TFltV& EigVec) {
+double GetInvParticipRatEig(const TFltV& EigVec) {
   double Sum2=0.0, Sum4=0.0;
   for (int i = 0; i < EigVec.Len(); i++) {
     Sum2 += EigVec[i]*EigVec[i];
