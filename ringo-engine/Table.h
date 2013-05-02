@@ -8,6 +8,7 @@
 TODO:
 1. Bad code duplication everywhere (repetitions for int, flt and str).
    Maybe should probably use templates
+   OR: pass TYPE as parameter
 2. Give a-priori memory allocation to vector/hash table constructors 
 3. Smart pointer for Ttable: type PTable; Remove explicit pointrer usages
 4. Create simple classes for complex hash table types <--
@@ -19,8 +20,9 @@ class TTable;
 typedef TPt<TTable> PTable;
 
 class TTable{
+public:
+  typedef enum {INT, FLT, STR} TYPE;   // must be consistent with TYPE definition in TPredicate
 protected:
-	typedef enum{INT, FLT, STR} TYPE;
   // special values for Next column
   static const TInt Last;
   static const TInt Invalid;
@@ -115,12 +117,13 @@ protected:
 
 public:
 	// Nikhil + Jason
-        TTable() : CRef(), NumRows(0), FirstValidRow(), Next(), IntCols(), 
-        FltCols(), StrColMaps(), StrColVals(), ColTypeMap(), GroupMapping(),
-        WorkingCol(), SrcCol(),DstCol(), EdgeAttrV(),NodeAttrV() { }
+  // do we need an assignment operator?
+	TTable() : CRef(), NumRows(0), FirstValidRow(), Next(), IntCols(), 
+    FltCols(), StrColMaps(), StrColVals(), ColTypeMap(), GroupMapping(),
+    WorkingCol(), SrcCol(),DstCol(), EdgeAttrV(),NodeAttrV() { }
 	TTable(TSIn& SIn);
-        TTable(const TTable& Table) { }
-	static PTable New(){ return new TTable();}
+  TTable(const TTable& Table){}
+  static PTable New(){ return new TTable();}
 	static PTable Load(TSIn& SIn);
 	void Save(TSOut& SOut);
 	PNEAGraph ToGraph() {
@@ -213,7 +216,7 @@ public:
 	  return Graph;
 	}
 
-	/* Getters of data required for building a graph out of the table */
+  /* Getters of data required for building a graph out of the table */
 	TStr GetSrcCol() const { return SrcCol; }
 	TStr GetDstCol() const { return DstCol; }
 	TStrV GetNodeIntAttrV() const;
@@ -234,8 +237,7 @@ public:
 	// Remove rows with duplicate values in given columns
 	void Unique(TStr col);
 	// select - remove rows for which the given predicate doesn't hold
-	// Nikhil + Jason
-	void Select(const TPredicate& Predicate);
+	void Select(TPredicate& Predicate);
 	
 	// Yonathan
 	// group by the values of the columns specified in "GroupBy" vector 
