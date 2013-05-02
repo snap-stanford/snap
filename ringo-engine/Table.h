@@ -118,12 +118,12 @@ public:
 	TTable();
 	TTable(TSIn& SIn);
 	TTable(const TTable& Table);
-  static PTable New(){ return new TTable();}
+	static PTable New(){ return new TTable();}
 	static PTable Load(TSIn& SIn);
 	void Save(TSOut& SOut);
 	PNEAGraph ToGraph();
 
-  /* Getters of data required for building a graph out of the table */
+	/* Getters of data required for building a graph out of the table */
 	TStr GetSrcCol() const { return SrcCol; }
 	TStr GetDstCol() const { return DstCol; }
 	TStrV GetNodeIntAttrV() const;
