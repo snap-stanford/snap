@@ -53,18 +53,18 @@ protected:
   TInt FirstValidRow;
   TIntV Next; 
   // The actual columns - divided by types
-	TVec<TIntV> IntCols;
-	TVec<TFltV> FltCols;
+  TVec<TIntV> IntCols;
+  TVec<TFltV> FltCols;
   // string columns are implemented using a string pool to fight memory fragmentation
   // The value of string column c in row r is StrColVals.GetStr(StrColMaps[c][r])
-	TVec<TIntV> StrColMaps; 
+  TVec<TIntV> StrColMaps; 
   TBigStrPool StrColVals;
-	THash<TStr,TPair<TYPE,TInt> > ColTypeMap;
-	// grouping statement name --> (group index --> rows that belong to that group)
+  THash<TStr,TPair<TYPE,TInt> > ColTypeMap;
+  // grouping statement name --> (group index --> rows that belong to that group)
   // Note that these mappings are invalid after we remove rows
-	THash<TStr,THash<TInt,TIntV> > GroupMapping; // use separate class
-
-	TStr WorkingCol;  // do we even need this here ?
+  THash<TStr,THash<TInt,TIntV> > GroupMapping; // use separate class
+  
+  TStr WorkingCol;  // do we even need this here ?
   // column to serve as src nodes when constructing the graph
   TStr SrcCol;
   // column to serve as dst nodes when constructing the graph
@@ -81,22 +81,22 @@ protected:
   TRowIterator EndRI() const{ return TRowIterator(NumRows-1, this);}
   bool IsRowValid(TInt RowIdx){ return Next[RowIdx] != Invalid;}
 
-	// Store a group indices column in GroupMapping
-	void StoreGroupCol(TStr GroupColName, const THash<TInt,TIntV>& grouping);
-	// Group/hash by a single column with integer values. Returns hash table with grouping.
+  // Store a group indices column in GroupMapping
+  void StoreGroupCol(TStr GroupColName, const THash<TInt,TIntV>& grouping);
+  // Group/hash by a single column with integer values. Returns hash table with grouping.
   // IndexSet tells what rows to consider. It is the callers responsibility to check that 
   // these rows are valid. An empty IndexSet means taking all rows into consideration.
-	void GroupByIntCol(TStr GroupBy, THash<TInt,TIntV>& grouping, const TIntV& IndexSet); 
-	// Group/hash by a single column with float values. Returns hash table with grouping.
-	void GroupByFltCol(TStr GroupBy, THash<TFlt,TIntV>& grouping, const TIntV& IndexSet);
-	// Group/hash by a single column with string values. Returns hash table with grouping.
-	void GroupByStrCol(TStr GroupBy, THash<TStr,TIntV>& grouping, const TIntV& IndexSet);
-	// Performs grouping according to the values of columns GroupBy[i] where 
-	// i >= GroupByStartIdx; Considers only tuples whose indices are in IndexSet
-	// Adds the groups to hash table "grouping". Does not write to "GroupMapping"
-	void GroupAux(const TStrV& GroupBy, TInt GroupByStartIdx, THash<TInt,TIntV>& grouping, const TIntV& IndexSet);
+  void GroupByIntCol(TStr GroupBy, THash<TInt,TIntV>& grouping, const TIntV& IndexSet); 
+  // Group/hash by a single column with float values. Returns hash table with grouping.
+  void GroupByFltCol(TStr GroupBy, THash<TFlt,TIntV>& grouping, const TIntV& IndexSet);
+  // Group/hash by a single column with string values. Returns hash table with grouping.
+  void GroupByStrCol(TStr GroupBy, THash<TStr,TIntV>& grouping, const TIntV& IndexSet);
+  // Performs grouping according to the values of columns GroupBy[i] where 
+  // i >= GroupByStartIdx; Considers only tuples whose indices are in IndexSet
+  // Adds the groups to hash table "grouping". Does not write to "GroupMapping"
+  void GroupAux(const TStrV& GroupBy, TInt GroupByStartIdx, THash<TInt,TIntV>& grouping, const TIntV& IndexSet);
   /* template for utility functions to be used by GroupByXCol */
- template <class T>
+  template <class T>
   void UpdateGrouping(THash<T,TIntV>& Grouping, T Key, TInt Val){
     if(Grouping.IsKey(Key)){
       Grouping.GetDat(Key).Add(Val);
@@ -123,7 +123,95 @@ public:
 	static PTable New(){ return new TTable();}
 	static PTable Load(TSIn& SIn);
 	void Save(TSOut& SOut);
-	PNEAGraph ToGraph();
+	PNEAGraph ToGraph() {
+	  PNEAGraph Graph = PNEAGraph::New();
+	  // Add Nodes + Edges
+	  THash<TFlt, TInt> FSrNodeMap = THash<TFlt, TInt>();
+	  THash<TFlt, TInt> FDsNodeMap = THash<TFlt, TInt>();
+	  
+	  TYPE SrCT = ColTypeMap.GetDat(SrcCol).Val1;
+	  TInt SrIdx = ColTypeMap.GetDat(SrcCol).Val2;
+	  TYPE DsCT = ColTypeMap.GetDat(DstCol).Val1;
+	  TInt DsIdx = ColTypeMap.GetDat(DstCol).Val2;
+	  TInt SrcCnt = 0;
+	  TInt DstCnt = 0;
+
+	  for(TRowIterator RowI = BegRI(); RowI < EndRI(); RowI++) {
+	    if (SrCT == INT && DsCT == INT) {
+	      Graph->AddNode(IntCols[SrIdx][RowI.GetRowIdx()]);
+	      Graph->AddNode(IntCols[DsIdx][RowI.GetRowIdx()]);
+	      Graph->AddEdge(IntCols[SrIdx][RowI.GetRowIdx()], IntCols[DsIdx][RowI.GetRowIdx()], RowI.GetRowIdx());
+	    } else if (SrCT == INT && DsCT == FLT) {
+	      Graph->AddNode(IntCols[SrIdx][RowI.GetRowIdx()]);
+	      TFlt val = FltCols[DsIdx][RowI.GetRowIdx()];
+	      if (!FDsNodeMap.IsKey(val)) {
+		FDsNodeMap.AddDat(val, DstCnt++);
+	      }
+	      Graph->AddNode(FDsNodeMap.GetDat(val));
+	      Graph->AddEdge(IntCols[SrIdx][RowI.GetRowIdx()], FDsNodeMap.GetDat(val));
+	    } else if (SrCT == INT && DsCT == STR) {
+	      Graph->AddNode(IntCols[SrIdx][RowI.GetRowIdx()]);
+	      Graph->AddNode(StrColMaps[DsIdx][RowI.GetRowIdx()]);
+	      Graph->AddEdge(IntCols[SrIdx][RowI.GetRowIdx()], StrColMaps[DsIdx][RowI.GetRowIdx()], RowI.GetRowIdx());
+	    } else if (SrCT == FLT && DsCT == INT) {
+	      Graph->AddNode(IntCols[DsIdx][RowI.GetRowIdx()]);
+	      TFlt val = FltCols[SrIdx][RowI.GetRowIdx()];
+	      if (!FSrNodeMap.IsKey(val)) {
+		FSrNodeMap.AddDat(val, SrcCnt++);
+	      }
+	      Graph->AddNode(FSrNodeMap.GetDat(val));
+	      Graph->AddEdge(FSrNodeMap.GetDat(val), IntCols[SrIdx][RowI.GetRowIdx()], RowI.GetRowIdx());
+	    } else if (SrCT == FLT && DsCT == STR) {
+	      Graph->AddNode(StrColMaps[DsIdx][RowI.GetRowIdx()]);
+	      TFlt val = FltCols[SrIdx][RowI.GetRowIdx()];
+	      if (!FSrNodeMap.IsKey(val)) {
+		FSrNodeMap.AddDat(val, SrcCnt++);
+	      }
+	      Graph->AddNode(FSrNodeMap.GetDat(val));
+	      Graph->AddEdge(FSrNodeMap.GetDat(val), IntCols[SrIdx][RowI.GetRowIdx()], RowI.GetRowIdx());
+	    } else if (SrCT == FLT && DsCT == FLT) {
+	      TFlt val = FltCols[SrIdx][RowI.GetRowIdx()];
+	      if (!FSrNodeMap.IsKey(val)) {
+		FSrNodeMap.AddDat(val, SrcCnt++);
+	      }
+	      Graph->AddNode(FSrNodeMap.GetDat(val));
+	      val = FltCols[DsIdx][RowI.GetRowIdx()];
+	      if (!FDsNodeMap.IsKey(val)) {
+		FDsNodeMap.AddDat(val, DstCnt++);
+	      }
+	      Graph->AddNode(FDsNodeMap.GetDat(val));
+	      Graph->AddEdge(FSrNodeMap.GetDat(val), FDsNodeMap.GetDat(val), RowI.GetRowIdx());
+	    }
+	  }
+	  
+	  // Now add edge attributes.
+	  for(TRowIterator RowI = BegRI(); RowI < EndRI(); RowI++) {
+	    typedef THash<TStr,TPair<TYPE,TInt> >::TIter TColIter;
+	    for (int i = 0; i < EdgeAttrV.Len(); i++) {
+	      TStr ColName = EdgeAttrV[i];
+	      TYPE T = ColTypeMap.GetDat(ColName).Val1;
+	      TInt Index = ColTypeMap.GetDat(ColName).Val2;
+	      TInt Ival;
+	      TFlt Fval;
+	      TStr Sval;
+	      switch (T) {
+	      case INT:
+		Ival = IntCols[Index][RowI.GetRowIdx()];
+		Graph->AddIntAttrDatE(RowI.GetRowIdx(), Ival, ColName);
+		break;
+	      case FLT:
+		Fval = FltCols[Index][RowI.GetRowIdx()];
+		Graph->AddFltAttrDatE(RowI.GetRowIdx(), Fval, ColName);
+		break;
+	      case STR:
+		Sval = StrColVals.GetStr(StrColMaps[Index][RowI.GetRowIdx()]);
+		Graph->AddStrAttrDatE(RowI.GetRowIdx(), Sval, ColName);
+		break;
+	      }
+	    }
+	  }
+	  return Graph;
+	}
 
 	/* Getters of data required for building a graph out of the table */
 	TStr GetSrcCol() const { return SrcCol; }
