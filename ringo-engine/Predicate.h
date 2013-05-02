@@ -1,3 +1,9 @@
+#ifndef PREDICATE_H
+#define PREDICATE_H
+#include "Snap.h"
+
+/*
+// Nikhil & Jason Initial implementation 
 class TPredicate {
  public:
   typedef enum{INT, FLT, STR} TYPE;
@@ -82,7 +88,7 @@ class TPredicate {
       TPair<TYPE, FieldValue> PairL = ValueDict.GetDat(Col1);
       TPair<TYPE, FieldValue> PairR = ValueDict.GetDat(Col2);
       if (PairL.Val1 != PairR.Val1) {
-	TExcept::Throw("Predicate compares between values that have different types");
+	// TODO(nkhadke): Throw error
 	return false;
       }
       TYPE Type = PairL.Val1;
@@ -128,7 +134,7 @@ class TPredicate {
     }
     if (Op == "NOT") {
       if (!Left && !Right) {
-	TExcept::Throw("NOT has 2 children");
+	//TODO(nkhadke): Throw error.
 	return false;
       } else if (Left) {
 	return !(EvalTPredicate(Root->Left, ValueDict));
@@ -140,7 +146,7 @@ class TPredicate {
     } else if (Op == "OR") {
       return EvalTPredicate(Root->Left, ValueDict) || EvalTPredicate(Root->Right, ValueDict);
     } else {
-      TExcept::Throw("Invalid Op value");
+      // TODO(nkhadke): Throw error.
       return false;
     }
   }
@@ -149,3 +155,81 @@ class TPredicate {
     return EvalTPredicate(this, ValueDict);
   }
 };
+*/
+
+class TPredicate{
+public:
+  typedef enum {INT, FLT, STR} TYPE;   // must be consistent with TYPE definition in TTable
+  typedef enum {NOT, AND, OR, NOP} OP;
+  typedef enum {LT = 0, LTE, EQ, GTE, GT} COMP;
+
+protected:
+  class TAtomicPredicate;
+  const static TAtomicPredicate NonAtom;
+public:
+  class TAtomicPredicate{
+    TYPE Type;
+    TBool IsConst;
+    COMP Compare;
+    TStr Lvar;
+    TStr Rvar;
+    TInt IntConst;
+    TFlt FltConst;
+    TStr StrConst;
+  public:
+    TAtomicPredicate(TYPE Typ, TBool IsCnst, COMP Cmp, TStr L, TStr R, TInt ICnst, TFlt FCnst, TStr SCnst):
+      Type(Typ), IsConst(IsCnst), Compare(Cmp), Lvar(L), Rvar(R), IntConst(ICnst), FltConst(FCnst), StrConst(SCnst){}
+    TAtomicPredicate(TYPE Typ, TBool IsCnst, COMP Cmp, TStr L, TStr R):
+      Type(Typ), IsConst(IsCnst), Compare(Cmp), Lvar(L), Rvar(R), IntConst(0), FltConst(0), StrConst(""){}
+    friend class TPredicate;
+  };
+
+  class TPredicateNode{
+  //protected:
+  public:
+    OP Op;
+    TBool Result;
+    const TAtomicPredicate& Atom;
+    TPredicateNode* Parent;
+    TPredicateNode* Left;
+    TPredicateNode* Right;
+  public:
+    TPredicateNode(): Op(NOP), Result(false), Atom(NonAtom), Parent(NULL), Left(NULL), Right(NULL){}
+    // constructor for atomic predicate node (leaf)
+    TPredicateNode(const TAtomicPredicate& A): Op(NOP), Result(false), Atom(A), Parent(NULL), Left(NULL), Right(NULL){}
+    // constructor for logical operation predicate node (internal node)
+    TPredicateNode(OP Opr): Op(Opr), Result(false), Atom(NonAtom), Parent(NULL), Left(NULL), Right(NULL){}
+    TPredicateNode(const TPredicateNode& P): Op(P.Op), Result(P.Result), Atom(P.Atom), Parent(P.Parent), Left(P.Left), Right(P.Right){}
+    void AddLeftChild(TPredicateNode* Child){ Left = Child; Child->Parent = this;}
+    void AddRightChild(TPredicateNode* Child){ Right = Child; Child->Parent = this;}
+    friend class TPredicate;
+  };
+
+protected:
+  THash<TStr, TInt> IntVars;
+  THash<TStr, TFlt> FltVars;
+  THash<TStr, TStr> StrVars;
+  TPredicateNode* Root;
+public:
+  TPredicate(): IntVars(), FltVars(), StrVars(){}
+  TPredicate(TPredicateNode* R):IntVars(), FltVars(), StrVars(), Root(R){}
+  TPredicate(const TPredicate& Pred): IntVars(Pred.IntVars), FltVars(Pred.FltVars), StrVars(Pred.StrVars), Root(Pred.Root){}
+  void GetVariables(TStrV& Variables);
+  // set variable value in the predicate or all the children that use it
+  void SetIntVal(TStr VarName, TInt VarVal){ IntVars.AddDat(VarName, VarVal);}
+  void SetFltVal(TStr VarName, TFlt VarVal){ FltVars.AddDat(VarName, VarVal);}
+  void SetStrVal(TStr VarName, TStr VarVal){ StrVars.AddDat(VarName, VarVal);}
+  TBool Eval();
+  TBool EvalAtomicPredicate(const TAtomicPredicate& Atom);
+  template <class T>
+  TBool EvalAtom(T Val1, T Val2, COMP Cmp){
+    switch(Cmp){
+      case LT: return Val1 < Val2;
+      case LTE: return Val1 <= Val2;
+      case EQ: return Val1 == Val2;
+      case GTE: return Val1 >= Val2;
+      case GT: return Val1 > Val2;
+    }
+  }
+};
+#endif // PREDICATE_H

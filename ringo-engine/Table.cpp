@@ -363,4 +363,27 @@ void TTable::Dist(TStr Col1, const TTable& Table, TStr Col2, TStr DistColName, c
   */
 }
 
+void TTable::Select(TPredicate& Predicate){
+  TIntV Selected;
+  TStrV RelevantCols;
+  Predicate.GetVariables(RelevantCols);
+  for(TRowIterator RowI = BegRI(); RowI < EndRI(); RowI++){
+    // prepare arguments for 
+    for(TInt i = 0; i < RelevantCols.Len(); i++){
+      switch(ColTypeMap.GetDat(RelevantCols[i]).Val1){
+      case INT:
+        Predicate.SetIntVal(RelevantCols[i], RowI.GetIntAttr(RelevantCols[i]));
+        break;
+      case FLT:
+        Predicate.SetFltVal(RelevantCols[i], RowI.GetFltAttr(RelevantCols[i]));
+        break;
+      case STR:
+        Predicate.SetStrVal(RelevantCols[i], RowI.GetStrAttr(RelevantCols[i]));
+        break;
+      }
+    }
+    if(Predicate.Eval()){ Selected.Add(RowI.GetRowIdx());}
+  }
+  KeepSortedRows(Selected);
+}
 
