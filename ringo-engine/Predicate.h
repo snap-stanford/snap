@@ -82,7 +82,7 @@ class TPredicate {
       TPair<TYPE, FieldValue> PairL = ValueDict.GetDat(Col1);
       TPair<TYPE, FieldValue> PairR = ValueDict.GetDat(Col2);
       if (PairL.Val1 != PairR.Val1) {
-	// TODO(nkhadke): Throw error
+	TExcept::Throw("Predicate compares between values that have different types");
 	return false;
       }
       TYPE Type = PairL.Val1;
@@ -128,7 +128,7 @@ class TPredicate {
     }
     if (Op == "NOT") {
       if (!Left && !Right) {
-	//TODO(nkhadke): Throw error.
+	TExcept::Throw("NOT has 2 children");
 	return false;
       } else if (Left) {
 	return !(EvalTPredicate(Root->Left, ValueDict));
@@ -140,7 +140,7 @@ class TPredicate {
     } else if (Op == "OR") {
       return EvalTPredicate(Root->Left, ValueDict) || EvalTPredicate(Root->Right, ValueDict);
     } else {
-      // TODO(nkhadke): Throw error.
+      TExcept::Throw("Invalid Op value");
       return false;
     }
   }
