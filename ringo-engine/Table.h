@@ -115,9 +115,11 @@ protected:
 
 public:
 	// Nikhil + Jason
-	TTable();
+        TTable() : CRef(), NumRows(0), FirstValidRow(), Next(), IntCols(), 
+        FltCols(), StrColMaps(), StrColVals(), ColTypeMap(), GroupMapping(),
+        WorkingCol(), SrcCol(),DstCol(), EdgeAttrV(),NodeAttrV() { }
 	TTable(TSIn& SIn);
-	TTable(const TTable& Table);
+        TTable(const TTable& Table) { }
 	static PTable New(){ return new TTable();}
 	static PTable Load(TSIn& SIn);
 	void Save(TSOut& SOut);

@@ -309,3 +309,58 @@ void TTable::Count(TStr CountColName, TStr Col){
   ColTypeMap.AddDat(Col, TPair<TYPE,TInt>(INT, IntCols.Len()));
 }
 
+/*
+void JoinInts(TIntV ThisCols, TIntV OtherCols) {
+}
+
+void JoinFlts(TIntV ThisCols, TIntV OtherCols) {
+}
+
+void JoinFlts(TIntV ThisCols, TIntV OtherCols) {
+}
+*/
+
+void TTable::Join(TStr Col1, const TTable& Table, TStr Col2) {
+  if(!ColTypeMap.IsKey(Col1)){
+    TExcept::Throw("no such column " + Col1);
+  }
+  if(!ColTypeMap.IsKey(Col2)){
+    TExcept::Throw("no such column " + Col2);
+  }
+  TPair<TYPE,TInt> Col1Dat = ColTypeMap.GetDat(Col1);
+  TPair<TYPE,TInt> Col2Dat = ColTypeMap.GetDat(Col2);
+  if (Col1Dat.Val1 != Col2Dat.Val1) {
+    TExcept::Throw("Trying to Join on columns of different type");
+  }
+  /*  switch (Col1Dat.Val1) {
+    case INT:
+      JoinInts();
+      break;
+    case FLT:
+      JoinFlts();
+      break;
+    case STR:
+      JoinStrs();
+      break;
+  }
+  */  
+}
+
+void TTable::Dist(TStr Col1, const TTable& Table, TStr Col2, TStr DistColName, const TMetric& Metric, TFlt threshold) {
+  if(!ColTypeMap.IsKey(Col1)){
+    TExcept::Throw("no such column " + Col1);
+  }
+  if(!ColTypeMap.IsKey(Col2)){
+    TExcept::Throw("no such column " + Col2);
+  }
+  TYPE T1 = GetColType(Col1);
+  //CHECK do we need to make this a const?
+  /*
+  TYPE T2 = Table.GetColType(Col2);
+  if ((T1  == STR && T2 != STR) || (T1  != STR && T2 == STR) ) {
+    TExcept::Throw("Trying to compare strings with numbers.");
+  }
+  */
+}
+
+
