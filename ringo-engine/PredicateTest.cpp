@@ -42,5 +42,29 @@ int main(){
   T3.SetIntVal("z", 4);
   TBool R3 = T3.Eval();
   cout << "(2 > 1) || (4 > 5) " << R3 << endl;
+  // !((x == "bla") ^ (y > z)) || z <= 3
+  TPredicate::TAtomicPredicate A3(TPredicate::STR, true, TPredicate::EQ, "x", "", 0, 0, "bla");
+  TPredicate::TAtomicPredicate A4(TPredicate::INT, false, TPredicate::GT, "y", "z", 0, 0, "");
+  TPredicate::TAtomicPredicate A5(TPredicate::INT, true, TPredicate::LTE, "z", "", 3, 0, "");
+  TPredicate::TPredicateNode N5(A3);
+  TPredicate::TPredicateNode N6(A4);
+  TPredicate::TPredicateNode N7(TPredicate::AND);
+  N7.AddLeftChild(&N5);
+  N7.AddRightChild(&N6);
+  TPredicate::TPredicateNode N8(TPredicate::NOT);
+  N8.AddLeftChild(&N7);
+  TPredicate::TPredicateNode N9(A5);
+  TPredicate::TPredicateNode N10(TPredicate::OR);
+  N10.AddLeftChild(&N8);
+  N10.AddRightChild(&N9);
+  TPredicate T4(&N10);
+  T4.SetStrVal("x", "bla");
+  T4.SetIntVal("y", 2);
+  T4.SetIntVal("z", 4);
+  TBool R4 = T4.Eval();
+  cout << "!((bla == bla) ^ (2 > 4)) || 4 <= 3 " << R4 << endl;
+  T4.SetIntVal("y", 5);
+  TBool R4_1 = T4.Eval();
+  cout << "!((bla == bla) ^ (5 > 4)) || 4 <= 3 " << R4_1 << endl;
 	return 0;
 }

@@ -3,10 +3,41 @@
 TInt const TTable::Last =-1;
 TInt const TTable::Invalid =-2;
 
-TStrV TTable::GetNodeIntAttrV() const {
+// expensive - consider using a StrHash / hashSet for str vals
+// to verify uniquness of str vals
+void TTable::AddStrVal(TInt ColIdx, TStr Val){
+  for(TInt i = 0; i < NumOfDistinctStrVals; i++){
+    if(Val == StrColVals.GetCStr(i)){
+      StrColMaps[ColIdx].Add(i);
+      return;
+    }
+  }
+  TInt K = StrColVals.AddStr(Val);
+  StrColMaps[ColIdx].Add(K);
+  NumOfDistinctStrVals++;
+}
+
+void TTable::AddStrVal(TStr Col, TStr Val){
+  TPair<TYPE,TInt> ColDat = ColTypeMap.GetDat(Col);
+  if(ColDat.Val1 != STR){TExcept::Throw(Col + " is not a string valued column");}
+  AddStrVal(ColDat.Val2, Val);
+}
+
+TStrV TTable::GetSrcNodeIntAttrV() const {
   TStrV IntNA = TStrV(IntCols.Len(),0);
-  for (int i = 0; i < NodeAttrV.Len(); i++) {
-    TStr Attr = NodeAttrV[i];
+  for (int i = 0; i < SrcNodeAttrV.Len(); i++) {
+    TStr Attr = SrcNodeAttrV[i];
+    if (ColTypeMap.GetDat(Attr).Val1 == INT) {
+      IntNA.Add(Attr);
+    }
+  }
+  return IntNA;
+}
+
+TStrV TTable::GetDstNodeIntAttrV() const {
+  TStrV IntNA = TStrV(IntCols.Len(),0);
+  for (int i = 0; i < DstNodeAttrV.Len(); i++) {
+    TStr Attr = DstNodeAttrV[i];
     if (ColTypeMap.GetDat(Attr).Val1 == INT) {
       IntNA.Add(Attr);
     }
@@ -25,10 +56,21 @@ TStrV TTable::GetEdgeIntAttrV() const {
   return IntEA;
 }
 
-TStrV TTable::GetNodeFltAttrV() const {
+TStrV TTable::GetSrcNodeFltAttrV() const {
   TStrV FltNA = TStrV(FltCols.Len(),0);
-  for (int i = 0; i < NodeAttrV.Len(); i++) {
-    TStr Attr = NodeAttrV[i];
+  for (int i = 0; i < SrcNodeAttrV.Len(); i++) {
+    TStr Attr = SrcNodeAttrV[i];
+    if (ColTypeMap.GetDat(Attr).Val1 == FLT) {
+      FltNA.Add(Attr);
+    }
+  }
+  return FltNA;
+}
+
+TStrV TTable::GetDstNodeFltAttrV() const {
+  TStrV FltNA = TStrV(FltCols.Len(),0);
+  for (int i = 0; i < DstNodeAttrV.Len(); i++) {
+    TStr Attr = DstNodeAttrV[i];
     if (ColTypeMap.GetDat(Attr).Val1 == FLT) {
       FltNA.Add(Attr);
     }
@@ -47,16 +89,28 @@ TStrV TTable::GetEdgeFltAttrV() const {
   return FltEA;
 }
 
-TStrV TTable::GetNodeStrAttrV() const {
+TStrV TTable::GetSrcNodeStrAttrV() const {
   TStrV StrNA = TStrV(StrColMaps.Len(),0);
-  for (int i = 0; i < NodeAttrV.Len(); i++) {
-    TStr Attr = NodeAttrV[i];
+  for (int i = 0; i < SrcNodeAttrV.Len(); i++) {
+    TStr Attr = SrcNodeAttrV[i];
     if (ColTypeMap.GetDat(Attr).Val1 == STR) {
       StrNA.Add(Attr);
     }
   }
   return StrNA;
 }
+
+TStrV TTable::GetDstNodeStrAttrV() const {
+  TStrV StrNA = TStrV(StrColMaps.Len(),0);
+  for (int i = 0; i < DstNodeAttrV.Len(); i++) {
+    TStr Attr = DstNodeAttrV[i];
+    if (ColTypeMap.GetDat(Attr).Val1 == STR) {
+      StrNA.Add(Attr);
+    }
+  }
+  return StrNA;
+}
+
 
 TStrV TTable::GetEdgeStrAttrV() const {
   TStrV StrEA = TStrV(StrColMaps.Len(),0);
@@ -153,7 +207,7 @@ Q: This approach of passing a hash table by reference and adding entries to it i
 But it also implies certain assumptions about the input - i.e. empty input table. 
 Why PHash is never used? - why not let the function allocate the new table and return a smart ptr PHash..
 */
-void TTable::GroupByIntCol(TStr GroupBy, THash<TInt,TIntV>& grouping, const TIntV& IndexSet){
+void TTable::GroupByIntCol(TStr GroupBy, THash<TInt,TIntV>& grouping, const TIntV& IndexSet) const{
   if(!ColTypeMap.IsKey(GroupBy)){TExcept::Throw("no such column " + GroupBy);}
   TPair<TYPE,TInt> ColDat = ColTypeMap.GetDat(GroupBy);
   if(ColDat.Val1 != INT){TExcept::Throw(GroupBy + " values are not of expected type integer");}
@@ -167,14 +221,14 @@ void TTable::GroupByIntCol(TStr GroupBy, THash<TInt,TIntV>& grouping, const TInt
     for(TInt i = 0; i < IndexSet.Len(); i++){
       if(IsRowValid(IndexSet[i])){
         TInt RowIdx = IndexSet[i];
-        TIntV& Col = IntCols[ColDat.Val2];       
+        const TIntV& Col = IntCols[ColDat.Val2];       
         UpdateGrouping<TInt>(grouping, Col[RowIdx], RowIdx);
       }
     }
   }
 }
 
-void TTable::GroupByFltCol(TStr GroupBy, THash<TFlt,TIntV>& grouping, const TIntV& IndexSet){
+void TTable::GroupByFltCol(TStr GroupBy, THash<TFlt,TIntV>& grouping, const TIntV& IndexSet) const{
   if(!ColTypeMap.IsKey(GroupBy)){TExcept::Throw("no such column " + GroupBy);}
   TPair<TYPE,TInt> ColDat = ColTypeMap.GetDat(GroupBy);
   if(ColDat.Val1 != FLT){TExcept::Throw(GroupBy + " values are not of expected type float");}
@@ -188,14 +242,14 @@ void TTable::GroupByFltCol(TStr GroupBy, THash<TFlt,TIntV>& grouping, const TInt
     for(TInt i = 0; i < IndexSet.Len(); i++){
       if(IsRowValid(IndexSet[i])){
         TInt RowIdx = IndexSet[i];
-        TFltV& Col = FltCols[ColDat.Val2];       
+        const TFltV& Col = FltCols[ColDat.Val2];       
         UpdateGrouping<TFlt>(grouping, Col[RowIdx], RowIdx);
       }
     }
   }
 }
 
-void TTable::GroupByStrCol(TStr GroupBy, THash<TStr,TIntV>& grouping, const TIntV& IndexSet){
+void TTable::GroupByStrCol(TStr GroupBy, THash<TStr,TIntV>& grouping, const TIntV& IndexSet) const{
   if(!ColTypeMap.IsKey(GroupBy)){TExcept::Throw("no such column " + GroupBy);}
   TPair<TYPE,TInt> ColDat = ColTypeMap.GetDat(GroupBy);
   if(ColDat.Val1 != STR){TExcept::Throw(GroupBy + " values are not of expected type string");}
@@ -309,18 +363,62 @@ void TTable::Count(TStr CountColName, TStr Col){
   ColTypeMap.AddDat(Col, TPair<TYPE,TInt>(INT, IntCols.Len()));
 }
 
-/*
-void JoinInts(TIntV ThisCols, TIntV OtherCols) {
-}
+ PTable TTable::InitializeJointTable(const TTable& Table){
+  PTable JointTable = New();
+  JointTable->Name = Name + "_" + Table.Name;
+  JointTable->IntCols = TVec<TIntV>(IntCols.Len() + Table.IntCols.Len());
+  JointTable->FltCols = TVec<TFltV>(FltCols.Len() + Table.FltCols.Len());
+  JointTable->StrColMaps = TVec<TIntV>(StrColMaps.Len() + Table.StrColMaps.Len());
+  for(THash<TStr,TPair<TYPE,TInt>>::TIter it = ColTypeMap.BegI(); it < ColTypeMap.EndI(); it++){
+    TStr CName = Name + "." + it->Key;
+    JointTable->ColTypeMap.AddDat(CName, it->Dat);
+    JointTable->AddLabel(CName, it->Key);
+  }
+  for(THash<TStr,TPair<TYPE,TInt>>::TIter it = Table.ColTypeMap.BegI(); it < Table.ColTypeMap.EndI(); it++){
+    TStr CName = Name + "." + it->Key;
+    TPair<TYPE, TInt> NewDat = it->Dat;
+    switch(NewDat.Val1){
+      case INT:
+        NewDat.Val2 += IntCols.Len();
+        break;
+      case FLT:
+        NewDat.Val2 += FltCols.Len();
+        break;
+      case STR:
+        NewDat.Val2 += StrColMaps.Len();
+        break;
+    }
+    JointTable->ColTypeMap.AddDat(CName, NewDat);
+    JointTable->AddLabel(CName, it->Key);
+    return JointTable;
+  }
+ }
 
-void JoinFlts(TIntV ThisCols, TIntV OtherCols) {
-}
+ void TTable::AddJointRow(const TTable& T1, const TTable& T2, TInt RowIdx1, TInt RowIdx2){
+   for(TInt i = 0; i < T1.IntCols.Len(); i++){
+     IntCols[i].Add(T1.IntCols[i][RowIdx1]);
+   }
+   for(TInt i = 0; i < T1.FltCols.Len(); i++){
+     FltCols[i].Add(T1.FltCols[i][RowIdx1]);
+   }
+   for(TInt i = 0; i < T1.StrColMaps.Len(); i++){
+     AddStrVal(i, GetStrVal(i, RowIdx1));
+   }
+   TInt IntOffset = T1.IntCols.Len();
+   TInt FltOffset = T1.FltCols.Len();
+   TInt StrOffset = T1.StrColMaps.Len();
+   for(TInt i = 0; i < T2.IntCols.Len(); i++){
+     IntCols[i+IntOffset].Add(T2.IntCols[i][RowIdx2]);
+   }
+   for(TInt i = 0; i < T2.FltCols.Len(); i++){
+     FltCols[i+FltOffset].Add(T2.FltCols[i][RowIdx2]);
+   }
+   for(TInt i = 0; i < T2.StrColMaps.Len(); i++){
+     AddStrVal(i+StrOffset, GetStrVal(i, RowIdx2));
+   }
+ }
 
-void JoinFlts(TIntV ThisCols, TIntV OtherCols) {
-}
-*/
-
-void TTable::Join(TStr Col1, const TTable& Table, TStr Col2) {
+PTable TTable::Join(TStr Col1, const TTable& Table, TStr Col2) {
   if(!ColTypeMap.IsKey(Col1)){
     TExcept::Throw("no such column " + Col1);
   }
@@ -332,18 +430,59 @@ void TTable::Join(TStr Col1, const TTable& Table, TStr Col2) {
   if (Col1Dat.Val1 != Col2Dat.Val1) {
     TExcept::Throw("Trying to Join on columns of different type");
   }
-  /*  switch (Col1Dat.Val1) {
-    case INT:
-      JoinInts();
-      break;
-    case FLT:
-      JoinFlts();
-      break;
-    case STR:
-      JoinStrs();
-      break;
+  // initialize result table
+  PTable JointTable = InitializeJointTable(Table);
+  // hash smaller table (group by column)
+  TYPE ColType = Col1Dat.Val1;
+  TBool ThisIsSmaller = (NumRows <= Table.NumRows);
+  const TTable& TS = ThisIsSmaller ? *this : Table;
+  const TTable& TB = ThisIsSmaller ?  Table : *this;
+  TStr ColS = ThisIsSmaller ? Col1 : Col2;
+  TStr ColB = ThisIsSmaller ? Col2 : Col1;
+  // iterate over the rows of the bigger table and check for "collisions" 
+  // with the group keys for the small table.
+  switch(ColType){
+    case INT:{
+      THash<TInt, TIntV> T;
+      TS.GroupByIntCol(Col1, T, TIntV());
+      for(TRowIterator RowI = TB.BegRI(); RowI < TB.EndRI(); RowI++){
+        TInt K = RowI.GetIntAttr(ColB);
+        if(T.IsKey(K)){
+          TIntV& Group = T.GetDat(K);
+          for(TInt i = 0; i < Group.Len(); i++){
+            JointTable->AddJointRow(*this, Table, Group[i], RowI.GetRowIdx());
+          }
+        }
+      }
+    }
+    case FLT:{
+      THash<TFlt, TIntV> T;
+      TS.GroupByFltCol(Col1, T, TIntV());
+      for(TRowIterator RowI = TB.BegRI(); RowI < TB.EndRI(); RowI++){
+        TFlt K = RowI.GetFltAttr(ColB);
+        if(T.IsKey(K)){
+          TIntV& Group = T.GetDat(K);
+          for(TInt i = 0; i < Group.Len(); i++){
+            JointTable->AddJointRow(*this, Table, Group[i], RowI.GetRowIdx());
+          }
+        }
+      }
+    }
+    case STR:{
+      THash<TStr, TIntV> T;
+      TS.GroupByStrCol(Col1, T, TIntV());
+      for(TRowIterator RowI = TB.BegRI(); RowI < TB.EndRI(); RowI++){
+        TStr K = RowI.GetStrAttr(ColB);
+        if(T.IsKey(K)){
+          TIntV& Group = T.GetDat(K);
+          for(TInt i = 0; i < Group.Len(); i++){
+            JointTable->AddJointRow(*this, Table, Group[i], RowI.GetRowIdx());
+          }
+        }
+      }
+    }
   }
-  */  
+ return JointTable; 
 }
 
 void TTable::Dist(TStr Col1, const TTable& Table, TStr Col2, TStr DistColName, const TMetric& Metric, TFlt threshold) {
@@ -386,4 +525,94 @@ void TTable::Select(TPredicate& Predicate){
   }
   KeepSortedRows(Selected);
 }
+
+PNEAGraph TTable::ToGraph() {
+	  PNEAGraph Graph = PNEAGraph::New();
+	  // Add Nodes + Edges
+	  THash<TFlt, TInt> FSrNodeMap = THash<TFlt, TInt>();
+	  THash<TFlt, TInt> FDsNodeMap = THash<TFlt, TInt>();
+
+	  TYPE SrCT = ColTypeMap.GetDat(SrcCol).Val1;
+	  TInt SrIdx = ColTypeMap.GetDat(SrcCol).Val2;
+	  TYPE DsCT = ColTypeMap.GetDat(DstCol).Val1;
+	  TInt DsIdx = ColTypeMap.GetDat(DstCol).Val2;
+	  TInt SrcCnt = 0;
+	  TInt DstCnt = 0;
+
+	  for(TRowIterator RowI = BegRI(); RowI < EndRI(); RowI++) {
+	    if (SrCT == INT && DsCT == INT) {
+	      Graph->AddNode(IntCols[SrIdx][RowI.GetRowIdx()]);
+	      Graph->AddNode(IntCols[DsIdx][RowI.GetRowIdx()]);
+	      Graph->AddEdge(IntCols[SrIdx][RowI.GetRowIdx()], IntCols[DsIdx][RowI.GetRowIdx()], RowI.GetRowIdx());
+	    } else if (SrCT == INT && DsCT == FLT) {
+	      Graph->AddNode(IntCols[SrIdx][RowI.GetRowIdx()]);
+	      TFlt val = FltCols[DsIdx][RowI.GetRowIdx()];
+	      if (!FDsNodeMap.IsKey(val)) {
+		FDsNodeMap.AddDat(val, DstCnt++);
+	      }
+	      Graph->AddNode(FDsNodeMap.GetDat(val));
+	      Graph->AddEdge(IntCols[SrIdx][RowI.GetRowIdx()], FDsNodeMap.GetDat(val));
+	    } else if (SrCT == INT && DsCT == STR) {
+	      Graph->AddNode(IntCols[SrIdx][RowI.GetRowIdx()]);
+	      Graph->AddNode(StrColMaps[DsIdx][RowI.GetRowIdx()]);
+	      Graph->AddEdge(IntCols[SrIdx][RowI.GetRowIdx()], StrColMaps[DsIdx][RowI.GetRowIdx()], RowI.GetRowIdx());
+	    } else if (SrCT == FLT && DsCT == INT) {
+	      Graph->AddNode(IntCols[DsIdx][RowI.GetRowIdx()]);
+	      TFlt val = FltCols[SrIdx][RowI.GetRowIdx()];
+	      if (!FSrNodeMap.IsKey(val)) {
+		FSrNodeMap.AddDat(val, SrcCnt++);
+	      }
+	      Graph->AddNode(FSrNodeMap.GetDat(val));
+	      Graph->AddEdge(FSrNodeMap.GetDat(val), IntCols[SrIdx][RowI.GetRowIdx()], RowI.GetRowIdx());
+	    } else if (SrCT == FLT && DsCT == STR) {
+	      Graph->AddNode(StrColMaps[DsIdx][RowI.GetRowIdx()]);
+	      TFlt val = FltCols[SrIdx][RowI.GetRowIdx()];
+	      if (!FSrNodeMap.IsKey(val)) {
+		FSrNodeMap.AddDat(val, SrcCnt++);
+	      }
+	      Graph->AddNode(FSrNodeMap.GetDat(val));
+	      Graph->AddEdge(FSrNodeMap.GetDat(val), IntCols[SrIdx][RowI.GetRowIdx()], RowI.GetRowIdx());
+	    } else if (SrCT == FLT && DsCT == FLT) {
+	      TFlt val = FltCols[SrIdx][RowI.GetRowIdx()];
+	      if (!FSrNodeMap.IsKey(val)) {
+		FSrNodeMap.AddDat(val, SrcCnt++);
+	      }
+	      Graph->AddNode(FSrNodeMap.GetDat(val));
+	      val = FltCols[DsIdx][RowI.GetRowIdx()];
+	      if (!FDsNodeMap.IsKey(val)) {
+		FDsNodeMap.AddDat(val, DstCnt++);
+	      }
+	      Graph->AddNode(FDsNodeMap.GetDat(val));
+	      Graph->AddEdge(FSrNodeMap.GetDat(val), FDsNodeMap.GetDat(val), RowI.GetRowIdx());
+	    }
+	  }
+
+	  // Now add edge attributes.
+	  for(TRowIterator RowI = BegRI(); RowI < EndRI(); RowI++) {
+	    typedef THash<TStr,TPair<TYPE,TInt> >::TIter TColIter;
+	    for (int i = 0; i < EdgeAttrV.Len(); i++) {
+	      TStr ColName = EdgeAttrV[i];
+	      TYPE T = ColTypeMap.GetDat(ColName).Val1;
+	      TInt Index = ColTypeMap.GetDat(ColName).Val2;
+	      TInt Ival;
+	      TFlt Fval;
+	      TStr Sval;
+	      switch (T) {
+	      case INT:
+		Ival = IntCols[Index][RowI.GetRowIdx()];
+		Graph->AddIntAttrDatE(RowI.GetRowIdx(), Ival, ColName);
+		break;
+	      case FLT:
+		Fval = FltCols[Index][RowI.GetRowIdx()];
+		Graph->AddFltAttrDatE(RowI.GetRowIdx(), Fval, ColName);
+		break;
+	      case STR:
+		Sval = StrColVals.GetStr(StrColMaps[Index][RowI.GetRowIdx()]);
+		Graph->AddStrAttrDatE(RowI.GetRowIdx(), Sval, ColName);
+		break;
+	      }
+	    }
+	  }
+	  return Graph;
+	}
 

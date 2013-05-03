@@ -95,7 +95,10 @@ TBool TPredicate::EvalAtomicPredicate(const TAtomicPredicate& Atom){
    switch(Atom.Type){
      case INT:{
        if(Atom.IsConst){ return EvalAtom<TInt>(IntVars.GetDat(Atom.Lvar), Atom.IntConst, Atom.Compare);}
-       return EvalAtom<TInt>(IntVars.GetDat(Atom.Lvar), IntVars.GetDat(Atom.Rvar), Atom.Compare);
+       TInt L = IntVars.GetDat(Atom.Lvar);
+       TInt R = IntVars.GetDat(Atom.Rvar);
+       //return EvalAtom<TInt>(IntVars.GetDat(Atom.Lvar), IntVars.GetDat(Atom.Rvar), Atom.Compare);
+       return EvalAtom<TInt>(L, R, Atom.Compare);
      }
      case FLT:{
        if(Atom.IsConst){ return EvalAtom<TFlt>(FltVars.GetDat(Atom.Lvar), Atom.FltConst, Atom.Compare);}
