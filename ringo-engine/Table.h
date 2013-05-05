@@ -188,6 +188,14 @@ public:
   // need some liveness analysis of columns
   void Defrag();
 
+  // helper functions
+ private:
+  TInt GetNId(TStr Col, TInt RowIdx, THash<TFlt, TInt>& FSrNodeMap, THash<TFlt, TInt>& FDsNodeMap);
+  void BuildGraphTopology(PNEAGraph& Graph, THash<TFlt, TInt>& FSrNodeMap, THash<TFlt, TInt>& FDsNodeMap);
+ void AddNodeAttributes(PNEAGraph& Graph, THash<TFlt, TInt>& FSrNodeMap, THash<TFlt, TInt>& FDsNodeMap);
+ void AddEdgeAttributes(PNEAGraph& Graph);
+  
+
   friend class TPt<TTable>;
 };
 #endif //TABLE_H
