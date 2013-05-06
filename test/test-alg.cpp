@@ -1,14 +1,17 @@
 #include <gtest/gtest.h>
 #include "Snap.h"
 
-void CheckVectors(TIntPrV& Expected, TIntPrV& Actual);
-void CheckVectors(TFltPrV& Expected, TFltPrV& Actual);
-void CheckVectors(TIntSet& Expected, TIntSet& Actual);
-void CheckVectors(TIntV& Expected, TIntV& Actual);
-void CheckGraphs(TIntPrV& Expected, PUNGraph& Actual);
-void CheckGraphs(TIntPrV& Expected, PNGraph& Actual);
-void CheckGraphs(TIntPrV& Expected, PNEGraph& Actual);
+void CheckVectors(const TIntPrV& Expected, const TIntPrV& Actual);
+void CheckVectors(const TFltPrV& Expected, const TFltPrV& Actual);
+void CheckVectors(const TIntSet& Expected, const TIntSet& Actual);
+void CheckVectors(const TIntV& Expected, const TIntV& Actual);
+void CheckGraphs(const TIntPrV& Expected, const PUNGraph& Actual);
+void CheckGraphs(const TIntPrV& Expected, const PNGraph& Actual);
+void CheckGraphs(const TIntPrV& Expected, const PNEGraph& Actual);
 void CheckNotInSet(int Key, const TIntSet& Keys);
+void AddValues(TIntV& Vector, int NumValues, int Value);
+void AddConsecutiveValues(TIntV& Vector, int Start, int End);
+void GetKeys(TIntV& Keys, const TIntPrV& Map);
 
 /////////////////////////////////////////////////
 // Test Algorithms
@@ -113,13 +116,13 @@ class TreeTest : public ::testing::Test {
  protected:
 
   PNGraph SingleNode;
-  PNGraph BalancedTree;
+  PNGraph Tree;
   PNGraph Forest;
   PNGraph Circle;
 
   virtual void SetUp() {
     SingleNode = GetSingleNode();
-    BalancedTree = GetTree();
+    Tree = GetTree();
     Forest = GetForest();
     Circle = GetCircle();
   }
@@ -132,26 +135,26 @@ class TreeTest : public ::testing::Test {
   }
 
 
-  // Returns a perfect binary tree of 15 nodes
+  // Returns a binary tree of 14 nodes
   PNGraph GetTree() {
     PNGraph G = TNGraph::New();
-    for (int i = 0; i < 15; i++) {
+    for (int i = 1; i < 15; i++) {
       G->AddNode(i);
     }
-    for (int i = 1; i < 15; i++) {
-      G->AddEdge(i,i/2);
+    for (int i = 2; i < 15; i++) {
+      G->AddEdge(i, i/2);
     }
     return G;
   }
 
-  // Returns a perfect binary tree minus one edge
+  // Returns a binary tree minus one edge
   PNGraph GetForest() {
     PNGraph G = GetTree();
     G->DelEdge(4,2);
     return G;
   }
 
-  // Returns a perfect binary tree plus one edge
+  // Returns a binary tree plus one edge
   PNGraph GetCircle() {
     PNGraph G = GetTree();
     G->AddEdge(7,2);
@@ -1717,56 +1720,122 @@ TEST_F(TreeTest, IsTreeTest) {
   int RootNId;
 
   EXPECT_TRUE(TSnap::IsTree(SingleNode, RootNId));
-  EXPECT_TRUE(TSnap::IsTree(BalancedTree, RootNId));
+  EXPECT_EQ(1, RootNId);
+  EXPECT_TRUE(TSnap::IsTree(Tree, RootNId));
+  EXPECT_EQ(1, RootNId);
   EXPECT_FALSE(TSnap::IsTree(Forest, RootNId));
+  EXPECT_EQ(-1, RootNId);
   EXPECT_FALSE(TSnap::IsTree(Circle, RootNId));
+  EXPECT_EQ(-1, RootNId);
 }
 
 // Testing GetTreeRootNId
 TEST_F(TreeTest, GetTreeRootNIdTest) {
-  EXPECT_EQ(1, TSnap::GetTreeRootNId(SingleNode));
-  EXPECT_EQ(0, TSnap::GetTreeRootNId(BalancedTree));
+  int RootNId = 1;
+
+  EXPECT_EQ(RootNId, TSnap::GetTreeRootNId(SingleNode));
+  EXPECT_EQ(RootNId, TSnap::GetTreeRootNId(Tree));
   EXPECT_DEATH(TSnap::GetTreeRootNId(Forest), "");
   EXPECT_DEATH(TSnap::GetTreeRootNId(Circle), "");
 }
 
 // Testing GetTreeSig
 TEST_F(TreeTest, GetTreeSigTest) {
-  int RootNId;
+  int RootNId = 1;
   TIntV SingleNodeSig;
-  TIntV BalancedTreeSig;
+  TIntV TreeSig;
   TIntV ForestSig;
   TIntV CircleSig;
+  TIntV ExpectedSingleNodeSig;
+  TIntV ExpectedTreeSig;
 
+  // SingleNode
+
+  ExpectedSingleNodeSig.Add(0);
   TSnap::GetTreeSig(SingleNode, RootNId, SingleNodeSig);
-//   TSnap::GetTreeSig(BalancedTree, RootNId, BalancedTreeSig);
-//   TSnap::GetTreeSig(Forest, RootNId, ForestSig);
-//   TSnap::GetTreeSig(Circle, RootNId, CircleSig);
+  CheckVectors(ExpectedSingleNodeSig, SingleNodeSig);
+
+  // Tree
+
+  int NumNodesWithChildren = 6;
+  int NumNodesWithChild = 1;
+  int NumNodesWithNoChildren = 7;
+  AddValues(ExpectedTreeSig, NumNodesWithChildren, 2);
+  AddValues(ExpectedTreeSig, NumNodesWithChild, 1);
+  AddValues(ExpectedTreeSig, NumNodesWithNoChildren, 0);
+
+  TSnap::GetTreeSig(Tree, RootNId, TreeSig);
+  CheckVectors(ExpectedTreeSig, TreeSig);
+
+  // Forest
+
+  EXPECT_DEATH(TSnap::GetTreeSig(Forest, RootNId, ForestSig), "");
+
+  // Circle
+
+  EXPECT_DEATH(TSnap::GetTreeSig(Circle, RootNId, CircleSig), "");
 }
 
 // Testing GetTreeSig with node map
-TEST_F(TreeTest, GetTreeSigTestWithNodeMap) {
-  int RootNId;
+TEST_F(TreeTest, GetTreeSigWithNodeMapTest) {
+  int RootNId = 1;
   TIntV SingleNodeSig;
-  TIntV BalancedTreeSig;
+  TIntV TreeSig;
   TIntV ForestSig;
   TIntV CircleSig;
+  TIntV ExpectedSingleNodeSig;
+  TIntV ExpectedTreeSig;
   TIntPrV SingleNodeNodeMap;
-  TIntPrV BalancedTreeNodeMap;
+  TIntPrV TreeNodeMap;
   TIntPrV ForestNodeMap;
   TIntPrV CircleNodeMap;
+  TIntV TreeNodeMapKeys;
+  TIntPrV ExpectedSingleNodeNodeMap;
+  TIntV ExpectedTreeNodeMapKeys;
 
-//   TSnap::GetTreeSig(SingleNode, RootNId, SingleNodeSig, SingleNodeNodeMap);
-//   TSnap::GetTreeSig(BalancedTree, RootNId, BalancedTreeSig, BalancedTreeNodeMap);
-//   TSnap::GetTreeSig(Forest, RootNId, ForestSig, ForestTreeNodeMap);
-//   TSnap::GetTreeSig(Circle, RootNId, CircleSig, CircleTreeNodeMap);
+  // SingleNode
+
+  ExpectedSingleNodeSig.Add(0);
+  ExpectedSingleNodeNodeMap.Add(TIntPr(1, 0));
+  TSnap::GetTreeSig(SingleNode, RootNId, SingleNodeSig, SingleNodeNodeMap);
+  CheckVectors(ExpectedSingleNodeSig, SingleNodeSig);
+  CheckVectors(ExpectedSingleNodeNodeMap, SingleNodeNodeMap);
+
+  // Tree
+
+  int NumNodesWithChildren = 6;
+  int NumNodesWithChild = 1;
+  int NumNodesWithNoChildren = 7;
+  AddValues(ExpectedTreeSig, NumNodesWithChildren, 2);
+  AddValues(ExpectedTreeSig, NumNodesWithChild, 1);
+  AddValues(ExpectedTreeSig, NumNodesWithNoChildren, 0);
+  AddConsecutiveValues(ExpectedTreeNodeMapKeys, RootNId, Tree->GetNodes());
+
+  // Checking only node IDs (not positions) for node map
+
+  TSnap::GetTreeSig(Tree, RootNId, TreeSig, TreeNodeMap);
+  GetKeys(TreeNodeMapKeys, TreeNodeMap);
+  ExpectedTreeNodeMapKeys.Sort();
+  TreeNodeMapKeys.Sort();
+  CheckVectors(ExpectedTreeSig, TreeSig);
+  CheckVectors(ExpectedTreeNodeMapKeys, TreeNodeMapKeys);
+
+  // Forest
+
+  EXPECT_DEATH(
+      TSnap::GetTreeSig(Forest, RootNId, ForestSig, ForestNodeMap), "");
+
+  // Circle
+
+  EXPECT_DEATH(
+      TSnap::GetTreeSig(Circle, RootNId, CircleSig, CircleNodeMap), "");
 }
 
 ///
 // HELPER METHODS
 ///
 
-void CheckVectors(TIntPrV& Expected, TIntPrV& Actual) {
+void CheckVectors(const TIntPrV& Expected, const TIntPrV& Actual) {
   ASSERT_EQ(Expected.Len(), Actual.Len());
   for (int i = 0; i < Actual.Len(); i++) {
     EXPECT_EQ(Expected[i].Val1.Val, Actual[i].Val1.Val);
@@ -1774,7 +1843,7 @@ void CheckVectors(TIntPrV& Expected, TIntPrV& Actual) {
   }
 }
 
-void CheckVectors(TFltPrV& Expected, TFltPrV& Actual) {
+void CheckVectors(const TFltPrV& Expected, const TFltPrV& Actual) {
   ASSERT_EQ(Expected.Len(), Actual.Len());
   for (int i = 0; i < Actual.Len(); i++) {
     EXPECT_EQ(Expected[i].Val1.Val, Actual[i].Val1.Val);
@@ -1782,35 +1851,35 @@ void CheckVectors(TFltPrV& Expected, TFltPrV& Actual) {
   }
 }
 
-void CheckVectors(TIntV& Expected, TIntV& Actual) {
+void CheckVectors(const TIntV& Expected, const TIntV& Actual) {
   ASSERT_EQ(Expected.Len(), Actual.Len());
   for (int i = 0; i < Actual.Len(); i++) {
     EXPECT_EQ(Expected[i].Val, Actual[i].Val);
   }
 }
 
-void CheckVectors(TIntSet& Expected, TIntSet& Actual) {
+void CheckVectors(const TIntSet& Expected, const TIntSet& Actual) {
   ASSERT_EQ(Expected.Len(), Actual.Len());
   for (int i = 0; i < Actual.Len(); i++) {
     EXPECT_EQ(Expected[i].Val, Actual[i].Val);
   }
 }
 
-void CheckGraphs(TIntPrV& ExpectedDegCnt, PUNGraph& ActualGraph) {
+void CheckGraphs(const TIntPrV& ExpectedDegCnt, const PUNGraph& ActualGraph) {
   TIntPrV ActualDegCnt;
   TSnap::GetDegCnt(ActualGraph, ActualDegCnt);
 
   CheckVectors(ExpectedDegCnt, ActualDegCnt);
 }
 
-void CheckGraphs(TIntPrV& ExpectedDegCnt, PNGraph& ActualGraph) {
+void CheckGraphs(const TIntPrV& ExpectedDegCnt, const PNGraph& ActualGraph) {
   TIntPrV ActualDegCnt;
   TSnap::GetDegCnt(ActualGraph, ActualDegCnt);
 
   CheckVectors(ExpectedDegCnt, ActualDegCnt);
 }
 
-void CheckGraphs(TIntPrV& ExpectedDegCnt, PNEGraph& ActualGraph) {
+void CheckGraphs(const TIntPrV& ExpectedDegCnt, const PNEGraph& ActualGraph) {
   TIntPrV ActualDegCnt;
   TSnap::GetDegCnt(ActualGraph, ActualDegCnt);
 
@@ -1820,5 +1889,23 @@ void CheckGraphs(TIntPrV& ExpectedDegCnt, PNEGraph& ActualGraph) {
 void CheckNotInSet(int Key, const TIntSet& Keys) {
   for (int i = 0; i < Keys.Len(); i++) {
     EXPECT_NE(Keys[i], Key);
+  }
+}
+
+void AddValues(TIntV& Vector, int NumValues, int Value) {
+  for (int i = 0; i < NumValues; i++) {
+    Vector.Add(Value);
+  }
+}
+
+void AddConsecutiveValues(TIntV& Vector, int Start, int End) {
+  for (int Id = Start; Id <= End; Id++) {
+    Vector.Add(Id);
+  }
+}
+
+void GetKeys(TIntV& Keys, const TIntPrV& Map) {
+  for (int Id = 0; Id < Map.Len(); Id++) {
+    Keys.Add(Map[Id].Val1.Val);
   }
 }

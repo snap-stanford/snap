@@ -467,20 +467,20 @@ bool IsTree(const PGraph& Graph, int& RootNId) {
 // tree signature -- for each level we sort the node in-degrees and concatenate them into a vector
 template <class PGraph>
 void GetTreeSig(const PGraph& Graph, const int& RootNId, TIntV& Sig) {
+  // Ensure Graph is a valid tree with a valid RootNId
+  int ValidRootNId;
   CAssert(HasGraphFlag(typename PGraph::TObj, gfDirected));
+  IAssertR(Graph->IsNode(RootNId), "RootNId is not a valid root node");
+  IAssertR(IsTree(Graph, ValidRootNId), "Graph is not a valid tree");
   Sig.Gen(Graph->GetNodes(), 0);
   TSnapQueue<int> NIdQ(Graph->GetNodes());
   NIdQ.Push(RootNId);
   int LastPos = 0, NodeCnt = 1;
   while (! NIdQ.Empty()) {
     const typename PGraph::TObj::TNodeI Node = Graph->GetNI(NIdQ.Top());  NIdQ.Pop();
-    IAssert(Node.GetInDeg()==0 || Node.GetOutDeg()==0); // child points or is-pointed to by the parent
     if (Node.GetInDeg() != 0) {
       for (int e = 0; e < Node.GetInDeg(); e++) {
         NIdQ.Push(Node.GetInNId(e)); }
-    } else if (Node.GetOutDeg() != 0) {
-      for (int e = 0; e < Node.GetOutDeg(); e++) {
-        NIdQ.Push(Node.GetOutNId(e)); }
     }
     Sig.Add(Node.GetInDeg());
     if (--NodeCnt == 0) {
@@ -494,7 +494,11 @@ void GetTreeSig(const PGraph& Graph, const int& RootNId, TIntV& Sig) {
 // tree signature -- for each level we sort the node in-degrees and concatenate them into a vector
 template <class PGraph>
 void GetTreeSig(const PGraph& Graph, const int& RootNId, TIntV& Sig, TIntPrV& NodeMap) {
+  // Ensure Graph is a valid tree with a valid RootNId
+  int ValidRootNId;
   CAssert(HasGraphFlag(typename PGraph::TObj, gfDirected));
+  IAssertR(Graph->IsNode(RootNId), "RootNId is not a valid root node");
+  IAssertR(IsTree(Graph, ValidRootNId), "Graph is not a valid tree");
   NodeMap.Gen(Graph->GetNodes(), 0);
   Sig.Gen(Graph->GetNodes(), 0);
   TSnapQueue<int> NIdQ(Graph->GetNodes());
@@ -502,16 +506,11 @@ void GetTreeSig(const PGraph& Graph, const int& RootNId, TIntV& Sig, TIntPrV& No
   int LastPos = 0, NodeCnt = 1;
   while (! NIdQ.Empty()) {
     const typename PGraph::TObj::TNodeI Node = Graph->GetNI(NIdQ.Top());  NIdQ.Pop();
-    IAssert(Node.GetInDeg()==0 || Node.GetOutDeg()==0); // child points or is-pointed to by the parent
     if (Node.GetInDeg() != 0) {
       for (int e = 0; e < Node.GetInDeg(); e++) {
         NIdQ.Push(Node.GetInNId(e)); }
-      NodeMap.Add(TIntPr(Node.GetInDeg(), Node.GetId()));
-    } else if (Node.GetOutDeg() != 0) {
-      for (int e = 0; e < Node.GetOutDeg(); e++) {
-        NIdQ.Push(Node.GetOutNId(e)); }
-      NodeMap.Add(TIntPr(Node.GetOutDeg(), Node.GetId()));
     }
+    NodeMap.Add(TIntPr(Node.GetInDeg(), Node.GetId()));
     if (--NodeCnt == 0) {
       for (int i = LastPos; i < NodeMap.Len(); i++) {
         NodeCnt += NodeMap[i].Val1; }
