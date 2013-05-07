@@ -8,11 +8,12 @@ in 1996.
 The following people also contributed to the development of SNAP
 (in alphabetical order).
 
+Justin Cheng
+Richard Hsu
 Myunghwan Kim
 Julian McAuley
 Manuel Gomez Rodriguez
 Nicholas Shelly
-Richard Hsu
 Rok Sosic
 Jaewon Yang
 Chenguang Zhu
