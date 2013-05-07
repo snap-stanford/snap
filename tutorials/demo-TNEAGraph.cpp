@@ -350,7 +350,7 @@ void ManipulateNodeEdgeAttributes() {
 
   printf("Average: %i (should be 70)\n", total/NEdges);
 
-  Graph1->Dump();
+  //Graph1->Dump();
   Graph1->Clr();
 }
 
