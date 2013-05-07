@@ -5,13 +5,12 @@
 #include "TMetric.h"
 
 /* 
-TODO:
+Guidelines:
 1. Bad code duplication everywhere (repetitions for int, flt and str).
    Maybe should probably use templates
-   OR: pass TYPE as parameter
 2. Give a-priori memory allocation to vector/hash table constructors 
 3. Smart pointer for Ttable: type PTable; Remove explicit pointrer usages
-4. Create simple classes for complex hash table types <--
+4. Create simple classes for complex hash table types / implement accessors
 5. Use string pools instead of big string vectors <--
 6. Remove recursion from GroupAux <-- 
 7. Use row ids with uint64
@@ -22,6 +21,7 @@ typedef TPt<TTable> PTable;
 class TTable{
 public:
   typedef enum {INT, FLT, STR} TYPE;   // must be consistent with TYPE definition in TPredicate
+  typedef TVec<TPair<TStr, TYPE> > Schema; 
 protected:
   // special values for Next column
   static const TInt Last;
@@ -48,6 +48,7 @@ public:
 
 protected:
   TStr Name;
+  Schema S;
   // Reference Counter for Garbage Collection
   TCRef CRef;
   // number of rows in the table
@@ -60,9 +61,11 @@ protected:
 	TVec<TFltV> FltCols;
   // string columns are implemented using a string pool to fight memory fragmentation
   // The value of string column c in row r is StrColVals.GetStr(StrColMaps[c][r])
+  // Q: why not use TStrHash class ?
 	TVec<TIntV> StrColMaps; 
   TBigStrPool StrColVals;
   TInt NumOfDistinctStrVals;
+  // column name --> <column type, column index among columns of the same type>
 	THash<TStr,TPair<TYPE,TInt> > ColTypeMap;
 	// grouping statement name --> (group index --> rows that belong to that group)
   // Note that these mappings are invalid after we remove rows
@@ -122,17 +125,20 @@ protected:
   void KeepSortedRows(const TIntV& KeepV);
   // Initialize an empty table for the join of this table with the given table
   PTable InitializeJointTable(const TTable& Table);
+  // add joint row T1[RowIdx1]<=>T2[RowIdx2]
   void AddJointRow(const TTable& T1, const TTable& T2, TInt RowIdx1, TInt RowIdx2);
 
 public:
   // do we need an assignment operator?
-	TTable() : Name(""), CRef(), NumRows(0), FirstValidRow(), Next(), IntCols(), 
-    FltCols(), StrColMaps(), StrColVals(), NumOfDistinctStrVals(0), ColTypeMap(), GroupMapping(),
-    WorkingCol(), SrcCol(),DstCol(), EdgeAttrV(),SrcNodeAttrV(), DstNodeAttrV() { }
-	TTable(TSIn& SIn);
-  TTable(const TTable& Table){}
+	TTable(): NumRows(0), FirstValidRow(0), NumOfDistinctStrVals(0){ }  // Useless no-parameter constructor
+  TTable(const TStr& TableName, const Schema& S);
+  TTable(TSIn& SIn){}  // TODO
+  // TTable(const TTable& Table){} // do we really need this ? anyway we just use the defualt compiler-provided copy constructor..
   static PTable New(){ return new TTable();}
-	static PTable Load(TSIn& SIn);
+  static PTable New(const TStr& TableName, const Schema& S){ return new TTable(TableName, S);}
+  static PTable Load(TSIn& SIn){ return new TTable(SIn);} 
+  // Load table from spread sheet (TSV, CSV, etc)
+  static PTable LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm, const char& Separator, TBool HasTitleLine);
 	void Save(TSOut& SOut);
 	PNEAGraph ToGraph();
   /* Getters of data required for building a graph out of the table */
@@ -187,6 +193,13 @@ public:
   // also updates meta-data as row indices have changed
   // need some liveness analysis of columns
   void Defrag();
+
+   // helper functions
+ private:
+ TInt GetNId(TStr Col, TInt RowIdx, THash<TFlt, TInt>& FSrNodeMap, THash<TFlt, TInt>& FDsNodeMap);
+ void BuildGraphTopology(PNEAGraph& Graph, THash<TFlt, TInt>& FSrNodeMap, THash<TFlt, TInt>& FDsNodeMap);
+ void AddNodeAttributes(PNEAGraph& Graph, THash<TFlt, TInt>& FSrNodeMap, THash<TFlt, TInt>& FDsNodeMap);
+ void AddEdgeAttributes(PNEAGraph& Graph);
 
   friend class TPt<TTable>;
 };
