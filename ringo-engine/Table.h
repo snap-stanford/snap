@@ -38,6 +38,7 @@ public:
     TRowIterator(const TRowIterator& RowI): CurrRowIdx(RowI.CurrRowIdx), Table(RowI.Table){}
     TRowIterator& operator++(int){
       CurrRowIdx = Table->Next[CurrRowIdx];
+      Assert(CurrRowIdx != Invalid);
       return *this;
     }
     bool operator < (const TRowIterator& RowI) const{ 
@@ -103,7 +104,7 @@ protected:
 
   // Iterators 
   TRowIterator BegRI() const{ return TRowIterator(FirstValidRow, this);}
-  TRowIterator EndRI() const{ return TRowIterator(NumRows, this);}
+  TRowIterator EndRI() const{ return TRowIterator(TTable::Last, this);}
   bool IsRowValid(TInt RowIdx) const{ return Next[RowIdx] != Invalid;}
 
 	// Store a group indices column in GroupMapping

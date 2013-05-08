@@ -257,13 +257,19 @@ void TTable::RemoveRows(const TIntV& RemoveV){
 }
 
 void TTable::KeepSortedRows(const TIntV& KeepV){
-  TInt KeepIdx = 0;
-  for(TRowIterator RowI = BegRI(); RowI < EndRI(); RowI++){
-    if((KeepIdx < KeepV.Len()) && (KeepV[KeepIdx] == RowI.GetRowIdx())){
+  // need to remove first rows
+  while(FirstValidRow != KeepV[0]){ RemoveRow(FirstValidRow);}
+  // at this point we know the first row will stay - i.e. FirstValidRow == KeepV[0]
+  TInt KeepIdx = 1;
+  TRowIterator RowI = BegRI();
+  while(RowI < EndRI()){
+    if(KeepV.Len() <= KeepIdx){ return;}
+    if(KeepV[KeepIdx] == Next[RowI.GetRowIdx()]){
       KeepIdx++;
+      RowI++;
     } else{
-      RemoveRow(RowI.GetRowIdx());
-    }   
+      RemoveRow(Next[RowI.GetRowIdx()]);
+    }
   }
 }
 
