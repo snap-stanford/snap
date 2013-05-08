@@ -2,10 +2,17 @@
 
 const TPredicate::TAtomicPredicate TPredicate::NonAtom = TAtomicPredicate(INT, true, EQ, "", "", 0, 0, "");
 
+void TPredicate::TPredicateNode::GetVariables(TStrV& Variables){
+  if(Left != NULL){ Left->GetVariables(Variables);}
+  if(Right != NULL){ Right->GetVariables(Variables);}
+  if(Op == NOP){
+    if(Atom.Lvar != ""){ Variables.Add(Atom.Lvar);}
+    if(Atom.Rvar != ""){ Variables.Add(Atom.Rvar);}
+  }
+}
+
 void TPredicate::GetVariables(TStrV& Variables){
-  IntVars.GetKeyV(Variables);
-  FltVars.GetKeyV(Variables);
-  StrVars.GetKeyV(Variables);
+  Root->GetVariables(Variables);
 }
 
 TBool TPredicate::Eval(){

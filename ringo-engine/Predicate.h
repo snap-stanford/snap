@@ -202,6 +202,7 @@ public:
     TPredicateNode(const TPredicateNode& P): Op(P.Op), Result(P.Result), Atom(P.Atom), Parent(P.Parent), Left(P.Left), Right(P.Right){}
     void AddLeftChild(TPredicateNode* Child){ Left = Child; Child->Parent = this;}
     void AddRightChild(TPredicateNode* Child){ Right = Child; Child->Parent = this;}
+    void GetVariables(TStrV& Variables);
     friend class TPredicate;
   };
 
