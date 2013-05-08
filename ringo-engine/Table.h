@@ -13,7 +13,7 @@ Guidelines:
 4. Create simple classes for complex hash table types / implement accessors
 5. Use string pools instead of big string vectors <--
 6. Remove recursion from GroupAux <-- 
-7. Use row ids with uint64
+7. Use row ids / NumRows with uint64
 */
 class TTable;
 typedef TPt<TTable> PTable;
@@ -36,8 +36,15 @@ public:
     TRowIterator(): CurrRowIdx(0), Table(NULL){}
     TRowIterator(TInt RowIdx, const TTable* TablePtr): CurrRowIdx(RowIdx), Table(TablePtr){}
     TRowIterator(const TRowIterator& RowI): CurrRowIdx(RowI.CurrRowIdx), Table(RowI.Table){}
-    TRowIterator& operator++(int){CurrRowIdx = Table->Next[CurrRowIdx]; return *this;}
-    bool operator < (const TRowIterator& RowI) const{ return CurrRowIdx < RowI.CurrRowIdx;}
+    TRowIterator& operator++(int){
+      CurrRowIdx = Table->Next[CurrRowIdx];
+      return *this;
+    }
+    bool operator < (const TRowIterator& RowI) const{ 
+      if(CurrRowIdx == TTable::Last){ return false;}
+      if(RowI.CurrRowIdx == TTable::Last){ return true;}
+      return CurrRowIdx < RowI.CurrRowIdx;
+    }
     bool operator == (const TRowIterator& RowI) const{ return CurrRowIdx == RowI.CurrRowIdx;}
     TInt GetRowIdx(){ return CurrRowIdx;}
     // we do not check column type in the iterator
@@ -87,10 +94,16 @@ protected:
   TStr GetStrVal(TStr Col, TInt RowIdx) const{ return GetStrVal(ColTypeMap.GetDat(Col).Val2, RowIdx);}
   void AddStrVal(TInt ColIdx, TStr Val);
   void AddStrVal(TStr Col, TStr Val);
-  
+  // Various Getters
+  TStr GetSchemaColName(TInt Idx) const{ return S[Idx].Val1;}
+  TYPE GetSchemaColType(TInt Idx) const{ return S[Idx].Val2;}
+  void AddSchemaCol(TStr ColName, TYPE ColType) { S.Add(TPair<TStr,TYPE>(ColName, ColType));}
+  TYPE GetColType(TStr ColName) const{ return ColTypeMap.GetDat(ColName).Val1;}
+  TInt GetColIdx(TStr ColName) const{ return ColTypeMap.GetDat(ColName).Val2;}  // column index among columns of the same type
+
   // Iterators 
   TRowIterator BegRI() const{ return TRowIterator(FirstValidRow, this);}
-  TRowIterator EndRI() const{ return TRowIterator(NumRows-1, this);}
+  TRowIterator EndRI() const{ return TRowIterator(NumRows, this);}
   bool IsRowValid(TInt RowIdx) const{ return Next[RowIdx] != Invalid;}
 
 	// Store a group indices column in GroupMapping
@@ -98,15 +111,15 @@ protected:
 	// Group/hash by a single column with integer values. Returns hash table with grouping.
   // IndexSet tells what rows to consider. It is the callers responsibility to check that 
   // these rows are valid. An empty IndexSet means taking all rows into consideration.
-	void GroupByIntCol(TStr GroupBy, THash<TInt,TIntV>& grouping, const TIntV& IndexSet) const; 
+	void GroupByIntCol(TStr GroupBy, THash<TInt,TIntV>& grouping, const TIntV& IndexSet, TBool All) const; 
 	// Group/hash by a single column with float values. Returns hash table with grouping.
-	void GroupByFltCol(TStr GroupBy, THash<TFlt,TIntV>& grouping, const TIntV& IndexSet) const;
+	void GroupByFltCol(TStr GroupBy, THash<TFlt,TIntV>& grouping, const TIntV& IndexSet, TBool All) const;
 	// Group/hash by a single column with string values. Returns hash table with grouping.
-	void GroupByStrCol(TStr GroupBy, THash<TStr,TIntV>& grouping, const TIntV& IndexSet) const;
+	void GroupByStrCol(TStr GroupBy, THash<TStr,TIntV>& grouping, const TIntV& IndexSet, TBool All) const;
 	// Performs grouping according to the values of columns GroupBy[i] where 
 	// i >= GroupByStartIdx; Considers only tuples whose indices are in IndexSet
 	// Adds the groups to hash table "grouping". Does not write to "GroupMapping"
-	void GroupAux(const TStrV& GroupBy, TInt GroupByStartIdx, THash<TInt,TIntV>& grouping, const TIntV& IndexSet);
+	void GroupAux(const TStrV& GroupBy, TInt GroupByStartIdx, THash<TInt,TIntV>& grouping, const TIntV& IndexSet, TBool All);
   /* template for utility functions to be used by GroupByXCol */
  template <class T>
   void UpdateGrouping(THash<T,TIntV>& Grouping, T Key, TInt Val) const{
@@ -130,7 +143,7 @@ protected:
 
 public:
   // do we need an assignment operator?
-	TTable(): NumRows(0), FirstValidRow(0), NumOfDistinctStrVals(0){ }  // Useless no-parameter constructor
+	TTable(): NumRows(0), FirstValidRow(0), NumOfDistinctStrVals(0){ }  
   TTable(const TStr& TableName, const Schema& S);
   TTable(TSIn& SIn){}  // TODO
   // TTable(const TTable& Table){} // do we really need this ? anyway we just use the defualt compiler-provided copy constructor..
@@ -138,7 +151,8 @@ public:
   static PTable New(const TStr& TableName, const Schema& S){ return new TTable(TableName, S);}
   static PTable Load(TSIn& SIn){ return new TTable(SIn);} 
   // Load table from spread sheet (TSV, CSV, etc)
-  static PTable LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm, const char& Separator, TBool HasTitleLine);
+  static PTable LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm, const char& Separator = '\t', TBool HasTitleLine = true);
+  void SaveSS(const TStr& OutFNm);
 	void Save(TSOut& SOut);
 	PNEAGraph ToGraph();
   /* Getters of data required for building a graph out of the table */
