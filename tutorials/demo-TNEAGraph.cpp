@@ -109,8 +109,10 @@ void ManipulateNodesEdges() {
 void ManipulateNodeEdgeAttributes() {
   int NNodes = 1000;
   int NEdges = 1000;
+  const char *FName = "demo.graph.dat";
 
   PNEAGraph Graph;
+  PNEAGraph Graph1;
   int i;
   int x, y;
   bool t;
@@ -222,13 +224,26 @@ void ManipulateNodeEdgeAttributes() {
     Graph->AddIntAttrDatN(i, 70, attr2);
   }
 
+  {
+    TFOut FOut(FName);
+    Graph->Save(FOut);
+    FOut.Flush();
+  }
+
+  {
+    TFIn FIn(FName);
+    Graph1 = TNEAGraph::Load(FIn);
+  }
+
   int total = 0;
-  for (TNEAGraph::TAIntI NI = Graph->BegNAIntI(attr2);
-    NI < Graph->EndNAIntI(attr2); NI++) {
+  for (TNEAGraph::TAIntI NI = Graph1->BegNAIntI(attr2);
+    NI < Graph1->EndNAIntI(attr2); NI++) {
     total += NI.GetDat();
   }
 
   printf("Average: %i (should be 70)\n", total/NNodes);
+
+  Graph1->Clr();
 
   // Test vertical int iterator for edge
   Graph->AddIntAttrDatE(3, 3*2, attr2);
@@ -315,15 +330,28 @@ void ManipulateNodeEdgeAttributes() {
     Graph->AddIntAttrDatE(i, 70, attr2);
   }
 
+  {
+    TFOut FOut(FName);
+    Graph->Save(FOut);
+    FOut.Flush();
+    Graph->Clr();
+  }
+
+  {
+    TFIn FIn(FName);
+    Graph1 = TNEAGraph::Load(FIn);
+  }
+
   total = 0;
-  for (TNEAGraph::TAIntI EI = Graph->BegNAIntI(attr2);
-    EI < Graph->EndNAIntI(attr2); EI++) {
+  for (TNEAGraph::TAIntI EI = Graph1->BegNAIntI(attr2);
+    EI < Graph1->EndNAIntI(attr2); EI++) {
     total += EI.GetDat();
   }
 
   printf("Average: %i (should be 70)\n", total/NEdges);
 
-  Graph->Clr();
+  //Graph1->Dump();
+  Graph1->Clr();
 }
 
 // Test small graph
