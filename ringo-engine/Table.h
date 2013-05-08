@@ -61,6 +61,7 @@ protected:
   TCRef CRef;
   // number of rows in the table
   TInt NumRows;
+  TInt NumValidRows;
   // Meta-data for keeping track of valid (existing) rows
   TInt FirstValidRow;
   TIntV Next; 
@@ -144,7 +145,7 @@ protected:
 
 public:
   // do we need an assignment operator?
-	TTable(): NumRows(0), FirstValidRow(0), NumOfDistinctStrVals(0){ }  
+	TTable(): NumRows(0), NumValidRows(0), FirstValidRow(0), NumOfDistinctStrVals(0){ }  
   TTable(const TStr& TableName, const Schema& S);
   TTable(TSIn& SIn){}  // TODO
   // TTable(const TTable& Table){} // do we really need this ? anyway we just use the defualt compiler-provided copy constructor..

@@ -3,7 +3,8 @@
 TInt const TTable::Last =-1;
 TInt const TTable::Invalid =-2;
 
-TTable::TTable(const TStr& TableName, const Schema& TableSchema): Name(TableName), S(TableSchema), NumRows(0), FirstValidRow(0), NumOfDistinctStrVals(0){
+TTable::TTable(const TStr& TableName, const Schema& TableSchema): Name(TableName),
+  S(TableSchema), NumRows(0), NumValidRows(0), FirstValidRow(0), NumOfDistinctStrVals(0){
   TInt IntColCnt = 0;
   TInt FltColCnt = 0;
   TInt StrColCnt = 0;
@@ -69,6 +70,7 @@ PTable TTable::LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm,
   // set number of rows and "Next" vector
   T->NumRows = Ss.GetLineNo()-1;
   if(HasTitleLine){T->NumRows--;}
+  T->NumValidRows = T->NumRows;
   T->Next = TIntV(T->NumRows,0);
   for(TInt i = 0; i < T->NumRows-1; i++){
     T->Next.Add(i+1);
@@ -249,7 +251,7 @@ void TTable::RemoveRow(TInt RowIdx){
     Next[i] = Next[RowIdx];
   }
   Next[RowIdx] = Invalid;
-  NumRows--;
+  NumValidRows--;
 }
 
 void TTable::RemoveRows(const TIntV& RemoveV){
@@ -275,7 +277,7 @@ void TTable::KeepSortedRows(const TIntV& KeepV){
 
 void TTable::Unique(TStr Col){
   if(!ColTypeMap.IsKey(Col)){TExcept::Throw("no such column " + Col);}
-  TIntV RemainingRows = TIntV(NumRows,0);
+  TIntV RemainingRows = TIntV(NumValidRows,0);
   // group by given column (keys) and keep only first row for each key
   switch(GetColType(Col)){
     case INT:{
@@ -356,20 +358,20 @@ void TTable::GroupByFltCol(TStr GroupBy, THash<TFlt,TIntV>& grouping, const TInt
   }
 }
 
-void TTable::GroupByStrCol(TStr GroupBy, THash<TStr,TIntV>& grouping, const TIntV& IndexSet, TBool All) const{
+void TTable::GroupByStrCol(TStr GroupBy, THash<TStr,TIntV>& Grouping, const TIntV& IndexSet, TBool All) const{
   if(!ColTypeMap.IsKey(GroupBy)){TExcept::Throw("no such column " + GroupBy);}
   if(GetColType(GroupBy) != STR){TExcept::Throw(GroupBy + " values are not of expected type string");}
    if(All){
      // optimize for the common and most expensive case - itearte over all valid rows
     for(TRowIterator it = BegRI(); it < EndRI(); it++){
-      UpdateGrouping<TStr>(grouping, it.GetStrAttr(GroupBy), it.GetRowIdx());
+      UpdateGrouping<TStr>(Grouping, it.GetStrAttr(GroupBy), it.GetRowIdx());
     }
   } else{
     // consider only rows in IndexSet
     for(TInt i = 0; i < IndexSet.Len(); i++){
       if(IsRowValid(IndexSet[i])){
         TInt RowIdx = IndexSet[i];     
-        UpdateGrouping<TStr>(grouping, GetStrVal(GroupBy, RowIdx), RowIdx);
+        UpdateGrouping<TStr>(Grouping, GetStrVal(GroupBy, RowIdx), RowIdx);
       }
     }
   }
@@ -452,7 +454,7 @@ void TTable::Count(TStr CountColName, TStr Col){
       TIntV& Column = IntCols[GetColIdx(Col)];
       GroupByIntCol(Col, T, TIntV(0), true);
       for(TRowIterator it = BegRI(); it < EndRI(); it++){
-        CntCol.Add(T.GetDat(Column[it.GetRowIdx()]).Len());
+        CntCol[it.GetRowIdx()] = T.GetDat(Column[it.GetRowIdx()]).Len();
       }
       break;
     }
@@ -461,7 +463,7 @@ void TTable::Count(TStr CountColName, TStr Col){
       TFltV& Column = FltCols[GetColIdx(Col)];
       GroupByFltCol(Col, T, TIntV(0), true);
       for(TRowIterator it = BegRI(); it < EndRI(); it++){
-        CntCol.Add(T.GetDat(Column[it.GetRowIdx()]).Len());
+         CntCol[it.GetRowIdx()] = T.GetDat(Column[it.GetRowIdx()]).Len();
       }
       break;
     }
@@ -469,15 +471,14 @@ void TTable::Count(TStr CountColName, TStr Col){
       THash<TStr,TIntV> T;
       GroupByStrCol(Col, T, TIntV(0), true);
       for(TRowIterator it = BegRI(); it < EndRI(); it++){
-        CntCol.Add(T.GetDat(GetStrVal(Col, it.GetRowIdx())).Len());
+        CntCol[it.GetRowIdx()] = T.GetDat(GetStrVal(Col, it.GetRowIdx())).Len();
       }
-      break;
     }
   }
   // add count column
   IntCols.Add(CntCol);
   AddSchemaCol(CountColName, INT);
-  ColTypeMap.AddDat(CountColName, TPair<TYPE,TInt>(INT, IntCols.Len()));
+  ColTypeMap.AddDat(CountColName, TPair<TYPE,TInt>(INT, IntCols.Len()-1));
 }
 
  PTable TTable::InitializeJointTable(const TTable& Table){
@@ -556,7 +557,7 @@ PTable TTable::Join(TStr Col1, const TTable& Table, TStr Col2) {
   PTable JointTable = InitializeJointTable(Table);
   // hash smaller table (group by column)
   TYPE ColType = GetColType(Col1);
-  TBool ThisIsSmaller = (NumRows <= Table.NumRows);
+  TBool ThisIsSmaller = (NumValidRows <= Table.NumValidRows);
   const TTable& TS = ThisIsSmaller ? *this : Table;
   const TTable& TB = ThisIsSmaller ?  Table : *this;
   TStr ColS = ThisIsSmaller ? Col1 : Col2;
