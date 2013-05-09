@@ -672,17 +672,11 @@ void TTable::Select(TPredicate& Predicate){
         break;
       case STR:
         Predicate.SetStrVal(RelevantCols[i], RowI.GetStrAttr(RelevantCols[i]));
-        // debug
-        printf("%d %s\n", RowI.GetRowIdx(), RowI.GetStrAttr(RelevantCols[i]).CStr());
         break;
       }
     }
-    if(Predicate.Eval()){ Selected.Add(RowI.GetRowIdx()); printf("added %d\n", RowI.GetRowIdx());}
+    if(Predicate.Eval()){ Selected.Add(RowI.GetRowIdx());}
   }
-  // debug 
-  printf("Selected: ");
-  for(TInt i = 0; i < Selected.Len(); i++){printf("%d ", Selected[i]);}
-  printf("\n");
   KeepSortedRows(Selected);
 }
 
