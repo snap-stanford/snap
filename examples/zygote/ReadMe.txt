@@ -25,7 +25,8 @@ Install libzygote as follows:
 - compile libzygote
     cd ~/git/libzygote; make
 - copy libzygote components to this directory
-    cp ~/git/libzygote/libzygote.so .
+    cp ~/git/libzygote/libzygote.so .         # on Linux only
+    cp ~/git/libzygote/libzygote.dylib .      # on Mac OS X only
     cp ~/git/libzygote/grow .
 
 Compile zydemo:
