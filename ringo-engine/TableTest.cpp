@@ -1,7 +1,7 @@
 #include "Table.h"
 #include <iostream>
 using namespace std;
-
+/*
 int main(){
   // create scheme
   TTable::Schema AnimalS;
@@ -52,3 +52,4 @@ int main(){
    Tj->SaveSS("../../testfiles/animals_out_Tj.txt");
   return 0;
 }
+*/

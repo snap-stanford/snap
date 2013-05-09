@@ -13,6 +13,8 @@ Guidelines:
 4. Create simple classes for complex hash table types / implement accessors
 5. Use string pools instead of big string vectors
 6. Use row ids / NumRows with uint64 (TODO)
+
+TODO: Add a function to suuport tables for undirected graphs
 */
 class TTable;
 typedef TPt<TTable> PTable;

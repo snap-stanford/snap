@@ -265,12 +265,21 @@ void TTable::KeepSortedRows(const TIntV& KeepV){
   TInt KeepIdx = 1;
   TRowIterator RowI = BegRI();
   while(RowI < EndRI()){
-    if(KeepV.Len() <= KeepIdx){ return;}
-    if(KeepV[KeepIdx] == Next[RowI.GetRowIdx()]){
-      KeepIdx++;
-      RowI++;
+    if(KeepV.Len() > KeepIdx){
+      if(KeepV[KeepIdx] == Next[RowI.GetRowIdx()]){
+        KeepIdx++;
+        RowI++;
+      } else{
+          RemoveRow(Next[RowI.GetRowIdx()]);
+      }
+    // covered all of KeepV. remove the rest of the rows
+    // current RowI.CurrRowIdx is the last element of KeepV
     } else{
-      RemoveRow(Next[RowI.GetRowIdx()]);
+      while(Next[RowI.GetRowIdx()] != Last){
+        RemoveRow(Next[RowI.GetRowIdx()]);
+      }
+      // removed the rest of the rows. increment RowI to EndRI
+      RowI++;
     }
   }
 }
@@ -663,11 +672,17 @@ void TTable::Select(TPredicate& Predicate){
         break;
       case STR:
         Predicate.SetStrVal(RelevantCols[i], RowI.GetStrAttr(RelevantCols[i]));
+        // debug
+        printf("%d %s\n", RowI.GetRowIdx(), RowI.GetStrAttr(RelevantCols[i]).CStr());
         break;
       }
     }
-    if(Predicate.Eval()){ Selected.Add(RowI.GetRowIdx());}
+    if(Predicate.Eval()){ Selected.Add(RowI.GetRowIdx()); printf("added %d\n", RowI.GetRowIdx());}
   }
+  // debug 
+  printf("Selected: ");
+  for(TInt i = 0; i < Selected.Len(); i++){printf("%d ", Selected[i]);}
+  printf("\n");
   KeepSortedRows(Selected);
 }
 
