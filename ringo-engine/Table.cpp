@@ -229,12 +229,12 @@ TStrV TTable::GetEdgeStrAttrV() const {
   return StrEA;
 }
 
-
+/*
 void TTable::ChangeWorkingCol(TStr column){
   if(!ColTypeMap.IsKey(column)){TExcept::Throw("no such column " + column);}
   WorkingCol = column;
 }
-
+*/
 void TTable::AddLabel(TStr column, TStr newLabel){
   if(!ColTypeMap.IsKey(column)){TExcept::Throw("no such column " + column);}
   TPair<TYPE,TInt> ColVal = ColTypeMap.GetDat(column);
@@ -493,14 +493,15 @@ void TTable::Count(TStr CountColName, TStr Col){
     TStr CName = Name + "." + ColName;
     JointTable->ColTypeMap.AddDat(CName, ColTypeMap.GetDat(ColName));
     JointTable->AddLabel(CName, ColName);
-    JointTable->S.Add(TPair<TStr,TYPE>(CName, ColType));
+    JointTable->AddSchemaCol(CName, ColType);
   }
   for(TInt i = 0; i < Table.S.Len(); i++){
-    TStr ColName = GetSchemaColName(i);
-    TYPE ColType = GetSchemaColType(i);
-    TStr CName = Name + "." + ColName;
+    TStr ColName = Table.GetSchemaColName(i);
+    TYPE ColType = Table.GetSchemaColType(i);
+    TStr CName = Table.Name + "." + ColName;
     TPair<TYPE, TInt> NewDat = Table.ColTypeMap.GetDat(ColName);
     Assert(ColType == NewDat.Val1);
+    // add offsets
     switch(NewDat.Val1){
       case INT:
         NewDat.Val2 += IntCols.Len();
@@ -527,7 +528,7 @@ void TTable::Count(TStr CountColName, TStr Col){
      FltCols[i].Add(T1.FltCols[i][RowIdx1]);
    }
    for(TInt i = 0; i < T1.StrColMaps.Len(); i++){
-     AddStrVal(i, GetStrVal(i, RowIdx1));
+     AddStrVal(i, T1.GetStrVal(i, RowIdx1));
    }
    TInt IntOffset = T1.IntCols.Len();
    TInt FltOffset = T1.FltCols.Len();
@@ -539,10 +540,19 @@ void TTable::Count(TStr CountColName, TStr Col){
      FltCols[i+FltOffset].Add(T2.FltCols[i][RowIdx2]);
    }
    for(TInt i = 0; i < T2.StrColMaps.Len(); i++){
-     AddStrVal(i+StrOffset, GetStrVal(i, RowIdx2));
+     AddStrVal(i+StrOffset, T2.GetStrVal(i, RowIdx2));
    }
+   NumRows++;
+   NumValidRows++;
+   if(!Next.Empty()){ Next[Next.Len()-1] = NumValidRows-1;}
+   Next.Add(Last);
  }
 
+// Q: Do we want to have any gurantees in terms of order of the joint rows - i.e. 
+// ordered by "this" table row idx as primary key and "Table" row idx as secondary key
+ // This means only keeping joint row indices (pairs of original row indices), sorting them
+ // and adding all rows in the end. Sorting can be expensive, but we would be able to pre-allocate 
+ // memory for the joint table..
 PTable TTable::Join(TStr Col1, const TTable& Table, TStr Col2) {
   if(!ColTypeMap.IsKey(Col1)){
     TExcept::Throw("no such column " + Col1);
@@ -573,7 +583,11 @@ PTable TTable::Join(TStr Col1, const TTable& Table, TStr Col2) {
         if(T.IsKey(K)){
           TIntV& Group = T.GetDat(K);
           for(TInt i = 0; i < Group.Len(); i++){
-            JointTable->AddJointRow(*this, Table, Group[i], RowI.GetRowIdx());
+            if(ThisIsSmaller){
+              JointTable->AddJointRow(*this, Table, Group[i], RowI.GetRowIdx());
+            } else{
+              JointTable->AddJointRow(*this, Table, RowI.GetRowIdx(), Group[i]);
+            }
           }
         }
       }
@@ -586,7 +600,11 @@ PTable TTable::Join(TStr Col1, const TTable& Table, TStr Col2) {
         if(T.IsKey(K)){
           TIntV& Group = T.GetDat(K);
           for(TInt i = 0; i < Group.Len(); i++){
-            JointTable->AddJointRow(*this, Table, Group[i], RowI.GetRowIdx());
+            if(ThisIsSmaller){
+              JointTable->AddJointRow(*this, Table, Group[i], RowI.GetRowIdx());
+            } else{
+              JointTable->AddJointRow(*this, Table, RowI.GetRowIdx(), Group[i]);
+            }
           }
         }
       }
@@ -599,7 +617,11 @@ PTable TTable::Join(TStr Col1, const TTable& Table, TStr Col2) {
         if(T.IsKey(K)){
           TIntV& Group = T.GetDat(K);
           for(TInt i = 0; i < Group.Len(); i++){
-            JointTable->AddJointRow(*this, Table, Group[i], RowI.GetRowIdx());
+            if(ThisIsSmaller){
+              JointTable->AddJointRow(*this, Table, Group[i], RowI.GetRowIdx());
+            } else{
+              JointTable->AddJointRow(*this, Table, RowI.GetRowIdx(), Group[i]);
+            }
           }
         }
       }

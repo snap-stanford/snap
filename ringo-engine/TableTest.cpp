@@ -10,12 +10,15 @@ int main(){
   AnimalS.Add(TPair<TStr,TTable::TYPE>("Location", TTable::STR));
   AnimalS.Add(TPair<TStr,TTable::TYPE>("Number", TTable::INT));
   // create table
-  //PTable T = TTable::LoadSS("Animals", AnimalS, "../../testfiles/animals.txt");
-  PTable T = TTable::LoadSS("Animals", AnimalS, "animals.txt");
+  PTable T = TTable::LoadSS("Animals", AnimalS, "../../testfiles/animals.txt");
+  //PTable T = TTable::LoadSS("Animals", AnimalS, "animals.txt");
   T->Unique("Animal");
+  //TTable Ts = *T;  not working because of problem with copy-c'tor
+  PTable Ts = TTable::LoadSS("Animals_s", AnimalS, "../../testfiles/animals.txt");
+  Ts->Unique("Animal");
 
+  // test Select
   // create predicate tree: find all animals that are big and african or medium and Australian
-  /*
   TPredicate::TAtomicPredicate A1(TPredicate::STR, true, TPredicate::EQ, "Location", "", 0, 0, "Africa");  
   TPredicate::TPredicateNode N1(A1);  // Location == "Africa"
   TPredicate::TAtomicPredicate A2(TPredicate::STR, true, TPredicate::EQ, "Size", "", 0, 0, "big");  
@@ -34,16 +37,18 @@ int main(){
   N7.AddLeftChild(&N3);
   N7.AddRightChild(&N6);
   TPredicate Pred(&N7);
-  T->Select(Pred);
-  */
+  Ts->Select(Pred);
+
   TStrV GroupBy;
   GroupBy.Add("Location");
   T->Group("LocationGroup", GroupBy);
   GroupBy.Add("Size");
   T->Group("LocationSizeGroup", GroupBy);
   T->Count("LocationCount", "Location");
+  PTable Tj = T->Join("Location", *Ts, "Location");
   //print table
-  //T->SaveSS("../../testfiles/animals_out.txt");
-   T->SaveSS("../../testfiles/animals_out.txt");
+   T->SaveSS("../../testfiles/animals_out_T.txt");
+   Ts->SaveSS("../../testfiles/animals_out_Ts.txt");
+   Tj->SaveSS("../../testfiles/animals_out_Tj.txt");
   return 0;
 }

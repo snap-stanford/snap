@@ -11,9 +11,8 @@ Guidelines:
 2. Give a-priori memory allocation to vector/hash table constructors 
 3. Smart pointer for Ttable: type PTable; Remove explicit pointrer usages
 4. Create simple classes for complex hash table types / implement accessors
-5. Use string pools instead of big string vectors <--
-6. Remove recursion from GroupAux <-- 
-7. Use row ids / NumRows with uint64
+5. Use string pools instead of big string vectors
+6. Use row ids / NumRows with uint64 (TODO)
 */
 class TTable;
 typedef TPt<TTable> PTable;
@@ -53,9 +52,9 @@ public:
     TFlt GetFltAttr(TStr Col) const{ TInt ColIdx = Table->ColTypeMap.GetDat(Col).Val2; return Table->FltCols[ColIdx][CurrRowIdx];}
     TStr GetStrAttr(TStr Col) const{ return Table->GetStrVal(Col, CurrRowIdx);}   
   };
-
-protected:
+public:
   TStr Name;
+protected:
   Schema S;
   // Reference Counter for Garbage Collection
   TCRef CRef;
@@ -80,7 +79,9 @@ protected:
   // Note that these mappings are invalid after we remove rows
 	THash<TStr,THash<TInt,TIntV> > GroupMapping; // use separate class
 
-	TStr WorkingCol;  // do we even need this here ?
+	//TStr WorkingCol;  // do we even need this here ?
+  // keeping track of "working column" is done by the engine - i.e. the program
+  // that calls the methods of TTable objects
   // column to serve as src nodes when constructing the graph
   TStr SrcCol;
   // column to serve as dst nodes when constructing the graph
@@ -145,10 +146,18 @@ protected:
 
 public:
   // do we need an assignment operator?
-	TTable(): NumRows(0), NumValidRows(0), FirstValidRow(0), NumOfDistinctStrVals(0){ }  
+	TTable(): NumRows(0), NumValidRows(0), FirstValidRow(0), NumOfDistinctStrVals(0){}  
   TTable(const TStr& TableName, const Schema& S);
   TTable(TSIn& SIn){}  // TODO
-  // TTable(const TTable& Table){} // do we really need this ? anyway we just use the defualt compiler-provided copy constructor..
+  // NOTE: Copy-constructor currently doesn't work because a bug in the copy-c'tor of TBigStrPool
+  TTable(const TTable& Table): Name(Table.Name), NumRows(Table.NumRows),
+    NumValidRows(Table.NumValidRows), FirstValidRow(Table.FirstValidRow),
+    Next(Table.Next), IntCols(Table.IntCols), FltCols(Table.FltCols),
+    StrColMaps(Table.StrColMaps), StrColVals(Table.StrColVals), 
+    NumOfDistinctStrVals(Table.NumOfDistinctStrVals), ColTypeMap(Table.ColTypeMap),
+    GroupMapping(Table.GroupMapping), SrcCol(Table.SrcCol), DstCol(Table.DstCol),
+    EdgeAttrV(Table.EdgeAttrV), SrcNodeAttrV(Table.SrcNodeAttrV), DstNodeAttrV(Table.DstNodeAttrV){} 
+
   static PTable New(){ return new TTable();}
   static PTable New(const TStr& TableName, const Schema& S){ return new TTable(TableName, S);}
   static PTable Load(TSIn& SIn){ return new TTable(SIn);} 
@@ -172,8 +181,9 @@ public:
 	TYPE GetColType(TStr ColName) { return ColTypeMap.GetDat(ColName).Val1; };
 
 	// Yonathan
-	// change working column ; not sure if this should be a part of the public interface
-	void ChangeWorkingCol(TStr column); 
+	// change working column ; not really needed in TTable
+	// void ChangeWorkingCol(TStr column); 
+
 	// rename / add a label to a column
 	void AddLabel(TStr column, TStr newLabel);
 
