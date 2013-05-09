@@ -163,9 +163,6 @@ public:
   typedef enum {NOT, AND, OR, NOP} OP;
   typedef enum {LT = 0, LTE, EQ, GTE, GT} COMP;
 
-protected:
-  class TAtomicPredicate;
-  const static TAtomicPredicate NonAtom;
 public:
   class TAtomicPredicate{
     TYPE Type;
@@ -184,8 +181,11 @@ public:
     friend class TPredicate;
   };
 
+  protected:
+  const static TAtomicPredicate NonAtom;
+
   class TPredicateNode{
-  //protected:
+    // protected:
   public:
     OP Op;
     TBool Result;
