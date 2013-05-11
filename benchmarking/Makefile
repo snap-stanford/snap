@@ -6,6 +6,8 @@ include ../Makefile.config
 
 ## Main application file
 DEMOS = \
+  demo-snap-specialized \
+  demo-snap-specialized-smart-pointers \
 	demo-topology-benchmark
 
 all: $(DEMOS)
