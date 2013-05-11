@@ -158,6 +158,12 @@ public:
       printf("\n");
     }
   }
+
+  void DeallocRows() {
+    for (TVec<TVec<TInt>*>::TIter Row = BegI(); Row < EndI(); Row++) {
+      free(*Row);
+    }
+  }
 };
 
 TStr getFileName(TStr basename, TInt size) {
@@ -193,6 +199,9 @@ void buildQAGraph(int size) {
   printResult(t5.GetSecs(), "Group", Final);
   // Overall time
   printResult(t2.GetSecs(), "Total (without Read)", Final);
+  // Deallocate heap objects
+  Posts.DeallocRows();
+  Joined.DeallocRows();
 }
 
 void buildCommonCommentsGraph(int size) {
@@ -221,6 +230,9 @@ void buildCommonCommentsGraph(int size) {
   printResult(t5.GetSecs(), "Group", Final);
   // Overall time
   printResult(t2.GetSecs(), "Total (without Read)", Final);
+  // Deallocate heap objects
+  Comments.DeallocRows();
+  Joined.DeallocRows();
 }
 
 int main(int argc, char **argv) {
