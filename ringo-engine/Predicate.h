@@ -162,9 +162,13 @@ public:
   typedef enum {INT, FLT, STR} TYPE;   // must be consistent with TYPE definition in TTable
   typedef enum {NOT, AND, OR, NOP} OP;
   typedef enum {LT = 0, LTE, EQ, GTE, GT} COMP;
+<<<<<<< HEAD
   class TAtomicPredicate;
 protected:
   const static TAtomicPredicate NonAtom;
+=======
+
+>>>>>>> 7f320332501c4a48d4abf7382e7e6fba474f57df
 public:
   class TAtomicPredicate{
     TYPE Type;
@@ -183,8 +187,11 @@ public:
     friend class TPredicate;
   };
 
+  protected:
+  const static TAtomicPredicate NonAtom;
+
   class TPredicateNode{
-  //protected:
+    // protected:
   public:
     OP Op;
     TBool Result;
