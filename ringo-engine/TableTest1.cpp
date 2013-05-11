@@ -5,7 +5,7 @@ using namespace std;
 // self join on location
 // group by (Animal, Animal)
 // unique by group idx
-
+/*
 int main(){
   // create scheme
   TTable::Schema AnimalS;
@@ -30,6 +30,46 @@ int main(){
   Tj->Group("AnimalPair", GroupBy);
   Tj->Unique("AnimalPair");
   //print table
-   Tj->SaveSS("../../testfiles/animals_out_Tj_1.txt");
+  Tj->SaveSS("../../testfiles/animals_out_Tj_1.txt");
+
+  // Join on Location to get animal pairs
+  // select the animal pairs of animals of the same size
+  // group by (Animal, Animal)
+  // unique by group idx
+  /*
+  PTable T3 = TTable::LoadSS("Animals3", AnimalS, "../../testfiles/animals.txt");
+  //PTable T4 = TTable::LoadSS("Animals4", AnimalS, "../../testfiles/animals.txt");
+  TTable T4 = *T3;
+  T4.Name = "Animals4";
+  PTable To = T3->Join("Location", T4, "Location");
+  TPredicate::TAtomicPredicate A2(TPredicate::STR, false, TPredicate::EQ, "Animals3.Size", "Animals4.Size");  
+  TPredicate::TPredicateNode N2(A2);
+  TPredicate Pred2(&N2);
+  To->Select(Pred2);
+  TStrV GroupBy1;
+  GroupBy1.Add("Animals3.Animal");
+  GroupBy1.Add("Animals4.Animal");
+  To->Group("AnimalPair", GroupBy1);
+  To->Unique("AnimalPair");
+  //print table
+  To->SaveSS("../../testfiles/animals_out_To_1.txt");
+  return 0;
+  */
+/*
+  PTable T3 = TTable::LoadSS("Animals3", AnimalS, "../../testfiles/animals.txt");
+  PTable T4 = TTable::LoadSS("Animals4", AnimalS, "../../testfiles/animals.txt");
+  PTable To = T3->Join("Location", *T4, "Location");
+  TPredicate::TAtomicPredicate A2(TPredicate::STR, false, TPredicate::EQ, "Animals3.Size", "Animals4.Size");  
+  TPredicate::TPredicateNode N2(A2);
+  TPredicate Pred2(&N2);
+  To->Select(Pred2);
+  TStrV GroupBy1;
+  GroupBy1.Add("Animals3.Animal");
+  GroupBy1.Add("Animals4.Animal");
+  To->Group("AnimalPair", GroupBy1);
+  To->Unique("AnimalPair");
+  //print table
+  To->SaveSS("../../testfiles/animals_out_To_1.txt");
   return 0;
 }
+*/

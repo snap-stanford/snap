@@ -80,7 +80,14 @@ PTable TTable::LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm,
 }
 
 void TTable::SaveSS(const TStr& OutFNm){
-  FILE* F = fopen(OutFNm.CStr(), "wt");
+  FILE* F = fopen(OutFNm.CStr(), "w");
+  // debug
+  if(F == NULL){
+    printf("failed to open file %s\n", OutFNm.CStr());
+    perror("fail ");
+    return;
+  }
+
   TInt L = S.Len();
   // print title (schema)
   for(TInt i = 0; i < L-1; i++){
@@ -235,10 +242,11 @@ void TTable::ChangeWorkingCol(TStr column){
   WorkingCol = column;
 }
 */
-void TTable::AddLabel(TStr column, TStr newLabel){
+void TTable::AddLabel(TStr column, TStr NewLabel){
   if(!ColTypeMap.IsKey(column)){TExcept::Throw("no such column " + column);}
   TPair<TYPE,TInt> ColVal = ColTypeMap.GetDat(column);
-  ColTypeMap.AddDat(newLabel,ColVal);
+  //ColTypeMap.DelIfKey(NewLabel);
+  ColTypeMap.AddDat(NewLabel,ColVal);
 }
 
 void TTable::RemoveRow(TInt RowIdx){
@@ -557,7 +565,7 @@ void TTable::Count(TStr CountColName, TStr Col){
    Next.Add(Last);
  }
 
-// Q: Do we want to have any gurantees in terms of order of the joint rows - i.e. 
+// Q: Do we want to have any gurantees in terms of order of the 0t rows - i.e. 
 // ordered by "this" table row idx as primary key and "Table" row idx as secondary key
  // This means only keeping joint row indices (pairs of original row indices), sorting them
  // and adding all rows in the end. Sorting can be expensive, but we would be able to pre-allocate 
@@ -600,6 +608,7 @@ PTable TTable::Join(TStr Col1, const TTable& Table, TStr Col2) {
           }
         }
       }
+      break;
     }
     case FLT:{
       THash<TFlt, TIntV> T;
@@ -617,6 +626,7 @@ PTable TTable::Join(TStr Col1, const TTable& Table, TStr Col2) {
           }
         }
       }
+      break;
     }
     case STR:{
       THash<TStr, TIntV> T;
@@ -635,6 +645,7 @@ PTable TTable::Join(TStr Col1, const TTable& Table, TStr Col2) {
         }
       }
     }
+    break;
   }
  return JointTable; 
 }
@@ -660,6 +671,10 @@ void TTable::Select(TPredicate& Predicate){
   TIntV Selected;
   TStrV RelevantCols;
   Predicate.GetVariables(RelevantCols);
+
+  // debug
+ // for(THash<TStr,TPair<TYPE,TInt>>::TIter it = ColTypeMap.BegI(); it < ColTypeMap.EndI(); it++){ printf("%s %d\n", it->Key.CStr(), it->Dat.Val2);}
+
   for(TRowIterator RowI = BegRI(); RowI < EndRI(); RowI++){
     // prepare arguments for 
     for(TInt i = 0; i < RelevantCols.Len(); i++){

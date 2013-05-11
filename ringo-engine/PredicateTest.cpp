@@ -1,7 +1,7 @@
 #include "Predicate.h"
 #include <iostream>
 using namespace std;
-
+/*
 int main(){
   // T1 = (x > y)
   TPredicate::TAtomicPredicate A1(TPredicate::INT, false, TPredicate::GT, "x", "y");
@@ -68,3 +68,4 @@ int main(){
   cout << "!((bla == bla) ^ (5 > 4)) || 4 <= 3 " << R4_1 << endl;
 	return 0;
 }
+*/

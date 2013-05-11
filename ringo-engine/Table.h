@@ -14,7 +14,12 @@ Guidelines:
 5. Use string pools instead of big string vectors
 6. Use row ids / NumRows with uint64 (TODO)
 
-TODO: Add a function to suuport tables for undirected graphs
+TODO : - Add a function to support tables for undirected graphs
+       - Still have a bug with copy-c'tor
+
+Q: after self-join T.Join(C,T,C) => to which column does C address ? how do we access the other one ?
+  should we explicitly add different prefixes to column names ? - i.e. test for the case where both tables have the same name 
+  Is such a self-join allowed, or should we just do T' = T; T.Join(C,T',C);  / load both T and T'?
 */
 class TTable;
 typedef TPt<TTable> PTable;
