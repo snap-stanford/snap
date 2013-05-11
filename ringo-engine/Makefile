@@ -3,17 +3,18 @@
 #	tested only on Linux
 
 include ../Makefile.config
+MAIN = Benchmark
 
-all: Table
+all: $(MAIN)
 
 # COMPILE
-Table: *.h *.cpp $(CSNAP)/Snap.o
-	$(CC) $(CXXFLAGS) -c $@.cpp $(CSNAP)/Snap.o -I$(CSNAP) -I$(CGLIB) $(LDFLAGS) $(LIBS)
+$(MAIN): *.h *.cpp $(CSNAP)/Snap.o
+	$(CC) $(CXXFLAGS) -o $(MAIN) $(MAIN).cpp Table.cpp Predicate.cpp $(CSNAP)/Snap.o -I$(CSNAP) -I$(CGLIB) $(LDFLAGS) $(LIBS)
 
 $(CSNAP)/Snap.o:
 	$(MAKE) -C $(CSNAP)
 
 clean:
-	rm -f *.o Table *.exe
+	rm -f *.o $(MAIN) *.exe
 	rm -rf Debug Release
 	rm -rf *.Err demo*.dat
