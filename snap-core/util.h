@@ -68,6 +68,7 @@ public:
 //#//////////////////////////////////////////////
 /// Snapworld supporting functions
 
+#if defined(GLib_UNIX)
 // Writes \c nbytes bytes starting at \c ptr to a file/socket descriptor \c fd.
 static int WriteN(int fd, char *ptr, int nbytes) {
   int nleft;
@@ -107,4 +108,5 @@ int SendVec(const TVec<TVal, TSizeTy>& V, int FileDesc) {
   }
   return l;
 }
+#endif
 
