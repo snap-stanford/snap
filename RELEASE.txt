@@ -3,7 +3,7 @@ performance system for graph and network manipulation and analysis.
 
 This file contains a high-level description of changes in SNAP releases.
 
-Release 2.0, May 7, 2013
+Release 2.0, May 13, 2013
 
 - significantly changed several classes and methods, not backward compatible.
   This version is not able to read binary files or class serializations,
@@ -15,7 +15,7 @@ Release 2.0, May 7, 2013
   hash functions are available in TVecHashF_OldGLib.
 - implemented new 10x faster hash functions for TPair, TTriple, TQuad and TTuple
 - added 64-bit random number generators GetUniDevInt64() and GetUniDevUInt64()
-- implemented new TVec methods UnionLen(), Send() and GetMemSize()
+- implemented new TVec method UnionLen() and GetMemSize()
 - moved vector access functions in TLocClust from private to public
 - added new examples agmfit, bigclam, circles, zygote, XcodeTest
 - added new tutorials for bfsdfs, cncom, gviz, triad
