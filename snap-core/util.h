@@ -69,7 +69,7 @@ public:
 /// Snapworld supporting functions
 
 #if defined(GLib_UNIX)
-// Writes \c nbytes bytes starting at \c ptr to a file/socket descriptor \c fd.
+/// Writes \c nbytes bytes starting at \c ptr to a file/socket descriptor \c fd.
 static int WriteN(int fd, char *ptr, int nbytes) {
   int nleft;
   int nwritten;
@@ -86,7 +86,7 @@ static int WriteN(int fd, char *ptr, int nbytes) {
   return (nbytes-nleft);
 }
 
-// Sends the vector contents \c V via a file/socket descriptor \c FileDesc.
+/// Sends the vector contents \c V via a file/socket descriptor \c FileDesc.
 template <class TVal, class TSizeTy>
 int SendVec(const TVec<TVal, TSizeTy>& V, int FileDesc) {
   int l;
