@@ -437,10 +437,6 @@ public:
   explicit TVec(TSIn& SIn): MxVals(0), Vals(0), ValT(NULL){Load(SIn);}
   void Load(TSIn& SIn);
   void Save(TSOut& SOut) const;
-  /// Sends the vector contents via a socket \c fd.
-  int Send(int sd);
-  /// Writes \c nbytes bytes starting at \c ptr to a file/socket descriptor \c fd.
-  int WriteN(int fd, char *ptr, int nbytes);
   void LoadXml(const PXmlTok& XmlTok, const TStr& Nm="");
   void SaveXml(TSOut& SOut, const TStr& Nm) const;
   
@@ -780,45 +776,6 @@ void TVec<TVal, TSizeTy>::Save(TSOut& SOut) const {
   if (MxVals!=-1){SOut.Save(MxVals);} else {SOut.Save(Vals);}
   SOut.Save(Vals);
   for (TSizeTy ValN=0; ValN<Vals; ValN++){ValT[ValN].Save(SOut);}
-}
-
-template <class TVal, class TSizeTy>
-int TVec<TVal, TSizeTy>::WriteN(int fd, char *ptr, int nbytes) {
-  int nleft;
-  int nwritten;
-
-  nleft = nbytes;
-  while (nleft > 0) {
-    nwritten = write(fd, ptr, nleft);
-    if (nwritten <= 0) {
-      return nwritten;
-    }
-    nleft -= nwritten;
-    ptr += nwritten;
-  }
-  return (nbytes-nleft);
-}
-
-template <class TVal, class TSizeTy>
-int TVec<TVal, TSizeTy>::Send(int sd) {
-  int l;
-  int n;
-  l = 0;
-  if (MxVals!=-1) {
-    l += WriteN(sd, (char *) &MxVals, (int) sizeof(TSizeTy));
-  } else {
-    l += WriteN(sd, (char *) &Vals, (int) sizeof(TSizeTy));
-  }
-  l += WriteN(sd, (char *) &Vals, (int) sizeof(TSizeTy));
-  for (TSizeTy ValN=0; ValN<Vals; ValN += 100000){
-    n = 100000;
-    if ((Vals - ValN) < 100000) {
-      n = Vals - ValN;
-    }
-    l += WriteN(sd, (char *) &ValT[ValN], (int) (n*sizeof(TVal)));
-  }
-
-  return l;
 }
 
 template <class TVal, class TSizeTy>
