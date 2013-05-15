@@ -161,7 +161,7 @@ public:
 
   void DeallocRows() {
     for (TVec<TVec<TInt>*>::TIter Row = BegI(); Row < EndI(); Row++) {
-      free(*Row);
+      delete *Row;
     }
   }
 };
