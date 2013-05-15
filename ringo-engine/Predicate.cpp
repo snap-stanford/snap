@@ -1,4 +1,3 @@
-#include "Predicate.h"
 
 const TPredicate::TAtomicPredicate TPredicate::NonAtom = TAtomicPredicate(INT, true, EQ, "", "", 0, 0, "");
 
@@ -68,6 +67,8 @@ TBool TPredicate::Eval(){
              }
              break;
            }
+           case NOP:
+             break;
          }
       // going back up the tree from right (second) child
      } else{
@@ -88,6 +89,9 @@ TBool TPredicate::Eval(){
            Assert(Curr->Left != NULL);
            Assert(!Curr->Left->Result);
            Curr->Result = Prev->Result;
+           break;
+         }
+         case NOP:{
            break;
          }
        }
@@ -113,5 +117,6 @@ TBool TPredicate::EvalAtomicPredicate(const TAtomicPredicate& Atom){
        return EvalAtom<TStr>(StrVars.GetDat(Atom.Lvar), StrVars.GetDat(Atom.Rvar), Atom.Compare);
      }
    }
+  return false;
 }
 

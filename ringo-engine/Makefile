@@ -3,18 +3,32 @@
 #	tested only on Linux
 
 include ../Makefile.config
-MAIN = Benchmark
 
-all: $(MAIN)
+HEADER = Engine.h Predicate.h TMetric.h Table.h
+CPP = Engine.cpp Predicate.cpp Table.cpp
+
+TEST = TableTest TableTest1
+
+all: $(TEST)
 
 # COMPILE
-$(MAIN): *.h *.cpp $(CSNAP)/Snap.o
-	$(CC) $(CXXFLAGS) -o $(MAIN) $(MAIN).cpp Table.cpp Predicate.cpp $(CSNAP)/Snap.o -I$(CSNAP) -I$(CGLIB) $(LDFLAGS) $(LIBS)
+TableTes%: TableTes%.cpp Engine.o
+	$(CC) -o $@ $@.cpp Engine.o -I$(CSNAP) -I$(CGLIB) $(LDFLAGS) $(LIBS)
 
 $(CSNAP)/Snap.o:
 	$(MAKE) -C $(CSNAP)
 
+Engine.o: $(HEADER) $(CPP) $(CSNAP)/Snap.o
+	$(CC) -c $(CXXFLAGS) Engine.cpp -I$(CSNAP) -I$(CGLIB)
+
+lib: Engine.o
+	rm -f libengine.a
+	ar -cvq libengine.a Engine.o
+
+libinstall: lib
+	cp libengine.a /usr/local/lib/libenginea
+
 clean:
-	rm -f *.o $(MAIN) *.exe
+	rm -f *.o $(TEST) *.exe
 	rm -rf Debug Release
 	rm -rf *.Err demo*.dat

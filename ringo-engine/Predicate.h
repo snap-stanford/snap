@@ -1,7 +1,3 @@
-#ifndef PREDICATE_H
-#define PREDICATE_H
-#include "Snap.h"
-
 /*
 // Nikhil & Jason Initial implementation 
 class TPredicate {
@@ -230,6 +226,6 @@ public:
       case GTE: return Val1 >= Val2;
       case GT: return Val1 > Val2;
     }
+    return false;
   }
 };
-#endif // PREDICATE_H

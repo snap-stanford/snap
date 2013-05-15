@@ -1,4 +1,3 @@
-#include "Table.h"
 
 TInt const TTable::Last =-1;
 TInt const TTable::Invalid =-2;
@@ -657,7 +656,7 @@ void TTable::Dist(TStr Col1, const TTable& Table, TStr Col2, TStr DistColName, c
   if(!ColTypeMap.IsKey(Col2)){
     TExcept::Throw("no such column " + Col2);
   }
-  TYPE T1 = GetColType(Col1);
+  //TYPE T1 = GetColType(Col1);
   //CHECK do we need to make this a const?
   /*
   TYPE T2 = Table.GetColType(Col2);
@@ -769,6 +768,7 @@ TInt TTable::GetNId(TStr Col, TInt RowIdx, THash<TFlt, TInt>& FSrNodeMap, THash<
   } else {
     return StrColMaps[RowIdx][Idx]();
   }
+  return 0;
 }
     
 void TTable::AddNodeAttributes(PNEAGraph& Graph, THash<TFlt, TInt>& FSrNodeMap, THash<TFlt, TInt>& FDsNodeMap) {

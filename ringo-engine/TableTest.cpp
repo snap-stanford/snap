@@ -1,7 +1,8 @@
-#include "Table.h"
+
 #include <iostream>
+#include "Engine.h"
 using namespace std;
-/*
+
 int main(){
   // create scheme
   TTable::Schema AnimalS;
@@ -10,11 +11,11 @@ int main(){
   AnimalS.Add(TPair<TStr,TTable::TYPE>("Location", TTable::STR));
   AnimalS.Add(TPair<TStr,TTable::TYPE>("Number", TTable::INT));
   // create table
-  PTable T = TTable::LoadSS("Animals", AnimalS, "../../testfiles/animals.txt");
+  PTable T = TTable::LoadSS("Animals", AnimalS, "animals.txt");
   //PTable T = TTable::LoadSS("Animals", AnimalS, "animals.txt");
   T->Unique("Animal");
   //TTable Ts = *T;  not working because of problem with copy-c'tor
-  PTable Ts = TTable::LoadSS("Animals_s", AnimalS, "../../testfiles/animals.txt");
+  PTable Ts = TTable::LoadSS("Animals_s", AnimalS, "animals.txt");
   Ts->Unique("Animal");
 
   // test Select
@@ -47,9 +48,9 @@ int main(){
   T->Count("LocationCount", "Location");
   PTable Tj = T->Join("Location", *Ts, "Location");
   //print table
-   T->SaveSS("../../testfiles/animals_out_T.txt");
-   Ts->SaveSS("../../testfiles/animals_out_Ts.txt");
-   Tj->SaveSS("../../testfiles/animals_out_Tj.txt");
+   T->SaveSS("animals_out_T.txt");
+   Ts->SaveSS("animals_out_Ts.txt");
+   Tj->SaveSS("animals_out_Tj.txt");
   return 0;
 }
-*/
+
