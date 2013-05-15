@@ -6,6 +6,7 @@ include ../Makefile.config
 
 ## Main application file
 DEMOS = \
+  demo-snap-specialized-v2 \
   demo-snap-specialized \
   demo-snap-specialized-smart-pointers \
 	demo-topology-benchmark
@@ -23,4 +24,3 @@ clean:
 	rm -f *.o $(DEMOS) *.exe
 	rm -rf Debug Release
 	rm -rf *.Err demo*.dat
-
