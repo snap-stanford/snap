@@ -70,21 +70,7 @@ public:
 
 #if defined(GLib_UNIX)
 /// Writes \c nbytes bytes starting at \c ptr to a file/socket descriptor \c fd.
-static int WriteN(int fd, char *ptr, int nbytes) {
-  int nleft;
-  int nwritten;
-
-  nleft = nbytes;
-  while (nleft > 0) {
-    nwritten = write(fd, ptr, nleft);
-    if (nwritten <= 0) {
-      return nwritten;
-    }
-    nleft -= nwritten;
-    ptr += nwritten;
-  }
-  return (nbytes-nleft);
-}
+extern int WriteN(int fd, char *ptr, int nbytes);
 
 /// Sends the vector contents \c V via a file/socket descriptor \c FileDesc.
 template <class TVal, class TSizeTy>

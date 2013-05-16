@@ -24,13 +24,16 @@ Install libzygote as follows:
     cd ~/git; git clone https://github.com/netj/libzygote.git
 - compile libzygote
     cd ~/git/libzygote; make
+- prepare your environment
+    export SHLIBSUFFIX=so        # on Linux only
+    export SHLIBSUFFIX=dylib     # on Mac OS X only
 - copy libzygote components to this directory
-    cp ~/git/libzygote/libzygote.so .         # on Linux only
-    cp ~/git/libzygote/libzygote.dylib .      # on Mac OS X only
+    cd ~/git/snap/examples/zygote
+    cp ~/git/libzygote/libzygote.${SHLIBSUFFIX} .
     cp ~/git/libzygote/grow .
 
 Compile zydemo:
-    cd git/snap/examples/zydemo
+    cd ~/git/snap/examples/zydemo
     make
 
 Executing the program
@@ -41,15 +44,15 @@ Generate the graph:
 After the graph is generated, calculate the shortest path between two points.
 This step can be repeated multiple times for the same graph with different
 parameters:
-    ./grow zygote zydemo.so
+    ./grow zygote zydemo.${SHLIBSUFFIX}
 
 Generate a graph on 100000 nodes with 200 average node degree:
     ./zydemo -n:100000 -o:200
 
 Get the shortest path between various nodes:
-    ./grow zygote zydemo.so -s:10 -d:20
-    ./grow zygote zydemo.so -s:1000 -d:8000
-    ./grow zygote zydemo.so -s:1500 -d:9100
+    ./grow zygote zydemo.${SHLIBSUFFIX} -s:10 -d:20
+    ./grow zygote zydemo.${SHLIBSUFFIX} -s:1000 -d:8000
+    ./grow zygote zydemo.${SHLIBSUFFIX} -s:1500 -d:9100
 
 /////////////////////////////////////////////////////////////////////////////
 

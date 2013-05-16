@@ -22,17 +22,20 @@ ifeq ($(UNAME), Linux)
 	# Linux flags
 	CXXLIBFLAGS = $(CXXFLAGS) -fPIC -D__STDC_LIMIT_MACROS
 	LDLIBFLAGS = $(LDFLAGS) -shared
+	LIBSUFFIX = so
 else ifeq ($(UNAME), Darwin)
 	# OS X flags
+	CXXLIBFLAGS += $(CXXFLAGS)
 	LDLIBFLAGS = $(LDFLAGS) -dynamiclib
+	LIBSUFFIX = dylib
 else ifeq ($(shell uname -o), Cygwin)
 	# Cygwin flags
 	CXXLIBFLAGS += $(CXXFLAGS) -shared -D__STDC_LIMIT_MACROS
 endif
 
-all: $(MAIN).so
+all: $(MAIN).$(LIBSUFFIX)
 
-%.so: %.o $(DEPH) $(DEPCPP) Snap.o
+%.$(LIBSUFFIX): %.o $(DEPH) $(DEPCPP) Snap.o
 	$(CXX) $(CXXFLAGS) $(CXXLIBFLAGS) $(LDLIBFLAGS) -o $@ $^ $(LIBS)
 
 %.o: %.cpp
@@ -44,4 +47,5 @@ Snap.o:
 clean: clean-so
 
 clean-so:
-	rm -f $(MAIN).so
+	rm -f $(MAIN).so $(MAIN).dylib
+
