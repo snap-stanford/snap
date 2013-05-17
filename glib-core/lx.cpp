@@ -382,6 +382,7 @@ TLxSym TILx::GetSym(const TFSet& Expect){
           GetCh();
           switch (Ch){
             case '"': Str.AddCh(Ch); UcStr.AddCh(ChDef->GetUc(Ch)); GetCh(); break;
+            case '\\': Str.AddCh(Ch); UcStr.AddCh(ChDef->GetUc(Ch)); GetCh(); break;
             case '\'': Str.AddCh(Ch); UcStr.AddCh(ChDef->GetUc(Ch)); GetCh(); break;
             case '/': Str.AddCh(Ch); UcStr.AddCh(ChDef->GetUc(Ch)); GetCh(); break;
             case 'b': Str.AddCh('\b'); UcStr.AddCh(ChDef->GetUc(Ch)); GetCh(); break;
@@ -389,9 +390,20 @@ TLxSym TILx::GetSym(const TFSet& Expect){
             case 'n': Str.AddCh('\n'); UcStr.AddCh(ChDef->GetUc(Ch)); GetCh(); break;
             case 'r': Str.AddCh('\r'); UcStr.AddCh(ChDef->GetUc(Ch)); GetCh(); break;
             case 't': Str.AddCh('\t'); UcStr.AddCh(ChDef->GetUc(Ch)); GetCh(); break;
-            case 'u': 
-              // needs unicode support to be JSON compatible - now it replaces the code with blank
-              GetCh(); GetCh(); GetCh(); Str.AddCh(' '); UcStr.AddCh(ChDef->GetUc(' ')); GetCh(); break; 
+            case 'u': {
+              // unicode character, represented using 4 hexadecimal digits
+              GetCh(); EAssertR(TCh::IsHex(Ch), "Invalid hexadecimal digit in unicode escape");
+              int UChCd = TCh::GetHex(Ch);
+              GetCh(); EAssertR(TCh::IsHex(Ch), "Invalid hexadecimal digit in unicode escape");
+              UChCd = 16 * UChCd + TCh::GetHex(Ch);
+              GetCh(); EAssertR(TCh::IsHex(Ch), "Invalid hexadecimal digit in unicode escape");
+              UChCd = 16 * UChCd + TCh::GetHex(Ch);
+              GetCh(); EAssertR(TCh::IsHex(Ch), "Invalid hexadecimal digit in unicode escape");
+              UChCd = 16 * UChCd + TCh::GetHex(Ch);
+              // get as UTF8 encoded characters
+              TUnicode::EncodeUtf8(UChCd, Str);
+			  TUnicode::EncodeUtf8(UChCd, UcStr); }
+              GetCh(); break; 
             default: Sym=syUndef; break;
           }
           if (Sym==syUndef){

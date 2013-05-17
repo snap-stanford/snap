@@ -197,8 +197,8 @@ public:
     return KeyDatV[AddKey(Key)].Dat=Dat;}
 
   void DelKey(const TKey& Key);
-  void DelIfKey(const TKey& Key){
-    int KeyId; if (IsKey(Key, KeyId)){DelKeyId(KeyId);}}
+  bool DelIfKey(const TKey& Key){
+    int KeyId; if (IsKey(Key, KeyId)){DelKeyId(KeyId); return true;} return false;}
   void DelKeyId(const int& KeyId){DelKey(GetKey(KeyId));}
   void DelKeyIdV(const TIntV& KeyIdV){
     for (int KeyIdN=0; KeyIdN<KeyIdV.Len(); KeyIdN++){DelKeyId(KeyIdV[KeyIdN]);}}
@@ -593,6 +593,7 @@ typedef THash<TStr, TBool> TStrBoolH;
 typedef THash<TStr, TInt> TStrIntH;
 typedef THash<TStr, TIntPr> TStrIntPrH;
 typedef THash<TStr, TIntV> TStrIntVH;
+typedef THash<TStr, TUInt64> TStrUInt64H;
 typedef THash<TStr, TUInt64V> TStrUInt64VH;
 typedef THash<TStr, TIntPrV> TStrIntPrVH;
 typedef THash<TStr, TFlt> TStrFltH;
@@ -981,6 +982,7 @@ public:
 
   TCache& operator=(const TCache&);
   int64 GetMemUsed() const;
+  int64 GetMxMemUsed() const { return MxMemUsed; }
   bool RefreshMemUsed();
 
   void Put(const TKey& Key, const TDat& Dat);
@@ -1111,7 +1113,7 @@ bool TCache<TKey, TDat, THashFunc>::FNextKeyDat(void*& KeyDatP, TKey& Key, TDat&
 }
 
 /////////////////////////////////////////////////
-// String-Hash-Functions
+// Old-Hash-Functions
 
 // Old-String-Hash-Function
 class TStrHashF_OldGLib {
@@ -1157,4 +1159,22 @@ public:
     return (int) DJBHash((const char *) p, r - p) & 0x7fffffff; }
   inline static int GetPrimHashCd(const TStr& s) { return GetPrimHashCd(s.CStr()); }
   inline static int GetSecHashCd(const TStr& s) { return GetSecHashCd(s.CStr()); }
+};
+
+// Old-Vector-Hash-Function
+template <class TVec>
+class TVecHashF_OldGLib {
+public:
+  static inline int GetPrimHashCd(const TVec& Vec) {
+    int HashCd=0;
+    for (int ValN=0; ValN<Vec.Len(); ValN++){
+      HashCd+=Vec[ValN].GetPrimHashCd();}
+    return abs(HashCd);
+  }
+  inline static int GetSecHashCd(const TVec& Vec) {
+    int HashCd=0;
+    for (int ValN=0; ValN<Vec.Len(); ValN++){
+      HashCd+=Vec[ValN].GetSecHashCd();}
+    return abs(HashCd);
+  }
 };

@@ -673,7 +673,7 @@ void TGraph::PlaceSimAnnXY(
     // time
     TSecTm CurTm=TSecTm::GetCurTm();
     if (Secs!=-1){
-      if (TSecTm::GetDSecs(StartTm, CurTm)>Secs){break;}
+      if (TSecTm::GetDSecs(StartTm, CurTm)>uint(Secs)){break;}
     }
   }
 
@@ -709,7 +709,7 @@ void TGraph::PlaceSimAnnXY(
     // time
     TSecTm CurTm=TSecTm::GetCurTm();
     if (Secs!=-1){
-      if (TSecTm::GetDSecs(StartTm, CurTm)>Secs){break;}
+      if (TSecTm::GetDSecs(StartTm, CurTm)>uint(Secs)){break;}
     }
   }
 }
@@ -751,7 +751,7 @@ void TGraph::PlaceFineTuning(
     // time
     TSecTm CurTm=TSecTm::GetCurTm();
     if (Secs!=-1){
-      if (TSecTm::GetDSecs(StartTm, CurTm)>Secs){break;}
+      if (TSecTm::GetDSecs(StartTm, CurTm)>uint(Secs)){break;}
     }
   }
 }

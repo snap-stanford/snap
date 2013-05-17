@@ -144,6 +144,10 @@ ValV. Assumes the vectors are sorted!
 Assumes both vectors are sorted in ascending order!
 ///
 
+/// TVec::UnionLen
+Assumes both vectors are sorted in ascending order!
+///
+
 /// TVec::SearchBin
 If the element is not found return value is -1. Uses binary search and thus
 assumes the vector is sorted.

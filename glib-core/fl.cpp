@@ -558,6 +558,10 @@ TMIn::TMIn(const TChA& ChA):
   BfL=ChA.Len(); Bf=new char[BfL]; strncpy(Bf, ChA.CStr(), BfL);
 }
 
+PSIn TMIn::New(const void* _Bf, const int& _BfL, const bool& TakeBf){
+  return PSIn(new TMIn(_Bf, _BfL, TakeBf));
+}
+
 PSIn TMIn::New(const char* CStr){
   return PSIn(new TMIn(CStr));
 }
@@ -596,12 +600,17 @@ bool TMIn::GetNextLnBf(TChA& LnChA){
 
 /////////////////////////////////////////////////
 // Output-Memory
-void TMOut::Resize(){
-  IAssert(OwnBf&&(BfL==MxBfL));
+void TMOut::Resize(const int& ReqLen){
+  IAssert(OwnBf&&(BfL==MxBfL || ReqLen >= 0));
   if (Bf==NULL){
-    IAssert(MxBfL==0); Bf=new char[MxBfL=1024];
+    IAssert(MxBfL==0); 
+    if (ReqLen < 0) Bf=new char[MxBfL=1024];
+    else Bf=new char[MxBfL=ReqLen];
   } else {
-    MxBfL*=2; char* NewBf=new char[MxBfL];
+    if (ReqLen < 0){ MxBfL*=2; }
+    else if (ReqLen < MxBfL){ return; } // nothing to do 
+    else { MxBfL=(2*MxBfL < ReqLen ? ReqLen : 2*MxBfL); }
+    char* NewBf=new char[MxBfL];
     memmove(NewBf, Bf, BfL); delete[] Bf; Bf=NewBf;
   }
 }
@@ -616,6 +625,12 @@ TMOut::TMOut(const int& _MxBfL):
 TMOut::TMOut(char* _Bf, const int& _MxBfL):
   TSBase("Output-Memory"), TSOut("Output-Memory"),
   Bf(_Bf), BfL(0), MxBfL(_MxBfL), OwnBf(false){}
+
+void TMOut::AppendBf(const void* LBf, const TSize& LBfL) {
+  Resize(Len() + (int)LBfL);
+  memcpy(Bf + BfL, LBf, LBfL);
+  BfL += (int)LBfL;
+}
 
 int TMOut::PutBf(const void* LBf, const TSize& LBfL){
   int LBfS=0;

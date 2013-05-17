@@ -1,5 +1,3 @@
-#include <gtest/gtest.h>
-
 #include "Snap.h"
 
 PUNGraph TriadGetTestTUNGraph();
@@ -94,23 +92,23 @@ PNEGraph TriadGetTestTNEGraph() {
 void TestGetTriadsVector() {
   // Test TUNGraph
   printf("---- TestGetTriadsVector - TUNGraph ----\n");
-  PUNGraph Graph_TUNGraph = TriadGetTestTUNGraph();
+  PUNGraph GraphTUN = TriadGetTestTUNGraph();
   TIntTrV NIdCOTriadV;
-  TSnap::GetTriads(Graph_TUNGraph, NIdCOTriadV);
+  TSnap::GetTriads(GraphTUN, NIdCOTriadV);
   TestGetTriadsVectorHelper(NIdCOTriadV);
 
   // TNGraph should be treated as TUNGraph for calculations
   printf("---- TestGetTriadsVector - TNGraph ----\n");
-  PNGraph Graph_TNGraph = TriadGetTestTNGraph();
+  PNGraph GraphTN = TriadGetTestTNGraph();
   NIdCOTriadV.Clr();
-  TSnap::GetTriads(Graph_TNGraph, NIdCOTriadV);
+  TSnap::GetTriads(GraphTN, NIdCOTriadV);
   TestGetTriadsVectorHelper(NIdCOTriadV);
 
   // TNEGraph should be treated as TUNGraph for calculations
   printf("---- TestGetTriadsVector - TNEGraph ----\n");
-  PNEGraph Graph_TNEGraph = TriadGetTestTNEGraph();
+  PNEGraph GraphTNE = TriadGetTestTNEGraph();
   NIdCOTriadV.Clr();
-  TSnap::GetTriads(Graph_TNEGraph, NIdCOTriadV);
+  TSnap::GetTriads(GraphTNE, NIdCOTriadV);
   TestGetTriadsVectorHelper(NIdCOTriadV);
 
   printf("\n");
@@ -131,27 +129,33 @@ void TestGetTriadsVectorHelper(TIntTrV& NIdCOTriadV) {
 void TestGetTriadsOpenClosed() {
   // Test TUNGraph
   printf("---- TestGetTriadsOpenClosed - TUNGraph ----\n");
-  PUNGraph Graph_TUNGraph = TriadGetTestTUNGraph();
-  int64 closed = 0, open = 0;
+  PUNGraph GraphTUN = TriadGetTestTUNGraph();
+  int64 ClosedTr = 0;
+  int64 OpenTr = 0;
 
-  TSnap::GetTriads(Graph_TUNGraph, closed, open);
-  printf("\tGraph has %lld closed triads and %lld open triads.\n", closed, open);
+  TSnap::GetTriads(GraphTUN, ClosedTr, OpenTr);
+  printf("\tGraph has %s closed triads and %s open triads.\n",
+    TUInt64::GetStr(ClosedTr).CStr(), TUInt64::GetStr(OpenTr).CStr());
 
   // TNGraph should be treated as TUNGraph for calculations
   printf("---- TestGetTriadsOpenClosed - TNGraph ----\n");
-  PNGraph Graph_TNGraph = TriadGetTestTNGraph();
-  closed = 0, open = 0;
+  PNGraph GraphTN = TriadGetTestTNGraph();
+  ClosedTr = 0;
+  OpenTr = 0;
 
-  TSnap::GetTriads(Graph_TNGraph, closed, open);
-  printf("\tGraph has %lld closed triads and %lld open triads.\n", closed, open);
+  TSnap::GetTriads(GraphTN, ClosedTr, OpenTr);
+  printf("\tGraph has %s closed triads and %s open triads.\n",
+    TUInt64::GetStr(ClosedTr).CStr(), TUInt64::GetStr(OpenTr).CStr());
 
   // TNEGraph should be treated as TUNGraph for calculations
   printf("---- TestGetTriadsOpenClosed - TNEGraph ----\n");
-  PNEGraph Graph_TNEGraph = TriadGetTestTNEGraph();
-  closed = 0, open = 0;
+  PNEGraph GraphTNE = TriadGetTestTNEGraph();
+  ClosedTr = 0;
+  OpenTr = 0;
 
-  TSnap::GetTriads(Graph_TNEGraph, closed, open);
-  printf("\tGraph has %lld closed triads and %lld open triads.\n", closed, open);
+  TSnap::GetTriads(GraphTNE, ClosedTr, OpenTr);
+  printf("\tGraph has %s closed triads and %s open triads.\n",
+    TUInt64::GetStr(ClosedTr).CStr(), TUInt64::GetStr(OpenTr).CStr());
 
   printf("\n");
 }
@@ -162,24 +166,24 @@ void TestGetTriadsClosed() {
 
   // Test TUNGraph
   printf("---- TestGetTriadsClosed - TUNGraph ----\n");
-  PUNGraph Graph_TUNGraph = TriadGetTestTUNGraph();
-  int closed = 0;
-  closed = TSnap::GetTriads(Graph_TUNGraph);
-  printf("\tGraph has %d closed triads.\n", closed);
+  PUNGraph GraphTUN = TriadGetTestTUNGraph();
+  int64 ClosedTr = 0;
+
+  ClosedTr = TSnap::GetTriads(GraphTUN);
+  printf("\tGraph has %s closed triads.\n", TUInt64::GetStr(ClosedTr).CStr());
 
   // TNGraph should be treated as TUNGraph for calculations
   printf("---- TestGetTriadsClosed - TNGraph ----\n");
-  PNGraph Graph_TNGraph = TriadGetTestTNGraph();
-  closed = 0;
-  closed = TSnap::GetTriads(Graph_TNGraph);
-  printf("\tGraph has %d closed triads.\n", closed);
+  PNGraph GraphTN = TriadGetTestTNGraph();
+  ClosedTr = TSnap::GetTriads(GraphTN);
+  printf("\tGraph has %s closed triads.\n", TUInt64::GetStr(ClosedTr).CStr());
 
   // TNEGraph should be treated as TUNGraph for calculations
   printf("---- TestGetTriadsClosed - TNEGraph ----\n");
-  PNEGraph Graph_TNEGraph = TriadGetTestTNEGraph();
-  closed = 0;
-  closed = TSnap::GetTriads(Graph_TNEGraph);
-  printf("\tGraph has %d closed triads.\n", closed);
+  PNEGraph GraphTNE = TriadGetTestTNEGraph();
+
+  ClosedTr = TSnap::GetTriads(GraphTNE);
+  printf("\tGraph has %s closed triads.\n", TUInt64::GetStr(ClosedTr).CStr());
 
   printf("\n");
 }
@@ -188,23 +192,23 @@ void TestGetTriadsClosed() {
 void TestGetClustCf() {
   // Test TUNGraph
   printf("---- TestGetClustCf - TUNGraph ----\n");
-  PUNGraph Graph_TUNGraph = TriadGetTestTUNGraph();
+  PUNGraph GraphTUN = TriadGetTestTUNGraph();
   double ClustCf = 0.0;
-  ClustCf = TSnap::GetClustCf(Graph_TUNGraph);
+  ClustCf = TSnap::GetClustCf(GraphTUN);
   printf("\tGraph has a clustering coefficient of %f.\n", ClustCf);
 
   // TNGraph should be treated as TUNGraph for calculations
   printf("---- TestGetClustCf - TNGraph ----\n");
-  PNGraph Graph_TNGraph = TriadGetTestTNGraph();
+  PNGraph GraphTN = TriadGetTestTNGraph();
   ClustCf = 0.0;
-  ClustCf = TSnap::GetClustCf(Graph_TNGraph);
+  ClustCf = TSnap::GetClustCf(GraphTN);
   printf("\tGraph has a clustering coefficient of %f.\n", ClustCf);
 
   // TNEGraph should be treated as TUNGraph for calculations
   printf("---- TestGetClustCf - TNEGraph ----\n");
-  PNEGraph Graph_TNEGraph = TriadGetTestTNEGraph();
+  PNEGraph GraphTNE = TriadGetTestTNEGraph();
   ClustCf = 0.0;
-  ClustCf = TSnap::GetClustCf(Graph_TNEGraph);
+  ClustCf = TSnap::GetClustCf(GraphTNE);
   printf("\tGraph has a clustering coefficient of %f.\n", ClustCf);
 
   printf("\n");
@@ -214,23 +218,23 @@ void TestGetClustCf() {
 void TestGetClustCfDist() {
   // Test TUNGraph
   printf("---- TestGetClustCfDist - TUNGraph ----\n");
-  PUNGraph Graph_TUNGraph = TriadGetTestTUNGraph();
+  PUNGraph GraphTUN = TriadGetTestTUNGraph();
   TFltPrV DegToCCfV;
-  TSnap::GetClustCf(Graph_TUNGraph, DegToCCfV);
+  TSnap::GetClustCf(GraphTUN, DegToCCfV);
   TestGetClustCfDistHelper(DegToCCfV);
 
   // TNGraph should be treated as TUNGraph for calculations
   printf("---- TestGetClustCfDist - TNGraph ----\n");
-  PNGraph Graph_TNGraph = TriadGetTestTNGraph();
+  PNGraph GraphTN = TriadGetTestTNGraph();
   DegToCCfV.Clr();
-  TSnap::GetClustCf(Graph_TNGraph, DegToCCfV);
+  TSnap::GetClustCf(GraphTN, DegToCCfV);
   TestGetClustCfDistHelper(DegToCCfV);
 
   // TNEGraph is not treated the same! Be careful with multigraphs
   printf("---- TestGetClustCfDist - TNEGraph ----\n");
-  PNEGraph Graph_TNEGraph = TriadGetTestTNEGraph();
+  PNEGraph GraphTNE = TriadGetTestTNEGraph();
   DegToCCfV.Clr();
-  TSnap::GetClustCf(Graph_TNEGraph, DegToCCfV);
+  TSnap::GetClustCf(GraphTNE, DegToCCfV);
   TestGetClustCfDistHelper(DegToCCfV);
 
   printf("\n");
@@ -241,30 +245,39 @@ void TestGetClustCfDist() {
 void TestGetClustCfDistCO() {
   // Test TUNGraph
   printf("---- TestGetClustCfDistCO - TUNGraph ----\n");
-  PUNGraph Graph_TUNGraph = TriadGetTestTUNGraph();
+  PUNGraph GraphTUN = TriadGetTestTUNGraph();
   TFltPrV DegToCCfV;
-  int64 closed = 0, open = 0;
-  TSnap::GetClustCf(Graph_TUNGraph, DegToCCfV, closed, open);
+  int64 ClosedTr = 0;
+  int64 OpenTr = 0;
+
+  TSnap::GetClustCf(GraphTUN, DegToCCfV, ClosedTr, OpenTr);
   TestGetClustCfDistHelper(DegToCCfV);
-  printf("\tClosed Triads: %lld | Open Triads: %lld\n", closed, open);
+  printf("\tClosed Triads: %s | Open Triads: %s\n",
+    TUInt64::GetStr(ClosedTr).CStr(), TUInt64::GetStr(OpenTr).CStr());
 
   // TNGraph should be treated as TUNGraph for calculations
   printf("---- TestGetClustCfDistCO - TNGraph ----\n");
-  PNGraph Graph_TNGraph = TriadGetTestTNGraph();
+  PNGraph GraphTN = TriadGetTestTNGraph();
   DegToCCfV.Clr();
-  closed = 0, open = 0;
-  TSnap::GetClustCf(Graph_TNGraph, DegToCCfV, closed, open);
+
+  ClosedTr = 0;
+  OpenTr = 0;
+  TSnap::GetClustCf(GraphTN, DegToCCfV, ClosedTr, OpenTr);
   TestGetClustCfDistHelper(DegToCCfV);
-  printf("\tClosed Triads: %lld | Open Triads: %lld\n", closed, open);
+  printf("\tClosed Triads: %s | Open Triads: %s\n",
+    TUInt64::GetStr(ClosedTr).CStr(), TUInt64::GetStr(OpenTr).CStr());
 
   // TNEGraph is not treated the same! Be careful with multigraphs
   printf("---- TestGetClustCfDistCO - TNEGraph ----\n");
-  PNEGraph Graph_TNEGraph = TriadGetTestTNEGraph();
+  PNEGraph GraphTNE = TriadGetTestTNEGraph();
   DegToCCfV.Clr();
-  closed = 0, open = 0;
-  TSnap::GetClustCf(Graph_TNEGraph, DegToCCfV, closed, open);
+
+  ClosedTr = 0;
+  OpenTr = 0;
+  TSnap::GetClustCf(GraphTNE, DegToCCfV, ClosedTr, OpenTr);
   TestGetClustCfDistHelper(DegToCCfV);
-  printf("\tClosed Triads: %lld | Open Triads: %lld\n", closed, open);
+  printf("\tClosed Triads: %s | Open Triads: %s\n",
+    TUInt64::GetStr(ClosedTr).CStr(), TUInt64::GetStr(OpenTr).CStr());
 
   printf("\n");
 }
@@ -272,9 +285,9 @@ void TestGetClustCfDistCO() {
 // Helper: Testing Degree to Clustering Coefficient Distribution
 void TestGetClustCfDistHelper(TFltPrV& DegToCCfV) {
   printf("\tGraph has the following Clustering Coefficient Distribution:\n");
-  for (TFltPr *pair = DegToCCfV.BegI(); pair < DegToCCfV.EndI(); pair++) {
-    printf("\tDegree: %f | Clustering Coefficient: %f\n", pair->Val1.Val, 
-           pair->Val2.Val);
+  for (TFltPr *Pair = DegToCCfV.BegI(); Pair < DegToCCfV.EndI(); Pair++) {
+    printf("\tDegree: %f | Clustering Coefficient: %f\n", Pair->Val1.Val, 
+           Pair->Val2.Val);
   }
 }
 
@@ -282,25 +295,25 @@ void TestGetClustCfDistHelper(TFltPrV& DegToCCfV) {
 void TestGetNodeClustCfSpecific() {
   // Test TUNGraph
   printf("---- TestGetClustCfSpecific - TUNGraph ----\n");
-  PUNGraph Graph_TUNGraph = TriadGetTestTUNGraph();
-  for (int i = 0; i < Graph_TUNGraph->GetNodes(); i++) {
-    double ClustCf = TSnap::GetNodeClustCf(Graph_TUNGraph, i);
+  PUNGraph GraphTUN = TriadGetTestTUNGraph();
+  for (int i = 0; i < GraphTUN->GetNodes(); i++) {
+    double ClustCf = TSnap::GetNodeClustCf(GraphTUN, i);
     printf("\tQuery Node: %d | Clustering Coefficient: %f\n", i, ClustCf);
   }
 
   // TNGraph should be treated as TUNGraph for calculations
   printf("---- TestGetClustCfSpecific - TNGraph ----\n");
-  PNGraph Graph_TNGraph = TriadGetTestTNGraph();
-  for (int i = 0; i < Graph_TNGraph->GetNodes(); i++) {
-    double ClustCf = TSnap::GetNodeClustCf(Graph_TNGraph, i);
+  PNGraph GraphTN = TriadGetTestTNGraph();
+  for (int i = 0; i < GraphTN->GetNodes(); i++) {
+    double ClustCf = TSnap::GetNodeClustCf(GraphTN, i);
     printf("\tQuery Node: %d | Clustering Coefficient: %f\n", i, ClustCf);
   }
 
   // TNEGraph should be treated as TUNGraph for calculations
   printf("---- TestGetClustCfSpecific - TNEGraph ----\n");
-  PNEGraph Graph_TNEGraph = TriadGetTestTNEGraph();
-  for (int i = 0; i < Graph_TNEGraph->GetNodes(); i++) {
-    double ClustCf = TSnap::GetNodeClustCf(Graph_TNEGraph, i);
+  PNEGraph GraphTNE = TriadGetTestTNEGraph();
+  for (int i = 0; i < GraphTNE->GetNodes(); i++) {
+    double ClustCf = TSnap::GetNodeClustCf(GraphTNE, i);
     printf("\tQuery Node: %d | Clustering Coefficient: %f\n", i, ClustCf);
   }
 
@@ -312,10 +325,10 @@ void TestGetNodeClustCfSpecific() {
 void TestGetNodeClustCfVector() {
   // Test TUNGraph
   printf("---- TestGetClustCfVector - TUNGraph ----\n");
-  PUNGraph Graph_TUNGraph = TriadGetTestTUNGraph();
+  PUNGraph GraphTUN = TriadGetTestTUNGraph();
   TIntFltH NIdCCfH;
-  TSnap::GetNodeClustCf(Graph_TUNGraph, NIdCCfH);
-  for (int i = 0; i < Graph_TUNGraph->GetNodes(); i++) {
+  TSnap::GetNodeClustCf(GraphTUN, NIdCCfH);
+  for (int i = 0; i < GraphTUN->GetNodes(); i++) {
     double ClustCf = NIdCCfH.GetDat(i);
     printf("\tQuery Node in Vector: %d | Clustering Coefficient: %f\n", i, 
            ClustCf);
@@ -323,10 +336,10 @@ void TestGetNodeClustCfVector() {
 
   // TNGraph should be treated as TUNGraph for calculations
   printf("---- TestGetClustCfVector - TNGraph ----\n");
-  PNGraph Graph_TNGraph = TriadGetTestTNGraph();
+  PNGraph GraphTN = TriadGetTestTNGraph();
   NIdCCfH.Clr();
-  TSnap::GetNodeClustCf(Graph_TNGraph, NIdCCfH);
-  for (int i = 0; i < Graph_TNGraph->GetNodes(); i++) {
+  TSnap::GetNodeClustCf(GraphTN, NIdCCfH);
+  for (int i = 0; i < GraphTN->GetNodes(); i++) {
     double ClustCf = NIdCCfH.GetDat(i);
     printf("\tQuery Node in Vector: %d | Clustering Coefficient: %f\n", i, 
            ClustCf);
@@ -334,11 +347,11 @@ void TestGetNodeClustCfVector() {
 
   // TNEGraph should be treated as TUNGraph for calculations
   printf("---- TestGetClustCfVector - TNEGraph ----\n");
-  PNEGraph Graph_TNEGraph = TriadGetTestTNEGraph();
+  PNEGraph GraphTNE = TriadGetTestTNEGraph();
   NIdCCfH.Clr();
 
-  TSnap::GetNodeClustCf(Graph_TNEGraph, NIdCCfH);
-  for (int i = 0; i < Graph_TNEGraph->GetNodes(); i++) {
+  TSnap::GetNodeClustCf(GraphTNE, NIdCCfH);
+  for (int i = 0; i < GraphTNE->GetNodes(); i++) {
     double ClustCf = NIdCCfH.GetDat(i);
     printf("\tQuery Node in Vector: %d | Clustering Coefficient: %f\n", i, 
            ClustCf);
@@ -352,21 +365,21 @@ void TestGetNodeClustCfVector() {
 void TestGetTriadEdges() {
   // Test TUNGraph
   printf("---- TestGetTriadEdges - TUNGraph ----\n");
-  PUNGraph Graph_TUNGraph = TriadGetTestTUNGraph();
+  PUNGraph GraphTUN = TriadGetTestTUNGraph();
   printf("\tNumber of Edges Participating in at least one triad: %d\n", 
-         TSnap::GetTriadEdges(Graph_TUNGraph));
+         TSnap::GetTriadEdges(GraphTUN));
 
   // TNGraph is not treated the same! Each directed will be counted
   printf("---- TestGetTriadEdges - TNGraph ----\n");
-  PNGraph Graph_TNGraph = TriadGetTestTNGraph();
+  PNGraph GraphTN = TriadGetTestTNGraph();
   printf("\tNumber of Edges Participating in at least one triad: %d\n", 
-         TSnap::GetTriadEdges(Graph_TNGraph));
+         TSnap::GetTriadEdges(GraphTN));
 
   // TNEGraph is not treated the same! Be careful with multigraphs
   printf("---- TestGetTriadEdges - TNEGraph ----\n");
-  PNEGraph Graph_TNEGraph = TriadGetTestTNEGraph();
+  PNEGraph GraphTNE = TriadGetTestTNEGraph();
   printf("\tNumber of Edges Participating in at least one triad: %d\n", 
-         TSnap::GetTriadEdges(Graph_TNEGraph));
+         TSnap::GetTriadEdges(GraphTNE));
 
   printf("\n");
 }
@@ -376,26 +389,26 @@ void TestGetTriadEdges() {
 void TestGetNodeTriads() {
   // Test TUNGraph
   printf("---- TestGetNodeTriads - TUNGraph ----\n");
-  PUNGraph Graph_TUNGraph = TriadGetTestTUNGraph();
-  for (int i = 0; i < Graph_TUNGraph->GetNodes(); i++) {
+  PUNGraph GraphTUN = TriadGetTestTUNGraph();
+  for (int i = 0; i < GraphTUN->GetNodes(); i++) {
     printf("\tNode: %d | Participating Closed Triads: %d\n", i,
-           TSnap::GetNodeTriads(Graph_TUNGraph, i));
+           TSnap::GetNodeTriads(GraphTUN, i));
   }
   
   // TNGraph is not treated the same! Each directed will be counted
   printf("---- TestGetNodeTriads - TNGraph ----\n");
-  PNGraph Graph_TNGraph = TriadGetTestTNGraph();
-  for (int i = 0; i < Graph_TNGraph->GetNodes(); i++) {
+  PNGraph GraphTN = TriadGetTestTNGraph();
+  for (int i = 0; i < GraphTN->GetNodes(); i++) {
     printf("\tNode: %d | Participating Closed Triads: %d\n", i,
-           TSnap::GetNodeTriads(Graph_TNGraph, i));
+           TSnap::GetNodeTriads(GraphTN, i));
   }
 
   // TNEGraph is not treated the same! Be careful with multigraphs
   printf("---- TestGetNodeTriads - TNEGraph ----\n");
-  PNEGraph Graph_TNEGraph = TriadGetTestTNEGraph();
-  for (int i = 0; i < Graph_TNEGraph->GetNodes(); i++) {
+  PNEGraph GraphTNE = TriadGetTestTNEGraph();
+  for (int i = 0; i < GraphTNE->GetNodes(); i++) {
     printf("\tNode: %d | Participating Closed Triads: %d\n", i,
-           TSnap::GetNodeTriads(Graph_TNEGraph, i));
+           TSnap::GetNodeTriads(GraphTNE, i));
   }
 
   printf("\n");
@@ -405,32 +418,32 @@ void TestGetNodeTriads() {
 void TestGetNodeCOTriads() {
   // Test TUNGraph
   printf("---- TestGetNodeCOTriads - TUNGraph ----\n");
-  PUNGraph Graph_TUNGraph = TriadGetTestTUNGraph();
-  for (int i = 0; i < Graph_TUNGraph->GetNodes(); i++) {
-    int ClosedTriads = -1, OpenTriads = -1;
-    TSnap::GetNodeTriads(Graph_TUNGraph, i, ClosedTriads, OpenTriads);
+  PUNGraph GraphTUN = TriadGetTestTUNGraph();
+  for (int i = 0; i < GraphTUN->GetNodes(); i++) {
+    int ClosedTr = -1, OpenTr = -1;
+    TSnap::GetNodeTriads(GraphTUN, i, ClosedTr, OpenTr);
     printf("\tNode: %d | Closed Triads: %d | Open Triads: %d\n", i,
-           ClosedTriads, OpenTriads);
+           ClosedTr, OpenTr);
   }
   
   // Test TNGraph which is treated same as undirected.
   printf("---- TestGetNodeCOTriads - TNGraph ----\n");
-  PNGraph Graph_TNGraph = TriadGetTestTNGraph();
-  for (int i = 0; i < Graph_TNGraph->GetNodes(); i++) {
-    int ClosedTriads = -1, OpenTriads = -1;
-    TSnap::GetNodeTriads(Graph_TNGraph, i, ClosedTriads, OpenTriads);
+  PNGraph GraphTN = TriadGetTestTNGraph();
+  for (int i = 0; i < GraphTN->GetNodes(); i++) {
+    int ClosedTr = -1, OpenTr = -1;
+    TSnap::GetNodeTriads(GraphTN, i, ClosedTr, OpenTr);
     printf("\tNode: %d | Closed Triads: %d | Open Triads: %d\n", i,
-           ClosedTriads, OpenTriads);
+           ClosedTr, OpenTr);
   }
 
   // Test TNEGraph which is treated same as undirected.
   printf("---- TestGetNodeCOTriads - TNEGraph ----\n");
-  PNEGraph Graph_TNEGraph = TriadGetTestTNEGraph();
-  for (int i = 0; i < Graph_TNEGraph->GetNodes(); i++) {
-    int ClosedTriads = -1, OpenTriads = -1;
-    TSnap::GetNodeTriads(Graph_TNEGraph, i, ClosedTriads, OpenTriads);
+  PNEGraph GraphTNE = TriadGetTestTNEGraph();
+  for (int i = 0; i < GraphTNE->GetNodes(); i++) {
+    int ClosedTr = -1, OpenTr = -1;
+    TSnap::GetNodeTriads(GraphTNE, i, ClosedTr, OpenTr);
     printf("\tNode: %d | Closed Triads: %d | Open Triads: %d\n", i,
-           ClosedTriads, OpenTriads);
+           ClosedTr, OpenTr);
   }
 
   printf("\n");
@@ -440,12 +453,12 @@ void TestGetNodeCOTriads() {
 void TestGetNodeTriadsGroupSetAndOut() {
   // Test TUNGraph
   printf("---- TestGetNodeTriadsGroupSetAndOut - TUNGraph ----\n");
-  PUNGraph Graph_TUNGraph = TriadGetTestTUNGraph();
-  for (int i = 0; i < Graph_TUNGraph->GetNodes(); i++) {
+  PUNGraph GraphTUN = TriadGetTestTUNGraph();
+  for (int i = 0; i < GraphTUN->GetNodes(); i++) {
     TIntSet GroupSet;
     GetGroupSet(i, GroupSet);
     int InGroupEdges = -1, InOutGroupEdges = -1, OutGroupEdges = -1;
-    TSnap::GetNodeTriads(Graph_TUNGraph, i, GroupSet, 
+    TSnap::GetNodeTriads(GraphTUN, i, GroupSet, 
                          InGroupEdges, InOutGroupEdges, OutGroupEdges);
     printf("\tNode: %d | InGroupEdges: %d |", i, InGroupEdges);
     printf(" InOutGroupEdges: %d | OutGroupEdges: %d\n", InOutGroupEdges, 
@@ -454,12 +467,12 @@ void TestGetNodeTriadsGroupSetAndOut() {
   
   // Test TNGraph which is same as undirected.
   printf("---- TestGetNodeTriadsGroupSetAndOut - TNGraph ----\n");
-  PNGraph Graph_TNGraph = TriadGetTestTNGraph();
-  for (int i = 0; i < Graph_TNGraph->GetNodes(); i++) {
+  PNGraph GraphTN = TriadGetTestTNGraph();
+  for (int i = 0; i < GraphTN->GetNodes(); i++) {
     TIntSet GroupSet;
     GetGroupSet(i, GroupSet);
     int InGroupEdges = -1, InOutGroupEdges = -1, OutGroupEdges = -1;
-    TSnap::GetNodeTriads(Graph_TNGraph, i, GroupSet, 
+    TSnap::GetNodeTriads(GraphTN, i, GroupSet, 
                          InGroupEdges, InOutGroupEdges, OutGroupEdges);
     printf("\tNode: %d | InGroupEdges: %d |", i, InGroupEdges);
     printf(" InOutGroupEdges: %d | OutGroupEdges: %d\n", InOutGroupEdges, 
@@ -468,12 +481,12 @@ void TestGetNodeTriadsGroupSetAndOut() {
   
   // Test TNEGraph which is same as undirected.
   printf("---- TestGetNodeTriadsGroupSetAndOut - TNEGraph ----\n");
-  PNEGraph Graph_TNEGraph = TriadGetTestTNEGraph();
-  for (int i = 0; i < Graph_TNEGraph->GetNodes(); i++) {
+  PNEGraph GraphTNE = TriadGetTestTNEGraph();
+  for (int i = 0; i < GraphTNE->GetNodes(); i++) {
     TIntSet GroupSet;
     GetGroupSet(i, GroupSet);
     int InGroupEdges = -1, InOutGroupEdges = -1, OutGroupEdges = -1;
-    TSnap::GetNodeTriads(Graph_TNEGraph, i, GroupSet, 
+    TSnap::GetNodeTriads(GraphTNE, i, GroupSet, 
                          InGroupEdges, InOutGroupEdges, OutGroupEdges);
     printf("\tNode: %d | InGroupEdges: %d |", i, InGroupEdges);
     printf(" InOutGroupEdges: %d | OutGroupEdges: %d\n", InOutGroupEdges, 
@@ -520,9 +533,9 @@ void GetGroupSet(int NId, TIntSet& GroupSet) {
 void TestGetTriadParticip() {
   // Test TUNGraph
   printf("---- TestGetTriadParticip - TUNGraph ----\n");
-  PUNGraph Graph_TUNGraph = TriadGetTestTUNGraph();
+  PUNGraph GraphTUN = TriadGetTestTUNGraph();
   TIntPrV TriadCntV;
-  TSnap::GetTriadParticip(Graph_TUNGraph, TriadCntV);
+  TSnap::GetTriadParticip(GraphTUN, TriadCntV);
   for (TIntPr *vec = TriadCntV.BegI(); vec < TriadCntV.EndI(); vec++) {
     printf("\tNode %d participates in %d triangles.\n", vec->Val1.Val,
            vec->Val2.Val);
@@ -530,9 +543,9 @@ void TestGetTriadParticip() {
 
   // Test TNGraph which is same as undirected.
   printf("---- TestGetTriadParticip - TNGraph ----\n");
-  PNGraph Graph_TNGraph = TriadGetTestTNGraph();
+  PNGraph GraphTN = TriadGetTestTNGraph();
   TriadCntV.Clr();
-  TSnap::GetTriadParticip(Graph_TNGraph, TriadCntV);
+  TSnap::GetTriadParticip(GraphTN, TriadCntV);
   for (TIntPr *vec = TriadCntV.BegI(); vec < TriadCntV.EndI(); vec++) {
     printf("\tNode %d participates in %d triangles.\n", vec->Val1.Val,
            vec->Val2.Val);
@@ -540,9 +553,9 @@ void TestGetTriadParticip() {
   
   // Test TNEGraph which is same as undirected.
   printf("---- TestGetTriadParticip - TNEGraph ----\n");
-  PNEGraph Graph_TNEGraph = TriadGetTestTNEGraph();
+  PNEGraph GraphTNE = TriadGetTestTNEGraph();
   TriadCntV.Clr();
-  TSnap::GetTriadParticip(Graph_TNGraph, TriadCntV);
+  TSnap::GetTriadParticip(GraphTN, TriadCntV);
   for (TIntPr *vec = TriadCntV.BegI(); vec < TriadCntV.EndI(); vec++) {
     printf("\tNode %d participates in %d triangles.\n", vec->Val1.Val,
            vec->Val2.Val);
@@ -555,31 +568,31 @@ void TestGetTriadParticip() {
 void TestGetCmnNbrs() {
   // Test TUNGraph
   printf("---- TestGetCmnNbrs - TUNGraph ----\n");
-  PUNGraph Graph_TUNGraph = TriadGetTestTUNGraph();
-  for (int i = 0; i < Graph_TUNGraph->GetNodes(); i++) {
-    for (int j = i + 1; j < Graph_TUNGraph->GetNodes(); j++) {
+  PUNGraph GraphTUN = TriadGetTestTUNGraph();
+  for (int i = 0; i < GraphTUN->GetNodes(); i++) {
+    for (int j = i + 1; j < GraphTUN->GetNodes(); j++) {
       printf("\tNodes %d and %d share %d common neighbors.\n", i, j, 
-             TSnap::GetCmnNbrs(Graph_TUNGraph, i, j));
+             TSnap::GetCmnNbrs(GraphTUN, i, j));
     }
   }
   
   // Test TNGraph which is same as undirected.
   printf("---- TestGetCmnNbrs - TNGraph ----\n");
-  PNGraph Graph_TNGraph = TriadGetTestTNGraph();
-  for (int i = 0; i < Graph_TNGraph->GetNodes(); i++) {
-    for (int j = i + 1; j < Graph_TNGraph->GetNodes(); j++) {
+  PNGraph GraphTN = TriadGetTestTNGraph();
+  for (int i = 0; i < GraphTN->GetNodes(); i++) {
+    for (int j = i + 1; j < GraphTN->GetNodes(); j++) {
       printf("\tNodes %d and %d share %d common neighbors.\n", i, j, 
-             TSnap::GetCmnNbrs(Graph_TNGraph, i, j));
+             TSnap::GetCmnNbrs(GraphTN, i, j));
     }
   }
   
   // Test TNEGraph which is same as undirected.
   printf("---- TestGetCmnNbrs - TNEGraph ----\n");
-  PNEGraph Graph_TNEGraph = TriadGetTestTNEGraph();
-  for (int i = 0; i < Graph_TNEGraph->GetNodes(); i++) {
-    for (int j = i + 1; j < Graph_TNEGraph->GetNodes(); j++) {
+  PNEGraph GraphTNE = TriadGetTestTNEGraph();
+  for (int i = 0; i < GraphTNE->GetNodes(); i++) {
+    for (int j = i + 1; j < GraphTNE->GetNodes(); j++) {
       printf("\tNodes %d and %d share %d common neighbors.\n", i, j, 
-             TSnap::GetCmnNbrs(Graph_TNEGraph, i, j));
+             TSnap::GetCmnNbrs(GraphTNE, i, j));
     }
   }
 
@@ -590,11 +603,11 @@ void TestGetCmnNbrs() {
 void TestGetLen2Paths() {
   // Test TUNGraph
   printf("---- TestGetLen2Paths - TUNGraph ----\n");
-  PUNGraph Graph_TUNGraph = TriadGetTestTUNGraph();
-  for (int i = 0; i < Graph_TUNGraph->GetNodes(); i++) {
-    for (int j = i + 1; j < Graph_TUNGraph->GetNodes(); j++) {
+  PUNGraph GraphTUN = TriadGetTestTUNGraph();
+  for (int i = 0; i < GraphTUN->GetNodes(); i++) {
+    for (int j = i + 1; j < GraphTUN->GetNodes(); j++) {
       printf("\tNodes %d and %d share %d paths with length 2 between them.\n",
-             i, j, TSnap::GetLen2Paths(Graph_TUNGraph, i, j));
+             i, j, TSnap::GetLen2Paths(GraphTUN, i, j));
     }
     printf("\n");
   }
@@ -602,11 +615,11 @@ void TestGetLen2Paths() {
   // Test TNGraph which is different from undirected due to out neighbors.
   // Direction matters in pathing!
   printf("---- TestGetLen2Paths - TNGraph ----\n");
-  PNGraph Graph_TNGraph = TriadGetTestTNGraph();
-  for (int i = 0; i < Graph_TNGraph->GetNodes(); i++) {
-    for (int j = 0; j < Graph_TNGraph->GetNodes(); j++) {
+  PNGraph GraphTN = TriadGetTestTNGraph();
+  for (int i = 0; i < GraphTN->GetNodes(); i++) {
+    for (int j = 0; j < GraphTN->GetNodes(); j++) {
       printf("\tNodes %d and %d share %d paths with length 2 between them.\n",
-             i, j, TSnap::GetLen2Paths(Graph_TNGraph, i, j));
+             i, j, TSnap::GetLen2Paths(GraphTN, i, j));
     }
     printf("\n");
   }
@@ -614,11 +627,11 @@ void TestGetLen2Paths() {
   // Test TNEGraph which is different from undirected due to out neighbors.
   // Direction matters in pathing!
   printf("---- TestGetLen2Paths - TNEGraph ----\n");
-  PNEGraph Graph_TNEGraph = TriadGetTestTNEGraph();
-  for (int i = 0; i < Graph_TNEGraph->GetNodes(); i++) {
-    for (int j = 0; j < Graph_TNEGraph->GetNodes(); j++) {
+  PNEGraph GraphTNE = TriadGetTestTNEGraph();
+  for (int i = 0; i < GraphTNE->GetNodes(); i++) {
+    for (int j = 0; j < GraphTNE->GetNodes(); j++) {
       printf("\tNodes %d and %d share %d paths with length 2 between them.\n",
-             i, j, TSnap::GetLen2Paths(Graph_TNEGraph, i, j));
+             i, j, TSnap::GetLen2Paths(GraphTNE, i, j));
     }
     printf("\n");
   }

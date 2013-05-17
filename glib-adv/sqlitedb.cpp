@@ -72,9 +72,11 @@ void TSQLCommand::ClearParameters() const
 
 void TSQLCommand::ExecuteNonQuery() const
 {
-	if(sqlite3_step((sqlite3_stmt *)stmt) != SQLITE_DONE)
+	int ret = sqlite3_step((sqlite3_stmt *)stmt);
+	if(ret != SQLITE_DONE)
 	{
-		TExcept::Throw("Error executing SQL nonquery");
+		/* see http://www.sqlite.org/c3ref/c_abort.html */
+		TExcept::Throw(TStr::Fmt("Error executing SQL nonquery: %d", ret));
 	}
 }
 
@@ -94,6 +96,13 @@ int TSQLCommand::GetInt(int colIndex) const
 	return sqlite3_column_int((sqlite3_stmt *)stmt, colIndex);
 }
 
+
+uint64 TSQLCommand::GetUInt64(int colIndex) const
+{
+	return sqlite3_column_int64((sqlite3_stmt *)stmt, colIndex);
+}
+
+
 TFlt TSQLCommand::GetFloat(int colIndex) const
 {
 	return sqlite3_column_double((sqlite3_stmt *)stmt, colIndex);
@@ -104,9 +113,15 @@ TStr TSQLCommand::GetText(int colIndex) const
 	return TStr((const char *)sqlite3_column_text((sqlite3_stmt *)stmt, colIndex));
 }
 
-const void * TSQLCommand::GetBlob(int colIndex) const
+PMem TSQLCommand::GetBlob(int colIndex) const
 {
-	return sqlite3_column_blob((sqlite3_stmt *)stmt, colIndex);
+	int Len = sqlite3_column_bytes((sqlite3_stmt *)stmt, colIndex);
+	const void *Data = sqlite3_column_blob((sqlite3_stmt *)stmt, colIndex);
+	return TMem::New(Data, Len);
+}
+
+uint64 TSQLCommand::GetMemUsed() const {
+	return uint64(sizeof(void *)) + uint64(SqlStr.GetMemUsed());
 }
 
 TSQLIntParameter::TSQLIntParameter(int val):
@@ -128,6 +143,27 @@ void TSQLIntParameter::Bind(void * stmt, int index) const
 		TExcept::Throw("Error binding SQL Parameter");
 	}
 }
+
+TSQLUInt64Parameter::TSQLUInt64Parameter(uint64 v):
+TSQLParameter(),
+val(v)
+{
+	
+}
+
+TSQLUInt64Parameter::~TSQLUInt64Parameter()
+{
+	//printf("TSQLIntParameter destructor\n");
+}
+
+void TSQLUInt64Parameter::Bind(void * stmt, int index) const
+{	
+	if(sqlite3_bind_int64((sqlite3_stmt *)stmt, index, val) != SQLITE_OK)
+	{
+		TExcept::Throw("Error binding SQL Parameter");
+	}
+}
+
 
 TSQLFloatParameter::TSQLFloatParameter(TFlt val):
 TSQLParameter(),
@@ -162,6 +198,25 @@ TSQLStrParameter::~TSQLStrParameter()
 void TSQLStrParameter::Bind(void *stmt, int index) const
 {	
 	if(sqlite3_bind_text((sqlite3_stmt *)stmt, index, val.CStr(), -1, SQLITE_TRANSIENT) != SQLITE_OK)
+	{
+		TExcept::Throw("Error binding SQL Parameter");
+	}
+}
+
+TSQLBlobParameter::TSQLBlobParameter(const PMem& val):
+TSQLParameter(),
+val(val)
+{
+}
+
+TSQLBlobParameter::~TSQLBlobParameter()
+{
+	//printf("TSQLStrParameter destructor\n");
+}
+
+void TSQLBlobParameter::Bind(void *stmt, int index) const
+{	
+	if(sqlite3_bind_blob((sqlite3_stmt *)stmt, index, val->GetBf(), val->Len(), SQLITE_TRANSIENT) != SQLITE_OK)
 	{
 		TExcept::Throw("Error binding SQL Parameter");
 	}

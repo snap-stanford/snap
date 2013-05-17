@@ -361,7 +361,7 @@ public: // constant strings
   static TStr GNmNm;
   static TStr DNmNm;
   static TStr BriefNm;
-private: // registration of extended types
+protected: // registration of extended types
   // default constructor
   typedef PGraph (*TGraphNew)();
   typedef TFunc<TGraphNew> TGraphNewF;

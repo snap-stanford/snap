@@ -3,6 +3,44 @@ performance system for graph and network manipulation and analysis.
 
 This file contains a high-level description of changes in SNAP releases.
 
+Release 2.0, May 13, 2013
+
+- significantly changed several classes and methods, not backward compatible.
+  This version is not able to read binary files or class serializations,
+  produced by previous SNAP versions.
+- added support for 64-bit vector length in TVec
+- added support for 64-bit vector length in TVecPool
+- implemented a new hash function for TVec with 10x improvement over the
+  previous one. This change is not backward compatible for hash tables. Old
+  hash functions are available in TVecHashF_OldGLib.
+- implemented new 10x faster hash functions for TPair, TTriple, TQuad and TTuple
+- added 64-bit random number generators GetUniDevInt64() and GetUniDevUInt64()
+- implemented new TVec method UnionLen() and GetMemSize()
+- moved vector access functions in TLocClust from private to public
+- added new examples agmfit, bigclam, circles, zygote, XcodeTest
+- added new tutorials for bfsdfs, cncom, gviz, triad
+- added new unit tests for alg, bfsdfs, cncom, gvi, THashSet, triad
+- added Mac OS X Xcode support for examples
+- added Mac OS X support for doxygen
+- fixed #36 normalized eigenvector centrality values to use L2 rather than L1
+- fixed #17 integer overflow bug in TSnap::GenRndGnm()
+- fixed a bug in THashSet::Defrag()
+- fixed a bug in IsTree()
+- fixed a bug in TVec::NextPerm()
+- fixed GetNodeTriads(), it was not checking for an empty group
+- changed GetTriads and GetClustCf to return triads as int64 rather than int
+  to prevent integer overflow for large graphs
+- implemented much faster TSsParser
+- added OpenMP compilation flags
+- implemented stackdump for g++
+- merged updates from the most recent version of GLib
+- undefined __STDC_LIMIT_MACROS in base.h to prevent double definition warnings
+- removed include <stdio.h> in examples/*/stdefx.h to correctly define SIZE_MAX
+- removed a redundant GetNodeTriads() variant
+- changed type of PGraph::TNodeI to PGraph::TObj::TNodeI in triad.h
+- fixed warnings about implicit conversions from int64 to int in dt.h, tm.h,
+  os.h.
+
 Release 1.11, Dec 21, 2012
 
 - added new examples netinf, infopath
