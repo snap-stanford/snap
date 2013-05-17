@@ -112,10 +112,10 @@ public:
   int AddExpFit(const int& PlotId, const TGpSeriesTy& SeriesTy=gpwLines, const double& FitXOffset=0.0, const TStr& Style=TStr());
 
   void SavePng(const int& SizeX=1000, const int& SizeY=800, const TStr& Comment=TStr()) {
-    SavePng(PlotFNm.GetFMid()+".png", SizeX, SizeY, Comment); }
+    SavePng(PlotFNm.GetFPath()+PlotFNm.GetFMid()+".png", SizeX, SizeY, Comment); }
   void SavePng(const TStr& FNm, const int& SizeX=1000, const int& SizeY=800, const TStr& Comment=TStr(), const TStr& Terminal=TStr());
   void SaveEps(const int& FontSz=30, const TStr& Comment=TStr()) {
-    SaveEps(PlotFNm.GetFMid()+".eps", FontSz, Comment); }
+    SaveEps(PlotFNm.GetFPath()+PlotFNm.GetFMid()+".eps", FontSz, Comment); }
   void SaveEps(const TStr& FNm, const int& FontSz=30, const TStr& Comment=TStr());
   void Plot(const TStr& Comment=TStr()) { CreatePlotFile(Comment);  RunGnuPlot(); }
 
