@@ -694,6 +694,67 @@ void TTable::Select(TPredicate& Predicate){
   KeepSortedRows(Selected);
 }
 
+void TTable::Defrag() {
+  TInt FreeIndex = 0;
+
+  TIntV Mapping;  // Mapping[old_index] = new_index/invalid
+  for (TInt i = 0; i < Next.Len(); i++) {
+    if (Next[i] != Invalid) {
+  
+      // "first row" properly set beforehand
+      if (FreeIndex == 0) {
+        Assert (i == FirstValidRow);
+        FirstValidRow = 0;
+      }
+ 
+      if (Next[i] != Last) { 
+        Next[FreeIndex] = FreeIndex + 1;
+        Mapping.Add(FreeIndex);
+      } else {
+        Next[FreeIndex] = Last;
+        Mapping.Add(Last);
+      }
+
+      for (TInt j = 0; j < IntCols.Len(); j++) {
+        IntCols[j][FreeIndex] = IntCols[j][i];
+      }
+      for (TInt j = 0; j < FltCols.Len(); j++) {
+        FltCols[j][FreeIndex] = FltCols[j][i];
+      }
+      for (TInt j = 0; j < StrColMaps.Len(); j++) {
+        StrColMaps[j][FreeIndex] = StrColMaps[j][i];
+      }
+
+      FreeIndex++;
+    } else {
+      NumRows--;
+      Mapping.Add(Invalid);
+    }
+  }
+
+  for(THash<TStr,THash<TInt,TIntV> >::TIter it = GroupMapping.BegI(); it < GroupMapping.EndI(); it++){
+    THash<TInt,TIntV>& G = it->Dat;
+
+    for(THash<TInt,TIntV>::TIter iit = G.BegI(); iit < G.EndI(); iit++) {
+      TIntV& Group = iit->Dat;
+
+      TInt FreeIndex = 0;
+      for (TInt j=0; j < Group.Len(); j++) {
+        if (Mapping[Group[j]] != Invalid) {
+          Group[FreeIndex] = Mapping[Group[j]];
+          FreeIndex++;
+        }
+      }
+
+      // resize to get rid of end values
+      Group.Trunc(FreeIndex);
+    }
+  }
+
+  // should match, or bug somewhere
+  Assert (NumValidRows == NumRows);
+}
+
 // wrong reading of string attributes
 void TTable::BuildGraphTopology(PNEAGraph& Graph, THash<TFlt, TInt>& FSrNodeMap, THash<TFlt, TInt>& FDsNodeMap) {
   TYPE SrCT = GetColType(SrcCol);
