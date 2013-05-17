@@ -73,24 +73,37 @@ public:
 extern int WriteN(int fd, char *ptr, int nbytes);
 
 /// Sends the vector contents \c V via a file/socket descriptor \c FileDesc.
+/// Returns the number of bytes sent. If return value is negative, then some system call returned an error.
 template <class TVal, class TSizeTy>
 int SendVec(const TVec<TVal, TSizeTy>& V, int FileDesc) {
-  int l;
+  int l = 0;
   int n;
-  TSizeTy Vals;
+  int r;
+  TSizeTy Vals = V.Len();
   int ChunkSize = 25600;
 
-  Vals = V.Len();
+  r = WriteN(FileDesc, (char *) &Vals, (int) sizeof(TSizeTy));
+  if (r < 0) {
+    return r;
+  }
+  l += r;
 
-  l = 0;
-  l += WriteN(FileDesc, (char *) &Vals, (int) sizeof(TSizeTy));
-  l += WriteN(FileDesc, (char *) &Vals, (int) sizeof(TSizeTy));
+  r = WriteN(FileDesc, (char *) &Vals, (int) sizeof(TSizeTy));
+  if (r < 0) {
+    return r;
+  }
+  l += r;
+
   for (TSizeTy ValN = 0; ValN < Vals; ValN += ChunkSize) {
     n = ChunkSize;
     if ((Vals - ValN) < ChunkSize) {
       n = Vals - ValN;
     }
-    l += WriteN(FileDesc, (char *) &V[ValN], (int) (n*sizeof(TVal)));
+    r = WriteN(FileDesc, (char *) &V[ValN], (int) (n*sizeof(TVal)));
+    if (r < 0) {
+      return r;
+    }
+    l += r;
   }
   return l;
 }
