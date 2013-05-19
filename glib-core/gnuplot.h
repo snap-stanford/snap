@@ -272,10 +272,12 @@ int TGnuPlot::AddPlot(const THash<TKey, TMom, THashFunc>& ValMomH, const TGpSeri
   MedV.Sort();  MinV.Sort();  MaxV.Sort(); 
   int PlotId=0;
   // exponential bucketing
-  if (! AvgV2.Empty()) { TGnuPlot::MakeExpBins(AvgV2, BucketV);  BucketV.Swap(AvgV2); }
-  if (! MedV.Empty()) { TGnuPlot::MakeExpBins(MedV, BucketV);  BucketV.Swap(MedV); }
-  if (! MinV.Empty()) { TGnuPlot::MakeExpBins(MinV, BucketV);  BucketV.Swap(MinV); }
-  if (! MaxV.Empty()) { TGnuPlot::MakeExpBins(MaxV, BucketV);  BucketV.Swap(MaxV); }
+  if (ExpBucket) {
+    if (! AvgV2.Empty()) { TGnuPlot::MakeExpBins(AvgV2, BucketV);  BucketV.Swap(AvgV2); }
+    if (! MedV.Empty()) { TGnuPlot::MakeExpBins(MedV, BucketV);  BucketV.Swap(MedV); }
+    if (! MinV.Empty()) { TGnuPlot::MakeExpBins(MinV, BucketV);  BucketV.Swap(MinV); }
+    if (! MaxV.Empty()) { TGnuPlot::MakeExpBins(MaxV, BucketV);  BucketV.Swap(MaxV); }
+  }
   // plot
   if (! AvgV.Empty()) { PlotId = AddErrBar(AvgV, Label+" Average", "StdDev"); }
   if (! AvgV2.Empty()) { PlotId = AddPlot(AvgV2, SeriesTy, Label+" Average", Style); }
