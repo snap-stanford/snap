@@ -140,6 +140,15 @@ void GetHits(const PGraph& Graph, TIntFltH& NIdHubH, TIntFltH& NIdAuthH, const i
     Norm = sqrt(Norm);
     for (int i = 0; i < NIdHubH.Len(); i++) { NIdHubH[i] /= Norm; }
   }
+  // make sure Hub and Authority scores normalize to L2 norm 1
+  Norm = 0.0;
+  for (int i = 0; i < NIdHubH.Len(); i++) { Norm += TMath::Sqr(NIdHubH[i]); }
+  Norm = sqrt(Norm);
+  for (int i = 0; i < NIdHubH.Len(); i++) { NIdHubH[i] /= Norm; }
+  Norm = 0.0;
+  for (int i = 0; i < NIdAuthH.Len(); i++) { Norm += TMath::Sqr(NIdAuthH[i]); }
+  Norm = sqrt(Norm);
+  for (int i = 0; i < NIdAuthH.Len(); i++) { NIdAuthH[i] /= Norm; }
 }
 
 }; // namespace TSnap
