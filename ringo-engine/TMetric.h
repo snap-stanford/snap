@@ -1,3 +1,5 @@
+#ifndef METRIC_H
+#define METRIC_H
 #include <math.h>
 
 class TMetric{
@@ -12,6 +14,7 @@ public:
 
 class TEuclideanMetric: public TMetric{
 public:
-	TEuclideanMetric(TStr Name) : TMetric(Name) {}
+  TEuclideanMetric(TStr Name):TMetric(Name){}
 	TFlt NumDist(TFlt x1,TFlt x2){return fabs(x1-x2);}
 };
+#endif  // METRIC_H
