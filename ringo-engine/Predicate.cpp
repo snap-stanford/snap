@@ -118,7 +118,7 @@ TBool TPredicate::EvalAtomicPredicate(const TAtomicPredicate& Atom){
        if(Atom.IsConst){ return EvalAtom<TStr>(StrVars.GetDat(Atom.Lvar), Atom.StrConst, Atom.Compare);}
        return EvalAtom<TStr>(StrVars.GetDat(Atom.Lvar), StrVars.GetDat(Atom.Rvar), Atom.Compare);
      }
-    return false;
    }
+   return false;
 }
 

@@ -1,9 +1,3 @@
-#ifndef TABLE_H
-#define TABLE_H
-#include "Snap.h"
-#include "Predicate.h"
-#include "TMetric.h"
-
 /* 
 Guidelines:
 1. Bad code duplication everywhere (repetitions for int, flt and str).
@@ -269,4 +263,3 @@ public:
 
   friend class TPt<TTable>;
 };
-#endif //TABLE_H
