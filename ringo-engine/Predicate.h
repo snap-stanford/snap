@@ -1,3 +1,7 @@
+#ifndef PREDICATE_H
+#define PREDICATE_H
+#include "Snap.h"
+
 /*
 // Nikhil & Jason Initial implementation 
 class TPredicate {
@@ -229,3 +233,4 @@ public:
     return false;
   }
 };
+#endif // PREDICATE_H
