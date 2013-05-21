@@ -3,6 +3,19 @@
 TInt const TTable::Last =-1;
 TInt const TTable::Invalid =-2;
 
+
+void TTable::TRowIteratorWithRemove::RemoveNext(){
+  TInt OldNextRowIdx = GetNextRowIdx();
+  if(OldNextRowIdx == Table->FirstValidRow){
+    Table->RemoveFirstRow();
+    return;
+  }
+  Assert(OldNextRowIdx != Invalid);
+  if(OldNextRowIdx == Last){ return;}
+  Table->Next[CurrRowIdx] = Table->Next[OldNextRowIdx];
+  Table->Next[OldNextRowIdx] = Invalid;
+}
+
 TTable::TTable(const TStr& TableName, const Schema& TableSchema): Name(TableName),
   S(TableSchema), NumRows(0), NumValidRows(0), FirstValidRow(0), NumOfDistinctStrVals(0){
   TInt IntColCnt = 0;
@@ -34,34 +47,42 @@ TTable::TTable(const TStr& TableName, const Schema& TableSchema): Name(TableName
 PTable TTable::LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm, const char& Separator, TBool HasTitleLine){
   TSsParser Ss(InFNm, Separator);
   PTable T = New(TableName, S);
-  // if title line (i.e. names of the columns) is included as first roe in the
-  // input file - vuse it to validate schema
+  // if title line (i.e. names of the columns) is included as first row in the
+  // input file - use it to validate schema
   if(HasTitleLine){
-    Ss.Next();
-    if(S.Len() != Ss.Len()){TExcept::Throw("Table Schema Mismatch!");}
-    for(TInt i = 0; i < S.Len(); i++){
+    Ss.Next();  
+    if(S.Len() != Ss.GetFlds()){TExcept::Throw("Table Schema Mismatch!");}
+    for(TInt i = 0; i < Ss.GetFlds(); i++){
       // remove carriage return char
       TInt L = strlen(Ss[i]);
       if(Ss[i][L-1] < ' '){ Ss[i][L-1] = 0;}
-      if(T->GetSchemaColName(i) != Ss[i]){
-        TExcept::Throw("Table Schema Mismatch!");
-      }
+      if(T->GetSchemaColName(i) != Ss[i]){ TExcept::Throw("Table Schema Mismatch!");}
     }
+  }
+  TInt RowLen = S.Len();
+  TVec<TYPE> ColTypes = TVec<TYPE>(RowLen);
+  for(TInt i = 0; i < RowLen; i++){
+    ColTypes[i] = T->GetSchemaColType(i);
   }
   // populate table columns
   while(Ss.Next()){
-    Assert(Ss.Len() == S.Len());
-    for(TInt i = 0; i < S.Len(); i++){
-      TInt ColIdx = T->GetColIdx(T->GetSchemaColName(i));
-      switch(T->GetSchemaColType(i)){
+    TInt IntColIdx = 0;
+    TInt FltColIdx = 0;
+    TInt StrColIdx = 0;
+    Assert(Ss.GetFlds() == RowLen); // compiled only in debug
+    for(TInt i = 0; i < RowLen; i++){
+      switch(ColTypes[i]){
         case INT:
-          T->IntCols[ColIdx].Add(Ss.GetInt(i));
+          T->IntCols[IntColIdx].Add(Ss.GetInt(i));
+          IntColIdx++;
           break;
         case FLT:
-          T->FltCols[ColIdx].Add(Ss.GetFlt(i));
+          T->FltCols[FltColIdx].Add(Ss.GetFlt(i));
+          FltColIdx++;
           break;
         case STR:
-          T->AddStrVal(ColIdx, Ss[i]);
+          T->AddStrVal(StrColIdx, Ss[i]);
+          StrColIdx++;
           break;
       }
     }
@@ -245,14 +266,19 @@ void TTable::ChangeWorkingCol(TStr column){
 void TTable::AddLabel(TStr column, TStr NewLabel){
   if(!ColTypeMap.IsKey(column)){TExcept::Throw("no such column " + column);}
   TPair<TYPE,TInt> ColVal = ColTypeMap.GetDat(column);
-  //ColTypeMap.DelIfKey(NewLabel);
   ColTypeMap.AddDat(NewLabel,ColVal);
+}
+
+void TTable::RemoveFirstRow(){
+  TInt Old = FirstValidRow;
+  FirstValidRow = Next[FirstValidRow];
+  Next[Old] = Invalid;
 }
 
 void TTable::RemoveRow(TInt RowIdx){
   if(Next[RowIdx] == Invalid){ return;} // row was already removed
   if(RowIdx == FirstValidRow){
-    FirstValidRow = Next[RowIdx];
+    RemoveFirstRow();
   } else{
     TInt i = RowIdx-1;
     while(Next[i] != RowIdx){i--;}
@@ -266,6 +292,8 @@ void TTable::RemoveRows(const TIntV& RemoveV){
   for(TInt i = 0; i < RemoveV.Len(); i++){RemoveRow(RemoveV[i]);}
 }
 
+
+// TODO: simplify using TRowIteratorWithRemove
 void TTable::KeepSortedRows(const TIntV& KeepV){
   // need to remove first rows
   while(FirstValidRow != KeepV[0]){ RemoveRow(FirstValidRow);}
@@ -657,7 +685,7 @@ void TTable::Dist(TStr Col1, const TTable& Table, TStr Col2, TStr DistColName, c
   if(!ColTypeMap.IsKey(Col2)){
     TExcept::Throw("no such column " + Col2);
   }
-  TYPE T1 = GetColType(Col1);
+  //TYPE T1 = GetColType(Col1);
   //CHECK do we need to make this a const?
   /*
   TYPE T2 = Table.GetColType(Col2);
@@ -671,28 +699,89 @@ void TTable::Select(TPredicate& Predicate){
   TIntV Selected;
   TStrV RelevantCols;
   Predicate.GetVariables(RelevantCols);
-
-  // debug
- // for(THash<TStr,TPair<TYPE,TInt>>::TIter it = ColTypeMap.BegI(); it < ColTypeMap.EndI(); it++){ printf("%s %d\n", it->Key.CStr(), it->Dat.Val2);}
-
-  for(TRowIterator RowI = BegRI(); RowI < EndRI(); RowI++){
-    // prepare arguments for 
-    for(TInt i = 0; i < RelevantCols.Len(); i++){
-      switch(GetColType(RelevantCols[i])){
+  TInt NumRelevantCols = RelevantCols.Len();
+  TVec<TYPE> ColTypes = TVec<TYPE>(NumRelevantCols);
+  for(TInt i = 0; i < NumRelevantCols; i++){
+    ColTypes[i] = GetColType(RelevantCols[i]);
+  } 
+  
+  TRowIteratorWithRemove RowI = BegRIWR();
+  while(RowI.GetNextRowIdx() != Last){
+    // prepare arguments for predicate evaluation
+    for(TInt i = 0; i < NumRelevantCols; i++){
+      switch(ColTypes[i]){
       case INT:
-        Predicate.SetIntVal(RelevantCols[i], RowI.GetIntAttr(RelevantCols[i]));
+        Predicate.SetIntVal(RelevantCols[i], RowI.GetNextIntAttr(RelevantCols[i]));
         break;
       case FLT:
-        Predicate.SetFltVal(RelevantCols[i], RowI.GetFltAttr(RelevantCols[i]));
+        Predicate.SetFltVal(RelevantCols[i], RowI.GetNextFltAttr(RelevantCols[i]));
         break;
       case STR:
-        Predicate.SetStrVal(RelevantCols[i], RowI.GetStrAttr(RelevantCols[i]));
+        Predicate.SetStrVal(RelevantCols[i], RowI.GetNextStrAttr(RelevantCols[i]));
         break;
       }
     }
-    if(Predicate.Eval()){ Selected.Add(RowI.GetRowIdx());}
+    if(!Predicate.Eval()){ 
+      RowI.RemoveNext();
+    } else{
+      RowI++;
+    }
   }
-  KeepSortedRows(Selected);
+}
+
+void TTable::Defrag() {
+  TInt FreeIndex = 0;
+  TIntV Mapping;  // Mapping[old_index] = new_index/invalid
+  for (TInt i = 0; i < Next.Len(); i++) {
+    if (Next[i] != Invalid) {  
+      // "first row" properly set beforehand
+      if (FreeIndex == 0) {
+        Assert (i == FirstValidRow);
+        FirstValidRow = 0;
+      }
+ 
+      if (Next[i] != Last) { 
+        Next[FreeIndex] = FreeIndex + 1;
+        Mapping.Add(FreeIndex);
+      } else {
+        Next[FreeIndex] = Last;
+        Mapping.Add(Last);
+      }
+
+      for (TInt j = 0; j < IntCols.Len(); j++) {
+        IntCols[j][FreeIndex] = IntCols[j][i];
+      }
+      for (TInt j = 0; j < FltCols.Len(); j++) {
+        FltCols[j][FreeIndex] = FltCols[j][i];
+      }
+      for (TInt j = 0; j < StrColMaps.Len(); j++) {
+        StrColMaps[j][FreeIndex] = StrColMaps[j][i];
+      }
+
+      FreeIndex++;
+    } else {
+      NumRows--;
+      Mapping.Add(Invalid);
+    }
+  }
+
+  for(THash<TStr,THash<TInt,TIntV> >::TIter it = GroupMapping.BegI(); it < GroupMapping.EndI(); it++){
+    THash<TInt,TIntV>& G = it->Dat;
+    for(THash<TInt,TIntV>::TIter iit = G.BegI(); iit < G.EndI(); iit++) {
+      TIntV& Group = iit->Dat;
+      TInt FreeIndex = 0;
+      for (TInt j=0; j < Group.Len(); j++) {
+        if (Mapping[Group[j]] != Invalid) {
+          Group[FreeIndex] = Mapping[Group[j]];
+          FreeIndex++;
+        }
+      }
+      // resize to get rid of end values
+      Group.Trunc(FreeIndex);
+    }
+  }
+  // should match, or bug somewhere
+  Assert (NumValidRows == NumRows);
 }
 
 // wrong reading of string attributes
@@ -769,6 +858,7 @@ TInt TTable::GetNId(TStr Col, TInt RowIdx, THash<TFlt, TInt>& FSrNodeMap, THash<
   } else {
     return StrColMaps[RowIdx][Idx]();
   }
+  return 0;
 }
     
 void TTable::AddNodeAttributes(PNEAGraph& Graph, THash<TFlt, TInt>& FSrNodeMap, THash<TFlt, TInt>& FDsNodeMap) {

@@ -53,12 +53,45 @@ public:
       return CurrRowIdx < RowI.CurrRowIdx;
     }
     bool operator == (const TRowIterator& RowI) const{ return CurrRowIdx == RowI.CurrRowIdx;}
-    TInt GetRowIdx(){ return CurrRowIdx;}
+    TInt GetRowIdx() const { return CurrRowIdx;}
     // we do not check column type in the iterator
     TInt GetIntAttr(TStr Col) const{ TInt ColIdx = Table->ColTypeMap.GetDat(Col).Val2; return Table->IntCols[ColIdx][CurrRowIdx];}
     TFlt GetFltAttr(TStr Col) const{ TInt ColIdx = Table->ColTypeMap.GetDat(Col).Val2; return Table->FltCols[ColIdx][CurrRowIdx];}
     TStr GetStrAttr(TStr Col) const{ return Table->GetStrVal(Col, CurrRowIdx);}   
   };
+
+  class TRowIteratorWithRemove{
+    TInt CurrRowIdx;
+    TTable* Table;
+    TBool Start;
+  public:
+    public:
+    TRowIteratorWithRemove(): CurrRowIdx(0), Table(NULL), Start(true){}
+    TRowIteratorWithRemove(TInt RowIdx, TTable* TablePtr): CurrRowIdx(RowIdx), Table(TablePtr), Start(RowIdx == TablePtr->FirstValidRow){}
+    TRowIteratorWithRemove(TInt RowIdx, TTable* TablePtr, TBool IsStart): CurrRowIdx(RowIdx), Table(TablePtr), Start(IsStart){}
+    TRowIteratorWithRemove(const TRowIteratorWithRemove& RowI): CurrRowIdx(RowI.CurrRowIdx), Table(RowI.Table), Start(RowI.Start){}
+    TRowIteratorWithRemove& operator++(int){
+      CurrRowIdx = GetNextRowIdx();
+      Start = false;
+      Assert(CurrRowIdx != Invalid);
+      return *this;
+    }
+    bool operator < (const TRowIteratorWithRemove& RowI) const{ 
+      if(CurrRowIdx == TTable::Last){ return false;}
+      if(RowI.CurrRowIdx == TTable::Last){ return true;}
+      return CurrRowIdx < RowI.CurrRowIdx;
+    }
+    bool operator == (const TRowIteratorWithRemove& RowI) const{ return CurrRowIdx == RowI.CurrRowIdx;}
+    TInt GetRowIdx() const{ return CurrRowIdx;}
+    TInt GetNextRowIdx() const { return (Start ? Table->FirstValidRow : Table->Next[CurrRowIdx]);}
+    // we do not check column type in the iterator
+    TInt GetNextIntAttr(TStr Col) const{ TInt ColIdx = Table->ColTypeMap.GetDat(Col).Val2; return Table->IntCols[ColIdx][GetNextRowIdx()];}
+    TFlt GetNextFltAttr(TStr Col) const{ TInt ColIdx = Table->ColTypeMap.GetDat(Col).Val2; return Table->FltCols[ColIdx][GetNextRowIdx()];}
+    TStr GetNextStrAttr(TStr Col) const{ return Table->GetStrVal(Col, GetNextRowIdx());}   
+    TBool IsFirst() const { return CurrRowIdx == Table->FirstValidRow;}
+    void RemoveNext();
+  };
+
 public:
   TStr Name;
 protected:
@@ -84,7 +117,7 @@ protected:
 	THash<TStr,TPair<TYPE,TInt> > ColTypeMap;
 	// grouping statement name --> (group index --> rows that belong to that group)
   // Note that these mappings are invalid after we remove rows
-	THash<TStr,THash<TInt,TIntV> > GroupMapping; // use separate class
+	THash<TStr,THash<TInt,TIntV> > GroupMapping;
 
 	//TStr WorkingCol;  // do we even need this here ?
   // keeping track of "working column" is done by the engine - i.e. the program
@@ -112,8 +145,10 @@ protected:
   TInt GetColIdx(TStr ColName) const{ return ColTypeMap.GetDat(ColName).Val2;}  // column index among columns of the same type
 
   // Iterators 
-  TRowIterator BegRI() const{ return TRowIterator(FirstValidRow, this);}
-  TRowIterator EndRI() const{ return TRowIterator(TTable::Last, this);}
+  TRowIterator BegRI() const { return TRowIterator(FirstValidRow, this);}
+  TRowIterator EndRI() const { return TRowIterator(TTable::Last, this);}
+  TRowIteratorWithRemove BegRIWR(){ return TRowIteratorWithRemove(FirstValidRow, this);}
+  TRowIteratorWithRemove EndRIWR(){ return TRowIteratorWithRemove(TTable::Last, this);}
   bool IsRowValid(TInt RowIdx) const{ return Next[RowIdx] != Invalid;}
 
 	// Store a group indices column in GroupMapping
@@ -142,6 +177,7 @@ protected:
     }
   }
 
+  void RemoveFirstRow();
   void RemoveRow(TInt RowIdx);
   void RemoveRows(const TIntV& RemoveV);
   // remove all rows that are not mentioned in the SORTED vector KeepV
@@ -186,21 +222,20 @@ public:
   TStrV GetDstNodeStrAttrV() const;
 	TStrV GetEdgeStrAttrV() const;
 	TYPE GetColType(TStr ColName) { return ColTypeMap.GetDat(ColName).Val1; };
+  TInt GetNumRows() const { return NumRows;}
+  TInt GetNumValidRows() const { return NumValidRows;}
 
-	// Yonathan
 	// change working column ; not really needed in TTable
 	// void ChangeWorkingCol(TStr column); 
 
 	// rename / add a label to a column
 	void AddLabel(TStr column, TStr newLabel);
 
-	// Yonathan
 	// Remove rows with duplicate values in given columns
 	void Unique(TStr col);
 	// select - remove rows for which the given predicate doesn't hold
 	void Select(TPredicate& Predicate);
 	
-	// Yonathan
 	// group by the values of the columns specified in "GroupBy" vector 
 	// group indices are stored in GroupCol; Implementation: use GroupMapping hash
 	void Group(TStr GroupColName, const TStrV& GroupBy);
@@ -211,7 +246,6 @@ public:
 	// lexicographic order). record order in OrderCol; Implementation: logical indexing / actually remove rows
 	void Order(TStr OrderColName, const TStrV& OrderBy);
 
-	// Nikhil + Jason
 	// perform equi-join with given columns - i.e. keep tuple pairs where 
 	// this->Col1 == Table->Col2; Implementation: Hash-Join - build a hash out of the smaller table
 	// hash the larger table and check for collisions
@@ -221,7 +255,6 @@ public:
 	// distance <= threshold
 	void Dist(TStr Col1, const TTable& Table, TStr Col2, TStr DistColName, const TMetric& Metric, TFlt threshold);
 
-  // Yonathan
   // Release memory of deleted rows, and defrag
   // also updates meta-data as row indices have changed
   // need some liveness analysis of columns
