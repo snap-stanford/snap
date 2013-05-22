@@ -13,10 +13,10 @@ all: $(TEST)
 
 # COMPILE
 TableTes%: TableTes%.cpp Engine.o
-	$(CC) -o $@ $@.cpp Engine.o -I$(CSNAP) -I$(CGLIB) $(LDFLAGS) $(LIBS)
+	$(CC) -o $@ $@.cpp Engine.o $(CSNAP)/Snap.o -I$(CSNAP) -I$(CGLIB) $(LDFLAGS) $(LIBS)
 
 Benchmark: Benchmark.cpp Engine.o
-	$(CC) -o $@ $@.cpp Engine.o -I$(CSNAP) -I$(CGLIB) $(LDFLAGS) $(LIBS)
+	$(CC) -o $@ $@.cpp Engine.o $(CSNAP)/Snap.o -I$(CSNAP) -I$(CGLIB) $(LDFLAGS) $(LIBS)
 
 $(CSNAP)/Snap.o:
 	$(MAKE) -C $(CSNAP)
