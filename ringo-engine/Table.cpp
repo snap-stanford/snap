@@ -14,6 +14,7 @@ void TTable::TRowIteratorWithRemove::RemoveNext(){
   if(OldNextRowIdx == Last){ return;}
   Table->Next[CurrRowIdx] = Table->Next[OldNextRowIdx];
   Table->Next[OldNextRowIdx] = Invalid;
+  Table->NumValidRows--;
 }
 
 TTable::TTable(const TStr& TableName, const Schema& TableSchema): Name(TableName),
@@ -273,6 +274,7 @@ void TTable::RemoveFirstRow(){
   TInt Old = FirstValidRow;
   FirstValidRow = Next[FirstValidRow];
   Next[Old] = Invalid;
+  NumValidRows--;
 }
 
 void TTable::RemoveRow(TInt RowIdx){
