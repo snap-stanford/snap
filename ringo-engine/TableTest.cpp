@@ -48,9 +48,9 @@ int main(){
   T->Count("LocationCount", "Location");
   PTable Tj = T->Join("Location", *Ts, "Location");
   //print table
-   T->SaveSS("animals_out_T.txt");
-   Ts->SaveSS("animals_out_Ts.txt");
-   Tj->SaveSS("animals_out_Tj.txt");
+   T->SaveSS("animals_out_T.out");
+   Ts->SaveSS("animals_out_Ts.out");
+   Tj->SaveSS("animals_out_Tj.out");
   return 0;
 }
 

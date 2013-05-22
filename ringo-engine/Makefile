@@ -32,6 +32,6 @@ libinstall: lib
 	cp libengine.a /usr/local/lib/libenginea
 
 clean:
-	rm -f *.o $(TEST) *.exe
+	rm -f *.o $(TEST) *.exe *.out
 	rm -rf Debug Release
 	rm -rf *.Err demo*.dat

@@ -22,7 +22,7 @@ int main(){
   TPredicate::TPredicateNode N1(A1);  // Size == "big"
   TPredicate Pred(&N1);
   T1->Select(Pred);
-  T1->SaveSS("animals_out_T1.txt");
+  T1->SaveSS("animals_out_T1.out");
   PTable Tj = T1->Join("Location", *T2, "Location");
   TStrV GroupBy;
   GroupBy.Add("Animals1.Animal");
@@ -30,7 +30,7 @@ int main(){
   Tj->Group("AnimalPair", GroupBy);
   Tj->Unique("AnimalPair");
   //print table
-  Tj->SaveSS("animals_out_Tj_1.txt");
+  Tj->SaveSS("animals_out_Tj_1.out");
 
   // Join on Location to get animal pairs
   // select the animal pairs of animals of the same size
@@ -52,7 +52,7 @@ int main(){
   To->Group("AnimalPair", GroupBy1);
   To->Unique("AnimalPair");
   //print table
-  To->SaveSS("../../testfiles/animals_out_To_1.txt");
+  To->SaveSS("../../testfiles/animals_out_To_1.out");
   return 0;
   */
 
@@ -69,6 +69,6 @@ int main(){
   To->Group("AnimalPair", GroupBy1);
   To->Unique("AnimalPair");
   //print table
-  To->SaveSS("animals_out_To_1.txt");
+  To->SaveSS("animals_out_To_1.out");
   return 0;
 }
