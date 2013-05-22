@@ -435,6 +435,10 @@ void DelDegKNodes(PGraph& Graph, const int& OutDegK, const int& InDegK) {
 // children point to a parent
 template <class PGraph>
 bool IsTree(const PGraph& Graph, int& RootNId) {
+  if (Graph->GetNodes() == 1 && Graph->GetEdges() == 0) {
+    RootNId = Graph->BegNI().GetId();
+    return true;
+  }
   RootNId = -1;
   if (Graph->GetNodes() != Graph->GetEdges()+1) { return false; }
   int NZeroOutDeg = 0;
@@ -445,7 +449,7 @@ bool IsTree(const PGraph& Graph, int& RootNId) {
     }
     if (NI.GetDeg() == 0) { return false; } // isolated nodes
   }
-  if (ZeroOutDegN==1) {
+  if (NZeroOutDeg==1) {
     if (! TSnap::IsConnected(Graph)) { return false; }
     RootNId = ZeroOutDegN;  return true;
   }

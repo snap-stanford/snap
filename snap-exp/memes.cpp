@@ -2658,7 +2658,7 @@ void TClustNet::ClustGreedyTopDown(TIntPrV& KeepEdgeV) const {
     for (int i = 0; i < NIdOutDegH.Len() && NIdOutDegH[i] == 0; i++) {
       IAssert(IsNode(NIdOutDegH.GetKey(i)));
       const TNodeI NI = GetNI(NIdOutDegH.GetKey(i));
-      // tell childeren that node knows its cluster id
+      // tell children that node knows its cluster id
       for (int e = 0; e < NI.GetInDeg(); e++) {
         NIdOutDegH.GetDat(NI.GetInNId(e)) -= 1; }
       // set node cluster id
@@ -2713,7 +2713,7 @@ void TClustNet::ClustGreedyRandom() const {
   while (NIdOutDegH.Len() > 0 && NIdOutDegH[0] == 0) {
     for (int i = 0; i < NIdOutDegH.Len() && NIdOutDegH[i] == 0; i++) {
       const TNodeI NI = GetNI(NIdOutDegH.GetKey(i));
-      // tell childern that node knows its cluster id
+      // tell children that node knows its cluster id
       for (int e = 0; e < NI.GetInDeg(); e++) {
         NIdOutDegH.GetDat(NI.GetInNId(e)) -= 1; }
       // set node cluster id

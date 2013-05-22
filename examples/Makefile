@@ -6,6 +6,7 @@ all: MakeAll
 
 MakeAll:
 	$(MAKE) -C agmgen
+	$(MAKE) -C agmfit
 	$(MAKE) -C bigclam
 	$(MAKE) -C cascades
 	$(MAKE) -C centrality
@@ -33,6 +34,7 @@ MakeAll:
 
 clean:
 	$(MAKE) clean -C agmgen
+	$(MAKE) clean -C agmfit
 	$(MAKE) clean -C bigclam
 	$(MAKE) clean -C cascades
 	$(MAKE) clean -C centrality

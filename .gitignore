@@ -29,6 +29,8 @@ sample_*.dot
 *.out
 *.paj
 *.png
+*.plt
+*.tab
 *.ps
 *.pool
 *.xml
@@ -45,11 +47,7 @@ doxygen/snap
 # Ignore executables, but keep everything else
 snap-core/testSnap
 test/run-all-tests
-examples/*/*
-!examples/*/*.*
-!examples/*/Makefile
-examples/*/.DS_Store
-examples/*/*.dSYM
+!test/graphviz/base*
 tutorials/*
 !tutorials/*.*
 !tutorials/Makefile

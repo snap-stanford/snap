@@ -283,7 +283,7 @@ private:
   int GetFPos() const;
   int GetFLen() const;
   void FillBf();
-  int FindEol(int& BfN);
+  int FindEol(int& BfN, bool& CrEnd);
 private:
   TFIn();
   TFIn(const TFIn&);
@@ -395,6 +395,7 @@ public:
   TMIn(const char* CStr);
   TMIn(const TStr& Str);
   TMIn(const TChA& ChA);
+  static PSIn New(const void* _Bf, const int& _BfL, const bool& TakeBf=false);
   static PSIn New(const char* CStr);
   static PSIn New(const TStr& Str);
   static PSIn New(const TChA& ChA);
@@ -418,7 +419,7 @@ private:
   char* Bf;
   int BfL, MxBfL;
   bool OwnBf;
-  void Resize();
+  void Resize(const int& ReqLen = -1);
 private:
   TMOut(const TMOut&);
   TMOut& operator=(const TMOut&);
@@ -432,6 +433,7 @@ public:
   int PutCh(const char& Ch){if (BfL==MxBfL){
     Resize();} return Bf[BfL++]=Ch;}
   int PutBf(const void* LBf, const TSize& LBfL);
+  void AppendBf(const void* LBf, const TSize& LBfL);
   void Flush(){}
 
   int Len() const {return BfL;}
