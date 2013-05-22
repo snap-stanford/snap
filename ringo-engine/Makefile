@@ -15,6 +15,9 @@ all: $(TEST)
 TableTes%: TableTes%.cpp Engine.o
 	$(CC) -o $@ $@.cpp Engine.o -I$(CSNAP) -I$(CGLIB) $(LDFLAGS) $(LIBS)
 
+Benchmark: Benchmark.cpp Engine.o
+	$(CC) -o $@ $@.cpp Engine.o -I$(CSNAP) -I$(CGLIB) $(LDFLAGS) $(LIBS)
+
 $(CSNAP)/Snap.o:
 	$(MAKE) -C $(CSNAP)
 
