@@ -161,7 +161,7 @@ class TPredicate{
 public:
   typedef enum {INT, FLT, STR} TYPE;   // must be consistent with TYPE definition in TTable
   typedef enum {NOT, AND, OR, NOP} OP;
-  typedef enum {LT = 0, LTE, EQ, GTE, GT} COMP;
+  typedef enum {LT = 0, LTE, EQ, NEQ, GTE, GT} COMP;
   class TAtomicPredicate;
 protected:
   const static TAtomicPredicate NonAtom;
@@ -227,6 +227,7 @@ public:
       case LT: return Val1 < Val2;
       case LTE: return Val1 <= Val2;
       case EQ: return Val1 == Val2;
+      case NEQ: return Val1 != Val2;
       case GTE: return Val1 >= Val2;
       case GT: return Val1 > Val2;
     }
