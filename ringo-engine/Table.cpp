@@ -703,8 +703,10 @@ void TTable::Select(TPredicate& Predicate){
   Predicate.GetVariables(RelevantCols);
   TInt NumRelevantCols = RelevantCols.Len();
   TVec<TYPE> ColTypes = TVec<TYPE>(NumRelevantCols);
+  TIntV ColIndices = TIntV(NumRelevantCols);
   for(TInt i = 0; i < NumRelevantCols; i++){
     ColTypes[i] = GetColType(RelevantCols[i]);
+    ColIndices[i] = GetColIdx(RelevantCols[i]);
   } 
   
   TRowIteratorWithRemove RowI = BegRIWR();
@@ -713,13 +715,13 @@ void TTable::Select(TPredicate& Predicate){
     for(TInt i = 0; i < NumRelevantCols; i++){
       switch(ColTypes[i]){
       case INT:
-        Predicate.SetIntVal(RelevantCols[i], RowI.GetNextIntAttr(RelevantCols[i]));
+        Predicate.SetIntVal(RelevantCols[i], RowI.GetNextIntAttr(ColIndices[i]));
         break;
       case FLT:
-        Predicate.SetFltVal(RelevantCols[i], RowI.GetNextFltAttr(RelevantCols[i]));
+        Predicate.SetFltVal(RelevantCols[i], RowI.GetNextFltAttr(ColIndices[i]));
         break;
       case STR:
-        Predicate.SetStrVal(RelevantCols[i], RowI.GetNextStrAttr(RelevantCols[i]));
+        Predicate.SetStrVal(RelevantCols[i], RowI.GetNextStrAttr(ColIndices[i]));
         break;
       }
     }

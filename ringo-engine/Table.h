@@ -85,6 +85,9 @@ public:
     TInt GetRowIdx() const{ return CurrRowIdx;}
     TInt GetNextRowIdx() const { return (Start ? Table->FirstValidRow : Table->Next[CurrRowIdx]);}
     // we do not check column type in the iterator
+    TInt GetNextIntAttr(TInt ColIdx) const{ return Table->IntCols[ColIdx][GetNextRowIdx()];}
+    TFlt GetNextFltAttr(TInt ColIdx) const{ return Table->FltCols[ColIdx][GetNextRowIdx()];}
+    TStr GetNextStrAttr(TInt ColIdx) const{ return Table->GetStrVal(ColIdx, GetNextRowIdx());}   
     TInt GetNextIntAttr(TStr Col) const{ TInt ColIdx = Table->ColTypeMap.GetDat(Col).Val2; return Table->IntCols[ColIdx][GetNextRowIdx()];}
     TFlt GetNextFltAttr(TStr Col) const{ TInt ColIdx = Table->ColTypeMap.GetDat(Col).Val2; return Table->FltCols[ColIdx][GetNextRowIdx()];}
     TStr GetNextStrAttr(TStr Col) const{ return Table->GetStrVal(Col, GetNextRowIdx());}   
@@ -141,7 +144,6 @@ protected:
   TStr GetSchemaColName(TInt Idx) const{ return S[Idx].Val1;}
   TYPE GetSchemaColType(TInt Idx) const{ return S[Idx].Val2;}
   void AddSchemaCol(TStr ColName, TYPE ColType) { S.Add(TPair<TStr,TYPE>(ColName, ColType));}
-  TYPE GetColType(TStr ColName) const{ return ColTypeMap.GetDat(ColName).Val1;}
   TInt GetColIdx(TStr ColName) const{ return ColTypeMap.GetDat(ColName).Val2;}  // column index among columns of the same type
 
   // Iterators 
@@ -221,7 +223,7 @@ public:
 	TStrV GetSrcNodeStrAttrV() const;
   TStrV GetDstNodeStrAttrV() const;
 	TStrV GetEdgeStrAttrV() const;
-	TYPE GetColType(TStr ColName) { return ColTypeMap.GetDat(ColName).Val1; };
+	TYPE GetColType(TStr ColName) const{ return ColTypeMap.GetDat(ColName).Val1; };
   TInt GetNumRows() const { return NumRows;}
   TInt GetNumValidRows() const { return NumValidRows;}
 
