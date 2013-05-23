@@ -13,10 +13,10 @@ all: $(TEST)
 
 # COMPILE
 TableTes%: TableTes%.cpp Engine.o
-	$(CC) -o $@ $@.cpp Engine.o -I$(CSNAP) -I$(CGLIB) $(LDFLAGS) $(LIBS)
+	$(CC) -o $@ $@.cpp Engine.o $(CSNAP)/Snap.o -I$(CSNAP) -I$(CGLIB) $(LDFLAGS) $(LIBS)
 
 Benchmark: Benchmark.cpp Engine.o
-	$(CC) -o $@ $@.cpp Engine.o -I$(CSNAP) -I$(CGLIB) $(LDFLAGS) $(LIBS)
+	$(CC) -o $@ $@.cpp Engine.o $(CSNAP)/Snap.o -I$(CSNAP) -I$(CGLIB) $(LDFLAGS) $(LIBS)
 
 $(CSNAP)/Snap.o:
 	$(MAKE) -C $(CSNAP)
@@ -32,6 +32,6 @@ libinstall: lib
 	cp libengine.a /usr/local/lib/libenginea
 
 clean:
-	rm -f *.o $(TEST) *.exe
+	rm -f *.o $(TEST) *.exe *.out
 	rm -rf Debug Release
 	rm -rf *.Err demo*.dat

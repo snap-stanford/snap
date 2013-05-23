@@ -322,9 +322,11 @@ bool TFIn::GetNextLnBf(TChA& LnChA) {
   int Status;
   int BfN;        // new pointer to the end of line
   int BfP;        // previous pointer to the line start
+  bool CrEnd;     // last character in previous buffer was CR
 
   LnChA.Clr();
 
+  CrEnd = false;
   do {
     if (BfC >= BfL) {
       // reset the current pointer, FindEol() will read a new buffer
@@ -332,9 +334,11 @@ bool TFIn::GetNextLnBf(TChA& LnChA) {
     } else {
       BfP = BfC;
     }
-    Status = FindEol(BfN);
+    Status = FindEol(BfN,CrEnd);
     if (Status >= 0) {
-      LnChA.AddBf(&Bf[BfP],BfN-BfP);
+      if (BfN-BfP > 0) {
+        LnChA.AddBf(&Bf[BfP],BfN-BfP);
+      }
       if (Status == 1) {
         // got a complete line
         return true;
@@ -353,7 +357,7 @@ bool TFIn::GetNextLnBf(TChA& LnChA) {
 //    BfN is end of buffer.
 // Returns -1, when an end of file was found, BfN is not defined.
 
-int TFIn::FindEol(int& BfN) {
+int TFIn::FindEol(int& BfN, bool& CrEnd) {
   char Ch;
 
   if (BfC >= BfL) {
@@ -361,18 +365,30 @@ int TFIn::FindEol(int& BfN) {
     if (Eof()) {
       return -1;
     }
+    if (CrEnd && Bf[BfC]=='\n') {
+      BfC++;
+      BfN = BfC-1;
+      return 1;
+    }
   }
 
+  CrEnd = false;
   while (BfC < BfL) {
     Ch = Bf[BfC++];
     if (Ch=='\n') {
       BfN = BfC-1;
       return 1;
     }
-    if (Ch=='\r' && Bf[BfC+1]=='\n') {
-      BfC++;
-      BfN = BfC-2;
-      return 1;
+    if (Ch=='\r') {
+      if (BfC == BfL) {
+        CrEnd = true;
+        BfN = BfC-1;
+        return 0;
+      } else if (Bf[BfC]=='\n') {
+        BfC++;
+        BfN = BfC-2;
+        return 1;
+      }
     }
   }
   BfN = BfC;
@@ -542,6 +558,10 @@ TMIn::TMIn(const TChA& ChA):
   BfL=ChA.Len(); Bf=new char[BfL]; strncpy(Bf, ChA.CStr(), BfL);
 }
 
+PSIn TMIn::New(const void* _Bf, const int& _BfL, const bool& TakeBf){
+  return PSIn(new TMIn(_Bf, _BfL, TakeBf));
+}
+
 PSIn TMIn::New(const char* CStr){
   return PSIn(new TMIn(CStr));
 }
@@ -580,12 +600,17 @@ bool TMIn::GetNextLnBf(TChA& LnChA){
 
 /////////////////////////////////////////////////
 // Output-Memory
-void TMOut::Resize(){
-  IAssert(OwnBf&&(BfL==MxBfL));
+void TMOut::Resize(const int& ReqLen){
+  IAssert(OwnBf&&(BfL==MxBfL || ReqLen >= 0));
   if (Bf==NULL){
-    IAssert(MxBfL==0); Bf=new char[MxBfL=1024];
+    IAssert(MxBfL==0); 
+    if (ReqLen < 0) Bf=new char[MxBfL=1024];
+    else Bf=new char[MxBfL=ReqLen];
   } else {
-    MxBfL*=2; char* NewBf=new char[MxBfL];
+    if (ReqLen < 0){ MxBfL*=2; }
+    else if (ReqLen < MxBfL){ return; } // nothing to do 
+    else { MxBfL=(2*MxBfL < ReqLen ? ReqLen : 2*MxBfL); }
+    char* NewBf=new char[MxBfL];
     memmove(NewBf, Bf, BfL); delete[] Bf; Bf=NewBf;
   }
 }
@@ -600,6 +625,12 @@ TMOut::TMOut(const int& _MxBfL):
 TMOut::TMOut(char* _Bf, const int& _MxBfL):
   TSBase("Output-Memory"), TSOut("Output-Memory"),
   Bf(_Bf), BfL(0), MxBfL(_MxBfL), OwnBf(false){}
+
+void TMOut::AppendBf(const void* LBf, const TSize& LBfL) {
+  Resize(Len() + (int)LBfL);
+  memcpy(Bf + BfL, LBf, LBfL);
+  BfL += (int)LBfL;
+}
 
 int TMOut::PutBf(const void* LBf, const TSize& LBfL){
   int LBfS=0;

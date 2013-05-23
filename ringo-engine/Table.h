@@ -5,7 +5,7 @@
 #include "TMetric.h"
 
 /* 
-Guidelines:
+Guidelines: 
 1. Bad code duplication everywhere (repetitions for int, flt and str).
    Maybe should probably use templates
 2. Give a-priori memory allocation to vector/hash table constructors 

@@ -64,3 +64,48 @@ public:
   /// Splits a list of people's names.
   static void GetStdNameV(TStr AuthorNames, TStrV& StdNameV);
 };
+
+//#//////////////////////////////////////////////
+/// Snapworld supporting functions
+
+#if defined(GLib_UNIX)
+/// Writes \c nbytes bytes starting at \c ptr to a file/socket descriptor \c fd.
+extern int WriteN(int fd, char *ptr, int nbytes);
+
+/// Sends the vector contents \c V via a file/socket descriptor \c FileDesc.
+/// Returns the number of bytes sent. If return value is negative, then some system call returned an error.
+template <class TVal, class TSizeTy>
+int SendVec(const TVec<TVal, TSizeTy>& V, int FileDesc) {
+  int l = 0;
+  int n;
+  int r;
+  TSizeTy Vals = V.Len();
+  int ChunkSize = 25600;
+
+  r = WriteN(FileDesc, (char *) &Vals, (int) sizeof(TSizeTy));
+  if (r < 0) {
+    return r;
+  }
+  l += r;
+
+  r = WriteN(FileDesc, (char *) &Vals, (int) sizeof(TSizeTy));
+  if (r < 0) {
+    return r;
+  }
+  l += r;
+
+  for (TSizeTy ValN = 0; ValN < Vals; ValN += ChunkSize) {
+    n = ChunkSize;
+    if ((Vals - ValN) < ChunkSize) {
+      n = Vals - ValN;
+    }
+    r = WriteN(FileDesc, (char *) &V[ValN], (int) (n*sizeof(TVal)));
+    if (r < 0) {
+      return r;
+    }
+    l += r;
+  }
+  return l;
+}
+#endif
+

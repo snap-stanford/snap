@@ -28,6 +28,7 @@ const TStr THttp::TextXmlFldVal="text/xml";
 const TStr THttp::TextWmlFldVal="text/vnd.wap.wml";
 const TStr THttp::TextJavaScriptFldVal="text/javascript";
 const TStr THttp::TextCssFldVal="text/css";
+const TStr THttp::ImageIcoFldVal="image/x-icon";
 const TStr THttp::ImagePngFldVal="image/png";
 const TStr THttp::ImageGifFldVal="image/gif";
 const TStr THttp::ImageJpgFldVal="image/jpg";
@@ -506,7 +507,7 @@ void THttpRq::ParseSearch(const TStr& SearchStr){
     UrlEnv->AddToKeyVal(KeyNm, ValStr);
     }
   }
-  catch (THttpEx){Ok=false;}
+  catch (const THttpEx&){Ok=false;}
 }
 
 void THttpRq::ParseHttpRq(const PSIn& SIn){
@@ -584,7 +585,7 @@ THttpRq::THttpRq(const PSIn& SIn):
   try {
     ParseHttpRq(SIn);
   }
-  catch (THttpEx){Ok=false;}
+  catch (const THttpEx&){Ok=false;}
 }
 
 THttpRq::THttpRq(
@@ -779,7 +780,7 @@ THttpResp::THttpResp(const PSIn& SIn):
   try {
     ParseHttpResp(SIn);
   }
-  catch (THttpEx){Ok=false;}
+  catch (const THttpEx&){Ok=false;}
 }
 
 bool THttpResp::IsFldNm(const TStr& FldNm) const {

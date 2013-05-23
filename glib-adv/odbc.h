@@ -146,11 +146,11 @@ public:
     return PSIn(new TOdbcIn(Query, ColN));}
   ~TOdbcIn(){}
 
-  bool Eof() const {return SIn->Eof();}
+  bool Eof() {return SIn->Eof();}
   int Len() const {return SIn->Len();}
   char GetCh(){return SIn->GetCh();}
   char PeekCh(){return SIn->PeekCh();}
-  int GetBf(const void* LBf, const int& LBfL){
+  int GetBf(const void* LBf, const TSize& LBfL){
     return SIn->GetBf(LBf, LBfL);}
 };
 

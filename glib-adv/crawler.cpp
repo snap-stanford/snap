@@ -503,6 +503,12 @@ TCrawlerFetcher::TCrawlerFetcher(TCrawler* _Crawler):
   PutMxContLen(Crawler->GetDef()->GetMxContLen());
   // set max. retries
   PutMxRetries(Crawler->GetDef()->GetMxRetries());
+  // set user-agent
+  if (Crawler->GetDef()->GetUserAgentStr()=="ie8"){
+    PutUserAgentStrIE8();
+  } else {
+    PutUserAgentStr(Crawler->GetDef()->GetUserAgentStr());
+  }
 }
 
 void TCrawlerFetcher::GetConnV(TIntStrIntIntQuV& ConnIdUrlStrMSecsSizeQuV){

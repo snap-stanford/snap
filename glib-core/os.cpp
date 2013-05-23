@@ -53,10 +53,6 @@ bool TSysProc::ExeProc(const TStr& ExeFNm, TStr& ParamStr){
 }
 
 /////////////////////////////////////////////////
-// System-Messages
-void TSysMsg::Quit(){PostQuitMessage(0);}
-
-/////////////////////////////////////////////////
 // Memory-Status
 TStr TSysMemStat::GetLoadStr(){
   static TStr MemUsageStr="Mem Load: ";
@@ -150,11 +146,13 @@ void TSysConsoleNotify::OnStatus(const TStr& MsgStr){
 
 /////////////////////////////////////////////////
 // System-Messages
-void TSysMsg::Loop(){
-  MSG Msg;
-  while (GetMessage(&Msg, NULL, 0, 0 )){
-    TranslateMessage(&Msg); DispatchMessage(&Msg);}
-}
+//void TSysMsg::Loop(){
+//  MSG Msg;
+//  while (GetMessage(&Msg, NULL, 0, 0 )){
+//    TranslateMessage(&Msg); DispatchMessage(&Msg);}
+//}
+//
+//void TSysMsg::Quit(){PostQuitMessage(0);}
 
 /////////////////////////////////////////////////
 // System-Time
@@ -545,13 +543,6 @@ int TStdIOPipe::Read(char *Bf, const int& BfMxLen) {
 
 #elif defined(GLib_UNIX)
 
-#if 0
-// 2012/08/20 ROK uuid excluded for the merge, move out from the base
-extern "C" {
-  #include <uuid/uuid.h>
-}
-#endif
-
 /////////////////////////////////////////////////
 // Compatibility functions
 int GetModuleFileName(void *hModule, char *Bf, int MxBfL) {
@@ -815,27 +806,29 @@ bool TSysProc::ExeProc(const TStr& ExeFNm, TStr& ParamStr) {
 
   execvp(argv[0], argv);
 
-  TSysMsg::Quit();
+  //BF: moved role of TSysMsg to TLoop and TSockSys in net.h, hence removed the following inline
+  //TSysMsg::Quit(); 
+  kill(getpid(), SIGINT);
   return false;
 }
 
 /////////////////////////////////////////////////
 // System-Messages
-void TSysMsg::Loop() {
-    //bn!!! zdej mamo pa problem. kaksne msgje? samo za sockete?
-    //!!! tle je treba klicat AsyncSys iz net::sock.cpp
-    //#define TOTALNAZMEDA
-    //#ifdef TOTALNAZMEDA
-    //class TAsyncSys;
-    //extern TAsyncSys AsyncSys;
-    //AsyncSys::AsyncLoop();
-    //#endif
-  FailR("Not intended for use under Linux!");
-}
-
-void TSysMsg::Quit() {
-  kill(getpid(), SIGINT);
-}
+//void TSysMsg::Loop() {
+//    //bn!!! zdej mamo pa problem. kaksne msgje? samo za sockete?
+//    //!!! tle je treba klicat AsyncSys iz net::sock.cpp
+//    //#define TOTALNAZMEDA
+//    //#ifdef TOTALNAZMEDA
+//    //class TAsyncSys;
+//    //extern TAsyncSys AsyncSys;
+//    //AsyncSys::AsyncLoop();
+//    //#endif
+//  FailR("Not intended for use under Linux!");
+//}
+//
+//void TSysMsg::Quit() {
+//  kill(getpid(), SIGINT);
+//}
 
 /////////////////////////////////////////////////
 // Program StdIn and StdOut redirection using pipes
@@ -858,19 +851,5 @@ int TStdIOPipe::Read(char *Bf, const int& BfMxLen) {
   return -1;
 }
 
-
-/////////////////////////////////////////////////
-// GUID
-#if 0
-// 2012/08/20 ROK uuid excluded for the merge, move out from the base
-TStr TGuid::GenGuid() {
-	uuid_t Uuid;
-	uuid_generate_random(Uuid);
-	char s[37];
-	uuid_unparse(Uuid, s);
-	TStr UuidStr = s;
-	return UuidStr;
-}
 #endif
 
-#endif

@@ -166,6 +166,8 @@ private:
 public:
   TExcept(const TStr& _MsgStr): MsgStr(_MsgStr), LocStr(){}
   TExcept(const TStr& _MsgStr, const TStr& _LocStr): MsgStr(_MsgStr), LocStr(_LocStr){}
+  static PExcept New(const TStr& MsgStr, const TStr& LocStr = TStr()) {
+	  return PExcept(new TExcept(MsgStr, LocStr)); }
   virtual ~TExcept(){}
 
   TStr GetMsgStr() const {return MsgStr;}
@@ -184,18 +186,18 @@ public:
   // throwing exception
   static void Throw(const TStr& MsgStr){
     if (IsOnExceptF()){(*OnExceptF)(MsgStr);}
-    else {throw PExcept(new TExcept(MsgStr));}}
+    else {throw TExcept::New(MsgStr);}}
   static void Throw(const TStr& MsgStr, const TStr& ArgStr){
     TStr FullMsgStr=MsgStr+" ("+ArgStr+")";
     if (IsOnExceptF()){(*OnExceptF)(FullMsgStr);}
-    else {throw PExcept(new TExcept(FullMsgStr));}}
+    else {throw TExcept::New(FullMsgStr);}}
   static void Throw(const TStr& MsgStr, const TStr& ArgStr1, const TStr& ArgStr2){
     TStr FullMsgStr=MsgStr+" ("+ArgStr1+", "+ArgStr2+")";
     if (IsOnExceptF()){(*OnExceptF)(FullMsgStr);}
-    else {throw PExcept(new TExcept(FullMsgStr));}}
+    else {throw TExcept::New(FullMsgStr);}}
   static void ThrowFull(const TStr& MsgStr, const TStr& LocStr){
     if (IsOnExceptF()){(*OnExceptF)(MsgStr);}
-    else {throw PExcept(new TExcept(MsgStr, LocStr));}}
+    else {throw TExcept::New(MsgStr, LocStr);}}
 };
 
 #define Try try {

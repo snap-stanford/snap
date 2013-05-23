@@ -459,6 +459,9 @@ public:
   /// Returns the memory footprint (the number of bytes) of the vector.
   TSizeTy GetMemUsed() const {
     return TSizeTy(2*sizeof(TSizeTy)+sizeof(TVal*)+MxVals*sizeof(TVal));}
+  /// Returns the memory size (the number of bytes) of a binary representation.
+  TSizeTy GetMemSize() const {
+    return TSizeTy(2*sizeof(TVal)+sizeof(TSizeTy)*Vals);}
   
   /// Returns primary hash code of the vector. Used by \c THash.
   int GetPrimHashCd() const;
@@ -659,6 +662,8 @@ public:
   void Diff(const TVec<TVal, TSizeTy>& ValV, TVec<TVal, TSizeTy>& DstValV) const;
   /// Returns the size of the intersection of vectors \c this and \c ValV. ##TVec::IntrsLen
   TSizeTy IntrsLen(const TVec<TVal, TSizeTy>& ValV) const;
+  /// Returns the size of the union of vectors \c this and \c ValV. ##TVec::UnionLen
+  TSizeTy UnionLen(const TVec<TVal, TSizeTy>& ValV) const;
   
   /// Counts the number of occurrences of \c Val in the vector.
   TSizeTy Count(const TVal& Val) const;
@@ -680,7 +685,7 @@ public:
   /// Checks whether element \c Val is a member of the vector. ##TVec::IsInBin
   bool IsInBin(const TVal& Val) const {return SearchBin(Val)!=-1;}
   /// Returns reference to the first occurrence of element \c Val.
-  TVal& GetDat(const TVal& Val) const { return GetVal(SearchForw(Val));}
+  const TVal& GetDat(const TVal& Val) const { return GetVal(SearchForw(Val));}
   /// Returns reference to the first occurrence of element \c Val. ##TVec::GetAddDat
   TVal& GetAddDat(const TVal& Val){ AssertR(MxVals!=-1, "This vector was obtained from TVecPool. Such vectors cannot change its size!");
     const TSizeTy ValN=SearchForw(Val); if (ValN==-1){Add(Val); return Last();} else {return GetVal(ValN);}}
@@ -808,20 +813,30 @@ bool TVec<TVal, TSizeTy>::operator<(const TVec<TVal, TSizeTy>& Vec) const {
   }
 }
 
+// Improved hashing of vectors (Jure Apr 20 2013)
+// This change makes binary representation of vectors incompatible with previous code.
+// Previous hash functions are available for compatibility in class TVecHashF_OldGLib
 template <class TVal, class TSizeTy>
 int TVec<TVal, TSizeTy>::GetPrimHashCd() const {
-  int HashCd=0;
-  for (TSizeTy ValN=0; ValN<Vals; ValN++){
-    HashCd+=ValT[ValN].GetPrimHashCd();}  //J: BAD way of combining HASH CODES!!!
-  return abs(HashCd);
+  int hc = 0;
+  for (TSizeTy i=0; i<Vals; i++){
+    hc = TPairHashImpl::GetHashCd(hc, ValT[i].GetPrimHashCd()); 
+  }
+  return hc; 
 }
 
+// Improved hashing of vectors (Jure Apr 20 2013)
+// This change makes binary representation of vectors incompatible with previous code.
+// Previous hash functions are available for compatibility in class TVecHashF_OldGLib
 template <class TVal, class TSizeTy>
 int TVec<TVal, TSizeTy>::GetSecHashCd() const {
-  int HashCd=0;
-  for (TSizeTy ValN=0; ValN<Vals; ValN++){
-    HashCd+=ValT[ValN].GetSecHashCd();}  //J: BAD way of combining HASH CODES!!!
-  return abs(HashCd);
+  int hc = 0;
+  for (TSizeTy i=0; i<Vals; i++){
+    hc = TPairHashImpl::GetHashCd(hc, ValT[i].GetSecHashCd()); 
+  }
+  if (Vals > 0) { 
+    hc = TPairHashImpl::GetHashCd(hc, ValT[0].GetSecHashCd()); }
+  return hc; 
 }
 
 template <class TVal, class TSizeTy>
@@ -1116,7 +1131,7 @@ void TVec<TVal, TSizeTy>::Shuffle(TRnd& Rnd){
   } else {
     for (TSizeTy ValN=0; ValN<Vals-1; ValN++){
       const TSizeTy Range = Vals-ValN;
-      Swap(ValN, ValN+Rnd.GetUniDevInt64(Range));
+      Swap(ValN, TSizeTy(ValN+Rnd.GetUniDevInt64(Range)));
     }
   }
 }
@@ -1260,6 +1275,24 @@ TSizeTy TVec<TVal, TSizeTy>::IntrsLen(const TVec<TVal, TSizeTy>& ValV) const {
       ValN2++; Cnt++;}
     ValN1++;
   }
+  return Cnt;
+}
+    
+template <class TVal, class TSizeTy>
+TSizeTy TVec<TVal, TSizeTy>::UnionLen(const TVec<TVal, TSizeTy>& ValV) const {
+  TSizeTy Cnt = 0, ValN1 = 0, ValN2 = 0;
+  while ((ValN1 < Len()) && (ValN2 < ValV.Len())) {
+    const TVal& Val1 = GetVal(ValN1);
+    const TVal& Val2 = ValV.GetVal(ValN2);
+    if (Val1 < Val2) {
+      Cnt++; ValN1++;
+    } else if (Val1 > Val2) {
+      Cnt++; ValN2++;
+    } else {
+      Cnt++; ValN1++; ValN2++;
+    }
+  }
+  Cnt += (Len() - ValN1) + (ValV.Len() - ValN2);
   return Cnt;
 }
 
@@ -1593,8 +1626,10 @@ public:
   void Intrs(const TVec<TVal>& ValV, TVec<TVal>& DstValV) const;
   void Union(const TVec<TVal>& ValV, TVec<TVal>& DstValV) const;
   void Diff(const TVec<TVal>& ValV, TVec<TVal>& DstValV) const;
-  /// Get the size of the intersection (number of common elements) of two vectors. Method assumes both vectors are sorted in ascending order!
+  /// Returns the size of the intersection (number of common elements) with vector \c ValV. Method assumes both vectors are sorted in ascending order!
   int IntrsLen(const TVec<TVal>& ValV) const;
+  /// Returns the size of the union with vector \c ValV. Method assumes both vectors are sorted in ascending order!
+  int UnionLen(const TVec<TVal>& ValV) const;
   void Minus(const TVec<TVal>& ValV, TVec<TVal>& DstValV) const;
 
   int Count(const TVal& Val) const;
@@ -2222,6 +2257,24 @@ int TVec<TVal>::IntrsLen(const TVec<TVal>& ValV) const {
   }
   return Cnt;
 }
+  
+template <class TVal>
+int TVec<TVal>::UnionLen(const TVec<TVal>& ValV) const {
+  int Cnt = 0, ValN1 = 0, ValN2 = 0;
+  while ((ValN1 < Len()) && (ValN2 < ValV.Len())) {
+    const TVal& Val1 = GetVal(ValN1);
+    const TVal& Val2 = ValV.GetVal(ValN2);
+    if (Val1 < Val2) {
+      Cnt++; ValN1++;
+    } else if (Val1 > Val2) {
+      Cnt++; ValN2++;
+    } else {
+      Cnt++; ValN1++; ValN2++;
+    }
+  }
+  Cnt += (Len() - ValN1) + (ValV.Len() - ValN2);
+  return Cnt;
+}
 
 template <class TVal>
 void TVec<TVal>::Minus(const TVec<TVal>& ValV, TVec<TVal>& DstValV) const {
@@ -2617,6 +2670,13 @@ void TVecPool<TVal, TSizeTy>::ShuffleAll(TRnd& Rnd) {
   }
 }
 
+
+/////////////////////////////////////////////////
+// Below are old 32-bit implementations of TVec and other classes.
+// Old TVec takes at most 2G elements.
+// The new vector class supports 64-bits for the number of elements,
+// but also allows 32-bits for backward compatibility.
+// by Jure (Jan 2013)
 namespace TGLib_OLD {
 /////////////////////////////////////////////////
 // Vector Pool
@@ -3373,6 +3433,8 @@ public:
 
   TLstNd& operator=(const TLstNd&);
 
+  bool IsPrev() const {return (PrevNd != NULL); }
+  bool IsNext() const {return (NextNd != NULL); }
   TLstNd* Prev() const {Assert(this!=NULL); return PrevNd;}
   TLstNd* Next() const {Assert(this!=NULL); return NextNd;}
   TVal& GetVal(){Assert(this!=NULL); return Val;}

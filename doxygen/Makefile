@@ -1,8 +1,23 @@
+#
+#	Makefile to generate User and Developer Reference manuals
+#
+#	Prerequisites:
+#	- install the following programs on your computer
+#		doxygen, http://www.stack.nl/~dimitri/doxygen/index.html
+#		GraphViz, http://www.graphviz.org
+#	
+
 DATE := $(shell date +%Y%m%d)
 TIME := $(shell date +%Y%m%d-%H%M%S)
 STIME := $(shell date +"%Y-%m-%d %H:%M:%S")
 SLVER := $(VERSION)
-  
+
+DOXYGEN = doxygen
+ifeq ($(shell uname), Darwin)
+	# OS X values
+	DOXYGEN = /Applications/Doxygen.app/Contents/Resources/doxygen
+endif
+
 dummy:
 
 all: dev user
@@ -10,12 +25,12 @@ all: dev user
 dev: doxycopy
 	rm -rf snapdoc-dev log-doxygen-dev.txt
 	sed "s/00000000/$(STIME)/" Doxyfile-dev | sed "s/11111111/$(SLVER)/" > Doxyfile-dev-tmp
-	doxygen Doxyfile-dev-tmp
+	$(DOXYGEN) Doxyfile-dev-tmp
 
 user: doxycopy
 	rm -rf snapdoc-user log-doxygen-user.txt
 	sed "s/00000000/$(STIME)/" Doxyfile-user | sed "s/11111111/$(SLVER)/" > Doxyfile-user-tmp
-	doxygen Doxyfile-user-tmp
+	$(DOXYGEN) Doxyfile-user-tmp
 
 doxycopy:
 	rm -rf snap

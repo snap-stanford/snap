@@ -44,7 +44,7 @@ typedef ptrdiff_t ssize_t;
 
 #if defined(GLib_UNIX)
 #define _isnan(x) isnan(x)
-#if defined (GLib_MACOSX)
+#if defined(GLib_MACOSX)
   #define _finite(x) isfinite(x)
 #else
   #define _finite(x) finite(x)
@@ -594,7 +594,7 @@ public:
     return (RQ == 0x7fffffffU) ? 0 : (int) RQ; }
 };
 
-// Depending on the platform and compiler settings choose the faster implementation
+// Depending on the platform and compiler settings choose the faster implementation (of the same hash function)
 #if (defined(GLib_64Bit)) && ! (defined(DEBUG) || defined(_DEBUG))
   typedef TPairHashImpl1 TPairHashImpl;
 #else
