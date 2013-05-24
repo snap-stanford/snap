@@ -84,15 +84,27 @@ PTable TTable::LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm,
     for(TInt i = 0; i < RowLen; i++){
       switch(ColTypes[i]){
         case INT:
-          T->IntCols[IntColIdx].Add(Ss.GetInt(RelevantCols[i]));
+          if(RelevantCols.Len() == 0){
+            T->IntCols[IntColIdx].Add(Ss.GetInt(i));
+          } else {
+            T->IntCols[IntColIdx].Add(Ss.GetInt(RelevantCols[i]));
+          }
           IntColIdx++;
           break;
         case FLT:
-          T->FltCols[FltColIdx].Add(Ss.GetFlt(RelevantCols[i]));
+          if(RelevantCols.Len() == 0){
+            T->FltCols[FltColIdx].Add(Ss.GetFlt(i));
+          } else {
+            T->FltCols[FltColIdx].Add(Ss.GetFlt(RelevantCols[i]));
+          }
           FltColIdx++;
           break;
         case STR:
-          T->AddStrVal(StrColIdx, Ss[RelevantCols[i]]);
+          if(RelevantCols.Len() == 0){
+            T->AddStrVal(StrColIdx, Ss[i]);
+          } else {
+            T->AddStrVal(StrColIdx, Ss[RelevantCols[i]]);
+          }
           StrColIdx++;
           break;
       }
