@@ -166,7 +166,7 @@ protected:
 	// Performs grouping according to the values of columns GroupBy[i] where 
 	// i >= GroupByStartIdx; Considers only tuples whose indices are in IndexSet
 	// Adds the groups to hash table "grouping". Does not write to "GroupMapping"
-	void GroupAux(const TStrV& GroupBy, TInt GroupByStartIdx, THash<TInt,TIntV>& grouping, const TIntV& IndexSet, TBool All);
+	void GroupAux(const TStrV& GroupBy, TInt GroupByStartIdx, THash<TInt,TIntV>& grouping, const TIntV& IndexSet, TBool InSet);
   /* template for utility functions to be used by GroupByXCol */
  template <class T>
   void UpdateGrouping(THash<T,TIntV>& Grouping, T Key, TInt Val) const{

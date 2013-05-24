@@ -337,7 +337,7 @@ void TTable::KeepSortedRows(const TIntV& KeepV){
   }
 }
 
-void TTable::Unique(TStr Col){
+/*void TTable::Unique(TStr Col){
   if(!ColTypeMap.IsKey(Col)){TExcept::Throw("no such column " + Col);}
   TIntV RemainingRows = TIntV(NumValidRows,0);
   // group by given column (keys) and keep only first row for each key
@@ -371,6 +371,24 @@ void TTable::Unique(TStr Col){
   // GroupByX returns a hash Table T:X-->TIntV. In the current implementation,
   // if key X1 appears before key X2 in T Then T(X1)[0] <= T(X2)[0]
   // Not sure if we could always make this assumption. Might want to remove this sorting..
+  RemainingRows.Sort();
+  KeepSortedRows(RemainingRows);
+}*/
+
+void TTable::Unique(TStr Col){
+  // with the current implementation of GroupByX, RemainingRows is sorted:
+  // GroupByX returns a hash Table T:X-->TIntV. In the current implementation,
+  // if key X1 appears before key X2 in T Then T(X1)[0] <= T(X2)[0]
+  // Not sure if we could always make this assumption. Might want to remove this sorting..
+  THash<TInt,TIntV> grouping;
+  TIntV RemainingRows = TIntV(NumValidRows,0);
+  TStrV GroupBy;
+  GroupBy.Add(Col);
+  GroupAux(GroupBy, 0, grouping, TIntV(0), false);
+  for(THash<TInt,TIntV>::TIter it = grouping.BegI(); it < grouping.EndI(); it++){
+    RemainingRows.Add(it->Dat[0]);
+  }
+
   RemainingRows.Sort();
   KeepSortedRows(RemainingRows);
 }
@@ -487,7 +505,7 @@ void TTable::GroupAux(const TStrV& GroupBy, TInt GroupByStartIdx, THash<TInt,TIn
 }
 */
 
-void TTable::GroupAux(const TStrV& GroupBy, TInt GroupByStartIdx, THash<TInt,TIntV>& grouping, const TIntV& IndexSet, TBool All){
+void TTable::GroupAux(const TStrV& GroupBy, TInt GroupByStartIdx, THash<TInt,TIntV>& grouping, const TIntV& IndexSet, TBool InSet){
 
   THash<TIntV,TIntV> IGroup;
   THash<TFltV,TIntV> FGroup;
@@ -568,7 +586,7 @@ void TTable::StoreGroupCol(TStr GroupColName, const THash<TInt,TIntV>& Grouping)
 
 void TTable::Group(TStr GroupColName, const TStrV& GroupBy){
   THash<TInt,TIntV> grouping;
-  GroupAux(GroupBy, 0, grouping, TIntV(0), true);
+  GroupAux(GroupBy, 0, grouping, TIntV(0), false);
   StoreGroupCol(GroupColName, grouping);
   AddSchemaCol(GroupColName, INT); // update schema
 }
