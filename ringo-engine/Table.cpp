@@ -439,9 +439,9 @@ void TTable::GroupByStrCol(TStr GroupBy, THash<TStr,TIntV>& Grouping, const TInt
   }
 }
 
-
+/*
 void TTable::GroupAux(const TStrV& GroupBy, TInt GroupByStartIdx, THash<TInt,TIntV>& grouping, const TIntV& IndexSet, TBool All){
-  /* recursion base - add IndexSet as group */
+  // recursion base - add IndexSet as group 
   if(GroupByStartIdx == GroupBy.Len()){
     if(IndexSet.Len() == 0){return;}
 	  TInt key = grouping.Len();
@@ -483,6 +483,72 @@ void TTable::GroupAux(const TStrV& GroupBy, TInt GroupByStartIdx, THash<TInt,TIn
 	    }
 	    break;
 	  }
+  }
+}
+*/
+
+void TTable::GroupAux(const TStrV& GroupBy, TInt GroupByStartIdx, THash<TInt,TIntV>& grouping, const TIntV& IndexSet, TBool All){
+
+  THash<TIntV,TIntV> IGroup;
+  THash<TFltV,TIntV> FGroup;
+  THash<TStrV,TIntV> SGroup;
+  TInt GroupNum = 0;
+  for(TRowIterator it = BegRI(); it < EndRI(); it++){
+    TIntV IKey;
+    TFltV FKey;
+    TStrV SKey;
+
+    for (int i=0; i < GroupBy.Len(); i++) {
+      if(!ColTypeMap.IsKey(GroupBy[i])){TExcept::Throw("no such column " + GroupBy[i]);}
+
+      switch(GetColType(GroupBy[i])){
+        case INT: {
+          IKey.Add(it.GetIntAttr(GroupBy[i])); 
+          break;
+        }
+        case FLT: {
+          FKey.Add(it.GetFltAttr(GroupBy[i])); 
+          break;
+        }
+        case STR: {
+          SKey.Add(it.GetStrAttr(GroupBy[i])); 
+          break;
+        }
+      }
+    }
+
+    TInt RowIdx = it.GetRowIdx();
+    TIntV GroupMatch;
+ 
+    if(IGroup.IsKey(IKey)){
+      GroupMatch.Union(IGroup.GetDat(IKey));
+      if(FGroup.IsKey(FKey)){
+        GroupMatch.Intrs(FGroup.GetDat(FKey));
+        if(SGroup.IsKey(SKey)){
+          GroupMatch.Intrs(SGroup.GetDat(SKey));
+        } else {
+          GroupMatch.Clr();
+        }
+      } else {
+        GroupMatch.Clr();
+      }
+    }
+
+    if (GroupMatch.Len() == 0) {
+      TIntV NewGroup;
+      NewGroup.Add(RowIdx);
+      grouping.AddDat(GroupNum, NewGroup);
+
+      UpdateGrouping<TIntV>(IGroup, IKey, GroupNum);
+      UpdateGrouping<TFltV>(FGroup, FKey, GroupNum);
+      UpdateGrouping<TStrV>(SGroup, SKey, GroupNum);
+      GroupNum++;
+    } else if (GroupMatch.Len() == 1) {
+      TInt CurrGroupNum = GroupMatch[0];
+      grouping.GetDat(CurrGroupNum).Add(RowIdx);
+    } else {
+      TExcept::Throw("Groups duplicated, should not happen");
+    }
   }
 }
 
