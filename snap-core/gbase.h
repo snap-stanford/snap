@@ -227,7 +227,7 @@ private:
   void MakeHeap(const int& First, const int& Len);
 public:
   THeap() : HeapV() { }
-  THeap(const int& MxVals) : Cmp(), HeapV(0, MxVals) { }
+  THeap(const int& MxVals) : Cmp(), HeapV(MxVals, 0) { }
   THeap(const TCmp& _Cmp) : Cmp(_Cmp), HeapV() { }
   THeap(const TVec<TVal>& Vec) : Cmp(), HeapV(Vec) { MakeHeap(); }
   THeap(const TVec<TVal>& Vec, const TCmp& _Cmp) : Cmp(_Cmp), HeapV(Vec) { MakeHeap(); }
