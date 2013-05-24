@@ -5,7 +5,7 @@
 #include "TMetric.h"
 
 /* 
-Guidelines: 
+Guidelines:
 1. Bad code duplication everywhere (repetitions for int, flt and str).
    Maybe should probably use templates
 2. Give a-priori memory allocation to vector/hash table constructors 
@@ -208,6 +208,7 @@ public:
   static PTable Load(TSIn& SIn){ return new TTable(SIn);} 
   // Load table from spread sheet (TSV, CSV, etc)
   static PTable LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm, const char& Separator = '\t', TBool HasTitleLine = true);
+  static PTable LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm, const TIntV& RelevantCols, const char& Separator = '\t', TBool HasTitleLine = true);
   void SaveSS(const TStr& OutFNm);
 	void Save(TSOut& SOut);
 	PNEAGraph ToGraph();

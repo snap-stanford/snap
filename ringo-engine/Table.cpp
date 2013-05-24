@@ -45,9 +45,18 @@ TTable::TTable(const TStr& TableName, const Schema& TableSchema): Name(TableName
   StrColMaps = TVec<TIntV>(StrColCnt);
 }
 
-PTable TTable::LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm, const char& Separator, TBool HasTitleLine){
+PTable TTable::LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm, const TIntV& RelevantCols, const char& Separator, TBool HasTitleLine){
   TSsParser Ss(InFNm, Separator);
-  PTable T = New(TableName, S);
+  Schema SR;
+  if(RelevantCols.Len() == 0){
+    SR = S;
+  } else{
+    for(TInt i = 0; i < RelevantCols.Len(); i++){
+      SR.Add(S[RelevantCols[i]]);
+    }
+  }
+  PTable T = New(TableName, SR);
+
   // if title line (i.e. names of the columns) is included as first row in the
   // input file - use it to validate schema
   if(HasTitleLine){
@@ -57,10 +66,11 @@ PTable TTable::LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm,
       // remove carriage return char
       TInt L = strlen(Ss[i]);
       if(Ss[i][L-1] < ' '){ Ss[i][L-1] = 0;}
-      if(T->GetSchemaColName(i) != Ss[i]){ TExcept::Throw("Table Schema Mismatch!");}
+      if(S[i].Val1 != Ss[i]){ TExcept::Throw("Table Schema Mismatch!");}
     }
   }
-  TInt RowLen = S.Len();
+
+  TInt RowLen = SR.Len();
   TVec<TYPE> ColTypes = TVec<TYPE>(RowLen);
   for(TInt i = 0; i < RowLen; i++){
     ColTypes[i] = T->GetSchemaColType(i);
@@ -70,19 +80,19 @@ PTable TTable::LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm,
     TInt IntColIdx = 0;
     TInt FltColIdx = 0;
     TInt StrColIdx = 0;
-    Assert(Ss.GetFlds() == RowLen); // compiled only in debug
+    Assert(Ss.GetFlds() == S.Len()); // compiled only in debug
     for(TInt i = 0; i < RowLen; i++){
       switch(ColTypes[i]){
         case INT:
-          T->IntCols[IntColIdx].Add(Ss.GetInt(i));
+          T->IntCols[IntColIdx].Add(Ss.GetInt(RelevantCols[i]));
           IntColIdx++;
           break;
         case FLT:
-          T->FltCols[FltColIdx].Add(Ss.GetFlt(i));
+          T->FltCols[FltColIdx].Add(Ss.GetFlt(RelevantCols[i]));
           FltColIdx++;
           break;
         case STR:
-          T->AddStrVal(StrColIdx, Ss[i]);
+          T->AddStrVal(StrColIdx, Ss[RelevantCols[i]]);
           StrColIdx++;
           break;
       }
@@ -100,6 +110,11 @@ PTable TTable::LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm,
   T->Next.Add(Last);
   return T;
 }
+
+PTable TTable::LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm, const char& Separator, TBool HasTitleLine){
+  return LoadSS(TableName, S, InFNm, TIntV(), Separator, HasTitleLine);
+}
+
 
 void TTable::SaveSS(const TStr& OutFNm){
   FILE* F = fopen(OutFNm.CStr(), "w");
