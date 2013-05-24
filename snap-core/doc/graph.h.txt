@@ -245,8 +245,80 @@ For each node in the graph check that its neighbors are also nodes in the
 graph.
 ///
 
+/// TNEAGraph::TNodeI::GetInNId
+Range of NodeN: 0 <= NodeN < GetInDeg().
+///
 
+/// TNEAGraph::TNodeI::GetOutNId 
+Range of NodeN: 0 <= NodeN < GetOutDeg().
+/// 
+    
+/// TNEAGraph::TNodeI::GetNbrNId 
+Range of NodeN: 0 <= NodeN < GetNbrDeg().
+///
 
+/// TNEAGraph::New
+Call: PNEAGraph Graph = TNEAGraph::New(Nodes, Edges).
+///
+    
+/// TNEAGraph::AddNode (int NId = -1)
+Returns the ID of the node being added.
+If NId is -1, node ID is automatically assigned.
+Aborts, if a node with ID NId already exists.
+/// 
+
+/// TNEAGraph::DelNode
+If the node of ID NId does not exist the function aborts.
+///
+
+/// TNEAGraph::AddEdge
+Returns the ID of the edge being added.
+If EId is -1, edge ID is automatically assigned.
+Aborts, if an edge with ID EId already exists.
+Aborts, if SrcNId or DstNId are not nodes in the graph.
+///
+
+/// TNEAGraph::DelEdge
+If the edge (SrcNId, DstNId) does not exist in the graph function still
+completes.
+But the function aborts if SrcNId or DstNId are not nodes in the graph.
+///
+
+/// TNEAGraph::Defrag
+After performing many node and edge insertions and deletions to a graph,
+the graph data structure will be fragmented in memory.
+This function compacts down the graph data structure and frees unneeded
+memory.
+///
+
+/// TNEAGraph::IsOk
+For each node in the graph check that its neighbors are also nodes in the
+graph.
+///
+
+/// TNEAGraph::AddIntAttrDatN
+Adds the key int value pair to the corresponding node attribute value vector.
+///
+
+/// TNEAGraph::AddStrAttrDatN
+Adds the key str value pair to the corresponding node attribute value vector.
+///
+
+/// TNEAGraph::AddFltAttrDatN
+Adds the key flt value pair to the corresponding node attribute value vector.
+///
+
+/// TNEAGraph::AddIntAttrDatE
+Adds the key int value pair to the corresponding edge attribute value vector.
+///
+
+/// TNEAGraph::AddStrAttrDatE
+Adds the key str value pair to the corresponding edge attribute value vector.
+///
+
+/// TNEAGraph::AddFltAttrDatE
+Adds the key flt value pair to the corresponding edge attribute value vector.
+///
 
 /// Bipartite_graph
 ///

@@ -10,8 +10,8 @@ typedef TPt<TUNGraph> PUNGraph;
 /// Pointer to a bipartitegraph graph (TBPGraph)
 typedef TPt<TBPGraph> PBPGraph;
 
-/////////////////////////////////////////////////
-// Directed graphs
+//#//////////////////////////////////////////////
+/// Directed graphs
 class TNGraph;
 class TNEGraph;
 class TNEAGraph;
@@ -214,8 +214,8 @@ public:
   friend class TPt<TUNGraph>;
 };
 
-/////////////////////////////////////////////////
-// Directed Node Graph
+//#//////////////////////////////////////////////
+/// Directed Node Graph
 
 /// Directed graph. ##Directed_graph
 class TNGraph {
@@ -414,8 +414,8 @@ namespace TSnap {
 template <> struct IsDirected<TNGraph> { enum { Val = 1 }; };
 }
 
-/////////////////////////////////////////////////
-// Node Edge Graph
+//#//////////////////////////////////////////////
+/// Node Edge Graph
 
 // TODO TNEGraph describe time complexity for basic operations
 /// Directed multigraph. ##Directed_multigraph
@@ -649,11 +649,10 @@ template <> struct IsMultiGraph<TNEGraph> { enum { Val = 1 }; };
 template <> struct IsDirected<TNEGraph> { enum { Val = 1 }; };
 }
 
-/////////////////////////////////////////////////
-// Node Edge AttributeGraph
+//#//////////////////////////////////////////////
+/// Node Edge AttributeGraph
 
-// TODO TNEAGraph describe time complexity for basic operations
-/// Directed multigraph with attributes. ##Directed_multigraph_attr
+/// TODO TNEAGraph describe time complexity for basic operations.
 class TNEAGraph {
 public:
   typedef TNEAGraph TNet;
@@ -729,7 +728,6 @@ public:
     bool IsOutNId(const int& NId) const;
     /// Tests whether node with ID NId is a neighbor of the current node.
     bool IsNbrNId(const int& NId) const { return IsOutNId(NId) || IsInNId(NId); }
-    // edges
     /// Returns ID of EdgeN-th in-edge.
     int GetInEId(const int& EdgeN) const { return NodeHI.GetDat().GetInEId(EdgeN); }
     /// Returns ID of EdgeN-th out-edge.
@@ -742,21 +740,21 @@ public:
     bool IsOutEId(const int& EId) const { return NodeHI.GetDat().IsOutEId(EId); }
     /// Tests whether the edge with ID EId is an in or out-edge of current node.
     bool IsNbrEId(const int& EId) const { return IsInEId(EId) || IsOutEId(EId); }
-    // Gets vector of attribute types
+    /// Gets vector of attribute types.
     void GetAttrNames(TStrV& Names) const { Graph->AttrNameNI(GetId(), Names); }
-    // Gets vector of attribute values 
+    /// Gets vector of attribute values.
     void GetAttrValues(TStrV& Values) const { Graph->AttrValueNI(GetId(), Values); }
-    // Gets vector of int attribute types
+    /// Gets vector of int attribute types.
     void GetIntAttrNames(TStrV& Names) const { Graph->IntAttrNameNI(GetId(), Names); }
-    // Gets vector of int attribute values 
+    /// Gets vector of int attribute values.
     void GetIntAttrValues(TIntV& Values) const { Graph->IntAttrValueNI(GetId(), Values); }
-    // Gets vector of str attribute types
+    /// Gets vector of str attribute types.
     void GetStrAttrNames(TStrV& Names) const { Graph->StrAttrNameNI(GetId(), Names); }
-    // Gets vector of str attribute values 
+    /// Gets vector of str attribute values.
     void GetStrAttrValues(TStrV& Values) const { Graph->StrAttrValueNI(GetId(), Values); }
-    // Gets vector of flt attribute types
+    /// Gets vector of flt attribute types.
     void GetFltAttrNames(TStrV& Names) const { Graph->FltAttrNameNI(GetId(), Names); }
-    // Gets vector of flt attribute values 
+    /// Gets vector of flt attribute values.
     void GetFltAttrValues(TFltV& Values) const { Graph->FltAttrValueNI(GetId(), Values); }
     friend class TNEAGraph;
   };
@@ -781,21 +779,21 @@ public:
     int GetSrcNId() const { return EdgeHI.GetDat().GetSrcNId(); }
     /// Gets destination of an edge.
     int GetDstNId() const { return EdgeHI.GetDat().GetDstNId(); }
-    // Gets vector of attribute types
+    /// Gets vector of attribute types.
     void GetAttrNames(TStrV& Names) const { Graph->AttrNameEI(GetId(), Names); }
-    // Gets vector of attribute values 
+    /// Gets vector of attribute values.
     void GetAttrValues(TStrV& Values) const { Graph->AttrValueEI(GetId(), Values); }
-    // Gets vector of int attribute types
+    /// Gets vector of int attribute types.
     void GetIntAttrNames(TStrV& Names) const { Graph->IntAttrNameEI(GetId(), Names); }
-    // Gets vector of int attribute values 
+    /// Gets vector of int attribute values.
     void GetIntAttrValues(TIntV& Values) const { Graph->IntAttrValueEI(GetId(), Values); }
-    // Gets vector of str attribute types
+    /// Gets vector of str attribute types.
     void GetStrAttrNames(TStrV& Names) const { Graph->StrAttrNameEI(GetId(), Names); }
-    // Gets vector of str attribute values 
+    /// Gets vector of str attribute values.
     void GetStrAttrValues(TStrV& Values) const { Graph->StrAttrValueEI(GetId(), Values); }
-    // Gets vector of flt attribute types
+    /// Gets vector of flt attribute types.
     void GetFltAttrNames(TStrV& Names) const { Graph->FltAttrNameEI(GetId(), Names); }
-    // Gets vector of flt attribute values 
+    /// Gets vector of flt attribute values.
     void GetFltAttrValues(TFltV& Values) const { Graph->FltAttrValueEI(GetId(), Values); }
     friend class TNEAGraph;
   };
@@ -817,6 +815,7 @@ public:
     bool operator == (const TAIntI& I) const { return HI == I.HI; }
     /// Returns an attribute of the node.
     TInt GetDat() const { return HI[0]; }
+    /// Returns true if node or edge has been deleted.
     bool IsDeleted() const { return isNode ? GetDat() == Graph->GetIntAttrDefaultN(attr) : GetDat() == Graph->GetIntAttrDefaultE(attr); };
     TAIntI& operator++(int) { HI++; return *this; }
     friend class TNEAGraph;
@@ -839,6 +838,7 @@ public:
     bool operator == (const TAStrI& I) const { return HI == I.HI; }
     /// Returns an attribute of the node.
     TStr GetDat() const { return HI[0]; }
+    /// Returns true if node or edge has been deleted.
     bool IsDeleted() const { return isNode ? GetDat() == Graph->GetStrAttrDefaultN(attr) : GetDat() == Graph->GetStrAttrDefaultE(attr); };
     TAStrI& operator++(int) { HI++; return *this; }
     friend class TNEAGraph;
@@ -861,6 +861,7 @@ public:
     bool operator == (const TAFltI& I) const { return HI == I.HI; }
     /// Returns an attribute of the node.
     TFlt GetDat() const { return HI[0]; }
+    /// Returns true if node or edge has been deleted.
     bool IsDeleted() const { return isNode ? GetDat() == Graph->GetFltAttrDefaultN(attr) : GetDat() == Graph->GetFltAttrDefaultE(attr); };
     TAFltI& operator++(int) { HI++; return *this; }
     friend class TNEAGraph;
@@ -872,12 +873,17 @@ private:
   TEdge& GetEdge(const int& EId) { return EdgeH.GetDat(EId); }
   const TEdge& GetEdge(const int& EId) const { return EdgeH.GetDat(EId); }
 
-  // Get Attribute fns
+  /// Get Int node attribute val.  If not a proper attr, return default.
   TInt GetIntAttrDefaultN(const TStr& attribute) const { return IntDefaultsN.IsKey(attribute) ? IntDefaultsN.GetDat(attribute) : (TInt) TInt::Mn; }
+  /// Get Str node attribute val.  If not a proper attr, return default.
   TStr GetStrAttrDefaultN(const TStr& attribute) const { return StrDefaultsN.IsKey(attribute) ? StrDefaultsN.GetDat(attribute) : (TStr) TStr::GetNullStr(); }
+  /// Get Flt node attribute val.  If not a proper attr, return default.
   TFlt GetFltAttrDefaultN(const TStr& attribute) const { return FltDefaultsN.IsKey(attribute) ? FltDefaultsN.GetDat(attribute) : (TFlt) TFlt::Mn; }
+  /// Get Int edge attribute val.  If not a proper attr, return default.
   TInt GetIntAttrDefaultE(const TStr& attribute) const { return IntDefaultsE.IsKey(attribute) ? IntDefaultsE.GetDat(attribute) : (TInt) TInt::Mn; }
+  /// Get Str edge attribute val.  If not a proper attr, return default.
   TStr GetStrAttrDefaultE(const TStr& attribute) const { return StrDefaultsE.IsKey(attribute) ? StrDefaultsE.GetDat(attribute) : (TStr) TStr::GetNullStr(); }
+  /// Get Flt edge attribute val.  If not a proper attr, return default.
   TFlt GetFltAttrDefaultE(const TStr& attribute) const { return FltDefaultsE.IsKey(attribute) ? FltDefaultsE.GetDat(attribute) : (TFlt) TFlt::Mn; }
 
 private:
@@ -885,7 +891,9 @@ private:
   TInt MxNId, MxEId;
   THash<TInt, TNode> NodeH;
   THash<TInt, TEdge> EdgeH;
-  TStrIntPrH KeyToIndexTypeN, KeyToIndexTypeE; // Val1 = Type, Val2 = Index
+  /// KeyToIndexType[N|E]: Key->(Type,Index).
+  TStrIntPrH KeyToIndexTypeN, KeyToIndexTypeE;
+
   THash<TStr, TInt> IntDefaultsN, IntDefaultsE;
   THash<TStr, TStr> StrDefaultsN, StrDefaultsE;
   THash<TStr, TFlt> FltDefaultsN, FltDefaultsE;
@@ -1148,68 +1156,96 @@ public:
   /// Print the graph in a human readable form to an output stream OutF.
   void Dump(FILE *OutF=stdout) const;
 
-  // Attribute based add functions.
-  // adds the key value pair to the corresponding node attribute value vector.
+  /// Attribute based add function for attr to Int value. ##TNEAGraph::AddIntAttrDatN
   int AddIntAttrDatN(const TNodeI& NodeId, const TInt& value, const TStr& attr) { return AddIntAttrDatN(NodeId.GetId(), value, attr); }
   int AddIntAttrDatN(const int& NId, const TInt& value, const TStr& attr);
+  /// Attribute based add function for attr to Str value. ##TNEAGraph::AddStrAttrDatN
   int AddStrAttrDatN(const TNodeI& NodeId, const TStr& value, const TStr& attr) { return AddStrAttrDatN(NodeId.GetId(), value, attr); }
   int AddStrAttrDatN(const int& NId, const TStr& value, const TStr& attr);
+  /// Attribute based add function for attr to Flt value. ##TNEAGraph::AddFltAttrDatN
   int AddFltAttrDatN(const TNodeI& NodeId, const TFlt& value, const TStr& attr) { return AddFltAttrDatN(NodeId.GetId(), value, attr); }
   int AddFltAttrDatN(const int& NId, const TFlt& value, const TStr& attr);
 
-  // adds the key value pair to the corresponding edge attr value vector.
+  /// Attribute based add function for attr to Int value. ##TNEAGraph::AddIntAttrDatE
   int AddIntAttrDatE(const TEdgeI& EdgeId, const TInt& value, const TStr& attr) { return AddIntAttrDatE(EdgeId.GetId(), value, attr); }
   int AddIntAttrDatE(const int& EId, const TInt& value, const TStr& attr);
+  /// Attribute based add function for attr to Str value. ##TNEAGraph::AddStrAttrDatE
   int AddStrAttrDatE(const TEdgeI& EdgeId, const TStr& value, const TStr& attr) { return AddStrAttrDatE(EdgeId.GetId(), value, attr); }
   int AddStrAttrDatE(const int& EId, const TStr& value, const TStr& attr);
+  /// Attribute based add function for attr to Flt value. ##TNEAGraph::AddFltAttrDatE
   int AddFltAttrDatE(const TEdgeI& EdgeId, const TFlt& value, const TStr& attr) { return AddFltAttrDatE(EdgeId.GetId(), value, attr); }
   int AddFltAttrDatE(const int& EId, const TFlt& value, const TStr& attr);
 
-  // gets the value of a corresponding key from the corresponding attr value vector.
+  /// Gets the value of int attr from the node attr value vector.
   TInt GetIntAttrDatN(const TNodeI& NodeId, const TStr& attr) { return GetIntAttrDatN(NodeId.GetId(), attr); }
   TInt GetIntAttrDatN(const int& NId, const TStr& attr);
+  /// Gets the value of str attr from the node attr value vector.
   TStr GetStrAttrDatN(const TNodeI& NodeId, const TStr& attr) { return GetStrAttrDatN(NodeId.GetId(), attr); }
   TStr GetStrAttrDatN(const int& NId, const TStr& attr);
+  /// Gets the value of flt attr from the node attr value vector.
   TFlt GetFltAttrDatN(const TNodeI& NodeId, const TStr& attr) { return GetFltAttrDatN(NodeId.GetId(), attr); }
   TFlt GetFltAttrDatN(const int& NId, const TStr& attr);
 
+  /// Gets the value of int attr from the edge attr value vector.
   TInt GetIntAttrDatE(const TEdgeI& EdgeId, const TStr& attr) { return GetIntAttrDatE(EdgeId.GetId(), attr); }
   TInt GetIntAttrDatE(const int& EId, const TStr& attr);
+  /// Gets the value of str attr from the edge attr value vector.
   TStr GetStrAttrDatE(const TEdgeI& EdgeId, const TStr& attr) { return GetStrAttrDatE(EdgeId.GetId(), attr); }
   TStr GetStrAttrDatE(const int& EId, const TStr& attr);
+  /// Gets the value of flt attr from the edge attr value vector.
   TFlt GetFltAttrDatE(const TEdgeI& EdgeId, const TStr& attr) { return GetFltAttrDatE(EdgeId.GetId(), attr); }
   TFlt GetFltAttrDatE(const int& EId, const TStr& attr);
  
-  // deletes the key value pair from the corresponding attr value vector.
+  /// Deletes the node attribute for NodeId.
   int DelAttrDatN(const TNodeI& NodeId, const TStr& attr) { return DelAttrDatN(NodeId.GetId(), attr); } 
   int DelAttrDatN(const int& NId, const TStr& attr); 
+  /// Deletes the edge attribute for NodeId.
   int DelAttrDatE(const TEdgeI& EdgeId, const TStr& attr) { return DelAttrDatE(EdgeId.GetId(), attr); } 
   int DelAttrDatE(const int& EId, const TStr& attr); 
 
-  // adds a new attribute to the hashmap
+  /// Adds a new Int node attribute to the hashmap.
   int AddIntAttrN(const TStr& attr, TInt defaultValue=TInt::Mn);
+  /// Adds a new Str node attribute to the hashmap.
   int AddStrAttrN(const TStr& attr, TStr defaultValue=TStr::GetNullStr());
+  /// Adds a new Flt node attribute to the hashmap.
   int AddFltAttrN(const TStr& attr, TFlt defaultValue=TFlt::Mn);
+
+  /// Adds a new Int edge attribute to the hashmap.
   int AddIntAttrE(const TStr& attr, TInt defaultValue=TInt::Mn);
+  /// Adds a new Str edge attribute to the hashmap.
   int AddStrAttrE(const TStr& attr, TStr defaultValue=TStr::GetNullStr());
+  /// Adds a new Flt edge attribute to the hashmap.
   int AddFltAttrE(const TStr& attr, TFlt defaultValue=TFlt::Mn);
 
-  // removes all the key values pairs associated with the provided attribute
+  /// Removes all the values for node attr.
   int DelAttrN(const TStr& attr);
+  /// Removes all the values for edge  attr.
   int DelAttrE(const TStr& attr);
 
+  // Returns true if NId deleted for current node attr iterator.
   bool NodeAttrIsDeleted(const int& NId, const TStrIntPrH::TIter& NodeHI) const;
+  // Returns true if NId deleted for current node int attr iterator.
   bool NodeAttrIsIntDeleted(const int& NId, const TStrIntPrH::TIter& NodeHI) const;
+  // Returns true if NId deleted for current node str attr iterator.
   bool NodeAttrIsStrDeleted(const int& NId, const TStrIntPrH::TIter& NodeHI) const;
+  // Returns true if NId deleted for current node flt attr iterator.
   bool NodeAttrIsFltDeleted(const int& NId, const TStrIntPrH::TIter& NodeHI) const;
-  TStr GetNodeAttrValue(const int& NId, const TStrIntPrH::TIter& NodeHI) const;
+
+  // Returns true if EId deleted for current edge attr iterator.
   bool EdgeAttrIsDeleted(const int& EId, const TStrIntPrH::TIter& EdgeHI) const;
+  // Returns true if EId deleted for current edge int attr iterator.
   bool EdgeAttrIsIntDeleted(const int& EId, const TStrIntPrH::TIter& EdgeHI) const;
+  // Returns true if EId deleted for current edge str attr iterator.
   bool EdgeAttrIsStrDeleted(const int& EId, const TStrIntPrH::TIter& EdgeHI) const;
+  // Returns true if EId deleted for current edge flt attr iterator.
   bool EdgeAttrIsFltDeleted(const int& EId, const TStrIntPrH::TIter& EdgeHI) const;
+
+  // Returns node attribute value, converted to Str type.
+  TStr GetNodeAttrValue(const int& NId, const TStrIntPrH::TIter& NodeHI) const;
+  // Returns edge attribute value, converted to Str type.
   TStr GetEdgeAttrValue(const int& EId, const TStrIntPrH::TIter& EdgeHI) const;
  
-  // TODO implement and document TNEAGraph::GetSmallGraph()
+  /// TODO implement and document TNEAGraph::GetSmallGraph()
   static PNEGraph GetSmallGraph();
   friend class TPt<TNEAGraph>;
 };
