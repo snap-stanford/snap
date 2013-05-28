@@ -453,12 +453,12 @@ TEST(TNEAGraph, ManipulateNodesEdgeAttributes) {
       EXPECT_EQ(2,3);
     }
   }
-  /*
+
   Graph->AddIntAttrDatE(EId, 3*2, attr2);
   Graph->DelAttrE(attr1);
   Graph->AttrNameEI(EId, EIdAttrName);
   AttrLen = EIdAttrName.Len();
-  /*  for (i = 0; i < AttrLen; i++) {
+  for (i = 0; i < AttrLen; i++) {
     if (TStr::TStr("aaa") == EIdAttrName[i]()) {
       // FAIL
       EXPECT_EQ(2,3);
@@ -501,5 +501,4 @@ TEST(TNEAGraph, ManipulateNodesEdgeAttributes) {
 
   //Graph1->Dump();
   Graph1->Clr();
-  */
 }

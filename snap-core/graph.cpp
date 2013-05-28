@@ -835,9 +835,18 @@ void TNEAGraph::FltAttrValueEI(const TInt& EId, TStrIntPrH::TIter EdgeHI, TFltV&
 }
 
 bool TNEAGraph::EdgeAttrIsDeleted(const int& EId, const TStrIntPrH::TIter& EdgeHI) const {
-  bool IntDel = EdgeAttrIsIntDeleted(EId, EdgeHI);
-  bool StrDel = EdgeAttrIsStrDeleted(EId, EdgeHI);
-  bool FltDel = EdgeAttrIsFltDeleted(EId, EdgeHI);
+  bool IntDel = (EdgeHI.GetDat().Val1 == IntType &&
+		 TInt::Mn == this->VecOfIntVecsE.GetVal(
+							this->KeyToIndexTypeE.GetDat(EdgeHI.GetKey()).Val2).GetVal(EId));
+  bool StrDel = (EdgeHI.GetDat().Val1 == StrType &&
+		 TStr::GetNullStr() == this->VecOfStrVecsE.GetVal(
+								  this->KeyToIndexTypeE.GetDat(EdgeHI.GetKey()).Val2).GetVal(EId));
+  bool FltDel = (EdgeHI.GetDat().Val1 == FltType &&
+		 TFlt::Mn == this->VecOfFltVecsE.GetVal(
+							this->KeyToIndexTypeE.GetDat(EdgeHI.GetKey()).Val2).GetVal(EId));
+  //  bool IntDel = EdgeAttrIsIntDeleted(EId, EdgeHI);
+  //bool StrDel = EdgeAttrIsStrDeleted(EId, EdgeHI);
+  // bool FltDel = EdgeAttrIsFltDeleted(EId, EdgeHI);
   return IntDel || StrDel || FltDel;
 }
 
