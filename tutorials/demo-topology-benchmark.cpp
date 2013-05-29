@@ -147,63 +147,63 @@ int main(int argc, char* argv[]) {
 
     for (i = 0; i < 3; i++) {
       for (j = 0; j < 3; j++) {
-	clock_t start = clock();
-	NNodes = NodeArr[i];
-	NEdges = EdgeArr[j]*NodeArr[i];
-	switch (k) {
-      case 0:
-	printf("\nGenerating Graph...\n");
-	printf("GrGen ");
-	G1 = GenRndGnm<PNGraph>(NNodes, NEdges, true);
-	msec = (clock() - start) * 1000 / CLOCKS_PER_SEC;
-	printf("Nodes: %d Edges: %d Time: %d ms\n", NNodes, NEdges, msec);
-        file << NNodes << " " << NEdges << " " << msec << " ";
-	Benchmark(G1, file);
-	printf("Defragmenting...\n");
-	G1->Defrag();
-	Benchmark(G1, file);
-	G1->Clr();
-	break;
-      case 1:
-	printf("\nGenerating Graph...\n");
-	printf("GrGen ");
-	G2 = GenRndGnm<PUNGraph>(NNodes, NEdges, false);
-	msec = (clock() - start) * 1000 / CLOCKS_PER_SEC;
-	printf("Nodes: %d Edges: %d Time: %d ms\n", NNodes, NEdges, msec);
-        file << NNodes << " " << NEdges << " " << msec << " ";
-	Benchmark(G2, file);    
-	printf("Defragmenting...\n");
-	G2->Defrag();
-	Benchmark(G2, file);
-	G2->Clr();
-	break;
-      case 2:
-	printf("\nGenerating Graph...\n");
-	printf("GrGen ");
-	G3 = GenRndGnm<PNEGraph>(NNodes, NEdges, true);
-	msec = (clock() - start) * 1000 / CLOCKS_PER_SEC;
-	printf("Nodes: %d Edges: %d Time: %d ms\n", NNodes, NEdges, msec);
-        file << NNodes << " " << NEdges << " " << msec << " ";
-	Benchmark(G3, file);    
-	printf("Defragmenting...\n");
-	G3->Defrag();
-	Benchmark(G3, file);
-	G3->Clr();
-	break;
-      default:
-	printf("\nGenerating Graph...\n");
-	printf("GrGen ");
-	G4 = GenRndGnm<PNEAGraph>(NNodes, NEdges, true);
-	msec = (clock() - start) * 1000 / CLOCKS_PER_SEC;
-	printf("Nodes: %d Edges: %d Time: %d ms\n", NNodes, NEdges, msec);
-        file << NNodes << " " << NEdges << " " << msec << " ";
-	Benchmark(G4, file);    
-	printf("Defragmenting...\n");
-	G4->Defrag();
-	Benchmark(G4, file);
-	G4->Clr();
-	break;
-	}
+	      clock_t start = clock();
+	      NNodes = NodeArr[i];
+	      NEdges = EdgeArr[j]*NodeArr[i];
+	      switch (k) {
+          case 0:
+            printf("\nGenerating Graph...\n");
+	          printf("GrGen ");
+	          G1 = GenRndGnm<PNGraph>(NNodes, NEdges, true);
+	          msec = (clock() - start) * 1000 / CLOCKS_PER_SEC;
+	          printf("Nodes: %d Edges: %d Time: %d ms\n", NNodes, NEdges, msec);
+            file << NNodes << " " << NEdges << " " << msec << " ";
+	          Benchmark(G1, file);
+	          printf("Defragmenting...\n");
+	          G1->Defrag();
+	          Benchmark(G1, file);
+	          G1->Clr();
+	          break;
+          case 1:
+	          printf("\nGenerating Graph...\n");
+	          printf("GrGen ");
+	          G2 = GenRndGnm<PUNGraph>(NNodes, NEdges, false);
+	          msec = (clock() - start) * 1000 / CLOCKS_PER_SEC;
+	          printf("Nodes: %d Edges: %d Time: %d ms\n", NNodes, NEdges, msec);
+            file << NNodes << " " << NEdges << " " << msec << " ";
+	          Benchmark(G2, file);    
+	          printf("Defragmenting...\n");
+	          G2->Defrag();
+	          Benchmark(G2, file);
+	          G2->Clr();
+	          break;
+          case 2:
+	          printf("\nGenerating Graph...\n");
+	          printf("GrGen ");
+	          G3 = GenRndGnm<PNEGraph>(NNodes, NEdges, true);
+	          msec = (clock() - start) * 1000 / CLOCKS_PER_SEC;
+	          printf("Nodes: %d Edges: %d Time: %d ms\n", NNodes, NEdges, msec);
+            file << NNodes << " " << NEdges << " " << msec << " ";
+	          Benchmark(G3, file);    
+	          printf("Defragmenting...\n");
+	          G3->Defrag();
+	          Benchmark(G3, file);
+	          G3->Clr();
+	          break;
+          default:
+	          printf("\nGenerating Graph...\n");
+	          printf("GrGen ");
+	          G4 = GenRndGnm<PNEAGraph>(NNodes, NEdges, true);
+	          msec = (clock() - start) * 1000 / CLOCKS_PER_SEC;
+	          printf("Nodes: %d Edges: %d Time: %d ms\n", NNodes, NEdges, msec);
+            file << NNodes << " " << NEdges << " " << msec << " ";
+	          Benchmark(G4, file);    
+	          printf("Defragmenting...\n");
+	          G4->Defrag();
+	          Benchmark(G4, file);
+	          G4->Clr();
+	          break;
+	      }
         file << "\n";
       }
     }
