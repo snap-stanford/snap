@@ -6,13 +6,14 @@ include ../Makefile.config
 
 ## Main application file
 DEMOS = \
-	demo-TUNGraph demo-TNGraph demo-TNEAGraph\
-	demo-TNEGraph demo-TNodeNet demo-TNodeEDatNet demo-TNodeEdgeNet \
+	demo-TUNGraph demo-TNGraph demo-TNEGraph demo-TNEAGraph \
+	demo-TNodeNet demo-TNodeEDatNet demo-TNodeEdgeNet \
 	demo-subgraph demo-ggen \
 	demo-gio demo-gviz \
 	demo-cncom demo-bfsdfs \
 	demo-triad \
-	demo-THash
+	demo-THash \
+	demo-topology-benchmark
 
 all: $(DEMOS)
 
