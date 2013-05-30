@@ -27,6 +27,7 @@ typedef TPt<TTable> PTable;
 class TTable{
 public:
   typedef enum {INT, FLT, STR} TYPE;   // must be consistent with TYPE definition in TPredicate
+  typedef enum {LT = 0, LTE, EQ, NEQ, GTE, GT} COMP;
   typedef TVec<TPair<TStr, TYPE> > Schema; 
 protected:
   // special values for Next column
@@ -238,6 +239,12 @@ public:
 	void Unique(TStr col);
 	// select - remove rows for which the given predicate doesn't hold
 	void Select(TPredicate& Predicate);
+
+        // select atomic - remove rows for which the comparison doesn't hold
+        void SelectAtomic(TStr Col1, TStr Col2, COMP Cmp);
+        void SelectAtomicIntConst(TStr Col1, TInt Val2, COMP Cmp);
+        void SelectAtomicStrConst(TStr Col1, TStr Val2, COMP Cmp);
+        void SelectAtomicFltConst(TStr Col1, TFlt Val2, COMP Cmp);
 	
 	// group by the values of the columns specified in "GroupBy" vector 
 	// group indices are stored in GroupCol; Implementation: use GroupMapping hash
@@ -269,6 +276,20 @@ public:
  void BuildGraphTopology(PNEANet& Graph, THash<TFlt, TInt>& FSrNodeMap, THash<TFlt, TInt>& FDsNodeMap);
  void AddNodeAttributes(PNEANet& Graph, THash<TFlt, TInt>& FSrNodeMap, THash<TFlt, TInt>& FDsNodeMap);
  void AddEdgeAttributes(PNEANet& Graph);
+
+ template <class T>
+ TBool EvalSelectAtomic(T Val1, T Val2, COMP Cmp) {
+   switch(Cmp){
+     case LT: return Val1 < Val2;
+     case LTE: return Val1 <= Val2;
+     case EQ: return Val1 == Val2;
+     case NEQ: return Val1 != Val2;
+     case GTE: return Val1 >= Val2; 
+     case GT: return Val1 > Val2;
+   }
+   return false;
+ }
+ 
 
   friend class TPt<TTable>;
 };
