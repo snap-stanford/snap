@@ -1,10 +1,10 @@
 /////////////////////////////////////////////////
-// Attribute Node Edge Graph
-bool TNEAGraph::HasFlag(const TGraphFlag& Flag) const {
-  return HasGraphFlag(TNEAGraph::TNet, Flag);
+// Attribute Node Edge Network
+bool TNEANet::HasFlag(const TGraphFlag& Flag) const {
+  return HasGraphFlag(TNEANet::TNet, Flag);
 }
 
-bool TNEAGraph::TNodeI::IsInNId(const int& NId) const {
+bool TNEANet::TNodeI::IsInNId(const int& NId) const {
   const TNode& Node = NodeHI.GetDat();
   for (int edge = 0; edge < Node.GetInDeg(); edge++) {
     if (NId == Graph->GetEdge(Node.GetInEId(edge)).GetSrcNId())
@@ -13,7 +13,7 @@ bool TNEAGraph::TNodeI::IsInNId(const int& NId) const {
   return false;
 }
 
-bool TNEAGraph::TNodeI::IsOutNId(const int& NId) const {
+bool TNEANet::TNodeI::IsOutNId(const int& NId) const {
   const TNode& Node = NodeHI.GetDat();
   for (int edge = 0; edge < Node.GetOutDeg(); edge++) {
     if (NId == Graph->GetEdge(Node.GetOutEId(edge)).GetDstNId())
@@ -22,7 +22,7 @@ bool TNEAGraph::TNodeI::IsOutNId(const int& NId) const {
   return false;
 }
 
-void TNEAGraph::AttrNameNI(const TInt& NId, TStrIntPrH::TIter NodeHI, TStrV& Names) const {
+void TNEANet::AttrNameNI(const TInt& NId, TStrIntPrH::TIter NodeHI, TStrV& Names) const {
   Names = TVec<TStr>();
   while (!NodeHI.IsEnd()) {
     if (!NodeAttrIsDeleted(NId, NodeHI)) {
@@ -32,7 +32,7 @@ void TNEAGraph::AttrNameNI(const TInt& NId, TStrIntPrH::TIter NodeHI, TStrV& Nam
   }  
 }
 
-void TNEAGraph::AttrValueNI(const TInt& NId , TStrIntPrH::TIter NodeHI, TStrV& Values) const {
+void TNEANet::AttrValueNI(const TInt& NId , TStrIntPrH::TIter NodeHI, TStrV& Values) const {
   Values = TVec<TStr>();
   while (!NodeHI.IsEnd()) {
     if (!NodeAttrIsDeleted(NId, NodeHI)) {
@@ -42,7 +42,7 @@ void TNEAGraph::AttrValueNI(const TInt& NId , TStrIntPrH::TIter NodeHI, TStrV& V
   }
 }
 
-void TNEAGraph::IntAttrNameNI(const TInt& NId, TStrIntPrH::TIter NodeHI, TStrV& Names) const {
+void TNEANet::IntAttrNameNI(const TInt& NId, TStrIntPrH::TIter NodeHI, TStrV& Names) const {
   Names = TVec<TStr>();
   while (!NodeHI.IsEnd()) {
     if (NodeHI.GetDat().Val1 == IntType && !NodeAttrIsIntDeleted(NId, NodeHI)) {
@@ -52,7 +52,7 @@ void TNEAGraph::IntAttrNameNI(const TInt& NId, TStrIntPrH::TIter NodeHI, TStrV& 
   }  
 }
 
-void TNEAGraph::IntAttrValueNI(const TInt& NId, TStrIntPrH::TIter NodeHI, TIntV& Values) const {
+void TNEANet::IntAttrValueNI(const TInt& NId, TStrIntPrH::TIter NodeHI, TIntV& Values) const {
   Values = TVec<TInt>();
   while (!NodeHI.IsEnd()) {
     if (NodeHI.GetDat().Val1 == IntType && !NodeAttrIsIntDeleted(NId, NodeHI)) {
@@ -63,7 +63,7 @@ void TNEAGraph::IntAttrValueNI(const TInt& NId, TStrIntPrH::TIter NodeHI, TIntV&
   }  
 }
 
-void TNEAGraph::StrAttrNameNI(const TInt& NId, TStrIntPrH::TIter NodeHI, TStrV& Names) const {
+void TNEANet::StrAttrNameNI(const TInt& NId, TStrIntPrH::TIter NodeHI, TStrV& Names) const {
   Names = TVec<TStr>();
   while (!NodeHI.IsEnd()) {
     if (NodeHI.GetDat().Val1 == StrType && !NodeAttrIsStrDeleted(NId, NodeHI)) {
@@ -73,7 +73,7 @@ void TNEAGraph::StrAttrNameNI(const TInt& NId, TStrIntPrH::TIter NodeHI, TStrV& 
   }  
 }
 
-void TNEAGraph::StrAttrValueNI(const TInt& NId, TStrIntPrH::TIter NodeHI, TStrV& Values) const {
+void TNEANet::StrAttrValueNI(const TInt& NId, TStrIntPrH::TIter NodeHI, TStrV& Values) const {
   Values = TVec<TStr>();
   while (!NodeHI.IsEnd()) {
     if (NodeHI.GetDat().Val1 == StrType && !NodeAttrIsStrDeleted(NId, NodeHI)) {
@@ -84,7 +84,7 @@ void TNEAGraph::StrAttrValueNI(const TInt& NId, TStrIntPrH::TIter NodeHI, TStrV&
   }  
 }
 
-void TNEAGraph::FltAttrNameNI(const TInt& NId, TStrIntPrH::TIter NodeHI, TStrV& Names) const {
+void TNEANet::FltAttrNameNI(const TInt& NId, TStrIntPrH::TIter NodeHI, TStrV& Names) const {
   Names = TVec<TStr>();
   while (!NodeHI.IsEnd()) {
     if (NodeHI.GetDat().Val1 == FltType && !NodeAttrIsFltDeleted(NId, NodeHI)) {
@@ -94,7 +94,7 @@ void TNEAGraph::FltAttrNameNI(const TInt& NId, TStrIntPrH::TIter NodeHI, TStrV& 
   }  
 }
 
-void TNEAGraph::FltAttrValueNI(const TInt& NId, TStrIntPrH::TIter NodeHI, TFltV& Values) const {
+void TNEANet::FltAttrValueNI(const TInt& NId, TStrIntPrH::TIter NodeHI, TFltV& Values) const {
   Values = TVec<TFlt>();
   while (!NodeHI.IsEnd()) {
     if (NodeHI.GetDat().Val1 == FltType && !NodeAttrIsFltDeleted(NId, NodeHI)) {
@@ -105,32 +105,32 @@ void TNEAGraph::FltAttrValueNI(const TInt& NId, TStrIntPrH::TIter NodeHI, TFltV&
   }  
 }
 
-bool TNEAGraph::NodeAttrIsDeleted(const int& NId, const TStrIntPrH::TIter& NodeHI) const {
+bool TNEANet::NodeAttrIsDeleted(const int& NId, const TStrIntPrH::TIter& NodeHI) const {
   bool IntDel = NodeAttrIsIntDeleted(NId, NodeHI);
   bool StrDel = NodeAttrIsStrDeleted(NId, NodeHI);
   bool FltDel = NodeAttrIsFltDeleted(NId, NodeHI);
   return IntDel || StrDel || FltDel;
 }
 
-bool TNEAGraph::NodeAttrIsIntDeleted(const int& NId, const TStrIntPrH::TIter& NodeHI) const {
+bool TNEANet::NodeAttrIsIntDeleted(const int& NId, const TStrIntPrH::TIter& NodeHI) const {
   return (NodeHI.GetDat().Val1 == IntType &&
     GetIntAttrDefaultN(NodeHI.GetKey()) == this->VecOfIntVecsN.GetVal(
     this->KeyToIndexTypeN.GetDat(NodeHI.GetKey()).Val2).GetVal(NId));
 }
 
-bool TNEAGraph::NodeAttrIsStrDeleted(const int& NId, const TStrIntPrH::TIter& NodeHI) const {
+bool TNEANet::NodeAttrIsStrDeleted(const int& NId, const TStrIntPrH::TIter& NodeHI) const {
   return (NodeHI.GetDat().Val1 == StrType &&
     GetStrAttrDefaultN(NodeHI.GetKey()) == this->VecOfStrVecsN.GetVal(
     this->KeyToIndexTypeN.GetDat(NodeHI.GetKey()).Val2).GetVal(NId));
 }
 
-bool TNEAGraph::NodeAttrIsFltDeleted(const int& NId, const TStrIntPrH::TIter& NodeHI) const {
+bool TNEANet::NodeAttrIsFltDeleted(const int& NId, const TStrIntPrH::TIter& NodeHI) const {
   return (NodeHI.GetDat().Val1 == FltType &&
     GetFltAttrDefaultN(NodeHI.GetKey()) == this->VecOfFltVecsN.GetVal(
     this->KeyToIndexTypeN.GetDat(NodeHI.GetKey()).Val2).GetVal(NId));
 }
 
-TStr TNEAGraph::GetNodeAttrValue(const int& NId, const TStrIntPrH::TIter& NodeHI) const {
+TStr TNEANet::GetNodeAttrValue(const int& NId, const TStrIntPrH::TIter& NodeHI) const {
   if (NodeHI.GetDat().Val1 == IntType) {
     return (this->VecOfIntVecsN.GetVal(
       this->KeyToIndexTypeN.GetDat(NodeHI.GetKey()).Val2).GetVal(NId)).GetStr();
@@ -144,7 +144,7 @@ TStr TNEAGraph::GetNodeAttrValue(const int& NId, const TStrIntPrH::TIter& NodeHI
   return TStr::GetNullStr();
 }
 
-void TNEAGraph::AttrNameEI(const TInt& EId, TStrIntPrH::TIter EdgeHI, TStrV& Names) const {
+void TNEANet::AttrNameEI(const TInt& EId, TStrIntPrH::TIter EdgeHI, TStrV& Names) const {
   Names = TVec<TStr>();
   while (!EdgeHI.IsEnd()) {
     if (!EdgeAttrIsDeleted(EId, EdgeHI)) {
@@ -154,7 +154,7 @@ void TNEAGraph::AttrNameEI(const TInt& EId, TStrIntPrH::TIter EdgeHI, TStrV& Nam
   }  
 }
 
-void TNEAGraph::AttrValueEI(const TInt& EId, TStrIntPrH::TIter EdgeHI, TStrV& Values) const {
+void TNEANet::AttrValueEI(const TInt& EId, TStrIntPrH::TIter EdgeHI, TStrV& Values) const {
   Values = TVec<TStr>();
   while (!EdgeHI.IsEnd()) {
     if (!EdgeAttrIsDeleted(EId, EdgeHI)) {
@@ -164,7 +164,7 @@ void TNEAGraph::AttrValueEI(const TInt& EId, TStrIntPrH::TIter EdgeHI, TStrV& Va
   }  
 }
 
-void TNEAGraph::IntAttrNameEI(const TInt& EId, TStrIntPrH::TIter EdgeHI, TStrV& Names) const {
+void TNEANet::IntAttrNameEI(const TInt& EId, TStrIntPrH::TIter EdgeHI, TStrV& Names) const {
   Names = TVec<TStr>();
   while (!EdgeHI.IsEnd()) {
     if (EdgeHI.GetDat().Val1 == IntType && !EdgeAttrIsIntDeleted(EId, EdgeHI)) {
@@ -174,7 +174,7 @@ void TNEAGraph::IntAttrNameEI(const TInt& EId, TStrIntPrH::TIter EdgeHI, TStrV& 
   }  
 }
 
-void TNEAGraph::IntAttrValueEI(const TInt& EId, TStrIntPrH::TIter EdgeHI, TIntV& Values) const {
+void TNEANet::IntAttrValueEI(const TInt& EId, TStrIntPrH::TIter EdgeHI, TIntV& Values) const {
   Values = TVec<TInt>();
   while (!EdgeHI.IsEnd()) {
     if (EdgeHI.GetDat().Val1 == IntType && !EdgeAttrIsIntDeleted(EId, EdgeHI)) {
@@ -185,7 +185,7 @@ void TNEAGraph::IntAttrValueEI(const TInt& EId, TStrIntPrH::TIter EdgeHI, TIntV&
   }  
 }
 
-void TNEAGraph::StrAttrNameEI(const TInt& EId, TStrIntPrH::TIter EdgeHI, TStrV& Names) const {
+void TNEANet::StrAttrNameEI(const TInt& EId, TStrIntPrH::TIter EdgeHI, TStrV& Names) const {
   Names = TVec<TStr>();
   while (!EdgeHI.IsEnd()) {
     if (EdgeHI.GetDat().Val1 == StrType && !EdgeAttrIsStrDeleted(EId, EdgeHI)) {
@@ -195,7 +195,7 @@ void TNEAGraph::StrAttrNameEI(const TInt& EId, TStrIntPrH::TIter EdgeHI, TStrV& 
   }  
 }
 
-void TNEAGraph::StrAttrValueEI(const TInt& EId, TStrIntPrH::TIter EdgeHI, TStrV& Values) const {
+void TNEANet::StrAttrValueEI(const TInt& EId, TStrIntPrH::TIter EdgeHI, TStrV& Values) const {
   Values = TVec<TStr>();
   while (!EdgeHI.IsEnd()) {
     if (EdgeHI.GetDat().Val1 == StrType && !EdgeAttrIsStrDeleted(EId, EdgeHI)) {
@@ -206,7 +206,7 @@ void TNEAGraph::StrAttrValueEI(const TInt& EId, TStrIntPrH::TIter EdgeHI, TStrV&
   }  
 }
 
-void TNEAGraph::FltAttrNameEI(const TInt& EId, TStrIntPrH::TIter EdgeHI, TStrV& Names) const {
+void TNEANet::FltAttrNameEI(const TInt& EId, TStrIntPrH::TIter EdgeHI, TStrV& Names) const {
   Names = TVec<TStr>();
   while (!EdgeHI.IsEnd()) {
     if (EdgeHI.GetDat().Val1 == FltType && !EdgeAttrIsFltDeleted(EId, EdgeHI)) {
@@ -216,7 +216,7 @@ void TNEAGraph::FltAttrNameEI(const TInt& EId, TStrIntPrH::TIter EdgeHI, TStrV& 
   }  
 }
 
-void TNEAGraph::FltAttrValueEI(const TInt& EId, TStrIntPrH::TIter EdgeHI, TFltV& Values) const {
+void TNEANet::FltAttrValueEI(const TInt& EId, TStrIntPrH::TIter EdgeHI, TFltV& Values) const {
   Values = TVec<TFlt>();
   while (!EdgeHI.IsEnd()) {
     if (EdgeHI.GetDat().Val1 == FltType && !EdgeAttrIsFltDeleted(EId, EdgeHI)) {
@@ -227,32 +227,32 @@ void TNEAGraph::FltAttrValueEI(const TInt& EId, TStrIntPrH::TIter EdgeHI, TFltV&
   }  
 }
 
-bool TNEAGraph::EdgeAttrIsDeleted(const int& EId, const TStrIntPrH::TIter& EdgeHI) const {
+bool TNEANet::EdgeAttrIsDeleted(const int& EId, const TStrIntPrH::TIter& EdgeHI) const {
   bool IntDel = EdgeAttrIsIntDeleted(EId, EdgeHI);
   bool StrDel = EdgeAttrIsStrDeleted(EId, EdgeHI);
   bool FltDel = EdgeAttrIsFltDeleted(EId, EdgeHI);
   return IntDel || StrDel || FltDel;
 }
 
-bool TNEAGraph::EdgeAttrIsIntDeleted(const int& EId, const TStrIntPrH::TIter& EdgeHI) const {
+bool TNEANet::EdgeAttrIsIntDeleted(const int& EId, const TStrIntPrH::TIter& EdgeHI) const {
   return (EdgeHI.GetDat().Val1 == IntType &&
     GetIntAttrDefaultE(EdgeHI.GetKey()) == this->VecOfIntVecsE.GetVal(
     this->KeyToIndexTypeE.GetDat(EdgeHI.GetKey()).Val2).GetVal(EId));
 }
 
-bool TNEAGraph::EdgeAttrIsStrDeleted(const int& EId, const TStrIntPrH::TIter& EdgeHI) const {
+bool TNEANet::EdgeAttrIsStrDeleted(const int& EId, const TStrIntPrH::TIter& EdgeHI) const {
   return (EdgeHI.GetDat().Val1 == StrType &&
     GetStrAttrDefaultE(EdgeHI.GetKey()) == this->VecOfStrVecsE.GetVal(
     this->KeyToIndexTypeE.GetDat(EdgeHI.GetKey()).Val2).GetVal(EId));
 }
 
-bool TNEAGraph::EdgeAttrIsFltDeleted(const int& EId, const TStrIntPrH::TIter& EdgeHI) const {
+bool TNEANet::EdgeAttrIsFltDeleted(const int& EId, const TStrIntPrH::TIter& EdgeHI) const {
   return (EdgeHI.GetDat().Val1 == FltType &&
     GetFltAttrDefaultE(EdgeHI.GetKey()) == this->VecOfFltVecsE.GetVal(
     this->KeyToIndexTypeE.GetDat(EdgeHI.GetKey()).Val2).GetVal(EId));
 }
 
-TStr TNEAGraph::GetEdgeAttrValue(const int& EId, const TStrIntPrH::TIter& EdgeHI) const {
+TStr TNEANet::GetEdgeAttrValue(const int& EId, const TStrIntPrH::TIter& EdgeHI) const {
   if (EdgeHI.GetDat().Val1 == IntType) {
     return (this->VecOfIntVecsE.GetVal(
       this->KeyToIndexTypeE.GetDat(EdgeHI.GetKey()).Val2).GetVal(EId)).GetStr();
@@ -266,7 +266,7 @@ TStr TNEAGraph::GetEdgeAttrValue(const int& EId, const TStrIntPrH::TIter& EdgeHI
   return TStr::GetNullStr();
 }
 
-int TNEAGraph::AddNode(int NId) {
+int TNEANet::AddNode(int NId) {
   int i;
   if (NId == -1) {
     NId = MxNId;  MxNId++;
@@ -312,7 +312,7 @@ int TNEAGraph::AddNode(int NId) {
   return NId;
 }
 
-void TNEAGraph::DelNode(const int& NId) {
+void TNEANet::DelNode(const int& NId) {
   int i;
   
   const TNode& Node = GetNode(NId);
@@ -372,7 +372,7 @@ void TNEAGraph::DelNode(const int& NId) {
   NodeH.DelKey(NId);
 }
 
-int TNEAGraph::AddEdge(const int& SrcNId, const int& DstNId, int EId) {
+int TNEANet::AddEdge(const int& SrcNId, const int& DstNId, int EId) {
   int i;
 
   if (EId == -1) { EId = MxEId;  MxEId++; }
@@ -422,7 +422,7 @@ int TNEAGraph::AddEdge(const int& SrcNId, const int& DstNId, int EId) {
   return EId;
 }
 
-void TNEAGraph::DelEdge(const int& EId) {
+void TNEANet::DelEdge(const int& EId) {
   int i;
 
   IAssert(IsEdge(EId));
@@ -447,7 +447,7 @@ void TNEAGraph::DelEdge(const int& EId) {
 }
 
 // delete all edges between the two nodes
-void TNEAGraph::DelEdge(const int& SrcNId, const int& DstNId, const bool& IsDir) {
+void TNEANet::DelEdge(const int& SrcNId, const int& DstNId, const bool& IsDir) {
   int EId;
   IAssert(IsEdge(SrcNId, DstNId, EId, IsDir)); // there is at least one edge
   while (IsEdge(SrcNId, DstNId, EId, IsDir)) {
@@ -457,7 +457,7 @@ void TNEAGraph::DelEdge(const int& SrcNId, const int& DstNId, const bool& IsDir)
   EdgeH.DelKey(EId);
 }
 
-bool TNEAGraph::IsEdge(const int& SrcNId, const int& DstNId, int& EId, const bool& IsDir) const {
+bool TNEANet::IsEdge(const int& SrcNId, const int& DstNId, int& EId, const bool& IsDir) const {
   const TNode& SrcNode = GetNode(SrcNId);
   for (int edge = 0; edge < SrcNode.GetOutDeg(); edge++) {
     const TEdge& Edge = GetEdge(SrcNode.GetOutEId(edge));
@@ -478,21 +478,21 @@ bool TNEAGraph::IsEdge(const int& SrcNId, const int& DstNId, int& EId, const boo
   return false;
 }
 
-void TNEAGraph::GetNIdV(TIntV& NIdV) const {
+void TNEANet::GetNIdV(TIntV& NIdV) const {
   NIdV.Gen(GetNodes(), 0);
   for (int N=NodeH.FFirstKeyId(); NodeH.FNextKeyId(N); ) {
     NIdV.Add(NodeH.GetKey(N));
   }
 }
 
-void TNEAGraph::GetEIdV(TIntV& EIdV) const {
+void TNEANet::GetEIdV(TIntV& EIdV) const {
   EIdV.Gen(GetEdges(), 0);
   for (int E=EdgeH.FFirstKeyId(); EdgeH.FNextKeyId(E); ) {
     EIdV.Add(EdgeH.GetKey(E));
   }
 }
 
-void TNEAGraph::Defrag(const bool& OnlyNodeLinks) {
+void TNEANet::Defrag(const bool& OnlyNodeLinks) {
   for (int kid = NodeH.FFirstKeyId(); NodeH.FNextKeyId(kid); ) {
     TNode& Node = NodeH[kid];
     Node.InEIdV.Pack();  Node.OutEIdV.Pack();
@@ -501,7 +501,7 @@ void TNEAGraph::Defrag(const bool& OnlyNodeLinks) {
   if (! OnlyNodeLinks && ! EdgeH.IsKeyIdEqKeyN()) { EdgeH.Defrag(); }
 }
 
-bool TNEAGraph::IsOk(const bool& ThrowExcept) const {
+bool TNEANet::IsOk(const bool& ThrowExcept) const {
   bool RetVal = true;
   for (int N = NodeH.FFirstKeyId(); NodeH.FNextKeyId(N); ) {
     const TNode& Node = NodeH[N];
@@ -554,10 +554,10 @@ bool TNEAGraph::IsOk(const bool& ThrowExcept) const {
   return RetVal;
 }
 
-void TNEAGraph::Dump(FILE *OutF) const {
+void TNEANet::Dump(FILE *OutF) const {
   const int NodePlaces = (int) ceil(log10((double) GetNodes()));
   const int EdgePlaces = (int) ceil(log10((double) GetEdges()));
-  fprintf(OutF, "-------------------------------------------------\nDirected Node-Edge Graph: nodes: %d, edges: %d\n", GetNodes(), GetEdges());
+  fprintf(OutF, "-------------------------------------------------\nDirected Node-Edge Network: nodes: %d, edges: %d\n", GetNodes(), GetEdges());
   for (TNodeI NodeI = BegNI(); NodeI < EndNI(); NodeI++) {
     fprintf(OutF, "  %*d]\n", NodePlaces, NodeI.GetId());
     // load node attributes
@@ -611,7 +611,7 @@ void TNEAGraph::Dump(FILE *OutF) const {
 
 // Attribute related function
 
-int TNEAGraph::AddIntAttrDatN(const int& NId, const TInt& value, const TStr& attr) {
+int TNEANet::AddIntAttrDatN(const int& NId, const TInt& value, const TStr& attr) {
   int i;
   TInt CurrLen;
   if (!IsNode(NId)) {
@@ -634,7 +634,7 @@ int TNEAGraph::AddIntAttrDatN(const int& NId, const TInt& value, const TStr& att
   return 0;
 } 
 
-int TNEAGraph::AddStrAttrDatN(const int& NId, const TStr& value, const TStr& attr) {
+int TNEANet::AddStrAttrDatN(const int& NId, const TStr& value, const TStr& attr) {
   int i;
   TInt CurrLen;
   if (!IsNode(NId)) {
@@ -657,7 +657,7 @@ int TNEAGraph::AddStrAttrDatN(const int& NId, const TStr& value, const TStr& att
   return 0;
 } 
 
-int TNEAGraph::AddFltAttrDatN(const int& NId, const TFlt& value, const TStr& attr) {
+int TNEANet::AddFltAttrDatN(const int& NId, const TFlt& value, const TStr& attr) {
   int i;
   TInt CurrLen;
 
@@ -681,7 +681,7 @@ int TNEAGraph::AddFltAttrDatN(const int& NId, const TFlt& value, const TStr& att
   return 0;
 } 
 
-int TNEAGraph::AddIntAttrDatE(const int& EId, const TInt& value, const TStr& attr) {
+int TNEANet::AddIntAttrDatE(const int& EId, const TInt& value, const TStr& attr) {
   int i;
   TInt CurrLen;
   if (!IsEdge(EId)) {
@@ -704,7 +704,7 @@ int TNEAGraph::AddIntAttrDatE(const int& EId, const TInt& value, const TStr& att
   return 0;
 } 
 
-int TNEAGraph::AddStrAttrDatE(const int& EId, const TStr& value, const TStr& attr) {
+int TNEANet::AddStrAttrDatE(const int& EId, const TStr& value, const TStr& attr) {
   int i;
   TInt CurrLen;
   if (!IsEdge(EId)) {
@@ -727,7 +727,7 @@ int TNEAGraph::AddStrAttrDatE(const int& EId, const TStr& value, const TStr& att
   return 0;
 } 
 
-int TNEAGraph::AddFltAttrDatE(const int& EId, const TFlt& value, const TStr& attr) {
+int TNEANet::AddFltAttrDatE(const int& EId, const TFlt& value, const TStr& attr) {
   int i;
   TInt CurrLen;
 
@@ -751,31 +751,31 @@ int TNEAGraph::AddFltAttrDatE(const int& EId, const TFlt& value, const TStr& att
   return 0;
 } 
 
-TInt TNEAGraph::GetIntAttrDatN(const int& NId, const TStr& attr) {
+TInt TNEANet::GetIntAttrDatN(const int& NId, const TStr& attr) {
   return VecOfIntVecsN[KeyToIndexTypeN.GetDat(attr).Val2][NId];
 }
 
-TStr TNEAGraph::GetStrAttrDatN(const int& NId, const TStr& attr) {
+TStr TNEANet::GetStrAttrDatN(const int& NId, const TStr& attr) {
   return VecOfStrVecsN[KeyToIndexTypeN.GetDat(attr).Val2][NId];
 }
 
-TFlt TNEAGraph::GetFltAttrDatN(const int& NId, const TStr& attr) {
+TFlt TNEANet::GetFltAttrDatN(const int& NId, const TStr& attr) {
   return VecOfFltVecsN[KeyToIndexTypeN.GetDat(attr).Val2][NId];
 }
 
-TInt TNEAGraph::GetIntAttrDatE(const int& EId, const TStr& attr) {
+TInt TNEANet::GetIntAttrDatE(const int& EId, const TStr& attr) {
   return VecOfIntVecsE[KeyToIndexTypeE.GetDat(attr).Val2][EId];
 }
 
-TStr TNEAGraph::GetStrAttrDatE(const int& EId, const TStr& attr) {
+TStr TNEANet::GetStrAttrDatE(const int& EId, const TStr& attr) {
   return VecOfStrVecsE[KeyToIndexTypeE.GetDat(attr).Val2][EId];
 }
 
-TFlt TNEAGraph::GetFltAttrDatE(const int& EId, const TStr& attr) {
+TFlt TNEANet::GetFltAttrDatE(const int& EId, const TStr& attr) {
   return VecOfFltVecsE[KeyToIndexTypeE.GetDat(attr).Val2][EId];
 }
 
-int TNEAGraph::DelAttrDatN(const int& NId, const TStr& attr) {
+int TNEANet::DelAttrDatN(const int& NId, const TStr& attr) {
   TInt vecType = KeyToIndexTypeN(attr).Val1;
   if (vecType == IntType) {
     VecOfIntVecsN[KeyToIndexTypeN.GetDat(attr).Val2][NId] = GetIntAttrDefaultN(attr);
@@ -789,7 +789,7 @@ int TNEAGraph::DelAttrDatN(const int& NId, const TStr& attr) {
   return 0;
 }
 			       
-int TNEAGraph::DelAttrDatE(const int& EId, const TStr& attr) {
+int TNEANet::DelAttrDatE(const int& EId, const TStr& attr) {
   // TODO(nkhadke): add error checking
   TInt vecType = KeyToIndexTypeE(attr).Val1;
   if (vecType == IntType) {
@@ -804,7 +804,7 @@ int TNEAGraph::DelAttrDatE(const int& EId, const TStr& attr) {
   return 0;
 }
 
-int TNEAGraph::AddIntAttrN(const TStr& attr, TInt defaultValue){
+int TNEANet::AddIntAttrN(const TStr& attr, TInt defaultValue){
   int i;
   TInt CurrLen;
   TVec<TInt> NewVec;
@@ -823,7 +823,7 @@ int TNEAGraph::AddIntAttrN(const TStr& attr, TInt defaultValue){
   return 0;
 }
 
-int TNEAGraph::AddStrAttrN(const TStr& attr, TStr defaultValue) {
+int TNEANet::AddStrAttrN(const TStr& attr, TStr defaultValue) {
   int i;
   TInt CurrLen;
   TVec<TStr> NewVec;
@@ -842,7 +842,7 @@ int TNEAGraph::AddStrAttrN(const TStr& attr, TStr defaultValue) {
   return 0;
 }
 
-int TNEAGraph::AddFltAttrN(const TStr& attr, TFlt defaultValue) {
+int TNEANet::AddFltAttrN(const TStr& attr, TFlt defaultValue) {
   // TODO(nkhadke): add error checking
   int i;
   TInt CurrLen;
@@ -862,7 +862,7 @@ int TNEAGraph::AddFltAttrN(const TStr& attr, TFlt defaultValue) {
   return 0;
 }
 
-int TNEAGraph::AddIntAttrE(const TStr& attr, TInt defaultValue){
+int TNEANet::AddIntAttrE(const TStr& attr, TInt defaultValue){
   // TODO(nkhadke): add error checking
   int i;
   TInt CurrLen;
@@ -882,7 +882,7 @@ int TNEAGraph::AddIntAttrE(const TStr& attr, TInt defaultValue){
   return 0;
 }
 
-int TNEAGraph::AddStrAttrE(const TStr& attr, TStr defaultValue) {
+int TNEANet::AddStrAttrE(const TStr& attr, TStr defaultValue) {
   int i;
   TInt CurrLen;
   TVec<TStr> NewVec;
@@ -901,7 +901,7 @@ int TNEAGraph::AddStrAttrE(const TStr& attr, TStr defaultValue) {
   return 0;
 }
 
-int TNEAGraph::AddFltAttrE(const TStr& attr, TFlt defaultValue) {
+int TNEANet::AddFltAttrE(const TStr& attr, TFlt defaultValue) {
   int i;
   TInt CurrLen;
   TVec<TFlt> NewVec;
@@ -920,7 +920,7 @@ int TNEAGraph::AddFltAttrE(const TStr& attr, TFlt defaultValue) {
   return 0;
 }
 
-int TNEAGraph::DelAttrN(const TStr& attr) {
+int TNEANet::DelAttrN(const TStr& attr) {
   TInt vecType = KeyToIndexTypeN(attr).Val1;
   if (vecType == IntType) {
     VecOfIntVecsN[KeyToIndexTypeN.GetDat(attr).Val2] = TVec<TInt>();
@@ -944,7 +944,7 @@ int TNEAGraph::DelAttrN(const TStr& attr) {
   return 0;
 }
 
-int TNEAGraph::DelAttrE(const TStr& attr) {
+int TNEANet::DelAttrE(const TStr& attr) {
   TInt vecType = KeyToIndexTypeE(attr).Val1;
   if (vecType == IntType) {
     VecOfIntVecsE[KeyToIndexTypeE.GetDat(attr).Val2] = TVec<TInt>();

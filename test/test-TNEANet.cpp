@@ -3,10 +3,10 @@
 #include "Snap.h"
 
 // Test the default constructor
-TEST(TNEAGraph, DefaultConstructor) {
-  PNEAGraph Graph;
+TEST(TNEANet, DefaultConstructor) {
+  PNEANet Graph;
 
-  Graph = TNEAGraph::New();
+  Graph = TNEANet::New();
 
   EXPECT_EQ(0,Graph->GetNodes());
   EXPECT_EQ(0,Graph->GetEdges());
@@ -17,21 +17,21 @@ TEST(TNEAGraph, DefaultConstructor) {
 }
 
 // Test node, edge creation
-TEST(TNEAGraph, ManipulateNodesEdges) {
+TEST(TNEANet, ManipulateNodesEdges) {
   int NNodes = 1000;
   int NEdges = 100000;
   const char *FName = "test.graph.dat";
 
-  PNEAGraph Graph;
-  PNEAGraph Graph1;
-  PNEAGraph Graph2;
+  PNEANet Graph;
+  PNEANet Graph1;
+  PNEANet Graph2;
   int i;
   int n;
   int NCount;
   int x,y;
   int Deg, InDeg, OutDeg;
 
-  Graph = TNEAGraph::New();
+  Graph = TNEANet::New();
   EXPECT_EQ(1,Graph->Empty());
 
   // create the nodes
@@ -65,14 +65,14 @@ TEST(TNEAGraph, ManipulateNodesEdges) {
 
   // nodes iterator
   NCount = 0;
-  for (TNEAGraph::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
+  for (TNEANet::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
     NCount++;
   }
   EXPECT_EQ(NNodes,NCount);
 
   // edges per node iterator
   NCount = 0;
-  for (TNEAGraph::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
+  for (TNEANet::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
     for (int e = 0; e < NI.GetOutDeg(); e++) {
       NCount++;
     }
@@ -81,13 +81,13 @@ TEST(TNEAGraph, ManipulateNodesEdges) {
 
   // edges iterator
   NCount = 0;
-  for (TNEAGraph::TEdgeI EI = Graph->BegEI(); EI < Graph->EndEI(); EI++) {
+  for (TNEANet::TEdgeI EI = Graph->BegEI(); EI < Graph->EndEI(); EI++) {
     NCount++;
   }
   EXPECT_EQ(NEdges,NCount);
 
   // node degree
-  for (TNEAGraph::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
+  for (TNEANet::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
     Deg = NI.GetDeg();
     InDeg = NI.GetInDeg();
     OutDeg = NI.GetOutDeg();
@@ -96,7 +96,7 @@ TEST(TNEAGraph, ManipulateNodesEdges) {
   }
 
   // assignment
-  Graph1 = TNEAGraph::New();
+  Graph1 = TNEANet::New();
   *Graph1 = *Graph;
 
   EXPECT_EQ(NNodes,Graph1->GetNodes());
@@ -113,7 +113,7 @@ TEST(TNEAGraph, ManipulateNodesEdges) {
 
   {
     TFIn FIn(FName);
-    Graph2 = TNEAGraph::Load(FIn);
+    Graph2 = TNEANet::Load(FIn);
   }
 
   EXPECT_EQ(NNodes,Graph2->GetNodes());
@@ -143,13 +143,13 @@ TEST(TNEAGraph, ManipulateNodesEdges) {
 }
 
 // Test small graph
-TEST(TNEAGraph, GetSmallGraph) {
-  PNEAGraph Graph;
+TEST(TNEANet, GetSmallGraph) {
+  PNEANet Graph;
 
   return;
 
   // not implemented
-  //Graph = TNEAGraph::GetSmallGraph();
+  //Graph = TNEANet::GetSmallGraph();
 
   EXPECT_EQ(5,Graph->GetNodes());
   EXPECT_EQ(6,Graph->GetEdges());
@@ -160,18 +160,18 @@ TEST(TNEAGraph, GetSmallGraph) {
 }
 
 // Test node, edge attribute functionality
-TEST(TNEAGraph, ManipulateNodesEdgeAttributes) {
+TEST(TNEANet, ManipulateNodesEdgeAttributes) {
   int NNodes = 1000;
   int NEdges = 1000;
   const char *FName = "demo.graph.dat";
 
-  PNEAGraph Graph;
-  PNEAGraph Graph1;
+  PNEANet Graph;
+  PNEANet Graph1;
   int i;
   int x, y;
   bool t;
 
-  Graph = TNEAGraph::New();
+  Graph = TNEANet::New();
   t = Graph->Empty();
 
   // create the nodes
@@ -204,7 +204,7 @@ TEST(TNEAGraph, ManipulateNodesEdgeAttributes) {
   int NodeId = 0;
   int DefNodes = 0;
   TVec<TInt> TAIntIV = TVec<TInt>();
-  for (TNEAGraph::TAIntI NI = Graph->BegNAIntI(attr2);
+  for (TNEANet::TAIntI NI = Graph->BegNAIntI(attr2);
     NI < Graph->EndNAIntI(attr2); NI++) {
     if (NI.GetDat()() != 0) {
       TAIntIV.Add(NI.GetDat());
@@ -231,7 +231,7 @@ TEST(TNEAGraph, ManipulateNodesEdgeAttributes) {
   DefNodes = 0;
   TVec<TFlt> TAFltIV = TVec<TFlt>();
 
-  for (TNEAGraph::TAFltI NI = Graph->BegNAFltI(attr3);
+  for (TNEANet::TAFltI NI = Graph->BegNAFltI(attr3);
     NI < Graph->EndNAFltI(attr3); NI++) {
     if (NI.GetDat() != TFlt::Mn) {
       NodeId++;
@@ -259,7 +259,7 @@ TEST(TNEAGraph, ManipulateNodesEdgeAttributes) {
   DefNodes = 0;
   TVec<TStr> TAStrIV = TVec<TStr>();
 
-  for (TNEAGraph::TAStrI NI = Graph->BegNAStrI(attr1);
+  for (TNEANet::TAStrI NI = Graph->BegNAStrI(attr1);
     NI < Graph->EndNAStrI(attr1); NI++) {
     if (NI.GetDat() != TStr::GetNullStr()) {
       NodeId++;
@@ -336,11 +336,11 @@ TEST(TNEAGraph, ManipulateNodesEdgeAttributes) {
 
   {
     TFIn FIn(FName);
-    Graph1 = TNEAGraph::Load(FIn);
+    Graph1 = TNEANet::Load(FIn);
   }
 
   int total = 0;
-  for (TNEAGraph::TAIntI NI = Graph1->BegNAIntI(attr2);
+  for (TNEANet::TAIntI NI = Graph1->BegNAIntI(attr2);
     NI < Graph1->EndNAIntI(attr2); NI++) {
     total += NI.GetDat();
   }
@@ -357,7 +357,7 @@ TEST(TNEAGraph, ManipulateNodesEdgeAttributes) {
   int EdgeId = 0;
   int DefEdges = 0;
   TAIntIV.Clr();
-  for (TNEAGraph::TAIntI EI = Graph->BegEAIntI(attr2);
+  for (TNEANet::TAIntI EI = Graph->BegEAIntI(attr2);
     EI < Graph->EndEAIntI(attr2); EI++) {
     if (EI.GetDat() != TInt::Mn) {
       TAIntIV.Add(EI.GetDat());
@@ -385,7 +385,7 @@ TEST(TNEAGraph, ManipulateNodesEdgeAttributes) {
   DefEdges = 0;
   TAFltIV.Clr();
 
-  for (TNEAGraph::TAFltI EI = Graph->BegEAFltI(attr3);
+  for (TNEANet::TAFltI EI = Graph->BegEAFltI(attr3);
     EI < Graph->EndEAFltI(attr3); EI++) {
     // Check if defaults are set to 0.
     if (EI.GetDat() != 0.00) {
@@ -414,7 +414,7 @@ TEST(TNEAGraph, ManipulateNodesEdgeAttributes) {
   DefEdges = 0;
   TAStrIV.Clr();
 
-  for (TNEAGraph::TAStrI EI = Graph->BegEAStrI(attr1);
+  for (TNEANet::TAStrI EI = Graph->BegEAStrI(attr1);
     EI < Graph->EndEAStrI(attr1); EI++) {
     if (EI.GetDat() != TStr::GetNullStr()) {
       TAStrIV.Add(EI.GetDat());
@@ -488,11 +488,11 @@ TEST(TNEAGraph, ManipulateNodesEdgeAttributes) {
 
   {
     TFIn FIn(FName);
-    Graph1 = TNEAGraph::Load(FIn);
+    Graph1 = TNEANet::Load(FIn);
   }
 
   total = 0;
-  for (TNEAGraph::TAIntI EI = Graph1->BegNAIntI(attr2);
+  for (TNEANet::TAIntI EI = Graph1->BegNAIntI(attr2);
     EI < Graph1->EndNAIntI(attr2); EI++) {
     total += EI.GetDat();
   }

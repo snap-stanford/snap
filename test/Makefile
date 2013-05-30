@@ -12,7 +12,7 @@ MAIN = run-all-tests
 TESTS = \
 	test-helper.cpp \
 	test-TUNGraph.cpp test-TNGraph.cpp \
-	test-TNEGraph.cpp test-TNEAGraph.cpp \
+	test-TNEGraph.cpp test-TNEANet.cpp \
 	test-TNodeNet.cpp test-TNodeEDatNet.cpp test-TNodeEdgeNet.cpp \
 	test-subgraph.cpp \
 	test-TStrPool.cpp \

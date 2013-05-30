@@ -1,7 +1,7 @@
 #include "Snap.h"
 
 // Print graph statistics
-void PrintGStats(const char s[], PNEAGraph Graph) {
+void PrintGStats(const char s[], PNEANet Graph) {
   printf("graph %s, nodes %d, edges %d, empty %s\n",
       s, Graph->GetNodes(), Graph->GetEdges(),
       Graph->Empty() ? "yes" : "no");
@@ -9,9 +9,9 @@ void PrintGStats(const char s[], PNEAGraph Graph) {
 
 // Test the default constructor
 void DefaultConstructor() {
-  PNEAGraph Graph;
+  PNEANet Graph;
 
-  Graph = TNEAGraph::New();
+  Graph = TNEANet::New();
   PrintGStats("DefaultConstructor:Graph",Graph);
 }
 
@@ -21,9 +21,9 @@ void ManipulateNodesEdges() {
   int NEdges = 100000;
   const char *FName = "demo.graph.dat";
 
-  PNEAGraph Graph;
-  PNEAGraph Graph1;
-  PNEAGraph Graph2;
+  PNEANet Graph;
+  PNEANet Graph1;
+  PNEANet Graph2;
   int i;
   int n;
   int NCount;
@@ -32,7 +32,7 @@ void ManipulateNodesEdges() {
   int x,y;
   bool t;
 
-  Graph = TNEAGraph::New();
+  Graph = TNEANet::New();
   t = Graph->Empty();
 
   // create the nodes
@@ -54,13 +54,13 @@ void ManipulateNodesEdges() {
 
   // get all the nodes
   NCount = 0;
-  for (TNEAGraph::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
+  for (TNEANet::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
     NCount++;
   }
 
   // get all the edges for all the nodes
   ECount1 = 0;
-  for (TNEAGraph::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
+  for (TNEANet::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
     for (int e = 0; e < NI.GetOutDeg(); e++) {
       ECount1++;
     }
@@ -68,14 +68,14 @@ void ManipulateNodesEdges() {
 
   // get all the edges directly
   ECount2 = 0;
-  for (TNEAGraph::TEdgeI EI = Graph->BegEI(); EI < Graph->EndEI(); EI++) {
+  for (TNEANet::TEdgeI EI = Graph->BegEI(); EI < Graph->EndEI(); EI++) {
     ECount2++;
   }
   printf("graph ManipulateNodesEdges:Graph, nodes %d, edges1 %d, edges2 %d\n",
       NCount, ECount1, ECount2);
 
   // assignment
-  Graph1 = TNEAGraph::New();
+  Graph1 = TNEANet::New();
   *Graph1 = *Graph;
   PrintGStats("ManipulateNodesEdges:Graph1",Graph1);
 
@@ -89,7 +89,7 @@ void ManipulateNodesEdges() {
   // load the graph
   {
     TFIn FIn(FName);
-    Graph2 = TNEAGraph::Load(FIn);
+    Graph2 = TNEANet::Load(FIn);
   }
   PrintGStats("ManipulateNodesEdges:Graph2",Graph2);
 
@@ -111,13 +111,13 @@ void ManipulateNodeEdgeAttributes() {
   int NEdges = 1000;
   const char *FName = "demo.graph.dat";
 
-  PNEAGraph Graph;
-  PNEAGraph Graph1;
+  PNEANet Graph;
+  PNEANet Graph1;
   int i;
   int x, y;
   bool t;
 
-  Graph = TNEAGraph::New();
+  Graph = TNEANet::New();
   t = Graph->Empty();
 
   // create the nodes
@@ -146,7 +146,7 @@ void ManipulateNodeEdgeAttributes() {
   Graph->AddIntAttrDatN(700, 700*2, attr2);
   Graph->AddIntAttrDatN(900, 900*2, attr2);
   int NodeId = 0;
-  for (TNEAGraph::TAIntI NI = Graph->BegNAIntI(attr2);
+  for (TNEANet::TAIntI NI = Graph->BegNAIntI(attr2);
     NI < Graph->EndNAIntI(attr2); NI++) {
     // Check if defaults are now 0.
     if (NI.GetDat()() != 0) {
@@ -161,7 +161,7 @@ void ManipulateNodeEdgeAttributes() {
   Graph->AddFltAttrDatN(300, 150.0, attr3);
   Graph->AddFltAttrDatN(653, 653, attr3);
   NodeId = 0;
-  for (TNEAGraph::TAFltI NI = Graph->BegNAFltI(attr3);
+  for (TNEANet::TAFltI NI = Graph->BegNAFltI(attr3);
     NI < Graph->EndNAFltI(attr3); NI++) {
     if (NI.GetDat() != TFlt::Mn) {
       printf("Attribute: %s, Node: %i, Val: %f\n", attr3(), NodeId, NI.GetDat()());
@@ -177,7 +177,7 @@ void ManipulateNodeEdgeAttributes() {
   Graph->AddStrAttrDatN(455, "", attr1);
   NodeId = 0;
   
-  for (TNEAGraph::TAStrI NI = Graph->BegNAStrI(attr1);
+  for (TNEANet::TAStrI NI = Graph->BegNAStrI(attr1);
     NI < Graph->EndNAStrI(attr1); NI++) {
     if (NI.GetDat() != TStr::GetNullStr()) {
       printf("Attribute: %s, Node: %i, Val: %s\n", attr1(), NodeId, NI.GetDat()());
@@ -232,11 +232,11 @@ void ManipulateNodeEdgeAttributes() {
 
   {
     TFIn FIn(FName);
-    Graph1 = TNEAGraph::Load(FIn);
+    Graph1 = TNEANet::Load(FIn);
   }
 
   int total = 0;
-  for (TNEAGraph::TAIntI NI = Graph1->BegNAIntI(attr2);
+  for (TNEANet::TAIntI NI = Graph1->BegNAIntI(attr2);
     NI < Graph1->EndNAIntI(attr2); NI++) {
     total += NI.GetDat();
   }
@@ -251,7 +251,7 @@ void ManipulateNodeEdgeAttributes() {
   Graph->AddIntAttrDatE(705, 705*2, attr2);
   Graph->AddIntAttrDatE(905, 905*2, attr2);
   int EdgeId = 0;
-  for (TNEAGraph::TAIntI EI = Graph->BegEAIntI(attr2);
+  for (TNEANet::TAIntI EI = Graph->BegEAIntI(attr2);
     EI < Graph->EndEAIntI(attr2); EI++) {
     if (EI.GetDat() != TInt::Mn) {
        printf("E Attribute: %s, Edge: %i, Val: %i\n", attr2(), EdgeId, EI.GetDat()());
@@ -266,7 +266,7 @@ void ManipulateNodeEdgeAttributes() {
   Graph->AddFltAttrDatE(300, 151.0, attr3);
   Graph->AddFltAttrDatE(653, 654, attr3);
   EdgeId = 0;
-  for (TNEAGraph::TAFltI EI = Graph->BegEAFltI(attr3);
+  for (TNEANet::TAFltI EI = Graph->BegEAFltI(attr3);
     EI < Graph->EndEAFltI(attr3); EI++) {
     // Check if defaults are set to 0.
     if (EI.GetDat() != 0.00) {
@@ -282,7 +282,7 @@ void ManipulateNodeEdgeAttributes() {
   // this does not show since ""=null
   Graph->AddStrAttrDatE(455, "", attr1);
   EdgeId = 0;
-  for (TNEAGraph::TAStrI EI = Graph->BegEAStrI(attr1);
+  for (TNEANet::TAStrI EI = Graph->BegEAStrI(attr1);
     EI < Graph->EndEAStrI(attr1); EI++) {
     if (EI.GetDat() != TStr::GetNullStr()) {
         printf("E Attribute: %s, Edge: %i, Val: %s\n", attr1(), EdgeId, EI.GetDat()());
@@ -339,11 +339,11 @@ void ManipulateNodeEdgeAttributes() {
 
   {
     TFIn FIn(FName);
-    Graph1 = TNEAGraph::Load(FIn);
+    Graph1 = TNEANet::Load(FIn);
   }
 
   total = 0;
-  for (TNEAGraph::TAIntI EI = Graph1->BegNAIntI(attr2);
+  for (TNEANet::TAIntI EI = Graph1->BegNAIntI(attr2);
     EI < Graph1->EndNAIntI(attr2); EI++) {
     total += EI.GetDat();
   }
@@ -356,11 +356,11 @@ void ManipulateNodeEdgeAttributes() {
 
 // Test small graph
 void GetSmallGraph() {
-  PNEAGraph Graph;
+  PNEANet Graph;
 
   return;
 
-  //Graph = TNEAGraph::GetSmallGraph();
+  //Graph = TNEANet::GetSmallGraph();
   PrintGStats("GetSmallGraph:Graph",Graph);
 }
 

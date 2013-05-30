@@ -112,7 +112,7 @@ int main(int argc, char* argv[]) {
   PNGraph G1;
   PUNGraph G2;
   PNEGraph G3;
-  PNEAGraph G4;
+  PNEANet G4;
 
   std::ofstream file;
 
@@ -140,8 +140,8 @@ int main(int argc, char* argv[]) {
       printf("TNEGraph\n\n");
       break;
     default:
-      file.open("tneagraph.dat");
-      printf("TNEAGraph\n\n");
+      file.open("tneanet.dat");
+      printf("TNEANet\n\n");
       break;
     }
 
@@ -193,7 +193,7 @@ int main(int argc, char* argv[]) {
           default:
 	          printf("\nGenerating Graph...\n");
 	          printf("GrGen ");
-	          G4 = GenRndGnm<PNEAGraph>(NNodes, NEdges, true);
+	          G4 = GenRndGnm<PNEANet>(NNodes, NEdges, true);
 	          msec = (clock() - start) * 1000 / CLOCKS_PER_SEC;
 	          printf("Nodes: %d Edges: %d Time: %d ms\n", NNodes, NEdges, msec);
             file << NNodes << " " << NEdges << " " << msec << " ";
