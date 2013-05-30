@@ -900,7 +900,7 @@ void TTable::Defrag() {
 }
 
 // wrong reading of string attributes
-void TTable::BuildGraphTopology(PNEAGraph& Graph, THash<TFlt, TInt>& FSrNodeMap, THash<TFlt, TInt>& FDsNodeMap) {
+void TTable::BuildGraphTopology(PNEANet& Graph, THash<TFlt, TInt>& FSrNodeMap, THash<TFlt, TInt>& FDsNodeMap) {
   TYPE SrCT = GetColType(SrcCol);
   TInt SrIdx = GetColIdx(SrcCol);
   TYPE DsCT = GetColType(DstCol);
@@ -976,7 +976,7 @@ TInt TTable::GetNId(TStr Col, TInt RowIdx, THash<TFlt, TInt>& FSrNodeMap, THash<
   return 0;
 }
     
-void TTable::AddNodeAttributes(PNEAGraph& Graph, THash<TFlt, TInt>& FSrNodeMap, THash<TFlt, TInt>& FDsNodeMap) {
+void TTable::AddNodeAttributes(PNEANet& Graph, THash<TFlt, TInt>& FSrNodeMap, THash<TFlt, TInt>& FDsNodeMap) {
   for (TRowIterator RowI = BegRI(); RowI < EndRI(); RowI++) {
     // Add Source and Destination node attributes.
     for (int i = 0; i < SrcNodeAttrV.Len(); i++) {
@@ -1009,7 +1009,7 @@ void TTable::AddNodeAttributes(PNEAGraph& Graph, THash<TFlt, TInt>& FSrNodeMap, 
   }
 }
 
-void TTable::AddEdgeAttributes(PNEAGraph& Graph) {
+void TTable::AddEdgeAttributes(PNEANet& Graph) {
   for(TRowIterator RowI = BegRI(); RowI < EndRI(); RowI++) {
     typedef THash<TStr,TPair<TYPE,TInt> >::TIter TColIter;
     for (int i = 0; i < EdgeAttrV.Len(); i++) {
@@ -1037,8 +1037,8 @@ void TTable::AddEdgeAttributes(PNEAGraph& Graph) {
   }
 }
 
-PNEAGraph TTable::ToGraph() {
-  PNEAGraph Graph = PNEAGraph::New();
+PNEANet TTable::ToGraph() {
+  PNEANet Graph = PNEANet::New();
   THash<TFlt, TInt> FSrNodeMap = THash<TFlt, TInt>();
   THash<TFlt, TInt> FDsNodeMap = THash<TFlt, TInt>();
   BuildGraphTopology(Graph, FSrNodeMap, FDsNodeMap);

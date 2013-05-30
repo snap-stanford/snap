@@ -211,7 +211,7 @@ public:
   static PTable LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm, const TIntV& RelevantCols, const char& Separator = '\t', TBool HasTitleLine = true);
   void SaveSS(const TStr& OutFNm);
 	void Save(TSOut& SOut);
-	PNEAGraph ToGraph();
+	PNEANet ToGraph();
   /* Getters of data required for building a graph out of the table */
 	TStr GetSrcCol() const { return SrcCol; }
 	TStr GetDstCol() const { return DstCol; }
@@ -266,9 +266,9 @@ public:
    // helper functions
  private:
  TInt GetNId(TStr Col, TInt RowIdx, THash<TFlt, TInt>& FSrNodeMap, THash<TFlt, TInt>& FDsNodeMap);
- void BuildGraphTopology(PNEAGraph& Graph, THash<TFlt, TInt>& FSrNodeMap, THash<TFlt, TInt>& FDsNodeMap);
- void AddNodeAttributes(PNEAGraph& Graph, THash<TFlt, TInt>& FSrNodeMap, THash<TFlt, TInt>& FDsNodeMap);
- void AddEdgeAttributes(PNEAGraph& Graph);
+ void BuildGraphTopology(PNEANet& Graph, THash<TFlt, TInt>& FSrNodeMap, THash<TFlt, TInt>& FDsNodeMap);
+ void AddNodeAttributes(PNEANet& Graph, THash<TFlt, TInt>& FSrNodeMap, THash<TFlt, TInt>& FDsNodeMap);
+ void AddEdgeAttributes(PNEANet& Graph);
 
   friend class TPt<TTable>;
 };
