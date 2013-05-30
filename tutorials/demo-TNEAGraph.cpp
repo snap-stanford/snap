@@ -39,8 +39,8 @@ void ManipulateNodesEdges() {
   for (i = 0; i < NNodes; i++) {
     Graph->AddNode(i);
   }
-  t = Graph->Empty();
   n = Graph->GetNodes();
+  t = Graph->Empty();
 
   // create random edges
   NCount = NEdges;
