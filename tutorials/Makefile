@@ -14,7 +14,9 @@ DEMOS = \
 	demo-cncom demo-bfsdfs \
 	demo-triad \
 	demo-THash \
-	demo-topology-benchmark
+	demo-topology-benchmark \
+	demo-hashvec-benchmark \
+	\
 
 all: $(DEMOS)
 
