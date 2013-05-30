@@ -1545,22 +1545,22 @@ public:
     bool IsOutEId(const int& EId) const { return NodeHI.GetDat().IsOutEId(EId); }
     /// Tests whether the edge with ID EId is an in or out-edge of current node.
     bool IsNbrEId(const int& EId) const { return IsInEId(EId) || IsOutEId(EId); }
-    /// Gets vector of attribute types.
+    /// Gets vector of attribute names.
     void GetAttrNames(TStrV& Names) const { Graph->AttrNameNI(GetId(), Names); }
     /// Gets vector of attribute values.
-    void GetAttrValues(TStrV& Values) const { Graph->AttrValueNI(GetId(), Values); }
-    /// Gets vector of int attribute types.
+    void GetAttrVal(TStrV& Val) const { Graph->AttrValueNI(GetId(), Val); }
+    /// Gets vector of int attribute names.
     void GetIntAttrNames(TStrV& Names) const { Graph->IntAttrNameNI(GetId(), Names); }
     /// Gets vector of int attribute values.
-    void GetIntAttrValues(TIntV& Values) const { Graph->IntAttrValueNI(GetId(), Values); }
-    /// Gets vector of str attribute types.
+    void GetIntAttrVal(TIntV& Val) const { Graph->IntAttrValueNI(GetId(), Val); }
+    /// Gets vector of str attribute names.
     void GetStrAttrNames(TStrV& Names) const { Graph->StrAttrNameNI(GetId(), Names); }
     /// Gets vector of str attribute values.
-    void GetStrAttrValues(TStrV& Values) const { Graph->StrAttrValueNI(GetId(), Values); }
-    /// Gets vector of flt attribute types.
+    void GetStrAttrVal(TStrV& Val) const { Graph->StrAttrValueNI(GetId(), Val); }
+    /// Gets vector of flt attribute names.
     void GetFltAttrNames(TStrV& Names) const { Graph->FltAttrNameNI(GetId(), Names); }
     /// Gets vector of flt attribute values.
-    void GetFltAttrValues(TFltV& Values) const { Graph->FltAttrValueNI(GetId(), Values); }
+    void GetFltAttrVal(TFltV& Val) const { Graph->FltAttrValueNI(GetId(), Val); }
     friend class TNEANet;
   };
   /// Edge iterator. Only forward iteration (operator++) is supported.
@@ -1584,22 +1584,22 @@ public:
     int GetSrcNId() const { return EdgeHI.GetDat().GetSrcNId(); }
     /// Gets destination of an edge.
     int GetDstNId() const { return EdgeHI.GetDat().GetDstNId(); }
-    /// Gets vector of attribute types.
+    /// Gets vector of attribute names.
     void GetAttrNames(TStrV& Names) const { Graph->AttrNameEI(GetId(), Names); }
     /// Gets vector of attribute values.
-    void GetAttrValues(TStrV& Values) const { Graph->AttrValueEI(GetId(), Values); }
-    /// Gets vector of int attribute types.
+    void GetAttrVal(TStrV& Val) const { Graph->AttrValueEI(GetId(), Val); }
+    /// Gets vector of int attribute names.
     void GetIntAttrNames(TStrV& Names) const { Graph->IntAttrNameEI(GetId(), Names); }
     /// Gets vector of int attribute values.
-    void GetIntAttrValues(TIntV& Values) const { Graph->IntAttrValueEI(GetId(), Values); }
-    /// Gets vector of str attribute types.
+    void GetIntAttrVal(TIntV& Val) const { Graph->IntAttrValueEI(GetId(), Val); }
+    /// Gets vector of str attribute names.
     void GetStrAttrNames(TStrV& Names) const { Graph->StrAttrNameEI(GetId(), Names); }
     /// Gets vector of str attribute values.
-    void GetStrAttrValues(TStrV& Values) const { Graph->StrAttrValueEI(GetId(), Values); }
-    /// Gets vector of flt attribute types.
+    void GetStrAttrVal(TStrV& Val) const { Graph->StrAttrValueEI(GetId(), Val); }
+    /// Gets vector of flt attribute names.
     void GetFltAttrNames(TStrV& Names) const { Graph->FltAttrNameEI(GetId(), Names); }
     /// Gets vector of flt attribute values.
-    void GetFltAttrValues(TFltV& Values) const { Graph->FltAttrValueEI(GetId(), Values); }
+    void GetFltAttrVal(TFltV& Val) const { Graph->FltAttrValueEI(GetId(), Val); }
     friend class TNEANet;
   };
 
