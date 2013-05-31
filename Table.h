@@ -27,7 +27,7 @@ typedef TPt<TTable> PTable;
 class TTable{
 public:
   typedef enum {INT, FLT, STR} TYPE;   // must be consistent with TYPE definition in TPredicate
-  typedef enum {LT = 0, LTE, EQ, NEQ, GTE, GT} COMP;
+  typedef enum {LT = 0, LTE, EQ, NEQ, GTE, GT} COMP;  // J re-definition of TPredicate::COMP..
   typedef TVec<TPair<TStr, TYPE> > Schema; 
 protected:
   // special values for Next column
@@ -154,8 +154,7 @@ protected:
   TRowIteratorWithRemove EndRIWR(){ return TRowIteratorWithRemove(TTable::Last, this);}
   bool IsRowValid(TInt RowIdx) const{ return Next[RowIdx] != Invalid;}
 
-	// Store a group indices column in GroupMapping
-	void StoreGroupCol(TStr GroupColName, const THash<TInt,TIntV>& grouping);
+  /***** OLD grouping unility functions *************/
 	// Group/hash by a single column with integer values. Returns hash table with grouping.
   // IndexSet tells what rows to consider. It is the callers responsibility to check that 
   // these rows are valid. An empty IndexSet means taking all rows into consideration.
@@ -167,8 +166,12 @@ protected:
 	// Performs grouping according to the values of columns GroupBy[i] where 
 	// i >= GroupByStartIdx; Considers only tuples whose indices are in IndexSet
 	// Adds the groups to hash table "grouping". Does not write to "GroupMapping"
-	void GroupAux(const TStrV& GroupBy, TInt GroupByStartIdx, THash<TInt,TIntV>& grouping, const TIntV& IndexSet, TBool InSet);
-  /* template for utility functions to be used by GroupByXCol */
+	//void GroupAux(const TStrV& GroupBy, TInt GroupByStartIdx, THash<TInt,TIntV>& grouping, const TIntV& IndexSet, TBool InSet);
+
+  void GroupAux(const TStrV& GroupBy, THash<TInt,TIntV>& Grouping, TIntV& UniqueVec, TBool Ordered = true, TBool KeepUnique = false, TBool KeepGrouping = true);
+  // Store a group indices column in GroupMapping
+	void StoreGroupCol(TStr GroupColName, const THash<TInt,TIntV>& grouping);
+  /* template for utility function to update a grouping hash map */
  template <class T>
   void UpdateGrouping(THash<T,TIntV>& Grouping, T Key, TInt Val) const{
     if(Grouping.IsKey(Key)){
@@ -236,19 +239,20 @@ public:
 	void AddLabel(TStr column, TStr newLabel);
 
 	// Remove rows with duplicate values in given columns
-	void Unique(TStr col);
+	void Unique(TStrV Cols, TBool Ordered = true);
+  void UniqueExistingGroup(TStr GroupStmt);
 	// select - remove rows for which the given predicate doesn't hold
 	void Select(TPredicate& Predicate);
 
-        // select atomic - remove rows for which the comparison doesn't hold
-        void SelectAtomic(TStr Col1, TStr Col2, COMP Cmp);
-        void SelectAtomicIntConst(TStr Col1, TInt Val2, COMP Cmp);
-        void SelectAtomicStrConst(TStr Col1, TStr Val2, COMP Cmp);
-        void SelectAtomicFltConst(TStr Col1, TFlt Val2, COMP Cmp);
+  // select atomic - remove rows for which the comparison doesn't hold
+  void SelectAtomic(TStr Col1, TStr Col2, COMP Cmp);
+  void SelectAtomicIntConst(TStr Col1, TInt Val2, COMP Cmp);
+  void SelectAtomicStrConst(TStr Col1, TStr Val2, COMP Cmp);
+  void SelectAtomicFltConst(TStr Col1, TFlt Val2, COMP Cmp);
 	
 	// group by the values of the columns specified in "GroupBy" vector 
 	// group indices are stored in GroupCol; Implementation: use GroupMapping hash
-	void Group(TStr GroupColName, const TStrV& GroupBy);
+	void Group(TStr GroupColName, const TStrV& GroupBy, TBool Ordered = true);
 	// count - count the number of appearences of the different elements of col
 	// record results in column CountCol; Implementation: add a new column to table
 	void Count(TStr CountColName, TStr Col);
@@ -277,6 +281,7 @@ public:
  void AddNodeAttributes(PNEANet& Graph, THash<TFlt, TInt>& FSrNodeMap, THash<TFlt, TInt>& FDsNodeMap);
  void AddEdgeAttributes(PNEANet& Graph);
 
+ // re-definition of TPredicate::EvalAtom...
  template <class T>
  TBool EvalSelectAtomic(T Val1, T Val2, COMP Cmp) {
    switch(Cmp){
@@ -289,7 +294,6 @@ public:
    }
    return false;
  }
- 
 
   friend class TPt<TTable>;
 };

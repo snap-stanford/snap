@@ -5,8 +5,8 @@
 #define N 10
 #define QA_FILES 7
 #define COMMENT_FILES 7
-#define QA_OPS 5
-#define COMMENT_OPS 5
+#define QA_OPS 4
+#define COMMENT_OPS 4
 
 int main(){
   TStr dir("/lfs/local/0/ringo/testfiles/");
@@ -71,17 +71,15 @@ int main(){
       qa_results[f][i][0] = tl.GetSecs();
       PTable T2 = TTable::LoadSS("Posts2", qa_S, qa_files[f], qa_RelevantCols);
       TExeTm ts;
-      T1->Select(ptiPred);
+      //T1->Select(ptiPred);
+      T1->SelectAtomicIntConst("PostTypeId", 2, TTable::EQ);
       qa_results[f][i][1] = ts.GetSecs();
       TExeTm tj;
       PTable Tj = T1->Join("ParentId", *T2, "Id");
       qa_results[f][i][2] = tj.GetSecs();
-      TExeTm tg;
-      Tj->Group("UserPair", qaGroupBy);
-      qa_results[f][i][3] = tg.GetSecs();
       TExeTm te;
-      Tj->Unique("UserPair");
-      qa_results[f][i][4] = te.GetSecs();
+      Tj->Unique(qaGroupBy);
+      qa_results[f][i][3] = te.GetSecs();
       TStr OutFNm = outDir + "out_" + qa_file_names[f];
       //if(i == N-1){Tj->SaveSS(OutFNm);}
       if(i == 0){printf("Number of rows in Q&A table: initial - %d, final %d\n", T2->GetNumValidRows().Val, Tj->GetNumValidRows().Val);}
@@ -115,20 +113,11 @@ int main(){
     join_avg = join_avg/N;
     printf("\naverage join time: %f seconds\n", join_avg);
 
-    printf("Group: ");
-    double group_avg = 0;
-    for(int i = 0; i < N; i++){
-      printf("%f ", qa_results[f][i][3]);
-      group_avg += qa_results[f][i][3];
-    }
-    group_avg = group_avg/N;
-    printf("\naverage group time: %f seconds\n", group_avg);
-
     printf("Unique: ");
     double unique_avg = 0;
     for(int i = 0; i < N; i++){
-      printf("%f ", qa_results[f][i][4]);
-      unique_avg += qa_results[f][i][4];
+      printf("%f ", qa_results[f][i][3]);
+      unique_avg += qa_results[f][i][3];
     }
     unique_avg = unique_avg/N;
     printf("\naverage unique time: %f seconds\n", unique_avg);
@@ -185,20 +174,18 @@ char* comment_file_names[COMMENT_FILES] = {"comments_10.hashed.tsv", "comments_3
       PTable Tj = T1->Join("PostId", *T2, "PostId");
       comment_results[f][i][1] = tj.GetSecs();
       //debug
-      printf("Joint table size: %d\n", Tj->GetNumValidRows().Val);
+      //printf("Joint table size: %d\n", Tj->GetNumValidRows().Val);
       Tj->AddLabel("Comments1.UserId", "UserId1");
       Tj->AddLabel("Comments2.UserId", "UserId2");
       TExeTm ts;
-      Tj->Select(uidPred);
+      //Tj->Select(uidPred);
+      Tj->SelectAtomic("UserId1", "UserId2", TTable::NEQ);
       comment_results[f][i][2] = ts.GetSecs();
       //debug
-      printf("Selected table size: %d\n", Tj->GetNumValidRows().Val);
-      TExeTm tg;
-      Tj->Group("UserPair", commentGroupBy);
-      comment_results[f][i][3] = tg.GetSecs();
+      //printf("Selected table size: %d\n", Tj->GetNumValidRows().Val);
       TExeTm te;
-      Tj->Unique("UserPair");
-      comment_results[f][i][4] = te.GetSecs();
+      Tj->Unique(commentGroupBy);
+      comment_results[f][i][3] = te.GetSecs();
       TStr OutFNm = outDir + "out_" + comment_file_names[f];
       //if(i == N-1){Tj->SaveSS(OutFNm);}
       if(i == 0){printf("Number of rows in common comments table: initial - %d, final %d\n", T2->GetNumValidRows().Val, Tj->GetNumValidRows().Val);}
@@ -231,20 +218,11 @@ char* comment_file_names[COMMENT_FILES] = {"comments_10.hashed.tsv", "comments_3
     select_avg = select_avg/N;
     printf("\naverage select time: %f seconds\n", select_avg);
 
-    printf("Group: ");
-    double group_avg = 0;
-    for(int i = 0; i < N; i++){
-      printf("%f ", comment_results[f][i][3]);
-      group_avg += comment_results[f][i][3];
-    }
-    group_avg = group_avg/N;
-    printf("\naverage group time: %f seconds\n", group_avg);
-
-    printf("Unique: ");
+     printf("Unique: ");
     double unique_avg = 0;
     for(int i = 0; i < N; i++){
-      printf("%f ", comment_results[f][i][4]);
-      unique_avg += comment_results[f][i][4];
+      printf("%f ", comment_results[f][i][3]);
+      unique_avg += comment_results[f][i][3];
     }
     unique_avg = unique_avg/N;
     printf("\naverage unique time: %f seconds\n", unique_avg);

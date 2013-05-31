@@ -1,7 +1,4 @@
-
-#include <iostream>
-#include "Engine.h"
-using namespace std;
+#include "Table.h"
 
 int main(){
   // create scheme
@@ -10,15 +7,23 @@ int main(){
   AnimalS.Add(TPair<TStr,TTable::TYPE>("Size", TTable::STR));
   AnimalS.Add(TPair<TStr,TTable::TYPE>("Location", TTable::STR));
   AnimalS.Add(TPair<TStr,TTable::TYPE>("Number", TTable::INT));
+  TIntV RelevantCols;
+  RelevantCols.Add(0);
+  RelevantCols.Add(1);
+  RelevantCols.Add(2);
   // create table
-  PTable T = TTable::LoadSS("Animals", AnimalS, "animals.txt");
-  T->Unique("Animal");
-  PTable Ts = TTable::LoadSS("Animals_s", AnimalS, "animals.txt");
- // Ts->Unique("Animal");
+  PTable T = TTable::LoadSS("Animals", AnimalS, "../../testfiles/animals.txt", RelevantCols);
+  //PTable T = TTable::LoadSS("Animals", AnimalS, "animals.txt");
+  TStrV AnimalUnique;
+  AnimalUnique.Add("Animal");
+  T->Unique(AnimalUnique);
+  //TTable Ts = *T;  not working because of problem with copy-c'tor
+  PTable Ts = TTable::LoadSS("Animals_s", AnimalS, "../../testfiles/animals.txt", RelevantCols);
+  Ts->Unique(AnimalUnique);
 
   // test Select
   // create predicate tree: find all animals that are big and african or medium and Australian
-/*  TPredicate::TAtomicPredicate A1(TPredicate::STR, true, TPredicate::EQ, "Location", "", 0, 0, "Africa");  
+  TPredicate::TAtomicPredicate A1(TPredicate::STR, true, TPredicate::EQ, "Location", "", 0, 0, "Africa");  
   TPredicate::TPredicateNode N1(A1);  // Location == "Africa"
   TPredicate::TAtomicPredicate A2(TPredicate::STR, true, TPredicate::EQ, "Size", "", 0, 0, "big");  
   TPredicate::TPredicateNode N2(A2);  // Size == "big"
@@ -42,13 +47,12 @@ int main(){
   GroupBy.Add("Location");
   T->Group("LocationGroup", GroupBy);
   GroupBy.Add("Size");
-  T->Group("LocationSizeGroup", GroupBy);*/
-//  T->Count("LocationCount", "Location");
-//  PTable Tj = T->Join("Location", *Ts, "Location");
+  T->Group("LocationSizeGroup", GroupBy);
+  T->Count("LocationCount", "Location");
+  PTable Tj = T->Join("Location", *Ts, "Location");
   //print table
-   T->SaveSS("animals_out_T.out");
-   Ts->SaveSS("animals_out_Ts.out");
-//   Tj->SaveSS("animals_out_Tj.out");
+   T->SaveSS("../../testfiles/animals_out_T.txt");
+   Ts->SaveSS("../../testfiles/animals_out_Ts.txt");
+   Tj->SaveSS("../../testfiles/animals_out_Tj.txt");
   return 0;
 }
-

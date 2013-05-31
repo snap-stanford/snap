@@ -349,6 +349,8 @@ void TTable::KeepSortedRows(const TIntV& KeepV){
   }
 }
 
+
+/**** OLD Unique ****/
 /*void TTable::Unique(TStr Col){
   if(!ColTypeMap.IsKey(Col)){TExcept::Throw("no such column " + Col);}
   TIntV RemainingRows = TIntV(NumValidRows,0);
@@ -385,31 +387,21 @@ void TTable::KeepSortedRows(const TIntV& KeepV){
   // Not sure if we could always make this assumption. Might want to remove this sorting..
   RemainingRows.Sort();
   KeepSortedRows(RemainingRows);
-}*/
-
-void TTable::Unique(TStr Col){
-  // with the current implementation of GroupByX, RemainingRows is sorted:
-  // GroupByX returns a hash Table T:X-->TIntV. In the current implementation,
-  // if key X1 appears before key X2 in T Then T(X1)[0] <= T(X2)[0]
-  // Not sure if we could always make this assumption. Might want to remove this sorting..
+}
+*/
+/*
+void TTable::Unique(TStrV Cols){
   THash<TInt,TIntV> grouping;
   TIntV RemainingRows = TIntV(NumValidRows,0);
-  TStrV GroupBy;
-  GroupBy.Add(Col);
-  GroupAux(GroupBy, 0, grouping, TIntV(0), false);
+  GroupAux(Cols,grouping, true);
   for(THash<TInt,TIntV>::TIter it = grouping.BegI(); it < grouping.EndI(); it++){
     RemainingRows.Add(it->Dat[0]);
   }
-
   RemainingRows.Sort();
   KeepSortedRows(RemainingRows);
 }
-
-/* 
-Q: This approach of passing a hash table by reference and adding entries to it is common here.
-But it also implies certain assumptions about the input - i.e. empty input table. 
-Why PHash is never used? - why not let the function allocate the new table and return a smart ptr PHash..
 */
+/*****  OLD grouping utility functions - still used by Count ****/
 void TTable::GroupByIntCol(TStr GroupBy, THash<TInt,TIntV>& grouping, const TIntV& IndexSet, TBool All) const{
   if(!ColTypeMap.IsKey(GroupBy)){TExcept::Throw("no such column " + GroupBy);}
   if(GetColType(GroupBy) != INT){TExcept::Throw(GroupBy + " values are not of expected type integer");}
@@ -468,7 +460,6 @@ void TTable::GroupByStrCol(TStr GroupBy, THash<TStr,TIntV>& Grouping, const TInt
     }
   }
 }
-
 /*
 void TTable::GroupAux(const TStrV& GroupBy, TInt GroupByStartIdx, THash<TInt,TIntV>& grouping, const TIntV& IndexSet, TBool All){
   // recursion base - add IndexSet as group 
@@ -517,65 +508,114 @@ void TTable::GroupAux(const TStrV& GroupBy, TInt GroupByStartIdx, THash<TInt,TIn
 }
 */
 
-void TTable::GroupAux(const TStrV& GroupBy, TInt GroupByStartIdx, THash<TInt,TIntV>& grouping, const TIntV& IndexSet, TBool InSet){
+void TTable::UniqueExistingGroup(TStr GroupStmt){
+  if(!GroupMapping.IsKey(GroupStmt)){ TExcept::Throw(GroupStmt + "is not a previous grouping statement");}
+  THash<TInt, TIntV> Grouping = GroupMapping.GetDat(GroupStmt);
+  TIntV RemainingRows(Grouping.Len(), 0);
+  for(THash<TInt,TIntV>::TIter it = Grouping.BegI(); it < Grouping.EndI(); it++){
+    RemainingRows.Add(it->Dat[0]);
+  }
+  KeepSortedRows(RemainingRows);
+}
 
-  THash<TIntV,TIntV> IGroup;
+void TTable::Unique(TStrV Cols, TBool Ordered){
+  THash<TInt,TIntV> Grouping;
+  TIntV U;
+  GroupAux(Cols, Grouping, U, Ordered, true, false);
+  KeepSortedRows(U);
+}
+
+void TTable::GroupAux(const TStrV& GroupBy, THash<TInt,TIntV>& Grouping, TIntV& UniqueVec, TBool Ordered, TBool KeepUnique, TBool KeepGrouping){
+  TStrV IntGroupByCols;
+  TStrV FltGroupByCols;
+  TStrV StrGroupByCols;
+  for(TInt c = 0; c < GroupBy.Len(); c++){
+    if(!ColTypeMap.IsKey(GroupBy[c])){TExcept::Throw("no such column " + GroupBy[c]);}
+    switch(GetColType(GroupBy[c])){
+      case INT:
+        IntGroupByCols.Add(GroupBy[c]);
+        break;
+      case FLT:
+        FltGroupByCols.Add(GroupBy[c]);
+        break;
+      case STR:
+        StrGroupByCols.Add(GroupBy[c]);
+        break;
+    }
+  }
+  TInt IKLen = IntGroupByCols.Len();  // # of integer columns to group by
+  TInt FKLen = FltGroupByCols.Len();  // # of float columns to group by
+  TInt SKLen = StrGroupByCols.Len();  // # of string columns to group by
+
+  TInt GroupNum = 0;
+  THash<TIntV,TIntV> IGroup;  // a mapping between an X to indices of groups with X as integer column key
   THash<TFltV,TIntV> FGroup;
   THash<TStrV,TIntV> SGroup;
-  TInt GroupNum = 0;
+
   for(TRowIterator it = BegRI(); it < EndRI(); it++){
-    TIntV IKey;
-    TFltV FKey;
-    TStrV SKey;
+    // read keys from row
+    TIntV IKey(IKLen,0);
+    TFltV FKey(FKLen,0);
+    TStrV SKey(SKLen,0);
+    for(TInt c = 0; c < IKLen; c++){
+      IKey.Add(it.GetIntAttr(IntGroupByCols[c])); 
+    }
+    for(TInt c = 0; c < FKLen; c++){
+      FKey.Add(it.GetFltAttr(FltGroupByCols[c])); 
+    }
+    for(TInt c = 0; c < SKLen; c++){
+      SKey.Add(it.GetStrAttr(StrGroupByCols[c])); 
+    }
+    if(!Ordered){
+      if(IKLen > 0){IKey.ISort(0, IKey.Len()-1, true);}
+      if(FKLen > 0){FKey.ISort(0, FKey.Len()-1, true);}
+      if(SKLen > 0){SKey.ISort(0, SKey.Len()-1, true);}
+    }
 
-    for (int i=0; i < GroupBy.Len(); i++) {
-      if(!ColTypeMap.IsKey(GroupBy[i])){TExcept::Throw("no such column " + GroupBy[i]);}
-
-      switch(GetColType(GroupBy[i])){
-        case INT: {
-          IKey.Add(it.GetIntAttr(GroupBy[i])); 
-          break;
-        }
-        case FLT: {
-          FKey.Add(it.GetFltAttr(GroupBy[i])); 
-          break;
-        }
-        case STR: {
-          SKey.Add(it.GetStrAttr(GroupBy[i])); 
-          break;
-        }
+    // look for group matching to the key (IKey,FKey,SKey)
+    TIntV GroupMatch;
+    if(IKLen > 0){
+      if(IGroup.IsKey(IKey)){ GroupMatch.AddV(IGroup.GetDat(IKey));}
+    } else if(FKLen > 0){
+      if(FGroup.IsKey(FKey)){ GroupMatch.AddV(FGroup.GetDat(FKey));}
+    } else{
+      if(SGroup.IsKey(SKey)){ GroupMatch.AddV(SGroup.GetDat(SKey));}
+    }
+ 
+    if(FKLen > 0){ 
+      if(!FGroup.IsKey(FKey)){ 
+        GroupMatch.Clr();
+      } else{
+        GroupMatch.Intrs(FGroup.GetDat(FKey));
+      }
+    }
+    if(SKLen > 0){ 
+      if(!SGroup.IsKey(SKey)){ 
+        GroupMatch.Clr();
+      } else{
+        GroupMatch.Intrs(SGroup.GetDat(SKey));
       }
     }
 
     TInt RowIdx = it.GetRowIdx();
-    TIntV GroupMatch;
- 
-    if(IGroup.IsKey(IKey)){
-      GroupMatch.Union(IGroup.GetDat(IKey));
-      if(FGroup.IsKey(FKey)){
-        GroupMatch.Intrs(FGroup.GetDat(FKey));
-        if(SGroup.IsKey(SKey)){
-          GroupMatch.Intrs(SGroup.GetDat(SKey));
-        } else {
-          GroupMatch.Clr();
-        }
-      } else {
-        GroupMatch.Clr();
-      }
-    }
-
     if (GroupMatch.Len() == 0) {
-      TIntV NewGroup;
-      NewGroup.Add(RowIdx);
-      grouping.AddDat(GroupNum, NewGroup);
-
-      UpdateGrouping<TIntV>(IGroup, IKey, GroupNum);
-      UpdateGrouping<TFltV>(FGroup, FKey, GroupNum);
-      UpdateGrouping<TStrV>(SGroup, SKey, GroupNum);
+      // (IKey,FKey,SKey) hasn't been seen before - create new group
+      if(KeepGrouping){
+        TIntV NewGroup;
+        NewGroup.Add(RowIdx);
+        Grouping.AddDat(GroupNum, NewGroup);
+      }
+      if(IKLen > 0){ UpdateGrouping<TIntV>(IGroup, IKey, GroupNum);}
+      if(FKLen > 0){ UpdateGrouping<TFltV>(FGroup, FKey, GroupNum);}
+      if(SKLen > 0){ UpdateGrouping<TStrV>(SGroup, SKey, GroupNum);}
       GroupNum++;
+      if(KeepUnique){ UniqueVec.Add(RowIdx);}
     } else if (GroupMatch.Len() == 1) {
-      TInt CurrGroupNum = GroupMatch[0];
-      grouping.GetDat(CurrGroupNum).Add(RowIdx);
+      // (IKey,FKey,SKey) has been seen before - add RowIdx to corresponding group
+      if(!KeepUnique && KeepGrouping){
+        TInt CurrGroupNum = GroupMatch[0];
+        Grouping.GetDat(CurrGroupNum).Add(RowIdx);
+      }
     } else {
       TExcept::Throw("Groups duplicated, should not happen");
     }
@@ -596,13 +636,15 @@ void TTable::StoreGroupCol(TStr GroupColName, const THash<TInt,TIntV>& Grouping)
   }
 }
 
-void TTable::Group(TStr GroupColName, const TStrV& GroupBy){
-  THash<TInt,TIntV> grouping;
-  GroupAux(GroupBy, 0, grouping, TIntV(0), false);
-  StoreGroupCol(GroupColName, grouping);
+void TTable::Group(TStr GroupColName, const TStrV& GroupBy, TBool Ordered){
+  THash<TInt,TIntV> Grouping;
+  TIntV DummyV;
+  GroupAux(GroupBy, Grouping, DummyV, Ordered);
+  StoreGroupCol(GroupColName, Grouping);
   AddSchemaCol(GroupColName, INT); // update schema
 }
 
+// TODO: update using new GroupAux
 void TTable::Count(TStr CountColName, TStr Col){
   if(!ColTypeMap.IsKey(Col)){TExcept::Throw("no such column " + Col);}
   TIntV CntCol(NumRows);
@@ -844,16 +886,18 @@ void TTable::Select(TPredicate& Predicate){
   }
 }
 
-void TTable::SelectAtomic(TStr Col1, TStr Col2, COMP Cmp){
-  TYPE Ty1;
-  TYPE Ty2;
-  TInt ColIdx1;
-  TInt ColIdx2;
 
-  Ty1 = GetColType(Col1);
-  Ty2 = GetColType(Col2);
-  ColIdx1 = GetColIdx(Col1);
-  ColIdx2 = GetColIdx(Col2);
+// Further optimization: both comparison operation and type of columns don't change between rows..
+void TTable::SelectAtomic(TStr Col1, TStr Col2, COMP Cmp){
+  //TYPE Ty1;
+  //TYPE Ty2;
+  //TInt ColIdx1;
+  //TInt ColIdx2;
+
+  const TYPE Ty1 = GetColType(Col1);
+  const TYPE Ty2 = GetColType(Col2);
+  const TInt ColIdx1 = GetColIdx(Col1);
+  const TInt ColIdx2 = GetColIdx(Col2);
 
   if(Ty1 != Ty2){
     TExcept::Throw("SelectAtomic: diff types");
