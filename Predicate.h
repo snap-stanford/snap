@@ -222,7 +222,7 @@ public:
   TBool Eval();
   TBool EvalAtomicPredicate(const TAtomicPredicate& Atom);
   template <class T>
-  TBool EvalAtom(T Val1, T Val2, COMP Cmp){
+  static TBool EvalAtom(T Val1, T Val2, COMP Cmp){
     switch(Cmp){
       case LT: return Val1 < Val2;
       case LTE: return Val1 <= Val2;

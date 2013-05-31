@@ -72,7 +72,7 @@ int main(){
       PTable T2 = TTable::LoadSS("Posts2", qa_S, qa_files[f], qa_RelevantCols);
       TExeTm ts;
       //T1->Select(ptiPred);
-      T1->SelectAtomicIntConst("PostTypeId", 2, TTable::EQ);
+      T1->SelectAtomicIntConst("PostTypeId", 2, TPredicate::EQ);
       qa_results[f][i][1] = ts.GetSecs();
       TExeTm tj;
       PTable Tj = T1->Join("ParentId", *T2, "Id");
@@ -179,7 +179,7 @@ char* comment_file_names[COMMENT_FILES] = {"comments_10.hashed.tsv", "comments_3
       Tj->AddLabel("Comments2.UserId", "UserId2");
       TExeTm ts;
       //Tj->Select(uidPred);
-      Tj->SelectAtomic("UserId1", "UserId2", TTable::NEQ);
+      Tj->SelectAtomic("UserId1", "UserId2", TPredicate::NEQ);
       comment_results[f][i][2] = ts.GetSecs();
       //debug
       //printf("Selected table size: %d\n", Tj->GetNumValidRows().Val);

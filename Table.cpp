@@ -888,17 +888,11 @@ void TTable::Select(TPredicate& Predicate){
 
 
 // Further optimization: both comparison operation and type of columns don't change between rows..
-void TTable::SelectAtomic(TStr Col1, TStr Col2, COMP Cmp){
-  //TYPE Ty1;
-  //TYPE Ty2;
-  //TInt ColIdx1;
-  //TInt ColIdx2;
-
+void TTable::SelectAtomic(TStr Col1, TStr Col2, TPredicate::COMP Cmp){
   const TYPE Ty1 = GetColType(Col1);
   const TYPE Ty2 = GetColType(Col2);
   const TInt ColIdx1 = GetColIdx(Col1);
   const TInt ColIdx2 = GetColIdx(Col2);
-
   if(Ty1 != Ty2){
     TExcept::Throw("SelectAtomic: diff types");
   }
@@ -908,13 +902,13 @@ void TTable::SelectAtomic(TStr Col1, TStr Col2, COMP Cmp){
     TBool Result;
     switch(Ty1){
       case INT:
-        Result = EvalSelectAtomic(RowI.GetNextIntAttr(ColIdx1), RowI.GetNextIntAttr(ColIdx2), Cmp);
+        Result = TPredicate::EvalAtom(RowI.GetNextIntAttr(ColIdx1), RowI.GetNextIntAttr(ColIdx2), Cmp);
         break;
       case FLT:
-        Result = EvalSelectAtomic(RowI.GetNextFltAttr(ColIdx1), RowI.GetNextFltAttr(ColIdx2), Cmp);
+        Result = TPredicate::EvalAtom(RowI.GetNextFltAttr(ColIdx1), RowI.GetNextFltAttr(ColIdx2), Cmp);
         break;
       case STR:
-        Result = EvalSelectAtomic(RowI.GetNextStrAttr(ColIdx1), RowI.GetNextStrAttr(ColIdx2), Cmp);
+        Result = TPredicate::EvalAtom(RowI.GetNextStrAttr(ColIdx1), RowI.GetNextStrAttr(ColIdx2), Cmp);
         break;
     }
     if(!Result){ 
@@ -925,7 +919,7 @@ void TTable::SelectAtomic(TStr Col1, TStr Col2, COMP Cmp){
   }
 }
 
-void TTable::SelectAtomicIntConst(TStr Col1, TInt Val2, COMP Cmp){
+void TTable::SelectAtomicIntConst(TStr Col1, TInt Val2, TPredicate::COMP Cmp){
   TYPE Ty1;
   TInt ColIdx1;
 
@@ -935,7 +929,7 @@ void TTable::SelectAtomicIntConst(TStr Col1, TInt Val2, COMP Cmp){
 
   TRowIteratorWithRemove RowI = BegRIWR();
   while(RowI.GetNextRowIdx() != Last){
-    if(!EvalSelectAtomic(RowI.GetNextIntAttr(ColIdx1), Val2, Cmp)){
+    if(!TPredicate::EvalAtom(RowI.GetNextIntAttr(ColIdx1), Val2, Cmp)){
       RowI.RemoveNext();
     } else{
       RowI++;
@@ -943,7 +937,7 @@ void TTable::SelectAtomicIntConst(TStr Col1, TInt Val2, COMP Cmp){
   }
 }
 
-void TTable::SelectAtomicStrConst(TStr Col1, TStr Val2, COMP Cmp){
+void TTable::SelectAtomicStrConst(TStr Col1, TStr Val2, TPredicate::COMP Cmp){
   TYPE Ty1;
   TInt ColIdx1;
 
@@ -953,7 +947,7 @@ void TTable::SelectAtomicStrConst(TStr Col1, TStr Val2, COMP Cmp){
 
   TRowIteratorWithRemove RowI = BegRIWR();
   while(RowI.GetNextRowIdx() != Last){
-    if(!EvalSelectAtomic(RowI.GetNextStrAttr(ColIdx1), Val2, Cmp)){
+    if(!TPredicate::EvalAtom(RowI.GetNextStrAttr(ColIdx1), Val2, Cmp)){
       RowI.RemoveNext();
     } else{
       RowI++;
@@ -961,7 +955,7 @@ void TTable::SelectAtomicStrConst(TStr Col1, TStr Val2, COMP Cmp){
   }
 }
 
-void TTable::SelectAtomicFltConst(TStr Col1, TFlt Val2, COMP Cmp){
+void TTable::SelectAtomicFltConst(TStr Col1, TFlt Val2, TPredicate::COMP Cmp){
   TYPE Ty1;
   TInt ColIdx1;
 
@@ -971,7 +965,7 @@ void TTable::SelectAtomicFltConst(TStr Col1, TFlt Val2, COMP Cmp){
 
   TRowIteratorWithRemove RowI = BegRIWR();
   while(RowI.GetNextRowIdx() != Last){
-    if(!EvalSelectAtomic(RowI.GetNextFltAttr(ColIdx1), Val2, Cmp)){
+    if(!TPredicate::EvalAtom(RowI.GetNextFltAttr(ColIdx1), Val2, Cmp)){
       RowI.RemoveNext();
     } else{
       RowI++;
