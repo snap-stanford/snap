@@ -896,6 +896,7 @@ void TTable::SelectAtomic(TStr Col1, TStr Col2, TPredicate::COMP Cmp){
   if(Ty1 != Ty2){
     TExcept::Throw("SelectAtomic: diff types");
   }
+  if(Cmp == TPredicate::SUBSTR || Cmp == TPredicate::SUPERSTR){Assert(Ty1 == STR);}
 
   TRowIteratorWithRemove RowI = BegRIWR();
   while(RowI.GetNextRowIdx() != Last){
@@ -920,6 +921,7 @@ void TTable::SelectAtomic(TStr Col1, TStr Col2, TPredicate::COMP Cmp){
 }
 
 void TTable::SelectAtomicIntConst(TStr Col1, TInt Val2, TPredicate::COMP Cmp){
+  Assert(Cmp < TPredicate::SUBSTR);
   TYPE Ty1;
   TInt ColIdx1;
 
@@ -956,6 +958,7 @@ void TTable::SelectAtomicStrConst(TStr Col1, TStr Val2, TPredicate::COMP Cmp){
 }
 
 void TTable::SelectAtomicFltConst(TStr Col1, TFlt Val2, TPredicate::COMP Cmp){
+  Assert(Cmp < TPredicate::SUBSTR);
   TYPE Ty1;
   TInt ColIdx1;
 

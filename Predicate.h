@@ -161,7 +161,7 @@ class TPredicate{
 public:
   typedef enum {INT, FLT, STR} TYPE;   // must be consistent with TYPE definition in TTable
   typedef enum {NOT, AND, OR, NOP} OP;
-  typedef enum {LT = 0, LTE, EQ, NEQ, GTE, GT} COMP;
+  typedef enum {LT = 0, LTE, EQ, NEQ, GTE, GT, SUBSTR, SUPERSTR} COMP;
   class TAtomicPredicate;
 protected:
   const static TAtomicPredicate NonAtom;
@@ -221,6 +221,7 @@ public:
   void SetStrVal(TStr VarName, TStr VarVal){ StrVars.AddDat(VarName, VarVal);}
   TBool Eval();
   TBool EvalAtomicPredicate(const TAtomicPredicate& Atom);
+
   template <class T>
   static TBool EvalAtom(T Val1, T Val2, COMP Cmp){
     switch(Cmp){
@@ -230,6 +231,21 @@ public:
       case NEQ: return Val1 != Val2;
       case GTE: return Val1 >= Val2;
       case GT: return Val1 > Val2;
+    }
+    return false;
+  }
+
+  template <>
+  static TBool EvalAtom<TStr>(TStr Val1, TStr Val2, COMP Cmp){
+    switch(Cmp){
+      case LT: return Val1 < Val2;
+      case LTE: return Val1 <= Val2;
+      case EQ: return Val1 == Val2;
+      case NEQ: return Val1 != Val2;
+      case GTE: return Val1 >= Val2;
+      case GT: return Val1 > Val2;
+      case SUBSTR: return Val2.IsStrIn(Val1);
+      case SUPERSTR: return Val1.IsStrIn(Val2);
     }
     return false;
   }
