@@ -5,7 +5,7 @@
 #define N 10
 #define QA_FILES 7
 #define COMMENT_FILES 7
-#define QA_OPS 4
+#define QA_OPS 5
 #define COMMENT_OPS 4
 
 int main(){
@@ -17,7 +17,7 @@ int main(){
   for(int i = 0; i < QA_FILES; i++){
     qa_files[i] = dir + TStr(qa_file_names[i]);
   }
-  double qa_results[QA_FILES][N][5];
+  double qa_results[QA_FILES][N][QA_OPS];
   for(int i = 0; i < QA_FILES; i++){
     for(int j = 0; j < N; j++){
       for(int k = 0; k < QA_OPS; k++){
@@ -80,7 +80,12 @@ int main(){
       TExeTm te;
       Tj->Unique(qaGroupBy);
       qa_results[f][i][3] = te.GetSecs();
-      TStr OutFNm = outDir + "out_" + qa_file_names[f];
+      Tj->SetSrcCol("Posts1.OwnerUserId");
+      Tj->SetDstCol("Posts2.OwnerUserId");
+      TExeTm tg;
+      PNEANet G = Tj->ToGraph();
+      qa_results[f][i][4] = tg.GetSecs();
+      //TStr OutFNm = outDir + "out_" + qa_file_names[f];
       //if(i == N-1){Tj->SaveSS(OutFNm);}
       if(i == 0){printf("Number of rows in Q&A table: initial - %d, final %d\n", T2->GetNumValidRows().Val, Tj->GetNumValidRows().Val);}
     }
@@ -121,6 +126,15 @@ int main(){
     }
     unique_avg = unique_avg/N;
     printf("\naverage unique time: %f seconds\n", unique_avg);
+
+    printf("Graph Creation: ");
+    double graph_avg = 0;
+    for(int i = 0; i < N; i++){
+      printf("%f ", qa_results[f][i][4]);
+      graph_avg += qa_results[f][i][4];
+    }
+    graph_avg = graph_avg/N;
+    printf("\naverage graph time: %f seconds\n", graph_avg);
   }
   
 char* comment_file_names[COMMENT_FILES] = {"comments_10.hashed.tsv", "comments_30.hashed.tsv", "comments_100.hashed.tsv", "comments_300.hashed.tsv", "comments_1000.hashed.tsv", "comments_3000.hashed.tsv", "comments_10000.hashed.tsv"};

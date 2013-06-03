@@ -7,7 +7,7 @@ include ../Makefile.config
 HEADER = Engine.h Predicate.h TMetric.h Table.h
 CPP = Engine.cpp Predicate.cpp Table.cpp
 
-TEST = TableTest TableTest1 Benchmark
+TEST = TableTest TableTest1 Benchmark BenchmarkAshton
 
 all: $(TEST)
 
@@ -16,6 +16,9 @@ TableTes%: TableTes%.cpp Engine.o
 	$(CC) -o $@ $@.cpp Engine.o $(CSNAP)/Snap.o -I$(CSNAP) -I$(CGLIB) $(LDFLAGS) $(LIBS)
 
 Benchmark: Benchmark.cpp Engine.o
+	$(CC) -o $@ $@.cpp Engine.o $(CSNAP)/Snap.o -I$(CSNAP) -I$(CGLIB) $(LDFLAGS) $(LIBS)
+	
+BenchmarkAshton: BenchmarkAshton.cpp Engine.o
 	$(CC) -o $@ $@.cpp Engine.o $(CSNAP)/Snap.o -I$(CSNAP) -I$(CGLIB) $(LDFLAGS) $(LIBS)
 
 $(CSNAP)/Snap.o:

@@ -185,6 +185,22 @@ void TTable::AddStrVal(TStr Col, TStr Val){
   AddStrVal(GetColIdx(Col), Val);
 }
 
+void TTable::AddGraphAttribute(TStr Attr, TBool IsEdge, TBool IsSrc, TBool IsDst){
+  if(!ColTypeMap.IsKey(Attr)){TExcept::Throw(Attr + ": No such column");}
+  if(IsEdge){EdgeAttrV.Add(Attr);}
+  if(IsSrc){SrcNodeAttrV.Add(Attr);}
+  if(IsDst){DstNodeAttrV.Add(Attr);}
+}
+
+void TTable::AddGraphAttributeV(TStrV& Attrs, TBool IsEdge, TBool IsSrc, TBool IsDst){
+  for(TInt i = 0; i < Attrs.Len(); i++){
+      if(!ColTypeMap.IsKey(Attrs[i])){TExcept::Throw(Attrs[i] + ": no such column");}
+    }    
+  if(IsEdge){EdgeAttrV.AddV(Attrs);}
+  if(IsSrc){SrcNodeAttrV.AddV(Attrs);}
+  if(IsDst){DstNodeAttrV.AddV(Attrs);}
+}
+
 TStrV TTable::GetSrcNodeIntAttrV() const {
   TStrV IntNA = TStrV(IntCols.Len(),0);
   for (int i = 0; i < SrcNodeAttrV.Len(); i++) {
@@ -586,13 +602,16 @@ void TTable::GroupAux(const TStrV& GroupBy, THash<TInt,TIntV>& Grouping, TIntV& 
       if(!FGroup.IsKey(FKey)){ 
         GroupMatch.Clr();
       } else{
-        GroupMatch.Intrs(FGroup.GetDat(FKey));
+        GroupMatch.Sort(true);
+        // Note: Intrs assumes vectors are sorted!! The values of FGroup are sorted vectors
+        GroupMatch.Intrs(FGroup.GetDat(FKey));  
       }
     }
     if(SKLen > 0){ 
       if(!SGroup.IsKey(SKey)){ 
         GroupMatch.Clr();
       } else{
+        GroupMatch.Sort(true);
         GroupMatch.Intrs(SGroup.GetDat(SKey));
       }
     }
@@ -909,7 +928,7 @@ void TTable::SelectAtomic(TStr Col1, TStr Col2, TPredicate::COMP Cmp){
         Result = TPredicate::EvalAtom(RowI.GetNextFltAttr(ColIdx1), RowI.GetNextFltAttr(ColIdx2), Cmp);
         break;
       case STR:
-        Result = TPredicate::EvalAtom(RowI.GetNextStrAttr(ColIdx1), RowI.GetNextStrAttr(ColIdx2), Cmp);
+        Result = TPredicate::EvalStrAtom(RowI.GetNextStrAttr(ColIdx1), RowI.GetNextStrAttr(ColIdx2), Cmp);
         break;
     }
     if(!Result){ 
@@ -949,7 +968,7 @@ void TTable::SelectAtomicStrConst(TStr Col1, TStr Val2, TPredicate::COMP Cmp){
 
   TRowIteratorWithRemove RowI = BegRIWR();
   while(RowI.GetNextRowIdx() != Last){
-    if(!TPredicate::EvalAtom(RowI.GetNextStrAttr(ColIdx1), Val2, Cmp)){
+    if(!TPredicate::EvalStrAtom(RowI.GetNextStrAttr(ColIdx1), Val2, Cmp)){
       RowI.RemoveNext();
     } else{
       RowI++;
@@ -1031,60 +1050,136 @@ void TTable::Defrag() {
   Assert (NumValidRows == NumRows);
 }
 
+// Currently support only the non-bipartite case
 // wrong reading of string attributes
 void TTable::BuildGraphTopology(PNEANet& Graph, THash<TFlt, TInt>& FSrNodeMap, THash<TFlt, TInt>& FDsNodeMap) {
-  TYPE SrCT = GetColType(SrcCol);
-  TInt SrIdx = GetColIdx(SrcCol);
-  TYPE DsCT = GetColType(DstCol);
-  TInt DsIdx = GetColIdx(DstCol);
+  const TYPE SrCT = GetColType(SrcCol);
+  const TInt SrIdx = GetColIdx(SrcCol);
+  const TYPE DsCT = GetColType(DstCol);
+  const TInt DsIdx = GetColIdx(DstCol);
   TInt SrcCnt = 0;
   TInt DstCnt = 0;
+  // debug
+  /*
+  for(TInt i = 0; i < IntNodeVals.Len(); i++){
+    for(TInt j = i+1; j < IntNodeVals.Len(); j++){
+      if(IntNodeVals[i] == IntNodeVals[j]){printf("bug: %d %d %d\n", i, j, IntNodeVals[i]);}
+    }
+  }
+  */
+  // Add Nodes - The non-bipartite case
+  Assert(SrCT == DsCT); 
+  switch(SrCT){
+    case INT:{
+      for(TInt i = 0; i < IntNodeVals.Len(); i++){
+        // debug
+        //if(IntNodeVals[i] == 906){printf("%d\n", i);}
+        //printf("%d\n", IntNodeVals[i]);
+        if(IntNodeVals[i] == -1){ continue;}  // illegal value
+        Graph->AddNode(IntNodeVals[i]);
+      }
+      break;
+    }
+    case FLT:{
+      for(TInt i = 0; i < FltNodeVals.Len(); i++){
+        if(FltNodeVals[i].Val == -1){ continue;} // illegal value
+        TFlt Val = FltNodeVals[i];
+        if (!FDsNodeMap.IsKey(Val)) {
+          FDsNodeMap.AddDat(Val, DstCnt++);
+        }  
+        Graph->AddNode(FDsNodeMap.GetDat(Val));
+      }
+      break;
+    }
+    case STR:{
+      for(TInt i = 0; i < StrNodeVals.Len(); i++){
+        if(strlen(StrColVals.GetCStr(StrNodeVals[i])) == 0){ continue;}  //illegal value
+        Graph->AddNode(StrNodeVals[i]);
+      }
+      break;
+    }
+  }
   
   for(TRowIterator RowI = BegRI(); RowI < EndRI(); RowI++) {
     if (SrCT == INT && DsCT == INT) {
-      Graph->AddNode(IntCols[SrIdx][RowI.GetRowIdx()]);
-      Graph->AddNode(IntCols[DsIdx][RowI.GetRowIdx()]);
-      Graph->AddEdge(IntCols[SrIdx][RowI.GetRowIdx()], IntCols[DsIdx][RowI.GetRowIdx()], RowI.GetRowIdx());
+     // Graph->AddNode(IntCols[SrIdx][RowI.GetRowIdx()]);
+      //Graph->AddNode(IntCols[DsIdx][RowI.GetRowIdx()]);
+      TInt Sval = IntCols[SrIdx][RowI.GetRowIdx()];
+      TInt Dval = IntCols[DsIdx][RowI.GetRowIdx()];
+      if(Sval == -1 || Dval == -1){ continue;}  // illegal value
+      Graph->AddEdge(Sval, Dval, RowI.GetRowIdx());
     } else if (SrCT == INT && DsCT == FLT) {
-      Graph->AddNode(IntCols[SrIdx][RowI.GetRowIdx()]);
+      //Graph->AddNode(IntCols[SrIdx][RowI.GetRowIdx()]);
       TFlt val = FltCols[DsIdx][RowI.GetRowIdx()];
-      if (!FDsNodeMap.IsKey(val)) {
-	      FDsNodeMap.AddDat(val, DstCnt++);
-      }
-      Graph->AddNode(FDsNodeMap.GetDat(val));
-      Graph->AddEdge(IntCols[SrIdx][RowI.GetRowIdx()], FDsNodeMap.GetDat(val));
+      //if (!FDsNodeMap.IsKey(val)) {
+	    //  FDsNodeMap.AddDat(val, DstCnt++);
+      //}
+      //Graph->AddNode(FDsNodeMap.GetDat(val));
+      TInt Sval = IntCols[SrIdx][RowI.GetRowIdx()];
+      TInt Dval = FDsNodeMap.GetDat(val);
+      if(Sval == -1 || Dval == -1 || val.Val == -1){ continue;}  // illegal value
+      Graph->AddEdge(Sval, Dval, RowI.GetRowIdx());
     } else if (SrCT == INT && DsCT == STR) {
-      Graph->AddNode(IntCols[SrIdx][RowI.GetRowIdx()]);
-      Graph->AddNode(StrColMaps[DsIdx][RowI.GetRowIdx()]);
-      Graph->AddEdge(IntCols[SrIdx][RowI.GetRowIdx()], StrColMaps[DsIdx][RowI.GetRowIdx()], RowI.GetRowIdx());
+      //Graph->AddNode(IntCols[SrIdx][RowI.GetRowIdx()]);
+      //Graph->AddNode(StrColMaps[DsIdx][RowI.GetRowIdx()]);
+      TInt Sval = IntCols[SrIdx][RowI.GetRowIdx()];
+      TInt Dval = StrColMaps[DsIdx][RowI.GetRowIdx()];
+      if(Sval == -1 || Dval == -1 || strlen(StrColVals.GetCStr(Dval)) == 0){ continue;}  // illegal value
+      Graph->AddEdge(Sval, Dval, RowI.GetRowIdx());
     } else if (SrCT == FLT && DsCT == INT) {
-      Graph->AddNode(IntCols[DsIdx][RowI.GetRowIdx()]);
+      //Graph->AddNode(IntCols[DsIdx][RowI.GetRowIdx()]);
       TFlt val = FltCols[SrIdx][RowI.GetRowIdx()];
-      if (!FSrNodeMap.IsKey(val)) {
-	      FSrNodeMap.AddDat(val, SrcCnt++);
-      }
-      Graph->AddNode(FSrNodeMap.GetDat(val));
-      Graph->AddEdge(FSrNodeMap.GetDat(val), IntCols[SrIdx][RowI.GetRowIdx()], RowI.GetRowIdx());
+      //if (!FSrNodeMap.IsKey(val)) {
+	    //  FSrNodeMap.AddDat(val, SrcCnt++);
+      //}
+      //Graph->AddNode(FSrNodeMap.GetDat(val));
+      TInt Sval = FSrNodeMap.GetDat(val);
+      TInt Dval = IntCols[SrIdx][RowI.GetRowIdx()];
+      if(Sval == -1 || Dval == -1 || val.Val == -1){ continue;}  // illegal value
+      Graph->AddEdge(Sval, Dval, RowI.GetRowIdx());
     } else if (SrCT == FLT && DsCT == STR) {
-      Graph->AddNode(StrColMaps[DsIdx][RowI.GetRowIdx()]);
+      //Graph->AddNode(StrColMaps[DsIdx][RowI.GetRowIdx()]);
       TFlt val = FltCols[SrIdx][RowI.GetRowIdx()];
-      if (!FSrNodeMap.IsKey(val)) {
-	      FSrNodeMap.AddDat(val, SrcCnt++);
-      }
-      Graph->AddNode(FSrNodeMap.GetDat(val));
-      Graph->AddEdge(FSrNodeMap.GetDat(val), IntCols[SrIdx][RowI.GetRowIdx()], RowI.GetRowIdx());
+      //if (!FSrNodeMap.IsKey(val)) {
+	    // FSrNodeMap.AddDat(val, SrcCnt++);
+      //}
+      //Graph->AddNode(FSrNodeMap.GetDat(val));
+      TInt Sval = FSrNodeMap.GetDat(val);
+      TInt Dval = IntCols[SrIdx][RowI.GetRowIdx()];
+      if(Sval == -1 || Dval == -1 || val.Val == -1 || strlen(StrColVals.GetCStr(Dval)) == 0){ continue;}  // illegal value
+      Graph->AddEdge(Sval, Dval, RowI.GetRowIdx());
     } else if (SrCT == FLT && DsCT == FLT) {
-      TFlt val = FltCols[SrIdx][RowI.GetRowIdx()];
-      if (!FSrNodeMap.IsKey(val)) {
-	      FSrNodeMap.AddDat(val, SrcCnt++);
-      }
-      Graph->AddNode(FSrNodeMap.GetDat(val));
-      val = FltCols[DsIdx][RowI.GetRowIdx()];
-      if (!FDsNodeMap.IsKey(val)) {
-	      FDsNodeMap.AddDat(val, DstCnt++);
-      }
-      Graph->AddNode(FDsNodeMap.GetDat(val));
-      Graph->AddEdge(FSrNodeMap.GetDat(val), FDsNodeMap.GetDat(val), RowI.GetRowIdx());
+      TFlt val1 = FltCols[SrIdx][RowI.GetRowIdx()];
+      //if (!FSrNodeMap.IsKey(val)) {
+	    //  FSrNodeMap.AddDat(val, SrcCnt++);
+      //}
+      //Graph->AddNode(FSrNodeMap.GetDat(val));
+      TFlt val2 = FltCols[DsIdx][RowI.GetRowIdx()];
+      //if (!FDsNodeMap.IsKey(val)) {
+	    //  FDsNodeMap.AddDat(val, DstCnt++);
+      //}
+      //Graph->AddNode(FDsNodeMap.GetDat(val));
+      TInt Sval = FSrNodeMap.GetDat(val1);
+      TInt Dval = FDsNodeMap.GetDat(val2);
+      if(Sval == -1 || Dval == -1 || val1.Val == -1 || val2.Val == -1){ continue;} // illegal value
+      Graph->AddEdge(Sval, Dval, RowI.GetRowIdx());
+    }
+    else if(SrCT == STR && DsCT == INT){
+      TInt Sval = StrColMaps[SrIdx][RowI.GetRowIdx()];
+      TInt Dval = IntCols[DsIdx][RowI.GetRowIdx()];
+      if(Sval == -1 || Dval == -1 || strlen(StrColVals.GetCStr(Sval)) == 0){ continue;} // illegal value
+      Graph->AddEdge(Sval, Dval, RowI.GetRowIdx());
+    } else if(SrCT == STR && DsCT == FLT){
+      TFlt val = FltCols[DsIdx][RowI.GetRowIdx()];
+      TInt Sval = StrColMaps[SrIdx][RowI.GetRowIdx()];
+      TInt Dval = FDsNodeMap.GetDat(val);
+      if(Sval == -1 || Dval == -1 || strlen(StrColVals.GetCStr(Sval)) == 0 || val.Val == -1){ continue;} // illegal value
+      Graph->AddEdge(Sval, Dval, RowI.GetRowIdx());
+    } else if(SrCT == STR && DsCT == STR){
+      TInt Sval = StrColMaps[SrIdx][RowI.GetRowIdx()];
+      TInt Dval = StrColMaps[DsIdx][RowI.GetRowIdx()];
+      if(Sval == -1 || Dval == -1 || strlen(StrColVals.GetCStr(Sval)) == 0 || strlen(StrColVals.GetCStr(Dval)) == 0){ continue;} // illegal value
+      Graph->AddEdge(Sval, Dval, RowI.GetRowIdx());
     }
   }
 }
@@ -1143,7 +1238,6 @@ void TTable::AddNodeAttributes(PNEANet& Graph, THash<TFlt, TInt>& FSrNodeMap, TH
 
 void TTable::AddEdgeAttributes(PNEANet& Graph) {
   for(TRowIterator RowI = BegRI(); RowI < EndRI(); RowI++) {
-    typedef THash<TStr,TPair<TYPE,TInt> >::TIter TColIter;
     for (int i = 0; i < EdgeAttrV.Len(); i++) {
       TStr ColName = EdgeAttrV[i];
       TYPE T = GetColType(ColName);
@@ -1152,21 +1246,76 @@ void TTable::AddEdgeAttributes(PNEANet& Graph) {
       TFlt Fval;
       TStr Sval;
       switch (T) {
-      case INT:
-	Ival = IntCols[Index][RowI.GetRowIdx()];
-	Graph->AddIntAttrDatE(RowI.GetRowIdx(), Ival, ColName);
-	break;
-      case FLT:
-	Fval = FltCols[Index][RowI.GetRowIdx()];
-	Graph->AddFltAttrDatE(RowI.GetRowIdx(), Fval, ColName);
-	break;
-      case STR:
-	Sval = StrColVals.GetStr(StrColMaps[Index][RowI.GetRowIdx()]);
-	Graph->AddStrAttrDatE(RowI.GetRowIdx(), Sval, ColName);
-	break;
+        case INT:
+	        Ival = IntCols[Index][RowI.GetRowIdx()];
+	        Graph->AddIntAttrDatE(RowI.GetRowIdx(), Ival, ColName);
+	        break;
+        case FLT:
+	        Fval = FltCols[Index][RowI.GetRowIdx()];
+	        Graph->AddFltAttrDatE(RowI.GetRowIdx(), Fval, ColName);
+	        break;
+        case STR:
+	        Sval = StrColVals.GetStr(StrColMaps[Index][RowI.GetRowIdx()]);
+	        Graph->AddStrAttrDatE(RowI.GetRowIdx(), Sval, ColName);
+	        break;
       }
     }
   }
+}
+
+// assuming non-bipartite graph for now - SrcCol and DstCol values belong to 
+// the same "universe" of possible node values
+void TTable::GraphPrep(){
+ THash<TInt,TInt> IntVals;
+ THash<TFlt,TInt> FltVals;
+ THash<TInt,TInt> StrVals;  // keys are StrColMaps mappings
+ const TYPE NodeType = GetColType(SrcCol);
+ const TInt SrcColIdx = GetColIdx(SrcCol);
+ const TInt DstColIdx = GetColIdx(DstCol);
+ Assert(NodeType == GetColType(DstCol));
+ for(TRowIterator it = BegRI(); it < EndRI(); it++){
+   switch(NodeType){
+     case INT:{
+       TInt Sval = it.GetIntAttr(SrcCol);
+       if(!IntVals.IsKey(Sval)){
+         IntVals.AddKey(Sval);
+         IntNodeVals.Add(Sval);
+       }
+       TInt Dval = it.GetIntAttr(DstCol);
+       if(!IntVals.IsKey(Dval)){
+         IntVals.AddKey(Dval);
+         IntNodeVals.Add(Dval);
+       }
+       break;
+     }
+     case FLT:{
+       TFlt Sval = it.GetFltAttr(SrcCol);
+       if(!FltVals.IsKey(Sval)){
+         FltVals.AddKey(Sval);
+         FltNodeVals.Add(Sval);
+       }
+       TFlt Dval = it.GetFltAttr(DstCol);
+       if(!FltVals.IsKey(Dval)){
+         FltVals.AddKey(Dval);
+         FltNodeVals.Add(Dval);
+       }
+       break;
+     }
+     case STR:{
+       TInt Sval = StrColMaps[SrcColIdx][it.GetRowIdx()];
+       if(!StrVals.IsKey(Sval)){
+         StrVals.AddKey(Sval);
+         StrNodeVals.Add(Sval);
+       }
+       TInt Dval = StrColMaps[DstColIdx][it.GetRowIdx()];
+       if(!StrVals.IsKey(Dval)){
+         StrVals.AddKey(Dval);
+         StrNodeVals.Add(Dval);
+       }
+       break;
+     }
+   }
+ }
 }
 
 PNEANet TTable::ToGraph() {

@@ -231,12 +231,11 @@ public:
       case NEQ: return Val1 != Val2;
       case GTE: return Val1 >= Val2;
       case GT: return Val1 > Val2;
+      default: return false;
     }
-    return false;
-  }
+  };
 
-  template <>
-  static TBool EvalAtom<TStr>(TStr Val1, TStr Val2, COMP Cmp){
+  static TBool EvalStrAtom(TStr Val1, TStr Val2, COMP Cmp){
     switch(Cmp){
       case LT: return Val1 < Val2;
       case LTE: return Val1 <= Val2;
@@ -246,8 +245,8 @@ public:
       case GT: return Val1 > Val2;
       case SUBSTR: return Val2.IsStrIn(Val1);
       case SUPERSTR: return Val1.IsStrIn(Val2);
+      default: return false;
     }
-    return false;
   }
 };
 #endif // PREDICATE_H

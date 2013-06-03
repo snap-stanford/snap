@@ -135,6 +135,11 @@ protected:
   TStrV SrcNodeAttrV;
   // list of columns to serve as source node attributes
   TStrV DstNodeAttrV;
+  // Node values - i.e. the unique values of src/dst col
+  // (assuming non-bipartite graphs)
+  TIntV IntNodeVals;
+  TFltV FltNodeVals;
+  TIntV StrNodeVals; // StrColMaps mappings
 
   TStr GetStrVal(TInt ColIdx, TInt RowIdx) const{ return StrColVals.GetCStr(StrColMaps[ColIdx][RowIdx]);}
   TStr GetStrVal(TStr Col, TInt RowIdx) const{ return GetStrVal(ColTypeMap.GetDat(Col).Val2, RowIdx);}
@@ -145,6 +150,8 @@ protected:
   TYPE GetSchemaColType(TInt Idx) const{ return S[Idx].Val2;}
   void AddSchemaCol(TStr ColName, TYPE ColType) { S.Add(TPair<TStr,TYPE>(ColName, ColType));}
   TInt GetColIdx(TStr ColName) const{ return ColTypeMap.GetDat(ColName).Val2;}  // column index among columns of the same type
+  void AddGraphAttribute(TStr Attr, TBool IsEdge, TBool IsSrc, TBool IsDst);
+  void AddGraphAttributeV(TStrV& Attrs, TBool IsEdge, TBool IsSrc, TBool IsDst);
 
   // Iterators 
   TRowIterator BegRI() const { return TRowIterator(FirstValidRow, this);}
@@ -214,10 +221,26 @@ public:
   static PTable LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm, const TIntV& RelevantCols, const char& Separator = '\t', TBool HasTitleLine = true);
   void SaveSS(const TStr& OutFNm);
 	void Save(TSOut& SOut);
+  void GraphPrep();
 	PNEANet ToGraph();
-  /* Getters of data required for building a graph out of the table */
+  /* Getters and Setters of data required for building a graph out of the table */
 	TStr GetSrcCol() const { return SrcCol; }
+  void SetSrcCol(TStr Src) {
+    if(!ColTypeMap.IsKey(Src)){TExcept::Throw(Src + ": no such column");}
+    SrcCol = Src;
+  }
 	TStr GetDstCol() const { return DstCol; }
+  void SetDstCol(TStr Dst) {
+    if(!ColTypeMap.IsKey(Dst)){TExcept::Throw(Dst + ": no such column");}
+    DstCol = Dst;
+  }
+  void AddEdgeAttr(TStr Attr){AddGraphAttribute(Attr, true, false, false);}
+  void AddEdgeAttr(TStrV& Attrs){AddGraphAttributeV(Attrs, true, false, false);}
+  void AddSrcNodeAttr(TStr Attr){AddGraphAttribute(Attr, false, true, false);}
+  void AddSrcNodeAttr(TStrV& Attrs){AddGraphAttributeV(Attrs, false, true, false);}
+  void AddDstNodeAttr(TStr Attr){AddGraphAttribute(Attr, false, false, true);}
+  void AddDstNodeAttr(TStrV& Attrs){AddGraphAttributeV(Attrs, false, false, true);}
+
 	TStrV GetSrcNodeIntAttrV() const;
   TStrV GetDstNodeIntAttrV() const;
 	TStrV GetEdgeIntAttrV() const;
@@ -227,6 +250,8 @@ public:
 	TStrV GetSrcNodeStrAttrV() const;
   TStrV GetDstNodeStrAttrV() const;
 	TStrV GetEdgeStrAttrV() const;
+
+
 	TYPE GetColType(TStr ColName) const{ return ColTypeMap.GetDat(ColName).Val1; };
   TInt GetNumRows() const { return NumRows;}
   TInt GetNumValidRows() const { return NumValidRows;}
