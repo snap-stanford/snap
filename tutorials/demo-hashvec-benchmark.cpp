@@ -134,6 +134,51 @@ void VecBench(const int& n) {
   printf("vec : %7.3fs searching %d numbers\n",ft1-ft0,i);
 }
 
+// fixed vector benchmark with integer values
+void FixedVecBench(const int& n) {
+  TIntV Vec(100000000);
+  float ft0, ft1;
+  int x;
+  int i;
+  int Found;
+  int NotFound;
+
+  // set the elements to 0
+  ft0 = GetCPUTime();
+  Vec.PutAll(0);
+  printf("fvec:          size %d\n", Vec.Len());
+
+  ft1 = GetCPUTime();
+  printf("fvec: %7.3fs zeroing    %d numbers\n",ft1-ft0,n);
+
+  // build the vector
+  ft0 = GetCPUTime();
+  for (i = 0; i < n; i++) {
+    x = (int) (drand48() * 100000000);
+    Vec[x] = 1;
+  }
+
+  ft1 = GetCPUTime();
+  printf("fvec: %7.3fs inserting  %d numbers\n",ft1-ft0,i);
+
+  // search the vector
+  ft0 = GetCPUTime();
+  Found = 0;
+  NotFound = 0;
+  for (i = 0; i < n; i++) {
+    x = (int) (drand48() * 100000000);
+    if (Vec[x] <= 0) {
+      NotFound++;
+    } else {
+      Found++;
+    }
+  }
+  printf("fvec:          found %d, notfound %d\n", Found, NotFound);
+
+  ft1 = GetCPUTime();
+  printf("fvec: %7.3fs searching %d numbers\n",ft1-ft0,i);
+}
+
 // sorted vector benchmark with integer values
 void SortedVecBench(const int& n) {
   TIntV Vec;
@@ -194,6 +239,7 @@ int main(int argc, char* argv[]) {
   for (i = 1000000; i <= 100000000; i *= 10) {
     RandBench(i);
     HashBench(i);
+    FixedVecBench(i);
     VecBench(i);
     //SortedVecBench(n);
   }
