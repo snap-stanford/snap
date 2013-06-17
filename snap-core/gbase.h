@@ -66,6 +66,11 @@ template <class PGraph> void PrintInfo(const PGraph& Graph, const TStr& Desc="",
 
 // Forward declaration, definition in triad.h
 template <class PGraph> int64 GetTriads(const PGraph& Graph, int64& ClosedTriads, int64& OpenTriads, int SampleNodes=-1);
+template <class PGraph> double GetBfsEffDiam(const PGraph& Graph, const int& NTestNodes, const bool& IsDir, double& EffDiam, int& FullDiam);
+template <class PGraph> double GetMxWccSz(const PGraph& Graph);
+template <class PGraph> double GetMxSccSz(const PGraph& Graph);
+template<class PGraph> int GetKCoreNodes(const PGraph& Graph, TIntPrV& CoreIdSzV);
+template<class PGraph> int GetKCoreEdges(const PGraph& Graph, TIntPrV& CoreIdSzV);
 
 template <class PGraph>
 void PrintInfo(const PGraph& Graph, const TStr& Desc, const TStr& OutFNm, const bool& Fast) {
@@ -97,7 +102,18 @@ void PrintInfo(const PGraph& Graph, const TStr& Desc, const TStr& OutFNm, const 
     }
   }
   int64 Closed=0, Open=0;
-  if (! Fast) { TSnap::GetTriads(Graph, Closed, Open); }
+  double WccSz=0, SccSz=0;
+  double EffDiam=0;
+  int FullDiam=0;
+  TIntPrV CNodesV, CEdgesV;
+  if (! Fast) {
+    TSnap::GetTriads(Graph, Closed, Open);
+    WccSz = TSnap::GetMxWccSz(Graph);
+    SccSz = TSnap::GetMxSccSz(Graph);
+    TSnap::GetBfsEffDiam(Graph, 100, false, EffDiam, FullDiam);
+    TSnap::GetKCoreNodes(Graph, CNodesV);
+    TSnap::GetKCoreEdges(Graph, CEdgesV);
+  }
   // print info
   fprintf(F, "\n");
   fprintf(F, "  Nodes:                    %d\n", Graph->GetNodes());
@@ -111,9 +127,17 @@ void PrintInfo(const PGraph& Graph, const TStr& Desc, const TStr& OutFNm, const 
     fprintf(F, "  Unique undirected edges:  %d\n", UniqUnDirE.Len());
     fprintf(F, "  Self Edges:               %d\n", SelfEdges);
     fprintf(F, "  BiDir Edges:              %d\n", BiDirEdges);
-    fprintf(F, "  Closed triangles          %s\n", TUInt64::GetStr(Closed).CStr());
-    fprintf(F, "  Open triangles            %s\n", TUInt64::GetStr(Open).CStr());
-    fprintf(F, "  Frac. of closed triads    %f\n", Closed/double(Closed+Open));
+    fprintf(F, "  Closed triangles:         %s\n", TUInt64::GetStr(Closed).CStr());
+    fprintf(F, "  Open triangles:           %s\n", TUInt64::GetStr(Open).CStr());
+    fprintf(F, "  Frac. of closed triads:   %f\n", Closed/double(Closed+Open));
+    fprintf(F, "  Connected component size: %f\n", WccSz);
+    fprintf(F, "  Strong conn. comp. size:  %f\n", SccSz);
+    fprintf(F, "  Approx. full diameter:    %d\n", FullDiam);
+    fprintf(F, "  90%% effective diameter:  %f\n", EffDiam);
+    fprintf(F, "  Core\tNodes\tEdges\n");
+    for (int i  = 0; i < CNodesV.Len(); i++) {
+      printf("  %d\t%d\t%d\n", CNodesV[i].Val1(), CNodesV[i].Val2(), CEdgesV[i].Val2());
+    }
   }
   if (! OutFNm.Empty()) { fclose(F); }
 }

@@ -21,6 +21,8 @@ template <class PGraph> void GetSccSzCnt(const PGraph& Graph, TIntPrV& SccSzCnt)
 template <class PGraph> void GetSccs(const PGraph& Graph, TCnComV& CnComV);
 /// Returns the fraction of nodes in the largest weakly connected component of a Graph.
 template <class PGraph> double GetMxWccSz(const PGraph& Graph);
+/// Returns the fraction of nodes in the largest strongly connected component of a Graph.
+template <class PGraph> double GetMxSccSz(const PGraph& Graph);
 
 /// Returns a graph representing the largest weakly connected component on an input Graph. ##GetMxWcc
 template <class PGraph> PGraph GetMxWcc(const PGraph& Graph);
@@ -397,6 +399,14 @@ double GetMxWccSz(const PGraph& Graph) {
   else { return CnComV[0].Len() / double(Graph->GetNodes()); }
 }
 
+template <class PGraph>
+double GetMxSccSz(const PGraph& Graph) {
+  TCnComV CnComV;
+  GetSccs(Graph, CnComV);
+  if (Graph->GetNodes() == 0) { return 0; }
+  else { return CnComV[0].Len() / double(Graph->GetNodes()); }
+}
+  
 template <class PGraph>
 PGraph GetMxWcc(const PGraph& Graph) {
   TCnComV CnComV;
