@@ -189,6 +189,14 @@ protected:
     }
   }
 
+  // returns positive value if R1 is bigger, negative value if R2 is bigger, and 0 if they are equal (strcmp semantics)
+  TInt CompareRows(TInt R1, TInt R2, const TStr CompareBy);
+  TInt CompareRows(TInt R1, TInt R2, const TStrV& CompareBy); 
+  TInt GetPivot(TIntV& V, TInt StartIdx, TInt EndIdx, const TStrV& SortBy);
+  TInt Partition(TIntV& V, TInt StartIdx, TInt EndIdx, const TStrV& SortBy);
+  void ISort(TIntV& V, TInt StartIdx, TInt EndIdx, const TStrV& SortBy);
+  void QSort(TIntV& V, TInt StartIdx, TInt EndIdx, const TStrV& SortBy);
+
   void RemoveFirstRow();
   void RemoveRow(TInt RowIdx);
   void RemoveRows(const TIntV& RemoveV);
@@ -281,8 +289,8 @@ public:
 	// record results in column CountCol; Implementation: add a new column to table
 	void Count(TStr CountColName, TStr Col);
 	// order the rows according to the values in columns of OrderBy (in descending
-	// lexicographic order). record order in OrderCol; Implementation: logical indexing / actually remove rows
-	void Order(TStr OrderColName, const TStrV& OrderBy);
+	// lexicographic order). 
+	void Order(const TStrV& OrderBy, TStr OrderColName = "");
 
 	// perform equi-join with given columns - i.e. keep tuple pairs where 
 	// this->Col1 == Table->Col2; Implementation: Hash-Join - build a hash out of the smaller table
@@ -297,6 +305,10 @@ public:
   // also updates meta-data as row indices have changed
   // need some liveness analysis of columns
   void Defrag();
+
+  /* Special Filters to be applied at the end */
+  PTable IsNextK(TStr OrderCol, TInt K, TStrV& GroupBy);
+  PTable IsNextK(TStr OrderCol, TInt K, TStr GroupBy);
 
    // helper functions
  private:

@@ -145,6 +145,7 @@ void TTable::SaveSS(const TStr& OutFNm){
    fprintf(F, "%s\n", GetSchemaColName(L-1).CStr());
   // print table contents
   for(TRowIterator RowI = BegRI(); RowI < EndRI(); RowI++){
+    printf("%d\n", RowI.GetRowIdx());
     for(TInt i = 0; i < L; i++){
       char C = (i == L-1) ? '\n' : '\t';
 	    switch(GetSchemaColType(i)){
@@ -312,6 +313,7 @@ void TTable::AddLabel(TStr column, TStr NewLabel){
   TPair<TYPE,TInt> ColVal = ColTypeMap.GetDat(column);
   ColTypeMap.AddDat(NewLabel,ColVal);
 }
+
 
 void TTable::RemoveFirstRow(){
   TInt Old = FirstValidRow;
@@ -995,6 +997,130 @@ void TTable::SelectAtomicFltConst(TStr Col1, TFlt Val2, TPredicate::COMP Cmp){
   }
 }
 
+TInt TTable::CompareRows(TInt R1, TInt R2, const TStr CompareBy){
+  TInt ColIdx = GetColIdx(CompareBy);
+  switch(GetColType(CompareBy)){
+    case INT:{
+      if(IntCols[ColIdx][R1] > IntCols[ColIdx][R2]) return 1;
+      if(IntCols[ColIdx][R1] < IntCols[ColIdx][R2]) return -1;
+      return 0;
+    }
+    case FLT:{
+      if(FltCols[ColIdx][R1] > FltCols[ColIdx][R2]) return 1;
+      if(FltCols[ColIdx][R1] < FltCols[ColIdx][R2]) return -1;
+      return 0;
+    }
+    case STR:{
+      TStr S1 = GetStrVal(ColIdx, R1);
+      TStr S2 = GetStrVal(ColIdx, R2);
+      return strcmp(S1.CStr(), S2.CStr());
+    }
+  }
+}
+
+TInt TTable::CompareRows(TInt R1, TInt R2, const TStrV& CompareBy){
+  for(TInt i = 0; i < CompareBy.Len(); i++){
+    TInt res = CompareRows(R1, R2, CompareBy[i]);
+    if(res != 0){ return res;}
+  }
+  return 0;
+}
+
+void TTable::ISort(TIntV& V, TInt StartIdx, TInt EndIdx, const TStrV& SortBy){
+  if(StartIdx < EndIdx){
+    for(TInt i = StartIdx+1; i <= EndIdx; i++){
+      TInt Val = V[i];
+      TInt j = i;
+      while((StartIdx < j) && (CompareRows(V[j-1], Val, SortBy) > 0)){
+        V[j] = V[j-1];
+        j--;
+      }
+      V[j] = Val;
+    }
+  }
+}
+
+TInt TTable::GetPivot(TIntV& V, TInt StartIdx, TInt EndIdx, const TStrV& SortBy){
+  TInt L = EndIdx - StartIdx + 1;
+  const TInt Idx1 = StartIdx + TInt::GetRnd(L);
+  const TInt Idx2 = StartIdx + TInt::GetRnd(L);
+  const TInt Idx3 = StartIdx + TInt::GetRnd(L);
+  if(CompareRows(V[Idx1], V[Idx2], SortBy) < 0){
+    if(CompareRows(V[Idx2], V[Idx3], SortBy) < 0){ return Idx2;}
+    if(CompareRows(V[Idx1], V[Idx3], SortBy) < 0){ return Idx3;}
+    return Idx1;
+  } else{
+    if(CompareRows(V[Idx3], V[Idx2], SortBy) < 0){ return Idx2;}
+    if(CompareRows(V[Idx3], V[Idx1], SortBy) < 0){ return Idx3;}
+    return Idx1;
+  }
+}
+
+TInt TTable::Partition(TIntV& V, TInt StartIdx, TInt EndIdx, const TStrV& SortBy){
+  TInt PivotIdx = GetPivot(V, StartIdx, EndIdx, SortBy);
+  TInt Pivot = V[PivotIdx];
+  V.Swap(PivotIdx, EndIdx);
+  TInt StoreIdx = StartIdx;
+  for(TInt i = StartIdx; i < EndIdx; i++){
+    if(CompareRows(V[i], Pivot, SortBy) <= 0){
+      V.Swap(i, StoreIdx);
+      StoreIdx++;
+    }
+  }
+  // move pivot value to its place
+  V.Swap(StoreIdx, EndIdx);
+  return StoreIdx;
+}
+
+void TTable::QSort(TIntV& V, TInt StartIdx, TInt EndIdx, const TStrV& SortBy){
+  if(StartIdx < EndIdx){
+    if(EndIdx - StartIdx < 20){
+      ISort(V, StartIdx, EndIdx, SortBy);
+    } else{
+      TInt Pivot = Partition(V, StartIdx, EndIdx, SortBy);
+      QSort(V, StartIdx, Pivot, SortBy);
+      QSort(V, Pivot+1, EndIdx, SortBy);
+    }
+  }
+}
+
+void TTable::Order(const TStrV& OrderBy, TStr OrderColName){
+  // get a vector of all valid row indices
+  TIntV ValidRows = TIntV(NumValidRows);
+  if(NumRows == NumValidRows){
+    for(TInt i = 0; i < NumValidRows; i++){
+      ValidRows[i] = i;
+    }
+  } else{
+    TInt i = 0;
+    for(TRowIterator RI = BegRI(); RI < EndRI(); RI++){
+      ValidRows[i] = RI.GetRowIdx();
+      i++;
+    }
+  }
+
+  // sort that vector according to the attributes given in "OrderBy" in lexicographic order
+  QSort(ValidRows, 0, NumValidRows-1, OrderBy);
+
+  // rewire Next vector
+  FirstValidRow = ValidRows[0];
+  for(TInt i = 0; i < NumValidRows-1; i++){
+    Next[ValidRows[i]] = ValidRows[i+1];
+  }
+  Next[ValidRows[NumValidRows-1]] = Last;
+
+  // add rank column
+  if(!OrderColName.Empty()){
+    TIntV RankCol = TIntV(NumRows);
+    for(TInt i = 0; i < NumValidRows; i++){
+      RankCol[ValidRows[i]] = i;
+    }
+    IntCols.Add(RankCol);
+    AddSchemaCol(OrderColName, INT);
+    ColTypeMap.AddDat(OrderColName, TPair<TYPE,TInt>(INT, IntCols.Len()-1));
+  }
+}
+
 void TTable::Defrag() {
   TInt FreeIndex = 0;
   TIntV Mapping;  // Mapping[old_index] = new_index/invalid
@@ -1319,6 +1445,7 @@ void TTable::GraphPrep(){
 }
 
 PNEANet TTable::ToGraph() {
+  GraphPrep();
   PNEANet Graph = PNEANet::New();
   THash<TFlt, TInt> FSrNodeMap = THash<TFlt, TInt>();
   THash<TFlt, TInt> FDsNodeMap = THash<TFlt, TInt>();
@@ -1328,5 +1455,14 @@ PNEANet TTable::ToGraph() {
   return Graph;
 }
 
+/*** Special Filters ***/
+/*
+void TTable::IsNextK(TStr OrderCol, TInt K, TStr GroupBy){
+  TStrV OrderBy(2);
+  OrderBy[0] = GroupBy;
+  OrderBy[1] = OrderCol;
+  for(TRowIterator
+}
+*/
 
 
