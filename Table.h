@@ -141,6 +141,9 @@ protected:
   TFltV FltNodeVals;
   TIntV StrNodeVals; // StrColMaps mappings
 
+  // no type checking. assuming ColName actually refers to the right type.
+  TInt GetIntVal(TStr ColName, TInt RowIdx){ return IntCols[ColTypeMap.GetDat(ColName).Val2][RowIdx];}
+  TFlt GetFltVal(TStr ColName, TInt RowIdx){ return FltCols[ColTypeMap.GetDat(ColName).Val2][RowIdx];}
   TStr GetStrVal(TInt ColIdx, TInt RowIdx) const{ return StrColVals.GetCStr(StrColMaps[ColIdx][RowIdx]);}
   TStr GetStrVal(TStr Col, TInt RowIdx) const{ return GetStrVal(ColTypeMap.GetDat(Col).Val2, RowIdx);}
   void AddStrVal(TInt ColIdx, TStr Val);
@@ -308,8 +311,7 @@ public:
   void Defrag();
 
   /* Special Filters to be applied at the end */
-  //PTable IsNextK(TStr OrderCol, TInt K, TStrV& GroupBy);
-  //PTable IsNextK(TStr OrderCol, TInt K, TStr GroupBy);
+  PTable IsNextK(TStr OrderCol, TInt K, TStr GroupBy);
 
    // helper functions
  private:

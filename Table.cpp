@@ -1461,13 +1461,37 @@ PNEANet TTable::ToGraph() {
 }
 
 /*** Special Filters ***/
-/*
-void TTable::IsNextK(TStr OrderCol, TInt K, TStr GroupBy){
+PTable TTable::IsNextK(TStr OrderCol, TInt K, TStr GroupBy){
   TStrV OrderBy(2);
   OrderBy[0] = GroupBy;
   OrderBy[1] = OrderCol;
-  for(TRowIterator
+  Order(OrderBy);
+  TYPE GroupByAttrType = GetColType(GroupBy);
+  PTable T = InitializeJointTable(*this);
+
+  for(TRowIterator RI = BegRI(); RI < EndRI(); RI++){
+    TInt Succ = RI.GetRowIdx();
+    TBool OutOfGroup = false;
+    for(TInt i = 0; i < K; i++){
+      Succ = Next[Succ];
+      if(Succ == Last){break;}
+      switch(GroupByAttrType){
+        case INT:
+          if(GetIntVal(GroupBy, Succ) != RI.GetIntAttr(GroupBy)){ OutOfGroup = true;}
+          break;
+        case FLT:
+          if(GetFltVal(GroupBy, Succ) != RI.GetFltAttr(GroupBy)){ OutOfGroup = true;}
+          break;
+        case STR:
+          if(GetStrVal(GroupBy, Succ) != RI.GetStrAttr(GroupBy)){ OutOfGroup = true;}
+          break;
+      }
+      if(OutOfGroup){break;}  // break out of inner for loop
+      T->AddJointRow(*this, *this, RI.GetRowIdx(), Succ);
+    }
+  }
+  return T;
 }
-*/
+
 
 
