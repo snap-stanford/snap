@@ -6,8 +6,8 @@
 #define OPS1 5 // load select join graphprep tograph
 
 int main(){
-  //TStr TestFile("../../testfiles/posts_10.hashed.tsv");
-  TStr TestFile("/lfs/local/0/ringo/testfiles/posts_full.tsv");
+  TStr TestFile("../../testfiles/posts_1.tsv");
+  //TStr TestFile("/lfs/local/0/ringo/testfiles/posts_full.tsv");
   double q1Results[N][OPS1];
   for(int i = 0; i < N; i++){
     for(int j = 0; j < OPS1; j++){
@@ -85,7 +85,6 @@ int main(){
     Tj->SetSrcCol("posts1.OwnerUserId");
     Tj->SetDstCol("posts2.OwnerUserId");
     Tj->AddEdgeAttr("posts2.CreationDate");
-    Tj->GraphPrep();
     q1Results[i][3] = tpg.GetSecs();
     TExeTm ttg;
     Tj->ToGraph();
