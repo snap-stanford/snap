@@ -209,7 +209,8 @@ protected:
   PTable InitializeJointTable(const TTable& Table);
   // add joint row T1[RowIdx1]<=>T2[RowIdx2]
   void AddJointRow(const TTable& T1, const TTable& T2, TInt RowIdx1, TInt RowIdx2);
-
+  // preparation for graph generation of final table
+  void GraphPrep();
 public:
   // do we need an assignment operator?
 	TTable(): NumRows(0), NumValidRows(0), FirstValidRow(0), NumOfDistinctStrVals(0){}  
@@ -232,7 +233,6 @@ public:
   static PTable LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm, const TIntV& RelevantCols, const char& Separator = '\t', TBool HasTitleLine = true);
   void SaveSS(const TStr& OutFNm);
 	void Save(TSOut& SOut);
-  void GraphPrep();
 	PNEANet ToGraph();
   /* Getters and Setters of data required for building a graph out of the table */
 	TStr GetSrcCol() const { return SrcCol; }
