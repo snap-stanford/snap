@@ -145,7 +145,6 @@ void TTable::SaveSS(const TStr& OutFNm){
    fprintf(F, "%s\n", GetSchemaColName(L-1).CStr());
   // print table contents
   for(TRowIterator RowI = BegRI(); RowI < EndRI(); RowI++){
-    printf("%d\n", RowI.GetRowIdx());
     for(TInt i = 0; i < L; i++){
       char C = (i == L-1) ? '\n' : '\t';
 	    switch(GetSchemaColType(i)){
@@ -708,10 +707,16 @@ void TTable::Count(TStr CountColName, TStr Col){
   JointTable->IntCols = TVec<TIntV>(IntCols.Len() + Table.IntCols.Len());
   JointTable->FltCols = TVec<TFltV>(FltCols.Len() + Table.FltCols.Len());
   JointTable->StrColMaps = TVec<TIntV>(StrColMaps.Len() + Table.StrColMaps.Len());
+  TStr Name1 = Name;
+  TStr Name2 = Table.Name;
+  if(Name1 == Name2){
+    Name1 = Name + "_1";
+    Name2 = Name + "_2";
+  }
   for(TInt i = 0; i < S.Len(); i++){
     TStr ColName = GetSchemaColName(i);
     TYPE ColType = GetSchemaColType(i);
-    TStr CName = Name + "." + ColName;
+    TStr CName = Name1 + "." + ColName;
     JointTable->ColTypeMap.AddDat(CName, ColTypeMap.GetDat(ColName));
     JointTable->AddLabel(CName, ColName);
     JointTable->AddSchemaCol(CName, ColType);
@@ -719,7 +724,7 @@ void TTable::Count(TStr CountColName, TStr Col){
   for(TInt i = 0; i < Table.S.Len(); i++){
     TStr ColName = Table.GetSchemaColName(i);
     TYPE ColType = Table.GetSchemaColType(i);
-    TStr CName = Table.Name + "." + ColName;
+    TStr CName = Name2 + "." + ColName;
     TPair<TYPE, TInt> NewDat = Table.ColTypeMap.GetDat(ColName);
     Assert(ColType == NewDat.Val1);
     // add offsets

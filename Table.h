@@ -296,6 +296,7 @@ public:
 	// this->Col1 == Table->Col2; Implementation: Hash-Join - build a hash out of the smaller table
 	// hash the larger table and check for collisions
 	PTable Join(TStr Col1, const TTable& Table, TStr Col2);
+  PTable SelfJoin(TStr Col){return Join(Col, *this, Col);}
 	// compute distances between elements in this->Col1 and Table->Col2 according
 	// to given metric. Store the distances in DistCol, but keep only rows where
 	// distance <= threshold
@@ -307,8 +308,8 @@ public:
   void Defrag();
 
   /* Special Filters to be applied at the end */
-  PTable IsNextK(TStr OrderCol, TInt K, TStrV& GroupBy);
-  PTable IsNextK(TStr OrderCol, TInt K, TStr GroupBy);
+  //PTable IsNextK(TStr OrderCol, TInt K, TStrV& GroupBy);
+  //PTable IsNextK(TStr OrderCol, TInt K, TStr GroupBy);
 
    // helper functions
  private:
