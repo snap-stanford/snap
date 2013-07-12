@@ -138,7 +138,7 @@ protected:
   // Node values - i.e. the unique values of src/dst col
   // (assuming non-bipartite graphs)
   TIntV IntNodeVals;
-  TFltV FltNodeVals;
+  THash<TFlt, TInt> FltNodeVals;
   TIntV StrNodeVals; // StrColMaps mappings
 
   // no type checking. assuming ColName actually refers to the right type.
@@ -237,6 +237,8 @@ public:
   /* Getters and Setters of data required for building a graph out of the table */
 	TStr GetSrcCol() const { return SrcCol; }
   void SetSrcCol(TStr Src) {
+    // debug
+    //for(THash<TStr,TPair<TYPE,TInt>>::TIter it = ColTypeMap.BegI(); it < ColTypeMap.EndI(); it++){printf("%s\n", it.GetKey().CStr());}
     if(!ColTypeMap.IsKey(Src)){TExcept::Throw(Src + ": no such column");}
     SrcCol = Src;
   }
@@ -315,9 +317,9 @@ public:
 
    // helper functions
  private:
- TInt GetNId(TStr Col, TInt RowIdx, THash<TFlt, TInt>& FSrNodeMap, THash<TFlt, TInt>& FDsNodeMap);
- void BuildGraphTopology(PNEANet& Graph, THash<TFlt, TInt>& FSrNodeMap, THash<TFlt, TInt>& FDsNodeMap);
- void AddNodeAttributes(PNEANet& Graph, THash<TFlt, TInt>& FSrNodeMap, THash<TFlt, TInt>& FDsNodeMap);
+ TInt GetNId(TStr Col, TInt RowIdx);
+ void BuildGraphTopology(PNEANet& Graph);
+ void AddNodeAttributes(PNEANet& Graph);
  void AddEdgeAttributes(PNEANet& Graph);
 
  friend class TPt<TTable>;
