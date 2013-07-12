@@ -253,6 +253,12 @@ public:
   void AddSrcNodeAttr(TStrV& Attrs){AddGraphAttributeV(Attrs, false, true, false);}
   void AddDstNodeAttr(TStr Attr){AddGraphAttribute(Attr, false, false, true);}
   void AddDstNodeAttr(TStrV& Attrs){AddGraphAttributeV(Attrs, false, false, true);}
+  // TODO: this is very wasteful in the non-disjoint ("non-bipartite") case
+  // as it will lead to an iteration over the src nodes as well as the dst nodes, even thougth 
+  // the intersection betweeen these two node sets can be very significant
+  // Need to have a separate NodeAttributes vector for the non-disjoint case..
+  void AddNodeAttr(TStr Attr){AddSrcNodeAttr(Attr); AddDstNodeAttr(Attr);}
+  void AddNodeAttr(TStrV& Attrs){AddSrcNodeAttr(Attrs); AddDstNodeAttr(Attrs);}
 
 	TStrV GetSrcNodeIntAttrV() const;
   TStrV GetDstNodeIntAttrV() const;

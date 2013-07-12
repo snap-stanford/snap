@@ -1189,8 +1189,6 @@ void TTable::BuildGraphTopology(PNEANet& Graph) {
   const TInt SrIdx = GetColIdx(SrcCol);
   const TYPE DsCT = GetColType(DstCol);
   const TInt DsIdx = GetColIdx(DstCol);
-  //TInt SrcCnt = 0;
-  //TInt DstCnt = 0;
   // debug
   /*
   for(TInt i = 0; i < IntNodeVals.Len(); i++){
@@ -1322,7 +1320,7 @@ TInt TTable::GetNId(TStr Col, TInt RowIdx) {
       TExcept::Throw("Column " + Col + " is not source node or destination column");
     }
   } else {
-    return StrColMaps[RowIdx][Idx]();
+    return StrColMaps[Idx][RowIdx]();
   }
   return 0;
 }
