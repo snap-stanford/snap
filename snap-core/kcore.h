@@ -126,7 +126,7 @@ template<class PGraph>
 int GetKCoreEdges(const PGraph& Graph, TIntPrV& CoreIdSzV) {
   TKCore<PGraph> KCore(Graph);
   CoreIdSzV.Clr();
-  CoreIdSzV.Add(TIntPr(0, Graph->GetNodes()));
+  CoreIdSzV.Add(TIntPr(0, Graph->GetEdges()));
   for (int i = 1; KCore.GetNextCore() > 0; i++) {
     CoreIdSzV.Add(TIntPr(i, KCore.GetCoreEdges()));
   }
