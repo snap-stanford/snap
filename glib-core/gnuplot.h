@@ -15,6 +15,10 @@ typedef enum {
 
 class TGnuPlot {
 public:
+  /// Path to GnuPlot executable. Set if gnuplot is not found in the PATH.
+  static TStr GnuPlotPath;
+  /// GnuPlot executable file name. Set if different than the standard wgnuplot/gnuplot.
+  static TStr GnuPlotFNm;
   static TStr DefPlotFNm;
   static TStr DefDataFNm;
 private:
@@ -49,6 +53,7 @@ private:
   bool SetGrid, SetPause;
   TVec<TGpSeries> SeriesV;
   TStrV MoreCmds;
+public:
   static int GetTics42();
 public:
   TStr GetSeriesPlotStr(const int& PlotN);

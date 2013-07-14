@@ -3,11 +3,21 @@
 
 /////////////////////////////////////////////////
 // GNU-Plot-Chart
-/*#ifdef GLib_WIN
-  TStr TGnuPlot::GnuPlotPath = "\\Dev\\GLib\\gnuplot\\bin\\";
-#else
-  TStr TGnuPlot::GnuPlotPath = "/usr/bin/";
-#endif*/
+
+// Set path to gnuplot
+#if defined(GLib_WIN)
+  TStr TGnuPlot::GnuPlotPath = "C:\\gnuplot";
+  TStr TGnuPlot::GnuPlotFNm = "wgnuplot.exe";
+#elif defined(GLib_CYGWIN)
+  TStr TGnuPlot::GnuPlotPath = "/usr/bin";
+  TStr TGnuPlot::GnuPlotFNm = "gnuplot.exe";
+#elif defined(GLib_MACOSX) 
+  TStr TGnuPlot::GnuPlotPath = "/opt/local/bin";
+  TStr TGnuPlot::GnuPlotFNm = "gnuplot";
+#else 
+  TStr TGnuPlot::GnuPlotPath = "/usr/bin";
+  TStr TGnuPlot::GnuPlotFNm = "gnuplot";
+#endif
 
 // Determines the gnuplot version and the tics command syntax.
 // Gnuplot changed the syntax with version 4.2:
@@ -21,29 +31,21 @@ int TGnuPlot::GetTics42() {
   char Buf[1024];
   char Version[1024];
   size_t n;
-
   // get gnuplot version
-  p = popen("gnuplot -V","r");
-  if (p == NULL) {
-    return -1;
+  p = popen(TStr::Fmt("%s -V", TGnuPlot::GnuPlotFNm.CStr()).CStr(), "r");
+  if (p == NULL) { // try running using the path
+    p = popen(TStr::Fmt("%s/%s -V", TGnuPlot::GnuPlotPath.CStr(), TGnuPlot::GnuPlotFNm.CStr()).CStr(), "r");
+    if (p == NULL) { return -1; }
   }
   n = fread(Buf, 1, 100, p);
-  if (n <= 0) {
-    return -1;
-  }
+  if (n <= 0) { return -1; }
   Buf[n] = '\0';
   pclose(p);
-
-  // printf("Buf %d .%s.\n", n, Buf);
+  //printf("Buf %d .%s.\n", n, Buf);
   n = sscanf(Buf, "gnuplot %s", Version);
-  if (n <= 0) {
-    return -1;
-  }
+  if (n <= 0) { return -1; }
   // printf("Version %d .%s.\n", n, Version);
-  if ((strlen(Version) < 3) || (Version[1] != '.')) {
-    return -1;
-  }
-
+  if ((strlen(Version) < 3) || (Version[1] != '.')) { return -1; }
   // test version < 4.2
   if ((Version[0] < '4') || ((Version[0] == '4') && (Version[2] < '2'))) {
     // printf("TGnuPlot::GetTics42 0\n");
@@ -55,7 +57,6 @@ int TGnuPlot::GetTics42() {
 }
 
 int TGnuPlot::Tics42 = TGnuPlot::GetTics42();
-
 TStr TGnuPlot::DefPlotFNm = "GnuPlot.plt";
 TStr TGnuPlot::DefDataFNm = "GnuPlot.tab";
 
@@ -137,8 +138,8 @@ TStr TGnuPlot::GetSeriesPlotStr(const int& SeriesId) {
   // hard coded line style
   if (Series.WithStyle.Empty()) {
     if (Series.SeriesTy == gpwLines) Series.WithStyle = "lw 1";
-    //if (Series.SeriesTy == gpwPoints) Series.WithStyle = "pt 6 ps 1 lw 1"; // circles
-    //if (Series.SeriesTy == gpwLinesPoints) Series.WithStyle = "pt 6 ps 1 lw 1"; // circles
+    if (Series.SeriesTy == gpwPoints) Series.WithStyle = "pt 6"; // circles
+    if (Series.SeriesTy == gpwLinesPoints) Series.WithStyle = "pt 6"; // circles
     if (Series.SeriesTy == gpwBoxes) Series.WithStyle = "fill solid 0.3";
   }
   PlotStr += " with " + GetSeriesTyStr(Series.SeriesTy) + " " + Series.WithStyle;
@@ -861,25 +862,23 @@ void TGnuPlot::CreatePlotFile(const TStr& Comment) {
 }
 
 void TGnuPlot::RunGnuPlot() const {
-  TStr GpFNm, GpPath;
-  #if defined(GLib_WIN)
-    GpFNm = "wgnuplot.exe";
-    GpPath = "C:\\gnuplot\\";
-  #elif defined(GLib_CYGWIN)
-    GpFNm = "gnuplot.exe";
-    GpPath = "/usr/bin/";
-  #else
-    GpFNm = "gnuplot";
-    GpPath = "/usr/bin/";
-  #endif
-  if (system(TStr::Fmt("%s %s", GpFNm.CStr(), PlotFNm.CStr()).CStr())==0) { return; }
-  #if defined(GLib_WIN)
-  if (system(TStr::Fmt(".\\%s %s", GpFNm.CStr(), PlotFNm.CStr()).CStr())==0) { return; }
-  #else
-  if (system(TStr::Fmt("./%s %s", GpFNm.CStr(), PlotFNm.CStr()).CStr())==0) { return; }
-  #endif
-  if (system(TStr::Fmt("%s%s %s", GpPath.CStr(), GpFNm.CStr(), PlotFNm.CStr()).CStr())==0) { return; }
+  // try running gnuplot 
+  if (system(TStr::Fmt("%s %s", GnuPlotFNm.CStr(), PlotFNm.CStr()).CStr())==0) { return; }
+  if (! GnuPlotPath.Empty()) { 
+    #if defined(GLib_WIN)
+    if (system(TStr::Fmt("%s\\%s %s", GnuPlotPath.CStr(), GnuPlotFNm.CStr(), PlotFNm.CStr()).CStr())==0) { return; }
+    #else
+    if (system(TStr::Fmt("%s/%s %s", GnuPlotPath.CStr(), GnuPlotFNm.CStr(), PlotFNm.CStr()).CStr())==0) { return; }
+    #endif
+  }
+  //Old
+  //#if defined(GLib_WIN)
+  //if (system(TStr::Fmt(".\\%s %s", GpFNm.CStr(), PlotFNm.CStr()).CStr())==0) { return; }
+  //#else
+  //if (system(TStr::Fmt("./%s %s", GpFNm.CStr(), PlotFNm.CStr()).CStr())==0) { return; }
+  //#endif
+  //if (system(TStr::Fmt("%s%s %s", GpPath.CStr(), GpFNm.CStr(), PlotFNm.CStr()).CStr())==0) { return; }
   //FailR(TStr::Fmt("Cat not find GnuPlot (%s) for plot %s. Set the PATH.", GpFNm.CStr(), PlotFNm.CStr()).CStr());
   //ErrNotify(TStr::Fmt("Cat not find GnuPlot (%s) for plot %s. Set the PATH.", GpFNm.CStr(), PlotFNm.CStr()).CStr());
-  fprintf(stderr, "[%s:%d] Cat not find GnuPlot (%s) for plot %s. Set the PATH.\n", __FILE__, __LINE__, GpFNm.CStr(), PlotFNm.CStr());
+  fprintf(stderr, "[%s:%d] Cat not find GnuPlot (%s) for plot %s. Set the $$PATH variable or TGnuPlot::GnuPlotPath. (%s)\n", __FILE__, __LINE__, GnuPlotFNm.CStr(), PlotFNm.CStr(), TGnuPlot::GnuPlotPath.CStr());
 }
