@@ -135,6 +135,14 @@ protected:
   TStrV SrcNodeAttrV;
   // list of columns to serve as source node attributes
   TStrV DstNodeAttrV;
+  // list of attributes pairs with values common to source and destination
+  // and their common name. for instance: <T_1.age,T_2.age, age>
+  //- T_1.age is a src node attribute, T_2.age is a dst node attribute.
+  // However, since all nodes refer to the same universe of entities (users)
+  // we just do one assignment of age per node
+  // This list should be very small...
+  TVec<TTriple<TStr,TStr,TStr>> CommonNodeAttrs;
+
   // Node values - i.e. the unique values of src/dst col
   // (assuming non-bipartite graphs)
   TIntV IntNodeVals;
@@ -223,7 +231,8 @@ public:
     StrColMaps(Table.StrColMaps), StrColVals(Table.StrColVals), 
     NumOfDistinctStrVals(Table.NumOfDistinctStrVals), ColTypeMap(Table.ColTypeMap),
     GroupMapping(Table.GroupMapping), SrcCol(Table.SrcCol), DstCol(Table.DstCol),
-    EdgeAttrV(Table.EdgeAttrV), SrcNodeAttrV(Table.SrcNodeAttrV), DstNodeAttrV(Table.DstNodeAttrV){} 
+    EdgeAttrV(Table.EdgeAttrV), SrcNodeAttrV(Table.SrcNodeAttrV),
+    DstNodeAttrV(Table.DstNodeAttrV), CommonNodeAttrs(Table.CommonNodeAttrs){} 
 
   static PTable New(){ return new TTable();}
   static PTable New(const TStr& TableName, const Schema& S){ return new TTable(TableName, S);}
@@ -259,6 +268,9 @@ public:
   // Need to have a separate NodeAttributes vector for the non-disjoint case..
   void AddNodeAttr(TStr Attr){AddSrcNodeAttr(Attr); AddDstNodeAttr(Attr);}
   void AddNodeAttr(TStrV& Attrs){AddSrcNodeAttr(Attrs); AddDstNodeAttr(Attrs);}
+  void SetCommonNodeAttrs(TStr SrcAttr, TStr DstAttr, TStr CommonAttrName){ 
+    CommonNodeAttrs.Add(TStrTr(SrcAttr, DstAttr, CommonAttrName));
+  }
 
 	TStrV GetSrcNodeIntAttrV() const;
   TStrV GetDstNodeIntAttrV() const;

@@ -1312,13 +1312,7 @@ TInt TTable::GetNId(TStr Col, TInt RowIdx) {
   if (CT == INT) {
     return IntCols[RowIdx][Idx];
   } else if (CT == FLT) {
-    if (Col == SrcCol) {
-      return FltNodeVals.GetDat(FltCols[Idx][RowIdx]);
-    } else if (Col == DstCol) {
-      return FltNodeVals.GetDat(FltCols[Idx][RowIdx]);
-    } else {
-      TExcept::Throw("Column " + Col + " is not source node or destination column");
-    }
+    return FltNodeVals.GetDat(FltCols[Idx][RowIdx]);
   } else {
     return StrColMaps[Idx][RowIdx]();
   }
@@ -1326,18 +1320,38 @@ TInt TTable::GetNId(TStr Col, TInt RowIdx) {
 }
     
 void TTable::AddNodeAttributes(PNEANet& Graph) {
+  // debug
+  /*
+  printf("src attrs:\n");
+  for(TInt i = 0; i < SrcNodeAttrV.Len(); i++){
+    printf("%s\n", SrcNodeAttrV[i].CStr());
+  }
+  printf("dst attrs:\n");
+  for(TInt i = 0; i < DstNodeAttrV.Len(); i++){
+    printf("%s\n", DstNodeAttrV[i].CStr());
+  }
+  */
+
   for (TRowIterator RowI = BegRI(); RowI < EndRI(); RowI++) {
     // Add Source and Destination node attributes.
     for (int i = 0; i < SrcNodeAttrV.Len(); i++) {
       TStr SrcColAttr = SrcNodeAttrV[i];
       TYPE CT = GetColType(SrcColAttr);
       int Idx = GetColIdx(SrcColAttr);
+      // check if this is a common attribute
+      for(TInt i = 0; i < CommonNodeAttrs.Len(); i++){
+        if(CommonNodeAttrs[i].Val1 == SrcColAttr || CommonNodeAttrs[i].Val2 == SrcColAttr){
+          SrcColAttr = CommonNodeAttrs[i].Val3;
+          break;
+        }
+      }
       TInt RowIdx  = RowI.GetRowIdx();
       if (CT == INT) {
 	      Graph->AddIntAttrDatN(GetNId(SrcCol, RowIdx), IntCols[Idx][RowIdx], SrcColAttr);
       } else if (CT == FLT) {
 	      Graph->AddFltAttrDatN(GetNId(SrcCol, RowIdx), FltCols[Idx][RowIdx], SrcColAttr);
       } else {
+        //printf("%d %s %s\n", GetNId(SrcCol, RowIdx), StrColVals.GetStr(StrColMaps[Idx][RowIdx]).CStr(), SrcColAttr.CStr());
 	      Graph->AddStrAttrDatN(GetNId(SrcCol, RowIdx), StrColVals.GetStr(StrColMaps[Idx][RowIdx]), SrcColAttr);
       }
     }
@@ -1347,12 +1361,20 @@ void TTable::AddNodeAttributes(PNEANet& Graph) {
       TYPE CT = GetColType(DstColAttr);
       int Idx = GetColIdx(DstColAttr);
       TInt RowIdx  = RowI.GetRowIdx();
+      // check if this is a common attribute
+      for(TInt i = 0; i < CommonNodeAttrs.Len(); i++){
+        if(CommonNodeAttrs[i].Val1 == DstColAttr || CommonNodeAttrs[i].Val2 == DstColAttr){
+          DstColAttr = CommonNodeAttrs[i].Val3;
+          break;
+        }
+      }
       if (CT == INT) {
-	      Graph->AddIntAttrDatN(GetNId(SrcCol, RowIdx), IntCols[Idx][RowIdx], DstColAttr);
+	      Graph->AddIntAttrDatN(GetNId(DstCol, RowIdx), IntCols[Idx][RowIdx], DstColAttr);
       } else if (CT == FLT) {
-	      Graph->AddFltAttrDatN(GetNId(SrcCol, RowIdx), FltCols[Idx][RowIdx], DstColAttr);
+	      Graph->AddFltAttrDatN(GetNId(DstCol, RowIdx), FltCols[Idx][RowIdx], DstColAttr);
       } else {
-	      Graph->AddStrAttrDatN(GetNId(SrcCol, RowIdx), StrColVals.GetStr(StrColMaps[Idx][RowIdx]), DstColAttr);
+        //printf("%d %s %s\n", GetNId(DstCol, RowIdx), StrColVals.GetStr(StrColMaps[Idx][RowIdx]).CStr(), DstColAttr.CStr());
+	      Graph->AddStrAttrDatN(GetNId(DstCol, RowIdx), StrColVals.GetStr(StrColMaps[Idx][RowIdx]), DstColAttr);
       }
     }
   }
