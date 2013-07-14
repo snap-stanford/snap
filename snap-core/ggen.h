@@ -40,12 +40,6 @@ PUNGraph GenGeoPrefAttach(const int& Nodes, const int& OutDeg, const double& Bet
 PUNGraph GenSmallWorld(const int& Nodes, const int& NodeOutDeg, const double& RewireProb, TRnd& Rnd=TInt::Rnd);
 /// Generates a random undirect graph with a given degree sequence.
 PUNGraph GenConfModel(const TIntV& DegSeqV, TRnd& Rnd=TInt::Rnd);
-/// Rewire a random undirected graph. Keeps node degrees the same, but randomly rewires the edges.
-PUNGraph GenRewire(const PUNGraph& Graph, const int& NSwitch=100, TRnd& Rnd=TInt::Rnd);
-/// Rewire a random directed graph. Keeps node degrees the same, but randomly rewires the edges.
-PNGraph  GenRewire(const PNGraph& Graph, const int& NSwitch=100, TRnd& Rnd=TInt::Rnd);
-/// Rewire a random bipartite graph. Keeps node degrees the same, but randomly rewires the edges.
-PBPGraph GenRewire(const PBPGraph& Graph, const int& NSwitch=100, TRnd& Rnd=TInt::Rnd);
 /// Generates a random Forest Fire, directed graph with given probabilities.
 PNGraph GenForestFire(const int& Nodes, const double& FwdProb, const double& BckProb);
 /// Generates a random scale-free network using the Copying Model.
@@ -55,6 +49,16 @@ PNGraph GenRMat(const int& Nodes, const int& Edges, const double& A, const doubl
 /// Generates a R-Mat graph, with a synthetic copy of the Epinions social network.
 PNGraph GenRMatEpinions();
 
+  
+/// Rewire a random undirected graph. Keeps node degrees the same, but randomly rewires the edges.
+PUNGraph GenRewire(const PUNGraph& Graph, const int& NSwitch=100, TRnd& Rnd=TInt::Rnd);
+/// Rewire a random directed graph. Keeps node degrees the same, but randomly rewires the edges.
+PNGraph  GenRewire(const PNGraph& Graph, const int& NSwitch=100, TRnd& Rnd=TInt::Rnd);
+/// Rewire a random bipartite graph. Keeps node degrees the same, but randomly rewires the edges.
+PBPGraph GenRewire(const PBPGraph& Graph, const int& NSwitch=100, TRnd& Rnd=TInt::Rnd);
+/// Generate a random graph using (approximately) the same node degrees as in G using the configuration model.
+PUNGraph GenConfModel(const PUNGraph& G);
+  
 /////////////////////////////////////////////////
 // Implementation
 template <class PGraph>
