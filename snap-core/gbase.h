@@ -105,14 +105,11 @@ void PrintInfo(const PGraph& Graph, const TStr& Desc, const TStr& OutFNm, const 
   double WccSz=0, SccSz=0;
   double EffDiam=0;
   int FullDiam=0;
-  TIntPrV CNodesV, CEdgesV;
   if (! Fast) {
     TSnap::GetTriads(Graph, Closed, Open);
     WccSz = TSnap::GetMxWccSz(Graph);
     SccSz = TSnap::GetMxSccSz(Graph);
     TSnap::GetBfsEffDiam(Graph, 100, false, EffDiam, FullDiam);
-    TSnap::GetKCoreNodes(Graph, CNodesV);
-    TSnap::GetKCoreEdges(Graph, CEdgesV);
   }
   // print info
   fprintf(F, "\n");
@@ -134,10 +131,10 @@ void PrintInfo(const PGraph& Graph, const TStr& Desc, const TStr& OutFNm, const 
     fprintf(F, "  Strong conn. comp. size:  %f\n", SccSz);
     fprintf(F, "  Approx. full diameter:    %d\n", FullDiam);
     fprintf(F, "  90%% effective diameter:  %f\n", EffDiam);
-    fprintf(F, "  Core\tNodes\tEdges\n");
-    for (int i  = 0; i < CNodesV.Len(); i++) {
-      printf("  %d\t%d\t%d\n", CNodesV[i].Val1(), CNodesV[i].Val2(), CEdgesV[i].Val2());
-    }
+    //fprintf(F, "  Core\tNodes\tEdges\n");
+    //for (int i  = 0; i < CNodesV.Len(); i++) {
+    //  printf("  %d\t%d\t%d\n", CNodesV[i].Val1(), CNodesV[i].Val2(), CEdgesV[i].Val2());
+    //}
   }
   if (! OutFNm.Empty()) { fclose(F); }
 }
