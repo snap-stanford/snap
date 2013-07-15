@@ -59,6 +59,7 @@ public:
 public:
   TGStat(const TSecTm& GraphTm = TSecTm(), const TStr& GraphName=TStr());
   TGStat(const PNGraph& Graph, const TSecTm& Time, TFSet StatFSet=TFSet(), const TStr& GraphName=TStr());
+  TGStat(const PUNGraph& Graph, const TSecTm& Time, TFSet StatFSet=TFSet(), const TStr& GraphName=TStr());
   TGStat(const PNEGraph& Graph, const TSecTm& Time, TFSet StatFSet=TFSet(), const TStr& GraphName=TStr());
   template <class PGraph> TGStat(const PGraph& Graph, const TSecTm& Time, TFSet StatFSet=TFSet(), const TStr& GraphName=TStr()) {
     TakeStat(Graph, Time, StatFSet, GraphName); }
@@ -68,6 +69,8 @@ public:
   static PGStat New(const TSecTm& Time=TSecTm(), const TStr& GraphName=TStr()) {
     return new TGStat(Time, GraphName); }
   static PGStat New(const PNGraph& Graph, const TSecTm& Time, TFSet StatFSet=TFSet(),
+    const TStr& GraphNm=TStr()) { return new TGStat(Graph, Time, StatFSet, GraphNm); }
+  static PGStat New(const PUNGraph& Graph, const TSecTm& Time, TFSet StatFSet=TFSet(),
     const TStr& GraphNm=TStr()) { return new TGStat(Graph, Time, StatFSet, GraphNm); }
   static PGStat New(const PNEGraph& Graph, const TSecTm& Time, TFSet StatFSet=TFSet(),
     const TStr& GraphNm=TStr()) { return new TGStat(Graph, Time, StatFSet, GraphNm); }
@@ -105,6 +108,7 @@ public:
   int GetEdges() const { return (int) GetVal(gsvEdges); }
 
   void TakeStat(const PNGraph& Graph, const TSecTm& Time, TFSet StatFSet, const TStr& GraphName);
+  void TakeStat(const PUNGraph& Graph, const TSecTm& Time, TFSet StatFSet, const TStr& GraphName);
   template <class PGraph> void TakeStat(const PGraph& Graph, const TSecTm& Time, TFSet StatFSet, const TStr& GraphName);
   template <class PGraph> void TakeBasicStat(const PGraph& Graph, const bool& IsMxWcc=false);
   template <class PGraph> void TakeBasicStat(const PGraph& Graph, TFSet FSet, const bool& IsMxWcc=false);
@@ -171,6 +175,7 @@ public:
   PGStat Add(const TSecTm& Time, TStr GraphNm=TStr());
   void Add(const PGStat& Growth) { GStatV.Add(Growth); }
   void Add(const PNGraph& Graph, const TSecTm& Time, const TStr& GraphNm=TStr());
+  void Add(const PUNGraph& Graph, const TSecTm& Time, const TStr& GraphNm=TStr());
   void Add(const PNEGraph& Graph, const TSecTm& Time, const TStr& GraphNm=TStr());
   void Clr() { GStatV.Clr(); }
   void Sort(const TGStatVal& SortBy=gsvNodes, const bool& Asc=true);

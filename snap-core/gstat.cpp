@@ -26,6 +26,10 @@ TGStat::TGStat(const PNGraph& Graph, const TSecTm& GraphTm, TFSet StatFSet, cons
   TakeStat(Graph, GraphTm, StatFSet, GraphName);
 }
 
+TGStat::TGStat(const PUNGraph& Graph, const TSecTm& GraphTm, TFSet StatFSet, const TStr& GraphName) {
+  TakeStat(Graph, GraphTm, StatFSet, GraphName);
+}
+
 TGStat::TGStat(const PNEGraph& Graph, const TSecTm& GraphTm, TFSet StatFSet, const TStr& GraphName) {
   TakeStat(Graph, GraphTm, StatFSet, GraphName);
 }
@@ -110,6 +114,7 @@ void TGStat::TakeStat(const PNGraph& Graph, const TSecTm& _Time, TFSet StatFSet,
     PNGraph WccGraph = TSnap::GetMxWcc(Graph);
     TakeBasicStat(WccGraph, true);
     TakeDiam(WccGraph, StatFSet, true);
+    SetVal(gsvWccSize, WccGraph->GetNodes()/double(Graph->GetNodes()));
   }
   // strongly connected component
   TakeSccStat(Graph, StatFSet);
@@ -121,6 +126,38 @@ void TGStat::TakeStat(const PNGraph& Graph, const TSecTm& _Time, TFSet StatFSet,
   TakeConnComp(Graph, StatFSet);
   // spectral
   TakeSpectral(Graph, StatFSet, -1);
+  // clustering coeffient
+  if (StatFSet.In(gsdClustCf) || StatFSet.In(gsvClustCf)) {
+    TakeClustCf(Graph); }
+  if (StatFSet.In(gsdTriadPart)) {
+    TakeTriadPart(Graph); }
+  printf("**[%s]\n", FullTm.GetTmStr());
+}
+
+void TGStat::TakeStat(const PUNGraph& Graph, const TSecTm& _Time, TFSet StatFSet, const TStr& GraphName) {
+  printf("\n===TakeStat:  UG(%u, %u) at %s\n", Graph->GetNodes(), Graph->GetEdges(), _Time.IsDef()?_Time.GetStr().CStr():"");
+  TExeTm ExeTm, FullTm;
+  Time = _Time;
+  GraphNm = GraphName;
+  if (StatFSet.In(gsvNone)) { return; }
+  TakeBasicStat(Graph, false);
+  TakeDiam(Graph, StatFSet, false);
+  if (StatFSet.In(gsdWcc) || StatFSet.In(gsdWccHops) || StatFSet.In(gsvFullDiam) || StatFSet.In(gsvEffWccDiam) || StatFSet.In(gsvWccNodes) || StatFSet.In(gsvWccSrcNodes) || StatFSet.In(gsvWccDstNodes) || StatFSet.In(gsvWccEdges) || StatFSet.In(gsvWccUniqEdges) || StatFSet.In(gsvWccBiDirEdges)) {
+    PUNGraph WccGraph = TSnap::GetMxWcc(Graph);
+    TakeBasicStat(WccGraph, true);
+    TakeDiam(WccGraph, StatFSet, true);
+    SetVal(gsvWccSize, WccGraph->GetNodes()/double(Graph->GetNodes()));
+  }
+  // strongly connected component
+  //TakeSccStat(Graph, StatFSet);
+  // strongly connected component
+  TakeBccStat(Graph, StatFSet);
+  // degrees
+  TakeDegDistr(Graph, StatFSet);
+  // components
+  TakeConnComp(Graph, StatFSet);
+  // spectral
+  //TakeSpectral(Graph, StatFSet, -1);
   // clustering coeffient
   if (StatFSet.In(gsdClustCf) || StatFSet.In(gsvClustCf)) {
     TakeClustCf(Graph); }
@@ -420,6 +457,14 @@ PGStat TGStatVec::Add(const TSecTm& Time, TStr GraphNm) {
 }
 
 void TGStatVec::Add(const PNGraph& Graph, const TSecTm& Time, const TStr& GraphNm) {
+  if (Graph->GetNodes() < (int) TGStatVec::MinNodesEdges) {
+    printf(" ** TGStatVec::Add: graph too small (%d nodes).SKIP\n", Graph->GetNodes());
+    return;
+  }
+  Add(TGStat::New(Graph, Time, StatFSet, GraphNm));
+}
+
+void TGStatVec::Add(const PUNGraph& Graph, const TSecTm& Time, const TStr& GraphNm) {
   if (Graph->GetNodes() < (int) TGStatVec::MinNodesEdges) {
     printf(" ** TGStatVec::Add: graph too small (%d nodes).SKIP\n", Graph->GetNodes());
     return;
