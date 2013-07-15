@@ -16,9 +16,10 @@ typedef enum {
   gsvNone, gsvIndex, gsvTime, gsvNodes, gsvZeroNodes, gsvNonZNodes, gsvSrcNodes, gsvDstNodes,
   gsvEdges, gsvUniqEdges, gsvBiDirEdges,
   gsvWccNodes, gsvWccSrcNodes, gsvWccDstNodes, gsvWccEdges, gsvWccUniqEdges, gsvWccBiDirEdges,
+  gsvSccNodes, gsvSccEdges,gsvBccNodes, gsvBccEdges,
   gsvFullDiam, gsvEffDiam, gsvEffWccDiam, gsvFullWccDiam,
   gsvFullDiamDev, gsvEffDiamDev, gsvEffWccDiamDev, gsvFullWccDiamDev, // diameter+variance
-  gsvClustCf, gsvOpenTriads, gsvClosedTriads, gsvWccSize,
+  gsvClustCf, gsvOpenTriads, gsvClosedTriads, gsvWccSize, gsvSccSize, gsvBccSize,
   gsvMx
 } TGStatVal;
 
@@ -107,6 +108,8 @@ public:
   template <class PGraph> void TakeStat(const PGraph& Graph, const TSecTm& Time, TFSet StatFSet, const TStr& GraphName);
   template <class PGraph> void TakeBasicStat(const PGraph& Graph, const bool& IsMxWcc=false);
   template <class PGraph> void TakeBasicStat(const PGraph& Graph, TFSet FSet, const bool& IsMxWcc=false);
+  template <class PGraph> void TakeSccStat(const PGraph& Graph, TFSet StatFSet);
+  template <class PGraph> void TakeBccStat(const PGraph& Graph, TFSet StatFSet);
   template <class PGraph> void TakeDegDistr(const PGraph& Graph);
   template <class PGraph> void TakeDegDistr(const PGraph& Graph, TFSet StatFSet);
   template <class PGraph> void TakeDiam(const PGraph& Graph, const bool& IsMxWcc=false);
@@ -215,8 +218,12 @@ void TGStat::TakeStat(const PGraph& Graph, const TSecTm& _Time, TFSet StatFSet, 
   GraphNm = GraphName;
   if (StatFSet.In(gsvNone)) { return; }
   TakeBasicStat(Graph, false);
+  TakeSccStat(Graph, StatFSet);
+  TakeBccStat(Graph, StatFSet);
   if (StatFSet.In(gsdWcc)) {
-    TakeBasicStat(TSnap::GetMxWcc(Graph), true);
+    PGraph WccG = TSnap::GetMxWcc(Graph);
+    TakeBasicStat(WccG, true);
+    SetVal(gsvWccSize, WccG->GetNodes()/double(Graph->GetNodes()));
   }
   // degrees
   TakeDegDistr(Graph, StatFSet);
@@ -403,6 +410,32 @@ void TGStat::TakeConnComp(const PGraph& Graph, TFSet StatFSet) {
       SccSzCntV.Add(TFltPr(SccSzCntV1[i].Val1(), SccSzCntV1[i].Val2()));
   }
   if (StatFSet.In(gsdWcc) || StatFSet.In(gsdScc)) { printf("[%s]  ", ExeTm.GetTmStr()); }
+}
+
+template <class PGraph>
+void TGStat::TakeSccStat(const PGraph& Graph, TFSet StatFSet) {
+  TExeTm ExeTm;
+  if (StatFSet.In(gsvSccNodes) || StatFSet.In(gsvSccEdges) || StatFSet.In(gsvSccSize)) {
+    printf("scc...");
+    PGraph SccG = TSnap::GetMxScc(Graph);
+    SetVal(gsvSccNodes, SccG->GetNodes());
+    SetVal(gsvSccEdges, SccG->GetEdges());
+    SetVal(gsvSccSize, SccG->GetNodes()/double(Graph->GetNodes()));
+    printf("[%s]  ", ExeTm.GetTmStr());
+  }
+}
+
+template <class PGraph>
+void TGStat::TakeBccStat(const PGraph& Graph, TFSet StatFSet) {
+  TExeTm ExeTm;
+  if (StatFSet.In(gsvBccNodes) || StatFSet.In(gsvBccEdges) || StatFSet.In(gsvBccSize)) {
+    printf("bcc...");
+    PGraph BccG = TSnap::GetMxBiCon(Graph);
+    SetVal(gsvBccNodes, BccG->GetNodes());
+    SetVal(gsvBccEdges, BccG->GetEdges());
+    SetVal(gsvBccSize, BccG->GetNodes()/double(Graph->GetNodes()));
+    printf("[%s]  ", ExeTm.GetTmStr());
+  }
 }
 
 template <class PGraph>

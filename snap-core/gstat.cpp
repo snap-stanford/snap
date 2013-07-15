@@ -71,14 +71,12 @@ bool TGStat::operator < (const TGStat& GStat) const {
 bool TGStat::HasVal(const TGStatVal& StatVal) const {
   if (StatVal == gsvIndex) { return true; }
   if (StatVal == gsvTime) { return Time.IsDef(); }
-  if (StatVal == gsvWccSize) { return HasVal(gsvWccNodes) && HasVal(gsvNodes); }
   return ValStatH.IsKey(int(StatVal));
 }
 
 double TGStat::GetVal(const TGStatVal& StatVal) const {
   if (StatVal == gsvIndex) { return -1; }
   if (StatVal == gsvTime) { return Time.GetAbsSecs(); }
-  if (StatVal == gsvWccSize) { return GetVal(gsvWccNodes) / GetVal(gsvNodes); }
   if (! ValStatH.IsKey(int(StatVal))) { return -1.0; }
   return ValStatH.GetDat(int(StatVal));
 }
@@ -113,6 +111,10 @@ void TGStat::TakeStat(const PNGraph& Graph, const TSecTm& _Time, TFSet StatFSet,
     TakeBasicStat(WccGraph, true);
     TakeDiam(WccGraph, StatFSet, true);
   }
+  // strongly connected component
+  TakeSccStat(Graph, StatFSet);
+  // strongly connected component
+  TakeBccStat(Graph, StatFSet);
   // degrees
   TakeDegDistr(Graph, StatFSet);
   // components
@@ -285,6 +287,10 @@ TStr TGStat::GetValStr(const TGStatVal& Val) {
     ValTyStrH.AddDat(gsvWccEdges, "WccEdges");
     ValTyStrH.AddDat(gsvWccUniqEdges, "WccUniqEdges");
     ValTyStrH.AddDat(gsvWccBiDirEdges, "WccBiDirEdges");
+    ValTyStrH.AddDat(gsvSccNodes, "SccNodes");
+    ValTyStrH.AddDat(gsvSccEdges, "SccEdges");
+    ValTyStrH.AddDat(gsvBccNodes, "BccNodes");
+    ValTyStrH.AddDat(gsvBccEdges, "BccEdges");
     ValTyStrH.AddDat(gsvFullDiam, "FullDiam");
     ValTyStrH.AddDat(gsvEffDiam, "EffDiam");
     ValTyStrH.AddDat(gsvEffWccDiam, "EffWccDiam");
@@ -297,6 +303,8 @@ TStr TGStat::GetValStr(const TGStatVal& Val) {
     ValTyStrH.AddDat(gsvOpenTriads, "OpenTr");
     ValTyStrH.AddDat(gsvClosedTriads, "ClosedTr");
     ValTyStrH.AddDat(gsvWccSize, "WccSize");
+    ValTyStrH.AddDat(gsvSccSize, "SccSize");
+    ValTyStrH.AddDat(gsvBccSize, "BccSize");
     ValTyStrH.AddDat(gsvMx, "Mx");
   }
   IAssert(ValTyStrH.IsKey(int(Val)));
