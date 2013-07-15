@@ -517,6 +517,7 @@ void TGStatVec::GetValV(const TGStatVal& XVal, const TGStatVal& YVal, TFltPrV& V
     else { x = At(t)->GetVal(XVal); }
     ValV.Add(TFltPr(x, At(t)->GetVal(YVal)));
   }
+  ValV.Sort(true); // sort by ascending x value
 }
 
 PGStat TGStatVec::GetAvgGStat(const bool& ClipAt1) {
