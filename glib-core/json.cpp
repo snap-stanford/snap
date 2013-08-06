@@ -165,13 +165,16 @@ PJsonVal TJsonVal::GetValFromLx(TILx& Lx){
 
 PJsonVal TJsonVal::GetValFromSIn(const PSIn& SIn){
   TILx Lx(SIn, TFSet()|iloCmtAlw|iloCsSens|iloExcept|iloSigNum);
-  PJsonVal Val; bool Ok=true; TStr MsgStr="Ok";
+  PJsonVal Val;
+  //bool Ok=true;
+  TStr MsgStr="Ok";
   try {
     Lx.GetSym(TFSet()|syLBracket|syLBrace);
     Val=GetValFromLx(Lx);
   }
   catch (PExcept Except){
-    Ok=false; MsgStr=Except->GetMsgStr();
+    //Ok=false;
+    MsgStr=Except->GetMsgStr();
     Val=TJsonVal::New();
   }
   return Val;

@@ -767,7 +767,8 @@ const double TMAGFitBern::UpdatePhi(const int& NId, const int& AId, double& Phi)
 	}
 
 	//	Using log-sum-exp trick
-	double EdgeQ[2], NonEdgeQ[2], MaxExp[2];
+	double EdgeQ[2], NonEdgeQ[2];
+        double MaxExp[2];
 	TFltV NonEdgeLLV[2];
 	for(int i = 0; i < 2; i++) {
 		EdgeQ[i] = 0.0;
@@ -837,7 +838,8 @@ const double TMAGFitBern::UpdatePhiMI(const double& Lambda, const int& NId, cons
 	}
 
 	//	Using log-sum-exp trick
-	double EdgeQ[2], NonEdgeQ[2], MaxExp[2];
+	double EdgeQ[2], NonEdgeQ[2];
+        double MaxExp[2];
 	TFltV NonEdgeLLV[2];
 	TFltVV CntVV(4, NAttrs);		CntVV.PutAll(0.0);
 	for(int i = 0; i < 2; i++) {
@@ -947,7 +949,8 @@ const double TMAGFitBern::UpdateApxPhiMI(const double& Lambda, const int& NId, c
 	ProdV[3] -= log(2.0) + GetAvgSqThetaLL(NId, NId, AId, false, true);
 
 	//	Using log-sum-exp trick
-	double EdgeQ[2], MaxExp[2];
+	double EdgeQ[2];
+        double MaxExp[2];
 	TFltV NonEdgeLLV[2];
 	TFltVV CntVV(4, NAttrs);		CntVV.PutAll(0.0);
 	for(int i = 0; i < 2; i++) {

@@ -300,7 +300,7 @@ template <> struct TStaticAssert<true> { enum { value = 1 }; };
 template<int IntVal> struct TStaticAssertTest{};
 
 #define CAssert(Cond) \
-  { typedef TStaticAssertTest<sizeof(TStaticAssert<(Cond)==0?false:true>)> TestStaticAssert; }
+  /* typedef TStaticAssertTest<sizeof(TStaticAssert<(Cond)==0?false:true>)> TestStaticAssert; */
 
 /////////////////////////////////////////////////
 // Xml-Object-Serialization

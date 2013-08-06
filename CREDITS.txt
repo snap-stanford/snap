@@ -9,6 +9,7 @@ The following people also contributed to the development of SNAP
 (in alphabetical order).
 
 Justin Cheng
+Florian Geigl
 Richard Hsu
 Myunghwan Kim
 Julian McAuley

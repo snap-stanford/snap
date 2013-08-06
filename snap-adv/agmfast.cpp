@@ -422,7 +422,9 @@ int TAGMFast::MLENewton(const double& Thres, const int& MaxIter, const TStr Plot
   TIntV NIdxV;
   G->GetNIdV(NIdxV);
   int CID, UID, NewtonIter;
-  double Fuc, PrevFuc, Grad, H;
+  double Fuc;
+  //double PrevFuc;
+  double Grad, H;
   while(iter < MaxIter) {
     NIdxV.Shuffle(Rnd);
     for (int ui = 0; ui < F.Len(); ui++, iter++) {
@@ -461,7 +463,7 @@ int TAGMFast::MLENewton(const double& Thres, const int& MaxIter, const TStr Plot
           IAssertR(AlphaKV[e] <= 1.0, TStr::Fmt("AlphaKV=%f, %f, %f", AlphaKV[e].Val, PNoCom.Val, GetCom(UI.GetNbrNId(e), CID)));
         }
         Fuc = GetCom(UID, CID);
-        PrevFuc = Fuc;
+        //PrevFuc = Fuc;
         Grad = GradientForOneVar(AlphaKV, UID, CID, Fuc), H = 0.0;
         if (Grad <= 1e-3 && Grad >= -0.1) { continue; }
         NewtonIter = 0;

@@ -1028,13 +1028,13 @@ public:
 	ushort lineBreak; // from LineBreak.txt
 
 	// Converts a 2-letter linebreak code into a 16-bit integer.
-	static inline ushort GetLineBreakCode(char c1, char c2) { return ((ushort(uchar(c1)) & 0xff) << 8) | ((ushort(uchar(c2)) & 0xff)); }
+	static inline ushort GetLineBreakCode(char c1, char c2) { return ((static_cast<ushort>(static_cast<uchar>(c1)) & 0xff) << 8) | ((static_cast<ushort>(static_cast<uchar>(c2)) & 0xff)); }
 	static const ushort LineBreak_Unknown, LineBreak_ComplexContext, LineBreak_Numeric, LineBreak_InfixNumeric, LineBreak_Quotation;
 
 public:
 	void InitAfterLoad() {
 		cat = (TUniChCategory) chCat;
-		subCat = (TUniChSubCategory) (((int(uchar(chCat)) & 0xff) << 8) | (int(uchar(chSubCat)) & 0xff)); }
+		subCat = (TUniChSubCategory) (((static_cast<int>(static_cast<uchar>(chCat)) & 0xff) << 8) | (static_cast<int>(static_cast<uchar>(chSubCat)) & 0xff)); }
 	void SetCatAndSubCat(const TUniChSubCategory catAndSubCat) {
 		cat = (TUniChCategory) ((int(catAndSubCat) >> 8) & 0xff);
 		subCat = catAndSubCat;

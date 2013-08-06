@@ -334,7 +334,7 @@ void TGStat::TakeDiam(const PGraph& Graph, TFSet StatFSet, const bool& IsMxWcc) 
   if (! IsMxWcc) {
     if (StatFSet.In(gsvFullDiam) || StatFSet.In(gsvEffDiam) || StatFSet.In(gsdHops)) {
       printf("anf:%druns...", NDiamRuns); }
-    bool Line=false;
+    //bool Line=false;
     if (StatFSet.In(gsvEffDiam) || StatFSet.In(gsdHops)) {
       TMom DiamMom;  ExeTm.Tick();
       TIntFltKdV DistNbrsV;
@@ -351,11 +351,11 @@ void TGStat::TakeDiam(const PGraph& Graph, TFSet StatFSet, const bool& IsMxWcc) 
       for (int i = 0; i < DistNbrsV.Len(); i++) {
         HopsV.Add(TFltPr(DistNbrsV[i].Key(), DistNbrsV[i].Dat)); }
       printf("  anf-eff %.1f[%s]", DiamMom.GetMean(), ExeTm.GetTmStr());
-      Line=true;
+      //Line=true;
     }
   } else {
     if (StatFSet.In(gsvEffWccDiam) || StatFSet.In(gsdWccHops)) { printf("wcc diam..."); }
-    bool Line=false;
+    //bool Line=false;
     if (StatFSet.In(gsvFullDiam)) {
       TMom DiamMom;  ExeTm.Tick();
       for (int r = 0; r < NDiamRuns; r++) {
@@ -365,7 +365,7 @@ void TGStat::TakeDiam(const PGraph& Graph, TFSet StatFSet, const bool& IsMxWcc) 
       SetVal(gsvFullDiam, DiamMom.GetMean());
       SetVal(gsvFullDiamDev, DiamMom.GetSDev());
       printf("  bfs-full %g[%s]", DiamMom.GetMean(), ExeTm.GetTmStr());
-      Line=true;
+      //Line=true;
     }
     if (StatFSet.In(gsvEffWccDiam) || StatFSet.In(gsdWccHops)) {
       TMom DiamMom; ExeTm.Tick();
@@ -383,7 +383,7 @@ void TGStat::TakeDiam(const PGraph& Graph, TFSet StatFSet, const bool& IsMxWcc) 
       for (int i = 0; i < DistNbrsV.Len(); i++) {
         WccHopsV.Add(TFltPr(DistNbrsV[i].Key(), DistNbrsV[i].Dat)); }
       printf("  anf-wcceff %.1f[%s]", DiamMom.GetMean(), ExeTm.GetTmStr());
-      Line=true;
+      //Line=true;
     }
   }
 }
