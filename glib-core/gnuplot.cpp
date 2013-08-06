@@ -582,7 +582,7 @@ void TGnuPlot::SavePng(const TStr& FNm, const int& SizeX, const int& SizeY, cons
     AddCmd(TStr::Fmt("set output '%s'", FNm.CStr()));
     #else // EPS
     AddCmd("set terminal postscript eps 10 enhanced color");
-    AddCmd(TStr::Fmt("set output '%s.eps'", FNm.GetFMid().CStr()));
+    AddCmd(TStr::Fmt("set output '%s%s.eps'", FNm.GetFPath().CStr(), FNm.GetFMid().CStr()));
     #endif
   } else {
     AddCmd(Terminal);

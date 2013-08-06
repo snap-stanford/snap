@@ -117,10 +117,10 @@ public:
   int AddExpFit(const int& PlotId, const TGpSeriesTy& SeriesTy=gpwLines, const double& FitXOffset=0.0, const TStr& Style=TStr());
 
   void SavePng(const int& SizeX=1000, const int& SizeY=800, const TStr& Comment=TStr()) {
-    SavePng(PlotFNm.GetFMid()+".png", SizeX, SizeY, Comment); }
+    SavePng(PlotFNm.GetFPath()+PlotFNm.GetFMid()+".png", SizeX, SizeY, Comment); }
   void SavePng(const TStr& FNm, const int& SizeX=1000, const int& SizeY=800, const TStr& Comment=TStr(), const TStr& Terminal=TStr());
   void SaveEps(const int& FontSz=30, const TStr& Comment=TStr()) {
-    SaveEps(PlotFNm.GetFMid()+".eps", FontSz, Comment); }
+    SaveEps(PlotFNm.GetFPath()+PlotFNm.GetFMid()+".eps", FontSz, Comment); }
   void SaveEps(const TStr& FNm, const int& FontSz=30, const TStr& Comment=TStr());
   void Plot(const TStr& Comment=TStr()) { CreatePlotFile(Comment);  RunGnuPlot(); }
 
@@ -277,10 +277,12 @@ int TGnuPlot::AddPlot(const THash<TKey, TMom, THashFunc>& ValMomH, const TGpSeri
   MedV.Sort();  MinV.Sort();  MaxV.Sort(); 
   int PlotId=0;
   // exponential bucketing
-  if (! AvgV2.Empty()) { TGnuPlot::MakeExpBins(AvgV2, BucketV);  BucketV.Swap(AvgV2); }
-  if (! MedV.Empty()) { TGnuPlot::MakeExpBins(MedV, BucketV);  BucketV.Swap(MedV); }
-  if (! MinV.Empty()) { TGnuPlot::MakeExpBins(MinV, BucketV);  BucketV.Swap(MinV); }
-  if (! MaxV.Empty()) { TGnuPlot::MakeExpBins(MaxV, BucketV);  BucketV.Swap(MaxV); }
+  if (ExpBucket) {
+    if (! AvgV2.Empty()) { TGnuPlot::MakeExpBins(AvgV2, BucketV);  BucketV.Swap(AvgV2); }
+    if (! MedV.Empty()) { TGnuPlot::MakeExpBins(MedV, BucketV);  BucketV.Swap(MedV); }
+    if (! MinV.Empty()) { TGnuPlot::MakeExpBins(MinV, BucketV);  BucketV.Swap(MinV); }
+    if (! MaxV.Empty()) { TGnuPlot::MakeExpBins(MaxV, BucketV);  BucketV.Swap(MaxV); }
+  }
   // plot
   if (! AvgV.Empty()) { PlotId = AddErrBar(AvgV, Label+" Average", "StdDev"); }
   if (! AvgV2.Empty()) { PlotId = AddPlot(AvgV2, SeriesTy, Label+" Average", Style); }
