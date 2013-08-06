@@ -1,6 +1,6 @@
 //#//////////////////////////////////////////////
 /// GraphViz Layout Engines
-typedef enum TGVizLayout_ { gvlDot, gvlNeato, gvlTwopi, gvlCirco } TGVizLayout;
+typedef enum TGVizLayout_ { gvlDot, gvlNeato, gvlTwopi, gvlCirco, gvlSfdp } TGVizLayout;
 
 /////////////////////////////////////////////////
 // GraphViz
