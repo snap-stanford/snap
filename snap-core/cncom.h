@@ -271,6 +271,9 @@ bool IsConnected(const PGraph& Graph) {
 
 template <class PGraph>
 bool IsWeaklyConn(const PGraph& Graph) {
+  if (Graph->Empty()) {
+    return true;
+  }
   THashSet<TInt> VisitedNId(Graph->GetNodes());
   TSnapQueue<int> NIdQ(Graph->GetNodes()+1);
   typename PGraph::TObj::TNodeI NI;

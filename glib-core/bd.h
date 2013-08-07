@@ -498,7 +498,7 @@ public:
   //const TRec* operator()() const {return Addr;}
   //TRec* operator()() {return Addr;}
 
-  bool Empty() const {return Addr==NULL;}
+  bool Empty() const { return Addr==NULL;}
   void Clr(){UnRef(); Addr=NULL;}
   int GetRefs() const {
     if (Addr==NULL){return -1;} else {return Addr->CRef.GetRefs();}}
