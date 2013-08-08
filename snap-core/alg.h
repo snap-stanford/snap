@@ -53,7 +53,8 @@ template <class PGraph> PGraph GetUnDir(const PGraph& Graph);
 template <class PGraph> void MakeUnDir(const PGraph& Graph);
 template <class PGraph> void AddSelfEdges(const PGraph& Graph);
 template <class PGraph> void DelSelfEdges(const PGraph& Graph);
-template <class PGraph> void DelBiDirEdges(const PGraph& Graph);
+// TODO implement DelBiDirEdges()
+//template <class PGraph> void DelBiDirEdges(const PGraph& Graph);
 
 template <class PGraph> void DelNodes(PGraph& Graph, const TIntV& NIdV);
 template <class PGraph> void DelZeroDegNodes(PGraph& Graph);
