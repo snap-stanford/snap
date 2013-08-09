@@ -527,6 +527,8 @@ public:
   /// Adds a new element at the end of the vector, after its current last element. ##TVec::Add1
   TSizeTy Add(const TVal& Val){ AssertR(MxVals!=-1, "This vector was obtained from TVecPool. Such vectors cannot change its size!");
     if (Vals==MxVals){Resize();} ValT[Vals]=Val; return Vals++;}
+  TSizeTy Add(TVal& Val){ AssertR(MxVals!=-1, "This vector was obtained from TVecPool. Such vectors cannot change its size!");
+    if (Vals==MxVals){Resize();} ValT[Vals]=Val; return Vals++;}
   /// Adds element \c Val at the end of the vector. #TVec::Add2
   TSizeTy Add(const TVal& Val, const TSizeTy& ResizeLen){ AssertR(MxVals!=-1, "This vector was obtained from TVecPool. Such vectors cannot change its size!");
     if (Vals==MxVals){Resize(MxVals+ResizeLen);} ValT[Vals]=Val; return Vals++;}
@@ -3621,12 +3623,18 @@ TLstNd<TVal>* TLst<TVal>::SearchBack(const TVal& Val){
 
 /////////////////////////////////////////////////
 // Common-List-Types
-typedef TLst<TInt> TIntL; typedef TLstNd<TInt>* PIntLN;
-typedef TLst<TIntKd> TIntKdL; typedef TLstNd<TIntKd>* PIntKdLN;
-typedef TLst<TFlt> TFltL; typedef TLstNd<TFlt>* PFltLN;
-typedef TLst<TFltIntKd> TFltIntKdL; typedef TLstNd<TFltIntKd>* PFltIntKdLN;
-typedef TLst<TAscFltIntKd> TAscFltIntKdL; typedef TLstNd<TAscFltIntKd>* PAscFltIntKdLN;
-typedef TLst<TStr> TStrL; typedef TLstNd<TStr>* PStrLN;
+typedef TLst<TInt> TIntL;
+typedef TLstNd<TInt>* PIntLN;
+typedef TLst<TIntKd> TIntKdL;
+typedef TLstNd<TIntKd>* PIntKdLN;
+typedef TLst<TFlt> TFltL;
+typedef TLstNd<TFlt>* PFltLN;
+typedef TLst<TFltIntKd> TFltIntKdL;
+typedef TLstNd<TFltIntKd>* PFltIntKdLN;
+typedef TLst<TAscFltIntKd> TAscFltIntKdL;
+typedef TLstNd<TAscFltIntKd>* PAscFltIntKdLN;
+typedef TLst<TStr> TStrL;
+typedef TLstNd<TStr>* PStrLN;
 
 /////////////////////////////////////////////////
 // Record-File

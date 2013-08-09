@@ -365,8 +365,8 @@ void THash<TKey, TDat, THashFunc>::DelKey(const TKey& Key){
    !((KeyDatV[KeyId].HashCd==HashCd) && (KeyDatV[KeyId].Key==Key))){
     PrevKeyId=KeyId; KeyId=KeyDatV[KeyId].Next;}
 
-  //IAssertR(KeyId!=-1, Key.GetStr()); //J: vsi razredi nimajo nujno funkcije GetStr()?
-  IAssert(KeyId!=-1); //J: vsi razredi nimajo nujno funkcije GetStr()?
+  //IAssertR(KeyId!=-1, Key.GetStr()); //J: some classes do not provide GetStr()?
+  IAssert(KeyId!=-1); //J: some classes do not provide GetStr()?
   if (PrevKeyId==-1){PortV[PortN]=KeyDatV[KeyId].Next;}
   else {KeyDatV[PrevKeyId].Next=KeyDatV[KeyId].Next;}
   KeyDatV[KeyId].Next=FFreeKeyId; FFreeKeyId=KeyId; FreeKeys++;
@@ -377,7 +377,7 @@ void THash<TKey, TDat, THashFunc>::DelKey(const TKey& Key){
 
 template<class TKey, class TDat, class THashFunc>
 void THash<TKey, TDat, THashFunc>::MarkDelKey(const TKey& Key){
-  // MarkDelKey is same as Delkey expect last two lines
+  // MarkDelKey is same as Delkey except last two lines
   IAssert(!PortV.Empty());
   const int PortN=abs(THashFunc::GetPrimHashCd(Key)%PortV.Len());
   const int HashCd=abs(THashFunc::GetSecHashCd(Key));
