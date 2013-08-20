@@ -6,7 +6,7 @@
 
 //#//////////////////////////////////////////////
 /// Graph Flags, used for quick testing of graph types. ##TGraphFlag
-typedef enum {
+typedef enum TGraphFlag_ {
   gfUndef=0,    ///< default value, no flags
   gfDirected,   ///< directed graph (TNGraph, TNEGraph), else graph is undirected TUNGraph
   gfMultiGraph, ///< have explicit edges (multigraph): TNEGraph, TNodeEdgeNet
@@ -41,6 +41,9 @@ template <class TGraph> struct IsBipart     { enum { Val = 0 }; };
   (Flag)==gfSources ? TSnap::IsSources<TGraph::TNet>::Val : \
   (Flag)==gfBipart ? TSnap::IsBipart<TGraph::TNet>::Val : 0)
 
+#if 0
+// RS 2013/08/19, commented out IsDerivedFrom, it is not called anywhere
+//  swig throws an error
 /// Tests (at compile time) whether TDerivClass is derived from TBaseClass
 template<class TDerivClass, class TBaseClass>
 class IsDerivedFrom {
@@ -52,6 +55,7 @@ private:
 public:
   enum { Val = sizeof(Test(static_cast<TDerivClass*>(0))) == sizeof(Yes) ? 1 : 0 };
 };
+#endif
 
 /////////////////////////////////////////////////
 // Graph Base
