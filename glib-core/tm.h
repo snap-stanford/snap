@@ -392,6 +392,10 @@ public:
     int GetSecInt() const { return TFlt::Round(GetSec()); }
     double GetMSec() const { return double(GetTime()) / double(CLOCKS_PER_SEC/1000); }
     int GetMSecInt() const { return TFlt::Round(GetMSec()); }
+    const char* GetTmStr() const { static char TmStr[32];
+        if (GetSec() < 60) { sprintf(TmStr, "%.2fs", GetSec()); }
+        else if (GetSec() < 3600) { sprintf(TmStr, "%02dm%02ds", int(GetSec())/60, int(GetSec())%60); }
+        else { sprintf(TmStr, "%02dh%02dm", int(GetSec())/3600, (int(GetSec())%3600)/60); }  return TmStr; }
 };
 
 /////////////////////////////////////////////////
