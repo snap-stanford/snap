@@ -387,11 +387,31 @@ public:
   2. If filter == false then add the physical indices of the rows for which the predicate holds to the vactor SelectedRows
   */
 	void Select(TPredicate& Predicate, TIntV& SelectedRows, TBool Filter = true);
+  void Select(TPredicate& Predicate){
+    TIntV SelectedRows;
+    Select(Predicate, SelectedRows);
+  }
   // select atomic - optimized cases of select with predicate of an atomic form: compare attribute to attribute or compare attribute to a constant
   void SelectAtomic(TStr Col1, TStr Col2, TPredicate::COMP Cmp, TIntV& SelectedRows, TBool Filter = true);
+  void SelectAtomic(TStr Col1, TStr Col2, TPredicate::COMP Cmp){
+    TIntV SelectedRows;
+    SelectAtomic(Col1, Col2, Cmp, SelectedRows);
+  }
   void SelectAtomicIntConst(TStr Col1, TInt Val2, TPredicate::COMP Cmp, TIntV& SelectedRows, TBool Filter = true);
+  void SelectAtomicIntConst(TStr Col1, TInt Val2, TPredicate::COMP Cmp){
+    TIntV SelectedRows;
+    SelectAtomicIntConst(Col1, Val2, Cmp, SelectedRows);
+  }
   void SelectAtomicStrConst(TStr Col1, TStr Val2, TPredicate::COMP Cmp, TIntV& SelectedRows, TBool Filter = true);
+  void SelectAtomicStrConst(TStr Col1, TStr Val2, TPredicate::COMP Cmp){
+    TIntV SelectedRows;
+    SelectAtomicStrConst(Col1, Val2, Cmp, SelectedRows);
+  }
   void SelectAtomicFltConst(TStr Col1, TFlt Val2, TPredicate::COMP Cmp, TIntV& SelectedRows, TBool Filter = true);
+  void SelectAtomicFltConst(TStr Col1, TFlt Val2, TPredicate::COMP Cmp){
+    TIntV SelectedRows;
+    SelectAtomicFltConst(Col1, Val2, Cmp, SelectedRows);
+  }
 	
 	// group by the values of the columns specified in "GroupBy" vector 
 	// group indices are stored in GroupCol; Implementation: use GroupMapping hash
