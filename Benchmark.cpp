@@ -2,17 +2,17 @@
 //#include "Table.h"
 #include <time.h>
 
-#define N 10
+#define N 1
 #define QA_FILES 7
 #define COMMENT_FILES 7
 #define QA_OPS 5
 #define COMMENT_OPS 4
 
 int main(){
-  TStr dir("/lfs/local/0/ringo/testfiles/");
+  //TStr dir("/lfs/local/0/ringo/testfiles/");
   TStr outDir("out/");
-  //TStr dir("../../testfiles/");
-  char* qa_file_names[QA_FILES] = {"posts_10.hashed.tsv", "posts_30.hashed.tsv", "posts_100.hashed.tsv", "posts_300.hashed.tsv", "posts_1000.hashed.tsv", "posts_3000.hashed.tsv", "posts_10000.hashed.tsv"};
+  TStr dir("../../testfiles/");
+  char* qa_file_names[QA_FILES] = {"posts_10.hashed.tsv"};//, "posts_30.hashed.tsv", "posts_100.hashed.tsv", "posts_300.hashed.tsv", "posts_1000.hashed.tsv", "posts_3000.hashed.tsv", "posts_10000.hashed.tsv"};
   TStrV qa_files(QA_FILES);
   for(int i = 0; i < QA_FILES; i++){
     qa_files[i] = dir + TStr(qa_file_names[i]);
@@ -137,7 +137,7 @@ int main(){
     printf("\naverage graph time: %f seconds\n", graph_avg);
   }
   
-char* comment_file_names[COMMENT_FILES] = {"comments_10.hashed.tsv", "comments_30.hashed.tsv", "comments_100.hashed.tsv", "comments_300.hashed.tsv", "comments_1000.hashed.tsv", "comments_3000.hashed.tsv", "comments_10000.hashed.tsv"};
+ char* comment_file_names[COMMENT_FILES] = {"comments_10.hashed.tsv", "comments_30.hashed.tsv", "comments_100.hashed.tsv", "comments_300.hashed.tsv", "comments_1000.hashed.tsv", "comments_3000.hashed.tsv", "comments_10000.hashed.tsv"};
   TStrV comment_files(COMMENT_FILES);
   for(int i = 0; i < COMMENT_FILES; i++){
     comment_files[i] = dir + TStr(comment_file_names[i]);
