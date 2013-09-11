@@ -57,6 +57,8 @@ public:
   int GetSecHashCd() const {return TPairHashImpl::GetHashCd(Val2.GetSecHashCd(), Val1.GetSecHashCd()); }
 
   void GetVal(TVal1& _Val1, TVal2& _Val2) const {_Val1=Val1; _Val2=Val2;}
+  const TVal1& GetVal1() const { return Val1;}
+  const TVal2& GetVal2() const { return Val2;}
   TStr GetStr() const {
     return TStr("Pair(")+Val1.GetStr()+", "+Val2.GetStr()+")";}
 };
