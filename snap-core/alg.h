@@ -63,7 +63,7 @@ template <class PGraph> void DelDegKNodes(PGraph& Graph, const int& OutDegK, con
 /////////////////////////////////////////////////
 // Tree Routines
 template <class PGraph> bool IsTree(const PGraph& Graph, int& RootNId);
-template <class PGraph> int GetTreeRootNId(const PGraph& Graph) { int RootNId; Assert(IsTree(Graph, RootNId));  return RootNId; }
+template <class PGraph> int GetTreeRootNId(const PGraph& Graph) { int RootNId; bool Tree; Tree = IsTree(Graph, RootNId);  Assert(Tree);  return RootNId; }
 template <class PGraph> void GetTreeSig(const PGraph& Graph, const int& RootNId, TIntV& Sig);
 template <class PGraph> void GetTreeSig(const PGraph& Graph, const int& RootNId, TIntV& Sig, TIntPrV& NodeMap);
 
