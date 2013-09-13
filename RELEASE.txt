@@ -3,6 +3,46 @@ performance system for graph and network manipulation and analysis.
 
 This file contains a high-level description of changes in SNAP releases.
 
+Release 2.1, Sep 12, 2013
+
+- implemented a new network class TNEANet and PNEANet for graphs with
+  attributes
+- added new GetVal1() and GetVal2() methods to access components of TPair
+- renamed Get*Values() to Get*Val()
+- added a new function to create a rewired version (using configuation model)
+  of a given graph
+- added sorting to TGStatVec::GetValV
+- extended function TSnap::PrintInfo() in gbase.h
+- added statistics for undirected graphs.
+- added Strong and Bi-connected component statistics
+- added functions to plot k-Core decomposition plots
+- updated graph statistics
+- implemented TTable::Defrag
+- changed some casts in unicode.h to fix compilation errors on gcc 4.8.1
+- defined NDEBUG compilation flag to disable assertions in production
+- improved saving of PNG and EPS files to take into account the full path
+- added static variables in TGnuPlot: GnuPlotPath and GnuPlotFNm for
+  gnuplot executable
+- added a final renormalization step to GetHits() needed for disconnected
+  graphs
+- added GraphVizLayout sfdp
+- added benchmark for THash and TVec
+- improved PlotHops
+- fixed a bug in TSsParser::GetLineStr()
+- fixed a small bug in GetKCoreEdges()
+- updated cncom.h:IsWeaklyConn() so that it does not crash for empty graphs
+- fixed #38 community example does not work on email-Enron.txt
+- fixed zygote example on Mac OS X
+- made changes needed for snap.py on Windows
+- changed gbase.h so that it compiles with swig
+- moved WriteN() to util.cpp to prevent compile warnings on Mac OS X
+- made Snapworld functions defined only on Unix-like systems
+- make bigclam.cpp faster
+- added fixed vector size to the hash, vec benchmarks
+- made minor code changes to reduce compiler warnings
+- fixed demo-topology-benchmark.cpp compilation on Cygwin
+- commented out class IsDerivedFrom
+
 Release 2.0, May 13, 2013
 
 - significantly changed several classes and methods, not backward compatible.
