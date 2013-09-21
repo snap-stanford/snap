@@ -550,6 +550,8 @@ public:
   const TVal& GetVal(const TSizeTy& ValN) const {return operator[](ValN);}
   /// Returns a reference to the element at position \c ValN in the vector.
   TVal& GetVal(const TSizeTy& ValN){return operator[](ValN);}
+  /// Sets the value of element at position \c ValN to \c Val.
+  void SetVal(const TSizeTy& ValN, const TVal& Val){AssertR((0<=ValN)&&(ValN<Vals), GetXOutOfBoundsErrMsg(ValN)); ValT[ValN] = Val;}
   /// Returns a vector on elements at positions <tt>BValN...EValN</tt>.
   void GetSubValV(const TSizeTy& BValN, const TSizeTy& EValN, TVec<TVal, TSizeTy>& ValV) const;
   /// Inserts new element \c Val before the element at position \c ValN.
