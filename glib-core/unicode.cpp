@@ -84,16 +84,12 @@ bool TUniCodec::IsMachineLittleEndian()
 {
 	static bool isLE, initialized = false;
 	if (initialized) return isLE;
-	int i = 0x0201;
-	char *p = (char *) (&i);
-	char c1, c2;
-	memcpy(&c1, p, 1); memcpy(&c2, p + 1, 1);
-	if (c1 == 1 && c2 == 2) isLE = true;
-	else if (c1 == 2 && c2 == 1) isLE = false;
-	else {
-		FailR(("TUniCodec::IsMachineLittleEndian: c1 = " + TInt::GetStr(int(uchar(c1)), "%02x") + ", c2 = " + TInt::GetStr(int(uchar(c2)), "%02x") + ".").CStr());
-		isLE = true; }
-	initialized = true; return isLE;
+	int i = 1;
+	if(*(char *)&i == 1) isLE = true;
+	else isLE = false;
+
+	initialized = true;
+	return isLE;
 }
 
 //-----------------------------------------------------------------------------
