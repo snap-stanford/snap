@@ -9,7 +9,10 @@
 /// The class TZIpIn expects that '7z' ('7z.exe') is in the working path. Make sure you can execute '7z e -y -bd -so <FILENAME>'
 /// Note: You can only load .gz files of uncompressed size <2GB. If you load some other format (like .bz2 or rar) there is no such limitation.
 /// Note2: For 7z to work properly you need both the 7z executable and the directory 'Codecs'.
+/// Note3: Use TZipIn::SevenZipPath to set the path to 7z executable.
 class TZipIn : public TSIn {
+public:
+  static TStr SevenZipPath;
 private:
   static TStrStrH FExtToCmdH;
   static const int MxBfL;
@@ -65,6 +68,7 @@ public:
 /// 7z (7z.exe) is an executable and can decompress the following formats: .gz, .7z, .rar, .zip, .cab, .arj. bzip2.
 /// The class TZIpOut expects that '7z' ('7z.exe') is in the working path.
 /// Note2: For 7z to work properly you need both the 7z executable and the directory 'Codecs'.
+/// Note3: Use TZipIn::SevenZipPath to set the path to 7z executable.
 class TZipOut : public TSOut{
 private:
   static const TSize MxBfL;

@@ -1,5 +1,17 @@
 /////////////////////////////////////////////////
 // ZIP Input-File
+
+#if defined(GLib_WIN)
+  TStr TZipIn::SevenZipPath = "C:\\7Zip";
+#elif defined(GLib_CYGWIN)
+  TStr TZipIn::SevenZipPath = "/usr/bin";
+#elif defined(GLib_MACOSX) 
+  TStr TZipIn::SevenZipPath = "/opt/local/bin";
+#else 
+  TStr TZipIn::SevenZipPath = "/usr/bin";
+#endif
+
+
 TStrStrH TZipIn::FExtToCmdH;
 const int TZipIn::MxBfL=32*1024;
 
@@ -29,6 +41,9 @@ void TZipIn::CreateZipProcess(const TStr& Cmd, const TStr& ZipFNm) {
   CloseHandle(piProcInfo.hThread);
   #else
   ZipStdoutRd = popen(CmdLine.CStr(), "r");
+  if (ZipStdoutRd == 0) { // try using SevenZipPath
+    ZipStdoutRd = popen((TZipIn::SevenZipPath+"/"+CmdLine).CStr(), "r");
+  }
   EAssertR(ZipStdoutRd != NULL,  TStr::Fmt("Can not execute '%s'", CmdLine.CStr()).CStr());
   #endif
 }
@@ -136,32 +151,21 @@ int TZipIn::GetBf(const void* LBf, const TSize& LBfL){
 // Gets the next line to LnChA.
 // Returns true, if LnChA contains a valid line.
 // Returns false, if LnChA is empty, such as end of file was encountered.
-
 bool TZipIn::GetNextLnBf(TChA& LnChA) {
   int Status;
   int BfN;        // new pointer to the end of line
   int BfP;        // previous pointer to the line start
-
   LnChA.Clr();
-
   do {
-    if (BfC >= BfL) {
-      // reset the current pointer, FindEol() will read a new buffer
-      BfP = 0;
-    } else {
-      BfP = BfC;
-    }
+    if (BfC >= BfL) { BfP = 0; } // reset the current pointer, FindEol() will read a new buffer
+    else { BfP = BfC; }
     Status = FindEol(BfN);
     if (Status >= 0) {
       LnChA.AddBf(&Bf[BfP],BfN-BfP);
-      if (Status == 1) {
-        // got a complete line
-        return true;
-      }
+      if (Status == 1) { return true; } // got a complete line
     }
     // get more data, if the line is incomplete
   } while (Status == 0);
-
   // eof or the last line has no newline
   return !LnChA.Empty();
 }
@@ -171,32 +175,19 @@ bool TZipIn::GetNextLnBf(TChA& LnChA) {
 // Returns 0, when an end of line was not found and more data is required,
 //    BfN is end of buffer.
 // Returns -1, when an end of file was found, BfN is not defined.
-
 int TZipIn::FindEol(int& BfN) {
   char Ch;
-
-  if (BfC >= BfL) {
-    // check for eof, read more data
-    if (Eof()) {
-      return -1;
-    }
+  if (BfC >= BfL) { // check for eof, read more data
+    if (Eof()) { return -1; }
     FillBf();
   }
-
   while (BfC < BfL) {
     Ch = Bf[BfC++];
-    if (Ch=='\n') {
-      BfN = BfC-1;
-      return 1;
-    }
+    if (Ch=='\n') { BfN = BfC-1; return 1; }
     if (Ch=='\r' && Bf[BfC+1]=='\n') {
-      BfC++;
-      BfN = BfC-2;
-      return 1;
-    }
+      BfC++;  BfN = BfC-2;  return 1; }
   }
   BfN = BfC;
-
   return 0;
 }
 
@@ -262,6 +253,9 @@ uint64 TZipIn::GetFLen(const TStr& ZipFNm) {
   #else
   const TStr CmdLine = TStr::Fmt("7za l %s", ZipFNm.CStr());
   FILE* ZipStdoutRd = popen(CmdLine.CStr(), "r");
+  if (ZipStdoutRd == NULL) { // try using SevenZipPath
+    ZipStdoutRd = popen((TZipIn::SevenZipPath+"/"+CmdLine).CStr(), "r");
+  }
   EAssertR(ZipStdoutRd != NULL, TStr::Fmt("Can not execute '%s'", CmdLine.CStr()).CStr());
   #endif
   // Read output from the child process
@@ -334,6 +328,9 @@ void TZipOut::CreateZipProcess(const TStr& Cmd, const TStr& ZipFNm) {
   CloseHandle(piProcInfo.hThread);
   #else
   ZipStdinWr = popen(CmdLine.CStr(),"w");
+  if (ZipStdinWr == NULL) { // try using SevenZipPath
+    ZipStdinWr = popen((TZipIn::SevenZipPath+"/"+CmdLine).CStr(), "r");
+  }
   EAssertR(ZipStdinWr != NULL,  TStr::Fmt("Can not execute '%s'", CmdLine.CStr()).CStr());
   #endif
 }

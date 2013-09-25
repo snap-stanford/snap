@@ -291,7 +291,7 @@ int CntUniqDirEdges(const PGraph& Graph) {
   return Cnt;
 }
 
-/// Counts unique bidirectional edges in the graph Graph.
+/// Counts unique bidirectional edges in the graph Graph. Edge is bidirectional is there exist directed edges in both directions: (u,v) and (v,u)
 template <class PGraph>
 int CntUniqBiDirEdges(const PGraph& Graph) {
   if (! Graph->HasFlag(gfDirected)) { // graph is undirected
@@ -307,14 +307,17 @@ int CntUniqBiDirEdges(const PGraph& Graph) {
       if (Graph->IsEdge(DstId, SrcId)) { Cnt++; }
     }
   }
-  return 2*Cnt;
+  return Cnt;
 }
 
+/// Counts the number fo of self-edges in a graph. Edge (u,u) is a self edge.
 template <class PGraph> 
 int CntSelfEdges(const PGraph& Graph) {
   int Cnt = 0;
   for (typename PGraph::TObj::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
-    if (Graph->IsEdge(NI.GetId(), NI.GetId())) { Cnt++; }
+    for (int e = 0; e < NI.GetOutDeg(); e++) {
+      if (NI.GetId() == NI.GetOutNId(e)) { Cnt++; }
+    }
   }
   return Cnt;
 }
