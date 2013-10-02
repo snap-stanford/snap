@@ -4,12 +4,23 @@
 #include "Predicate.h"
 #include "TMetric.h"
 
+class TTable;
+typedef TPt<TTable> PTable;
+class TTableContext;
+
+/*
+This class serves as a wrapper for all data that needs to be shared by
+several tables in an execution context
+*/
+class TTableContext{
+protected:
+  TStrHash<TInt, TBigStrPool> StringVals;
+  friend class TTable;
+};
+
 /* 
 TTable is a class representing an in-memory relational table with columnar data storage
 */
-class TTable;
-typedef TPt<TTable> PTable;
-
 class TTable{
 /******** Various typedefs / constants ***********/
 public:
@@ -97,6 +108,12 @@ public:
   // Table name
   TStr Name;
 protected:
+  // Execution Context
+  TTableContext& Context;
+  // string pool for string values (part of execution context)
+  // TStrHash<TInt, TBigStrPool>& StrColVals; 
+  // use Context.StringVals to access the global string pool
+
   // Table Schema
   Schema S;
   // Reference Counter for Garbage Collection
@@ -117,14 +134,9 @@ protected:
 	TVec<TFltV> FltCols;
 
   // string columns are implemented using a string pool to fight memory fragmentation
-  // The value of string column c in row r is StrColVals.GetStr(StrColMaps[c][r])
+  // The value of string column c in row r is Context.StringVals.GetKey(StrColMaps[c][r])
 	TVec<TIntV> StrColMaps; 
-  // TODO: this is super redundant! DistinctStrVals already contains a string pool
-  // no need for StrColVals
-  TBigStrPool StrColVals;
-  // hash map to enforce string value uniqueness
-  TStrHash<TInt, TBigStrPool> DistinctStrVals;
-
+ 
   // column name --> <column type, column index among columns of the same type>
 	THash<TStr,TPair<TYPE,TInt> > ColTypeMap;
 
@@ -167,7 +179,7 @@ public:
 /***** Utility functions *****/
 protected:
 /***** Utility functions for handling string values *****/
-  TStr GetStrVal(TInt ColIdx, TInt RowIdx) const{ return StrColVals.GetCStr(StrColMaps[ColIdx][RowIdx]);}
+  TStr GetStrVal(TInt ColIdx, TInt RowIdx) const{ return TStr(Context.StringVals.GetKey(StrColMaps[ColIdx][RowIdx]));}
   void AddStrVal(const TInt ColIdx, const TStr& Val);
   void AddStrVal(const TStr Col, const TStr& Val);
 
@@ -298,26 +310,29 @@ protected:
 public:
 /***** Constructors *****/
 	TTable(); 
-  TTable(const TStr& TableName, const Schema& S);
+  TTable(TTableContext& Context);
+  TTable(const TStr& TableName, const Schema& S, TTableContext& Context);
   // TTable(TSIn& SIn){}  // TODO
-  TTable(const TTable& Table): Name(Table.Name), NumRows(Table.NumRows),
-    NumValidRows(Table.NumValidRows), FirstValidRow(Table.FirstValidRow),
+  TTable(const TTable& Table): Name(Table.Name), S(Table.S), Context(Table.Context),
+    NumRows(Table.NumRows), NumValidRows(Table.NumValidRows), FirstValidRow(Table.FirstValidRow),
     Next(Table.Next), IntCols(Table.IntCols), FltCols(Table.FltCols),
-    StrColMaps(Table.StrColMaps), StrColVals(Table.StrColVals), 
-    DistinctStrVals(Table.DistinctStrVals), ColTypeMap(Table.ColTypeMap),
-    GroupMapping(Table.GroupMapping), SrcCol(Table.SrcCol), DstCol(Table.DstCol),
+    StrColMaps(Table.StrColMaps), ColTypeMap(Table.ColTypeMap), 
+    GroupMapping(Table.GroupMapping),
+    SrcCol(Table.SrcCol), DstCol(Table.DstCol),
     EdgeAttrV(Table.EdgeAttrV), SrcNodeAttrV(Table.SrcNodeAttrV),
     DstNodeAttrV(Table.DstNodeAttrV), CommonNodeAttrs(Table.CommonNodeAttrs){} 
 
   static PTable New(){ return new TTable();}
-  static PTable New(const TStr& TableName, const Schema& S){ return new TTable(TableName, S);}
+  static PTable New(TTableContext& Context){ return new TTable(Context);}
+  static PTable New(const TStr& TableName, const Schema& S, TTableContext& Context){ return new TTable(TableName, S, Context);}
+  static PTable New(const PTable Table){ return new TTable(*Table);}
 
 /***** Save / Load functions *****/
   // static PTable Load(TSIn& SIn){ return new TTable(SIn);} 
   // Load table from spread sheet (TSV, CSV, etc)
-  static PTable LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm, const char& Separator = '\t', TBool HasTitleLine = true);
+  static PTable LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm, TTableContext& Context, const char& Separator = '\t', TBool HasTitleLine = true);
   // Load table from spread sheet - but only load the columns specified by RelevantCols
-  static PTable LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm, const TIntV& RelevantCols, const char& Separator = '\t', TBool HasTitleLine = true);
+  static PTable LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm, TTableContext& Context, const TIntV& RelevantCols, const char& Separator = '\t', TBool HasTitleLine = true);
   // Save table schema + content into a TSV file
   void SaveSS(const TStr& OutFNm);
 	//void Save(TSOut& SOut);
@@ -378,7 +393,8 @@ public:
 	void AddLabel(TStr column, TStr newLabel);
 
 	// Remove rows with duplicate values in given columns
-	void Unique(TStrV Cols, TBool Ordered = true);
+  void Unique(const TStr& Col);
+	void Unique(const TStrV& Cols, TBool Ordered = true);
   void UniqueExistingGroup(TStr GroupStmt);
 
 	/* 
