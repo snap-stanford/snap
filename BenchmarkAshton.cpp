@@ -3,7 +3,7 @@
 #include <time.h>
 
 #define N 1
-#define OPS1 5 // load select join graphprep tograph
+#define OPS1 6 // load cctor select join graphprep tograph
 
 int main(){
   TStr TestFile("../../testfiles/posts_1.tsv");
@@ -70,25 +70,29 @@ int main(){
   RelevantCols.Add(14);
   RelevantCols.Add(16);
 
+  TTableContext Context;
+
   for(int i = 0; i < N; i++){
     TExeTm tl;
-    PTable T1 = TTable::LoadSS("posts1", S, TestFile, RelevantCols);
+    PTable T1 = TTable::LoadSS("posts1", S, TestFile, Context, RelevantCols);
     q1Results[i][0] = tl.GetSecs();
-    PTable T2 = TTable::LoadSS("posts2", S, TestFile, RelevantCols);
+    TExeTm tcc;
+    PTable T2 = TTable::New(T1, "posts2");
+    q1Results[i][1] = tcc.GetSecs();
     TExeTm ts;
     T1->SelectAtomicIntConst("PostTypeId", 1, TPredicate::EQ);
-    q1Results[i][1] = ts.GetSecs();
+    q1Results[i][2] = ts.GetSecs();
     TExeTm tj;
     PTable Tj = T1->Join("AcceptedAnswerId", *T2, "Id");
-    q1Results[i][2] = tj.GetSecs();
+    q1Results[i][3] = tj.GetSecs();
     TExeTm tpg;
     Tj->SetSrcCol("posts1.OwnerUserId");
     Tj->SetDstCol("posts2.OwnerUserId");
     Tj->AddEdgeAttr("posts2.CreationDate");
-    q1Results[i][3] = tpg.GetSecs();
+    q1Results[i][4] = tpg.GetSecs();
     TExeTm ttg;
     Tj->ToGraph();
-    q1Results[i][4] = tpg.GetSecs();
+    q1Results[i][5] = tpg.GetSecs();
   }
 
   printf("Load: ");
@@ -100,11 +104,20 @@ int main(){
   load_avg = load_avg/N;
   printf("\naverage load time: %f seconds\n", load_avg);
 
+  printf("Copy Constructor: ");
+  double cctor_avg = 0;
+  for(int i = 0; i < N; i++){
+    printf("%f ", q1Results[i][1]);
+    cctor_avg += q1Results[i][1];
+  }
+  cctor_avg = cctor_avg/N;
+  printf("\naverage copy constructor time: %f seconds\n", cctor_avg);
+
   printf("Select: ");
   double select_avg = 0;
   for(int i = 0; i < N; i++){
-    printf("%f ", q1Results[i][1]);
-    select_avg += q1Results[i][1];
+    printf("%f ", q1Results[i][2]);
+    select_avg += q1Results[i][2];
   }
   select_avg = select_avg/N;
   printf("\naverage select time: %f seconds\n", select_avg);
@@ -112,8 +125,8 @@ int main(){
   printf("Join: ");
   double join_avg = 0;
   for(int i = 0; i < N; i++){
-    printf("%f ", q1Results[i][2]);
-    join_avg += q1Results[i][2];
+    printf("%f ", q1Results[i][3]);
+    join_avg += q1Results[i][3];
   }
   join_avg = join_avg/N;
   printf("\naverage join time: %f seconds\n", join_avg);
@@ -121,8 +134,8 @@ int main(){
   printf("Graph Prep: ");
   double gp_avg = 0;
   for(int i = 0; i < N; i++){
-    printf("%f ", q1Results[i][3]);
-    gp_avg += q1Results[i][3];
+    printf("%f ", q1Results[i][4]);
+    gp_avg += q1Results[i][4];
   }
   gp_avg = gp_avg/N;
   printf("\naverage graph prep time: %f seconds\n", gp_avg);
@@ -130,8 +143,8 @@ int main(){
   printf("Graph Creation: ");
   double graph_avg = 0;
   for(int i = 0; i < N; i++){
-    printf("%f ", q1Results[i][4]);
-    graph_avg += q1Results[i][4];
+    printf("%f ", q1Results[i][5]);
+    graph_avg += q1Results[i][5];
   }
   graph_avg = graph_avg/N;
   printf("\naverage graph time: %f seconds\n", graph_avg);

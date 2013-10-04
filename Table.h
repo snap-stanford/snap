@@ -313,7 +313,7 @@ public:
   TTable(TTableContext& Context);
   TTable(const TStr& TableName, const Schema& S, TTableContext& Context);
   // TTable(TSIn& SIn){}  // TODO
-  TTable(const TTable& Table): Name(Table.Name), S(Table.S), Context(Table.Context),
+  TTable(const TTable& Table): Name(Table.Name), Context(Table.Context), S(Table.S),
     NumRows(Table.NumRows), NumValidRows(Table.NumValidRows), FirstValidRow(Table.FirstValidRow),
     Next(Table.Next), IntCols(Table.IntCols), FltCols(Table.FltCols),
     StrColMaps(Table.StrColMaps), ColTypeMap(Table.ColTypeMap), 
@@ -326,6 +326,7 @@ public:
   static PTable New(TTableContext& Context){ return new TTable(Context);}
   static PTable New(const TStr& TableName, const Schema& S, TTableContext& Context){ return new TTable(TableName, S, Context);}
   static PTable New(const PTable Table){ return new TTable(*Table);}
+  static PTable New(const PTable Table, const TStr& TableName){ PTable T = New(Table); T->Name = TableName; return T;}
 
 /***** Save / Load functions *****/
   // static PTable Load(TSIn& SIn){ return new TTable(SIn);} 
@@ -471,4 +472,6 @@ public:
 
   friend class TPt<TTable>;
 };
+
+typedef TPair<TStr,TTable::TYPE> TStrTypPr;
 #endif //TABLE_H

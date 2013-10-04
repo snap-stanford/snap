@@ -5,8 +5,8 @@
 #define N 10
 #define QA_FILES 7
 #define COMMENT_FILES 7
-#define QA_OPS 5
-#define COMMENT_OPS 4
+#define QA_OPS 6
+#define COMMENT_OPS 5
 
 int main(){
   TStr dir("/lfs/local/0/ringo/testfiles/");
@@ -25,6 +25,7 @@ int main(){
       }
     }
   }
+  TTableContext qa_Context;
   // build schema for Q&A
   TTable::Schema qa_S;
   qa_S.Add(TPair<TStr,TTable::TYPE>("Body", TTable::INT));
@@ -59,7 +60,7 @@ int main(){
   TPredicate::TPredicateNode ptiNode(ptiAtom);
   TPredicate ptiPred(&ptiNode);
 
-  // build GroupBy vector
+  // build GroupBy vector - group by user pairs
   TStrV qaGroupBy;
   qaGroupBy.Add("Posts1.OwnerUserId");
   qaGroupBy.Add("Posts2.OwnerUserId");
@@ -67,24 +68,26 @@ int main(){
   for(int f = 0; f < QA_FILES; f++){
     for(int i = 0; i < N; i++){
       TExeTm tl;
-      PTable T1 = TTable::LoadSS("Posts1", qa_S, qa_files[f], qa_RelevantCols);
+      PTable T1 = TTable::LoadSS("Posts1", qa_S, qa_files[f], qa_Context, qa_RelevantCols);
       qa_results[f][i][0] = tl.GetSecs();
-      PTable T2 = TTable::LoadSS("Posts2", qa_S, qa_files[f], qa_RelevantCols);
+      TExeTm tcc;
+      PTable T2 = TTable::New(T1, "Posts2");
+      qa_results[f][i][1] = tcc.GetSecs();
       TExeTm ts;
       //T1->Select(ptiPred);
       T1->SelectAtomicIntConst("PostTypeId", 2, TPredicate::EQ);
-      qa_results[f][i][1] = ts.GetSecs();
+      qa_results[f][i][2] = ts.GetSecs();
       TExeTm tj;
       PTable Tj = T1->Join("ParentId", *T2, "Id");
-      qa_results[f][i][2] = tj.GetSecs();
+      qa_results[f][i][3] = tj.GetSecs();
       TExeTm te;
       Tj->Unique(qaGroupBy);
-      qa_results[f][i][3] = te.GetSecs();
+      qa_results[f][i][4] = te.GetSecs();
       Tj->SetSrcCol("Posts1.OwnerUserId");
       Tj->SetDstCol("Posts2.OwnerUserId");
       TExeTm tg;
       PNEANet G = Tj->ToGraph();
-      qa_results[f][i][4] = tg.GetSecs();
+      qa_results[f][i][5] = tg.GetSecs();
       //TStr OutFNm = outDir + "out_" + qa_file_names[f];
       //if(i == N-1){Tj->SaveSS(OutFNm);}
       if(i == 0){printf("Number of rows in Q&A table: initial - %d, final %d\n", T2->GetNumValidRows().Val, Tj->GetNumValidRows().Val);}
@@ -100,11 +103,20 @@ int main(){
     load_avg = load_avg/N;
     printf("\naverage load time: %f seconds\n", load_avg);
 
+    printf("Copy Constructor: ");
+    double cctor_avg = 0;
+    for(int i = 0; i < N; i++){
+      printf("%f ", qa_results[f][i][1]);
+      cctor_avg += qa_results[f][i][1];
+    }
+    cctor_avg = cctor_avg/N;
+    printf("\naverage copy constructor time: %f seconds\n", cctor_avg);
+
     printf("Select: ");
     double select_avg = 0;
     for(int i = 0; i < N; i++){
-      printf("%f ", qa_results[f][i][1]);
-      select_avg += qa_results[f][i][1];
+      printf("%f ", qa_results[f][i][2]);
+      select_avg += qa_results[f][i][2];
     }
     select_avg = select_avg/N;
     printf("\naverage select time: %f seconds\n", select_avg);
@@ -112,8 +124,8 @@ int main(){
     printf("Join: ");
     double join_avg = 0;
     for(int i = 0; i < N; i++){
-      printf("%f ", qa_results[f][i][2]);
-      join_avg += qa_results[f][i][2];
+      printf("%f ", qa_results[f][i][3]);
+      join_avg += qa_results[f][i][3];
     }
     join_avg = join_avg/N;
     printf("\naverage join time: %f seconds\n", join_avg);
@@ -121,8 +133,8 @@ int main(){
     printf("Unique: ");
     double unique_avg = 0;
     for(int i = 0; i < N; i++){
-      printf("%f ", qa_results[f][i][3]);
-      unique_avg += qa_results[f][i][3];
+      printf("%f ", qa_results[f][i][4]);
+      unique_avg += qa_results[f][i][4];
     }
     unique_avg = unique_avg/N;
     printf("\naverage unique time: %f seconds\n", unique_avg);
@@ -130,8 +142,8 @@ int main(){
     printf("Graph Creation: ");
     double graph_avg = 0;
     for(int i = 0; i < N; i++){
-      printf("%f ", qa_results[f][i][4]);
-      graph_avg += qa_results[f][i][4];
+      printf("%f ", qa_results[f][i][5]);
+      graph_avg += qa_results[f][i][5];
     }
     graph_avg = graph_avg/N;
     printf("\naverage graph time: %f seconds\n", graph_avg);
@@ -152,6 +164,7 @@ int main(){
   }
 
    // build schema for COMMENTS
+  TTableContext comment_Context;
   TTable::Schema comment_S;
   comment_S.Add(TPair<TStr,TTable::TYPE>("CreationDate", TTable::INT));
   comment_S.Add(TPair<TStr,TTable::TYPE>("Text", TTable::INT));
@@ -181,12 +194,14 @@ int main(){
   for(int f = 0; f < COMMENT_FILES; f++){
     for(int i = 0; i < N; i++){
       TExeTm tl;
-      PTable T1 = TTable::LoadSS("Comments1", comment_S, comment_files[f], comment_RelevantCols);
+      PTable T1 = TTable::LoadSS("Comments1", comment_S, comment_files[f], comment_Context, comment_RelevantCols);
       comment_results[f][i][0] = tl.GetSecs();
-      PTable T2 = TTable::LoadSS("Comments2", comment_S, comment_files[f], comment_RelevantCols);
+      TExeTm tcc;
+      PTable T2 = TTable::New(T1, "Comments2");
+      comment_results[f][i][1] = tcc.GetSecs();
       TExeTm tj;
       PTable Tj = T1->Join("PostId", *T2, "PostId");
-      comment_results[f][i][1] = tj.GetSecs();
+      comment_results[f][i][2] = tj.GetSecs();
       //debug
       //printf("Joint table size: %d\n", Tj->GetNumValidRows().Val);
       Tj->AddLabel("Comments1.UserId", "UserId1");
@@ -194,12 +209,12 @@ int main(){
       TExeTm ts;
       //Tj->Select(uidPred);
       Tj->SelectAtomic("UserId1", "UserId2", TPredicate::NEQ);
-      comment_results[f][i][2] = ts.GetSecs();
+      comment_results[f][i][3] = ts.GetSecs();
       //debug
       //printf("Selected table size: %d\n", Tj->GetNumValidRows().Val);
       TExeTm te;
       Tj->Unique(commentGroupBy);
-      comment_results[f][i][3] = te.GetSecs();
+      comment_results[f][i][4] = te.GetSecs();
       TStr OutFNm = outDir + "out_" + comment_file_names[f];
       //if(i == N-1){Tj->SaveSS(OutFNm);}
       if(i == 0){printf("Number of rows in common comments table: initial - %d, final %d\n", T2->GetNumValidRows().Val, Tj->GetNumValidRows().Val);}
@@ -214,11 +229,20 @@ int main(){
     load_avg = load_avg/N;
     printf("\naverage load time: %f seconds\n", load_avg);
 
+    printf("Copy Constructor: ");
+    double cctor_avg = 0;
+    for(int i = 0; i < N; i++){
+      printf("%f ", comment_results[f][i][1]);
+      cctor_avg += comment_results[f][i][1];
+    }
+    cctor_avg = cctor_avg/N;
+    printf("\naverage copy constructor time: %f seconds\n", cctor_avg);
+
     printf("Join: ");
     double join_avg = 0;
     for(int i = 0; i < N; i++){
-      printf("%f ", comment_results[f][i][1]);
-      join_avg += comment_results[f][i][1];
+      printf("%f ", comment_results[f][i][2]);
+      join_avg += comment_results[f][i][2];
     }
     join_avg = join_avg/N;
     printf("\naverage join time: %f seconds\n", join_avg);
@@ -226,8 +250,8 @@ int main(){
     printf("Select: ");
     double select_avg = 0;
     for(int i = 0; i < N; i++){
-      printf("%f ", comment_results[f][i][2]);
-      select_avg += comment_results[f][i][2];
+      printf("%f ", comment_results[f][i][3]);
+      select_avg += comment_results[f][i][3];
     }
     select_avg = select_avg/N;
     printf("\naverage select time: %f seconds\n", select_avg);
@@ -235,8 +259,8 @@ int main(){
      printf("Unique: ");
     double unique_avg = 0;
     for(int i = 0; i < N; i++){
-      printf("%f ", comment_results[f][i][3]);
-      unique_avg += comment_results[f][i][3];
+      printf("%f ", comment_results[f][i][4]);
+      unique_avg += comment_results[f][i][4];
     }
     unique_avg = unique_avg/N;
     printf("\naverage unique time: %f seconds\n", unique_avg);

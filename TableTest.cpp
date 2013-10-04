@@ -1,6 +1,7 @@
 #include "Table.h"
 
 int main(){
+  TTableContext Context;
   // create scheme
   TTable::Schema AnimalS;
   AnimalS.Add(TPair<TStr,TTable::TYPE>("Animal", TTable::STR));
@@ -12,14 +13,12 @@ int main(){
   RelevantCols.Add(1);
   RelevantCols.Add(2);
   // create table
-  PTable T = TTable::LoadSS("Animals", AnimalS, "../../testfiles/animals.txt", RelevantCols);
+  PTable T = TTable::LoadSS("Animals", AnimalS, "../../testfiles/animals.txt", Context, RelevantCols);
   //PTable T = TTable::LoadSS("Animals", AnimalS, "animals.txt");
-  TStrV AnimalUnique;
-  AnimalUnique.Add("Animal");
-  T->Unique(AnimalUnique);
-  //TTable Ts = *T;  not working because of problem with copy-c'tor
-  PTable Ts = TTable::LoadSS("Animals_s", AnimalS, "../../testfiles/animals.txt", RelevantCols);
-  Ts->Unique(AnimalUnique);
+  T->Unique("Animal");
+  TTable Ts = *T;  // did we fix problem with copy-c'tor ?
+  //PTable Ts = TTable::LoadSS("Animals_s", AnimalS, "../../testfiles/animals.txt", RelevantCols);
+  //Ts->Unique(AnimalUnique);
 
   // test Select
   // create predicate tree: find all animals that are big and african or medium and Australian
@@ -41,7 +40,8 @@ int main(){
   N7.AddLeftChild(&N3);
   N7.AddRightChild(&N6);
   TPredicate Pred(&N7);
-  Ts->Select(Pred);
+  TIntV SelectedRows;
+  Ts.Select(Pred, SelectedRows);
 
   TStrV GroupBy;
   GroupBy.Add("Location");
@@ -49,10 +49,14 @@ int main(){
   GroupBy.Add("Size");
   T->Group("LocationSizeGroup", GroupBy);
   T->Count("LocationCount", "Location");
-  PTable Tj = T->Join("Location", *Ts, "Location");
+  PTable Tj = T->Join("Location", Ts, "Location");
+  TStrV UniqueAnimals;
+  UniqueAnimals.Add("Animals_1.Animal");
+  UniqueAnimals.Add("Animals_2.Animal");
+  Tj->Unique(UniqueAnimals, false);
   //print table
    T->SaveSS("../../testfiles/animals_out_T.txt");
-   Ts->SaveSS("../../testfiles/animals_out_Ts.txt");
+   Ts.SaveSS("../../testfiles/animals_out_Ts.txt");
    Tj->SaveSS("../../testfiles/animals_out_Tj.txt");
   return 0;
 }

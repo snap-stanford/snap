@@ -815,7 +815,7 @@ void TTable::Dist(TStr Col1, const TTable& Table, TStr Col2, TStr DistColName, c
   /*
   TYPE T2 = Table.GetColType(Col2);
   if ((T1  == STR && T2 != STR) || (T1  != STR && T2 == STR) ) {
-    TExcept::Throw("Trying to compare strings with numbers.");
+    TExcept::Throw("Trying to c./ompare strings with numbers.");
   }
 }
 */
@@ -1453,16 +1453,16 @@ void TTable::GraphPrep(){
 }
 
 PNEANet TTable::ToGraph(ATTR_AGGR AttrAggrPolicy) {
-  printf("starting graph prep\n");
+  //printf("starting graph prep\n");
   GraphPrep();
   PNEANet Graph = PNEANet::New();
   THash<TFlt, TInt> FSrNodeMap = THash<TFlt, TInt>();
   THash<TFlt, TInt> FDsNodeMap = THash<TFlt, TInt>();
-  printf("starting to build graph topology\n");
+  //printf("starting to build graph topology\n");
   BuildGraphTopology(Graph);
-  printf("starting to add edge attributes\n");
+  //printf("starting to add edge attributes\n");
   AddEdgeAttributes(Graph);
-  printf("starting to add node attributes\n");
+  //printf("starting to add node attributes\n");
   AddNodeAttributes(Graph, AttrAggrPolicy);
   return Graph;
 }
