@@ -177,7 +177,11 @@ public:
   static void PlotValMomH(const THash<TVal1, TMom>& ValMomH, const TStr& OutFNmPref, const TStr& Desc="",
    const TStr& XLabel="", const TStr& YLabel="", const TGpScaleTy& ScaleTy=gpsAuto, const TGpSeriesTy& SeriesTy=gpwLinesPoints,
    bool PlotAvg=true, bool PlotMed=true, bool PlotMin=false, bool PlotMax=false, bool PlotSDev=false, bool PlotStdErr=true, bool PlotScatter=false);
-  
+  template <class TVal1>
+  static void PlotValMomH(const THash<TVal1, TMom>& ValMomH1, const TStr& Label1, const THash<TVal1, TMom>& ValMomH2, const TStr& Label2,
+   const TStr& OutFNmPref, const TStr& Desc="",
+   const TStr& XLabel="", const TStr& YLabel="", const TGpScaleTy& ScaleTy=gpsAuto, const TGpSeriesTy& SeriesTy=gpwLinesPoints,
+   bool PlotAvg=true, bool PlotMed=true, bool PlotMin=false, bool PlotMax=false, bool PlotSDev=false, bool PlotStdErr=true, bool PlotScatter=false);
 };
 
 //---------------------------------------------------------
@@ -475,6 +479,91 @@ void TGnuPlot::PlotValMomH(const THash<TVal1, TMom>& ValMomH, const TStr& OutFNm
   if (! MinV.Empty()) { GP.AddPlot(MinV, SeriesTy, "Min"); }
   if (! MaxV.Empty()) { GP.AddPlot(MaxV, SeriesTy, "Max"); }
   if (! StdErrV.Empty()) { GP.AddErrBar(StdErrV, "Standard error"); }
+  GP.SavePng();
+}
+
+template <class TVal1>
+void TGnuPlot::PlotValMomH(const THash<TVal1, TMom>& ValMomH1, const TStr& Label1, const THash<TVal1, TMom>& ValMomH2, const TStr& Label2,
+ const TStr& OutFNmPref, const TStr& Desc, const TStr& XLabel, const TStr& YLabel, const TGpScaleTy& ScaleTy, const TGpSeriesTy& SeriesTy,
+ bool PlotAvg, bool PlotMed, bool PlotMin, bool PlotMax, bool PlotSDev, bool PlotStdErr, bool PlotScatter) {
+  TFltTrV AvgV1, AvgV2, StdErrV1, StdErrV2;
+  TFltPrV AvgVM1, MedV1, MinV1, MaxV1;
+  TFltPrV AvgVM2, MedV2, MinV2, MaxV2;
+  TFltPrV ScatterV1, ScatterV2;
+  // ValMom1
+  for (int i = ValMomH1.FFirstKeyId(); ValMomH1.FNextKeyId(i); ) {
+    TMom Mom(ValMomH1[i]);
+    if (! Mom.IsDef()) { Mom.Def(); }
+    const double x = ValMomH1.GetKey(i);
+    if (PlotAvg) {
+      if (PlotSDev) {
+        AvgV1.Add(TFltTr(x, Mom.GetMean(), Mom.GetSDev())); } // std deviation
+      else {
+        AvgVM1.Add(TFltPr(x, Mom.GetMean()));
+      }
+      if (PlotStdErr) {
+        StdErrV1.Add(TFltTr(x, Mom.GetMean(), Mom.GetSDev()/sqrt((double)Mom.GetVals())));
+      }
+    }
+    if (PlotMed) { MedV1.Add(TFltPr(x, Mom.GetMedian())); }
+    if (PlotMin) { MinV1.Add(TFltPr(x, Mom.GetMn())); }
+    if (PlotMax) { MaxV1.Add(TFltPr(x, Mom.GetMx())); }
+    if (PlotScatter) {
+      THashSet<TFlt> PointSet;
+      for (int xi = 0; xi < ValMomH1[i].GetVals(); xi++) {
+        PointSet.AddKey(ValMomH1[i].GetVal(xi)); }
+      for (int xi = 0; xi < PointSet.Len(); xi++) {
+        ScatterV1.Add(TFltPr(x, PointSet[xi]));  }
+    }
+  }
+  AvgV1.Sort();  AvgVM1.Sort(); MedV1.Sort();  MinV1.Sort();  MaxV1.Sort();  StdErrV1.Sort();
+  // ValMom2
+  for (int i = ValMomH2.FFirstKeyId(); ValMomH2.FNextKeyId(i); ) {
+    TMom Mom(ValMomH2[i]);
+    if (! Mom.IsDef()) { Mom.Def(); }
+    const double x = ValMomH2.GetKey(i);
+    if (PlotAvg) {
+      if (PlotSDev) {
+        AvgV2.Add(TFltTr(x, Mom.GetMean(), Mom.GetSDev())); } // std deviation
+      else {
+        AvgVM2.Add(TFltPr(x, Mom.GetMean()));
+      }
+      if (PlotStdErr) {
+        StdErrV2.Add(TFltTr(x, Mom.GetMean(), Mom.GetSDev()/sqrt((double)Mom.GetVals())));
+      }
+    }
+    if (PlotMed) { MedV2.Add(TFltPr(x, Mom.GetMedian())); }
+    if (PlotMin) { MinV2.Add(TFltPr(x, Mom.GetMn())); }
+    if (PlotMax) { MaxV2.Add(TFltPr(x, Mom.GetMx())); }
+    if (PlotScatter) {
+      THashSet<TFlt> PointSet;
+      for (int xi = 0; xi < ValMomH2[i].GetVals(); xi++) {
+        PointSet.AddKey(ValMomH2[i].GetVal(xi)); }
+      for (int xi = 0; xi < PointSet.Len(); xi++) {
+        ScatterV2.Add(TFltPr(x, PointSet[xi]));  }
+    }
+  }
+  AvgV2.Sort();  AvgVM2.Sort(); MedV2.Sort();  MinV2.Sort();  MaxV2.Sort();  StdErrV2.Sort();
+  // plot
+  TGnuPlot GP(OutFNmPref, Desc);
+  GP.SetScale(ScaleTy);
+  GP.SetXYLabel(XLabel, YLabel);
+  // ValMom1
+  if (! ScatterV1.Empty()) { GP.AddPlot(ScatterV1, gpwPoints, Label1+": Scatter"); }
+  if (! AvgV1.Empty()) { GP.AddErrBar(AvgV1, Label1+": Average", Label1+": StdDev"); }
+  if (! AvgVM1.Empty()) { GP.AddPlot(AvgVM1, SeriesTy, Label1+": Average"); }
+  if (! MedV1.Empty()) { GP.AddPlot(MedV1, SeriesTy, Label1+": Median"); }
+  if (! MinV1.Empty()) { GP.AddPlot(MinV1, SeriesTy, Label1+": Min"); }
+  if (! MaxV1.Empty()) { GP.AddPlot(MaxV1, SeriesTy, Label1+": Max"); }
+  if (! StdErrV1.Empty()) { GP.AddErrBar(StdErrV1, Label1+": Std error"); }
+  // ValMom2
+  if (! ScatterV2.Empty()) { GP.AddPlot(ScatterV2, gpwPoints, Label2+": Scatter"); }
+  if (! AvgV2.Empty()) { GP.AddErrBar(AvgV2, Label2+": Average", Label2+": StdDev"); }
+  if (! AvgVM2.Empty()) { GP.AddPlot(AvgVM2, SeriesTy, Label2+": Average"); }
+  if (! MedV2.Empty()) { GP.AddPlot(MedV2, SeriesTy, Label2+": Median"); }
+  if (! MinV2.Empty()) { GP.AddPlot(MinV2, SeriesTy, Label2+": Min"); }
+  if (! MaxV2.Empty()) { GP.AddPlot(MaxV2, SeriesTy, Label2+": Max"); }
+  if (! StdErrV2.Empty()) { GP.AddErrBar(StdErrV2, Label2+": Std error"); }
   GP.SavePng();
 }
 
