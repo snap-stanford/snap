@@ -382,6 +382,14 @@ void TMom::Def(){
         //else if (CurSumW == 0.75*SumW) { Quart3 = 0.5 * (ValWgtV[ValN].Val1+ValWgtV[ValN+1].Val1); }
       }
     }
+    // Mode (value with max total weight)
+    THash<TFlt, TFlt> ValWgtH;
+    for (int i = 0; i < ValWgtV.Len(); i++) {
+      ValWgtH.AddDat(ValWgtV[i].Val1) += ValWgtV[i].Val2; }
+    Mode = TFlt::Mn; double MxWgt=TFlt::Mn;
+    for (int v = 0; v < ValWgtH.Len(); v++) {
+      if (ValWgtH[v] > MxWgt) { MxWgt=ValWgtH[v]; Mode=ValWgtH.GetKey(v); }
+    }
     // Deciles & Percentiles
     CurSumW = 0;
     int DecileN = 1, PercentileN = 1;
