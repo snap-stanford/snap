@@ -7,11 +7,16 @@ include ../Makefile.config
 HEADER = Engine.h Predicate.h TMetric.h Table.h
 CPP = Engine.cpp Predicate.cpp Table.cpp
 
-TEST = TableTest TableTest1 Benchmark BenchmarkAshton
+#TEST = SetOperationsTest TableTest TableTest1 Benchmark BenchmarkAshton
+
+TEST = SetOperationsTest
 
 all: $(TEST)
 
 # COMPILE
+SetOperationsTest: SetOperationsTest.cpp Engine.o
+	$(CC) -o $@ $@.cpp Engine.o $(CSNAP)/Snap.o -I$(CSNAP) -I$(CGLIB) $(LDFLAGS) $(LIBS)
+
 TableTes%: TableTes%.cpp Engine.o
 	$(CC) -o $@ $@.cpp Engine.o $(CSNAP)/Snap.o -I$(CSNAP) -I$(CGLIB) $(LDFLAGS) $(LIBS)
 

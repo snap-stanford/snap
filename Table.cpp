@@ -1549,13 +1549,18 @@ void TTable::AddTable(const TTable& T){
        break;
     }
   }
-  
+
   TIntV TNext(T.Next);
   for(TInt i = 0; i < TNext.Len(); i++){
     if(TNext[i] != Last && TNext[i] != Invalid){ TNext[i] += NumRows;}
   }
+
   TInt LastValidRow = GetLastValidRowIdx();
-  Next[LastValidRow] = T.FirstValidRow + NumRows;
+
+  // checks if table is empty 
+  if (LastValidRow >= 0) {
+    Next[LastValidRow] = T.FirstValidRow + NumRows;
+  }
   Next.AddV(TNext);
   NumRows += T.NumRows;
   NumValidRows += T.NumValidRows;
@@ -1564,9 +1569,213 @@ void TTable::AddTable(const TTable& T){
 
 // should keep a pointer to last valid row...
  TInt TTable::GetLastValidRowIdx(){
+   // If table is empty, return -1
+   // if this is the case, should row iteration happen?
+   if (NumRows == 0) {
+       return -1;
+   }
+
    for(TRowIterator RI = BegRI(); RI < EndRI(); RI++){
      if(Next[RI.GetRowIdx()] == Last){ return RI.GetRowIdx();}
    }
    return -1;
  }
 
+void TTable::GetCollidingRows(const TTable& Table, THashSet<TInt>& Collisions){
+  TStrV IntGroupByCols;
+  TStrV FltGroupByCols;
+  TStrV StrGroupByCols;
+  for(TInt c = 0; c < S.Len(); c++){
+    if(S[c] != Table.S[c]){ 
+      printf("(%s,%d) != (%s,%d)\n", S[c].Val1.CStr(), S[c].Val2, Table.S[c].Val1.CStr(), Table.S[c].Val2); 
+      TExcept::Throw("when colliding tables, their schemas must match!");
+    }
+    TStr ColName = GetSchemaColName(c);
+    switch(GetColType(ColName)){
+      case INT:
+        IntGroupByCols.Add(ColName);
+        break;
+      case FLT:
+        FltGroupByCols.Add(ColName);
+        break;
+      case STR:
+        StrGroupByCols.Add(ColName);
+        break;
+    }
+  }
+
+  TInt IKLen = IntGroupByCols.Len();  // # of integer columns to group by
+  TInt FKLen = FltGroupByCols.Len();  // # of float columns to group by
+  TInt SKLen = StrGroupByCols.Len();  // # of string columns to group by
+
+  TInt GroupNum = 0;
+  THash<TIntV,TIntV> IGroup;  // a mapping between an X to indices of groups with X as integer column key
+  THash<TFltV,TIntV> FGroup;
+  THash<TStrV,TIntV> SGroup;
+
+  for(TRowIterator it = BegRI(); it < EndRI(); it++){
+    // read keys from row
+    TIntV IKey(IKLen,0);
+    TFltV FKey(FKLen,0);
+    TStrV SKey(SKLen,0);
+    for(TInt c = 0; c < IKLen; c++){
+      IKey.Add(it.GetIntAttr(IntGroupByCols[c])); 
+    }
+    for(TInt c = 0; c < FKLen; c++){
+      FKey.Add(it.GetFltAttr(FltGroupByCols[c])); 
+    }
+    for(TInt c = 0; c < SKLen; c++){
+      SKey.Add(it.GetStrAttr(StrGroupByCols[c])); 
+    }
+
+    // look for group matching to the key (IKey,FKey,SKey)
+    TIntV GroupMatch;
+    if(IKLen > 0){
+      if(IGroup.IsKey(IKey)){ GroupMatch.AddV(IGroup.GetDat(IKey));}
+    } else if(FKLen > 0){
+      if(FGroup.IsKey(FKey)){ GroupMatch.AddV(FGroup.GetDat(FKey));}
+    } else{
+      if(SGroup.IsKey(SKey)){ GroupMatch.AddV(SGroup.GetDat(SKey));}
+    }
+ 
+    if(FKLen > 0){ 
+      if(!FGroup.IsKey(FKey)){ 
+        GroupMatch.Clr();
+      } else{
+        GroupMatch.Sort(true);
+        // Note: Intrs assumes vectors are sorted!! The values of FGroup are sorted vectors
+        GroupMatch.Intrs(FGroup.GetDat(FKey));  
+      }
+    }
+    if(SKLen > 0){ 
+      if(!SGroup.IsKey(SKey)){ 
+        GroupMatch.Clr();
+      } else{
+        GroupMatch.Sort(true);
+        GroupMatch.Intrs(SGroup.GetDat(SKey));
+      }
+    }
+
+    if (GroupMatch.Len() == 0) {
+      // (IKey,FKey,SKey) hasn't been seen before - create new group
+      if(IKLen > 0){ UpdateGrouping<TIntV>(IGroup, IKey, GroupNum);}
+      if(FKLen > 0){ UpdateGrouping<TFltV>(FGroup, FKey, GroupNum);}
+      if(SKLen > 0){ UpdateGrouping<TStrV>(SGroup, SKey, GroupNum);}
+      GroupNum++;
+    } else if (GroupMatch.Len() >= 2) {
+      TExcept::Throw("Groups duplicated, should not happen");
+    }
+  }
+
+  for(TRowIterator it = Table.BegRI(); it < Table.EndRI(); it++){
+    // read keys from row
+    TIntV IKey(IKLen,0);
+    TFltV FKey(FKLen,0);
+    TStrV SKey(SKLen,0);
+    for(TInt c = 0; c < IKLen; c++){
+      IKey.Add(it.GetIntAttr(IntGroupByCols[c])); 
+    }
+    for(TInt c = 0; c < FKLen; c++){
+      FKey.Add(it.GetFltAttr(FltGroupByCols[c])); 
+    }
+    for(TInt c = 0; c < SKLen; c++){
+      SKey.Add(it.GetStrAttr(StrGroupByCols[c])); 
+    }
+
+    // look for group matching to the key (IKey,FKey,SKey)
+    TIntV GroupMatch;
+    if(IKLen > 0){
+      if(IGroup.IsKey(IKey)){ GroupMatch.AddV(IGroup.GetDat(IKey));}
+    } else if(FKLen > 0){
+      if(FGroup.IsKey(FKey)){ GroupMatch.AddV(FGroup.GetDat(FKey));}
+    } else{
+      if(SGroup.IsKey(SKey)){ GroupMatch.AddV(SGroup.GetDat(SKey));}
+    }
+ 
+    if(FKLen > 0){ 
+      if(!FGroup.IsKey(FKey)){ 
+        GroupMatch.Clr();
+      } else{
+        GroupMatch.Sort(true);
+        // Note: Intrs assumes vectors are sorted!! The values of FGroup are sorted vectors
+        GroupMatch.Intrs(FGroup.GetDat(FKey));  
+      }
+    }
+    if(SKLen > 0){ 
+      if(!SGroup.IsKey(SKey)){ 
+        GroupMatch.Clr();
+      } else{
+        GroupMatch.Sort(true);
+        GroupMatch.Intrs(SGroup.GetDat(SKey));
+      }
+    }
+
+    TInt RowIdx = it.GetRowIdx();
+    if (GroupMatch.Len() == 1) {
+      // (IKey,FKey,SKey) has been seen before - add RowIdx to corresponding group
+      Collisions.AddKey(RowIdx);
+    } else if (GroupMatch.Len() >= 2) {
+      TExcept::Throw("Groups duplicated, should not happen");
+    }
+  }
+}
+
+void TTable::AddRow(const TRowIterator& RI) {
+  for(TInt c = 0; c < S.Len(); c++){
+    TStr ColName = GetSchemaColName(c);
+    TInt ColIdx = GetColIdx(ColName);
+    switch(GetColType(ColName)){
+    case INT:
+       IntCols[ColIdx].Add(RI.GetIntAttr(ColName));
+       break;
+    case FLT:
+       FltCols[ColIdx].Add(RI.GetFltAttr(ColName));
+       break;
+    case STR:
+       StrColMaps[ColIdx].Add(RI.GetStrMap(ColName));
+       break;
+    }
+  }
+
+  
+  TInt LastValidRow = GetLastValidRowIdx();
+
+  if (LastValidRow >= 0) {
+    Next[LastValidRow] = NumRows;
+  }
+  Next.Add(Last);
+
+  NumRows++;
+  NumValidRows++;
+
+}
+
+PTable TTable::Union(const TTable& Table, TStr TableName){
+  THashSet<TInt> Collisions;
+  GetCollidingRows(Table, Collisions);
+
+  PTable result = TTable::New(TableName, S, Context);
+
+  result->AddTable(*this);
+
+  for(TRowIterator it = Table.BegRI(); it < Table.EndRI(); it++){
+    if (!Collisions.IsKey(it.GetRowIdx())){
+      result->AddRow(it);
+    }
+  }
+  return result;
+}
+
+PTable TTable::Intersection(const TTable& Table, TStr TableName){
+  THashSet<TInt> Collisions;
+  GetCollidingRows(Table, Collisions);
+
+  PTable result = TTable::New(TableName, S, Context);
+
+  for(TRowIterator it = Table.BegRI(); it < Table.EndRI(); it++){
+    if (Collisions.IsKey(it.GetRowIdx())){
+      result->AddRow(it);
+    }
+  }
+  return result;
+}

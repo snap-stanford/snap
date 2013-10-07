@@ -65,6 +65,7 @@ public:
     TInt GetIntAttr(TStr Col) const{ TInt ColIdx = Table->ColTypeMap.GetDat(Col).Val2; return Table->IntCols[ColIdx][CurrRowIdx];}
     TFlt GetFltAttr(TStr Col) const{ TInt ColIdx = Table->ColTypeMap.GetDat(Col).Val2; return Table->FltCols[ColIdx][CurrRowIdx];}
     TStr GetStrAttr(TStr Col) const{ return Table->GetStrVal(Col, CurrRowIdx);}   
+    TInt GetStrMap(TStr Col) const{ TInt ColIdx = Table->ColTypeMap.GetDat(Col).Val2; return Table->StrColMaps[ColIdx][CurrRowIdx];}
   };
 
   /* an iterator that also allows logical row removal while iterating */
@@ -458,6 +459,11 @@ public:
   
   // Add all the rows of the input table (which ,ust have the same schema as current table) - allows duplicate rows (not a union)
   void AddTable(const TTable& T);
+  
+  void AddRow(const TRowIterator& RI);
+  void GetCollidingRows(const TTable& T, THashSet<TInt>& Collisions);
+  PTable Union(const TTable& Table, TStr TableName);
+  PTable Intersection(const TTable& Table, TStr TableName);
   
   // add a column of explicit integer identifiers to the rows
   void AddIdColumn(const TStr IdColName);
