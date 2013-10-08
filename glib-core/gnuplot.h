@@ -149,6 +149,10 @@ public:
   static void PlotValV(const TVec<TPair<TVal1, TVal2> >& ValV, const TStr& OutFNmPref, const TStr& Desc="",
    const TStr& XLabel="", const TStr& YLabel="", const TGpScaleTy& ScaleTy=gpsAuto, const bool& PowerFit=false, 
    const TGpSeriesTy& SeriesTy=gpwLinesPoints);
+  template <class TVal1, class TVal2, class TVal3>
+  static void PlotValV(const TVec<TTriple<TVal1, TVal2, TVal3> >& ValV, const TStr& OutFNmPref, const TStr& Desc="",
+   const TStr& XLabel="", const TStr& YLabel="", const TGpScaleTy& ScaleTy=gpsAuto, const bool& PowerFit=false,
+   const TGpSeriesTy& SeriesTy=gpwLinesPoints, const TStr& ErrBarStr = "");
   template <class TVal1, class TVal2>
   static void PlotValV(const TVec<TPair<TVal1, TVal2> >& ValV1, const TStr& Name1,
     const TVec<TPair<TVal1, TVal2> >& ValV2, const TStr& Name2, const TStr& OutFNmPref, const TStr& Desc="",
@@ -376,6 +380,33 @@ void TGnuPlot::PlotValV(const TVec<TPair<TVal1, TVal2> >& ValV, const TStr& OutF
   }
   GP.SavePng();
 }
+
+template <class TVal1, class TVal2, class TVal3>
+void TGnuPlot::PlotValV(const TVec<TTriple<TVal1, TVal2, TVal3> >& ValV, const TStr& OutFNmPref, const TStr& Desc,
+ const TStr& XLabel, const TStr& YLabel, const TGpScaleTy& ScaleTy, const bool& PowerFit, const TGpSeriesTy& SeriesTy, const TStr& ErrBarStr) {
+  TFltKdV IdCntV(ValV.Len(), 0);
+  TFltV DeltaYV(ValV.Len(), 0);
+  for (int i = 0; i < ValV.Len(); i++) {
+    IdCntV.Add(TFltKd(double(ValV[i].Val1), double(ValV[i].Val2)));
+    DeltaYV.Add(double(ValV[i].Val3));
+  }
+  if (IdCntV.Empty()) { printf("*** Empty plot %s\n", OutFNmPref.CStr());  return; }
+  IdCntV.Sort();
+  TGnuPlot GP(OutFNmPref, Desc);
+  GP.SetXYLabel(XLabel, YLabel);
+  GP.SetScale(ScaleTy);
+  const int Id = GP.AddPlot(IdCntV, SeriesTy);
+  GP.AddErrBar(IdCntV, DeltaYV, ErrBarStr);
+  if (PowerFit) {
+    GP.AddPwrFit3(Id);
+    double MaxY = IdCntV.Last().Dat, MinY = IdCntV[0].Dat;
+    if (MaxY < MinY) { Swap(MaxY, MinY); }
+    //GP.SetYRange(MinY, pow(10.0, floor(log10(MaxY))+1.0));
+    GP.AddCmd(TStr::Fmt("set yrange[%f:]", MinY));
+  }
+  GP.SavePng();
+}
+
 
 template <class TVal1, class TVal2>
 void TGnuPlot::PlotValV(const TVec<TPair<TVal1, TVal2> >& ValV1, const TStr& Name1, 
