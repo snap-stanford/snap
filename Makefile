@@ -7,9 +7,7 @@ include ../Makefile.config
 HEADER = Engine.h Predicate.h TMetric.h Table.h
 CPP = Engine.cpp Predicate.cpp Table.cpp
 
-#TEST = SetOperationsTest TableTest TableTest1 Benchmark BenchmarkAshton
-
-TEST = SetOperationsTest
+TEST = SetOperationsTest TableTest TableTest1 Benchmark BenchmarkAshton
 
 all: $(TEST)
 
