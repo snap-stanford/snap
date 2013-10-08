@@ -71,6 +71,7 @@ public:
   const TInt& operator [] (const int& NIdN) const { return NIdV[NIdN]; }
   const TIntV& operator () () const { return NIdV; }
   TIntV& operator () () { return NIdV; }
+  const TInt& GetVal(const int& NIdN) const { return operator[](NIdN); }
   void Sort(const bool& Asc = true) { NIdV.Sort(Asc); }
   bool IsNIdIn(const int& NId) const { return NIdV.SearchBin(NId) != -1; }
   const TInt& GetRndNId() const { return NIdV[TInt::Rnd.GetUniDevInt(Len())]; }
@@ -81,6 +82,8 @@ public:
   /// See source code for details.
   template <class PGraph, class TVisitor>
   static void GetDfsVisitor(const PGraph& Graph, TVisitor& Visitor);
+  int GetPrimHashCd() const { return NIdV.GetPrimHashCd(); }
+  int GetSecHashCd() const { return NIdV.GetSecHashCd(); }
 };
 
 template <class PGraph, class TVisitor>
