@@ -19,9 +19,17 @@ int main(){
 
   PTable R = P->Union(*Q, "union");
   PTable S = P->Intersection(*Q, "intersection");
+  PTable M = P->Minus(*Q, "minus");
+
+  TStrV Cols;
+  Cols.Add("Animal");
+  Cols.Add("Size");
+  PTable T = P->Project(Cols, "projection");
 
   R->SaveSS("./union.txt");
   S->SaveSS("./intersection.txt");
+  M->SaveSS("./minus.txt");
+  T->SaveSS("./projection.txt");
 
   return 0;
 }

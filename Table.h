@@ -188,7 +188,7 @@ protected:
   TStr GetSchemaColName(TInt Idx) const{ return S[Idx].Val1;}
   TYPE GetSchemaColType(TInt Idx) const{ return S[Idx].Val2;}
   void AddSchemaCol(TStr ColName, TYPE ColType) { S.Add(TPair<TStr,TYPE>(ColName, ColType));}
-  TInt GetColIdx(TStr ColName) const{ return ColTypeMap.GetDat(ColName).Val2;}  // column index among columns of the same type
+  TInt GetColIdx(TStr ColName) const{ return ColTypeMap.IsKey(ColName) ? ColTypeMap.GetDat(ColName).Val2 : TInt(-1);}  // column index among columns of the same type
 
 /***** Utility functions for adding attributes to the graph *****/
   // Get node identifier for src/dst node given row physical id
@@ -461,9 +461,11 @@ public:
   void AddTable(const TTable& T);
   
   void AddRow(const TRowIterator& RI);
-  void GetCollidingRows(const TTable& T, THashSet<TInt>& Collisions);
+  void GetCollidingRows(const TTable& T, THashSet<TInt>& Collisions) const;
   PTable Union(const TTable& Table, TStr TableName);
   PTable Intersection(const TTable& Table, TStr TableName);
+  PTable Minus(const TTable& Table, TStr TableName);
+  PTable Project(const TStrV& ProjectCols, TStr TableName);
   
   // add a column of explicit integer identifiers to the rows
   void AddIdColumn(const TStr IdColName);

@@ -1530,14 +1530,15 @@ void TTable::PrintSize(){
 
 
 void TTable::AddTable(const TTable& T){
-  for(TInt c = 0; c < S.Len(); c++){
-    if(S[c] != T.S[c]){ printf("(%s,%d) != (%s,%d)\n", S[c].Val1.CStr(), S[c].Val2, T.S[c].Val1.CStr(), T.S[c].Val2); TExcept::Throw("when adding tables, their schemas must match!");}
-  }
+  //for(TInt c = 0; c < S.Len(); c++){
+  //  if(S[c] != T.S[c]){ printf("(%s,%d) != (%s,%d)\n", S[c].Val1.CStr(), S[c].Val2, T.S[c].Val1.CStr(), T.S[c].Val2); TExcept::Throw("when adding tables, their schemas must match!");}
+  //}
   for(TInt c = 0; c < S.Len(); c++){
     TStr ColName = GetSchemaColName(c);
     TInt ColIdx = GetColIdx(ColName);
     TInt TColIdx = T.GetColIdx(ColName);
-    switch(GetColType(ColName)){
+    if (TColIdx < 0){ TExcept::Throw("when adding a table, it must contain all columns of source table!");}
+    switch(GetColType(ColName)){ 
     case INT:
        IntCols[ColIdx].AddV(T.IntCols[TColIdx]);
        break;
@@ -1581,7 +1582,7 @@ void TTable::AddTable(const TTable& T){
    return -1;
  }
 
-void TTable::GetCollidingRows(const TTable& Table, THashSet<TInt>& Collisions){
+void TTable::GetCollidingRows(const TTable& Table, THashSet<TInt>& Collisions) const{
   TStrV IntGroupByCols;
   TStrV FltGroupByCols;
   TStrV StrGroupByCols;
@@ -1777,5 +1778,31 @@ PTable TTable::Intersection(const TTable& Table, TStr TableName){
       result->AddRow(it);
     }
   }
+  return result;
+}
+
+PTable TTable::Minus(const TTable& Table, TStr TableName){
+  THashSet<TInt> Collisions;
+  Table.GetCollidingRows(*this, Collisions);
+
+  PTable result = TTable::New(TableName, S, Context);
+
+  for(TRowIterator it = BegRI(); it < EndRI(); it++){
+    if (!Collisions.IsKey(it.GetRowIdx())){
+      result->AddRow(it);
+    }
+  }
+  return result;
+}
+
+PTable TTable::Project(const TStrV& ProjectCols, TStr TableName){
+  TTable::Schema NewSchema;
+  for(TInt c = 0; c < ProjectCols.Len(); c++){
+    if(!ColTypeMap.IsKey(ProjectCols[c])){TExcept::Throw("no such column " + ProjectCols[c]);}
+    NewSchema.Add(TPair<TStr,TTable::TYPE>(ProjectCols[c], GetColType(ProjectCols[c])));
+  }
+
+  PTable result = TTable::New(TableName, NewSchema, Context);
+  result->AddTable(*this);
   return result;
 }
