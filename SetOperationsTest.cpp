@@ -26,10 +26,18 @@ int main(){
   Cols.Add("Size");
   PTable T = P->Project(Cols, "projection");
 
-  R->SaveSS("tests/union.txt");
-  S->SaveSS("tests/intersection.txt");
-  M->SaveSS("tests/minus.txt");
-  T->SaveSS("tests/projection.txt");
+  P->ProjectInPlace(Cols);
 
+  R->SaveSS("./union.txt");
+  S->SaveSS("./intersection.txt");
+  M->SaveSS("./minus.txt");
+  T->SaveSS("./projection.txt");
+  
+  TFOut OutFile("loadsave_test.dat");
+  P->Save(OutFile);
+  OutFile.Flush();
+  TFIn InFile("loadsave_test.dat");
+  PTable U = TTable::Load(InFile, Context);
+  U->SaveSS("./loadsave_test.txt");
   return 0;
 }

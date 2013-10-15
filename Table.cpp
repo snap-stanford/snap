@@ -49,6 +49,31 @@ TTable::TTable(const TStr& TableName, const Schema& TableSchema, TTableContext& 
   StrColMaps = TVec<TIntV>(StrColCnt);
 }
 
+TTable::TTable(TSIn& SIn, TTableContext& Context): Context(Context), Name(SIn), NumRows(SIn), NumValidRows(SIn), FirstValidRow(SIn), 
+  Next(SIn), IntCols(SIn), FltCols(SIn), StrColMaps(SIn){
+  THash<TStr,TPair<TInt,TInt> > ColTypeIntMap(SIn);
+
+  ColTypeMap.Clr();
+  S.Clr();
+  for (THash<TStr,TPair<TInt,TInt> >::TIter it = ColTypeIntMap.BegI(); it < ColTypeIntMap.EndI(); it++){
+    TPair<TInt,TInt> dat = it.GetDat();
+    switch(dat.GetVal1()){
+      case 0:
+        ColTypeMap.AddDat(it.GetKey(), TPair<TYPE,TInt>(INT, dat.GetVal2()));
+        S.Add(TPair<TStr,TYPE>(it.GetKey(), INT));
+        break;
+      case 1:
+        ColTypeMap.AddDat(it.GetKey(), TPair<TYPE,TInt>(FLT, dat.GetVal2()));
+        S.Add(TPair<TStr,TYPE>(it.GetKey(), FLT));
+        break;
+      case 2:
+        ColTypeMap.AddDat(it.GetKey(), TPair<TYPE,TInt>(STR, dat.GetVal2()));
+        S.Add(TPair<TStr,TYPE>(it.GetKey(), STR));
+        break;
+    }
+  }
+}
+
 PTable TTable::LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm, TTableContext& Context, const TIntV& RelevantCols, const char& Separator, TBool HasTitleLine){
   TSsParser Ss(InFNm, Separator);
   Schema SR;
@@ -172,6 +197,33 @@ void TTable::SaveSS(const TStr& OutFNm){
 	}
  }
  fclose(F);
+}
+
+void TTable::Save(TSOut& SOut){ 
+  Name.Save(SOut);
+  NumRows.Save(SOut); NumValidRows.Save(SOut); 
+  FirstValidRow.Save(SOut); Next.Save(SOut); 
+  IntCols.Save(SOut); FltCols.Save(SOut); StrColMaps.Save(SOut); 
+
+  THash<TStr,TPair<TInt,TInt> > ColTypeIntMap;
+  TInt INTVal = TInt(0);
+  TInt FLTVal = TInt(1);
+  TInt STRVal = TInt(2);
+  for (THash<TStr,TPair<TYPE,TInt> >::TIter it = ColTypeMap.BegI(); it < ColTypeMap.EndI(); it++){
+    TPair<TYPE,TInt> dat = it.GetDat();
+    switch(dat.GetVal1()){
+      case INT:
+        ColTypeIntMap.AddDat(it.GetKey(), TPair<TInt,TInt>(INTVal, dat.GetVal2()));
+        break;
+      case FLT:
+        ColTypeIntMap.AddDat(it.GetKey(), TPair<TInt,TInt>(FLTVal, dat.GetVal2()));
+        break;
+      case STR:
+        ColTypeIntMap.AddDat(it.GetKey(), TPair<TInt,TInt>(STRVal, dat.GetVal2()));
+        break;
+    }
+  }
+  ColTypeIntMap.Save(SOut);
 }
 
 void TTable::AddStrVal(const TInt ColIdx, const TStr& Val){
@@ -2118,4 +2170,59 @@ void TTable::ColDiv(TStr Attr1, TFlt Num, TStr ResultAttrName) {
 
 void TTable::ColMod(TStr Attr1, TFlt Num, TStr ResultAttrName) {
   ColGenericOp(Attr1, Num, ResultAttrName, OP_MOD);
+}
+
+void TTable::ProjectInPlace(const TStrV& ProjectCols){
+  THashSet<TStr> ProjectColsSet = THashSet<TStr>(ProjectCols);
+  // Delete the column vectors
+  for(TInt i = 0; i < S.Len(); i++){
+    TStr ColName = GetSchemaColName(i);
+    if (ProjectColsSet.IsKey(ColName)){ continue;}
+    TYPE ColType = GetSchemaColType(i);
+    TInt ColId = GetColIdx(ColName);
+    switch(ColType){
+      case INT:
+        IntCols.Del(ColId);
+        break;
+      case FLT:
+        FltCols.Del(ColId);
+        break;
+      case STR:
+        StrColMaps.Del(ColId);
+        break;
+    }
+  }
+
+  // Rebuild the ColTypeMap with new indexes of the column vectors
+  TInt IntColCnt = 0;
+  TInt FltColCnt = 0;
+  TInt StrColCnt = 0;
+  ColTypeMap.Clr();
+  for(TInt i = 0; i < S.Len(); i++){
+    TStr ColName = GetSchemaColName(i);
+    if (!ProjectColsSet.IsKey(ColName)){ continue;}
+    TYPE ColType = GetSchemaColType(i);
+    switch(ColType){
+      case INT:
+        ColTypeMap.AddDat(ColName, TPair<TYPE,TInt>(INT, IntColCnt));
+        IntColCnt++;
+        break;
+      case FLT:
+        ColTypeMap.AddDat(ColName, TPair<TYPE,TInt>(FLT, FltColCnt));
+        FltColCnt++;
+        break;
+      case STR:
+        ColTypeMap.AddDat(ColName, TPair<TYPE,TInt>(STR, StrColCnt));
+        StrColCnt++;
+        break;
+    }
+  }
+
+  // Update schema
+  TInt i = 0;
+  while (i < S.Len()){
+    TStr ColName = GetSchemaColName(i);
+    if (ProjectColsSet.IsKey(ColName)){ i++; continue;}
+    S.Del(i);
+  }
 }

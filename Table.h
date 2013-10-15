@@ -16,6 +16,10 @@ class TTableContext{
 protected:
   TStrHash<TInt, TBigStrPool> StringVals;
   friend class TTable;
+public:
+  TTableContext() {}
+  TTableContext(TSIn& SIn): StringVals(SIn) {}
+  void Save(TSOut& SOut) { StringVals.Save(SOut);}
 };
 
 /* 
@@ -325,7 +329,7 @@ public:
 	TTable(); 
   TTable(TTableContext& Context);
   TTable(const TStr& TableName, const Schema& S, TTableContext& Context);
-  // TTable(TSIn& SIn){}  // TODO
+  TTable(TSIn& SIn, TTableContext& Context);
   TTable(const TTable& Table): Name(Table.Name), Context(Table.Context), S(Table.S),
     NumRows(Table.NumRows), NumValidRows(Table.NumValidRows), FirstValidRow(Table.FirstValidRow),
     Next(Table.Next), IntCols(Table.IntCols), FltCols(Table.FltCols),
@@ -342,14 +346,16 @@ public:
   static PTable New(const PTable Table, const TStr& TableName){ PTable T = New(Table); T->Name = TableName; return T;}
 
 /***** Save / Load functions *****/
-  // static PTable Load(TSIn& SIn){ return new TTable(SIn);} 
   // Load table from spread sheet (TSV, CSV, etc)
   static PTable LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm, TTableContext& Context, const char& Separator = '\t', TBool HasTitleLine = true);
   // Load table from spread sheet - but only load the columns specified by RelevantCols
   static PTable LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm, TTableContext& Context, const TIntV& RelevantCols, const char& Separator = '\t', TBool HasTitleLine = true);
   // Save table schema + content into a TSV file
   void SaveSS(const TStr& OutFNm);
-	//void Save(TSOut& SOut);
+  // Load table from binary. The TTableContext must be provided separately as it shared among multiple TTables and should be saved in a separate binary.
+  static PTable Load(TSIn& SIn, TTableContext& Context){ return new TTable(SIn, Context);} 
+  // Save table schema + content into binary. Note that TTableContext must be saved in a separate binary (as it is shared among multiple TTables).
+	void Save(TSOut& SOut);
 
 /***** Graph handling *****/
   /* Create a graph out of the FINAL table */
@@ -478,6 +484,7 @@ public:
   PTable Intersection(const TTable& Table, TStr TableName);
   PTable Minus(const TTable& Table, TStr TableName);
   PTable Project(const TStrV& ProjectCols, TStr TableName);
+  void ProjectInPlace(const TStrV& ProjectCols);
   
   /* Column-wise arithmetic operations */
 
