@@ -1,0 +1,4 @@
+Name	X	Y	Z	W
+First	1	1.3	2	0.8
+Second	2	-0.1	3	9.1
+Third	-1	10	10	1.1
