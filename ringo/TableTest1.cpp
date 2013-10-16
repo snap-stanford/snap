@@ -1,4 +1,4 @@
-#include "Table.h"
+#include "Snap.h"
 
 // select only big animals
 // self join on location

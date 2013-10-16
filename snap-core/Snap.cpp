@@ -33,3 +33,8 @@
 #include "ghash.cpp"
 #include "statplot.cpp"
 #include "gio.cpp"
+
+// table data structures and algorithms
+#include "table.cpp"         // table
+#include "predicate.cpp"     // predicates
+

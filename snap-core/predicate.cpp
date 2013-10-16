@@ -1,5 +1,3 @@
-#include "Predicate.h"
-
 const TPredicate::TAtomicPredicate TPredicate::NonAtom = TAtomicPredicate(INT, true, EQ, "", "", 0, 0, "");
 
 void TPredicate::TPredicateNode::GetVariables(TStrV& Variables){

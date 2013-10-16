@@ -1,8 +1,7 @@
 #ifndef TABLE_H
 #define TABLE_H
-#include "Snap.h"
-#include "Predicate.h"
-#include "TMetric.h"
+#include "predicate.h"
+#include "tmetric.h"
 
 class TTable;
 typedef TPt<TTable> PTable;

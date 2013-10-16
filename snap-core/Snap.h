@@ -40,4 +40,7 @@
 #include "ghash.h"
 #include "statplot.h"
 
+// table data structures and algorithms
+#include "table.h"         // table
+
 #endif

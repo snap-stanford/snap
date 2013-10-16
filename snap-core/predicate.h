@@ -1,6 +1,5 @@
 #ifndef PREDICATE_H
 #define PREDICATE_H
-#include "Snap.h"
 
 class TPredicate{
 public:
@@ -97,3 +96,4 @@ public:
   }
 };
 #endif // PREDICATE_H
+

@@ -1,7 +1,5 @@
 #ifndef METRIC_H
 #define METRIC_H
-#include <math.h>
-#include "Snap.h"
 
 class TMetric{
 protected:
