@@ -1,17 +1,18 @@
 #ifndef PREDICATE_H
 #define PREDICATE_H
 
-class TPredicate{
+typedef enum TAttrType_ {atUndef, atInt, atFlt, atStr} TAttrType;   // attribute type
+
+class TPredicate {
 public:
-  typedef enum {INT, FLT, STR} TYPE;   // must be consistent with TYPE definition in TTable
   typedef enum {NOT, AND, OR, NOP} OP;
   typedef enum {LT = 0, LTE, EQ, NEQ, GTE, GT, SUBSTR, SUPERSTR} COMP;
   class TAtomicPredicate;
 protected:
-  const static TAtomicPredicate NonAtom;
+  static const TAtomicPredicate NonAtom;
 public:
   class TAtomicPredicate{
-    TYPE Type;
+    TAttrType Type;
     TBool IsConst;
     COMP Compare;
     TStr Lvar;
@@ -22,9 +23,9 @@ public:
   public:
     TAtomicPredicate():Type(NonAtom.Type), IsConst(NonAtom.IsConst), Compare(NonAtom.Compare), Lvar(NonAtom.Lvar),
       Rvar(NonAtom.Rvar), IntConst(NonAtom.IntConst), FltConst(NonAtom.FltConst), StrConst(NonAtom.StrConst){}
-    TAtomicPredicate(TYPE Typ, TBool IsCnst, COMP Cmp, TStr L, TStr R, TInt ICnst, TFlt FCnst, TStr SCnst):
+    TAtomicPredicate(TAttrType Typ, TBool IsCnst, COMP Cmp, TStr L, TStr R, TInt ICnst, TFlt FCnst, TStr SCnst):
       Type(Typ), IsConst(IsCnst), Compare(Cmp), Lvar(L), Rvar(R), IntConst(ICnst), FltConst(FCnst), StrConst(SCnst){}
-    TAtomicPredicate(TYPE Typ, TBool IsCnst, COMP Cmp, TStr L, TStr R):
+    TAtomicPredicate(TAttrType Typ, TBool IsCnst, COMP Cmp, TStr L, TStr R):
       Type(Typ), IsConst(IsCnst), Compare(Cmp), Lvar(L), Rvar(R), IntConst(0), FltConst(0), StrConst(""){}
     friend class TPredicate;
   };

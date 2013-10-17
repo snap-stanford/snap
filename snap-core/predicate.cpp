@@ -1,4 +1,4 @@
-const TPredicate::TAtomicPredicate TPredicate::NonAtom = TAtomicPredicate(INT, true, EQ, "", "", 0, 0, "");
+const TPredicate::TAtomicPredicate TPredicate::NonAtom = TAtomicPredicate(atInt, true, EQ, "", "", 0, 0, "");
 
 void TPredicate::TPredicateNode::GetVariables(TStrV& Variables){
   if(Left != NULL){ Left->GetVariables(Variables);}
@@ -104,15 +104,15 @@ TBool TPredicate::Eval(){
 
 TBool TPredicate::EvalAtomicPredicate(const TAtomicPredicate& Atom){
    switch(Atom.Type){
-     case INT:{
+     case atInt:{
        if(Atom.IsConst){ return EvalAtom<TInt>(IntVars.GetDat(Atom.Lvar), Atom.IntConst, Atom.Compare);}
        return EvalAtom<TInt>(IntVars.GetDat(Atom.Lvar), IntVars.GetDat(Atom.Rvar), Atom.Compare);
      }
-     case FLT:{
+     case atFlt:{
        if(Atom.IsConst){ return EvalAtom<TFlt>(FltVars.GetDat(Atom.Lvar), Atom.FltConst, Atom.Compare);}
        return EvalAtom<TFlt>(FltVars.GetDat(Atom.Lvar), FltVars.GetDat(Atom.Rvar), Atom.Compare);
      }
-     case STR:{
+     case atStr:{
        if(Atom.IsConst){ return EvalAtom<TStr>(StrVars.GetDat(Atom.Lvar), Atom.StrConst, Atom.Compare);}
        return EvalAtom<TStr>(StrVars.GetDat(Atom.Lvar), StrVars.GetDat(Atom.Rvar), Atom.Compare);
      }

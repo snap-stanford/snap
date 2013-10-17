@@ -27,15 +27,13 @@ TTable is a class representing an in-memory relational table with columnar data 
 class TTable{
 /******** Various typedefs / constants ***********/
 public:
-  /* possible data types - must be consistent with TYPE definition in TPredicate*/
-  typedef enum {INT, FLT, STR} TYPE;
   /* possible policies for aggregating node attributes */
   typedef enum {MIN, MAX, FIRST, LAST, AVG, MEAN} ATTR_AGGR;
   /* possible operations on columns */
   typedef enum {OP_ADD, OP_SUB, OP_MUL, OP_DIV, OP_MOD} OPS;
 
   /* a table schema is a vector of pairs <attribute name, attribute type> */
-  typedef TVec<TPair<TStr, TYPE> > Schema; 
+  typedef TVec<TPair<TStr, TAttrType> > Schema; 
 protected:
   // special values for Next column
   static const TInt Last;
@@ -68,10 +66,10 @@ public:
     TInt GetIntAttr(TInt ColIdx) const{ return Table->IntCols[ColIdx][CurrRowIdx];}
     TFlt GetFltAttr(TInt ColIdx) const{ return Table->FltCols[ColIdx][CurrRowIdx];}
     TStr GetStrAttr(TInt ColIdx) const{ return Table->GetStrVal(ColIdx, CurrRowIdx);}
-    TInt GetIntAttr(TStr Col) const{ TInt ColIdx = Table->ColTypeMap.GetDat(Col).Val2; return Table->IntCols[ColIdx][CurrRowIdx];}
-    TFlt GetFltAttr(TStr Col) const{ TInt ColIdx = Table->ColTypeMap.GetDat(Col).Val2; return Table->FltCols[ColIdx][CurrRowIdx];}
-    TStr GetStrAttr(TStr Col) const{ return Table->GetStrVal(Col, CurrRowIdx);}   
-    TInt GetStrMap(TStr Col) const{ TInt ColIdx = Table->ColTypeMap.GetDat(Col).Val2; return Table->StrColMaps[ColIdx][CurrRowIdx];}
+    TInt GetIntAttr(const TStr& Col) const{ TInt ColIdx = Table->ColTypeMap.GetDat(Col).Val2; return Table->IntCols[ColIdx][CurrRowIdx];}
+    TFlt GetFltAttr(const TStr& Col) const{ TInt ColIdx = Table->ColTypeMap.GetDat(Col).Val2; return Table->FltCols[ColIdx][CurrRowIdx];}
+    TStr GetStrAttr(const TStr& Col) const{ return Table->GetStrVal(Col, CurrRowIdx);}   
+    TInt GetStrMap(const TStr& Col) const{ TInt ColIdx = Table->ColTypeMap.GetDat(Col).Val2; return Table->StrColMaps[ColIdx][CurrRowIdx];}
   };
 
   /* an iterator that also allows logical row removal while iterating */
@@ -103,9 +101,9 @@ public:
     TInt GetNextIntAttr(TInt ColIdx) const{ return Table->IntCols[ColIdx][GetNextRowIdx()];}
     TFlt GetNextFltAttr(TInt ColIdx) const{ return Table->FltCols[ColIdx][GetNextRowIdx()];}
     TStr GetNextStrAttr(TInt ColIdx) const{ return Table->GetStrVal(ColIdx, GetNextRowIdx());}   
-    TInt GetNextIntAttr(TStr Col) const{ TInt ColIdx = Table->ColTypeMap.GetDat(Col).Val2; return Table->IntCols[ColIdx][GetNextRowIdx()];}
-    TFlt GetNextFltAttr(TStr Col) const{ TInt ColIdx = Table->ColTypeMap.GetDat(Col).Val2; return Table->FltCols[ColIdx][GetNextRowIdx()];}
-    TStr GetNextStrAttr(TStr Col) const{ return Table->GetStrVal(Col, GetNextRowIdx());}   
+    TInt GetNextIntAttr(const TStr& Col) const{ TInt ColIdx = Table->ColTypeMap.GetDat(Col).Val2; return Table->IntCols[ColIdx][GetNextRowIdx()];}
+    TFlt GetNextFltAttr(const TStr& Col) const{ TInt ColIdx = Table->ColTypeMap.GetDat(Col).Val2; return Table->FltCols[ColIdx][GetNextRowIdx()];}
+    TStr GetNextStrAttr(const TStr& Col) const{ return Table->GetStrVal(Col, GetNextRowIdx());}   
     TBool IsFirst() const { return CurrRowIdx == Table->FirstValidRow;}
     void RemoveNext();
   };
@@ -145,7 +143,7 @@ protected:
 	TVec<TIntV> StrColMaps; 
  
   // column name --> <column type, column index among columns of the same type>
-	THash<TStr,TPair<TYPE,TInt> > ColTypeMap;
+	THash<TStr,TPair<TAttrType,TInt> > ColTypeMap;
 
   // A map to store Group statement results:
 	// grouping statement name --> (group index --> rows that belong to that group)
@@ -179,33 +177,33 @@ protected:
 /***** value getters - getValue(column name, physical row Idx) *****/
 public:
   // no type checking. assuming ColName actually refers to the right type.
-  TInt GetIntVal(TStr ColName, TInt RowIdx){ return IntCols[ColTypeMap.GetDat(ColName).Val2][RowIdx];}
-  TFlt GetFltVal(TStr ColName, TInt RowIdx){ return FltCols[ColTypeMap.GetDat(ColName).Val2][RowIdx];}
-  TStr GetStrVal(TStr ColName, TInt RowIdx) const{ return GetStrVal(ColTypeMap.GetDat(ColName).Val2, RowIdx);}
+  TInt GetIntVal(const TStr& ColName, TInt RowIdx){ return IntCols[ColTypeMap.GetDat(ColName).Val2][RowIdx];}
+  TFlt GetFltVal(const TStr& ColName, TInt RowIdx){ return FltCols[ColTypeMap.GetDat(ColName).Val2][RowIdx];}
+  TStr GetStrVal(const TStr& ColName, TInt RowIdx) const{ return GetStrVal(ColTypeMap.GetDat(ColName).Val2, RowIdx);}
 
 /***** Utility functions *****/
 protected:
   /* Utility functions for columns */
-  void AddIntCol(TStr ColName);
-  void AddFltCol(TStr ColName);
+  void AddIntCol(const TStr& ColName);
+  void AddFltCol(const TStr& ColName);
 
 /***** Utility functions for handling string values *****/
   TStr GetStrVal(TInt ColIdx, TInt RowIdx) const{ return TStr(Context.StringVals.GetKey(StrColMaps[ColIdx][RowIdx]));}
   void AddStrVal(const TInt ColIdx, const TStr& Val);
-  void AddStrVal(const TStr Col, const TStr& Val);
+  void AddStrVal(const TStr& Col, const TStr& Val);
 
 /***** Utility functions for handling Schema *****/
   TStr GetSchemaColName(TInt Idx) const{ return S[Idx].Val1;}
-  TYPE GetSchemaColType(TInt Idx) const{ return S[Idx].Val2;}
-  void AddSchemaCol(TStr ColName, TYPE ColType) { S.Add(TPair<TStr,TYPE>(ColName, ColType));}
-  TInt GetColIdx(TStr ColName) const{ return ColTypeMap.IsKey(ColName) ? ColTypeMap.GetDat(ColName).Val2 : TInt(-1);}  // column index among columns of the same type
-  TBool IsAttr(TStr Attr);
+  TAttrType GetSchemaColType(TInt Idx) const{ return S[Idx].Val2;}
+  void AddSchemaCol(const TStr& ColName, TAttrType ColType) { S.Add(TPair<TStr,TAttrType>(ColName, ColType));}
+  TInt GetColIdx(const TStr& ColName) const{ return ColTypeMap.IsKey(ColName) ? ColTypeMap.GetDat(ColName).Val2 : TInt(-1);}  // column index among columns of the same type
+  TBool IsAttr(const TStr& Attr);
 
 /***** Utility functions for adding attributes to the graph *****/
   // Get node identifier for src/dst node given row physical id
-  TInt GetNId(TStr Col, TInt RowIdx);
+  TInt GetNId(const TStr& Col, TInt RowIdx);
   // add names of columns to be used as graph attributes
-  void AddGraphAttribute(TStr Attr, TBool IsEdge, TBool IsSrc, TBool IsDst);
+  void AddGraphAttribute(const TStr& Attr, TBool IsEdge, TBool IsSrc, TBool IsDst);
   void AddGraphAttributeV(TStrV& Attrs, TBool IsEdge, TBool IsSrc, TBool IsDst);
 
  // Add the attribute values to the graph - called by ToGraph
@@ -268,11 +266,11 @@ protected:
 	// Group/hash by a single column with integer values. Returns hash table with grouping.
   // IndexSet tells what rows to consider (vector of physical row ids). It is used only if All == true.
   // Note that the IndexSet option is currently not used anywhere...
-	void GroupByIntCol(TStr GroupBy, THash<TInt,TIntV>& grouping, const TIntV& IndexSet, TBool All) const; 
+	void GroupByIntCol(const TStr& GroupBy, THash<TInt,TIntV>& grouping, const TIntV& IndexSet, TBool All) const; 
 	// Group/hash by a single column with float values. Returns hash table with grouping.
-	void GroupByFltCol(TStr GroupBy, THash<TFlt,TIntV>& grouping, const TIntV& IndexSet, TBool All) const;
+	void GroupByFltCol(const TStr& GroupBy, THash<TFlt,TIntV>& grouping, const TIntV& IndexSet, TBool All) const;
 	// Group/hash by a single column with string values. Returns hash table with grouping.
-	void GroupByStrCol(TStr GroupBy, THash<TStr,TIntV>& grouping, const TIntV& IndexSet, TBool All) const;
+	void GroupByStrCol(const TStr& GroupBy, THash<TStr,TIntV>& grouping, const TIntV& IndexSet, TBool All) const;
 
   /* 
   The main logic behind general grouping. Takes the following parameters:
@@ -285,7 +283,7 @@ protected:
   */
   void GroupAux(const TStrV& GroupBy, THash<TInt,TIntV>& Grouping, TIntV& UniqueVec, TBool Ordered = true, TBool KeepUnique = false, TBool KeepGrouping = true);
   // Store grouping in GroupMapping and add a column with group indices
-	void StoreGroupCol(TStr GroupColName, const THash<TInt,TIntV>& grouping);
+	void StoreGroupCol(const TStr& GroupColName, const THash<TInt,TIntV>& grouping);
   /* template for utility function to update a grouping hash map */
  template <class T>
   void UpdateGrouping(THash<T,TIntV>& Grouping, T Key, TInt Val) const{
@@ -300,7 +298,7 @@ protected:
 
   /***** Utility functions for sorting by columns *****/
   // returns positive value if R1 is bigger, negative value if R2 is bigger, and 0 if they are equal (strcmp semantics)
-  TInt CompareRows(TInt R1, TInt R2, const TStr CompareBy);
+  TInt CompareRows(TInt R1, TInt R2, const TStr& CompareBy);
   TInt CompareRows(TInt R1, TInt R2, const TStrV& CompareBy); 
   TInt GetPivot(TIntV& V, TInt StartIdx, TInt EndIdx, const TStrV& SortBy);
   TInt Partition(TIntV& V, TInt StartIdx, TInt EndIdx, const TStrV& SortBy);
@@ -362,26 +360,26 @@ public:
 
   /* Getters and Setters of data required for building a graph out of the table */
 	TStr GetSrcCol() const { return SrcCol; }
-  void SetSrcCol(TStr Src) {
+  void SetSrcCol(const TStr& Src) {
     if(!ColTypeMap.IsKey(Src)){TExcept::Throw(Src + ": no such column");}
     SrcCol = Src;
   }
 	TStr GetDstCol() const { return DstCol; }
-  void SetDstCol(TStr Dst) {
+  void SetDstCol(const TStr& Dst) {
     if(!ColTypeMap.IsKey(Dst)){TExcept::Throw(Dst + ": no such column");}
     DstCol = Dst;
   }
   /* Specify table attributes (columns) as graph attributes */
-  void AddEdgeAttr(TStr Attr){AddGraphAttribute(Attr, true, false, false);}
+  void AddEdgeAttr(const TStr& Attr){AddGraphAttribute(Attr, true, false, false);}
   void AddEdgeAttr(TStrV& Attrs){AddGraphAttributeV(Attrs, true, false, false);}
-  void AddSrcNodeAttr(TStr Attr){AddGraphAttribute(Attr, false, true, false);}
+  void AddSrcNodeAttr(const TStr& Attr){AddGraphAttribute(Attr, false, true, false);}
   void AddSrcNodeAttr(TStrV& Attrs){AddGraphAttributeV(Attrs, false, true, false);}
-  void AddDstNodeAttr(TStr Attr){AddGraphAttribute(Attr, false, false, true);}
+  void AddDstNodeAttr(const TStr& Attr){AddGraphAttribute(Attr, false, false, true);}
   void AddDstNodeAttr(TStrV& Attrs){AddGraphAttributeV(Attrs, false, false, true);}
   // handling the common case where source and destination both belong to the same "universe" of entities
-  void AddNodeAttr(TStr Attr){AddSrcNodeAttr(Attr); AddDstNodeAttr(Attr);}
+  void AddNodeAttr(const TStr& Attr){AddSrcNodeAttr(Attr); AddDstNodeAttr(Attr);}
   void AddNodeAttr(TStrV& Attrs){AddSrcNodeAttr(Attrs); AddDstNodeAttr(Attrs);}
-  void SetCommonNodeAttrs(TStr SrcAttr, TStr DstAttr, TStr CommonAttrName){ 
+  void SetCommonNodeAttrs(const TStr& SrcAttr, const TStr& DstAttr, const TStr& CommonAttrName){ 
     CommonNodeAttrs.Add(TStrTr(SrcAttr, DstAttr, CommonAttrName));
   }
   /* getters for attribute name vectors */
@@ -396,7 +394,7 @@ public:
 	TStrV GetEdgeStrAttrV() const;
 
 /***** Basic Getters *****/
-	TYPE GetColType(TStr ColName) const{ return ColTypeMap.GetDat(ColName).Val1; };
+	TAttrType GetColType(const TStr& ColName) const{ return ColTypeMap.GetDat(ColName).Val1; };
   TInt GetNumRows() const { return NumRows;}
   TInt GetNumValidRows() const { return NumValidRows;}
 
@@ -409,12 +407,12 @@ public:
 
 /***** Table Operations *****/
 	// rename / add a label to a column
-	void AddLabel(TStr column, TStr newLabel);
+	void AddLabel(const TStr& column, const TStr& newLabel);
 
 	// Remove rows with duplicate values in given columns
   void Unique(const TStr& Col);
 	void Unique(const TStrV& Cols, TBool Ordered = true);
-  void UniqueExistingGroup(TStr GroupStmt);
+  void UniqueExistingGroup(const TStr& GroupStmt);
 
 	/* 
   Select. Has two modes of operation:
@@ -427,47 +425,47 @@ public:
     Select(Predicate, SelectedRows);
   }
   // select atomic - optimized cases of select with predicate of an atomic form: compare attribute to attribute or compare attribute to a constant
-  void SelectAtomic(TStr Col1, TStr Col2, TPredicate::COMP Cmp, TIntV& SelectedRows, TBool Filter = true);
-  void SelectAtomic(TStr Col1, TStr Col2, TPredicate::COMP Cmp){
+  void SelectAtomic(const TStr& Col1, const TStr& Col2, TPredicate::COMP Cmp, TIntV& SelectedRows, TBool Filter = true);
+  void SelectAtomic(const TStr& Col1, const TStr& Col2, TPredicate::COMP Cmp){
     TIntV SelectedRows;
     SelectAtomic(Col1, Col2, Cmp, SelectedRows);
   }
-  void SelectAtomicIntConst(TStr Col1, TInt Val2, TPredicate::COMP Cmp, TIntV& SelectedRows, TBool Filter = true);
-  void SelectAtomicIntConst(TStr Col1, TInt Val2, TPredicate::COMP Cmp){
+  void SelectAtomicIntConst(const TStr& Col1, TInt Val2, TPredicate::COMP Cmp, TIntV& SelectedRows, TBool Filter = true);
+  void SelectAtomicIntConst(const TStr& Col1, TInt Val2, TPredicate::COMP Cmp){
     TIntV SelectedRows;
     SelectAtomicIntConst(Col1, Val2, Cmp, SelectedRows);
   }
-  void SelectAtomicStrConst(TStr Col1, TStr Val2, TPredicate::COMP Cmp, TIntV& SelectedRows, TBool Filter = true);
-  void SelectAtomicStrConst(TStr Col1, TStr Val2, TPredicate::COMP Cmp){
+  void SelectAtomicStrConst(const TStr& Col1, const TStr& Val2, TPredicate::COMP Cmp, TIntV& SelectedRows, TBool Filter = true);
+  void SelectAtomicStrConst(const TStr& Col1, const TStr& Val2, TPredicate::COMP Cmp){
     TIntV SelectedRows;
     SelectAtomicStrConst(Col1, Val2, Cmp, SelectedRows);
   }
-  void SelectAtomicFltConst(TStr Col1, TFlt Val2, TPredicate::COMP Cmp, TIntV& SelectedRows, TBool Filter = true);
-  void SelectAtomicFltConst(TStr Col1, TFlt Val2, TPredicate::COMP Cmp){
+  void SelectAtomicFltConst(const TStr& Col1, TFlt Val2, TPredicate::COMP Cmp, TIntV& SelectedRows, TBool Filter = true);
+  void SelectAtomicFltConst(const TStr& Col1, TFlt Val2, TPredicate::COMP Cmp){
     TIntV SelectedRows;
     SelectAtomicFltConst(Col1, Val2, Cmp, SelectedRows);
   }
 	
 	// group by the values of the columns specified in "GroupBy" vector 
 	// group indices are stored in GroupCol; Implementation: use GroupMapping hash
-	void Group(TStr GroupColName, const TStrV& GroupBy, TBool Ordered = true);
+	void Group(const TStr& GroupColName, const TStrV& GroupBy, TBool Ordered = true);
 	// count - count the number of appearences of the different elements of col
 	// record results in column CountCol
-	void Count(TStr CountColName, TStr Col);
+	void Count(const TStr& CountColName, const TStr& Col);
 	// order the rows according to the values in columns of OrderBy (in descending
 	// lexicographic order). 
-	void Order(const TStrV& OrderBy, TStr OrderColName = "", TBool ResetRankByMSC = false);
+	void Order(const TStrV& OrderBy, const TStr& OrderColName = "", TBool ResetRankByMSC = false);
 
 	// perform equi-join with given columns - i.e. keep tuple pairs where 
 	// this->Col1 == Table->Col2; Implementation: Hash-Join - build a hash out of the smaller table
 	// hash the larger table and check for collisions
-	PTable Join(TStr Col1, const TTable& Table, TStr Col2);
-  PTable SelfJoin(TStr Col){return Join(Col, *this, Col);}
+	PTable Join(const TStr& Col1, const TTable& Table, const TStr& Col2);
+  PTable SelfJoin(const TStr& Col){return Join(Col, *this, Col);}
 
 	// compute distances between elements in this->Col1 and Table->Col2 according
 	// to given metric. Store the distances in DistCol, but keep only rows where
 	// distance <= threshold
-	//void Dist(TStr Col1, const TTable& Table, TStr Col2, TStr DistColName, const TMetric& Metric, TFlt threshold);
+	//void Dist(const TStr& Col1, const TTable& Table, const TStr Col2, const TStr& DistColName, const TMetric& Metric, TFlt threshold);
 
   // Release memory of deleted rows, and defrag
   // also updates meta-data as row indices have changed
@@ -479,10 +477,10 @@ public:
   
   void AddRow(const TRowIterator& RI);
   void GetCollidingRows(const TTable& T, THashSet<TInt>& Collisions) const;
-  PTable Union(const TTable& Table, TStr TableName);
-  PTable Intersection(const TTable& Table, TStr TableName);
-  PTable Minus(const TTable& Table, TStr TableName);
-  PTable Project(const TStrV& ProjectCols, TStr TableName);
+  PTable Union(const TTable& Table, const TStr& TableName);
+  PTable Intersection(const TTable& Table, const TStr& TableName);
+  PTable Minus(const TTable& Table, const TStr& TableName);
+  PTable Project(const TStrV& ProjectCols, const TStr& TableName);
   void ProjectInPlace(const TStrV& ProjectCols);
   
   /* Column-wise arithmetic operations */
@@ -491,47 +489,47 @@ public:
    * Performs Attr1 OP Attr2 and stores it in Attr1
    * If ResAttr != "", result is stored in a new column ResAttr
    */
-  void ColGenericOp(TStr Attr1, TStr Attr2, TStr ResAttr, OPS op);
-  void ColAdd(TStr Attr1, TStr Attr2, TStr ResultAttrName="");
-  void ColSub(TStr Attr1, TStr Attr2, TStr ResultAttrName="");
-  void ColMul(TStr Attr1, TStr Attr2, TStr ResultAttrName="");
-  void ColDiv(TStr Attr1, TStr Attr2, TStr ResultAttrName="");
-  void ColMod(TStr Attr1, TStr Attr2, TStr ResultAttrName="");
+  void ColGenericOp(const TStr& Attr1, const TStr& Attr2, const TStr& ResAttr, OPS op);
+  void ColAdd(const TStr& Attr1, const TStr& Attr2, const TStr& ResultAttrName="");
+  void ColSub(const TStr& Attr1, const TStr& Attr2, const TStr& ResultAttrName="");
+  void ColMul(const TStr& Attr1, const TStr& Attr2, const TStr& ResultAttrName="");
+  void ColDiv(const TStr& Attr1, const TStr& Attr2, const TStr& ResultAttrName="");
+  void ColMod(const TStr& Attr1, const TStr& Attr2, const TStr& ResultAttrName="");
 
   /* Performs Attr1 OP Attr2 and stores it in Attr1 or Attr2
    * This is done depending on the flag AddToFirstTable
    * If ResAttr != "", result is stored in a new column ResAttr
    */
-  void ColGenericOp(TStr Attr1, TTable& Table, TStr Attr2, TStr ResAttr, 
+  void ColGenericOp(const TStr& Attr1, TTable& Table, const TStr& Attr2, const TStr& ResAttr, 
     OPS op, TBool AddToFirstTable);
-  void ColAdd(TStr Attr1, TTable& Table, TStr Attr2, TStr ResAttr="",
+  void ColAdd(const TStr& Attr1, TTable& Table, const TStr& Attr2, const TStr& ResAttr="",
     TBool AddToFirstTable=true);
-  void ColSub(TStr Attr1, TTable& Table, TStr Attr2, TStr ResAttr="",
+  void ColSub(const TStr& Attr1, TTable& Table, const TStr& Attr2, const TStr& ResAttr="",
     TBool AddToFirstTable=true);
-  void ColMul(TStr Attr1, TTable& Table, TStr Attr2, TStr ResAttr="",
+  void ColMul(const TStr& Attr1, TTable& Table, const TStr& Attr2, const TStr& ResAttr="",
     TBool AddToFirstTable=true);
-  void ColDiv(TStr Attr1, TTable& Table, TStr Attr2, TStr ResAttr="",
+  void ColDiv(const TStr& Attr1, TTable& Table, const TStr& Attr2, const TStr& ResAttr="",
     TBool AddToFirstTable=true);
-  void ColMod(TStr Attr1, TTable& Table, TStr Attr2, TStr ResAttr="",
+  void ColMod(const TStr& Attr1, TTable& Table, const TStr& Attr2, const TStr& ResAttr="",
     TBool AddToFirstTable=true);
 
   /* Performs Attr1 OP Num and stores it in Attr1
    * If ResAttr != "", result is stored in a new column ResAttr
    */
-  void ColGenericOp(TStr Attr1, TFlt Num, TStr ResAttr, OPS op);
-  void ColAdd(TStr Attr1, TFlt Num, TStr ResultAttrName="");
-  void ColSub(TStr Attr1, TFlt Num, TStr ResultAttrName="");
-  void ColMul(TStr Attr1, TFlt Num, TStr ResultAttrName="");
-  void ColDiv(TStr Attr1, TFlt Num, TStr ResultAttrName="");
-  void ColMod(TStr Attr1, TFlt Num, TStr ResultAttrName="");
+  void ColGenericOp(const TStr& Attr1, TFlt Num, const TStr& ResAttr, OPS op);
+  void ColAdd(const TStr& Attr1, TFlt Num, const TStr& ResultAttrName="");
+  void ColSub(const TStr& Attr1, TFlt Num, const TStr& ResultAttrName="");
+  void ColMul(const TStr& Attr1, TFlt Num, const TStr& ResultAttrName="");
+  void ColDiv(const TStr& Attr1, TFlt Num, const TStr& ResultAttrName="");
+  void ColMod(const TStr& Attr1, TFlt Num, const TStr& ResultAttrName="");
 
   // add a column of explicit integer identifiers to the rows
-  void AddIdColumn(const TStr IdColName);
+  void AddIdColumn(const TStr& IdColName);
 
   // creates a table T' where the rows are joint rows (T[r1],T[r2]) such that 
   // r2 is one of the successive rows to r1 when this table is ordered by OrderCol,
   // and both r1 and r2 have the same value of GroupBy column
-  PTable IsNextK(TStr OrderCol, TInt K, TStr GroupBy, TStr RankColName = "");
+  PTable IsNextK(const TStr& OrderCol, TInt K, const TStr& GroupBy, const TStr& RankColName = "");
 
   // debug print sizes of various fields of table
   void PrintSize();
@@ -539,5 +537,6 @@ public:
   friend class TPt<TTable>;
 };
 
-typedef TPair<TStr,TTable::TYPE> TStrTypPr;
+typedef TPair<TStr,TAttrType> TStrTypPr;
 #endif //TABLE_H
+

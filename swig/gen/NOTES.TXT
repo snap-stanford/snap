@@ -1,0 +1,109 @@
+#
+# generate the Python dispatch table
+#
+
+# add new functions to types.txt
+
+# generate flist.txt
+cat types.txt | grep -v "^#" | cut -f 2 > flist.txt
+
+# generate a dispatch table for each type
+awk -f f.awk -v g=PUNGraph flist.txt > dispatch-pungraph.txt
+awk -f f.awk -v g=PNGraph flist.txt > dispatch-pngraph.txt
+awk -f f.awk -v g=PNEANet flist.txt > dispatch-pneanet.txt
+
+# combine the dispatch tables
+cat dispatch-pungraph.txt dispatch-pngraph.txt dispatch-pneanet.txt > dispatch.txt
+
+# generate the Python code
+python gendispatch.py types.txt dispatch.txt > out-20130807.txt
+
+# include output out-20130807.txt in ../pgraph.i
+# include custom dispatch table disp-custom.py ../pgraph.i
+
+#
+# generate the SWIG type templates
+#
+
+# get typedefs from SNAP code
+grep "^typedef" /home/rok/git/snap/glib-core/ds.h | grep -v "*" >typedef-ds.txt
+grep "^typedef" /home/rok/git/snap/glib-core/hash.h | grep -v "*" >typedef-hash.txt
+grep "^typedef" /home/rok/git/snap/glib-core/dt.h | grep -v "*" >typedef-dt.txt
+grep "^typedef" /home/rok/git/snap/glib-core/tm.h | grep -v "*" >typedef-tm.txt
+
+# generate SWIG template code
+python gentypes.py typedef-ds.txt | grep template > swig-ds.txt
+python gentypes.py typedef-hash.txt | grep template > swig-hash.txt
+python gentypes.py typedef-dt.txt | grep template > swig-dt.txt
+python gentypes.py typedef-tm.txt | grep template > swig-tm.txt
+
+# need to be placed in comments due to SWIG compilation errors
+
+// ignore tm.h typedefs at this point, not high priority
+
+// double definition
+//%template(TStrVIntH) THash<TStrV, TInt>;
+
+// class TTm’ has no member named ‘Load
+//%template(TTmStrPr) TPair<TTm, TStr>;
+//%template(TStrTmPr) TPair<TStr, TTm>;
+
+// is private
+//%template(TStrSH) TStrHash<TInt>;
+//%template(TStrIntSH) TStrHash<TInt>;
+//%template(TStrToIntVSH) TStrHash<TIntV>;
+
+// no member named ‘Load’
+//%template(TBoolChPr) TPair<TBool, TCh>;
+//%template(TUChIntPr) TPair<TUCh, TInt>;
+//%template(TUChUInt64Pr) TPair<TUCh, TUInt64>;
+//%template(TUChStrPr) TPair<TUCh, TStr>;
+//%template(TIntChPr) TPair<TInt, TCh>;
+
+// no match for ‘operator<’
+//%template(TIntQV) TVec<TQQueue<TInt> >;
+
+// ‘Nd’ cannot be used as a function
+//%template(TIntL) TLst<TInt>;
+//%template(TIntKdL) TLst<TIntKd>;
+//%template(TFltL) TLst<TFlt>;
+//%template(TFltIntKdL) TLst<TFltIntKd>;
+//%template(TAscFltIntKdL) TLst<TAscFltIntKd>;
+//%template(TStrL) TLst<TStr>;
+
+// no matching function for call to ‘TCh::GetStr() const’
+//%template(TChChH) THash<TCh, TCh>;
+
+// no member named ‘GetStr’
+//%template(TChTrIntH) THash<TChTr, TInt>;
+
+// no match for ‘operator=
+//%template(TIntIntFltPrH) THash<TInt, TIntFltPr>;
+
+// no member named ‘GetMemUsed’
+//%template(TDbStrIntH) THash<TDbStr, TInt>;
+//%template(TDbStrStrH) THash<TDbStr, TStr>;
+
+#
+# add new methods to vector types
+#
+
+# list of vector types is in vectors.txt
+
+# generate the vector dispatch table
+awk -f v.awk vectors.txt > vec-20130820.txt
+
+# include vec-20130820.txt in tvec.i
+
+#
+# add new methods to hash types
+#
+
+# list of hash types is in hashes.txt
+
+# generate the vector dispatch table
+awk -f h.awk hashes.txt > hash-20130820.txt
+
+# include hash-20130820.txt in thash.i
+
+

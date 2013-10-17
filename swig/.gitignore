@@ -1,0 +1,4 @@
+# Have user re-generate snap.py for platform
+snap.py
+*.dot
+*.png
