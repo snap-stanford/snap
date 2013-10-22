@@ -518,6 +518,10 @@ Version = "0.8.1r"
 //%template(TTmStrPrV) TVec<TTmStrPr>;
 //%template(TStrTmPrV) TVec<TStrTmPr>;
 
+// table.h
+
+%template(Schema) TVec<TPair<TStr, TInt> >;
+
 //----------
 
 // SWIG conversion C++ code
