@@ -15,7 +15,7 @@ void TTable::TRowIteratorWithRemove::RemoveNext(){
   Table->NumValidRows--;
 }
 
-// better not use defualt constructor as it leads to a memory leak - OR - implement a destructor
+// better not use default constructor as it leads to a memory leak - OR - implement a destructor
 TTable::TTable(): Context(*(new TTableContext)), NumRows(0), NumValidRows(0), FirstValidRow(0){}
 
 TTable::TTable(TTableContext& Context): Context(Context), NumRows(0), NumValidRows(0), FirstValidRow(0){} 

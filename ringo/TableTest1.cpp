@@ -9,10 +9,10 @@ int main(){
   TTableContext Context;
   // create scheme
   TTable::Schema AnimalS;
-  AnimalS.Add(TPair<TStr,TTable::TYPE>("Animal", TTable::STR));
-  AnimalS.Add(TPair<TStr,TTable::TYPE>("Size", TTable::STR));
-  AnimalS.Add(TPair<TStr,TTable::TYPE>("Location", TTable::STR));
-  AnimalS.Add(TPair<TStr,TTable::TYPE>("Number", TTable::INT));
+  AnimalS.Add(TPair<TStr,TAttrType>("Animal", atStr));
+  AnimalS.Add(TPair<TStr,TAttrType>("Size", atStr));
+  AnimalS.Add(TPair<TStr,TAttrType>("Location", atStr));
+  AnimalS.Add(TPair<TStr,TAttrType>("Number", atInt));
   // create table
   PTable T1 = TTable::LoadSS("Animals", AnimalS, "../../testfiles/animals.txt", Context);
   PTable T2 = TTable::New(T1);
@@ -20,7 +20,7 @@ int main(){
   // vector to be used as dummy parameter to the select function calls
   TIntV SelectedRows;
   // test Select
-  TPredicate::TAtomicPredicate A1(TPredicate::STR, true, TPredicate::EQ, "Size", "", 0, 0, "big");  
+  TPredicate::TAtomicPredicate A1(atStr, true, TPredicate::EQ, "Size", "", 0, 0, "big");  
   TPredicate::TPredicateNode N1(A1);  // Size == "big"
   TPredicate Pred(&N1);
   //T1->Select(Pred);
@@ -47,7 +47,7 @@ int main(){
 
   PTable T3 = TTable::LoadSS("Animals", AnimalS, "../../testfiles/animals.txt", Context);
   PTable To = T3->Join("Location", *T3, "Location");
-  TPredicate::TAtomicPredicate A2(TPredicate::STR, false, TPredicate::EQ, "Animals_1.Size", "Animals_2.Size");  
+  TPredicate::TAtomicPredicate A2(atStr, false, TPredicate::EQ, "Animals_1.Size", "Animals_2.Size");  
   TPredicate::TPredicateNode N2(A2);
   TPredicate Pred2(&N2);
   To->Select(Pred2, SelectedRows);

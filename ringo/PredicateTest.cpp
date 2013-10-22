@@ -43,7 +43,7 @@ int main(){
   TBool R3 = T3.Eval();
   cout << "(2 > 1) || (4 > 5) " << R3 << endl;
   // !((x == "bla") ^ (y > z)) || z <= 3
-  TPredicate::TAtomicPredicate A3(TPredicate::STR, true, TPredicate::EQ, "x", "", 0, 0, "bla");
+  TPredicate::TAtomicPredicate A3(atStr, true, TPredicate::EQ, "x", "", 0, 0, "bla");
   TPredicate::TAtomicPredicate A4(TPredicate::INT, false, TPredicate::GT, "y", "z", 0, 0, "");
   TPredicate::TAtomicPredicate A5(TPredicate::INT, true, TPredicate::LTE, "z", "", 3, 0, "");
   TPredicate::TPredicateNode N5(A3);

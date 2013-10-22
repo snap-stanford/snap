@@ -4,10 +4,10 @@ int main(){
   TTableContext Context;
   // create scheme
   TTable::Schema AnimalS;
-  AnimalS.Add(TPair<TStr,TTable::TYPE>("Animal", TTable::STR));
-  AnimalS.Add(TPair<TStr,TTable::TYPE>("Size", TTable::STR));
-  AnimalS.Add(TPair<TStr,TTable::TYPE>("Location", TTable::STR));
-  AnimalS.Add(TPair<TStr,TTable::TYPE>("Number", TTable::INT));
+  AnimalS.Add(TPair<TStr,TAttrType>("Animal", atStr));
+  AnimalS.Add(TPair<TStr,TAttrType>("Size", atStr));
+  AnimalS.Add(TPair<TStr,TAttrType>("Location", atStr));
+  AnimalS.Add(TPair<TStr,TAttrType>("Number", atInt));
   TIntV RelevantCols;
   RelevantCols.Add(0);
   RelevantCols.Add(1);
@@ -22,16 +22,16 @@ int main(){
 
   // test Select
   // create predicate tree: find all animals that are big and african or medium and Australian
-  TPredicate::TAtomicPredicate A1(TPredicate::STR, true, TPredicate::EQ, "Location", "", 0, 0, "Africa");  
+  TPredicate::TAtomicPredicate A1(atStr, true, TPredicate::EQ, "Location", "", 0, 0, "Africa");  
   TPredicate::TPredicateNode N1(A1);  // Location == "Africa"
-  TPredicate::TAtomicPredicate A2(TPredicate::STR, true, TPredicate::EQ, "Size", "", 0, 0, "big");  
+  TPredicate::TAtomicPredicate A2(atStr, true, TPredicate::EQ, "Size", "", 0, 0, "big");  
   TPredicate::TPredicateNode N2(A2);  // Size == "big"
   TPredicate::TPredicateNode N3(TPredicate::AND);
   N3.AddLeftChild(&N1);
   N3.AddRightChild(&N2);
-  TPredicate::TAtomicPredicate A4(TPredicate::STR, true, TPredicate::EQ, "Location", "", 0, 0, "Australia");  
+  TPredicate::TAtomicPredicate A4(atStr, true, TPredicate::EQ, "Location", "", 0, 0, "Australia");  
   TPredicate::TPredicateNode N4(A4);  
-  TPredicate::TAtomicPredicate A5(TPredicate::STR, true, TPredicate::EQ, "Size", "", 0, 0, "medium");  
+  TPredicate::TAtomicPredicate A5(atStr, true, TPredicate::EQ, "Size", "", 0, 0, "medium");  
   TPredicate::TPredicateNode N5(A5); 
   TPredicate::TPredicateNode N6(TPredicate::AND);
   N6.AddLeftChild(&N4);
