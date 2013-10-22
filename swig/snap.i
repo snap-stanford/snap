@@ -6,7 +6,7 @@
 #define SNAP_ALL 0
 
 %pythoncode %{
-Version = "0.8.1r"
+Version = "0.8.2r"
 %}
 
 %module snap
@@ -517,6 +517,10 @@ Version = "0.8.1r"
 ////%template(TStrTmPr) TPair<TStr, TTm>;
 //%template(TTmStrPrV) TVec<TTmStrPr>;
 //%template(TStrTmPrV) TVec<TStrTmPr>;
+
+// table.h
+
+%template(Schema) TVec<TPair<TStr, TInt> >;
 
 //----------
 
