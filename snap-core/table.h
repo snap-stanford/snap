@@ -21,19 +21,19 @@ public:
   void Save(TSOut& SOut) { StringVals.Save(SOut);}
 };
 
+/* possible policies for aggregating node attributes */
+typedef enum {MIN, MAX, FIRST, LAST, AVG, MEAN} ATTR_AGGR;
+/* possible operations on columns */
+typedef enum {OP_ADD, OP_SUB, OP_MUL, OP_DIV, OP_MOD} OPS;
+
+/* a table schema is a vector of pairs <attribute name, attribute type> */
+typedef TVec<TPair<TStr, TAttrType> > Schema; 
+
 /* 
 TTable is a class representing an in-memory relational table with columnar data storage
 */
 class TTable{
 /******** Various typedefs / constants ***********/
-public:
-  /* possible policies for aggregating node attributes */
-  typedef enum {MIN, MAX, FIRST, LAST, AVG, MEAN} ATTR_AGGR;
-  /* possible operations on columns */
-  typedef enum {OP_ADD, OP_SUB, OP_MUL, OP_DIV, OP_MOD} OPS;
-
-  /* a table schema is a vector of pairs <attribute name, attribute type> */
-  typedef TVec<TPair<TStr, TAttrType> > Schema; 
 protected:
   // special values for Next column
   static const TInt Last;
@@ -177,9 +177,9 @@ protected:
 /***** value getters - getValue(column name, physical row Idx) *****/
 public:
   // no type checking. assuming ColName actually refers to the right type.
-  TInt GetIntVal(const TStr& ColName, TInt RowIdx){ return IntCols[ColTypeMap.GetDat(ColName).Val2][RowIdx];}
-  TFlt GetFltVal(const TStr& ColName, TInt RowIdx){ return FltCols[ColTypeMap.GetDat(ColName).Val2][RowIdx];}
-  TStr GetStrVal(const TStr& ColName, TInt RowIdx) const{ return GetStrVal(ColTypeMap.GetDat(ColName).Val2, RowIdx);}
+  TInt GetIntVal(const TStr& ColName, const TInt& RowIdx){ return IntCols[ColTypeMap.GetDat(ColName).Val2][RowIdx];}
+  TFlt GetFltVal(const TStr& ColName, const TInt& RowIdx){ return FltCols[ColTypeMap.GetDat(ColName).Val2][RowIdx];}
+  TStr GetStrVal(const TStr& ColName, const TInt& RowIdx) const{ return GetStrVal(ColTypeMap.GetDat(ColName).Val2, RowIdx);}
 
 /***** Utility functions *****/
 protected:
@@ -344,9 +344,9 @@ public:
 
 /***** Save / Load functions *****/
   // Load table from spread sheet (TSV, CSV, etc)
-  static PTable LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm, TTableContext& Context, const char& Separator = '\t', TBool HasTitleLine = true);
+  static PTable LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm, TTableContext& Context, const char& Separator = '\t', TBool HasTitleLine = false);
   // Load table from spread sheet - but only load the columns specified by RelevantCols
-  static PTable LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm, TTableContext& Context, const TIntV& RelevantCols, const char& Separator = '\t', TBool HasTitleLine = true);
+  static PTable LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm, TTableContext& Context, const TIntV& RelevantCols, const char& Separator = '\t', TBool HasTitleLine = false);
   // Save table schema + content into a TSV file
   void SaveSS(const TStr& OutFNm);
   // Load table from binary. The TTableContext must be provided separately as it shared among multiple TTables and should be saved in a separate binary.
@@ -356,7 +356,9 @@ public:
 
 /***** Graph handling *****/
   /* Create a graph out of the FINAL table */
-	PNEANet ToGraph(ATTR_AGGR AttrAggrPolicy = LAST);
+  // Rok, 10/22/13, commented out default parameter value for SWIG
+  //PNEANet ToGraph(ATTR_AGGR AttrAggrPolicy = LAST);
+  PNEANet ToGraph(ATTR_AGGR AttrAggrPolicy);
 
   /* Getters and Setters of data required for building a graph out of the table */
 	TStr GetSrcCol() const { return SrcCol; }

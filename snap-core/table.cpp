@@ -1847,7 +1847,7 @@ PTable TTable::Minus(const TTable& Table, const TStr& TableName){
 }
 
 PTable TTable::Project(const TStrV& ProjectCols, const TStr& TableName){
-  TTable::Schema NewSchema;
+  Schema NewSchema;
   for(TInt c = 0; c < ProjectCols.Len(); c++){
     if(!ColTypeMap.IsKey(ProjectCols[c])){TExcept::Throw("no such column " + ProjectCols[c]);}
     NewSchema.Add(TPair<TStr,TAttrType>(ProjectCols[c], GetColType(ProjectCols[c])));

@@ -6,7 +6,7 @@
 #define SNAP_ALL 0
 
 %pythoncode %{
-Version = "0.8.2r"
+Version = "0.8.3r"
 %}
 
 %module snap
@@ -80,6 +80,23 @@ Version = "0.8.2r"
 %ignore TTm;
 %ignore HashPrimeT;
 
+%ignore TPair< TStr,TAttrType >::Load;
+%ignore TPair< TStr,TAttrType >::Save;
+%ignore TPair< TStr,TAttrType >::GetMemUsed;
+%ignore TPair< TStr,TAttrType >::GetPrimHashCd;
+%ignore TPair< TStr,TAttrType >::GetSecHashCd;
+%ignore TPair< TStr,TAttrType >::TPair(TSIn &);
+
+//%ignore TVec< TPair< TStr, TAttrType_ >, int >::Load;
+//%ignore TVec< TPair< TStr, TAttrType >, int >::Load;
+%ignore TVec< TPair< TStr,TAttrType > >::Load;
+%ignore TVec< TPair< TStr,TAttrType > >::Save;
+%ignore TVec< TPair< TStr,TAttrType > >::GetPrimHashCd;
+%ignore TVec< TPair< TStr,TAttrType > >::GetSecHashCd;
+//%ignore TVec< TPair< TStr,TAttrType > >::TVec(TSIn *);
+%ignore TVec< TPair< TStr,TAttrType > >::TVec(TSIn &);
+//%ignore Schema::Load;
+
 // ignore all THash::AddDatId, MarkDelKey, MarkDelKeyId
 %ignore THash::AddDatId;
 %ignore THash::MarkDelKey;
@@ -137,12 +154,18 @@ Version = "0.8.2r"
 %include "predicate.h"
 %include "table.h"
 
+//%template(Schema) TVec< TPair< TStr, TAttrType> >;
+//%template(Schema) TVec< TPair< TStr, TAttrType_> >;
+
 // SNAP type definitions
+
+//%template(Schema) TVec<TPair<TStr, TInt> >;
 
 // ds.h
 
 %template(TIntPr) TPair<TInt, TInt>;
 %template(TFltPr) TPair<TFlt, TFlt>;
+%template(TStrIntPr) TPair<TStr, TInt>;
 %template(TIntTr) TTriple<TInt, TInt, TInt>;
 %template(TIntFltKd) TKeyDat<TInt, TFlt>;
 
@@ -150,6 +173,7 @@ Version = "0.8.2r"
 %template(TFltV) TVec<TFlt>;
 %template(TIntPrV) TVec<TIntPr>;
 %template(TFltPrV) TVec<TFltPr>;
+%template(TStrIntPrV) TVec<TStrIntPr>;
 %template(TIntTrV) TVec<TIntTr>;
 %template(TIntFltKdV) TVec<TIntFltKd>;
 %template(TIntStrPr) TPair<TInt, TStr>;
@@ -181,7 +205,6 @@ Version = "0.8.2r"
 %template(TAscFltPr) TPair<TAscFlt, TAscFlt>;
 %template(TFltStrPr) TPair<TFlt, TStr>;
 %template(TAscFltStrPr) TPair<TAscFlt, TStr>;
-%template(TStrIntPr) TPair<TStr, TInt>;
 %template(TStrFltPr) TPair<TStr, TFlt>;
 %template(TStrPr) TPair<TStr, TStr>;
 %template(TStrStrVPr) TPair<TStr, TStrV>;
@@ -296,7 +319,6 @@ Version = "0.8.2r"
 %template(TAscFltIntPrV) TVec<TAscFltIntPr>;
 %template(TAscFltIntKdV) TVec<TAscFltIntKd>;
 %template(TStrPrV) TVec<TStrPr>;
-%template(TStrIntPrV) TVec<TStrIntPr>;
 %template(TStrFltPrV) TVec<TStrFltPr>;
 %template(TStrIntKdV) TVec<TStrIntKd>;
 %template(TStrFltKdV) TVec<TStrFltKd>;
@@ -501,8 +523,6 @@ Version = "0.8.2r"
 
 // dt.h
 
-%template(TStrV) TVec<TStr, int>;
-
 // cncom.h
 
 %template(TCnComV) TVec<TCnCom>;
@@ -520,7 +540,11 @@ Version = "0.8.2r"
 
 // table.h
 
-%template(Schema) TVec<TPair<TStr, TInt> >;
+//%template(Schema) TVec<TPair<TStr, TAttrType> >;
+//typedef TStrIntPrV Schema;
+
+%template(TStrTAttrPr) TPair< TStr, TAttrType>;
+%template(Schema) TVec< TPair< TStr, TAttrType> >;
 
 //----------
 
@@ -541,6 +565,8 @@ Version = "0.8.2r"
 %include "pngraph.i"
 %include "pungraph.i"
 %include "pgraph.i"
+
+%template(PTable) TPt< TTable >;
 
 // note for operator renaming
 // %rename(Add) Vector3::operator +;
