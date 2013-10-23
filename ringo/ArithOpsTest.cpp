@@ -3,11 +3,11 @@
 int main(){
   TTableContext Context;
   TTable::Schema LocS;
-  LocS.Add(TPair<TStr,TTable::TYPE>("Name", TTable::STR));
-  LocS.Add(TPair<TStr,TTable::TYPE>("X", TTable::INT));
-  LocS.Add(TPair<TStr,TTable::TYPE>("Y", TTable::FLT));
-  LocS.Add(TPair<TStr,TTable::TYPE>("Z", TTable::INT));
-  LocS.Add(TPair<TStr,TTable::TYPE>("W", TTable::FLT));
+  LocS.Add(TPair<TStr,TAttrType>("Name", atStr));
+  LocS.Add(TPair<TStr,TAttrType>("X", atInt));
+  LocS.Add(TPair<TStr,TAttrType>("Y", atFlt));
+  LocS.Add(TPair<TStr,TAttrType>("Z", atInt));
+  LocS.Add(TPair<TStr,TAttrType>("W", atFlt));
   TIntV RelevantCols;
   RelevantCols.Add(0);
   RelevantCols.Add(1);

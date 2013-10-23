@@ -28,26 +28,26 @@ int main(){
   TTableContext qa_Context;
   // build schema for Q&A
   TTable::Schema qa_S;
-  qa_S.Add(TPair<TStr,TTable::TYPE>("Body", TTable::INT));
-  qa_S.Add(TPair<TStr,TTable::TYPE>("ViewCount", TTable::INT));
-  qa_S.Add(TPair<TStr,TTable::TYPE>("LastActivityDate", TTable::INT));
-  qa_S.Add(TPair<TStr,TTable::TYPE>("Title", TTable::INT));
-  qa_S.Add(TPair<TStr,TTable::TYPE>("LastEditorUserId", TTable::INT));
-  qa_S.Add(TPair<TStr,TTable::TYPE>("LastEditorDisplayName", TTable::INT));
-  qa_S.Add(TPair<TStr,TTable::TYPE>("LastEditDate", TTable::INT));
-  qa_S.Add(TPair<TStr,TTable::TYPE>("CommentCount", TTable::INT));
-  qa_S.Add(TPair<TStr,TTable::TYPE>("AnswerCount", TTable::INT));
-  qa_S.Add(TPair<TStr,TTable::TYPE>("AcceptedAnswerId", TTable::INT));
-  qa_S.Add(TPair<TStr,TTable::TYPE>("Score", TTable::INT));
-  qa_S.Add(TPair<TStr,TTable::TYPE>("PostTypeId", TTable::INT));
-  qa_S.Add(TPair<TStr,TTable::TYPE>("OwnerUserId", TTable::INT));
-  qa_S.Add(TPair<TStr,TTable::TYPE>("Tags", TTable::INT));
-  qa_S.Add(TPair<TStr,TTable::TYPE>("CreationDate", TTable::INT));
-  qa_S.Add(TPair<TStr,TTable::TYPE>("FavoriteCount", TTable::INT));
-  qa_S.Add(TPair<TStr,TTable::TYPE>("Id", TTable::INT));
-  qa_S.Add(TPair<TStr,TTable::TYPE>("ParentId", TTable::INT));
-  qa_S.Add(TPair<TStr,TTable::TYPE>("CommunityOwnedDate", TTable::INT));
-  qa_S.Add(TPair<TStr,TTable::TYPE>("ClosedDate", TTable::INT));
+  qa_S.Add(TPair<TStr,TAttrType>("Body", atInt));
+  qa_S.Add(TPair<TStr,TAttrType>("ViewCount", atInt));
+  qa_S.Add(TPair<TStr,TAttrType>("LastActivityDate", atInt));
+  qa_S.Add(TPair<TStr,TAttrType>("Title", atInt));
+  qa_S.Add(TPair<TStr,TAttrType>("LastEditorUserId", atInt));
+  qa_S.Add(TPair<TStr,TAttrType>("LastEditorDisplayName", atInt));
+  qa_S.Add(TPair<TStr,TAttrType>("LastEditDate", atInt));
+  qa_S.Add(TPair<TStr,TAttrType>("CommentCount", atInt));
+  qa_S.Add(TPair<TStr,TAttrType>("AnswerCount", atInt));
+  qa_S.Add(TPair<TStr,TAttrType>("AcceptedAnswerId", atInt));
+  qa_S.Add(TPair<TStr,TAttrType>("Score", atInt));
+  qa_S.Add(TPair<TStr,TAttrType>("PostTypeId", atInt));
+  qa_S.Add(TPair<TStr,TAttrType>("OwnerUserId", atInt));
+  qa_S.Add(TPair<TStr,TAttrType>("Tags", atInt));
+  qa_S.Add(TPair<TStr,TAttrType>("CreationDate", atInt));
+  qa_S.Add(TPair<TStr,TAttrType>("FavoriteCount", atInt));
+  qa_S.Add(TPair<TStr,TAttrType>("Id", atInt));
+  qa_S.Add(TPair<TStr,TAttrType>("ParentId", atInt));
+  qa_S.Add(TPair<TStr,TAttrType>("CommunityOwnedDate", atInt));
+  qa_S.Add(TPair<TStr,TAttrType>("ClosedDate", atInt));
   // relevant columns
   TIntV qa_RelevantCols;
   qa_RelevantCols.Add(11);
@@ -56,7 +56,7 @@ int main(){
   qa_RelevantCols.Add(17);
 
   // build predicate "PostTypeId == 2"
-  TPredicate::TAtomicPredicate ptiAtom(TPredicate::INT, true, TPredicate::EQ, "PostTypeId", "", 2, 0, "");
+  TPredicate::TAtomicPredicate ptiAtom(atInt, true, TPredicate::EQ, "PostTypeId", "", 2, 0, "");
   TPredicate::TPredicateNode ptiNode(ptiAtom);
   TPredicate ptiPred(&ptiNode);
 
@@ -166,24 +166,24 @@ int main(){
    // build schema for COMMENTS
   TTableContext comment_Context;
   TTable::Schema comment_S;
-  comment_S.Add(TPair<TStr,TTable::TYPE>("CreationDate", TTable::INT));
-  comment_S.Add(TPair<TStr,TTable::TYPE>("Text", TTable::INT));
-  comment_S.Add(TPair<TStr,TTable::TYPE>("UserId", TTable::INT));
-  comment_S.Add(TPair<TStr,TTable::TYPE>("Score", TTable::INT));
-  comment_S.Add(TPair<TStr,TTable::TYPE>("PostId", TTable::INT));
-  comment_S.Add(TPair<TStr,TTable::TYPE>("Id", TTable::INT));
+  comment_S.Add(TPair<TStr,TAttrType>("CreationDate", atInt));
+  comment_S.Add(TPair<TStr,TAttrType>("Text", atInt));
+  comment_S.Add(TPair<TStr,TAttrType>("UserId", atInt));
+  comment_S.Add(TPair<TStr,TAttrType>("Score", atInt));
+  comment_S.Add(TPair<TStr,TAttrType>("PostId", atInt));
+  comment_S.Add(TPair<TStr,TAttrType>("Id", atInt));
   // relevant columns
   TIntV comment_RelevantCols;
   comment_RelevantCols.Add(2);
   comment_RelevantCols.Add(4);
   // build predicate "UserId1 != UserId2"
   /*
-  TPredicate::TAtomicPredicate uidAtom(TPredicate::INT, false, TPredicate::EQ, "UserId1", "UserId2");
+  TPredicate::TAtomicPredicate uidAtom(atInt, false, TPredicate::EQ, "UserId1", "UserId2");
   TPredicate::TPredicateNode uidEqNode(uidAtom);
   TPredicate::TPredicateNode uidNeqNode(TPredicate::NOT);
   uidNeqNode.AddLeftChild(&uidEqNode);
   */
-  TPredicate::TAtomicPredicate uidAtom(TPredicate::INT, false, TPredicate::NEQ, "UserId1", "UserId2");
+  TPredicate::TAtomicPredicate uidAtom(atInt, false, TPredicate::NEQ, "UserId1", "UserId2");
   TPredicate::TPredicateNode uidNeqNode(uidAtom);
   TPredicate uidPred(&uidNeqNode);
    // build GroupBy vector

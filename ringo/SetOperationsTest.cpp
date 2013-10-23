@@ -4,10 +4,10 @@ int main(){
   TTableContext Context;
   // create scheme
   TTable::Schema AnimalS;
-  AnimalS.Add(TPair<TStr,TTable::TYPE>("Animal", TTable::STR));
-  AnimalS.Add(TPair<TStr,TTable::TYPE>("Size", TTable::STR));
-  AnimalS.Add(TPair<TStr,TTable::TYPE>("Location", TTable::STR));
-  AnimalS.Add(TPair<TStr,TTable::TYPE>("Number", TTable::INT));
+  AnimalS.Add(TPair<TStr,TAttrType>("Animal", atStr));
+  AnimalS.Add(TPair<TStr,TAttrType>("Size", atStr));
+  AnimalS.Add(TPair<TStr,TAttrType>("Location", atStr));
+  AnimalS.Add(TPair<TStr,TAttrType>("Number", atInt));
   TIntV RelevantCols;
   RelevantCols.Add(0);
   RelevantCols.Add(1);
