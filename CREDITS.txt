@@ -18,6 +18,7 @@ Julian McAuley
 Yonathan Perez
 Martin Raison
 Manuel Gomez Rodriguez
+Kenny Root
 Nicholas Shelly
 Rok Sosic
 Jaewon Yang
