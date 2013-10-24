@@ -869,7 +869,7 @@ void TTable::Dist(TStr Col1, const TTable& Table, TStr Col2, TStr DistColName, c
 }
 */
 
-void TTable::Select(TPredicate& Predicate, TIntV& SelectedRows, TBool Filter){
+void TTable::Select(TPredicate& Predicate, TIntV& SelectedRows, TBool Remove){
   TIntV Selected;
   TStrV RelevantCols;
   Predicate.GetVariables(RelevantCols);
@@ -881,7 +881,7 @@ void TTable::Select(TPredicate& Predicate, TIntV& SelectedRows, TBool Filter){
     ColIndices[i] = GetColIdx(RelevantCols[i]);
   } 
   
-  if(Filter){
+  if(Remove){
     TRowIteratorWithRemove RowI = BegRIWR();
     while(RowI.GetNextRowIdx() != Last){
       // prepare arguments for predicate evaluation
@@ -926,7 +926,7 @@ void TTable::Select(TPredicate& Predicate, TIntV& SelectedRows, TBool Filter){
 
 
 // Further optimization: both comparison operation and type of columns don't change between rows..
-void TTable::SelectAtomic(const TStr& Col1, const TStr& Col2, TPredicate::COMP Cmp, TIntV& SelectedRows, TBool Filter){
+void TTable::SelectAtomic(const TStr& Col1, const TStr& Col2, TPredicate::COMP Cmp, TIntV& SelectedRows, TBool Remove){
   const TAttrType Ty1 = GetColType(Col1);
   const TAttrType Ty2 = GetColType(Col2);
   const TInt ColIdx1 = GetColIdx(Col1);
@@ -936,7 +936,7 @@ void TTable::SelectAtomic(const TStr& Col1, const TStr& Col2, TPredicate::COMP C
   }
   if(Cmp == TPredicate::SUBSTR || Cmp == TPredicate::SUPERSTR){Assert(Ty1 == atStr);}
 
-  if(Filter){
+  if(Remove){
     TRowIteratorWithRemove RowI = BegRIWR();
     while(RowI.GetNextRowIdx() != Last){
       TBool Result;
@@ -976,7 +976,7 @@ void TTable::SelectAtomic(const TStr& Col1, const TStr& Col2, TPredicate::COMP C
   }
 }
 
-void TTable::SelectAtomicIntConst(const TStr& Col1, TInt Val2, TPredicate::COMP Cmp, TIntV& SelectedRows, TBool Filter){
+void TTable::SelectAtomicIntConst(const TStr& Col1, const TInt& Val2, TPredicate::COMP Cmp, TIntV& SelectedRows, TBool Remove){
   Assert(Cmp < TPredicate::SUBSTR);
   TAttrType Ty1;
   TInt ColIdx1;
@@ -985,7 +985,7 @@ void TTable::SelectAtomicIntConst(const TStr& Col1, TInt Val2, TPredicate::COMP 
   ColIdx1 = GetColIdx(Col1);
   if(Ty1 != atInt){TExcept::Throw("SelectAtomic: not type TInt");}
 
-  if(Filter){
+  if(Remove){
     TRowIteratorWithRemove RowI = BegRIWR();
     while(RowI.GetNextRowIdx() != Last){
       if(!TPredicate::EvalAtom(RowI.GetNextIntAttr(ColIdx1), Val2, Cmp)){
@@ -1003,7 +1003,7 @@ void TTable::SelectAtomicIntConst(const TStr& Col1, TInt Val2, TPredicate::COMP 
   }
 }
 
-void TTable::SelectAtomicStrConst(const TStr& Col1, const TStr& Val2, TPredicate::COMP Cmp, TIntV& SelectedRows, TBool Filter){
+void TTable::SelectAtomicStrConst(const TStr& Col1, const TStr& Val2, TPredicate::COMP Cmp, TIntV& SelectedRows, TBool Remove){
   TAttrType Ty1;
   TInt ColIdx1;
 
@@ -1011,7 +1011,7 @@ void TTable::SelectAtomicStrConst(const TStr& Col1, const TStr& Val2, TPredicate
   ColIdx1 = GetColIdx(Col1);
   if(Ty1 != atStr){TExcept::Throw("SelectAtomic: not type TStr");}
 
-  if(Filter){
+  if(Remove){
     TRowIteratorWithRemove RowI = BegRIWR();
     while(RowI.GetNextRowIdx() != Last){
       if(!TPredicate::EvalStrAtom(RowI.GetNextStrAttr(ColIdx1), Val2, Cmp)){
@@ -1029,7 +1029,7 @@ void TTable::SelectAtomicStrConst(const TStr& Col1, const TStr& Val2, TPredicate
   }
 }
 
-void TTable::SelectAtomicFltConst(const TStr& Col1, TFlt Val2, TPredicate::COMP Cmp, TIntV& SelectedRows, TBool Filter){
+void TTable::SelectAtomicFltConst(const TStr& Col1, const TFlt& Val2, TPredicate::COMP Cmp, TIntV& SelectedRows, TBool Remove){
   Assert(Cmp < TPredicate::SUBSTR);
   TAttrType Ty1;
   TInt ColIdx1;
@@ -1038,7 +1038,7 @@ void TTable::SelectAtomicFltConst(const TStr& Col1, TFlt Val2, TPredicate::COMP 
   ColIdx1 = GetColIdx(Col1);
   if(Ty1 != atFlt){TExcept::Throw("SelectAtomic: not type TFlt");}
 
-  if(Filter){
+  if(Remove){
     TRowIteratorWithRemove RowI = BegRIWR();
     while(RowI.GetNextRowIdx() != Last){
       if(!TPredicate::EvalAtom(RowI.GetNextFltAttr(ColIdx1), Val2, Cmp)){
@@ -2103,7 +2103,7 @@ void TTable::ColMod(const TStr& Attr1, TTable& Table, const TStr& Attr2,
 }
 
 
-void TTable::ColGenericOp(const TStr& Attr1, TFlt Num, const TStr& ResAttr, OPS op) {
+void TTable::ColGenericOp(const TStr& Attr1, const TFlt& Num, const TStr& ResAttr, OPS op) {
   // check if attribute is valid
   if (!IsAttr(Attr1)) TExcept::Throw("No attribute present: " + Attr1);
 
@@ -2151,23 +2151,23 @@ void TTable::ColGenericOp(const TStr& Attr1, TFlt Num, const TStr& ResAttr, OPS 
   }
 }
 
-void TTable::ColAdd(const TStr& Attr1, TFlt Num, const TStr& ResultAttrName) {
+void TTable::ColAdd(const TStr& Attr1, const TFlt& Num, const TStr& ResultAttrName) {
   ColGenericOp(Attr1, Num, ResultAttrName, OP_ADD);
 }
 
-void TTable::ColSub(const TStr& Attr1, TFlt Num, const TStr& ResultAttrName) {
+void TTable::ColSub(const TStr& Attr1, const TFlt& Num, const TStr& ResultAttrName) {
   ColGenericOp(Attr1, Num, ResultAttrName, OP_SUB);
 }
 
-void TTable::ColMul(const TStr& Attr1, TFlt Num, const TStr& ResultAttrName) {
+void TTable::ColMul(const TStr& Attr1, const TFlt& Num, const TStr& ResultAttrName) {
   ColGenericOp(Attr1, Num, ResultAttrName, OP_MUL);
 }
 
-void TTable::ColDiv(const TStr& Attr1, TFlt Num, const TStr& ResultAttrName) {
+void TTable::ColDiv(const TStr& Attr1, const TFlt& Num, const TStr& ResultAttrName) {
   ColGenericOp(Attr1, Num, ResultAttrName, OP_DIV);
 }
 
-void TTable::ColMod(const TStr& Attr1, TFlt Num, const TStr& ResultAttrName) {
+void TTable::ColMod(const TStr& Attr1, const TFlt& Num, const TStr& ResultAttrName) {
   ColGenericOp(Attr1, Num, ResultAttrName, OP_MOD);
 }
 

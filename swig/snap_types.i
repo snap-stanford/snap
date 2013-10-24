@@ -46,6 +46,12 @@
    free($1);
 }
 
+%typemap(in) TInt {
+  //TInt I = PyInt_AsLong($input);
+  //$1 = I;
+  $1 = TInt(PyInt_AsLong($input));
+}
+
 %typemap(in) TInt defaultValue {
   //TInt I = PyInt_AsLong($input);
   //$1 = I;
@@ -84,6 +90,12 @@
 
 %typemap(freearg) const TFlt& {
    free($1);
+}
+
+%typemap(in) TFlt {
+  //TFlt F = PyFloat_AsDouble($input);
+  //$1 = F;
+  $1 = TFlt(PyFloat_AsDouble($input));
 }
 
 %typemap(in) TFlt defaultValue {

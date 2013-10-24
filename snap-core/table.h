@@ -344,6 +344,7 @@ public:
 
 /***** Save / Load functions *****/
   // Load table from spread sheet (TSV, CSV, etc)
+  //static PTable LoadSS(const TStr& InFNm, const Schema& S, TTableContext& Context);
   static PTable LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm, TTableContext& Context, const char& Separator = '\t', TBool HasTitleLine = false);
   // Load table from spread sheet - but only load the columns specified by RelevantCols
   static PTable LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm, TTableContext& Context, const TIntV& RelevantCols, const char& Separator = '\t', TBool HasTitleLine = false);
@@ -418,34 +419,34 @@ public:
 
 	/* 
   Select. Has two modes of operation:
-  1. If Filter == true then (logically) remove the rows for which the predicate doesn't hold
-  2. If filter == false then add the physical indices of the rows for which the predicate holds to the vactor SelectedRows
+  1. If Remove == true then (logically) remove the rows for which the predicate doesn't hold
+  2. If Remove == false then add the physical indices of the rows for which the predicate holds to the vactor SelectedRows
   */
-	void Select(TPredicate& Predicate, TIntV& SelectedRows, TBool Filter = true);
+	void Select(TPredicate& Predicate, TIntV& SelectedRows, TBool Remove = true);
   void Select(TPredicate& Predicate){
     TIntV SelectedRows;
-    Select(Predicate, SelectedRows);
+    Select(Predicate, SelectedRows, true);
   }
   // select atomic - optimized cases of select with predicate of an atomic form: compare attribute to attribute or compare attribute to a constant
-  void SelectAtomic(const TStr& Col1, const TStr& Col2, TPredicate::COMP Cmp, TIntV& SelectedRows, TBool Filter = true);
+  void SelectAtomic(const TStr& Col1, const TStr& Col2, TPredicate::COMP Cmp, TIntV& SelectedRows, TBool Remove = true);
   void SelectAtomic(const TStr& Col1, const TStr& Col2, TPredicate::COMP Cmp){
     TIntV SelectedRows;
     SelectAtomic(Col1, Col2, Cmp, SelectedRows);
   }
-  void SelectAtomicIntConst(const TStr& Col1, TInt Val2, TPredicate::COMP Cmp, TIntV& SelectedRows, TBool Filter = true);
-  void SelectAtomicIntConst(const TStr& Col1, TInt Val2, TPredicate::COMP Cmp){
+  void SelectAtomicIntConst(const TStr& Col1, const TInt& Val2, TPredicate::COMP Cmp, TIntV& SelectedRows, TBool Remove = true);
+  void SelectAtomicIntConst(const TStr& Col1, const TInt& Val2, TPredicate::COMP Cmp){
     TIntV SelectedRows;
-    SelectAtomicIntConst(Col1, Val2, Cmp, SelectedRows);
+    SelectAtomicIntConst(Col1, Val2, Cmp, SelectedRows, true);
   }
-  void SelectAtomicStrConst(const TStr& Col1, const TStr& Val2, TPredicate::COMP Cmp, TIntV& SelectedRows, TBool Filter = true);
+  void SelectAtomicStrConst(const TStr& Col1, const TStr& Val2, TPredicate::COMP Cmp, TIntV& SelectedRows, TBool Remove = true);
   void SelectAtomicStrConst(const TStr& Col1, const TStr& Val2, TPredicate::COMP Cmp){
     TIntV SelectedRows;
-    SelectAtomicStrConst(Col1, Val2, Cmp, SelectedRows);
+    SelectAtomicStrConst(Col1, Val2, Cmp, SelectedRows, true);
   }
-  void SelectAtomicFltConst(const TStr& Col1, TFlt Val2, TPredicate::COMP Cmp, TIntV& SelectedRows, TBool Filter = true);
-  void SelectAtomicFltConst(const TStr& Col1, TFlt Val2, TPredicate::COMP Cmp){
+  void SelectAtomicFltConst(const TStr& Col1, const TFlt& Val2, TPredicate::COMP Cmp, TIntV& SelectedRows, TBool Remove = true);
+  void SelectAtomicFltConst(const TStr& Col1, const TFlt& Val2, TPredicate::COMP Cmp){
     TIntV SelectedRows;
-    SelectAtomicFltConst(Col1, Val2, Cmp, SelectedRows);
+    SelectAtomicFltConst(Col1, Val2, Cmp, SelectedRows, true);
   }
 	
 	// group by the values of the columns specified in "GroupBy" vector 
@@ -518,12 +519,12 @@ public:
   /* Performs Attr1 OP Num and stores it in Attr1
    * If ResAttr != "", result is stored in a new column ResAttr
    */
-  void ColGenericOp(const TStr& Attr1, TFlt Num, const TStr& ResAttr, OPS op);
-  void ColAdd(const TStr& Attr1, TFlt Num, const TStr& ResultAttrName="");
-  void ColSub(const TStr& Attr1, TFlt Num, const TStr& ResultAttrName="");
-  void ColMul(const TStr& Attr1, TFlt Num, const TStr& ResultAttrName="");
-  void ColDiv(const TStr& Attr1, TFlt Num, const TStr& ResultAttrName="");
-  void ColMod(const TStr& Attr1, TFlt Num, const TStr& ResultAttrName="");
+  void ColGenericOp(const TStr& Attr1, const TFlt& Num, const TStr& ResAttr, OPS op);
+  void ColAdd(const TStr& Attr1, const TFlt& Num, const TStr& ResultAttrName="");
+  void ColSub(const TStr& Attr1, const TFlt& Num, const TStr& ResultAttrName="");
+  void ColMul(const TStr& Attr1, const TFlt& Num, const TStr& ResultAttrName="");
+  void ColDiv(const TStr& Attr1, const TFlt& Num, const TStr& ResultAttrName="");
+  void ColMod(const TStr& Attr1, const TFlt& Num, const TStr& ResultAttrName="");
 
   // add a column of explicit integer identifiers to the rows
   void AddIdColumn(const TStr& IdColName);
