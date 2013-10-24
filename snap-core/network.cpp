@@ -448,8 +448,8 @@ void TNEANet::DelEdge(const int& EId) {
 
 // delete all edges between the two nodes
 void TNEANet::DelEdge(const int& SrcNId, const int& DstNId, const bool& IsDir) {
-  int EId;
-  IAssert(IsEdge(SrcNId, DstNId, EId, IsDir)); // there is at least one edge
+  int EId = IsEdge(SrcNId, DstNId, EId, IsDir);
+  IAssert(EId); // there is at least one edge
   while (IsEdge(SrcNId, DstNId, EId, IsDir)) {
     GetNode(SrcNId).OutEIdV.DelIfIn(EId);
     GetNode(DstNId).InEIdV.DelIfIn(EId);
