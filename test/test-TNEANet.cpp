@@ -175,14 +175,14 @@ TEST(TNEANet, ManipulateNodesEdgeAttributes) {
   t = Graph->Empty();
 
   // create the nodes
-  for (i = 0; i < NNodes; i++) {
+  for (i = NNodes - 1; i >= 0; i--) {
     Graph->AddNode(i);
   }
 
   EXPECT_EQ(NNodes, Graph->GetNodes());
 
   // create the edges 
-  for (i = 0; i < NEdges; i++) {
+  for (i = NEdges - 1; i >= 0; i--) {
     x = (long) (drand48() * NNodes);
     y = (long) (drand48() * NNodes);
     Graph->AddEdge(x, y, i);
@@ -201,6 +201,10 @@ TEST(TNEANet, ManipulateNodesEdgeAttributes) {
   Graph->AddIntAttrDatN(50, 50*2, attr2);
   Graph->AddIntAttrDatN(700, 700*2, attr2);
   Graph->AddIntAttrDatN(900, 900*2, attr2);
+
+  EXPECT_EQ(3*2, Graph->GetNAIntI(attr2, 3).GetDat());
+  EXPECT_EQ(50*2, Graph->GetNAIntI(attr2, 50).GetDat());
+
   int NodeId = 0;
   int DefNodes = 0;
   TVec<TInt> TAIntIV = TVec<TInt>();
@@ -227,6 +231,10 @@ TEST(TNEANet, ManipulateNodesEdgeAttributes) {
   Graph->AddFltAttrDatN(50, 2.718, attr3);
   Graph->AddFltAttrDatN(300, 150.0, attr3);
   Graph->AddFltAttrDatN(653, 563, attr3);
+
+  EXPECT_EQ(3.41, Graph->GetNAFltI(attr3, 5).GetDat());
+  EXPECT_EQ(2.718, Graph->GetNAFltI(attr3, 50).GetDat());
+
   NodeId = 0;
   DefNodes = 0;
   TVec<TFlt> TAFltIV = TVec<TFlt>();
@@ -255,6 +263,10 @@ TEST(TNEANet, ManipulateNodesEdgeAttributes) {
   Graph->AddStrAttrDatN(400, "ghi", attr1);
   // this does not show since ""=null
   Graph->AddStrAttrDatN(455, "", attr1);
+
+  EXPECT_EQ('c', Graph->GetNAStrI(attr1, 10).GetDat().LastCh());
+  EXPECT_EQ('f', Graph->GetNAStrI(attr1, 20).GetDat().LastCh());
+
   NodeId = 0;
   DefNodes = 0;
   TVec<TStr> TAStrIV = TVec<TStr>();
@@ -324,8 +336,11 @@ TEST(TNEANet, ManipulateNodesEdgeAttributes) {
     }
   } 
 
+  int expectedTotal = 0;
   for (i = 0; i <NNodes; i++) {
-    Graph->AddIntAttrDatN(i, 70, attr2);
+    Graph->AddIntAttrDatN(i, NNodes+i, attr2);
+    EXPECT_EQ(NNodes+i, Graph->GetIntAttrDatN(i, attr2));
+    expectedTotal += NNodes+i;
   }
 
   {
@@ -345,7 +360,7 @@ TEST(TNEANet, ManipulateNodesEdgeAttributes) {
     total += NI.GetDat();
   }
 
-  ASSERT_EQ(70, total/NNodes);
+  ASSERT_EQ(expectedTotal, total);
 
   Graph1->Clr();
 
@@ -354,6 +369,10 @@ TEST(TNEANet, ManipulateNodesEdgeAttributes) {
   Graph->AddIntAttrDatE(55, 55*2, attr2);
   Graph->AddIntAttrDatE(705, 705*2, attr2);
   Graph->AddIntAttrDatE(905, 905*2, attr2);
+
+  EXPECT_EQ(3*2, Graph->GetEAIntI(attr2, 3).GetDat());
+  EXPECT_EQ(55*2, Graph->GetEAIntI(attr2, 55).GetDat());
+
   int EdgeId = 0;
   int DefEdges = 0;
   TAIntIV.Clr();
@@ -381,6 +400,10 @@ TEST(TNEANet, ManipulateNodesEdgeAttributes) {
   Graph->AddFltAttrDatE(50, 3.718, attr3);
   Graph->AddFltAttrDatE(300, 151.0, attr3);
   Graph->AddFltAttrDatE(653, 654, attr3);
+
+  EXPECT_EQ(4.41, Graph->GetEAFltI(attr3, 5).GetDat());
+  EXPECT_EQ(3.718, Graph->GetEAFltI(attr3, 50).GetDat());
+
   EdgeId = 0;
   DefEdges = 0;
   TAFltIV.Clr();
@@ -410,6 +433,10 @@ TEST(TNEANet, ManipulateNodesEdgeAttributes) {
   Graph->AddStrAttrDatE(400, "ghi", attr1);
   // this does not show since ""=null
   Graph->AddStrAttrDatE(455, "", attr1);
+
+  EXPECT_EQ('c', Graph->GetEAStrI(attr1, 10).GetDat().LastCh());
+  EXPECT_EQ('f', Graph->GetEAStrI(attr1, 20).GetDat().LastCh());
+
   EdgeId = 0;
   DefEdges = 0;
   TAStrIV.Clr();
@@ -475,8 +502,11 @@ TEST(TNEANet, ManipulateNodesEdgeAttributes) {
     }
   }
 
+  expectedTotal = 0;
   for (i = 0; i <NEdges; i++) {
-    Graph->AddIntAttrDatE(i, 70, attr2);
+    Graph->AddIntAttrDatE(i, NEdges+i, attr2);
+    EXPECT_EQ(NEdges+i, Graph->GetIntAttrDatE(i, attr2));
+    expectedTotal += NEdges+i;
   }
 
   {
@@ -497,7 +527,7 @@ TEST(TNEANet, ManipulateNodesEdgeAttributes) {
     total += EI.GetDat();
   }
 
-  EXPECT_EQ(70, total/NEdges);
+  EXPECT_EQ(expectedTotal, total);
 
   //Graph1->Dump();
   Graph1->Clr();
