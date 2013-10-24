@@ -27,7 +27,7 @@ int main(){
   }
   TTableContext qa_Context;
   // build schema for Q&A
-  TTable::Schema qa_S;
+  Schema qa_S;
   qa_S.Add(TPair<TStr,TAttrType>("Body", atInt));
   qa_S.Add(TPair<TStr,TAttrType>("ViewCount", atInt));
   qa_S.Add(TPair<TStr,TAttrType>("LastActivityDate", atInt));
@@ -86,7 +86,7 @@ int main(){
       Tj->SetSrcCol("Posts1.OwnerUserId");
       Tj->SetDstCol("Posts2.OwnerUserId");
       TExeTm tg;
-      PNEANet G = Tj->ToGraph();
+      PNEANet G = Tj->ToGraph(LAST);
       qa_results[f][i][5] = tg.GetSecs();
       //TStr OutFNm = outDir + "out_" + qa_file_names[f];
       //if(i == N-1){Tj->SaveSS(OutFNm);}
@@ -165,7 +165,7 @@ int main(){
 
    // build schema for COMMENTS
   TTableContext comment_Context;
-  TTable::Schema comment_S;
+  Schema comment_S;
   comment_S.Add(TPair<TStr,TAttrType>("CreationDate", atInt));
   comment_S.Add(TPair<TStr,TAttrType>("Text", atInt));
   comment_S.Add(TPair<TStr,TAttrType>("UserId", atInt));

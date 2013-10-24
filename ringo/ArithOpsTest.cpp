@@ -1,8 +1,9 @@
+//#include "Table.h"
 #include "Snap.h"
 
 int main(){
   TTableContext Context;
-  TTable::Schema LocS;
+  Schema LocS;
   LocS.Add(TPair<TStr,TAttrType>("Name", atStr));
   LocS.Add(TPair<TStr,TAttrType>("X", atInt));
   LocS.Add(TPair<TStr,TAttrType>("Y", atFlt));

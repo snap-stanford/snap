@@ -3,7 +3,7 @@
 int main(){
   TTableContext Context;
   // create scheme
-  TTable::Schema AnimalS;
+  Schema AnimalS;
   AnimalS.Add(TPair<TStr,TAttrType>("Animal", atStr));
   AnimalS.Add(TPair<TStr,TAttrType>("Size", atStr));
   AnimalS.Add(TPair<TStr,TAttrType>("Location", atStr));
