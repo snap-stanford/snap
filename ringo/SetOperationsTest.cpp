@@ -14,8 +14,8 @@ int main(){
   RelevantCols.Add(2);
   RelevantCols.Add(3);
 
-  PTable P = TTable::LoadSS("Animals", AnimalS, "tests/animals.txt", Context, RelevantCols);
-  PTable Q = TTable::LoadSS("MoreAnimals", AnimalS, "tests/more_animals.txt", Context, RelevantCols);
+  PTable P = TTable::LoadSS("Animals", AnimalS, "tests/animals.txt", Context, RelevantCols, '\t', true);
+  PTable Q = TTable::LoadSS("MoreAnimals", AnimalS, "tests/more_animals.txt", Context, RelevantCols, '\t', true);
 
   PTable R = P->Union(*Q, "union");
   PTable S = P->Intersection(*Q, "intersection");
