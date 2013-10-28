@@ -396,6 +396,10 @@ public:
   TStrV GetDstNodeStrAttrV() const;
 	TStrV GetEdgeStrAttrV() const;
 
+  /* Extract node and edge TTables from PNEANet */
+  static PTable GetNodeTable(const PNEANet& Network, const TStr& TableName, TTableContext& Context);
+  static PTable GetEdgeTable(const PNEANet& Network, const TStr& TableName, TTableContext& Context);
+
 /***** Basic Getters *****/
 	TAttrType GetColType(const TStr& ColName) const{ return ColTypeMap.GetDat(ColName).Val1; };
   TInt GetNumRows() const { return NumRows;}

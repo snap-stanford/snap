@@ -1518,6 +1518,112 @@ PNEANet TTable::ToGraph(ATTR_AGGR AttrAggrPolicy) {
   return Graph;
 }
 
+PTable TTable::GetNodeTable(const PNEANet& Network, const TStr& TableName, TTableContext& Context){
+  Schema SR;
+  SR.Add(TPair<TStr,TAttrType>("node_id",atInt));
+
+  TStrV IntAttrNames;
+  TStrV FltAttrNames;
+  TStrV StrAttrNames;
+
+  TNEANet::TNodeI NodeI = Network->BegNI();
+  NodeI.GetIntAttrNames(IntAttrNames);
+  NodeI.GetFltAttrNames(FltAttrNames);
+  NodeI.GetStrAttrNames(StrAttrNames);
+  for (int i = 0; i < IntAttrNames.Len(); i++){
+    SR.Add(TPair<TStr,TAttrType>(IntAttrNames[i],atInt));
+  }
+  for (int i = 0; i < FltAttrNames.Len(); i++){
+    SR.Add(TPair<TStr,TAttrType>(FltAttrNames[i],atFlt));
+  }
+  for (int i = 0; i < StrAttrNames.Len(); i++){
+    SR.Add(TPair<TStr,TAttrType>(StrAttrNames[i],atStr));
+  }
+
+  PTable T = New(TableName, SR, Context);
+
+  TInt Cnt = 0;
+  // populate table columns
+  while(NodeI < Network->EndNI()){
+    T->IntCols[0].Add(NodeI.GetId());
+    for (int i = 0; i < IntAttrNames.Len(); i++){
+      T->IntCols[i+1].Add(Network->GetIntAttrDatN(NodeI,IntAttrNames[i]));
+    }
+    for (int i = 0; i < FltAttrNames.Len(); i++){
+      T->FltCols[i].Add(Network->GetFltAttrDatN(NodeI,FltAttrNames[i]));
+    }
+    for (int i = 0; i < StrAttrNames.Len(); i++){
+      T->AddStrVal(i, Network->GetStrAttrDatN(NodeI,StrAttrNames[i]));
+    }
+    Cnt++;
+    NodeI++;
+  }
+  // set number of rows and "Next" vector
+  T->NumRows = Cnt;
+  T->NumValidRows = T->NumRows;
+  T->Next = TIntV(T->NumRows,0);
+  for(TInt i = 0; i < T->NumRows-1; i++){
+    T->Next.Add(i+1);
+  }
+  T->Next.Add(Last);
+  return T;
+}
+
+PTable TTable::GetEdgeTable(const PNEANet& Network, const TStr& TableName, TTableContext& Context){
+  Schema SR;
+  SR.Add(TPair<TStr,TAttrType>("edg_id",atInt));
+  SR.Add(TPair<TStr,TAttrType>("src_id",atInt));
+  SR.Add(TPair<TStr,TAttrType>("dst_id",atInt));
+
+  TStrV IntAttrNames;
+  TStrV FltAttrNames;
+  TStrV StrAttrNames;
+
+  TNEANet::TEdgeI EdgeI = Network->BegEI();
+  EdgeI.GetIntAttrNames(IntAttrNames);
+  EdgeI.GetFltAttrNames(FltAttrNames);
+  EdgeI.GetStrAttrNames(StrAttrNames);
+  for (int i = 0; i < IntAttrNames.Len(); i++){
+    SR.Add(TPair<TStr,TAttrType>(IntAttrNames[i],atInt));
+  }
+  for (int i = 0; i < FltAttrNames.Len(); i++){
+    SR.Add(TPair<TStr,TAttrType>(FltAttrNames[i],atFlt));
+  }
+  for (int i = 0; i < StrAttrNames.Len(); i++){
+    SR.Add(TPair<TStr,TAttrType>(StrAttrNames[i],atStr));
+  }
+
+  PTable T = New(TableName, SR, Context);
+
+  TInt Cnt = 0;
+  // populate table columns
+  while(EdgeI < Network->EndEI()){
+    T->IntCols[0].Add(EdgeI.GetId());
+    T->IntCols[1].Add(EdgeI.GetSrcNId());
+    T->IntCols[2].Add(EdgeI.GetDstNId());
+    for (int i = 0; i < IntAttrNames.Len(); i++){
+      T->IntCols[i+3].Add(Network->GetIntAttrDatE(EdgeI,IntAttrNames[i]));
+    }
+    for (int i = 0; i < FltAttrNames.Len(); i++){
+      T->FltCols[i].Add(Network->GetFltAttrDatE(EdgeI,FltAttrNames[i]));
+    }
+    for (int i = 0; i < StrAttrNames.Len(); i++){
+      T->AddStrVal(i, Network->GetStrAttrDatE(EdgeI,StrAttrNames[i]));
+    }
+    Cnt++;
+    EdgeI++;
+  }
+  // set number of rows and "Next" vector
+  T->NumRows = Cnt;
+  T->NumValidRows = T->NumRows;
+  T->Next = TIntV(T->NumRows,0);
+  for(TInt i = 0; i < T->NumRows-1; i++){
+    T->Next.Add(i+1);
+  }
+  T->Next.Add(Last);
+  return T;
+}
+
 /*** Special Filters ***/
 PTable TTable::IsNextK(const TStr& OrderCol, TInt K, const TStr& GroupBy, const TStr& RankColName){
   TStrV OrderBy;
