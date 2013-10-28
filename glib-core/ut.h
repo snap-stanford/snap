@@ -25,7 +25,7 @@ inline void WarnNotify(const TStr& MsgStr){WarnNotify(MsgStr.CStr());}
 inline void ErrNotify(const TStr& MsgStr){ErrNotify(MsgStr.CStr());}
 inline void StatNotify(const TStr& MsgStr){StatNotify(MsgStr.CStr());}
 
-typedef enum {ntInfo, ntWarn, ntErr, ntStat} TNotifyType;
+typedef enum TNotifyType_ {ntInfo, ntWarn, ntErr, ntStat} TNotifyType;
 
 ClassTP(TNotify, PNotify)//{
 private:

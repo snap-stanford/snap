@@ -68,7 +68,8 @@ public:
 //#//////////////////////////////////////////////
 /// Snapworld supporting functions
 
-#if (defined(GLib_UNIX) && !defined(SWIG)) || (defined(SWIG_SW))
+#if defined(SW_WRITEN)
+
 /// Writes \c nbytes bytes starting at \c ptr to a file/socket descriptor \c fd.
 extern int WriteN(int fd, char *ptr, int nbytes);
 
