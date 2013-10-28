@@ -1,4 +1,5 @@
 //#include "Engine.h"
+//#include "Table.h"
 #include "Snap.h"
 #include <time.h>
 
@@ -16,7 +17,7 @@ int main(){
   }
 
   // Schema - change types..
-  TTable::Schema S;
+  Schema S;
   /*
   S.Add(TPair<TStr,TAttrType>("Body", atInt));
   S.Add(TPair<TStr,TAttrType>("ViewCount", atInt));
@@ -91,7 +92,7 @@ int main(){
     Tj->AddEdgeAttr("posts2.CreationDate");
     q1Results[i][4] = tpg.GetSecs();
     TExeTm ttg;
-    Tj->ToGraph();
+    Tj->ToGraph(LAST);
     q1Results[i][5] = tpg.GetSecs();
   }
 

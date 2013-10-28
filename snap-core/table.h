@@ -344,10 +344,13 @@ public:
 
 /***** Save / Load functions *****/
   // Load table from spread sheet (TSV, CSV, etc)
-  //static PTable LoadSS(const TStr& InFNm, const Schema& S, TTableContext& Context);
   static PTable LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm, TTableContext& Context, const char& Separator = '\t', TBool HasTitleLine = false);
   // Load table from spread sheet - but only load the columns specified by RelevantCols
   static PTable LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm, TTableContext& Context, const TIntV& RelevantCols, const char& Separator = '\t', TBool HasTitleLine = false);
+  // Load table from spread sheet - compact prototype (tab-separated input file, has title line, anonymous table 
+  static PTable LoadSS(const Schema& S, const TStr& InFnm, TTableContext& Context){
+    return LoadSS(TStr(), S, InFnm, Context, '\t', true);
+  }
   // Save table schema + content into a TSV file
   void SaveSS(const TStr& OutFNm);
   // Load table from binary. The TTableContext must be provided separately as it shared among multiple TTables and should be saved in a separate binary.
@@ -435,7 +438,7 @@ public:
   void SelectAtomic(const TStr& Col1, const TStr& Col2, TPredicate::COMP Cmp, TIntV& SelectedRows, TBool Remove = true);
   void SelectAtomic(const TStr& Col1, const TStr& Col2, TPredicate::COMP Cmp){
     TIntV SelectedRows;
-    SelectAtomic(Col1, Col2, Cmp, SelectedRows);
+    SelectAtomic(Col1, Col2, Cmp, SelectedRows, true);
   }
   void SelectAtomicIntConst(const TStr& Col1, const TInt& Val2, TPredicate::COMP Cmp, TIntV& SelectedRows, TBool Remove = true);
   void SelectAtomicIntConst(const TStr& Col1, const TInt& Val2, TPredicate::COMP Cmp){

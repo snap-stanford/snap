@@ -1,4 +1,5 @@
 #include "Snap.h"
+//#include "Table.h"
 
 // select only big animals
 // self join on location
@@ -8,7 +9,7 @@
 int main(){
   TTableContext Context;
   // create scheme
-  TTable::Schema AnimalS;
+  Schema AnimalS;
   AnimalS.Add(TPair<TStr,TAttrType>("Animal", atStr));
   AnimalS.Add(TPair<TStr,TAttrType>("Size", atStr));
   AnimalS.Add(TPair<TStr,TAttrType>("Location", atStr));
@@ -35,7 +36,7 @@ int main(){
   Tj->Unique(GroupBy, false);
   Tj->SetSrcCol("Animals_1.Animal");
   Tj->SetDstCol("Animals_2.Animal");
-  PNEANet G = Tj->ToGraph();
+  PNEANet G = Tj->ToGraph(LAST);
   //print table
   Tj->SaveSS("../../testfiles/animals_out_Tj_1.txt");
   G->Dump();
