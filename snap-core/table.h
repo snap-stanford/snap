@@ -5,7 +5,6 @@
 
 class TTable;
 typedef TPt<TTable> PTable;
-class TTableContext;
 
 /*
 This class serves as a wrapper for all data that needs to be shared by
@@ -29,6 +28,58 @@ typedef enum {OP_ADD, OP_SUB, OP_MUL, OP_DIV, OP_MOD} OPS;
 /* a table schema is a vector of pairs <attribute name, attribute type> */
 typedef TVec<TPair<TStr, TAttrType> > Schema; 
 
+/************* Iterator classes ************/
+// An iterator class to iterate over all currently existing rows
+// Iteration over the rows should be done using only this iterator
+class TRowIterator{
+  TInt CurrRowIdx;
+  const TTable* Table; 
+public:
+  TRowIterator(): CurrRowIdx(0), Table(NULL){}
+  TRowIterator(TInt RowIdx, const TTable* TablePtr): CurrRowIdx(RowIdx), Table(TablePtr){}
+  TRowIterator(const TRowIterator& RowI): CurrRowIdx(RowI.CurrRowIdx), Table(RowI.Table){}
+  TRowIterator& operator++(int);
+  TRowIterator& Next(); // For Python compatibility
+  bool operator < (const TRowIterator& RowI) const;
+  bool operator == (const TRowIterator& RowI) const;
+  TInt GetRowIdx() const;
+  // we do not check column type in the iterator
+  TInt GetIntAttr(TInt ColIdx) const;
+  TFlt GetFltAttr(TInt ColIdx) const;
+  TStr GetStrAttr(TInt ColIdx) const;
+  TInt GetIntAttr(const TStr& Col) const;
+  TFlt GetFltAttr(const TStr& Col) const;
+  TStr GetStrAttr(const TStr& Col) const;  
+  TInt GetStrMap(const TStr& Col) const;
+};
+
+/* an iterator that also allows logical row removal while iterating */
+class TRowIteratorWithRemove{
+  TInt CurrRowIdx;
+  TTable* Table;
+  TBool Start;
+public:
+  TRowIteratorWithRemove(): CurrRowIdx(0), Table(NULL), Start(true){}
+  TRowIteratorWithRemove(TInt RowIdx, TTable* TablePtr);
+  TRowIteratorWithRemove(TInt RowIdx, TTable* TablePtr, TBool IsStart): CurrRowIdx(RowIdx), Table(TablePtr), Start(IsStart){}
+  TRowIteratorWithRemove(const TRowIteratorWithRemove& RowI): CurrRowIdx(RowI.CurrRowIdx), Table(RowI.Table), Start(RowI.Start){}
+  TRowIteratorWithRemove& operator++(int);
+  TRowIteratorWithRemove& Next(); // For Python compatibility
+  bool operator < (const TRowIteratorWithRemove& RowI) const;
+  bool operator == (const TRowIteratorWithRemove& RowI) const;
+  TInt GetRowIdx() const;
+  TInt GetNextRowIdx() const;
+  // we do not check column type in the iterator
+  TInt GetNextIntAttr(TInt ColIdx) const;
+  TFlt GetNextFltAttr(TInt ColIdx) const;
+  TStr GetNextStrAttr(TInt ColIdx) const;   
+  TInt GetNextIntAttr(const TStr& Col) const;
+  TFlt GetNextFltAttr(const TStr& Col) const;
+  TStr GetNextStrAttr(const TStr& Col) const;   
+  TBool IsFirst() const;
+  void RemoveNext();
+};
+
 /* 
 TTable is a class representing an in-memory relational table with columnar data storage
 */
@@ -38,75 +89,6 @@ protected:
   // special values for Next column
   static const TInt Last;
   static const TInt Invalid;
-
-/************* Iterator classes ************/
-public:
-  // An iterator class to iterate over all currently existing rows
-  // Iteration over the rows should be done using only this iterator
-  class TRowIterator{
-    TInt CurrRowIdx;
-    const TTable* Table; 
-  public:
-    TRowIterator(): CurrRowIdx(0), Table(NULL){}
-    TRowIterator(TInt RowIdx, const TTable* TablePtr): CurrRowIdx(RowIdx), Table(TablePtr){}
-    TRowIterator(const TRowIterator& RowI): CurrRowIdx(RowI.CurrRowIdx), Table(RowI.Table){}
-    TRowIterator& operator++(int){
-      CurrRowIdx = Table->Next[CurrRowIdx];
-      Assert(CurrRowIdx != Invalid);
-      return *this;
-    }
-    bool operator < (const TRowIterator& RowI) const{ 
-      if(CurrRowIdx == TTable::Last){ return false;}
-      if(RowI.CurrRowIdx == TTable::Last){ return true;}
-      return CurrRowIdx < RowI.CurrRowIdx;
-    }
-    bool operator == (const TRowIterator& RowI) const{ return CurrRowIdx == RowI.CurrRowIdx;}
-    TInt GetRowIdx() const { return CurrRowIdx;}
-    // we do not check column type in the iterator
-    TInt GetIntAttr(TInt ColIdx) const{ return Table->IntCols[ColIdx][CurrRowIdx];}
-    TFlt GetFltAttr(TInt ColIdx) const{ return Table->FltCols[ColIdx][CurrRowIdx];}
-    TStr GetStrAttr(TInt ColIdx) const{ return Table->GetStrVal(ColIdx, CurrRowIdx);}
-    TInt GetIntAttr(const TStr& Col) const{ TInt ColIdx = Table->ColTypeMap.GetDat(Col).Val2; return Table->IntCols[ColIdx][CurrRowIdx];}
-    TFlt GetFltAttr(const TStr& Col) const{ TInt ColIdx = Table->ColTypeMap.GetDat(Col).Val2; return Table->FltCols[ColIdx][CurrRowIdx];}
-    TStr GetStrAttr(const TStr& Col) const{ return Table->GetStrVal(Col, CurrRowIdx);}   
-    TInt GetStrMap(const TStr& Col) const{ TInt ColIdx = Table->ColTypeMap.GetDat(Col).Val2; return Table->StrColMaps[ColIdx][CurrRowIdx];}
-  };
-
-  /* an iterator that also allows logical row removal while iterating */
-  class TRowIteratorWithRemove{
-    TInt CurrRowIdx;
-    TTable* Table;
-    TBool Start;
-  public:
-    public:
-    TRowIteratorWithRemove(): CurrRowIdx(0), Table(NULL), Start(true){}
-    TRowIteratorWithRemove(TInt RowIdx, TTable* TablePtr): CurrRowIdx(RowIdx), Table(TablePtr), Start(RowIdx == TablePtr->FirstValidRow){}
-    TRowIteratorWithRemove(TInt RowIdx, TTable* TablePtr, TBool IsStart): CurrRowIdx(RowIdx), Table(TablePtr), Start(IsStart){}
-    TRowIteratorWithRemove(const TRowIteratorWithRemove& RowI): CurrRowIdx(RowI.CurrRowIdx), Table(RowI.Table), Start(RowI.Start){}
-    TRowIteratorWithRemove& operator++(int){
-      CurrRowIdx = GetNextRowIdx();
-      Start = false;
-      Assert(CurrRowIdx != Invalid);
-      return *this;
-    }
-    bool operator < (const TRowIteratorWithRemove& RowI) const{ 
-      if(CurrRowIdx == TTable::Last){ return false;}
-      if(RowI.CurrRowIdx == TTable::Last){ return true;}
-      return CurrRowIdx < RowI.CurrRowIdx;
-    }
-    bool operator == (const TRowIteratorWithRemove& RowI) const{ return CurrRowIdx == RowI.CurrRowIdx;}
-    TInt GetRowIdx() const{ return CurrRowIdx;}
-    TInt GetNextRowIdx() const { return (Start ? Table->FirstValidRow : Table->Next[CurrRowIdx]);}
-    // we do not check column type in the iterator
-    TInt GetNextIntAttr(TInt ColIdx) const{ return Table->IntCols[ColIdx][GetNextRowIdx()];}
-    TFlt GetNextFltAttr(TInt ColIdx) const{ return Table->FltCols[ColIdx][GetNextRowIdx()];}
-    TStr GetNextStrAttr(TInt ColIdx) const{ return Table->GetStrVal(ColIdx, GetNextRowIdx());}   
-    TInt GetNextIntAttr(const TStr& Col) const{ TInt ColIdx = Table->ColTypeMap.GetDat(Col).Val2; return Table->IntCols[ColIdx][GetNextRowIdx()];}
-    TFlt GetNextFltAttr(const TStr& Col) const{ TInt ColIdx = Table->ColTypeMap.GetDat(Col).Val2; return Table->FltCols[ColIdx][GetNextRowIdx()];}
-    TStr GetNextStrAttr(const TStr& Col) const{ return Table->GetStrVal(Col, GetNextRowIdx());}   
-    TBool IsFirst() const { return CurrRowIdx == Table->FirstValidRow;}
-    void RemoveNext();
-  };
 
 /*************** TTable object fields ********************/
 public:
@@ -174,12 +156,15 @@ protected:
   THash<TFlt, TInt> FltNodeVals;
   TIntV StrNodeVals; // StrColMaps mappings
 
-/***** value getters - getValue(column name, physical row Idx) *****/
 public:
+  /***** value getters - getValue(column name, physical row Idx) *****/
   // no type checking. assuming ColName actually refers to the right type.
   TInt GetIntVal(const TStr& ColName, const TInt& RowIdx){ return IntCols[ColTypeMap.GetDat(ColName).Val2][RowIdx];}
   TFlt GetFltVal(const TStr& ColName, const TInt& RowIdx){ return FltCols[ColTypeMap.GetDat(ColName).Val2][RowIdx];}
   TStr GetStrVal(const TStr& ColName, const TInt& RowIdx) const{ return GetStrVal(ColTypeMap.GetDat(ColName).Val2, RowIdx);}
+
+  /***** schema getter *****/
+  Schema GetSchema() { return S; }
 
 /***** Utility functions *****/
 protected:
@@ -298,12 +283,12 @@ protected:
 
   /***** Utility functions for sorting by columns *****/
   // returns positive value if R1 is bigger, negative value if R2 is bigger, and 0 if they are equal (strcmp semantics)
-  TInt CompareRows(TInt R1, TInt R2, const TStr& CompareBy);
-  TInt CompareRows(TInt R1, TInt R2, const TStrV& CompareBy); 
-  TInt GetPivot(TIntV& V, TInt StartIdx, TInt EndIdx, const TStrV& SortBy);
-  TInt Partition(TIntV& V, TInt StartIdx, TInt EndIdx, const TStrV& SortBy);
-  void ISort(TIntV& V, TInt StartIdx, TInt EndIdx, const TStrV& SortBy);
-  void QSort(TIntV& V, TInt StartIdx, TInt EndIdx, const TStrV& SortBy);
+  TInt CompareRows(TInt R1, TInt R2, const TStr& CompareBy, TBool Asc = true);
+  TInt CompareRows(TInt R1, TInt R2, const TStrV& CompareBy, TBool Asc = true); 
+  TInt GetPivot(TIntV& V, TInt StartIdx, TInt EndIdx, const TStrV& SortBy, TBool Asc);
+  TInt Partition(TIntV& V, TInt StartIdx, TInt EndIdx, const TStrV& SortBy, TBool Asc);
+  void ISort(TIntV& V, TInt StartIdx, TInt EndIdx, const TStrV& SortBy, TBool Asc = true);
+  void QSort(TIntV& V, TInt StartIdx, TInt EndIdx, const TStrV& SortBy, TBool Asc = true);
 
   bool IsRowValid(TInt RowIdx) const{ return Next[RowIdx] != Invalid;}
   TInt GetLastValidRowIdx();
@@ -403,6 +388,9 @@ public:
   static PTable GetNodeTable(const PNEANet& Network, const TStr& TableName, TTableContext& Context);
   static PTable GetEdgeTable(const PNEANet& Network, const TStr& TableName, TTableContext& Context);
 
+  /* Extract node and edge property TTables from THash */
+  static PTable GetFltNodePropertyTable(const PNEANet& Network, const TStr& TableName, const TIntFltH& Property, const TStr& NodeAttrName, const TStr& PropertyAttrName, TTableContext& Context);
+
 /***** Basic Getters *****/
 	TAttrType GetColType(const TStr& ColName) const{ return ColTypeMap.GetDat(ColName).Val1; };
   TInt GetNumRows() const { return NumRows;}
@@ -435,23 +423,23 @@ public:
     Select(Predicate, SelectedRows, true);
   }
   // select atomic - optimized cases of select with predicate of an atomic form: compare attribute to attribute or compare attribute to a constant
-  void SelectAtomic(const TStr& Col1, const TStr& Col2, TPredicate::COMP Cmp, TIntV& SelectedRows, TBool Remove = true);
-  void SelectAtomic(const TStr& Col1, const TStr& Col2, TPredicate::COMP Cmp){
+  void SelectAtomic(const TStr& Col1, const TStr& Col2, TPredComp Cmp, TIntV& SelectedRows, TBool Remove = true);
+  void SelectAtomic(const TStr& Col1, const TStr& Col2, TPredComp Cmp){
     TIntV SelectedRows;
     SelectAtomic(Col1, Col2, Cmp, SelectedRows, true);
   }
-  void SelectAtomicIntConst(const TStr& Col1, const TInt& Val2, TPredicate::COMP Cmp, TIntV& SelectedRows, TBool Remove = true);
-  void SelectAtomicIntConst(const TStr& Col1, const TInt& Val2, TPredicate::COMP Cmp){
+  void SelectAtomicIntConst(const TStr& Col1, const TInt& Val2, TPredComp Cmp, TIntV& SelectedRows, TBool Remove = true);
+  void SelectAtomicIntConst(const TStr& Col1, const TInt& Val2, TPredComp Cmp){
     TIntV SelectedRows;
     SelectAtomicIntConst(Col1, Val2, Cmp, SelectedRows, true);
   }
-  void SelectAtomicStrConst(const TStr& Col1, const TStr& Val2, TPredicate::COMP Cmp, TIntV& SelectedRows, TBool Remove = true);
-  void SelectAtomicStrConst(const TStr& Col1, const TStr& Val2, TPredicate::COMP Cmp){
+  void SelectAtomicStrConst(const TStr& Col1, const TStr& Val2, TPredComp Cmp, TIntV& SelectedRows, TBool Remove = true);
+  void SelectAtomicStrConst(const TStr& Col1, const TStr& Val2, TPredComp Cmp){
     TIntV SelectedRows;
     SelectAtomicStrConst(Col1, Val2, Cmp, SelectedRows, true);
   }
-  void SelectAtomicFltConst(const TStr& Col1, const TFlt& Val2, TPredicate::COMP Cmp, TIntV& SelectedRows, TBool Remove = true);
-  void SelectAtomicFltConst(const TStr& Col1, const TFlt& Val2, TPredicate::COMP Cmp){
+  void SelectAtomicFltConst(const TStr& Col1, const TFlt& Val2, TPredComp Cmp, TIntV& SelectedRows, TBool Remove = true);
+  void SelectAtomicFltConst(const TStr& Col1, const TFlt& Val2, TPredComp Cmp){
     TIntV SelectedRows;
     SelectAtomicFltConst(Col1, Val2, Cmp, SelectedRows, true);
   }
@@ -464,7 +452,7 @@ public:
 	void Count(const TStr& CountColName, const TStr& Col);
 	// order the rows according to the values in columns of OrderBy (in descending
 	// lexicographic order). 
-	void Order(const TStrV& OrderBy, const TStr& OrderColName = "", TBool ResetRankByMSC = false);
+	void Order(const TStrV& OrderBy, const TStr& OrderColName = "", TBool ResetRankByMSC = false, TBool Asc = true);
 
 	// perform equi-join with given columns - i.e. keep tuple pairs where 
 	// this->Col1 == Table->Col2; Implementation: Hash-Join - build a hash out of the smaller table
@@ -545,6 +533,8 @@ public:
   void PrintSize();
 
   friend class TPt<TTable>;
+  friend class TRowIterator;
+  friend class TRowIteratorWithRemove;
 };
 
 typedef TPair<TStr,TAttrType> TStrTypPr;
