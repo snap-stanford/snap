@@ -1263,7 +1263,7 @@ void TTable::QSort(TIntV& V, TInt StartIdx, TInt EndIdx, const TStrV& SortBy, TB
       ISort(V, StartIdx, EndIdx, SortBy, Asc);
     } else{
       TInt Pivot = Partition(V, StartIdx, EndIdx, SortBy, Asc);
-      QSort(V, StartIdx, Pivot, SortBy, Asc);
+      QSort(V, StartIdx, Pivot-1, SortBy, Asc);
       QSort(V, Pivot+1, EndIdx, SortBy, Asc);
     }
   }
@@ -1286,11 +1286,17 @@ void TTable::Order(const TStrV& OrderBy, const TStr& OrderColName, TBool ResetRa
   // sort that vector according to the attributes given in "OrderBy" in lexicographic order
   QSort(ValidRows, 0, NumValidRows-1, OrderBy, Asc);
   // rewire Next vector
-  FirstValidRow = ValidRows[0];
+  if (NumValidRows > 0){
+    FirstValidRow = ValidRows[0];
+  } else{
+    FirstValidRow = Last;
+  }
   for(TInt i = 0; i < NumValidRows-1; i++){
     Next[ValidRows[i]] = ValidRows[i+1];
   }
-  Next[ValidRows[NumValidRows-1]] = Last;
+  if (NumValidRows > 0){
+    Next[ValidRows[NumValidRows-1]] = Last;
+  }
 
   // add rank column
   if(!OrderColName.Empty()){
