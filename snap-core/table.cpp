@@ -8,7 +8,7 @@ TRowIterator& TRowIterator::operator++(int){
 
 TRowIterator& TRowIterator::Next(){
   CurrRowIdx = Table->Next[CurrRowIdx];
-  Assert(CurrRowIdx != Invalid);
+  Assert(CurrRowIdx != TTable::Invalid);
   return *this;
 }
 
@@ -128,7 +128,7 @@ void TRowIteratorWithRemove::RemoveNext(){
     Table->RemoveFirstRow();
     return;
   }
-  Assert(OldNextRowIdx != Invalid);
+  Assert(OldNextRowIdx != TTable::Invalid);
   if(OldNextRowIdx == TTable::Last){ return;}
   Table->Next[CurrRowIdx] = Table->Next[OldNextRowIdx];
   Table->Next[OldNextRowIdx] = TTable::Invalid;
@@ -486,12 +486,12 @@ void TTable::AddLabel(const TStr& column, const TStr& NewLabel){
 void TTable::RemoveFirstRow(){
   TInt Old = FirstValidRow;
   FirstValidRow = Next[FirstValidRow];
-  Next[Old] = Invalid;
+  Next[Old] = TTable::Invalid;
   NumValidRows--;
 }
 
 void TTable::RemoveRow(TInt RowIdx){
-  if(Next[RowIdx] == Invalid){ return;} // row was already removed
+  if(Next[RowIdx] == TTable::Invalid){ return;} // row was already removed
   if(RowIdx == FirstValidRow){
     RemoveFirstRow();
   } else{
@@ -499,7 +499,7 @@ void TTable::RemoveRow(TInt RowIdx){
     while(Next[i] != RowIdx){i--;}
     Next[i] = Next[RowIdx];
   }
-  Next[RowIdx] = Invalid;
+  Next[RowIdx] = TTable::Invalid;
   NumValidRows--;
 }
 
@@ -1324,7 +1324,7 @@ void TTable::Defrag() {
   TInt FreeIndex = 0;
   TIntV Mapping;  // Mapping[old_index] = new_index/invalid
   for (TInt i = 0; i < Next.Len(); i++) {
-    if (Next[i] != Invalid) {  
+    if (Next[i] != TTable::Invalid) {  
       // "first row" properly set beforehand
       if (FreeIndex == 0) {
         Assert (i == FirstValidRow);
@@ -1352,7 +1352,7 @@ void TTable::Defrag() {
       FreeIndex++;
     } else {
       NumRows--;
-      Mapping.Add(Invalid);
+      Mapping.Add(TTable::Invalid);
     }
   }
 
@@ -1362,7 +1362,7 @@ void TTable::Defrag() {
       TIntV& Group = iit->Dat;
       TInt FreeIndex = 0;
       for (TInt j=0; j < Group.Len(); j++) {
-        if (Mapping[Group[j]] != Invalid) {
+        if (Mapping[Group[j]] != TTable::Invalid) {
           Group[FreeIndex] = Mapping[Group[j]];
           FreeIndex++;
         }
@@ -1865,7 +1865,7 @@ void TTable::AddTable(const TTable& T){
 
   TIntV TNext(T.Next);
   for(TInt i = 0; i < TNext.Len(); i++){
-    if(TNext[i] != Last && TNext[i] != Invalid){ TNext[i] += NumRows;}
+    if(TNext[i] != Last && TNext[i] != TTable::Invalid){ TNext[i] += NumRows;}
   }
 
   TInt LastValidRow = GetLastValidRowIdx();

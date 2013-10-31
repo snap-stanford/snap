@@ -2566,9 +2566,11 @@ void TUniChDb::FindWordBoundaries(const TSrcVec& src, const size_t srcIdx, const
 	dest[TVecIdx(position - srcIdx)] = true;
 	while (position < srcIdx + srcCount)
 	{
-		//size_t oldPos = position;
+		size_t oldPos = position;
+    bool swPos;
+    swPos = oldPos < position;
 		FindNextWordBoundary(src, srcIdx, srcCount, position);
-		Assert(oldPos < position); Assert(position <= srcIdx + srcCount);
+		Assert(swPos); Assert(position <= srcIdx + srcCount);
 		dest[TVecIdx(position - srcIdx)] = true;
 	}
 	Assert(dest[TVecIdx(srcCount)]);
@@ -2795,9 +2797,11 @@ void TUniChDb::FindSentenceBoundaries(const TSrcVec& src, const size_t srcIdx, c
 	dest[TVecIdx(position - srcIdx)] = true;
 	while (position < srcIdx + srcCount)
 	{
-		//size_t oldPos = position;
+		size_t oldPos = position;
+    bool swPos;
+    swPos = oldPos < position;
 		FindNextSentenceBoundary(src, srcIdx, srcCount, position);
-		Assert(oldPos < position); Assert(position <= srcIdx + srcCount);
+		Assert(swPos); Assert(position <= srcIdx + srcCount);
 		dest[TVecIdx(position - srcIdx)] = true;
 	}
 	Assert(dest[TVecIdx(srcCount)]);
