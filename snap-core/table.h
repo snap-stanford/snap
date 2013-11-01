@@ -91,6 +91,11 @@ protected:
   static const TInt Invalid;
 
 /*************** TTable object fields ********************/
+private:
+  // Reference Counter for Garbage Collection
+  TCRef CRef;
+  // Table Schema
+  Schema S;
 public:
   // Table name
   TStr Name;
@@ -100,11 +105,6 @@ protected:
   // string pool for string values (part of execution context)
   // TStrHash<TInt, TBigStrPool>& StrColVals; 
   // use Context.StringVals to access the global string pool
-
-  // Table Schema
-  Schema S;
-  // Reference Counter for Garbage Collection
-  TCRef CRef;
 
   // number of rows in the table (valid and invalid)
   TInt NumRows;
@@ -312,7 +312,7 @@ public:
   TTable(TTableContext& Context);
   TTable(const TStr& TableName, const Schema& S, TTableContext& Context);
   TTable(TSIn& SIn, TTableContext& Context);
-  TTable(const TTable& Table): Name(Table.Name), Context(Table.Context), S(Table.S),
+  TTable(const TTable& Table): S(Table.S), Name(Table.Name), Context(Table.Context),
     NumRows(Table.NumRows), NumValidRows(Table.NumValidRows), FirstValidRow(Table.FirstValidRow),
     Next(Table.Next), IntCols(Table.IntCols), FltCols(Table.FltCols),
     StrColMaps(Table.StrColMaps), ColTypeMap(Table.ColTypeMap), 

@@ -140,8 +140,8 @@ TTable::TTable(): Context(*(new TTableContext)), NumRows(0), NumValidRows(0), Fi
 
 TTable::TTable(TTableContext& Context): Context(Context), NumRows(0), NumValidRows(0), FirstValidRow(0){} 
 
-TTable::TTable(const TStr& TableName, const Schema& TableSchema, TTableContext& Context): Name(TableName),
-  Context(Context), S(TableSchema), NumRows(0), NumValidRows(0), FirstValidRow(0){
+TTable::TTable(const TStr& TableName, const Schema& TableSchema, TTableContext& Context): S(TableSchema), Name(TableName),
+  Context(Context), NumRows(0), NumValidRows(0), FirstValidRow(0){
   TInt IntColCnt = 0;
   TInt FltColCnt = 0;
   TInt StrColCnt = 0;
@@ -168,7 +168,7 @@ TTable::TTable(const TStr& TableName, const Schema& TableSchema, TTableContext& 
   StrColMaps = TVec<TIntV>(StrColCnt);
 }
 
-TTable::TTable(TSIn& SIn, TTableContext& Context): Context(Context), Name(SIn), NumRows(SIn), NumValidRows(SIn), FirstValidRow(SIn), 
+TTable::TTable(TSIn& SIn, TTableContext& Context): Name(SIn), Context(Context), NumRows(SIn), NumValidRows(SIn), FirstValidRow(SIn), 
   Next(SIn), IntCols(SIn), FltCols(SIn), StrColMaps(SIn){
   THash<TStr,TPair<TInt,TInt> > ColTypeIntMap(SIn);
 
