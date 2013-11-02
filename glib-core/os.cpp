@@ -723,7 +723,9 @@ uint64 TSysTm::GetProcessMSecs() {
   //#warning "CLOCK_PROCESS_CPUTIME not available; using getrusage"
   struct rusage ru;
   int ErrCd = getrusage(RUSAGE_SELF, &ru);
-  Assert(ErrCd == 0);
+  if (ErrCd == 0) {
+    Assert(ErrCd == 0);
+  }
   return ((ru.ru_utime.tv_usec + ru.ru_stime.tv_usec) / 1000) +
          ((ru.ru_utime.tv_sec + ru.ru_stime.tv_sec) * 1000);
 #endif
