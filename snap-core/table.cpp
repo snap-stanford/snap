@@ -1,4 +1,3 @@
-
 TInt const TTable::Last =-1;
 TInt const TTable::Invalid =-2;
 
@@ -152,6 +151,8 @@ PTable TTable::LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm,
     T->Next.Add(i+1);
   }
   T->Next.Add(Last);
+
+  T->InitIds();
   return T;
 }
 
@@ -174,7 +175,7 @@ void TTable::SaveSS(const TStr& OutFNm){
   for(TInt i = 0; i < L-1; i++){
     fprintf(F, "%s\t", GetSchemaColName(i).CStr());
   }  
-   fprintf(F, "%s\n", GetSchemaColName(L-1).CStr());
+  fprintf(F, "%s\n", GetSchemaColName(L-1).CStr());
   // print table contents
   for(TRowIterator RowI = BegRI(); RowI < EndRI(); RowI++){
     for(TInt i = 0; i < L; i++){
@@ -193,7 +194,7 @@ void TTable::SaveSS(const TStr& OutFNm){
 		    break;
 		  }
 	   }
-	}
+	  }
  }
  fclose(F);
 }
@@ -368,6 +369,7 @@ void TTable::RemoveFirstRow(){
   FirstValidRow = Next[FirstValidRow];
   Next[Old] = Invalid;
   NumValidRows--;
+  RowIdMap.AddDat(Old, Invalid);
 }
 
 void TTable::RemoveRow(TInt RowIdx){
@@ -381,12 +383,12 @@ void TTable::RemoveRow(TInt RowIdx){
   }
   Next[RowIdx] = Invalid;
   NumValidRows--;
+  RowIdMap.AddDat(RowIdx, Invalid);
 }
 
 void TTable::RemoveRows(const TIntV& RemoveV){
   for(TInt i = 0; i < RemoveV.Len(); i++){RemoveRow(RemoveV[i]);}
 }
-
 
 // TODO: simplify using TRowIteratorWithRemove
 void TTable::KeepSortedRows(const TIntV& KeepV){
@@ -420,7 +422,7 @@ void TTable::GroupByIntCol(const TStr& GroupBy, THash<TInt,TIntV>& grouping, con
   if(!ColTypeMap.IsKey(GroupBy)){TExcept::Throw("no such column " + GroupBy);}
   if(GetColType(GroupBy) != atInt){TExcept::Throw(GroupBy + " values are not of expected type integer");}
   if(All){
-     // optimize for the common and most expensive case - itearte over only valid rows
+     // optimize for the common and most expensive case - iterate over only valid rows
     for(TRowIterator it = BegRI(); it < EndRI(); it++){
       UpdateGrouping<TInt>(grouping, it.GetIntAttr(GroupBy), it.GetRowIdx());
     }
@@ -440,7 +442,7 @@ void TTable::GroupByFltCol(const TStr& GroupBy, THash<TFlt,TIntV>& grouping, con
   if(!ColTypeMap.IsKey(GroupBy)){TExcept::Throw("no such column " + GroupBy);}
   if(GetColType(GroupBy) != atFlt){TExcept::Throw(GroupBy + " values are not of expected type float");}
    if(All){
-     // optimize for the common and most expensive case - itearte over only valid rows
+     // optimize for the common and most expensive case - iterate over only valid rows
     for(TRowIterator it = BegRI(); it < EndRI(); it++){
       UpdateGrouping<TFlt>(grouping, it.GetFltAttr(GroupBy), it.GetRowIdx());
     }
@@ -460,7 +462,7 @@ void TTable::GroupByStrCol(const TStr& GroupBy, THash<TStr,TIntV>& Grouping, con
   if(!ColTypeMap.IsKey(GroupBy)){TExcept::Throw("no such column " + GroupBy);}
   if(GetColType(GroupBy) != atStr){TExcept::Throw(GroupBy + " values are not of expected type string");}
    if(All){
-     // optimize for the common and most expensive case - itearte over all valid rows
+     // optimize for the common and most expensive case - iterate over all valid rows
     for(TRowIterator it = BegRI(); it < EndRI(); it++){
       UpdateGrouping<TStr>(Grouping, it.GetStrAttr(GroupBy), it.GetRowIdx());
     }
@@ -473,16 +475,6 @@ void TTable::GroupByStrCol(const TStr& GroupBy, THash<TStr,TIntV>& Grouping, con
       }
     }
   }
-}
-
-void TTable::UniqueExistingGroup(const TStr& GroupStmt){
-  if(!GroupMapping.IsKey(GroupStmt)){ TExcept::Throw(GroupStmt + "is not a previous grouping statement");}
-  THash<TInt, TIntV> Grouping = GroupMapping.GetDat(GroupStmt);
-  TIntV RemainingRows(Grouping.Len(), 0);
-  for(THash<TInt,TIntV>::TIter it = Grouping.BegI(); it < Grouping.EndI(); it++){
-    RemainingRows.Add(it->Dat[0]);
-  }
-  KeepSortedRows(RemainingRows);
 }
 
 void TTable::Unique(const TStr& Col){
@@ -517,44 +509,63 @@ void TTable::Unique(const TStr& Col){
 }
 
 void TTable::Unique(const TStrV& Cols, TBool Ordered){
-  THash<TInt,TIntV> Grouping;
-  TIntV U;
-  GroupAux(Cols, Grouping, U, Ordered, true, false);
-  KeepSortedRows(U);
+  THash<TGroupKey, TPair<TInt, TIntV> > Grouping;
+  TIntV UniqueVec;
+  GroupAux(Cols, Grouping, Ordered, "", true, UniqueVec);
+  KeepSortedRows(UniqueVec);
 }
 
-void TTable::GroupAux(const TStrV& GroupBy, THash<TInt,TIntV>& Grouping, TIntV& UniqueVec, TBool Ordered, TBool KeepUnique, TBool KeepGrouping){
-  TStrV IntGroupByCols;
-  TStrV FltGroupByCols;
-  TStrV StrGroupByCols;
+void TTable::StoreGroupCol(const TStr& GroupColName, const TVec<TPair<TInt, TInt> >& GroupAndRowIds) {
+  // add a column where the value of the i'th row is the group id of row i
+  IntCols.Add(TIntV(NumRows));
+  TInt L = IntCols.Len();
+  ColTypeMap.AddDat(GroupColName, TPair<TAttrType,TInt>(atInt, L-1));
+  // Store group id for each row
+  for(TInt i = 0; i < GroupAndRowIds.Len(); i++) {
+    IntCols[L-1][GroupAndRowIds[i].Val2] = GroupAndRowIds[i].Val1;
+  }
+}
+
+// core crouping logic
+void TTable::GroupAux(const TStrV& GroupBy, THash<TGroupKey, TPair<TInt, TIntV> >& Grouping, TBool Ordered, const TStr& GroupColName, TBool KeepUnique,
+    TIntV& UniqueVec) {
+  TIntV IntGroupByCols;
+  TIntV FltGroupByCols;
+  TIntV StrGroupByCols;
+  // get indices for each column type
   for(TInt c = 0; c < GroupBy.Len(); c++){
     if(!ColTypeMap.IsKey(GroupBy[c])){TExcept::Throw("no such column " + GroupBy[c]);}
-    switch(GetColType(GroupBy[c])){
+
+    TPair<TAttrType, TInt> ColType = ColTypeMap.GetDat(GroupBy[c]);
+    switch(ColType.Val1){
       case atInt:
-        IntGroupByCols.Add(GroupBy[c]);
+        IntGroupByCols.Add(ColType.Val2);
         break;
       case atFlt:
-        FltGroupByCols.Add(GroupBy[c]);
+        FltGroupByCols.Add(ColType.Val2);
         break;
       case atStr:
-        StrGroupByCols.Add(GroupBy[c]);
+        StrGroupByCols.Add(ColType.Val2);
         break;
     }
   }
-  TInt IKLen = IntGroupByCols.Len();  // # of integer columns to group by
-  TInt FKLen = FltGroupByCols.Len();  // # of float columns to group by
-  TInt SKLen = StrGroupByCols.Len();  // # of string columns to group by
+
+  TInt IKLen = IntGroupByCols.Len();
+  TInt FKLen = FltGroupByCols.Len();
+  TInt SKLen = StrGroupByCols.Len();
 
   TInt GroupNum = 0;
-  THash<TIntV,TIntV> IGroup;  // a mapping between an X to indices of groups with X as integer column key
-  THash<TFltV,TIntV> FGroup;
-  THash<TStrV,TIntV> SGroup;
+  TInt IdColIdx = ColTypeMap.GetDat(IdColName).Val2;
 
+  TVec<TPair<TInt, TInt> > GroupAndRowIds;
+
+  // iterate over rows
   for(TRowIterator it = BegRI(); it < EndRI(); it++){
-    // read keys from row
-    TIntV IKey(IKLen,0);
-    TFltV FKey(FKLen,0);
-    TStrV SKey(SKLen,0);
+    TIntV IKey(IKLen + SKLen, 0);
+    TFltV FKey(FKLen, 0);
+    TIntV SKey(SKLen, 0);
+
+    // find group key
     for(TInt c = 0; c < IKLen; c++){
       IKey.Add(it.GetIntAttr(IntGroupByCols[c])); 
     }
@@ -562,87 +573,76 @@ void TTable::GroupAux(const TStrV& GroupBy, THash<TInt,TIntV>& Grouping, TIntV& 
       FKey.Add(it.GetFltAttr(FltGroupByCols[c])); 
     }
     for(TInt c = 0; c < SKLen; c++){
-      SKey.Add(it.GetStrAttr(StrGroupByCols[c])); 
+      SKey.Add(it.GetStrMap(StrGroupByCols[c])); 
     }
     if(!Ordered){
       if(IKLen > 0){IKey.ISort(0, IKey.Len()-1, true);}
       if(FKLen > 0){FKey.ISort(0, FKey.Len()-1, true);}
       if(SKLen > 0){SKey.ISort(0, SKey.Len()-1, true);}
     }
+    for(TInt c = 0; c < SKLen; c++){
+      IKey.Add(SKey[c]);
+    }
 
-    // look for group matching to the key (IKey,FKey,SKey)
-    TIntV GroupMatch;
-    if(IKLen > 0){
-      if(IGroup.IsKey(IKey)){ GroupMatch.AddV(IGroup.GetDat(IKey));}
-    } else if(FKLen > 0){
-      if(FGroup.IsKey(FKey)){ GroupMatch.AddV(FGroup.GetDat(FKey));}
-    } else{
-      if(SGroup.IsKey(SKey)){ GroupMatch.AddV(SGroup.GetDat(SKey));}
-    }
- 
-    if(FKLen > 0){ 
-      if(!FGroup.IsKey(FKey)){ 
-        GroupMatch.Clr();
-      } else{
-        GroupMatch.Sort(true);
-        // Note: Intrs assumes vectors are sorted!! The values of FGroup are sorted vectors
-        GroupMatch.Intrs(FGroup.GetDat(FKey));  
-      }
-    }
-    if(SKLen > 0){ 
-      if(!SGroup.IsKey(SKey)){ 
-        GroupMatch.Clr();
-      } else{
-        GroupMatch.Sort(true);
-        GroupMatch.Intrs(SGroup.GetDat(SKey));
-      }
-    }
+    // look for group matching to the key
+    TGroupKey GroupKey = TGroupKey(IKey, FKey);
 
     TInt RowIdx = it.GetRowIdx();
-    if (GroupMatch.Len() == 0) {
-      // (IKey,FKey,SKey) hasn't been seen before - create new group
-      if(KeepGrouping){
-        TIntV NewGroup;
-        NewGroup.Add(RowIdx);
-        Grouping.AddDat(GroupNum, NewGroup);
-      }
-      if(IKLen > 0){ UpdateGrouping<TIntV>(IGroup, IKey, GroupNum);}
-      if(FKLen > 0){ UpdateGrouping<TFltV>(FGroup, FKey, GroupNum);}
-      if(SKLen > 0){ UpdateGrouping<TStrV>(SGroup, SKey, GroupNum);}
+    if (!Grouping.IsKey(GroupKey)) {
+      // Grouping key hasn't been seen before, create a new group
+      TPair<TInt, TIntV> NewGroup;
+      NewGroup.Val1 = GroupNum;
+      NewGroup.Val2.Add(IntCols[IdColIdx][RowIdx]);
+      Grouping.AddDat(GroupKey, NewGroup);
       GroupNum++;
-      if(KeepUnique){ UniqueVec.Add(RowIdx);}
-    } else if (GroupMatch.Len() == 1) {
-      // (IKey,FKey,SKey) has been seen before - add RowIdx to corresponding group
-      if(!KeepUnique && KeepGrouping){
-        TInt CurrGroupNum = GroupMatch[0];
-        Grouping.GetDat(CurrGroupNum).Add(RowIdx);
+      if (!KeepUnique) {
+        if (GroupColName != "") {
+          GroupAndRowIds.Add(TPair<TInt, TInt>(GroupNum, RowIdx));
+        }
+      }
+      else { 
+        UniqueVec.Add(RowIdx);
       }
     } else {
-      TExcept::Throw("Groups duplicated, should not happen");
+      // Grouping key has been seen before, update corresponding group
+      if (!KeepUnique) {
+        TPair<TInt, TIntV>& NewGroup = Grouping.GetDat(GroupKey);
+        NewGroup.Val2.Add(IntCols[IdColIdx][RowIdx]);
+        if (GroupColName != "") {
+          GroupAndRowIds.Add(TPair<TInt, TInt>(NewGroup.Val1, RowIdx));
+        }
+      }
+    }
+  }
+
+  // add a column to the table
+  if (GroupColName != "") {
+    StoreGroupCol(GroupColName, GroupAndRowIds);
+    AddSchemaCol(GroupColName, atInt);  // update schema
+
+    // update group mapping
+    TPair<TStrV, TBool> GroupStmt(GroupBy, Ordered);
+    GroupStmtNames.AddDat(GroupColName, GroupStmt);
+
+    GroupIDMapping.AddDat(GroupStmt);
+    GroupMapping.AddDat(GroupStmt);
+
+    for (THash<TGroupKey, TPair<TInt, TIntV> >::TIter it = Grouping.BegI(); it < Grouping.EndI(); it++) {
+      TGroupKey key = it.GetKey();
+      TPair<TInt, TIntV> group = it.GetDat();
+      GroupIDMapping.GetDat(GroupStmt).AddDat(group.Val1, key);
+      GroupMapping.GetDat(GroupStmt).AddDat(key, group.Val2);
     }
   }
 }
 
-void TTable::StoreGroupCol(const TStr& GroupColName, const THash<TInt,TIntV>& Grouping){
-  GroupMapping.AddDat(GroupColName, Grouping);
-  // add a column where the value of the i'th row is the group id of row i
-  IntCols.Add(TIntV(NumRows));
-  TInt L = IntCols.Len();
-  ColTypeMap.AddDat(GroupColName, TPair<TAttrType,TInt>(atInt, L-1));
-  for(THash<TInt,TIntV>::TIter it = Grouping.BegI(); it < Grouping.EndI(); it++){
-    TIntV& G = it->Dat;
-    for(TInt i = 0; i < G.Len(); i++){
-      IntCols[L-1][G[i]] = it->Key;
-    }
-  }
-}
-
-void TTable::Group(const TStr& GroupColName, const TStrV& GroupBy, TBool Ordered){
-  THash<TInt,TIntV> Grouping;
-  TIntV DummyV;
-  GroupAux(GroupBy, Grouping, DummyV, Ordered);
-  StoreGroupCol(GroupColName, Grouping);
-  AddSchemaCol(GroupColName, atInt); // update schema
+// grouping begins here
+void TTable::Group(const TStrV& GroupBy, const TStr& GroupColName, TBool Ordered) {
+  if(GroupColName == ""){TExcept::Throw("GroupColName cannot be empty");}
+  TIntV UniqueVec;
+  THash<TGroupKey, TPair<TInt, TIntV> >Grouping;
+  // by default, we assume we don't want unqiue rows
+  GroupAux(GroupBy, Grouping, Ordered, GroupColName, false, UniqueVec);
 }
 
 // TODO: update using new GroupAux
@@ -682,7 +682,17 @@ void TTable::Count(const TStr& CountColName, const TStr& Col){
   ColTypeMap.AddDat(CountColName, TPair<TAttrType,TInt>(atInt, IntCols.Len()-1));
 }
 
-void TTable::AddIdColumn(const TStr& IdColName){
+void TTable::InitIds() {
+  IdColName = Name + "_id";
+  Assert(NumRows == NumValidRows);
+  RowIdMap.Clr();
+  AddIdColumn(IdColName);
+  for (TInt i = 0; i < NumRows; i++) {
+    RowIdMap.AddDat(i, i);
+  }
+}
+
+void TTable::AddIdColumn(const TStr& ColName){
   TIntV IdCol(NumRows);
   TInt IdCnt = 0;
   for(TRowIterator RI = BegRI(); RI < EndRI(); RI++){
@@ -690,8 +700,8 @@ void TTable::AddIdColumn(const TStr& IdColName){
     IdCnt++;
   }
   IntCols.Add(IdCol);
-  AddSchemaCol(IdColName, atInt);
-  ColTypeMap.AddDat(IdColName, TPair<TAttrType,TInt>(atInt, IntCols.Len()-1));
+  AddSchemaCol(ColName, atInt);
+  ColTypeMap.AddDat(ColName, TPair<TAttrType,TInt>(atInt, IntCols.Len()-1));
 }
 
  PTable TTable::InitializeJointTable(const TTable& Table){
@@ -849,6 +859,7 @@ PTable TTable::Join(const TStr& Col1, const TTable& Table, const TStr& Col2) {
     }
     break;
   }
+ JointTable->InitIds();
  return JointTable; 
 }
 
@@ -1194,6 +1205,9 @@ void TTable::Order(const TStrV& OrderBy, const TStr& OrderColName, TBool ResetRa
 void TTable::Defrag() {
   TInt FreeIndex = 0;
   TIntV Mapping;  // Mapping[old_index] = new_index/invalid
+
+  TInt IdColIdx = ColTypeMap.GetDat(IdColName).Val2;
+
   for (TInt i = 0; i < Next.Len(); i++) {
     if (Next[i] != Invalid) {  
       // "first row" properly set beforehand
@@ -1209,6 +1223,8 @@ void TTable::Defrag() {
         Next[FreeIndex] = Last;
         Mapping.Add(Last);
       }
+
+      RowIdMap.AddDat(IntCols[IdColIdx][i], FreeIndex);
 
       for (TInt j = 0; j < IntCols.Len(); j++) {
         IntCols[j][FreeIndex] = IntCols[j][i];
@@ -1227,21 +1243,6 @@ void TTable::Defrag() {
     }
   }
 
-  for(THash<TStr,THash<TInt,TIntV> >::TIter it = GroupMapping.BegI(); it < GroupMapping.EndI(); it++){
-    THash<TInt,TIntV>& G = it->Dat;
-    for(THash<TInt,TIntV>::TIter iit = G.BegI(); iit < G.EndI(); iit++) {
-      TIntV& Group = iit->Dat;
-      TInt FreeIndex = 0;
-      for (TInt j=0; j < Group.Len(); j++) {
-        if (Mapping[Group[j]] != Invalid) {
-          Group[FreeIndex] = Mapping[Group[j]];
-          FreeIndex++;
-        }
-      }
-      // resize to get rid of end values
-      Group.Trunc(FreeIndex);
-    }
-  }
   // should match, or bug somewhere
   Assert (NumValidRows == NumRows);
 }
@@ -1815,6 +1816,7 @@ PTable TTable::Union(const TTable& Table, const TStr& TableName){
       result->AddRow(it);
     }
   }
+  result->InitIds();
   return result;
 }
 
@@ -1829,6 +1831,7 @@ PTable TTable::Intersection(const TTable& Table, const TStr& TableName){
       result->AddRow(it);
     }
   }
+  result->InitIds();
   return result;
 }
 
@@ -1843,6 +1846,7 @@ PTable TTable::Minus(const TTable& Table, const TStr& TableName){
       result->AddRow(it);
     }
   }
+  result->InitIds();
   return result;
 }
 
@@ -1855,6 +1859,7 @@ PTable TTable::Project(const TStrV& ProjectCols, const TStr& TableName){
 
   PTable result = TTable::New(TableName, NewSchema, Context);
   result->AddTable(*this);
+  result->InitIds();
   return result;
 }
 

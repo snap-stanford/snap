@@ -7,11 +7,17 @@ include ../Makefile.config
 HEADER = Engine.h
 CPP = Engine.cpp
 
-TEST = ArithOpsTest SetOperationsTest TableTest TableTest1 Benchmark BenchmarkAshton
+TEST = GroupTest IdTest ArithOpsTest SetOperationsTest TableTest TableTest1 Benchmark BenchmarkAshton
 
 all: $(TEST)
 
 # COMPILE
+GroupTest: GroupTest.cpp $(CSNAP)/Snap.o
+	$(CC) -o $@ $@.cpp $(CSNAP)/Snap.o -I$(CSNAP) -I$(CGLIB) $(LDFLAGS) $(LIBS)
+
+IdTest: IdTest.cpp $(CSNAP)/Snap.o
+	$(CC) -o $@ $@.cpp $(CSNAP)/Snap.o -I$(CSNAP) -I$(CGLIB) $(LDFLAGS) $(LIBS)
+
 ArithOpsTest: ArithOpsTest.cpp $(CSNAP)/Snap.o
 	$(CC) -o $@ $@.cpp $(CSNAP)/Snap.o -I$(CSNAP) -I$(CGLIB) $(LDFLAGS) $(LIBS)
 

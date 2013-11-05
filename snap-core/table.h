@@ -7,6 +7,8 @@ class TTable;
 typedef TPt<TTable> PTable;
 class TTableContext;
 
+typedef TPair<TIntV, TFltV> TGroupKey;
+
 /*
 This class serves as a wrapper for all data that needs to be shared by
 several tables in an execution context
@@ -66,6 +68,7 @@ public:
     TInt GetIntAttr(TInt ColIdx) const{ return Table->IntCols[ColIdx][CurrRowIdx];}
     TFlt GetFltAttr(TInt ColIdx) const{ return Table->FltCols[ColIdx][CurrRowIdx];}
     TStr GetStrAttr(TInt ColIdx) const{ return Table->GetStrVal(ColIdx, CurrRowIdx);}
+    TInt GetStrMap(TInt ColIdx) const{ return Table->StrColMaps[ColIdx][CurrRowIdx];}
     TInt GetIntAttr(const TStr& Col) const{ TInt ColIdx = Table->ColTypeMap.GetDat(Col).Val2; return Table->IntCols[ColIdx][CurrRowIdx];}
     TFlt GetFltAttr(const TStr& Col) const{ TInt ColIdx = Table->ColTypeMap.GetDat(Col).Val2; return Table->FltCols[ColIdx][CurrRowIdx];}
     TStr GetStrAttr(const TStr& Col) const{ return Table->GetStrVal(Col, CurrRowIdx);}   
@@ -145,11 +148,16 @@ protected:
   // column name --> <column type, column index among columns of the same type>
 	THash<TStr,TPair<TAttrType,TInt> > ColTypeMap;
 
-  // A map to store Group statement results:
-	// grouping statement name --> (group index --> rows that belong to that group)
-  // Note that these mappings are invalid after we remove rows
-  // Unless we use explicit Ids
-	THash<TStr,THash<TInt,TIntV> > GroupMapping;
+  // name of column associated with permanent row id
+  TStr IdColName;
+
+  // hash table mapping permanent row ids to physical ids
+  THash<TInt, TInt> RowIdMap;
+
+  // group mapping data structures
+  THash<TStr, TPair<TStrV, TBool> > GroupStmtNames;
+  THash<TPair<TStrV, TBool>, THash<TInt, TGroupKey> >GroupIDMapping;
+  THash<TPair<TStrV, TBool>, THash<TGroupKey, TIntV> >GroupMapping;
 
   // Fields to be used when constructing a graph
   // column to serve as src nodes when constructing the graph
@@ -272,19 +280,7 @@ protected:
 	// Group/hash by a single column with string values. Returns hash table with grouping.
 	void GroupByStrCol(const TStr& GroupBy, THash<TStr,TIntV>& grouping, const TIntV& IndexSet, TBool All) const;
 
-  /* 
-  The main logic behind general grouping. Takes the following parameters:
-  GroupBy - a vector of column names by which to group
-  Grouping - a grouping map GroupId --> list of rows (physical ids) that belong to that group
-  UniqueVec - a vector of the first valid row that belongs to each group
-  Ordered - a flag to indicate whether to treat grouping keys as ordered or unordered.
-  KeepUnique - a flag to indicate whether to maintain UniqueVec
-  KeepGrouping - a flag to indicate whether to maintain Grouping
-  */
-  void GroupAux(const TStrV& GroupBy, THash<TInt,TIntV>& Grouping, TIntV& UniqueVec, TBool Ordered = true, TBool KeepUnique = false, TBool KeepGrouping = true);
-  // Store grouping in GroupMapping and add a column with group indices
-	void StoreGroupCol(const TStr& GroupColName, const THash<TInt,TIntV>& grouping);
-  /* template for utility function to update a grouping hash map */
+ /* template for utility function to update a grouping hash map */
  template <class T>
   void UpdateGrouping(THash<T,TIntV>& Grouping, T Key, TInt Val) const{
     if(Grouping.IsKey(Key)){
@@ -398,6 +394,7 @@ public:
   TInt GetNumRows() const { return NumRows;}
   TInt GetNumValidRows() const { return NumValidRows;}
 
+  THash<TInt, TInt> GetRowIdMap() const { return RowIdMap;}
 	
 /***** Iterators *****/
   TRowIterator BegRI() const { return TRowIterator(FirstValidRow, this);}
@@ -412,7 +409,6 @@ public:
 	// Remove rows with duplicate values in given columns
   void Unique(const TStr& Col);
 	void Unique(const TStrV& Cols, TBool Ordered = true);
-  void UniqueExistingGroup(const TStr& GroupStmt);
 
 	/* 
   Select. Has two modes of operation:
@@ -445,10 +441,20 @@ public:
     TIntV SelectedRows;
     SelectAtomicFltConst(Col1, Val2, Cmp, SelectedRows);
   }
+
+  // store column for a group, physical row ids have to be passed
+  void StoreGroupCol(const TStr& GroupColName, const TVec<TPair<TInt, TInt> >& GroupAndRowIds);
+
+  // if keep unique is true, unique vec will be modified to contain a row from each group
+  // if keep unique is false, then normal grouping is done and a new column is added depending on 
+  // whether groupcolname is an empty string
+  void GroupAux(const TStrV& GroupBy, THash<TGroupKey, TPair<TInt, TIntV> >& Grouping, TBool Ordered,
+    const TStr& GroupColName, TBool KeepUnique, TIntV& UniqueVec);
+
+  // group - specify columns to group by, name of column in new table, whether to treat columns as ordered
+  // if name of column is an empty string, no column is created
+	void Group(const TStrV& GroupBy, const TStr& GroupColName, TBool Ordered = true);
 	
-	// group by the values of the columns specified in "GroupBy" vector 
-	// group indices are stored in GroupCol; Implementation: use GroupMapping hash
-	void Group(const TStr& GroupColName, const TStrV& GroupBy, TBool Ordered = true);
 	// count - count the number of appearences of the different elements of col
 	// record results in column CountCol
 	void Count(const TStr& CountColName, const TStr& Col);
@@ -522,6 +528,9 @@ public:
   void ColMul(const TStr& Attr1, TFlt Num, const TStr& ResultAttrName="");
   void ColDiv(const TStr& Attr1, TFlt Num, const TStr& ResultAttrName="");
   void ColMod(const TStr& Attr1, TFlt Num, const TStr& ResultAttrName="");
+
+  // add explicit row ids, initialise hash set mapping ids to physical rows
+  void InitIds();
 
   // add a column of explicit integer identifiers to the rows
   void AddIdColumn(const TStr& IdColName);

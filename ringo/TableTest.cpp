@@ -13,7 +13,7 @@ int main(){
   RelevantCols.Add(1);
   RelevantCols.Add(2);
   // create table
-  PTable T = TTable::LoadSS("Animals", AnimalS, "../../testfiles/animals.txt", Context, RelevantCols);
+  PTable T = TTable::LoadSS("Animals", AnimalS, "tests/animals.txt", Context, RelevantCols);
   //PTable T = TTable::LoadSS("Animals", AnimalS, "animals.txt");
   T->Unique("Animal");
   TTable Ts = *T;  // did we fix problem with copy-c'tor ?
@@ -45,9 +45,9 @@ int main(){
 
   TStrV GroupBy;
   GroupBy.Add("Location");
-  T->Group("LocationGroup", GroupBy);
+  T->Group(GroupBy, "LocationGroup");
   GroupBy.Add("Size");
-  T->Group("LocationSizeGroup", GroupBy);
+  T->Group(GroupBy, "LocationSizeGroup");
   T->Count("LocationCount", "Location");
   PTable Tj = T->Join("Location", Ts, "Location");
   TStrV UniqueAnimals;
@@ -55,8 +55,8 @@ int main(){
   UniqueAnimals.Add("Animals_2.Animal");
   Tj->Unique(UniqueAnimals, false);
   //print table
-   T->SaveSS("../../testfiles/animals_out_T.txt");
-   Ts.SaveSS("../../testfiles/animals_out_Ts.txt");
-   Tj->SaveSS("../../testfiles/animals_out_Tj.txt");
+   T->SaveSS("tests/animals_out_T.txt");
+   Ts.SaveSS("tests/animals_out_Ts.txt");
+   Tj->SaveSS("tests/animals_out_Tj.txt");
   return 0;
 }
