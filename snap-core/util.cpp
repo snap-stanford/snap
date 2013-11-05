@@ -698,7 +698,7 @@ void TStrUtil::GetStdNameV(TStr AuthorNames, TStrV& StdNameV) {
 //#//////////////////////////////////////////////
 /// Snapworld supporting functions
 
-#if defined(GLib_UNIX) && !defined(SWIG)
+#if defined(SW_WRITEN)
 int WriteN(int fd, char *ptr, int nbytes) {
   int nleft;
   int nwritten;

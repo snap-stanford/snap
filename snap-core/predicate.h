@@ -1,7 +1,7 @@
 #ifndef PREDICATE_H
 #define PREDICATE_H
 
-typedef enum TAttrType_ {atUndef, atInt, atFlt, atStr} TAttrType;   // attribute type
+typedef enum TAttrType_ {atInt, atFlt, atStr} TAttrType;   // attribute type
 typedef enum {NOT, AND, OR, NOP} TPredOp; // boolean operators for selection predicates
 typedef enum {LT = 0, LTE, EQ, NEQ, GTE, GT, SUBSTR, SUPERSTR} TPredComp; // comparison operators for selection predicates
 
