@@ -2428,7 +2428,7 @@ void TTable::ColGenericOp(const TStr& Attr1, const TFlt& Num, const TStr& ResAtt
       if (op == OP_MOD) IntCols[ColIdx2][RowI.GetRowIdx()] = CurVal % Val;
     }
     else {
-      TFlt CurVal = Info1.Val1 == atFlt ? RowI.GetFltAttr(ColIdx1) : RowI.GetIntAttr(ColIdx1);
+      TFlt CurVal = Info1.Val1 == atFlt ? RowI.GetFltAttr(ColIdx1) : (TFlt) RowI.GetIntAttr(ColIdx1);
       if (op == OP_ADD) FltCols[ColIdx2][RowI.GetRowIdx()] = CurVal + Num;
       if (op == OP_SUB) FltCols[ColIdx2][RowI.GetRowIdx()] = CurVal - Num;
       if (op == OP_MUL) FltCols[ColIdx2][RowI.GetRowIdx()] = CurVal * Num;
