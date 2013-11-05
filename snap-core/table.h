@@ -151,10 +151,8 @@ protected:
   // we just do one assignment of age per node
   // This list should be very small...
   TVec<TStrTr> CommonNodeAttrs;
-  // Node values - i.e. the unique values of src/dst col
-  TIntV IntNodeVals;
-  THash<TFlt, TInt> FltNodeVals;
-  TIntV StrNodeVals; // StrColMaps mappings
+
+  TVec<TIntV> RowIdBuckets;
 
 public:
   /***** value getters - getValue(column name, physical row Idx) *****/
@@ -184,23 +182,28 @@ protected:
   TInt GetColIdx(const TStr& ColName) const{ return ColTypeMap.IsKey(ColName) ? ColTypeMap.GetDat(ColName).Val2 : TInt(-1);}  // column index among columns of the same type
   TBool IsAttr(const TStr& Attr);
 
-/***** Utility functions for adding attributes to the graph *****/
-  // Get node identifier for src/dst node given row physical id
-  TInt GetNId(const TStr& Col, TInt RowIdx);
+/***** Utility functions for building graph from TTable *****/
   // add names of columns to be used as graph attributes
   void AddGraphAttribute(const TStr& Attr, TBool IsEdge, TBool IsSrc, TBool IsDst);
   void AddGraphAttributeV(TStrV& Attrs, TBool IsEdge, TBool IsSrc, TBool IsDst);
+  // Checks if given node id is seen earlier; if not, adds it to graph and hashmap
+  void CheckAndAddIntNode(PNEANet Graph, THashSet<TInt>& NodeVals, TInt NodeId);
+  TInt CheckAndAddFltNode(PNEANet Graph, THash<TFlt, TInt>& NodeVals, TFlt FNodeVal);
+  // Adds attributes of edge corresponding to RowId to the Graph
+  void AddEdgeAttributes(PNEANet& Graph, int RowId);
+  // Takes as parameters, and updates, maps NodeXAttrs: Node Id --> (attribute name --> Vector of attribute values)
+  void AddNodeAttributes(TInt NId, TStrV NodeAttrV, TInt RowId, THash<TInt, TStrIntVH>& NodeIntAttrs, 
+    THash<TInt, TStrFltVH>& NodeFltAttrs, THash<TInt, TStrStrVH>& NodeStrAttrs);
+  // Makes a single pass over the rows in the given row id set, and creates nodes, edges, assigns node and edge attributes
+  PNEANet BuildGraph(const TIntV& RowIds, THash<TStr, ATTR_AGGR> AggrPolicyH);
+  // Returns sets of row ids, partitioned on the value of the column SplitColId, 
+  // according to the range specified by JumpSize and WindowSize.
+  // Called by ToGraphSequence.
+  void GetRowIdBuckets(int SplitColId, TInt JumpSize, TInt WindowSize, TInt StartVal, TInt EndVal);
 
- // Add the attribute values to the graph - called by ToGraph
- // TODO: pass an aggregation policy per attribute - i.e. parameter of type THash<TStr,ATTR_AGGR>
-  void AddNodeAttributes(PNEANet& Graph, ATTR_AGGR = LAST);
-  void AddEdgeAttributes(PNEANet& Graph);
-  // helper functions used by AddNodeAttributes
-  /* Takes as parameters, and updates, maps NodeXAttrs: attribute name --> (Node Id --> attribute value) */
-  void AddNodeAttributesAux(THash<TStr, TIntIntVH>& NodeIntAttrs, THash<TStr, TIntFltVH>& NodeFltAttrs, THash<TStr, TIntStrVH>& NodeStrAttrs, TBool Src);
-  /* aggrgate vactor into a single scalar value according to a policy;
-     used for choosing an attribute value for a node when this node appears in
-     several records and has conflicting attribute values */     
+  // aggregate vector into a single scalar value according to a policy;
+  // used for choosing an attribute value for a node when this node appears in
+  // several records and has conflicting attribute values
   template <class T> 
   T AggregateVector(TVec<T>& V, ATTR_AGGR Policy){
     switch(Policy){
@@ -224,14 +227,14 @@ protected:
       case LAST:{
         return V[V.Len()-1];
       }
-      case AVG:{
+      /*case AVG:{
         T Res = V[0];
         for(TInt i = 1; i < V.Len(); i++){
           Res = Res + V[i];
         }
         Res = Res / V.Len();
         return Res;
-      }
+      }*/
       case MEAN:{
         V.Sort();
         return V[V.Len()/2];
@@ -241,11 +244,6 @@ protected:
     T ShouldNotComeHere;
     return ShouldNotComeHere;
   }
-
-  // preparation for graph generation of final table: retrieve the values of nodes (XNodeVals) - called by ToGraph
-  void GraphPrep();
-  // build graph out of the final table, without any attribute values - called by ToGraph
-  void BuildGraphTopology(PNEANet& Graph);
 
   /***** Grouping Utility functions *************/
 	// Group/hash by a single column with integer values. Returns hash table with grouping.
@@ -344,10 +342,11 @@ public:
 	void Save(TSOut& SOut);
 
 /***** Graph handling *****/
-  /* Create a graph out of the FINAL table */
-  // Rok, 10/22/13, commented out default parameter value for SWIG
-  //PNEANet ToGraph(ATTR_AGGR AttrAggrPolicy = LAST);
-  PNEANet ToGraph(ATTR_AGGR AttrAggrPolicy);
+  // Create a graph out of the FINAL table
+  PNEANet ToGraph(THash<TStr, ATTR_AGGR> AttrAggrPolicy);
+  // Create a sequence of graphs based on values of column SplitAttr
+  TVec<PNEANet> ToGraphSequence(TStr SplitAttr, THash<TStr, ATTR_AGGR> AggrPolicyH, 
+    TInt JumpSize, TInt WindowSize, TInt StartVal, TInt EndVal);
 
   /* Getters and Setters of data required for building a graph out of the table */
 	TStr GetSrcCol() const { return SrcCol; }
