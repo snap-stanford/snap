@@ -131,17 +131,20 @@ void TRowIteratorWithRemove::RemoveNext(){
   Assert(OldNextRowIdx != TTable::Invalid);
   if(OldNextRowIdx == TTable::Last){ return;}
   Table->Next[CurrRowIdx] = Table->Next[OldNextRowIdx];
+  if (Table->LastValidRow == OldNextRowIdx){
+    Table->LastValidRow = CurrRowIdx;
+  }
   Table->Next[OldNextRowIdx] = TTable::Invalid;
   Table->NumValidRows--;
 }
 
 // better not use default constructor as it leads to a memory leak - OR - implement a destructor
-TTable::TTable(): Context(*(new TTableContext)), NumRows(0), NumValidRows(0), FirstValidRow(0){}
+TTable::TTable(): Context(*(new TTableContext)), NumRows(0), NumValidRows(0), FirstValidRow(0), LastValidRow(-1){}
 
-TTable::TTable(TTableContext& Context): Context(Context), NumRows(0), NumValidRows(0), FirstValidRow(0){} 
+TTable::TTable(TTableContext& Context): Context(Context), NumRows(0), NumValidRows(0), FirstValidRow(0), LastValidRow(-1){} 
 
 TTable::TTable(const TStr& TableName, const Schema& TableSchema, TTableContext& Context): S(TableSchema), Name(TableName),
-  Context(Context), NumRows(0), NumValidRows(0), FirstValidRow(0){
+  Context(Context), NumRows(0), NumValidRows(0), FirstValidRow(0), LastValidRow(-1){
   TInt IntColCnt = 0;
   TInt FltColCnt = 0;
   TInt StrColCnt = 0;
@@ -272,6 +275,7 @@ PTable TTable::LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm,
     T->Next.Add(i+1);
   }
   T->Next.Add(Last);
+  T->LastValidRow = T->NumRows - 1;
   return T;
 }
 
@@ -497,6 +501,9 @@ void TTable::Rename(const TStr& column, const TStr& NewLabel){
 }
 
 void TTable::RemoveFirstRow(){
+  if (FirstValidRow == LastValidRow){
+    LastValidRow = -1;
+  }
   TInt Old = FirstValidRow;
   FirstValidRow = Next[FirstValidRow];
   Next[Old] = TTable::Invalid;
@@ -510,6 +517,9 @@ void TTable::RemoveRow(TInt RowIdx){
   } else{
     TInt i = RowIdx-1;
     while(Next[i] != RowIdx){i--;}
+    if (RowIdx == LastValidRow) {
+      LastValidRow = i;
+    }
     Next[i] = Next[RowIdx];
   }
   Next[RowIdx] = TTable::Invalid;
@@ -870,35 +880,38 @@ void TTable::AddIdColumn(const TStr& IdColName){
     JointTable->AddSchemaCol(CName, ColType);
   }
   return JointTable;
- }
+}
 
- void TTable::AddJointRow(const TTable& T1, const TTable& T2, TInt RowIdx1, TInt RowIdx2){
-   for(TInt i = 0; i < T1.IntCols.Len(); i++){
-     IntCols[i].Add(T1.IntCols[i][RowIdx1]);
-   }
-   for(TInt i = 0; i < T1.FltCols.Len(); i++){
-     FltCols[i].Add(T1.FltCols[i][RowIdx1]);
-   }
-   for(TInt i = 0; i < T1.StrColMaps.Len(); i++){
-     StrColMaps[i].Add(T1.StrColMaps[i][RowIdx1]);
-   }
-   TInt IntOffset = T1.IntCols.Len();
-   TInt FltOffset = T1.FltCols.Len();
-   TInt StrOffset = T1.StrColMaps.Len();
-   for(TInt i = 0; i < T2.IntCols.Len(); i++){
-     IntCols[i+IntOffset].Add(T2.IntCols[i][RowIdx2]);
-   }
-   for(TInt i = 0; i < T2.FltCols.Len(); i++){
-     FltCols[i+FltOffset].Add(T2.FltCols[i][RowIdx2]);
-   }
-   for(TInt i = 0; i < T2.StrColMaps.Len(); i++){
-     StrColMaps[i+StrOffset].Add(T2.StrColMaps[i][RowIdx2]);
-   }
-   NumRows++;
-   NumValidRows++;
-   if(!Next.Empty()){ Next[Next.Len()-1] = NumValidRows-1;}
-   Next.Add(Last);
- }
+void TTable::AddJointRow(const TTable& T1, const TTable& T2, TInt RowIdx1, TInt RowIdx2){
+  for(TInt i = 0; i < T1.IntCols.Len(); i++){
+    IntCols[i].Add(T1.IntCols[i][RowIdx1]);
+  }
+  for(TInt i = 0; i < T1.FltCols.Len(); i++){
+    FltCols[i].Add(T1.FltCols[i][RowIdx1]);
+  }
+  for(TInt i = 0; i < T1.StrColMaps.Len(); i++){
+    StrColMaps[i].Add(T1.StrColMaps[i][RowIdx1]);
+  }
+  TInt IntOffset = T1.IntCols.Len();
+  TInt FltOffset = T1.FltCols.Len();
+  TInt StrOffset = T1.StrColMaps.Len();
+  for(TInt i = 0; i < T2.IntCols.Len(); i++){
+    IntCols[i+IntOffset].Add(T2.IntCols[i][RowIdx2]);
+  }
+  for(TInt i = 0; i < T2.FltCols.Len(); i++){
+    FltCols[i+FltOffset].Add(T2.FltCols[i][RowIdx2]);
+  }
+  for(TInt i = 0; i < T2.StrColMaps.Len(); i++){
+    StrColMaps[i+StrOffset].Add(T2.StrColMaps[i][RowIdx2]);
+  }
+  NumRows++;
+  NumValidRows++;
+  if(!Next.Empty()){
+    Next[Next.Len()-1] = NumValidRows-1;
+    LastValidRow = NumValidRows-1;
+  }
+  Next.Add(Last);
+}
 
 // Q: Do we want to have any gurantees in terms of order of the 0t rows - i.e. 
 // ordered by "this" table row idx as primary key and "Table" row idx as secondary key
@@ -1309,6 +1322,9 @@ void TTable::Order(const TStrV& OrderBy, const TStr& OrderColName, TBool ResetRa
   }
   if (NumValidRows > 0){
     Next[ValidRows[NumValidRows-1]] = Last;
+    LastValidRow = NumValidRows-1;
+  } else {
+    LastValidRow = Last;
   }
 
   // add rank column
@@ -1349,6 +1365,7 @@ void TTable::Defrag() {
         Mapping.Add(FreeIndex);
       } else {
         Next[FreeIndex] = Last;
+        LastValidRow = FreeIndex;
         Mapping.Add(Last);
       }
 
@@ -1707,6 +1724,7 @@ PTable TTable::GetNodeTable(const PNEANet& Network, const TStr& TableName, TTabl
   for(TInt i = 0; i < T->NumRows-1; i++){
     T->Next.Add(i+1);
   }
+  T->LastValidRow = T->NumRows-1;
   T->Next.Add(Last);
   return T;
 }
@@ -1762,6 +1780,7 @@ PTable TTable::GetEdgeTable(const PNEANet& Network, const TStr& TableName, TTabl
   for(TInt i = 0; i < T->NumRows-1; i++){
     T->Next.Add(i+1);
   }
+  T->LastValidRow = T->NumRows-1;
   T->Next.Add(Last);
   return T;
 }
@@ -1797,6 +1816,7 @@ PTable TTable::GetFltNodePropertyTable(const PNEANet& Network, const TStr& Table
   for(TInt i = 0; i < T->NumRows-1; i++){
     T->Next.Add(i+1);
   }
+  T->LastValidRow = T->NumRows-1;
   T->Next.Add(Last);
   return T;
 }
@@ -1890,31 +1910,15 @@ void TTable::AddTable(const TTable& T){
     if(TNext[i] != Last && TNext[i] != TTable::Invalid){ TNext[i] += NumRows;}
   }
 
-  TInt LastValidRow = GetLastValidRowIdx();
-
   // checks if table is empty 
   if (LastValidRow >= 0) {
     Next[LastValidRow] = T.FirstValidRow + NumRows;
   }
   Next.AddV(TNext);
+  LastValidRow = NumRows + T.LastValidRow;
   NumRows += T.NumRows;
   NumValidRows += T.NumValidRows;
 }
-
-
-// should keep a pointer to last valid row...
- TInt TTable::GetLastValidRowIdx(){
-   // If table is empty, return -1
-   // if this is the case, should row iteration happen?
-   if (NumRows == 0) {
-       return -1;
-   }
-
-   for(TRowIterator RI = BegRI(); RI < EndRI(); RI++){
-     if(Next[RI.GetRowIdx()] == Last){ return RI.GetRowIdx();}
-   }
-   return -1;
- }
 
 void TTable::GetCollidingRows(const TTable& Table, THashSet<TInt>& Collisions) const{
   TStrV IntGroupByCols;
@@ -2072,13 +2076,11 @@ void TTable::AddRow(const TRowIterator& RI) {
     }
   }
 
-  
-  TInt LastValidRow = GetLastValidRowIdx();
-
   if (LastValidRow >= 0) {
     Next[LastValidRow] = NumRows;
   }
   Next.Add(Last);
+  LastValidRow = NumRows;
 
   NumRows++;
   NumValidRows++;

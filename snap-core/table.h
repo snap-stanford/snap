@@ -112,6 +112,8 @@ protected:
   TInt NumValidRows;
   // physical index of first valid row
   TInt FirstValidRow;
+  // physical index of last valid row
+  TInt LastValidRow;
   // A vactor describing the logical order of the rows: Next[i] is the successor of row i
   // Table iterators follow the order dictated by Next
   TIntV Next; 
