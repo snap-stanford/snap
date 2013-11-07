@@ -112,6 +112,8 @@ protected:
   TInt NumValidRows;
   // physical index of first valid row
   TInt FirstValidRow;
+  // physical index of last valid row
+  TInt LastValidRow;
   // A vactor describing the logical order of the rows: Next[i] is the successor of row i
   // Table iterators follow the order dictated by Next
   TIntV Next; 
@@ -388,7 +390,7 @@ public:
   static PTable GetEdgeTable(const PNEANet& Network, const TStr& TableName, TTableContext& Context);
 
   /* Extract node and edge property TTables from THash */
-  static PTable GetFltNodePropertyTable(const PNEANet& Network, const TStr& TableName, const TIntFltH& Property, const TStr& NodeAttrName, const TStr& PropertyAttrName, TTableContext& Context);
+  static PTable GetFltNodePropertyTable(const PNEANet& Network, const TStr& TableName, const TIntFltH& Property, const TStr& NodeAttrName, const TAttrType& NodeAttrType, const TStr& PropertyAttrName, TTableContext& Context);
 
 /***** Basic Getters *****/
 	TAttrType GetColType(const TStr& ColName) const{ return ColTypeMap.GetDat(ColName).Val1; };
@@ -404,7 +406,8 @@ public:
 
 /***** Table Operations *****/
 	// rename / add a label to a column
-	void AddLabel(const TStr& column, const TStr& newLabel);
+	void AddLabel(const TStr& Column, const TStr& NewLabel);
+  void Rename(const TStr& Column, const TStr& NewLabel);
 
 	// Remove rows with duplicate values in given columns
   void Unique(const TStr& Col);
@@ -457,6 +460,7 @@ public:
 	// this->Col1 == Table->Col2; Implementation: Hash-Join - build a hash out of the smaller table
 	// hash the larger table and check for collisions
 	PTable Join(const TStr& Col1, const TTable& Table, const TStr& Col2);
+  PTable Join(const TStr& Col1, const PTable& Table, const TStr& Col2){ return Join(Col1, *Table, Col2); };
   PTable SelfJoin(const TStr& Col){return Join(Col, *this, Col);}
 
 	// compute distances between elements in this->Col1 and Table->Col2 according
@@ -477,6 +481,9 @@ public:
   PTable Union(const TTable& Table, const TStr& TableName);
   PTable Intersection(const TTable& Table, const TStr& TableName);
   PTable Minus(const TTable& Table, const TStr& TableName);
+  PTable Union(const PTable& Table, const TStr& TableName){ return Union(*Table, TableName); };
+  PTable Intersection(const PTable& Table, const TStr& TableName){ return Intersection(*Table, TableName); };
+  PTable Minus(const PTable& Table, const TStr& TableName){ return Minus(*Table, TableName); };
   PTable Project(const TStrV& ProjectCols, const TStr& TableName);
   void ProjectInPlace(const TStrV& ProjectCols);
   
@@ -513,12 +520,12 @@ public:
   /* Performs Attr1 OP Num and stores it in Attr1
    * If ResAttr != "", result is stored in a new column ResAttr
    */
-  void ColGenericOp(const TStr& Attr1, const TFlt& Num, const TStr& ResAttr, OPS op);
-  void ColAdd(const TStr& Attr1, const TFlt& Num, const TStr& ResultAttrName="");
-  void ColSub(const TStr& Attr1, const TFlt& Num, const TStr& ResultAttrName="");
-  void ColMul(const TStr& Attr1, const TFlt& Num, const TStr& ResultAttrName="");
-  void ColDiv(const TStr& Attr1, const TFlt& Num, const TStr& ResultAttrName="");
-  void ColMod(const TStr& Attr1, const TFlt& Num, const TStr& ResultAttrName="");
+  void ColGenericOp(const TStr& Attr1, const TFlt& Num, const TStr& ResAttr, OPS op, const TBool floatCast);
+  void ColAdd(const TStr& Attr1, const TFlt& Num, const TStr& ResultAttrName="", const TBool floatCast=false);
+  void ColSub(const TStr& Attr1, const TFlt& Num, const TStr& ResultAttrName="", const TBool floatCast=false);
+  void ColMul(const TStr& Attr1, const TFlt& Num, const TStr& ResultAttrName="", const TBool floatCast=false);
+  void ColDiv(const TStr& Attr1, const TFlt& Num, const TStr& ResultAttrName="", const TBool floatCast=false);
+  void ColMod(const TStr& Attr1, const TFlt& Num, const TStr& ResultAttrName="", const TBool floatCast=false);
 
   // add a column of explicit integer identifiers to the rows
   void AddIdColumn(const TStr& IdColName);
