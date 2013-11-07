@@ -56,7 +56,7 @@ int main(){
   qa_RelevantCols.Add(17);
 
   // build predicate "PostTypeId == 2"
-  TPredicate::TAtomicPredicate ptiAtom(atInt, true, TPredicate::EQ, "PostTypeId", "", 2, 0, "");
+  TPredicate::TAtomicPredicate ptiAtom(atInt, true, EQ, "PostTypeId", "", 2, 0, "");
   TPredicate::TPredicateNode ptiNode(ptiAtom);
   TPredicate ptiPred(&ptiNode);
 
@@ -75,7 +75,7 @@ int main(){
       qa_results[f][i][1] = tcc.GetSecs();
       TExeTm ts;
       //T1->Select(ptiPred);
-      T1->SelectAtomicIntConst("PostTypeId", 2, TPredicate::EQ);
+      T1->SelectAtomicIntConst("PostTypeId", 2, EQ);
       qa_results[f][i][2] = ts.GetSecs();
       TExeTm tj;
       PTable Tj = T1->Join("ParentId", *T2, "Id");
@@ -86,7 +86,7 @@ int main(){
       Tj->SetSrcCol("Posts1.OwnerUserId");
       Tj->SetDstCol("Posts2.OwnerUserId");
       TExeTm tg;
-      PNEANet G = Tj->ToGraph(LAST);
+      PNEANet G = Tj->ToGraph(aaLast);
       qa_results[f][i][5] = tg.GetSecs();
       //TStr OutFNm = outDir + "out_" + qa_file_names[f];
       //if(i == N-1){Tj->SaveSS(OutFNm);}
@@ -183,7 +183,7 @@ int main(){
   TPredicate::TPredicateNode uidNeqNode(TPredicate::NOT);
   uidNeqNode.AddLeftChild(&uidEqNode);
   */
-  TPredicate::TAtomicPredicate uidAtom(atInt, false, TPredicate::NEQ, "UserId1", "UserId2");
+  TPredicate::TAtomicPredicate uidAtom(atInt, false, NEQ, "UserId1", "UserId2");
   TPredicate::TPredicateNode uidNeqNode(uidAtom);
   TPredicate uidPred(&uidNeqNode);
    // build GroupBy vector
@@ -208,7 +208,7 @@ int main(){
       Tj->AddLabel("Comments2.UserId", "UserId2");
       TExeTm ts;
       //Tj->Select(uidPred);
-      Tj->SelectAtomic("UserId1", "UserId2", TPredicate::NEQ);
+      Tj->SelectAtomic("UserId1", "UserId2", NEQ);
       comment_results[f][i][3] = ts.GetSecs();
       //debug
       //printf("Selected table size: %d\n", Tj->GetNumValidRows().Val);

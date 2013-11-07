@@ -30,13 +30,14 @@ int main(int argc, char** argv){
   P->AddSrcNodeAttr("StackOverflow_1.Score");
   P->AddSrcNodeAttr("StackOverflow_2.Score");
   P->AddEdgeAttr("StackOverflow_1.Tags");
-  THash<TStr, ATTR_AGGR> attrAggr;
-  attrAggr.AddKey("StackOverflow_1.Score");
-  attrAggr.AddDat("StackOverflow_1.Score", FIRST);
-  attrAggr.AddKey("StackOverflow_2.Score");
-  attrAggr.AddDat("StackOverflow_2.Score", FIRST);
+  // THash<TStr, ATTR_AGGR> attrAggr;
+  // attrAggr.AddKey("StackOverflow_1.Score");
+  // attrAggr.AddDat("StackOverflow_1.Score", FIRST);
+  // attrAggr.AddKey("StackOverflow_2.Score");
+  // attrAggr.AddDat("StackOverflow_2.Score", FIRST);
 
-  TVec<PNEANet> NVec = P->ToGraphSequence("StackOverflow_1.Score", attrAggr, 10, 10, TInt::Mn, TInt::Mx);
+  // TVec<PNEANet> NVec = P->ToGraphSequence("StackOverflow_1.Score", attrAggr, 10, 10, TInt::Mn, TInt::Mx);
+  TVec<PNEANet> NVec = P->ToGraphSequence("StackOverflow_1.Score", aaFirst, 10, 10, TInt::Mn, TInt::Mx);
   printf("vec size: %d\n", NVec.Len());
   //for (TNEANet::TNodeI NodeI = N->BegNI(); NodeI < N->EndNI(); NodeI++){
     //printf("%d: <%s>\n", EdgeI.GetId(), N->GetStrAttrDatE(EdgeI, "StackOverflow_1.Tags").CStr());

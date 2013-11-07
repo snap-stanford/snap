@@ -81,7 +81,7 @@ int main(){
     PTable T2 = TTable::New(T1, "posts2");
     q1Results[i][1] = tcc.GetSecs();
     TExeTm ts;
-    T1->SelectAtomicIntConst("PostTypeId", 1, TPredicate::EQ);
+    T1->SelectAtomicIntConst("PostTypeId", 1, EQ);
     q1Results[i][2] = ts.GetSecs();
     TExeTm tj;
     PTable Tj = T1->Join("AcceptedAnswerId", *T2, "Id");
@@ -92,7 +92,7 @@ int main(){
     Tj->AddEdgeAttr("posts2.CreationDate");
     q1Results[i][4] = tpg.GetSecs();
     TExeTm ttg;
-    Tj->ToGraph(LAST);
+    Tj->ToGraph(aaLast);
     q1Results[i][5] = tpg.GetSecs();
   }
 
