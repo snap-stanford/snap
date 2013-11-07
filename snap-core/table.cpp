@@ -1654,7 +1654,7 @@ void TTable::AddNodeAttributes(TInt NId, TStrV NodeAttrV, TInt RowId, THash<TInt
 
 // Makes one pass over all the rows in the vector RowIds, and builds
 // a PNEANet, with each row as an edge between SrcCol and DstCol.
-PNEANet TTable::BuildGraph(const TIntV& RowIds, THash<TStr, ATTR_AGGR> AggrPolicyH) {
+PNEANet TTable::BuildGraph(const TIntV& RowIds, TAttrAggr AggrPolicy) {
   PNEANet Graph = PNEANet::New();
   
   const TAttrType NodeType = GetColType(SrcCol);
@@ -1711,21 +1711,21 @@ PNEANet TTable::BuildGraph(const TIntV& RowIds, THash<TStr, ATTR_AGGR> AggrPolic
     if (NodeIntAttrs.IsKey(NId)) {
       TStrIntVH IntAttrVals = NodeIntAttrs.GetDat(NId);
       for(TStrIntVH::TIter it = IntAttrVals.BegI(); it < IntAttrVals.EndI(); it++){
-        TInt AttrVal = AggregateVector<TInt>(it.GetDat(), AggrPolicyH.GetDat(it.GetKey()));
+        TInt AttrVal = AggregateVector<TInt>(it.GetDat(), AggrPolicy);
         Graph->AddIntAttrDatN(NId, AttrVal, it.GetKey());
       }
     }
     if (NodeFltAttrs.IsKey(NId)) {
       TStrFltVH FltAttrVals = NodeFltAttrs.GetDat(NId);
       for(TStrFltVH::TIter it = FltAttrVals.BegI(); it < FltAttrVals.EndI(); it++){
-        TFlt AttrVal = AggregateVector<TFlt>(it.GetDat(), AggrPolicyH.GetDat(it.GetKey()));
+        TFlt AttrVal = AggregateVector<TFlt>(it.GetDat(), AggrPolicy);
         Graph->AddFltAttrDatN(NId, AttrVal, it.GetKey());
       }
     }
     if (NodeStrAttrs.IsKey(NId)) {
       TStrStrVH StrAttrVals = NodeStrAttrs.GetDat(NId);
       for(TStrStrVH::TIter it = StrAttrVals.BegI(); it < StrAttrVals.EndI(); it++){
-        TStr AttrVal = AggregateVector<TStr>(it.GetDat(), AggrPolicyH.GetDat(it.GetKey()));
+        TStr AttrVal = AggregateVector<TStr>(it.GetDat(), AggrPolicy);
         Graph->AddStrAttrDatN(NId, AttrVal, it.GetKey());
       }
     }
@@ -1734,26 +1734,13 @@ PNEANet TTable::BuildGraph(const TIntV& RowIds, THash<TStr, ATTR_AGGR> AggrPolic
   return Graph;
 }
 
-PNEANet TTable::ToGraph(THash<TStr, ATTR_AGGR> AggrPolicyH) {
+PNEANet TTable::ToGraph(TAttrAggr AggrPolicy) {
   TIntV RowIds;
   for (int i = 0; i < Next.Len(); i++) {
     if (Next[i] != Invalid){ RowIds.Add(i);}
   }
 
-  return BuildGraph(RowIds, AggrPolicyH);
-}
-
-PNEANet TTable::ToGraph(ATTR_AGGR AggrPolicy) {
-  THash<TStr, ATTR_AGGR> AttrAggrPolicyH;
-  for (int i = 0; i < SrcNodeAttrV.Len(); i++) {
-    AttrAggrPolicyH.AddKey(SrcNodeAttrV[i]);
-    AttrAggrPolicyH.AddDat(SrcNodeAttrV[i], AggrPolicy);
-  }
-  for (int i = 0; i < DstNodeAttrV.Len(); i++) {
-    AttrAggrPolicyH.AddKey(DstNodeAttrV[i]);
-    AttrAggrPolicyH.AddDat(DstNodeAttrV[i], AggrPolicy);
-  }
-  return ToGraph(AttrAggrPolicyH);
+  return BuildGraph(RowIds, AggrPolicy);
 }
 
 void TTable::GetRowIdBuckets(int SplitColId, TInt JumpSize, TInt WindowSize, TInt StartVal, TInt EndVal) {
@@ -1797,7 +1784,7 @@ void TTable::GetRowIdBuckets(int SplitColId, TInt JumpSize, TInt WindowSize, TIn
 // To set the range of values of SplitAttr to be considered, use StartVal and EndVal (inclusive)
 // If StartVal == TInt.Mn, then the buckets will start from the min value of SplitAttr in the table. 
 // If EndVal == TInt.Mx, then the buckets will end at the max value of SplitAttr in the table. 
-TVec<PNEANet> TTable::ToGraphSequence(TStr SplitAttr, THash<TStr, ATTR_AGGR> AggrPolicyH, TInt WindowSize, TInt JumpSize, TInt StartVal, TInt EndVal) {
+TVec<PNEANet> TTable::ToGraphSequence(TStr SplitAttr, TAttrAggr AggrPolicy, TInt WindowSize, TInt JumpSize, TInt StartVal, TInt EndVal) {
   Assert (JumpSize <= WindowSize);
   TInt SplitColId = GetColIdx(SplitAttr);
   //TAttrType SplitColType = GetColType(SplitAttr);
@@ -1827,7 +1814,7 @@ TVec<PNEANet> TTable::ToGraphSequence(TStr SplitAttr, THash<TStr, ATTR_AGGR> Agg
   //call BuildGraph on each row id set - parallelizable!
   TVec<PNEANet> GraphSequence(RowIdBuckets.Len());
   for (int i = 0; i < GraphSequence.Len(); i++) {
-    GraphSequence[i] = BuildGraph(RowIdBuckets[i], AggrPolicyH);
+    GraphSequence[i] = BuildGraph(RowIdBuckets[i], AggrPolicy);
   }
 
   return GraphSequence;

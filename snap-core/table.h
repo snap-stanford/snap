@@ -21,7 +21,7 @@ public:
 };
 
 /* possible policies for aggregating node attributes */
-typedef enum {MIN, MAX, FIRST, LAST, AVG, MEAN} ATTR_AGGR;
+typedef enum {aaMin, aaMax, aaFirst, aaLast, aaAvg, aaMean} TAttrAggr;
 /* possible operations on columns */
 typedef enum {OP_ADD, OP_SUB, OP_MUL, OP_DIV, OP_MOD} OPS;
 
@@ -195,7 +195,7 @@ protected:
   void AddNodeAttributes(TInt NId, TStrV NodeAttrV, TInt RowId, THash<TInt, TStrIntVH>& NodeIntAttrs, 
     THash<TInt, TStrFltVH>& NodeFltAttrs, THash<TInt, TStrStrVH>& NodeStrAttrs);
   // Makes a single pass over the rows in the given row id set, and creates nodes, edges, assigns node and edge attributes
-  PNEANet BuildGraph(const TIntV& RowIds, THash<TStr, ATTR_AGGR> AggrPolicyH);
+  PNEANet BuildGraph(const TIntV& RowIds, TAttrAggr AggrPolicy);
   // Returns sets of row ids, partitioned on the value of the column SplitColId, 
   // according to the range specified by JumpSize and WindowSize.
   // Called by ToGraphSequence.
@@ -205,29 +205,29 @@ protected:
   // used for choosing an attribute value for a node when this node appears in
   // several records and has conflicting attribute values
   template <class T> 
-  T AggregateVector(TVec<T>& V, ATTR_AGGR Policy){
+  T AggregateVector(TVec<T>& V, TAttrAggr Policy){
     switch(Policy){
-      case MIN:{
+      case aaMin:{
         T Res = V[0];
         for(TInt i = 1; i < V.Len(); i++){
           if(V[i] < Res){ Res = V[i];}
         }
         return Res;
       }
-      case MAX:{
+      case aaMax:{
         T Res = V[0];
         for(TInt i = 1; i < V.Len(); i++){
           if(V[i] > Res){ Res = V[i];}
         }
         return Res;
       }
-      case FIRST:{
+      case aaFirst:{
         return V[0];
       }
-      case LAST:{
+      case aaLast:{
         return V[V.Len()-1];
       }
-      case AVG:{
+      case aaAvg:{
         T Res = V[0];
         for(TInt i = 1; i < V.Len(); i++){
           Res = Res + V[i];
@@ -235,7 +235,7 @@ protected:
         //Res = Res / V.Len(); // TODO: Handle Str case separately?
         return Res;
       }
-      case MEAN:{
+      case aaMean:{
         V.Sort();
         return V[V.Len()/2];
       }
@@ -343,10 +343,9 @@ public:
 
 /***** Graph handling *****/
   // Create a graph out of the FINAL table
-  PNEANet ToGraph(THash<TStr, ATTR_AGGR> AttrAggrPolicy);
-  PNEANet ToGraph(ATTR_AGGR AggrPolicy);
+  PNEANet ToGraph(TAttrAggr AggrPolicy);
   // Create a sequence of graphs based on values of column SplitAttr
-  TVec<PNEANet> ToGraphSequence(TStr SplitAttr, THash<TStr, ATTR_AGGR> AggrPolicyH, 
+  TVec<PNEANet> ToGraphSequence(TStr SplitAttr, TAttrAggr AggrPolicy, 
     TInt WindowSize, TInt JumpSize, TInt StartVal, TInt EndVal);
 
   /* Getters and Setters of data required for building a graph out of the table */
