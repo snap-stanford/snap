@@ -140,8 +140,8 @@ TTable::TTable(): Context(*(new TTableContext)), NumRows(0), NumValidRows(0), Fi
 
 TTable::TTable(TTableContext& Context): Context(Context), NumRows(0), NumValidRows(0), FirstValidRow(0){} 
 
-TTable::TTable(const TStr& TableName, const Schema& TableSchema, TTableContext& Context): S(TableSchema), Name(TableName),
-  Context(Context), NumRows(0), NumValidRows(0), FirstValidRow(0){
+TTable::TTable(const TStr& TableName, const Schema& TableSchema, TTableContext& Context): Name(TableName), Context(Context),
+  S(TableSchema), NumRows(0), NumValidRows(0), FirstValidRow(0){
   TInt IntColCnt = 0;
   TInt FltColCnt = 0;
   TInt StrColCnt = 0;
@@ -1743,6 +1743,19 @@ PNEANet TTable::ToGraph(THash<TStr, ATTR_AGGR> AggrPolicyH) {
   return BuildGraph(RowIds, AggrPolicyH);
 }
 
+PNEANet TTable::ToGraph(ATTR_AGGR AggrPolicy) {
+  THash<TStr, ATTR_AGGR> AttrAggrPolicyH;
+  for (int i = 0; i < SrcNodeAttrV.Len(); i++) {
+    AttrAggrPolicyH.AddKey(SrcNodeAttrV[i]);
+    AttrAggrPolicyH.AddDat(SrcNodeAttrV[i], AggrPolicy);
+  }
+  for (int i = 0; i < DstNodeAttrV.Len(); i++) {
+    AttrAggrPolicyH.AddKey(DstNodeAttrV[i]);
+    AttrAggrPolicyH.AddDat(DstNodeAttrV[i], AggrPolicy);
+  }
+  return ToGraph(AttrAggrPolicyH);
+}
+
 void TTable::GetRowIdBuckets(int SplitColId, TInt JumpSize, TInt WindowSize, TInt StartVal, TInt EndVal) {
   int NumBuckets, MinBucket, MaxBucket;
 
@@ -1784,11 +1797,11 @@ void TTable::GetRowIdBuckets(int SplitColId, TInt JumpSize, TInt WindowSize, TIn
 // To set the range of values of SplitAttr to be considered, use StartVal and EndVal (inclusive)
 // If StartVal == TInt.Mn, then the buckets will start from the min value of SplitAttr in the table. 
 // If EndVal == TInt.Mx, then the buckets will end at the max value of SplitAttr in the table. 
-TVec<PNEANet> TTable::ToGraphSequence(TStr SplitAttr, THash<TStr, ATTR_AGGR> AggrPolicyH, TInt JumpSize, TInt WindowSize, TInt StartVal, TInt EndVal) {
+TVec<PNEANet> TTable::ToGraphSequence(TStr SplitAttr, THash<TStr, ATTR_AGGR> AggrPolicyH, TInt WindowSize, TInt JumpSize, TInt StartVal, TInt EndVal) {
   Assert (JumpSize <= WindowSize);
   TInt SplitColId = GetColIdx(SplitAttr);
-  TAttrType SplitColType = GetColType(SplitAttr);
-  Assert (SplitColType == atInt);
+  //TAttrType SplitColType = GetColType(SplitAttr);
+  //Assert (SplitColType == atInt);
     
   if (StartVal == TInt::Mn || EndVal == TInt::Mx){
     // calculate min and max value of the column 'SplitAttr'

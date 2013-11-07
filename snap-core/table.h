@@ -91,11 +91,6 @@ protected:
   static const TInt Invalid;
 
 /*************** TTable object fields ********************/
-private:
-  // Reference Counter for Garbage Collection
-  TCRef CRef;
-  // Table Schema
-  Schema S;
 public:
   // Table name
   TStr Name;
@@ -105,6 +100,11 @@ protected:
   // string pool for string values (part of execution context)
   // TStrHash<TInt, TBigStrPool>& StrColVals; 
   // use Context.StringVals to access the global string pool
+
+  // Table Schema
+  Schema S;
+  // Reference Counter for Garbage Collection
+  TCRef CRef;
 
   // number of rows in the table (valid and invalid)
   TInt NumRows;
@@ -227,14 +227,14 @@ protected:
       case LAST:{
         return V[V.Len()-1];
       }
-      /*case AVG:{
+      case AVG:{
         T Res = V[0];
         for(TInt i = 1; i < V.Len(); i++){
           Res = Res + V[i];
         }
-        Res = Res / V.Len();
+        //Res = Res / V.Len(); // TODO: Handle Str case separately?
         return Res;
-      }*/
+      }
       case MEAN:{
         V.Sort();
         return V[V.Len()/2];
@@ -310,7 +310,7 @@ public:
   TTable(TTableContext& Context);
   TTable(const TStr& TableName, const Schema& S, TTableContext& Context);
   TTable(TSIn& SIn, TTableContext& Context);
-  TTable(const TTable& Table): S(Table.S), Name(Table.Name), Context(Table.Context),
+  TTable(const TTable& Table): Name(Table.Name), Context(Table.Context), S(Table.S),
     NumRows(Table.NumRows), NumValidRows(Table.NumValidRows), FirstValidRow(Table.FirstValidRow),
     Next(Table.Next), IntCols(Table.IntCols), FltCols(Table.FltCols),
     StrColMaps(Table.StrColMaps), ColTypeMap(Table.ColTypeMap), 
@@ -344,9 +344,10 @@ public:
 /***** Graph handling *****/
   // Create a graph out of the FINAL table
   PNEANet ToGraph(THash<TStr, ATTR_AGGR> AttrAggrPolicy);
+  PNEANet ToGraph(ATTR_AGGR AggrPolicy);
   // Create a sequence of graphs based on values of column SplitAttr
   TVec<PNEANet> ToGraphSequence(TStr SplitAttr, THash<TStr, ATTR_AGGR> AggrPolicyH, 
-    TInt JumpSize, TInt WindowSize, TInt StartVal, TInt EndVal);
+    TInt WindowSize, TInt JumpSize, TInt StartVal, TInt EndVal);
 
   /* Getters and Setters of data required for building a graph out of the table */
 	TStr GetSrcCol() const { return SrcCol; }
