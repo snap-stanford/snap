@@ -15,7 +15,7 @@ int main(){
   AnimalS.Add(TPair<TStr,TAttrType>("Location", atStr));
   AnimalS.Add(TPair<TStr,TAttrType>("Number", atInt));
   // create table
-  PTable T1 = TTable::LoadSS("Animals", AnimalS, "../../testfiles/animals.txt", Context '\t', true);
+  PTable T1 = TTable::LoadSS("Animals", AnimalS, "../../testfiles/animals.txt", Context, '\t', true);
   PTable T2 = TTable::New(T1);
   //PTable T2 = TTable::LoadSS("Animals", AnimalS, "../../testfiles/animals.txt");
   // vector to be used as dummy parameter to the select function calls
@@ -46,7 +46,7 @@ int main(){
   // group by (Animal, Animal)
   // unique by group idx
 
-  PTable T3 = TTable::LoadSS("Animals", AnimalS, "../../testfiles/animals.txt", Context '\t', true);
+  PTable T3 = TTable::LoadSS("Animals", AnimalS, "../../testfiles/animals.txt", Context, '\t', true);
   PTable To = T3->Join("Location", *T3, "Location");
   TPredicate::TAtomicPredicate A2(atStr, false, EQ, "Animals_1.Size", "Animals_2.Size");  
   TPredicate::TPredicateNode N2(A2);
