@@ -315,8 +315,8 @@ public:
   TTable(TSIn& SIn, TTableContext& Context);
 
   // constructors to build table out of a hash table
-  TTable(const TStr& TableName, const THash<TInt,TInt>& H, const TStr& Col1, const TStr& Col2, TTableContext& Context);
-  TTable(const TStr& TableName, const THash<TInt,TFlt>& H, const TStr& Col1, const TStr& Col2, TTableContext& Context);
+  TTable(const TStr& TableName, const THash<TInt,TInt>& H, const TStr& Col1, const TStr& Col2, TTableContext& Context, const TBool IsStrKeys = false);
+  TTable(const TStr& TableName, const THash<TInt,TFlt>& H, const TStr& Col1, const TStr& Col2, TTableContext& Context, const TBool IsStrKeys = false);
   //TTable(const TStr& TableName, const THash<TInt,TStr>& H, const TStr& Col1, const TStr& Col2, TTableContext& Context);
   
   // copy constructor
@@ -332,10 +332,10 @@ public:
   static PTable New(){ return new TTable();}
   static PTable New(TTableContext& Context){ return new TTable(Context);}
   static PTable New(const TStr& TableName, const Schema& S, TTableContext& Context){ return new TTable(TableName, S, Context);}
-  static PTable New(const TStr& TableName, const THash<TInt,TInt>& H, const TStr& Col1, const TStr& Col2, TTableContext& Context, TBool IsStrKeys = false){
+  static PTable New(const TStr& TableName, const THash<TInt,TInt>& H, const TStr& Col1, const TStr& Col2, TTableContext& Context, const TBool IsStrKeys = false){
     return new TTable(TableName, H, Col1, Col2, Context, IsStrKeys);
   }
-  static PTable New(const TStr& TableName, const THash<TInt,TFlt>& H, const TStr& Col1, const TStr& Col2, TTableContext& Context, TBool IsStrKeys = false){
+  static PTable New(const TStr& TableName, const THash<TInt,TFlt>& H, const TStr& Col1, const TStr& Col2, TTableContext& Context, const TBool IsStrKeys = false){
     return new TTable(TableName, H, Col1, Col2, Context, IsStrKeys);
   }
   static PTable New(const PTable Table){ return new TTable(*Table);}

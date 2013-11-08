@@ -1,4 +1,4 @@
-//#include "table.h"
+#include "table.h"
 
 TInt const TTable::Last =-1;
 TInt const TTable::Invalid =-2;
@@ -197,15 +197,23 @@ TTable::TTable(TSIn& SIn, TTableContext& Context): Name(SIn), Context(Context), 
   }
 }
 
-TTable::TTable(const TStr& TableName, const THash<TInt,TInt>& H, const TStr& Col1, const TStr& Col2, TTableContext& Context): Name(TableName),
-  Context(Context), NumRows(H.Len()), NumValidRows(H.Len()), FirstValidRow(0), LastValidRow(-1){
-    S.Add(TPair<TStr,TAttrType>(Col1, atInt));
+TTable::TTable(const TStr& TableName, const THash<TInt,TInt>& H, const TStr& Col1, const TStr& Col2, TTableContext& Context, const TBool IsStrKeys): 
+  Name(TableName), Context(Context), NumRows(H.Len()), NumValidRows(H.Len()), FirstValidRow(0), LastValidRow(-1){
+    TAttrType KeyType = IsStrKeys ? atStr : atInt;
+    S.Add(TPair<TStr,TAttrType>(Col1, KeyType));
     S.Add(TPair<TStr,TAttrType>(Col2, atInt));
-    ColTypeMap.AddDat(Col1, TPair<TAttrType,TInt>(atInt,0));
+    ColTypeMap.AddDat(Col1, TPair<TAttrType,TInt>(KeyType,0));
     ColTypeMap.AddDat(Col2, TPair<TAttrType,TInt>(atInt,1));
-    IntCols = TVec<TIntV>(2);
-    H.GetKeyV(IntCols[0]);
-    H.GetDatV(IntCols[1]);
+    if(IsStrKeys){
+      StrColMaps = TVec<TIntV>(1);
+      IntCols = TVec<TIntV>(1);
+      H.GetKeyV(StrColMaps[0]);
+      H.GetDatV(IntCols[0]);
+    } else{
+      IntCols = TVec<TIntV>(2);
+      H.GetKeyV(IntCols[0]);
+      H.GetDatV(IntCols[1]);
+    }
     Next = TIntV(NumRows);
     for(TInt i = 0; i < NumRows; i++){
       Next[i] = i+1;
@@ -213,15 +221,21 @@ TTable::TTable(const TStr& TableName, const THash<TInt,TInt>& H, const TStr& Col
     Next[NumRows-1] = Last;
 }
 
-TTable::TTable(const TStr& TableName, const THash<TInt,TFlt>& H, const TStr& Col1, const TStr& Col2, TTableContext& Context): Name(TableName),
-  Context(Context), NumRows(H.Len()), NumValidRows(H.Len()), FirstValidRow(0), LastValidRow(-1){
-    S.Add(TPair<TStr,TAttrType>(Col1, atInt));
+TTable::TTable(const TStr& TableName, const THash<TInt,TFlt>& H, const TStr& Col1, const TStr& Col2, TTableContext& Context, const TBool IsStrKeys):
+  Name(TableName), Context(Context), NumRows(H.Len()), NumValidRows(H.Len()), FirstValidRow(0), LastValidRow(-1){
+    TAttrType KeyType = IsStrKeys ? atStr : atInt;
+    S.Add(TPair<TStr,TAttrType>(Col1, KeyType));
     S.Add(TPair<TStr,TAttrType>(Col2, atFlt));
-    ColTypeMap.AddDat(Col1, TPair<TAttrType,TInt>(atInt,0));
+    ColTypeMap.AddDat(Col1, TPair<TAttrType,TInt>(KeyType,0));
     ColTypeMap.AddDat(Col2, TPair<TAttrType,TInt>(atFlt,0));
-    IntCols = TVec<TIntV>(1);
-    FltCols = TVec<TFltV>(1);
-    H.GetKeyV(IntCols[0]);
+    if(IsStrKeys){
+      StrColMaps = TVec<TIntV>(1);
+      H.GetKeyV(StrColMaps[0]);
+    } else{
+      IntCols = TVec<TIntV>(1);
+      H.GetKeyV(IntCols[0]);
+    }
+    FltCols = TVec<TFltV>(1);   
     H.GetDatV(FltCols[0]);
     Next = TIntV(NumRows);
     for(TInt i = 0; i < NumRows; i++){
