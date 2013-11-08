@@ -332,6 +332,12 @@ public:
   static PTable New(){ return new TTable();}
   static PTable New(TTableContext& Context){ return new TTable(Context);}
   static PTable New(const TStr& TableName, const Schema& S, TTableContext& Context){ return new TTable(TableName, S, Context);}
+  static PTable New(const TStr& TableName, const THash<TInt,TInt>& H, const TStr& Col1, const TStr& Col2, TTableContext& Context, TBool IsStrKeys = false){
+    return new TTable(TableName, H, Col1, Col2, Context, IsStrKeys);
+  }
+  static PTable New(const TStr& TableName, const THash<TInt,TFlt>& H, const TStr& Col1, const TStr& Col2, TTableContext& Context, TBool IsStrKeys = false){
+    return new TTable(TableName, H, Col1, Col2, Context, IsStrKeys);
+  }
   static PTable New(const PTable Table){ return new TTable(*Table);}
   static PTable New(const PTable Table, const TStr& TableName){ PTable T = New(Table); T->Name = TableName; return T;}
 
