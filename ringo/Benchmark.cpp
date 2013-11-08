@@ -68,7 +68,7 @@ int main(){
   for(int f = 0; f < QA_FILES; f++){
     for(int i = 0; i < N; i++){
       TExeTm tl;
-      PTable T1 = TTable::LoadSS("Posts1", qa_S, qa_files[f], qa_Context, qa_RelevantCols);
+      PTable T1 = TTable::LoadSS("Posts1", qa_S, qa_files[f], qa_Context, qa_RelevantCols, '\t', true);
       qa_results[f][i][0] = tl.GetSecs();
       TExeTm tcc;
       PTable T2 = TTable::New(T1, "Posts2");
@@ -194,7 +194,7 @@ int main(){
   for(int f = 0; f < COMMENT_FILES; f++){
     for(int i = 0; i < N; i++){
       TExeTm tl;
-      PTable T1 = TTable::LoadSS("Comments1", comment_S, comment_files[f], comment_Context, comment_RelevantCols);
+      PTable T1 = TTable::LoadSS("Comments1", comment_S, comment_files[f], comment_Context, comment_RelevantCols, '\t', true);
       comment_results[f][i][0] = tl.GetSecs();
       TExeTm tcc;
       PTable T2 = TTable::New(T1, "Comments2");

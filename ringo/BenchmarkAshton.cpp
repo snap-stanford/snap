@@ -75,7 +75,7 @@ int main(){
 
   for(int i = 0; i < N; i++){
     TExeTm tl;
-    PTable T1 = TTable::LoadSS("posts1", S, TestFile, Context, RelevantCols);
+    PTable T1 = TTable::LoadSS("posts1", S, TestFile, Context, RelevantCols, '\t', true);
     q1Results[i][0] = tl.GetSecs();
     TExeTm tcc;
     PTable T2 = TTable::New(T1, "posts2");

@@ -16,8 +16,8 @@ int main(){
   RelevantCols.Add(3);
   RelevantCols.Add(4);
 
-  PTable P = TTable::LoadSS("Locations", LocS, "tests/loc.txt", Context, RelevantCols);
-  PTable Q = TTable::LoadSS("Locations", LocS, "tests/loc.txt", Context, RelevantCols);
+  PTable P = TTable::LoadSS("Locations", LocS, "tests/loc.txt", Context, RelevantCols, '\t', true);
+  PTable Q = TTable::LoadSS("Locations", LocS, "tests/loc.txt", Context, RelevantCols, '\t', true);
 
   P->SaveSS("tests/res.txt");
 
