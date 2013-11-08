@@ -1,3 +1,4 @@
+//#include "table.h"
 
 TInt const TTable::Last =-1;
 TInt const TTable::Invalid =-2;
@@ -194,6 +195,39 @@ TTable::TTable(TSIn& SIn, TTableContext& Context): Name(SIn), Context(Context), 
         break;
     }
   }
+}
+
+TTable::TTable(const TStr& TableName, const THash<TInt,TInt>& H, const TStr& Col1, const TStr& Col2, TTableContext& Context): Name(TableName),
+  Context(Context), NumRows(H.Len()), NumValidRows(H.Len()), FirstValidRow(0), LastValidRow(-1){
+    S.Add(TPair<TStr,TAttrType>(Col1, atInt));
+    S.Add(TPair<TStr,TAttrType>(Col2, atInt));
+    ColTypeMap.AddDat(Col1, TPair<TAttrType,TInt>(atInt,0));
+    ColTypeMap.AddDat(Col2, TPair<TAttrType,TInt>(atInt,1));
+    IntCols = TVec<TIntV>(2);
+    H.GetKeyV(IntCols[0]);
+    H.GetDatV(IntCols[1]);
+    Next = TIntV(NumRows);
+    for(TInt i = 0; i < NumRows; i++){
+      Next[i] = i+1;
+    }
+    Next[NumRows-1] = Last;
+}
+
+TTable::TTable(const TStr& TableName, const THash<TInt,TFlt>& H, const TStr& Col1, const TStr& Col2, TTableContext& Context): Name(TableName),
+  Context(Context), NumRows(H.Len()), NumValidRows(H.Len()), FirstValidRow(0), LastValidRow(-1){
+    S.Add(TPair<TStr,TAttrType>(Col1, atInt));
+    S.Add(TPair<TStr,TAttrType>(Col2, atFlt));
+    ColTypeMap.AddDat(Col1, TPair<TAttrType,TInt>(atInt,0));
+    ColTypeMap.AddDat(Col2, TPair<TAttrType,TInt>(atFlt,0));
+    IntCols = TVec<TIntV>(1);
+    FltCols = TVec<TFltV>(1);
+    H.GetKeyV(IntCols[0]);
+    H.GetDatV(FltCols[0]);
+    Next = TIntV(NumRows);
+    for(TInt i = 0; i < NumRows; i++){
+      Next[i] = i+1;
+    }
+    Next[NumRows-1] = Last;
 }
 
 PTable TTable::LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm, TTableContext& Context, const TIntV& RelevantCols, const char& Separator, TBool HasTitleLine){
