@@ -452,10 +452,9 @@ void TNEANet::DelEdge(const int& SrcNId, const int& DstNId, const bool& IsDir) {
   bool Edge = IsEdge(SrcNId, DstNId, EId, IsDir);
   IAssert(Edge); // there is at least one edge
   while (Edge) {
-    GetNode(SrcNId).OutEIdV.DelIfIn(EId);
-    GetNode(DstNId).InEIdV.DelIfIn(EId);
+    DelEdge(EId);
+    Edge = IsEdge(SrcNId, DstNId, EId, IsDir);
   }
-  EdgeH.DelKey(EId);
 }
 
 bool TNEANet::IsEdge(const int& SrcNId, const int& DstNId, int& EId, const bool& IsDir) const {
