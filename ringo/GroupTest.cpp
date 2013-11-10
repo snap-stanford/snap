@@ -3,7 +3,7 @@
 int main(){
   TTableContext Context;
   // create scheme
-  TTable::Schema AnimalS;
+  Schema AnimalS;
   AnimalS.Add(TPair<TStr,TAttrType>("Animal", atStr));
   AnimalS.Add(TPair<TStr,TAttrType>("Size", atStr));
   AnimalS.Add(TPair<TStr,TAttrType>("Location", atStr));
@@ -22,16 +22,14 @@ int main(){
   cols.Add("Size");
   cols.Add("Number");
 
-  P->Group(cols, "AnimalGroup", true);
-
   P->Unique(cols, true);
 
-  //TStrV group1;
-  //group1.Add("Location");
-  //P->Group(group1, "LocationGroup");
-  //group1.Add("Size");
-  //P->Group(group1, "LocationSizeGroup");
-
   P->SaveSS("tests/p2.txt");
+
+  TStrV group1;
+  group1.Add("Location");
+  P->Group(group1, "LocationGroup");
+
+  P->SaveSS("tests/p3.txt");
   return 0;
 }

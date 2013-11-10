@@ -1,8 +1,9 @@
+//#include "Table.h"
 #include "Snap.h"
 
 int main(){
   TTableContext Context;
-  TTable::Schema LocS;
+  Schema LocS;
   LocS.Add(TPair<TStr,TAttrType>("Name", atStr));
   LocS.Add(TPair<TStr,TAttrType>("X", atInt));
   LocS.Add(TPair<TStr,TAttrType>("Y", atFlt));
@@ -15,8 +16,8 @@ int main(){
   RelevantCols.Add(3);
   RelevantCols.Add(4);
 
-  PTable P = TTable::LoadSS("Locations", LocS, "tests/loc.txt", Context, RelevantCols);
-  PTable Q = TTable::LoadSS("Locations", LocS, "tests/loc.txt", Context, RelevantCols);
+  PTable P = TTable::LoadSS("Locations", LocS, "tests/loc.txt", Context, RelevantCols, '\t', true);
+  PTable Q = TTable::LoadSS("Locations", LocS, "tests/loc.txt", Context, RelevantCols, '\t', true);
 
   P->SaveSS("tests/res.txt");
 

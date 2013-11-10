@@ -1,12 +1,12 @@
 #ifndef PREDICATE_H
 #define PREDICATE_H
 
-typedef enum TAttrType_ {atUndef, atInt, atFlt, atStr} TAttrType;   // attribute type
+typedef enum TAttrType_ {atInt, atFlt, atStr} TAttrType;   // attribute type
+typedef enum {NOT, AND, OR, NOP} TPredOp; // boolean operators for selection predicates
+typedef enum {LT = 0, LTE, EQ, NEQ, GTE, GT, SUBSTR, SUPERSTR} TPredComp; // comparison operators for selection predicates
 
 class TPredicate {
 public:
-  typedef enum {NOT, AND, OR, NOP} OP;
-  typedef enum {LT = 0, LTE, EQ, NEQ, GTE, GT, SUBSTR, SUPERSTR} COMP;
   class TAtomicPredicate;
 protected:
   static const TAtomicPredicate NonAtom;
@@ -14,7 +14,7 @@ public:
   class TAtomicPredicate{
     TAttrType Type;
     TBool IsConst;
-    COMP Compare;
+    TPredComp Compare;
     TStr Lvar;
     TStr Rvar;
     TInt IntConst;
@@ -23,9 +23,9 @@ public:
   public:
     TAtomicPredicate():Type(NonAtom.Type), IsConst(NonAtom.IsConst), Compare(NonAtom.Compare), Lvar(NonAtom.Lvar),
       Rvar(NonAtom.Rvar), IntConst(NonAtom.IntConst), FltConst(NonAtom.FltConst), StrConst(NonAtom.StrConst){}
-    TAtomicPredicate(TAttrType Typ, TBool IsCnst, COMP Cmp, TStr L, TStr R, TInt ICnst, TFlt FCnst, TStr SCnst):
+    TAtomicPredicate(TAttrType Typ, TBool IsCnst, TPredComp Cmp, TStr L, TStr R, TInt ICnst, TFlt FCnst, TStr SCnst):
       Type(Typ), IsConst(IsCnst), Compare(Cmp), Lvar(L), Rvar(R), IntConst(ICnst), FltConst(FCnst), StrConst(SCnst){}
-    TAtomicPredicate(TAttrType Typ, TBool IsCnst, COMP Cmp, TStr L, TStr R):
+    TAtomicPredicate(TAttrType Typ, TBool IsCnst, TPredComp Cmp, TStr L, TStr R):
       Type(Typ), IsConst(IsCnst), Compare(Cmp), Lvar(L), Rvar(R), IntConst(0), FltConst(0), StrConst(""){}
     friend class TPredicate;
   };
@@ -33,7 +33,7 @@ public:
   class TPredicateNode{
   //protected:
   public:
-    OP Op;
+    TPredOp Op;
     TBool Result;
     TAtomicPredicate Atom;
     TPredicateNode* Parent;
@@ -44,7 +44,7 @@ public:
     // constructor for atomic predicate node (leaf)
     TPredicateNode(const TAtomicPredicate& A): Op(NOP), Result(false), Atom(A), Parent(NULL), Left(NULL), Right(NULL){}
     // constructor for logical operation predicate node (internal node)
-    TPredicateNode(OP Opr): Op(Opr), Result(false), Atom(), Parent(NULL), Left(NULL), Right(NULL){}
+    TPredicateNode(TPredOp Opr): Op(Opr), Result(false), Atom(), Parent(NULL), Left(NULL), Right(NULL){}
     TPredicateNode(const TPredicateNode& P): Op(P.Op), Result(P.Result), Atom(P.Atom), Parent(P.Parent), Left(P.Left), Right(P.Right){}
     void AddLeftChild(TPredicateNode* Child){ Left = Child; Child->Parent = this;}
     void AddRightChild(TPredicateNode* Child){ Right = Child; Child->Parent = this;}
@@ -70,7 +70,7 @@ public:
   TBool EvalAtomicPredicate(const TAtomicPredicate& Atom);
 
   template <class T>
-  static TBool EvalAtom(T Val1, T Val2, COMP Cmp){
+  static TBool EvalAtom(T Val1, T Val2, TPredComp Cmp){
     switch(Cmp){
       case LT: return Val1 < Val2;
       case LTE: return Val1 <= Val2;
@@ -82,7 +82,7 @@ public:
     }
   };
 
-  static TBool EvalStrAtom(TStr Val1, TStr Val2, COMP Cmp){
+  static TBool EvalStrAtom(TStr Val1, TStr Val2, TPredComp Cmp){
     switch(Cmp){
       case LT: return Val1 < Val2;
       case LTE: return Val1 <= Val2;

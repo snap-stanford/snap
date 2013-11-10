@@ -304,7 +304,7 @@ void SavePajek(const PGraph& Graph, const TStr& OutFNm, const TIntStrH& NIdColor
   for (typename PGraph::TObj::TEdgeI EI = Graph->BegEI(); EI < Graph->EndEI(); EI++) {
     const int SrcNId = NIdToIdH.GetDat(EI.GetSrcNId());
     const int DstNId = NIdToIdH.GetDat(EI.GetDstNId());
-    fprintf(F, "%d %d 1 c %s\n", SrcNId, DstNId, 1,
+    fprintf(F, "%d %d %d c %s\n", SrcNId, DstNId, 1,
       EIdColorH.IsKey(EI.GetId()) ? EIdColorH.GetDat(EI.GetId()).CStr() : "Black");
   }
   fclose(F);

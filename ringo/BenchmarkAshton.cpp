@@ -1,4 +1,5 @@
 //#include "Engine.h"
+//#include "Table.h"
 #include "Snap.h"
 #include <time.h>
 
@@ -16,7 +17,7 @@ int main(){
   }
 
   // Schema - change types..
-  TTable::Schema S;
+  Schema S;
   /*
   S.Add(TPair<TStr,TAttrType>("Body", atInt));
   S.Add(TPair<TStr,TAttrType>("ViewCount", atInt));
@@ -74,13 +75,13 @@ int main(){
 
   for(int i = 0; i < N; i++){
     TExeTm tl;
-    PTable T1 = TTable::LoadSS("posts1", S, TestFile, Context, RelevantCols);
+    PTable T1 = TTable::LoadSS("posts1", S, TestFile, Context, RelevantCols, '\t', true);
     q1Results[i][0] = tl.GetSecs();
     TExeTm tcc;
     PTable T2 = TTable::New(T1, "posts2");
     q1Results[i][1] = tcc.GetSecs();
     TExeTm ts;
-    T1->SelectAtomicIntConst("PostTypeId", 1, TPredicate::EQ);
+    T1->SelectAtomicIntConst("PostTypeId", 1, EQ);
     q1Results[i][2] = ts.GetSecs();
     TExeTm tj;
     PTable Tj = T1->Join("AcceptedAnswerId", *T2, "Id");
@@ -91,7 +92,7 @@ int main(){
     Tj->AddEdgeAttr("posts2.CreationDate");
     q1Results[i][4] = tpg.GetSecs();
     TExeTm ttg;
-    Tj->ToGraph();
+    Tj->ToGraph(aaLast);
     q1Results[i][5] = tpg.GetSecs();
   }
 

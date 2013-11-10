@@ -814,7 +814,7 @@ void TLinReg::NR_covsrt(
 }
 
 void TLinReg::NR_gaussj(TFltVV& a, const int& n, TFltVV& b, const int& m){
-  int i, icol, irow=0, j, k, l, ll;
+  int i, icol=0, irow=0, j, k, l, ll;
   double big, dum, pivinv;
 
   TIntV indxc(n+1);

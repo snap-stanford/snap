@@ -1,5 +1,3 @@
-#define SW_TRACE 0
-
 #if SW_TRACE
 #include <execinfo.h>
 #endif
@@ -119,6 +117,11 @@ void ExeStop(
   }
   // report full message to log file
   SaveToErrLog(FullMsgCStr);
+
+#if defined(SW_NOABORT)
+  TExcept::Throw(FullMsgCStr);
+#endif
+
   // report to screen & stop execution
   bool Continue=false;
   // call handler
