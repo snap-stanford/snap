@@ -24,7 +24,7 @@ public:
 };
 
 /* possible policies for aggregating node attributes */
-typedef enum {aaMin, aaMax, aaFirst, aaLast, aaAvg, aaMean} TAttrAggr;
+typedef enum {aaMin, aaMax, aaFirst, aaLast, aaMean, aaMedian, aaSum, aaCount} TAttrAggr;
 /* possible operations on columns */
 typedef enum {OP_ADD, OP_SUB, OP_MUL, OP_DIV, OP_MOD} OPS;
 
@@ -238,7 +238,14 @@ protected:
       case aaLast:{
         return V[V.Len()-1];
       }
-      case aaAvg:{
+      case aaSum:{
+        T Res = V[0];
+        for(TInt i = 1; i < V.Len(); i++){
+          Res = Res + V[i];
+        }
+        return Res;
+      }
+      case aaMean:{
         T Res = V[0];
         for(TInt i = 1; i < V.Len(); i++){
           Res = Res + V[i];
@@ -246,9 +253,15 @@ protected:
         //Res = Res / V.Len(); // TODO: Handle Str case separately?
         return Res;
       }
-      case aaMean:{
+      case aaMedian:{
         V.Sort();
         return V[V.Len()/2];
+      }
+      case aaCount:{
+        // NOTE: Code should never reach here
+        // I had to put this here to avoid a compiler warning
+        // Is there a better way to do this?
+        return V[0];
       }
     }
     // added to remove a compiler warning
@@ -257,14 +270,14 @@ protected:
   }
 
   /***** Grouping Utility functions *************/
-	// Group/hash by a single column with integer values. Returns hash table with grouping.
+  // Group/hash by a single column with integer values. Returns hash table with grouping.
   // IndexSet tells what rows to consider (vector of physical row ids). It is used only if All == true.
   // Note that the IndexSet option is currently not used anywhere...
-	void GroupByIntCol(const TStr& GroupBy, THash<TInt,TIntV>& grouping, const TIntV& IndexSet, TBool All) const; 
-	// Group/hash by a single column with float values. Returns hash table with grouping.
-	void GroupByFltCol(const TStr& GroupBy, THash<TFlt,TIntV>& grouping, const TIntV& IndexSet, TBool All) const;
-	// Group/hash by a single column with string values. Returns hash table with grouping.
-	void GroupByStrCol(const TStr& GroupBy, THash<TStr,TIntV>& grouping, const TIntV& IndexSet, TBool All) const;
+  void GroupByIntCol(const TStr& GroupBy, THash<TInt,TIntV>& grouping, const TIntV& IndexSet, TBool All) const; 
+  // Group/hash by a single column with float values. Returns hash table with grouping.
+  void GroupByFltCol(const TStr& GroupBy, THash<TFlt,TIntV>& grouping, const TIntV& IndexSet, TBool All) const;
+  // Group/hash by a single column with string values. Returns hash table with grouping.
+  void GroupByStrCol(const TStr& GroupBy, THash<TStr,TIntV>& grouping, const TIntV& IndexSet, TBool All) const;
 
  /* template for utility function to update a grouping hash map */
  template <class T>
@@ -305,7 +318,7 @@ protected:
 
 public:
 /***** Constructors *****/
-	TTable(); 
+  TTable(); 
   TTable(TTableContext& Context);
   TTable(const TStr& TableName, const Schema& S, TTableContext& Context);
   TTable(TSIn& SIn, TTableContext& Context);
@@ -459,27 +472,32 @@ public:
   // store column for a group, physical row ids have to be passed
   void StoreGroupCol(const TStr& GroupColName, const TVec<TPair<TInt, TInt> >& GroupAndRowIds);
 
-  // if keep unique is true, unique vec will be modified to contain a row from each group
-  // if keep unique is false, then normal grouping is done and a new column is added depending on 
-  // whether groupcolname is an empty string
+  // if KeepUnique is true, UniqueVec will be modified to contain a row from each group
+  // if KeepUnique is false, then normal grouping is done and a new column is added depending on 
+  // whether GroupColName is empty
   void GroupAux(const TStrV& GroupBy, THash<TGroupKey, TPair<TInt, TIntV> >& Grouping, TBool Ordered,
     const TStr& GroupColName, TBool KeepUnique, TIntV& UniqueVec);
 
   // group - specify columns to group by, name of column in new table, whether to treat columns as ordered
   // if name of column is an empty string, no column is created
-	void Group(const TStrV& GroupBy, const TStr& GroupColName, TBool Ordered = true);
-	
-	// count - count the number of appearences of the different elements of col
-	// record results in column CountCol
-	void Count(const TStr& CountColName, const TStr& Col);
-	// order the rows according to the values in columns of OrderBy (in descending
-	// lexicographic order). 
-	void Order(const TStrV& OrderBy, const TStr& OrderColName = "", TBool ResetRankByMSC = false, TBool Asc = true);
+  void Group(const TStrV& GroupBy, const TStr& GroupColName, TBool Ordered = true);
+  
+  // count - count the number of appearences of the different elements of col
+  // record results in column CountCol
+  void Count(const TStr& CountColName, const TStr& Col);
+  // order the rows according to the values in columns of OrderBy (in descending
+  // lexicographic order). 
+  void Order(const TStrV& OrderBy, const TStr& OrderColName = "", TBool ResetRankByMSC = false, TBool Asc = true);
+  
+  // aggregate values of ValAttr after grouping with respect to GroupByAttrs
+  // result stored as new attribute ResAttr
+  void Aggregate(const TStrV& GroupByAttrs, TAttrAggr AggOp, const TStr& ValAttr,
+    const TStr& ResAttr, TBool Ordered = true);
 
-	// perform equi-join with given columns - i.e. keep tuple pairs where 
-	// this->Col1 == Table->Col2; Implementation: Hash-Join - build a hash out of the smaller table
-	// hash the larger table and check for collisions
-	PTable Join(const TStr& Col1, const TTable& Table, const TStr& Col2);
+  // perform equi-join with given columns - i.e. keep tuple pairs where 
+  // this->Col1 == Table->Col2; Implementation: Hash-Join - build a hash out of the smaller table
+  // hash the larger table and check for collisions
+  PTable Join(const TStr& Col1, const TTable& Table, const TStr& Col2);
   PTable Join(const TStr& Col1, const PTable& Table, const TStr& Col2){ return Join(Col1, *Table, Col2); };
   PTable SelfJoin(const TStr& Col){return Join(Col, *this, Col);}
 
