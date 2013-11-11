@@ -1887,13 +1887,7 @@ PNEANet TTable::ToGraph(TAttrAggr AggrPolicy) {
   return BuildGraph(RowIds, AggrPolicy);
 }
 
-void TTable::GetRowIdBuckets(int SplitColId, TInt JumpSize, TInt WindowSize, TInt StartVal, TInt EndVal) {
-  int NumBuckets, MinBucket, MaxBucket;
-
-  // initialize buckets
-  if (JumpSize == 0) { NumBuckets = (EndVal - StartVal)/JumpSize + 1;}
-  else { NumBuckets = (EndVal - StartVal)/JumpSize + 1;}
-
+void TTable::InitRowIdBuckets(int NumBuckets) {
   for (int i = 0; i < RowIdBuckets.Len(); i++) {
     RowIdBuckets[i].Clr();
   }
@@ -1903,37 +1897,13 @@ void TTable::GetRowIdBuckets(int SplitColId, TInt JumpSize, TInt WindowSize, TIn
   for (int i = 0; i < NumBuckets; i++) {
     RowIdBuckets[i].Gen(10, 0);
   }
-
-  // populate RowIdSets by computing the range of buckets for each row
-  for (int i = 0; i < Next.Len(); i++) {
-    if (Next[i] == Invalid) {continue;}
-    int SplitVal = IntCols[SplitColId][i];
-    if (SplitVal < StartVal || SplitVal > EndVal){ continue;}
-    if (JumpSize == 0) { // expanding windows
-      MinBucket = (SplitVal-StartVal)/WindowSize;
-      MaxBucket = NumBuckets-1;
-    } else { // sliding/disjoint windows
-      MinBucket = max(0,(SplitVal-WindowSize-StartVal)/JumpSize + 1);
-      MaxBucket = (SplitVal - StartVal)/JumpSize;  
-    }
-    for (int j = MinBucket; j <= MaxBucket; j++){ RowIdBuckets[j].Add(i);}
-  }
 }
 
-// Only integer SplitAttr supported
-// Setting JumpSize = WindowSize will give disjoint windows
-// Setting JumpSize < WindowSize will give sliding windows
-// Setting JumpSize > WindowSize will drop certain rows (currently not supported)
-// Setting JumpSize = 0 will give expanding windows (i.e. starting at 0 and ending at i*WindowSize)
-// To set the range of values of SplitAttr to be considered, use StartVal and EndVal (inclusive)
-// If StartVal == TInt.Mn, then the buckets will start from the min value of SplitAttr in the table. 
-// If EndVal == TInt.Mx, then the buckets will end at the max value of SplitAttr in the table. 
-TVec<PNEANet> TTable::ToGraphSequence(TStr SplitAttr, TAttrAggr AggrPolicy, TInt WindowSize, TInt JumpSize, TInt StartVal, TInt EndVal) {
+void TTable::FillBucketsByWindow(TStr SplitAttr, TInt JumpSize, TInt WindowSize, TInt StartVal, TInt EndVal) {
   Assert (JumpSize <= WindowSize);
+  int NumBuckets, MinBucket, MaxBucket;
   TInt SplitColId = GetColIdx(SplitAttr);
-  //TAttrType SplitColType = GetColType(SplitAttr);
-  //Assert (SplitColType == atInt);
-    
+
   if (StartVal == TInt::Mn || EndVal == TInt::Mx){
     // calculate min and max value of the column 'SplitAttr'
     TInt MinValue = TInt::Mx;
@@ -1953,15 +1923,111 @@ TVec<PNEANet> TTable::ToGraphSequence(TStr SplitAttr, TAttrAggr AggrPolicy, TInt
     if (EndVal == TInt::Mx) EndVal = MaxValue;
   }
 
-  GetRowIdBuckets(SplitColId, JumpSize, WindowSize, StartVal, EndVal);
+  // initialize buckets
+  if (JumpSize == 0) { NumBuckets = (EndVal - StartVal)/JumpSize + 1;}
+  else { NumBuckets = (EndVal - StartVal)/JumpSize + 1;}
 
+  InitRowIdBuckets(NumBuckets);
+
+  // populate RowIdSets by computing the range of buckets for each row
+  for (int i = 0; i < Next.Len(); i++) {
+    if (Next[i] == Invalid) {continue;}
+    int SplitVal = IntCols[SplitColId][i];
+    if (SplitVal < StartVal || SplitVal > EndVal){ continue;}
+    if (JumpSize == 0) { // expanding windows
+      MinBucket = (SplitVal-StartVal)/WindowSize;
+      MaxBucket = NumBuckets-1;
+    } else { // sliding/disjoint windows
+      MinBucket = max(0,(SplitVal-WindowSize-StartVal)/JumpSize + 1);
+      MaxBucket = (SplitVal - StartVal)/JumpSize;  
+    }
+    for (int j = MinBucket; j <= MaxBucket; j++){ RowIdBuckets[j].Add(i);}
+  }
+}
+
+void TTable::FillBucketsByInterval(TStr SplitAttr, TIntPrV SplitIntervals) {
+  TInt SplitColId = GetColIdx(SplitAttr);
+  int NumBuckets = SplitIntervals.Len();
+  InitRowIdBuckets(NumBuckets);
+
+  // populate RowIdSets by computing the range of buckets for each row
+  for (int i = 0; i < Next.Len(); i++) {
+    if (Next[i] == Invalid) {continue;}
+    int SplitVal = IntCols[SplitColId][i];
+    for (int j = 0; j < SplitIntervals.Len(); j++){ 
+      if (SplitVal >= SplitIntervals[j].Val1 && SplitVal < SplitIntervals[j].Val2){
+        RowIdBuckets[j].Add(i);
+      }
+    }
+  }
+}
+
+TVec<PNEANet> TTable::GetGraphsFromSequence(TAttrAggr AggrPolicy) {
   //call BuildGraph on each row id set - parallelizable!
-  TVec<PNEANet> GraphSequence(RowIdBuckets.Len());
-  for (int i = 0; i < GraphSequence.Len(); i++) {
-    GraphSequence[i] = BuildGraph(RowIdBuckets[i], AggrPolicy);
+  TVec<PNEANet> GraphSequence;
+  for (int i = 0; i < RowIdBuckets.Len(); i++) {
+    if (RowIdBuckets[i].Len() == 0){ continue;}
+    PNEANet PNet = BuildGraph(RowIdBuckets[i], AggrPolicy);
+    GraphSequence.Add(PNet);
   }
 
   return GraphSequence;
+}
+
+PNEANet TTable::GetFirstGraphFromSequence(TAttrAggr AggrPolicy) {
+  CurrBucket = -1;
+  this->AggrPolicy = AggrPolicy;
+  return GetNextGraphFromSequence();
+}
+
+PNEANet TTable::GetNextGraphFromSequence() {
+  CurrBucket++;
+  while (CurrBucket < RowIdBuckets.Len() && RowIdBuckets[CurrBucket].Len() == 0) {
+    CurrBucket++;
+  }
+  if (CurrBucket >= RowIdBuckets.Len()){ return NULL;}
+  return BuildGraph(RowIdBuckets[CurrBucket], AggrPolicy);
+}
+
+// Only integer SplitAttr supported
+// Setting JumpSize = WindowSize will give disjoint windows
+// Setting JumpSize < WindowSize will give sliding windows
+// Setting JumpSize > WindowSize will drop certain rows (currently not supported)
+// Setting JumpSize = 0 will give expanding windows (i.e. starting at 0 and ending at i*WindowSize)
+// To set the range of values of SplitAttr to be considered, use StartVal and EndVal (inclusive)
+// If StartVal == TInt.Mn, then the buckets will start from the min value of SplitAttr in the table. 
+// If EndVal == TInt.Mx, then the buckets will end at the max value of SplitAttr in the table. 
+TVec<PNEANet> TTable::ToGraphSequence(TStr SplitAttr, TAttrAggr AggrPolicy, TInt WindowSize, TInt JumpSize, TInt StartVal, TInt EndVal) {
+  FillBucketsByWindow(SplitAttr, JumpSize, WindowSize, StartVal, EndVal);
+  return GetGraphsFromSequence(AggrPolicy);  
+}
+
+TVec<PNEANet> TTable::ToVarGraphSequence(TStr SplitAttr, TAttrAggr AggrPolicy, TIntPrV SplitIntervals){
+  FillBucketsByInterval(SplitAttr, SplitIntervals);
+  return GetGraphsFromSequence(AggrPolicy);
+}
+
+TVec<PNEANet> TTable::ToGraphPerGroup(TStr GroupAttr, TAttrAggr AggrPolicy){
+  return ToGraphSequence(GroupAttr, AggrPolicy, TInt(1), TInt(1), TInt::Mn, TInt::Mx);
+}
+
+PNEANet TTable::ToGraphSequenceIterator(TStr SplitAttr, TAttrAggr AggrPolicy, TInt WindowSize, TInt JumpSize, TInt StartVal, TInt EndVal) {
+  FillBucketsByWindow(SplitAttr, JumpSize, WindowSize, StartVal, EndVal);
+  return GetFirstGraphFromSequence(AggrPolicy);  
+}
+
+PNEANet TTable::ToVarGraphSequenceIterator(TStr SplitAttr, TAttrAggr AggrPolicy, TIntPrV SplitIntervals){
+  FillBucketsByInterval(SplitAttr, SplitIntervals);
+  return GetFirstGraphFromSequence(AggrPolicy);
+}
+
+PNEANet TTable::ToGraphPerGroupIterator(TStr GroupAttr, TAttrAggr AggrPolicy){
+  return ToGraphSequenceIterator(GroupAttr, AggrPolicy, TInt(1), TInt(1), TInt::Mn, TInt::Mx);
+}
+
+// calls to this must be preceded by a call to one of the above ToGraph*Iterator functions
+PNEANet TTable::NextGraphIterator(){
+  return GetNextGraphFromSequence();
 }
 
 PTable TTable::GetNodeTable(const PNEANet& Network, const TStr& TableName, TTableContext& Context){

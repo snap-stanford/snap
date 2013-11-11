@@ -164,6 +164,9 @@ protected:
   TVec<TStrTr> CommonNodeAttrs;
 
   TVec<TIntV> RowIdBuckets;
+  // The following members are used when a graph sequence is created using iterators
+  TInt CurrBucket;
+  TAttrAggr AggrPolicy;
 
 public:
   /***** value getters - getValue(column name, physical row Idx) *****/
@@ -207,10 +210,26 @@ protected:
     THash<TInt, TStrFltVH>& NodeFltAttrs, THash<TInt, TStrStrVH>& NodeStrAttrs);
   // Makes a single pass over the rows in the given row id set, and creates nodes, edges, assigns node and edge attributes
   PNEANet BuildGraph(const TIntV& RowIds, TAttrAggr AggrPolicy);
-  // Returns sets of row ids, partitioned on the value of the column SplitColId, 
-  // according to the range specified by JumpSize and WindowSize.
-  // Called by ToGraphSequence.
-  void GetRowIdBuckets(int SplitColId, TInt JumpSize, TInt WindowSize, TInt StartVal, TInt EndVal);
+  // Initialize the RowIdBuckets vector which will be used for the graph sequence creation.
+  void InitRowIdBuckets(int NumBuckets);
+  // Fills RowIdBuckets with sets of row ids, partitioned on the value of the column SplitAttr, 
+  // according to the windows specified by JumpSize and WindowSize.
+  // Called by ToGraphSequence and ToGraphSequenceIterator.
+  void FillBucketsByWindow(TStr SplitAttr, TInt JumpSize, TInt WindowSize, TInt StartVal, TInt EndVal);
+  // Fills RowIdBuckets with sets of row ids, partitioned on the value of the column SplitAttr, 
+  // according to the intervals specified by SplitIntervals.
+  // Called by ToVarGraphSequence and ToVarGraphSequenceIterator.
+  void FillBucketsByInterval(TStr SplitAttr, TIntPrV SplitIntervals);
+  // Returns a sequence of graphs, each constructed from the set of row ids corresponding to
+  // a particular bucket in RowIdBuckets.
+  TVec<PNEANet> GetGraphsFromSequence(TAttrAggr AggrPolicy);
+  // Returns the first graph of the sequence corresponding to the sets of row ids in RowIdBuckets.
+  // This is used by the ToGraph*Iterator functions.
+  PNEANet GetFirstGraphFromSequence(TAttrAggr AggrPolicy);
+  // Returns the next graph in sequence corresponding to RowIdBuckets.
+  // This is used to iterate over the graph sequence by constructing one graph at a time.
+  // Called by NextGraphIterator().
+  PNEANet GetNextGraphFromSequence();
 
   // aggregate vector into a single scalar value according to a policy;
   // used for choosing an attribute value for a node when this node appears in
@@ -369,9 +388,26 @@ public:
 /***** Graph handling *****/
   // Create a graph out of the FINAL table
   PNEANet ToGraph(TAttrAggr AggrPolicy);
-  // Create a sequence of graphs based on values of column SplitAttr
+  
+  // Create a sequence of graphs based on values of column SplitAttr and windows
+  // specified by JumpSize and WindowSize.
   TVec<PNEANet> ToGraphSequence(TStr SplitAttr, TAttrAggr AggrPolicy, 
     TInt WindowSize, TInt JumpSize, TInt StartVal, TInt EndVal);
+  // Create a sequence of graphs based on values of column SplitAttr and intervals
+  // specified by SplitIntervals.
+  TVec<PNEANet> ToVarGraphSequence(TStr SplitAttr, TAttrAggr AggrPolicy, TIntPrV SplitIntervals);
+  // Create a sequence of graphs based on grouping specified by GroupAttr
+  TVec<PNEANet> ToGraphPerGroup(TStr GroupAttr, TAttrAggr AggrPolicy);
+
+  // Similar to above functions, these functions create the graphs one at a time, to allow
+  // efficient use of memory. A call to one of these functions must be followed by subsequent calls
+  // to NextGraphIterator().
+  PNEANet ToGraphSequenceIterator(TStr SplitAttr, TAttrAggr AggrPolicy, 
+    TInt WindowSize, TInt JumpSize, TInt StartVal, TInt EndVal);
+  PNEANet ToVarGraphSequenceIterator(TStr SplitAttr, TAttrAggr AggrPolicy, TIntPrV SplitIntervals);
+  PNEANet ToGraphPerGroupIterator(TStr GroupAttr, TAttrAggr AggrPolicy);
+  // Calls to this must be preceded by a call to one of the above ToGraph*Iterator functions.
+  PNEANet NextGraphIterator();
 
   /* Getters and Setters of data required for building a graph out of the table */
 	TStr GetSrcCol() const { return SrcCol; }
