@@ -1,5 +1,5 @@
-//#include "snap.h"
-#include "table.h"
+#include "snap.h"
+//#include "table.h"
 #include <cmath>
 
 int main(){
@@ -18,7 +18,12 @@ int main(){
   S.Add("Sq.square");
   S.Add("Rt.root");
   Tj->ProjectInPlace(S);
+  Tj->ColMod("Sq.number", 10, "Mod10");
+  Tj->SelectAtomicIntConst("Mod10", 9, EQ);
+  Tj->ColMod("Sq.number", 3, "Mod3");
+  Tj->ClassifyAtomicIntConst("Mod3", 0, EQ, "Label");
   Tj->SaveSS("../../testfiles/attr_test_out.txt");
+
 
   Schema AnimalS;
   AnimalS.Add(TPair<TStr,TAttrType>("Animal", atStr));
@@ -43,5 +48,6 @@ int main(){
   TIntFltH PR;
   TSnap::GetPageRank(G, PR);
   TTable AnimalRank("AnimalRank", PR, "animal", "rank", Context, true);
+  AnimalRank.ClassifyAtomicStrConst("animal", "Lio", SUPERSTR, "label");
   AnimalRank.SaveSS("../../testfiles/attr_test_out_pr.txt");
 }

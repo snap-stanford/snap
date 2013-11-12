@@ -1,3 +1,5 @@
+//#include "table.h"
+
 TInt const TTable::Last =-1;
 TInt const TTable::Invalid =-2;
 
@@ -1194,6 +1196,12 @@ void TTable::Select(TPredicate& Predicate, TIntV& SelectedRows, TBool Remove){
   }
 }
 
+void TTable::Classify(TPredicate& Predicate, const TStr& LabelName, const TInt& PositiveLabel, const TInt& NegativeLabel){
+  TIntV SelectedRows;
+  Select(Predicate, SelectedRows, false);
+  ClassifyAux(SelectedRows, LabelName, PositiveLabel, NegativeLabel);
+}
+
 
 // Further optimization: both comparison operation and type of columns don't change between rows..
 void TTable::SelectAtomic(const TStr& Col1, const TStr& Col2, TPredComp Cmp, TIntV& SelectedRows, TBool Remove){
@@ -1246,6 +1254,12 @@ void TTable::SelectAtomic(const TStr& Col1, const TStr& Col2, TPredComp Cmp, TIn
   }
 }
 
+void TTable::ClassifyAtomic(const TStr& Col1, const TStr& Col2, TPredComp Cmp, const TStr& LabelName, const TInt& PositiveLabel, const TInt& NegativeLabel){
+  TIntV SelectedRows;
+  SelectAtomic(Col1, Col2, Cmp, SelectedRows, false);
+  ClassifyAux(SelectedRows, LabelName, PositiveLabel, NegativeLabel);
+}
+
 void TTable::SelectAtomicIntConst(const TStr& Col1, const TInt& Val2, TPredComp Cmp, TIntV& SelectedRows, TBool Remove){
   Assert(Cmp < SUBSTR);
   TAttrType Ty1;
@@ -1271,6 +1285,12 @@ void TTable::SelectAtomicIntConst(const TStr& Col1, const TInt& Val2, TPredComp 
       }
     }
   }
+}
+
+void TTable::ClassifyAtomicIntConst(const TStr& Col1, const TInt& Val2, TPredComp Cmp, const TStr& LabelName, const TInt& PositiveLabel, const TInt& NegativeLabel){
+  TIntV SelectedRows;
+  SelectAtomicIntConst(Col1, Val2, Cmp, SelectedRows, false);
+  ClassifyAux(SelectedRows, LabelName, PositiveLabel, NegativeLabel);
 }
 
 void TTable::SelectAtomicStrConst(const TStr& Col1, const TStr& Val2, TPredComp Cmp, TIntV& SelectedRows, TBool Remove){
@@ -1299,6 +1319,12 @@ void TTable::SelectAtomicStrConst(const TStr& Col1, const TStr& Val2, TPredComp 
   }
 }
 
+void TTable::ClassifyAtomicStrConst(const TStr& Col1, const TStr& Val2, TPredComp Cmp, const TStr& LabelName, const TInt& PositiveLabel, const TInt& NegativeLabel){
+  TIntV SelectedRows;
+  SelectAtomicStrConst(Col1, Val2, Cmp, SelectedRows, false);
+  ClassifyAux(SelectedRows, LabelName, PositiveLabel, NegativeLabel);
+}
+
 void TTable::SelectAtomicFltConst(const TStr& Col1, const TFlt& Val2, TPredComp Cmp, TIntV& SelectedRows, TBool Remove){
   Assert(Cmp < SUBSTR);
   TAttrType Ty1;
@@ -1324,6 +1350,12 @@ void TTable::SelectAtomicFltConst(const TStr& Col1, const TFlt& Val2, TPredComp 
       }
     }
   }
+}
+
+void TTable::ClassifyAtomicFltConst(const TStr& Col1, const TFlt& Val2, TPredComp Cmp, const TStr& LabelName, const TInt& PositiveLabel, const TInt& NegativeLabel){
+  TIntV SelectedRows;
+  SelectAtomicFltConst(Col1, Val2, Cmp, SelectedRows, false);
+  ClassifyAux(SelectedRows, LabelName, PositiveLabel, NegativeLabel);
 }
 
 TInt TTable::CompareRows(TInt R1, TInt R2, const TStr& CompareBy, TBool Asc){
@@ -2520,6 +2552,19 @@ void TTable::AddFltCol(const TStr& ColName) {
   FltCols.Add(TFltV(NumRows));
   TInt L = FltCols.Len();
   ColTypeMap.AddDat(ColName, TPair<TAttrType,TInt>(atFlt, L-1));
+}
+
+void TTable::ClassifyAux(const TIntV& SelectedRows, const TStr& LabelName, const TInt& PositiveLabel, const TInt& NegativeLabel){
+  S.Add(TPair<TStr,TAttrType>(LabelName, atInt));
+  TInt LabelColIdx = IntCols.Len();
+  ColTypeMap.AddDat(LabelName, TPair<TAttrType, TInt>(atInt, LabelColIdx));
+  IntCols.Add(TIntV(NumRows));
+  for(TInt i = 0; i < NumRows; i++){
+    IntCols[LabelColIdx][i] = NegativeLabel;
+  }
+  for(TInt i = 0; i < SelectedRows.Len(); i++){
+    IntCols[LabelColIdx][SelectedRows[i]] = PositiveLabel;
+  }
 }
 
 /* Performs a generic operations on two numeric attributes

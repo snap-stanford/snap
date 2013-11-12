@@ -183,6 +183,8 @@ protected:
   /* Utility functions for columns */
   void AddIntCol(const TStr& ColName);
   void AddFltCol(const TStr& ColName);
+  // adds a label attribute with positive labels on selected rows and negative labels on the rest
+  void ClassifyAux(const TIntV& SelectedRows, const TStr& LabelName, const TInt& PositiveLabel = 1, const TInt& NegativeLabel=  0);
 
 /***** Utility functions for handling string values *****/
   TStr GetStrVal(TInt ColIdx, TInt RowIdx) const{ return TStr(Context.StringVals.GetKey(StrColMaps[ColIdx][RowIdx]));}
@@ -483,27 +485,36 @@ public:
     TIntV SelectedRows;
     Select(Predicate, SelectedRows, true);
   }
+  void Classify(TPredicate& Predicate, const TStr& LabelName, const TInt& PositiveLabel = 1, const TInt& NegativeLabel = 0);
+
   // select atomic - optimized cases of select with predicate of an atomic form: compare attribute to attribute or compare attribute to a constant
   void SelectAtomic(const TStr& Col1, const TStr& Col2, TPredComp Cmp, TIntV& SelectedRows, TBool Remove = true);
   void SelectAtomic(const TStr& Col1, const TStr& Col2, TPredComp Cmp){
     TIntV SelectedRows;
     SelectAtomic(Col1, Col2, Cmp, SelectedRows, true);
   }
+  void ClassifyAtomic(const TStr& Col1, const TStr& Col2, TPredComp Cmp, const TStr& LabelName, const TInt& PositiveLabel = 1, const TInt& NegativeLabel = 0);
+
   void SelectAtomicIntConst(const TStr& Col1, const TInt& Val2, TPredComp Cmp, TIntV& SelectedRows, TBool Remove = true);
   void SelectAtomicIntConst(const TStr& Col1, const TInt& Val2, TPredComp Cmp){
     TIntV SelectedRows;
     SelectAtomicIntConst(Col1, Val2, Cmp, SelectedRows, true);
   }
+  void ClassifyAtomicIntConst(const TStr& Col1, const TInt& Val2, TPredComp Cmp, const TStr& LabelName, const TInt& PositiveLabel = 1, const TInt& NegativeLabel = 0);
+
   void SelectAtomicStrConst(const TStr& Col1, const TStr& Val2, TPredComp Cmp, TIntV& SelectedRows, TBool Remove = true);
   void SelectAtomicStrConst(const TStr& Col1, const TStr& Val2, TPredComp Cmp){
     TIntV SelectedRows;
     SelectAtomicStrConst(Col1, Val2, Cmp, SelectedRows, true);
   }
+  void ClassifyAtomicStrConst(const TStr& Col1, const TStr& Val2, TPredComp Cmp, const TStr& LabelName, const TInt& PositiveLabel = 1, const TInt& NegativeLabel = 0);
+
   void SelectAtomicFltConst(const TStr& Col1, const TFlt& Val2, TPredComp Cmp, TIntV& SelectedRows, TBool Remove = true);
   void SelectAtomicFltConst(const TStr& Col1, const TFlt& Val2, TPredComp Cmp){
     TIntV SelectedRows;
     SelectAtomicFltConst(Col1, Val2, Cmp, SelectedRows, true);
   }
+  void ClassifyAtomicFltConst(const TStr& Col1, const TFlt& Val2, TPredComp Cmp, const TStr& LabelName, const TInt& PositiveLabel = 1, const TInt& NegativeLabel = 0);
 
   // store column for a group, physical row ids have to be passed
   void StoreGroupCol(const TStr& GroupColName, const TVec<TPair<TInt, TInt> >& GroupAndRowIds);
