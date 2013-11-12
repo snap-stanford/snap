@@ -314,12 +314,12 @@ protected:
 
   /***** Utility functions for sorting by columns *****/
   // returns positive value if R1 is bigger, negative value if R2 is bigger, and 0 if they are equal (strcmp semantics)
-  TInt CompareRows(TInt R1, TInt R2, const TStr& CompareBy, TBool Asc = true);
-  TInt CompareRows(TInt R1, TInt R2, const TStrV& CompareBy, TBool Asc = true); 
-  TInt GetPivot(TIntV& V, TInt StartIdx, TInt EndIdx, const TStrV& SortBy, TBool Asc);
-  TInt Partition(TIntV& V, TInt StartIdx, TInt EndIdx, const TStrV& SortBy, TBool Asc);
-  void ISort(TIntV& V, TInt StartIdx, TInt EndIdx, const TStrV& SortBy, TBool Asc = true);
-  void QSort(TIntV& V, TInt StartIdx, TInt EndIdx, const TStrV& SortBy, TBool Asc = true);
+  inline TInt CompareRows(TInt R1, TInt R2, const TAttrType& CompareByType, const TInt& CompareByIndex, TBool Asc = true);
+  inline TInt CompareRows(TInt R1, TInt R2, const TVec<TAttrType>& CompareByTypes, const TIntV& CompareByIndices, TBool Asc = true); 
+  TInt GetPivot(TIntV& V, TInt StartIdx, TInt EndIdx, const TVec<TAttrType>& SortByTypes, const TIntV& SortByIndices, TBool Asc);
+  TInt Partition(TIntV& V, TInt StartIdx, TInt EndIdx, const TVec<TAttrType>& SortByTypes, const TIntV& SortByIndices, TBool Asc);
+  void ISort(TIntV& V, TInt StartIdx, TInt EndIdx, const TVec<TAttrType>& SortByTypes, const TIntV& SortByIndices, TBool Asc = true);
+  void QSort(TIntV& V, TInt StartIdx, TInt EndIdx, const TVec<TAttrType>& SortByTypes, const TIntV& SortByIndices, TBool Asc = true);
 
   bool IsRowValid(TInt RowIdx) const{ return Next[RowIdx] != Invalid;}
   TInt GetLastValidRowIdx();

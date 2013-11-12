@@ -1358,47 +1358,44 @@ void TTable::ClassifyAtomicFltConst(const TStr& Col1, const TFlt& Val2, TPredCom
   ClassifyAux(SelectedRows, LabelName, PositiveLabel, NegativeLabel);
 }
 
-TInt TTable::CompareRows(TInt R1, TInt R2, const TStr& CompareBy, TBool Asc){
+inline TInt TTable::CompareRows(TInt R1, TInt R2, const TAttrType& CompareByType, const TInt& CompareByIndex, TBool Asc){
   //printf("comparing rows %d %d by %s\n", R1.Val, R2.Val, CompareBy.CStr());
-  if (!Asc) {
-    return CompareRows(R2, R1, CompareBy, true);
-  }
-  TInt ColIdx = GetColIdx(CompareBy);
-  switch(GetColType(CompareBy)){
+  switch(CompareByType){
     case atInt:{
-      if(IntCols[ColIdx][R1] > IntCols[ColIdx][R2]) return 1;
-      if(IntCols[ColIdx][R1] < IntCols[ColIdx][R2]) return -1;
+      if(IntCols[CompareByIndex][R1] > IntCols[CompareByIndex][R2]) return (Asc ? 1 : -1);
+      if(IntCols[CompareByIndex][R1] < IntCols[CompareByIndex][R2]) return (Asc ? -1 : 1);
       return 0;
     }
     case atFlt:{
-      if(FltCols[ColIdx][R1] > FltCols[ColIdx][R2]) return 1;
-      if(FltCols[ColIdx][R1] < FltCols[ColIdx][R2]) return -1;
+      if(FltCols[CompareByIndex][R1] > FltCols[CompareByIndex][R2]) return (Asc ? 1 : -1);
+      if(FltCols[CompareByIndex][R1] < FltCols[CompareByIndex][R2]) return (Asc ? -1 : 1);
       return 0;
     }
     case atStr:{
-      TStr S1 = GetStrVal(ColIdx, R1);
-      TStr S2 = GetStrVal(ColIdx, R2);
-      return strcmp(S1.CStr(), S2.CStr());
+      TStr S1 = GetStrVal(CompareByIndex, R1);
+      TStr S2 = GetStrVal(CompareByIndex, R2);
+      int CmpRes = strcmp(S1.CStr(), S2.CStr());
+      return (Asc ? CmpRes : -CmpRes);
     }
   }
   // code should not come here, added to remove a compiler warning
   return 0;
 }
 
-TInt TTable::CompareRows(TInt R1, TInt R2, const TStrV& CompareBy, TBool Asc){
-  for(TInt i = 0; i < CompareBy.Len(); i++){
-    TInt res = CompareRows(R1, R2, CompareBy[i], Asc);
+inline TInt TTable::CompareRows(TInt R1, TInt R2, const TVec<TAttrType>& CompareByTypes, const TIntV& CompareByIndices, TBool Asc){
+  for(TInt i = 0; i < CompareByTypes.Len(); i++){
+    TInt res = CompareRows(R1, R2, CompareByTypes[i], CompareByIndices[i], Asc);
     if(res != 0){ return res;}
   }
   return 0;
 }
 
-void TTable::ISort(TIntV& V, TInt StartIdx, TInt EndIdx, const TStrV& SortBy, TBool Asc){
+void TTable::ISort(TIntV& V, TInt StartIdx, TInt EndIdx, const TVec<TAttrType>& SortByTypes, const TIntV& SortByIndices, TBool Asc){
   if(StartIdx < EndIdx){
     for(TInt i = StartIdx+1; i <= EndIdx; i++){
       TInt Val = V[i];
       TInt j = i;
-      while((StartIdx < j) && (CompareRows(V[j-1], Val, SortBy, Asc) > 0)){
+      while((StartIdx < j) && (CompareRows(V[j-1], Val, SortByTypes, SortByIndices, Asc) > 0)){
         V[j] = V[j-1];
         j--;
       }
@@ -1407,29 +1404,29 @@ void TTable::ISort(TIntV& V, TInt StartIdx, TInt EndIdx, const TStrV& SortBy, TB
   }
 }
 
-TInt TTable::GetPivot(TIntV& V, TInt StartIdx, TInt EndIdx, const TStrV& SortBy, TBool Asc){
+TInt TTable::GetPivot(TIntV& V, TInt StartIdx, TInt EndIdx, const TVec<TAttrType>& SortByTypes, const TIntV& SortByIndices, TBool Asc){
   TInt L = EndIdx - StartIdx + 1;
   const TInt Idx1 = StartIdx + TInt::GetRnd(L);
   const TInt Idx2 = StartIdx + TInt::GetRnd(L);
   const TInt Idx3 = StartIdx + TInt::GetRnd(L);
-  if(CompareRows(V[Idx1], V[Idx2], SortBy, Asc) < 0){
-    if(CompareRows(V[Idx2], V[Idx3], SortBy, Asc) < 0){ return Idx2;}
-    if(CompareRows(V[Idx1], V[Idx3], SortBy, Asc) < 0){ return Idx3;}
+  if(CompareRows(V[Idx1], V[Idx2], SortByTypes, SortByIndices, Asc) < 0){
+    if(CompareRows(V[Idx2], V[Idx3], SortByTypes, SortByIndices, Asc) < 0){ return Idx2;}
+    if(CompareRows(V[Idx1], V[Idx3], SortByTypes, SortByIndices, Asc) < 0){ return Idx3;}
     return Idx1;
   } else{
-    if(CompareRows(V[Idx3], V[Idx2], SortBy, Asc) < 0){ return Idx2;}
-    if(CompareRows(V[Idx3], V[Idx1], SortBy, Asc) < 0){ return Idx3;}
+    if(CompareRows(V[Idx3], V[Idx2], SortByTypes, SortByIndices, Asc) < 0){ return Idx2;}
+    if(CompareRows(V[Idx3], V[Idx1], SortByTypes, SortByIndices, Asc) < 0){ return Idx3;}
     return Idx1;
   }
 }
 
-TInt TTable::Partition(TIntV& V, TInt StartIdx, TInt EndIdx, const TStrV& SortBy, TBool Asc){
-  TInt PivotIdx = GetPivot(V, StartIdx, EndIdx, SortBy, Asc);
+TInt TTable::Partition(TIntV& V, TInt StartIdx, TInt EndIdx, const TVec<TAttrType>& SortByTypes, const TIntV& SortByIndices, TBool Asc){
+  TInt PivotIdx = GetPivot(V, StartIdx, EndIdx, SortByTypes, SortByIndices, Asc);
   TInt Pivot = V[PivotIdx];
   V.Swap(PivotIdx, EndIdx);
   TInt StoreIdx = StartIdx;
   for(TInt i = StartIdx; i < EndIdx; i++){
-    if(CompareRows(V[i], Pivot, SortBy, Asc) <= 0){
+    if(CompareRows(V[i], Pivot, SortByTypes, SortByIndices, Asc) <= 0){
       V.Swap(i, StoreIdx);
       StoreIdx++;
     }
@@ -1439,14 +1436,14 @@ TInt TTable::Partition(TIntV& V, TInt StartIdx, TInt EndIdx, const TStrV& SortBy
   return StoreIdx;
 }
 
-void TTable::QSort(TIntV& V, TInt StartIdx, TInt EndIdx, const TStrV& SortBy, TBool Asc){
+void TTable::QSort(TIntV& V, TInt StartIdx, TInt EndIdx, const TVec<TAttrType>& SortByTypes, const TIntV& SortByIndices, TBool Asc){
   if(StartIdx < EndIdx){
     if(EndIdx - StartIdx < 20){
-      ISort(V, StartIdx, EndIdx, SortBy, Asc);
+      ISort(V, StartIdx, EndIdx, SortByTypes, SortByIndices, Asc);
     } else{
-      TInt Pivot = Partition(V, StartIdx, EndIdx, SortBy, Asc);
-      QSort(V, StartIdx, Pivot-1, SortBy, Asc);
-      QSort(V, Pivot+1, EndIdx, SortBy, Asc);
+      TInt Pivot = Partition(V, StartIdx, EndIdx, SortByTypes, SortByIndices, Asc);
+      QSort(V, StartIdx, Pivot-1, SortByTypes, SortByIndices, Asc);
+      QSort(V, Pivot+1, EndIdx, SortByTypes, SortByIndices, Asc);
     }
   }
 }
@@ -1465,8 +1462,14 @@ void TTable::Order(const TStrV& OrderBy, const TStr& OrderColName, TBool ResetRa
       i++;
     }
   }
+  TVec<TAttrType> OrderByTypes(OrderBy.Len());
+  TIntV OrderByIndices(OrderBy.Len());
+  for(TInt i = 0; i < OrderBy.Len(); i++){
+    OrderByTypes[i] = GetColType(OrderBy[i]);
+    OrderByIndices[i] = GetColIdx(OrderBy[i]);
+  }
   // sort that vector according to the attributes given in "OrderBy" in lexicographic order
-  QSort(ValidRows, 0, NumValidRows-1, OrderBy, Asc);
+  QSort(ValidRows, 0, NumValidRows-1, OrderByTypes, OrderByIndices, Asc);
   // rewire Next vector
   if (NumValidRows > 0){
     FirstValidRow = ValidRows[0];
