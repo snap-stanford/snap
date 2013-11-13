@@ -9,7 +9,7 @@ LIBS += -lgtest
 ## Main application file
 MAIN = run-all-tests
 
-TESTS = \
+TEST_SRCS = \
 	test-helper.cpp \
 	test-TUNGraph.cpp test-TNGraph.cpp \
 	test-TNEGraph.cpp test-TNEANet.cpp \
@@ -27,12 +27,17 @@ TESTS = \
 	test-THash.cpp \
 	test-THashSet.cpp
 
+TEST_OBJS = $(TEST_SRCS:.cpp=.o)
+
 all: $(MAIN)
 run: test
 
 # COMPILE
-$(MAIN): $(MAIN).cpp $(TESTS) $(CSNAP)/Snap.o
-	$(CC) $(CXXFLAGS) -o $(MAIN) $(MAIN).cpp $(TESTS) $(CSNAP)/Snap.o -I$(CSNAP) -I$(CGLIB) $(LDFLAGS) $(LIBS)
+.cpp.o:
+	$(CC) $(CXXFLAGS) -I$(CSNAP) -I$(CGLIB) -c $<
+
+$(MAIN): $(MAIN).o $(TEST_OBJS) $(CSNAP)/Snap.o
+	$(CC) $(CXXFLAGS) -o $(MAIN) $^ -I$(CSNAP) -I$(CGLIB) $(LDFLAGS) $(LIBS)
 
 $(CSNAP)/Snap.o:
 	$(MAKE) -C $(CSNAP)

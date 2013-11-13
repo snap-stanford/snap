@@ -1778,7 +1778,7 @@ public:
     return TAIntI(VecOfIntVecsN[KeyToIndexTypeN.GetDat(attr).Val2].EndI(), attr, false, this); }
   /// Returns an iterator referring to the node of ID NId in the graph.
   TAIntI GetNAIntI(const TStr& attr, const int& NId) const {
-    return TAIntI(VecOfIntVecsN[KeyToIndexTypeN.GetDat(attr).Val2].GetI(NId), attr, false, this); }
+    return TAIntI(VecOfIntVecsN[KeyToIndexTypeN.GetDat(attr).Val2].GetI(NodeH.GetKeyId(NId)), attr, false, this); }
   /// Returns an iterator referring to the first node's str attribute.
   TAStrI BegNAStrI(const TStr& attr) const {
 
@@ -1788,7 +1788,7 @@ public:
     return TAStrI(VecOfStrVecsN[KeyToIndexTypeN.GetDat(attr).Val2].EndI(), attr, false, this); }
   /// Returns an iterator referring to the node of ID NId in the graph.
   TAStrI GetNAStrI(const TStr& attr, const int& NId) const {
-    return TAStrI(VecOfStrVecsN[KeyToIndexTypeN.GetDat(attr).Val2].GetI(NId), attr, false, this); }
+    return TAStrI(VecOfStrVecsN[KeyToIndexTypeN.GetDat(attr).Val2].GetI(NodeH.GetKeyId(NId)), attr, false, this); }
   /// Returns an iterator referring to the first node's flt attribute.
   TAFltI BegNAFltI(const TStr& attr) const {
     return TAFltI(VecOfFltVecsN[KeyToIndexTypeN.GetDat(attr).Val2].BegI(), attr, false, this); }
@@ -1797,7 +1797,7 @@ public:
     return TAFltI(VecOfFltVecsN[KeyToIndexTypeN.GetDat(attr).Val2].EndI(), attr, false, this); }
   /// Returns an iterator referring to the node of ID NId in the graph.
   TAFltI GetNAFltI(const TStr& attr, const int& NId) const {
-    return TAFltI(VecOfFltVecsN[KeyToIndexTypeN.GetDat(attr).Val2].GetI(NId), attr, false, this); }
+    return TAFltI(VecOfFltVecsN[KeyToIndexTypeN.GetDat(attr).Val2].GetI(NodeH.GetKeyId(NId)), attr, false, this); }
 
   /// Returns a vector of attr names for node NId.
   void AttrNameNI(const TInt& NId, TStrV& Names) const {
@@ -1875,7 +1875,7 @@ public:
   }
   /// Returns an iterator referring to the node of ID EId in the graph.
   TAIntI GetEAIntI(const TStr& attr, const int& EId) const {
-    return TAIntI(VecOfIntVecsE[KeyToIndexTypeE.GetDat(attr).Val2].GetI(EId), attr, true, this);
+    return TAIntI(VecOfIntVecsE[KeyToIndexTypeE.GetDat(attr).Val2].GetI(EdgeH.GetKeyId(EId)), attr, true, this);
   }
   /// Returns an iterator referring to the first node's str attribute.
   TAStrI BegEAStrI(const TStr& attr) const {
@@ -1886,7 +1886,7 @@ public:
   }
   /// Returns an iterator referring to the node of ID EId in the graph.
   TAStrI GetEAStrI(const TStr& attr, const int& EId) const {
-    return TAStrI(VecOfStrVecsE[KeyToIndexTypeE.GetDat(attr).Val2].GetI(EId), attr, true, this);
+    return TAStrI(VecOfStrVecsE[KeyToIndexTypeE.GetDat(attr).Val2].GetI(EdgeH.GetKeyId(EId)), attr, true, this);
   }
   /// Returns an iterator referring to the first node's flt attribute.
   TAFltI BegEAFltI(const TStr& attr) const {
@@ -1898,7 +1898,7 @@ public:
   }
   /// Returns an iterator referring to the node of ID EId in the graph.
   TAFltI GetEAFltI(const TStr& attr, const int& EId) const {
-    return TAFltI(VecOfFltVecsE[KeyToIndexTypeE.GetDat(attr).Val2].GetI(EId), attr, true, this);
+    return TAFltI(VecOfFltVecsE[KeyToIndexTypeE.GetDat(attr).Val2].GetI(EdgeH.GetKeyId(EId)), attr, true, this);
   }
   /// Returns the maximum id of a any node in the graph.
   int GetMxNId() const { return MxNId; }
