@@ -270,11 +270,10 @@ int TGnuPlot::AddPlot(const THash<TKey, TMom, THashFunc>& ValMomH, const TGpSeri
     if (PlotAvg) { 
       if (PlotSDev) { 
         AvgV.Add(TFltTr(x, Mom.GetMean(), Mom.GetSDev())); } // std deviation
-      else { 
-        AvgV2.Add(TFltPr(x, Mom.GetMean())); 
-      }
-      if (PlotStdErr) {
+      else if (PlotStdErr) {
         StdErrV.Add(TFltTr(x, Mom.GetMean(), Mom.GetSDev()/sqrt((double)Mom.GetVals()))); 
+      } else {
+        AvgV2.Add(TFltPr(x, Mom.GetMean()));
       }
     }
     if (PlotMed) { MedV.Add(TFltPr(x, Mom.GetMedian())); }
@@ -292,12 +291,12 @@ int TGnuPlot::AddPlot(const THash<TKey, TMom, THashFunc>& ValMomH, const TGpSeri
     if (! MaxV.Empty()) { TGnuPlot::MakeExpBins(MaxV, BucketV);  BucketV.Swap(MaxV); }
   }
   // plot
-  if (! AvgV.Empty()) { PlotId = AddErrBar(AvgV, Label+" Average", "StdDev"); }
+  if (! AvgV.Empty()) { PlotId = AddErrBar(AvgV, Label+" Average", Label+" StdDev"); }
   if (! AvgV2.Empty()) { PlotId = AddPlot(AvgV2, SeriesTy, Label+" Average", Style); }
   if (! MedV.Empty()) { PlotId = AddPlot(MedV, SeriesTy, Label+" Median", Style); }
   if (! MinV.Empty()) { PlotId = AddPlot(MinV, SeriesTy, Label+" Min", Style); }
   if (! MaxV.Empty()) { PlotId = AddPlot(MaxV, SeriesTy, Label+" Max", Style); }
-  if (! StdErrV.Empty()) { PlotId = AddErrBar(StdErrV, Label+" Standard error", Style); }
+  if (! StdErrV.Empty()) { PlotId = AddErrBar(StdErrV, Label+" Average", Label+" StdErr"); }
   return PlotId;
 }
 
