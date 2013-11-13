@@ -2921,4 +2921,5 @@ void TTable::ProjectInPlace(const TStrV& ProjectCols){
     if (ProjectColsSet.IsKey(ColName)){ continue;}
     S.Del(i);
   }
+  InitIds();
 }
