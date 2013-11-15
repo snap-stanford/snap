@@ -321,7 +321,6 @@ void TNEANet::DelNode(const int& NId) {
     const TEdge& Edge = GetEdge(EId);
     IAssert(Edge.GetSrcNId() == NId);
     GetNode(Edge.GetDstNId()).InEIdV.DelIfIn(EId);
-    EdgeH.DelKey(EId);
     // Delete from Edge Attributes
     for (i = 0; i < VecOfIntVecsE.Len(); i++) {
       TVec<TInt>& IntVec = VecOfIntVecsE[i];
@@ -335,13 +334,13 @@ void TNEANet::DelNode(const int& NId) {
       TVec<TFlt>& FltVec = VecOfFltVecsE[i];
       FltVec.Ins(EdgeH.GetKeyId(EId), TFlt::Mn);
     }
+    EdgeH.DelKey(EId);
   }
   for (int in = 0; in < Node.GetInDeg(); in++) {
     const int EId = Node.GetInEId(in);
     const TEdge& Edge = GetEdge(EId);
     IAssert(Edge.GetDstNId() == NId);
     GetNode(Edge.GetSrcNId()).OutEIdV.DelIfIn(EId);
-    EdgeH.DelKey(EId);
     // Delete from Edge Attributes
     for (i = 0; i < VecOfIntVecsE.Len(); i++) {
       TVec<TInt>& IntVec = VecOfIntVecsE[i];
@@ -355,6 +354,7 @@ void TNEANet::DelNode(const int& NId) {
       TVec<TFlt>& FltVec = VecOfFltVecsE[i];
       FltVec.Ins(EdgeH.GetKeyId(EId), TFlt::Mn);
     }
+    EdgeH.DelKey(EId);
   }
 
   for (i = 0; i < VecOfIntVecsN.Len(); i++) {
