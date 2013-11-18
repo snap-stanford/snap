@@ -1,4 +1,3 @@
-Animal	Size	Location	Number
 Lion	big	Africa	3
 Polar Bear	big	Arctic	3
 Koala	medium	Australia	3

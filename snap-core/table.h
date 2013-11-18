@@ -192,6 +192,7 @@ protected:
   void AddStrVal(const TStr& Col, const TStr& Val);
 
 /***** Utility functions for handling Schema *****/
+  TStr GetIdColName() const { return IdColName; }
   TStr GetSchemaColName(TInt Idx) const{ return S[Idx].Val1;}
   TAttrType GetSchemaColType(TInt Idx) const{ return S[Idx].Val2;}
   void AddSchemaCol(const TStr& ColName, TAttrType ColType) { S.Add(TPair<TStr,TAttrType>(ColName, ColType));}
@@ -562,10 +563,10 @@ public:
   void AddTable(const TTable& T);
   
   void AddRow(const TRowIterator& RI);
-  void GetCollidingRows(const TTable& T, THashSet<TInt>& Collisions) const;
+  void GetCollidingRows(const TTable& T, THashSet<TInt>& Collisions);
   PTable Union(const TTable& Table, const TStr& TableName);
   PTable Intersection(const TTable& Table, const TStr& TableName);
-  PTable Minus(const TTable& Table, const TStr& TableName);
+  PTable Minus(TTable& Table, const TStr& TableName);
   PTable Union(const PTable& Table, const TStr& TableName){ return Union(*Table, TableName); };
   PTable Intersection(const PTable& Table, const TStr& TableName){ return Intersection(*Table, TableName); };
   PTable Minus(const PTable& Table, const TStr& TableName){ return Minus(*Table, TableName); };

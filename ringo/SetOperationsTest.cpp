@@ -14,30 +14,32 @@ int main(){
   RelevantCols.Add(2);
   RelevantCols.Add(3);
 
-  PTable P = TTable::LoadSS("Animals", AnimalS, "tests/animals.txt", Context, RelevantCols, '\t', true);
-  PTable Q = TTable::LoadSS("MoreAnimals", AnimalS, "tests/more_animals.txt", Context, RelevantCols, '\t', true);
+  PTable P = TTable::LoadSS("Animals", AnimalS, "tests/animals.txt", Context, RelevantCols);
+  PTable Q = TTable::LoadSS("MoreAnimals", AnimalS, "tests/more_animals.txt", Context, RelevantCols);
 
-  //PTable R = P->Union(*Q, "union");
-  //PTable S = P->Intersection(*Q, "intersection");
-  //PTable M = P->Minus(*Q, "minus");
+  PTable R = P->Union(*Q, "union");
+  R->SaveSS("tests/union.txt");
 
-  //TStrV Cols;
-  //Cols.Add("Animal");
-  //Cols.Add("Size");
-  //PTable T = P->Project(Cols, "projection");
+  PTable S = P->Intersection(*Q, "intersection");
+  S->SaveSS("tests/intersection.txt");
 
-  //P->ProjectInPlace(Cols);
+  PTable M = P->Minus(*Q, "minus");
+  M->SaveSS("tests/minus.txt");
 
-  //R->SaveSS("tests/union.txt");
-  //S->SaveSS("tests/intersection.txt");
-  //M->SaveSS("tests/minus.txt");
-  //T->SaveSS("tests/projection.txt");
+  TStrV Cols;
+  Cols.Add("Animal");
+  Cols.Add("Size");
+  PTable T = P->Project(Cols, "projection");
+
+  P->ProjectInPlace(Cols);
+
+  T->SaveSS("tests/projection.txt");
   
-  //TFOut OutFile("tests/loadsave_test.dat");
-  //P->Save(OutFile);
-  //OutFile.Flush();
-  //TFIn InFile("tests/loadsave_test.dat");
-  //PTable U = TTable::Load(InFile, Context);
-  //U->SaveSS("tests/loadsave_test.txt");
+  TFOut OutFile("tests/loadsave_test.dat");
+  P->Save(OutFile);
+  OutFile.Flush();
+  TFIn InFile("tests/loadsave_test.dat");
+  PTable U = TTable::Load(InFile, Context);
+  U->SaveSS("tests/loadsave_test.txt");
   return 0;
 }
