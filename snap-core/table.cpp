@@ -897,6 +897,10 @@ void TTable::Aggregate(const TStrV& GroupByAttrs, TAttrAggr AggOp,
     // find valid rows of group
     TIntV ValidRows;
     for (TInt i = 0; i < GroupRows.Len(); i++) {
+      if (!RowIdMap.IsKey(GroupRows[i])) {
+        // TODO: This should not be necessary, there is a bug to fix
+        continue;
+      }
       TInt RowId = RowIdMap.GetDat(GroupRows[i]);
       // GroupRows has physical row indices
       if (RowId != Invalid) {
@@ -2344,6 +2348,10 @@ PNEANet TTable::ToGraphPerGroupIterator(TStr GroupAttr, TAttrAggr AggrPolicy){
 // calls to this must be preceded by a call to one of the above ToGraph*Iterator functions
 PNEANet TTable::NextGraphIterator(){
   return GetNextGraphFromSequence();
+}
+
+TBool TTable::IsLastGraphOfSequence() {
+  return CurrBucket >= RowIdBuckets.Len() - 1;
 }
 
 PTable TTable::GetNodeTable(const PNEANet& Network, const TStr& TableName, TTableContext& Context){

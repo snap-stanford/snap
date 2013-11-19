@@ -460,6 +460,7 @@ public:
   PNEANet ToGraphPerGroupIterator(TStr GroupAttr, TAttrAggr AggrPolicy);
   // Calls to this must be preceded by a call to one of the above ToGraph*Iterator functions.
   PNEANet NextGraphIterator();
+  TBool IsLastGraphOfSequence();
 
   /* Getters and Setters of data required for building a graph out of the table */
 	TStr GetSrcCol() const { return SrcCol; }
@@ -624,6 +625,7 @@ public:
   
   // Add all the rows of the input table (which ,ust have the same schema as current table) - allows duplicate rows (not a union)
   void AddTable(const TTable& T);
+  void ConcatTable(const PTable& T) {AddTable(*T); T->Reindex(); }
   
   void AddRow(const TRowIterator& RI);
   void AddRow(const TIntV& IntVals, const TFltV& FltVals, const TStrV& StrVals);
