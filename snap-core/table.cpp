@@ -934,10 +934,125 @@ void TTable::Aggregate(const TStrV& GroupByAttrs, TAttrAggr AggOp,
   }
 }
 
+void TTable::AggregateCols(const TStrV& AggrAttrs, TAttrAggr AggOp, const TStr& ResAttr) {
+  TVec<TPair<TAttrType, TInt> >Info;
+  for (TInt i = 0; i < AggrAttrs.Len(); i++) {
+    Info.Add(ColTypeMap.GetDat(AggrAttrs[i]));
+    if (Info[i].Val1 != Info[0].Val1) {
+      TExcept::Throw("AggregateCols: Aggregation attributes must have the same type");
+    }
+  }
+
+  if (Info[0].Val1 == atInt) {
+    AddIntCol(ResAttr);
+    TInt ResIdx = ColTypeMap.GetDat(ResAttr).Val2;
+
+    for(TRowIterator RI = BegRI(); RI < EndRI(); RI++){
+      TInt RowIdx = RI.GetRowIdx();
+      TIntV V;
+      for (TInt i = 0; i < AggrAttrs.Len(); i++) {
+        V.Add(IntCols[Info[i].Val2][RowIdx]);
+      }
+      IntCols[ResIdx][RowIdx] = AggregateVector<TInt>(V, AggOp);
+    }
+  }
+  else if (Info[0].Val1 == atFlt) {
+    AddFltCol(ResAttr);
+    TInt ResIdx = ColTypeMap.GetDat(ResAttr).Val2;
+
+    for(TRowIterator RI = BegRI(); RI < EndRI(); RI++){
+      TInt RowIdx = RI.GetRowIdx();
+      TFltV V;
+      for (TInt i = 0; i < AggrAttrs.Len(); i++) {
+        V.Add(FltCols[Info[i].Val2][RowIdx]);
+      }
+      FltCols[ResIdx][RowIdx] = AggregateVector<TFlt>(V, AggOp);
+    }
+  }
+  else {
+    TExcept::Throw("AggregateCols: Only Int and Flt aggregation supported right now");
+  }
+}
+
 void TTable::Count(const TStr& CountColName, const TStr& Col){
   TStrV GroupByAttrs;
   GroupByAttrs.Add(CountColName);
   Aggregate(GroupByAttrs, aaCount, "", Col);
+}
+
+TVec<PTable> TTable::SpliceByGroup(const TStrV& GroupBy, TBool Ordered) {
+  TIntV UniqueVec;
+  THash<TGroupKey, TPair<TInt, TIntV> >Grouping;
+  TVec<PTable> Result;
+
+  Schema NewSchema;
+  for(TInt c = 0; c < S.Len(); c++){
+    if (S[c].Val1 != GetIdColName()) {
+      NewSchema.Add(S[c]);
+    }
+  }
+
+  GroupAux(GroupBy, Grouping, Ordered, "", false, UniqueVec);
+
+  TInt cnt = 0;
+  // iterate over groups
+  for (THash<TGroupKey, TPair<TInt, TIntV> >::TIter it = Grouping.BegI(); it != Grouping.EndI(); it++) {
+    TStr TableName = Name + cnt.GetStr();
+    PTable GroupTable = TTable::New(TableName, NewSchema, Context);
+
+    TVec<TPair<TAttrType, TInt> > ColInfo;
+    TIntV V;
+    for(TInt i = 0; i < S.Len(); i++){
+      ColInfo.Add(GroupTable->ColTypeMap.GetDat(S[i].Val1));
+      if (S[i].Val1 == IdColName()) {
+        ColInfo[i].Val2 = -1;
+      }
+      V.Add(ColTypeMap.GetDat(S[i].Val1).Val2);
+    }
+
+    TIntV& Rows = it.GetDat().Val2;
+
+    // iterate over rows in group
+    for (TInt i = 0; i < Rows.Len(); i++) {
+      // convert from permanent ID to row ID
+      TInt RowIdx = RowIdMap.GetDat(Rows[i]);
+
+      // iterate over schema
+      for(TInt c = 0; c < S.Len(); c++){
+        TPair<TAttrType, TInt> Info = ColInfo[c];
+        TInt ColIdx = Info.Val2;
+
+        if (ColIdx == -1) continue;
+
+        // add row to new group
+        switch(Info.Val1){
+          case atInt:
+            GroupTable->IntCols[ColIdx].Add(IntCols[V[c]][RowIdx]);
+            break;
+          case atFlt:
+            GroupTable->FltCols[ColIdx].Add(FltCols[V[c]][RowIdx]);
+            break;
+          case atStr:
+            GroupTable->StrColMaps[ColIdx].Add(StrColMaps[V[c]][RowIdx]);
+            break;
+        }
+
+      }
+      if (GroupTable->LastValidRow >= 0) {
+        GroupTable->Next[GroupTable->LastValidRow] = GroupTable->NumRows;
+      }
+      GroupTable->Next.Add(GroupTable->Last);
+      GroupTable->LastValidRow = GroupTable->NumRows;
+
+      GroupTable->NumRows++;
+      GroupTable->NumValidRows++;
+    }
+    GroupTable->InitIds();
+    Result.Add(GroupTable);
+
+    cnt += 1;
+  }
+  return Result;
 }
 
 void TTable::InitIds() {

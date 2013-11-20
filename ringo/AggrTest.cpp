@@ -35,6 +35,15 @@ int main(){
   //P->Count("Quarter", "QuarterCount");
   P->Aggregate(G1, aaMean, "Grade 2011", "Av11");
   P->Aggregate(G2, aaMean, "Grade 2012", "Av12");
+
+  TStrV aggrcols;
+  aggrcols.Add("Grade 2011");
+  aggrcols.Add("Av12");
+  P->AggregateCols(aggrcols, aaMax, "AggrMax");
+  //aggrcols.Add("Grade 2013");
+  //aggrcols.Add("Grade 2013");
+  //P->AggregateCols(aggrcols, aaSum, "AggrSum");
+
   P->SaveSS("tests/p3.txt");
   return 0;
 }

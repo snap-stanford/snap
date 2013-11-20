@@ -22,6 +22,12 @@ int main(){
   cols.Add("Size");
   cols.Add("Number");
 
+  TVec<PTable> R = P->SpliceByGroup(cols);
+  for (TInt i = 0; i < R.Len(); i++) {
+    TStr fn = i.GetStr();
+    R[i]->SaveSS("tests/sznumber" + fn + ".txt");
+  }
+
   P->Unique(cols, true);
 
   P->SaveSS("tests/p2.txt");
@@ -31,5 +37,6 @@ int main(){
   P->Group(group1, "LocationGroup");
 
   P->SaveSS("tests/p3.txt");
+
   return 0;
 }

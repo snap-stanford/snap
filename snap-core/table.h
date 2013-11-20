@@ -554,6 +554,12 @@ public:
   void Aggregate(const TStrV& GroupByAttrs, TAttrAggr AggOp, const TStr& ValAttr,
     const TStr& ResAttr, TBool Ordered = true);
 
+  // aggregate attributes in AggrAttrs across columns
+  void AggregateCols(const TStrV& AggrAttrs, TAttrAggr AggOp, const TStr& ResAttr);
+
+  // splice table into subtables according to a grouping statement
+  TVec<PTable> SpliceByGroup(const TStrV& GroupByAttrs, TBool Ordered = true);
+
   // perform equi-join with given columns - i.e. keep tuple pairs where 
   // this->Col1 == Table->Col2; Implementation: Hash-Join - build a hash out of the smaller table
   // hash the larger table and check for collisions
