@@ -388,6 +388,18 @@ public:
   // Save table schema + content into binary. Note that TTableContext must be saved in a separate binary (as it is shared among multiple TTables).
 	void Save(TSOut& SOut);
 
+  // Build table from hash table
+  static PTable TableFromHashMap(const TStr& TableName, const THash<TInt,TInt>& H, const TStr& Col1, const TStr& Col2, TTableContext& Context, const TBool IsStrKeys = false){
+    PTable T = New(TableName, H, Col1, Col2, Context, IsStrKeys);
+    T->InitIds();
+    return T;
+  }
+  static PTable TableFromHashMap(const TStr& TableName, const THash<TInt,TFlt>& H, const TStr& Col1, const TStr& Col2, TTableContext& Context, const TBool IsStrKeys = false){
+    PTable T = New(TableName, H, Col1, Col2, Context, IsStrKeys);
+    T->InitIds();
+    return T;
+  }
+  
 /***** Graph handling *****/
   // Create a graph out of the FINAL table
   PNEANet ToGraph(TAttrAggr AggrPolicy);
