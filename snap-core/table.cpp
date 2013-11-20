@@ -424,14 +424,9 @@ void TTable::Save(TSOut& SOut){
   SOut.Flush();
 }
 
-void TTable::AddStrVal(const TInt ColIdx, const TStr& Val){
-  TInt Key = Context.StringVals.GetKeyId(Val);
-  if(Key != -1){
-    StrColMaps[ColIdx].Add(Key);
-  } else{
-    Key = Context.StringVals.AddKey(Val);
-    StrColMaps[ColIdx].Add(Key);
-  }
+void TTable::AddStrVal(const TInt& ColIdx, const TStr& Val){
+  TInt Key = TInt(Context.StringVals.AddKey(Val));
+  StrColMaps[ColIdx].Add(Key);
 }
 
 void TTable::AddStrVal(const TStr& Col, const TStr& Val){
@@ -620,7 +615,7 @@ void TTable::KeepSortedRows(const TIntV& KeepV){
         KeepIdx++;
         RowI++;
       } else{
-          RemoveRow(Next[RowI.GetRowIdx()]);
+        RemoveRow(Next[RowI.GetRowIdx()]);
       }
     // covered all of KeepV. remove the rest of the rows
     // current RowI.CurrRowIdx is the last element of KeepV
@@ -2585,14 +2580,14 @@ void TTable::AddTable(const TTable& T){
 
   TIntV TNext(T.Next);
   for(TInt i = 0; i < TNext.Len(); i++){
-    if(TNext[i] != Last && TNext[i] != TTable::Invalid){ TNext[i] += NumRows;}
+    if(TNext[i] != Last && TNext[i] != Invalid){ TNext[i] += NumRows;}
   }
 
+  Next.AddV(TNext);
   // checks if table is empty 
   if (LastValidRow >= 0) {
-    Next[LastValidRow] = T.FirstValidRow + NumRows;
+    Next[LastValidRow] = NumRows + T.FirstValidRow;
   }
-  Next.AddV(TNext);
   LastValidRow = NumRows + T.LastValidRow;
   NumRows += T.NumRows;
   NumValidRows += T.NumValidRows;
@@ -2771,7 +2766,6 @@ void TTable::AddRow(const TIntV& IntVals, const TFltV& FltVals, const TStrV& Str
   for (TInt c = 0; c < StrVals.Len(); c++){
     AddStrVal(c, StrVals[c]);
   }
-
   UpdateTableForNewRow();
 }
 
@@ -3308,7 +3302,7 @@ void TTable::ProjectInPlace(const TStrV& ProjectCols){
   // Delete the column vectors
   for(TInt i = S.Len() - 1; i >= 0; i--){
     TStr ColName = GetSchemaColName(i);
-    if (ProjectColsSet.IsKey(ColName)){ continue;}
+    if (ProjectColsSet.IsKey(ColName) || ColName == IdColName){ continue;}
     TAttrType ColType = GetSchemaColType(i);
     TInt ColId = GetColIdx(ColName);
     switch(ColType){
@@ -3331,7 +3325,7 @@ void TTable::ProjectInPlace(const TStrV& ProjectCols){
   ColTypeMap.Clr();
   for(TInt i = 0; i < S.Len(); i++){
     TStr ColName = GetSchemaColName(i);
-    if (!ProjectColsSet.IsKey(ColName)){ continue;}
+    if (!ProjectColsSet.IsKey(ColName) && ColName != IdColName){ continue;}
     TAttrType ColType = GetSchemaColType(i);
     switch(ColType){
       case atInt:
@@ -3352,8 +3346,7 @@ void TTable::ProjectInPlace(const TStrV& ProjectCols){
   // Update schema
   for (TInt i = S.Len() - 1; i >= 0; i--){
     TStr ColName = GetSchemaColName(i);
-    if (ProjectColsSet.IsKey(ColName)){ continue;}
+    if (ProjectColsSet.IsKey(ColName) || ColName == IdColName){ continue;}
     S.Del(i);
   }
-  InitIds();
 }

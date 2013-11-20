@@ -37,6 +37,21 @@ public:
   void Save(TSOut& SOut) { StringVals.Save(SOut);}
 };
 
+class TTableRow{
+protected:
+  TIntV IntVals;
+  TFltV FltVals;
+  TStrV StrVals;
+public:
+  TTableRow() {}
+  void AddInt(const TInt& Val) { IntVals.Add(Val); }
+  void AddFlt(const TFlt& Val) { FltVals.Add(Val); }
+  void AddStr(const TStr& Val) { StrVals.Add(Val); }
+  TIntV GetIntVals() const { return IntVals; }
+  TFltV GetFltVals() const { return FltVals; }
+  TStrV GetStrVals() const { return StrVals; }
+};
+
 /* possible policies for aggregating node attributes */
 typedef enum {aaMin, aaMax, aaFirst, aaLast, aaMean, aaMedian, aaSum, aaCount} TAttrAggr;
 /* possible operations on columns */
@@ -211,7 +226,7 @@ protected:
 
 /***** Utility functions for handling string values *****/
   TStr GetStrVal(TInt ColIdx, TInt RowIdx) const{ return TStr(Context.StringVals.GetKey(StrColMaps[ColIdx][RowIdx]));}
-  void AddStrVal(const TInt ColIdx, const TStr& Val);
+  void AddStrVal(const TInt& ColIdx, const TStr& Val);
   void AddStrVal(const TStr& Col, const TStr& Val);
 
 /***** Utility functions for handling Schema *****/
@@ -625,10 +640,11 @@ public:
   
   // Add all the rows of the input table (which ,ust have the same schema as current table) - allows duplicate rows (not a union)
   void AddTable(const TTable& T);
-  void ConcatTable(const PTable& T) {AddTable(*T); T->Reindex(); }
+  void ConcatTable(const PTable& T) {AddTable(*T); Reindex(); }
   
   void AddRow(const TRowIterator& RI);
   void AddRow(const TIntV& IntVals, const TFltV& FltVals, const TStrV& StrVals);
+  void AddRow(const TTableRow& Row) { AddRow(Row.GetIntVals(), Row.GetFltVals(), Row.GetStrVals()); };
   void GetCollidingRows(const TTable& T, THashSet<TInt>& Collisions);
   PTable Union(const TTable& Table, const TStr& TableName);
   PTable UnionAll(const TTable& Table, const TStr& TableName);
