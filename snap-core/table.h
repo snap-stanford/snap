@@ -576,6 +576,11 @@ public:
   // also updates meta-data as row indices have changed
   // need some liveness analysis of columns
   void Defrag();
+
+  // Add entire column to table
+  void AddIntVCol(const TStr& ColName, const TIntV& ColVals);
+  void AddFltVCol(const TStr& ColName, const TFltV& ColVals);
+  void AddStrVCol(const TStr& ColName, const TStrV& ColVals);
   
   // Add all the rows of the input table (which ,ust have the same schema as current table) - allows duplicate rows (not a union)
   void AddTable(const TTable& T);
@@ -630,6 +635,11 @@ public:
   void ColMul(const TStr& Attr1, const TFlt& Num, const TStr& ResultAttrName="", const TBool floatCast=false);
   void ColDiv(const TStr& Attr1, const TFlt& Num, const TStr& ResultAttrName="", const TBool floatCast=false);
   void ColMod(const TStr& Attr1, const TFlt& Num, const TStr& ResultAttrName="", const TBool floatCast=false);
+
+  // read copues of entire column
+  void ReadIntCol(const TStr& ColName, TIntV& Result) const;
+  void ReadFltCol(const TStr& ColName, TFltV& Result) const;
+  void ReadStrCol(const TStr& ColName, TStrV& Result) const;
 
   // add explicit row ids, initialise hash set mapping ids to physical rows
   void InitIds();

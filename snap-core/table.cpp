@@ -2499,6 +2499,42 @@ void TTable::GetCollidingRows(const TTable& Table, THashSet<TInt>& Collisions) {
   }
 }
 
+void TTable::AddIntVCol(const TStr& ColName, const TIntV& ColVals){
+  if(ColVals.Len() != NumRows){
+    printf("new column dimension must agree with number of rows\n");
+    return;
+  }
+  AddSchemaCol(ColName, atInt);
+  IntCols.Add(TIntV(ColVals));
+  TInt L = IntCols.Len();
+  ColTypeMap.AddDat(ColName, TPair<TAttrType,TInt>(atInt, L-1));
+}
+
+void TTable::AddFltVCol(const TStr& ColName, const TFltV& ColVals){
+  if(ColVals.Len() != NumRows){
+    printf("new column dimension must agree with number of rows\n");
+    return;
+  }
+  AddSchemaCol(ColName, atFlt);
+  FltCols.Add(TFltV(ColVals));
+  TInt L = FltCols.Len();
+  ColTypeMap.AddDat(ColName, TPair<TAttrType,TInt>(atFlt, L-1));
+}
+
+void TTable::AddStrVCol(const TStr& ColName, const TStrV& ColVals){
+  if(ColVals.Len() != NumRows){
+    printf("new column dimension must agree with number of rows\n");
+    return;
+  }
+  AddSchemaCol(ColName, atStr);
+  StrColMaps.Add(TIntV(NumRows,0));
+  TInt L = StrColMaps.Len();
+  ColTypeMap.AddDat(ColName, TPair<TAttrType,TInt>(atStr, L-1));
+  for(TInt i = 0; i < ColVals.Len(); i++){
+    AddStrVal(L-1, ColVals[i]);
+  }
+}
+
 // can ONLY be called when a table is being initialised (before IDs are allocated)
 void TTable::AddRow(const TRowIterator& RI) {
   for(TInt c = 0; c < S.Len(); c++){
@@ -2944,6 +2980,30 @@ void TTable::ColDiv(const TStr& Attr1, const TFlt& Num, const TStr& ResultAttrNa
 
 void TTable::ColMod(const TStr& Attr1, const TFlt& Num, const TStr& ResultAttrName, const TBool floatCast) {
   ColGenericOp(Attr1, Num, ResultAttrName, OP_MOD, floatCast);
+}
+
+void TTable::ReadIntCol(const TStr& ColName, TIntV& Result) const{
+  if(!ColTypeMap.IsKey(ColName)){ TExcept::Throw("no such column " + ColName);}
+  if(GetColType(ColName) != atInt){ TExcept::Throw("not an integer column " + ColName);}
+  for(TRowIterator it = BegRI(); it < EndRI(); it++){
+    Result.Add(it.GetIntAttr(ColName));
+  }
+}
+
+void TTable::ReadFltCol(const TStr& ColName, TFltV& Result) const{
+  if(!ColTypeMap.IsKey(ColName)){ TExcept::Throw("no such column " + ColName);}
+  if(GetColType(ColName) != atFlt){ TExcept::Throw("not a floating point column " + ColName);}
+    for(TRowIterator it = BegRI(); it < EndRI(); it++){
+    Result.Add(it.GetFltAttr(ColName));
+  }
+}
+
+void TTable::ReadStrCol(const TStr& ColName, TStrV& Result) const{
+  if(!ColTypeMap.IsKey(ColName)){ TExcept::Throw("no such column " + ColName);}
+  if(GetColType(ColName) != atStr){ TExcept::Throw("not a string column " + ColName);}
+    for(TRowIterator it = BegRI(); it < EndRI(); it++){
+    Result.Add(it.GetStrAttr(ColName));
+  }
 }
 
 void TTable::ProjectInPlace(const TStrV& ProjectCols){
