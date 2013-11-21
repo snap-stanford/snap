@@ -581,7 +581,7 @@ void TNEANet::Dump(FILE *OutF) const {
     fprintf(OutF, "    in[%d]", NodeI.GetInDeg());
     for (int edge = 0; edge < NodeI.GetInDeg(); edge++) {
       fprintf(OutF, " %*d", EdgePlaces, NodeI.GetInEId(edge)); }
-    fprintf(OutF, "\n    out[%d]", NodeI.GetOutDeg());
+    fprintf(OutF, "    out[%d]", NodeI.GetOutDeg());
     for (int edge = 0; edge < NodeI.GetOutDeg(); edge++) {
       fprintf(OutF, " %*d", EdgePlaces, NodeI.GetOutEId(edge)); }
    
@@ -589,24 +589,27 @@ void TNEANet::Dump(FILE *OutF) const {
   }
   for (TEdgeI EdgeI = BegEI(); EdgeI < EndEI(); EdgeI++) {
     fprintf(OutF, "  %*d]  %*d  ->  %*d", EdgePlaces, EdgeI.GetId(), NodePlaces, EdgeI.GetSrcNId(), NodePlaces, EdgeI.GetDstNId());
-    fprintf(OutF, "\n");
 
     // load edge attributes
     TIntV IntAttrE;
     IntAttrValueEI(EdgeI.GetId(), IntAttrE);
     fprintf(OutF, "    eai[%d]", IntAttrE.Len());
     for (int i = 0; i < IntAttrE.Len(); i++) {
-      fprintf(OutF, " %*i", EdgePlaces, IntAttrE[i]()); }
+      fprintf(OutF, " %*i", EdgePlaces, IntAttrE[i]()); 
+    }
     TStrV StrAttrE;
     StrAttrValueEI(EdgeI.GetId(), StrAttrE);
     fprintf(OutF, "    eas[%d]", StrAttrE.Len());
     for (int i = 0; i < StrAttrE.Len(); i++) {
-      fprintf(OutF, " %*s", EdgePlaces, StrAttrE[i]()); }
+      fprintf(OutF, " %*s", EdgePlaces, StrAttrE[i]()); 
+    }
     TFltV FltAttrE;
     FltAttrValueEI(EdgeI.GetId(), FltAttrE);
     fprintf(OutF, "    eaf[%d]", FltAttrE.Len());
     for (int i = 0; i < FltAttrE.Len(); i++) {
-      fprintf(OutF, " %*f", EdgePlaces, FltAttrE[i]()); }
+      fprintf(OutF, " %*f", EdgePlaces, FltAttrE[i]()); 
+    }
+    fprintf(OutF, "\n");
   }
   fprintf(OutF, "\n");
 }
