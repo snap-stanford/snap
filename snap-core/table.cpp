@@ -2581,6 +2581,20 @@ void TTable::AddRow(const TRowIterator& RI) {
   NumValidRows++;
 }
 
+PTable TTable::UnionAll(const TTable& Table, const TStr& TableName) {
+  Schema NewSchema;
+  for(TInt c = 0; c < S.Len(); c++){
+    if (S[c].Val1 != GetIdColName()) {
+      NewSchema.Add(TPair<TStr,TAttrType>(S[c].Val1, S[c].Val2));
+    }
+  }
+  PTable result = TTable::New(TableName, NewSchema, Context);
+  result->AddTable(*this);
+  result->AddTable(Table);
+  result->InitIds();
+  return result;
+}
+
 PTable TTable::Union(const TTable& Table, const TStr& TableName){
   Schema NewSchema;
   THashSet<TInt> Collisions;

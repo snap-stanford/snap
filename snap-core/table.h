@@ -587,6 +587,7 @@ public:
   
   void AddRow(const TRowIterator& RI);
   void GetCollidingRows(const TTable& T, THashSet<TInt>& Collisions);
+  PTable UnionAll(const TTable& Table, const TStr& TableName);
   PTable Union(const TTable& Table, const TStr& TableName);
   PTable Intersection(const TTable& Table, const TStr& TableName);
   PTable Minus(TTable& Table, const TStr& TableName);

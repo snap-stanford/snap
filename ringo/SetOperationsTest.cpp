@@ -17,6 +17,10 @@ int main(){
   PTable P = TTable::LoadSS("Animals", AnimalS, "tests/animals.txt", Context, RelevantCols);
   PTable Q = TTable::LoadSS("MoreAnimals", AnimalS, "tests/more_animals.txt", Context, RelevantCols);
 
+  PTable P1 = P->UnionAll(*P, "foo");
+  PTable P2 = P1->UnionAll(*Q, "foo");
+  P2->SaveSS("tests/unionall.txt");
+
   PTable R = P->Union(*Q, "union");
   R->SaveSS("tests/union.txt");
 
