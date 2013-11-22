@@ -1536,6 +1536,18 @@ TInt TTable::GetPivot(TIntV& V, TInt StartIdx, TInt EndIdx, const TVec<TAttrType
 }
 
 TInt TTable::Partition(TIntV& V, TInt StartIdx, TInt EndIdx, const TVec<TAttrType>& SortByTypes, const TIntV& SortByIndices, TBool Asc){
+
+  // test if the elements are already sorted
+  TInt j;
+  for (j = StartIdx; j < EndIdx; j++) {
+    if (CompareRows(V[j], V[j+1], SortByTypes, SortByIndices, Asc) > 0) {
+      break;
+    }
+  }
+  if (j >= EndIdx) {
+    return EndIdx+1;
+  }
+
   TInt PivotIdx = GetPivot(V, StartIdx, EndIdx, SortByTypes, SortByIndices, Asc);
   TInt Pivot = V[PivotIdx];
   V.Swap(PivotIdx, EndIdx);
@@ -1557,6 +1569,9 @@ void TTable::QSort(TIntV& V, TInt StartIdx, TInt EndIdx, const TVec<TAttrType>& 
       ISort(V, StartIdx, EndIdx, SortByTypes, SortByIndices, Asc);
     } else{
       TInt Pivot = Partition(V, StartIdx, EndIdx, SortByTypes, SortByIndices, Asc);
+      if (Pivot > EndIdx) {
+        return;
+      }
       QSort(V, StartIdx, Pivot-1, SortByTypes, SortByIndices, Asc);
       QSort(V, Pivot+1, EndIdx, SortByTypes, SortByIndices, Asc);
     }
