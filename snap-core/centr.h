@@ -43,9 +43,16 @@ void GetEigenVectorCentr(const PUNGraph& Graph, TIntFltH& NIdEigenH, const doubl
 /// PageRank
 /// For more info see: http://en.wikipedia.org/wiki/PageRank
 template<class PGraph> void GetPageRank(const PGraph& Graph, TIntFltH& PRankH, const double& C=0.85, const double& Eps=1e-4, const int& MaxIter=100);
+#ifdef OPENMP
+template<class PGraph> void GetPageRankMP1(const PGraph& Graph, TIntFltH& PRankH, const double& C=0.85, const double& Eps=1e-4, const int& MaxIter=100);
+template<class PGraph> void GetPageRankMP2(const PGraph& Graph, TIntFltH& PRankH, const double& C=0.85, const double& Eps=1e-4, const int& MaxIter=100);
+#endif
 /// HITS: Hubs and Authorities
 /// For more info see: http://en.wikipedia.org/wiki/HITS_algorithm)
 template<class PGraph> void GetHits(const PGraph& Graph, TIntFltH& NIdHubH, TIntFltH& NIdAuthH, const int& MaxIter=20);
+#ifdef OPENMP
+template<class PGraph> void GetHitsMP(const PGraph& Graph, TIntFltH& NIdHubH, TIntFltH& NIdAuthH, const int& MaxIter=20);
+#endif
 
 /////////////////////////////////////////////////
 // Implementation 
@@ -107,6 +114,176 @@ void GetPageRank(const PGraph& Graph, TIntFltH& PRankH, const double& C, const d
   }
 }
 
+#ifdef OPENMP
+// Page Rank -- there are two different implementations (uncomment the desired 2 lines):
+//   Berkhin -- (the correct way) see Algorithm 1 of P. Berkhin, A Survey on PageRank Computing, Internet Mathematics, 2005
+//   iGraph -- iGraph implementation(which treats leaked PageRank in a funny way)
+// This is a parallel, non-optimized version.
+template<class PGraph>
+void GetPageRankMP1(const PGraph& Graph, TIntFltH& PRankH, const double& C, const double& Eps, const int& MaxIter) {
+  const int NNodes = Graph->GetNodes();
+  TVec<typename PGraph::TObj::TNodeI> NV;
+  //const double OneOver = 1.0/double(NNodes);
+  PRankH.Gen(NNodes);
+  //time_t t = time(0);
+  //printf("%s", ctime(&t));
+  for (typename PGraph::TObj::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
+    NV.Add(NI);
+    PRankH.AddDat(NI.GetId(), 1.0/NNodes);
+    //IAssert(NI.GetId() == PRankH.GetKey(PRankH.Len()-1));
+  }
+  
+  TFltV TmpV(NNodes);
+
+  //int hcount1 = 0;
+  //int hcount2 = 0;
+  for (int iter = 0; iter < MaxIter; iter++) {
+    time_t t = time(0);
+    printf("%s%d\n", ctime(&t),iter);
+    //int j = 0;
+    //for (typename PGraph::TObj::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++, j++) {
+    #pragma omp parallel for schedule(dynamic,10000)
+    for (int j = 0; j < NNodes; j++) {
+      typename PGraph::TObj::TNodeI NI = NV[j];
+      TmpV[j] = 0;
+      for (int e = 0; e < NI.GetInDeg(); e++) {
+        const int InNId = NI.GetInNId(e);
+        //hcount1++;
+        const int OutDeg = Graph->GetNI(InNId).GetOutDeg();
+        if (OutDeg > 0) {
+          //hcount2++;
+          TmpV[j] += PRankH.GetDat(InNId) / OutDeg;
+        }
+      }
+      TmpV[j] =  C*TmpV[j]; // Berkhin (the correct way of doing it)
+      //TmpV[j] =  C*TmpV[j] + (1.0-C)*OneOver; // iGraph
+    }
+    double sum = 0;
+    #pragma omp parallel for reduction(+:sum) schedule(dynamic,10000)
+    for (int i = 0; i < TmpV.Len(); i++) { sum += TmpV[i]; }
+    const double Leaked = (1.0-sum) / double(NNodes);
+
+    double diff = 0;
+    #pragma omp parallel for reduction(+:diff) schedule(dynamic,10000)
+    for (int i = 0; i < PRankH.Len(); i++) { // re-instert leaked PageRank
+      double NewVal = TmpV[i] + Leaked; // Berkhin
+      //NewVal = TmpV[i] / sum;  // iGraph
+      diff += fabs(NewVal-PRankH[i]);
+      PRankH[i] = NewVal;
+    }
+    //printf("counts %d %d\n", hcount1, hcount2);
+    if (diff < Eps) { break; }
+  }
+}
+
+// Page Rank -- there are two different implementations (uncomment the desired 2 lines):
+//   Berkhin -- (the correct way) see Algorithm 1 of P. Berkhin, A Survey on PageRank Computing, Internet Mathematics, 2005
+//   iGraph -- iGraph implementation(which treats leaked PageRank in a funny way)
+// This is a parallel, optimized version.
+template<class PGraph>
+void GetPageRankMP2(const PGraph& Graph, TIntFltH& PRankH, const double& C, const double& Eps, const int& MaxIter) {
+  const int NNodes = Graph->GetNodes();
+  //TIntV NV;
+  TVec<typename PGraph::TObj::TNodeI> NV;
+  //const double OneOver = 1.0/double(NNodes);
+  PRankH.Gen(NNodes);
+  int MxId = -1;
+  //time_t t = time(0);
+  //printf("%s", ctime(&t));
+  for (typename PGraph::TObj::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
+    NV.Add(NI);
+    PRankH.AddDat(NI.GetId(), 1.0/NNodes);
+    int Id = NI.GetId();
+    if (Id > MxId) {
+      MxId = Id;
+    }
+    //IAssert(NI.GetId() == PRankH.GetKey(PRankH.Len()-1));
+  }
+  //t = time(0);
+  //printf("%s", ctime(&t));
+
+  TFltV PRankV(MxId+1);
+  TIntV OutDegV(MxId+1);
+  
+  //for (typename PGraph::TObj::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
+  #pragma omp parallel for schedule(dynamic,10000)
+  for (int j = 0; j < NNodes; j++) {
+    typename PGraph::TObj::TNodeI NI = NV[j];
+    int Id = NI.GetId();
+    PRankV[Id] = 1.0/NNodes;
+    OutDegV[Id] = NI.GetOutDeg();
+  }
+
+  TFltV TmpV(NNodes);
+
+  //int hcount1 = 0;
+  //int hcount2 = 0;
+  for (int iter = 0; iter < MaxIter; iter++) {
+    time_t t = time(0);
+    printf("%s%d\n", ctime(&t),iter);
+    //int j = 0;
+    //for (typename PGraph::TObj::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++, j++) {
+    #pragma omp parallel for schedule(dynamic,10000)
+    for (int j = 0; j < NNodes; j++) {
+      //typename PGraph::TObj::TNodeI NI = Graph->GetNI(NV[j]);
+      typename PGraph::TObj::TNodeI NI = NV[j];
+      TFlt Tmp = 0;
+      //TmpV[j] = 0;
+      for (int e = 0; e < NI.GetInDeg(); e++) {
+        const int InNId = NI.GetInNId(e);
+        //hcount1++;
+        //const int OutDeg = Graph->GetNI(InNId).GetOutDeg();
+        const int OutDeg = OutDegV[InNId];
+        //if (OutDeg != OutDegV[InNId]) {
+          //printf("*** ERROR *** InNId %d, OutDeg %d, OutDegV %d\n",
+            //InNId, OutDeg, OutDegV[InNId].Val);
+        //}
+        if (OutDeg > 0) {
+          //hcount2++;
+          //TmpV[j] += PRankH.GetDat(InNId) / OutDeg;
+          //TmpV[j] += PRankV[InNId] / OutDeg;
+          Tmp += PRankV[InNId] / OutDeg;
+        }
+      }
+      TmpV[j] =  C*Tmp; // Berkhin (the correct way of doing it)
+      //TmpV[j] =  C*TmpV[j]; // Berkhin (the correct way of doing it)
+      ////TmpV[j] =  C*TmpV[j] + (1.0-C)*OneOver; // iGraph
+    }
+    double sum = 0;
+    #pragma omp parallel for reduction(+:sum) schedule(dynamic,10000)
+    for (int i = 0; i < TmpV.Len(); i++) { sum += TmpV[i]; }
+    const double Leaked = (1.0-sum) / double(NNodes);
+
+    double diff = 0;
+    //#pragma omp parallel for reduction(+:diff) schedule(dynamic,10000)
+    //for (int i = 0; i < PRankH.Len(); i++) { // re-instert leaked PageRank
+      //double NewVal = TmpV[i] + Leaked; // Berkhin
+      ////NewVal = TmpV[i] / sum;  // iGraph
+      //diff += fabs(NewVal-PRankH[i]);
+      //PRankH[i] = NewVal;
+    //}
+    #pragma omp parallel for reduction(+:diff) schedule(dynamic,10000)
+    for (int i = 0; i < NNodes; i++) {
+      typename PGraph::TObj::TNodeI NI = NV[i];
+      double NewVal = TmpV[i] + Leaked; // Berkhin
+      //NewVal = TmpV[i] / sum;  // iGraph
+      int Id = NI.GetId();
+      diff += fabs(NewVal-PRankV[Id]);
+      PRankV[Id] = NewVal;
+    }
+    //printf("counts %d %d\n", hcount1, hcount2);
+    if (diff < Eps) { break; }
+  }
+
+  #pragma omp parallel for schedule(dynamic,10000)
+  for (int i = 0; i < NNodes; i++) {
+    typename PGraph::TObj::TNodeI NI = NV[i];
+    //PRankH.AddDat(NI.GetId(), PRankV[NI.GetId()]);
+    PRankH[i] = PRankV[NI.GetId()];
+  }
+}
+#endif
+
 template<class PGraph>
 void GetHits(const PGraph& Graph, TIntFltH& NIdHubH, TIntFltH& NIdAuthH, const int& MaxIter) {
   const int NNodes = Graph->GetNodes();
@@ -150,5 +327,59 @@ void GetHits(const PGraph& Graph, TIntFltH& NIdHubH, TIntFltH& NIdAuthH, const i
   Norm = sqrt(Norm);
   for (int i = 0; i < NIdAuthH.Len(); i++) { NIdAuthH[i] /= Norm; }
 }
+
+#ifdef OPENMP
+template<class PGraph>
+void GetHitsMP(const PGraph& Graph, TIntFltH& NIdHubH, TIntFltH& NIdAuthH, const int& MaxIter) {
+  const int NNodes = Graph->GetNodes();
+  TIntV NV;
+  NIdHubH.Gen(NNodes);
+  NIdAuthH.Gen(NNodes);
+  for (typename PGraph::TObj::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
+    NV.Add(NI.GetId());
+    NIdHubH.AddDat(NI.GetId(), 1.0);
+    NIdAuthH.AddDat(NI.GetId(), 1.0);
+  }
+  double Norm=0;
+  for (int iter = 0; iter < MaxIter; iter++) {
+    // update authority scores
+    Norm = 0;
+    //for (typename PGraph::TObj::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
+    #pragma omp parallel for reduction(+:Norm) schedule(dynamic,1000)
+    for (int i = 0; i < NNodes; i++) {
+      typename PGraph::TObj::TNodeI NI = Graph->GetNI(NV[i]);
+      double& Auth = NIdAuthH.GetDat(NI.GetId()).Val;
+      Auth = 0;
+      for (int e = 0; e < NI.GetInDeg(); e++) {
+        Auth +=  NIdHubH.GetDat(NI.GetInNId(e)); }
+      Norm = Norm + Auth*Auth;
+    }
+    Norm = sqrt(Norm);
+    for (int i = 0; i < NIdAuthH.Len(); i++) { NIdAuthH[i] /= Norm; }
+    // update hub scores
+    //for (typename PGraph::TObj::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
+    #pragma omp parallel for reduction(+:Norm) schedule(dynamic,1000)
+    for (int i = 0; i < NNodes; i++) {
+      typename PGraph::TObj::TNodeI NI = Graph->GetNI(NV[i]);
+      double& Hub = NIdHubH.GetDat(NI.GetId()).Val;
+      Hub = 0;
+      for (int e = 0; e < NI.GetOutDeg(); e++) {
+        Hub += NIdAuthH.GetDat(NI.GetOutNId(e)); }
+      Norm = Norm + Hub*Hub;
+    }
+    Norm = sqrt(Norm);
+    for (int i = 0; i < NIdHubH.Len(); i++) { NIdHubH[i] /= Norm; }
+  }
+  // make sure Hub and Authority scores normalize to L2 norm 1
+  Norm = 0.0;
+  for (int i = 0; i < NIdHubH.Len(); i++) { Norm += TMath::Sqr(NIdHubH[i]); }
+  Norm = sqrt(Norm);
+  for (int i = 0; i < NIdHubH.Len(); i++) { NIdHubH[i] /= Norm; }
+  Norm = 0.0;
+  for (int i = 0; i < NIdAuthH.Len(); i++) { Norm += TMath::Sqr(NIdAuthH[i]); }
+  Norm = sqrt(Norm);
+  for (int i = 0; i < NIdAuthH.Len(); i++) { NIdAuthH[i] /= Norm; }
+}
+#endif
 
 }; // namespace TSnap

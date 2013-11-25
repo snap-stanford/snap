@@ -139,6 +139,12 @@
 //  #undef _POSIX_MONOTONIC_CLOCK
 //#endif
 
+// turn on OpenMP on Linux
+#if defined(GLib_LINUX)
+#define OPENMP
+#include <omp.h>
+#endif
+
 // for Snapworld, switch is defined to include util.h:WriteN()
 //#if (defined(GLib_UNIX) && !defined(SWIG)) || (defined(SWIG_SW))
 #if defined(SWIG_SW)
