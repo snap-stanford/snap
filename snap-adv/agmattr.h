@@ -2,7 +2,7 @@
 #define yanglib_agmattr1_h
 #include "Snap.h"
 
-class TAGMAttrUtil {
+class TCesnaUtil {
 public:
   //static double GetConductance(const PUNGraph& Graph, const TIntSet& CmtyS, const int Edges);
   //static double GetConductance(const PNGraph& Graph, const TIntSet& CmtyS, const int Edges);
@@ -85,10 +85,10 @@ template<class PGraph>
       if (NI.GetDeg() < 5) { //do not include nodes with too few degree
         Phi = 1.0; 
       } else {
-        TAGMAttrUtil::GetNbhCom<PGraph>(G, NI.GetId(), NBCmty);
+        TCesnaUtil::GetNbhCom<PGraph>(G, NI.GetId(), NBCmty);
         //if (NBCmty.Len() != NI.GetDeg() + 1) { printf("NbCom:%d, Deg:%d\n", NBCmty.Len(), NI.GetDeg()); }
         //IAssert(NBCmty.Len() == NI.GetDeg() + 1);
-        Phi = TAGMAttrUtil::GetConductance(G, NBCmty, Edges);
+        Phi = TCesnaUtil::GetConductance(G, NBCmty, Edges);
       }
       //NCPhiH.AddDat(u, Phi);
       NIdPhiV.Add(TFltIntPr(Phi, NI.GetId()));
@@ -212,7 +212,7 @@ template<class PGraph>
       if (Frac > MaxFrac || Frac < MinFrac) { continue; }
       SelectedK.AddKey(KIDCntH.GetKey(c));
     }
-    printf("%d features selected from %d\n", SelectedK.Len(), KIDCntH.Len());
+    printf("%d attributes selected from %d\n", SelectedK.Len(), KIDCntH.Len());
     NewNIDAttrH.Gen(OldNIDAttrH.Len());
     for (int u = 0; u < OldNIDAttrH.Len(); u++) {
       int NID = OldNIDAttrH.GetKey(u);
@@ -231,7 +231,7 @@ template<class PGraph>
           NewNameH.AddDat(k, OldNameH.GetDat(OldKID));
         }
       }
-      printf("%d feature names copied\n", NewNameH.Len());
+      printf("%d attributes names copied\n", NewNameH.Len());
     }
   }
   static void FilterLowEntropy(const THash<TInt, TIntV>& OldNIDAttrH, THash<TInt, TIntV>& NewNIDAttrH, const double MinFrac = 0.00001, const double MaxFrac = 0.95, const int MinCnt = 3) {
@@ -239,7 +239,7 @@ template<class PGraph>
     FilterLowEntropy(OldNIDAttrH, NewNIDAttrH, TmpH1, TmpH2, MinFrac, MaxFrac, MinCnt);
   }
 };
-class TAGMAttr1 { //sparse AGM-fast with coordinate ascent F->G, F->X
+class TCesna { //CESNA: community detection in networks with node attributes
 private:
   PUNGraph G; //graph to fit
   TVec<TIntSet> X; // X[u] = {k| X_uk = 1}
@@ -264,8 +264,8 @@ public:
   TFlt PNoCom; // base probability \varepsilon (edge probability between a pair of nodes sharing no community
   TBool DoParallel; // whether to use parallelism for computation
 
-  TAGMAttr1() { G = TUNGraph::New(10, -1); }
-  TAGMAttr1(const PUNGraph& GraphPt, const THash<TInt, TIntV>& NIDAttrH, const int& InitComs, const int RndSeed = 0): Rnd(RndSeed), RegCoef(0), 
+  TCesna() { G = TUNGraph::New(10, -1); }
+  TCesna(const PUNGraph& GraphPt, const THash<TInt, TIntV>& NIDAttrH, const int& InitComs, const int RndSeed = 0): Rnd(RndSeed), RegCoef(0), 
     MinVal(0.0), MaxVal(10.0), MinValW(-10.0), MaxValW(10.0), NegWgt(1.0), LassoCoef(1.0), WeightAttr(1.0) { SetGraph(GraphPt, NIDAttrH); NeighborComInit(InitComs); }
   void Save(TSOut& SOut) {
     G->Save(SOut);
@@ -410,7 +410,7 @@ public:
   }
   void SetHoldOut(const double HOFrac) { 
     TVec<TIntSet> HoldOut; 
-    TAGMAttrUtil::GenHoldOutPairs(G, HoldOut, HOFrac, Rnd); 
+    TCesnaUtil::GenHoldOutPairs(G, HoldOut, HOFrac, Rnd); 
     GenHoldOutAttr(HOFrac, HOKIDSV);
     HOVIDSV = HoldOut; 
   }

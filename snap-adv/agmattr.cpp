@@ -6,7 +6,7 @@
 
 
 
-void TAGMAttr1::RandomInit(const int InitComs) {
+void TCesna::RandomInit(const int InitComs) {
   F.Gen(G->GetNodes());
   SumFV.Gen(InitComs);
   NumComs = InitComs;
@@ -29,14 +29,14 @@ void TAGMAttr1::RandomInit(const int InitComs) {
   InitW();
 }
 
-void TAGMAttr1::NeighborComInit(const int InitComs) {
+void TCesna::NeighborComInit(const int InitComs) {
   //initialize with best neighborhood communities (Gleich et.al. KDD'12)
   TFltIntPrV NIdPhiV(F.Len(), 0);
-  TAGMAttrUtil::GetNIdPhiV<PUNGraph>(G, NIdPhiV);
+  TCesnaUtil::GetNIdPhiV<PUNGraph>(G, NIdPhiV);
   NeighborComInit(NIdPhiV, InitComs);
 }
 
-void TAGMAttr1::NeighborComInit(TFltIntPrV& NIdPhiV, const int InitComs) {
+void TCesna::NeighborComInit(TFltIntPrV& NIdPhiV, const int InitComs) {
   //initialize with best neighborhood communities (Gleich et.al. KDD'12)
   NIdPhiV.Sort(true);
   F.Gen(G->GetNodes());
@@ -83,7 +83,7 @@ void TAGMAttr1::NeighborComInit(TFltIntPrV& NIdPhiV, const int InitComs) {
   InitW();
 }
 
-void TAGMAttr1::SetCmtyVV(const TVec<TIntV>& CmtyVV) {
+void TCesna::SetCmtyVV(const TVec<TIntV>& CmtyVV) {
   F.Gen(G->GetNodes());
   SumFV.Gen(CmtyVV.Len());
   NumComs = CmtyVV.Len();
@@ -97,7 +97,7 @@ void TAGMAttr1::SetCmtyVV(const TVec<TIntV>& CmtyVV) {
   }
 }
 
-void TAGMAttr1::SetGraph(const PUNGraph& GraphPt, const THash<TInt, TIntV>& NIDAttrH) {
+void TCesna::SetGraph(const PUNGraph& GraphPt, const THash<TInt, TIntV>& NIDAttrH) {
   HOVIDSV.Gen(GraphPt->GetNodes());  
   HOKIDSV.Gen(GraphPt->GetNodes());  
   X.Gen(GraphPt->GetNodes());
@@ -135,7 +135,7 @@ void TAGMAttr1::SetGraph(const PUNGraph& GraphPt, const THash<TInt, TIntV>& NIDA
   InitW();
 }
 
-double TAGMAttr1::Likelihood(const bool _DoParallel) { 
+double TCesna::Likelihood(const bool _DoParallel) { 
   TExeTm ExeTm;
   double L = 0.0;
   if (_DoParallel) {
@@ -155,11 +155,11 @@ double TAGMAttr1::Likelihood(const bool _DoParallel) {
   return L;
 }
 
-double TAGMAttr1::LikelihoodForRow(const int UID) {
+double TCesna::LikelihoodForRow(const int UID) {
   return LikelihoodForRow(UID, F[UID]);
 }
 
-double TAGMAttr1::LikelihoodForRow(const int UID, const TIntFltH& FU) {
+double TCesna::LikelihoodForRow(const int UID, const TIntFltH& FU) {
   double L = 0.0;
   TFltV HOSumFV; //adjust for Fv of v hold out
   if (HOVIDSV[UID].Len() > 0) {
@@ -200,7 +200,7 @@ double TAGMAttr1::LikelihoodForRow(const int UID, const TIntFltH& FU) {
 }
 
 
-double TAGMAttr1::LikelihoodAttrKForRow(const int UID, const int K, const TIntFltH& FU, const TFltV& WK) {
+double TCesna::LikelihoodAttrKForRow(const int UID, const int K, const TIntFltH& FU, const TFltV& WK) {
   double Prob = PredictAttrK(FU, WK);
   double L = 0.0;
   if (GetAttr(UID, K)) { 
@@ -211,7 +211,7 @@ double TAGMAttr1::LikelihoodAttrKForRow(const int UID, const int K, const TIntFl
   return L;
 }
 
-void TAGMAttr1::GradientForRow(const int UID, TIntFltH& GradU, const TIntSet& CIDSet) {
+void TCesna::GradientForRow(const int UID, TIntFltH& GradU, const TIntSet& CIDSet) {
   GradU.Gen(CIDSet.Len());
   TFltV HOSumFV; //adjust for Fv of v hold out
   if (HOVIDSV[UID].Len() > 0) {
@@ -287,14 +287,14 @@ void TAGMAttr1::GradientForRow(const int UID, TIntFltH& GradU, const TIntSet& CI
   }
 }
 
-void TAGMAttr1::GetCmtyVV(TVec<TIntV>& CmtyVV) {
+void TCesna::GetCmtyVV(TVec<TIntV>& CmtyVV) {
   TVec<TFltV> TmpV;
   GetCmtyVV(CmtyVV, TmpV, sqrt(2.0 * (double) G->GetEdges() / G->GetNodes() / G->GetNodes()), 3);
 }
 
 
 /// extract community affiliation from F_uc Wck[c][k] = W_c for k-th attribute
-void TAGMAttr1::GetCmtyVV(TVec<TIntV>& CmtyVV, TVec<TFltV>& Wck, const double Thres, const int MinSz) {
+void TCesna::GetCmtyVV(TVec<TIntV>& CmtyVV, TVec<TFltV>& Wck, const double Thres, const int MinSz) {
   CmtyVV.Gen(NumComs, 0);
   Wck.Gen(NumComs, 0);
   TIntFltH CIDSumFH(NumComs);
@@ -327,11 +327,11 @@ void TAGMAttr1::GetCmtyVV(TVec<TIntV>& CmtyVV, TVec<TFltV>& Wck, const double Th
   }
 }
 
-void TAGMAttr1::GetCmtyVVUnSorted(TVec<TIntV>& CmtyVV) {
+void TCesna::GetCmtyVVUnSorted(TVec<TIntV>& CmtyVV) {
   GetCmtyVVUnSorted(CmtyVV, sqrt(2.0 * (double) G->GetEdges() / G->GetNodes() / G->GetNodes()), 3);
 }
 
-void TAGMAttr1::GetCmtyVVUnSorted(TVec<TIntV>& CmtyVV, const double Thres, const int MinSz) {
+void TCesna::GetCmtyVVUnSorted(TVec<TIntV>& CmtyVV, const double Thres, const int MinSz) {
   CmtyVV.Gen(NumComs, 0);
   for (int c = 0; c < NumComs; c++) {
     TIntV CmtyV;
@@ -346,7 +346,7 @@ void TAGMAttr1::GetCmtyVVUnSorted(TVec<TIntV>& CmtyVV, const double Thres, const
 }
 
 /// estimate number of communities using cross validation
-int TAGMAttr1::FindComs(const int NumThreads, const int MaxComs, const int MinComs, const int DivComs, const TStr OutFNm, const bool UseBIC, const double HOFrac, const double StepAlpha, const double StepBeta) {
+int TCesna::FindComs(const int NumThreads, const int MaxComs, const int MinComs, const int DivComs, const TStr OutFNm, const bool UseBIC, const double HOFrac, const double StepAlpha, const double StepBeta) {
     double ComsGap = exp(TMath::Log((double) MaxComs / (double) MinComs) / (double) DivComs);
     TIntV ComsV;
     ComsV.Add(MinComs);
@@ -359,7 +359,7 @@ int TAGMAttr1::FindComs(const int NumThreads, const int MaxComs, const int MinCo
     return FindComs(ComsV, UseBIC, HOFrac, NumThreads, OutFNm, StepAlpha, StepBeta);
 }
 
-int TAGMAttr1::FindComs(TIntV& ComsV, const bool UseBIC, const double HOFrac, const int NumThreads, const TStr PlotLFNm, const double StepAlpha, const double StepBeta) {
+int TCesna::FindComs(TIntV& ComsV, const bool UseBIC, const double HOFrac, const int NumThreads, const TStr PlotLFNm, const double StepAlpha, const double StepBeta) {
   if (ComsV.Len() == 0) {
     int MaxComs = G->GetNodes() / 5;
     ComsV.Add(2);
@@ -369,7 +369,7 @@ int TAGMAttr1::FindComs(TIntV& ComsV, const bool UseBIC, const double HOFrac, co
 
   TVec<TVec<TIntSet> > HoldOutSets(MaxIterCV), HoldOutSetsAttr(MaxIterCV);
   TFltIntPrV NIdPhiV;
-  TAGMAttrUtil::GetNIdPhiV<PUNGraph>(G, NIdPhiV);
+  TCesnaUtil::GetNIdPhiV<PUNGraph>(G, NIdPhiV);
   if (! UseBIC) { //if edges are many enough, use CV
     //printf("generating hold out set\n");
     TIntV NIdV1, NIdV2;
@@ -377,7 +377,7 @@ int TAGMAttr1::FindComs(TIntV& ComsV, const bool UseBIC, const double HOFrac, co
     G->GetNIdV(NIdV2);
     for (int IterCV = 0; IterCV < MaxIterCV; IterCV++) {
       // generate holdout sets
-      TAGMAttrUtil::GenHoldOutPairs(G, HoldOutSets[IterCV], HOFrac, Rnd);
+      TCesnaUtil::GenHoldOutPairs(G, HoldOutSets[IterCV], HOFrac, Rnd);
       GenHoldOutAttr(HOFrac, HoldOutSetsAttr[IterCV]);
     }
     //printf("hold out set generated\n");
@@ -450,7 +450,7 @@ int TAGMAttr1::FindComs(TIntV& ComsV, const bool UseBIC, const double HOFrac, co
   return EstComs;
 }
 
-double TAGMAttr1::LikelihoodHoldOut() { 
+double TCesna::LikelihoodHoldOut() { 
   double L = 0.0;
   for (int u = 0; u < HOVIDSV.Len(); u++) {
     for (int e = 0; e < HOVIDSV[u].Len(); e++) {
@@ -478,7 +478,7 @@ double TAGMAttr1::LikelihoodHoldOut() {
   return L;
 }
 
-double TAGMAttr1::GetStepSizeByLineSearch(const int UID, const TIntFltH& DeltaV, const TIntFltH& GradV, const double& Alpha, const double& Beta, const int MaxIter) {
+double TCesna::GetStepSizeByLineSearch(const int UID, const TIntFltH& DeltaV, const TIntFltH& GradV, const double& Alpha, const double& Beta, const int MaxIter) {
   double StepSize = 1.0;
   double InitLikelihood = LikelihoodForRow(UID);
   TIntFltH NewVarV(DeltaV.Len());
@@ -503,7 +503,7 @@ double TAGMAttr1::GetStepSizeByLineSearch(const int UID, const TIntFltH& DeltaV,
   return StepSize;
 }
 
-int TAGMAttr1::MLEGradAscent(const double& Thres, const int& MaxIter, const TStr PlotNm, const double StepAlpha, const double StepBeta) {
+int TCesna::MLEGradAscent(const double& Thres, const int& MaxIter, const TStr PlotNm, const double StepAlpha, const double StepBeta) {
   time_t InitTime = time(NULL);
   TExeTm ExeTm, CheckTm;
   int iter = 0, PrevIter = 0;
@@ -592,7 +592,7 @@ int TAGMAttr1::MLEGradAscent(const double& Thres, const int& MaxIter, const TStr
   return iter;
 }
 
-int TAGMAttr1::MLEGradAscentParallel(const double& Thres, const int& MaxIter, const int ChunkNum, const int ChunkSize, const TStr PlotNm, const double StepAlpha, const double StepBeta) {
+int TCesna::MLEGradAscentParallel(const double& Thres, const int& MaxIter, const int ChunkNum, const int ChunkSize, const TStr PlotNm, const double StepAlpha, const double StepBeta) {
   //parallel
   time_t InitTime = time(NULL);
   uint64 StartTm = TSecTm::GetCurTm().GetAbsSecs();
