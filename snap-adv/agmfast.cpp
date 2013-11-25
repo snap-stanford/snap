@@ -811,7 +811,7 @@ int TAGMFast::MLEGradAscentParallel(const double& Thres, const int& MaxIter, con
           GradientForRow(u, GradV, CIDSet);
           if (Norm2(GradV) < 1e-4) { NIDOPTV[u] = 1; continue; }
           double LearnRate = GetStepSizeByLineSearch(u, GradV, GradV, StepAlpha, StepBeta, 5);
-          if (LearnRate <= 1e-5) { NewNIDV[ui] = -2; continue; }
+          if (LearnRate == 0.0) { NewNIDV[ui] = -2; continue; }
           for (int ci = 0; ci < GradV.Len(); ci++) {
             int CID = GradV.GetKey(ci);
             double Change = LearnRate * GradV.GetDat(CID);
