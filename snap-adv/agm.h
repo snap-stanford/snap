@@ -35,6 +35,7 @@ public:
   static void GetNodeMembership(THash<TInt,TIntV >& NIDComVH, const TVec<TIntV >& CmtyVV);
   static void GetNodeMembership(TIntH& NIDComVH, const TVec<TIntV >& CmtyVV);
   static void LoadCmtyVV(const TStr& InFNm, TVec<TIntV>& CmtyVV);
+  static void LoadCmtyVV(const TStr& InFNm, TVec<TIntV>& CmtyVV, TStrHash<TInt>& StrToNIdH, const int BeginCol, const int MinSz = 3, const TSsFmt Sep = ssfTabSep);
   static void DumpCmtyVV(const TStr& OutFNm, const TVec<TIntV>& CmtyVV);
   static void DumpCmtyVV(const TStr OutFNm, TVec<TIntV>& CmtyVV, TIntStrH& NIDNmH);
   static int TotalMemberships(const TVec<TIntV>& CmtyVV);
