@@ -248,6 +248,22 @@ TTable::TTable(const TStr& TableName, const THash<TInt,TFlt>& H, const TStr& Col
     Next[NumRows-1] = Last;
 }
 
+TTable::TTable(const TTable& Table, const TIntV& RowIDs): Name(Table.Name), Context(Table.Context), S(Table.S),
+    SrcCol(Table.SrcCol), DstCol(Table.DstCol),
+    EdgeAttrV(Table.EdgeAttrV), SrcNodeAttrV(Table.SrcNodeAttrV),
+    DstNodeAttrV(Table.DstNodeAttrV), CommonNodeAttrs(Table.CommonNodeAttrs) {
+  ColTypeMap = Table.ColTypeMap;
+  IntCols = TVec<TIntV>(Table.IntCols.Len());
+  FltCols = TVec<TFltV>(Table.FltCols.Len());
+  StrColMaps = TVec<TIntV>(Table.StrColMaps.Len());
+  FirstValidRow = 0;
+  LastValidRow = -1;
+  NumRows = 0;
+  NumValidRows = 0;
+  AddSelectedRows(Table, RowIDs);
+  InitIds();
+}
+
 PTable TTable::LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm, TTableContext& Context, const TIntV& RelevantCols, const char& Separator, TBool HasTitleLine){
   TSsParser Ss(InFNm, Separator);
   Schema SR;
@@ -2579,6 +2595,72 @@ void TTable::AddRow(const TRowIterator& RI) {
 
   NumRows++;
   NumValidRows++;
+}
+
+void TTable::ResizeTable(int RowCount) {
+  for(TInt i = 0; i < IntCols.Len(); i++){
+    IntCols[i].Reserve(RowCount, RowCount);
+  }
+  for(TInt i = 0; i < FltCols.Len(); i++){
+    FltCols[i].Reserve(RowCount, RowCount);
+  }
+  for(TInt i = 0; i < StrColMaps.Len(); i++){
+    StrColMaps[i].Reserve(RowCount, RowCount);
+  }
+  Next.Reserve(RowCount, RowCount);
+}
+
+int TTable::GetEmptyRowsStart(int NewRows) {
+  int start = NumRows;
+  NumRows += NewRows;
+  NumValidRows += NewRows;
+  // to make this function thread-safe, the following call must be done before the code enters parallel region.
+  ResizeTable(NumRows);
+  if (LastValidRow >= 0) {Next[LastValidRow] = start;}
+  LastValidRow = start+NewRows-1;
+  Next[LastValidRow] = Last;
+  return start;
+}
+
+void TTable::AddSelectedRows(const TTable& Table, const TIntV& RowIDs) {
+  int NewRows = RowIDs.Len();
+  if (NewRows == 0) {return;}
+  // this call should be thread-safe
+  int start = GetEmptyRowsStart(NewRows);
+  for (TInt r = 0; r < NewRows; r++){
+    for(TInt i = 0; i < Table.IntCols.Len(); i++){
+      IntCols[i][start+r] = Table.IntCols[i][RowIDs[r]];
+    }
+    for(TInt i = 0; i < Table.FltCols.Len(); i++){
+      FltCols[i][start+r] = Table.FltCols[i][RowIDs[r]];
+    }
+    for(TInt i = 0; i < Table.StrColMaps.Len(); i++){
+      StrColMaps[i][start+r] = Table.StrColMaps[i][RowIDs[r]];
+    }
+  }
+  for(TInt r = 0; r < NewRows-1; r++){
+    Next[start+r] = start+r+1;
+  }
+}  
+
+void TTable::AddNRows(int NewRows, const TVec<TIntV>& IntColsP, const TVec<TFltV>& FltColsP, const TVec<TIntV>& StrColMapsP) {
+  if (NewRows == 0) {return;}
+  // this call should be thread-safe
+  int start = GetEmptyRowsStart(NewRows);
+  for (TInt r = 0; r < NewRows; r++){
+    for(TInt i = 0; i < IntColsP.Len(); i++){
+      IntCols[i][start+r] = IntColsP[i][r];
+    }
+    for(TInt i = 0; i < FltColsP.Len(); i++){
+      FltCols[i][start+r] = FltColsP[i][r];
+    }
+    for(TInt i = 0; i < StrColMapsP.Len(); i++){
+      StrColMaps[i][start+r] = StrColMapsP[i][r];
+    }
+  }
+  for(TInt r = 0; r < NewRows-1; r++){
+    Next[start+r] = start+r+1;
+  }
 }
 
 PTable TTable::UnionAll(const TTable& Table, const TStr& TableName) {

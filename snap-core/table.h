@@ -338,6 +338,11 @@ protected:
   // add joint row T1[RowIdx1]<=>T2[RowIdx2]
   void AddJointRow(const TTable& T1, const TTable& T2, TInt RowIdx1, TInt RowIdx2);
 
+  void ResizeTable(int RowCount);
+  int GetEmptyRowsStart(int NewRows);
+  void AddSelectedRows(const TTable& Table, const TIntV& RowIDs);
+  void AddNRows(int NewRows, const TVec<TIntV>& IntColsP, const TVec<TFltV>& FltColsP, const TVec<TIntV>& StrColMapsP);
+
 public:
 /***** Constructors *****/
   TTable(); 
@@ -360,6 +365,8 @@ public:
     EdgeAttrV(Table.EdgeAttrV), SrcNodeAttrV(Table.SrcNodeAttrV),
     DstNodeAttrV(Table.DstNodeAttrV), CommonNodeAttrs(Table.CommonNodeAttrs){} 
 
+  TTable(const TTable& Table, const TIntV& RowIds);
+
   static PTable New(){ return new TTable();}
   static PTable New(TTableContext& Context){ return new TTable(Context);}
   static PTable New(const TStr& TableName, const Schema& S, TTableContext& Context){ return new TTable(TableName, S, Context);}
@@ -371,6 +378,7 @@ public:
   }
   static PTable New(const PTable Table){ return new TTable(*Table);}
   static PTable New(const PTable Table, const TStr& TableName){ PTable T = New(Table); T->Name = TableName; return T;}
+  static PTable New(const PTable Table, const TStr& TableName, const TIntV& RowIds){ PTable T = new TTable(*Table, RowIds); T->Name = TableName; return T;}
 
 /***** Save / Load functions *****/
   // Load table from spread sheet (TSV, CSV, etc)
@@ -399,6 +407,9 @@ public:
     T->InitIds();
     return T;
   }
+
+  // Make a new TTable from the subset of physical indices of the rows of current table
+  PTable CopySubset(const TIntV& RowIds) const;
   
 /***** Graph handling *****/
   // Create a graph out of the FINAL table
