@@ -5,7 +5,7 @@
 #include "Snap.h"
 #include "agm.h"
 
-void TAGMDirected::Save(TSOut& SOut) {
+void TCoda::Save(TSOut& SOut) {
   G->Save(SOut);
   F.Save(SOut);
   H.Save(SOut);
@@ -22,7 +22,7 @@ void TAGMDirected::Save(TSOut& SOut) {
   PNoCom.Save(SOut);
 }
 
-void TAGMDirected::Load(TSIn& SIn, const int& RndSeed) {
+void TCoda::Load(TSIn& SIn, const int& RndSeed) {
   G->Load(SIn);
   F.Load(SIn);
   H.Load(SIn);
@@ -40,7 +40,7 @@ void TAGMDirected::Load(TSIn& SIn, const int& RndSeed) {
   Rnd.PutSeed(RndSeed);
 }
 
-void TAGMDirected::RandomInit(const int InitComs) {
+void TCoda::RandomInit(const int InitComs) {
   F.Gen(G->GetNodes());
   H.Gen(G->GetNodes());
   SumFV.Gen(InitComs);
@@ -80,7 +80,7 @@ void TAGMDirected::RandomInit(const int InitComs) {
   }
 }
 
-void TAGMDirected::NeighborComInit(const int InitComs) {
+void TCoda::NeighborComInit(const int InitComs) {
   //initialize with best neighborhood communities (Gleich et.al. KDD'12)
   TExeTm RunTm;
   TFltIntPrV NIdPhiV(F.Len(), 0);
@@ -88,7 +88,7 @@ void TAGMDirected::NeighborComInit(const int InitComs) {
   NeighborComInit(NIdPhiV, InitComs);
 }
 
-void TAGMDirected::NeighborComInit(TFltIntPrV& NIdPhiV, const int InitComs) {
+void TCoda::NeighborComInit(TFltIntPrV& NIdPhiV, const int InitComs) {
   NIdPhiV.Sort(true);
   F.Gen(G->GetNodes());
   H.Gen(G->GetNodes());
@@ -150,7 +150,7 @@ void TAGMDirected::NeighborComInit(TFltIntPrV& NIdPhiV, const int InitComs) {
   }
 }
 
-void TAGMDirected::GetNonEdgePairScores(TFltIntIntTrV& ScoreV) {
+void TCoda::GetNonEdgePairScores(TFltIntIntTrV& ScoreV) {
   ScoreV.Gen(G->GetNodes() * G->GetNodes(), 0);
   TIntV NIDV;
   G->GetNIdV(NIDV);
@@ -168,7 +168,7 @@ void TAGMDirected::GetNonEdgePairScores(TFltIntIntTrV& ScoreV) {
   }
 }
 
-void TAGMDirected::SetCmtyVV(const TVec<TIntV>& CmtyVVOut, const TVec<TIntV>& CmtyVVIn) {
+void TCoda::SetCmtyVV(const TVec<TIntV>& CmtyVVOut, const TVec<TIntV>& CmtyVVIn) {
   IAssert(CmtyVVOut.Len() == CmtyVVIn.Len());
   F.Gen(G->GetNodes());
   H.Gen(G->GetNodes());
@@ -201,7 +201,7 @@ void TAGMDirected::SetCmtyVV(const TVec<TIntV>& CmtyVVOut, const TVec<TIntV>& Cm
   }
 }
 
-void TAGMDirected::SetGraph(const PNGraph& GraphPt) {
+void TCoda::SetGraph(const PNGraph& GraphPt) {
   G = GraphPt;
   HOVIDSV.Gen(G->GetNodes());  
   NodesOk = true;
@@ -228,7 +228,7 @@ void TAGMDirected::SetGraph(const PNGraph& GraphPt) {
   NegWgt = 1.0;
 }
 
-double TAGMDirected::Likelihood(const bool _DoParallel) { 
+double TCoda::Likelihood(const bool _DoParallel) { 
   TExeTm ExeTm;
   double L = 0.0;
   if (_DoParallel) {
@@ -248,7 +248,7 @@ double TAGMDirected::Likelihood(const bool _DoParallel) {
   return L;
 }
 
-double TAGMDirected::LikelihoodForNode(const bool IsRow, const int UID) {
+double TCoda::LikelihoodForNode(const bool IsRow, const int UID) {
   if (IsRow) {
     return LikelihoodForNode(IsRow, UID, F[UID]);
   } else {
@@ -256,7 +256,7 @@ double TAGMDirected::LikelihoodForNode(const bool IsRow, const int UID) {
   }
 }
 
-double TAGMDirected::LikelihoodForNode(const bool IsRow, const int UID, const TIntFltH& FU) {
+double TCoda::LikelihoodForNode(const bool IsRow, const int UID, const TIntFltH& FU) {
   double L = 0.0;
   TFltV HOSumHV; //adjust for Hv of v hold out
   if (HOVIDSV[UID].Len() > 0) {
@@ -295,12 +295,12 @@ double TAGMDirected::LikelihoodForNode(const bool IsRow, const int UID, const TI
 
 
 /*
-double TAGMDirected::LikelihoodForRow(const int UID) {
+double TCoda::LikelihoodForRow(const int UID) {
   return LikelihoodForRow(UID, F[UID]);
 }
 
 
-double TAGMDirected::LikelihoodForRow(const int UID, const TIntFltH& FU) {
+double TCoda::LikelihoodForRow(const int UID, const TIntFltH& FU) {
   double L = 0.0;
   TFltV HOSumHV; //adjust for Hv of v hold out
   if (HOVIDSV[UID].Len() > 0) {
@@ -336,12 +336,12 @@ double TAGMDirected::LikelihoodForRow(const int UID, const TIntFltH& FU) {
   return L;
 }
 
-double TAGMDirected::LikelihoodForCol(const int VID) {
+double TCoda::LikelihoodForCol(const int VID) {
   return LikelihoodForCol(VID, H[VID]);
 }
 
 
-double TAGMDirected::LikelihoodForCol(const int VID, const TIntFltH& HV) {
+double TCoda::LikelihoodForCol(const int VID, const TIntFltH& HV) {
   double L = 0.0;
   TFltV HOSumFV; //adjust for Fv of v hold out
   if (HOVIDSV[VID].Len() > 0) {
@@ -374,7 +374,7 @@ double TAGMDirected::LikelihoodForCol(const int VID, const TIntFltH& HV) {
   return L;
 }
 */
-void TAGMDirected::GradientForNode(const bool IsRow, const int UID, TIntFltH& GradU, const TIntSet& CIDSet) {
+void TCoda::GradientForNode(const bool IsRow, const int UID, TIntFltH& GradU, const TIntSet& CIDSet) {
   GradU.Gen(CIDSet.Len());
 
   TFltV HOSumHV; //adjust for Hv of v hold out
@@ -436,7 +436,7 @@ void TAGMDirected::GradientForNode(const bool IsRow, const int UID, TIntFltH& Gr
 }
 
 /*
-void TAGMDirected::GradientForRow(const int UID, TIntFltH& GradU, const TIntSet& CIDSet) {
+void TCoda::GradientForRow(const int UID, TIntFltH& GradU, const TIntSet& CIDSet) {
   GradU.Gen(CIDSet.Len());
 
   TFltV HOSumHV; //adjust for Hv of v hold out
@@ -498,12 +498,12 @@ void TAGMDirected::GradientForRow(const int UID, TIntFltH& GradU, const TIntSet&
 }
 */
 
-void TAGMDirected::GetCmtyVV(const bool IsOut, TVec<TIntV>& CmtyVV) {
+void TCoda::GetCmtyVV(const bool IsOut, TVec<TIntV>& CmtyVV) {
   GetCmtyVV(IsOut, CmtyVV, sqrt(1.0 / G->GetNodes()), 3);
 }
 
 /// extract community affiliation for given community ID
-void TAGMDirected::GetCommunity(TIntV& CmtyVIn, TIntV& CmtyVOut, const int CID, const double Thres) {
+void TCoda::GetCommunity(TIntV& CmtyVIn, TIntV& CmtyVOut, const int CID, const double Thres) {
   TIntFltH NIDFucH(F.Len() / 10), NIDHucH(F.Len() / 10);
   for (int u = 0; u < NIDV.Len(); u++) {
     int NID = u;
@@ -517,7 +517,7 @@ void TAGMDirected::GetCommunity(TIntV& CmtyVIn, TIntV& CmtyVOut, const int CID, 
   NIDHucH.GetKeyV(CmtyVIn);
 }
 
-void TAGMDirected::GetTopCIDs(TIntV& CIdV, const int TopK, const int IsAverage, const int MinSz) {
+void TCoda::GetTopCIDs(TIntV& CIdV, const int TopK, const int IsAverage, const int MinSz) {
   TIntFltH CIdFHH;
   for (int c = 0; c < GetNumComs(); c++) {
     if (IsAverage == 1) {
@@ -536,7 +536,7 @@ void TAGMDirected::GetTopCIDs(TIntV& CIdV, const int TopK, const int IsAverage, 
 }
 
 /// extract community affiliation for outgoing edges from F_uc
-void TAGMDirected::GetCmtyVV(const bool IsOut, TVec<TIntV>& CmtyVV, const double Thres, const int MinSz) {
+void TCoda::GetCmtyVV(const bool IsOut, TVec<TIntV>& CmtyVV, const double Thres, const int MinSz) {
   CmtyVV.Gen(NumComs, 0);
   TIntFltH CIDSumFH(NumComs);
   for (int c = 0; c < NumComs; c++) {
@@ -560,7 +560,7 @@ void TAGMDirected::GetCmtyVV(const bool IsOut, TVec<TIntV>& CmtyVV, const double
   }
 }
 
-void TAGMDirected::GetCmtyVVUnSorted(const bool IsOut, TVec<TIntV>& CmtyVV, const double Thres, const int MinSz) {
+void TCoda::GetCmtyVVUnSorted(const bool IsOut, TVec<TIntV>& CmtyVV, const double Thres, const int MinSz) {
   CmtyVV.Gen(NumComs, 0);
   for (int c = 0; c < NumComs; c++) {
     TIntV CmtyV((int) (GetSumVal(IsOut, c) * 10), 0);
@@ -574,7 +574,7 @@ void TAGMDirected::GetCmtyVVUnSorted(const bool IsOut, TVec<TIntV>& CmtyVV, cons
   }
 }
 
-PNGraph TAGMDirected::GetGraphRawNID() {
+PNGraph TCoda::GetGraphRawNID() {
   PNGraph NewG = TNGraph::New(G->GetNodes(), -1);
   for (TNGraph::TNodeI NI = G->BegNI(); NI < G->EndNI(); NI++) {
     //add node
@@ -593,7 +593,7 @@ PNGraph TAGMDirected::GetGraphRawNID() {
   return NewG;
 }
 
-void TAGMDirected::GetNIDValH(TIntFltH& NIdValInOutH, TIntFltH& NIdValOutH, TIntFltH& NIdValInH, const int CID, const double Thres) {
+void TCoda::GetNIDValH(TIntFltH& NIdValInOutH, TIntFltH& NIdValOutH, TIntFltH& NIdValInH, const int CID, const double Thres) {
   NIdValOutH.Gen((int) GetSumVal(true, CID) + 1);
   NIdValInH.Gen((int) GetSumVal(false, CID) + 1);
   NIdValInOutH.Gen((int) GetSumVal(false, CID) + 1);
@@ -614,7 +614,7 @@ void TAGMDirected::GetNIDValH(TIntFltH& NIdValInOutH, TIntFltH& NIdValOutH, TInt
   NIdValInOutH.SortByDat(false);
 }
 
-void TAGMDirected::DumpMemberships(const TStr& OutFNm, const TStrHash<TInt>& NodeNameH, const double Thres) {
+void TCoda::DumpMemberships(const TStr& OutFNm, const TStrHash<TInt>& NodeNameH, const double Thres) {
   if (NodeNameH.Len() > 0) { IAssert(NodeNameH.Len() == G->GetNodes()); }
   FILE* FId = fopen(OutFNm.CStr(), "wt");
   TIntFltH CIDSumFH(NumComs);
@@ -665,13 +665,13 @@ void TAGMDirected::DumpMemberships(const TStr& OutFNm, const TStrHash<TInt>& Nod
 }
 
 
-void TAGMDirected::DumpMemberships(const TStr& OutFNm, const double Thres) {
+void TCoda::DumpMemberships(const TStr& OutFNm, const double Thres) {
   TStrHash<TInt> NodeNameH(G->GetNodes(), false);
   for (int u = 0; u < NIDV.Len(); u++) { NodeNameH.AddKey(TStr::Fmt("%d", NIDV[u].Val)); }
   DumpMemberships(OutFNm, NodeNameH, Thres);
 }
 
-void TAGMDirected::GetCmtyS(TIntSet& CmtySOut, TIntSet& CmtySIn, const int CID, const double Thres) {
+void TCoda::GetCmtyS(TIntSet& CmtySOut, TIntSet& CmtySIn, const int CID, const double Thres) {
   CmtySOut.Gen(G->GetNodes() / 10);
   CmtySIn.Gen(G->GetNodes() / 10);
   for (int u = 0; u < NIDV.Len(); u++) {
@@ -682,12 +682,12 @@ void TAGMDirected::GetCmtyS(TIntSet& CmtySOut, TIntSet& CmtySIn, const int CID, 
 }
 
 /*
-void TAGMDirected::GetCmtyVVIn(TVec<TIntV>& CmtyVV) {
+void TCoda::GetCmtyVVIn(TVec<TIntV>& CmtyVV) {
   GetCmtyVVIn(CmtyVV, sqrt(1.0 / G->GetNodes()), 3);
 }
 
 /// extract community affiliation for incoming edges from H_uc
-void TAGMDirected::GetCmtyVVIn(TVec<TIntV>& CmtyVV, const double Thres, const int MinSz) {
+void TCoda::GetCmtyVVIn(TVec<TIntV>& CmtyVV, const double Thres, const int MinSz) {
   CmtyVV.Gen(NumComs, 0);
   TIntFltH CIDSumHH(NumComs);
   for (int c = 0; c < SumHV.Len(); c++) {
@@ -714,23 +714,23 @@ void TAGMDirected::GetCmtyVVIn(TVec<TIntV>& CmtyVV, const double Thres, const in
   }
 }
 */
-void TAGMDirected::GetCmtyVV(TVec<TIntV>& CmtyVVOut, TVec<TIntV>& CmtyVVIn, const int MinSz) {
+void TCoda::GetCmtyVV(TVec<TIntV>& CmtyVVOut, TVec<TIntV>& CmtyVVIn, const int MinSz) {
   GetCmtyVV(false, CmtyVVIn, sqrt(1.0 / G->GetNodes()), MinSz);
   GetCmtyVV(true, CmtyVVOut, sqrt(1.0 / G->GetNodes()), MinSz);
 }
 
-void TAGMDirected::GetCmtyVVUnSorted(TVec<TIntV>& CmtyVVOut, TVec<TIntV>& CmtyVVIn) {
+void TCoda::GetCmtyVVUnSorted(TVec<TIntV>& CmtyVVOut, TVec<TIntV>& CmtyVVIn) {
   GetCmtyVVUnSorted(false, CmtyVVIn, sqrt(1.0 / G->GetNodes()));
   GetCmtyVVUnSorted(true, CmtyVVOut, sqrt(1.0 / G->GetNodes()));
 }
 
-void TAGMDirected::GetCmtyVV(TVec<TIntV>& CmtyVVOut, TVec<TIntV>& CmtyVVIn, const double ThresOut, const double ThresIn, const int MinSz) {
+void TCoda::GetCmtyVV(TVec<TIntV>& CmtyVVOut, TVec<TIntV>& CmtyVVIn, const double ThresOut, const double ThresIn, const int MinSz) {
   GetCmtyVV(false, CmtyVVIn, ThresIn, MinSz);
   GetCmtyVV(true, CmtyVVOut, ThresOut, MinSz);
 }
 
 /// estimate number of communities using cross validation
-int TAGMDirected::FindComsByCV(const int NumThreads, const int MaxComs, const int MinComs, const int DivComs, const TStr OutFNm, const int EdgesForCV, const double StepAlpha, const double StepBeta) {
+int TCoda::FindComsByCV(const int NumThreads, const int MaxComs, const int MinComs, const int DivComs, const TStr OutFNm, const int EdgesForCV, const double StepAlpha, const double StepBeta) {
     double ComsGap = exp(TMath::Log((double) MaxComs / (double) MinComs) / (double) DivComs);
     TIntV ComsV;
     ComsV.Add(MinComs);
@@ -743,7 +743,7 @@ int TAGMDirected::FindComsByCV(const int NumThreads, const int MaxComs, const in
     return FindComsByCV(ComsV, 0.1, NumThreads, OutFNm, EdgesForCV, StepAlpha, StepBeta);
 }
 
-int TAGMDirected::FindComsByCV(TIntV& ComsV, const double HOFrac, const int NumThreads, const TStr PlotLFNm, const int EdgesForCV, const double StepAlpha, const double StepBeta) {
+int TCoda::FindComsByCV(TIntV& ComsV, const double HOFrac, const int NumThreads, const TStr PlotLFNm, const int EdgesForCV, const double StepAlpha, const double StepBeta) {
   if (ComsV.Len() == 0) {
     int MaxComs = G->GetNodes() / 5;
     ComsV.Add(2);
@@ -838,7 +838,7 @@ int TAGMDirected::FindComsByCV(TIntV& ComsV, const double HOFrac, const int NumT
   return EstComs;
 }
 
-double TAGMDirected::LikelihoodHoldOut(const bool DoParallel) { 
+double TCoda::LikelihoodHoldOut(const bool DoParallel) { 
   double L = 0.0;
   for (int u = 0; u < HOVIDSV.Len(); u++) {
     for (int e = 0; e < HOVIDSV[u].Len(); e++) {
@@ -856,7 +856,7 @@ double TAGMDirected::LikelihoodHoldOut(const bool DoParallel) {
   return L;
 }
 
-double TAGMDirected::GetStepSizeByLineSearch(const bool IsRow, const int UID, const TIntFltH& DeltaV, const TIntFltH& GradV, const double& Alpha, const double& Beta, const int MaxIter) {
+double TCoda::GetStepSizeByLineSearch(const bool IsRow, const int UID, const TIntFltH& DeltaV, const TIntFltH& GradV, const double& Alpha, const double& Beta, const int MaxIter) {
   double StepSize = 1.0;
   double InitLikelihood = LikelihoodForNode(IsRow, UID);
   TIntFltH NewVarV(DeltaV.Len());
@@ -882,7 +882,7 @@ double TAGMDirected::GetStepSizeByLineSearch(const bool IsRow, const int UID, co
   return StepSize;
 }
 
-int TAGMDirected::MLEGradAscent(const double& Thres, const int& MaxIter, const TStr PlotNm, const double StepAlpha, const double StepBeta) {
+int TCoda::MLEGradAscent(const double& Thres, const int& MaxIter, const TStr PlotNm, const double StepAlpha, const double StepBeta) {
   time_t InitTime = time(NULL);
   TExeTm ExeTm, CheckTm;
   int iter = 0, PrevIter = 0;
@@ -959,7 +959,7 @@ int TAGMDirected::MLEGradAscent(const double& Thres, const int& MaxIter, const T
   return iter;
 }
 
-int TAGMDirected::MLEGradAscentParallel(const double& Thres, const int& MaxIter, const int ChunkNum, const int ChunkSize, const TStr PlotNm, const double StepAlpha, const double StepBeta) {
+int TCoda::MLEGradAscentParallel(const double& Thres, const int& MaxIter, const int ChunkNum, const int ChunkSize, const TStr PlotNm, const double StepAlpha, const double StepBeta) {
   //parallel
   time_t InitTime = time(NULL);
   uint64 StartTm = TSecTm::GetCurTm().GetAbsSecs();
