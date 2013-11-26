@@ -673,5 +673,24 @@ public:
 };
 
 typedef TPair<TStr,TAttrType> TStrTypPr;
+
+namespace TSnap {
+
+  template <class PGraph>
+  void MapPageRank(const TVec<PGraph>& GraphSeq, TVec<PTable>& TableSeq, 
+    TTableContext& Context, const TStr& TableNamePrefix = "PageRankTable",
+    const double& C = 0.85, const double& Eps = 1e-4, const int& MaxIter = 100) {
+    int NumGraphs = GraphSeq.Len();
+    TableSeq.Reserve(NumGraphs, NumGraphs);
+    // this loop is parallelizable
+    for (TInt i = 0; i < NumGraphs; i++){
+      TIntFltH PRankH;
+      GetPageRank(GraphSeq[i], PRankH, C, Eps, MaxIter);
+      TableSeq[i] = TTable::TableFromHashMap(TableNamePrefix + "_" + i.GetStr(), 
+        PRankH, "NodeId", "PageRank", Context, false);
+    }
+  }
+}
+
 #endif //TABLE_H
 
