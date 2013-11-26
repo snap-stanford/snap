@@ -67,8 +67,7 @@ int main(int argc, char* argv[]) {
   
   if (OptComs == -1) {
     printf("finding number of communities\n");
-    TAGMFast RAGM(G, 10, 10);
-    OptComs = RAGM.FindComsByCV(NumThreads, MaxComs, MinComs, DivComs, OutFPrx, StepAlpha, StepBeta);
+    OptComs = CS.FindComs(NumThreads, MaxComs, MinComs, DivComs, "", false, 0.1, StepAlpha, StepBeta);
   }
 
   CS.NeighborComInit(OptComs);

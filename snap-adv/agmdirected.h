@@ -1,10 +1,10 @@
 #ifndef yanglib_agmdirected_h
 #define yanglib_agmdirected_h
 #include "Snap.h"
+#include "agm.h"
 #include "agmfast.h"
-#include "utils.h"
 
-class TAGMDirected { //sparse AGM-fast with coordinate ascent for directed affiliation
+class TCoda { //sparse AGM-fast with coordinate ascent for directed affiliation
 private:
   PNGraph G; //graph to fit
   TVec<TIntFltH> F; // outdegree membership for each user (Size: Nodes * Coms)
@@ -24,9 +24,9 @@ public:
   TFlt PNoCom; // base probability \varepsilon (edge probability between a pair of nodes sharing no community
   TBool DoParallel; // whether to use parallelism for computation
 
-  TAGMDirected(const PNGraph& GraphPt, const int& InitComs, const int RndSeed = 0): Rnd(RndSeed), RegCoef(0), 
+  TCoda(const PNGraph& GraphPt, const int& InitComs, const int RndSeed = 0): Rnd(RndSeed), RegCoef(0), 
     NodesOk(true), MinVal(0.0), MaxVal(1000.0), NegWgt(1.0) { SetGraph(GraphPt); RandomInit(InitComs); }
-  TAGMDirected() { G = TNGraph::New(); }
+  TCoda() { G = TNGraph::New(); }
   void SetGraph(const PNGraph& GraphPt);
   PNGraph GetGraph() { return G; }
   PNGraph GetGraphRawNID();
@@ -202,7 +202,7 @@ public:
   TVec<TIntFltH> OutCmtyValHV;
   TVec<TIntFltH> InOutCmtyValHV;
   TCodaAnalyzer() { G = TNGraph::New(); }
-  TCodaAnalyzer(TAGMDirected& Coda, const double MemThres = -1.0) {
+  TCodaAnalyzer(TCoda& Coda, const double MemThres = -1.0) {
     G = Coda.GetGraphRawNID();
     printf("graph copied (%d nodes %d edges)\n", G->GetNodes(), G->GetEdges());
     TIntV CIdV;
