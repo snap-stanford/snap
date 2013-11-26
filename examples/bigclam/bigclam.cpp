@@ -36,9 +36,6 @@ int main(int argc, char* argv[]) {
       if (Ss.Len() > 0) { NIDNameH.AddDat(Ss.GetInt(0), Ss.GetFld(1)); }
     }
   }
-  else {
-    
-  }
   printf("Graph: %d Nodes %d Edges\n", G->GetNodes(), G->GetEdges());
   
   TVec<TIntV> EstCmtyVV;
