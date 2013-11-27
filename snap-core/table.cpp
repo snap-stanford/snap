@@ -202,7 +202,7 @@ TTable::TTable(TSIn& SIn, TTableContext& Context): Name(SIn), Context(Context), 
 }
 
 TTable::TTable(const TStr& TableName, const THash<TInt,TInt>& H, const TStr& Col1, const TStr& Col2, TTableContext& Context, const TBool IsStrKeys): 
-  Name(TableName), Context(Context), NumRows(H.Len()), NumValidRows(H.Len()), FirstValidRow(0), LastValidRow(-1){
+  Name(TableName), Context(Context), NumRows(H.Len()), NumValidRows(H.Len()), FirstValidRow(0), LastValidRow(H.Len()-1){
     TAttrType KeyType = IsStrKeys ? atStr : atInt;
     S.Add(TPair<TStr,TAttrType>(Col1, KeyType));
     S.Add(TPair<TStr,TAttrType>(Col2, atInt));
@@ -226,7 +226,7 @@ TTable::TTable(const TStr& TableName, const THash<TInt,TInt>& H, const TStr& Col
 }
 
 TTable::TTable(const TStr& TableName, const THash<TInt,TFlt>& H, const TStr& Col1, const TStr& Col2, TTableContext& Context, const TBool IsStrKeys):
-  Name(TableName), Context(Context), NumRows(H.Len()), NumValidRows(H.Len()), FirstValidRow(0), LastValidRow(-1){
+  Name(TableName), Context(Context), NumRows(H.Len()), NumValidRows(H.Len()), FirstValidRow(0), LastValidRow(H.Len()-1){
     TAttrType KeyType = IsStrKeys ? atStr : atInt;
     S.Add(TPair<TStr,TAttrType>(Col1, KeyType));
     S.Add(TPair<TStr,TAttrType>(Col2, atFlt));
@@ -1081,6 +1081,17 @@ void TTable::InitIds() {
   }
 }
 
+void TTable::Reindex() {
+  RowIdMap.Clr();
+  TInt IdColIdx = ColTypeMap.GetDat(IdColName).Val2;
+  TInt IdCnt = 0;
+  for(TRowIterator RI = BegRI(); RI < EndRI(); RI++){
+    IntCols[IdColIdx][RI.GetRowIdx()] = IdCnt;
+    RowIdMap.AddDat(RI.GetRowIdx(), IdCnt);
+    IdCnt++;
+  }
+}
+
 void TTable::AddIdColumn(const TStr& ColName){
   TIntV IdCol(NumRows);
   TInt IdCnt = 0;
@@ -1698,6 +1709,37 @@ void TTable::Defrag() {
 
   // should match, or bug somewhere
   Assert (NumValidRows == NumRows);
+}
+
+void TTable::SelectFirstNRows(const TInt& N) {
+  if (N == 0) {
+    LastValidRow = -1;
+    return;
+  }
+  TRowIterator RowI = BegRI();
+  TInt count = 1;
+  while (count < N) {
+    if (!(RowI < EndRI())) {
+      return; // The table contains less than N rows
+    }
+    RowI++;
+    count++;
+  }
+  NumValidRows = N;
+  TInt LastId = RowI.GetRowIdx();
+  if (Next[LastId] == Last) {
+    return; // The table contains exactly N rows
+  }
+  // The table contains more than N rows
+  TInt CurrId = LastId;
+  while (Next[CurrId] != Last) {
+    Assert(Next[CurrId] != Invalid);
+    TInt NextId = Next[CurrId];
+    Next[CurrId] = Invalid;
+    CurrId = NextId;
+  }
+  Next[LastId] = Last;
+  LastValidRow = LastId;
 }
 
 // // Currently support only the non-bipartite case
@@ -2425,7 +2467,7 @@ void TTable::AddTable(const TTable& T){
   for(TInt c = 0; c < S.Len(); c++){
     TStr ColName = GetSchemaColName(c);
     TInt ColIdx = GetColIdx(ColName);
-    TInt TColIdx = T.GetColIdx(ColName);
+    TInt TColIdx = ColName == IdColName ? T.GetColIdx(T.IdColName) : T.GetColIdx(ColName);
     if (TColIdx < 0){ TExcept::Throw("when adding a table, it must contain all columns of source table!");}
     switch(GetColType(ColName)){ 
     case atInt:
@@ -2672,9 +2714,14 @@ PTable TTable::UnionAll(const TTable& Table, const TStr& TableName) {
   }
   PTable result = TTable::New(TableName, NewSchema, Context);
   result->AddTable(*this);
-  result->AddTable(Table);
-  result->InitIds();
+  result->UnionAllInPlace(Table);
   return result;
+}
+
+void TTable::UnionAllInPlace(const TTable& Table) {
+  AddTable(Table);
+  // TODO: For the moment, IDs are not initialized (to avoid having too many ID columns)
+  //result->InitIds();
 }
 
 PTable TTable::Union(const TTable& Table, const TStr& TableName){
