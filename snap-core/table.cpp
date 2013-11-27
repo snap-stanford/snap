@@ -177,7 +177,7 @@ TTable::TTable(const TStr& TableName, const Schema& TableSchema, TTableContext& 
 }
 
 TTable::TTable(TSIn& SIn, TTableContext& Context): Name(SIn), Context(Context), NumRows(SIn), NumValidRows(SIn), FirstValidRow(SIn), 
-  Next(SIn), IntCols(SIn), FltCols(SIn), StrColMaps(SIn){
+  LastValidRow(SIn), Next(SIn), IntCols(SIn), FltCols(SIn), StrColMaps(SIn){
   THash<TStr,TPair<TInt,TInt> > ColTypeIntMap(SIn);
 
   ColTypeMap.Clr();
@@ -391,10 +391,15 @@ void TTable::SaveSS(const TStr& OutFNm){
  fclose(F);
 }
 
+void TTable::SaveBin(const TStr& OutFNm){ 
+  TFOut SOut(OutFNm);
+  Save(SOut);
+}
+
 void TTable::Save(TSOut& SOut){ 
   Name.Save(SOut);
   NumRows.Save(SOut); NumValidRows.Save(SOut); 
-  FirstValidRow.Save(SOut); Next.Save(SOut); 
+  FirstValidRow.Save(SOut); LastValidRow.Save(SOut); Next.Save(SOut); 
   IntCols.Save(SOut); FltCols.Save(SOut); StrColMaps.Save(SOut); 
 
   THash<TStr,TPair<TInt,TInt> > ColTypeIntMap;
@@ -416,6 +421,7 @@ void TTable::Save(TSOut& SOut){
     }
   }
   ColTypeIntMap.Save(SOut);
+  SOut.Flush();
 }
 
 void TTable::AddStrVal(const TInt ColIdx, const TStr& Val){

@@ -414,10 +414,11 @@ public:
   }
   // Save table schema + content into a TSV file
   void SaveSS(const TStr& OutFNm);
+  void SaveBin(const TStr& OutFNm);
   // Load table from binary. The TTableContext must be provided separately as it shared among multiple TTables and should be saved in a separate binary.
   static PTable Load(TSIn& SIn, TTableContext& Context){ return new TTable(SIn, Context);} 
   // Save table schema + content into binary. Note that TTableContext must be saved in a separate binary (as it is shared among multiple TTables).
-	void Save(TSOut& SOut);
+  void Save(TSOut& SOut);
 
   // Build table from hash table
   static PTable TableFromHashMap(const TStr& TableName, const THash<TInt,TInt>& H, const TStr& Col1, const TStr& Col2, TTableContext& Context, const TBool IsStrKeys = false){
