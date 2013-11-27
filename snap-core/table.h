@@ -432,7 +432,8 @@ public:
   }
 
   // Make a new TTable from the subset of physical indices of the rows of current table
-  PTable CopySubset(const TIntV& RowIds) const;
+  // RS 11/26/13 commented out CopySubset(), it is not implemented
+  //PTable CopySubset(const TIntV& RowIds) const;
   
 /***** Graph handling *****/
   // Create a graph out of the FINAL table
