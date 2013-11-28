@@ -1,5 +1,3 @@
-// cesna.cpp : Defines the entry point for the console application.
-//
 #include "stdafx.h"
 #include "agmfast.h"
 #include "agmattr.h"
