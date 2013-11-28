@@ -294,7 +294,7 @@ PTable TTable::LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm,
   for(TInt i = 0; i < RowLen; i++){
     ColTypes[i] = T->GetSchemaColType(i);
   }
-  // TInt Cnt = 1;
+  TInt Cnt = 0;
   // populate table columns
   while(Ss.Next()){
     TInt IntColIdx = 0;
@@ -333,10 +333,10 @@ PTable TTable::LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm,
           break;
       }
     }
+    Cnt++;
   }
   // set number of rows and "Next" vector
-  T->NumRows = Ss.GetLineNo()-1;
-  if(HasTitleLine){T->NumRows--;}
+  T->NumRows = Cnt;
   T->NumValidRows = T->NumRows;
   T->Next = TIntV(T->NumRows,0);
   for(TInt i = 0; i < T->NumRows-1; i++){
