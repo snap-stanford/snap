@@ -730,10 +730,14 @@ public:
 template <class TVal, class TSizeTy>
 void TVec<TVal, TSizeTy>::Resize(const TSizeTy& _MxVals){
   IAssertR(MxVals!=-1, TStr::Fmt("Can not increase the capacity of the vector. %s. [Program failed to allocate more memory. Solution: Get a bigger machine and a 64-bit compiler.]", GetTypeNm(*this).CStr()).CStr());
+  IAssertR(MxVals!=(TInt::Mx-1024), TStr::Fmt("Buffer size at maximum. %s. [Program refuses to allocate more memory. Solution: Send your test case to developers.]", GetTypeNm(*this).CStr()).CStr());
   if (_MxVals==-1){
     if (Vals==0){MxVals=16;} else {MxVals*=2;}
   } else {
     if (_MxVals<=MxVals){return;} else {MxVals=_MxVals;}
+  }
+  if (MxVals < 0) {
+    MxVals = TInt::Mx-1024;
   }
   if (ValT==NULL){
     try {ValT=new TVal[MxVals];}
@@ -1684,10 +1688,14 @@ public:
 template <class TVal>
 void TVec<TVal>::Resize(const int& _MxVals){
   IAssertR(MxVals!=-1, TStr::Fmt("Can not resize buffer. %s. [Program failed to allocate more memory. Solution: Get a bigger machine and a 64-bit compiler.]", GetTypeNm(*this).CStr()).CStr());
+  IAssertR(MxVals!=(TInt::Mx-1024), TStr::Fmt("Buffer size at maximum. %s. [Program refuses to allocate more memory. Solution: Send your test case to developers.]", GetTypeNm(*this).CStr()).CStr());
   if (_MxVals==-1){
     if (Vals==0){MxVals=16;} else {MxVals*=2;}
   } else {
     if (_MxVals<=MxVals){return;} else {MxVals=_MxVals;}
+  }
+  if (MxVals < 0) {
+    MxVals = TInt::Mx-1024;
   }
   if (ValT==NULL){
     try {ValT=new TVal[MxVals];}
