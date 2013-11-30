@@ -2614,6 +2614,17 @@ void TTable::AddStrVCol(const TStr& ColName, const TStrV& ColVals){
   }
 }
 
+void TTable::UpdateTableForNewRow(){
+  if (LastValidRow >= 0) {
+    Next[LastValidRow] = NumRows;
+  }
+  Next.Add(Last);
+  LastValidRow = NumRows;
+
+  NumRows++;
+  NumValidRows++;
+}
+
 // can ONLY be called when a table is being initialised (before IDs are allocated)
 void TTable::AddRow(const TRowIterator& RI) {
   for(TInt c = 0; c < S.Len(); c++){
@@ -2635,14 +2646,21 @@ void TTable::AddRow(const TRowIterator& RI) {
     }
   }
 
-  if (LastValidRow >= 0) {
-    Next[LastValidRow] = NumRows;
-  }
-  Next.Add(Last);
-  LastValidRow = NumRows;
+  UpdateTableForNewRow();
+}
 
-  NumRows++;
-  NumValidRows++;
+void TTable::AddRow(const TIntV& IntVals, const TFltV& FltVals, const TStrV& StrVals) {
+  for (TInt c = 0; c < IntVals.Len(); c++){
+    IntCols[c].Add(IntVals[c]);
+  }
+  for (TInt c = 0; c < FltVals.Len(); c++){
+    FltCols[c].Add(FltVals[c]);
+  }
+  for (TInt c = 0; c < StrVals.Len(); c++){
+    AddStrVal(c, StrVals[c]);
+  }
+
+  UpdateTableForNewRow();
 }
 
 void TTable::ResizeTable(int RowCount) {

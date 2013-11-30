@@ -365,6 +365,7 @@ protected:
   int GetEmptyRowsStart(int NewRows);
   void AddSelectedRows(const TTable& Table, const TIntV& RowIDs);
   void AddNRows(int NewRows, const TVec<TIntV>& IntColsP, const TVec<TFltV>& FltColsP, const TVec<TIntV>& StrColMapsP);
+  void UpdateTableForNewRow();
 
 public:
 /***** Constructors *****/
@@ -625,6 +626,7 @@ public:
   void AddTable(const TTable& T);
   
   void AddRow(const TRowIterator& RI);
+  void AddRow(const TIntV& IntVals, const TFltV& FltVals, const TStrV& StrVals);
   void GetCollidingRows(const TTable& T, THashSet<TInt>& Collisions);
   PTable Union(const TTable& Table, const TStr& TableName);
   PTable UnionAll(const TTable& Table, const TStr& TableName);
