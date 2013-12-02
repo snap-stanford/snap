@@ -1929,14 +1929,14 @@ void TTable::SelectFirstNRows(const TInt& N) {
 //   return Graph;
 // }
 
-void TTable::CheckAndAddIntNode(PNEANet Graph, THashSet<TInt>& NodeVals, TInt NodeId) {
+inline void TTable::CheckAndAddIntNode(PNEANet Graph, THashSet<TInt>& NodeVals, TInt NodeId) {
   if(!NodeVals.IsKey(NodeId)){
     Graph->AddNode(NodeId);
     NodeVals.AddKey(NodeId);
   }
 }
 
-TInt TTable::CheckAndAddFltNode(PNEANet Graph, THash<TFlt, TInt>& NodeVals, TFlt FNodeVal) {
+inline TInt TTable::CheckAndAddFltNode(PNEANet Graph, THash<TFlt, TInt>& NodeVals, TFlt FNodeVal) {
   if(!NodeVals.IsKey(FNodeVal)){
     TInt NodeVal = NodeVals.Len();
     Graph->AddNode(NodeVal);
@@ -1946,7 +1946,7 @@ TInt TTable::CheckAndAddFltNode(PNEANet Graph, THash<TFlt, TInt>& NodeVals, TFlt
   } else { return NodeVals.GetDat(FNodeVal);}
 }
 
-void TTable::AddEdgeAttributes(PNEANet& Graph, int RowId) {
+inline void TTable::AddEdgeAttributes(PNEANet& Graph, int RowId) {
   for (int i = 0; i < EdgeAttrV.Len(); i++) {
     TStr ColName = EdgeAttrV[i];
     TAttrType T = GetColType(ColName);
@@ -1965,7 +1965,7 @@ void TTable::AddEdgeAttributes(PNEANet& Graph, int RowId) {
   }
 }
 
-void TTable::AddNodeAttributes(TInt NId, TStrV NodeAttrV, TInt RowId, THash<TInt, TStrIntVH>& NodeIntAttrs, 
+inline void TTable::AddNodeAttributes(TInt NId, TStrV NodeAttrV, TInt RowId, THash<TInt, TStrIntVH>& NodeIntAttrs, 
     THash<TInt, TStrFltVH>& NodeFltAttrs, THash<TInt, TStrStrVH>& NodeStrAttrs){
   for (int i = 0; i < NodeAttrV.Len(); i++) {
     TStr ColAttr = NodeAttrV[i];
@@ -2036,7 +2036,7 @@ PNEANet TTable::BuildGraph(const TIntV& RowIds, TAttrAggr AggrPolicy) {
   const TInt DstColIdx = GetColIdx(DstCol);
   
   // node values - i.e. the unique values of src/dst col
-  THashSet<TInt> IntNodeVals; // for both int and string node attr types.
+  //THashSet<TInt> IntNodeVals; // for both int and string node attr types.
   THash<TFlt, TInt> FltNodeVals;
 
   // node attributes
@@ -2045,40 +2045,42 @@ PNEANet TTable::BuildGraph(const TIntV& RowIds, TAttrAggr AggrPolicy) {
   THash<TInt, TStrStrVH> NodeStrAttrs;
 
   // make single pass over all rows in given row id set
-  for(int i = 0; i < RowIds.Len(); i++){
-    TRowIterator it = TRowIterator(RowIds[i], this);
+  for (TVec<TInt>::TIter it = RowIds.BegI(); it < RowIds.EndI(); it++) {
+    TInt CurrRowIdx = *it;
 
     // add src and dst nodes to graph if they are not seen earlier
     TInt SVal, DVal;
     if (NodeType == atFlt) {
-      TFlt FSVal = it.GetFltAttr(SrcCol);
+      TFlt FSVal = FltCols[SrcColIdx][CurrRowIdx];
       SVal = CheckAndAddFltNode(Graph, FltNodeVals, FSVal);
-      TFlt FDVal = it.GetFltAttr(DstCol);
+      TFlt FDVal = FltCols[SrcColIdx][CurrRowIdx];
       DVal = CheckAndAddFltNode(Graph, FltNodeVals, FDVal);
     } else if (NodeType == atInt || NodeType == atStr) {
       if (NodeType == atInt) {
-        SVal = it.GetIntAttr(SrcCol);
-        DVal = it.GetIntAttr(DstCol);
-      } else if (NodeType == atStr) {
-        SVal = StrColMaps[SrcColIdx][RowIds[i]];
+        SVal = IntCols[SrcColIdx][CurrRowIdx];
+        DVal = IntCols[DstColIdx][CurrRowIdx];
+      } else {
+        SVal = StrColMaps[SrcColIdx][CurrRowIdx];
         if(strlen(Context.StringVals.GetKey(SVal)) == 0){ continue;}  //illegal value
-        DVal = StrColMaps[DstColIdx][RowIds[i]];
+        DVal = StrColMaps[DstColIdx][CurrRowIdx];
         if(strlen(Context.StringVals.GetKey(DVal)) == 0){ continue;}  //illegal value
       }
-      CheckAndAddIntNode(Graph, IntNodeVals, SVal);
-      CheckAndAddIntNode(Graph, IntNodeVals, DVal);
+      if (!Graph->IsNode(SVal)) {Graph->AddNode(SVal);}
+      if (!Graph->IsNode(DVal)) {Graph->AddNode(DVal);}
+      //CheckAndAddIntNode(Graph, IntNodeVals, SVal);
+      //CheckAndAddIntNode(Graph, IntNodeVals, DVal);
     } 
 
     // add edge and edge attributes 
-    Graph->AddEdge(SVal, DVal, RowIds[i]);
-    if (EdgeAttrV.Len() > 0) { AddEdgeAttributes(Graph, RowIds[i]);}
+    Graph->AddEdge(SVal, DVal, CurrRowIdx);
+    if (EdgeAttrV.Len() > 0) { AddEdgeAttributes(Graph, CurrRowIdx);}
 
     // get src and dst node attributes into hashmaps
     if (SrcNodeAttrV.Len() > 0) { 
-      AddNodeAttributes(SVal, SrcNodeAttrV, RowIds[i], NodeIntAttrs, NodeFltAttrs, NodeStrAttrs);
+      AddNodeAttributes(SVal, SrcNodeAttrV, CurrRowIdx, NodeIntAttrs, NodeFltAttrs, NodeStrAttrs);
     }
     if (DstNodeAttrV.Len() > 0) {
-      AddNodeAttributes(DVal, DstNodeAttrV, RowIds[i], NodeIntAttrs, NodeFltAttrs, NodeStrAttrs);
+      AddNodeAttributes(DVal, DstNodeAttrV, CurrRowIdx, NodeIntAttrs, NodeFltAttrs, NodeStrAttrs);
     }
   }
 
@@ -2114,12 +2116,91 @@ PNEANet TTable::BuildGraph(const TIntV& RowIds, TAttrAggr AggrPolicy) {
 }
 
 PNEANet TTable::ToGraph(TAttrAggr AggrPolicy) {
-  TIntV RowIds;
-  for (int i = 0; i < Next.Len(); i++) {
-    if (Next[i] != Invalid){ RowIds.Add(i);}
+  PNEANet Graph = PNEANet::New();
+  
+  const TAttrType NodeType = GetColType(SrcCol);
+  Assert(NodeType == GetColType(DstCol));
+  const TInt SrcColIdx = GetColIdx(SrcCol);
+  const TInt DstColIdx = GetColIdx(DstCol);
+  
+  // node values - i.e. the unique values of src/dst col
+  //THashSet<TInt> IntNodeVals; // for both int and string node attr types.
+  THash<TFlt, TInt> FltNodeVals;
+
+  // node attributes
+  THash<TInt, TStrIntVH> NodeIntAttrs;
+  THash<TInt, TStrFltVH> NodeFltAttrs;
+  THash<TInt, TStrStrVH> NodeStrAttrs;
+
+  // make single pass over all rows in the table
+  for (int CurrRowIdx = 0; CurrRowIdx < Next.Len(); CurrRowIdx++) {
+    if (Next[CurrRowIdx] == Invalid) {continue;}
+
+    // add src and dst nodes to graph if they are not seen earlier
+    TInt SVal, DVal;
+    if (NodeType == atFlt) {
+      TFlt FSVal = FltCols[SrcColIdx][CurrRowIdx];
+      SVal = CheckAndAddFltNode(Graph, FltNodeVals, FSVal);
+      TFlt FDVal = FltCols[SrcColIdx][CurrRowIdx];
+      DVal = CheckAndAddFltNode(Graph, FltNodeVals, FDVal);
+    } else if (NodeType == atInt || NodeType == atStr) {
+      if (NodeType == atInt) {
+        SVal = IntCols[SrcColIdx][CurrRowIdx];
+        DVal = IntCols[DstColIdx][CurrRowIdx];
+      } else {
+        SVal = StrColMaps[SrcColIdx][CurrRowIdx];
+        if(strlen(Context.StringVals.GetKey(SVal)) == 0){ continue;}  //illegal value
+        DVal = StrColMaps[DstColIdx][CurrRowIdx];
+        if(strlen(Context.StringVals.GetKey(DVal)) == 0){ continue;}  //illegal value
+      }
+      if (!Graph->IsNode(SVal)) {Graph->AddNode(SVal);}
+      if (!Graph->IsNode(DVal)) {Graph->AddNode(DVal);}
+      //CheckAndAddIntNode(Graph, IntNodeVals, SVal);
+      //CheckAndAddIntNode(Graph, IntNodeVals, DVal);
+    } 
+
+    // add edge and edge attributes 
+    Graph->AddEdge(SVal, DVal, CurrRowIdx);
+    if (EdgeAttrV.Len() > 0) { AddEdgeAttributes(Graph, CurrRowIdx);}
+
+    // get src and dst node attributes into hashmaps
+    if (SrcNodeAttrV.Len() > 0) { 
+      AddNodeAttributes(SVal, SrcNodeAttrV, CurrRowIdx, NodeIntAttrs, NodeFltAttrs, NodeStrAttrs);
+    }
+    if (DstNodeAttrV.Len() > 0) {
+      AddNodeAttributes(DVal, DstNodeAttrV, CurrRowIdx, NodeIntAttrs, NodeFltAttrs, NodeStrAttrs);
+    }
   }
 
-  return BuildGraph(RowIds, AggrPolicy);
+  // aggregate node attributes and add to graph
+  if (SrcNodeAttrV.Len() > 0 || DstNodeAttrV.Len() > 0) {
+    for (TNEANet::TNodeI NodeI = Graph->BegNI(); NodeI < Graph->EndNI(); NodeI++) {
+      TInt NId = NodeI.GetId();
+      if (NodeIntAttrs.IsKey(NId)) {
+        TStrIntVH IntAttrVals = NodeIntAttrs.GetDat(NId);
+        for(TStrIntVH::TIter it = IntAttrVals.BegI(); it < IntAttrVals.EndI(); it++){
+          TInt AttrVal = AggregateVector<TInt>(it.GetDat(), AggrPolicy);
+          Graph->AddIntAttrDatN(NId, AttrVal, it.GetKey());
+        }
+      }
+      if (NodeFltAttrs.IsKey(NId)) {
+        TStrFltVH FltAttrVals = NodeFltAttrs.GetDat(NId);
+        for(TStrFltVH::TIter it = FltAttrVals.BegI(); it < FltAttrVals.EndI(); it++){
+          TFlt AttrVal = AggregateVector<TFlt>(it.GetDat(), AggrPolicy);
+          Graph->AddFltAttrDatN(NId, AttrVal, it.GetKey());
+        }
+      }
+      if (NodeStrAttrs.IsKey(NId)) {
+        TStrStrVH StrAttrVals = NodeStrAttrs.GetDat(NId);
+        for(TStrStrVH::TIter it = StrAttrVals.BegI(); it < StrAttrVals.EndI(); it++){
+          TStr AttrVal = AggregateVector<TStr>(it.GetDat(), AggrPolicy);
+          Graph->AddStrAttrDatN(NId, AttrVal, it.GetKey());
+        }
+      }
+    }
+  }
+
+  return Graph;
 }
 
 void TTable::InitRowIdBuckets(int NumBuckets) {
