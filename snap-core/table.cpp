@@ -2071,35 +2071,41 @@ PNEANet TTable::BuildGraph(const TIntV& RowIds, TAttrAggr AggrPolicy) {
 
     // add edge and edge attributes 
     Graph->AddEdge(SVal, DVal, RowIds[i]);
-    AddEdgeAttributes(Graph, RowIds[i]);
+    if (EdgeAttrV.Len() > 0) { AddEdgeAttributes(Graph, RowIds[i]);}
 
     // get src and dst node attributes into hashmaps
-    AddNodeAttributes(SVal, SrcNodeAttrV, RowIds[i], NodeIntAttrs, NodeFltAttrs, NodeStrAttrs);
-    AddNodeAttributes(DVal, DstNodeAttrV, RowIds[i], NodeIntAttrs, NodeFltAttrs, NodeStrAttrs);
+    if (SrcNodeAttrV.Len() > 0) { 
+      AddNodeAttributes(SVal, SrcNodeAttrV, RowIds[i], NodeIntAttrs, NodeFltAttrs, NodeStrAttrs);
+    }
+    if (DstNodeAttrV.Len() > 0) {
+      AddNodeAttributes(DVal, DstNodeAttrV, RowIds[i], NodeIntAttrs, NodeFltAttrs, NodeStrAttrs);
+    }
   }
 
   // aggregate node attributes and add to graph
-  for (TNEANet::TNodeI NodeI = Graph->BegNI(); NodeI < Graph->EndNI(); NodeI++) {
-    TInt NId = NodeI.GetId();
-    if (NodeIntAttrs.IsKey(NId)) {
-      TStrIntVH IntAttrVals = NodeIntAttrs.GetDat(NId);
-      for(TStrIntVH::TIter it = IntAttrVals.BegI(); it < IntAttrVals.EndI(); it++){
-        TInt AttrVal = AggregateVector<TInt>(it.GetDat(), AggrPolicy);
-        Graph->AddIntAttrDatN(NId, AttrVal, it.GetKey());
+  if (SrcNodeAttrV.Len() > 0 || DstNodeAttrV.Len() > 0) {
+    for (TNEANet::TNodeI NodeI = Graph->BegNI(); NodeI < Graph->EndNI(); NodeI++) {
+      TInt NId = NodeI.GetId();
+      if (NodeIntAttrs.IsKey(NId)) {
+        TStrIntVH IntAttrVals = NodeIntAttrs.GetDat(NId);
+        for(TStrIntVH::TIter it = IntAttrVals.BegI(); it < IntAttrVals.EndI(); it++){
+          TInt AttrVal = AggregateVector<TInt>(it.GetDat(), AggrPolicy);
+          Graph->AddIntAttrDatN(NId, AttrVal, it.GetKey());
+        }
       }
-    }
-    if (NodeFltAttrs.IsKey(NId)) {
-      TStrFltVH FltAttrVals = NodeFltAttrs.GetDat(NId);
-      for(TStrFltVH::TIter it = FltAttrVals.BegI(); it < FltAttrVals.EndI(); it++){
-        TFlt AttrVal = AggregateVector<TFlt>(it.GetDat(), AggrPolicy);
-        Graph->AddFltAttrDatN(NId, AttrVal, it.GetKey());
+      if (NodeFltAttrs.IsKey(NId)) {
+        TStrFltVH FltAttrVals = NodeFltAttrs.GetDat(NId);
+        for(TStrFltVH::TIter it = FltAttrVals.BegI(); it < FltAttrVals.EndI(); it++){
+          TFlt AttrVal = AggregateVector<TFlt>(it.GetDat(), AggrPolicy);
+          Graph->AddFltAttrDatN(NId, AttrVal, it.GetKey());
+        }
       }
-    }
-    if (NodeStrAttrs.IsKey(NId)) {
-      TStrStrVH StrAttrVals = NodeStrAttrs.GetDat(NId);
-      for(TStrStrVH::TIter it = StrAttrVals.BegI(); it < StrAttrVals.EndI(); it++){
-        TStr AttrVal = AggregateVector<TStr>(it.GetDat(), AggrPolicy);
-        Graph->AddStrAttrDatN(NId, AttrVal, it.GetKey());
+      if (NodeStrAttrs.IsKey(NId)) {
+        TStrStrVH StrAttrVals = NodeStrAttrs.GetDat(NId);
+        for(TStrStrVH::TIter it = StrAttrVals.BegI(); it < StrAttrVals.EndI(); it++){
+          TStr AttrVal = AggregateVector<TStr>(it.GetDat(), AggrPolicy);
+          Graph->AddStrAttrDatN(NId, AttrVal, it.GetKey());
+        }
       }
     }
   }
