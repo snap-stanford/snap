@@ -589,9 +589,9 @@ public:
   void Defrag();
 
   // Add entire column to table
-  void AddIntVCol(const TStr& ColName, const TIntV& ColVals);
-  void AddFltVCol(const TStr& ColName, const TFltV& ColVals);
-  void AddStrVCol(const TStr& ColName, const TStrV& ColVals);
+  void StoreIntCol(const TStr& ColName, const TIntV& ColVals);
+  void StoreFltCol(const TStr& ColName, const TFltV& ColVals);
+  void StoreStrCol(const TStr& ColName, const TStrV& ColVals);
   
   // Add all the rows of the input table (which ,ust have the same schema as current table) - allows duplicate rows (not a union)
   void AddTable(const TTable& T);

@@ -2530,40 +2530,57 @@ void TTable::GetCollidingRows(const TTable& Table, THashSet<TInt>& Collisions) {
   }
 }
 
-void TTable::AddIntVCol(const TStr& ColName, const TIntV& ColVals){
+void TTable::StoreIntCol(const TStr& ColName, const TIntV& ColVals){
   if(ColVals.Len() != NumRows){
     printf("new column dimension must agree with number of rows\n");
     return;
   }
   AddSchemaCol(ColName, atInt);
-  IntCols.Add(TIntV(ColVals));
+  IntCols.Add(TIntV(NumRows));
+  TInt ColIdx = IntCols.Len()-1;
+  TInt i = 0;
+  for(TRowIterator RI = BegRI(); RI < EndRI(); RI++){
+    IntCols[ColIdx][RI.GetRowIdx()] = ColVals[i];
+    i++;
+  }
   TInt L = IntCols.Len();
   ColTypeMap.AddDat(ColName, TPair<TAttrType,TInt>(atInt, L-1));
 }
 
-void TTable::AddFltVCol(const TStr& ColName, const TFltV& ColVals){
+void TTable::StoreFltCol(const TStr& ColName, const TFltV& ColVals){
   if(ColVals.Len() != NumRows){
     printf("new column dimension must agree with number of rows\n");
     return;
   }
   AddSchemaCol(ColName, atFlt);
-  FltCols.Add(TFltV(ColVals));
+  FltCols.Add(TFltV(NumRows));
+  TInt ColIdx = FltCols.Len()-1;
+  TInt i = 0;
+  for(TRowIterator RI = BegRI(); RI < EndRI(); RI++){
+    FltCols[ColIdx][RI.GetRowIdx()] = ColVals[i];
+    i++;
+  }
   TInt L = FltCols.Len();
   ColTypeMap.AddDat(ColName, TPair<TAttrType,TInt>(atFlt, L-1));
 }
 
-void TTable::AddStrVCol(const TStr& ColName, const TStrV& ColVals){
+void TTable::StoreStrCol(const TStr& ColName, const TStrV& ColVals){
   if(ColVals.Len() != NumRows){
     printf("new column dimension must agree with number of rows\n");
     return;
   }
   AddSchemaCol(ColName, atStr);
   StrColMaps.Add(TIntV(NumRows,0));
+  TInt ColIdx = FltCols.Len()-1;
+  TInt i = 0;
+  for(TRowIterator RI = BegRI(); RI < EndRI(); RI++){
+    TInt Key = Context.StringVals.GetKeyId(ColVals[i]);
+    if(Key == -1){ Context.StringVals.AddKey(ColVals[i]);}
+    StrColMaps[ColIdx][RI.GetRowIdx()] = Key;
+    i++;
+  }
   TInt L = StrColMaps.Len();
   ColTypeMap.AddDat(ColName, TPair<TAttrType,TInt>(atStr, L-1));
-  for(TInt i = 0; i < ColVals.Len(); i++){
-    AddStrVal(L-1, ColVals[i]);
-  }
 }
 
 // can ONLY be called when a table is being initialised (before IDs are allocated)
