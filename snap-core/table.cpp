@@ -1935,16 +1935,6 @@ inline void TTable::CheckAndAddIntNode(PNEANet Graph, THashSet<TInt>& NodeVals, 
   }
 }
 
-inline TInt TTable::CheckAndAddFltNode(PNEANet Graph, THash<TFlt, TInt>& NodeVals, TFlt FNodeVal) {
-  if(!NodeVals.IsKey(FNodeVal)){
-    TInt NodeVal = NodeVals.Len();
-    Graph->AddNode(NodeVal);
-    NodeVals.AddKey(FNodeVal);
-    NodeVals.AddDat(FNodeVal, NodeVal);
-    return NodeVal;
-  } else { return NodeVals.GetDat(FNodeVal);}
-}
-
 inline void TTable::AddEdgeAttributes(PNEANet& Graph, int RowId) {
   for (int i = 0; i < EdgeAttrV.Len(); i++) {
     TStr ColName = EdgeAttrV[i];
@@ -2027,7 +2017,7 @@ inline void TTable::AddNodeAttributes(TInt NId, TStrV NodeAttrV, TInt RowId, THa
 // Makes one pass over all the rows in the vector RowIds, and builds
 // a PNEANet, with each row as an edge between SrcCol and DstCol.
 PNEANet TTable::BuildGraph(const TIntV& RowIds, TAttrAggr AggrPolicy) {
-  PNEANet Graph = PNEANet::New();
+  PNEANet Graph = TNEANet::New();
   
   const TAttrType NodeType = GetColType(SrcCol);
   Assert(NodeType == GetColType(DstCol));
@@ -2115,7 +2105,7 @@ PNEANet TTable::BuildGraph(const TIntV& RowIds, TAttrAggr AggrPolicy) {
 }
 
 PNEANet TTable::ToGraph(TAttrAggr AggrPolicy) {
-  PNEANet Graph = PNEANet::New();
+  PNEANet Graph = TNEANet::New();
   
   const TAttrType NodeType = GetColType(SrcCol);
   Assert(NodeType == GetColType(DstCol));
@@ -2198,6 +2188,115 @@ PNEANet TTable::ToGraph(TAttrAggr AggrPolicy) {
       }
     }
   }
+
+  return Graph;
+}
+
+PNGraph TTable::ToGraphDirected(TAttrAggr AggrPolicy) {
+  PNGraph Graph = TNGraph::New();
+  
+  const TAttrType NodeType = GetColType(SrcCol);
+  Assert(NodeType == GetColType(DstCol));
+  const TInt SrcColIdx = GetColIdx(SrcCol);
+  const TInt DstColIdx = GetColIdx(DstCol);
+  
+  printf("add start\n");
+  // make single pass over all rows in the table
+  if (NodeType == atInt) {
+    for (int CurrRowIdx = 0; CurrRowIdx < Next.Len(); CurrRowIdx++) {
+      if (Next[CurrRowIdx] == Invalid) {continue;}
+      // add src and dst nodes to graph if they are not seen earlier
+      TInt SVal = IntCols[SrcColIdx][CurrRowIdx];
+      TInt DVal = IntCols[DstColIdx][CurrRowIdx];
+      Graph->AddNodeUnchecked(SVal);
+      Graph->AddNodeUnchecked(DVal);
+      Graph->AddEdgeUnchecked(SVal, DVal);
+    }
+  } else if (NodeType == atFlt) {
+    // node values - i.e. the unique values of src/dst col
+    //THashSet<TInt> IntNodeVals; // for both int and string node attr types.
+    THash<TFlt, TInt> FltNodeVals;
+    for (int CurrRowIdx = 0; CurrRowIdx < Next.Len(); CurrRowIdx++) {
+      if (Next[CurrRowIdx] == Invalid) {continue;}
+      // add src and dst nodes to graph if they are not seen earlier
+      TInt SVal, DVal;
+      TFlt FSVal = FltCols[SrcColIdx][CurrRowIdx];
+      SVal = CheckAndAddFltNode(Graph, FltNodeVals, FSVal);
+      TFlt FDVal = FltCols[SrcColIdx][CurrRowIdx];
+      DVal = CheckAndAddFltNode(Graph, FltNodeVals, FDVal);
+      Graph->AddEdge(SVal, DVal);
+    }  
+  } else {
+    for (int CurrRowIdx = 0; CurrRowIdx < Next.Len(); CurrRowIdx++) {
+      if (Next[CurrRowIdx] == Invalid) {continue;}
+      // add src and dst nodes to graph if they are not seen earlier
+      TInt SVal = StrColMaps[SrcColIdx][CurrRowIdx];
+      if(strlen(Context.StringVals.GetKey(SVal)) == 0){ continue;}  //illegal value
+      TInt DVal = StrColMaps[DstColIdx][CurrRowIdx];
+      if(strlen(Context.StringVals.GetKey(DVal)) == 0){ continue;}  //illegal value
+      Graph->AddNode(SVal);
+      Graph->AddNode(DVal);
+      Graph->AddEdge(SVal, DVal);
+    }  
+  }
+  
+  printf("add done\n");
+  Graph->SortNodeAdjV();
+  printf("sort done\n");
+
+  return Graph;
+}
+
+PUNGraph TTable::ToGraphUndirected(TAttrAggr AggrPolicy) {
+  PUNGraph Graph = TUNGraph::New();
+  
+  const TAttrType NodeType = GetColType(SrcCol);
+  Assert(NodeType == GetColType(DstCol));
+  const TInt SrcColIdx = GetColIdx(SrcCol);
+  const TInt DstColIdx = GetColIdx(DstCol);
+  
+  printf("add start\n");
+  // make single pass over all rows in the table
+  if (NodeType == atInt) {
+    for (int CurrRowIdx = 0; CurrRowIdx < Next.Len(); CurrRowIdx++) {
+      if (Next[CurrRowIdx] == Invalid) {continue;}
+      // add src and dst nodes to graph if they are not seen earlier
+      TInt SVal = IntCols[SrcColIdx][CurrRowIdx];
+      TInt DVal = IntCols[DstColIdx][CurrRowIdx];
+      Graph->AddNodeUnchecked(SVal);
+      Graph->AddNodeUnchecked(DVal);
+      Graph->AddEdgeUnchecked(SVal, DVal);
+    }
+  } else if (NodeType == atFlt) {
+    // node values - i.e. the unique values of src/dst col
+    //THashSet<TInt> IntNodeVals; // for both int and string node attr types.
+    THash<TFlt, TInt> FltNodeVals;
+    for (int CurrRowIdx = 0; CurrRowIdx < Next.Len(); CurrRowIdx++) {
+      if (Next[CurrRowIdx] == Invalid) {continue;}
+      // add src and dst nodes to graph if they are not seen earlier
+      TInt SVal, DVal;
+      TFlt FSVal = FltCols[SrcColIdx][CurrRowIdx];
+      SVal = CheckAndAddFltNode(Graph, FltNodeVals, FSVal);
+      TFlt FDVal = FltCols[SrcColIdx][CurrRowIdx];
+      DVal = CheckAndAddFltNode(Graph, FltNodeVals, FDVal);
+      Graph->AddEdge(SVal, DVal);
+    }  
+  } else {
+    for (int CurrRowIdx = 0; CurrRowIdx < Next.Len(); CurrRowIdx++) {
+      if (Next[CurrRowIdx] == Invalid) {continue;}
+      // add src and dst nodes to graph if they are not seen earlier
+      TInt SVal = StrColMaps[SrcColIdx][CurrRowIdx];
+      if(strlen(Context.StringVals.GetKey(SVal)) == 0){ continue;}  //illegal value
+      TInt DVal = StrColMaps[DstColIdx][CurrRowIdx];
+      if(strlen(Context.StringVals.GetKey(DVal)) == 0){ continue;}  //illegal value
+      Graph->AddNode(SVal);
+      Graph->AddNode(DVal);
+      Graph->AddEdge(SVal, DVal);
+    }  
+  }
+  printf("add done\n");
+  Graph->SortNodeAdjV();
+  printf("sort done\n");
 
   return Graph;
 }

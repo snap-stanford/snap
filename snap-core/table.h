@@ -243,7 +243,17 @@ protected:
   void AddGraphAttributeV(TStrV& Attrs, TBool IsEdge, TBool IsSrc, TBool IsDst);
   // Checks if given node id is seen earlier; if not, adds it to graph and hashmap
   void CheckAndAddIntNode(PNEANet Graph, THashSet<TInt>& NodeVals, TInt NodeId);
-  TInt CheckAndAddFltNode(PNEANet Graph, THash<TFlt, TInt>& NodeVals, TFlt FNodeVal);
+
+  template<class T>
+  TInt CheckAndAddFltNode(T Graph, THash<TFlt, TInt>& NodeVals, TFlt FNodeVal) {
+    if(!NodeVals.IsKey(FNodeVal)){
+      TInt NodeVal = NodeVals.Len();
+      Graph->AddNode(NodeVal);
+      NodeVals.AddKey(FNodeVal);
+      NodeVals.AddDat(FNodeVal, NodeVal);
+      return NodeVal;
+    } else { return NodeVals.GetDat(FNodeVal);}
+  }
   // Adds attributes of edge corresponding to RowId to the Graph
   void AddEdgeAttributes(PNEANet& Graph, int RowId);
   // Takes as parameters, and updates, maps NodeXAttrs: Node Id --> (attribute name --> Vector of attribute values)
@@ -455,6 +465,8 @@ public:
 /***** Graph handling *****/
   // Create a graph out of the FINAL table
   PNEANet ToGraph(TAttrAggr AggrPolicy);
+  PNGraph ToGraphDirected(TAttrAggr AggrPolicy);
+  PUNGraph ToGraphUndirected(TAttrAggr AggrPolicy);
   
   // Create a sequence of graphs based on values of column SplitAttr and windows
   // specified by JumpSize and WindowSize.
