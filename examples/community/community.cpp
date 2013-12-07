@@ -23,6 +23,9 @@ int main(int argc, char* argv[]) {
   else if (CmtyAlg == 2) {
     CmtyAlgStr = "Cluset-Newman-Moore";
     Q = TSnap::CommunityCNM(Graph, CmtyV); }
+  else if (CmtyAlg == 3) {
+    CmtyAlgStr = "Infomap";
+    Q = TSnap::Infomap(Graph, CmtyV); }
   else { Fail; }
 
   FILE *F = fopen(OutFNm.CStr(), "wt");
