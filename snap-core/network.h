@@ -1860,9 +1860,9 @@ public:
   void FltAttrNameEI(const TInt& EId, TStrV& Names) const {
     FltAttrNameEI(EId, KeyToIndexTypeE.BegI(), Names);}
   void FltAttrNameEI(const TInt& EId, TStrIntPrH::TIter EdgeHI, TStrV& Names) const;
-  /// Returns a vector of attr avlues for node NId.
+  /// Returns a vector of attr values for node NId.
   void FltAttrValueEI(const TInt& EId, TFltV& Values) const {
-    FltAttrValueNI(EId, KeyToIndexTypeE.BegI(), Values);}
+    FltAttrValueEI(EId, KeyToIndexTypeE.BegI(), Values);}
   void FltAttrValueEI(const TInt& EId, TStrIntPrH::TIter EdgeHI, TFltV& Values) const; 
 
   /// Returns an iterator referring to the first node's int attribute.

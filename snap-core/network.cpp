@@ -324,15 +324,15 @@ void TNEANet::DelNode(const int& NId) {
     // Delete from Edge Attributes
     for (i = 0; i < VecOfIntVecsE.Len(); i++) {
       TVec<TInt>& IntVec = VecOfIntVecsE[i];
-      IntVec.Ins(EdgeH.GetKeyId(EId), TInt::Mn);
+      IntVec[EdgeH.GetKeyId(EId)] = TInt::Mn;
     }
     for (i = 0; i < VecOfStrVecsE.Len(); i++) {
       TVec<TStr>& StrVec = VecOfStrVecsE[i];
-      StrVec.Ins(EdgeH.GetKeyId(EId), TStr::GetNullStr());
+      StrVec[EdgeH.GetKeyId(EId)] = TStr::GetNullStr();
     }
     for (i = 0; i < VecOfFltVecsE.Len(); i++) {
       TVec<TFlt>& FltVec = VecOfFltVecsE[i];
-      FltVec.Ins(EdgeH.GetKeyId(EId), TFlt::Mn);
+      FltVec[EdgeH.GetKeyId(EId)] = TFlt::Mn;
     }
     EdgeH.DelKey(EId);
   }
@@ -344,30 +344,30 @@ void TNEANet::DelNode(const int& NId) {
     // Delete from Edge Attributes
     for (i = 0; i < VecOfIntVecsE.Len(); i++) {
       TVec<TInt>& IntVec = VecOfIntVecsE[i];
-      IntVec.Ins(EdgeH.GetKeyId(EId), TInt::Mn);
+      IntVec[EdgeH.GetKeyId(EId)] = TInt::Mn;
     }
     for (i = 0; i < VecOfStrVecsE.Len(); i++) {
       TVec<TStr>& StrVec = VecOfStrVecsE[i];
-      StrVec.Ins(EdgeH.GetKeyId(EId), TStr::GetNullStr());
+      StrVec[EdgeH.GetKeyId(EId)] = TStr::GetNullStr();
     }
     for (i = 0; i < VecOfFltVecsE.Len(); i++) {
       TVec<TFlt>& FltVec = VecOfFltVecsE[i];
-      FltVec.Ins(EdgeH.GetKeyId(EId), TFlt::Mn);
+      FltVec[EdgeH.GetKeyId(EId)] = TFlt::Mn;
     }
     EdgeH.DelKey(EId);
   }
 
   for (i = 0; i < VecOfIntVecsN.Len(); i++) {
     TVec<TInt>& IntVec = VecOfIntVecsN[i];
-    IntVec.Ins(NodeH.GetKeyId(NId), TInt::Mn);
+    IntVec[NodeH.GetKeyId(NId)] = TInt::Mn;
   }
   for (i = 0; i < VecOfStrVecsN.Len(); i++) {
     TVec<TStr>& StrVec = VecOfStrVecsN[i];
-    StrVec.Ins(NodeH.GetKeyId(NId), TStr::GetNullStr());
+    StrVec[NodeH.GetKeyId(NId)] = TStr::GetNullStr();
   }
   for (i = 0; i < VecOfFltVecsN.Len(); i++) {
     TVec<TFlt>& FltVec = VecOfFltVecsN[i];
-    FltVec.Ins(NodeH.GetKeyId(NId), TFlt::Mn);
+    FltVec[NodeH.GetKeyId(NId)] = TFlt::Mn;
   }
   NodeH.DelKey(NId);
 }
@@ -580,10 +580,10 @@ void TNEANet::Dump(FILE *OutF) const {
     fprintf(OutF, "    in[%d]", NodeI.GetInDeg());
     for (int edge = 0; edge < NodeI.GetInDeg(); edge++) {
       fprintf(OutF, " %*d", EdgePlaces, NodeI.GetInEId(edge)); }
-    fprintf(OutF, "\n    out[%d]", NodeI.GetOutDeg());
+    fprintf(OutF, "\n");
+    fprintf(OutF, "    out[%d]", NodeI.GetOutDeg());
     for (int edge = 0; edge < NodeI.GetOutDeg(); edge++) {
       fprintf(OutF, " %*d", EdgePlaces, NodeI.GetOutEId(edge)); }
-   
     fprintf(OutF, "\n");
   }
   for (TEdgeI EdgeI = BegEI(); EdgeI < EndEI(); EdgeI++) {
