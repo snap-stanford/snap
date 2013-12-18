@@ -32,10 +32,11 @@ int main(int argc, char* argv[]) {
   fprintf(F, "# Input: %s\n", InFNm.CStr());
   fprintf(F, "# Nodes: %d    Edges: %d\n", Graph->GetNodes(), Graph->GetEdges());
   fprintf(F, "# Algoritm: %s\n", CmtyAlgStr.CStr());
-  if (CmtyAlg!=3)
-	fprintf(F, "# Modularity: %f\n", Q);
-  else
-	fprintf(F, "# Average code length: %f\n", Q);
+  if (CmtyAlg!=3) {
+    fprintf(F, "# Modularity: %f\n", Q);
+  } else {
+    fprintf(F, "# Average code length: %f\n", Q);
+  }
   fprintf(F, "# Communities: %d\n", CmtyV.Len());
   fprintf(F, "# NId\tCommunityId\n");
   for (int c = 0; c < CmtyV.Len(); c++) {
