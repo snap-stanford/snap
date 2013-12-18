@@ -471,7 +471,7 @@ public:
   // Create a sequence of graphs based on values of column SplitAttr and windows
   // specified by JumpSize and WindowSize.
   TVec<PNEANet> ToGraphSequence(TStr SplitAttr, TAttrAggr AggrPolicy, 
-    TInt WindowSize, TInt JumpSize, TInt StartVal, TInt EndVal);
+    TInt WindowSize, TInt JumpSize, TInt StartVal = TInt::Mn, TInt EndVal = TInt::Mx);
   // Create a sequence of graphs based on values of column SplitAttr and intervals
   // specified by SplitIntervals.
   TVec<PNEANet> ToVarGraphSequence(TStr SplitAttr, TAttrAggr AggrPolicy, TIntPrV SplitIntervals);
@@ -482,7 +482,7 @@ public:
   // efficient use of memory. A call to one of these functions must be followed by subsequent calls
   // to NextGraphIterator().
   PNEANet ToGraphSequenceIterator(TStr SplitAttr, TAttrAggr AggrPolicy, 
-    TInt WindowSize, TInt JumpSize, TInt StartVal, TInt EndVal);
+    TInt WindowSize, TInt JumpSize, TInt StartVal = TInt::Mn, TInt EndVal = TInt::Mx);
   PNEANet ToVarGraphSequenceIterator(TStr SplitAttr, TAttrAggr AggrPolicy, TIntPrV SplitIntervals);
   PNEANet ToGraphPerGroupIterator(TStr GroupAttr, TAttrAggr AggrPolicy);
   // Calls to this must be preceded by a call to one of the above ToGraph*Iterator functions.
