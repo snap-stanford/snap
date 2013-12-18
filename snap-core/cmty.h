@@ -22,6 +22,10 @@ double CommunityGirvanNewman(PUNGraph& Graph, TCnComV& CmtyV);
 /// See: Finding community structure in very large networks, A. Clauset, M.E.J. Newman, C. Moore, 2004
 double CommunityCNM(const PUNGraph& Graph, TCnComV& CmtyV);
 
+/// Rosvall-Bergstrom community detection algorithm based on information theoretic approach.
+/// See: Rosvall M., Bergstrom C. T., Maps of random walks on complex networks reveal community structure, Proc. Natl. Acad. Sci. USA 105, 1118–1123 (2008)
+double Infomap(PUNGraph& Graph, TCnComV& CmtyV);
+
 namespace TSnapDetail {
 /// A single step of Girvan-Newman clustering procedure.
 void CmtyGirvanNewmanStep(PUNGraph& Graph, TIntV& Cmty1, TIntV& Cmty2);
