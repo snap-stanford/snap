@@ -262,6 +262,26 @@ void TAGMUtil::LoadCmtyVV(const TStr& InFNm, TVec<TIntV>& CmtyVV) {
 
 }
 
+/// load bipartite community affiliation graph from text file (each row contains the member node IDs for each community)
+void TAGMUtil::LoadCmtyVV(const TStr& InFNm, TVec<TIntV>& CmtyVV, TStrHash<TInt>& StrToNIdH, const int BeginCol, const int MinSz, const TSsFmt Sep) {
+  CmtyVV.Gen(Kilo(100), 0);
+  TSsParser Ss(InFNm, Sep);
+  while (Ss.Next()) {
+    if(Ss.GetFlds() > BeginCol) {
+      TIntV CmtyV;
+      for (int i = BeginCol; i < Ss.GetFlds(); i++) {
+        if (StrToNIdH.IsKey(Ss.GetFld(i))) {
+          CmtyV.Add(StrToNIdH.GetKeyId(Ss.GetFld(i)));
+        }
+      }
+      if (CmtyV.Len() < MinSz) { continue; }
+      CmtyVV.Add(CmtyV);
+    }
+  }
+  CmtyVV.Pack();
+  printf("community loading completed (%d communities)\n",CmtyVV.Len());
+}
+
 /// dump bipartite community affiliation into a text file
 void TAGMUtil::DumpCmtyVV(const TStr& OutFNm, const TVec<TIntV>& CmtyVV) {
   FILE* F = fopen(OutFNm.CStr(),"wt");

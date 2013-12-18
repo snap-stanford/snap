@@ -1,7 +1,6 @@
-// bigclam.cpp : Defines the entry point for the console application.
-//
 #include "stdafx.h"
 #include "agmfast.h"
+#include "agmdirected.h"
 #include "agm.h"
 #include <omp.h>
 
@@ -13,6 +12,7 @@ int main(int argc, char* argv[]) {
   TStr OutFPrx = Env.GetIfArgPrefixStr("-o:", "", "Output Graph data prefix");
   const TStr InFNm = Env.GetIfArgPrefixStr("-i:", "../as20graph.txt", "Input edgelist file name");
   const TStr LabelFNm = Env.GetIfArgPrefixStr("-l:", "", "Input file name for node names (Node ID, Node label) ");
+  const int IsUndirected = Env.GetIfArgPrefixInt("-g:", 0, "Input graph type. 0:directed, 1:undirected");
   int OptComs = Env.GetIfArgPrefixInt("-c:", 100, "The number of communities to detect (-1: detect automatically)");
   const int MinComs = Env.GetIfArgPrefixInt("-mc:", 5, "Minimum number of communities to try");
   const int MaxComs = Env.GetIfArgPrefixInt("-xc:", 100, "Maximum number of communities to try");
@@ -22,13 +22,26 @@ int main(int argc, char* argv[]) {
   const double StepBeta = Env.GetIfArgPrefixFlt("-sb:", 0.3, "Beta for backtracking line search");
 
   omp_set_num_threads(NumThreads);
-  PUNGraph G;
+  PNGraph G;
   TIntStrH NIDNameH;
-  if (InFNm.IsStrIn(".ungraph")) {
-    TFIn GFIn(InFNm);
-    G = TUNGraph::Load(GFIn);
+  if (IsUndirected == 1) {
+    PUNGraph UG;
+    if (InFNm.IsStrIn(".ungraph")) {
+      TFIn GFIn(InFNm);
+      UG = TUNGraph::Load(GFIn);
+      
+    } else {
+      UG = TAGMUtil::LoadEdgeListStr<PUNGraph>(InFNm, NIDNameH);
+    }
+    G = TSnap::ConvertGraph<PNGraph, PUNGraph>(UG);
   } else {
-    G = TAGMUtil::LoadEdgeListStr<PUNGraph>(InFNm, NIDNameH);
+    if (InFNm.IsStrIn(".ngraph")) {
+      TFIn GFIn(InFNm);
+      G = TNGraph::Load(GFIn);
+      
+    } else {
+      G = TAGMUtil::LoadEdgeListStr<PNGraph>(InFNm, NIDNameH);
+    }
   }
   if (LabelFNm.Len() > 0) {
     TSsParser Ss(LabelFNm, ssfTabSep);
@@ -38,24 +51,24 @@ int main(int argc, char* argv[]) {
   }
   printf("Graph: %d Nodes %d Edges\n", G->GetNodes(), G->GetEdges());
   
-  TVec<TIntV> EstCmtyVV;
+  TVec<TIntV> EstCmtyVVIn, EstCmtyVVOut;
   TExeTm RunTm;
-  TAGMFast RAGM(G, 10, 10);
+  TCoda CD(G, 10, 10);
   
   if (OptComs == -1) {
     printf("finding number of communities\n");
-    OptComs = RAGM.FindComsByCV(NumThreads, MaxComs, MinComs, DivComs, OutFPrx, StepAlpha, StepBeta);
+    OptComs = CD.FindComsByCV(NumThreads, MaxComs, MinComs, DivComs, OutFPrx, StepAlpha, StepBeta);
   }
 
-  RAGM.NeighborComInit(OptComs);
+  CD.NeighborComInit(OptComs);
   if (NumThreads == 1 || G->GetEdges() < 1000) {
-    RAGM.MLEGradAscent(0.0001, 1000 * G->GetNodes(), "", StepAlpha, StepBeta);
+    CD.MLEGradAscent(0.0001, 1000 * G->GetNodes(), "", StepAlpha, StepBeta);
   } else {
-    RAGM.MLEGradAscentParallel(0.0001, 1000, NumThreads, "", StepAlpha, StepBeta);
+    CD.MLEGradAscentParallel(0.0001, 1000, NumThreads, "", StepAlpha, StepBeta);
   }
-  RAGM.GetCmtyVV(EstCmtyVV);
-   TAGMUtil::DumpCmtyVV(OutFPrx + "cmtyvv.txt", EstCmtyVV, NIDNameH);
-  TAGMUtil::SaveGephi(OutFPrx + "graph.gexf", G, EstCmtyVV, 1.5, 1.5, NIDNameH);
+  CD.GetCmtyVV(EstCmtyVVOut, EstCmtyVVIn);
+  TAGMUtil::DumpCmtyVV(OutFPrx + "cmtyvv.out.txt", EstCmtyVVOut, NIDNameH);
+  TAGMUtil::DumpCmtyVV(OutFPrx + "cmtyvv.in.txt", EstCmtyVVIn, NIDNameH);
 
   Catch
 

@@ -452,10 +452,9 @@ void TNEANet::DelEdge(const int& SrcNId, const int& DstNId, const bool& IsDir) {
   bool Edge = IsEdge(SrcNId, DstNId, EId, IsDir);
   IAssert(Edge); // there is at least one edge
   while (Edge) {
-    GetNode(SrcNId).OutEIdV.DelIfIn(EId);
-    GetNode(DstNId).InEIdV.DelIfIn(EId);
+    DelEdge(EId);
+    Edge = IsEdge(SrcNId, DstNId, EId, IsDir);
   }
-  EdgeH.DelKey(EId);
 }
 
 bool TNEANet::IsEdge(const int& SrcNId, const int& DstNId, int& EId, const bool& IsDir) const {
@@ -581,10 +580,10 @@ void TNEANet::Dump(FILE *OutF) const {
     fprintf(OutF, "    in[%d]", NodeI.GetInDeg());
     for (int edge = 0; edge < NodeI.GetInDeg(); edge++) {
       fprintf(OutF, " %*d", EdgePlaces, NodeI.GetInEId(edge)); }
+    fprintf(OutF, "\n");
     fprintf(OutF, "    out[%d]", NodeI.GetOutDeg());
     for (int edge = 0; edge < NodeI.GetOutDeg(); edge++) {
       fprintf(OutF, " %*d", EdgePlaces, NodeI.GetOutEId(edge)); }
-   
     fprintf(OutF, "\n");
   }
   for (TEdgeI EdgeI = BegEI(); EdgeI < EndEI(); EdgeI++) {
