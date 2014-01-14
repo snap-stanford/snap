@@ -7,7 +7,7 @@ int main(int argc, char* argv[]) {
   Try
   const TStr InFNm = Env.GetIfArgPrefixStr("-i:", "graph.txt", "Input graph (undirected graph)");
   const TStr OutFNm = Env.GetIfArgPrefixStr("-o:", "communities.txt", "Output file");
-  const int CmtyAlg = Env.GetIfArgPrefixInt("-a:", 2, "Algorithm: 1:Girvan-Newman, 2:Clauset-Newman-Moore");
+  const int CmtyAlg = Env.GetIfArgPrefixInt("-a:", 2, "Algorithm: 1:Girvan-Newman, 2:Clauset-Newman-Moore, 3:Infomap");
 
   PUNGraph Graph = TSnap::LoadEdgeList<PUNGraph>(InFNm, false);
   //PUNGraph Graph = TSnap::LoadEdgeList<PUNGraph>("../as20graph.txt", false);
@@ -23,13 +23,20 @@ int main(int argc, char* argv[]) {
   else if (CmtyAlg == 2) {
     CmtyAlgStr = "Cluset-Newman-Moore";
     Q = TSnap::CommunityCNM(Graph, CmtyV); }
+  else if (CmtyAlg == 3) {
+    CmtyAlgStr = "Infomap";
+    Q = TSnap::Infomap(Graph, CmtyV); }
   else { Fail; }
 
   FILE *F = fopen(OutFNm.CStr(), "wt");
   fprintf(F, "# Input: %s\n", InFNm.CStr());
   fprintf(F, "# Nodes: %d    Edges: %d\n", Graph->GetNodes(), Graph->GetEdges());
   fprintf(F, "# Algoritm: %s\n", CmtyAlgStr.CStr());
-  fprintf(F, "# Modularity: %f\n", Q);
+  if (CmtyAlg!=3) {
+    fprintf(F, "# Modularity: %f\n", Q);
+  } else {
+    fprintf(F, "# Average code length: %f\n", Q);
+  }
   fprintf(F, "# Communities: %d\n", CmtyV.Len());
   fprintf(F, "# NId\tCommunityId\n");
   for (int c = 0; c < CmtyV.Len(); c++) {
