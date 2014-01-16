@@ -273,7 +273,7 @@ public:
   // get components
   int GetYear() const {return Year;}
   int GetMonth() const {return Month;}
-  TStr GetMonthNm() const {return TTmInfo::GetMonthNm(Month);}
+  TStr GetMonthNm() const {return TTmInfo::GetMonthNm(Month+1);}
   int GetDay() const {return Day;}
   int GetDayOfWeek() const {return DayOfWeek;}
   TStr GetDayOfWeekNm() const {return TTmInfo::GetDayOfWeekNm(DayOfWeek);}
