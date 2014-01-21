@@ -77,21 +77,21 @@ public:
   bool operator < (const TRowIterator& RowI) const;
   bool operator == (const TRowIterator& RowI) const;
   TInt GetRowIdx() const;
-  /// Return value of integer attribute specified by integer column index
+  /// Return value of integer attribute specified by integer column index for current row
   TInt GetIntAttr(TInt ColIdx) const;
-  /// Return value of floating point attribute specified by float column index
+  /// Return value of floating point attribute specified by float column index for current row
   TFlt GetFltAttr(TInt ColIdx) const;
-  /// Return value of string attribute specified by string column index
+  /// Return value of string attribute specified by string column index for current row
   TStr GetStrAttr(TInt ColIdx) const;
-  /// Return integer mapping of a string attribute value specified by string column index
+  /// Return integer mapping of a string attribute value specified by string column index for current row
   TInt GetStrMap(TInt ColIdx) const;
-  /// Return value of integer attribute specified by attribute name
+  /// Return value of integer attribute specified by attribute name for current row
   TInt GetIntAttr(const TStr& Col) const;
-  /// Return value of float attribute specified by attribute name
+  /// Return value of float attribute specified by attribute name for current row
   TFlt GetFltAttr(const TStr& Col) const;
-  /// Return value of string attribute specified by attribute name
+  /// Return value of string attribute specified by attribute name for current row
   TStr GetStrAttr(const TStr& Col) const;  
-  /// Return integer mapping of string attribute specified by attribute name
+  /// Return integer mapping of string attribute specified by attribute name for current row
   TInt GetStrMap(const TStr& Col) const;
 };
 
@@ -100,7 +100,7 @@ public:
 class TRowIteratorWithRemove{
   TInt CurrRowIdx; ///< Physical row index of current row pointer by iterator
   TTable* Table;
-  TBool Start;
+  TBool Start;	///< A flag indicating whether the current row in the first valid row of the table 
 public:
   TRowIteratorWithRemove(): CurrRowIdx(0), Table(NULL), Start(true){}
   TRowIteratorWithRemove(TInt RowIdx, TTable* TablePtr);
@@ -110,18 +110,30 @@ public:
   TRowIteratorWithRemove& Next(); // For Python compatibility
   bool operator < (const TRowIteratorWithRemove& RowI) const;
   bool operator == (const TRowIteratorWithRemove& RowI) const;
+  /// Get physical index of current row
   TInt GetRowIdx() const;
+  /// Get physical index of next row
   TInt GetNextRowIdx() const;
+  /// Return value of integer attribute specified by integer column index for next row
   TInt GetNextIntAttr(TInt ColIdx) const;
+  /// Return value of float attribute specified by float column index for next row
   TFlt GetNextFltAttr(TInt ColIdx) const;
+  /// Return value of string attribute specified by string column index for next row
   TStr GetNextStrAttr(TInt ColIdx) const;   
+  /// Return value of integer attribute specified by attribute name for next row
   TInt GetNextIntAttr(const TStr& Col) const;
+  /// Return value of float attribute specified by attribute name for next row
   TFlt GetNextFltAttr(const TStr& Col) const;
+  /// Return value of string attribute specified by attribute name for next row
   TStr GetNextStrAttr(const TStr& Col) const;   
+  /// Checks whether iterator points to first valid row of the table
   TBool IsFirst() const;
+  /// Remove next row
   void RemoveNext();
 };
 
+//#//////////////////////////////////////////////
+/// Iterator over a vector of tables
 class TTableIterator{
   TVec<PTable> PTableV;
   TInt CurrTableIdx;
