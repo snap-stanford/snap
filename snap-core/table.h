@@ -4,12 +4,16 @@
 #include "tmetric.h"
 //#include "snap.h"
 
+//#//////////////////////////////////////////////
+/// Table class
 class TTable;
 class TTableContext;
 typedef TPt<TTable> PTable;
 
+/// Every grouping key can be represented a a pair of IntV for integer and string group-by attributes and FltV for floating-point group-by attributes.
 typedef TPair<TIntV, TFltV> TGroupKey;
 
+//TODO: move to separate file (map.h / file with PR and HITS) 
 namespace TSnap {
 
   template <class PGraph>
@@ -23,13 +27,10 @@ namespace TSnap {
     const int& MaxIter);
 }
 
-/*
-This class serves as a wrapper for all data that needs to be shared by
-several tables in an execution context
-*/
-class TTableContext{
+//#//////////////////////////////////////////////
+/// Execution context
 protected:
-  TStrHash<TInt, TBigStrPool> StringVals;
+  TStrHash<TInt, TBigStrPool> StringVals; ///< StringPool - stores string data values and maps them to integers
   friend class TTable;
 public:
   TTableContext() {}
@@ -37,11 +38,13 @@ public:
   void Save(TSOut& SOut) { StringVals.Save(SOut);}
 };
 
+//#//////////////////////////////////////////////
+/// Table Row (Record)
 class TTableRow{
 protected:
-  TIntV IntVals;
-  TFltV FltVals;
-  TStrV StrVals;
+  TIntV IntVals; 
+  TFltV FltVals; 
+  TStrV StrVals; 
 public:
   TTableRow() {}
   void AddInt(const TInt& Val) { IntVals.Add(Val); }
@@ -52,19 +55,18 @@ public:
   TStrV GetStrVals() const { return StrVals; }
 };
 
-/* possible policies for aggregating node attributes */
+/// possible policies for aggregating node attributes
 typedef enum {aaMin, aaMax, aaFirst, aaLast, aaMean, aaMedian, aaSum, aaCount} TAttrAggr;
-/* possible operations on columns */
+/// possible column-wise arithmetic operations
 typedef enum {OP_ADD, OP_SUB, OP_MUL, OP_DIV, OP_MOD} OPS;
 
-/* a table schema is a vector of pairs <attribute name, attribute type> */
+/// A table schema is a vector of pairs <attribute name, attribute type>
 typedef TVec<TPair<TStr, TAttrType> > Schema; 
 
-/************* Iterator classes ************/
-// An iterator class to iterate over all currently existing rows
-// Iteration over the rows should be done using only this iterator
+//#//////////////////////////////////////////////
+/// Iterator class for TTable rows. ##Iterator
 class TRowIterator{
-  TInt CurrRowIdx;
+  TInt CurrRowIdx; ///< Physical row index of current row pointer by iterator
   const TTable* Table; 
 public:
   TRowIterator(): CurrRowIdx(0), Table(NULL){}
@@ -75,20 +77,28 @@ public:
   bool operator < (const TRowIterator& RowI) const;
   bool operator == (const TRowIterator& RowI) const;
   TInt GetRowIdx() const;
-  // we do not check column type in the iterator
+  /// Return value of integer attribute specified by integer column index
   TInt GetIntAttr(TInt ColIdx) const;
+  /// Return value of floating point attribute specified by float column index
   TFlt GetFltAttr(TInt ColIdx) const;
+  /// Return value of string attribute specified by string column index
   TStr GetStrAttr(TInt ColIdx) const;
+  /// Return integer mapping of a string attribute value specified by string column index
   TInt GetStrMap(TInt ColIdx) const;
+  /// Return value of integer attribute specified by attribute name
   TInt GetIntAttr(const TStr& Col) const;
+  /// Return value of float attribute specified by attribute name
   TFlt GetFltAttr(const TStr& Col) const;
+  /// Return value of string attribute specified by attribute name
   TStr GetStrAttr(const TStr& Col) const;  
+  /// Return integer mapping of string attribute specified by attribute name
   TInt GetStrMap(const TStr& Col) const;
 };
 
-/* an iterator that also allows logical row removal while iterating */
+//#//////////////////////////////////////////////
+/// Iterator class for TTable rows, that allows logical row removal while iterating.
 class TRowIteratorWithRemove{
-  TInt CurrRowIdx;
+  TInt CurrRowIdx; ///< Physical row index of current row pointer by iterator
   TTable* Table;
   TBool Start;
 public:
@@ -102,7 +112,6 @@ public:
   bool operator == (const TRowIteratorWithRemove& RowI) const;
   TInt GetRowIdx() const;
   TInt GetNextRowIdx() const;
-  // we do not check column type in the iterator
   TInt GetNextIntAttr(TInt ColIdx) const;
   TFlt GetNextFltAttr(TInt ColIdx) const;
   TStr GetNextStrAttr(TInt ColIdx) const;   

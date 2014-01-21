@@ -1,0 +1,4 @@
+/// Iterator
+An iterator class to iterate over all currently existing rows.
+Iteration over the rows should be done using only this iterator.
+///
