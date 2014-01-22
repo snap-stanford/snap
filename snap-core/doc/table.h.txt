@@ -2,3 +2,38 @@
 An iterator class to iterate over all currently existing rows.
 Iteration over the rows should be done using only this iterator.
 ///
+
+/// TTable::Context
+Execution context includes a global string pool for all string values of tables in current session.
+Access to the pool is done via \c Context.StringVals.
+///
+
+/// TTable::Next
+\c Next[i] is the successor of row \c i. Table iterators follow the order dictated by Next
+///
+
+/// TTable::StrColMaps
+String columns are implemented using a string pool to fight memory fragmentation.
+The value of string column \c c in row \c r is \c Context.StringVals.GetKey(StrColMaps[c][r])
+///
+
+/// TTable::GroupStmtNames
+A mapping between the newly-added group id column name of a grouping statement to a vector
+of the group-by attribute names and a flag specifying whether those attributes are ordered or not. 
+///
+
+/// TTable::GroupIDMapping
+A mapping between grouping statement (group-by attribute names and 'Ordered' flag) to a hash map between
+given group ids to their corresponding group-by key.
+///
+
+/// TTable::GroupMapping
+A mapping between grouping statement (group-by attribute names and 'Ordered' flag) to a hash map between
+group-by keys to the ids of records that share the group-by key. Can be used as hash-index for the table.
+///
+
+/// TTable::CommonNodeAttrs
+Example: <T_1.age,T_2.age, age> - T_1.age is a src node attribute, T_2.age is a dst node attribute.
+However, since all nodes refer to the same universe of entities (users) we just do one assignment of age per node, and call that attribute 'age'.
+This list should be very small.
+///

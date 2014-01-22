@@ -143,89 +143,45 @@ public:
   bool HasNext() { return CurrTableIdx < PTableV.Len(); }
 };
 
-/* 
-TTable is a class representing an in-memory relational table with columnar data storage
-*/
+//#//////////////////////////////////////////////
+/// Table class: Relational table with columnar data storage
 class TTable{
-/******** Various typedefs / constants ***********/
 protected:
-  // special values for Next column
-  static const TInt Last;
-  static const TInt Invalid;
-
-/*************** TTable object fields ********************/
+  static const TInt Last; ///< Special value for Next vector entry - last row in table
+  static const TInt Invalid; ///< Special value for Next vector entry - logically removed row
 public:
-  // Table name
-  TStr Name;
+  TStr Name; ///< Table Name
 protected:
-  // Execution Context
-  TTableContext& Context;
-  // string pool for string values (part of execution context)
-  // TStrHash<TInt, TBigStrPool>& StrColVals; 
-  // use Context.StringVals to access the global string pool
-
-  // Table Schema
-  Schema S;
-  // Reference Counter for Garbage Collection
+  TTableContext& Context;  ///< Execution Context. ##TTable::Context
+  Schema S; ///< Table Schema
   TCRef CRef;
+  TInt NumRows; ///< Number of rows in the table (valid and invalid)
+  TInt NumValidRows; ///< Number of valid rows in the table (i.e. rows that were not logically removed)
+  TInt FirstValidRow; ///< Physical index of first valid row
+  TInt LastValidRow; ///< Physical index of last valid row
+  TIntV Next; ///< A vactor describing the logical order of the rows. ##TTable::Next
+  TVec<TIntV> IntCols; ///< Data columns of integer attributes
+  TVec<TFltV> FltCols; ///< Data columns of floating point attributes
+  TVec<TIntV> StrColMaps; ///< Data columns of integer mappings of string attributes. ##TTable::StrColMaps
+  THash<TStr,TPair<TAttrType,TInt> > ColTypeMap; /// A mapping from column name to column type and column index among columns of the same type.
+  TStr IdColName; ///< Name of column associated with (optional) permanent row identifiers.
+  TIntIntH RowIdMap; ///< Mapping of permanent row ids to physical id
 
-  // number of rows in the table (valid and invalid)
-  TInt NumRows;
-  // number of valid rows in the table (i.e. rows that were not logically removed)
-  TInt NumValidRows;
-  // physical index of first valid row
-  TInt FirstValidRow;
-  // physical index of last valid row
-  TInt LastValidRow;
-  // A vactor describing the logical order of the rows: Next[i] is the successor of row i
-  // Table iterators follow the order dictated by Next
-  TIntV Next; 
-
-  // The actual columns - divided by types
-	TVec<TIntV> IntCols;
-	TVec<TFltV> FltCols;
-
-  // string columns are implemented using a string pool to fight memory fragmentation
-  // The value of string column c in row r is Context.StringVals.GetKey(StrColMaps[c][r])
-	TVec<TIntV> StrColMaps; 
- 
-  // column name --> <column type, column index among columns of the same type>
-	THash<TStr,TPair<TAttrType,TInt> > ColTypeMap;
-
-  // name of column associated with permanent row id
-  TStr IdColName;
-
-  // hash table mapping permanent row ids to physical ids
-  THash<TInt, TInt> RowIdMap;
-
-  // group mapping data structures
-  THash<TStr, TPair<TStrV, TBool> > GroupStmtNames;
-  THash<TPair<TStrV, TBool>, THash<TInt, TGroupKey> >GroupIDMapping;
-  THash<TPair<TStrV, TBool>, THash<TGroupKey, TIntV> >GroupMapping;
+  // Group mapping data structures
+  THash<TStr, TPair<TStrV, TBool> > GroupStmtNames; ///< Maps user-given grouping statement names to their group-by attributes. ##TTable::GroupStmtNames
+  THash<TPair<TStrV, TBool>, THash<TInt, TGroupKey> >GroupIDMapping; ///< Maps grouping statements to their (group id --> group-by key) mapping. ##TTable::GroupIDMapping
+  THash<TPair<TStrV, TBool>, THash<TGroupKey, TIntV> >GroupMapping; ///< Maps grouping statements to their (group-by key --> group id) mapping. ##TTable::GroupMapping
 
   // Fields to be used when constructing a graph
-  // column to serve as src nodes when constructing the graph
-  TStr SrcCol;
-  // column to serve as dst nodes when constructing the graph
-  TStr DstCol;
-  // list of columns to serve as edge attributes
-  TStrV EdgeAttrV;
-  // list of columns to serve as source node attributes
-  TStrV SrcNodeAttrV;
-  // list of columns to serve as source node attributes
-  TStrV DstNodeAttrV;
-  // list of attributes pairs with values common to source and destination
-  // and their common name. for instance: <T_1.age,T_2.age, age>
-  //- T_1.age is a src node attribute, T_2.age is a dst node attribute.
-  // However, since all nodes refer to the same universe of entities (users)
-  // we just do one assignment of age per node
-  // This list should be very small...
-  TVec<TStrTr> CommonNodeAttrs;
-
-  TVec<TIntV> RowIdBuckets;
-  // The following members are used when a graph sequence is created using iterators
-  TInt CurrBucket;
-  TAttrAggr AggrPolicy;
+  TStr SrcCol; ///< Column (attribute) to serve as src nodes when constructing the graph
+  TStr DstCol; ///< Column (attribute) to serve as dst nodes when constructing the graph
+  TStrV EdgeAttrV; ///< List of columns (attributes) to serve as edge attributes
+  TStrV SrcNodeAttrV; ///< List of columns (attributes) to serve as source node attributes
+  TStrV DstNodeAttrV; ///< List of columns (attributes) to serve as destination node attributes
+  TStrTrV CommonNodeAttrs; ///< List of attribute pairs with values common to source and destination and their common given name. ##TTable::CommonNodeAttrs
+  TVec<TIntV> RowIdBuckets; ///< Partitioning of row ids into buckets corresponding to different graph objects when generating a sequence of graphs.
+  TInt CurrBucket; ///< Current row id bucket - used when generating a sequence of graphs using an iterator.
+  TAttrAggr AggrPolicy; ///< Aggregation policy used for solving conflicts between different values of an attribute of the same node.
 
 public:
   /***** value getters - getValue(column name, physical row Idx) *****/
