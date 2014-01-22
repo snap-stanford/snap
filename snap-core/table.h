@@ -29,6 +29,7 @@ namespace TSnap {
 
 //#//////////////////////////////////////////////
 /// Execution context
+class TTableContext{
 protected:
   TStrHash<TInt, TBigStrPool> StringVals; ///< StringPool - stores string data values and maps them to integers
   friend class TTable;

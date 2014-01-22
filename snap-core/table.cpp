@@ -3,19 +3,19 @@
 TInt const TTable::Last =-1;
 TInt const TTable::Invalid =-2;
 
-TRowIterator& TRowIterator::operator++(int){
+TRowIterator& TRowIterator::operator++(int) {
   return this->Next();
 }
 
-TRowIterator& TRowIterator::Next(){
+TRowIterator& TRowIterator::Next() {
   CurrRowIdx = Table->Next[CurrRowIdx];
   Assert(CurrRowIdx != TTable::Invalid);
   return *this;
 }
 
 bool TRowIterator::operator < (const TRowIterator& RowI) const{ 
-  if(CurrRowIdx == TTable::Last){ return false;}
-  if(RowI.CurrRowIdx == TTable::Last){ return true;}
+  if (CurrRowIdx == TTable::Last) { return false; }
+  if (RowI.CurrRowIdx == TTable::Last) { return true; }
   return CurrRowIdx < RowI.CurrRowIdx;
 }
 
@@ -65,13 +65,13 @@ TInt TRowIterator::GetStrMap(TInt ColIdx) const {
 TRowIteratorWithRemove::TRowIteratorWithRemove(TInt RowIdx, TTable* TablePtr):
   CurrRowIdx(RowIdx),
   Table(TablePtr),
-  Start(RowIdx == TablePtr->FirstValidRow){}
+  Start(RowIdx == TablePtr->FirstValidRow) {}
 
-TRowIteratorWithRemove& TRowIteratorWithRemove::operator++(int){
+TRowIteratorWithRemove& TRowIteratorWithRemove::operator++(int) {
   return this->Next();
 }
 
-TRowIteratorWithRemove& TRowIteratorWithRemove::Next(){
+TRowIteratorWithRemove& TRowIteratorWithRemove::Next() {
   CurrRowIdx = GetNextRowIdx();
   Start = false;
   Assert(CurrRowIdx != TTable::Invalid);
@@ -79,8 +79,8 @@ TRowIteratorWithRemove& TRowIteratorWithRemove::Next(){
 }
 
 bool TRowIteratorWithRemove::operator < (const TRowIteratorWithRemove& RowI) const { 
-  if(CurrRowIdx == TTable::Last){ return false;}
-  if(RowI.CurrRowIdx == TTable::Last){ return true;}
+  if (CurrRowIdx == TTable::Last) { return false; }
+  if (RowI.CurrRowIdx == TTable::Last) { return true; }
   return CurrRowIdx < RowI.CurrRowIdx;
 }
 
@@ -127,36 +127,40 @@ TBool TRowIteratorWithRemove::IsFirst() const {
   return CurrRowIdx == Table->FirstValidRow;
 }
 
-void TRowIteratorWithRemove::RemoveNext(){
+void TRowIteratorWithRemove::RemoveNext() {
   TInt OldNextRowIdx = GetNextRowIdx();
-  if(OldNextRowIdx == Table->FirstValidRow){
+  if (OldNextRowIdx == Table->FirstValidRow) {
     Table->RemoveFirstRow();
     return;
   }
   Assert(OldNextRowIdx != TTable::Invalid);
-  if(OldNextRowIdx == TTable::Last){ return;}
+  if (OldNextRowIdx == TTable::Last) { return; }
   Table->Next[CurrRowIdx] = Table->Next[OldNextRowIdx];
-  if (Table->LastValidRow == OldNextRowIdx){
+  if (Table->LastValidRow == OldNextRowIdx) {
     Table->LastValidRow = CurrRowIdx;
   }
   Table->Next[OldNextRowIdx] = TTable::Invalid;
   Table->NumValidRows--;
 }
 
-// better not use default constructor as it leads to a memory leak - OR - implement a destructor
-TTable::TTable(): Context(*(new TTableContext)), NumRows(0), NumValidRows(0), FirstValidRow(0), LastValidRow(-1){}
+// better not use default constructor as it leads to a memory leak
+// - OR - implement a destructor
+TTable::TTable(): Context(*(new TTableContext)), NumRows(0), NumValidRows(0),
+  FirstValidRow(0), LastValidRow(-1) {}
 
-TTable::TTable(TTableContext& Context): Context(Context), NumRows(0), NumValidRows(0), FirstValidRow(0), LastValidRow(-1){} 
+TTable::TTable(TTableContext& Context): Context(Context), NumRows(0), 
+  NumValidRows(0), FirstValidRow(0), LastValidRow(-1) {} 
 
-TTable::TTable(const TStr& TableName, const Schema& TableSchema, TTableContext& Context): Name(TableName), Context(Context),
-  S(TableSchema), NumRows(0), NumValidRows(0), FirstValidRow(0), LastValidRow(-1){
+TTable::TTable(const TStr& TableName, const Schema& TableSchema, 
+  TTableContext& Context): Name(TableName), Context(Context), S(TableSchema),
+  NumRows(0), NumValidRows(0), FirstValidRow(0), LastValidRow(-1) {
   TInt IntColCnt = 0;
   TInt FltColCnt = 0;
   TInt StrColCnt = 0;
-  for(TInt i = 0; i < S.Len(); i++){
+  for (TInt i = 0; i < S.Len(); i++) {
     TStr ColName = GetSchemaColName(i);
     TAttrType ColType = GetSchemaColType(i);
-    switch(ColType){
+    switch (ColType) {
       case atInt:
         ColTypeMap.AddDat(ColName, TPair<TAttrType,TInt>(atInt, IntColCnt));
         IntColCnt++;
@@ -176,15 +180,16 @@ TTable::TTable(const TStr& TableName, const Schema& TableSchema, TTableContext& 
   StrColMaps = TVec<TIntV>(StrColCnt);
 }
 
-TTable::TTable(TSIn& SIn, TTableContext& Context): Name(SIn), Context(Context), NumRows(SIn), NumValidRows(SIn), FirstValidRow(SIn), 
-  LastValidRow(SIn), Next(SIn), IntCols(SIn), FltCols(SIn), StrColMaps(SIn){
+TTable::TTable(TSIn& SIn, TTableContext& Context): Name(SIn), Context(Context),
+  NumRows(SIn), NumValidRows(SIn), FirstValidRow(SIn), LastValidRow(SIn),
+  Next(SIn), IntCols(SIn), FltCols(SIn), StrColMaps(SIn) {
   THash<TStr,TPair<TInt,TInt> > ColTypeIntMap(SIn);
 
   ColTypeMap.Clr();
   S.Clr();
-  for (THash<TStr,TPair<TInt,TInt> >::TIter it = ColTypeIntMap.BegI(); it < ColTypeIntMap.EndI(); it++){
+  for (THash<TStr,TPair<TInt,TInt> >::TIter it = ColTypeIntMap.BegI(); it < ColTypeIntMap.EndI(); it++) {
     TPair<TInt,TInt> dat = it.GetDat();
-    switch(dat.GetVal1()){
+    switch (dat.GetVal1()) {
       case 0:
         ColTypeMap.AddDat(it.GetKey(), TPair<TAttrType,TInt>(atInt, dat.GetVal2()));
         S.Add(TPair<TStr,TAttrType>(it.GetKey(), atInt));
@@ -201,48 +206,50 @@ TTable::TTable(TSIn& SIn, TTableContext& Context): Name(SIn), Context(Context), 
   }
 }
 
-TTable::TTable(const TStr& TableName, const THash<TInt,TInt>& H, const TStr& Col1, const TStr& Col2, TTableContext& Context, const TBool IsStrKeys): 
-  Name(TableName), Context(Context), NumRows(H.Len()), NumValidRows(H.Len()), FirstValidRow(0), LastValidRow(H.Len()-1){
+TTable::TTable(const TStr& TableName, const THash<TInt,TInt>& H, const TStr& Col1, 
+  const TStr& Col2, TTableContext& Context, const TBool IsStrKeys): 
+  Name(TableName), Context(Context), NumRows(H.Len()), NumValidRows(H.Len()),
+  FirstValidRow(0), LastValidRow(H.Len()-1) {
     TAttrType KeyType = IsStrKeys ? atStr : atInt;
     S.Add(TPair<TStr,TAttrType>(Col1, KeyType));
     S.Add(TPair<TStr,TAttrType>(Col2, atInt));
     ColTypeMap.AddDat(Col1, TPair<TAttrType,TInt>(KeyType,0));
     ColTypeMap.AddDat(Col2, TPair<TAttrType,TInt>(atInt,1));
-    if(IsStrKeys){
+    if (IsStrKeys) {
       StrColMaps = TVec<TIntV>(1);
       IntCols = TVec<TIntV>(1);
       H.GetKeyV(StrColMaps[0]);
       H.GetDatV(IntCols[0]);
-    } else{
+    } else {
       IntCols = TVec<TIntV>(2);
       H.GetKeyV(IntCols[0]);
       H.GetDatV(IntCols[1]);
     }
     Next = TIntV(NumRows);
-    for(TInt i = 0; i < NumRows; i++){
+    for (TInt i = 0; i < NumRows; i++) {
       Next[i] = i+1;
     }
     Next[NumRows-1] = Last;
 }
 
 TTable::TTable(const TStr& TableName, const THash<TInt,TFlt>& H, const TStr& Col1, const TStr& Col2, TTableContext& Context, const TBool IsStrKeys):
-  Name(TableName), Context(Context), NumRows(H.Len()), NumValidRows(H.Len()), FirstValidRow(0), LastValidRow(H.Len()-1){
+  Name(TableName), Context(Context), NumRows(H.Len()), NumValidRows(H.Len()), FirstValidRow(0), LastValidRow(H.Len()-1) {
     TAttrType KeyType = IsStrKeys ? atStr : atInt;
     S.Add(TPair<TStr,TAttrType>(Col1, KeyType));
     S.Add(TPair<TStr,TAttrType>(Col2, atFlt));
     ColTypeMap.AddDat(Col1, TPair<TAttrType,TInt>(KeyType,0));
     ColTypeMap.AddDat(Col2, TPair<TAttrType,TInt>(atFlt,0));
-    if(IsStrKeys){
+    if (IsStrKeys) {
       StrColMaps = TVec<TIntV>(1);
       H.GetKeyV(StrColMaps[0]);
-    } else{
+    } else {
       IntCols = TVec<TIntV>(1);
       H.GetKeyV(IntCols[0]);
     }
     FltCols = TVec<TFltV>(1);   
     H.GetDatV(FltCols[0]);
     Next = TIntV(NumRows);
-    for(TInt i = 0; i < NumRows; i++){
+    for (TInt i = 0; i < NumRows; i++) {
       Next[i] = i+1;
     }
     Next[NumRows-1] = Last;
@@ -264,13 +271,13 @@ TTable::TTable(const TTable& Table, const TIntV& RowIDs): Name(Table.Name), Cont
   InitIds();
 }
 
-PTable TTable::LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm, TTableContext& Context, const TIntV& RelevantCols, const char& Separator, TBool HasTitleLine){
+PTable TTable::LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm, TTableContext& Context, const TIntV& RelevantCols, const char& Separator, TBool HasTitleLine) {
   TSsParser Ss(InFNm, Separator);
   Schema SR;
-  if(RelevantCols.Len() == 0){
+  if (RelevantCols.Len() == 0) {
     SR = S;
-  } else{
-    for(TInt i = 0; i < RelevantCols.Len(); i++){
+  } else {
+    for (TInt i = 0; i < RelevantCols.Len(); i++) {
       SR.Add(S[RelevantCols[i]]);
     }
   }
@@ -278,34 +285,38 @@ PTable TTable::LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm,
 
   // if title line (i.e. names of the columns) is included as first row in the
   // input file - use it to validate schema
-  if(HasTitleLine){
+  if (HasTitleLine) {
     Ss.Next();  
-    if(S.Len() != Ss.GetFlds()){printf("%s\n", Ss[0]); TExcept::Throw("Table Schema Mismatch!");}
-    for(TInt i = 0; i < Ss.GetFlds(); i++){
+    if (S.Len() != Ss.GetFlds()) {
+      printf("%s\n", Ss[0]); TExcept::Throw("Table Schema Mismatch!");
+    }
+    for (TInt i = 0; i < Ss.GetFlds(); i++) {
       // remove carriage return char
       TInt L = strlen(Ss[i]);
-      if(Ss[i][L-1] < ' '){ Ss[i][L-1] = 0;}
-      if(S[i].Val1 != Ss[i]){ TExcept::Throw("Table Schema Mismatch!");}
+      if (Ss[i][L-1] < ' ') { Ss[i][L-1] = 0; }
+      if (S[i].Val1 != Ss[i]) { TExcept::Throw("Table Schema Mismatch!"); }
     }
   }
 
   TInt RowLen = SR.Len();
   TVec<TAttrType> ColTypes = TVec<TAttrType>(RowLen);
-  for(TInt i = 0; i < RowLen; i++){
+  for (TInt i = 0; i < RowLen; i++) {
     ColTypes[i] = T->GetSchemaColType(i);
   }
   TInt Cnt = 0;
   // populate table columns
-  while(Ss.Next()){
+  while (Ss.Next()) {
     TInt IntColIdx = 0;
     TInt FltColIdx = 0;
     TInt StrColIdx = 0;
     Assert(Ss.GetFlds() == S.Len()); // compiled only in debug
-    if(Ss.GetFlds() != S.Len()){printf("%s\n", Ss[S.Len()]); TExcept::Throw("Error reading tsv file");}
-    for(TInt i = 0; i < RowLen; i++){
-      switch(ColTypes[i]){
+    if (Ss.GetFlds() != S.Len()) {
+      printf("%s\n", Ss[S.Len()]); TExcept::Throw("Error reading tsv file");
+    }
+    for (TInt i = 0; i < RowLen; i++) {
+      switch (ColTypes[i]) {
         case atInt:
-          if(RelevantCols.Len() == 0){
+          if (RelevantCols.Len() == 0) {
             T->IntCols[IntColIdx].Add(Ss.GetInt(i));
           } else {
             T->IntCols[IntColIdx].Add(Ss.GetInt(RelevantCols[i]));
@@ -313,7 +324,7 @@ PTable TTable::LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm,
           IntColIdx++;
           break;
         case atFlt:
-          if(RelevantCols.Len() == 0){
+          if (RelevantCols.Len() == 0) {
             T->FltCols[FltColIdx].Add(Ss.GetFlt(i));
           } else {
             T->FltCols[FltColIdx].Add(Ss.GetFlt(RelevantCols[i]));
@@ -322,7 +333,7 @@ PTable TTable::LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm,
           break;
         case atStr:
           TInt ColIdx;
-          if(RelevantCols.Len() == 0){
+          if (RelevantCols.Len() == 0) {
             ColIdx = i;
           } else {
             ColIdx = RelevantCols[i];
@@ -339,7 +350,7 @@ PTable TTable::LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm,
   T->NumRows = Cnt;
   T->NumValidRows = T->NumRows;
   T->Next = TIntV(T->NumRows,0);
-  for(TInt i = 0; i < T->NumRows-1; i++){
+  for (TInt i = 0; i < T->NumRows-1; i++) {
     T->Next.Add(i+1);
   }
   T->Next.Add(Last);
@@ -348,15 +359,15 @@ PTable TTable::LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm,
   return T;
 }
 
-PTable TTable::LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm, TTableContext& Context, const char& Separator, TBool HasTitleLine){
+PTable TTable::LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm, TTableContext& Context, const char& Separator, TBool HasTitleLine) {
   return LoadSS(TableName, S, InFNm, Context, TIntV(), Separator, HasTitleLine);
 }
 
 
-void TTable::SaveSS(const TStr& OutFNm){
+void TTable::SaveSS(const TStr& OutFNm) {
   FILE* F = fopen(OutFNm.CStr(), "w");
   // debug
-  if(F == NULL){
+  if (F == NULL) {
     printf("failed to open file %s\n", OutFNm.CStr());
     perror("fail ");
     return;
@@ -364,15 +375,15 @@ void TTable::SaveSS(const TStr& OutFNm){
 
   TInt L = S.Len();
   // print title (schema)
-  for(TInt i = 0; i < L-1; i++){
+  for (TInt i = 0; i < L-1; i++) {
     fprintf(F, "%s\t", GetSchemaColName(i).CStr());
   }  
   fprintf(F, "%s\n", GetSchemaColName(L-1).CStr());
   // print table contents
-  for(TRowIterator RowI = BegRI(); RowI < EndRI(); RowI++){
-    for(TInt i = 0; i < L; i++){
+  for (TRowIterator RowI = BegRI(); RowI < EndRI(); RowI++) {
+    for (TInt i = 0; i < L; i++) {
       char C = (i == L-1) ? '\n' : '\t';
-	    switch(GetSchemaColType(i)){
+	    switch (GetSchemaColType(i)) {
 	      case atInt:{
 		    fprintf(F, "%d%c", RowI.GetIntAttr(GetSchemaColName(i)).Val, C);
 		    break;
@@ -391,12 +402,12 @@ void TTable::SaveSS(const TStr& OutFNm){
  fclose(F);
 }
 
-void TTable::SaveBin(const TStr& OutFNm){ 
+void TTable::SaveBin(const TStr& OutFNm) { 
   TFOut SOut(OutFNm);
   Save(SOut);
 }
 
-void TTable::Save(TSOut& SOut){ 
+void TTable::Save(TSOut& SOut) { 
   Name.Save(SOut);
   NumRows.Save(SOut); NumValidRows.Save(SOut); 
   FirstValidRow.Save(SOut); LastValidRow.Save(SOut); Next.Save(SOut); 
@@ -406,9 +417,9 @@ void TTable::Save(TSOut& SOut){
   TInt atIntVal = TInt(0);
   TInt atFltVal = TInt(1);
   TInt atStrVal = TInt(2);
-  for (THash<TStr,TPair<TAttrType,TInt> >::TIter it = ColTypeMap.BegI(); it < ColTypeMap.EndI(); it++){
+  for (THash<TStr,TPair<TAttrType,TInt> >::TIter it = ColTypeMap.BegI(); it < ColTypeMap.EndI(); it++) {
     TPair<TAttrType,TInt> dat = it.GetDat();
-    switch(dat.GetVal1()){
+    switch (dat.GetVal1()) {
       case atInt:
         ColTypeIntMap.AddDat(it.GetKey(), TPair<TInt,TInt>(atIntVal, dat.GetVal2()));
         break;
@@ -424,30 +435,34 @@ void TTable::Save(TSOut& SOut){
   SOut.Flush();
 }
 
-void TTable::AddStrVal(const TInt& ColIdx, const TStr& Val){
+void TTable::AddStrVal(const TInt& ColIdx, const TStr& Val) {
   TInt Key = TInt(Context.StringVals.AddKey(Val));
   StrColMaps[ColIdx].Add(Key);
 }
 
-void TTable::AddStrVal(const TStr& Col, const TStr& Val){
-  if(GetColType(Col) != atStr){TExcept::Throw(Col + " is not a string valued column");}
+void TTable::AddStrVal(const TStr& Col, const TStr& Val) {
+  if (GetColType(Col) != atStr) {
+    TExcept::Throw(Col + " is not a string valued column");
+  }
   AddStrVal(GetColIdx(Col), Val);
 }
 
-void TTable::AddGraphAttribute(const TStr& Attr, TBool IsEdge, TBool IsSrc, TBool IsDst){
-  if(!ColTypeMap.IsKey(Attr)){TExcept::Throw(Attr + ": No such column");}
-  if(IsEdge){EdgeAttrV.Add(Attr);}
-  if(IsSrc){SrcNodeAttrV.Add(Attr);}
-  if(IsDst){DstNodeAttrV.Add(Attr);}
+void TTable::AddGraphAttribute(const TStr& Attr, TBool IsEdge, TBool IsSrc, TBool IsDst) {
+  if (!ColTypeMap.IsKey(Attr)) { TExcept::Throw(Attr + ": No such column"); }
+  if (IsEdge) { EdgeAttrV.Add(Attr); }
+  if (IsSrc) { SrcNodeAttrV.Add(Attr); }
+  if (IsDst) { DstNodeAttrV.Add(Attr); }
 }
 
-void TTable::AddGraphAttributeV(TStrV& Attrs, TBool IsEdge, TBool IsSrc, TBool IsDst){
-  for(TInt i = 0; i < Attrs.Len(); i++){
-      if(!ColTypeMap.IsKey(Attrs[i])){TExcept::Throw(Attrs[i] + ": no such column");}
-    }    
-  if(IsEdge){EdgeAttrV.AddV(Attrs);}
-  if(IsSrc){SrcNodeAttrV.AddV(Attrs);}
-  if(IsDst){DstNodeAttrV.AddV(Attrs);}
+void TTable::AddGraphAttributeV(TStrV& Attrs, TBool IsEdge, TBool IsSrc, TBool IsDst) {
+  for (TInt i = 0; i < Attrs.Len(); i++) {
+      if (!ColTypeMap.IsKey(Attrs[i])) {
+        TExcept::Throw(Attrs[i] + ": no such column");
+      }
+  }    
+  if (IsEdge) { EdgeAttrV.AddV(Attrs); }
+  if (IsSrc) { SrcNodeAttrV.AddV(Attrs); }
+  if (IsDst) { DstNodeAttrV.AddV(Attrs); }
 }
 
 TStrV TTable::GetSrcNodeIntAttrV() const {
@@ -550,19 +565,20 @@ TStrV TTable::GetEdgeStrAttrV() const {
   return StrEA;
 }
 
-void TTable::AddLabel(const TStr& column, const TStr& NewLabel){
-  if(!ColTypeMap.IsKey(column)){TExcept::Throw("no such column " + column);}
+void TTable::AddLabel(const TStr& column, const TStr& NewLabel) {
+  if (!ColTypeMap.IsKey(column)) { TExcept::Throw("no such column " + column); }
   TPair<TAttrType,TInt> ColVal = ColTypeMap.GetDat(column);
   ColTypeMap.AddDat(NewLabel,ColVal);
 }
 
-void TTable::Rename(const TStr& column, const TStr& NewLabel){
-  // This function is necessary, for example to take the union of two tables where the attribute names don't match
-  if(!ColTypeMap.IsKey(column)){TExcept::Throw("no such column " + column);}
+void TTable::Rename(const TStr& column, const TStr& NewLabel) {
+  // This function is necessary, for example to take the union of two tables 
+  // where the attribute names don't match
+  if (!ColTypeMap.IsKey(column)) { TExcept::Throw("no such column " + column); }
   TPair<TAttrType,TInt> ColVal = ColTypeMap.GetDat(column);
   ColTypeMap.DelKey(column);
   ColTypeMap.AddDat(NewLabel,ColVal);
-  for(TInt c = 0; c < S.Len(); c++){
+  for (TInt c = 0; c < S.Len(); c++) {
     if (S[c].Val1 == column) {
       S.SetVal(c, TPair<TStr, TAttrType>(NewLabel, S[c].Val2));
       break;
@@ -570,8 +586,8 @@ void TTable::Rename(const TStr& column, const TStr& NewLabel){
   }
 }
 
-void TTable::RemoveFirstRow(){
-  if (FirstValidRow == LastValidRow){
+void TTable::RemoveFirstRow() {
+  if (FirstValidRow == LastValidRow) {
     LastValidRow = -1;
   }
   TInt Old = FirstValidRow;
@@ -581,13 +597,13 @@ void TTable::RemoveFirstRow(){
   RowIdMap.AddDat(Old, Invalid);
 }
 
-void TTable::RemoveRow(TInt RowIdx){
-  if(Next[RowIdx] == TTable::Invalid){ return;} // row was already removed
-  if(RowIdx == FirstValidRow){
+void TTable::RemoveRow(TInt RowIdx) {
+  if (Next[RowIdx] == TTable::Invalid) { return ; } // row was already removed
+  if (RowIdx == FirstValidRow) {
     RemoveFirstRow();
-  } else{
+  } else {
     TInt i = RowIdx-1;
-    while(Next[i] != RowIdx){i--;}
+    while (Next[i] != RowIdx) {i--;}
     if (RowIdx == LastValidRow) {
       LastValidRow = i;
     }
@@ -598,29 +614,29 @@ void TTable::RemoveRow(TInt RowIdx){
   RowIdMap.AddDat(RowIdx, Invalid);
 }
 
-void TTable::RemoveRows(const TIntV& RemoveV){
-  for(TInt i = 0; i < RemoveV.Len(); i++){RemoveRow(RemoveV[i]);}
+void TTable::RemoveRows(const TIntV& RemoveV) {
+  for (TInt i = 0; i < RemoveV.Len(); i++) {RemoveRow(RemoveV[i]);}
 }
 
 // TODO: simplify using TRowIteratorWithRemove
-void TTable::KeepSortedRows(const TIntV& KeepV){
+void TTable::KeepSortedRows(const TIntV& KeepV) {
   // need to remove first rows
-  while(FirstValidRow != KeepV[0]){ RemoveRow(FirstValidRow);}
+  while (FirstValidRow != KeepV[0]) { RemoveRow(FirstValidRow);}
   // at this point we know the first row will stay - i.e. FirstValidRow == KeepV[0]
   TInt KeepIdx = 1;
   TRowIterator RowI = BegRI();
-  while(RowI < EndRI()){
-    if(KeepV.Len() > KeepIdx){
-      if(KeepV[KeepIdx] == Next[RowI.GetRowIdx()]){
+  while (RowI < EndRI()) {
+    if (KeepV.Len() > KeepIdx) {
+      if (KeepV[KeepIdx] == Next[RowI.GetRowIdx()]) {
         KeepIdx++;
         RowI++;
-      } else{
+      } else {
         RemoveRow(Next[RowI.GetRowIdx()]);
       }
     // covered all of KeepV. remove the rest of the rows
     // current RowI.CurrRowIdx is the last element of KeepV
-    } else{
-      while(Next[RowI.GetRowIdx()] != Last){
+    } else {
+      while (Next[RowI.GetRowIdx()] != Last) {
         RemoveRow(Next[RowI.GetRowIdx()]);
       }
       // removed the rest of the rows. increment RowI to EndRI
@@ -631,17 +647,21 @@ void TTable::KeepSortedRows(const TIntV& KeepV){
 
 /*****  Grouping Utility functions ****/
 void TTable::GroupByIntCol(const TStr& GroupBy, THash<TInt,TIntV>& grouping, const TIntV& IndexSet, TBool All) const{
-  if(!ColTypeMap.IsKey(GroupBy)){TExcept::Throw("no such column " + GroupBy);}
-  if(GetColType(GroupBy) != atInt){TExcept::Throw(GroupBy + " values are not of expected type integer");}
-  if(All){
+  if (!ColTypeMap.IsKey(GroupBy)) {
+    TExcept::Throw("no such column " + GroupBy);
+  }
+  if (GetColType(GroupBy) != atInt) {
+    TExcept::Throw(GroupBy + " values are not of expected type integer");
+  }
+  if (All) {
      // optimize for the common and most expensive case - iterate over only valid rows
-    for(TRowIterator it = BegRI(); it < EndRI(); it++){
+    for (TRowIterator it = BegRI(); it < EndRI(); it++) {
       UpdateGrouping<TInt>(grouping, it.GetIntAttr(GroupBy), it.GetRowIdx());
     }
-  } else{
+  } else {
     // consider only rows in IndexSet
-    for(TInt i = 0; i < IndexSet.Len(); i++){
-      if(IsRowValid(IndexSet[i])){
+    for (TInt i = 0; i < IndexSet.Len(); i++) {
+      if (IsRowValid(IndexSet[i])) {
         TInt RowIdx = IndexSet[i];
         const TIntV& Col = IntCols[GetColIdx(GroupBy)];       
         UpdateGrouping<TInt>(grouping, Col[RowIdx], RowIdx);
@@ -651,17 +671,19 @@ void TTable::GroupByIntCol(const TStr& GroupBy, THash<TInt,TIntV>& grouping, con
 }
 
 void TTable::GroupByFltCol(const TStr& GroupBy, THash<TFlt,TIntV>& grouping, const TIntV& IndexSet, TBool All) const{
-  if(!ColTypeMap.IsKey(GroupBy)){TExcept::Throw("no such column " + GroupBy);}
-  if(GetColType(GroupBy) != atFlt){TExcept::Throw(GroupBy + " values are not of expected type float");}
-   if(All){
+  if (!ColTypeMap.IsKey(GroupBy)) { TExcept::Throw("no such column " + GroupBy); }
+  if (GetColType(GroupBy) != atFlt) {
+    TExcept::Throw(GroupBy + " values are not of expected type float");
+  }
+  if (All) {
      // optimize for the common and most expensive case - iterate over only valid rows
-    for(TRowIterator it = BegRI(); it < EndRI(); it++){
+    for (TRowIterator it = BegRI(); it < EndRI(); it++) {
       UpdateGrouping<TFlt>(grouping, it.GetFltAttr(GroupBy), it.GetRowIdx());
     }
-  } else{
+  } else {
     // consider only rows in IndexSet
-    for(TInt i = 0; i < IndexSet.Len(); i++){
-      if(IsRowValid(IndexSet[i])){
+    for (TInt i = 0; i < IndexSet.Len(); i++) {
+      if (IsRowValid(IndexSet[i])) {
         TInt RowIdx = IndexSet[i];
         const TFltV& Col = FltCols[GetColIdx(GroupBy)];       
         UpdateGrouping<TFlt>(grouping, Col[RowIdx], RowIdx);
@@ -671,17 +693,19 @@ void TTable::GroupByFltCol(const TStr& GroupBy, THash<TFlt,TIntV>& grouping, con
 }
 
 void TTable::GroupByStrCol(const TStr& GroupBy, THash<TStr,TIntV>& Grouping, const TIntV& IndexSet, TBool All) const{
-  if(!ColTypeMap.IsKey(GroupBy)){TExcept::Throw("no such column " + GroupBy);}
-  if(GetColType(GroupBy) != atStr){TExcept::Throw(GroupBy + " values are not of expected type string");}
-   if(All){
-     // optimize for the common and most expensive case - iterate over all valid rows
-    for(TRowIterator it = BegRI(); it < EndRI(); it++){
+  if (!ColTypeMap.IsKey(GroupBy)) { TExcept::Throw("no such column " + GroupBy); }
+  if (GetColType(GroupBy) != atStr) {
+    TExcept::Throw(GroupBy + " values are not of expected type string");
+  }
+  if (All) {
+    // optimize for the common and most expensive case - iterate over all valid rows
+    for (TRowIterator it = BegRI(); it < EndRI(); it++) {
       UpdateGrouping<TStr>(Grouping, it.GetStrAttr(GroupBy), it.GetRowIdx());
     }
-  } else{
+  } else {
     // consider only rows in IndexSet
-    for(TInt i = 0; i < IndexSet.Len(); i++){
-      if(IsRowValid(IndexSet[i])){
+    for (TInt i = 0; i < IndexSet.Len(); i++) {
+      if (IsRowValid(IndexSet[i])) {
         TInt RowIdx = IndexSet[i];     
         UpdateGrouping<TStr>(Grouping, GetStrVal(GroupBy, RowIdx), RowIdx);
       }
@@ -689,13 +713,13 @@ void TTable::GroupByStrCol(const TStr& GroupBy, THash<TStr,TIntV>& Grouping, con
   }
 }
 
-void TTable::Unique(const TStr& Col){
+void TTable::Unique(const TStr& Col) {
     TIntV RemainingRows;
-    switch(GetColType(Col)){
+    switch (GetColType(Col)) {
       case atInt:{
         THash<TInt,TIntV> Grouping;
         GroupByIntCol(Col, Grouping, TIntV(), true);
-        for(THash<TInt,TIntV>::TIter it = Grouping.BegI(); it < Grouping.EndI(); it++){
+        for (THash<TInt,TIntV>::TIter it = Grouping.BegI(); it < Grouping.EndI(); it++) {
           RemainingRows.Add(it->Dat[0]);
         }
         break;
@@ -703,7 +727,7 @@ void TTable::Unique(const TStr& Col){
       case atFlt:{
         THash<TFlt,TIntV> Grouping;
         GroupByFltCol(Col, Grouping, TIntV(), true);
-        for(THash<TFlt,TIntV>::TIter it = Grouping.BegI(); it < Grouping.EndI(); it++){
+        for (THash<TFlt,TIntV>::TIter it = Grouping.BegI(); it < Grouping.EndI(); it++) {
           RemainingRows.Add(it->Dat[0]);
         }
         break;
@@ -711,7 +735,7 @@ void TTable::Unique(const TStr& Col){
       case atStr:{
         THash<TStr,TIntV> Grouping;
         GroupByStrCol(Col, Grouping, TIntV(), true);
-        for(THash<TStr,TIntV>::TIter it = Grouping.BegI(); it < Grouping.EndI(); it++){
+        for (THash<TStr,TIntV>::TIter it = Grouping.BegI(); it < Grouping.EndI(); it++) {
           RemainingRows.Add(it->Dat[0]);
         }
         break;
@@ -720,7 +744,7 @@ void TTable::Unique(const TStr& Col){
    KeepSortedRows(RemainingRows);
 }
 
-void TTable::Unique(const TStrV& Cols, TBool Ordered){
+void TTable::Unique(const TStrV& Cols, TBool Ordered) {
   THash<TGroupKey, TPair<TInt, TIntV> > Grouping;
   TIntV UniqueVec;
   GroupAux(Cols, Grouping, Ordered, "", true, UniqueVec);
@@ -733,7 +757,7 @@ void TTable::StoreGroupCol(const TStr& GroupColName, const TVec<TPair<TInt, TInt
   TInt L = IntCols.Len();
   ColTypeMap.AddDat(GroupColName, TPair<TAttrType,TInt>(atInt, L-1));
   // Store group id for each row
-  for(TInt i = 0; i < GroupAndRowIds.Len(); i++) {
+  for (TInt i = 0; i < GroupAndRowIds.Len(); i++) {
     IntCols[L-1][GroupAndRowIds[i].Val2] = GroupAndRowIds[i].Val1;
   }
 }
@@ -745,11 +769,11 @@ void TTable::GroupAux(const TStrV& GroupBy, THash<TGroupKey, TPair<TInt, TIntV> 
   TIntV FltGroupByCols;
   TIntV StrGroupByCols;
   // get indices for each column type
-  for(TInt c = 0; c < GroupBy.Len(); c++){
-    if(!ColTypeMap.IsKey(GroupBy[c])){TExcept::Throw("no such column " + GroupBy[c]);}
+  for (TInt c = 0; c < GroupBy.Len(); c++) {
+    if (!ColTypeMap.IsKey(GroupBy[c])) { TExcept::Throw("no such column " + GroupBy[c]); }
 
     TPair<TAttrType, TInt> ColType = ColTypeMap.GetDat(GroupBy[c]);
-    switch(ColType.Val1){
+    switch (ColType.Val1) {
       case atInt:
         IntGroupByCols.Add(ColType.Val2);
         break;
@@ -772,27 +796,27 @@ void TTable::GroupAux(const TStrV& GroupBy, THash<TGroupKey, TPair<TInt, TIntV> 
   TVec<TPair<TInt, TInt> > GroupAndRowIds;
 
   // iterate over rows
-  for(TRowIterator it = BegRI(); it < EndRI(); it++){
+  for (TRowIterator it = BegRI(); it < EndRI(); it++) {
     TIntV IKey(IKLen + SKLen, 0);
     TFltV FKey(FKLen, 0);
     TIntV SKey(SKLen, 0);
 
     // find group key
-    for(TInt c = 0; c < IKLen; c++){
+    for (TInt c = 0; c < IKLen; c++) {
       IKey.Add(it.GetIntAttr(IntGroupByCols[c])); 
     }
-    for(TInt c = 0; c < FKLen; c++){
+    for (TInt c = 0; c < FKLen; c++) {
       FKey.Add(it.GetFltAttr(FltGroupByCols[c])); 
     }
-    for(TInt c = 0; c < SKLen; c++){
+    for (TInt c = 0; c < SKLen; c++) {
       SKey.Add(it.GetStrMap(StrGroupByCols[c])); 
     }
-    if(!Ordered){
-      if(IKLen > 0){IKey.ISort(0, IKey.Len()-1, true);}
-      if(FKLen > 0){FKey.ISort(0, FKey.Len()-1, true);}
-      if(SKLen > 0){SKey.ISort(0, SKey.Len()-1, true);}
+    if (!Ordered) {
+      if (IKLen > 0) { IKey.ISort(0, IKey.Len()-1, true); }
+      if (FKLen > 0) { FKey.ISort(0, FKey.Len()-1, true); }
+      if (SKLen > 0) { SKey.ISort(0, SKey.Len()-1, true); }
     }
-    for(TInt c = 0; c < SKLen; c++){
+    for (TInt c = 0; c < SKLen; c++) {
       IKey.Add(SKey[c]);
     }
 
@@ -936,7 +960,7 @@ void TTable::Aggregate(const TStrV& GroupByAttrs, TAttrAggr AggOp,
       else {
         TFltV V;
         TInt sz = ValidRows.Len();
-        if (sz <= 0) continue;
+        if (sz <= 0) { continue; }
 
         TInt AggrColIdx = ColTypeMap.GetDat(ValAttr).Val2;
         for (TInt i = 0; i < sz; i++) {
@@ -968,7 +992,7 @@ void TTable::AggregateCols(const TStrV& AggrAttrs, TAttrAggr AggOp, const TStr& 
     AddIntCol(ResAttr);
     TInt ResIdx = ColTypeMap.GetDat(ResAttr).Val2;
 
-    for(TRowIterator RI = BegRI(); RI < EndRI(); RI++){
+    for (TRowIterator RI = BegRI(); RI < EndRI(); RI++) {
       TInt RowIdx = RI.GetRowIdx();
       TIntV V;
       for (TInt i = 0; i < AggrAttrs.Len(); i++) {
@@ -981,7 +1005,7 @@ void TTable::AggregateCols(const TStrV& AggrAttrs, TAttrAggr AggOp, const TStr& 
     AddFltCol(ResAttr);
     TInt ResIdx = ColTypeMap.GetDat(ResAttr).Val2;
 
-    for(TRowIterator RI = BegRI(); RI < EndRI(); RI++){
+    for (TRowIterator RI = BegRI(); RI < EndRI(); RI++) {
       TInt RowIdx = RI.GetRowIdx();
       TFltV V;
       for (TInt i = 0; i < AggrAttrs.Len(); i++) {
@@ -995,7 +1019,7 @@ void TTable::AggregateCols(const TStrV& AggrAttrs, TAttrAggr AggOp, const TStr& 
   }
 }
 
-void TTable::Count(const TStr& CountColName, const TStr& Col){
+void TTable::Count(const TStr& CountColName, const TStr& Col) {
   TStrV GroupByAttrs;
   GroupByAttrs.Add(CountColName);
   Aggregate(GroupByAttrs, aaCount, "", Col);
@@ -1007,7 +1031,7 @@ TVec<PTable> TTable::SpliceByGroup(const TStrV& GroupBy, TBool Ordered) {
   TVec<PTable> Result;
 
   Schema NewSchema;
-  for(TInt c = 0; c < S.Len(); c++){
+  for (TInt c = 0; c < S.Len(); c++) {
     if (S[c].Val1 != GetIdColName()) {
       NewSchema.Add(S[c]);
     }
@@ -1023,7 +1047,7 @@ TVec<PTable> TTable::SpliceByGroup(const TStrV& GroupBy, TBool Ordered) {
 
     TVec<TPair<TAttrType, TInt> > ColInfo;
     TIntV V;
-    for(TInt i = 0; i < S.Len(); i++){
+    for (TInt i = 0; i < S.Len(); i++) {
       ColInfo.Add(GroupTable->ColTypeMap.GetDat(S[i].Val1));
       if (S[i].Val1 == IdColName()) {
         ColInfo[i].Val2 = -1;
@@ -1039,14 +1063,14 @@ TVec<PTable> TTable::SpliceByGroup(const TStrV& GroupBy, TBool Ordered) {
       TInt RowIdx = RowIdMap.GetDat(Rows[i]);
 
       // iterate over schema
-      for(TInt c = 0; c < S.Len(); c++){
+      for (TInt c = 0; c < S.Len(); c++) {
         TPair<TAttrType, TInt> Info = ColInfo[c];
         TInt ColIdx = Info.Val2;
 
-        if (ColIdx == -1) continue;
+        if (ColIdx == -1) { continue; }
 
         // add row to new group
-        switch(Info.Val1){
+        switch (Info.Val1) {
           case atInt:
             GroupTable->IntCols[ColIdx].Add(IntCols[V[c]][RowIdx]);
             break;
@@ -1090,17 +1114,17 @@ void TTable::Reindex() {
   RowIdMap.Clr();
   TInt IdColIdx = ColTypeMap.GetDat(IdColName).Val2;
   TInt IdCnt = 0;
-  for(TRowIterator RI = BegRI(); RI < EndRI(); RI++){
+  for (TRowIterator RI = BegRI(); RI < EndRI(); RI++) {
     IntCols[IdColIdx][RI.GetRowIdx()] = IdCnt;
     RowIdMap.AddDat(RI.GetRowIdx(), IdCnt);
     IdCnt++;
   }
 }
 
-void TTable::AddIdColumn(const TStr& ColName){
+void TTable::AddIdColumn(const TStr& ColName) {
   TIntV IdCol(NumRows);
   TInt IdCnt = 0;
-  for(TRowIterator RI = BegRI(); RI < EndRI(); RI++){
+  for (TRowIterator RI = BegRI(); RI < EndRI(); RI++) {
     IdCol[RI.GetRowIdx()] = IdCnt;
     IdCnt++;
   }
@@ -1109,7 +1133,7 @@ void TTable::AddIdColumn(const TStr& ColName){
   ColTypeMap.AddDat(ColName, TPair<TAttrType,TInt>(atInt, IntCols.Len()-1));
 }
 
- PTable TTable::InitializeJointTable(const TTable& Table){
+ PTable TTable::InitializeJointTable(const TTable& Table) {
   PTable JointTable = New(Context);
   JointTable->Name = Name + "_" + Table.Name;
   JointTable->IntCols = TVec<TIntV>(IntCols.Len() + Table.IntCols.Len());
@@ -1117,11 +1141,11 @@ void TTable::AddIdColumn(const TStr& ColName){
   JointTable->StrColMaps = TVec<TIntV>(StrColMaps.Len() + Table.StrColMaps.Len());
   TStr Name1 = Name;
   TStr Name2 = Table.Name;
-  if(Name1 == Name2){
+  if (Name1 == Name2) {
     Name1 = Name + "_1";
     Name2 = Name + "_2";
   }
-  for(TInt i = 0; i < S.Len(); i++){
+  for (TInt i = 0; i < S.Len(); i++) {
     TStr ColName = GetSchemaColName(i);
     TAttrType ColType = GetSchemaColType(i);
     TStr CName = Name1 + "." + ColName;
@@ -1129,14 +1153,14 @@ void TTable::AddIdColumn(const TStr& ColName){
     JointTable->AddLabel(CName, ColName);
     JointTable->AddSchemaCol(CName, ColType);
   }
-  for(TInt i = 0; i < Table.S.Len(); i++){
+  for (TInt i = 0; i < Table.S.Len(); i++) {
     TStr ColName = Table.GetSchemaColName(i);
     TAttrType ColType = Table.GetSchemaColType(i);
     TStr CName = Name2 + "." + ColName;
     TPair<TAttrType, TInt> NewDat = Table.ColTypeMap.GetDat(ColName);
     Assert(ColType == NewDat.Val1);
     // add offsets
-    switch(NewDat.Val1){
+    switch (NewDat.Val1) {
       case atInt:
         NewDat.Val2 += IntCols.Len();
         break;
@@ -1154,31 +1178,31 @@ void TTable::AddIdColumn(const TStr& ColName){
   return JointTable;
 }
 
-void TTable::AddJointRow(const TTable& T1, const TTable& T2, TInt RowIdx1, TInt RowIdx2){
-  for(TInt i = 0; i < T1.IntCols.Len(); i++){
+void TTable::AddJointRow(const TTable& T1, const TTable& T2, TInt RowIdx1, TInt RowIdx2) {
+  for (TInt i = 0; i < T1.IntCols.Len(); i++) {
     IntCols[i].Add(T1.IntCols[i][RowIdx1]);
   }
-  for(TInt i = 0; i < T1.FltCols.Len(); i++){
+  for (TInt i = 0; i < T1.FltCols.Len(); i++) {
     FltCols[i].Add(T1.FltCols[i][RowIdx1]);
   }
-  for(TInt i = 0; i < T1.StrColMaps.Len(); i++){
+  for (TInt i = 0; i < T1.StrColMaps.Len(); i++) {
     StrColMaps[i].Add(T1.StrColMaps[i][RowIdx1]);
   }
   TInt IntOffset = T1.IntCols.Len();
   TInt FltOffset = T1.FltCols.Len();
   TInt StrOffset = T1.StrColMaps.Len();
-  for(TInt i = 0; i < T2.IntCols.Len(); i++){
+  for (TInt i = 0; i < T2.IntCols.Len(); i++) {
     IntCols[i+IntOffset].Add(T2.IntCols[i][RowIdx2]);
   }
-  for(TInt i = 0; i < T2.FltCols.Len(); i++){
+  for (TInt i = 0; i < T2.FltCols.Len(); i++) {
     FltCols[i+FltOffset].Add(T2.FltCols[i][RowIdx2]);
   }
-  for(TInt i = 0; i < T2.StrColMaps.Len(); i++){
+  for (TInt i = 0; i < T2.StrColMaps.Len(); i++) {
     StrColMaps[i+StrOffset].Add(T2.StrColMaps[i][RowIdx2]);
   }
   NumRows++;
   NumValidRows++;
-  if(!Next.Empty()){
+  if (!Next.Empty()) {
     Next[Next.Len()-1] = NumValidRows-1;
     LastValidRow = NumValidRows-1;
   }
@@ -1191,10 +1215,10 @@ void TTable::AddJointRow(const TTable& T1, const TTable& T2, TInt RowIdx1, TInt 
  // and adding all rows in the end. Sorting can be expensive, but we would be able to pre-allocate 
  // memory for the joint table..
 PTable TTable::Join(const TStr& Col1, const TTable& Table, const TStr& Col2) {
-  if(!ColTypeMap.IsKey(Col1)){
+  if (!ColTypeMap.IsKey(Col1)) {
     TExcept::Throw("no such column " + Col1);
   }
-  if(!Table.ColTypeMap.IsKey(Col2)){
+  if (!Table.ColTypeMap.IsKey(Col2)) {
     TExcept::Throw("no such column " + Col2);
   }
   if (GetColType(Col1) != Table.GetColType(Col2)) {
@@ -1211,18 +1235,18 @@ PTable TTable::Join(const TStr& Col1, const TTable& Table, const TStr& Col2) {
   TStr ColB = ThisIsSmaller ? Col2 : Col1;
   // iterate over the rows of the bigger table and check for "collisions" 
   // with the group keys for the small table.
-  switch(ColType){
+  switch (ColType) {
     case atInt:{
       THash<TInt, TIntV> T;
       TS.GroupByIntCol(ColS, T, TIntV(), true);
-      for(TRowIterator RowI = TB.BegRI(); RowI < TB.EndRI(); RowI++){
+      for (TRowIterator RowI = TB.BegRI(); RowI < TB.EndRI(); RowI++) {
         TInt K = RowI.GetIntAttr(ColB);
-        if(T.IsKey(K)){
+        if (T.IsKey(K)) {
           TIntV& Group = T.GetDat(K);
-          for(TInt i = 0; i < Group.Len(); i++){
-            if(ThisIsSmaller){
+          for (TInt i = 0; i < Group.Len(); i++) {
+            if (ThisIsSmaller) {
               JointTable->AddJointRow(*this, Table, Group[i], RowI.GetRowIdx());
-            } else{
+            } else {
               JointTable->AddJointRow(*this, Table, RowI.GetRowIdx(), Group[i]);
             }
           }
@@ -1233,14 +1257,14 @@ PTable TTable::Join(const TStr& Col1, const TTable& Table, const TStr& Col2) {
     case atFlt:{
       THash<TFlt, TIntV> T;
       TS.GroupByFltCol(ColS, T, TIntV(), true);
-      for(TRowIterator RowI = TB.BegRI(); RowI < TB.EndRI(); RowI++){
+      for (TRowIterator RowI = TB.BegRI(); RowI < TB.EndRI(); RowI++) {
         TFlt K = RowI.GetFltAttr(ColB);
-        if(T.IsKey(K)){
+        if (T.IsKey(K)) {
           TIntV& Group = T.GetDat(K);
-          for(TInt i = 0; i < Group.Len(); i++){
-            if(ThisIsSmaller){
+          for (TInt i = 0; i < Group.Len(); i++) {
+            if (ThisIsSmaller) {
               JointTable->AddJointRow(*this, Table, Group[i], RowI.GetRowIdx());
-            } else{
+            } else {
               JointTable->AddJointRow(*this, Table, RowI.GetRowIdx(), Group[i]);
             }
           }
@@ -1251,14 +1275,14 @@ PTable TTable::Join(const TStr& Col1, const TTable& Table, const TStr& Col2) {
     case atStr:{
       THash<TStr, TIntV> T;
       TS.GroupByStrCol(ColS, T, TIntV(), true);
-      for(TRowIterator RowI = TB.BegRI(); RowI < TB.EndRI(); RowI++){
+      for (TRowIterator RowI = TB.BegRI(); RowI < TB.EndRI(); RowI++) {
         TStr K = RowI.GetStrAttr(ColB);
-        if(T.IsKey(K)){
+        if (T.IsKey(K)) {
           TIntV& Group = T.GetDat(K);
-          for(TInt i = 0; i < Group.Len(); i++){
-            if(ThisIsSmaller){
+          for (TInt i = 0; i < Group.Len(); i++) {
+            if (ThisIsSmaller) {
               JointTable->AddJointRow(*this, Table, Group[i], RowI.GetRowIdx());
-            } else{
+            } else {
               JointTable->AddJointRow(*this, Table, RowI.GetRowIdx(), Group[i]);
             }
           }
@@ -1273,10 +1297,10 @@ PTable TTable::Join(const TStr& Col1, const TTable& Table, const TStr& Col2) {
 
 /*
 void TTable::Dist(TStr Col1, const TTable& Table, TStr Col2, TStr DistColName, const TMetric& Metric, TFlt threshold) {
-  if(!ColTypeMap.IsKey(Col1)){
+  if (!ColTypeMap.IsKey(Col1)) {
     TExcept::Throw("no such column " + Col1);
   }
-  if(!ColTypeMap.IsKey(Col2)){
+  if (!ColTypeMap.IsKey(Col2)) {
     TExcept::Throw("no such column " + Col2);
   }
   //TAttrType T1 = GetColType(Col1);
@@ -1288,24 +1312,24 @@ void TTable::Dist(TStr Col1, const TTable& Table, TStr Col2, TStr DistColName, c
 }
 */
 
-void TTable::Select(TPredicate& Predicate, TIntV& SelectedRows, TBool Remove){
+void TTable::Select(TPredicate& Predicate, TIntV& SelectedRows, TBool Remove) {
   TIntV Selected;
   TStrV RelevantCols;
   Predicate.GetVariables(RelevantCols);
   TInt NumRelevantCols = RelevantCols.Len();
   TVec<TAttrType> ColTypes = TVec<TAttrType>(NumRelevantCols);
   TIntV ColIndices = TIntV(NumRelevantCols);
-  for(TInt i = 0; i < NumRelevantCols; i++){
+  for (TInt i = 0; i < NumRelevantCols; i++) {
     ColTypes[i] = GetColType(RelevantCols[i]);
     ColIndices[i] = GetColIdx(RelevantCols[i]);
   } 
   
-  if(Remove){
+  if (Remove) {
     TRowIteratorWithRemove RowI = BegRIWR();
-    while(RowI.GetNextRowIdx() != Last){
+    while (RowI.GetNextRowIdx() != Last) {
       // prepare arguments for predicate evaluation
-      for(TInt i = 0; i < NumRelevantCols; i++){
-        switch(ColTypes[i]){
+      for (TInt i = 0; i < NumRelevantCols; i++) {
+        switch (ColTypes[i]) {
         case atInt:
           Predicate.SetIntVal(RelevantCols[i], RowI.GetNextIntAttr(ColIndices[i]));
           break;
@@ -1317,16 +1341,16 @@ void TTable::Select(TPredicate& Predicate, TIntV& SelectedRows, TBool Remove){
           break;
         }
       }
-      if(!Predicate.Eval()){ 
+      if (!Predicate.Eval()) { 
         RowI.RemoveNext();
-      } else{
+      } else {
         RowI++;
       }
     }
-  } else{
-    for(TRowIterator RowI = BegRI(); RowI < EndRI(); RowI++){
-      for(TInt i = 0; i < NumRelevantCols; i++){
-        switch(ColTypes[i]){
+  } else {
+    for (TRowIterator RowI = BegRI(); RowI < EndRI(); RowI++) {
+      for (TInt i = 0; i < NumRelevantCols; i++) {
+        switch (ColTypes[i]) {
         case atInt:
           Predicate.SetIntVal(RelevantCols[i], RowI.GetIntAttr(RelevantCols[i]));
           break;
@@ -1338,12 +1362,12 @@ void TTable::Select(TPredicate& Predicate, TIntV& SelectedRows, TBool Remove){
           break;
         }
       }
-      if(Predicate.Eval()){ SelectedRows.Add(RowI.GetRowIdx());}
+      if (Predicate.Eval()) { SelectedRows.Add(RowI.GetRowIdx()); }
     }
   }
 }
 
-void TTable::Classify(TPredicate& Predicate, const TStr& LabelName, const TInt& PositiveLabel, const TInt& NegativeLabel){
+void TTable::Classify(TPredicate& Predicate, const TStr& LabelName, const TInt& PositiveLabel, const TInt& NegativeLabel) {
   TIntV SelectedRows;
   Select(Predicate, SelectedRows, false);
   ClassifyAux(SelectedRows, LabelName, PositiveLabel, NegativeLabel);
@@ -1351,21 +1375,21 @@ void TTable::Classify(TPredicate& Predicate, const TStr& LabelName, const TInt& 
 
 
 // Further optimization: both comparison operation and type of columns don't change between rows..
-void TTable::SelectAtomic(const TStr& Col1, const TStr& Col2, TPredComp Cmp, TIntV& SelectedRows, TBool Remove){
+void TTable::SelectAtomic(const TStr& Col1, const TStr& Col2, TPredComp Cmp, TIntV& SelectedRows, TBool Remove) {
   const TAttrType Ty1 = GetColType(Col1);
   const TAttrType Ty2 = GetColType(Col2);
   const TInt ColIdx1 = GetColIdx(Col1);
   const TInt ColIdx2 = GetColIdx(Col2);
-  if(Ty1 != Ty2){
+  if (Ty1 != Ty2) {
     TExcept::Throw("SelectAtomic: diff types");
   }
-  if(Cmp == SUBSTR || Cmp == SUPERSTR){Assert(Ty1 == atStr);}
+  if (Cmp == SUBSTR || Cmp == SUPERSTR) { Assert(Ty1 == atStr); }
 
-  if(Remove){
+  if (Remove) {
     TRowIteratorWithRemove RowI = BegRIWR();
-    while(RowI.GetNextRowIdx() != Last){
+    while (RowI.GetNextRowIdx() != Last) {
       TBool Result;
-      switch(Ty1){
+      switch (Ty1) {
         case atInt:
           Result = TPredicate::EvalAtom(RowI.GetNextIntAttr(ColIdx1), RowI.GetNextIntAttr(ColIdx2), Cmp);
           break;
@@ -1376,16 +1400,16 @@ void TTable::SelectAtomic(const TStr& Col1, const TStr& Col2, TPredComp Cmp, TIn
           Result = TPredicate::EvalStrAtom(RowI.GetNextStrAttr(ColIdx1), RowI.GetNextStrAttr(ColIdx2), Cmp);
           break;
       }
-      if(!Result){ 
+      if (!Result) { 
         RowI.RemoveNext();
-      } else{
+      } else {
         RowI++;
       }
     }
-  } else{
-    for(TRowIterator RowI = BegRI(); RowI < EndRI(); RowI++){
+  } else {
+    for (TRowIterator RowI = BegRI(); RowI < EndRI(); RowI++) {
       TBool Result;
-      switch(Ty1){
+      switch (Ty1) {
         case atInt:
           Result = TPredicate::EvalAtom(RowI.GetIntAttr(Col1), RowI.GetIntAttr(Col2), Cmp);
           break;
@@ -1396,126 +1420,126 @@ void TTable::SelectAtomic(const TStr& Col1, const TStr& Col2, TPredComp Cmp, TIn
           Result = TPredicate::EvalStrAtom(RowI.GetStrAttr(Col1), RowI.GetStrAttr(Col2), Cmp);
           break;
       }
-      if(Result){ SelectedRows.Add(RowI.GetRowIdx());}
+      if (Result) { SelectedRows.Add(RowI.GetRowIdx()); }
     }
   }
 }
 
-void TTable::ClassifyAtomic(const TStr& Col1, const TStr& Col2, TPredComp Cmp, const TStr& LabelName, const TInt& PositiveLabel, const TInt& NegativeLabel){
+void TTable::ClassifyAtomic(const TStr& Col1, const TStr& Col2, TPredComp Cmp, const TStr& LabelName, const TInt& PositiveLabel, const TInt& NegativeLabel) {
   TIntV SelectedRows;
   SelectAtomic(Col1, Col2, Cmp, SelectedRows, false);
   ClassifyAux(SelectedRows, LabelName, PositiveLabel, NegativeLabel);
 }
 
-void TTable::SelectAtomicIntConst(const TStr& Col1, const TInt& Val2, TPredComp Cmp, TIntV& SelectedRows, TBool Remove){
+void TTable::SelectAtomicIntConst(const TStr& Col1, const TInt& Val2, TPredComp Cmp, TIntV& SelectedRows, TBool Remove) {
   Assert(Cmp < SUBSTR);
   TAttrType Ty1;
   TInt ColIdx1;
 
   Ty1 = GetColType(Col1);
   ColIdx1 = GetColIdx(Col1);
-  if(Ty1 != atInt){TExcept::Throw("SelectAtomic: not type TInt");}
+  if (Ty1 != atInt) { TExcept::Throw("SelectAtomic: not type TInt"); }
 
-  if(Remove){
+  if (Remove) {
     TRowIteratorWithRemove RowI = BegRIWR();
-    while(RowI.GetNextRowIdx() != Last){
-      if(!TPredicate::EvalAtom(RowI.GetNextIntAttr(ColIdx1), Val2, Cmp)){
+    while (RowI.GetNextRowIdx() != Last) {
+      if (!TPredicate::EvalAtom(RowI.GetNextIntAttr(ColIdx1), Val2, Cmp)) {
         RowI.RemoveNext();
-      } else{
+      } else {
         RowI++;
       }
     }
-  } else{
-    for(TRowIterator RowI = BegRI(); RowI < EndRI(); RowI++){
-      if(TPredicate::EvalAtom(RowI.GetIntAttr(Col1), Val2, Cmp)){ 
+  } else {
+    for (TRowIterator RowI = BegRI(); RowI < EndRI(); RowI++) {
+      if (TPredicate::EvalAtom(RowI.GetIntAttr(Col1), Val2, Cmp)) { 
         SelectedRows.Add(RowI.GetRowIdx());
       }
     }
   }
 }
 
-void TTable::ClassifyAtomicIntConst(const TStr& Col1, const TInt& Val2, TPredComp Cmp, const TStr& LabelName, const TInt& PositiveLabel, const TInt& NegativeLabel){
+void TTable::ClassifyAtomicIntConst(const TStr& Col1, const TInt& Val2, TPredComp Cmp, const TStr& LabelName, const TInt& PositiveLabel, const TInt& NegativeLabel) {
   TIntV SelectedRows;
   SelectAtomicIntConst(Col1, Val2, Cmp, SelectedRows, false);
   ClassifyAux(SelectedRows, LabelName, PositiveLabel, NegativeLabel);
 }
 
-void TTable::SelectAtomicStrConst(const TStr& Col1, const TStr& Val2, TPredComp Cmp, TIntV& SelectedRows, TBool Remove){
+void TTable::SelectAtomicStrConst(const TStr& Col1, const TStr& Val2, TPredComp Cmp, TIntV& SelectedRows, TBool Remove) {
   TAttrType Ty1;
   TInt ColIdx1;
 
   Ty1 = GetColType(Col1);
   ColIdx1 = GetColIdx(Col1);
-  if(Ty1 != atStr){TExcept::Throw("SelectAtomic: not type TStr");}
+  if (Ty1 != atStr) { TExcept::Throw("SelectAtomic: not type TStr"); }
 
-  if(Remove){
+  if (Remove) {
     TRowIteratorWithRemove RowI = BegRIWR();
-    while(RowI.GetNextRowIdx() != Last){
-      if(!TPredicate::EvalStrAtom(RowI.GetNextStrAttr(ColIdx1), Val2, Cmp)){
+    while (RowI.GetNextRowIdx() != Last) {
+      if (!TPredicate::EvalStrAtom(RowI.GetNextStrAttr(ColIdx1), Val2, Cmp)) {
         RowI.RemoveNext();
-      } else{
+      } else {
         RowI++;
       }
     }
-  } else{
-    for(TRowIterator RowI = BegRI(); RowI < EndRI(); RowI++){
-      if(TPredicate::EvalStrAtom(RowI.GetStrAttr(Col1), Val2, Cmp)){ 
+  } else {
+    for (TRowIterator RowI = BegRI(); RowI < EndRI(); RowI++) {
+      if (TPredicate::EvalStrAtom(RowI.GetStrAttr(Col1), Val2, Cmp)) { 
         SelectedRows.Add(RowI.GetRowIdx());
       }
     }
   }
 }
 
-void TTable::ClassifyAtomicStrConst(const TStr& Col1, const TStr& Val2, TPredComp Cmp, const TStr& LabelName, const TInt& PositiveLabel, const TInt& NegativeLabel){
+void TTable::ClassifyAtomicStrConst(const TStr& Col1, const TStr& Val2, TPredComp Cmp, const TStr& LabelName, const TInt& PositiveLabel, const TInt& NegativeLabel) {
   TIntV SelectedRows;
   SelectAtomicStrConst(Col1, Val2, Cmp, SelectedRows, false);
   ClassifyAux(SelectedRows, LabelName, PositiveLabel, NegativeLabel);
 }
 
-void TTable::SelectAtomicFltConst(const TStr& Col1, const TFlt& Val2, TPredComp Cmp, TIntV& SelectedRows, TBool Remove){
+void TTable::SelectAtomicFltConst(const TStr& Col1, const TFlt& Val2, TPredComp Cmp, TIntV& SelectedRows, TBool Remove) {
   Assert(Cmp < SUBSTR);
   TAttrType Ty1;
   TInt ColIdx1;
 
   Ty1 = GetColType(Col1);
   ColIdx1 = GetColIdx(Col1);
-  if(Ty1 != atFlt){TExcept::Throw("SelectAtomic: not type TFlt");}
+  if (Ty1 != atFlt) { TExcept::Throw("SelectAtomic: not type TFlt"); }
 
-  if(Remove){
+  if (Remove) {
     TRowIteratorWithRemove RowI = BegRIWR();
-    while(RowI.GetNextRowIdx() != Last){
-      if(!TPredicate::EvalAtom(RowI.GetNextFltAttr(ColIdx1), Val2, Cmp)){
+    while (RowI.GetNextRowIdx() != Last) {
+      if (!TPredicate::EvalAtom(RowI.GetNextFltAttr(ColIdx1), Val2, Cmp)) {
         RowI.RemoveNext();
-      } else{
+      } else {
         RowI++;
       }
     }
-  } else{
-    for(TRowIterator RowI = BegRI(); RowI < EndRI(); RowI++){
-      if(TPredicate::EvalAtom(RowI.GetFltAttr(Col1), Val2, Cmp)){ 
+  } else {
+    for (TRowIterator RowI = BegRI(); RowI < EndRI(); RowI++) {
+      if (TPredicate::EvalAtom(RowI.GetFltAttr(Col1), Val2, Cmp)) { 
         SelectedRows.Add(RowI.GetRowIdx());
       }
     }
   }
 }
 
-void TTable::ClassifyAtomicFltConst(const TStr& Col1, const TFlt& Val2, TPredComp Cmp, const TStr& LabelName, const TInt& PositiveLabel, const TInt& NegativeLabel){
+void TTable::ClassifyAtomicFltConst(const TStr& Col1, const TFlt& Val2, TPredComp Cmp, const TStr& LabelName, const TInt& PositiveLabel, const TInt& NegativeLabel) {
   TIntV SelectedRows;
   SelectAtomicFltConst(Col1, Val2, Cmp, SelectedRows, false);
   ClassifyAux(SelectedRows, LabelName, PositiveLabel, NegativeLabel);
 }
 
-inline TInt TTable::CompareRows(TInt R1, TInt R2, const TAttrType& CompareByType, const TInt& CompareByIndex, TBool Asc){
+inline TInt TTable::CompareRows(TInt R1, TInt R2, const TAttrType& CompareByType, const TInt& CompareByIndex, TBool Asc) {
   //printf("comparing rows %d %d by %s\n", R1.Val, R2.Val, CompareBy.CStr());
-  switch(CompareByType){
+  switch (CompareByType) {
     case atInt:{
-      if(IntCols[CompareByIndex][R1] > IntCols[CompareByIndex][R2]) return (Asc ? 1 : -1);
-      if(IntCols[CompareByIndex][R1] < IntCols[CompareByIndex][R2]) return (Asc ? -1 : 1);
+      if (IntCols[CompareByIndex][R1] > IntCols[CompareByIndex][R2]) { return (Asc ? 1 : -1); }
+      if (IntCols[CompareByIndex][R1] < IntCols[CompareByIndex][R2]) { return (Asc ? -1 : 1); }
       return 0;
     }
     case atFlt:{
-      if(FltCols[CompareByIndex][R1] > FltCols[CompareByIndex][R2]) return (Asc ? 1 : -1);
-      if(FltCols[CompareByIndex][R1] < FltCols[CompareByIndex][R2]) return (Asc ? -1 : 1);
+      if (FltCols[CompareByIndex][R1] > FltCols[CompareByIndex][R2]) { return (Asc ? 1 : -1); }
+      if (FltCols[CompareByIndex][R1] < FltCols[CompareByIndex][R2]) { return (Asc ? -1 : 1); }
       return 0;
     }
     case atStr:{
@@ -1529,20 +1553,20 @@ inline TInt TTable::CompareRows(TInt R1, TInt R2, const TAttrType& CompareByType
   return 0;
 }
 
-inline TInt TTable::CompareRows(TInt R1, TInt R2, const TVec<TAttrType>& CompareByTypes, const TIntV& CompareByIndices, TBool Asc){
-  for(TInt i = 0; i < CompareByTypes.Len(); i++){
+inline TInt TTable::CompareRows(TInt R1, TInt R2, const TVec<TAttrType>& CompareByTypes, const TIntV& CompareByIndices, TBool Asc) {
+  for (TInt i = 0; i < CompareByTypes.Len(); i++) {
     TInt res = CompareRows(R1, R2, CompareByTypes[i], CompareByIndices[i], Asc);
-    if(res != 0){ return res;}
+    if (res != 0) { return res; }
   }
   return 0;
 }
 
-void TTable::ISort(TIntV& V, TInt StartIdx, TInt EndIdx, const TVec<TAttrType>& SortByTypes, const TIntV& SortByIndices, TBool Asc){
-  if(StartIdx < EndIdx){
-    for(TInt i = StartIdx+1; i <= EndIdx; i++){
+void TTable::ISort(TIntV& V, TInt StartIdx, TInt EndIdx, const TVec<TAttrType>& SortByTypes, const TIntV& SortByIndices, TBool Asc) {
+  if (StartIdx < EndIdx) {
+    for (TInt i = StartIdx+1; i <= EndIdx; i++) {
       TInt Val = V[i];
       TInt j = i;
-      while((StartIdx < j) && (CompareRows(V[j-1], Val, SortByTypes, SortByIndices, Asc) > 0)){
+      while ((StartIdx < j) && (CompareRows(V[j-1], Val, SortByTypes, SortByIndices, Asc) > 0)) {
         V[j] = V[j-1];
         j--;
       }
@@ -1551,23 +1575,23 @@ void TTable::ISort(TIntV& V, TInt StartIdx, TInt EndIdx, const TVec<TAttrType>& 
   }
 }
 
-TInt TTable::GetPivot(TIntV& V, TInt StartIdx, TInt EndIdx, const TVec<TAttrType>& SortByTypes, const TIntV& SortByIndices, TBool Asc){
+TInt TTable::GetPivot(TIntV& V, TInt StartIdx, TInt EndIdx, const TVec<TAttrType>& SortByTypes, const TIntV& SortByIndices, TBool Asc) {
   TInt L = EndIdx - StartIdx + 1;
   const TInt Idx1 = StartIdx + TInt::GetRnd(L);
   const TInt Idx2 = StartIdx + TInt::GetRnd(L);
   const TInt Idx3 = StartIdx + TInt::GetRnd(L);
-  if(CompareRows(V[Idx1], V[Idx2], SortByTypes, SortByIndices, Asc) < 0){
-    if(CompareRows(V[Idx2], V[Idx3], SortByTypes, SortByIndices, Asc) < 0){ return Idx2;}
-    if(CompareRows(V[Idx1], V[Idx3], SortByTypes, SortByIndices, Asc) < 0){ return Idx3;}
+  if (CompareRows(V[Idx1], V[Idx2], SortByTypes, SortByIndices, Asc) < 0) {
+    if (CompareRows(V[Idx2], V[Idx3], SortByTypes, SortByIndices, Asc) < 0) { return Idx2; }
+    if (CompareRows(V[Idx1], V[Idx3], SortByTypes, SortByIndices, Asc) < 0) { return Idx3; }
     return Idx1;
-  } else{
-    if(CompareRows(V[Idx3], V[Idx2], SortByTypes, SortByIndices, Asc) < 0){ return Idx2;}
-    if(CompareRows(V[Idx3], V[Idx1], SortByTypes, SortByIndices, Asc) < 0){ return Idx3;}
+  } else {
+    if (CompareRows(V[Idx3], V[Idx2], SortByTypes, SortByIndices, Asc) < 0) { return Idx2; }
+    if (CompareRows(V[Idx3], V[Idx1], SortByTypes, SortByIndices, Asc) < 0) { return Idx3; }
     return Idx1;
   }
 }
 
-TInt TTable::Partition(TIntV& V, TInt StartIdx, TInt EndIdx, const TVec<TAttrType>& SortByTypes, const TIntV& SortByIndices, TBool Asc){
+TInt TTable::Partition(TIntV& V, TInt StartIdx, TInt EndIdx, const TVec<TAttrType>& SortByTypes, const TIntV& SortByIndices, TBool Asc) {
 
   // test if the elements are already sorted
   TInt j;
@@ -1584,8 +1608,8 @@ TInt TTable::Partition(TIntV& V, TInt StartIdx, TInt EndIdx, const TVec<TAttrTyp
   TInt Pivot = V[PivotIdx];
   V.Swap(PivotIdx, EndIdx);
   TInt StoreIdx = StartIdx;
-  for(TInt i = StartIdx; i < EndIdx; i++){
-    if(CompareRows(V[i], Pivot, SortByTypes, SortByIndices, Asc) <= 0){
+  for (TInt i = StartIdx; i < EndIdx; i++) {
+    if (CompareRows(V[i], Pivot, SortByTypes, SortByIndices, Asc) <= 0) {
       V.Swap(i, StoreIdx);
       StoreIdx++;
     }
@@ -1595,11 +1619,11 @@ TInt TTable::Partition(TIntV& V, TInt StartIdx, TInt EndIdx, const TVec<TAttrTyp
   return StoreIdx;
 }
 
-void TTable::QSort(TIntV& V, TInt StartIdx, TInt EndIdx, const TVec<TAttrType>& SortByTypes, const TIntV& SortByIndices, TBool Asc){
-  if(StartIdx < EndIdx){
-    if(EndIdx - StartIdx < 20){
+void TTable::QSort(TIntV& V, TInt StartIdx, TInt EndIdx, const TVec<TAttrType>& SortByTypes, const TIntV& SortByIndices, TBool Asc) {
+  if (StartIdx < EndIdx) {
+    if (EndIdx - StartIdx < 20) {
       ISort(V, StartIdx, EndIdx, SortByTypes, SortByIndices, Asc);
-    } else{
+    } else {
       TInt Pivot = Partition(V, StartIdx, EndIdx, SortByTypes, SortByIndices, Asc);
       if (Pivot > EndIdx) {
         return;
@@ -1610,38 +1634,38 @@ void TTable::QSort(TIntV& V, TInt StartIdx, TInt EndIdx, const TVec<TAttrType>& 
   }
 }
 
-void TTable::Order(const TStrV& OrderBy, const TStr& OrderColName, TBool ResetRankByMSC, TBool Asc){
+void TTable::Order(const TStrV& OrderBy, const TStr& OrderColName, TBool ResetRankByMSC, TBool Asc) {
   // get a vector of all valid row indices
   TIntV ValidRows = TIntV(NumValidRows);
-  if(NumRows == NumValidRows){
-    for(TInt i = 0; i < NumValidRows; i++){
+  if (NumRows == NumValidRows) {
+    for (TInt i = 0; i < NumValidRows; i++) {
       ValidRows[i] = i;
     }
-  } else{
+  } else {
     TInt i = 0;
-    for(TRowIterator RI = BegRI(); RI < EndRI(); RI++){
+    for (TRowIterator RI = BegRI(); RI < EndRI(); RI++) {
       ValidRows[i] = RI.GetRowIdx();
       i++;
     }
   }
   TVec<TAttrType> OrderByTypes(OrderBy.Len());
   TIntV OrderByIndices(OrderBy.Len());
-  for(TInt i = 0; i < OrderBy.Len(); i++){
+  for (TInt i = 0; i < OrderBy.Len(); i++) {
     OrderByTypes[i] = GetColType(OrderBy[i]);
     OrderByIndices[i] = GetColIdx(OrderBy[i]);
   }
   // sort that vector according to the attributes given in "OrderBy" in lexicographic order
   QSort(ValidRows, 0, NumValidRows-1, OrderByTypes, OrderByIndices, Asc);
   // rewire Next vector
-  if (NumValidRows > 0){
+  if (NumValidRows > 0) {
     FirstValidRow = ValidRows[0];
-  } else{
+  } else {
     FirstValidRow = Last;
   }
-  for(TInt i = 0; i < NumValidRows-1; i++){
+  for (TInt i = 0; i < NumValidRows-1; i++) {
     Next[ValidRows[i]] = ValidRows[i+1];
   }
-  if (NumValidRows > 0){
+  if (NumValidRows > 0) {
     Next[ValidRows[NumValidRows-1]] = Last;
     LastValidRow = NumValidRows-1;
   } else {
@@ -1649,17 +1673,17 @@ void TTable::Order(const TStrV& OrderBy, const TStr& OrderColName, TBool ResetRa
   }
 
   // add rank column
-  if(!OrderColName.Empty()){
+  if (!OrderColName.Empty()) {
     TIntV RankCol = TIntV(NumRows);
-    for(TInt i = 0; i < NumValidRows; i++){
+    for (TInt i = 0; i < NumValidRows; i++) {
       RankCol[ValidRows[i]] = i;
     }
-    if(ResetRankByMSC){
-      for(TInt i = 1; i < NumValidRows; i++){
+    if (ResetRankByMSC) {
+      for (TInt i = 1; i < NumValidRows; i++) {
         TStr GroupName = OrderBy[0];
-        if(GetStrVal(GroupName, ValidRows[i]) != GetStrVal(GroupName, ValidRows[i-1])){ 
+        if (GetStrVal(GroupName, ValidRows[i]) != GetStrVal(GroupName, ValidRows[i-1])) { 
           RankCol[ValidRows[i]] = 0;
-        } else{
+        } else {
           RankCol[ValidRows[i]] = RankCol[ValidRows[i-1]] + 1;
         }
       }
@@ -1756,89 +1780,89 @@ void TTable::SelectFirstNRows(const TInt& N) {
 //   const TInt DsIdx = GetColIdx(DstCol);
 //   // debug
 //   /*
-//   for(TInt i = 0; i < IntNodeVals.Len(); i++){
-//     for(TInt j = i+1; j < IntNodeVals.Len(); j++){
-//       if(IntNodeVals[i] == IntNodeVals[j]){printf("bug: %d %d %d\n", i, j, IntNodeVals[i]);}
+//   for (TInt i = 0; i < IntNodeVals.Len(); i++) {
+//     for (TInt j = i+1; j < IntNodeVals.Len(); j++) {
+//       if (IntNodeVals[i] == IntNodeVals[j]) {printf("bug: %d %d %d\n", i, j, IntNodeVals[i]);}
 //     }
 //   }
 //   */
 //   // Add Nodes - The non-bipartite case
 //   Assert(SrCT == DsCT); 
-//   switch(SrCT){
+//   switch (SrCT) {
 //     case atInt:{
-//       for(TInt i = 0; i < IntNodeVals.Len(); i++){
-//         if(IntNodeVals[i] == -1){ continue;}  // illegal value
+//       for (TInt i = 0; i < IntNodeVals.Len(); i++) {
+//         if (IntNodeVals[i] == -1) { continue;}  // illegal value
 //         Graph->AddNode(IntNodeVals[i]);
 //       }
 //       break;
 //     }
 //     case atFlt:{
-//       for(THash<TFlt,TInt>::TIter it = FltNodeVals.BegI(); it < FltNodeVals.EndI(); it++){
+//       for (THash<TFlt,TInt>::TIter it = FltNodeVals.BegI(); it < FltNodeVals.EndI(); it++) {
 //         Graph->AddNode(it.GetDat());
 //       }
 //       break;
 //     }
 //     case atStr:{
-//       for(TInt i = 0; i < StrNodeVals.Len(); i++){
-//         if(strlen(Context.StringVals.GetKey(StrNodeVals[i])) == 0){ continue;}  //illegal value
+//       for (TInt i = 0; i < StrNodeVals.Len(); i++) {
+//         if (strlen(Context.StringVals.GetKey(StrNodeVals[i])) == 0) { continue;}  //illegal value
 //         Graph->AddNode(StrNodeVals[i]);
 //       }
 //       break;
 //     }
 //   }
   
-//   for(TRowIterator RowI = BegRI(); RowI < EndRI(); RowI++) {
+//   for (TRowIterator RowI = BegRI(); RowI < EndRI(); RowI++) {
 //     if (SrCT == atInt && DsCT == atInt) {
 //       TInt Sval = IntCols[SrIdx][RowI.GetRowIdx()];
 //       TInt Dval = IntCols[DsIdx][RowI.GetRowIdx()];
-//       if(Sval == -1 || Dval == -1){ continue;}  // illegal value
+//       if (Sval == -1 || Dval == -1) { continue;}  // illegal value
 //       Graph->AddEdge(Sval, Dval, RowI.GetRowIdx());
 //     } else if (SrCT == atInt && DsCT == atFlt) {
 //       TFlt val = FltCols[DsIdx][RowI.GetRowIdx()];
 //       TInt Sval = IntCols[SrIdx][RowI.GetRowIdx()];
 //       TInt Dval = FltNodeVals.GetDat(val);
-//       if(Sval == -1 || Dval == -1 || val.Val == -1){ continue;}  // illegal value
+//       if (Sval == -1 || Dval == -1 || val.Val == -1) { continue;}  // illegal value
 //       Graph->AddEdge(Sval, Dval, RowI.GetRowIdx());
 //     } else if (SrCT == atInt && DsCT == atStr) {
 //       TInt Sval = IntCols[SrIdx][RowI.GetRowIdx()];
 //       TInt Dval = StrColMaps[DsIdx][RowI.GetRowIdx()];
-//       if(Sval == -1 || Dval == -1 || strlen(Context.StringVals.GetKey(Dval)) == 0){ continue;}  // illegal value
+//       if (Sval == -1 || Dval == -1 || strlen(Context.StringVals.GetKey(Dval)) == 0) { continue;}  // illegal value
 //       Graph->AddEdge(Sval, Dval, RowI.GetRowIdx());
 //     } else if (SrCT == atFlt && DsCT == atInt) {
 //       TFlt val = FltCols[SrIdx][RowI.GetRowIdx()];
 //       TInt Sval = FltNodeVals.GetDat(val);
 //       TInt Dval = IntCols[SrIdx][RowI.GetRowIdx()];
-//       if(Sval == -1 || Dval == -1 || val.Val == -1){ continue;}  // illegal value
+//       if (Sval == -1 || Dval == -1 || val.Val == -1) { continue;}  // illegal value
 //       Graph->AddEdge(Sval, Dval, RowI.GetRowIdx());
 //     } else if (SrCT == atFlt && DsCT == atStr) {
 //       TFlt val = FltCols[SrIdx][RowI.GetRowIdx()];
 //       TInt Sval = FltNodeVals.GetDat(val);
 //       TInt Dval = StrColMaps[SrIdx][RowI.GetRowIdx()];
-//       if(Sval == -1 || Dval == -1 || val.Val == -1 || strlen(Context.StringVals.GetKey(Dval)) == 0){ continue;}  // illegal value
+//       if (Sval == -1 || Dval == -1 || val.Val == -1 || strlen(Context.StringVals.GetKey(Dval)) == 0) { continue;}  // illegal value
 //       Graph->AddEdge(Sval, Dval, RowI.GetRowIdx());
 //     } else if (SrCT == atFlt && DsCT == atFlt) {
 //       TFlt val1 = FltCols[SrIdx][RowI.GetRowIdx()];
 //       TFlt val2 = FltCols[DsIdx][RowI.GetRowIdx()];
 //       TInt Sval = FltNodeVals.GetDat(val1);
 //       TInt Dval = FltNodeVals.GetDat(val2);
-//       if(Sval == -1 || Dval == -1 || val1.Val == -1 || val2.Val == -1){ continue;} // illegal value
+//       if (Sval == -1 || Dval == -1 || val1.Val == -1 || val2.Val == -1) { continue;} // illegal value
 //       Graph->AddEdge(Sval, Dval, RowI.GetRowIdx());
 //     }
-//     else if(SrCT == atStr && DsCT == atInt){
+//     else if (SrCT == atStr && DsCT == atInt) {
 //       TInt Sval = StrColMaps[SrIdx][RowI.GetRowIdx()];
 //       TInt Dval = IntCols[DsIdx][RowI.GetRowIdx()];
-//       if(Sval == -1 || Dval == -1 || strlen(Context.StringVals.GetKey(Sval)) == 0){ continue;} // illegal value
+//       if (Sval == -1 || Dval == -1 || strlen(Context.StringVals.GetKey(Sval)) == 0) { continue;} // illegal value
 //       Graph->AddEdge(Sval, Dval, RowI.GetRowIdx());
-//     } else if(SrCT == atStr && DsCT == atFlt){
+//     } else if (SrCT == atStr && DsCT == atFlt) {
 //       TFlt val = FltCols[DsIdx][RowI.GetRowIdx()];
 //       TInt Sval = StrColMaps[SrIdx][RowI.GetRowIdx()];
 //       TInt Dval = FltNodeVals.GetDat(val);
-//       if(Sval == -1 || Dval == -1 || strlen(Context.StringVals.GetKey(Sval)) == 0 || val.Val == -1){ continue;} // illegal value
+//       if (Sval == -1 || Dval == -1 || strlen(Context.StringVals.GetKey(Sval)) == 0 || val.Val == -1) { continue;} // illegal value
 //       Graph->AddEdge(Sval, Dval, RowI.GetRowIdx());
-//     } else if(SrCT == atStr && DsCT == atStr){
+//     } else if (SrCT == atStr && DsCT == atStr) {
 //       TInt Sval = StrColMaps[SrIdx][RowI.GetRowIdx()];
 //       TInt Dval = StrColMaps[DsIdx][RowI.GetRowIdx()];
-//       if(Sval == -1 || Dval == -1 || strlen(Context.StringVals.GetKey(Sval)) == 0 || strlen(Context.StringVals.GetKey(Dval)) == 0){ continue;} // illegal value
+//       if (Sval == -1 || Dval == -1 || strlen(Context.StringVals.GetKey(Sval)) == 0 || strlen(Context.StringVals.GetKey(Dval)) == 0) { continue;} // illegal value
 //       Graph->AddEdge(Sval, Dval, RowI.GetRowIdx());
 //     }
 //   }
@@ -1859,23 +1883,23 @@ void TTable::SelectFirstNRows(const TInt& N) {
 // }
 
 // // assuming SrcCol and DstCol values belong to the same "universe" of possible node values
-// void TTable::GraphPrep(){
+// void TTable::GraphPrep() {
 //  THash<TInt,TInt> IntVals;
 //  THash<TInt,TInt> StrVals;  // keys are StrColMaps mappings
 //  const TAttrType NodeType = GetColType(SrcCol);
 //  const TInt SrcColIdx = GetColIdx(SrcCol);
 //  const TInt DstColIdx = GetColIdx(DstCol);
 //  Assert(NodeType == GetColType(DstCol));
-//  for(TRowIterator it = BegRI(); it < EndRI(); it++){
-//    switch(NodeType){
+//  for (TRowIterator it = BegRI(); it < EndRI(); it++) {
+//    switch (NodeType) {
 //      case atInt:{
 //        TInt Sval = it.GetIntAttr(SrcCol);
-//        if(!IntVals.IsKey(Sval)){
+//        if (!IntVals.IsKey(Sval)) {
 //          IntVals.AddKey(Sval);
 //          IntNodeVals.Add(Sval);
 //        }
 //        TInt Dval = it.GetIntAttr(DstCol);
-//        if(!IntVals.IsKey(Dval)){
+//        if (!IntVals.IsKey(Dval)) {
 //          IntVals.AddKey(Dval);
 //          IntNodeVals.Add(Dval);
 //        }
@@ -1883,13 +1907,13 @@ void TTable::SelectFirstNRows(const TInt& N) {
 //      }
 //      case atFlt:{
 //        TFlt Sval = it.GetFltAttr(SrcCol);
-//        if(!FltNodeVals.IsKey(Sval)){
+//        if (!FltNodeVals.IsKey(Sval)) {
 //          TInt Val = FltNodeVals.Len();
 //          FltNodeVals.AddKey(Sval);
 //          FltNodeVals.AddDat(Sval, Val);
 //        }
 //        TFlt Dval = it.GetFltAttr(DstCol);
-//        if(!FltNodeVals.IsKey(Dval)){
+//        if (!FltNodeVals.IsKey(Dval)) {
 //          TInt Val = FltNodeVals.Len();
 //          FltNodeVals.AddKey(Dval);
 //          FltNodeVals.AddDat(Dval, Val);
@@ -1898,12 +1922,12 @@ void TTable::SelectFirstNRows(const TInt& N) {
 //      }
 //      case atStr:{
 //        TInt Sval = StrColMaps[SrcColIdx][it.GetRowIdx()];
-//        if(!StrVals.IsKey(Sval)){
+//        if (!StrVals.IsKey(Sval)) {
 //          StrVals.AddKey(Sval);
 //          StrNodeVals.Add(Sval);
 //        }
 //        TInt Dval = StrColMaps[DstColIdx][it.GetRowIdx()];
-//        if(!StrVals.IsKey(Dval)){
+//        if (!StrVals.IsKey(Dval)) {
 //          StrVals.AddKey(Dval);
 //          StrNodeVals.Add(Dval);
 //        }
@@ -1929,7 +1953,7 @@ void TTable::SelectFirstNRows(const TInt& N) {
 // }
 
 inline void TTable::CheckAndAddIntNode(PNEANet Graph, THashSet<TInt>& NodeVals, TInt NodeId) {
-  if(!NodeVals.IsKey(NodeId)){
+  if (!NodeVals.IsKey(NodeId)) {
     Graph->AddNode(NodeId);
     NodeVals.AddKey(NodeId);
   }
@@ -1955,29 +1979,29 @@ inline void TTable::AddEdgeAttributes(PNEANet& Graph, int RowId) {
 }
 
 inline void TTable::AddNodeAttributes(TInt NId, TStrV NodeAttrV, TInt RowId, THash<TInt, TStrIntVH>& NodeIntAttrs, 
-    THash<TInt, TStrFltVH>& NodeFltAttrs, THash<TInt, TStrStrVH>& NodeStrAttrs){
+    THash<TInt, TStrFltVH>& NodeFltAttrs, THash<TInt, TStrStrVH>& NodeStrAttrs) {
   for (int i = 0; i < NodeAttrV.Len(); i++) {
     TStr ColAttr = NodeAttrV[i];
     TAttrType CT = GetColType(ColAttr);
     int ColId = GetColIdx(ColAttr);
     // check if this is a common src-dst attribute
-    for(TInt i = 0; i < CommonNodeAttrs.Len(); i++){
-      if(CommonNodeAttrs[i].Val1 == ColAttr || CommonNodeAttrs[i].Val2 == ColAttr){
+    for (TInt i = 0; i < CommonNodeAttrs.Len(); i++) {
+      if (CommonNodeAttrs[i].Val1 == ColAttr || CommonNodeAttrs[i].Val2 == ColAttr) {
         ColAttr = CommonNodeAttrs[i].Val3;
         break;
       }
     }
     if (CT == atInt) {
-      if(!NodeIntAttrs.IsKey(NId)){ NodeIntAttrs.AddKey(NId);}
-      if(!NodeIntAttrs.GetDat(NId).IsKey(ColAttr)){ NodeIntAttrs.GetDat(NId).AddKey(ColAttr);}
+      if (!NodeIntAttrs.IsKey(NId)) { NodeIntAttrs.AddKey(NId); }
+      if (!NodeIntAttrs.GetDat(NId).IsKey(ColAttr)) { NodeIntAttrs.GetDat(NId).AddKey(ColAttr); }
       NodeIntAttrs.GetDat(NId).GetDat(ColAttr).Add(IntCols[ColId][RowId]);
     } else if (CT == atFlt) {
-      if(!NodeFltAttrs.IsKey(NId)){ NodeFltAttrs.AddKey(NId);}
-      if(!NodeFltAttrs.GetDat(NId).IsKey(ColAttr)){ NodeFltAttrs.GetDat(NId).AddKey(ColAttr);}
+      if (!NodeFltAttrs.IsKey(NId)) { NodeFltAttrs.AddKey(NId); }
+      if (!NodeFltAttrs.GetDat(NId).IsKey(ColAttr)) { NodeFltAttrs.GetDat(NId).AddKey(ColAttr); }
       NodeFltAttrs.GetDat(NId).GetDat(ColAttr).Add(FltCols[ColId][RowId]);
     } else {
-      if(!NodeStrAttrs.IsKey(NId)){ NodeStrAttrs.AddKey(NId);}
-      if(!NodeStrAttrs.GetDat(NId).IsKey(ColAttr)){ NodeStrAttrs.GetDat(NId).AddKey(ColAttr);}
+      if (!NodeStrAttrs.IsKey(NId)) { NodeStrAttrs.AddKey(NId); }
+      if (!NodeStrAttrs.GetDat(NId).IsKey(ColAttr)) { NodeStrAttrs.GetDat(NId).AddKey(ColAttr); }
       NodeStrAttrs.GetDat(NId).GetDat(ColAttr).Add(GetStrVal(ColId, RowId));
     }
   }
@@ -1994,20 +2018,20 @@ inline void TTable::AddNodeAttributes(TInt NId, TStrV NodeAttrV, TInt RowId, THa
 //     AddNodeAttributesAux(NodeIntAttrs, NodeFltAttrs, NodeStrAttrs, true);
 //     AddNodeAttributesAux(NodeIntAttrs, NodeFltAttrs, NodeStrAttrs, false);
 //     // TODO: aggregation policy per attribute
-//     for(THash<TStr, TIntIntVH>::TIter it = NodeIntAttrs.BegI(); it < NodeIntAttrs.EndI(); it++){
-//       for(TIntIntVH::TIter i = it.GetDat().BegI(); i < it.GetDat().EndI(); i++){
+//     for (THash<TStr, TIntIntVH>::TIter it = NodeIntAttrs.BegI(); it < NodeIntAttrs.EndI(); it++) {
+//       for (TIntIntVH::TIter i = it.GetDat().BegI(); i < it.GetDat().EndI(); i++) {
 //         TInt AttrVal = AggregateVector<TInt>(i.GetDat(), Policy);
 //         Graph->AddIntAttrDatN(i.GetKey(), AttrVal, it.GetKey());
 //       }
 //     }
-//     for(THash<TStr, TIntFltVH>::TIter it = NodeFltAttrs.BegI(); it < NodeFltAttrs.EndI(); it++){
-//       for(TIntFltVH::TIter i = it.GetDat().BegI(); i < it.GetDat().EndI(); i++){
+//     for (THash<TStr, TIntFltVH>::TIter it = NodeFltAttrs.BegI(); it < NodeFltAttrs.EndI(); it++) {
+//       for (TIntFltVH::TIter i = it.GetDat().BegI(); i < it.GetDat().EndI(); i++) {
 //         TFlt AttrVal = AggregateVector<TFlt>(i.GetDat(), Policy);
 //         Graph->AddFltAttrDatN(i.GetKey(), AttrVal, it.GetKey());
 //       }
 //     }
-//     for(THash<TStr, TIntStrVH>::TIter it = NodeStrAttrs.BegI(); it < NodeStrAttrs.EndI(); it++){
-//       for(TIntStrVH::TIter i = it.GetDat().BegI(); i < it.GetDat().EndI(); i++){
+//     for (THash<TStr, TIntStrVH>::TIter it = NodeStrAttrs.BegI(); it < NodeStrAttrs.EndI(); it++) {
+//       for (TIntStrVH::TIter i = it.GetDat().BegI(); i < it.GetDat().EndI(); i++) {
 //         TStr AttrVal = (Policy == FIRST) ? i.GetDat()[0] : i.GetDat()[i.GetDat().Len()-1];
 //         Graph->AddStrAttrDatN(i.GetKey(), AttrVal, it.GetKey());
 //       }
@@ -2050,19 +2074,19 @@ PNEANet TTable::BuildGraph(const TIntV& RowIds, TAttrAggr AggrPolicy) {
         DVal = IntCols[DstColIdx][CurrRowIdx];
       } else {
         SVal = StrColMaps[SrcColIdx][CurrRowIdx];
-        if(strlen(Context.StringVals.GetKey(SVal)) == 0){ continue;}  //illegal value
+        if (strlen(Context.StringVals.GetKey(SVal)) == 0) { continue; }  //illegal value
         DVal = StrColMaps[DstColIdx][CurrRowIdx];
-        if(strlen(Context.StringVals.GetKey(DVal)) == 0){ continue;}  //illegal value
+        if (strlen(Context.StringVals.GetKey(DVal)) == 0) { continue; }  //illegal value
       }
-      if (!Graph->IsNode(SVal)) {Graph->AddNode(SVal);}
-      if (!Graph->IsNode(DVal)) {Graph->AddNode(DVal);}
+      if (!Graph->IsNode(SVal)) { Graph->AddNode(SVal); }
+      if (!Graph->IsNode(DVal)) { Graph->AddNode(DVal); }
       //CheckAndAddIntNode(Graph, IntNodeVals, SVal);
       //CheckAndAddIntNode(Graph, IntNodeVals, DVal);
     } 
 
     // add edge and edge attributes 
     Graph->AddEdge(SVal, DVal, CurrRowIdx);
-    if (EdgeAttrV.Len() > 0) { AddEdgeAttributes(Graph, CurrRowIdx);}
+    if (EdgeAttrV.Len() > 0) { AddEdgeAttributes(Graph, CurrRowIdx); }
 
     // get src and dst node attributes into hashmaps
     if (SrcNodeAttrV.Len() > 0) { 
@@ -2079,21 +2103,21 @@ PNEANet TTable::BuildGraph(const TIntV& RowIds, TAttrAggr AggrPolicy) {
       TInt NId = NodeI.GetId();
       if (NodeIntAttrs.IsKey(NId)) {
         TStrIntVH IntAttrVals = NodeIntAttrs.GetDat(NId);
-        for(TStrIntVH::TIter it = IntAttrVals.BegI(); it < IntAttrVals.EndI(); it++){
+        for (TStrIntVH::TIter it = IntAttrVals.BegI(); it < IntAttrVals.EndI(); it++) {
           TInt AttrVal = AggregateVector<TInt>(it.GetDat(), AggrPolicy);
           Graph->AddIntAttrDatN(NId, AttrVal, it.GetKey());
         }
       }
       if (NodeFltAttrs.IsKey(NId)) {
         TStrFltVH FltAttrVals = NodeFltAttrs.GetDat(NId);
-        for(TStrFltVH::TIter it = FltAttrVals.BegI(); it < FltAttrVals.EndI(); it++){
+        for (TStrFltVH::TIter it = FltAttrVals.BegI(); it < FltAttrVals.EndI(); it++) {
           TFlt AttrVal = AggregateVector<TFlt>(it.GetDat(), AggrPolicy);
           Graph->AddFltAttrDatN(NId, AttrVal, it.GetKey());
         }
       }
       if (NodeStrAttrs.IsKey(NId)) {
         TStrStrVH StrAttrVals = NodeStrAttrs.GetDat(NId);
-        for(TStrStrVH::TIter it = StrAttrVals.BegI(); it < StrAttrVals.EndI(); it++){
+        for (TStrStrVH::TIter it = StrAttrVals.BegI(); it < StrAttrVals.EndI(); it++) {
           TStr AttrVal = AggregateVector<TStr>(it.GetDat(), AggrPolicy);
           Graph->AddStrAttrDatN(NId, AttrVal, it.GetKey());
         }
@@ -2123,7 +2147,7 @@ PNEANet TTable::ToGraph(TAttrAggr AggrPolicy) {
 
   // make single pass over all rows in the table
   for (int CurrRowIdx = 0; CurrRowIdx < Next.Len(); CurrRowIdx++) {
-    if (Next[CurrRowIdx] == Invalid) {continue;}
+    if (Next[CurrRowIdx] == Invalid) { continue; }
 
     // add src and dst nodes to graph if they are not seen earlier
     TInt SVal, DVal;
@@ -2138,9 +2162,9 @@ PNEANet TTable::ToGraph(TAttrAggr AggrPolicy) {
         DVal = IntCols[DstColIdx][CurrRowIdx];
       } else {
         SVal = StrColMaps[SrcColIdx][CurrRowIdx];
-        if(strlen(Context.StringVals.GetKey(SVal)) == 0){ continue;}  //illegal value
+        if (strlen(Context.StringVals.GetKey(SVal)) == 0) { continue;}  //illegal value
         DVal = StrColMaps[DstColIdx][CurrRowIdx];
-        if(strlen(Context.StringVals.GetKey(DVal)) == 0){ continue;}  //illegal value
+        if (strlen(Context.StringVals.GetKey(DVal)) == 0) { continue;}  //illegal value
       }
       if (!Graph->IsNode(SVal)) {Graph->AddNode(SVal);}
       if (!Graph->IsNode(DVal)) {Graph->AddNode(DVal);}
@@ -2167,21 +2191,21 @@ PNEANet TTable::ToGraph(TAttrAggr AggrPolicy) {
       TInt NId = NodeI.GetId();
       if (NodeIntAttrs.IsKey(NId)) {
         TStrIntVH IntAttrVals = NodeIntAttrs.GetDat(NId);
-        for(TStrIntVH::TIter it = IntAttrVals.BegI(); it < IntAttrVals.EndI(); it++){
+        for (TStrIntVH::TIter it = IntAttrVals.BegI(); it < IntAttrVals.EndI(); it++) {
           TInt AttrVal = AggregateVector<TInt>(it.GetDat(), AggrPolicy);
           Graph->AddIntAttrDatN(NId, AttrVal, it.GetKey());
         }
       }
       if (NodeFltAttrs.IsKey(NId)) {
         TStrFltVH FltAttrVals = NodeFltAttrs.GetDat(NId);
-        for(TStrFltVH::TIter it = FltAttrVals.BegI(); it < FltAttrVals.EndI(); it++){
+        for (TStrFltVH::TIter it = FltAttrVals.BegI(); it < FltAttrVals.EndI(); it++) {
           TFlt AttrVal = AggregateVector<TFlt>(it.GetDat(), AggrPolicy);
           Graph->AddFltAttrDatN(NId, AttrVal, it.GetKey());
         }
       }
       if (NodeStrAttrs.IsKey(NId)) {
         TStrStrVH StrAttrVals = NodeStrAttrs.GetDat(NId);
-        for(TStrStrVH::TIter it = StrAttrVals.BegI(); it < StrAttrVals.EndI(); it++){
+        for (TStrStrVH::TIter it = StrAttrVals.BegI(); it < StrAttrVals.EndI(); it++) {
           TStr AttrVal = AggregateVector<TStr>(it.GetDat(), AggrPolicy);
           Graph->AddStrAttrDatN(NId, AttrVal, it.GetKey());
         }
@@ -2200,7 +2224,6 @@ PNGraph TTable::ToGraphDirected(TAttrAggr AggrPolicy) {
   const TInt SrcColIdx = GetColIdx(SrcCol);
   const TInt DstColIdx = GetColIdx(DstCol);
   
-  printf("add start\n");
   // make single pass over all rows in the table
   if (NodeType == atInt) {
     for (int CurrRowIdx = 0; CurrRowIdx < Next.Len(); CurrRowIdx++) {
@@ -2231,18 +2254,16 @@ PNGraph TTable::ToGraphDirected(TAttrAggr AggrPolicy) {
       if (Next[CurrRowIdx] == Invalid) {continue;}
       // add src and dst nodes to graph if they are not seen earlier
       TInt SVal = StrColMaps[SrcColIdx][CurrRowIdx];
-      if(strlen(Context.StringVals.GetKey(SVal)) == 0){ continue;}  //illegal value
+      if (strlen(Context.StringVals.GetKey(SVal)) == 0) { continue;}  //illegal value
       TInt DVal = StrColMaps[DstColIdx][CurrRowIdx];
-      if(strlen(Context.StringVals.GetKey(DVal)) == 0){ continue;}  //illegal value
+      if (strlen(Context.StringVals.GetKey(DVal)) == 0) { continue;}  //illegal value
       Graph->AddNode(SVal);
       Graph->AddNode(DVal);
       Graph->AddEdge(SVal, DVal);
     }  
   }
   
-  printf("add done\n");
   Graph->SortNodeAdjV();
-  printf("sort done\n");
 
   return Graph;
 }
@@ -2255,7 +2276,6 @@ PUNGraph TTable::ToGraphUndirected(TAttrAggr AggrPolicy) {
   const TInt SrcColIdx = GetColIdx(SrcCol);
   const TInt DstColIdx = GetColIdx(DstCol);
   
-  printf("add start\n");
   // make single pass over all rows in the table
   if (NodeType == atInt) {
     for (int CurrRowIdx = 0; CurrRowIdx < Next.Len(); CurrRowIdx++) {
@@ -2286,17 +2306,15 @@ PUNGraph TTable::ToGraphUndirected(TAttrAggr AggrPolicy) {
       if (Next[CurrRowIdx] == Invalid) {continue;}
       // add src and dst nodes to graph if they are not seen earlier
       TInt SVal = StrColMaps[SrcColIdx][CurrRowIdx];
-      if(strlen(Context.StringVals.GetKey(SVal)) == 0){ continue;}  //illegal value
+      if (strlen(Context.StringVals.GetKey(SVal)) == 0) { continue;}  //illegal value
       TInt DVal = StrColMaps[DstColIdx][CurrRowIdx];
-      if(strlen(Context.StringVals.GetKey(DVal)) == 0){ continue;}  //illegal value
+      if (strlen(Context.StringVals.GetKey(DVal)) == 0) { continue;}  //illegal value
       Graph->AddNode(SVal);
       Graph->AddNode(DVal);
       Graph->AddEdge(SVal, DVal);
     }  
   }
-  printf("add done\n");
   Graph->SortNodeAdjV();
-  printf("sort done\n");
 
   return Graph;
 }
@@ -2318,7 +2336,7 @@ void TTable::FillBucketsByWindow(TStr SplitAttr, TInt JumpSize, TInt WindowSize,
   int NumBuckets, MinBucket, MaxBucket;
   TInt SplitColId = GetColIdx(SplitAttr);
 
-  if (StartVal == TInt::Mn || EndVal == TInt::Mx){
+  if (StartVal == TInt::Mn || EndVal == TInt::Mx) {
     // calculate min and max value of the column 'SplitAttr'
     TInt MinValue = TInt::Mx;
     TInt MaxValue = TInt::Mn;
@@ -2347,7 +2365,7 @@ void TTable::FillBucketsByWindow(TStr SplitAttr, TInt JumpSize, TInt WindowSize,
   for (int i = 0; i < Next.Len(); i++) {
     if (Next[i] == Invalid) {continue;}
     int SplitVal = IntCols[SplitColId][i];
-    if (SplitVal < StartVal || SplitVal > EndVal){ continue;}
+    if (SplitVal < StartVal || SplitVal > EndVal) { continue;}
     if (JumpSize == 0) { // expanding windows
       MinBucket = (SplitVal-StartVal)/WindowSize;
       MaxBucket = NumBuckets-1;
@@ -2355,7 +2373,7 @@ void TTable::FillBucketsByWindow(TStr SplitAttr, TInt JumpSize, TInt WindowSize,
       MinBucket = max(0,(SplitVal-WindowSize-StartVal)/JumpSize + 1);
       MaxBucket = (SplitVal - StartVal)/JumpSize;  
     }
-    for (int j = MinBucket; j <= MaxBucket; j++){ RowIdBuckets[j].Add(i);}
+    for (int j = MinBucket; j <= MaxBucket; j++) { RowIdBuckets[j].Add(i);}
   }
 }
 
@@ -2368,8 +2386,8 @@ void TTable::FillBucketsByInterval(TStr SplitAttr, TIntPrV SplitIntervals) {
   for (int i = 0; i < Next.Len(); i++) {
     if (Next[i] == Invalid) {continue;}
     int SplitVal = IntCols[SplitColId][i];
-    for (int j = 0; j < SplitIntervals.Len(); j++){ 
-      if (SplitVal >= SplitIntervals[j].Val1 && SplitVal < SplitIntervals[j].Val2){
+    for (int j = 0; j < SplitIntervals.Len(); j++) { 
+      if (SplitVal >= SplitIntervals[j].Val1 && SplitVal < SplitIntervals[j].Val2) {
         RowIdBuckets[j].Add(i);
       }
     }
@@ -2380,7 +2398,7 @@ TVec<PNEANet> TTable::GetGraphsFromSequence(TAttrAggr AggrPolicy) {
   //call BuildGraph on each row id set - parallelizable!
   TVec<PNEANet> GraphSequence;
   for (int i = 0; i < RowIdBuckets.Len(); i++) {
-    if (RowIdBuckets[i].Len() == 0){ continue;}
+    if (RowIdBuckets[i].Len() == 0) { continue;}
     PNEANet PNet = BuildGraph(RowIdBuckets[i], AggrPolicy);
     GraphSequence.Add(PNet);
   }
@@ -2399,7 +2417,7 @@ PNEANet TTable::GetNextGraphFromSequence() {
   while (CurrBucket < RowIdBuckets.Len() && RowIdBuckets[CurrBucket].Len() == 0) {
     CurrBucket++;
   }
-  if (CurrBucket >= RowIdBuckets.Len()){ return NULL;}
+  if (CurrBucket >= RowIdBuckets.Len()) { return NULL;}
   return BuildGraph(RowIdBuckets[CurrBucket], AggrPolicy);
 }
 
@@ -2416,12 +2434,12 @@ TVec<PNEANet> TTable::ToGraphSequence(TStr SplitAttr, TAttrAggr AggrPolicy, TInt
   return GetGraphsFromSequence(AggrPolicy);  
 }
 
-TVec<PNEANet> TTable::ToVarGraphSequence(TStr SplitAttr, TAttrAggr AggrPolicy, TIntPrV SplitIntervals){
+TVec<PNEANet> TTable::ToVarGraphSequence(TStr SplitAttr, TAttrAggr AggrPolicy, TIntPrV SplitIntervals) {
   FillBucketsByInterval(SplitAttr, SplitIntervals);
   return GetGraphsFromSequence(AggrPolicy);
 }
 
-TVec<PNEANet> TTable::ToGraphPerGroup(TStr GroupAttr, TAttrAggr AggrPolicy){
+TVec<PNEANet> TTable::ToGraphPerGroup(TStr GroupAttr, TAttrAggr AggrPolicy) {
   return ToGraphSequence(GroupAttr, AggrPolicy, TInt(1), TInt(1), TInt::Mn, TInt::Mx);
 }
 
@@ -2430,17 +2448,17 @@ PNEANet TTable::ToGraphSequenceIterator(TStr SplitAttr, TAttrAggr AggrPolicy, TI
   return GetFirstGraphFromSequence(AggrPolicy);  
 }
 
-PNEANet TTable::ToVarGraphSequenceIterator(TStr SplitAttr, TAttrAggr AggrPolicy, TIntPrV SplitIntervals){
+PNEANet TTable::ToVarGraphSequenceIterator(TStr SplitAttr, TAttrAggr AggrPolicy, TIntPrV SplitIntervals) {
   FillBucketsByInterval(SplitAttr, SplitIntervals);
   return GetFirstGraphFromSequence(AggrPolicy);
 }
 
-PNEANet TTable::ToGraphPerGroupIterator(TStr GroupAttr, TAttrAggr AggrPolicy){
+PNEANet TTable::ToGraphPerGroupIterator(TStr GroupAttr, TAttrAggr AggrPolicy) {
   return ToGraphSequenceIterator(GroupAttr, AggrPolicy, TInt(1), TInt(1), TInt::Mn, TInt::Mx);
 }
 
 // calls to this must be preceded by a call to one of the above ToGraph*Iterator functions
-PNEANet TTable::NextGraphIterator(){
+PNEANet TTable::NextGraphIterator() {
   return GetNextGraphFromSequence();
 }
 
@@ -2448,7 +2466,7 @@ TBool TTable::IsLastGraphOfSequence() {
   return CurrBucket >= RowIdBuckets.Len() - 1;
 }
 
-PTable TTable::GetNodeTable(const PNEANet& Network, const TStr& TableName, TTableContext& Context){
+PTable TTable::GetNodeTable(const PNEANet& Network, const TStr& TableName, TTableContext& Context) {
   Schema SR;
   SR.Add(TPair<TStr,TAttrType>("node_id",atInt));
 
@@ -2460,13 +2478,13 @@ PTable TTable::GetNodeTable(const PNEANet& Network, const TStr& TableName, TTabl
   NodeI.GetIntAttrNames(IntAttrNames);
   NodeI.GetFltAttrNames(FltAttrNames);
   NodeI.GetStrAttrNames(StrAttrNames);
-  for (int i = 0; i < IntAttrNames.Len(); i++){
+  for (int i = 0; i < IntAttrNames.Len(); i++) {
     SR.Add(TPair<TStr,TAttrType>(IntAttrNames[i],atInt));
   }
-  for (int i = 0; i < FltAttrNames.Len(); i++){
+  for (int i = 0; i < FltAttrNames.Len(); i++) {
     SR.Add(TPair<TStr,TAttrType>(FltAttrNames[i],atFlt));
   }
-  for (int i = 0; i < StrAttrNames.Len(); i++){
+  for (int i = 0; i < StrAttrNames.Len(); i++) {
     SR.Add(TPair<TStr,TAttrType>(StrAttrNames[i],atStr));
   }
 
@@ -2474,15 +2492,15 @@ PTable TTable::GetNodeTable(const PNEANet& Network, const TStr& TableName, TTabl
 
   TInt Cnt = 0;
   // populate table columns
-  while(NodeI < Network->EndNI()){
+  while (NodeI < Network->EndNI()) {
     T->IntCols[0].Add(NodeI.GetId());
-    for (int i = 0; i < IntAttrNames.Len(); i++){
+    for (int i = 0; i < IntAttrNames.Len(); i++) {
       T->IntCols[i+1].Add(Network->GetIntAttrDatN(NodeI,IntAttrNames[i]));
     }
-    for (int i = 0; i < FltAttrNames.Len(); i++){
+    for (int i = 0; i < FltAttrNames.Len(); i++) {
       T->FltCols[i].Add(Network->GetFltAttrDatN(NodeI,FltAttrNames[i]));
     }
-    for (int i = 0; i < StrAttrNames.Len(); i++){
+    for (int i = 0; i < StrAttrNames.Len(); i++) {
       T->AddStrVal(i, Network->GetStrAttrDatN(NodeI,StrAttrNames[i]));
     }
     Cnt++;
@@ -2492,7 +2510,7 @@ PTable TTable::GetNodeTable(const PNEANet& Network, const TStr& TableName, TTabl
   T->NumRows = Cnt;
   T->NumValidRows = T->NumRows;
   T->Next = TIntV(T->NumRows,0);
-  for(TInt i = 0; i < T->NumRows-1; i++){
+  for (TInt i = 0; i < T->NumRows-1; i++) {
     T->Next.Add(i+1);
   }
   T->LastValidRow = T->NumRows-1;
@@ -2500,7 +2518,7 @@ PTable TTable::GetNodeTable(const PNEANet& Network, const TStr& TableName, TTabl
   return T;
 }
 
-PTable TTable::GetEdgeTable(const PNEANet& Network, const TStr& TableName, TTableContext& Context){
+PTable TTable::GetEdgeTable(const PNEANet& Network, const TStr& TableName, TTableContext& Context) {
   Schema SR;
   SR.Add(TPair<TStr,TAttrType>("edg_id",atInt));
   SR.Add(TPair<TStr,TAttrType>("src_id",atInt));
@@ -2514,13 +2532,13 @@ PTable TTable::GetEdgeTable(const PNEANet& Network, const TStr& TableName, TTabl
   EdgeI.GetIntAttrNames(IntAttrNames);
   EdgeI.GetFltAttrNames(FltAttrNames);
   EdgeI.GetStrAttrNames(StrAttrNames);
-  for (int i = 0; i < IntAttrNames.Len(); i++){
+  for (int i = 0; i < IntAttrNames.Len(); i++) {
     SR.Add(TPair<TStr,TAttrType>(IntAttrNames[i],atInt));
   }
-  for (int i = 0; i < FltAttrNames.Len(); i++){
+  for (int i = 0; i < FltAttrNames.Len(); i++) {
     SR.Add(TPair<TStr,TAttrType>(FltAttrNames[i],atFlt));
   }
-  for (int i = 0; i < StrAttrNames.Len(); i++){
+  for (int i = 0; i < StrAttrNames.Len(); i++) {
     printf("%s\n",StrAttrNames[i].CStr());
     SR.Add(TPair<TStr,TAttrType>(StrAttrNames[i],atStr));
   }
@@ -2529,17 +2547,17 @@ PTable TTable::GetEdgeTable(const PNEANet& Network, const TStr& TableName, TTabl
 
   TInt Cnt = 0;
   // populate table columns
-  while(EdgeI < Network->EndEI()){
+  while (EdgeI < Network->EndEI()) {
     T->IntCols[0].Add(EdgeI.GetId());
     T->IntCols[1].Add(EdgeI.GetSrcNId());
     T->IntCols[2].Add(EdgeI.GetDstNId());
-    for (int i = 0; i < IntAttrNames.Len(); i++){
+    for (int i = 0; i < IntAttrNames.Len(); i++) {
       T->IntCols[i+3].Add(Network->GetIntAttrDatE(EdgeI,IntAttrNames[i]));
     }
-    for (int i = 0; i < FltAttrNames.Len(); i++){
+    for (int i = 0; i < FltAttrNames.Len(); i++) {
       T->FltCols[i].Add(Network->GetFltAttrDatE(EdgeI,FltAttrNames[i]));
     }
-    for (int i = 0; i < StrAttrNames.Len(); i++){
+    for (int i = 0; i < StrAttrNames.Len(); i++) {
       T->AddStrVal(i, Network->GetStrAttrDatE(EdgeI,StrAttrNames[i]));
     }
     Cnt++;
@@ -2549,7 +2567,7 @@ PTable TTable::GetEdgeTable(const PNEANet& Network, const TStr& TableName, TTabl
   T->NumRows = Cnt;
   T->NumValidRows = T->NumRows;
   T->Next = TIntV(T->NumRows,0);
-  for(TInt i = 0; i < T->NumRows-1; i++){
+  for (TInt i = 0; i < T->NumRows-1; i++) {
     T->Next.Add(i+1);
   }
   T->LastValidRow = T->NumRows-1;
@@ -2557,7 +2575,7 @@ PTable TTable::GetEdgeTable(const PNEANet& Network, const TStr& TableName, TTabl
   return T;
 }
 
-PTable TTable::GetFltNodePropertyTable(const PNEANet& Network, const TStr& TableName, const TIntFltH& Property, const TStr& NodeAttrName, const TAttrType& NodeAttrType, const TStr& PropertyAttrName, TTableContext& Context){
+PTable TTable::GetFltNodePropertyTable(const PNEANet& Network, const TStr& TableName, const TIntFltH& Property, const TStr& NodeAttrName, const TAttrType& NodeAttrType, const TStr& PropertyAttrName, TTableContext& Context) {
   Schema SR;
   // Determine type of node id
   SR.Add(TPair<TStr,TAttrType>(NodeAttrName,NodeAttrType));
@@ -2566,8 +2584,8 @@ PTable TTable::GetFltNodePropertyTable(const PNEANet& Network, const TStr& Table
   TInt NodeColIdx = T->GetColIdx(NodeAttrName);
   TInt Cnt = 0;
   // populate table columns
-  for (TNEANet::TNodeI NodeI = Network->BegNI(); NodeI < Network->EndNI(); NodeI++){
-    switch(NodeAttrType){
+  for (TNEANet::TNodeI NodeI = Network->BegNI(); NodeI < Network->EndNI(); NodeI++) {
+    switch (NodeAttrType) {
       case atInt:
         T->IntCols[NodeColIdx].Add(Network->GetIntAttrDatN(NodeI,NodeAttrName));
         break;
@@ -2585,7 +2603,7 @@ PTable TTable::GetFltNodePropertyTable(const PNEANet& Network, const TStr& Table
   T->NumRows = Cnt;
   T->NumValidRows = T->NumRows;
   T->Next = TIntV(T->NumRows,0);
-  for(TInt i = 0; i < T->NumRows-1; i++){
+  for (TInt i = 0; i < T->NumRows-1; i++) {
     T->Next.Add(i+1);
   }
   T->LastValidRow = T->NumRows-1;
@@ -2594,46 +2612,46 @@ PTable TTable::GetFltNodePropertyTable(const PNEANet& Network, const TStr& Table
 }
 
 /*** Special Filters ***/
-PTable TTable::IsNextK(const TStr& OrderCol, TInt K, const TStr& GroupBy, const TStr& RankColName){
+PTable TTable::IsNextK(const TStr& OrderCol, TInt K, const TStr& GroupBy, const TStr& RankColName) {
   TStrV OrderBy;
-  if(GroupBy.Empty()){
+  if (GroupBy.Empty()) {
     OrderBy.Add(OrderCol);
-  } else{
+  } else {
     OrderBy.Add(GroupBy);
     OrderBy.Add(OrderCol);
   }
-  if(RankColName.Empty()){
+  if (RankColName.Empty()) {
     Order(OrderBy);
-  } else{
+  } else {
     Order(OrderBy, RankColName, true);
   }
   TAttrType GroupByAttrType = GetColType(GroupBy);
   PTable T = InitializeJointTable(*this);
-  for(TRowIterator RI = BegRI(); RI < EndRI(); RI++){
+  for (TRowIterator RI = BegRI(); RI < EndRI(); RI++) {
     TInt Succ = RI.GetRowIdx();
     TBool OutOfGroup = false;
-    for(TInt i = 0; i < K; i++){
+    for (TInt i = 0; i < K; i++) {
       Succ = Next[Succ];
-      if(Succ == Last){break;}
-      switch(GroupByAttrType){
+      if (Succ == Last) {break;}
+      switch (GroupByAttrType) {
         case atInt:
-          if(GetIntVal(GroupBy, Succ) != RI.GetIntAttr(GroupBy)){ OutOfGroup = true;}
+          if (GetIntVal(GroupBy, Succ) != RI.GetIntAttr(GroupBy)) { OutOfGroup = true;}
           break;
         case atFlt:
-          if(GetFltVal(GroupBy, Succ) != RI.GetFltAttr(GroupBy)){ OutOfGroup = true;}
+          if (GetFltVal(GroupBy, Succ) != RI.GetFltAttr(GroupBy)) { OutOfGroup = true;}
           break;
         case atStr:
-          if(GetStrVal(GroupBy, Succ) != RI.GetStrAttr(GroupBy)){ OutOfGroup = true;}
+          if (GetStrVal(GroupBy, Succ) != RI.GetStrAttr(GroupBy)) { OutOfGroup = true;}
           break;
       }
-      if(OutOfGroup){break;}  // break out of inner for loop
+      if (OutOfGroup) {break;}  // break out of inner for loop
       T->AddJointRow(*this, *this, RI.GetRowIdx(), Succ);
     }
   }
   return T;
 }
 
-void TTable::PrintSize(){
+void TTable::PrintSize() {
   double ApproxSize = 0;
   printf("Table Name: %s\n", Name.CStr());
   printf("Total number of rows: %d\n", NumRows.Val);
@@ -2655,16 +2673,16 @@ void TTable::PrintSize(){
 }
 
 
-void TTable::AddTable(const TTable& T){
-  //for(TInt c = 0; c < S.Len(); c++){
-  //  if(S[c] != T.S[c]){ printf("(%s,%d) != (%s,%d)\n", S[c].Val1.CStr(), S[c].Val2, T.S[c].Val1.CStr(), T.S[c].Val2); TExcept::Throw("when adding tables, their schemas must match!");}
+void TTable::AddTable(const TTable& T) {
+  //for (TInt c = 0; c < S.Len(); c++) {
+  //  if (S[c] != T.S[c]) { printf("(%s,%d) != (%s,%d)\n", S[c].Val1.CStr(), S[c].Val2, T.S[c].Val1.CStr(), T.S[c].Val2); TExcept::Throw("when adding tables, their schemas must match!");}
   //}
-  for(TInt c = 0; c < S.Len(); c++){
+  for (TInt c = 0; c < S.Len(); c++) {
     TStr ColName = GetSchemaColName(c);
     TInt ColIdx = GetColIdx(ColName);
     TInt TColIdx = ColName == IdColName ? T.GetColIdx(T.IdColName) : T.GetColIdx(ColName);
-    if (TColIdx < 0){ TExcept::Throw("when adding a table, it must contain all columns of source table!");}
-    switch(GetColType(ColName)){ 
+    if (TColIdx < 0) { TExcept::Throw("when adding a table, it must contain all columns of source table!");}
+    switch (GetColType(ColName)) { 
     case atInt:
        IntCols[ColIdx].AddV(T.IntCols[TColIdx]);
        break;
@@ -2678,8 +2696,8 @@ void TTable::AddTable(const TTable& T){
   }
 
   TIntV TNext(T.Next);
-  for(TInt i = 0; i < TNext.Len(); i++){
-    if(TNext[i] != Last && TNext[i] != Invalid){ TNext[i] += NumRows;}
+  for (TInt i = 0; i < TNext.Len(); i++) {
+    if (TNext[i] != Last && TNext[i] != Invalid) { TNext[i] += NumRows;}
   }
 
   Next.AddV(TNext);
@@ -2707,20 +2725,20 @@ void TTable::GetCollidingRows(const TTable& Table, THashSet<TInt>& Collisions) {
   TInt IKLen, FKLen, SKLen;
 
   // check that schemas match
-  for(TInt c = 0; c < S.Len(); c++){
+  for (TInt c = 0; c < S.Len(); c++) {
     if (S[c].Val1 == IdColName) {
       if (Table.S[c].Val1 != Table.GetIdColName()) {
         TExcept::Throw("GetCollidingRows: schemas do not match!");
       }
       continue;
     }
-    if(S[c] != Table.S[c]){
+    if (S[c] != Table.S[c]) {
       printf("(%s,%d) != (%s,%d)\n", S[c].Val1.CStr(), S[c].Val2, Table.S[c].Val1.CStr(), Table.S[c].Val2); 
       TExcept::Throw("GetCollidingRows: schemas do not match!");
     }
     GroupBy.Add(S[c].Val1);
     TPair<TAttrType, TInt> ColType = Table.ColTypeMap.GetDat(S[c].Val1);
-    switch(ColType.Val1){
+    switch (ColType.Val1) {
       case atInt:
         IntGroupByCols.Add(ColType.Val2);
         break;
@@ -2741,19 +2759,19 @@ void TTable::GetCollidingRows(const TTable& Table, THashSet<TInt>& Collisions) {
   GroupAux(GroupBy, Grouping, true, "", false, UniqueVec);
 
   // find colliding rows of second table
-  for(TRowIterator it = Table.BegRI(); it < Table.EndRI(); it++){
+  for (TRowIterator it = Table.BegRI(); it < Table.EndRI(); it++) {
     // read keys from row
     TIntV IKey(IKLen + SKLen, 0);
     TFltV FKey(FKLen, 0);
 
     // find group key
-    for(TInt c = 0; c < IKLen; c++){
+    for (TInt c = 0; c < IKLen; c++) {
       IKey.Add(it.GetIntAttr(IntGroupByCols[c])); 
     }
-    for(TInt c = 0; c < FKLen; c++){
+    for (TInt c = 0; c < FKLen; c++) {
       FKey.Add(it.GetFltAttr(FltGroupByCols[c])); 
     }
-    for(TInt c = 0; c < SKLen; c++){
+    for (TInt c = 0; c < SKLen; c++) {
       IKey.Add(it.GetStrMap(StrGroupByCols[c])); 
     }
     // look for group matching the key
@@ -2767,8 +2785,8 @@ void TTable::GetCollidingRows(const TTable& Table, THashSet<TInt>& Collisions) {
   }
 }
 
-void TTable::StoreIntCol(const TStr& ColName, const TIntV& ColVals){
-  if(ColVals.Len() != NumRows){
+void TTable::StoreIntCol(const TStr& ColName, const TIntV& ColVals) {
+  if (ColVals.Len() != NumRows) {
     printf("new column dimension must agree with number of rows\n");
     return;
   }
@@ -2776,7 +2794,7 @@ void TTable::StoreIntCol(const TStr& ColName, const TIntV& ColVals){
   IntCols.Add(TIntV(NumRows));
   TInt ColIdx = IntCols.Len()-1;
   TInt i = 0;
-  for(TRowIterator RI = BegRI(); RI < EndRI(); RI++){
+  for (TRowIterator RI = BegRI(); RI < EndRI(); RI++) {
     IntCols[ColIdx][RI.GetRowIdx()] = ColVals[i];
     i++;
   }
@@ -2784,8 +2802,8 @@ void TTable::StoreIntCol(const TStr& ColName, const TIntV& ColVals){
   ColTypeMap.AddDat(ColName, TPair<TAttrType,TInt>(atInt, L-1));
 }
 
-void TTable::StoreFltCol(const TStr& ColName, const TFltV& ColVals){
-  if(ColVals.Len() != NumRows){
+void TTable::StoreFltCol(const TStr& ColName, const TFltV& ColVals) {
+  if (ColVals.Len() != NumRows) {
     printf("new column dimension must agree with number of rows\n");
     return;
   }
@@ -2793,7 +2811,7 @@ void TTable::StoreFltCol(const TStr& ColName, const TFltV& ColVals){
   FltCols.Add(TFltV(NumRows));
   TInt ColIdx = FltCols.Len()-1;
   TInt i = 0;
-  for(TRowIterator RI = BegRI(); RI < EndRI(); RI++){
+  for (TRowIterator RI = BegRI(); RI < EndRI(); RI++) {
     FltCols[ColIdx][RI.GetRowIdx()] = ColVals[i];
     i++;
   }
@@ -2801,8 +2819,8 @@ void TTable::StoreFltCol(const TStr& ColName, const TFltV& ColVals){
   ColTypeMap.AddDat(ColName, TPair<TAttrType,TInt>(atFlt, L-1));
 }
 
-void TTable::StoreStrCol(const TStr& ColName, const TStrV& ColVals){
-  if(ColVals.Len() != NumRows){
+void TTable::StoreStrCol(const TStr& ColName, const TStrV& ColVals) {
+  if (ColVals.Len() != NumRows) {
     printf("new column dimension must agree with number of rows\n");
     return;
   }
@@ -2810,9 +2828,9 @@ void TTable::StoreStrCol(const TStr& ColName, const TStrV& ColVals){
   StrColMaps.Add(TIntV(NumRows,0));
   TInt ColIdx = FltCols.Len()-1;
   TInt i = 0;
-  for(TRowIterator RI = BegRI(); RI < EndRI(); RI++){
+  for (TRowIterator RI = BegRI(); RI < EndRI(); RI++) {
     TInt Key = Context.StringVals.GetKeyId(ColVals[i]);
-    if(Key == -1){ Context.StringVals.AddKey(ColVals[i]);}
+    if (Key == -1) { Context.StringVals.AddKey(ColVals[i]);}
     StrColMaps[ColIdx][RI.GetRowIdx()] = Key;
     i++;
   }
@@ -2820,7 +2838,7 @@ void TTable::StoreStrCol(const TStr& ColName, const TStrV& ColVals){
   ColTypeMap.AddDat(ColName, TPair<TAttrType,TInt>(atStr, L-1));
 }
 
-void TTable::UpdateTableForNewRow(){
+void TTable::UpdateTableForNewRow() {
   if (LastValidRow >= 0) {
     Next[LastValidRow] = NumRows;
   }
@@ -2833,13 +2851,13 @@ void TTable::UpdateTableForNewRow(){
 
 // can ONLY be called when a table is being initialised (before IDs are allocated)
 void TTable::AddRow(const TRowIterator& RI) {
-  for(TInt c = 0; c < S.Len(); c++){
+  for (TInt c = 0; c < S.Len(); c++) {
     TStr ColName = GetSchemaColName(c);
     if (ColName == IdColName) continue;
 
     TInt ColIdx = GetColIdx(ColName);
 
-    switch(GetColType(ColName)){
+    switch (GetColType(ColName)) {
     case atInt:
        IntCols[ColIdx].Add(RI.GetIntAttr(ColName));
        break;
@@ -2856,26 +2874,26 @@ void TTable::AddRow(const TRowIterator& RI) {
 }
 
 void TTable::AddRow(const TIntV& IntVals, const TFltV& FltVals, const TStrV& StrVals) {
-  for (TInt c = 0; c < IntVals.Len(); c++){
+  for (TInt c = 0; c < IntVals.Len(); c++) {
     IntCols[c].Add(IntVals[c]);
   }
-  for (TInt c = 0; c < FltVals.Len(); c++){
+  for (TInt c = 0; c < FltVals.Len(); c++) {
     FltCols[c].Add(FltVals[c]);
   }
-  for (TInt c = 0; c < StrVals.Len(); c++){
+  for (TInt c = 0; c < StrVals.Len(); c++) {
     AddStrVal(c, StrVals[c]);
   }
   UpdateTableForNewRow();
 }
 
 void TTable::ResizeTable(int RowCount) {
-  for(TInt i = 0; i < IntCols.Len(); i++){
+  for (TInt i = 0; i < IntCols.Len(); i++) {
     IntCols[i].Reserve(RowCount, RowCount);
   }
-  for(TInt i = 0; i < FltCols.Len(); i++){
+  for (TInt i = 0; i < FltCols.Len(); i++) {
     FltCols[i].Reserve(RowCount, RowCount);
   }
-  for(TInt i = 0; i < StrColMaps.Len(); i++){
+  for (TInt i = 0; i < StrColMaps.Len(); i++) {
     StrColMaps[i].Reserve(RowCount, RowCount);
   }
   Next.Reserve(RowCount, RowCount);
@@ -2898,18 +2916,18 @@ void TTable::AddSelectedRows(const TTable& Table, const TIntV& RowIDs) {
   if (NewRows == 0) {return;}
   // this call should be thread-safe
   int start = GetEmptyRowsStart(NewRows);
-  for (TInt r = 0; r < NewRows; r++){
-    for(TInt i = 0; i < Table.IntCols.Len(); i++){
+  for (TInt r = 0; r < NewRows; r++) {
+    for (TInt i = 0; i < Table.IntCols.Len(); i++) {
       IntCols[i][start+r] = Table.IntCols[i][RowIDs[r]];
     }
-    for(TInt i = 0; i < Table.FltCols.Len(); i++){
+    for (TInt i = 0; i < Table.FltCols.Len(); i++) {
       FltCols[i][start+r] = Table.FltCols[i][RowIDs[r]];
     }
-    for(TInt i = 0; i < Table.StrColMaps.Len(); i++){
+    for (TInt i = 0; i < Table.StrColMaps.Len(); i++) {
       StrColMaps[i][start+r] = Table.StrColMaps[i][RowIDs[r]];
     }
   }
-  for(TInt r = 0; r < NewRows-1; r++){
+  for (TInt r = 0; r < NewRows-1; r++) {
     Next[start+r] = start+r+1;
   }
 }  
@@ -2918,25 +2936,25 @@ void TTable::AddNRows(int NewRows, const TVec<TIntV>& IntColsP, const TVec<TFltV
   if (NewRows == 0) {return;}
   // this call should be thread-safe
   int start = GetEmptyRowsStart(NewRows);
-  for (TInt r = 0; r < NewRows; r++){
-    for(TInt i = 0; i < IntColsP.Len(); i++){
+  for (TInt r = 0; r < NewRows; r++) {
+    for (TInt i = 0; i < IntColsP.Len(); i++) {
       IntCols[i][start+r] = IntColsP[i][r];
     }
-    for(TInt i = 0; i < FltColsP.Len(); i++){
+    for (TInt i = 0; i < FltColsP.Len(); i++) {
       FltCols[i][start+r] = FltColsP[i][r];
     }
-    for(TInt i = 0; i < StrColMapsP.Len(); i++){
+    for (TInt i = 0; i < StrColMapsP.Len(); i++) {
       StrColMaps[i][start+r] = StrColMapsP[i][r];
     }
   }
-  for(TInt r = 0; r < NewRows-1; r++){
+  for (TInt r = 0; r < NewRows-1; r++) {
     Next[start+r] = start+r+1;
   }
 }
 
 PTable TTable::UnionAll(const TTable& Table, const TStr& TableName) {
   Schema NewSchema;
-  for(TInt c = 0; c < S.Len(); c++){
+  for (TInt c = 0; c < S.Len(); c++) {
     if (S[c].Val1 != GetIdColName()) {
       NewSchema.Add(TPair<TStr,TAttrType>(S[c].Val1, S[c].Val2));
     }
@@ -2953,11 +2971,11 @@ void TTable::UnionAllInPlace(const TTable& Table) {
   //result->InitIds();
 }
 
-PTable TTable::Union(const TTable& Table, const TStr& TableName){
+PTable TTable::Union(const TTable& Table, const TStr& TableName) {
   Schema NewSchema;
   THashSet<TInt> Collisions;
 
-  for(TInt c = 0; c < S.Len(); c++){
+  for (TInt c = 0; c < S.Len(); c++) {
     if (S[c].Val1 != GetIdColName()) {
       NewSchema.Add(TPair<TStr,TAttrType>(S[c].Val1, S[c].Val2));
     }
@@ -2969,8 +2987,8 @@ PTable TTable::Union(const TTable& Table, const TStr& TableName){
   result->AddTable(*this);
 
   // this part should be made faster by adding all the rows in one go
-  for(TRowIterator it = Table.BegRI(); it < Table.EndRI(); it++){
-    if (!Collisions.IsKey(it.GetRowIdx())){
+  for (TRowIterator it = Table.BegRI(); it < Table.EndRI(); it++) {
+    if (!Collisions.IsKey(it.GetRowIdx())) {
       result->AddRow(it);
     }
   }
@@ -2978,11 +2996,11 @@ PTable TTable::Union(const TTable& Table, const TStr& TableName){
   return result;
 }
 
-PTable TTable::Intersection(const TTable& Table, const TStr& TableName){
+PTable TTable::Intersection(const TTable& Table, const TStr& TableName) {
   Schema NewSchema;
   THashSet<TInt> Collisions;
 
-  for(TInt c = 0; c < S.Len(); c++){
+  for (TInt c = 0; c < S.Len(); c++) {
     if (S[c].Val1 != GetIdColName()) {
       NewSchema.Add(TPair<TStr,TAttrType>(S[c].Val1, S[c].Val2));
     }
@@ -2992,8 +3010,8 @@ PTable TTable::Intersection(const TTable& Table, const TStr& TableName){
   GetCollidingRows(Table, Collisions);
 
   // this part should be made faster by adding all the rows in one go
-  for(TRowIterator it = Table.BegRI(); it < Table.EndRI(); it++){
-    if (Collisions.IsKey(it.GetRowIdx())){
+  for (TRowIterator it = Table.BegRI(); it < Table.EndRI(); it++) {
+    if (Collisions.IsKey(it.GetRowIdx())) {
       result->AddRow(it);
     }
   }
@@ -3003,11 +3021,11 @@ PTable TTable::Intersection(const TTable& Table, const TStr& TableName){
 
 // TTable cannot be const because we will eventually call Table->GroupAux
 // as of now, GroupAux cannot be const because it modifies the table in some cases
-PTable TTable::Minus(TTable& Table, const TStr& TableName){
+PTable TTable::Minus(TTable& Table, const TStr& TableName) {
   Schema NewSchema;
   THashSet<TInt> Collisions;
 
-  for(TInt c = 0; c < S.Len(); c++){
+  for (TInt c = 0; c < S.Len(); c++) {
     if (S[c].Val1 != GetIdColName()) {
       NewSchema.Add(TPair<TStr,TAttrType>(S[c].Val1, S[c].Val2));
     }
@@ -3017,8 +3035,8 @@ PTable TTable::Minus(TTable& Table, const TStr& TableName){
   Table.GetCollidingRows(*this, Collisions);
 
   // this part should be made faster by adding all the rows in one go
-  for(TRowIterator it = BegRI(); it < EndRI(); it++){
-    if (!Collisions.IsKey(it.GetRowIdx())){
+  for (TRowIterator it = BegRI(); it < EndRI(); it++) {
+    if (!Collisions.IsKey(it.GetRowIdx())) {
       result->AddRow(it);
     }
   }
@@ -3026,10 +3044,10 @@ PTable TTable::Minus(TTable& Table, const TStr& TableName){
   return result;
 }
 
-PTable TTable::Project(const TStrV& ProjectCols, const TStr& TableName){
+PTable TTable::Project(const TStrV& ProjectCols, const TStr& TableName) {
   Schema NewSchema;
-  for(TInt c = 0; c < ProjectCols.Len(); c++){
-    if(!ColTypeMap.IsKey(ProjectCols[c])){TExcept::Throw("no such column " + ProjectCols[c]);}
+  for (TInt c = 0; c < ProjectCols.Len(); c++) {
+    if (!ColTypeMap.IsKey(ProjectCols[c])) {TExcept::Throw("no such column " + ProjectCols[c]);}
     NewSchema.Add(TPair<TStr,TAttrType>(ProjectCols[c], GetColType(ProjectCols[c])));
   }
 
@@ -3040,7 +3058,7 @@ PTable TTable::Project(const TStrV& ProjectCols, const TStr& TableName){
 }
 
 TBool TTable::IsAttr(const TStr& Attr) {
-  if(!ColTypeMap.IsKey(Attr)){
+  if (!ColTypeMap.IsKey(Attr)) {
     return false;
   }
   return true;
@@ -3060,15 +3078,15 @@ void TTable::AddFltCol(const TStr& ColName) {
   ColTypeMap.AddDat(ColName, TPair<TAttrType,TInt>(atFlt, L-1));
 }
 
-void TTable::ClassifyAux(const TIntV& SelectedRows, const TStr& LabelName, const TInt& PositiveLabel, const TInt& NegativeLabel){
+void TTable::ClassifyAux(const TIntV& SelectedRows, const TStr& LabelName, const TInt& PositiveLabel, const TInt& NegativeLabel) {
   S.Add(TPair<TStr,TAttrType>(LabelName, atInt));
   TInt LabelColIdx = IntCols.Len();
   ColTypeMap.AddDat(LabelName, TPair<TAttrType, TInt>(atInt, LabelColIdx));
   IntCols.Add(TIntV(NumRows));
-  for(TInt i = 0; i < NumRows; i++){
+  for (TInt i = 0; i < NumRows; i++) {
     IntCols[LabelColIdx][i] = NegativeLabel;
   }
-  for(TInt i = 0; i < SelectedRows.Len(); i++){
+  for (TInt i = 0; i < SelectedRows.Len(); i++) {
     IntCols[LabelColIdx][SelectedRows[i]] = PositiveLabel;
   }
 }
@@ -3109,7 +3127,7 @@ void TTable::ColGenericOp(const TStr& Attr1, const TStr& Attr2, const TStr& ResA
       ColIdx3 = GetColIdx(ResAttr);
   }
 
-  for(TRowIterator RowI = BegRI(); RowI < EndRI(); RowI++){
+  for (TRowIterator RowI = BegRI(); RowI < EndRI(); RowI++) {
     if (Info1.Val1 == atInt) {
       TInt Val, CurVal;
       CurVal = RowI.GetIntAttr(ColIdx1);
@@ -3328,7 +3346,7 @@ void TTable::ColGenericOp(const TStr& Attr1, const TFlt& Num, const TStr& ResAtt
     shouldCast = false;
   }
 
-  for(TRowIterator RowI = BegRI(); RowI < EndRI(); RowI++){
+  for (TRowIterator RowI = BegRI(); RowI < EndRI(); RowI++) {
     if ((Info1.Val1 == atInt) && !shouldCast) {
       TInt CurVal = RowI.GetIntAttr(ColIdx1);
       TInt Val = (TInt) Num;
@@ -3370,41 +3388,41 @@ void TTable::ColMod(const TStr& Attr1, const TFlt& Num, const TStr& ResultAttrNa
 }
 
 void TTable::ReadIntCol(const TStr& ColName, TIntV& Result) const{
-  if(!ColTypeMap.IsKey(ColName)){ TExcept::Throw("no such column " + ColName);}
-  if(GetColType(ColName) != atInt){ TExcept::Throw("not an integer column " + ColName);}
-  for(TRowIterator it = BegRI(); it < EndRI(); it++){
+  if (!ColTypeMap.IsKey(ColName)) { TExcept::Throw("no such column " + ColName);}
+  if (GetColType(ColName) != atInt) { TExcept::Throw("not an integer column " + ColName);}
+  for (TRowIterator it = BegRI(); it < EndRI(); it++) {
     Result.Add(it.GetIntAttr(ColName));
   }
 }
 
 void TTable::ReadFltCol(const TStr& ColName, TFltV& Result) const{
-  if(!ColTypeMap.IsKey(ColName)){ TExcept::Throw("no such column " + ColName);}
-  if(GetColType(ColName) != atFlt){ TExcept::Throw("not a floating point column " + ColName);}
-    for(TRowIterator it = BegRI(); it < EndRI(); it++){
+  if (!ColTypeMap.IsKey(ColName)) { TExcept::Throw("no such column " + ColName);}
+  if (GetColType(ColName) != atFlt) { TExcept::Throw("not a floating point column " + ColName);}
+    for (TRowIterator it = BegRI(); it < EndRI(); it++) {
     Result.Add(it.GetFltAttr(ColName));
   }
 }
 
 void TTable::ReadStrCol(const TStr& ColName, TStrV& Result) const{
-  if(!ColTypeMap.IsKey(ColName)){ TExcept::Throw("no such column " + ColName);}
-  if(GetColType(ColName) != atStr){ TExcept::Throw("not a string column " + ColName);}
-    for(TRowIterator it = BegRI(); it < EndRI(); it++){
+  if (!ColTypeMap.IsKey(ColName)) { TExcept::Throw("no such column " + ColName);}
+  if (GetColType(ColName) != atStr) { TExcept::Throw("not a string column " + ColName);}
+    for (TRowIterator it = BegRI(); it < EndRI(); it++) {
     Result.Add(it.GetStrAttr(ColName));
   }
 }
 
-void TTable::ProjectInPlace(const TStrV& ProjectCols){
-  for(TInt c = 0; c < ProjectCols.Len(); c++){
-    if(!ColTypeMap.IsKey(ProjectCols[c])){TExcept::Throw("no such column " + ProjectCols[c]);}
+void TTable::ProjectInPlace(const TStrV& ProjectCols) {
+  for (TInt c = 0; c < ProjectCols.Len(); c++) {
+    if (!ColTypeMap.IsKey(ProjectCols[c])) {TExcept::Throw("no such column " + ProjectCols[c]);}
   }
   THashSet<TStr> ProjectColsSet = THashSet<TStr>(ProjectCols);
   // Delete the column vectors
-  for(TInt i = S.Len() - 1; i >= 0; i--){
+  for (TInt i = S.Len() - 1; i >= 0; i--) {
     TStr ColName = GetSchemaColName(i);
-    if (ProjectColsSet.IsKey(ColName) || ColName == IdColName){ continue;}
+    if (ProjectColsSet.IsKey(ColName) || ColName == IdColName) { continue;}
     TAttrType ColType = GetSchemaColType(i);
     TInt ColId = GetColIdx(ColName);
-    switch(ColType){
+    switch (ColType) {
       case atInt:
         IntCols.Del(ColId);
         break;
@@ -3422,11 +3440,11 @@ void TTable::ProjectInPlace(const TStrV& ProjectCols){
   TInt FltColCnt = 0;
   TInt StrColCnt = 0;
   ColTypeMap.Clr();
-  for(TInt i = 0; i < S.Len(); i++){
+  for (TInt i = 0; i < S.Len(); i++) {
     TStr ColName = GetSchemaColName(i);
-    if (!ProjectColsSet.IsKey(ColName) && ColName != IdColName){ continue;}
+    if (!ProjectColsSet.IsKey(ColName) && ColName != IdColName) { continue;}
     TAttrType ColType = GetSchemaColType(i);
-    switch(ColType){
+    switch (ColType) {
       case atInt:
         ColTypeMap.AddDat(ColName, TPair<TAttrType,TInt>(atInt, IntColCnt));
         IntColCnt++;
@@ -3443,9 +3461,9 @@ void TTable::ProjectInPlace(const TStrV& ProjectCols){
   }
 
   // Update schema
-  for (TInt i = S.Len() - 1; i >= 0; i--){
+  for (TInt i = S.Len() - 1; i >= 0; i--) {
     TStr ColName = GetSchemaColName(i);
-    if (ProjectColsSet.IsKey(ColName) || ColName == IdColName){ continue;}
+    if (ProjectColsSet.IsKey(ColName) || ColName == IdColName) { continue;}
     S.Del(i);
   }
 }
