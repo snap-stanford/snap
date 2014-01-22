@@ -3091,8 +3091,8 @@ void TTable::ClassifyAux(const TIntV& SelectedRows, const TStr& LabelName, const
   }
 }
 
-/* Performs a generic operations on two numeric attributes
- * Operation can be +, -, *, / or %
+/* Performs generic operations on two numeric attributes
+ * Operation can be +, -, *, /, %, min or max
  * Alternative is to write separate functions for each operation
  * Branch prediction may result in as fast performance anyway ?
  *
@@ -3142,6 +3142,12 @@ void TTable::ColGenericOp(const TStr& Attr1, const TStr& Attr2, const TStr& ResA
       if (op == OP_MUL) IntCols[ColIdx3][RowI.GetRowIdx()] = CurVal * Val;
       if (op == OP_DIV) IntCols[ColIdx3][RowI.GetRowIdx()] = CurVal / Val;
       if (op == OP_MOD) IntCols[ColIdx3][RowI.GetRowIdx()] = CurVal % Val;
+      if (op == OP_MIN) {
+        IntCols[ColIdx3][RowI.GetRowIdx()] = (CurVal < Val) ? CurVal : Val;
+      }
+      if (op == OP_MAX) {
+        IntCols[ColIdx3][RowI.GetRowIdx()] = (CurVal > Val) ? CurVal : Val;
+      }
     }
     else {
       TFlt Val, CurVal;
@@ -3157,6 +3163,12 @@ void TTable::ColGenericOp(const TStr& Attr1, const TStr& Attr2, const TStr& ResA
       if (op == OP_MUL) FltCols[ColIdx3][RowI.GetRowIdx()] = CurVal * Val;
       if (op == OP_DIV) FltCols[ColIdx3][RowI.GetRowIdx()] = CurVal / Val;
       if (op == OP_MOD) TExcept::Throw("Cannot find modulo for float columns");
+      if (op == OP_MIN) {
+        FltCols[ColIdx3][RowI.GetRowIdx()] = (CurVal < Val) ? CurVal : Val;
+      }
+      if (op == OP_MAX) {
+        FltCols[ColIdx3][RowI.GetRowIdx()] = (CurVal > Val) ? CurVal : Val;
+      }
     }
   }
 }
@@ -3179,6 +3191,14 @@ void TTable::ColDiv(const TStr& Attr1, const TStr& Attr2, const TStr& ResultAttr
 
 void TTable::ColMod(const TStr& Attr1, const TStr& Attr2, const TStr& ResultAttrName) {
   ColGenericOp(Attr1, Attr2, ResultAttrName, OP_MOD);
+}
+
+void TTable::ColMin(const TStr& Attr1, const TStr& Attr2, const TStr& ResultAttrName) {
+  ColGenericOp(Attr1, Attr2, ResultAttrName, OP_MIN);
+}
+
+void TTable::ColMax(const TStr& Attr1, const TStr& Attr2, const TStr& ResultAttrName) {
+  ColGenericOp(Attr1, Attr2, ResultAttrName, OP_MAX);
 }
 
 void TTable::ColGenericOp(const TStr& Attr1, TTable& Table, const TStr& Attr2, const TStr& ResAttr,

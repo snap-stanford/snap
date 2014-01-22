@@ -59,7 +59,7 @@ public:
 /// possible policies for aggregating node attributes
 typedef enum {aaMin, aaMax, aaFirst, aaLast, aaMean, aaMedian, aaSum, aaCount} TAttrAggr;
 /// possible column-wise arithmetic operations
-typedef enum {OP_ADD, OP_SUB, OP_MUL, OP_DIV, OP_MOD} OPS;
+typedef enum {OP_ADD, OP_SUB, OP_MUL, OP_DIV, OP_MOD, OP_MIN, OP_MAX} OPS;
 
 /// A table schema is a vector of pairs <attribute name, attribute type>
 typedef TVec<TPair<TStr, TAttrType> > Schema; 
@@ -661,6 +661,8 @@ public:
   void ColMul(const TStr& Attr1, const TStr& Attr2, const TStr& ResultAttrName="");
   void ColDiv(const TStr& Attr1, const TStr& Attr2, const TStr& ResultAttrName="");
   void ColMod(const TStr& Attr1, const TStr& Attr2, const TStr& ResultAttrName="");
+  void ColMin(const TStr& Attr1, const TStr& Attr2, const TStr& ResultAttrName="");
+  void ColMax(const TStr& Attr1, const TStr& Attr2, const TStr& ResultAttrName="");
 
   /* Performs Attr1 OP Attr2 and stores it in Attr1 or Attr2
    * This is done depending on the flag AddToFirstTable

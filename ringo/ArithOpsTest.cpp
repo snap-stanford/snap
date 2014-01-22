@@ -34,6 +34,9 @@ int main(){
   Q->ColDiv("Y", 10.1);
   Q->ColMod("baz", 3);
 
+  Q->ColMax("X", "baz", "max");
+  Q->ColMin("Y", "W", "min");
+
   P->SaveSS("tests/res1.txt");
   Q->SaveSS("tests/res2.txt");
   return 0;
