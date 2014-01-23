@@ -10,17 +10,19 @@ class TTable;
 class TTableContext;
 typedef TPt<TTable> PTable;
 
-/// Every grouping key can be represented a a pair of IntV for integer and string group-by attributes and FltV for floating-point group-by attributes.
+/// Represent grouping key with IntV for integer and string attributes and FltV for float attributes.
 typedef TPair<TIntV, TFltV> TGroupKey;
 
 //TODO: move to separate file (map.h / file with PR and HITS) 
 namespace TSnap {
 
+  /// Get sequence of PageRank tables from given \c GraphSeq into \c TableSeq
   template <class PGraph>
   void MapPageRank(const TVec<PGraph>& GraphSeq, TVec<PTable>& TableSeq, 
       TTableContext& Context, const TStr& TableNamePrefix,
       const double& C, const double& Eps, const int& MaxIter);
 
+  /// Get sequence of Hits tables from given \c GraphSeq into \c TableSeq
   template <class PGraph>
   void MapHits(const TVec<PGraph>& GraphSeq, TVec<PTable>& TableSeq, 
     TTableContext& Context, const TStr& TableNamePrefix,
@@ -34,8 +36,11 @@ protected:
   TStrHash<TInt, TBigStrPool> StringVals; ///< StringPool - stores string data values and maps them to integers
   friend class TTable;
 public:
+  /// Default constructor
   TTableContext() {}
+  /// Load TTableContext in binary from \c SIn
   TTableContext(TSIn& SIn): StringVals(SIn) {}
+  /// Save TTableContext in binary to \c SOut
   void Save(TSOut& SOut) { StringVals.Save(SOut); }
 };
 
@@ -43,16 +48,23 @@ public:
 /// Table Row (Record)
 class TTableRow {
 protected:
-  TIntV IntVals; 
-  TFltV FltVals; 
-  TStrV StrVals; 
+  TIntV IntVals; ///< Values of the int columns for this row
+  TFltV FltVals; ///< Values of the flt columns for this row
+  TStrV StrVals; ///< Values of the str columns for this row
 public:
+  /// Default constructor
   TTableRow() {}
+  /// Add int attribute to this row
   void AddInt(const TInt& Val) { IntVals.Add(Val); }
+  /// Add float attribute to this row
   void AddFlt(const TFlt& Val) { FltVals.Add(Val); }
+  /// Add string attribute to this row
   void AddStr(const TStr& Val) { StrVals.Add(Val); }
+  /// Get int attributes of this row
   TIntV GetIntVals() const { return IntVals; }
+  /// Get float attributes of this row
   TFltV GetFltVals() const { return FltVals; }
+  /// Get string attributes of this row
   TStrV GetStrVals() const { return StrVals; }
 };
 
@@ -67,16 +79,24 @@ typedef TVec<TPair<TStr, TAttrType> > Schema;
 //#//////////////////////////////////////////////
 /// Iterator class for TTable rows. ##Iterator
 class TRowIterator{ 
-  TInt CurrRowIdx; ///< Physical row index of current row pointer by iterator
-  const TTable* Table; 
+  TInt CurrRowIdx; ///< Physical row index of current row pointed by iterator
+  const TTable* Table; ///< Reference to table containing this row
 public:
+  /// Default constructor
   TRowIterator(): CurrRowIdx(0), Table(NULL) {}
+  /// Construct iterator to row \c RowIds of \c TablePtr
   TRowIterator(TInt RowIdx, const TTable* TablePtr): CurrRowIdx(RowIdx), Table(TablePtr) {}
+  /// Copy constructor
   TRowIterator(const TRowIterator& RowI): CurrRowIdx(RowI.CurrRowIdx), Table(RowI.Table) {}
+  /// Increment iterator
   TRowIterator& operator++(int);
-  TRowIterator& Next(); // For Python compatibility
+  /// Increment iterator (For Python compatibility)
+  TRowIterator& Next(); 
+  /// Check if this iterator points to a row that is before the one pointed by \c RowI
   bool operator < (const TRowIterator& RowI) const;
+  /// Check if this iterator points to the same row pointed by \c RowI
   bool operator == (const TRowIterator& RowI) const;
+  /// Get the id of the row pointed by this iterator
   TInt GetRowIdx() const;
   /// Return value of integer attribute specified by integer column index for current row
   TInt GetIntAttr(TInt ColIdx) const;
@@ -100,17 +120,26 @@ public:
 /// Iterator class for TTable rows, that allows logical row removal while iterating.
 class TRowIteratorWithRemove {
   TInt CurrRowIdx; ///< Physical row index of current row pointer by iterator
-  TTable* Table;
+  TTable* Table; ///< Reference to table containing this row
   TBool Start;	///< A flag indicating whether the current row in the first valid row of the table 
 public:
+  /// Default constructor
   TRowIteratorWithRemove(): CurrRowIdx(0), Table(NULL), Start(true) {}
+  /// Construct iterator pointing to given row
   TRowIteratorWithRemove(TInt RowIdx, TTable* TablePtr);
-  TRowIteratorWithRemove(TInt RowIdx, TTable* TablePtr, TBool IsStart): CurrRowIdx(RowIdx), Table(TablePtr), Start(IsStart) {}
-  TRowIteratorWithRemove(const TRowIteratorWithRemove& RowI): CurrRowIdx(RowI.CurrRowIdx), Table(RowI.Table), Start(RowI.Start) {}
+  /// Construct iterator pointing to given row
+  TRowIteratorWithRemove(TInt RowIdx, TTable* TablePtr, TBool IsStart) : CurrRowIdx(RowIdx), 
+    Table(TablePtr), Start(IsStart) {}
+  /// Copy constructor
+  TRowIteratorWithRemove(const TRowIteratorWithRemove& RowI) : CurrRowIdx(RowI.CurrRowIdx), 
+    Table(RowI.Table), Start(RowI.Start) {}
+  /// Increment iterator
   TRowIteratorWithRemove& operator++(int);
-  /// For Python compatibility
+  /// Increment iterator (For Python compatibility)
   TRowIteratorWithRemove& Next(); 
+  /// Check if this iterator points to a row that is before the one pointed by \c RowI
   bool operator < (const TRowIteratorWithRemove& RowI) const;
+  /// Check if this iterator points to the same row pointed by \c RowI
   bool operator == (const TRowIteratorWithRemove& RowI) const;
   /// Get physical index of current row
   TInt GetRowIdx() const;
@@ -140,6 +169,7 @@ class TTableIterator {
   TVec<PTable> PTableV; ///< Vector of TTables which are to be iterated over
   TInt CurrTableIdx; ///< Index of the current table pointed to by this iterator
 public:
+  /// Default constructor
   TTableIterator(TVec<PTable>& PTableV): PTableV(PTableV), CurrTableIdx(0) {}
   /// Return next table in the sequence and update iterator
   PTable Next() { return PTableV[CurrTableIdx++]; }
