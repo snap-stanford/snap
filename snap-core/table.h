@@ -29,7 +29,7 @@ namespace TSnap {
 
 //#//////////////////////////////////////////////
 /// Execution context
-class TTableContext{
+class TTableContext {
 protected:
   TStrHash<TInt, TBigStrPool> StringVals; ///< StringPool - stores string data values and maps them to integers
   friend class TTable;
@@ -41,7 +41,7 @@ public:
 
 //#//////////////////////////////////////////////
 /// Table Row (Record)
-class TTableRow{
+class TTableRow {
 protected:
   TIntV IntVals; 
   TFltV FltVals; 
@@ -66,13 +66,13 @@ typedef TVec<TPair<TStr, TAttrType> > Schema;
 
 //#//////////////////////////////////////////////
 /// Iterator class for TTable rows. ##Iterator
-class TRowIterator{
+class TRowIterator{ 
   TInt CurrRowIdx; ///< Physical row index of current row pointer by iterator
   const TTable* Table; 
 public:
-  TRowIterator(): CurrRowIdx(0), Table(NULL){}
-  TRowIterator(TInt RowIdx, const TTable* TablePtr): CurrRowIdx(RowIdx), Table(TablePtr){}
-  TRowIterator(const TRowIterator& RowI): CurrRowIdx(RowI.CurrRowIdx), Table(RowI.Table){}
+  TRowIterator(): CurrRowIdx(0), Table(NULL) {}
+  TRowIterator(TInt RowIdx, const TTable* TablePtr): CurrRowIdx(RowIdx), Table(TablePtr) {}
+  TRowIterator(const TRowIterator& RowI): CurrRowIdx(RowI.CurrRowIdx), Table(RowI.Table) {}
   TRowIterator& operator++(int);
   TRowIterator& Next(); // For Python compatibility
   bool operator < (const TRowIterator& RowI) const;
@@ -98,15 +98,15 @@ public:
 
 //#//////////////////////////////////////////////
 /// Iterator class for TTable rows, that allows logical row removal while iterating.
-class TRowIteratorWithRemove{
+class TRowIteratorWithRemove {
   TInt CurrRowIdx; ///< Physical row index of current row pointer by iterator
   TTable* Table;
   TBool Start;	///< A flag indicating whether the current row in the first valid row of the table 
 public:
-  TRowIteratorWithRemove(): CurrRowIdx(0), Table(NULL), Start(true){}
+  TRowIteratorWithRemove(): CurrRowIdx(0), Table(NULL), Start(true) {}
   TRowIteratorWithRemove(TInt RowIdx, TTable* TablePtr);
-  TRowIteratorWithRemove(TInt RowIdx, TTable* TablePtr, TBool IsStart): CurrRowIdx(RowIdx), Table(TablePtr), Start(IsStart){}
-  TRowIteratorWithRemove(const TRowIteratorWithRemove& RowI): CurrRowIdx(RowI.CurrRowIdx), Table(RowI.Table), Start(RowI.Start){}
+  TRowIteratorWithRemove(TInt RowIdx, TTable* TablePtr, TBool IsStart): CurrRowIdx(RowIdx), Table(TablePtr), Start(IsStart) {}
+  TRowIteratorWithRemove(const TRowIteratorWithRemove& RowI): CurrRowIdx(RowI.CurrRowIdx), Table(RowI.Table), Start(RowI.Start) {}
   TRowIteratorWithRemove& operator++(int);
   /// For Python compatibility
   TRowIteratorWithRemove& Next(); 
@@ -136,11 +136,11 @@ public:
 
 //#//////////////////////////////////////////////
 /// Iterator over a vector of tables
-class TTableIterator{
+class TTableIterator {
   TVec<PTable> PTableV; ///< Vector of TTables which are to be iterated over
   TInt CurrTableIdx; ///< Index of the current table pointed to by this iterator
 public:
-  TTableIterator(TVec<PTable>& PTableV): PTableV(PTableV), CurrTableIdx(0){}
+  TTableIterator(TVec<PTable>& PTableV): PTableV(PTableV), CurrTableIdx(0) {}
   /// Return next table in the sequence and update iterator
   PTable Next() { return PTableV[CurrTableIdx++]; }
   /// Check if iterator has reached end of the sequence
@@ -149,7 +149,7 @@ public:
 
 //#//////////////////////////////////////////////
 /// Table class: Relational table with columnar data storage
-class TTable{
+class TTable {
 protected:
   static const TInt Last; ///< Special value for Next vector entry - last row in table
   static const TInt Invalid; ///< Special value for Next vector entry - logically removed row
@@ -440,7 +440,7 @@ public:
     GroupMapping(Table.GroupMapping),
     SrcCol(Table.SrcCol), DstCol(Table.DstCol),
     EdgeAttrV(Table.EdgeAttrV), SrcNodeAttrV(Table.SrcNodeAttrV),
-    DstNodeAttrV(Table.DstNodeAttrV), CommonNodeAttrs(Table.CommonNodeAttrs){} 
+    DstNodeAttrV(Table.DstNodeAttrV), CommonNodeAttrs(Table.CommonNodeAttrs) {} 
 
   TTable(const TTable& Table, const TIntV& RowIds);
 
