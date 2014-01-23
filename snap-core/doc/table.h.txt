@@ -96,3 +96,47 @@ A call to this function must be followed by subsequent calls to NextGraphIterato
 Create the graph sequence one at a time, to allow efficient use of memory.
 A call to this function must be followed by subsequent calls to NextGraphIterator().
 ///
+
+/// TTable::Select 
+Select. Has two modes of operation:
+1. If Remove == true then (logically) remove the rows for which the predicate doesn't hold
+2. If Remove == false then add the physical indices of the rows for which the predicate holds to the vactor SelectedRows
+///
+
+/// TTable::SelectAtomic
+Select atomic - optimized cases of select with predicate of an atomic form: compare attribute to attribute or compare attribute to a constant
+///
+
+/// TTable::GroupAux
+If KeepUnique is true, UniqueVec will be modified to contain a row from each group
+If KeepUnique is false, then normal grouping is done and a new column is added depending on whether GroupColName is empty
+///
+
+/// TTable::Group 
+Specify columns to group by, name of column in new table, whether to treat columns as ordered 
+If name of column is an empty string, no column is created
+///
+
+/// TTable::Count
+Count the number of appearences of the different elements of column \Col.
+Record results in column CountCol
+///
+
+/// TTable::Join
+Perform equi-join with given columns - i.e. keep tuple pairs where this->Col1 == Table->Col2 
+Implementation: Hash-Join - build a hash out of the smaller table hash the larger table and check for collisions
+///
+
+/// TTable::Defrag
+Also updates meta-data as row indices have changed 
+Need some liveness analysis of columns
+///
+
+/// TTable::ColGenericOp
+Performs Attr1 OP Attr2 and stores it in Attr1
+If ResAttr != "", result is stored in a new column ResAttr
+///
+
+/// TTable::IsNextK
+Creates a table T' where the rows are joint rows (T[r1],T[r2]) such that r2 is one of the successive rows to r1 when this table is ordered by OrderCol, and both r1 and r2 have the same value of GroupBy column
+///

@@ -191,11 +191,17 @@ public:
   /***** value getters - getValue(column name, physical row Idx) *****/
   // no type checking. assuming ColName actually refers to the right type.
   /// Get the value of integer attribute \c ColName at row \c RowIdx
-  TInt GetIntVal(const TStr& ColName, const TInt& RowIdx) { return IntCols[ColTypeMap.GetDat(ColName).Val2][RowIdx]; }
+  TInt GetIntVal(const TStr& ColName, const TInt& RowIdx) { 
+    return IntCols[ColTypeMap.GetDat(ColName).Val2][RowIdx]; 
+  }
   /// Get the value of float attribute \c ColName at row \c RowIdx
-  TFlt GetFltVal(const TStr& ColName, const TInt& RowIdx) { return FltCols[ColTypeMap.GetDat(ColName).Val2][RowIdx]; }
+  TFlt GetFltVal(const TStr& ColName, const TInt& RowIdx) { 
+    return FltCols[ColTypeMap.GetDat(ColName).Val2][RowIdx]; 
+  }
   /// Get the value of string attribute \c ColName at row \c RowIdx
-  TStr GetStrVal(const TStr& ColName, const TInt& RowIdx) const { return GetStrVal(ColTypeMap.GetDat(ColName).Val2, RowIdx); }
+  TStr GetStrVal(const TStr& ColName, const TInt& RowIdx) const { 
+    return GetStrVal(ColTypeMap.GetDat(ColName).Val2, RowIdx); 
+  }
 
   /// Get the schema of this table
   Schema GetSchema() { return S; }
@@ -212,7 +218,9 @@ protected:
 
 /***** Utility functions for handling string values *****/
   /// Get the value in column with id \c ColIdx at row \c RowIdx
-  TStr GetStrVal(TInt ColIdx, TInt RowIdx) const { return TStr(Context.StringVals.GetKey(StrColMaps[ColIdx][RowIdx])); }
+  TStr GetStrVal(TInt ColIdx, TInt RowIdx) const { 
+    return TStr(Context.StringVals.GetKey(StrColMaps[ColIdx][RowIdx])); 
+  }
   /// Add \c Val in column with id \c ColIdx
   void AddStrVal(const TInt& ColIdx, const TStr& Val);
   /// Add \c Val in column with name \c Col
@@ -222,13 +230,17 @@ protected:
   /// Get name of the id column of this table
   TStr GetIdColName() const { return IdColName; }
   /// Get name of the column with index \c Idx in the schema
-  TStr GetSchemaColName(TInt Idx) const{ return S[Idx].Val1; }
+  TStr GetSchemaColName(TInt Idx) const { return S[Idx].Val1; }
   /// Get type of the column with index \c Idx in the schema
-  TAttrType GetSchemaColType(TInt Idx) const{ return S[Idx].Val2; }
+  TAttrType GetSchemaColType(TInt Idx) const { return S[Idx].Val2; }
   /// Add column with name \c ColName and type \c ColType to the schema
-  void AddSchemaCol(const TStr& ColName, TAttrType ColType) { S.Add(TPair<TStr,TAttrType>(ColName, ColType)); }
+  void AddSchemaCol(const TStr& ColName, TAttrType ColType) { 
+    S.Add(TPair<TStr,TAttrType>(ColName, ColType)); 
+  }
   /// Get index of column \c ColName among columns of the same type in the schema
-  TInt GetColIdx(const TStr& ColName) const{ return ColTypeMap.IsKey(ColName) ? ColTypeMap.GetDat(ColName).Val2 : TInt(-1); }
+  TInt GetColIdx(const TStr& ColName) const { 
+    return ColTypeMap.IsKey(ColName) ? ColTypeMap.GetDat(ColName).Val2 : TInt(-1); 
+  }
   /// Check if \c Attr is an attribute of this table schema
   TBool IsAttr(const TStr& Attr);
 
@@ -593,209 +605,243 @@ public:
    const TStr& PropertyAttrName, TTableContext& Context);
 
 /***** Basic Getters *****/
+  /// Get type of column \c ColName
 	TAttrType GetColType(const TStr& ColName) const{ return ColTypeMap.GetDat(ColName).Val1; };
+  /// Get total number of rows in this table
   TInt GetNumRows() const { return NumRows;}
+  /// Get number of valid, i.e. not deleted, rows in this table
   TInt GetNumValidRows() const { return NumValidRows;}
 
+  /// Get a map of logical to physical row ids
   THash<TInt, TInt> GetRowIdMap() const { return RowIdMap;}
 	
 /***** Iterators *****/
+  /// Get iterator to the first valid row of the table
   TRowIterator BegRI() const { return TRowIterator(FirstValidRow, this);}
+  /// Get iterator to the last valid row of the table
   TRowIterator EndRI() const { return TRowIterator(TTable::Last, this);}
+  /// Get iterator with reomve to the first valid row
   TRowIteratorWithRemove BegRIWR(){ return TRowIteratorWithRemove(FirstValidRow, this);}
+  /// Get iterator with reomve to the last valid row
   TRowIteratorWithRemove EndRIWR(){ return TRowIteratorWithRemove(TTable::Last, this);}
 
 /***** Table Operations *****/
-	// rename / add a label to a column
+	/// Add a label to a column
 	void AddLabel(const TStr& Column, const TStr& NewLabel);
+  /// Rename a column
   void Rename(const TStr& Column, const TStr& NewLabel);
 
-	// Remove rows with duplicate values in given columns
+	/// Remove rows with duplicate values in given column
   void Unique(const TStr& Col);
+  /// Remove rows with duplicate values in given columns
 	void Unique(const TStrV& Cols, TBool Ordered = true);
 
-	/* 
-  Select. Has two modes of operation:
-  1. If Remove == true then (logically) remove the rows for which the predicate doesn't hold
-  2. If Remove == false then add the physical indices of the rows for which the predicate holds to the vactor SelectedRows
-  */
+	/// Select ##TTable::Select
 	void Select(TPredicate& Predicate, TIntV& SelectedRows, TBool Remove = true);
-  void Select(TPredicate& Predicate){
+  void Select(TPredicate& Predicate) {
     TIntV SelectedRows;
     Select(Predicate, SelectedRows, true);
   }
-  void Classify(TPredicate& Predicate, const TStr& LabelName, const TInt& PositiveLabel = 1, const TInt& NegativeLabel = 0);
+  void Classify(TPredicate& Predicate, const TStr& LabelName, const TInt& PositiveLabel = 1, 
+   const TInt& NegativeLabel = 0);
 
-  // select atomic - optimized cases of select with predicate of an atomic form: compare attribute to attribute or compare attribute to a constant
-  void SelectAtomic(const TStr& Col1, const TStr& Col2, TPredComp Cmp, TIntV& SelectedRows, TBool Remove = true);
-  void SelectAtomic(const TStr& Col1, const TStr& Col2, TPredComp Cmp){
+  /// Select atomic ##TTable::SelectAtomic
+  void SelectAtomic(const TStr& Col1, const TStr& Col2, TPredComp Cmp, 
+   TIntV& SelectedRows, TBool Remove = true);
+  void SelectAtomic(const TStr& Col1, const TStr& Col2, TPredComp Cmp) {
     TIntV SelectedRows;
     SelectAtomic(Col1, Col2, Cmp, SelectedRows, true);
   }
-  void ClassifyAtomic(const TStr& Col1, const TStr& Col2, TPredComp Cmp, const TStr& LabelName, const TInt& PositiveLabel = 1, const TInt& NegativeLabel = 0);
+  void ClassifyAtomic(const TStr& Col1, const TStr& Col2, TPredComp Cmp, 
+   const TStr& LabelName, const TInt& PositiveLabel = 1, const TInt& NegativeLabel = 0);
 
-  void SelectAtomicIntConst(const TStr& Col1, const TInt& Val2, TPredComp Cmp, TIntV& SelectedRows, TBool Remove = true);
-  void SelectAtomicIntConst(const TStr& Col1, const TInt& Val2, TPredComp Cmp){
+  void SelectAtomicIntConst(const TStr& Col1, const TInt& Val2, TPredComp Cmp, 
+   TIntV& SelectedRows, TBool Remove = true);
+  void SelectAtomicIntConst(const TStr& Col1, const TInt& Val2, TPredComp Cmp) {
     TIntV SelectedRows;
     SelectAtomicIntConst(Col1, Val2, Cmp, SelectedRows, true);
   }
-  void ClassifyAtomicIntConst(const TStr& Col1, const TInt& Val2, TPredComp Cmp, const TStr& LabelName, const TInt& PositiveLabel = 1, const TInt& NegativeLabel = 0);
+  void ClassifyAtomicIntConst(const TStr& Col1, const TInt& Val2, TPredComp Cmp, 
+   const TStr& LabelName, const TInt& PositiveLabel = 1, const TInt& NegativeLabel = 0);
 
-  void SelectAtomicStrConst(const TStr& Col1, const TStr& Val2, TPredComp Cmp, TIntV& SelectedRows, TBool Remove = true);
-  void SelectAtomicStrConst(const TStr& Col1, const TStr& Val2, TPredComp Cmp){
+  void SelectAtomicStrConst(const TStr& Col1, const TStr& Val2, TPredComp Cmp,
+   TIntV& SelectedRows, TBool Remove = true);
+  void SelectAtomicStrConst(const TStr& Col1, const TStr& Val2, TPredComp Cmp) {
     TIntV SelectedRows;
     SelectAtomicStrConst(Col1, Val2, Cmp, SelectedRows, true);
   }
-  void ClassifyAtomicStrConst(const TStr& Col1, const TStr& Val2, TPredComp Cmp, const TStr& LabelName, const TInt& PositiveLabel = 1, const TInt& NegativeLabel = 0);
+  void ClassifyAtomicStrConst(const TStr& Col1, const TStr& Val2, TPredComp Cmp, 
+   const TStr& LabelName, const TInt& PositiveLabel = 1, const TInt& NegativeLabel = 0);
 
-  void SelectAtomicFltConst(const TStr& Col1, const TFlt& Val2, TPredComp Cmp, TIntV& SelectedRows, TBool Remove = true);
-  void SelectAtomicFltConst(const TStr& Col1, const TFlt& Val2, TPredComp Cmp){
+  void SelectAtomicFltConst(const TStr& Col1, const TFlt& Val2, TPredComp Cmp, 
+   TIntV& SelectedRows, TBool Remove = true);
+  void SelectAtomicFltConst(const TStr& Col1, const TFlt& Val2, TPredComp Cmp) {
     TIntV SelectedRows;
     SelectAtomicFltConst(Col1, Val2, Cmp, SelectedRows, true);
   }
-  void ClassifyAtomicFltConst(const TStr& Col1, const TFlt& Val2, TPredComp Cmp, const TStr& LabelName, const TInt& PositiveLabel = 1, const TInt& NegativeLabel = 0);
+  void ClassifyAtomicFltConst(const TStr& Col1, const TFlt& Val2, TPredComp Cmp, 
+   const TStr& LabelName, const TInt& PositiveLabel = 1, const TInt& NegativeLabel = 0);
 
-  // store column for a group, physical row ids have to be passed
+  /// Store column for a group. Physical row ids have to be passed
   void StoreGroupCol(const TStr& GroupColName, const TVec<TPair<TInt, TInt> >& GroupAndRowIds);
 
-  // if KeepUnique is true, UniqueVec will be modified to contain a row from each group
-  // if KeepUnique is false, then normal grouping is done and a new column is added depending on 
-  // whether GroupColName is empty
-  void GroupAux(const TStrV& GroupBy, THash<TGroupKey, TPair<TInt, TIntV> >& Grouping, TBool Ordered,
-    const TStr& GroupColName, TBool KeepUnique, TIntV& UniqueVec);
+  /// Helper function for grouping ##TTable::GroupAux
+  void GroupAux(const TStrV& GroupBy, THash<TGroupKey, TPair<TInt, TIntV> >& Grouping, 
+   TBool Ordered, const TStr& GroupColName, TBool KeepUnique, TIntV& UniqueVec);
 
-  // group - specify columns to group by, name of column in new table, whether to treat columns as ordered
-  // if name of column is an empty string, no column is created
+  /// Group rows depending on values of \c GroupBy columns ##TTable::Group
   void Group(const TStrV& GroupBy, const TStr& GroupColName, TBool Ordered = true);
   
-  // count - count the number of appearences of the different elements of col
-  // record results in column CountCol
+  /// Count number of unique elements ##TTable::Count
   void Count(const TStr& CountColName, const TStr& Col);
-  // order the rows according to the values in columns of OrderBy (in descending
-  // lexicographic order). 
+
+  /// Order the rows according to the values in columns of OrderBy (in descending lexicographic order). 
   void Order(const TStrV& OrderBy, const TStr& OrderColName = "", TBool ResetRankByMSC = false, TBool Asc = true);
   
-  // aggregate values of ValAttr after grouping with respect to GroupByAttrs
-  // result stored as new attribute ResAttr
+  /// Aggregate values of ValAttr after grouping with respect to GroupByAttrs. Result stored as new attribute ResAttr
   void Aggregate(const TStrV& GroupByAttrs, TAttrAggr AggOp, const TStr& ValAttr,
-    const TStr& ResAttr, TBool Ordered = true);
+   const TStr& ResAttr, TBool Ordered = true);
 
-  // aggregate attributes in AggrAttrs across columns
+  /// Aggregate attributes in AggrAttrs across columns
   void AggregateCols(const TStrV& AggrAttrs, TAttrAggr AggOp, const TStr& ResAttr);
 
-  // splice table into subtables according to a grouping statement
+  /// Splice table into subtables according to a grouping statement
   TVec<PTable> SpliceByGroup(const TStrV& GroupByAttrs, TBool Ordered = true);
 
-  // perform equi-join with given columns - i.e. keep tuple pairs where 
-  // this->Col1 == Table->Col2; Implementation: Hash-Join - build a hash out of the smaller table
-  // hash the larger table and check for collisions
+  /// Perform equijoin ##TTable::Join
   PTable Join(const TStr& Col1, const TTable& Table, const TStr& Col2);
-  PTable Join(const TStr& Col1, const PTable& Table, const TStr& Col2){ return Join(Col1, *Table, Col2); };
-  PTable SelfJoin(const TStr& Col){return Join(Col, *this, Col);}
+  PTable Join(const TStr& Col1, const PTable& Table, const TStr& Col2) { 
+    return Join(Col1, *Table, Col2); 
+  }
+  /// Join table with itself, on values of \c Col
+  PTable SelfJoin(const TStr& Col) { return Join(Col, *this, Col); }
 
-  // select first N rows from the table
+  /// Select first N rows from the table
   void SelectFirstNRows(const TInt& N);
 
 	// compute distances between elements in this->Col1 and Table->Col2 according
 	// to given metric. Store the distances in DistCol, but keep only rows where
 	// distance <= threshold
-	//void Dist(const TStr& Col1, const TTable& Table, const TStr Col2, const TStr& DistColName, const TMetric& Metric, TFlt threshold);
+	// void Dist(const TStr& Col1, const TTable& Table, const TStr Col2, const TStr& DistColName, 
+  //  const TMetric& Metric, TFlt threshold);
 
-  // Release memory of deleted rows, and defrag
-  // also updates meta-data as row indices have changed
-  // need some liveness analysis of columns
+  /// Release memory of deleted rows, and defrag ##TTable::Defrag
   void Defrag();
 
-  // Add entire column to table
+  /// Add entire int column to table
   void StoreIntCol(const TStr& ColName, const TIntV& ColVals);
+  /// Add entire flt column to table
   void StoreFltCol(const TStr& ColName, const TFltV& ColVals);
+  /// Add entire str column to table
   void StoreStrCol(const TStr& ColName, const TStrV& ColVals);
   
-  // Add all the rows of the input table (which ,ust have the same schema as current table) - allows duplicate rows (not a union)
+  /// Add all the rows of the input table. Allows duplicate rows (not a union)
   void AddTable(const TTable& T);
+  /// Append all rows of \c T to this table, and recalcutate indices.
   void ConcatTable(const PTable& T) {AddTable(*T); Reindex(); }
   
+  /// Add row corresponding to \c RI
   void AddRow(const TRowIterator& RI);
+  /// Add row with values corresponding to the given vectors by type
   void AddRow(const TIntV& IntVals, const TFltV& FltVals, const TStrV& StrVals);
+  /// Add row with values taken from given TTableRow
   void AddRow(const TTableRow& Row) { AddRow(Row.GetIntVals(), Row.GetFltVals(), Row.GetStrVals()); };
+  /// Get set of row ids of rows common with table \c T
   void GetCollidingRows(const TTable& T, THashSet<TInt>& Collisions);
+
+  /// Return union of this table with given \c Table
   PTable Union(const TTable& Table, const TStr& TableName);
+  PTable Union(const PTable& Table, const TStr& TableName) { return Union(*Table, TableName); };
+  /// Return union of this table with given \c Table, preserving duplicates
   PTable UnionAll(const TTable& Table, const TStr& TableName);
+  PTable UnionAll(const PTable& Table, const TStr& TableName) { return UnionAll(*Table, TableName); };
+  /// Same as TTable::ConcatTable
   void UnionAllInPlace(const TTable& Table);
+  void UnionAllInPlace(const PTable& Table) { return UnionAllInPlace(*Table); };
+  /// Return intersection of this table with given \c Table
   PTable Intersection(const TTable& Table, const TStr& TableName);
+  PTable Intersection(const PTable& Table, const TStr& TableName) { return Intersection(*Table, TableName); };
+  /// Return table with rows that are present in this table but not in given \c Table
   PTable Minus(TTable& Table, const TStr& TableName);
-  PTable Union(const PTable& Table, const TStr& TableName){ return Union(*Table, TableName); };
-  PTable UnionAll(const PTable& Table, const TStr& TableName){ return UnionAll(*Table, TableName); };
-  void UnionAllInPlace(const PTable& Table){ return UnionAllInPlace(*Table); };
-  PTable Intersection(const PTable& Table, const TStr& TableName){ return Intersection(*Table, TableName); };
-  PTable Minus(const PTable& Table, const TStr& TableName){ return Minus(*Table, TableName); };
+  PTable Minus(const PTable& Table, const TStr& TableName) { return Minus(*Table, TableName); };
+  /// Return table with only the columns in \c ProjectCols
   PTable Project(const TStrV& ProjectCols, const TStr& TableName);
+  /// Keep only the columns specified in \c ProjectCols
   void ProjectInPlace(const TStrV& ProjectCols);
   
   /* Column-wise arithmetic operations */
 
-  /*
-   * Performs Attr1 OP Attr2 and stores it in Attr1
-   * If ResAttr != "", result is stored in a new column ResAttr
-   */
+  /// Performs columnwise arithmetic ops ##TTable::ColGenericOp
   void ColGenericOp(const TStr& Attr1, const TStr& Attr2, const TStr& ResAttr, OPS op);
+  /// Performs columnwise addition. See TTable::ColGenericOp
   void ColAdd(const TStr& Attr1, const TStr& Attr2, const TStr& ResultAttrName="");
+  /// Performs columnwise subtraction. See TTable::ColGenericOp
   void ColSub(const TStr& Attr1, const TStr& Attr2, const TStr& ResultAttrName="");
+  /// Performs columnwise multiplication. See TTable::ColGenericOp
   void ColMul(const TStr& Attr1, const TStr& Attr2, const TStr& ResultAttrName="");
+  /// Performs columnwise division. See TTable::ColGenericOp
   void ColDiv(const TStr& Attr1, const TStr& Attr2, const TStr& ResultAttrName="");
+  /// Performs columnwise modulus. See TTable::ColGenericOp
   void ColMod(const TStr& Attr1, const TStr& Attr2, const TStr& ResultAttrName="");
+  /// Performs min of two columns. See TTable::ColGenericOp
   void ColMin(const TStr& Attr1, const TStr& Attr2, const TStr& ResultAttrName="");
+  /// Performs max of two columns. See TTable::ColGenericOp
   void ColMax(const TStr& Attr1, const TStr& Attr2, const TStr& ResultAttrName="");
 
-  /* Performs Attr1 OP Attr2 and stores it in Attr1 or Attr2
-   * This is done depending on the flag AddToFirstTable
-   * If ResAttr != "", result is stored in a new column ResAttr
-   */
+  /// Performs columnwise arithmetic ops with column of given table.
   void ColGenericOp(const TStr& Attr1, TTable& Table, const TStr& Attr2, const TStr& ResAttr, 
     OPS op, TBool AddToFirstTable);
+  /// Performs columnwise addition with column of given table.
   void ColAdd(const TStr& Attr1, TTable& Table, const TStr& Attr2, const TStr& ResAttr="",
     TBool AddToFirstTable=true);
+  /// Performs columnwise subtraction with column of given table.
   void ColSub(const TStr& Attr1, TTable& Table, const TStr& Attr2, const TStr& ResAttr="",
     TBool AddToFirstTable=true);
+  /// Performs columnwise multiplication with column of given table.
   void ColMul(const TStr& Attr1, TTable& Table, const TStr& Attr2, const TStr& ResAttr="",
     TBool AddToFirstTable=true);
+  /// Performs columnwise division with column of given table.
   void ColDiv(const TStr& Attr1, TTable& Table, const TStr& Attr2, const TStr& ResAttr="",
     TBool AddToFirstTable=true);
+  /// Performs columnwise modulus with column of given table.
   void ColMod(const TStr& Attr1, TTable& Table, const TStr& Attr2, const TStr& ResAttr="",
     TBool AddToFirstTable=true);
 
-  /* Performs Attr1 OP Num and stores it in Attr1
-   * If ResAttr != "", result is stored in a new column ResAttr
-   */
+  /// Performs arithmetic op of column values and given \c Num
   void ColGenericOp(const TStr& Attr1, const TFlt& Num, const TStr& ResAttr, OPS op, const TBool floatCast);
+  /// Performs addition of column values and given \c Num
   void ColAdd(const TStr& Attr1, const TFlt& Num, const TStr& ResultAttrName="", const TBool floatCast=false);
+  /// Performs subtraction of column values and given \c Num
   void ColSub(const TStr& Attr1, const TFlt& Num, const TStr& ResultAttrName="", const TBool floatCast=false);
+  /// Performs multiplication of column values and given \c Num
   void ColMul(const TStr& Attr1, const TFlt& Num, const TStr& ResultAttrName="", const TBool floatCast=false);
+  /// Performs division of column values and given \c Num
   void ColDiv(const TStr& Attr1, const TFlt& Num, const TStr& ResultAttrName="", const TBool floatCast=false);
+  /// Performs modulus of column values and given \c Num
   void ColMod(const TStr& Attr1, const TFlt& Num, const TStr& ResultAttrName="", const TBool floatCast=false);
 
-  // read copues of entire column
+  /// Read values of entire int column into \c Result
   void ReadIntCol(const TStr& ColName, TIntV& Result) const;
+  /// Read values of entire float column into \c Result
   void ReadFltCol(const TStr& ColName, TFltV& Result) const;
+  /// Read values of entire string column into \c Result
   void ReadStrCol(const TStr& ColName, TStrV& Result) const;
 
-  // add explicit row ids, initialise hash set mapping ids to physical rows
+  /// Add explicit row ids, initialize hash set mapping ids to physical rows
   void InitIds();
-  // reinitialize row ids
+  /// Reinitialize row ids
   void Reindex();
 
-  // add a column of explicit integer identifiers to the rows
+  /// Add a column of explicit integer identifiers to the rows
   void AddIdColumn(const TStr& IdColName);
 
-  // creates a table T' where the rows are joint rows (T[r1],T[r2]) such that 
-  // r2 is one of the successive rows to r1 when this table is ordered by OrderCol,
-  // and both r1 and r2 have the same value of GroupBy column
+  /// Distance based filter ##TTable::IsNextK
   PTable IsNextK(const TStr& OrderCol, TInt K, const TStr& GroupBy, const TStr& RankColName = "");
 
-  // debug print sizes of various fields of table
+  /// Debug: print sizes of various fields of table
   void PrintSize();
 
-  // get sequence of PageRank tables
+  /// Get sequence of PageRank tables from given \c GraphSeq
   static TTableIterator GetMapPageRank(const TVec<PNEANet>& GraphSeq, 
     TTableContext& Context, const TStr& TableNamePrefix = "PageRankTable",
     const double& C = 0.85, const double& Eps = 1e-4, const int& MaxIter = 100) {
@@ -804,7 +850,7 @@ public:
     return TTableIterator(TableSeq);
   }
 
-  // get sequence of Hits tables
+  /// Get sequence of Hits tables from given \c GraphSeq
   static TTableIterator GetMapHitsIterator(const TVec<PNEANet>& GraphSeq, 
     TTableContext& Context, const TStr& TableNamePrefix = "HitsTable",
     const int& MaxIter = 20) {
@@ -822,6 +868,7 @@ typedef TPair<TStr,TAttrType> TStrTypPr;
 
 namespace TSnap {
 
+  /// Get sequence of PageRank tables from given \c GraphSeq into \c TableSeq
   template <class PGraph>
   void MapPageRank(const TVec<PGraph>& GraphSeq, TVec<PTable>& TableSeq, 
     TTableContext& Context, const TStr& TableNamePrefix,
@@ -837,6 +884,7 @@ namespace TSnap {
     }
   }
 
+  /// Get sequence of Hits tables from given \c GraphSeq into \c TableSeq
   template <class PGraph>
   void MapHits(const TVec<PGraph>& GraphSeq, TVec<PTable>& TableSeq, 
     TTableContext& Context, const TStr& TableNamePrefix,
