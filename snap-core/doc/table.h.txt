@@ -37,3 +37,62 @@ Example: <T_1.age,T_2.age, age> - T_1.age is a src node attribute, T_2.age is a 
 However, since all nodes refer to the same universe of entities (users) we just do one assignment of age per node, and call that attribute 'age'.
 This list should be very small.
 ///
+
+/// TTable::FillBucketsByWindow 
+Fill RowIdBuckets with sets of row ids partitioned on the value of the column SplitAttr, according to the windows specified by JumpSize and WindowSize.
+Called by ToGraphSequence and ToGraphSequenceIterator.
+///
+
+///
+Fill RowIdBuckets with sets of row ids, partitioned on the value of the column SplitAttr, according to the intervals specified by SplitIntervals.
+Called by ToVarGraphSequence and ToVarGraphSequenceIterator.
+///
+
+/// TTable::GetGraphsFromSequence
+Return a sequence of graphs, each constructed from the set of row ids corresponding to a particular bucket in RowIdBuckets.
+///
+
+/// TTable::GetFirstGraphFromSequence
+Return the first graph of the sequence corresponding to the sets of row ids in RowIdBuckets.
+This is used by the ToGraph*Iterator functions.
+///
+
+/// TTable::GetNextGraphFromSequence
+Returns the next graph in sequence corresponding to RowIdBuckets.
+This is used to iterate over the graph sequence by constructing one graph at a time. Called by NextGraphIterator().
+///
+
+/// TTable::AggregateVector
+Aggregate vector into a single scalar value according to a policy. 
+Used for choosing an attribute value for a node when this node appears in several records and has conflicting attribute values
+///
+
+/// TTable::GroupByIntCol
+Group/hash by a single column with integer values. Returns hash table with grouping.
+IndexSet tells what rows to consider (vector of physical row ids). It is used only if All == true.
+Note that the IndexSet option is currently not used anywhere.
+///
+
+/// TTable::Load
+Load table from binary. 
+The TTableContext must be provided separately as it shared among multiple TTables and should be saved in a separate binary.
+///
+
+/// TTable::Save
+Save table schema + content into binary. Note that TTableContext must be saved in a separate binary (as it is shared among multiple TTables).
+///
+
+/// TTable::ToGraphSequenceIterator
+Create the graph sequence one at a time, to allow efficient use of memory.
+A call to this function must be followed by subsequent calls to NextGraphIterator().
+///
+
+/// TTable::ToVarGraphSequenceIterator
+Create the graph sequence one at a time, to allow efficient use of memory.
+A call to this function must be followed by subsequent calls to NextGraphIterator().
+///
+
+/// TTable::ToGraphPerGroupIterator
+Create the graph sequence one at a time, to allow efficient use of memory.
+A call to this function must be followed by subsequent calls to NextGraphIterator().
+///
