@@ -204,7 +204,7 @@ TTable::TTable(TSIn& SIn, TTableContext& Context): Name(SIn), Context(Context),
   }
 }
 
-TTable::TTable(const TStr& TableName, const THash<TInt,TInt>& H, const TStr& Col1, 
+TTable::TTable(const TStr& TableName, const TIntIntH& H, const TStr& Col1, 
   const TStr& Col2, TTableContext& Context, const TBool IsStrKeys) : 
   Name(TableName), Context(Context), NumRows(H.Len()), NumValidRows(H.Len()),
   FirstValidRow(0), LastValidRow(H.Len()-1) {
@@ -230,7 +230,7 @@ TTable::TTable(const TStr& TableName, const THash<TInt,TInt>& H, const TStr& Col
     Next[NumRows-1] = Last;
 }
 
-TTable::TTable(const TStr& TableName, const THash<TInt,TFlt>& H, const TStr& Col1, 
+TTable::TTable(const TStr& TableName, const TIntFltH& H, const TStr& Col1, 
  const TStr& Col2, TTableContext& Context, const TBool IsStrKeys) :
   Name(TableName), Context(Context), NumRows(H.Len()), NumValidRows(H.Len()), 
   FirstValidRow(0), LastValidRow(H.Len()-1) {
@@ -474,7 +474,7 @@ void TTable::AddGraphAttributeV(TStrV& Attrs, TBool IsEdge, TBool IsSrc, TBool I
 
 TStrV TTable::GetSrcNodeIntAttrV() const {
   TStrV IntNA = TStrV(IntCols.Len(),0);
-  for (int i = 0; i < SrcNodeAttrV.Len(); i++) {
+  for (TInt i = 0; i < SrcNodeAttrV.Len(); i++) {
     TStr Attr = SrcNodeAttrV[i];
     if (GetColType(Attr) == atInt) {
       IntNA.Add(Attr);
@@ -485,7 +485,7 @@ TStrV TTable::GetSrcNodeIntAttrV() const {
 
 TStrV TTable::GetDstNodeIntAttrV() const {
   TStrV IntNA = TStrV(IntCols.Len(),0);
-  for (int i = 0; i < DstNodeAttrV.Len(); i++) {
+  for (TInt i = 0; i < DstNodeAttrV.Len(); i++) {
     TStr Attr = DstNodeAttrV[i];
     if (GetColType(Attr) == atInt) {
       IntNA.Add(Attr);
@@ -496,7 +496,7 @@ TStrV TTable::GetDstNodeIntAttrV() const {
 
 TStrV TTable::GetEdgeIntAttrV() const {
   TStrV IntEA = TStrV(IntCols.Len(),0);
-  for (int i = 0; i < EdgeAttrV.Len(); i++) {
+  for (TInt i = 0; i < EdgeAttrV.Len(); i++) {
     TStr Attr = EdgeAttrV[i];
     if (GetColType(Attr) == atInt) {
       IntEA.Add(Attr);
@@ -507,7 +507,7 @@ TStrV TTable::GetEdgeIntAttrV() const {
 
 TStrV TTable::GetSrcNodeFltAttrV() const {
   TStrV FltNA = TStrV(FltCols.Len(),0);
-  for (int i = 0; i < SrcNodeAttrV.Len(); i++) {
+  for (TInt i = 0; i < SrcNodeAttrV.Len(); i++) {
     TStr Attr = SrcNodeAttrV[i];
     if (GetColType(Attr) == atFlt) {
       FltNA.Add(Attr);
@@ -518,7 +518,7 @@ TStrV TTable::GetSrcNodeFltAttrV() const {
 
 TStrV TTable::GetDstNodeFltAttrV() const {
   TStrV FltNA = TStrV(FltCols.Len(),0);
-  for (int i = 0; i < DstNodeAttrV.Len(); i++) {
+  for (TInt i = 0; i < DstNodeAttrV.Len(); i++) {
     TStr Attr = DstNodeAttrV[i];
     if (GetColType(Attr) == atFlt) {
       FltNA.Add(Attr);
@@ -529,7 +529,7 @@ TStrV TTable::GetDstNodeFltAttrV() const {
 
 TStrV TTable::GetEdgeFltAttrV() const {
   TStrV FltEA = TStrV(FltCols.Len(),0);;
-  for (int i = 0; i < EdgeAttrV.Len(); i++) {
+  for (TInt i = 0; i < EdgeAttrV.Len(); i++) {
     TStr Attr = EdgeAttrV[i];
     if (GetColType(Attr) == atFlt) {
       FltEA.Add(Attr);
@@ -540,7 +540,7 @@ TStrV TTable::GetEdgeFltAttrV() const {
 
 TStrV TTable::GetSrcNodeStrAttrV() const {
   TStrV StrNA = TStrV(StrColMaps.Len(),0);
-  for (int i = 0; i < SrcNodeAttrV.Len(); i++) {
+  for (TInt i = 0; i < SrcNodeAttrV.Len(); i++) {
     TStr Attr = SrcNodeAttrV[i];
     if (GetColType(Attr) == atStr) {
       StrNA.Add(Attr);
@@ -551,7 +551,7 @@ TStrV TTable::GetSrcNodeStrAttrV() const {
 
 TStrV TTable::GetDstNodeStrAttrV() const {
   TStrV StrNA = TStrV(StrColMaps.Len(),0);
-  for (int i = 0; i < DstNodeAttrV.Len(); i++) {
+  for (TInt i = 0; i < DstNodeAttrV.Len(); i++) {
     TStr Attr = DstNodeAttrV[i];
     if (GetColType(Attr) == atStr) {
       StrNA.Add(Attr);
@@ -563,7 +563,7 @@ TStrV TTable::GetDstNodeStrAttrV() const {
 
 TStrV TTable::GetEdgeStrAttrV() const {
   TStrV StrEA = TStrV(StrColMaps.Len(),0);
-  for (int i = 0; i < EdgeAttrV.Len(); i++) {
+  for (TInt i = 0; i < EdgeAttrV.Len(); i++) {
     TStr Attr = EdgeAttrV[i];
     if (GetColType(Attr) == atStr) {
       StrEA.Add(Attr);
@@ -653,7 +653,7 @@ void TTable::KeepSortedRows(const TIntV& KeepV) {
 }
 
 /*****  Grouping Utility functions ****/
-void TTable::GroupByIntCol(const TStr& GroupBy, THash<TInt,TIntV>& grouping, 
+void TTable::GroupByIntCol(const TStr& GroupBy, TIntIntVH& grouping, 
  const TIntV& IndexSet, TBool All) const {
   if (!ColTypeMap.IsKey(GroupBy)) {
     TExcept::Throw("no such column " + GroupBy);
@@ -701,7 +701,7 @@ void TTable::GroupByFltCol(const TStr& GroupBy, THash<TFlt,TIntV>& grouping,
   }
 }
 
-void TTable::GroupByStrCol(const TStr& GroupBy, THash<TStr,TIntV>& Grouping, 
+void TTable::GroupByStrCol(const TStr& GroupBy, TStrIntVH& Grouping, 
  const TIntV& IndexSet, TBool All) const {
   if (!ColTypeMap.IsKey(GroupBy)) { TExcept::Throw("no such column " + GroupBy); }
   if (GetColType(GroupBy) != atStr) {
@@ -727,9 +727,9 @@ void TTable::Unique(const TStr& Col) {
     TIntV RemainingRows;
     switch (GetColType(Col)) {
       case atInt: {
-        THash<TInt,TIntV> Grouping;
+        TIntIntVH Grouping;
         GroupByIntCol(Col, Grouping, TIntV(), true);
-        for (THash<TInt,TIntV>::TIter it = Grouping.BegI(); it < Grouping.EndI(); it++) {
+        for (TIntIntVH::TIter it = Grouping.BegI(); it < Grouping.EndI(); it++) {
           RemainingRows.Add(it->Dat[0]);
         }
         break;
@@ -743,9 +743,9 @@ void TTable::Unique(const TStr& Col) {
         break;
       }
       case atStr: {
-        THash<TStr,TIntV> Grouping;
+        TStrIntVH Grouping;
         GroupByStrCol(Col, Grouping, TIntV(), true);
-        for (THash<TStr,TIntV>::TIter it = Grouping.BegI(); it < Grouping.EndI(); it++) {
+        for (TStrIntVH::TIter it = Grouping.BegI(); it < Grouping.EndI(); it++) {
           RemainingRows.Add(it->Dat[0]);
         }
         break;
@@ -1239,7 +1239,7 @@ PTable TTable::Join(const TStr& Col1, const TTable& Table, const TStr& Col2) {
   // with the group keys for the small table.
   switch (ColType) {
     case atInt:{
-      THash<TInt, TIntV> T;
+      TIntIntVH T;
       TS.GroupByIntCol(ColS, T, TIntV(), true);
       for (TRowIterator RowI = TB.BegRI(); RowI < TB.EndRI(); RowI++) {
         TInt K = RowI.GetIntAttr(ColB);
@@ -1275,7 +1275,7 @@ PTable TTable::Join(const TStr& Col1, const TTable& Table, const TStr& Col2) {
       break;
     }
     case atStr:{
-      THash<TStr, TIntV> T;
+      TStrIntVH T;
       TS.GroupByStrCol(ColS, T, TIntV(), true);
       for (TRowIterator RowI = TB.BegRI(); RowI < TB.EndRI(); RowI++) {
         TStr K = RowI.GetStrAttr(ColB);
@@ -1890,8 +1890,8 @@ void TTable::SelectFirstNRows(const TInt& N) {
 
 // // assuming SrcCol and DstCol values belong to the same "universe" of possible node values
 // void TTable::GraphPrep() {
-//  THash<TInt,TInt> IntVals;
-//  THash<TInt,TInt> StrVals;  // keys are StrColMaps mappings
+//  TIntIntH IntVals;
+//  TIntIntH StrVals;  // keys are StrColMaps mappings
 //  const TAttrType NodeType = GetColType(SrcCol);
 //  const TInt SrcColIdx = GetColIdx(SrcCol);
 //  const TInt DstColIdx = GetColIdx(DstCol);
@@ -1966,7 +1966,7 @@ inline void TTable::CheckAndAddIntNode(PNEANet Graph, THashSet<TInt>& NodeVals, 
 }
 
 inline void TTable::AddEdgeAttributes(PNEANet& Graph, int RowId) {
-  for (int i = 0; i < EdgeAttrV.Len(); i++) {
+  for (TInt i = 0; i < EdgeAttrV.Len(); i++) {
     TStr ColName = EdgeAttrV[i];
     TAttrType T = GetColType(ColName);
     TInt Index = GetColIdx(ColName);
@@ -1984,9 +1984,9 @@ inline void TTable::AddEdgeAttributes(PNEANet& Graph, int RowId) {
   }
 }
 
-inline void TTable::AddNodeAttributes(TInt NId, TStrV NodeAttrV, TInt RowId, THash<TInt, TStrIntVH>& NodeIntAttrs, 
-    THash<TInt, TStrFltVH>& NodeFltAttrs, THash<TInt, TStrStrVH>& NodeStrAttrs) {
-  for (int i = 0; i < NodeAttrV.Len(); i++) {
+inline void TTable::AddNodeAttributes(TInt NId, TStrV NodeAttrV, TInt RowId, THash<TInt, TStrIntVH>& NodeIntAttrs,
+  THash<TInt, TStrFltVH>& NodeFltAttrs, THash<TInt, TStrStrVH>& NodeStrAttrs) {
+  for (TInt i = 0; i < NodeAttrV.Len(); i++) {
     TStr ColAttr = NodeAttrV[i];
     TAttrType CT = GetColType(ColAttr);
     int ColId = GetColIdx(ColAttr);
@@ -2326,13 +2326,13 @@ PUNGraph TTable::ToGraphUndirected(TAttrAggr AggrPolicy) {
 }
 
 void TTable::InitRowIdBuckets(int NumBuckets) {
-  for (int i = 0; i < RowIdBuckets.Len(); i++) {
+  for (TInt i = 0; i < RowIdBuckets.Len(); i++) {
     RowIdBuckets[i].Clr();
   }
   RowIdBuckets.Clr();
 
   RowIdBuckets.Gen(NumBuckets);
-  for (int i = 0; i < NumBuckets; i++) {
+  for (TInt i = 0; i < NumBuckets; i++) {
     RowIdBuckets[i].Gen(10, 0);
   }
 }
@@ -2346,7 +2346,7 @@ void TTable::FillBucketsByWindow(TStr SplitAttr, TInt JumpSize, TInt WindowSize,
     // calculate min and max value of the column 'SplitAttr'
     TInt MinValue = TInt::Mx;
     TInt MaxValue = TInt::Mn;
-    for (int i = 0; i < Next.Len(); i++) {
+    for (TInt i = 0; i < Next.Len(); i++) {
       if (Next[i] != Invalid) { 
         if (MinValue > IntCols[SplitColId][i]) {
           MinValue = IntCols[SplitColId][i];
@@ -2368,7 +2368,7 @@ void TTable::FillBucketsByWindow(TStr SplitAttr, TInt JumpSize, TInt WindowSize,
   InitRowIdBuckets(NumBuckets);
 
   // populate RowIdSets by computing the range of buckets for each row
-  for (int i = 0; i < Next.Len(); i++) {
+  for (TInt i = 0; i < Next.Len(); i++) {
     if (Next[i] == Invalid) { continue; }
     int SplitVal = IntCols[SplitColId][i];
     if (SplitVal < StartVal || SplitVal > EndVal) { continue; }
@@ -2379,7 +2379,7 @@ void TTable::FillBucketsByWindow(TStr SplitAttr, TInt JumpSize, TInt WindowSize,
       MinBucket = max(0,(SplitVal-WindowSize-StartVal)/JumpSize + 1);
       MaxBucket = (SplitVal - StartVal)/JumpSize;  
     }
-    for (int j = MinBucket; j <= MaxBucket; j++) { RowIdBuckets[j].Add(i); }
+    for (TInt j = MinBucket; j <= MaxBucket; j++) { RowIdBuckets[j].Add(i); }
   }
 }
 
@@ -2389,10 +2389,10 @@ void TTable::FillBucketsByInterval(TStr SplitAttr, TIntPrV SplitIntervals) {
   InitRowIdBuckets(NumBuckets);
 
   // populate RowIdSets by computing the range of buckets for each row
-  for (int i = 0; i < Next.Len(); i++) {
+  for (TInt i = 0; i < Next.Len(); i++) {
     if (Next[i] == Invalid) { continue; }
     int SplitVal = IntCols[SplitColId][i];
-    for (int j = 0; j < SplitIntervals.Len(); j++) { 
+    for (TInt j = 0; j < SplitIntervals.Len(); j++) { 
       if (SplitVal >= SplitIntervals[j].Val1 && SplitVal < SplitIntervals[j].Val2) {
         RowIdBuckets[j].Add(i);
       }
@@ -2403,7 +2403,7 @@ void TTable::FillBucketsByInterval(TStr SplitAttr, TIntPrV SplitIntervals) {
 TVec<PNEANet> TTable::GetGraphsFromSequence(TAttrAggr AggrPolicy) {
   //call BuildGraph on each row id set - parallelizable!
   TVec<PNEANet> GraphSequence;
-  for (int i = 0; i < RowIdBuckets.Len(); i++) {
+  for (TInt i = 0; i < RowIdBuckets.Len(); i++) {
     if (RowIdBuckets[i].Len() == 0) { continue; }
     PNEANet PNet = BuildGraph(RowIdBuckets[i], AggrPolicy);
     GraphSequence.Add(PNet);
@@ -2484,13 +2484,13 @@ PTable TTable::GetNodeTable(const PNEANet& Network, const TStr& TableName, TTabl
   NodeI.GetIntAttrNames(IntAttrNames);
   NodeI.GetFltAttrNames(FltAttrNames);
   NodeI.GetStrAttrNames(StrAttrNames);
-  for (int i = 0; i < IntAttrNames.Len(); i++) {
+  for (TInt i = 0; i < IntAttrNames.Len(); i++) {
     SR.Add(TPair<TStr,TAttrType>(IntAttrNames[i],atInt));
   }
-  for (int i = 0; i < FltAttrNames.Len(); i++) {
+  for (TInt i = 0; i < FltAttrNames.Len(); i++) {
     SR.Add(TPair<TStr,TAttrType>(FltAttrNames[i],atFlt));
   }
-  for (int i = 0; i < StrAttrNames.Len(); i++) {
+  for (TInt i = 0; i < StrAttrNames.Len(); i++) {
     SR.Add(TPair<TStr,TAttrType>(StrAttrNames[i],atStr));
   }
 
@@ -2500,13 +2500,13 @@ PTable TTable::GetNodeTable(const PNEANet& Network, const TStr& TableName, TTabl
   // populate table columns
   while (NodeI < Network->EndNI()) {
     T->IntCols[0].Add(NodeI.GetId());
-    for (int i = 0; i < IntAttrNames.Len(); i++) {
+    for (TInt i = 0; i < IntAttrNames.Len(); i++) {
       T->IntCols[i+1].Add(Network->GetIntAttrDatN(NodeI,IntAttrNames[i]));
     }
-    for (int i = 0; i < FltAttrNames.Len(); i++) {
+    for (TInt i = 0; i < FltAttrNames.Len(); i++) {
       T->FltCols[i].Add(Network->GetFltAttrDatN(NodeI,FltAttrNames[i]));
     }
-    for (int i = 0; i < StrAttrNames.Len(); i++) {
+    for (TInt i = 0; i < StrAttrNames.Len(); i++) {
       T->AddStrVal(i, Network->GetStrAttrDatN(NodeI,StrAttrNames[i]));
     }
     Cnt++;
@@ -2538,13 +2538,13 @@ PTable TTable::GetEdgeTable(const PNEANet& Network, const TStr& TableName, TTabl
   EdgeI.GetIntAttrNames(IntAttrNames);
   EdgeI.GetFltAttrNames(FltAttrNames);
   EdgeI.GetStrAttrNames(StrAttrNames);
-  for (int i = 0; i < IntAttrNames.Len(); i++) {
+  for (TInt i = 0; i < IntAttrNames.Len(); i++) {
     SR.Add(TPair<TStr,TAttrType>(IntAttrNames[i],atInt));
   }
-  for (int i = 0; i < FltAttrNames.Len(); i++) {
+  for (TInt i = 0; i < FltAttrNames.Len(); i++) {
     SR.Add(TPair<TStr,TAttrType>(FltAttrNames[i],atFlt));
   }
-  for (int i = 0; i < StrAttrNames.Len(); i++) {
+  for (TInt i = 0; i < StrAttrNames.Len(); i++) {
     printf("%s\n",StrAttrNames[i].CStr());
     SR.Add(TPair<TStr,TAttrType>(StrAttrNames[i],atStr));
   }
@@ -2557,13 +2557,13 @@ PTable TTable::GetEdgeTable(const PNEANet& Network, const TStr& TableName, TTabl
     T->IntCols[0].Add(EdgeI.GetId());
     T->IntCols[1].Add(EdgeI.GetSrcNId());
     T->IntCols[2].Add(EdgeI.GetDstNId());
-    for (int i = 0; i < IntAttrNames.Len(); i++) {
+    for (TInt i = 0; i < IntAttrNames.Len(); i++) {
       T->IntCols[i+3].Add(Network->GetIntAttrDatE(EdgeI,IntAttrNames[i]));
     }
-    for (int i = 0; i < FltAttrNames.Len(); i++) {
+    for (TInt i = 0; i < FltAttrNames.Len(); i++) {
       T->FltCols[i].Add(Network->GetFltAttrDatE(EdgeI,FltAttrNames[i]));
     }
-    for (int i = 0; i < StrAttrNames.Len(); i++) {
+    for (TInt i = 0; i < StrAttrNames.Len(); i++) {
       T->AddStrVal(i, Network->GetStrAttrDatE(EdgeI,StrAttrNames[i]));
     }
     Cnt++;
