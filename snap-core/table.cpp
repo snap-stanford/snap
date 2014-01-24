@@ -3105,7 +3105,7 @@ void TTable::ClassifyAux(const TIntV& SelectedRows, const TStr& LabelName, const
  * Branch prediction may result in as fast performance anyway ?
  *
  */
-void TTable::ColGenericOp(const TStr& Attr1, const TStr& Attr2, const TStr& ResAttr, OPS op) {
+void TTable::ColGenericOp(const TStr& Attr1, const TStr& Attr2, const TStr& ResAttr, TArithOp op) {
   // check if attributes are valid
   if (!IsAttr(Attr1)) TExcept::Throw("No attribute present: " + Attr1);
   if (!IsAttr(Attr2)) TExcept::Throw("No attribute present: " + Attr2);
@@ -3145,15 +3145,15 @@ void TTable::ColGenericOp(const TStr& Attr1, const TStr& Attr2, const TStr& ResA
       else {
         Val = RowI.GetFltAttr(ColIdx2);
       }
-      if (op == OP_ADD) { IntCols[ColIdx3][RowI.GetRowIdx()] = CurVal + Val; }
-      if (op == OP_SUB) { IntCols[ColIdx3][RowI.GetRowIdx()] = CurVal - Val; }
-      if (op == OP_MUL) { IntCols[ColIdx3][RowI.GetRowIdx()] = CurVal * Val; }
-      if (op == OP_DIV) { IntCols[ColIdx3][RowI.GetRowIdx()] = CurVal / Val; }
-      if (op == OP_MOD) { IntCols[ColIdx3][RowI.GetRowIdx()] = CurVal % Val; }
-      if (op == OP_MIN) {
+      if (op == aoAdd) { IntCols[ColIdx3][RowI.GetRowIdx()] = CurVal + Val; }
+      if (op == aoSub) { IntCols[ColIdx3][RowI.GetRowIdx()] = CurVal - Val; }
+      if (op == aoMul) { IntCols[ColIdx3][RowI.GetRowIdx()] = CurVal * Val; }
+      if (op == aoDiv) { IntCols[ColIdx3][RowI.GetRowIdx()] = CurVal / Val; }
+      if (op == aoMod) { IntCols[ColIdx3][RowI.GetRowIdx()] = CurVal % Val; }
+      if (op == aoMin) {
         IntCols[ColIdx3][RowI.GetRowIdx()] = (CurVal < Val) ? CurVal : Val;
       }
-      if (op == OP_MAX) {
+      if (op == aoMax) {
         IntCols[ColIdx3][RowI.GetRowIdx()] = (CurVal > Val) ? CurVal : Val;
       }
     }
@@ -3166,15 +3166,15 @@ void TTable::ColGenericOp(const TStr& Attr1, const TStr& Attr2, const TStr& ResA
       else {
         Val = RowI.GetFltAttr(ColIdx2);
       }
-      if (op == OP_ADD) { FltCols[ColIdx3][RowI.GetRowIdx()] = CurVal + Val; }
-      if (op == OP_SUB) { FltCols[ColIdx3][RowI.GetRowIdx()] = CurVal - Val; }
-      if (op == OP_MUL) { FltCols[ColIdx3][RowI.GetRowIdx()] = CurVal * Val; }
-      if (op == OP_DIV) { FltCols[ColIdx3][RowI.GetRowIdx()] = CurVal / Val; }
-      if (op == OP_MOD) { TExcept::Throw("Cannot find modulo for float columns"); }
-      if (op == OP_MIN) {
+      if (op == aoAdd) { FltCols[ColIdx3][RowI.GetRowIdx()] = CurVal + Val; }
+      if (op == aoSub) { FltCols[ColIdx3][RowI.GetRowIdx()] = CurVal - Val; }
+      if (op == aoMul) { FltCols[ColIdx3][RowI.GetRowIdx()] = CurVal * Val; }
+      if (op == aoDiv) { FltCols[ColIdx3][RowI.GetRowIdx()] = CurVal / Val; }
+      if (op == aoMod) { TExcept::Throw("Cannot find modulo for float columns"); }
+      if (op == aoMin) {
         FltCols[ColIdx3][RowI.GetRowIdx()] = (CurVal < Val) ? CurVal : Val;
       }
-      if (op == OP_MAX) {
+      if (op == aoMax) {
         FltCols[ColIdx3][RowI.GetRowIdx()] = (CurVal > Val) ? CurVal : Val;
       }
     }
@@ -3182,35 +3182,35 @@ void TTable::ColGenericOp(const TStr& Attr1, const TStr& Attr2, const TStr& ResA
 }
 
 void TTable::ColAdd(const TStr& Attr1, const TStr& Attr2, const TStr& ResultAttrName) {
-  ColGenericOp(Attr1, Attr2, ResultAttrName, OP_ADD);
+  ColGenericOp(Attr1, Attr2, ResultAttrName, aoAdd);
 }
 
 void TTable::ColSub(const TStr& Attr1, const TStr& Attr2, const TStr& ResultAttrName) {
-  ColGenericOp(Attr1, Attr2, ResultAttrName, OP_SUB);
+  ColGenericOp(Attr1, Attr2, ResultAttrName, aoSub);
 }
 
 void TTable::ColMul(const TStr& Attr1, const TStr& Attr2, const TStr& ResultAttrName) {
-  ColGenericOp(Attr1, Attr2, ResultAttrName, OP_MUL);
+  ColGenericOp(Attr1, Attr2, ResultAttrName, aoMul);
 }
 
 void TTable::ColDiv(const TStr& Attr1, const TStr& Attr2, const TStr& ResultAttrName) {
-  ColGenericOp(Attr1, Attr2, ResultAttrName, OP_DIV);
+  ColGenericOp(Attr1, Attr2, ResultAttrName, aoDiv);
 }
 
 void TTable::ColMod(const TStr& Attr1, const TStr& Attr2, const TStr& ResultAttrName) {
-  ColGenericOp(Attr1, Attr2, ResultAttrName, OP_MOD);
+  ColGenericOp(Attr1, Attr2, ResultAttrName, aoMod);
 }
 
 void TTable::ColMin(const TStr& Attr1, const TStr& Attr2, const TStr& ResultAttrName) {
-  ColGenericOp(Attr1, Attr2, ResultAttrName, OP_MIN);
+  ColGenericOp(Attr1, Attr2, ResultAttrName, aoMin);
 }
 
 void TTable::ColMax(const TStr& Attr1, const TStr& Attr2, const TStr& ResultAttrName) {
-  ColGenericOp(Attr1, Attr2, ResultAttrName, OP_MAX);
+  ColGenericOp(Attr1, Attr2, ResultAttrName, aoMax);
 }
 
 void TTable::ColGenericOp(const TStr& Attr1, TTable& Table, const TStr& Attr2, const TStr& ResAttr,
-  OPS op, TBool AddToFirstTable) {
+  TArithOp op, TBool AddToFirstTable) {
   // check if attributes are valid
   if (!IsAttr(Attr1)) { TExcept::Throw("No attribute present: " + Attr1); }
   if (!Table.IsAttr(Attr2)) { TExcept::Throw("No attribute present: " + Attr2); }
@@ -3275,18 +3275,18 @@ void TTable::ColGenericOp(const TStr& Attr1, TTable& Table, const TStr& Attr2, c
         Val = RI2.GetFltAttr(ColIdx2);
       }
       if (AddToFirstTable) {
-        if (op == OP_ADD) { IntCols[ColIdx3][RI1.GetRowIdx()] = CurVal + Val; }
-        if (op == OP_SUB) { IntCols[ColIdx3][RI1.GetRowIdx()] = CurVal - Val; }
-        if (op == OP_MUL) { IntCols[ColIdx3][RI1.GetRowIdx()] = CurVal * Val; }
-        if (op == OP_DIV) { IntCols[ColIdx3][RI1.GetRowIdx()] = CurVal / Val; }
-        if (op == OP_MOD) { IntCols[ColIdx3][RI1.GetRowIdx()] = CurVal % Val; }
+        if (op == aoAdd) { IntCols[ColIdx3][RI1.GetRowIdx()] = CurVal + Val; }
+        if (op == aoSub) { IntCols[ColIdx3][RI1.GetRowIdx()] = CurVal - Val; }
+        if (op == aoMul) { IntCols[ColIdx3][RI1.GetRowIdx()] = CurVal * Val; }
+        if (op == aoDiv) { IntCols[ColIdx3][RI1.GetRowIdx()] = CurVal / Val; }
+        if (op == aoMod) { IntCols[ColIdx3][RI1.GetRowIdx()] = CurVal % Val; }
       }
       else {
-        if (op == OP_ADD) { Table.IntCols[ColIdx3][RI2.GetRowIdx()] = CurVal + Val; }
-        if (op == OP_SUB) { Table.IntCols[ColIdx3][RI2.GetRowIdx()] = CurVal - Val; }
-        if (op == OP_MUL) { Table.IntCols[ColIdx3][RI2.GetRowIdx()] = CurVal * Val; }
-        if (op == OP_DIV) { Table.IntCols[ColIdx3][RI2.GetRowIdx()] = CurVal / Val; }
-        if (op == OP_MOD) { Table.IntCols[ColIdx3][RI2.GetRowIdx()] = CurVal % Val; }
+        if (op == aoAdd) { Table.IntCols[ColIdx3][RI2.GetRowIdx()] = CurVal + Val; }
+        if (op == aoSub) { Table.IntCols[ColIdx3][RI2.GetRowIdx()] = CurVal - Val; }
+        if (op == aoMul) { Table.IntCols[ColIdx3][RI2.GetRowIdx()] = CurVal * Val; }
+        if (op == aoDiv) { Table.IntCols[ColIdx3][RI2.GetRowIdx()] = CurVal / Val; }
+        if (op == aoMod) { Table.IntCols[ColIdx3][RI2.GetRowIdx()] = CurVal % Val; }
       }
     }
     else {
@@ -3299,18 +3299,18 @@ void TTable::ColGenericOp(const TStr& Attr1, TTable& Table, const TStr& Attr2, c
         Val = RI2.GetFltAttr(ColIdx2);
       }
       if (AddToFirstTable) {
-        if (op == OP_ADD) { FltCols[ColIdx3][RI1.GetRowIdx()] = CurVal + Val; }
-        if (op == OP_SUB) { FltCols[ColIdx3][RI1.GetRowIdx()] = CurVal - Val; }
-        if (op == OP_MUL) { FltCols[ColIdx3][RI1.GetRowIdx()] = CurVal * Val; }
-        if (op == OP_DIV) { FltCols[ColIdx3][RI1.GetRowIdx()] = CurVal / Val; }
-        if (op == OP_MOD) { TExcept::Throw("Cannot find modulo for float columns"); }
+        if (op == aoAdd) { FltCols[ColIdx3][RI1.GetRowIdx()] = CurVal + Val; }
+        if (op == aoSub) { FltCols[ColIdx3][RI1.GetRowIdx()] = CurVal - Val; }
+        if (op == aoMul) { FltCols[ColIdx3][RI1.GetRowIdx()] = CurVal * Val; }
+        if (op == aoDiv) { FltCols[ColIdx3][RI1.GetRowIdx()] = CurVal / Val; }
+        if (op == aoMod) { TExcept::Throw("Cannot find modulo for float columns"); }
       }
       else {
-        if (op == OP_ADD) { Table.FltCols[ColIdx3][RI2.GetRowIdx()] = CurVal + Val; }
-        if (op == OP_SUB) { Table.FltCols[ColIdx3][RI2.GetRowIdx()] = CurVal - Val; }
-        if (op == OP_MUL) { Table.FltCols[ColIdx3][RI2.GetRowIdx()] = CurVal * Val; }
-        if (op == OP_DIV) { Table.FltCols[ColIdx3][RI2.GetRowIdx()] = CurVal / Val; }
-        if (op == OP_MOD) { TExcept::Throw("Cannot find modulo for float columns"); }
+        if (op == aoAdd) { Table.FltCols[ColIdx3][RI2.GetRowIdx()] = CurVal + Val; }
+        if (op == aoSub) { Table.FltCols[ColIdx3][RI2.GetRowIdx()] = CurVal - Val; }
+        if (op == aoMul) { Table.FltCols[ColIdx3][RI2.GetRowIdx()] = CurVal * Val; }
+        if (op == aoDiv) { Table.FltCols[ColIdx3][RI2.GetRowIdx()] = CurVal / Val; }
+        if (op == aoMod) { TExcept::Throw("Cannot find modulo for float columns"); }
       }
     }
     RI1++;
@@ -3324,31 +3324,31 @@ void TTable::ColGenericOp(const TStr& Attr1, TTable& Table, const TStr& Attr2, c
 
 void TTable::ColAdd(const TStr& Attr1, TTable& Table, const TStr& Attr2, 
   const TStr& ResultAttrName, TBool AddToFirstTable) {
-  ColGenericOp(Attr1, Table, Attr2, ResultAttrName, OP_ADD, AddToFirstTable);
+  ColGenericOp(Attr1, Table, Attr2, ResultAttrName, aoAdd, AddToFirstTable);
 }
 
 void TTable::ColSub(const TStr& Attr1, TTable& Table, const TStr& Attr2, 
   const TStr& ResultAttrName, TBool AddToFirstTable) {
-  ColGenericOp(Attr1, Table, Attr2, ResultAttrName, OP_SUB, AddToFirstTable);
+  ColGenericOp(Attr1, Table, Attr2, ResultAttrName, aoSub, AddToFirstTable);
 }
 
 void TTable::ColMul(const TStr& Attr1, TTable& Table, const TStr& Attr2, 
   const TStr& ResultAttrName, TBool AddToFirstTable) {
-  ColGenericOp(Attr1, Table, Attr2, ResultAttrName, OP_MUL, AddToFirstTable);
+  ColGenericOp(Attr1, Table, Attr2, ResultAttrName, aoMul, AddToFirstTable);
 }
 
 void TTable::ColDiv(const TStr& Attr1, TTable& Table, const TStr& Attr2, 
   const TStr& ResultAttrName, TBool AddToFirstTable) {
-  ColGenericOp(Attr1, Table, Attr2, ResultAttrName, OP_DIV, AddToFirstTable);
+  ColGenericOp(Attr1, Table, Attr2, ResultAttrName, aoDiv, AddToFirstTable);
 }
 
 void TTable::ColMod(const TStr& Attr1, TTable& Table, const TStr& Attr2, 
   const TStr& ResultAttrName, TBool AddToFirstTable) {
-  ColGenericOp(Attr1, Table, Attr2, ResultAttrName, OP_MOD, AddToFirstTable);
+  ColGenericOp(Attr1, Table, Attr2, ResultAttrName, aoMod, AddToFirstTable);
 }
 
 
-void TTable::ColGenericOp(const TStr& Attr1, const TFlt& Num, const TStr& ResAttr, OPS op, const TBool floatCast) {
+void TTable::ColGenericOp(const TStr& Attr1, const TFlt& Num, const TStr& ResAttr, TArithOp op, const TBool floatCast) {
   // check if attribute is valid
   if (!IsAttr(Attr1)) { TExcept::Throw("No attribute present: " + Attr1); }
 
@@ -3383,41 +3383,41 @@ void TTable::ColGenericOp(const TStr& Attr1, const TFlt& Num, const TStr& ResAtt
     if ((Info1.Val1 == atInt) && !shouldCast) {
       TInt CurVal = RowI.GetIntAttr(ColIdx1);
       TInt Val = (TInt) Num;
-      if (op == OP_ADD) { IntCols[ColIdx2][RowI.GetRowIdx()] = CurVal + Val; }
-      if (op == OP_SUB) { IntCols[ColIdx2][RowI.GetRowIdx()] = CurVal - Val; }
-      if (op == OP_MUL) { IntCols[ColIdx2][RowI.GetRowIdx()] = CurVal * Val; }
-      if (op == OP_DIV) { IntCols[ColIdx2][RowI.GetRowIdx()] = CurVal / Val; }
-      if (op == OP_MOD) { IntCols[ColIdx2][RowI.GetRowIdx()] = CurVal % Val; }
+      if (op == aoAdd) { IntCols[ColIdx2][RowI.GetRowIdx()] = CurVal + Val; }
+      if (op == aoSub) { IntCols[ColIdx2][RowI.GetRowIdx()] = CurVal - Val; }
+      if (op == aoMul) { IntCols[ColIdx2][RowI.GetRowIdx()] = CurVal * Val; }
+      if (op == aoDiv) { IntCols[ColIdx2][RowI.GetRowIdx()] = CurVal / Val; }
+      if (op == aoMod) { IntCols[ColIdx2][RowI.GetRowIdx()] = CurVal % Val; }
     }
     else {
       TFlt CurVal = Info1.Val1 == atFlt ? RowI.GetFltAttr(ColIdx1) : (TFlt) RowI.GetIntAttr(ColIdx1);
-      if (op == OP_ADD) { FltCols[ColIdx2][RowI.GetRowIdx()] = CurVal + Num; }
-      if (op == OP_SUB) { FltCols[ColIdx2][RowI.GetRowIdx()] = CurVal - Num; }
-      if (op == OP_MUL) { FltCols[ColIdx2][RowI.GetRowIdx()] = CurVal * Num; }
-      if (op == OP_DIV) { FltCols[ColIdx2][RowI.GetRowIdx()] = CurVal / Num; }
-      if (op == OP_MOD) { TExcept::Throw("Cannot find modulo for float columns"); }
+      if (op == aoAdd) { FltCols[ColIdx2][RowI.GetRowIdx()] = CurVal + Num; }
+      if (op == aoSub) { FltCols[ColIdx2][RowI.GetRowIdx()] = CurVal - Num; }
+      if (op == aoMul) { FltCols[ColIdx2][RowI.GetRowIdx()] = CurVal * Num; }
+      if (op == aoDiv) { FltCols[ColIdx2][RowI.GetRowIdx()] = CurVal / Num; }
+      if (op == aoMod) { TExcept::Throw("Cannot find modulo for float columns"); }
     }
   }
 }
 
 void TTable::ColAdd(const TStr& Attr1, const TFlt& Num, const TStr& ResultAttrName, const TBool floatCast) {
-  ColGenericOp(Attr1, Num, ResultAttrName, OP_ADD, floatCast);
+  ColGenericOp(Attr1, Num, ResultAttrName, aoAdd, floatCast);
 }
 
 void TTable::ColSub(const TStr& Attr1, const TFlt& Num, const TStr& ResultAttrName, const TBool floatCast) {
-  ColGenericOp(Attr1, Num, ResultAttrName, OP_SUB, floatCast);
+  ColGenericOp(Attr1, Num, ResultAttrName, aoSub, floatCast);
 }
 
 void TTable::ColMul(const TStr& Attr1, const TFlt& Num, const TStr& ResultAttrName, const TBool floatCast) {
-  ColGenericOp(Attr1, Num, ResultAttrName, OP_MUL, floatCast);
+  ColGenericOp(Attr1, Num, ResultAttrName, aoMul, floatCast);
 }
 
 void TTable::ColDiv(const TStr& Attr1, const TFlt& Num, const TStr& ResultAttrName, const TBool floatCast) {
-  ColGenericOp(Attr1, Num, ResultAttrName, OP_DIV, floatCast);
+  ColGenericOp(Attr1, Num, ResultAttrName, aoDiv, floatCast);
 }
 
 void TTable::ColMod(const TStr& Attr1, const TFlt& Num, const TStr& ResultAttrName, const TBool floatCast) {
-  ColGenericOp(Attr1, Num, ResultAttrName, OP_MOD, floatCast);
+  ColGenericOp(Attr1, Num, ResultAttrName, aoMod, floatCast);
 }
 
 void TTable::ReadIntCol(const TStr& ColName, TIntV& Result) const{

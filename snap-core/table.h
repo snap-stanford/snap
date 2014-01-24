@@ -68,10 +68,10 @@ public:
   TStrV GetStrVals() const { return StrVals; }
 };
 
-/// possible policies for aggregating node attributes
+/// Possible policies for aggregating node attributes
 typedef enum {aaMin, aaMax, aaFirst, aaLast, aaMean, aaMedian, aaSum, aaCount} TAttrAggr;
-/// possible column-wise arithmetic operations
-typedef enum {OP_ADD, OP_SUB, OP_MUL, OP_DIV, OP_MOD, OP_MIN, OP_MAX} OPS;
+/// Possible column-wise arithmetic operations
+typedef enum {aoAdd, aoSub, aoMul, aoDiv, aoMod, aoMin, aoMax} TArithOp;
 
 /// A table schema is a vector of pairs <attribute name, attribute type>
 typedef TVec<TPair<TStr, TAttrType> > Schema; 
@@ -801,8 +801,8 @@ public:
   
   /* Column-wise arithmetic operations */
 
-  /// Performs columnwise arithmetic ops ##TTable::ColGenericOp
-  void ColGenericOp(const TStr& Attr1, const TStr& Attr2, const TStr& ResAttr, OPS op);
+  /// Performs columnwise arithmetic operation ##TTable::ColGenericOp
+  void ColGenericOp(const TStr& Attr1, const TStr& Attr2, const TStr& ResAttr, TArithOp op);
   /// Performs columnwise addition. See TTable::ColGenericOp
   void ColAdd(const TStr& Attr1, const TStr& Attr2, const TStr& ResultAttrName="");
   /// Performs columnwise subtraction. See TTable::ColGenericOp
@@ -818,9 +818,9 @@ public:
   /// Performs max of two columns. See TTable::ColGenericOp
   void ColMax(const TStr& Attr1, const TStr& Attr2, const TStr& ResultAttrName="");
 
-  /// Performs columnwise arithmetic ops with column of given table.
+  /// Performs columnwise arithmetic operation with column of given table.
   void ColGenericOp(const TStr& Attr1, TTable& Table, const TStr& Attr2, const TStr& ResAttr, 
-    OPS op, TBool AddToFirstTable);
+    TArithOp op, TBool AddToFirstTable);
   /// Performs columnwise addition with column of given table.
   void ColAdd(const TStr& Attr1, TTable& Table, const TStr& Attr2, const TStr& ResAttr="",
     TBool AddToFirstTable=true);
@@ -838,7 +838,7 @@ public:
     TBool AddToFirstTable=true);
 
   /// Performs arithmetic op of column values and given \c Num
-  void ColGenericOp(const TStr& Attr1, const TFlt& Num, const TStr& ResAttr, OPS op, const TBool floatCast);
+  void ColGenericOp(const TStr& Attr1, const TFlt& Num, const TStr& ResAttr, TArithOp op, const TBool floatCast);
   /// Performs addition of column values and given \c Num
   void ColAdd(const TStr& Attr1, const TFlt& Num, const TStr& ResultAttrName="", const TBool floatCast=false);
   /// Performs subtraction of column values and given \c Num
