@@ -10,8 +10,10 @@ MakeAll:
 	$(MAKE) -C bigclam
 	$(MAKE) -C cascades
 	$(MAKE) -C centrality
+	#$(MAKE) -C cesna
 	$(MAKE) -C circles
 	$(MAKE) -C cliques
+	#$(MAKE) -C coda
 	$(MAKE) -C community
 	$(MAKE) -C concomp
 	$(MAKE) -C forestfire
