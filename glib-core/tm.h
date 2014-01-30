@@ -333,7 +333,7 @@ public:
   static TTm GetTmFromIdStr(const TStr& IdStr);
   
   // get unix timestamp
-  static uint GetDateTimeInt(const int& Year = 0, const int& Month = 1, 
+  static uint GetDateTimeInt(const int& Year = 0, const int& Month = 0, 
     const int& Day = 1, const int& Hour = 0, const int& Min = 0,
 	const int& Sec = 0);   
   static uint GetDateIntFromTm(const TTm& Tm);   
