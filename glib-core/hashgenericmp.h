@@ -1,5 +1,3 @@
-#ifndef HASH_PAR_H
-#define HASH_PAR_H
 #include "bd.h"
 
 inline unsigned int __sync_fetch_and_add_2(volatile unsigned int* p, unsigned int incr)
@@ -727,6 +725,3 @@ bool THashGenericMP<TKey, TDat, THashFunc>::AddDatIfNotExist(const TKey& Key, co
   }
   return done;
 }
-
-
-#endif //HASH_PAR_H
