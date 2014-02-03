@@ -167,6 +167,7 @@
 #include "ds.h"
 #include "bits.h"
 #include "hash.h"
+#include "hashgeneric.h"
 #include "xml.h"
 
 #include "xmath.h"
