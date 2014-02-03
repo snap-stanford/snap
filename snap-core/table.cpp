@@ -601,7 +601,8 @@ void TTable::RemoveFirstRow() {
   FirstValidRow = Next[FirstValidRow];
   Next[Old] = TTable::Invalid;
   NumValidRows--;
-  RowIdMap.AddDat(Old, Invalid);
+  TInt IdColIdx = GetColIdx(GetIdColName());
+  RowIdMap.AddDat(IntCols[IdColIdx][Old], Invalid);
 }
 
 void TTable::RemoveRow(TInt RowIdx) {
@@ -618,7 +619,8 @@ void TTable::RemoveRow(TInt RowIdx) {
   }
   Next[RowIdx] = TTable::Invalid;
   NumValidRows--;
-  RowIdMap.AddDat(RowIdx, Invalid);
+  TInt IdColIdx = GetColIdx(GetIdColName());
+  RowIdMap.AddDat(IntCols[IdColIdx][RowIdx], Invalid);
 }
 
 void TTable::RemoveRows(const TIntV& RemoveV) {
@@ -1104,12 +1106,8 @@ TVec<PTable> TTable::SpliceByGroup(const TStrV& GroupBy, TBool Ordered) {
 
 void TTable::InitIds() {
   IdColName = Name + "_id";
-  Assert(NumRows == NumValidRows);
-  RowIdMap.Clr();
+  //Assert(NumRows == NumValidRows);
   AddIdColumn(IdColName);
-  for (TInt i = 0; i < NumRows; i++) {
-    RowIdMap.AddDat(i, i);
-  }
 }
 
 void TTable::Reindex() {
@@ -1126,8 +1124,10 @@ void TTable::Reindex() {
 void TTable::AddIdColumn(const TStr& ColName) {
   TIntV IdCol(NumRows);
   TInt IdCnt = 0;
+  RowIdMap.Clr();
   for (TRowIterator RI = BegRI(); RI < EndRI(); RI++) {
     IdCol[RI.GetRowIdx()] = IdCnt;
+    RowIdMap.AddDat(IdCnt, RI.GetRowIdx());
     IdCnt++;
   }
   IntCols.Add(IdCol);
@@ -1152,7 +1152,7 @@ void TTable::AddIdColumn(const TStr& ColName) {
     TAttrType ColType = GetSchemaColType(i);
     TStr CName = Name1 + "." + ColName;
     JointTable->ColTypeMap.AddDat(CName, ColTypeMap.GetDat(ColName));
-    JointTable->AddLabel(CName, ColName);
+    //JointTable->AddLabel(CName, ColName);
     JointTable->AddSchemaCol(CName, ColType);
   }
   for (TInt i = 0; i < Table.S.Len(); i++) {
@@ -1174,7 +1174,7 @@ void TTable::AddIdColumn(const TStr& ColName) {
         break;
     }
     JointTable->ColTypeMap.AddDat(CName, NewDat);
-    JointTable->AddLabel(CName, ColName);
+    //JointTable->AddLabel(CName, ColName);
     JointTable->AddSchemaCol(CName, ColType);
   }
   return JointTable;
@@ -3000,6 +3000,12 @@ PTable TTable::Union(const TTable& Table, const TStr& TableName) {
       result->AddRow(it);
     }
   }
+  
+  // printf("this: %d %d, table: %d %d, result: %d %d\n", 
+  //   this->GetNumRows().Val, this->GetNumValidRows().Val,
+  //   Table.GetNumRows().Val, Table.GetNumValidRows().Val, 
+  //   result->GetNumRows().Val, result->GetNumValidRows().Val);
+
   result->InitIds();
   return result;
 }
