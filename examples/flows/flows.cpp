@@ -1,35 +1,34 @@
 #include "stdafx.h"
 
-PNEANet GetNEANet(const TStr& InFNm, const int& SrcColId = 0, const int& DstColId = 1, const int& CapColId = 2) {
+void GetNetAndGraph(const TStr& InFNm, PNEANet &Net, PNGraph &Graph, TIntPrIntH &Cap, TIntPrIntH &Flow, TRnd &Random, const int& SrcColId = 0, const int& DstColId = 1, const int& CapColId = 2) {
   TSsParser Ss(InFNm, ssfWhiteSep, true, true, true);
-  PNEANet Net = TNEANet::New();
-  int SrcNId, DstNId, Cap, EId;
+  Net.Clr();
+  Net = TNEANet::New();
+  Graph.Clr();
+  Graph = TNGraph::New();
+  Cap.Clr();
+  Flow.Clr();
+  int SrcNId, DstNId, CapVal, EId;
   while (Ss.Next()) {
-    if (! Ss.GetInt(SrcColId, SrcNId) || ! Ss.GetInt(DstColId, DstNId) || ! Ss.GetInt(CapColId, Cap)) { continue; }
-    if (! Net->IsNode(SrcNId)) { Net->AddNode(SrcNId); }
-    if (! Net->IsNode(DstNId)) { Net->AddNode(DstNId); }
+    if (! Ss.GetInt(SrcColId, SrcNId) || ! Ss.GetInt(DstColId, DstNId)) { continue; }
+    CapVal = Random.GetUniDevInt(0, 10000);
+    if (! Net->IsNode(SrcNId)) {
+      Net->AddNode(SrcNId);
+      Graph->AddNode(SrcNId);
+    }
+    if (! Net->IsNode(DstNId)) {
+      Net->AddNode(DstNId);
+      Graph->AddNode(DstNId);
+    }
     EId = Net->AddEdge(SrcNId, DstNId);
+    Graph->AddEdge(SrcNId, DstNId);
     Net->AddIntAttrDatE(EId, 0, TSnap::FlowAttrName);
-    Net->AddIntAttrDatE(EId, Cap, TSnap::CapAttrName);
+    Flow.AddDat(TIntPr(SrcNId, DstNId), 0);
+    Net->AddIntAttrDatE(EId, CapVal, TSnap::CapAttrName);
+    Cap.AddDat(TIntPr(SrcNId, DstNId), CapVal);
   }
   Net->Defrag();
-  return Net;
-}
-
-PNGraph GetNGraph(const TStr& InFNm, TIntPrIntH &Cap, TIntPrIntH &Flow, const int& SrcColId = 0, const int& DstColId = 1, const int& CapColId = 2) {
-  TSsParser Ss(InFNm, ssfWhiteSep, true, true, true);
-  PNGraph Graph = TNGraph::New();
-  int SrcNId, DstNId, CapVal;
-  while (Ss.Next()) {
-    if (! Ss.GetInt(SrcColId, SrcNId) || ! Ss.GetInt(DstColId, DstNId) || ! Ss.GetInt(CapColId, CapVal)) { continue; }
-    if (! Graph->IsNode(SrcNId)) { Graph->AddNode(SrcNId); }
-    if (! Graph->IsNode(DstNId)) { Graph->AddNode(DstNId); }
-    Graph->AddEdge(SrcNId, DstNId);
-    Cap.AddDat(TIntPr(SrcNId, DstNId), CapVal);
-    Flow.AddDat(TIntPr(SrcNId, DstNId), 0);
-  }
   Graph->Defrag();
-  return Graph;
 }
 
 double getcputime() {
@@ -57,11 +56,12 @@ int main(int argc, char* argv[]) {
   printf("Integer Flow Test\n");
   printf("Filename: %s\n", InFNm.CStr());
   printf("Building Network...\n");
-  PNEANet Net = GetNEANet(InFNm);
+  PNEANet Net;
+  PNGraph Graph;
   TIntPrIntH Cap;
   TIntPrIntH Flow;
-  PNGraph Graph = GetNGraph(InFNm, Cap, Flow);
   TRnd Random;
+  GetNetAndGraph(InFNm, Net, Graph, Cap, Flow, Random);
   for (TIntPrIntH::TIter HI = Cap.BegI(); HI != Cap.EndI(); HI++) {
     MaxEdgeCap = (HI.GetDat().Val > MaxEdgeCap) ? HI.GetDat().Val : MaxEdgeCap;
   }
