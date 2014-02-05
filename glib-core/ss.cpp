@@ -459,6 +459,25 @@ bool TSsParser::GetInt(const int& FldN, int& Val) const {
   return true;
 }
 
+bool TSsParser::GetLongLong(const int& FldN, long long& Val) const {
+  // parsing format {ws} [+/-] +{ddd}
+  long long _Val = -1;
+  bool Minus=false;
+  const char *c = GetFld(FldN);
+  while (TCh::IsWs(*c)) { c++; }
+  if (*c=='-') { Minus=true; c++; }
+  if (! TCh::IsNum(*c)) { return false; }
+  _Val = TCh::GetNum(*c);  c++;
+  while (TCh::IsNum(*c)){
+    _Val = 10 * _Val + TCh::GetNum(*c);
+    c++;
+  }
+  if (Minus) { _Val = -_Val; }
+  if (*c != 0) { return false; }
+  Val = _Val;
+  return true;
+}
+
 bool TSsParser::GetFlt(const int& FldN, double& Val) const {
   // parsing format {ws} [+/-] +{d} ([.]{d}) ([E|e] [+/-] +{d})
   const char *c = GetFld(FldN);

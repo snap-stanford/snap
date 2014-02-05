@@ -119,6 +119,13 @@ public:
     int Val=0; IAssertR(GetInt(FldN, Val), TStr::Fmt("Field %d not INT.\n%s", FldN, DumpStr()).CStr()); return Val; }
   /// Checks whether fields \c FldN is an integer.  
   bool IsInt(const int& FldN) const { int v; return GetInt(FldN, v); }
+  /// If the field \c FldN is an integer its value is returned in \c Val and the function returns \c true.
+  bool GetLongLong(const int& FldN, long long& Val) const;
+  /// Assumes \c FldN is an integer its value is returned. If \c FldN is not an integer an exception is thrown.
+  long long GetLongLong(const int& FldN) const {
+    long long Val=0; IAssertR(GetLongLong(FldN, Val), TStr::Fmt("Field %d not INT.\n%s", FldN, DumpStr()).CStr()); return Val; }
+  /// Checks whether fields \c FldN is an integer.
+  bool IsLongLong(const int& FldN) const { long long v; return GetLongLong(FldN, v); }
   /// If the field \c FldN is a float its value is returned in \c Val and the function returns \c true.
   bool GetFlt(const int& FldN, double& Val) const;
   /// Checks whether fields \c FldN is a float. 
