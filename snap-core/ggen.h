@@ -75,7 +75,7 @@ PGraph GenGrid(const int& Rows, const int& Cols, const bool& IsDir) {
       if (r < Rows-1) { // bottom node
         Graph.AddEdge(nodeId, nodeId+Cols); 
         if (Graph.HasFlag(gfDirected) && ! IsDir) { 
-          Graph.AddEdge(nodeId+Cols-1, nodeId); }
+          Graph.AddEdge(nodeId+Cols, nodeId); }
       }
       if (c < Cols-1) { // right node
         Graph.AddEdge(nodeId, nodeId+1); 
@@ -109,7 +109,7 @@ PGraph GenCircle(const int& Nodes, const int& NodeOutDeg, const bool& IsDir) {
   for (int n = 0; n < Nodes; n++) {
     for (int x = 0; x < NodeOutDeg; x++) {
       Graph->AddEdge(n, (n+x+1) % Nodes);
-      if (Graph->HasFlag(gfDirected) && ! IsDir) { Graph->AddEdge((n+x) % Nodes, n); }
+      if (Graph->HasFlag(gfDirected) && ! IsDir) { Graph->AddEdge((n+x+1) % Nodes, n); }
     }
   }
   return Graph;
