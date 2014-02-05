@@ -410,7 +410,12 @@ double GetMxSccSz(const PGraph& Graph) {
   TCnComV CnComV;
   GetSccs(Graph, CnComV);
   if (Graph->GetNodes() == 0) { return 0; }
-  else { return CnComV[0].Len() / double(Graph->GetNodes()); }
+  int MxSz = 0;
+  for (int i = 0; i < CnComV.Len(); i++) {
+    if (MxSz < CnComV[i].Len()) {
+      MxSz=CnComV[i].Len(); }
+  }
+  return MxSz / double(Graph->GetNodes());
 }
   
 template <class PGraph>
