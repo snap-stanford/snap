@@ -629,27 +629,25 @@ void TTable::RemoveRows(const TIntV& RemoveV) {
 
 // TODO: simplify using TRowIteratorWithRemove
 void TTable::KeepSortedRows(const TIntV& KeepV) {
-  // need to remove first rows
-  while (FirstValidRow != KeepV[0]) { RemoveRow(FirstValidRow); }
-  // at this point we know the first row will stay - i.e. FirstValidRow == KeepV[0]
-  TInt KeepIdx = 1;
-  TRowIterator RowI = BegRI();
-  while (RowI < EndRI()) {
-    if (KeepV.Len() > KeepIdx) {
-      if (KeepV[KeepIdx] == Next[RowI.GetRowIdx()]) {
-        KeepIdx++;
+  TIntIntH KeepH(KeepV.Len());
+  for (TInt i = 0; i < KeepV.Len(); i++) {
+    KeepH.AddKey(KeepV[i]);
+  }
+
+  TRowIteratorWithRemove RowI = BegRIWR();
+  TInt KeepSize = 0;
+  while (RowI.GetNextRowIdx() != Last) {
+    if (KeepSize < KeepV.Len()) {
+      if (KeepH.IsKey(RowI.GetRowIdx())) {
+        KeepSize++;
         RowI++;
       } else {
-        RemoveRow(Next[RowI.GetRowIdx()]);
+        RowI.RemoveNext();
       }
-    // covered all of KeepV. remove the rest of the rows
-    // current RowI.CurrRowIdx is the last element of KeepV
     } else {
-      while (Next[RowI.GetRowIdx()] != Last) {
-        RemoveRow(Next[RowI.GetRowIdx()]);
-      }
-      // removed the rest of the rows. increment RowI to EndRI
-      RowI++;
+      // covered all of KeepV. remove the rest of the rows
+      // current RowI.CurrRowIdx is the last element of KeepV
+      RowI.RemoveNext();
     }
   }
 }
