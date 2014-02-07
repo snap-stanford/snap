@@ -2878,6 +2878,13 @@ void TTable::AddFltCol(const TStr& ColName) {
   ColTypeMap.AddDat(ColName, TPair<TAttrType,TInt>(atFlt, L-1));
 }
 
+void TTable::AddStrCol(const TStr& ColName) {
+  AddSchemaCol(ColName, atStr);
+  StrColMaps.Add(TIntV(NumRows));
+  TInt L = StrColMaps.Len();
+  ColTypeMap.AddDat(ColName, TPair<TAttrType,TInt>(atStr, L-1));
+}
+
 void TTable::ClassifyAux(const TIntV& SelectedRows, const TStr& LabelName, const TInt& PositiveLabel, const TInt& NegativeLabel) {
   S.Add(TPair<TStr,TAttrType>(LabelName, atInt));
   TInt LabelColIdx = IntCols.Len();
@@ -2906,7 +2913,7 @@ void TTable::ColGenericOp(const TStr& Attr1, const TStr& Attr2, const TStr& ResA
   TPair<TAttrType, TInt> Info2 = ColTypeMap.GetDat(Attr2);
 
   if (Info1.Val1 == atStr || Info2.Val1 == atStr) {
-    TExcept::Throw("Only numeric operations supported on columns");
+    TExcept::Throw("Only numeric columns supported in arithmetic operations.");
   }
 
   // source column indices
@@ -3015,7 +3022,7 @@ void TTable::ColGenericOp(const TStr& Attr1, TTable& Table, const TStr& Attr2, c
   TPair<TAttrType, TInt> Info2 = Table.ColTypeMap.GetDat(Attr2);
 
   if (Info1.Val1 == atStr || Info2.Val1 == atStr) {
-    TExcept::Throw("Only numeric operations supported on columns");
+    TExcept::Throw("Only numeric columns supported in arithmetic operations.");
   }
 
   // source column indices
@@ -3147,7 +3154,7 @@ void TTable::ColGenericOp(const TStr& Attr1, const TFlt& Num, const TStr& ResAtt
   TPair<TAttrType, TInt> Info1 = ColTypeMap.GetDat(Attr1);
 
   if (Info1.Val1 == atStr) {
-    TExcept::Throw("Only numeric operations supported on columns");
+    TExcept::Throw("Only numeric columns supported in arithmetic operations.");
   }
 
   // source column index
@@ -3210,6 +3217,136 @@ void TTable::ColDiv(const TStr& Attr1, const TFlt& Num, const TStr& ResultAttrNa
 
 void TTable::ColMod(const TStr& Attr1, const TFlt& Num, const TStr& ResultAttrName, const TBool floatCast) {
   ColGenericOp(Attr1, Num, ResultAttrName, aoMod, floatCast);
+}
+
+void TTable::ColConcat(const TStr& Attr1, const TStr& Attr2, const TStr& Sep, const TStr& ResAttr) {
+  // check if attributes are valid
+  if (!IsAttr(Attr1)) TExcept::Throw("No attribute present: " + Attr1);
+  if (!IsAttr(Attr2)) TExcept::Throw("No attribute present: " + Attr2);
+
+  TPair<TAttrType, TInt> Info1 = ColTypeMap.GetDat(Attr1);
+  TPair<TAttrType, TInt> Info2 = ColTypeMap.GetDat(Attr2);
+
+  if (Info1.Val1 != atStr || Info2.Val1 != atStr) {
+    TExcept::Throw("Only string columns supported in concat.");
+  }
+
+  // source column indices
+  TInt ColIdx1 = Info1.Val2;
+  TInt ColIdx2 = Info2.Val2;
+
+  // destination column index
+  TInt ColIdx3 = ColIdx1;
+
+  // Create empty result column with type that of first attribute
+  if (ResAttr != "") {
+      AddStrCol(ResAttr);
+      ColIdx3 = GetColIdx(ResAttr);
+  }
+
+  for (TRowIterator RowI = BegRI(); RowI < EndRI(); RowI++) {
+    TStr CurVal1 = RowI.GetStrAttr(ColIdx1);
+    TStr CurVal2 = RowI.GetStrAttr(ColIdx2);
+    TStr NewVal = CurVal1 + Sep + CurVal2;
+    TInt Key = TInt(Context.StringVals.AddKey(NewVal));
+    StrColMaps[ColIdx3][RowI.GetRowIdx()] = Key;
+  }
+}
+
+void TTable::ColConcat(const TStr& Attr1, TTable& Table, const TStr& Attr2, const TStr& Sep, 
+    const TStr& ResAttr, TBool AddToFirstTable) {
+  // check if attributes are valid
+  if (!IsAttr(Attr1)) { TExcept::Throw("No attribute present: " + Attr1); }
+  if (!Table.IsAttr(Attr2)) { TExcept::Throw("No attribute present: " + Attr2); }
+
+  if (NumValidRows != Table.NumValidRows) {
+    TExcept::Throw("Tables do not have equal number of rows");
+  }
+
+  TPair<TAttrType, TInt> Info1 = ColTypeMap.GetDat(Attr1);
+  TPair<TAttrType, TInt> Info2 = Table.ColTypeMap.GetDat(Attr2);
+
+  if (Info1.Val1 != atStr || Info2.Val1 != atStr) {
+    TExcept::Throw("Only string columns supported in concat.");
+  }
+
+  // source column indices
+  TInt ColIdx1 = Info1.Val2;
+  TInt ColIdx2 = Info2.Val2;
+
+  // destination column index
+  TInt ColIdx3 = ColIdx1;
+
+  if (!AddToFirstTable) {
+    ColIdx3 = ColIdx2;
+  }
+
+  // Create empty result column in appropriate table with type that of first attribute
+  if (ResAttr != "") {
+    if (AddToFirstTable) {
+      AddStrCol(ResAttr);
+      ColIdx3 = GetColIdx(ResAttr);
+    }
+    else {
+      Table.AddStrCol(ResAttr);
+      ColIdx3 = Table.GetColIdx(ResAttr);
+    }
+  }
+
+  TRowIterator RI1, RI2;
+
+  RI1 = BegRI();
+  RI2 = Table.BegRI();
+
+  while (RI1 < EndRI() && RI2 < Table.EndRI()) {
+    TStr CurVal1 = RI1.GetStrAttr(ColIdx1);
+    TStr CurVal2 = RI2.GetStrAttr(ColIdx2);
+    TStr NewVal = CurVal1 + Sep + CurVal2;
+    TInt Key = TInt(Context.StringVals.AddKey(NewVal));
+    if (AddToFirstTable) {
+      StrColMaps[ColIdx3][RI1.GetRowIdx()] = Key;
+    }
+    else {
+      Table.StrColMaps[ColIdx3][RI2.GetRowIdx()] = Key;
+    }
+    RI1++;
+    RI2++;
+  }
+
+  if (RI1 != EndRI() || RI2 != Table.EndRI()) {
+    TExcept::Throw("ColGenericOp: Iteration error");
+  }
+}
+
+void TTable::ColConcatConst(const TStr& Attr1, const TStr& Val, const TStr& Sep, 
+    const TStr& ResAttr) {
+  // check if attribute is valid
+  if (!IsAttr(Attr1)) { TExcept::Throw("No attribute present: " + Attr1); }
+
+  TPair<TAttrType, TInt> Info1 = ColTypeMap.GetDat(Attr1);
+
+  if (Info1.Val1 != atStr) {
+    TExcept::Throw("Only string columns supported in concat.");
+  }
+
+  // source column index
+  TInt ColIdx1 = Info1.Val2;
+
+  // destination column index
+  TInt ColIdx2 = ColIdx1;
+
+  // Create empty result column with type that of first attribute
+  if (ResAttr != "") {
+    AddStrCol(ResAttr);
+    ColIdx2 = GetColIdx(ResAttr);
+  }
+
+  for (TRowIterator RowI = BegRI(); RowI < EndRI(); RowI++) {
+    TStr CurVal = RowI.GetStrAttr(ColIdx1);
+    TStr NewVal = CurVal + Sep + Val;
+    TInt Key = TInt(Context.StringVals.AddKey(NewVal));
+    StrColMaps[ColIdx2][RowI.GetRowIdx()] = Key;
+  }  
 }
 
 void TTable::ReadIntCol(const TStr& ColName, TIntV& Result) const{

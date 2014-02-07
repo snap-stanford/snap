@@ -242,6 +242,8 @@ protected:
   void AddIntCol(const TStr& ColName);
   /// Add a float column with name \c ColName
   void AddFltCol(const TStr& ColName);
+  /// Add a string column with name \c ColName
+  void AddStrCol(const TStr& ColName);
   /// Adds a label attribute with positive labels on selected rows and negative labels on the rest
   void ClassifyAux(const TIntV& SelectedRows, const TStr& LabelName, 
    const TInt& PositiveLabel = 1, const TInt& NegativeLabel=  0);
@@ -853,12 +855,12 @@ public:
   /* Column-wise string operations */
 
   /// Concatenates two string columns.
-  void ColConcat(const TStr& Attr1, const TStr& Attr2, const TStr& ResultAttrName="");
+  void ColConcat(const TStr& Attr1, const TStr& Attr2, const TStr& Sep = "", const TStr& ResAttr="");
   /// Concatenates string column with column of given table.
-  void ColConcat(const TStr& Attr1, TTable& Table, const TStr& Attr2, const TStr& ResAttr="",
+  void ColConcat(const TStr& Attr1, TTable& Table, const TStr& Attr2, const TStr& Sep = "", const TStr& ResAttr="",
     TBool AddToFirstTable=true);
   /// Concatenates column values with given string value.
-  void ColConcat(const TStr& Attr1, const TStr& Val, const TStr& ResultAttrName="");
+  void ColConcatConst(const TStr& Attr1, const TStr& Val, const TStr& Sep = "", const TStr& ResAttr="");
 
   /// Read values of entire int column into \c Result
   void ReadIntCol(const TStr& ColName, TIntV& Result) const;
