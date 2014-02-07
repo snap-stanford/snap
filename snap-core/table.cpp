@@ -700,7 +700,7 @@ void TTable::GroupByFltCol(const TStr& GroupBy, THash<TFlt,TIntV>& grouping,
   }
 }
 
-void TTable::GroupByStrCol(const TStr& GroupBy, TStrIntVH& Grouping, 
+void TTable::GroupByStrCol(const TStr& GroupBy, TIntIntVH& Grouping, 
  const TIntV& IndexSet, TBool All) const {
   if (!ColTypeMap.IsKey(GroupBy)) { TExcept::Throw("no such column " + GroupBy); }
   if (GetColType(GroupBy) != atStr) {
@@ -709,14 +709,15 @@ void TTable::GroupByStrCol(const TStr& GroupBy, TStrIntVH& Grouping,
   if (All) {
     // optimize for the common and most expensive case - iterate over all valid rows
     for (TRowIterator it = BegRI(); it < EndRI(); it++) {
-      UpdateGrouping<TStr>(Grouping, it.GetStrAttr(GroupBy), it.GetRowIdx());
+      UpdateGrouping<TInt>(Grouping, it.GetStrMap(GroupBy), it.GetRowIdx());
     }
   } else {
     // consider only rows in IndexSet
     for (TInt i = 0; i < IndexSet.Len(); i++) {
       if (IsRowValid(IndexSet[i])) {
         TInt RowIdx = IndexSet[i];     
-        UpdateGrouping<TStr>(Grouping, GetStrVal(GroupBy, RowIdx), RowIdx);
+        TInt ColIdx = ColTypeMap.GetDat(GroupBy).Val2;
+        UpdateGrouping<TInt>(Grouping, StrColMaps[ColIdx][RowIdx], RowIdx);
       }
     }
   }
@@ -742,9 +743,9 @@ void TTable::Unique(const TStr& Col) {
         break;
       }
       case atStr: {
-        TStrIntVH Grouping;
+        TIntIntVH Grouping;
         GroupByStrCol(Col, Grouping, TIntV(), true);
-        for (TStrIntVH::TIter it = Grouping.BegI(); it < Grouping.EndI(); it++) {
+        for (TIntIntVH::TIter it = Grouping.BegI(); it < Grouping.EndI(); it++) {
           RemainingRows.Add(it->Dat[0]);
         }
         break;
@@ -1272,10 +1273,10 @@ PTable TTable::Join(const TStr& Col1, const TTable& Table, const TStr& Col2) {
       break;
     }
     case atStr:{
-      TStrIntVH T;
+      TIntIntVH T;
       TS.GroupByStrCol(ColS, T, TIntV(), true);
       for (TRowIterator RowI = TB.BegRI(); RowI < TB.EndRI(); RowI++) {
-        TStr K = RowI.GetStrAttr(ColB);
+        TInt K = RowI.GetStrMap(ColB);
         if (T.IsKey(K)) {
           TIntV& Group = T.GetDat(K);
           for (TInt i = 0; i < Group.Len(); i++) {
