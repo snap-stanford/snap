@@ -56,9 +56,9 @@ int main(int argc, char* argv[]) {
   int MaxEdgeCap = 0;
   double NetTimeSum = 0;
   double GraphTimeSum = 0;
-  int Iters = 10;
   Try
   const TStr InFNm = Env.GetIfArgPrefixStr("-i:", "small.txt", "Input directed graph");
+  const int Iters = Env.GetIfArgPrefixInt("-n:", 10, "Number of runs");
   printf("Integer Flow Test\n");
   printf("Filename: %s\n", InFNm.CStr());
   printf("Building Network...\n");
