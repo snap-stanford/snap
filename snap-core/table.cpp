@@ -637,7 +637,7 @@ void TTable::KeepSortedRows(const TIntV& KeepV) {
   TInt KeepSize = 0;
   while (RowI.GetNextRowIdx() != Last) {
     if (KeepSize < KeepV.Len()) {
-      if (KeepH.IsKey(RowI.GetRowIdx())) {
+      if (KeepH.IsKey(RowI.GetNextRowIdx())) {
         KeepSize++;
         RowI++;
       } else {
