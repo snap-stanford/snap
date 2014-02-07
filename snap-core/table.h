@@ -378,7 +378,7 @@ protected:
   void GroupByFltCol(const TStr& GroupBy, THash<TFlt,TIntV>& grouping, 
    const TIntV& IndexSet, TBool All) const;
   /// Group/hash by a single column with string values. Returns hash table with grouping.
-  void GroupByStrCol(const TStr& GroupBy, THash<TStr,TIntV>& grouping, 
+  void GroupByStrCol(const TStr& GroupBy, THash<TInt,TIntV>& grouping, 
    const TIntV& IndexSet, TBool All) const;
 
   /// Template for utility function to update a grouping hash map
@@ -849,6 +849,16 @@ public:
   void ColDiv(const TStr& Attr1, const TFlt& Num, const TStr& ResultAttrName="", const TBool floatCast=false);
   /// Performs modulus of column values and given \c Num
   void ColMod(const TStr& Attr1, const TFlt& Num, const TStr& ResultAttrName="", const TBool floatCast=false);
+
+  /* Column-wise string operations */
+
+  /// Concatenates two string columns.
+  void ColConcat(const TStr& Attr1, const TStr& Attr2, const TStr& ResultAttrName="");
+  /// Concatenates string column with column of given table.
+  void ColConcat(const TStr& Attr1, TTable& Table, const TStr& Attr2, const TStr& ResAttr="",
+    TBool AddToFirstTable=true);
+  /// Concatenates column values with given string value.
+  void ColConcat(const TStr& Attr1, const TStr& Val, const TStr& ResultAttrName="");
 
   /// Read values of entire int column into \c Result
   void ReadIntCol(const TStr& ColName, TIntV& Result) const;
