@@ -11,21 +11,17 @@ void GetNetAndGraph(const TStr& InFNm, PNEANet &Net, PNGraph &Graph, TIntPrIntH 
   TInt a;
   int NId = 1;
   int SrcNId, DstNId, CapVal, EId;
-  long long OrigSrcNId, OrigDstNId;
-  THash<TUInt64, TInt> NIdH;
   while (Ss.Next()) {
-    if (! Ss.GetLongLong(SrcColId, OrigSrcNId) || ! Ss.GetLongLong(DstColId, OrigDstNId)) { continue; }
+    if (! Ss.GetInt(SrcColId, SrcNId) || ! Ss.GetInt(DstColId, DstNId)) { continue; }
     CapVal = Random.GetUniDevInt(0, 10000);
-    if (! NIdH.IsKey(OrigSrcNId)) {
-      SrcNId = NIdH.AddDat(OrigSrcNId, NId++);
+    if (! Net->IsNode(SrcNId)) {
       Net->AddNode(SrcNId);
       Graph->AddNode(SrcNId);
-    } else { SrcNId = NIdH.GetDat(OrigSrcNId); }
+    }
     if (! Net->IsNode(DstNId)) {
-      DstNId = NIdH.AddDat(OrigDstNId, NId++);
       Net->AddNode(DstNId);
       Graph->AddNode(DstNId);
-    } else { DstNId = NIdH.GetDat(OrigDstNId); }
+    }
     EId = Net->AddEdge(SrcNId, DstNId);
     Graph->AddEdge(SrcNId, DstNId);
     Net->AddIntAttrDatE(EId, 0, TSnap::FlowAttrName);
