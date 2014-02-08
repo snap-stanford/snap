@@ -424,9 +424,7 @@ protected:
   /// Remove first valid row of the table
   void RemoveFirstRow();
   /// Remove row with id \c RowIdx
-  void RemoveRow(TInt RowIdx);
-  /// Remove rows with ids present in \c RemoveV
-  void RemoveRows(const TIntV& RemoveV);
+  void RemoveRow(TInt RowIdx, TInt PrevRowIdx);
   /// Remove all rows that are not mentioned in the SORTED vector \c KeepV
   void KeepSortedRows(const TIntV& KeepV);
 
@@ -467,9 +465,10 @@ public:
   /// Copy constructor
   TTable(const TTable& Table): Name(Table.Name), Context(Table.Context), S(Table.S),
     NumRows(Table.NumRows), NumValidRows(Table.NumValidRows), FirstValidRow(Table.FirstValidRow),
-    Next(Table.Next), IntCols(Table.IntCols), FltCols(Table.FltCols),
-    StrColMaps(Table.StrColMaps), ColTypeMap(Table.ColTypeMap), 
-    GroupMapping(Table.GroupMapping),
+    LastValidRow(Table.LastValidRow), Next(Table.Next), IntCols(Table.IntCols), 
+    FltCols(Table.FltCols), StrColMaps(Table.StrColMaps), ColTypeMap(Table.ColTypeMap), 
+    IdColName(Table.IdColName), RowIdMap(Table.RowIdMap), GroupStmtNames(Table.GroupStmtNames),
+    GroupIDMapping(Table.GroupIDMapping), GroupMapping(Table.GroupMapping),
     SrcCol(Table.SrcCol), DstCol(Table.DstCol),
     EdgeAttrV(Table.EdgeAttrV), SrcNodeAttrV(Table.SrcNodeAttrV),
     DstNodeAttrV(Table.DstNodeAttrV), CommonNodeAttrs(Table.CommonNodeAttrs) {} 
