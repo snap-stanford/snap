@@ -126,19 +126,7 @@ TBool TRowIteratorWithRemove::IsFirst() const {
 }
 
 void TRowIteratorWithRemove::RemoveNext() {
-  TInt OldNextRowIdx = GetNextRowIdx();
-  if (OldNextRowIdx == Table->FirstValidRow) {
-    Table->RemoveFirstRow();
-    return;
-  }
-  Assert(OldNextRowIdx != TTable::Invalid);
-  if (OldNextRowIdx == TTable::Last) { return; }
-  Table->Next[CurrRowIdx] = Table->Next[OldNextRowIdx];
-  if (Table->LastValidRow == OldNextRowIdx) {
-    Table->LastValidRow = CurrRowIdx;
-  }
-  Table->Next[OldNextRowIdx] = TTable::Invalid;
-  Table->NumValidRows--;
+  Table->RemoveRow(GetNextRowIdx(), CurrRowIdx);
 }
 
 // better not use default constructor as it leads to a memory leak
@@ -605,26 +593,21 @@ void TTable::RemoveFirstRow() {
   RowIdMap.AddDat(IntCols[IdColIdx][Old], Invalid);
 }
 
-void TTable::RemoveRow(TInt RowIdx) {
-  if (Next[RowIdx] == TTable::Invalid) { return; } // row was already removed
+void TTable::RemoveRow(TInt RowIdx, TInt PrevRowIdx) {
   if (RowIdx == FirstValidRow) {
     RemoveFirstRow();
-  } else {
-    TInt i = RowIdx-1;
-    while (Next[i] != RowIdx) { i--; }
-    if (RowIdx == LastValidRow) {
-      LastValidRow = i;
-    }
-    Next[i] = Next[RowIdx];
+    return;
+  }
+  Assert(RowIdx != TTable::Invalid);
+  if (RowIdx == TTable::Last) { return; }
+  Next[PrevRowIdx] = Next[RowIdx];
+  if (LastValidRow == RowIdx) {
+    LastValidRow = RowIdx;
   }
   Next[RowIdx] = TTable::Invalid;
   NumValidRows--;
   TInt IdColIdx = GetColIdx(GetIdColName());
   RowIdMap.AddDat(IntCols[IdColIdx][RowIdx], Invalid);
-}
-
-void TTable::RemoveRows(const TIntV& RemoveV) {
-  for (TInt i = 0; i < RemoveV.Len(); i++) { RemoveRow(RemoveV[i]); }
 }
 
 void TTable::KeepSortedRows(const TIntV& KeepV) {
