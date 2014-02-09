@@ -44,7 +44,7 @@ int main(){
   Tsz->Unique(UV, false);
   Tsz->SetSrcCol("Animals_1.Animal");
   Tsz->SetDstCol("Animals_2.Animal");
-  PNEANet G = Tsz->ToGraph(aaLast);
+  PNEANet G = TSnap::ToGraph(Tsz, aaLast);
   TIntFltH PR;
   TSnap::GetPageRank(G, PR);
   TTable AnimalRank("AnimalRank", PR, "animal", "rank", Context, true);

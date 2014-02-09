@@ -92,7 +92,7 @@ int main(){
     Tj->AddEdgeAttr("posts2.CreationDate");
     q1Results[i][4] = tpg.GetSecs();
     TExeTm ttg;
-    Tj->ToGraph(aaLast);
+    TSnap::ToGraph(Tj, aaLast);
     q1Results[i][5] = tpg.GetSecs();
   }
 

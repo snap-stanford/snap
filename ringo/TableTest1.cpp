@@ -36,7 +36,7 @@ int main(){
   Tj->Unique(GroupBy, false);
   Tj->SetSrcCol("Animals_1.Animal");
   Tj->SetDstCol("Animals_2.Animal");
-  PNEANet G = Tj->ToGraph(aaLast);
+  PNEANet G = TSnap::ToGraph(Tj, aaLast);
   //print table
   Tj->SaveSS("../../testfiles/animals_out_Tj_1.txt");
   G->Dump();

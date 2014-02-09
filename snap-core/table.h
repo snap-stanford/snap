@@ -177,6 +177,13 @@ public:
   bool HasNext() { return CurrTableIdx < PTableV.Len(); }
 };
 
+// The name of the friend is not found by simple name lookup until a matching declaration is provided in that namespace scope (either before or after the class declaration granting friendship)
+namespace TSnap{
+	PNEANet ToGraph(PTable, TAttrAggr);
+	PNGraph ToGraphDirected(PTable, TAttrAggr);
+	PUNGraph ToGraphUndirected(PTable, TAttrAggr);
+}
+
 //#//////////////////////////////////////////////
 /// Table class: Relational table with columnar data storage
 class TTable {
@@ -185,6 +192,9 @@ protected:
   static const TInt Invalid; ///< Special value for Next vector entry - logically removed row
 public:
   TStr Name; ///< Table Name
+  friend PNEANet TSnap::ToGraph(PTable, TAttrAggr);
+  friend PNGraph TSnap::ToGraphDirected(PTable, TAttrAggr);
+  friend PUNGraph TSnap::ToGraphUndirected(PTable, TAttrAggr);
 protected:
   TTableContext& Context;  ///< Execution Context. ##TTable::Context
   Schema S; ///< Table Schema
@@ -249,6 +259,10 @@ protected:
    const TInt& PositiveLabel = 1, const TInt& NegativeLabel=  0);
 
 /***** Utility functions for handling string values *****/
+  // Get the Key of the Context StringVals pool. Used by ToGraph method in conv.cpp
+  const char* GetContextKey(TInt Val) const {
+	  return Context.StringVals.GetKey(Val);
+  }
   /// Get the value in column with id \c ColIdx at row \c RowIdx
   TStr GetStrVal(TInt ColIdx, TInt RowIdx) const { 
     return TStr(Context.StringVals.GetKey(StrColMaps[ColIdx][RowIdx])); 
@@ -546,13 +560,6 @@ public:
   // PTable CopySubset(const TIntV& RowIds) const;
   
 /***** Graph handling *****/
-  /// Create a network out of this table
-  PNEANet ToGraph(TAttrAggr AggrPolicy);
-  /// Create a directed graph out of this table
-  PNGraph ToGraphDirected(TAttrAggr AggrPolicy);
-  /// Create an undirected graph out of this table
-  PUNGraph ToGraphUndirected(TAttrAggr AggrPolicy);
-  
   /// Create a sequence of graphs based on values of column SplitAttr and windows specified by JumpSize and WindowSize.
   TVec<PNEANet> ToGraphSequence(TStr SplitAttr, TAttrAggr AggrPolicy, 
     TInt WindowSize, TInt JumpSize, TInt StartVal = TInt::Mn, TInt EndVal = TInt::Mx);

@@ -32,7 +32,7 @@ int main(int argc, char** argv){
   Profiler.ResetTimer(TimerId);
   Profiler.StartTimer(TimerId);
   gettimeofday(&start, NULL);
-  PUNGraph G1 = Q->ToGraphUndirected(aaFirst);
+  PUNGraph G1 = TSnap::ToGraphUndirected(Q, aaFirst);
   Profiler.StopTimer(TimerId);
   gettimeofday(&end, NULL);
   delta = ((end.tv_sec  - start.tv_sec) * 1000000u + 
@@ -42,7 +42,7 @@ int main(int argc, char** argv){
   Profiler.ResetTimer(TimerId);
   Profiler.StartTimer(TimerId);
   gettimeofday(&start, NULL);
-  PNGraph G2 = Q->ToGraphDirected(aaFirst);
+  PNGraph G2 = TSnap::ToGraphDirected(Q, aaFirst);
   Profiler.StopTimer(TimerId);
   gettimeofday(&end, NULL);
   delta = ((end.tv_sec  - start.tv_sec) * 1000000u + 
@@ -52,7 +52,7 @@ int main(int argc, char** argv){
   Profiler.ResetTimer(TimerId);
   Profiler.StartTimer(TimerId);
   gettimeofday(&start, NULL);
-  PNEANet G3 = Q->ToGraph(aaFirst);
+  PNEANet G3 = TSnap::ToGraph(Q, aaFirst);
   Profiler.StopTimer(TimerId);
   gettimeofday(&end, NULL);
   delta = ((end.tv_sec  - start.tv_sec) * 1000000u + 
