@@ -175,7 +175,7 @@ public:
   TNodeData& GetNDat(const int& NId) { return NodeH.GetDat(NId).NodeDat; }
   /// Returns node data for the node of ID NId in the network.
   const TNodeData& GetNDat(const int& NId) const { return NodeH.GetDat(NId).NodeDat; }
-  /// Returns the maximum id of a any node in the network.
+  /// Returns an id that is larger than any node id in the network.
   int GetMxNId() const { return MxNId; }
 
   // edges
@@ -586,7 +586,7 @@ public:
   TNodeData& GetNDat(const int& NId) { return NodeH.GetDat(NId).NodeDat; }
   /// Returns node data for the node of ID NId in the network.
   const TNodeData& GetNDat(const int& NId) const { return NodeH.GetDat(NId).NodeDat; }
-  /// Returns the maximum id of a any node in the network.
+  /// Returns an id that is larger than any node id in the network.
   int GetMxNId() const { return MxNId; }
 
   // edges
@@ -1112,7 +1112,7 @@ public:
   TNodeData& GetNDat(const int& NId) { return NodeH.GetDat(NId).NodeDat; }
   /// Returns node data for the node of ID NId in the network.
   const TNodeData& GetNDat(const int& NId) const { return NodeH.GetDat(NId).NodeDat; }
-  /// Returns the maximum id of a any node in the network.
+  /// Returns an id that is larger than any node id in the network.
   int GetMxNId() const { return MxNId; }
 
   // edges
@@ -1900,7 +1900,7 @@ public:
   TAFltI GetEAFltI(const TStr& attr, const int& EId) const {
     return TAFltI(VecOfFltVecsE[KeyToIndexTypeE.GetDat(attr).Val2].GetI(EdgeH.GetKeyId(EId)), attr, true, this);
   }
-  /// Returns the maximum id of a any node in the graph.
+  /// Returns an id that is larger than any node id in the network.
   int GetMxNId() const { return MxNId; }
 
   /// Returns the number of edges in the graph.

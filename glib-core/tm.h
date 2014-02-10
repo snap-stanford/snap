@@ -273,7 +273,7 @@ public:
   // get components
   int GetYear() const {return Year;}
   int GetMonth() const {return Month;}
-  TStr GetMonthNm() const {return TTmInfo::GetMonthNm(Month);}
+  TStr GetMonthNm() const {return TTmInfo::GetMonthNm(Month+1);}
   int GetDay() const {return Day;}
   int GetDayOfWeek() const {return DayOfWeek;}
   TStr GetDayOfWeekNm() const {return TTmInfo::GetDayOfWeekNm(DayOfWeek);}
@@ -333,7 +333,7 @@ public:
   static TTm GetTmFromIdStr(const TStr& IdStr);
   
   // get unix timestamp
-  static uint GetDateTimeInt(const int& Year = 0, const int& Month = 1, 
+  static uint GetDateTimeInt(const int& Year = 0, const int& Month = 0, 
     const int& Day = 1, const int& Hour = 0, const int& Min = 0,
 	const int& Sec = 0);   
   static uint GetDateIntFromTm(const TTm& Tm);   

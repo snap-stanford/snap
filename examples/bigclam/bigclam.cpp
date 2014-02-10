@@ -3,7 +3,9 @@
 #include "stdafx.h"
 #include "agmfast.h"
 #include "agm.h"
+#ifndef NOMP
 #include <omp.h>
+#endif
 
 int main(int argc, char* argv[]) {
   Env = TEnv(argc, argv, TNotify::StdNotify);
@@ -21,7 +23,9 @@ int main(int argc, char* argv[]) {
   const double StepAlpha = Env.GetIfArgPrefixFlt("-sa:", 0.05, "Alpha for backtracking line search");
   const double StepBeta = Env.GetIfArgPrefixFlt("-sb:", 0.3, "Beta for backtracking line search");
 
+#ifndef NOMP
   omp_set_num_threads(NumThreads);
+#endif
   PUNGraph G;
   TIntStrH NIDNameH;
   if (InFNm.IsStrIn(".ungraph")) {

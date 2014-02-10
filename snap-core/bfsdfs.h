@@ -147,8 +147,9 @@ int TBreathFS<PGraph>::GetRndPath(const int& SrcNId, const int& DstNId, TIntV& P
     CloserNIdV.Clr(false);
     for (int e = 0; e < NI.GetDeg(); e++) {
       const int Next = NI.GetNbrNId(e);
-      IAssert(NIdDistH.IsKeyGetDat(Next, NextDist));
-      if (NextDist == CurDist-1) { CloserNIdV.Add(Next); }
+      if (NIdDistH.IsKeyGetDat(Next, NextDist)) {
+        if (NextDist == CurDist-1) { CloserNIdV.Add(Next); }
+      }
     }
     IAssert(! CloserNIdV.Empty());
     CurNId = CloserNIdV[TInt::Rnd.GetUniDevInt(CloserNIdV.Len())];
