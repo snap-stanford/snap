@@ -182,6 +182,7 @@ namespace TSnap{
 	PNEANet ToGraph(PTable, TAttrAggr);
 	PNGraph ToGraphDirected(PTable, TAttrAggr);
 	PUNGraph ToGraphUndirected(PTable, TAttrAggr);
+	PNGraphMP ToPNGraphMP(PTable);
 }
 
 //#//////////////////////////////////////////////
@@ -195,6 +196,7 @@ public:
   friend PNEANet TSnap::ToGraph(PTable, TAttrAggr);
   friend PNGraph TSnap::ToGraphDirected(PTable, TAttrAggr);
   friend PUNGraph TSnap::ToGraphUndirected(PTable, TAttrAggr);
+  friend PNGraphMP TSnap::ToPNGraphMP(PTable);
 protected:
   TTableContext& Context;  ///< Execution Context. ##TTable::Context
   Schema S; ///< Table Schema
@@ -636,6 +638,8 @@ public:
   static PTable GetNodeTable(const PNEANet& Network, const TStr& TableName, TTableContext& Context);
   /// Extract edge TTable from PNEANet
   static PTable GetEdgeTable(const PNEANet& Network, const TStr& TableName, TTableContext& Context);
+
+  static PTable GetEdgeTablePN(const PNGraphMP& Network, const TStr& TableName, TTableContext& Context);
 
   /// Extract node and edge property TTables from THash
   static PTable GetFltNodePropertyTable(const PNEANet& Network, const TStr& TableName, 

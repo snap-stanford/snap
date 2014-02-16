@@ -2161,6 +2161,34 @@ PTable TTable::GetEdgeTable(const PNEANet& Network, const TStr& TableName, TTabl
   return T;
 }
 
+PTable TTable::GetEdgeTablePN(const PNGraphMP& Network, const TStr& TableName, TTableContext& Context){
+  Schema SR;
+  SR.Add(TPair<TStr,TAttrType>("src_id",atInt));
+  SR.Add(TPair<TStr,TAttrType>("dst_id",atInt));
+
+  PTable T = New(TableName, SR, Context);
+
+  TInt Cnt = 0;
+  // populate table columns
+  TNGraphMP::TEdgeI EdgeI = Network->BegEI();
+  while(EdgeI < Network->EndEI()){
+    T->IntCols[0].Add(EdgeI.GetSrcNId());
+    T->IntCols[1].Add(EdgeI.GetDstNId());
+    Cnt++;
+    EdgeI++;
+  }
+  // set number of rows and "Next" vector
+  T->NumRows = Cnt;
+  T->NumValidRows = T->NumRows;
+  T->Next = TIntV(T->NumRows,0);
+  for(TInt i = 0; i < T->NumRows-1; i++){
+    T->Next.Add(i+1);
+  }
+  T->LastValidRow = T->NumRows-1;
+  T->Next.Add(Last);
+  return T;
+}
+
 PTable TTable::GetFltNodePropertyTable(const PNEANet& Network, const TStr& TableName,
   const TIntFltH& Property, const TStr& NodeAttrName, const TAttrType& NodeAttrType,
   const TStr& PropertyAttrName, TTableContext& Context) {

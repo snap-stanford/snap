@@ -6,31 +6,30 @@
 template <class TKey, class TDat>
 class THashMPKeyDat {
 public:
-  TInt Status;
   TInt HashCd;
   TKey Key;
   TDat Dat;
 public:
   THashMPKeyDat():
-    Status(0), HashCd(-1), Key(), Dat(){}
-  THashMPKeyDat(const int& _Status, const int& _HashCd, const TKey& _Key):
-    Status(_Status), HashCd(_HashCd), Key(_Key), Dat(){}
+    HashCd(-1), Key(), Dat(){}
+  THashMPKeyDat(const int& _HashCd, const TKey& _Key):
+    HashCd(_HashCd), Key(_Key), Dat(){}
   explicit THashMPKeyDat(TSIn& SIn):
-    Status(SIn), HashCd(SIn), Key(SIn), Dat(SIn){}
+    HashCd(SIn), Key(SIn), Dat(SIn){}
   void Save(TSOut& SOut) const {
-    Status.Save(SOut); HashCd.Save(SOut); Key.Save(SOut); Dat.Save(SOut);}
+    HashCd.Save(SOut); Key.Save(SOut); Dat.Save(SOut);}
 
   bool operator==(const THashMPKeyDat& HashKeyDat) const {
-    if (this==&HashKeyDat || (Status==HashKeyDat.Status && HashCd==HashKeyDat.HashCd
+    if (this==&HashKeyDat || (HashCd==HashKeyDat.HashCd
       && Key==HashKeyDat.Key && Dat==HashKeyDat.Dat)){return true;}
     return false;}
   THashMPKeyDat& operator=(const THashMPKeyDat& HashKeyDat){
     if (this!=&HashKeyDat){
-      Status=HashKeyDat.Status; HashCd=HashKeyDat.HashCd;
-      Key=HashKeyDat.Key; Dat=HashKeyDat.Dat;}
+      HashCd=HashKeyDat.HashCd; Key=HashKeyDat.Key;
+      Dat=HashKeyDat.Dat;}
     return *this;}
 };
-#pragma pack(pop)  
+#pragma pack(pop)
 
 /////////////////////////////////////////////////
 // PHash-Table-Key-Data-Iterator
@@ -45,11 +44,8 @@ public:
   THashMPKeyDatI(): KeyDatI(NULL), EndI(NULL){}
   THashMPKeyDatI(const THashMPKeyDatI& _HashKeyDatI):
     KeyDatI(_HashKeyDatI.KeyDatI), EndI(_HashKeyDatI.EndI){}
-  THashMPKeyDatI(const TPHKeyDat* _KeyDatI, const TPHKeyDat* _EndI) {
-    KeyDatI = (TPHKeyDat*)_KeyDatI;
-    EndI = (TPHKeyDat*)_EndI;
-    while (KeyDatI < EndI && KeyDatI->Status==0) { KeyDatI++; }
-  }
+  THashMPKeyDatI(const TPHKeyDat* _KeyDatI, const TPHKeyDat* _EndI):
+    KeyDatI((TPHKeyDat*)_KeyDatI), EndI((TPHKeyDat*)_EndI){}
 
   THashMPKeyDatI& operator=(const THashMPKeyDatI& HashKeyDatI){
     KeyDatI=HashKeyDatI.KeyDatI; EndI=HashKeyDatI.EndI; return *this;}
@@ -57,8 +53,8 @@ public:
     return KeyDatI==HashKeyDatI.KeyDatI;}
   bool operator<(const THashMPKeyDatI& HashKeyDatI) const {
     return KeyDatI<HashKeyDatI.KeyDatI;}
-  THashMPKeyDatI& operator++(int){ KeyDatI++; while (KeyDatI < EndI && KeyDatI->Status==0) { KeyDatI++; } return *this; }
-  THashMPKeyDatI& operator--(int){ do { KeyDatI--; } while (KeyDatI->Status==0); return *this;}
+  THashMPKeyDatI& operator++(int){ KeyDatI++; while (KeyDatI < EndI && KeyDatI->HashCd==-1) { KeyDatI++; } return *this; }
+  THashMPKeyDatI& operator--(int){ do { KeyDatI--; } while (KeyDatI->HashCd==-1); return *this;}
   TPHKeyDat& operator*() const { return *KeyDatI; }
   TPHKeyDat& operator()() const { return *KeyDatI; }
   TPHKeyDat* operator->() const { return KeyDatI; }
@@ -69,14 +65,14 @@ public:
   /// Tests whether the iterator is pointing to the past-end element.
   bool IsEnd() const { return EndI == KeyDatI; }
   
-  const TKey& GetKey() const { return KeyDatI->Key;}
-  const TDat& GetDat() const { return KeyDatI->Dat;}
-  TDat& GetDat() { return KeyDatI->Dat;}
+  const TKey& GetKey() const {Assert((KeyDatI!=NULL)&&(KeyDatI->HashCd!=-1)); return KeyDatI->Key;}
+  const TDat& GetDat() const {/*Assert((KeyDatI!=NULL)&&(KeyDatI->HashCd!=-1));*/ return KeyDatI->Dat;}
+  TDat& GetDat() {Assert((KeyDatI!=NULL)&&(KeyDatI->HashCd!=-1)); return KeyDatI->Dat;}
 };
 
 /////////////////////////////////////////////////
 // PHash-Table
-template<class TKey, class TDat, class TSizeTy = int, class THashFunc = TDefaultHashFunc<TKey> >
+template<class TKey, class TDat, class THashFunc = TDefaultHashFunc<TKey> >
 class THashMP{
 public:
   enum {HashPrimes=32};
@@ -86,14 +82,14 @@ public:
 private:
   typedef THashMPKeyDat<TKey, TDat> TPHKeyDat;
   typedef TPair<TKey, TDat> TKeyDatP;
-TVec<TPHKeyDat, TSizeTy> Table;
+  TVec<TPHKeyDat> Table;
   TInt NumVals;
 private:
   class THashMPKeyDatCmp {
   public:
-    const THashMP<TKey, TDat, TSizeTy, THashFunc>& Hash;
+    const THashMP<TKey, TDat, THashFunc>& Hash;
     bool CmpKey, Asc;
-    THashMPKeyDatCmp(THashMP<TKey, TDat, TSizeTy, THashFunc>& _Hash, const bool& _CmpKey, const bool& _Asc) :
+    THashMPKeyDatCmp(THashMP<TKey, TDat, THashFunc>& _Hash, const bool& _CmpKey, const bool& _Asc) :
       Hash(_Hash), CmpKey(_CmpKey), Asc(_Asc) { }
     bool operator () (const int& KeyId1, const int& KeyId2) const {
       if (CmpKey) {
@@ -106,10 +102,10 @@ private:
 private:
   TPHKeyDat& GetPHashKeyDat(const int& KeyId){
     TPHKeyDat& KeyDat=Table[KeyId];
-     return KeyDat;}
+    Assert(KeyDat.HashCd!=-1); return KeyDat;}
   const TPHKeyDat& GetPHashKeyDat(const int& KeyId) const {
     const TPHKeyDat& KeyDat=Table[KeyId];
-     return KeyDat;}
+    Assert(KeyDat.HashCd!=-1); return KeyDat;}
   uint GetNextPrime(const uint& Val) const;
 //  void Resize();
 public:
@@ -128,15 +124,13 @@ public:
   void Save(TSOut& SOut) const {
     Table.Save(SOut); NumVals.Save(SOut);
     SOut.SaveCs();}
-  void LoadXml(const PXmlTok& XmlTok, const TStr& Nm=""){}
-  void SaveXml(TSOut& SOut, const TStr& Nm){}
 
   THashMP& operator=(const THashMP& Hash){
     if (this!=&Hash){
       Table=Hash.Table; NumVals=Hash.NumVals;}
     return *this;}
   bool operator==(const THashMP& Hash) const; //J: zdaj tak kot je treba
-  bool operator < (const THashMP& Hash) const { Fail; return true; }
+//bool operator < (const THash& Hash) const { Fail; return true; }
   const TDat& operator[](const int& KeyId) const {return GetPHashKeyDat(KeyId).Dat;}
   TDat& operator[](const int& KeyId){return GetPHashKeyDat(KeyId).Dat;}
   TDat& operator()(const TKey& Key){return AddDat(Key);}
@@ -159,52 +153,28 @@ public:
   TIter GetI(const TKey& Key) const {return TIter(&Table[GetKeyId(Key)], Table.EndI());}
 
   void Gen(const int& ExpectVals){
-    Table.Gen(GetNextPrime(ExpectVals*2));
-    //TODO
-    NumVals = ExpectVals;}
+    Table.Gen(GetNextPrime(ExpectVals*2));}
+
   void Clr(const bool& DoDel=true);
   bool Empty() const {return Len()==0;}
   int Len() const {return NumVals;}
+  void SetLen(const int& Length) {NumVals=Length;}
   int GetMxKeyIds() const {return Table.Len();}
-//int GetReservedKeyIds() const {return KeyDatV.Reserved();}
 //bool IsKeyIdEqKeyN() const {return FreeKeys==0;}
+  int GetReservedKeyIds() const {return Table.Reserved();}
 
-  int SafeAddKey(const TKey& Key);
-  int SafeAddKey2(const TKey& Key, const TDat& Dat);
+  // TODO: Non-unique keys
+  int AddKey(const TKey& Key);
+  int AddKey11(const int& Idx, const TKey& Key, bool& Found);
+  int AddKey12(const int& Idx, const TKey& Key, bool& Found);
+  int AddKey1(const TKey& Key, bool& Found);
+  int AddKey2(const int& Idx, const TKey& Key, bool& Found);
   TDat& AddDatId(const TKey& Key){
     int KeyId=AddKey(Key); return Table[KeyId].Dat=KeyId;}
   // TODO: Make Dat updatable
-  TDat& AddDat(const TKey& Key){
-	return Table[SafeAddKey(Key)].Dat;
-	//return Table[AddKey(Key)].Dat;
-  }
-
-  void SafeAddDat(const TKey& Key, const TDat& Dat, bool UpdateCount=true){
-    int KeyId=SafeAddKey(Key);
-    volatile int* pt = &Table[KeyId].Status.Val;
-    while (*pt != 2 ||
-	   (!__sync_bool_compare_and_swap(pt, 2, 3)));
-    Table[KeyId].Dat = Dat;
-    __sync_fetch_and_add(pt, -1);}
-/*  void SafeAddNDat(const TVec<TKey>& Keys, const TVec<TDat>& Dats){
-    IAssert(Keys.Len() == Dats.Len());
-    for (int i=0; i<Keys.Len(); i++){SafeAddDat(Keys[i], Dats[i], false);}*/
-
-  void DelKey(const TKey& Key){DelKeyId(GetKeyId(Key));}
-  bool DelIfKey(const TKey& Key){
-    int KeyId; if (IsKey(Key, KeyId)){DelKeyId(KeyId); return true;} return false;}
-  void DelKeyId(const int& KeyId){
-    IAssert(Table[KeyId].Status==2);
-    Table[KeyId].Status = 0;
-    Table[KeyId].Key = TKey();
-    Table[KeyId].Dat = TDat();}
-  void DelKeyIdV(const TIntV& KeyIdV){
-    for (int KeyIdN=0; KeyIdN<KeyIdV.Len(); KeyIdN++){DelKeyId(KeyIdV[KeyIdN]);}}
-
-  void MarkDelKey(const TKey& Key){MarkDelKeyId(GetKeyId(Key));}
-  void MarkDelKeyId(const int& KeyId){
-    IAssert(Table[KeyId].Status==2);
-    Table[KeyId].Status = 0;}
+  TDat& AddDat(const TKey& Key){return Table[AddKey(Key)].Dat;}
+  TDat& AddDat(const TKey& Key, const TDat& Dat){
+    return Table[AddKey(Key)].Dat=Dat;}
 
   const TKey& GetKey(const int& KeyId) const { return GetPHashKeyDat(KeyId).Key;}
   int GetKeyId(const TKey& Key) const;
@@ -215,7 +185,7 @@ public:
   bool IsKey(const TKey& Key) const {return GetKeyId(Key)!=-1;}
   bool IsKey(const TKey& Key, int& KeyId) const { KeyId=GetKeyId(Key); return KeyId!=-1;}
   bool IsKeyId(const int& KeyId) const {
-    return (0<=KeyId)&&(KeyId<Table.Len())&&(Table[KeyId].Status!=0);}
+    return (0<=KeyId)&&(KeyId<Table.Len())&&(Table[KeyId].HashCd!=-1);}
   const TDat& GetDat(const TKey& Key) const {return Table[GetKeyId(Key)].Dat;}
   TDat& GetDat(const TKey& Key){return Table[GetKeyId(Key)].Dat;}
 //  TKeyDatP GetKeyDat(const int& KeyId) const {
@@ -245,8 +215,8 @@ public:
   void SortByDat(const bool& Asc=true) { Sort(false, Asc); }*/
 };
 
-template<class TKey, class TDat, class TSizeTy, class THashFunc>
-const unsigned int THashMP<TKey, TDat, TSizeTy, THashFunc>::HashPrimeT[HashPrimes]={
+template<class TKey, class TDat, class THashFunc>
+const unsigned int THashMP<TKey, TDat, THashFunc>::HashPrimeT[HashPrimes]={
   3ul, 5ul, 11ul, 23ul,
   53ul,         97ul,         193ul,       389ul,       769ul,
   1543ul,       3079ul,       6151ul,      12289ul,     24593ul,
@@ -256,8 +226,8 @@ const unsigned int THashMP<TKey, TDat, TSizeTy, THashFunc>::HashPrimeT[HashPrime
   1610612741ul, 3221225473ul, 4294967291ul
 };
 
-template<class TKey, class TDat, class TSizeTy, class THashFunc>
-uint THashMP<TKey, TDat, TSizeTy, THashFunc>::GetNextPrime(const uint& Val) const {
+template<class TKey, class TDat, class THashFunc>
+uint THashMP<TKey, TDat, THashFunc>::GetNextPrime(const uint& Val) const {
   const uint* f=(const uint*)HashPrimeT, *m, *l=(const uint*)HashPrimeT + (int)HashPrimes;
   int h, len = (int)HashPrimes;
   while (len > 0) {
@@ -268,8 +238,8 @@ uint THashMP<TKey, TDat, TSizeTy, THashFunc>::GetNextPrime(const uint& Val) cons
   return f == l ? *(l - 1) : *f;
 }
 
-template<class TKey, class TDat, class TSizeTy, class THashFunc>
-bool THashMP<TKey, TDat, TSizeTy, THashFunc>::operator==(const THashMP& Hash) const {
+template<class TKey, class TDat, class THashFunc>
+bool THashMP<TKey, TDat, THashFunc>::operator==(const THashMP& Hash) const {
   if (Len() != Hash.Len()) { return false; }
   for (int i = FFirstKeyId(); FNextKeyId(i); ) {
     const TKey& Key = GetKey(i);
@@ -279,8 +249,8 @@ bool THashMP<TKey, TDat, TSizeTy, THashFunc>::operator==(const THashMP& Hash) co
   return true;
 }
 
-template<class TKey, class TDat, class TSizeTy, class THashFunc>
-int THashMP<TKey, TDat, TSizeTy, THashFunc>::SafeAddKey(const TKey& Key) {
+template<class TKey, class TDat, class THashFunc>
+int THashMP<TKey, TDat, THashFunc>::AddKey(const TKey& Key) {
   //int CurVals = __sync_fetch_and_add(&NumVals.Val, 1);
   //IAssertR(CurVals < Table.Len(), "Table must not be full");
 
@@ -288,67 +258,167 @@ int THashMP<TKey, TDat, TSizeTy, THashFunc>::SafeAddKey(const TKey& Key) {
   const int HashCd=abs(Key.GetSecHashCd());
 
   int TableN = BegTableN;
-  volatile int* pt = &Table[TableN].Status.Val;
-  while (1) {
-    if (*pt == 0) {
-	    if (__sync_bool_compare_and_swap(pt, 0, 1)) {
-		    Table[TableN].HashCd = HashCd;
-		    Table[TableN].Key = Key;
-		    __sync_fetch_and_add(pt, 1);
-		    break;
-	    }
-      else {
-        continue;
-      }
-    } else if (*pt == 1) {
-      continue;
-    } else if (Table[TableN].HashCd == HashCd && Table[TableN].Key == Key) {
-      break;
-    } else {
-      TableN = (TableN + 1) % Table.Len();
-    }
+  while (Table[TableN].HashCd != -1 || 
+    (!__sync_bool_compare_and_swap(&Table[TableN].HashCd.Val, -1, HashCd))) {
+    TableN = (TableN + 1) % Table.Len();    
   }
+
+  Table[TableN].Key = Key;
   return TableN;
 }
 
-template<class TKey, class TDat, class TSizeTy, class THashFunc>
-int THashMP<TKey, TDat, TSizeTy, THashFunc>::SafeAddKey2(const TKey& Key, const TDat& Dat) {
-  const int BegTableN=abs(Key.GetPrimHashCd()%Table.Len());
+template<class TKey, class TDat, class THashFunc>
+int THashMP<TKey, TDat, THashFunc>::AddKey11(const int& BegTableN, const TKey& Key, bool& Found) {
+  //int CurVals = __sync_fetch_and_add(&NumVals.Val, 1);
+  //IAssertR(CurVals < Table.Len(), "Table must not be full");
+
+  const int Length = Table.Len();
   const int HashCd=abs(Key.GetSecHashCd());
 
   int TableN = BegTableN;
-  volatile int* pt = &Table[TableN].Status.Val;
-  while (1) {
-    if (*pt == 0) {
-	    if (__sync_bool_compare_and_swap(pt, 0, 1)) {
-		    Table[TableN].HashCd = HashCd;
-		    Table[TableN].Key = Key;
-		    Table[TableN].Dat = Dat;
-		    __sync_fetch_and_add(pt, 1);
-                    return 1;
-	    }
-      else {
-        continue;
+  Found = false;
+  do {
+    if (Table[TableN].HashCd.Val != -1) {
+      if (Table[TableN].Key == Key) {
+        Found = true;
+        return TableN;
       }
-    } else if (*pt == 1) {
-      continue;
-    } else if (Table[TableN].HashCd == HashCd && Table[TableN].Key == Key) {
+    } else if (__sync_bool_compare_and_swap(&Table[TableN].HashCd.Val, -1, HashCd)) {
       break;
-    } else {
-      TableN = (TableN + 1) % Table.Len();
     }
-  }
-  return 0;
+    
+    TableN++;
+    if (TableN >= Length) {
+      TableN = 0;
+    }
+  } while (1);
+
+  Table[TableN].Key = Key;
+  return TableN;
 }
 
-template<class TKey, class TDat, class TSizeTy, class THashFunc>
-int THashMP<TKey, TDat, TSizeTy, THashFunc>::GetKeyId(const TKey& Key) const {
+template<class TKey, class TDat, class THashFunc>
+int THashMP<TKey, TDat, THashFunc>::AddKey12(const int& BegTableN, const TKey& Key, bool& Found) {
+  //int CurVals = __sync_fetch_and_add(&NumVals.Val, 1);
+  //IAssertR(CurVals < Table.Len(), "Table must not be full");
+
+  const int Length = Table.Len();
+  //const int HashCd=abs(Key.GetSecHashCd());
+
+  // HashCd values:
+  //  -1: empty slot
+  //   1: occupied slot, invalid key
+  //   2: occupied slot, valid key
+
+  int TableN = BegTableN;
+  do {
+    int HashCd = Table[TableN].HashCd.Val;
+    if (HashCd == -1) {
+      // an empty slot
+      if (__sync_bool_compare_and_swap(&Table[TableN].HashCd.Val, -1, 1)) {
+        // an empty slot has been claimed, key is invalid
+        break;
+      }
+    } else {
+      // slot is occupied
+      if (HashCd != 2) {
+        // key is not yet valid, wait for a valid key
+        while (!__sync_bool_compare_and_swap(&Table[TableN].HashCd.Val, 2, 2)) {
+          usleep(20);
+        }
+      }
+      if (Table[TableN].Key == Key) {
+        // the key matches
+        Found = true;
+        return TableN;
+      }
+      // move to the next slot
+      TableN++;
+      if (TableN >= Length) {
+        TableN = 0;
+      }
+    }
+  } while (1);
+
+  // write the key, indicate a valid key
+  Table[TableN].Key = Key;
+  Table[TableN].HashCd.Val = 2;
+
+  Found = false;
+  return TableN;
+}
+
+template<class TKey, class TDat, class THashFunc>
+int THashMP<TKey, TDat, THashFunc>::AddKey1(const TKey& Key, bool& Found) {
+  const int Length = Table.Len();
+  //const int Length = 12582917;
+  const int BegTableN = abs(Key.GetPrimHashCd() % Length);
+  const int HashCd = abs(Key.GetSecHashCd());
+
+  //printf("AddKey1 %5d %5d\n", Length, BegTableN);
+
+  int TableN = BegTableN;
+  while (Table[TableN].HashCd.Val != -1) {
+    if (Table[TableN].Key == Key) {
+      Found = true;
+      return TableN;
+    }
+    TableN++;
+    if (TableN >= Length) {
+      TableN = 0;
+    }
+    //(!__sync_bool_compare_and_swap(&Table[TableN].HashCd.Val, -1, HashCd))) {
+    //TableN = (TableN + 1) % Table.Len();    
+  }
+
+  NumVals.Val++;
+  Found = false;
+  Table[TableN].HashCd.Val = HashCd;
+  Table[TableN].Key = Key;
+  return TableN;
+
+  // TODO:RS, need to set the length at the end
+}
+
+template<class TKey, class TDat, class THashFunc>
+int THashMP<TKey, TDat, THashFunc>::AddKey2(const int& BegTableN, const TKey& Key, bool& Found) {
+  //const int Length = 12582917;
+  const int Length = Table.Len();
+  const int HashCd = abs(Key.GetSecHashCd());
+
+  //printf("AddKey2 %5d %5d\n", Length, BegTableN);
+
+  int TableN = BegTableN;
+  while (Table[TableN].HashCd.Val != -1) {
+    if (Table[TableN].Key == Key) {
+      Found = true;
+      return TableN;
+    }
+    TableN++;
+    if (TableN >= Length) {
+      TableN = 0;
+    }
+    //(!__sync_bool_compare_and_swap(&Table[TableN].HashCd.Val, -1, HashCd))) {
+    //TableN = (TableN + 1) % Table.Len();    
+  }
+
+  //NumVals.Val++;
+  Found = false;
+  Table[TableN].HashCd.Val = HashCd;
+  Table[TableN].Key = Key;
+  return TableN;
+
+  // TODO:RS, need to set the length at the end
+}
+
+template<class TKey, class TDat, class THashFunc>
+int THashMP<TKey, TDat, THashFunc>::GetKeyId(const TKey& Key) const {
   const int BegTableN=abs(Key.GetPrimHashCd()%Table.Len());
   //const int HashCd=abs(Key.GetSecHashCd());
- 
+
   int TableN = BegTableN;
   while (Table[TableN].HashCd != -1) {
-    if (Table[TableN].Status == 2 && Table[TableN].Key == Key) { return TableN; }
+    if (Table[TableN].Key == Key) { return TableN; }
     TableN = (TableN + 1) % Table.Len();
     if (TableN == BegTableN) { return -1; }
   }
@@ -356,8 +426,8 @@ int THashMP<TKey, TDat, TSizeTy, THashFunc>::GetKeyId(const TKey& Key) const {
   return -1;
 }
 
-template<class TKey, class TDat, class TSizeTy, class THashFunc>
-void THashMP<TKey, TDat, TSizeTy, THashFunc>::Clr(const bool& DoDel){
+template<class TKey, class TDat, class THashFunc>
+void THashMP<TKey, TDat, THashFunc>::Clr(const bool& DoDel){
   if (DoDel){
     Table.Clr();
   } else {
@@ -366,30 +436,30 @@ void THashMP<TKey, TDat, TSizeTy, THashFunc>::Clr(const bool& DoDel){
   NumVals = TInt(0);
 }
 
-template<class TKey, class TDat, class TSizeTy, class THashFunc>
-bool THashMP<TKey, TDat, TSizeTy, THashFunc>::FNextKeyId(int& KeyId) const {
-  do {KeyId++;} while ((KeyId<Table.Len())&&(Table[KeyId].Status==0));
+template<class TKey, class TDat, class THashFunc>
+bool THashMP<TKey, TDat, THashFunc>::FNextKeyId(int& KeyId) const {
+  do {KeyId++;} while ((KeyId<Table.Len())&&(Table[KeyId].HashCd==-1));
   return KeyId<Table.Len();
 }
 
-template<class TKey, class TDat, class TSizeTy, class THashFunc>
-void THashMP<TKey, TDat, TSizeTy, THashFunc>::GetKeyV(TVec<TKey>& KeyV) const {
+template<class TKey, class TDat, class THashFunc>
+void THashMP<TKey, TDat, THashFunc>::GetKeyV(TVec<TKey>& KeyV) const {
   KeyV.Gen(Len(), 0);
   int KeyId=FFirstKeyId();
   while (FNextKeyId(KeyId)){
     KeyV.Add(GetKey(KeyId));}
 }
 
-template<class TKey, class TDat, class TSizeTy, class THashFunc>
-void THashMP<TKey, TDat, TSizeTy, THashFunc>::GetDatV(TVec<TDat>& DatV) const {
+template<class TKey, class TDat, class THashFunc>
+void THashMP<TKey, TDat, THashFunc>::GetDatV(TVec<TDat>& DatV) const {
   DatV.Gen(Len(), 0);
   int KeyId=FFirstKeyId();
   while (FNextKeyId(KeyId)){
     DatV.Add(GetPHashKeyDat(KeyId).Dat);}
 }
 
-template<class TKey, class TDat, class TSizeTy, class THashFunc>
-void THashMP<TKey, TDat, TSizeTy, THashFunc>::GetKeyDatPrV(TVec<TPair<TKey, TDat> >& KeyDatPrV) const {
+template<class TKey, class TDat, class THashFunc>
+void THashMP<TKey, TDat, THashFunc>::GetKeyDatPrV(TVec<TPair<TKey, TDat> >& KeyDatPrV) const {
   KeyDatPrV.Gen(Len(), 0);
   TKey Key; TDat Dat;
   int KeyId=FFirstKeyId();
@@ -399,8 +469,8 @@ void THashMP<TKey, TDat, TSizeTy, THashFunc>::GetKeyDatPrV(TVec<TPair<TKey, TDat
   }
 }
 
-template<class TKey, class TDat, class TSizeTy, class THashFunc>
-void THashMP<TKey, TDat, TSizeTy, THashFunc>::GetDatKeyPrV(TVec<TPair<TDat, TKey> >& DatKeyPrV) const {
+template<class TKey, class TDat, class THashFunc>
+void THashMP<TKey, TDat, THashFunc>::GetDatKeyPrV(TVec<TPair<TDat, TKey> >& DatKeyPrV) const {
   DatKeyPrV.Gen(Len(), 0);
   TKey Key; TDat Dat;
   int KeyId=FFirstKeyId();
@@ -410,8 +480,8 @@ void THashMP<TKey, TDat, TSizeTy, THashFunc>::GetDatKeyPrV(TVec<TPair<TDat, TKey
   }
 }
 
-template<class TKey, class TDat, class TSizeTy, class THashFunc>
-void THashMP<TKey, TDat, TSizeTy, THashFunc>::GetKeyDatKdV(TVec<TKeyDat<TKey, TDat> >& KeyDatKdV) const {
+template<class TKey, class TDat, class THashFunc>
+void THashMP<TKey, TDat, THashFunc>::GetKeyDatKdV(TVec<TKeyDat<TKey, TDat> >& KeyDatKdV) const {
   KeyDatKdV.Gen(Len(), 0);
   TKey Key; TDat Dat;
   int KeyId=FFirstKeyId();
@@ -421,8 +491,8 @@ void THashMP<TKey, TDat, TSizeTy, THashFunc>::GetKeyDatKdV(TVec<TKeyDat<TKey, TD
   }
 }
 
-template<class TKey, class TDat, class TSizeTy, class THashFunc>
-void THashMP<TKey, TDat, TSizeTy, THashFunc>::GetDatKeyKdV(TVec<TKeyDat<TDat, TKey> >& DatKeyKdV) const {
+template<class TKey, class TDat, class THashFunc>
+void THashMP<TKey, TDat, THashFunc>::GetDatKeyKdV(TVec<TKeyDat<TDat, TKey> >& DatKeyKdV) const {
   DatKeyKdV.Gen(Len(), 0);
   TKey Key; TDat Dat;
   int KeyId=FFirstKeyId();
@@ -432,20 +502,22 @@ void THashMP<TKey, TDat, TSizeTy, THashFunc>::GetDatKeyKdV(TVec<TKeyDat<TDat, TK
   }
 }
 
-template<class TKey, class TDat, class TSizeTy, class THashFunc>
-void THashMP<TKey, TDat, TSizeTy, THashFunc>::Swap(THashMP& Hash) {
+template<class TKey, class TDat, class THashFunc>
+void THashMP<TKey, TDat, THashFunc>::Swap(THashMP& Hash) {
   if (this!=&Hash){
     Table.Swap(Hash.Table);
     ::Swap(NumVals, Hash.NumVals);
   }
 }
 
-template<class TKey, class TDat, class TSizeTy, class THashFunc>
-int THashMP<TKey, TDat, TSizeTy, THashFunc>::GetRndKeyId(TRnd& Rnd) const  {
+template<class TKey, class TDat, class THashFunc>
+int THashMP<TKey, TDat, THashFunc>::GetRndKeyId(TRnd& Rnd) const  {
+  printf("*** ERROR *** THashMP<TKey, TDat, THashFunc>::GetRndKeyId called\n");
   return 0;
 }
 
-template<class TKey, class TDat, class TSizeTy, class THashFunc>
-int THashMP<TKey, TDat, TSizeTy, THashFunc>::GetRndKeyId(TRnd& Rnd, const double& EmptyFrac) {
+template<class TKey, class TDat, class THashFunc>
+int THashMP<TKey, TDat, THashFunc>::GetRndKeyId(TRnd& Rnd, const double& EmptyFrac) {
+  printf("*** ERROR *** THashMP<TKey, TDat, THashFunc>::GetRndKeyId called\n");
   return 0;
 }
