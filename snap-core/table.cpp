@@ -634,75 +634,31 @@ void TTable::KeepSortedRows(const TIntV& KeepV) {
   }
 }
 
+void TTable::GetPartitionRanges(TIntPrV& Partitions, TInt NumPartitions) const {
+  TInt PartitionSize = NumValidRows / (NumPartitions);
+  if (PartitionSize < 10) { PartitionSize = 10;}
+  TRowIterator RI = BegRI();
+  TInt currStart = RI.GetRowIdx();
+  TInt currCount = PartitionSize;
+  while (RI < EndRI()) {
+    if (currCount == 0) {
+      Partitions.Add(TIntPr(currStart, RI.GetRowIdx()));
+      currStart = RI.GetRowIdx();
+      currCount = PartitionSize;
+    }
+    RI++;
+    currCount--;
+  }
+  Partitions.Add(TIntPr(currStart, RI.GetRowIdx()));
+}
+
 /*****  Grouping Utility functions ****/
-void TTable::GroupByIntCol(const TStr& GroupBy, TIntIntVH& grouping, 
- const TIntV& IndexSet, TBool All) const {
+void TTable::GroupingSanityCheck(const TStr& GroupBy, const TAttrType& AttrType) const {
   if (!ColTypeMap.IsKey(GroupBy)) {
     TExcept::Throw("no such column " + GroupBy);
   }
-  if (GetColType(GroupBy) != atInt) {
-    TExcept::Throw(GroupBy + " values are not of expected type integer");
-  }
-  if (All) {
-     // optimize for the common and most expensive case - iterate over only valid rows
-    for (TRowIterator it = BegRI(); it < EndRI(); it++) {
-      UpdateGrouping<TInt>(grouping, it.GetIntAttr(GroupBy), it.GetRowIdx());
-    }
-  } else {
-    // consider only rows in IndexSet
-    for (TInt i = 0; i < IndexSet.Len(); i++) {
-      if (IsRowValid(IndexSet[i])) {
-        TInt RowIdx = IndexSet[i];
-        const TIntV& Col = IntCols[GetColIdx(GroupBy)];       
-        UpdateGrouping<TInt>(grouping, Col[RowIdx], RowIdx);
-      }
-    }
-  }
-}
-
-void TTable::GroupByFltCol(const TStr& GroupBy, THash<TFlt,TIntV>& grouping, 
- const TIntV& IndexSet, TBool All) const {
-  if (!ColTypeMap.IsKey(GroupBy)) { TExcept::Throw("no such column " + GroupBy); }
-  if (GetColType(GroupBy) != atFlt) {
-    TExcept::Throw(GroupBy + " values are not of expected type float");
-  }
-  if (All) {
-     // optimize for the common and most expensive case - iterate over only valid rows
-    for (TRowIterator it = BegRI(); it < EndRI(); it++) {
-      UpdateGrouping<TFlt>(grouping, it.GetFltAttr(GroupBy), it.GetRowIdx());
-    }
-  } else {
-    // consider only rows in IndexSet
-    for (TInt i = 0; i < IndexSet.Len(); i++) {
-      if (IsRowValid(IndexSet[i])) {
-        TInt RowIdx = IndexSet[i];
-        const TFltV& Col = FltCols[GetColIdx(GroupBy)];       
-        UpdateGrouping<TFlt>(grouping, Col[RowIdx], RowIdx);
-      }
-    }
-  }
-}
-
-void TTable::GroupByStrCol(const TStr& GroupBy, TIntIntVH& Grouping, 
- const TIntV& IndexSet, TBool All) const {
-  if (!ColTypeMap.IsKey(GroupBy)) { TExcept::Throw("no such column " + GroupBy); }
-  if (GetColType(GroupBy) != atStr) {
-    TExcept::Throw(GroupBy + " values are not of expected type string");
-  }
-  if (All) {
-    // optimize for the common and most expensive case - iterate over all valid rows
-    for (TRowIterator it = BegRI(); it < EndRI(); it++) {
-      UpdateGrouping<TInt>(Grouping, it.GetStrMap(GroupBy), it.GetRowIdx());
-    }
-  } else {
-    // consider only rows in IndexSet
-    for (TInt i = 0; i < IndexSet.Len(); i++) {
-      if (IsRowValid(IndexSet[i])) {
-        TInt RowIdx = IndexSet[i];     
-        TInt ColIdx = ColTypeMap.GetDat(GroupBy).Val2;
-        UpdateGrouping<TInt>(Grouping, StrColMaps[ColIdx][RowIdx], RowIdx);
-      }
-    }
+  if (GetColType(GroupBy) != AttrType) {
+    TExcept::Throw(GroupBy + " values are not of expected type");
   }
 }
 
@@ -1276,6 +1232,131 @@ PTable TTable::Join(const TStr& Col1, const TTable& Table, const TStr& Col2) {
   }
  JointTable->InitIds();
  return JointTable; 
+}
+
+PTable TTable::JoinMP(const TStr& Col1, const TTable& Table, const TStr& Col2) {
+  if(!ColTypeMap.IsKey(Col1)){
+    TExcept::Throw("no such column " + Col1);
+  }
+  if(!Table.ColTypeMap.IsKey(Col2)){
+    TExcept::Throw("no such column " + Col2);
+  }
+  if (GetColType(Col1) != Table.GetColType(Col2)) {
+    TExcept::Throw("Trying to Join on columns of different type");
+  }
+  // initialize result table
+  PTable JointTable = InitializeJointTable(Table);
+  // hash smaller table (group by column)
+  TAttrType ColType = GetColType(Col1);
+  TBool ThisIsSmaller = (NumValidRows <= Table.NumValidRows);
+  const TTable& TS = ThisIsSmaller ? *this : Table;
+  const TTable& TB = ThisIsSmaller ?  Table : *this;
+  TStr ColS = ThisIsSmaller ? Col1 : Col2;
+  TStr ColB = ThisIsSmaller ? Col2 : Col1;
+  // iterate over the rows of the bigger table and check for "collisions" 
+  // with the group keys for the small table.
+  switch(ColType){
+    case atInt:{
+      THashMP<TInt, TIntV> T(TS.GetNumValidRows());
+      TS.GroupByIntCol(ColS, T, TIntV(), true);
+      
+      TIntPrV Partitions;
+      TB.GetPartitionRanges(Partitions, omp_get_max_threads()*CHUNKS_PER_THREAD);
+      TInt PartitionSize = Partitions[0].GetVal2()-Partitions[0].GetVal1()+1;
+      TVec<TIntPrV> JointRowIDSet(Partitions.Len());
+
+      #pragma omp parallel for schedule(dynamic) 
+      for (int i = 0; i < Partitions.Len(); i++){
+        JointRowIDSet[i].Reserve(PartitionSize);
+        TRowIterator RowI(Partitions[i].GetVal1(), &TB);
+        TRowIterator EndI(Partitions[i].GetVal2(), &TB);
+        while (RowI < EndI) {
+          TInt K = RowI.GetIntAttr(ColB);
+          if(T.IsKey(K)){
+            TIntV& Group = T.GetDat(K);
+            for(TInt j = 0; j < Group.Len(); j++){
+              if(ThisIsSmaller){
+                JointRowIDSet[i].Add(TIntPr(Group[j], RowI.GetRowIdx()));
+              } else{
+                JointRowIDSet[i].Add(TIntPr(RowI.GetRowIdx(), Group[j]));
+              }
+            }
+          }
+          RowI++;
+        }
+      }
+      JointTable->AddNJointRowsMP(*this, Table, JointRowIDSet);      
+      break;
+    }
+    case atFlt:{
+      THashMP<TFlt, TIntV> T(TS.GetNumValidRows());
+      TS.GroupByFltCol(ColS, T, TIntV(), true);
+
+      TIntPrV Partitions;
+      TB.GetPartitionRanges(Partitions, omp_get_max_threads()*CHUNKS_PER_THREAD);
+      TInt PartitionSize = Partitions[0].GetVal2()-Partitions[0].GetVal1()+1;
+      TVec<TIntPrV> JointRowIDSet(Partitions.Len());
+
+      #pragma omp parallel for schedule(dynamic) 
+      for (int i = 0; i < Partitions.Len(); i++){
+        JointRowIDSet[i].Reserve(PartitionSize);
+        TRowIterator RowI(Partitions[i].GetVal1(), &TB);
+        TRowIterator EndI(Partitions[i].GetVal2(), &TB);
+        while (RowI < EndI) {
+          TFlt K = RowI.GetFltAttr(ColB);
+          if(T.IsKey(K)){
+            TIntV& Group = T.GetDat(K);
+            for(TInt j = 0; j < Group.Len(); j++){
+              if(ThisIsSmaller){
+                JointRowIDSet[i].Add(TIntPr(Group[j], RowI.GetRowIdx()));
+              } else{
+                JointRowIDSet[i].Add(TIntPr(RowI.GetRowIdx(), Group[j]));
+              }
+            }
+          }
+          RowI++;
+        }
+      }
+      JointTable->AddNJointRowsMP(*this, Table, JointRowIDSet);
+      break;
+    }
+    case atStr:{
+      THashMP<TInt, TIntV> T(TS.GetNumValidRows());
+      TS.GroupByStrCol(ColS, T, TIntV(), true);
+
+      TIntPrV Partitions;
+      TB.GetPartitionRanges(Partitions, omp_get_max_threads()*CHUNKS_PER_THREAD);
+      TInt PartitionSize = Partitions[0].GetVal2()-Partitions[0].GetVal1()+1;
+      TVec<TIntPrV> JointRowIDSet(Partitions.Len());
+
+      #pragma omp parallel for schedule(dynamic) 
+      for (int i = 0; i < Partitions.Len(); i++){
+        JointRowIDSet[i].Reserve(PartitionSize);
+        TRowIterator RowI(Partitions[i].GetVal1(), &TB);
+        TRowIterator EndI(Partitions[i].GetVal2(), &TB);
+        while (RowI < EndI) {
+          TInt K = RowI.GetStrMap(ColB);
+          if(T.IsKey(K)){
+            TIntV& Group = T.GetDat(K);
+            for(TInt j = 0; j < Group.Len(); j++){
+              if(ThisIsSmaller){
+                JointRowIDSet[i].Add(TIntPr(Group[j], RowI.GetRowIdx()));
+              } else{
+                JointRowIDSet[i].Add(TIntPr(RowI.GetRowIdx(), Group[j]));
+              }
+            }
+          }
+          RowI++;
+        }
+      }
+      JointTable->AddNJointRowsMP(*this, Table, JointRowIDSet);
+    }
+    break;
+  }
+  //printf("InitIds\n");
+  JointTable->InitIds();
+  //printf("Join done");
+  return JointTable; 
 }
 
 /*
@@ -2503,16 +2584,29 @@ void TTable::AddRow(const TIntV& IntVals, const TFltV& FltVals, const TStrV& Str
 }
 
 void TTable::ResizeTable(int RowCount) {
-  for (TInt i = 0; i < IntCols.Len(); i++) {
-    IntCols[i].Reserve(RowCount, RowCount);
+  if (Next.Len() < RowCount) {
+    for(TInt i = 0; i < IntCols.Len(); i++){
+      IntCols[i].Reserve(RowCount, RowCount);
+    }
+    for(TInt i = 0; i < FltCols.Len(); i++){
+      FltCols[i].Reserve(RowCount, RowCount);
+    }
+    for(TInt i = 0; i < StrColMaps.Len(); i++){
+      StrColMaps[i].Reserve(RowCount, RowCount);
+    }
+    Next.Reserve(RowCount, RowCount);
+  } else if (Next.Len() > RowCount) {
+    for(TInt i = 0; i < IntCols.Len(); i++){
+      IntCols[i].Trunc(RowCount);
+    }
+    for(TInt i = 0; i < FltCols.Len(); i++){
+      FltCols[i].Trunc(RowCount);
+    }
+    for(TInt i = 0; i < StrColMaps.Len(); i++){
+      StrColMaps[i].Trunc(RowCount);
+    }
+    Next.Trunc(RowCount);
   }
-  for (TInt i = 0; i < FltCols.Len(); i++) {
-    FltCols[i].Reserve(RowCount, RowCount);
-  }
-  for (TInt i = 0; i < StrColMaps.Len(); i++) {
-    StrColMaps[i].Reserve(RowCount, RowCount);
-  }
-  Next.Reserve(RowCount, RowCount);
 }
 
 int TTable::GetEmptyRowsStart(int NewRows) {
@@ -2566,6 +2660,56 @@ void TTable::AddNRows(int NewRows, const TVec<TIntV>& IntColsP, const TVec<TFltV
   for (TInt r = 0; r < NewRows-1; r++) {
     Next[start+r] = start+r+1;
   }
+}
+
+void TTable::AddNJointRowsMP(const TTable& T1, const TTable& T2, const TVec<TIntPrV>& JointRowIDSet) {
+  int JointTableSize = 0;
+  TIntV StartOffsets(JointRowIDSet.Len());
+  for (int i = 0; i < JointRowIDSet.Len(); i++) {
+    StartOffsets[i] = JointTableSize;
+    JointTableSize += JointRowIDSet[i].Len();
+  }
+  ResizeTable(JointTableSize);
+  NumRows = JointTableSize;
+  NumValidRows = JointTableSize;
+  Assert(NumRows <= Next.Len());
+
+  #pragma omp parallel for schedule(dynamic, CHUNKS_PER_THREAD) 
+  for (int j = 0; j < JointRowIDSet.Len(); j++) {
+    const TIntPrV& RowIDs = JointRowIDSet[j];
+    int start = StartOffsets[j];
+    int NewRows = RowIDs.Len();
+    if (NewRows == 0) {continue;}
+    for (TInt r = 0; r < NewRows; r++){
+      TIntPr CurrRowIdPr = RowIDs[r]; 
+      for(TInt i = 0; i < T1.IntCols.Len(); i++){
+        IntCols[i][start+r] = T1.IntCols[i][CurrRowIdPr.GetVal1()];
+      }
+      for(TInt i = 0; i < T1.FltCols.Len(); i++){
+        FltCols[i][start+r] = T1.FltCols[i][CurrRowIdPr.GetVal1()];
+      }
+      for(TInt i = 0; i < T1.StrColMaps.Len(); i++){
+        StrColMaps[i][start+r] = T1.StrColMaps[i][CurrRowIdPr.GetVal1()];
+      }
+      TInt IntOffset = T1.IntCols.Len();
+      TInt FltOffset = T1.FltCols.Len();
+      TInt StrOffset = T1.StrColMaps.Len();
+      for(TInt i = 0; i < T2.IntCols.Len(); i++){
+        IntCols[i+IntOffset][start+r] = T2.IntCols[i][CurrRowIdPr.GetVal2()];
+      }
+      for(TInt i = 0; i < T2.FltCols.Len(); i++){
+        FltCols[i+FltOffset][start+r] = T2.FltCols[i][CurrRowIdPr.GetVal2()];
+      }
+      for(TInt i = 0; i < T2.StrColMaps.Len(); i++){
+        StrColMaps[i+StrOffset][start+r] = T2.StrColMaps[i][CurrRowIdPr.GetVal2()];
+      }
+    }
+    for(TInt r = 0; r < NewRows; r++){
+      Next[start+r] = start+r+1;
+    }
+  }      
+  LastValidRow = JointTableSize-1;
+  Next[LastValidRow] = Last;
 }
 
 PTable TTable::UnionAll(const TTable& Table, const TStr& TableName) {

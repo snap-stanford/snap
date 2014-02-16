@@ -3,6 +3,10 @@
 #include "predicate.h"
 #include "tmetric.h"
 //#include "snap.h"
+#ifdef _OPENMP
+#include <omp.h>
+#define CHUNKS_PER_THREAD 10
+#endif
 
 //#//////////////////////////////////////////////
 /// Table class
@@ -389,19 +393,90 @@ protected:
   }
 
   /***** Grouping Utility functions *************/
+  /// Check if grouping key exists and matches given attr type.
+  void GroupingSanityCheck(const TStr& GroupBy, const TAttrType& AttrType) const;
+
   /// Group/hash by a single column with integer values. ##TTable::GroupByIntCol
-  void GroupByIntCol(const TStr& GroupBy, THash<TInt,TIntV>& grouping, 
-   const TIntV& IndexSet, TBool All) const; 
+  template <class T>
+  void GroupByIntCol(const TStr& GroupBy, T& Grouping, 
+   const TIntV& IndexSet, TBool All) const {
+    GroupingSanityCheck(GroupBy, atInt);
+    if (All) {
+       // optimize for the common and most expensive case - iterate over only valid rows
+      for (TRowIterator it = BegRI(); it < EndRI(); it++) {
+        UpdateGrouping<TInt>(Grouping, it.GetIntAttr(GroupBy), it.GetRowIdx());
+      }
+    } else {
+      // consider only rows in IndexSet
+      for (TInt i = 0; i < IndexSet.Len(); i++) {
+        if (IsRowValid(IndexSet[i])) {
+          TInt RowIdx = IndexSet[i];
+          const TIntV& Col = IntCols[GetColIdx(GroupBy)];       
+          UpdateGrouping<TInt>(Grouping, Col[RowIdx], RowIdx);
+        }
+      }
+    }
+  }
+
   /// Group/hash by a single column with float values. Returns hash table with grouping.
-  void GroupByFltCol(const TStr& GroupBy, THash<TFlt,TIntV>& grouping, 
-   const TIntV& IndexSet, TBool All) const;
+  template <class T>
+  void GroupByFltCol(const TStr& GroupBy, T& Grouping, 
+   const TIntV& IndexSet, TBool All) const {
+    GroupingSanityCheck(GroupBy, atFlt);
+    if (All) {
+       // optimize for the common and most expensive case - iterate over only valid rows
+      for (TRowIterator it = BegRI(); it < EndRI(); it++) {
+        UpdateGrouping<TFlt>(Grouping, it.GetFltAttr(GroupBy), it.GetRowIdx());
+      }
+    } else {
+      // consider only rows in IndexSet
+      for (TInt i = 0; i < IndexSet.Len(); i++) {
+        if (IsRowValid(IndexSet[i])) {
+          TInt RowIdx = IndexSet[i];
+          const TFltV& Col = FltCols[GetColIdx(GroupBy)];       
+          UpdateGrouping<TFlt>(Grouping, Col[RowIdx], RowIdx);
+        }
+      }
+    }
+  }
+
   /// Group/hash by a single column with string values. Returns hash table with grouping.
-  void GroupByStrCol(const TStr& GroupBy, THash<TInt,TIntV>& grouping, 
-   const TIntV& IndexSet, TBool All) const;
+  template <class T>
+  void GroupByStrCol(const TStr& GroupBy, T& Grouping, 
+   const TIntV& IndexSet, TBool All) const {
+    GroupingSanityCheck(GroupBy, atStr);
+    if (All) {
+      // optimize for the common and most expensive case - iterate over all valid rows
+      for (TRowIterator it = BegRI(); it < EndRI(); it++) {
+        UpdateGrouping<TInt>(Grouping, it.GetStrMap(GroupBy), it.GetRowIdx());
+      }
+    } else {
+      // consider only rows in IndexSet
+      for (TInt i = 0; i < IndexSet.Len(); i++) {
+        if (IsRowValid(IndexSet[i])) {
+          TInt RowIdx = IndexSet[i];     
+          TInt ColIdx = ColTypeMap.GetDat(GroupBy).Val2;
+          UpdateGrouping<TInt>(Grouping, StrColMaps[ColIdx][RowIdx], RowIdx);
+        }
+      }
+    }
+  }
 
   /// Template for utility function to update a grouping hash map
   template <class T>
   void UpdateGrouping(THash<T,TIntV>& Grouping, T Key, TInt Val) const{
+    if (Grouping.IsKey(Key)) {
+      Grouping.GetDat(Key).Add(Val);
+    } else {
+      TIntV NewGroup;
+      NewGroup.Add(Val);
+      Grouping.AddDat(Key, NewGroup);
+    }
+  }
+
+  /// Template for utility function to update a parallel grouping hash map
+  template <class T>
+  void UpdateGrouping(THashMP<T,TIntV>& Grouping, T Key, TInt Val) const{
     if (Grouping.IsKey(Key)) {
       Grouping.GetDat(Key).Add(Val);
     } else {
@@ -443,6 +518,13 @@ protected:
   void RemoveRow(TInt RowIdx, TInt PrevRowIdx);
   /// Remove all rows that are not mentioned in the SORTED vector \c KeepV
   void KeepSortedRows(const TIntV& KeepV);
+  /// Set the first valid row of the TTable
+  void SetFirstValidRow() {
+    for (int i = 0; i < Next.Len(); i++) { 
+      if(Next[i] != TTable::Invalid) { FirstValidRow = i; return;}
+    }
+    TExcept::Throw("SetFirstValidRow: Table is empty");
+  }
 
 /***** Utility functions for Join *****/
   /// Initialize an empty table for the join of this table with the given table
@@ -459,6 +541,8 @@ protected:
   /// Add \c NewRows rows from the given vectors for each column type
   void AddNRows(int NewRows, const TVec<TIntV>& IntColsP, const TVec<TFltV>& FltColsP, 
    const TVec<TIntV>& StrColMapsP);
+  /// Add rows from T1 and T2 to this table in a parallel manner. Used by JoinMP
+  void AddNJointRowsMP(const TTable& T1, const TTable& T2, const TVec<TIntPrV>& JointRowIDSet);
   /// Update table state after adding one or more rows
   void UpdateTableForNewRow();
 
@@ -666,6 +750,8 @@ public:
   TRowIteratorWithRemove BegRIWR(){ return TRowIteratorWithRemove(FirstValidRow, this);}
   /// Get iterator with reomve to the last valid row
   TRowIteratorWithRemove EndRIWR(){ return TRowIteratorWithRemove(TTable::Last, this);}
+  /// Partition the table into \c NumPartitions and populate \c Partitions with the ranges.
+  void GetPartitionRanges(TIntPrV& Partitions, TInt NumPartitions) const;
 
 /***** Table Operations *****/
 	/// Add a label to a column
@@ -757,6 +843,13 @@ public:
   }
   /// Join table with itself, on values of \c Col
   PTable SelfJoin(const TStr& Col) { return Join(Col, *this, Col); }
+
+  /// /// Perform equijoin in parallel
+  PTable JoinMP(const TStr& Col1, const TTable& Table, const TStr& Col2);
+  PTable JoinMP(const TStr& Col1, const PTable& Table, const TStr& Col2) { 
+    return JoinMP(Col1, *Table, Col2); 
+  }
+  PTable SelfJoinMP(const TStr& Col) { return JoinMP(Col, *this, Col); }
 
   /// Select first N rows from the table
   void SelectFirstNRows(const TInt& N);
