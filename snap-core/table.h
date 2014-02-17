@@ -49,6 +49,29 @@ public:
 };
 
 //#//////////////////////////////////////////////
+/// Primitive class: Wrapper around primitive data types
+class TPrimitive {
+public:
+  TInt IntVal;
+  TFlt FltVal;
+  TStr StrVal;
+  TAttrType AttrType;
+
+  TPrimitive() { AttrType = atInt; IntVal = -1; }
+  TPrimitive(const TInt& Val) { AttrType = atInt; IntVal = Val; }
+  TPrimitive(const TFlt& Val) { AttrType = atFlt; FltVal = Val; }
+  TPrimitive(const TStr& Val) { AttrType = atStr; StrVal = Val; }
+  TPrimitive(const TPrimitive& Prim) { 
+    AttrType = Prim.AttrType; 
+    switch(AttrType) {
+      case atInt: IntVal = Prim.IntVal; break;
+      case atFlt: FltVal = Prim.FltVal; break;
+      case atStr: StrVal = Prim.StrVal; break;
+    }
+  }
+};
+
+//#//////////////////////////////////////////////
 /// Table Row (Record)
 class TTableRow {
 protected:
@@ -118,6 +141,8 @@ public:
   TStr GetStrAttr(const TStr& Col) const;  
   /// Return integer mapping of string attribute specified by attribute name for current row
   TInt GetStrMap(const TStr& Col) const;
+  /// Compare value in column \c ColIdx with given primitive \c Val
+  TBool CompareAtomicConst(TInt ColIdx, const TPrimitive& Val, TPredComp Cmp);
 };
 
 //#//////////////////////////////////////////////
@@ -165,6 +190,8 @@ public:
   TBool IsFirst() const;
   /// Remove next row
   void RemoveNext();
+  /// Compare value in column \c ColIdx with given primitive \c Val
+  TBool CompareAtomicConst(TInt ColIdx, const TPrimitive& Val, TPredComp Cmp);
 };
 
 //#//////////////////////////////////////////////
@@ -195,12 +222,17 @@ class TTable {
 protected:
   static const TInt Last; ///< Special value for Next vector entry - last row in table
   static const TInt Invalid; ///< Special value for Next vector entry - logically removed row
+
+  static TInt UseMP; ///< Global switch for choosing multi-threaded versions of TTable functions
 public:
   TStr Name; ///< Table Name
   friend PNEANet TSnap::ToGraph(PTable, TAttrAggr);
   friend PNGraph TSnap::ToGraphDirected(PTable, TAttrAggr);
   friend PUNGraph TSnap::ToGraphUndirected(PTable, TAttrAggr);
   friend PNGraphMP TSnap::ToPNGraphMP(PTable);
+
+  static void SetMP(TInt Value) { UseMP = Value; }
+  static TInt GetMP() { return UseMP; }
 protected:
   TTableContext& Context;  ///< Execution Context. ##TTable::Context
   Schema S; ///< Table Schema
@@ -783,32 +815,50 @@ public:
   void ClassifyAtomic(const TStr& Col1, const TStr& Col2, TPredComp Cmp, 
    const TStr& LabelName, const TInt& PositiveLabel = 1, const TInt& NegativeLabel = 0);
 
-  void SelectAtomicIntConst(const TStr& Col1, const TInt& Val2, TPredComp Cmp, 
-   TIntV& SelectedRows, TBool Remove = true);
-  void SelectAtomicIntConst(const TStr& Col1, const TInt& Val2, TPredComp Cmp) {
-    TIntV SelectedRows;
-    SelectAtomicIntConst(Col1, Val2, Cmp, SelectedRows, true);
-  }
-  void ClassifyAtomicIntConst(const TStr& Col1, const TInt& Val2, TPredComp Cmp, 
-   const TStr& LabelName, const TInt& PositiveLabel = 1, const TInt& NegativeLabel = 0);
+  /// Select rows where the value of \c Col matches given primitive \c Val
+  void SelectAtomicConst(const TStr& Col, const TPrimitive& Val, TPredComp Cmp, 
+   TIntV& SelectedRows, PTable& SelectedTable, TBool Remove = true, TBool Table = true);
 
-  void SelectAtomicStrConst(const TStr& Col1, const TStr& Val2, TPredComp Cmp,
-   TIntV& SelectedRows, TBool Remove = true);
-  void SelectAtomicStrConst(const TStr& Col1, const TStr& Val2, TPredComp Cmp) {
+  template <class T>
+  void SelectAtomicConst(const TStr& Col, const T& Val, TPredComp Cmp) {
     TIntV SelectedRows;
-    SelectAtomicStrConst(Col1, Val2, Cmp, SelectedRows, true);
+    PTable SelectedTable;
+    SelectAtomicConst(Col, TPrimitive(Val), Cmp, SelectedRows, SelectedTable, true, false);
   }
-  void ClassifyAtomicStrConst(const TStr& Col1, const TStr& Val2, TPredComp Cmp, 
-   const TStr& LabelName, const TInt& PositiveLabel = 1, const TInt& NegativeLabel = 0);
+  template <class T>
+  void SelectAtomicConst(const TStr& Col, const T& Val, TPredComp Cmp, PTable& SelectedTable) {
+    TIntV SelectedRows;
+    SelectAtomicConst(Col, TPrimitive(Val), Cmp, SelectedRows, SelectedTable, false, true);
+  }
+  template <class T>
+  void ClassifyAtomicConst(const TStr& Col, const T& Val, TPredComp Cmp, 
+   const TStr& LabelName, const TInt& PositiveLabel = 1, const TInt& NegativeLabel = 0) {
+    TIntV SelectedRows;
+    PTable SelectedTable;
+    SelectAtomicConst(Col, TPrimitive(Val), Cmp, SelectedRows, SelectedTable, false, false);
+    ClassifyAux(SelectedRows, LabelName, PositiveLabel, NegativeLabel);
+  }
 
-  void SelectAtomicFltConst(const TStr& Col1, const TFlt& Val2, TPredComp Cmp, 
-   TIntV& SelectedRows, TBool Remove = true);
-  void SelectAtomicFltConst(const TStr& Col1, const TFlt& Val2, TPredComp Cmp) {
-    TIntV SelectedRows;
-    SelectAtomicFltConst(Col1, Val2, Cmp, SelectedRows, true);
+  void SelectAtomicIntConst(const TStr& Col, const TInt& Val, TPredComp Cmp) {
+    SelectAtomicConst(Col, Val, Cmp);
   }
-  void ClassifyAtomicFltConst(const TStr& Col1, const TFlt& Val2, TPredComp Cmp, 
-   const TStr& LabelName, const TInt& PositiveLabel = 1, const TInt& NegativeLabel = 0);
+  void SelectAtomicIntConst(const TStr& Col, const TInt& Val, TPredComp Cmp, PTable& SelectedTable) {
+    SelectAtomicConst(Col, Val, Cmp, SelectedTable);
+  }
+
+  void SelectAtomicStrConst(const TStr& Col, const TStr& Val, TPredComp Cmp) {
+    SelectAtomicConst(Col, Val, Cmp);
+  }
+  void SelectAtomicStrConst(const TStr& Col, const TStr& Val, TPredComp Cmp, PTable& SelectedTable) {
+    SelectAtomicConst(Col, Val, Cmp, SelectedTable);
+  }
+
+  void SelectAtomicFltConst(const TStr& Col, const TFlt& Val, TPredComp Cmp) {
+    SelectAtomicConst(Col, Val, Cmp);
+  }
+  void SelectAtomicFltConst(const TStr& Col, const TFlt& Val, TPredComp Cmp, PTable& SelectedTable) {
+    SelectAtomicConst(Col, Val, Cmp, SelectedTable);
+  }
 
   /// Store column for a group. Physical row ids have to be passed
   void StoreGroupCol(const TStr& GroupColName, const TVec<TPair<TInt, TInt> >& GroupAndRowIds);
@@ -843,13 +893,6 @@ public:
   }
   /// Join table with itself, on values of \c Col
   PTable SelfJoin(const TStr& Col) { return Join(Col, *this, Col); }
-
-  /// /// Perform equijoin in parallel
-  PTable JoinMP(const TStr& Col1, const TTable& Table, const TStr& Col2);
-  PTable JoinMP(const TStr& Col1, const PTable& Table, const TStr& Col2) { 
-    return JoinMP(Col1, *Table, Col2); 
-  }
-  PTable SelfJoinMP(const TStr& Col) { return JoinMP(Col, *this, Col); }
 
   /// Select first N rows from the table
   void SelectFirstNRows(const TInt& N);
