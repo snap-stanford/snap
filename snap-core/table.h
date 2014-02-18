@@ -537,6 +537,10 @@ protected:
   /// Perform QSort on given vector \c V
   void QSort(TIntV& V, TInt StartIdx, TInt EndIdx, const TVec<TAttrType>& SortByTypes, 
    const TIntV& SortByIndices, TBool Asc = true);
+  /// Helper function for parallel QSort
+  void Merge(TIntV& V, TInt Idx1, TInt Idx2, TInt Idx3, const TVec<TAttrType>& SortByTypes, const TIntV& SortByIndices, TBool Asc = true);
+  /// Perform QSort in parallel on given vector \c V
+  void QSortPar(TIntV& V, const TVec<TAttrType>& SortByTypes, const TIntV& SortByIndices, TBool Asc = true);
 
   /// Check if \c RowIdx corresponds to a valid (i.e. not deleted) row
   bool IsRowValid(TInt RowIdx) const{ return Next[RowIdx] != Invalid;}
