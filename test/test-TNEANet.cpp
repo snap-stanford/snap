@@ -14,6 +14,7 @@ TEST(TNEANet, DefaultConstructor) {
   EXPECT_EQ(1,Graph->IsOk());
   EXPECT_EQ(1,Graph->Empty());
   EXPECT_EQ(1,Graph->HasFlag(gfDirected));
+  EXPECT_EQ(1,Graph->HasFlag(gfMultiGraph));
 }
 
 // Test node, edge creation

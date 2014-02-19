@@ -915,6 +915,7 @@ int TNGraphMP::AddNode(const int& NId, const TVecPool<TInt>& Pool, const int& Sr
 }
 
 void TNGraphMP::DelNode(const int& NId) {
+#if 0
   { TNode& Node = GetNode(NId);
   for (int e = 0; e < Node.GetOutDeg(); e++) {
   const int nbr = Node.GetOutNId(e);
@@ -931,6 +932,7 @@ void TNGraphMP::DelNode(const int& NId) {
     if (n!= -1) { N.OutNIdV.Del(n); }
   } }
   NodeH.DelKey(NId);
+#endif
 }
 
 int TNGraphMP::GetEdges() const {
@@ -994,11 +996,13 @@ void TNGraphMP::GetNIdV(TIntV& NIdV) const {
 }
 
 void TNGraphMP::Defrag(const bool& OnlyNodeLinks) {
+#if 0
   for (int n = NodeH.FFirstKeyId(); NodeH.FNextKeyId(n); ) {
     TNode& Node = NodeH[n];
     Node.InNIdV.Pack();  Node.OutNIdV.Pack();
   }
   if (! OnlyNodeLinks && ! NodeH.IsKeyIdEqKeyN()) { NodeH.Defrag(); }
+#endif
 }
 
 // for each node check that their neighbors are also nodes
@@ -1074,3 +1078,50 @@ PNGraphMP TNGraphMP::GetSmallGraph() {
   G->AddEdge(2,3);
   return G;
 }
+
+
+int TNGraphMP::AddOutEdge1(const int& SrcIdx, const int& SrcNId, const int& DstNId) {
+  bool Found;
+  int SrcKeyId;
+
+  //SrcKeyId = NodeH.AddKey2(SrcIdx, SrcNId, Found);
+  SrcKeyId = NodeH.AddKey12(SrcIdx, SrcNId, Found);
+  if (!Found) {
+    NodeH[SrcKeyId] = TNode(SrcNId);
+    //MxNId = TMath::Mx(SrcNId+1, MxNId());
+  }
+  //GetNode(SrcNId).OutNIdV.Add(DstNId);
+  //NodeH[SrcKeyId].OutNIdV.Add1(DstNId);
+
+  // TODO:RS, edge lists need to be sorted at the end
+
+  return Found;
+}
+
+int TNGraphMP::AddInEdge1(const int& DstIdx, const int& SrcNId, const int& DstNId) {
+  bool Found;
+  int DstKeyId;
+
+  //DstKeyId = NodeH.AddKey2(DstIdx, DstNId, Found);
+  DstKeyId = NodeH.AddKey12(DstIdx, DstNId, Found);
+  if (!Found) {
+    NodeH[DstKeyId] = TNode(DstNId);
+    //MxNId = TMath::Mx(DstNId+1, MxNId());
+  }
+  //GetNode(DstNId).InNIdV.Add(SrcNId);
+  //NodeH[DstKeyId].InNIdV.Add1(SrcNId);
+
+  // TODO:RS, edge lists need to be sorted at the end
+
+  return Found;
+}
+
+void TNGraphMP::AddOutEdge2(const int& SrcNId, const int& DstNId) {
+  NodeH[NodeH.GetKeyId(SrcNId)].OutNIdV.AddAtm(DstNId);
+}
+
+void TNGraphMP::AddInEdge2(const int& SrcNId, const int& DstNId) {
+  NodeH[NodeH.GetKeyId(DstNId)].InNIdV.AddAtm(SrcNId);
+}
+
+

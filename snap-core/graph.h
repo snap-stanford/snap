@@ -933,7 +933,7 @@ public:
   /// Node iterator. Only forward iteration (operator++) is supported.
   class TNodeI {
   private:
-    typedef THash<TInt, TNode>::TIter THashIter;
+    typedef THashMP<TInt, TNode>::TIter THashIter;
     THashIter NodeHI;
   public:
     TNodeI() : NodeHI() { }
@@ -994,7 +994,7 @@ public:
 private:
   TCRef CRef;
   TInt MxNId;
-  THash<TInt, TNode> NodeH;
+  THashMP<TInt, TNode> NodeH;
 private:
   TNode& GetNode(const int& NId) { return NodeH.GetDat(NId); }
   const TNode& GetNode(const int& NId) const { return NodeH.GetDat(NId); }
@@ -1020,6 +1020,8 @@ public:
   
   /// Returns the number of nodes in the graph.
   int GetNodes() const { return NodeH.Len(); }
+  /// Sets the number of nodes in the graph.
+  void SetNodes(const int& Length) { NodeH.SetLen(Length); }
   /// Adds a node of ID NId to the graph. ##TNGraphMP::AddNode
   int AddNode(int NId = -1);
   /// Adds a node of ID NId to the graph without performing checks.
@@ -1046,6 +1048,7 @@ public:
   //const TNode& GetNodeC(const int& NId) const { return NodeH.GetDat(NId); }
   /// Returns the maximum id of a any node in the graph.
   int GetMxNId() const { return MxNId; }
+  int Reserved() const {return NodeH.GetReservedKeyIds();}
 
   /// Returns the number of edges in the graph.
   int GetEdges() const;
@@ -1055,6 +1058,11 @@ public:
   int AddEdgeUnchecked(const int& SrcNId, const int& DstNId);
   /// Adds an edge from EdgeI.GetSrcNId() to EdgeI.GetDstNId() to the graph.
   int AddEdge(const TEdgeI& EdgeI) { return AddEdge(EdgeI.GetSrcNId(), EdgeI.GetDstNId()); }
+  int AddOutEdge1(const int& SrcIdx, const int& SrcNId, const int& DstNId);
+  int AddInEdge1(const int& DstIdx, const int& SrcNId, const int& DstNId);
+  void AddOutEdge2(const int& SrcNId, const int& DstNId);
+  void AddInEdge2(const int& SrcNId, const int& DstNId);
+
   /// Deletes an edge from node IDs SrcNId to DstNId from the graph. ##TNGraphMP::DelEdge
   void DelEdge(const int& SrcNId, const int& DstNId, const bool& IsDir = true);
   /// Tests whether an edge from node IDs SrcNId to DstNId exists in the graph.
@@ -1081,10 +1089,14 @@ public:
   void Clr() { MxNId=0; NodeH.Clr(); }
   /// Reserves memory for a graph of Nodes nodes and Edges edges.
   void Reserve(const int& Nodes, const int& Edges) { if (Nodes>0) { NodeH.Gen(Nodes/2); } }
+ /// Reserves memory for node Idx having InDeg in-edges and OutDeg out-edges.
+  void ReserveNodeDegs(const int& Idx, const int& InDeg, const int& OutDeg) { if (InDeg > 0) NodeH[Idx].InNIdV.Reserve(InDeg); if (OutDeg > 0) NodeH[Idx].OutNIdV.Reserve(OutDeg); }
   /// Reserves memory for node ID NId having InDeg in-edges.
   void ReserveNIdInDeg(const int& NId, const int& InDeg) { GetNode(NId).InNIdV.Reserve(InDeg); }
   /// Reserves memory for node ID NId having OutDeg out-edges.
   void ReserveNIdOutDeg(const int& NId, const int& OutDeg) { GetNode(NId).OutNIdV.Reserve(OutDeg); }
+  /// Sorts in-edges and out-edges.
+  void SortEdges(const int& Idx, const int& InDeg, const int& OutDeg) { if (InDeg > 0) NodeH[Idx].InNIdV.Sort(); if (OutDeg > 0) NodeH[Idx].OutNIdV.Sort(); }
   /// Sorts the adjacency lists of each node
   void SortNodeAdjV() { for (TNodeI NI = BegNI(); NI < EndNI(); NI++) { NI.SortNIdV();} }
   /// Defragments the graph. ##TNGraphMP::Defrag

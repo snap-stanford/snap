@@ -18,15 +18,14 @@ int main(){
   PTable T1 = TTable::LoadSS("Animals", AnimalS, "tests/animals.txt", Context, '\t', false);
   PTable T2 = TTable::New(T1);
   //PTable T2 = TTable::LoadSS("Animals", AnimalS, "../../testfiles/animals.txt");
-  // vector to be used as dummy parameter to the select function calls
-  TIntV SelectedRows;
+
   // test Select
   TPredicate::TAtomicPredicate A1(atStr, true, EQ, "Size", "", 0, 0, "big");  
   TPredicate::TPredicateNode N1(A1);  // Size == "big"
   TPredicate Pred(&N1);
   //T1->Select(Pred);
-  T1->SelectAtomicStrConst("Size", "ig", SUPERSTR, SelectedRows);
-  T2->SelectAtomicStrConst("Size", "big", EQ, SelectedRows);
+  T1->SelectAtomicStrConst("Size", "big", SUPERSTR);
+  T2->SelectAtomicStrConst("Size", "big", EQ);
   //PTable Tj = T1->Join("Location", *T2, "Location");
   PTable Tj = T1->Join("Location", *T1, "Location");
   Tj->SaveSS("tests/animals_out_Tj_raw.txt");
@@ -51,7 +50,7 @@ int main(){
   TPredicate::TAtomicPredicate A2(atStr, false, EQ, "Animals_1.Size", "Animals_2.Size");  
   TPredicate::TPredicateNode N2(A2);
   TPredicate Pred2(&N2);
-  To->Select(Pred2, SelectedRows);
+  To->Select(Pred2);
   TStrV GroupBy1;
   GroupBy1.Add("Animals_1.Animal");
   GroupBy1.Add("Animals_2.Animal");

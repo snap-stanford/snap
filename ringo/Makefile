@@ -1,17 +1,20 @@
 #
-# Makefile for non-Microsoft compilers
-#	tested only on Linux
-
+# Makefile for non-Microsoft compiler
+#	tested only on Linu
+#
 include ../Makefile.config
 
 HEADER = Engine.h
 CPP = Engine.cpp
 
-TEST = AggrTest GroupTest IdTest ArithOpsTest SetOperationsTest TableTest TableTest1 Benchmark BenchmarkAshton ToGraphTest
+TEST = FilterTest AggrTest GroupTest IdTest ArithOpsTest SetOperationsTest TableTest TableTest1 Benchmark BenchmarkAshton ToGraphTest
 
 all: $(TEST)
 
-# COMPILE
+# COMPILE:
+FilterTest: FilterTest.cpp $(CSNAP)/Snap.o
+	$(CC) $(CXXFLAGS) -o $@ $@.cpp $(CSNAP)/Snap.o -I$(CSNAP) -I$(CGLIB) $(LDFLAGS) $(LIBS)
+
 AggrTest: AggrTest.cpp $(CSNAP)/Snap.o
 	$(CC) $(CXXFLAGS) -o $@ $@.cpp $(CSNAP)/Snap.o -I$(CSNAP) -I$(CGLIB) $(LDFLAGS) $(LIBS)
 
@@ -38,7 +41,7 @@ TableTes%: TableTes%.cpp $(CSNAP)/Snap.o
 
 Benchmark: Benchmark.cpp $(CSNAP)/Snap.o
 	$(CC) $(CXXFLAGS) -o $@ $@.cpp $(CSNAP)/Snap.o -I$(CSNAP) -I$(CGLIB) $(LDFLAGS) $(LIBS)
-	
+
 BenchmarkAshton: BenchmarkAshton.cpp $(CSNAP)/Snap.o
 	$(CC) $(CXXFLAGS) -o $@ $@.cpp $(CSNAP)/Snap.o -I$(CSNAP) -I$(CGLIB) $(LDFLAGS) $(LIBS)
 

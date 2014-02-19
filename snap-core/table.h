@@ -3,6 +3,10 @@
 #include "predicate.h"
 #include "tmetric.h"
 //#include "snap.h"
+#ifdef _OPENMP
+#include <omp.h>
+#define CHUNKS_PER_THREAD 10
+#endif
 
 //#//////////////////////////////////////////////
 /// Table class
@@ -42,6 +46,29 @@ public:
   TTableContext(TSIn& SIn): StringVals(SIn) {}
   /// Save TTableContext in binary to \c SOut
   void Save(TSOut& SOut) { StringVals.Save(SOut); }
+};
+
+//#//////////////////////////////////////////////
+/// Primitive class: Wrapper around primitive data types
+class TPrimitive {
+public:
+  TInt IntVal;
+  TFlt FltVal;
+  TStr StrVal;
+  TAttrType AttrType;
+
+  TPrimitive() { AttrType = atInt; IntVal = -1; }
+  TPrimitive(const TInt& Val) { AttrType = atInt; IntVal = Val; }
+  TPrimitive(const TFlt& Val) { AttrType = atFlt; FltVal = Val; }
+  TPrimitive(const TStr& Val) { AttrType = atStr; StrVal = Val; }
+  TPrimitive(const TPrimitive& Prim) { 
+    AttrType = Prim.AttrType; 
+    switch(AttrType) {
+      case atInt: IntVal = Prim.IntVal; break;
+      case atFlt: FltVal = Prim.FltVal; break;
+      case atStr: StrVal = Prim.StrVal; break;
+    }
+  }
 };
 
 //#//////////////////////////////////////////////
@@ -114,6 +141,8 @@ public:
   TStr GetStrAttr(const TStr& Col) const;  
   /// Return integer mapping of string attribute specified by attribute name for current row
   TInt GetStrMap(const TStr& Col) const;
+  /// Compare value in column \c ColIdx with given primitive \c Val
+  TBool CompareAtomicConst(TInt ColIdx, const TPrimitive& Val, TPredComp Cmp);
 };
 
 //#//////////////////////////////////////////////
@@ -161,6 +190,8 @@ public:
   TBool IsFirst() const;
   /// Remove next row
   void RemoveNext();
+  /// Compare value in column \c ColIdx with given primitive \c Val
+  TBool CompareAtomicConst(TInt ColIdx, const TPrimitive& Val, TPredComp Cmp);
 };
 
 //#//////////////////////////////////////////////
@@ -186,6 +217,7 @@ namespace TSnap{
 			TStrV& SrcAttrs, TStrV& DstAttrs, TStrV& EdgeAttrs, TAttrAggr AggrPolicy);
 	/// Convert table to a network. Suitable for PNEANet - Assumes no node and edge attributes. 
 	template<class PGraph> PGraph ToNetwork(PTable Table, const TStr& SrcCol, const TStr& DstCol, TAttrAggr AggrPolicy);
+  template<class PGraphMP> PNGraphMP ToPNGraphMP(PTable);
 }
 
 //#//////////////////////////////////////////////
@@ -194,12 +226,17 @@ class TTable {
 protected:
   static const TInt Last; ///< Special value for Next vector entry - last row in table
   static const TInt Invalid; ///< Special value for Next vector entry - logically removed row
+
+  static TInt UseMP; ///< Global switch for choosing multi-threaded versions of TTable functions
 public:
   TStr Name; ///< Table Name
 	template<class PGraph> friend PGraph TSnap::ToGraph(PTable Table, const TStr& SrcCol, const TStr& DstCol, TAttrAggr AggrPolicy);
 	template<class PGraph> friend PGraph TSnap::ToNetwork(PTable Table, const TStr& SrcCol, const TStr& DstCol, 
 			TStrV& SrcAttrs, TStrV& DstAttrs, TStrV& EdgeAttrs, TAttrAggr AggrPolicy);
+  template<class PGraphMP> friend PNGraphMP TSnap::ToPNGraphMP(PTable);
 
+  static void SetMP(TInt Value) { UseMP = Value; }
+  static TInt GetMP() { return UseMP; }
 protected:
   TTableContext& Context;  ///< Execution Context. ##TTable::Context
   Schema S; ///< Table Schema
@@ -392,19 +429,90 @@ protected:
   }
 
   /***** Grouping Utility functions *************/
+  /// Check if grouping key exists and matches given attr type.
+  void GroupingSanityCheck(const TStr& GroupBy, const TAttrType& AttrType) const;
+
   /// Group/hash by a single column with integer values. ##TTable::GroupByIntCol
-  void GroupByIntCol(const TStr& GroupBy, THash<TInt,TIntV>& grouping, 
-   const TIntV& IndexSet, TBool All) const; 
+  template <class T>
+  void GroupByIntCol(const TStr& GroupBy, T& Grouping, 
+   const TIntV& IndexSet, TBool All) const {
+    GroupingSanityCheck(GroupBy, atInt);
+    if (All) {
+       // optimize for the common and most expensive case - iterate over only valid rows
+      for (TRowIterator it = BegRI(); it < EndRI(); it++) {
+        UpdateGrouping<TInt>(Grouping, it.GetIntAttr(GroupBy), it.GetRowIdx());
+      }
+    } else {
+      // consider only rows in IndexSet
+      for (TInt i = 0; i < IndexSet.Len(); i++) {
+        if (IsRowValid(IndexSet[i])) {
+          TInt RowIdx = IndexSet[i];
+          const TIntV& Col = IntCols[GetColIdx(GroupBy)];       
+          UpdateGrouping<TInt>(Grouping, Col[RowIdx], RowIdx);
+        }
+      }
+    }
+  }
+
   /// Group/hash by a single column with float values. Returns hash table with grouping.
-  void GroupByFltCol(const TStr& GroupBy, THash<TFlt,TIntV>& grouping, 
-   const TIntV& IndexSet, TBool All) const;
+  template <class T>
+  void GroupByFltCol(const TStr& GroupBy, T& Grouping, 
+   const TIntV& IndexSet, TBool All) const {
+    GroupingSanityCheck(GroupBy, atFlt);
+    if (All) {
+       // optimize for the common and most expensive case - iterate over only valid rows
+      for (TRowIterator it = BegRI(); it < EndRI(); it++) {
+        UpdateGrouping<TFlt>(Grouping, it.GetFltAttr(GroupBy), it.GetRowIdx());
+      }
+    } else {
+      // consider only rows in IndexSet
+      for (TInt i = 0; i < IndexSet.Len(); i++) {
+        if (IsRowValid(IndexSet[i])) {
+          TInt RowIdx = IndexSet[i];
+          const TFltV& Col = FltCols[GetColIdx(GroupBy)];       
+          UpdateGrouping<TFlt>(Grouping, Col[RowIdx], RowIdx);
+        }
+      }
+    }
+  }
+
   /// Group/hash by a single column with string values. Returns hash table with grouping.
-  void GroupByStrCol(const TStr& GroupBy, THash<TInt,TIntV>& grouping, 
-   const TIntV& IndexSet, TBool All) const;
+  template <class T>
+  void GroupByStrCol(const TStr& GroupBy, T& Grouping, 
+   const TIntV& IndexSet, TBool All) const {
+    GroupingSanityCheck(GroupBy, atStr);
+    if (All) {
+      // optimize for the common and most expensive case - iterate over all valid rows
+      for (TRowIterator it = BegRI(); it < EndRI(); it++) {
+        UpdateGrouping<TInt>(Grouping, it.GetStrMap(GroupBy), it.GetRowIdx());
+      }
+    } else {
+      // consider only rows in IndexSet
+      for (TInt i = 0; i < IndexSet.Len(); i++) {
+        if (IsRowValid(IndexSet[i])) {
+          TInt RowIdx = IndexSet[i];     
+          TInt ColIdx = ColTypeMap.GetDat(GroupBy).Val2;
+          UpdateGrouping<TInt>(Grouping, StrColMaps[ColIdx][RowIdx], RowIdx);
+        }
+      }
+    }
+  }
 
   /// Template for utility function to update a grouping hash map
   template <class T>
   void UpdateGrouping(THash<T,TIntV>& Grouping, T Key, TInt Val) const{
+    if (Grouping.IsKey(Key)) {
+      Grouping.GetDat(Key).Add(Val);
+    } else {
+      TIntV NewGroup;
+      NewGroup.Add(Val);
+      Grouping.AddDat(Key, NewGroup);
+    }
+  }
+
+  /// Template for utility function to update a parallel grouping hash map
+  template <class T>
+  void UpdateGrouping(THashMP<T,TIntV>& Grouping, T Key, TInt Val) const{
     if (Grouping.IsKey(Key)) {
       Grouping.GetDat(Key).Add(Val);
     } else {
@@ -433,6 +541,10 @@ protected:
   /// Perform QSort on given vector \c V
   void QSort(TIntV& V, TInt StartIdx, TInt EndIdx, const TVec<TAttrType>& SortByTypes, 
    const TIntV& SortByIndices, TBool Asc = true);
+  /// Helper function for parallel QSort
+  void Merge(TIntV& V, TInt Idx1, TInt Idx2, TInt Idx3, const TVec<TAttrType>& SortByTypes, const TIntV& SortByIndices, TBool Asc = true);
+  /// Perform QSort in parallel on given vector \c V
+  void QSortPar(TIntV& V, const TVec<TAttrType>& SortByTypes, const TIntV& SortByIndices, TBool Asc = true);
 
   /// Check if \c RowIdx corresponds to a valid (i.e. not deleted) row
   bool IsRowValid(TInt RowIdx) const{ return Next[RowIdx] != Invalid;}
@@ -446,6 +558,13 @@ protected:
   void RemoveRow(TInt RowIdx, TInt PrevRowIdx);
   /// Remove all rows that are not mentioned in the SORTED vector \c KeepV
   void KeepSortedRows(const TIntV& KeepV);
+  /// Set the first valid row of the TTable
+  void SetFirstValidRow() {
+    for (int i = 0; i < Next.Len(); i++) { 
+      if(Next[i] != TTable::Invalid) { FirstValidRow = i; return;}
+    }
+    TExcept::Throw("SetFirstValidRow: Table is empty");
+  }
 
 /***** Utility functions for Join *****/
   /// Initialize an empty table for the join of this table with the given table
@@ -462,6 +581,8 @@ protected:
   /// Add \c NewRows rows from the given vectors for each column type
   void AddNRows(int NewRows, const TVec<TIntV>& IntColsP, const TVec<TFltV>& FltColsP, 
    const TVec<TIntV>& StrColMapsP);
+  /// Add rows from T1 and T2 to this table in a parallel manner. Used by JoinMP
+  void AddNJointRowsMP(const TTable& T1, const TTable& T2, const TVec<TIntPrV>& JointRowIDSet);
   /// Update table state after adding one or more rows
   void UpdateTableForNewRow();
 
@@ -642,6 +763,8 @@ public:
   /// Extract edge TTable from PNEANet
   static PTable GetEdgeTable(const PNEANet& Network, const TStr& TableName, TTableContext& Context);
 
+  static PTable GetEdgeTablePN(const PNGraphMP& Network, const TStr& TableName, TTableContext& Context);
+
   /// Extract node and edge property TTables from THash
   static PTable GetFltNodePropertyTable(const PNEANet& Network, const TStr& TableName, 
    const TIntFltH& Property, const TStr& NodeAttrName, const TAttrType& NodeAttrType, 
@@ -667,6 +790,8 @@ public:
   TRowIteratorWithRemove BegRIWR(){ return TRowIteratorWithRemove(FirstValidRow, this);}
   /// Get iterator with reomve to the last valid row
   TRowIteratorWithRemove EndRIWR(){ return TRowIteratorWithRemove(TTable::Last, this);}
+  /// Partition the table into \c NumPartitions and populate \c Partitions with the ranges.
+  void GetPartitionRanges(TIntPrV& Partitions, TInt NumPartitions) const;
 
 /***** Table Operations *****/
 	/// Add a label to a column
@@ -698,32 +823,50 @@ public:
   void ClassifyAtomic(const TStr& Col1, const TStr& Col2, TPredComp Cmp, 
    const TStr& LabelName, const TInt& PositiveLabel = 1, const TInt& NegativeLabel = 0);
 
-  void SelectAtomicIntConst(const TStr& Col1, const TInt& Val2, TPredComp Cmp, 
-   TIntV& SelectedRows, TBool Remove = true);
-  void SelectAtomicIntConst(const TStr& Col1, const TInt& Val2, TPredComp Cmp) {
-    TIntV SelectedRows;
-    SelectAtomicIntConst(Col1, Val2, Cmp, SelectedRows, true);
-  }
-  void ClassifyAtomicIntConst(const TStr& Col1, const TInt& Val2, TPredComp Cmp, 
-   const TStr& LabelName, const TInt& PositiveLabel = 1, const TInt& NegativeLabel = 0);
+  /// Select rows where the value of \c Col matches given primitive \c Val
+  void SelectAtomicConst(const TStr& Col, const TPrimitive& Val, TPredComp Cmp, 
+   TIntV& SelectedRows, PTable& SelectedTable, TBool Remove = true, TBool Table = true);
 
-  void SelectAtomicStrConst(const TStr& Col1, const TStr& Val2, TPredComp Cmp,
-   TIntV& SelectedRows, TBool Remove = true);
-  void SelectAtomicStrConst(const TStr& Col1, const TStr& Val2, TPredComp Cmp) {
+  template <class T>
+  void SelectAtomicConst(const TStr& Col, const T& Val, TPredComp Cmp) {
     TIntV SelectedRows;
-    SelectAtomicStrConst(Col1, Val2, Cmp, SelectedRows, true);
+    PTable SelectedTable;
+    SelectAtomicConst(Col, TPrimitive(Val), Cmp, SelectedRows, SelectedTable, true, false);
   }
-  void ClassifyAtomicStrConst(const TStr& Col1, const TStr& Val2, TPredComp Cmp, 
-   const TStr& LabelName, const TInt& PositiveLabel = 1, const TInt& NegativeLabel = 0);
+  template <class T>
+  void SelectAtomicConst(const TStr& Col, const T& Val, TPredComp Cmp, PTable& SelectedTable) {
+    TIntV SelectedRows;
+    SelectAtomicConst(Col, TPrimitive(Val), Cmp, SelectedRows, SelectedTable, false, true);
+  }
+  template <class T>
+  void ClassifyAtomicConst(const TStr& Col, const T& Val, TPredComp Cmp, 
+   const TStr& LabelName, const TInt& PositiveLabel = 1, const TInt& NegativeLabel = 0) {
+    TIntV SelectedRows;
+    PTable SelectedTable;
+    SelectAtomicConst(Col, TPrimitive(Val), Cmp, SelectedRows, SelectedTable, false, false);
+    ClassifyAux(SelectedRows, LabelName, PositiveLabel, NegativeLabel);
+  }
 
-  void SelectAtomicFltConst(const TStr& Col1, const TFlt& Val2, TPredComp Cmp, 
-   TIntV& SelectedRows, TBool Remove = true);
-  void SelectAtomicFltConst(const TStr& Col1, const TFlt& Val2, TPredComp Cmp) {
-    TIntV SelectedRows;
-    SelectAtomicFltConst(Col1, Val2, Cmp, SelectedRows, true);
+  void SelectAtomicIntConst(const TStr& Col, const TInt& Val, TPredComp Cmp) {
+    SelectAtomicConst(Col, Val, Cmp);
   }
-  void ClassifyAtomicFltConst(const TStr& Col1, const TFlt& Val2, TPredComp Cmp, 
-   const TStr& LabelName, const TInt& PositiveLabel = 1, const TInt& NegativeLabel = 0);
+  void SelectAtomicIntConst(const TStr& Col, const TInt& Val, TPredComp Cmp, PTable& SelectedTable) {
+    SelectAtomicConst(Col, Val, Cmp, SelectedTable);
+  }
+
+  void SelectAtomicStrConst(const TStr& Col, const TStr& Val, TPredComp Cmp) {
+    SelectAtomicConst(Col, Val, Cmp);
+  }
+  void SelectAtomicStrConst(const TStr& Col, const TStr& Val, TPredComp Cmp, PTable& SelectedTable) {
+    SelectAtomicConst(Col, Val, Cmp, SelectedTable);
+  }
+
+  void SelectAtomicFltConst(const TStr& Col, const TFlt& Val, TPredComp Cmp) {
+    SelectAtomicConst(Col, Val, Cmp);
+  }
+  void SelectAtomicFltConst(const TStr& Col, const TFlt& Val, TPredComp Cmp, PTable& SelectedTable) {
+    SelectAtomicConst(Col, Val, Cmp, SelectedTable);
+  }
 
   /// Store column for a group. Physical row ids have to be passed
   void StoreGroupCol(const TStr& GroupColName, const TVec<TPair<TInt, TInt> >& GroupAndRowIds);
