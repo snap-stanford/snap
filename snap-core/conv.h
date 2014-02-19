@@ -177,12 +177,9 @@ PGraph ToNetwork(PTable Table, const TStr& SrcCol, const TStr& DstCol, TAttrAggr
 }
 
 template<class PGraphMP>
-PGraphMP ToPNGraphMP(PTable Table) {
-  TStr SrcCol = Table->GetSrcCol();
-  TStr DstCol = Table->GetDstCol();
-
-  //PNGraphMP Graph = TNGraphMP::New(4850000, 69000000);
-  PNGraphMP Graph = TNGraphMP::New(41700000, 1470000000);
+PGraphMP ToGraphMP(PTable Table, const TStr& SrcCol, const TStr& DstCol) {
+  //PGraphMP Graph = TNGraphMP::New(4850000, 69000000);
+  PGraphMP Graph = TNGraphMP::New(41700000, 1470000000);
 
   //printf("TNGraphMP::New nodes %d, edges %d\n", Graph->GetNodes(), Graph->GetEdges());
   printf("TNGraphMP::New reserved %d\n", Graph->Reserved());
@@ -200,6 +197,8 @@ PGraphMP ToPNGraphMP(PTable Table) {
 
   const TInt SrcColIdx = Table->GetColIdx(SrcCol);
   const TInt DstColIdx = Table->GetColIdx(DstCol);
+
+  printf("%d %d\n", SrcColIdx.Val, DstColIdx.Val);
   const int L1 = Length;
 
   //int *ps = &IntCols[SrcColIdx][0].Val;
@@ -210,7 +209,7 @@ PGraphMP ToPNGraphMP(PTable Table) {
   //
   const int Last = Table->Next.Len();
   int Nodes = 0;
-#pragma omp parallel for schedule(static, Delta) reduction(+:Nodes)
+#pragma omp parallel for schedule(dynamic, 10000) reduction(+:Nodes)
   for (int CurrRowIdx = 0; CurrRowIdx < Last; CurrRowIdx++) {
     //if (Next[CurrRowIdx] == Invalid) {continue;}
 

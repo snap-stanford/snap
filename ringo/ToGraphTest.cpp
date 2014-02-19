@@ -5,7 +5,9 @@
 int main(int argc, char** argv){
   TTableContext Context;
 
-  char filename[500] = "/dfs/ilfs2/0/ringo/benchmarks/soc-LiveJournal1.table";
+  //char filename[500] = "/dfs/ilfs2/0/ringo/benchmarks/soc-LiveJournal1.table";
+  char filename[500] = "/dfs/ilfs2/0/ringo/benchmarks/twitter_rv.table";
+
   if (argc >= 2){
     strcpy(filename,argv[1]);
   }
@@ -36,7 +38,7 @@ int main(int argc, char** argv){
   delta = ((end.tv_sec  - start.tv_sec) * 1000000u + 
             end.tv_usec - start.tv_usec) / 1.e6;
 
-  printf("ToGraphUndirected time (elapsed): %f, cpu: %f\n", delta, Profiler.GetTimerSec(TimerId));\
+  printf("ToGraphUndirected time (elapsed): %f, cpu: %f\n", delta, Profiler.GetTimerSec(TimerId));
 
   Profiler.ResetTimer(TimerId);
   Profiler.StartTimer(TimerId);
@@ -58,5 +60,15 @@ int main(int argc, char** argv){
             end.tv_usec - start.tv_usec) / 1.e6;
   printf("ToGraph time (elapsed): %f, cpu: %f\n", delta, Profiler.GetTimerSec(TimerId));
 
+  Profiler.ResetTimer(TimerId);
+  Profiler.StartTimer(TimerId);
+  gettimeofday(&start, NULL);
+  PNGraphMP G4 = TSnap::ToGraphMP<PNGraphMP>(Q, Schema[0].GetVal1(), Schema[1].GetVal1());
+  Profiler.StopTimer(TimerId);
+  gettimeofday(&end, NULL);
+  delta = ((end.tv_sec  - start.tv_sec) * 1000000u + 
+            end.tv_usec - start.tv_usec) / 1.e6;
+
+  printf("ToPNGraphMP time (elapsed): %f, cpu: %f\n", delta, Profiler.GetTimerSec(TimerId));
   return 0;
 }

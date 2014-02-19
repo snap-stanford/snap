@@ -1088,7 +1088,7 @@ public:
   /// Deletes all nodes and edges from the graph.
   void Clr() { MxNId=0; NodeH.Clr(); }
   /// Reserves memory for a graph of Nodes nodes and Edges edges.
-  void Reserve(const int& Nodes, const int& Edges) { if (Nodes>0) { NodeH.Gen(Nodes/2); } }
+  void Reserve(const int& Nodes, const int& Edges) { if (Nodes>0) { NodeH.Gen(Nodes); } }
  /// Reserves memory for node Idx having InDeg in-edges and OutDeg out-edges.
   void ReserveNodeDegs(const int& Idx, const int& InDeg, const int& OutDeg) { if (InDeg > 0) NodeH[Idx].InNIdV.Reserve(InDeg); if (OutDeg > 0) NodeH[Idx].OutNIdV.Reserve(OutDeg); }
   /// Reserves memory for node ID NId having InDeg in-edges.

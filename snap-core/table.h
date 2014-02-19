@@ -217,7 +217,7 @@ namespace TSnap{
 			TStrV& SrcAttrs, TStrV& DstAttrs, TStrV& EdgeAttrs, TAttrAggr AggrPolicy);
 	/// Convert table to a network. Suitable for PNEANet - Assumes no node and edge attributes. 
 	template<class PGraph> PGraph ToNetwork(PTable Table, const TStr& SrcCol, const TStr& DstCol, TAttrAggr AggrPolicy);
-  template<class PGraphMP> PNGraphMP ToPNGraphMP(PTable);
+  template<class PGraphMP> PGraphMP ToGraphMP(PTable Table, const TStr& SrcCol, const TStr& DstCol);
 }
 
 //#//////////////////////////////////////////////
@@ -233,7 +233,7 @@ public:
 	template<class PGraph> friend PGraph TSnap::ToGraph(PTable Table, const TStr& SrcCol, const TStr& DstCol, TAttrAggr AggrPolicy);
 	template<class PGraph> friend PGraph TSnap::ToNetwork(PTable Table, const TStr& SrcCol, const TStr& DstCol, 
 			TStrV& SrcAttrs, TStrV& DstAttrs, TStrV& EdgeAttrs, TAttrAggr AggrPolicy);
-  template<class PGraphMP> friend PNGraphMP TSnap::ToPNGraphMP(PTable);
+  template<class PGraphMP> friend PGraphMP TSnap::ToGraphMP(PTable Table, const TStr& SrcCol, const TStr& DstCol);
 
   static void SetMP(TInt Value) { UseMP = Value; }
   static TInt GetMP() { return UseMP; }
