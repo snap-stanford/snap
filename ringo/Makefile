@@ -7,12 +7,15 @@ include ../Makefile.config
 HEADER = Engine.h
 CPP = Engine.cpp
 
-TEST = AggrTest GroupTest IdTest ArithOpsTest SetOperationsTest TableTest TableTest1 Benchmark BenchmarkAshton
+TEST = AggrTest GroupTest IdTest ArithOpsTest SetOperationsTest TableTest TableTest1 Benchmark BenchmarkAshton ToGraphTest
 
 all: $(TEST)
 
 # COMPILE
 AggrTest: AggrTest.cpp $(CSNAP)/Snap.o
+	$(CC) $(CXXFLAGS) -o $@ $@.cpp $(CSNAP)/Snap.o -I$(CSNAP) -I$(CGLIB) $(LDFLAGS) $(LIBS)
+
+ToGraphTest: ToGraphTest.cpp $(CSNAP)/Snap.o
 	$(CC) $(CXXFLAGS) -o $@ $@.cpp $(CSNAP)/Snap.o -I$(CSNAP) -I$(CGLIB) $(LDFLAGS) $(LIBS)
 
 GroupTest: GroupTest.cpp $(CSNAP)/Snap.o

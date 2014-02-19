@@ -35,6 +35,5 @@
 #include "gio.cpp"
 
 // table data structures and algorithms
-#include "conv.cpp"
 #include "table.cpp"         // table
 #include "predicate.cpp"     // predicates

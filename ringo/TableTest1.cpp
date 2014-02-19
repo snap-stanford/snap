@@ -15,7 +15,7 @@ int main(){
   AnimalS.Add(TPair<TStr,TAttrType>("Location", atStr));
   AnimalS.Add(TPair<TStr,TAttrType>("Number", atInt));
   // create table
-  PTable T1 = TTable::LoadSS("Animals", AnimalS, "../../testfiles/animals.txt", Context, '\t', true);
+  PTable T1 = TTable::LoadSS("Animals", AnimalS, "tests/animals.txt", Context, '\t', false);
   PTable T2 = TTable::New(T1);
   //PTable T2 = TTable::LoadSS("Animals", AnimalS, "../../testfiles/animals.txt");
   // vector to be used as dummy parameter to the select function calls
@@ -29,16 +29,16 @@ int main(){
   T2->SelectAtomicStrConst("Size", "big", EQ, SelectedRows);
   //PTable Tj = T1->Join("Location", *T2, "Location");
   PTable Tj = T1->Join("Location", *T1, "Location");
-  Tj->SaveSS("../../testfiles/animals_out_Tj_raw.txt");
+  Tj->SaveSS("tests/animals_out_Tj_raw.txt");
   TStrV GroupBy;
   GroupBy.Add("Animals_1.Animal");
   GroupBy.Add("Animals_2.Animal");
   Tj->Unique(GroupBy, false);
-  Tj->SetSrcCol("Animals_1.Animal");
-  Tj->SetDstCol("Animals_2.Animal");
-  PNEANet G = TSnap::ToGraph(Tj, aaLast);
+  //Tj->SetSrcCol("Animals_1.Animal");
+  //Tj->SetDstCol("Animals_2.Animal");
+  PNEANet G = TSnap::ToNetwork<PNEANet>(Tj, TStr("Animals_1.Animal"), TStr("Animals_2.Animal"), aaLast);
   //print table
-  Tj->SaveSS("../../testfiles/animals_out_Tj_1.txt");
+  Tj->SaveSS("tests/animals_out_Tj_1.txt");
   G->Dump();
 
   // Join on Location to get animal pairs
@@ -46,7 +46,7 @@ int main(){
   // group by (Animal, Animal)
   // unique by group idx
 
-  PTable T3 = TTable::LoadSS("Animals", AnimalS, "../../testfiles/animals.txt", Context, '\t', true);
+  PTable T3 = TTable::LoadSS("Animals", AnimalS, "tests/animals.txt", Context, '\t', false);
   PTable To = T3->Join("Location", *T3, "Location");
   TPredicate::TAtomicPredicate A2(atStr, false, EQ, "Animals_1.Size", "Animals_2.Size");  
   TPredicate::TPredicateNode N2(A2);
@@ -57,6 +57,6 @@ int main(){
   GroupBy1.Add("Animals_2.Animal");
   To->Unique(GroupBy1, false);
   //print table
-  To->SaveSS("../../testfiles/animals_out_To_1.txt");
+  To->SaveSS("tests/animals_out_To_1.txt");
   return 0;
 }

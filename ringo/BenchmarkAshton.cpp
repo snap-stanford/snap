@@ -87,12 +87,10 @@ int main(){
     PTable Tj = T1->Join("AcceptedAnswerId", *T2, "Id");
     q1Results[i][3] = tj.GetSecs();
     TExeTm tpg;
-    Tj->SetSrcCol("posts1.OwnerUserId");
-    Tj->SetDstCol("posts2.OwnerUserId");
     Tj->AddEdgeAttr("posts2.CreationDate");
     q1Results[i][4] = tpg.GetSecs();
     TExeTm ttg;
-    TSnap::ToGraph(Tj, aaLast);
+    TSnap::ToNetwork<PNEANet>(Tj, "posts1.OwnerUserId", "posts2.OwnerUserId", aaLast);
     q1Results[i][5] = tpg.GetSecs();
   }
 

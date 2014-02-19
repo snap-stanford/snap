@@ -177,11 +177,15 @@ public:
   bool HasNext() { return CurrTableIdx < PTableV.Len(); }
 };
 
-// The name of the friend is not found by simple name lookup until a matching declaration is provided in that namespace scope (either before or after the class declaration granting friendship)
+/// The name of the friend is not found by simple name lookup until a matching declaration is provided in that namespace scope (either before or after the class declaration granting friendship)
 namespace TSnap{
-	PNEANet ToGraph(PTable, TAttrAggr);
-	PNGraph ToGraphDirected(PTable, TAttrAggr);
-	PUNGraph ToGraphUndirected(PTable, TAttrAggr);
+	/// Convert table to a directed/undirected graph. Suitable for PUNGraph and PNGraph, but not for PNEANet where attributes are expected. 
+	template<class PGraph> PGraph ToGraph(PTable Table, const TStr& SrcCol, const TStr& DstCol, TAttrAggr AggrPolicy);
+	/// Convert table to a network. Suitable for PNEANet - Requires node and edge attribute column names as vectors. 
+	template<class PGraph> PGraph ToNetwork(PTable Table, const TStr& SrcCol, const TStr& DstCol, 
+			TStrV& SrcAttrs, TStrV& DstAttrs, TStrV& EdgeAttrs, TAttrAggr AggrPolicy);
+	/// Convert table to a network. Suitable for PNEANet - Assumes no node and edge attributes. 
+	template<class PGraph> PGraph ToNetwork(PTable Table, const TStr& SrcCol, const TStr& DstCol, TAttrAggr AggrPolicy);
 }
 
 //#//////////////////////////////////////////////
@@ -192,9 +196,10 @@ protected:
   static const TInt Invalid; ///< Special value for Next vector entry - logically removed row
 public:
   TStr Name; ///< Table Name
-  friend PNEANet TSnap::ToGraph(PTable, TAttrAggr);
-  friend PNGraph TSnap::ToGraphDirected(PTable, TAttrAggr);
-  friend PUNGraph TSnap::ToGraphUndirected(PTable, TAttrAggr);
+	template<class PGraph> friend PGraph TSnap::ToGraph(PTable Table, const TStr& SrcCol, const TStr& DstCol, TAttrAggr AggrPolicy);
+	template<class PGraph> friend PGraph TSnap::ToNetwork(PTable Table, const TStr& SrcCol, const TStr& DstCol, 
+			TStrV& SrcAttrs, TStrV& DstAttrs, TStrV& EdgeAttrs, TAttrAggr AggrPolicy);
+
 protected:
   TTableContext& Context;  ///< Execution Context. ##TTable::Context
   Schema S; ///< Table Schema

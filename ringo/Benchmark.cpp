@@ -83,10 +83,9 @@ int main(){
       TExeTm te;
       Tj->Unique(qaGroupBy);
       qa_results[f][i][4] = te.GetSecs();
-      Tj->SetSrcCol("Posts1.OwnerUserId");
-      Tj->SetDstCol("Posts2.OwnerUserId");
       TExeTm tg;
-      PNEANet G = TSnap::ToGraph(Tj, aaLast);
+
+      PNEANet G = TSnap::ToNetwork<PNEANet>(Tj, "Posts1.OwnerUserId", "Posts2.OwnerUserId", aaLast);
       qa_results[f][i][5] = tg.GetSecs();
       //TStr OutFNm = outDir + "out_" + qa_file_names[f];
       //if(i == N-1){Tj->SaveSS(OutFNm);}

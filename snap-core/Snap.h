@@ -42,5 +42,6 @@
 
 // table data structures and algorithms
 #include "table.h"         // table
+#include "conv.h" 				 // conversion functions - table to graph
 
 #endif
