@@ -17,12 +17,20 @@ int main(int argc, char** argv){
   RelevantCols.Add(3);
   RelevantCols.Add(4);
 
-  char filename[50] = "tests/SO_posts.tsv";
+  char filename[50] = "tests/SO_posts.small.tsv";
   if (argc >= 2){
     strcpy(filename,argv[1]);
   }
 
   PTable Q = TTable::LoadSS("StackOverflow", StackOverflowS, filename, Context, RelevantCols);
+  /*TIntV RowIDs;
+  RowIDs.Add(0);
+  RowIDs.Add(2);
+  RowIDs.Add(3);
+  PTable P = TTable::New(Q, "Select", RowIDs);
+  P->SaveSS("tests/select.txt");*/
+
+
   PTable P = Q->SelfJoin("User");
 
   P->SetSrcCol("StackOverflow_1.Id");
@@ -37,15 +45,19 @@ int main(int argc, char** argv){
   // attrAggr.AddDat("StackOverflow_2.Score", FIRST);
 
   // TVec<PNEANet> NVec = P->ToGraphSequence("StackOverflow_1.Score", attrAggr, 10, 10, TInt::Mn, TInt::Mx);
-  TVec<PNEANet> NVec = P->ToGraphSequence("StackOverflow_1.Score", aaFirst, 10, 10, TInt::Mn, TInt::Mx);
+  TVec<PNEANet> NVec = P->ToGraphSequence("StackOverflow_1.Score", aaFirst, 100, 100, TInt::Mn, TInt::Mx);
   printf("vec size: %d\n", NVec.Len());
+  TVec<PTable> TableVec;
+  TSnap::MapPageRank(NVec, TableVec, Context);
+  printf("table size: %d\n", TableVec.Len());
   //for (TNEANet::TNodeI NodeI = N->BegNI(); NodeI < N->EndNI(); NodeI++){
     //printf("%d: <%s>\n", EdgeI.GetId(), N->GetStrAttrDatE(EdgeI, "StackOverflow_1.Tags").CStr());
     //printf("%d %d\n", NodeI.GetId(), N->GetIntAttrDatN(NodeI, "StackOverflow_1.Score").Val);
   //}
 
-  for (int i = 0; i < NVec.Len(); i++) {
-    printf("graph %d size: %d nodes, %d edges\n", i, NVec[i]->GetNodes(), NVec[i]->GetEdges());
+  for (TInt i = 0; i < NVec.Len(); i++) {
+    printf("graph %d size: %d nodes, %d edges\n", i.Val, NVec[i]->GetNodes(), NVec[i]->GetEdges());
+    TableVec[i]->SaveSS("tests/SO_pagerank.txt." + i.GetStr());
   }
 
   /*PTable NodeTable = TTable::GetNodeTable(N, "NodeTable", Context);
