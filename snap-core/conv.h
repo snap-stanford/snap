@@ -172,8 +172,8 @@ PGraph ToNetwork(PTable Table, const TStr& SrcCol, const TStr& DstCol,
 template<class PGraph>
 PGraph ToNetwork(PTable Table, const TStr& SrcCol, const TStr& DstCol, TAttrAggr AggrPolicy)
 {
-	TStrV A;
-	return ToNetwork<PNEANet>(Table, SrcCol, DstCol, A, A, A, AggrPolicy);
+	TStrV V;
+	return ToNetwork<PNEANet>(Table, SrcCol, DstCol, V, V, V, AggrPolicy);
 }
 
 template<class PGraphMP>
