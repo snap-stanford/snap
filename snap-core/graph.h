@@ -1058,8 +1058,8 @@ public:
   int AddEdgeUnchecked(const int& SrcNId, const int& DstNId);
   /// Adds an edge from EdgeI.GetSrcNId() to EdgeI.GetDstNId() to the graph.
   int AddEdge(const TEdgeI& EdgeI) { return AddEdge(EdgeI.GetSrcNId(), EdgeI.GetDstNId()); }
-  int AddOutEdge1(const int& SrcIdx, const int& SrcNId, const int& DstNId);
-  int AddInEdge1(const int& DstIdx, const int& SrcNId, const int& DstNId);
+  int AddOutEdge1(int& SrcIdx, const int& SrcNId, const int& DstNId);
+  int AddInEdge1(int& DstIdx, const int& SrcNId, const int& DstNId);
   void AddOutEdge2(const int& SrcNId, const int& DstNId);
   void AddInEdge2(const int& SrcNId, const int& DstNId);
 

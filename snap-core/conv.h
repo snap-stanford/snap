@@ -287,7 +287,7 @@ PGraphMP ToGraphMP(PTable Table, const TStr& SrcCol, const TStr& DstCol) {
     Graph->AddInEdge2(SVal, DVal);
   }
 
-  printf("allocated edge lists\n");
+  printf("populated edge lists\n");
 
   //
   // sort edges

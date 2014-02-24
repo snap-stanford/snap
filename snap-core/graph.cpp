@@ -1080,7 +1080,7 @@ PNGraphMP TNGraphMP::GetSmallGraph() {
 }
 
 
-int TNGraphMP::AddOutEdge1(const int& SrcIdx, const int& SrcNId, const int& DstNId) {
+int TNGraphMP::AddOutEdge1(int& SrcIdx, const int& SrcNId, const int& DstNId) {
   bool Found;
   int SrcKeyId;
 
@@ -1095,10 +1095,11 @@ int TNGraphMP::AddOutEdge1(const int& SrcIdx, const int& SrcNId, const int& DstN
 
   // TODO:RS, edge lists need to be sorted at the end
 
+  SrcIdx = SrcKeyId;
   return Found;
 }
 
-int TNGraphMP::AddInEdge1(const int& DstIdx, const int& SrcNId, const int& DstNId) {
+int TNGraphMP::AddInEdge1(int& DstIdx, const int& SrcNId, const int& DstNId) {
   bool Found;
   int DstKeyId;
 
@@ -1113,6 +1114,7 @@ int TNGraphMP::AddInEdge1(const int& DstIdx, const int& SrcNId, const int& DstNI
 
   // TODO:RS, edge lists need to be sorted at the end
 
+  DstIdx = DstKeyId;
   return Found;
 }
 

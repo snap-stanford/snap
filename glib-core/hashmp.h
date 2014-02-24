@@ -153,7 +153,7 @@ public:
   TIter GetI(const TKey& Key) const {return TIter(&Table[GetKeyId(Key)], Table.EndI());}
 
   void Gen(const int& ExpectVals){
-    Table.Gen(GetNextPrime(ExpectVals*2));}
+    Table.Gen(GetNextPrime(2 * ExpectVals));}
 
   void Clr(const bool& DoDel=true);
   bool Empty() const {return Len()==0;}
