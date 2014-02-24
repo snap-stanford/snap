@@ -1,6 +1,6 @@
-const TPredicate::TAtomicPredicate TPredicate::NonAtom = TAtomicPredicate(atInt, true, EQ, "", "", 0, 0, "");
+const TAtomicPredicate TAtomicPredicate::NonAtom = TAtomicPredicate(atInt, true, EQ, "", "", 0, 0, "");
 
-void TPredicate::TPredicateNode::GetVariables(TStrV& Variables) {
+void TPredicateNode::GetVariables(TStrV& Variables) {
   if (Left != NULL) { Left->GetVariables(Variables); }
   if (Right != NULL) { Right->GetVariables(Variables); }
   if (Op == NOP) {

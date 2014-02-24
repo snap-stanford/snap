@@ -41,6 +41,7 @@
 #include "statplot.h"
 
 // table data structures and algorithms
+#include "predicate.h" 		 // predicate
 #include "table.h"         // table
 #include "conv.h" 				 // conversion functions - table to graph
 

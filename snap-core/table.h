@@ -1,6 +1,5 @@
 #ifndef TABLE_H
 #define TABLE_H
-#include "predicate.h"
 #include "tmetric.h"
 //#include "snap.h"
 #ifdef _OPENMP
