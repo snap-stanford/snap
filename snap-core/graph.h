@@ -162,7 +162,7 @@ public:
   TNodeI EndNI() const { return TNodeI(NodeH.EndI()); }
   /// Returns an iterator referring to the node of ID NId in the graph.
   TNodeI GetNI(const int& NId) const { return TNodeI(NodeH.GetI(NId)); }
-  /// Returns an id that is larger than any node id in the graph.
+  /// Returns an ID that is larger than any node ID in the graph.
   int GetMxNId() const { return MxNId; }
 
   /// Returns the number of edges in the graph.
@@ -356,7 +356,7 @@ public:
   TNodeI GetNI(const int& NId) const { return TNodeI(NodeH.GetI(NId)); }
   // GetNodeC() has been commented out. It was a quick shortcut, do not use.
   //const TNode& GetNodeC(const int& NId) const { return NodeH.GetDat(NId); }
-  /// Returns an id that is larger than any node id in the graph.
+  /// Returns an ID that is larger than any node ID in the graph.
   int GetMxNId() const { return MxNId; }
 
   /// Returns the number of edges in the graph.
@@ -580,7 +580,7 @@ public:
   TNodeI EndNI() const { return TNodeI(NodeH.EndI(), this); }
   /// Returns an iterator referring to the node of ID NId in the graph.
   TNodeI GetNI(const int& NId) const { return TNodeI(NodeH.GetI(NId), this); }
-  /// Returns an id that is larger than any node id in the graph.
+  /// Returns an ID that is larger than any node ID in the graph.
   int GetMxNId() const { return MxNId; }
 
   /// Returns the number of edges in the graph.
@@ -748,15 +748,15 @@ public:
     int GetSrcNId() const { return CurNode.GetId(); }
     /// Gets destination ('right' side) of an edge. Since the graph is undirected this is the node with greater ID of the edge endpoints.
     int GetDstNId() const { return CurNode.GetOutNId(CurEdge); }
-    /// Gets the id of the node on the 'left' side of the edge.
+    /// Gets the ID of the node on the 'left' side of the edge.
     int GetLNId() const { return GetSrcNId(); }
-    /// Gets the id of the node on the 'right' side of the edge.
+    /// Gets the ID of the node on the 'right' side of the edge.
     int GetRNId() const { return GetDstNId(); }
     friend class TBPGraph;
   };
 private:
   TCRef CRef;
-  TInt MxNId;                 // maximum node id in the graph
+  TInt MxNId;                 // maximum node ID in the graph
   THash<TInt, TNode> LeftH;   // 'left' nodes
   THash<TInt, TNode> RightH;  // 'right' nodes
 private:
@@ -802,7 +802,7 @@ public:
   bool IsLNode(const int& NId) const { return LeftH.IsKey(NId); }
   /// Tests whether ID NId is a 'right' side node.
   bool IsRNode(const int& NId) const { return RightH.IsKey(NId); }
-  /// Returns an id that is larger than any node id in the graph.
+  /// Returns an ID that is larger than any node ID in the graph.
   int GetMxNId() const { return MxNId; }
     
   /// Returns an iterator referring to the first node in the graph.
