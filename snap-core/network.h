@@ -1800,7 +1800,7 @@ public:
   void AttrNameNI(const TInt& NId, TStrV& Names) const {
     AttrNameNI(NId, KeyToIndexTypeN.BegI(), Names);}
   void AttrNameNI(const TInt& NId, TStrIntPrH::TIter NodeHI, TStrV& Names) const;
-  /// Returns a vector of attr avlues for node NId.
+  /// Returns a vector of attr values for node NId.
   void AttrValueNI(const TInt& NId, TStrV& Values) const {
     AttrValueNI(NId, KeyToIndexTypeN.BegI(), Values);}
   void AttrValueNI(const TInt& NId, TStrIntPrH::TIter NodeHI, TStrV& Values) const; 
@@ -1808,7 +1808,7 @@ public:
   void IntAttrNameNI(const TInt& NId, TStrV& Names) const {
     IntAttrNameNI(NId, KeyToIndexTypeN.BegI(), Names);}
   void IntAttrNameNI(const TInt& NId, TStrIntPrH::TIter NodeHI, TStrV& Names) const;
-  /// Returns a vector of attr avlues for node NId.
+  /// Returns a vector of attr values for node NId.
   void IntAttrValueNI(const TInt& NId, TIntV& Values) const {
     IntAttrValueNI(NId, KeyToIndexTypeN.BegI(), Values);}
   void IntAttrValueNI(const TInt& NId, TStrIntPrH::TIter NodeHI, TIntV& Values) const; 
@@ -1816,7 +1816,7 @@ public:
   void StrAttrNameNI(const TInt& NId, TStrV& Names) const {
     StrAttrNameNI(NId, KeyToIndexTypeN.BegI(), Names);}
   void StrAttrNameNI(const TInt& NId, TStrIntPrH::TIter NodeHI, TStrV& Names) const;
-  /// Returns a vector of attr avlues for node NId.
+  /// Returns a vector of attr values for node NId.
   void StrAttrValueNI(const TInt& NId, TStrV& Values) const {
     StrAttrValueNI(NId, KeyToIndexTypeN.BegI(), Values);}
   void StrAttrValueNI(const TInt& NId, TStrIntPrH::TIter NodeHI, TStrV& Values) const; 
@@ -1824,7 +1824,7 @@ public:
   void FltAttrNameNI(const TInt& NId, TStrV& Names) const {
     FltAttrNameNI(NId, KeyToIndexTypeN.BegI(), Names);}
   void FltAttrNameNI(const TInt& NId, TStrIntPrH::TIter NodeHI, TStrV& Names) const;
-  /// Returns a vector of attr avlues for node NId.
+  /// Returns a vector of attr values for node NId.
   void FltAttrValueNI(const TInt& NId, TFltV& Values) const {
     FltAttrValueNI(NId, KeyToIndexTypeN.BegI(), Values);}
   void FltAttrValueNI(const TInt& NId, TStrIntPrH::TIter NodeHI, TFltV& Values) const; 
@@ -1833,7 +1833,7 @@ public:
   void AttrNameEI(const TInt& EId, TStrV& Names) const {
     AttrNameEI(EId, KeyToIndexTypeE.BegI(), Names);}
   void AttrNameEI(const TInt& EId, TStrIntPrH::TIter EdgeHI, TStrV& Names) const;
-  /// Returns a vector of attr avlues for edge EId.
+  /// Returns a vector of attr values for edge EId.
   void AttrValueEI(const TInt& EId, TStrV& Values) const {
     AttrValueEI(EId, KeyToIndexTypeE.BegI(), Values);}
   void AttrValueEI(const TInt& EId, TStrIntPrH::TIter EdgeHI, TStrV& Values) const;
@@ -1849,7 +1849,7 @@ public:
   void StrAttrNameEI(const TInt& EId, TStrV& Names) const {
     StrAttrNameEI(EId, KeyToIndexTypeE.BegI(), Names);}
   void StrAttrNameEI(const TInt& EId, TStrIntPrH::TIter EdgeHI, TStrV& Names) const;
-  /// Returns a vector of attr avlues for node NId.
+  /// Returns a vector of attr values for node NId.
   void StrAttrValueEI(const TInt& EId, TStrV& Values) const {
     StrAttrValueEI(EId, KeyToIndexTypeE.BegI(), Values);}
   void StrAttrValueEI(const TInt& EId, TStrIntPrH::TIter EdgeHI, TStrV& Values) const; 
