@@ -194,7 +194,7 @@ public:
   /// Returns an iterator referring to the past-the-end edge in the network.
   TEdgeI EndEI() const { return TEdgeI(EndNI(), EndNI()); }
   /// Not supported/implemented!
-  TEdgeI GetEI(const int& EId) const; // not supported
+  TEdgeI GetEI(const int& EId) const;
   /// Returns an iterator referring to edge (SrcNId, DstNId) in the network.
   TEdgeI GetEI(const int& SrcNId, const int& DstNId) const;
 
@@ -1141,9 +1141,9 @@ public:
   TEdgeI BegEI() const { return TEdgeI(EdgeH.BegI(), this); }
   /// Returns an iterator referring to the past-the-end edge in the network.
   TEdgeI EndEI() const { return TEdgeI(EdgeH.EndI(), this); }
-  // TODO document TNodeEdgeNet::GetEI()
+  /// Not supported/implemented!
   TEdgeI GetEI(const int& EId) const { return TEdgeI(EdgeH.GetI(EId), this); }
-  // TODO document TNodeEdgeNet::GetEI()
+  /// Returns an iterator referring to edge (SrcNId, DstNId) in the graph.
   TEdgeI GetEI(const int& SrcNId, const int& DstNId) const { return GetEI(GetEId(SrcNId, DstNId)); }
   /// Sets edge data for the edge of ID NId in the network.
   void SetEDat(const int& EId, const TEdgeData& EdgeDat);
@@ -1449,15 +1449,12 @@ typedef TPt<TIntNENet> PIntNENet;
 typedef TNodeEdgeNet<TFlt, TFlt> TFltNENet;
 typedef TPt<TFltNENet> PFltNENet;
 
-//#//////////////////////////////////////////////
-/// Node Edge AttributeGraph
-
-// Common Node-Edge Network Types
-/// Pointer to a directed attribute multigraph (TNEANet)
 class TNEANet;
+/// Pointer to a directed attribute multigraph (TNEANet)
 typedef TPt<TNEANet> PNEANet;
 
-/// TODO TNEANet describe time complexity for basic operations.
+//#//////////////////////////////////////////////
+/// Directed graph with node edge attributes. ##TNEANet::Class
 class TNEANet {
 public:
   typedef TNEANet TNet;
@@ -1925,9 +1922,9 @@ public:
   TEdgeI BegEI() const { return TEdgeI(EdgeH.BegI(), this); }
   /// Returns an iterator referring to the past-the-end edge in the graph.
   TEdgeI EndEI() const { return TEdgeI(EdgeH.EndI(), this); }
-  // TODO document TNEANet::GetEI()
+  /// Returns an iterator referring to edge with edge ID EId. 
   TEdgeI GetEI(const int& EId) const { return TEdgeI(EdgeH.GetI(EId), this); }
-  // TODO document TNEANet::GetEI()
+  /// Returns an iterator referring to edge (SrcNId, DstNId) in the graph. 
   TEdgeI GetEI(const int& SrcNId, const int& DstNId) const { return GetEI(GetEId(SrcNId, DstNId)); }
 
   /// Returns an ID of a random node in the graph.
@@ -2050,8 +2047,8 @@ public:
   // Returns edge attribute value, converted to Str type.
   TStr GetEdgeAttrValue(const int& EId, const TStrIntPrH::TIter& EdgeHI) const;
  
-  /// TODO implement and document TNEANet::GetSmallGraph()
-  static PNEGraph GetSmallGraph();
+  /// Returns a small multigraph on 5 nodes and 6 edges. ##TNEANet::GetSmallGraph
+  static PNEANet GetSmallGraph();
   friend class TPt<TNEANet>;
 };
 

@@ -21,7 +21,7 @@ typedef TPt<TNGraph> PNGraph;
 typedef TPt<TNEGraph> PNEGraph;
 
 //#//////////////////////////////////////////////
-/// Undirected graph. ##Undirected_graph
+/// Undirected graph. ##TUNGraph::Class
 class TUNGraph {
 public:
   typedef TUNGraph TNet;
@@ -213,9 +213,7 @@ public:
 };
 
 //#//////////////////////////////////////////////
-/// Directed Node Graph
-
-/// Directed graph. ##Directed_graph
+/// Directed graph. ##TNGraph::Class
 class TNGraph {
 public:
   typedef TNGraph TNet;
@@ -413,10 +411,7 @@ template <> struct IsDirected<TNGraph> { enum { Val = 1 }; };
 }
 
 //#//////////////////////////////////////////////
-/// Node Edge Graph
-
-// TODO TNEGraph describe time complexity for basic operations
-/// Directed multigraph. ##Directed_multigraph
+/// Directed multigraph. ##TNEGraph::Class
 class TNEGraph {
 public:
   typedef TNEGraph TNet;
@@ -605,9 +600,9 @@ public:
   TEdgeI BegEI() const { return TEdgeI(EdgeH.BegI(), this); }
   /// Returns an iterator referring to the past-the-end edge in the graph.
   TEdgeI EndEI() const { return TEdgeI(EdgeH.EndI(), this); }
-  // TODO document TNEGraph::GetEI()
+  /// Returns an iterator referring to edge with edge ID EId. 
   TEdgeI GetEI(const int& EId) const { return TEdgeI(EdgeH.GetI(EId), this); }
-  // TODO document TNEGraph::GetEI()
+  /// Returns an iterator referring to edge (SrcNId, DstNId) in the graph. 
   TEdgeI GetEI(const int& SrcNId, const int& DstNId) const { return GetEI(GetEId(SrcNId, DstNId)); }
 
   /// Returns an ID of a random node in the graph.
@@ -636,7 +631,7 @@ public:
   bool IsOk(const bool& ThrowExcept=true) const;
   /// Print the graph in a human readable form to an output stream OutF.
   void Dump(FILE *OutF=stdout) const;
-  // TODO implement and document TNEGraph::GetSmallGraph()
+  /// Returns a small multigraph on 5 nodes and 6 edges. ##TNEGraph::GetSmallGraph
   static PNEGraph GetSmallGraph();
   friend class TPt<TNEGraph>;
 };
