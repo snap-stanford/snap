@@ -1454,7 +1454,7 @@ class TNEANet;
 typedef TPt<TNEANet> PNEANet;
 
 //#//////////////////////////////////////////////
-/// Directed graph with node edge attributes. ##TNEANet::Class
+/// Directed multigraph with node edge attributes. ##TNEANet::Class
 class TNEANet {
 public:
   typedef TNEANet TNet;
