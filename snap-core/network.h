@@ -1862,38 +1862,38 @@ public:
     FltAttrValueEI(EId, KeyToIndexTypeE.BegI(), Values);}
   void FltAttrValueEI(const TInt& EId, TStrIntPrH::TIter EdgeHI, TFltV& Values) const; 
 
-  /// Returns an iterator referring to the first node's int attribute.
+  /// Returns an iterator referring to the first edge's int attribute.
   TAIntI BegEAIntI(const TStr& attr) const {
     return TAIntI(VecOfIntVecsE[KeyToIndexTypeE.GetDat(attr).Val2].BegI(), attr, true, this);
   }
-  /// Returns an iterator referring to the past-the-end node's attribute.
+  /// Returns an iterator referring to the past-the-end edge's attribute.
   TAIntI EndEAIntI(const TStr& attr) const {
     return TAIntI(VecOfIntVecsE[KeyToIndexTypeE.GetDat(attr).Val2].EndI(), attr, true, this);
   }
-  /// Returns an iterator referring to the node of ID EId in the graph.
+  /// Returns an iterator referring to the edge of ID EId in the graph.
   TAIntI GetEAIntI(const TStr& attr, const int& EId) const {
     return TAIntI(VecOfIntVecsE[KeyToIndexTypeE.GetDat(attr).Val2].GetI(EdgeH.GetKeyId(EId)), attr, true, this);
   }
-  /// Returns an iterator referring to the first node's str attribute.
+  /// Returns an iterator referring to the first edge's str attribute.
   TAStrI BegEAStrI(const TStr& attr) const {
     return TAStrI(VecOfStrVecsE[KeyToIndexTypeE.GetDat(attr).Val2].BegI(), attr, true, this);   }
-  /// Returns an iterator referring to the past-the-end node's attribute.
+  /// Returns an iterator referring to the past-the-end edge's attribute.
   TAStrI EndEAStrI(const TStr& attr) const {
     return TAStrI(VecOfStrVecsE[KeyToIndexTypeE.GetDat(attr).Val2].EndI(), attr, true, this);
   }
-  /// Returns an iterator referring to the node of ID EId in the graph.
+  /// Returns an iterator referring to the edge of ID EId in the graph.
   TAStrI GetEAStrI(const TStr& attr, const int& EId) const {
     return TAStrI(VecOfStrVecsE[KeyToIndexTypeE.GetDat(attr).Val2].GetI(EdgeH.GetKeyId(EId)), attr, true, this);
   }
-  /// Returns an iterator referring to the first node's flt attribute.
+  /// Returns an iterator referring to the first edge's flt attribute.
   TAFltI BegEAFltI(const TStr& attr) const {
     return TAFltI(VecOfFltVecsE[KeyToIndexTypeE.GetDat(attr).Val2].BegI(), attr, true, this);
   }
-  /// Returns an iterator referring to the past-the-end node's attribute.
+  /// Returns an iterator referring to the past-the-end edge's attribute.
   TAFltI EndEAFltI(const TStr& attr) const {
     return TAFltI(VecOfFltVecsE[KeyToIndexTypeE.GetDat(attr).Val2].EndI(), attr, true, this);
   }
-  /// Returns an iterator referring to the node of ID EId in the graph.
+  /// Returns an iterator referring to the edge of ID EId in the graph.
   TAFltI GetEAFltI(const TStr& attr, const int& EId) const {
     return TAFltI(VecOfFltVecsE[KeyToIndexTypeE.GetDat(attr).Val2].GetI(EdgeH.GetKeyId(EId)), attr, true, this);
   }
