@@ -1,7 +1,8 @@
 #include "stdafx.h"
 
-int BuildCapacityNetwork(const TStr& InFNm, PNEANet &Net, TRnd &Random, const int& SrcColId = 0, const int& DstColId = 1, const int& CapColId = 2) {
+int BuildCapacityNetwork(const TStr& InFNm, PNEANet &Net, const int& SrcColId = 0, const int& DstColId = 1, const int& CapColId = 2) {
   TSsParser Ss(InFNm, ssfWhiteSep, true, true, true);
+  TRnd Random;
   Net.Clr();
   Net = TNEANet::New();;
   int SrcNId, DstNId, CapVal, EId;
@@ -24,11 +25,10 @@ int BuildCapacityNetwork(const TStr& InFNm, PNEANet &Net, TRnd &Random, const in
   return MaxCap;
 }
 
-
 double getcputime() {
   struct rusage rusage;
   double result;
-  getrusage(RUSAGE_SELF, &rusage);
+  getrusage(RUSAGE_THREAD, &rusage);
   result =
     ((double) (rusage.ru_utime.tv_usec + rusage.ru_stime.tv_usec) / 1000000) +
     ((double) (rusage.ru_utime.tv_sec + rusage.ru_stime.tv_sec));
@@ -37,8 +37,7 @@ double getcputime() {
 
 int main(int argc, char* argv[]) {
   Env = TEnv(argc, argv, TNotify::StdNotify);
-  Env.PrepArgs(TStr::Fmt("\nFlow. build: %s, %s. Time: %s", __TIME__, __DATE__, TExeTm::GetCurTm()));
-  double BeginTime, EndTime, NetPRFlowRunTime, NetEKFlowRunTime;
+  Env.PrepArgs(TStr::Fmt("Flow. build: %s, %s. Time: %s", __TIME__, __DATE__, TExeTm::GetCurTm()));
   double NetPRTimeSum = 0;
   double NetEKTimeSum = 0;
   int NumWins = 0;
@@ -50,26 +49,24 @@ int main(int argc, char* argv[]) {
   printf("Filename: %s\n", InFNm.CStr());
   printf("Building Network...\n");
   PNEANet Net;
-  TRnd Random;
-  int MaxEdgeCap = BuildCapacityNetwork(InFNm, Net, Random);
+  int MaxEdgeCap = BuildCapacityNetwork(InFNm, Net);
   printf("PNEANet Nodes: %d, Edges: %d, Max Edge Capacity: %d\n", Net->GetNodes(), Net->GetEdges(), MaxEdgeCap);
   #pragma omp parallel for reduction(+:NetEKTimeSum,NetPRTimeSum,NumWins) schedule(static, 1)
   for (int t = 0; t < Threads; t++) {
-    Random.PutSeed(t+1);
+    TRnd Random(t+1);
     for (int i = 0; i < Iters; i++) {
       int SrcNId = Net->GetRndNId(Random);
       int SnkNId = Net->GetRndNId(Random);
 
-
-      BeginTime = getcputime();
+      double PRBeginTime = getcputime();
       int NetMaxFlowPR = TSnap::GetMaxFlowIntPR(Net, SrcNId, SnkNId);
-      EndTime = getcputime();
-      NetPRFlowRunTime = EndTime - BeginTime;
+      double PREndTime = getcputime();
+      double NetPRFlowRunTime = PREndTime - PRBeginTime;
 
-      BeginTime = getcputime();
+      double EKBeginTime = getcputime();
       int NetMaxFlowEK = TSnap::GetMaxFlowIntEK(Net, SrcNId, SnkNId);
-      EndTime = getcputime();
-      NetEKFlowRunTime = EndTime - BeginTime;
+      double EKEndTime = getcputime();
+      double NetEKFlowRunTime = EKEndTime - EKBeginTime;
 
       if (NetPRFlowRunTime < NetEKFlowRunTime) { NumWins++; }
 
@@ -78,12 +75,12 @@ int main(int argc, char* argv[]) {
 
       #pragma omp critical
       {
-        printf ("Source: %d, Sink %d\n", SrcNId, SnkNId);
-        printf ("Max Flow PR: %d\n", NetMaxFlowPR);
+        printf("Source: %d, Sink %d\n", SrcNId, SnkNId);
+        printf("Max Flow PR: %d\n", NetMaxFlowPR);
         printf("run time: %f\n", NetPRFlowRunTime);
-        printf ("Max Flow EK: %d\n", NetMaxFlowEK);
+        printf("Max Flow EK: %d\n", NetMaxFlowEK);
         printf("run time: %f\n", NetEKFlowRunTime);
-        printf ("\n");
+        printf("\n");
       }
     }
   }
