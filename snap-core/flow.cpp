@@ -8,7 +8,7 @@ namespace TSnap {
 // @param BwdNodeQ: Queue of NIds for the backward search from the sink node
 // @param SuccEdgeH: Hash from a NId to EId in the backward search. Indicates which edge was traversed to reach the node,
 //                   allowing for tracing the eventual path back to the sink.
-int IntFlowBiDBFS (const PNEANet &Net, TIntQ &FwdNodeQ, TIntH &PredEdgeH, TIntQ &BwdNodeQ, TIntH &SuccEdgeH, const int& SrcNId, const int& SnkNId) {
+int IntFlowBiDBFS (const PNEANet &Net, const int& CapIndex, TIntV &Flow, TIntQ &FwdNodeQ, TIntH &PredEdgeH, TIntQ &BwdNodeQ, TIntH &SuccEdgeH, const int& SrcNId, const int& SnkNId) {
   FwdNodeQ.Push(SrcNId);
   PredEdgeH.AddDat(SrcNId, -1);
   BwdNodeQ.Push(SnkNId);
@@ -20,7 +20,7 @@ int IntFlowBiDBFS (const PNEANet &Net, TIntQ &FwdNodeQ, TIntH &PredEdgeH, TIntQ 
     for (int EdgeN = 0; EdgeN < FwdNI.GetInDeg(); EdgeN++) {
       int NextNId = FwdNI.GetInNId(EdgeN);
       int NextEId = FwdNI.GetInEId(EdgeN);
-      if (!PredEdgeH.IsKey(NextNId) && Net->GetIntAttrDatE(NextEId, FlowAttrName) > 0) {
+      if (!PredEdgeH.IsKey(NextNId) && Flow[NextEId] > 0) {
         PredEdgeH.AddDat(NextNId, NextEId);
         if (SuccEdgeH.IsKey(NextNId)) {
           return NextNId;
@@ -32,7 +32,7 @@ int IntFlowBiDBFS (const PNEANet &Net, TIntQ &FwdNodeQ, TIntH &PredEdgeH, TIntQ 
     for (int EdgeN = 0; EdgeN < FwdNI.GetOutDeg(); EdgeN++) {
       int NextNId = FwdNI.GetOutNId(EdgeN);
       int NextEId = FwdNI.GetOutEId(EdgeN);
-      if (!PredEdgeH.IsKey(NextNId) && Net->GetIntAttrDatE(NextEId, CapAttrName) - Net->GetIntAttrDatE(NextEId, FlowAttrName) > 0) {
+      if (!PredEdgeH.IsKey(NextNId) && Net->GetIntAttrDatE(NextEId, CapIndex) > Flow[NextEId]) {
         PredEdgeH.AddDat(NextNId, NextEId);
         if (SuccEdgeH.IsKey(NextNId)) {
           return NextNId;
@@ -46,7 +46,7 @@ int IntFlowBiDBFS (const PNEANet &Net, TIntQ &FwdNodeQ, TIntH &PredEdgeH, TIntQ 
     for (int EdgeN = 0; EdgeN < BwdNI.GetOutDeg(); EdgeN++) {
       int PrevNId = BwdNI.GetOutNId(EdgeN);
       int PrevEId = BwdNI.GetOutEId(EdgeN);
-      if (!SuccEdgeH.IsKey(PrevNId) && Net->GetIntAttrDatE(PrevEId, FlowAttrName) > 0) {
+      if (!SuccEdgeH.IsKey(PrevNId) && Flow[PrevEId] > 0) {
         SuccEdgeH.AddDat(PrevNId, PrevEId);
         if (PredEdgeH.IsKey(PrevNId)) {
           return PrevNId;
@@ -58,7 +58,7 @@ int IntFlowBiDBFS (const PNEANet &Net, TIntQ &FwdNodeQ, TIntH &PredEdgeH, TIntQ 
     for (int EdgeN = 0; EdgeN < BwdNI.GetInDeg(); EdgeN++) {
       int PrevNId = BwdNI.GetInNId(EdgeN);
       int PrevEId = BwdNI.GetInEId(EdgeN);
-      if (!SuccEdgeH.IsKey(PrevNId) && Net->GetIntAttrDatE(PrevEId, CapAttrName) - Net->GetIntAttrDatE(PrevEId, FlowAttrName) > 0) {
+      if (!SuccEdgeH.IsKey(PrevNId) && Net->GetIntAttrDatE(PrevEId, CapIndex) > Flow[PrevEId]) {
         SuccEdgeH.AddDat(PrevNId, PrevEId);
         if (PredEdgeH.IsKey(PrevNId)) {
           return PrevNId;
@@ -74,34 +74,34 @@ int IntFlowBiDBFS (const PNEANet &Net, TIntQ &FwdNodeQ, TIntH &PredEdgeH, TIntQ 
 // Returns the amount the flow can be augmented over the paths, 0 if no path can be found.
 // @param MidToSrcAugV: Contains the path vector from the midpoint node where the bi-d search met back to the source node
 // @param MidToSnkAugV: Contains the path vector from the midpoint node where the bi-d search met back to the sink node
-int FindAugV (const PNEANet &Net, TIntQ &FwdNodeQ, TIntH &PredEdgeH, TIntQ &BwdNodeQ, TIntH &SuccEdgeH, TIntV &MidToSrcAugV, TIntV &MidToSnkAugV, const int& SrcNId, const int& SnkNId) {
-  int MidPtNId = IntFlowBiDBFS(Net, FwdNodeQ, PredEdgeH, BwdNodeQ, SuccEdgeH, SrcNId, SnkNId);
+int FindAugV (const PNEANet &Net, const int& CapIndex, TIntV &Flow, TIntQ &FwdNodeQ, TIntH &PredEdgeH, TIntQ &BwdNodeQ, TIntH &SuccEdgeH, TIntV &MidToSrcAugV, TIntV &MidToSnkAugV, const int& SrcNId, const int& SnkNId) {
+  int MidPtNId = IntFlowBiDBFS(Net, CapIndex, Flow, FwdNodeQ, PredEdgeH, BwdNodeQ, SuccEdgeH, SrcNId, SnkNId);
   if (MidPtNId == -1) { return 0; }
   int MinAug = TInt::Mx, NId = MidPtNId, AugFlow = 0;
   // Build the path from the midpoint back to the source by tracing through the PredEdgeH
-  for (int EId = PredEdgeH.GetDat(NId); EId != -1; EId = PredEdgeH.GetDat(NId)) {
+  for (int EId = PredEdgeH.GetDat(NId); NId != SrcNId; EId = PredEdgeH.GetDat(NId)) {
     MidToSrcAugV.Add(EId);
     const TNEANet::TEdgeI &EI = Net->GetEI(EId);
     if (EI.GetSrcNId() == NId) {
       NId = EI.GetDstNId();
-      AugFlow = Net->GetIntAttrDatE(EId, FlowAttrName);
+      AugFlow = Flow[EId];
     } else {
       NId = EI.GetSrcNId();
-      AugFlow = Net->GetIntAttrDatE(EId, CapAttrName) - Net->GetIntAttrDatE(EId, FlowAttrName);
+      AugFlow = Net->GetIntAttrDatE(EId, CapIndex) - Flow[EId];
     }
     if (AugFlow < MinAug) { MinAug = AugFlow; }
   }
   NId = MidPtNId;
   // Build the path from the midpoint back to the sink by tracing through the SuccEdgeH
-  for (int EId = SuccEdgeH.GetDat(NId); EId != -1; EId = SuccEdgeH.GetDat(NId)) {
+  for (int EId = SuccEdgeH.GetDat(NId); NId != SnkNId; EId = SuccEdgeH.GetDat(NId)) {
     MidToSnkAugV.Add(EId);
     const TNEANet::TEdgeI &EI = Net->GetEI(EId);
     if (EI.GetDstNId() == NId) {
       NId = EI.GetSrcNId();
-      AugFlow = Net->GetIntAttrDatE(EId, FlowAttrName);
+      AugFlow = Flow[EId];
     } else {
       NId = EI.GetDstNId();
-      AugFlow = Net->GetIntAttrDatE(EId, CapAttrName) - Net->GetIntAttrDatE(EId, FlowAttrName);
+      AugFlow = Net->GetIntAttrDatE(EId, CapIndex) - Flow[EId];
     }
     if (AugFlow < MinAug) { MinAug = AugFlow; }
   }
@@ -110,13 +110,16 @@ int FindAugV (const PNEANet &Net, TIntQ &FwdNodeQ, TIntH &PredEdgeH, TIntQ &BwdN
 
 // Implementation of Edmonds-Karp Algorithm. Iterates, trying to find an augmenting path from source to sink.
 // If a path is found, augment the flow along that path. Flow is maximal when no such path can be found.
-int GetMaxFlowInt (PNEANet &Net, const int &SrcNId, const int &SnkNId) {
+int GetMaxFlowIntEK (PNEANet &Net, const int &SrcNId, const int &SnkNId) {
   IAssert(Net->IsNode(SrcNId));
   IAssert(Net->IsNode(SnkNId));
+  if (SrcNId == SnkNId) { return 0; }
+  int CapIndex = Net->GetIntAttrIndE(CapAttrName);
+  TIntV Flow(Net->GetMxEId());
   // Initialize flow values to 0, and make sure capacities are nonnegative
   for (TNEANet::TEdgeI EI = Net->BegEI(); EI != Net->EndEI(); EI++) {
-    IAssert(Net->GetIntAttrDatE(EI, CapAttrName) >= 0);
-    Net->AddIntAttrDatE(EI, 0, FlowAttrName);
+    IAssert(Net->GetIntAttrDatE(EI, CapIndex) >= 0);
+    Flow[EI.GetId()] = 0;
   }
   // Return 0 if user attempts to flow from a node to itself.
   if (SrcNId == SnkNId) { return 0; }
@@ -125,7 +128,7 @@ int GetMaxFlowInt (PNEANet &Net, const int &SrcNId, const int &SnkNId) {
     TIntV MidToSrcAugV; TIntV MidToSnkAugV;
     TIntQ FwdNodeQ; TIntQ BwdNodeQ;
     TIntH PredEdgeH; TIntH SuccEdgeH;
-    MinAug = FindAugV(Net, FwdNodeQ, PredEdgeH, BwdNodeQ, SuccEdgeH, MidToSrcAugV, MidToSnkAugV, SrcNId, SnkNId);
+    MinAug = FindAugV(Net, CapIndex, Flow, FwdNodeQ, PredEdgeH, BwdNodeQ, SuccEdgeH, MidToSrcAugV, MidToSnkAugV, SrcNId, SnkNId);
     if (MinAug == 0) { break; }
     MaxFlow += MinAug;
     CurNId = SrcNId;
@@ -133,10 +136,10 @@ int GetMaxFlowInt (PNEANet &Net, const int &SrcNId, const int &SnkNId) {
       int NextEId = MidToSrcAugV[i];
       const TNEANet::TEdgeI &EI = Net->GetEI(NextEId);
       if (EI.GetSrcNId() == CurNId) {
-        Net->AddIntAttrDatE(NextEId, Net->GetIntAttrDatE(NextEId, FlowAttrName) + MinAug, FlowAttrName);
+        Flow[NextEId] += MinAug;
         CurNId = EI.GetDstNId();
       } else {
-        Net->AddIntAttrDatE(NextEId, Net->GetIntAttrDatE(NextEId, FlowAttrName) - MinAug, FlowAttrName);
+        Flow[NextEId] -= MinAug;
         CurNId = EI.GetSrcNId();
       }
     }
@@ -144,10 +147,10 @@ int GetMaxFlowInt (PNEANet &Net, const int &SrcNId, const int &SnkNId) {
       int NextEId = MidToSnkAugV[i];
       const TNEANet::TEdgeI &EI = Net->GetEI(NextEId);
       if (EI.GetSrcNId() == CurNId) {
-        Net->AddIntAttrDatE(NextEId, Net->GetIntAttrDatE(NextEId, FlowAttrName) + MinAug, FlowAttrName);
+        Flow[NextEId] += MinAug;
         CurNId = EI.GetDstNId();
       } else {
-        Net->AddIntAttrDatE(NextEId, Net->GetIntAttrDatE(NextEId, FlowAttrName) - MinAug, FlowAttrName);
+        Flow[NextEId] -= MinAug;
         CurNId = EI.GetSrcNId();
       }
     }
@@ -155,138 +158,279 @@ int GetMaxFlowInt (PNEANet &Net, const int &SrcNId, const int &SnkNId) {
   return MaxFlow;
 }
 
-// Identical implementation of bidirectional BFS, adapted to work for the PNGraph instead.
-int IntFlowBiDBFS (const PNGraph &Graph, const TIntPrIntH &CapAttrH, const TIntPrIntH &FlowAttrH, TIntQ &FwdNodeQ, TIntIntPrH &PredEdgeH, TIntQ &BwdNodeQ, TIntIntPrH &SuccEdgeH, const int& SrcNId, const int& SnkNId) {
-  FwdNodeQ.Push(SrcNId);
-  PredEdgeH.AddDat(SrcNId, TIntPr(-1,-1));
-  BwdNodeQ.Push(SnkNId);
-  SuccEdgeH.AddDat(SnkNId, TIntPr(-1,-1));
-  int NId;
-  while (!FwdNodeQ.Empty() && !BwdNodeQ.Empty()) {
-    NId = FwdNodeQ.Top(); FwdNodeQ.Pop();
-    const TNGraph::TNodeI &FwdNI = Graph->GetNI(NId);
-    for (int EdgeN = 0; EdgeN < FwdNI.GetInDeg(); EdgeN++) {
-      int NextNId = FwdNI.GetInNId(EdgeN);
-      TIntPr NextE(NextNId, NId);
-      if (! PredEdgeH.IsKey(NextNId) && FlowAttrH.GetDat(NextE) > 0) {
-        PredEdgeH.AddDat(NextNId, NextE);
-        if (SuccEdgeH.IsKey(NextNId)) {
-          return NextNId;
-        }
-        FwdNodeQ.Push(NextNId);
+
+class TPRManager {
+public:
+  TPRManager(PNEANet &Net) : Net(Net), CapIndex(0), FlowV(Net->GetMxEId()), ExcessV(Net->GetMxNId()), EdgeNumsV(Net->GetMxNId()), LabelsV(Net->GetMxNId()), LabelCounts(Net->GetNodes() + 1), LabelLimit(0), MaxLabel(Net->GetNodes()), ActiveNodeSet(Net->GetMxNId()), ActiveCount(0) {
+    CapIndex = Net->GetIntAttrIndE(CapAttrName);
+    for (int i = 0; i <= Net->GetNodes(); i++) { LabelCounts[i] = 0; }
+    for (TNEANet::TEdgeI EI = Net->BegEI(); EI != Net->EndEI(); EI++) {
+      int EId = EI.GetId();
+      IAssert(Capacity(EId) >= 0);
+      FlowV[EId] = 0;
+    }
+    for (TNEANet::TNodeI NI = Net->BegNI(); NI != Net->EndNI(); NI++) {
+      int NId = NI.GetId();
+      ExcessV[NId] = 0;
+      EdgeNumsV[NId] = 0;
+      ActiveNodeSet[NId] = 0;
+    }
+    LabelCounts[0] = Net->GetNodes();
+  }
+
+  int Capacity (int EId) {
+    return Net->GetIntAttrDatE(EId, CapIndex);
+  }
+
+  int &Flow (int EId) {
+    return FlowV[EId].Val;
+  }
+
+  int Label (int NId) {
+    return LabelsV[NId];
+  }
+
+  int &Excess (int NId) {
+    return ExcessV[NId].Val;
+  }
+
+  int &EdgeNum (int NId) {
+    return EdgeNumsV[NId].Val;
+  }
+
+  void SetLabel (int NId, int Label) {
+    if (Label > LabelLimit + 1) { Label = MaxLabel; }
+    int OldLabel = LabelsV[NId];
+    LabelsV[NId] = Label;
+    LabelCounts[OldLabel]--;
+    LabelCounts[Label]++;
+    if (Label != MaxLabel) { LabelLimit = max(LabelLimit, Label); }
+    if (LabelCounts[OldLabel] == 0) { CheckGap (OldLabel); }
+  }
+
+  void CheckGap (int GapLabel) {
+    for (TNEANet::TNodeI NI = Net->BegNI(); NI != Net->EndNI(); NI++) {
+      int NId = NI.GetId();
+      int OldLabel = LabelsV[NId];
+      if (OldLabel > GapLabel && OldLabel <= LabelLimit) {
+        LabelsV[NId] = MaxLabel;
+        LabelCounts[OldLabel]--;
+        LabelCounts[MaxLabel]++;
+        if (IsActive(NId)) { RemoveActive(NId); }
       }
     }
-    for (int EdgeN = 0; EdgeN < FwdNI.GetOutDeg(); EdgeN++) {
-      int NextNId = FwdNI.GetOutNId(EdgeN);
-      TIntPr NextE(NId, NextNId);
-      if (! PredEdgeH.IsKey(NextNId) && CapAttrH.GetDat(NextE) - FlowAttrH.GetDat(NextE) > 0) {
-        PredEdgeH.AddDat(NextNId, NextE);
-        if (SuccEdgeH.IsKey(NextNId)) {
-          return NextNId;
-        }
-        FwdNodeQ.Push(NextNId);
+    LabelLimit = GapLabel - 1;
+  }
+
+  bool HasActive() {
+    return ActiveCount > 0;
+  }
+
+  int IsActive(int NId) {
+    return ActiveNodeSet[NId];
+  }
+
+  // only call after HasActive is true
+  int PopActive() {
+    while (true) {
+      IAssert (!ActiveNodeQ.Empty());
+      int NId = ActiveNodeQ.Top();
+      ActiveNodeQ.Pop();
+      if (ActiveNodeSet[NId])  {
+        ActiveNodeSet[NId] = 0;
+        ActiveCount--;
+        return NId;
       }
     }
-    NId = BwdNodeQ.Top(); BwdNodeQ.Pop();
-    const TNGraph::TNodeI &BwdNI = Graph->GetNI(NId);
-    for (int EdgeN = 0; EdgeN < BwdNI.GetOutDeg(); EdgeN++) {
-      int PrevNId = BwdNI.GetOutNId(EdgeN);
-      TIntPr PrevE(NId, PrevNId);
-      if (! SuccEdgeH.IsKey(PrevNId) && FlowAttrH.GetDat(PrevE) > 0) {
-        SuccEdgeH.AddDat(PrevNId, PrevE);
-        if (PredEdgeH.IsKey(PrevNId)) {
-          return PrevNId;
-        }
-        BwdNodeQ.Push(PrevNId);
-      }
+    return -1;
+  }
+
+  // only call after IsKey is false
+  void PushActive(int NId) {
+    ActiveNodeSet[NId] = 1;
+    ActiveNodeQ.Push(NId);
+    ActiveCount++;
+  }
+
+  // only call after IsKey is true
+  void RemoveActive(int NId) {
+    ActiveNodeSet[NId] = 0;
+    ActiveCount--;
+  }
+
+  int GetMaxLabel() { return MaxLabel; }
+
+private:
+  PNEANet &Net;
+  int CapIndex;
+  TIntV FlowV;
+
+  TIntV ExcessV;
+  TIntV EdgeNumsV;
+
+  TIntV LabelsV;
+  TIntV LabelCounts;
+  int LabelLimit;
+  int MaxLabel;
+
+  TIntQ ActiveNodeQ;
+  TIntV ActiveNodeSet;
+  int ActiveCount;
+};
+
+void PushToOutNbr (TPRManager &PRM, const int &NId, const int &OutNId, const int &EId) {
+  int MinPush = min(PRM.Capacity(EId) - PRM.Flow(EId), PRM.Excess(NId));
+  PRM.Flow(EId) += MinPush;
+  PRM.Excess(NId) -= MinPush;
+  PRM.Excess(OutNId) += MinPush;
+}
+
+void PushToInNbr (TPRManager &PRM, const int &NId, const int &InNId, const int &EId) {
+  int MinPush = min(PRM.Flow(EId), PRM.Excess(NId));
+  PRM.Flow(EId) -= MinPush;
+  PRM.Excess(NId) -= MinPush;
+  PRM.Excess(InNId) += MinPush;
+}
+
+void Relabel (TPRManager &PRM, const int &NId, const TNEANet::TNodeI &NI) {
+  int MaxLabel = PRM.GetMaxLabel();
+  int MinLabel = MaxLabel;
+  for (int EdgeN = 0; EdgeN < NI.GetInDeg(); EdgeN++) {
+    if (PRM.Flow(NI.GetInEId(EdgeN)) > 0) {
+      int InLabel = PRM.Label(NI.GetInNId(EdgeN));
+      MinLabel = min(MinLabel, InLabel);
     }
-    for (int EdgeN = 0; EdgeN < BwdNI.GetInDeg(); EdgeN++) {
-      int PrevNId = BwdNI.GetInNId(EdgeN);
-      TIntPr PrevE(PrevNId, NId);
-      if (! SuccEdgeH.IsKey(PrevNId) && CapAttrH.GetDat(PrevE) - FlowAttrH.GetDat(PrevE) > 0) {
-        SuccEdgeH.AddDat(PrevNId, PrevE);
-        if (PredEdgeH.IsKey(PrevNId)) {
-          return PrevNId;
-        }
-        BwdNodeQ.Push(PrevNId);
-      }
+  }
+  for (int EdgeN = 0; EdgeN < NI.GetOutDeg(); EdgeN++) {
+    if (PRM.Capacity(NI.GetOutEId(EdgeN)) > PRM.Flow(NI.GetOutEId(EdgeN))) {
+      int OutLabel = PRM.Label(NI.GetOutNId(EdgeN));
+      MinLabel = min(MinLabel, OutLabel);
     }
+  }
+  if (MinLabel == MaxLabel) {
+    PRM.SetLabel(NId, MaxLabel);
+  } else {
+    PRM.SetLabel(NId, MinLabel + 1);
+  }
+}
+
+int PushRelabel (TPRManager &PRM, const int &NId, const TNEANet::TNodeI &NI) {
+  int EdgeN = PRM.EdgeNum(NId);
+  int EId = -1, NbrNId = -1, ResFlow = 0;
+  int Cutoff = NI.GetInDeg();
+  if (EdgeN < Cutoff) {
+    EId = NI.GetInEId(EdgeN);
+    NbrNId = NI.GetInNId(EdgeN);
+    ResFlow = PRM.Flow(EId);
+  } else {
+    EId = NI.GetOutEId(EdgeN - Cutoff);
+    NbrNId = NI.GetOutNId(EdgeN - Cutoff);
+    ResFlow = PRM.Capacity(EId) - PRM.Flow(EId);
+  }
+  if (ResFlow > 0 && PRM.Label(NId) - 1 == PRM.Label(NbrNId)) {
+    if (EdgeN < Cutoff) {
+      PushToInNbr(PRM, NId, NbrNId, EId);
+    } else {
+      PushToOutNbr(PRM, NId, NbrNId, EId);
+    }
+    return NbrNId;
+  }
+  if (EdgeN + 1 == NI.GetDeg()) {
+    PRM.EdgeNum(NId) = 0;
+    Relabel(PRM, NId, NI);
+  } else {
+    PRM.EdgeNum(NId)++;
   }
   return -1;
 }
 
-// Identical implementation of FindAugV, adapted for the PNGraph class.
-int FindAugV (const PNGraph &Graph, const TIntPrIntH &CapAttrH, const TIntPrIntH &FlowAttrH, TIntQ &FwdNodeQ, TIntIntPrH &PredEdgeH, TIntQ &BwdNodeQ, TIntIntPrH &SuccEdgeH, TIntPrV &MidToSrcAugV, TIntPrV &MidToSnkAugV, const int& SrcNId, const int& SnkNId) {
-  int MidPtNId = IntFlowBiDBFS(Graph, CapAttrH, FlowAttrH, FwdNodeQ, PredEdgeH, BwdNodeQ, SuccEdgeH, SrcNId, SnkNId);
-  if (MidPtNId == -1) { return 0; }
-  int MinAug = TInt::Mx, AugFlow = 0, NId = MidPtNId;
-  for (TIntPr &EdgePr = PredEdgeH.GetDat(NId); NId != SrcNId ; EdgePr = PredEdgeH.GetDat(NId)) {
-    MidToSrcAugV.Add(EdgePr);
-    if (EdgePr.Val1.Val == NId) {
-      NId = EdgePr.Val2.Val;
-      AugFlow = FlowAttrH.GetDat(EdgePr);
-    } else {
-      NId = EdgePr.Val1.Val;
-      AugFlow = CapAttrH.GetDat(EdgePr) - FlowAttrH.GetDat(EdgePr);
+void GlobalRelabel (PNEANet &Net, TPRManager &PRM, const int& SrcNId, const int& SnkNId) {
+  TIntQ NodeQ;
+  int size = Net->GetMxNId();
+  TIntV NodeV(size);
+  for (int i = 0; i < size; i++) { NodeV[i] = 0; }
+  NodeQ.Push(SnkNId);
+  NodeV[SnkNId] = 1;
+  int MaxLabel = PRM.GetMaxLabel();
+  while (!NodeQ.Empty()) {
+    // Backward search
+    int NId = NodeQ.Top(); NodeQ.Pop();
+    const TNEANet::TNodeI &NI = Net->GetNI(NId);
+    // Check all edges that point out of the current node for those over which flow can be returned.
+    for (int EdgeN = 0; EdgeN < NI.GetOutDeg(); EdgeN++) {
+      int OutNId = NI.GetOutNId(EdgeN);
+      int EId = NI.GetOutEId(EdgeN);
+      if (!NodeV[OutNId] && PRM.Flow(EId) > 0) {
+        NodeV[OutNId] = 1;
+        NodeQ.Push(OutNId);
+        PRM.SetLabel(OutNId, PRM.Label(NId) + 1);
+      }
     }
-    if (AugFlow < MinAug) { MinAug = AugFlow; }
-  }
-  NId = MidPtNId;
-  for (TIntPr &EdgePr = SuccEdgeH.GetDat(NId); NId != SnkNId; EdgePr = SuccEdgeH.GetDat(NId)) {
-    MidToSnkAugV.Add(EdgePr);
-    if (EdgePr.Val2.Val == NId) {
-      NId = EdgePr.Val1.Val;
-      AugFlow = FlowAttrH.GetDat(EdgePr);
-    } else {
-      NId = EdgePr.Val2.Val;
-      AugFlow = CapAttrH.GetDat(EdgePr) - FlowAttrH.GetDat(EdgePr);
+    // Check all edges that point into the current node for those over which flow can be added.
+    for (int EdgeN = 0; EdgeN < NI.GetInDeg(); EdgeN++) {
+      int InNId = NI.GetInNId(EdgeN);
+      int EId = NI.GetInEId(EdgeN);
+      if (!NodeV[InNId] && PRM.Capacity(EId) > PRM.Flow(EId)) {
+        NodeV[InNId] = 1;
+        NodeQ.Push(InNId);
+        PRM.SetLabel(InNId, PRM.Label(NId) + 1);
+      }
     }
-    if (AugFlow < MinAug) { MinAug = AugFlow; }
   }
-  return MinAug;
+
+  for (TNEANet::TNodeI NI = Net->BegNI(); NI != Net->EndNI(); NI++) {
+    int NId = NI.GetId();
+    if (NodeV[NId]) {
+      if (PRM.Excess(NId) > 0 && PRM.Label(NId) < MaxLabel && NId != SnkNId) {
+        if (!PRM.IsActive(NId)) { PRM.PushActive(NId); }
+      }
+    } else {
+      if (PRM.IsActive(NId)) { PRM.RemoveActive(NId); }
+      PRM.SetLabel(NId, MaxLabel);
+    }
+  }
 }
 
-// Identical implementation of Edmonds-Karp, adapted for the PNGraph class.
-int GetMaxFlowInt (const PNGraph &Graph, const TIntPrIntH &CapAttrH, TIntPrIntH &FlowAttrH, const int &SrcNId, const int &SnkNId) {
-  IAssert(Graph->IsNode(SrcNId));
-  IAssert(Graph->IsNode(SnkNId));
-  for (TNGraph::TEdgeI EI = Graph->BegEI(); EI != Graph->EndEI(); EI++) {
-    TIntPr EdgePr(EI.GetSrcNId(), EI.GetDstNId());
-    IAssert(CapAttrH.GetDat(EdgePr) >= 0);
-    FlowAttrH.GetDat(TIntPr(EI.GetSrcNId(), EI.GetDstNId())) = 0;
-  }
+int GetMaxFlowIntPR (PNEANet &Net, const int& SrcNId, const int& SnkNId) {
+  IAssert(Net->IsNode(SrcNId));
+  IAssert(Net->IsNode(SnkNId));
   if (SrcNId == SnkNId) { return 0; }
-  int MaxFlow = 0, MinAug, CurNId;
-  while (true) {
-    TIntPrV MidToSrcAugV; TIntPrV MidToSnkAugV;
-    TIntQ FwdNodeQ; TIntQ BwdNodeQ;
-    TIntIntPrH PredEdgeH; TIntIntPrH SuccEdgeH;
-    MinAug = FindAugV(Graph, CapAttrH, FlowAttrH, FwdNodeQ, PredEdgeH, BwdNodeQ, SuccEdgeH, MidToSrcAugV, MidToSnkAugV, SrcNId, SnkNId);
-    if (MinAug == 0) { break; }
-    MaxFlow += MinAug;
-    CurNId = SrcNId;
-    for (int i = MidToSrcAugV.Len() - 1; i >= 0; i--) {
-      TIntPr &EdgePr = MidToSrcAugV[i];
-      if (EdgePr.Val1.Val == CurNId) {
-        FlowAttrH.GetDat(EdgePr) += MinAug;
-        CurNId = EdgePr.Val2.Val;
-      } else {
-        FlowAttrH.GetDat(EdgePr) -= MinAug;
-        CurNId = EdgePr.Val1.Val;
-      }
-    }
-    for (int i = 0; i < MidToSnkAugV.Len(); i++) {
-      TIntPr &EdgePr = MidToSnkAugV[i];
-      if (EdgePr.Val1.Val == CurNId) {
-        FlowAttrH.GetDat(EdgePr) += MinAug;
-        CurNId = EdgePr.Val2.Val;
-      } else {
-        FlowAttrH.GetDat(EdgePr) -= MinAug;
-        CurNId = EdgePr.Val1.Val;
-      }
+
+  TPRManager PRM(Net);
+  int MaxLabel = PRM.GetMaxLabel();
+
+  TNEANet::TNodeI SrcNI = Net->GetNI(SrcNId);
+  for (int EdgeN = 0; EdgeN < SrcNI.GetOutDeg(); EdgeN++) {
+    int EId = SrcNI.GetOutEId(EdgeN);
+    int OutNId = SrcNI.GetOutNId(EdgeN);
+    if (OutNId != SrcNId) {
+      int Capacity = PRM.Capacity(EId);
+      PRM.Flow(EId) = Capacity;
+      PRM.Excess(OutNId) = Capacity;
     }
   }
-  return MaxFlow;
+  GlobalRelabel(Net, PRM, SrcNId, SnkNId);
+  PRM.SetLabel(SrcNId, MaxLabel);
+  int RelabelCount = 1;
+  int GRRate = Net->GetNodes();
+  while (PRM.HasActive()) {
+    int NId = PRM.PopActive();
+    const TNEANet::TNodeI &NI = Net->GetNI(NId);
+    int PrevLabel = MaxLabel;
+    while (PRM.Excess(NId) > 0 && PRM.Label(NId) <= PrevLabel) {
+      PrevLabel = PRM.Label(NId);
+      int NbrNId = PushRelabel(PRM, NId, NI);
+      if (NbrNId != -1 && NbrNId != SnkNId && PRM.Excess(NbrNId) > 0 && !PRM.IsActive(NbrNId)) {
+        PRM.PushActive(NbrNId);
+      }
+    }
+    if (PRM.Excess(NId) > 0 && PRM.Label(NId) < MaxLabel) {
+      PRM.PushActive(NId);
+    }
+    if (RelabelCount % GRRate == 0) { GlobalRelabel(Net, PRM, SrcNId, SnkNId); }
+  }
+  return PRM.Excess(SnkNId);
 }
+
 
 };

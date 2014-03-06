@@ -1902,6 +1902,7 @@ public:
   }
   /// Returns an id that is larger than any node id in the network.
   int GetMxNId() const { return MxNId; }
+  int GetMxEId() const { return MxEId; }
 
   /// Returns the number of edges in the graph.
   int GetEdges() const { return EdgeH.Len(); }
@@ -1984,6 +1985,9 @@ public:
   /// Gets the value of int attr from the node attr value vector.
   TInt GetIntAttrDatN(const TNodeI& NodeId, const TStr& attr) { return GetIntAttrDatN(NodeId.GetId(), attr); }
   TInt GetIntAttrDatN(const int& NId, const TStr& attr);
+  TInt &GetIntAttrDatN(const TNodeI& NodeId, const int& index) { return GetIntAttrDatN(NodeId.GetId(), index); }
+  TInt &GetIntAttrDatN(const int& NId, const int& index);
+  int GetIntAttrIndN(const TStr& attr);
   /// Gets the value of str attr from the node attr value vector.
   TStr GetStrAttrDatN(const TNodeI& NodeId, const TStr& attr) { return GetStrAttrDatN(NodeId.GetId(), attr); }
   TStr GetStrAttrDatN(const int& NId, const TStr& attr);
@@ -1994,6 +1998,9 @@ public:
   /// Gets the value of int attr from the edge attr value vector.
   TInt GetIntAttrDatE(const TEdgeI& EdgeId, const TStr& attr) { return GetIntAttrDatE(EdgeId.GetId(), attr); }
   TInt GetIntAttrDatE(const int& EId, const TStr& attr);
+  TInt &GetIntAttrDatE(const TEdgeI& EdgeId, const int &index) { return GetIntAttrDatE(EdgeId.GetId(), index); }
+  TInt &GetIntAttrDatE(const int& EId, const int& index);
+  int GetIntAttrIndE(const TStr& attr);
   /// Gets the value of str attr from the edge attr value vector.
   TStr GetStrAttrDatE(const TEdgeI& EdgeId, const TStr& attr) { return GetStrAttrDatE(EdgeId.GetId(), attr); }
   TStr GetStrAttrDatE(const int& EId, const TStr& attr);
