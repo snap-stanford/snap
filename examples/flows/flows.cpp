@@ -44,7 +44,8 @@ int main(int argc, char* argv[]) {
   int NumWins = 0;
   Try
   const TStr InFNm = Env.GetIfArgPrefixStr("-i:", "small.txt", "Input directed graph");
-  const int Iters = Env.GetIfArgPrefixInt("-n:", 10, "Number of runs");
+  const int Iters = Env.GetIfArgPrefixInt("-n:", 10, "Number of runs per thread");
+  const int Threads = Env.GetIfArgPrefixInt("-t:", 4, "Number of threads");
   printf("Integer Flow Test\n");
   printf("Filename: %s\n", InFNm.CStr());
   printf("Building Network...\n");
@@ -52,41 +53,44 @@ int main(int argc, char* argv[]) {
   TRnd Random;
   int MaxEdgeCap = BuildCapacityNetwork(InFNm, Net, Random);
   printf("PNEANet Nodes: %d, Edges: %d, Max Edge Capacity: %d\n", Net->GetNodes(), Net->GetEdges(), MaxEdgeCap);
-  #pragma omp parallel for reduction(+:NetEKTimeSum,NetPRTimeSum) schedule(static, 1)
-  for (int i = 0; i < Iters; i++) {
-    int SrcNId = Net->GetRndNId(Random);
-    int SnkNId = Net->GetRndNId(Random);
+  #pragma omp parallel for reduction(+:NetEKTimeSum,NetPRTimeSum,NumWins) schedule(static, 1)
+  for (int t = 0; t < Threads; t++) {
+    Random.PutSeed(t+1);
+    for (int i = 0; i < Iters; i++) {
+      int SrcNId = Net->GetRndNId(Random);
+      int SnkNId = Net->GetRndNId(Random);
 
 
-    BeginTime = getcputime();
-    int NetMaxFlowPR = TSnap::GetMaxFlowIntPR(Net, SrcNId, SnkNId);
-    EndTime = getcputime();
-    NetPRFlowRunTime = EndTime - BeginTime;
+      BeginTime = getcputime();
+      int NetMaxFlowPR = TSnap::GetMaxFlowIntPR(Net, SrcNId, SnkNId);
+      EndTime = getcputime();
+      NetPRFlowRunTime = EndTime - BeginTime;
 
-    BeginTime = getcputime();
-    int NetMaxFlowEK = TSnap::GetMaxFlowIntEK(Net, SrcNId, SnkNId);
-    EndTime = getcputime();
-    NetEKFlowRunTime = EndTime - BeginTime;
+      BeginTime = getcputime();
+      int NetMaxFlowEK = TSnap::GetMaxFlowIntEK(Net, SrcNId, SnkNId);
+      EndTime = getcputime();
+      NetEKFlowRunTime = EndTime - BeginTime;
 
-    if (NetPRFlowRunTime < NetEKFlowRunTime) { NumWins++; }
+      if (NetPRFlowRunTime < NetEKFlowRunTime) { NumWins++; }
 
-    NetPRTimeSum += NetPRFlowRunTime;
-    NetEKTimeSum += NetEKFlowRunTime;
+      NetPRTimeSum += NetPRFlowRunTime;
+      NetEKTimeSum += NetEKFlowRunTime;
 
-    #pragma omp critical
-        {
+      #pragma omp critical
+      {
         printf ("Source: %d, Sink %d\n", SrcNId, SnkNId);
         printf ("Max Flow PR: %d\n", NetMaxFlowPR);
         printf("run time: %f\n", NetPRFlowRunTime);
         printf ("Max Flow EK: %d\n", NetMaxFlowEK);
         printf("run time: %f\n", NetEKFlowRunTime);
         printf ("\n");
-        }
-    #pragma omp barrier
+      }
+    }
   }
-  printf ("\nAvg PR PNEANet Time: %f\n", NetPRTimeSum/Iters);
-  printf ("Avg EK PNEANet Time: %f\n", NetEKTimeSum/Iters);
-  printf ("%d out of %d PR was faster\n", NumWins, Iters);
+  int TotalRuns = Iters*Threads;
+  printf ("\nAvg PR PNEANet Time: %f\n", NetPRTimeSum/TotalRuns);
+  printf ("Avg EK PNEANet Time: %f\n", NetEKTimeSum/TotalRuns);
+  printf ("%d out of %d PR was faster\n", NumWins, TotalRuns);
   Catch
   return 0;
 }

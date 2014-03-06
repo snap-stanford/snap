@@ -5,4 +5,4 @@
 MAIN = flows
 DEPH = 
 DEPCPP = 
-
+CXXFLAGS += -fopenmp
