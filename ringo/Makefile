@@ -1,18 +1,24 @@
 #
 # Makefile for non-Microsoft compiler
-#	tested only on Linu
+#	tested only on Linux
 #
 include ../Makefile.config
 
 HEADER = Engine.h
 CPP = Engine.cpp
 
-TEST = FilterTest AggrTest GroupTest IdTest ArithOpsTest SetOperationsTest TableTest TableTest1 Benchmark BenchmarkAshton ToGraphTest
+TEST = FilterTest AggrTest GroupTest IdTest ArithOpsTest SetOperationsTest TableTest TableTest1 Benchmark BenchmarkAshton ToGraphTest SimJoinTest SimJoinPerGroupTest
 
 all: $(TEST)
 
 # COMPILE:
 FilterTest: FilterTest.cpp $(CSNAP)/Snap.o
+	$(CC) $(CXXFLAGS) -o $@ $@.cpp $(CSNAP)/Snap.o -I$(CSNAP) -I$(CGLIB) $(LDFLAGS) $(LIBS)
+
+SimJoinTest: SimJoinTest.cpp $(CSNAP)/Snap.o
+	$(CC) $(CXXFLAGS) -o $@ $@.cpp $(CSNAP)/Snap.o -I$(CSNAP) -I$(CGLIB) $(LDFLAGS) $(LIBS)
+
+SimJoinPerGroupTest: SimJoinPerGroupTest.cpp $(CSNAP)/Snap.o
 	$(CC) $(CXXFLAGS) -o $@ $@.cpp $(CSNAP)/Snap.o -I$(CSNAP) -I$(CGLIB) $(LDFLAGS) $(LIBS)
 
 AggrTest: AggrTest.cpp $(CSNAP)/Snap.o

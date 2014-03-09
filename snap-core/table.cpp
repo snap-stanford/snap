@@ -623,6 +623,7 @@ void TTable::RemoveFirstRow() {
   if (FirstValidRow == LastValidRow) {
     LastValidRow = -1;
   }
+
   TInt Old = FirstValidRow;
   FirstValidRow = Next[FirstValidRow];
   Next[Old] = TTable::Invalid;
@@ -1130,7 +1131,7 @@ void TTable::AddIdColumn(const TStr& ColName) {
   JointTable->StrColMaps = TVec<TIntV>(StrColMaps.Len() + Table.StrColMaps.Len());
   TStr Name1 = Name;
   TStr Name2 = Table.Name;
-  if (Name1 == Name2) {
+	if(Name1==Name2) {
     Name1 = Name + "_1";
     Name2 = Name + "_2";
   }
@@ -1189,13 +1190,289 @@ void TTable::AddJointRow(const TTable& T1, const TTable& T2, TInt RowIdx1, TInt 
   for (TInt i = 0; i < T2.StrColMaps.Len(); i++) {
     StrColMaps[i+StrOffset].Add(T2.StrColMaps[i][RowIdx2]);
   }
-  NumRows++;
-  NumValidRows++;
+
+	NumRows++;
+	NumValidRows++;
   if (!Next.Empty()) {
     Next[Next.Len()-1] = NumValidRows-1;
     LastValidRow = NumValidRows-1;
   }
   Next.Add(Last);
+}
+
+/// Returns Similarity based join of two tables based on a given distance metric 
+/// and a given threshold. Records (r1, r2) that are returned satisfy the 
+/// criterion: d(r1, r2) <= Threshold
+PTable TTable::SimJoin(const TStrV& Cols1, const TTable& Table, const TStrV& Cols2, const TStr& DistanceColName, const TSimType& SimType, const TFlt& Threshold)
+{
+	Assert(Cols1.Len() == Cols2.Len());
+
+	if(Cols1.Len()!=Cols2.Len()){
+		TExcept::Throw("Column vectors must match in type and length");
+	}
+
+	for (TInt i = 0; i < Cols1.Len(); i++) {
+		if(!ColTypeMap.IsKey(Cols1[i]) || !Table.ColTypeMap.IsKey(Cols2[i])){
+			TExcept::Throw("Column not found in Table");
+		}
+
+		TAttrType Type1 = GetColType(Cols1[i]);
+		TAttrType Type2 = GetColType(Cols2[i]);
+
+		if(Type1!=Type2){
+			TExcept::Throw("Column types on the two tables must match.");
+		}
+
+		// When supporting more distance metrics, check if the types are supported for given metric. 
+		if((Type1!=atInt && Type1!=atFlt) || (Type2!=atInt && Type2!=atFlt)){
+			TExcept::Throw("Column type not supported. Only Flt and Int column types are supported.");
+		}
+  }
+
+	// Initialize Join table and add the similarity column
+  PTable JointTable = InitializeJointTable(Table);
+	TFltV DistanceV;
+
+	// O(n^2): Parallelize 
+	for(TRowIterator RowI = this->BegRI(); RowI < this->EndRI(); RowI++) {
+		for(TRowIterator RowI2 = Table.BegRI(); RowI2 < Table.EndRI(); RowI2++) {
+			float distance = 0;
+
+			switch(SimType)
+			{
+				// Calculate the distance metric
+				case L2Norm:
+					for(TInt i = 0; i < Cols1.Len(); i++) {
+						float attrVal1, attrVal2;
+						attrVal1 = GetColType(Cols1[i])==atInt ? (float)RowI.GetIntAttr(Cols1[i]) : (float)RowI.GetFltAttr(Cols1[i]);
+						attrVal2 = Table.GetColType(Cols2[i])==atInt ? (float)RowI2.GetIntAttr(Cols2[i]) : (float)RowI2.GetFltAttr(Cols2[i]);
+						distance += pow(attrVal1 - attrVal2, 2);
+					}
+				
+					distance = sqrt(distance);
+
+					if(distance<=Threshold){
+						JointTable->AddJointRow(*this, Table, RowI.GetRowIdx(), RowI2.GetRowIdx());
+						DistanceV.Add(distance);
+					}
+
+					// Add row to the joint table if distance <= Threshold
+					break;
+				// Haversine distance to calculate the distance between two points on Earth from latitude/longitude
+				case Haversine:
+					{
+						if(Cols1.Len()!=2){
+							TExcept::Throw("Haversine disance expects exactly two attributes - latitude and longitude - in that order.");
+						}
+						
+						// Block to prevent cross-initialization error from compiler
+						TFlt Radius = 6373; // km
+						float Latitude1  = GetColType(Cols1[0])==atInt ? (float)RowI.GetIntAttr(Cols1[0]) : (float)RowI.GetFltAttr(Cols1[0]);
+						float Latitude2 = Table.GetColType(Cols2[0])==atInt ? (float)RowI2.GetIntAttr(Cols2[0]) : (float)RowI2.GetFltAttr(Cols2[0]);
+
+						float Longitude1  = GetColType(Cols1[1])==atInt ? (float)RowI.GetIntAttr(Cols1[1]) : (float)RowI.GetFltAttr(Cols1[1]);
+						float Longitude2  = Table.GetColType(Cols2[1])==atInt ? (float)RowI2.GetIntAttr(Cols2[1]) : (float)RowI2.GetFltAttr(Cols2[1]);
+
+						Latitude1 *= M_PI/180.0;
+						Latitude2 *= M_PI/180.0;
+						Longitude1 *= M_PI/180.0;
+						Longitude2 *= M_PI/180.0;
+
+						float dlon = Longitude2 - Longitude1;
+						float dlat = Latitude2 - Latitude1;
+						float a = pow(sin(dlat/2), 2) + cos(Latitude1)*cos(Latitude2)*pow(sin(dlon/2), 2);
+						float c = 2*atan2(sqrt(a), sqrt(1-a));
+						distance = Radius*c;
+
+						if(distance<=Threshold){
+							JointTable->AddJointRow(*this, Table, RowI.GetRowIdx(), RowI2.GetRowIdx());
+							DistanceV.Add(distance);
+						}
+					}
+					break;
+				case L1Norm:
+				case Jaccard:
+					TExcept::Throw("This distance metric is not supported");
+			}
+		}	
+	}
+
+	// Add the value for the similarity column 
+	JointTable->StoreFltCol(DistanceColName, DistanceV);
+	JointTable->InitIds();
+	return JointTable;
+}
+
+PTable TTable::SelfSimJoinPerGroup(const TStr& GroupAttr, const TStr& SimCol, const TStr& DistanceColName, const TSimType& SimType, const TFlt& Threshold) 
+{
+	if(!ColTypeMap.IsKey(SimCol) || !ColTypeMap.IsKey(GroupAttr)){
+		TExcept::Throw("No such column found in table");
+	}
+
+  PTable JointTable = New(Context);
+	// Initialize the joint table - (GroupId1, GroupId2, Similarity)
+	JointTable->Name = Name + "_" + Name;
+	JointTable->IntCols = TVec<TIntV>(2);
+	JointTable->FltCols = TVec<TFltV>(1);
+
+	for(TInt i=0;i<2;i++){
+		TStr CName = "GroupId_" + (i+1);
+		TPair<TAttrType, TInt> Group(atInt, (int)i);
+		JointTable->ColTypeMap.AddDat(CName, Group);
+		JointTable->AddSchemaCol(CName, atInt);
+	}
+
+	TPair<TAttrType, TInt> Group(atFlt, 0);
+	JointTable->ColTypeMap.AddDat(DistanceColName, Group);
+	JointTable->AddSchemaCol(DistanceColName, atFlt);
+
+	THash<TInt, THash<TInt, TInt> > TIntHH;
+
+	TAttrType attrType = GetColType(SimCol);
+	TInt GroupColIdx = GetColIdx(GroupAttr);
+	TInt SimColIdx = GetColIdx(SimCol);
+
+	for (TRowIterator RowI = this->BegRI(); RowI < this->EndRI(); RowI++) {
+		TInt GroupId = IntCols[GroupColIdx][RowI.GetRowIdx()];
+	
+		if(attrType==atInt || attrType==atStr)
+		{
+			if(!TIntHH.IsKey(GroupId)){
+				THash<TInt, TInt> TIntH;
+				TIntHH.AddDat(GroupId, TIntH);
+			}
+
+			THash<TInt, TInt>& TIntH = TIntHH.GetDat(GroupId);
+			TInt SimAttrVal = (attrType==atInt ? IntCols[SimColIdx][RowI.GetRowIdx()] : StrColMaps[SimColIdx][RowI.GetRowIdx()]);
+			TIntH.AddDat(SimAttrVal, 0);
+		}
+		else
+		{
+			TExcept::Throw("Attribute type not supported.");
+		}
+	}
+
+	// Iterate through every pair of groups and calculate the distance
+	for (THash<TInt, THash<TInt, TInt> >::TIter it1 = TIntHH.BegI(); it1 < TIntHH.EndI(); it1++) {
+		THash<TInt, TInt> Vals1H = it1.GetDat();
+		TInt GroupId1 = it1.GetKey();
+
+		for (THash<TInt, THash<TInt, TInt> >::TIter it2 = TIntHH.BegI(); it2 < TIntHH.EndI(); it2++) {
+				int intersectionCount = 0;
+				TInt GroupId2 = it2.GetKey();
+				THash<TInt, TInt> Vals2H = it2.GetDat();
+
+				for(THash<TInt, TInt>::TIter it = Vals1H.BegI(); it < Vals1H.EndI(); it++)
+				{
+					TInt Val = it.GetKey();
+					if(Vals2H.IsKey(Val)){
+						intersectionCount+=1;
+					}
+				}
+
+				int unionCount = Vals1H.Len() + Vals2H.Len() - intersectionCount;
+				float distance = 1.0 - (float)intersectionCount/unionCount;
+
+				// Add a new row to the JointTable
+				if(distance<=Threshold){
+						JointTable->IntCols[0].Add(GroupId1);
+						JointTable->IntCols[1].Add(GroupId2);
+						JointTable->FltCols[0].Add(distance);
+						JointTable->IncrementNext();
+			}
+		}
+	}
+
+  JointTable->InitIds();
+	return JointTable;
+}
+
+/// SimJoinPerGroup performs SimJoin based on a set of attributes. Performs the grouping internally 
+/// and returns a projection of the columns on which groupby was performed along with the similarity.
+PTable TTable::SelfSimJoinPerGroup(const TStrV& GroupBy, const TStr& SimCol, const TStr& DistanceColName, const TSimType& SimType, const TFlt& Threshold)
+{
+	TStrV ProjectionV;
+	
+	// Only keep the GroupBy cols and the SimCol
+	for(TInt i=0; i<GroupBy.Len(); i++)
+	{
+		ProjectionV.Add(GroupBy[i]);
+	}
+
+	ProjectionV.Add(SimCol);
+	ProjectInPlace(ProjectionV);
+
+	TStr CName = "Group";
+  TIntV UniqueVec;
+  THash<TGroupKey, TPair<TInt, TIntV> > Grouping;
+  GroupAux(GroupBy, Grouping, false, CName, false, UniqueVec);
+	PTable GroupJointTable = SelfSimJoinPerGroup(CName, SimCol, DistanceColName, SimType, Threshold);
+	PTable JointTable = InitializeJointTable(*this);
+
+	// Hash of groupid to any arbitrary row of that group. Arbitrary because the GroupBy 
+	// columns within that group are the same, so we can choose any one. 
+	THash<TInt, TInt> GroupIdH;
+
+	for(THash<TGroupKey, TPair<TInt, TIntV> >::TIter it=Grouping.BegI(); it<Grouping.EndI(); it++)
+	{
+		TPair<TInt, TIntV> group = it.GetDat();
+		TInt GroupNum = group.Val1;
+		TIntV RowIds = group.Val2;
+
+		if(!GroupIdH.IsKey(GroupNum))
+		{
+			TInt RandomRowId = RowIds[0];  // Arbitrarily select the 1st row. 
+			GroupIdH.AddDat(GroupNum, RandomRowId);
+		}
+	}
+
+	for(TRowIterator RowI = GroupJointTable->BegRI(); RowI < GroupJointTable->EndRI(); RowI++)
+	{
+		// The GroupJoinTable has a well defined structure - columns 0 and 1 are GroupIds
+		TInt GroupId1 = GroupJointTable->IntCols[0][RowI.GetRowIdx()];
+		TInt GroupId2 = GroupJointTable->IntCols[1][RowI.GetRowIdx()];
+
+		// Get the rows for groupid1 and groupid and arbitrary select one row
+		TInt RowId1 = GroupIdH.GetDat(GroupId1);
+		TInt RowId2 = GroupIdH.GetDat(GroupId2);
+		JointTable->AddJointRow(*this, *this, RowId1, RowId2);
+	} 
+
+	// Add the simiarlity column from the GroupJointTable - GroupJointTable has a 
+	// well defined structure - The first float column is the similarity;
+	JointTable->StoreFltCol(DistanceColName, GroupJointTable->FltCols[0]);
+	ProjectionV.Clr();
+	ProjectionV.Add(DistanceColName);
+
+	// Find the GroupBy columns in the JointTable by matching the Suffix of the Schema
+	// columns with the original GroupBy columns - Note that Join renames columns. 
+	for(TInt i=0; i<GroupBy.Len(); i++){
+		for(TInt j=0; j<JointTable->S.Len(); j++)
+		{
+			TStr ColName = JointTable->S[j].Val1;
+			if(ColName.IsSuffix("." + GroupBy[i]))
+			{
+				ProjectionV.Add(ColName);
+			}
+		}
+	}
+
+	JointTable->ProjectInPlace(ProjectionV);
+	JointTable->InitIds();
+	return JointTable;
+}
+
+// Increment the next vector and set last, NumRows and NumValidRows
+void TTable::IncrementNext()
+{
+	// Advance the Next vector
+	NumRows++;
+	NumValidRows++;
+	if (!Next.Empty()) {
+		Next[Next.Len()-1] = NumValidRows-1;
+		LastValidRow = NumValidRows-1;
+	}
+	Next.Add(Last);
 }
 
 // Q: Do we want to have any gurantees in terms of order of the 0t rows - i.e. 
@@ -1500,6 +1777,7 @@ void TTable::SelectAtomic(const TStr& Col1, const TStr& Col2, TPredComp Cmp, TIn
   if (Remove) {
     TRowIteratorWithRemove RowI = BegRIWR();
     while (RowI.GetNextRowIdx() != Last) {
+
       TBool Result;
       switch (Ty1) {
         case atInt:
@@ -1512,11 +1790,13 @@ void TTable::SelectAtomic(const TStr& Col1, const TStr& Col2, TPredComp Cmp, TIn
           Result = TPredicate::EvalStrAtom(RowI.GetNextStrAttr(ColIdx1), RowI.GetNextStrAttr(ColIdx2), Cmp);
           break;
       }
+			
       if (!Result) { 
         RowI.RemoveNext();
       } else {
         RowI++;
       }
+
     }
   } else {
     for (TRowIterator RowI = BegRI(); RowI < EndRI(); RowI++) {

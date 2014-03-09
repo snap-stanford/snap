@@ -7,6 +7,10 @@
 #define CHUNKS_PER_THREAD 10
 #endif
 
+/// Distance metrics for similarity joins
+// Haversine distance is used to calculate distance between two points on a sphere based on latitude and longitude
+typedef enum {L1Norm, L2Norm, Jaccard, Haversine} TSimType;
+
 //#//////////////////////////////////////////////
 /// Table class
 class TTable;
@@ -227,6 +231,7 @@ protected:
   static const TInt Invalid; ///< Special value for Next vector entry - logically removed row
 
   static TInt UseMP; ///< Global switch for choosing multi-threaded versions of TTable functions
+	void IncrementNext();
 public:
   TStr Name; ///< Table Name
 	template<class PGraph> friend PGraph TSnap::ToGraph(PTable Table, const TStr& SrcCol, const TStr& DstCol, TAttrAggr AggrPolicy);
@@ -244,7 +249,7 @@ protected:
   TInt NumValidRows; ///< Number of valid rows in the table (i.e. rows that were not logically removed)
   TInt FirstValidRow; ///< Physical index of first valid row
   TInt LastValidRow; ///< Physical index of last valid row
-  TIntV Next; ///< A vactor describing the logical order of the rows. ##TTable::Next
+  TIntV Next; ///< A vector describing the logical order of the rows. ##TTable::Next
   TVec<TIntV> IntCols; ///< Data columns of integer attributes
   TVec<TFltV> FltCols; ///< Data columns of floating point attributes
   TVec<TIntV> StrColMaps; ///< Data columns of integer mappings of string attributes. ##TTable::StrColMaps
@@ -900,7 +905,15 @@ public:
   }
   /// Join table with itself, on values of \c Col
   PTable SelfJoin(const TStr& Col) { return Join(Col, *this, Col); }
+  PTable SelfSimJoin(const TStrV& Cols, const TStr& DistanceColName, const TSimType& SimType, const TFlt& Threshold) { return SimJoin(Cols, *this, Cols, DistanceColName, SimType, Threshold); }
+	/// Perform join if the distance between two rows is less than the specified threshold.  ##TTable::SimJoinPerGroup - Returns table with schema (GroupId1, GroupId2, Similarity)
+	PTable SelfSimJoinPerGroup(const TStr& GroupAttr, const TStr& SimCol, const TStr& DistanceColName, const TSimType& SimType, const TFlt& Threshold);
 
+	/// Perform join if the distance between two rows is less than the specified threshold.  ##TTable::SimJoinPerGroup
+	PTable SelfSimJoinPerGroup(const TStrV& GroupBy, const TStr& SimCol, const TStr& DistanceColName, const TSimType& SimType, const TFlt& Threshold);
+
+	/// Perform join if the distance between two rows is less than the specified threshold.  ##TTable::SimJoin
+	PTable SimJoin(const TStrV& Cols1, const TTable& Table, const TStrV& Cols2, const TStr& DistanceColName, const TSimType& SimType, const TFlt& Threshold);
   /// Select first N rows from the table
   void SelectFirstNRows(const TInt& N);
 

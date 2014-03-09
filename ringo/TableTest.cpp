@@ -22,21 +22,21 @@ int main(){
 
   // test Select
   // create predicate tree: find all animals that are big and african or medium and Australian
-  TPredicate::TAtomicPredicate A1(atStr, true, EQ, "Location", "", 0, 0, "Africa");  
-  TPredicate::TPredicateNode N1(A1);  // Location == "Africa"
-  TPredicate::TAtomicPredicate A2(atStr, true, EQ, "Size", "", 0, 0, "big");  
-  TPredicate::TPredicateNode N2(A2);  // Size == "big"
-  TPredicate::TPredicateNode N3(AND);
+  TAtomicPredicate A1(atStr, true, EQ, "Location", "", 0, 0, "Africa");  
+  TPredicateNode N1(A1);  // Location == "Africa"
+  TAtomicPredicate A2(atStr, true, EQ, "Size", "", 0, 0, "big");  
+  TPredicateNode N2(A2);  // Size == "big"
+  TPredicateNode N3(AND);
   N3.AddLeftChild(&N1);
   N3.AddRightChild(&N2);
-  TPredicate::TAtomicPredicate A4(atStr, true, EQ, "Location", "", 0, 0, "Australia");  
-  TPredicate::TPredicateNode N4(A4);  
-  TPredicate::TAtomicPredicate A5(atStr, true, EQ, "Size", "", 0, 0, "medium");  
-  TPredicate::TPredicateNode N5(A5); 
-  TPredicate::TPredicateNode N6(AND);
+  TAtomicPredicate A4(atStr, true, EQ, "Location", "", 0, 0, "Australia");  
+  TPredicateNode N4(A4);  
+  TAtomicPredicate A5(atStr, true, EQ, "Size", "", 0, 0, "medium");  
+  TPredicateNode N5(A5); 
+  TPredicateNode N6(AND);
   N6.AddLeftChild(&N4);
   N6.AddRightChild(&N5);
-  TPredicate::TPredicateNode N7(OR);
+  TPredicateNode N7(OR);
   N7.AddLeftChild(&N3);
   N7.AddRightChild(&N6);
   TPredicate Pred(&N7);

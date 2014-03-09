@@ -56,8 +56,8 @@ int main(){
   qa_RelevantCols.Add(17);
 
   // build predicate "PostTypeId == 2"
-  TPredicate::TAtomicPredicate ptiAtom(atInt, true, EQ, "PostTypeId", "", 2, 0, "");
-  TPredicate::TPredicateNode ptiNode(ptiAtom);
+  TAtomicPredicate ptiAtom(atInt, true, EQ, "PostTypeId", "", 2, 0, "");
+  TPredicateNode ptiNode(ptiAtom);
   TPredicate ptiPred(&ptiNode);
 
   // build GroupBy vector - group by user pairs
@@ -177,13 +177,13 @@ int main(){
   comment_RelevantCols.Add(4);
   // build predicate "UserId1 != UserId2"
   /*
-  TPredicate::TAtomicPredicate uidAtom(atInt, false, TPredicate::EQ, "UserId1", "UserId2");
-  TPredicate::TPredicateNode uidEqNode(uidAtom);
-  TPredicate::TPredicateNode uidNeqNode(TPredicate::NOT);
+  TAtomicPredicate uidAtom(atInt, false, TPredicate::EQ, "UserId1", "UserId2");
+  TPredicateNode uidEqNode(uidAtom);
+  TPredicateNode uidNeqNode(TPredicate::NOT);
   uidNeqNode.AddLeftChild(&uidEqNode);
   */
-  TPredicate::TAtomicPredicate uidAtom(atInt, false, NEQ, "UserId1", "UserId2");
-  TPredicate::TPredicateNode uidNeqNode(uidAtom);
+  TAtomicPredicate uidAtom(atInt, false, NEQ, "UserId1", "UserId2");
+  TPredicateNode uidNeqNode(uidAtom);
   TPredicate uidPred(&uidNeqNode);
    // build GroupBy vector
   TStrV commentGroupBy;

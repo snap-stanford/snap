@@ -20,9 +20,9 @@ int main(){
   //PTable T2 = TTable::LoadSS("Animals", AnimalS, "../../testfiles/animals.txt");
 
   // test Select
-  TPredicate::TAtomicPredicate A1(atStr, true, EQ, "Size", "", 0, 0, "big");  
-  TPredicate::TPredicateNode N1(A1);  // Size == "big"
-  TPredicate Pred(&N1);
+  TAtomicPredicate A1(atStr, true, EQ, "Size", "", 0, 0, "big");  
+  TPredicateNode N1(A1);  // Size == "big"
+	TPredicate Pred(&N1);
   //T1->Select(Pred);
   T1->SelectAtomicStrConst("Size", "big", SUPERSTR);
   T2->SelectAtomicStrConst("Size", "big", EQ);
@@ -47,8 +47,8 @@ int main(){
 
   PTable T3 = TTable::LoadSS("Animals", AnimalS, "tests/animals.txt", Context, '\t', false);
   PTable To = T3->Join("Location", *T3, "Location");
-  TPredicate::TAtomicPredicate A2(atStr, false, EQ, "Animals_1.Size", "Animals_2.Size");  
-  TPredicate::TPredicateNode N2(A2);
+  TAtomicPredicate A2(atStr, false, EQ, "Animals_1.Size", "Animals_2.Size");  
+  TPredicateNode N2(A2);
   TPredicate Pred2(&N2);
   To->Select(Pred2);
   TStrV GroupBy1;
