@@ -273,6 +273,8 @@ protected:
   TInt CurrBucket; ///< Current row id bucket - used when generating a sequence of graphs using an iterator.
   TAttrAggr AggrPolicy; ///< Aggregation policy used for solving conflicts between different values of an attribute of the same node.
 
+  TInt IsNextDirty; ///< Flag to signify whether the rows are stored in logical sequence or reordered. Used for optimizing GetPartitionRanges.
+
 public:
   /***** value getters - getValue(column name, physical row Idx) *****/
   // no type checking. assuming ColName actually refers to the right type.
@@ -458,6 +460,33 @@ protected:
     }
   }
 
+  void GroupByIntColMP(const TStr& GroupBy, THashMP<TInt, TIntV>& Grouping) const {
+    double startFn = omp_get_wtime();
+    GroupingSanityCheck(GroupBy, atInt);
+    TIntPrV Partitions;
+    GetPartitionRanges(Partitions, 8*CHUNKS_PER_THREAD);
+    TInt PartitionSize = Partitions[0].GetVal2()-Partitions[0].GetVal1()+1;
+    double endPart = omp_get_wtime();
+    printf("Partition time = %f\n", endPart-startFn);
+
+    Grouping.Gen(NumValidRows);
+    double endGen = omp_get_wtime();
+    printf("Gen time = %f\n", endGen-endPart);
+    #ifdef _OPENMP
+    #pragma omp parallel for schedule(dynamic, CHUNKS_PER_THREAD) num_threads(8)
+    #endif
+    for (int i = 0; i < Partitions.Len(); i++){
+      TRowIterator RowI(Partitions[i].GetVal1(), this);
+      TRowIterator EndI(Partitions[i].GetVal2(), this);
+      while (RowI < EndI) {
+        UpdateGrouping<TInt>(Grouping, RowI.GetIntAttr(GroupBy), RowI.GetRowIdx());
+        RowI++;
+      }
+    }
+    double endAdd = omp_get_wtime();
+    printf("Add time = %f\n", endAdd-endGen);
+  }
+
   /// Group/hash by a single column with float values. Returns hash table with grouping.
   template <class T>
   void GroupByFltCol(const TStr& GroupBy, T& Grouping, 
@@ -615,7 +644,8 @@ public:
     GroupIDMapping(Table.GroupIDMapping), GroupMapping(Table.GroupMapping),
     SrcCol(Table.SrcCol), DstCol(Table.DstCol),
     EdgeAttrV(Table.EdgeAttrV), SrcNodeAttrV(Table.SrcNodeAttrV),
-    DstNodeAttrV(Table.DstNodeAttrV), CommonNodeAttrs(Table.CommonNodeAttrs) {} 
+    DstNodeAttrV(Table.DstNodeAttrV), CommonNodeAttrs(Table.CommonNodeAttrs),
+    IsNextDirty(Table.IsNextDirty) {} 
 
   TTable(const TTable& Table, const TIntV& RowIds);
 
@@ -877,6 +907,8 @@ public:
 
   /// Helper function for grouping ##TTable::GroupAux
   void GroupAux(const TStrV& GroupBy, THash<TGroupKey, TPair<TInt, TIntV> >& Grouping, 
+   TBool Ordered, const TStr& GroupColName, TBool KeepUnique, TIntV& UniqueVec);
+  void GroupAuxMP(const TStrV& GroupBy, THashGenericMP<TGroupKey, TPair<TInt, TIntV> >& Grouping, 
    TBool Ordered, const TStr& GroupColName, TBool KeepUnique, TIntV& UniqueVec);
 
   /// Group rows depending on values of \c GroupBy columns ##TTable::Group

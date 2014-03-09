@@ -177,7 +177,7 @@ TTable::TTable(TTableContext& Context): Context(Context), NumRows(0),
 
 TTable::TTable(const TStr& TableName, const Schema& TableSchema, 
   TTableContext& Context): Name(TableName), Context(Context), S(TableSchema),
-  NumRows(0), NumValidRows(0), FirstValidRow(0), LastValidRow(-1) {
+  NumRows(0), NumValidRows(0), FirstValidRow(0), LastValidRow(-1), IsNextDirty(0) {
   TInt IntColCnt = 0;
   TInt FltColCnt = 0;
   TInt StrColCnt = 0;
@@ -228,6 +228,8 @@ TTable::TTable(TSIn& SIn, TTableContext& Context): Name(SIn), Context(Context),
         break;
     }
   }
+
+  IsNextDirty = 0;
 }
 
 TTable::TTable(const TStr& TableName, const TIntIntH& H, const TStr& Col1, 
@@ -254,6 +256,7 @@ TTable::TTable(const TStr& TableName, const TIntIntH& H, const TStr& Col1,
       Next[i] = i+1;
     }
     Next[NumRows-1] = Last;
+    IsNextDirty = 0;
 }
 
 TTable::TTable(const TStr& TableName, const TIntFltH& H, const TStr& Col1, 
@@ -279,6 +282,7 @@ TTable::TTable(const TStr& TableName, const TIntFltH& H, const TStr& Col1,
       Next[i] = i+1;
     }
     Next[NumRows-1] = Last;
+    IsNextDirty = 0;
 }
 
 TTable::TTable(const TTable& Table, const TIntV& RowIDs) : Name(Table.Name), 
@@ -294,6 +298,7 @@ TTable::TTable(const TTable& Table, const TIntV& RowIDs) : Name(Table.Name),
     NumRows = 0;
     NumValidRows = 0;
     AddSelectedRows(Table, RowIDs);
+    IsNextDirty = 0;
     InitIds();
 }
 
@@ -380,6 +385,7 @@ PTable TTable::LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm,
   for (TInt i = 0; i < T->NumRows-1; i++) {
     T->Next.Add(i+1);
   }
+  T->IsNextDirty = 0;
   T->Next.Add(Last);
   T->LastValidRow = T->NumRows - 1;
   T->InitIds();
@@ -676,24 +682,40 @@ void TTable::KeepSortedRows(const TIntV& KeepV) {
 void TTable::GetPartitionRanges(TIntPrV& Partitions, TInt NumPartitions) const {
   TInt PartitionSize = NumValidRows / (NumPartitions);
   if (NumValidRows % NumPartitions != 0) PartitionSize++;
-  if (PartitionSize < 10) { PartitionSize = 10;}
-  TInt currRow = FirstValidRow;
-  TInt currStart = currRow;
-  TInt currCount = PartitionSize;
+  if (PartitionSize < 10) { 
+    PartitionSize = 10;
+    NumPartitions = NumValidRows / PartitionSize; 
+  }
   double startResize = omp_get_wtime();
   Partitions.Reserve(NumPartitions+1);
   double endResize = omp_get_wtime();
   printf("Partition: Resize time = %f\n", endResize-startResize);
-  while (currRow != TTable::Last) {
-    if (currCount == 0) {
+
+  TInt currRow = FirstValidRow;
+  TInt currStart = currRow;
+  if (IsNextDirty) {
+    TInt currCount = PartitionSize;
+    while (currRow != TTable::Last) {
+      if (currCount == 0) {
+        Partitions.Add(TIntPr(currStart, currRow));
+        currStart = currRow;
+        currCount = PartitionSize;
+      }
+      currRow = Next[currRow];
+      currCount--;
+    }
+    Partitions.Add(TIntPr(currStart, currRow));
+  } else {
+    // optimize for the case when rows are logically in sequence
+    currRow += PartitionSize;
+    while (currRow != TTable::Last && currRow < Next.Len()) {
+      if (Next[currRow] == TTable::Invalid) { currRow++; continue; }
       Partitions.Add(TIntPr(currStart, currRow));
       currStart = currRow;
-      currCount = PartitionSize;
+      currRow += PartitionSize;
     }
-    currRow = Next[currRow];
-    currCount--;
+    Partitions.Add(TIntPr(currStart, TTable::Last));
   }
-  Partitions.Add(TIntPr(currStart, currRow));
   printf("Num partitions: %d\n", Partitions.Len());
 }
 
@@ -866,6 +888,129 @@ void TTable::GroupAux(const TStrV& GroupBy, THash<TGroupKey, TPair<TInt, TIntV> 
   }
 }
 
+// core crouping logic
+void TTable::GroupAuxMP(const TStrV& GroupBy, THashGenericMP<TGroupKey, TPair<TInt, TIntV> >& Grouping, 
+ TBool Ordered, const TStr& GroupColName, TBool KeepUnique, TIntV& UniqueVec) {
+  double startFn = omp_get_wtime();
+  TIntV IntGroupByCols;
+  TIntV FltGroupByCols;
+  TIntV StrGroupByCols;
+  // get indices for each column type
+  for (TInt c = 0; c < GroupBy.Len(); c++) {
+    if (!ColTypeMap.IsKey(GroupBy[c])) { 
+      TExcept::Throw("no such column " + GroupBy[c]); 
+    }
+
+    TPair<TAttrType, TInt> ColType = ColTypeMap.GetDat(GroupBy[c]);
+    switch (ColType.Val1) {
+      case atInt:
+        IntGroupByCols.Add(ColType.Val2);
+        break;
+      case atFlt:
+        FltGroupByCols.Add(ColType.Val2);
+        break;
+      case atStr:
+        StrGroupByCols.Add(ColType.Val2);
+        break;
+    }
+  }
+
+  TInt IKLen = IntGroupByCols.Len();
+  TInt FKLen = FltGroupByCols.Len();
+  TInt SKLen = StrGroupByCols.Len();
+
+  TInt GroupNum = 0;
+  TInt IdColIdx = ColTypeMap.GetDat(IdColName).Val2;
+
+  double endInit = omp_get_wtime();
+  printf("Init time = %f\n", endInit-startFn);
+
+  TVec<TPair<TInt, TInt> > GroupAndRowIds;
+
+  // iterate over rows
+  for (TRowIterator it = BegRI(); it < EndRI(); it++) {
+    TIntV IKey(IKLen + SKLen, 0);
+    TFltV FKey(FKLen, 0);
+    TIntV SKey(SKLen, 0);
+
+    // find group key
+    for (TInt c = 0; c < IKLen; c++) {
+      IKey.Add(it.GetIntAttr(IntGroupByCols[c])); 
+    }
+    for (TInt c = 0; c < FKLen; c++) {
+      FKey.Add(it.GetFltAttr(FltGroupByCols[c])); 
+    }
+    for (TInt c = 0; c < SKLen; c++) {
+      SKey.Add(it.GetStrMap(StrGroupByCols[c])); 
+    }
+    if (!Ordered) {
+      if (IKLen > 0) { IKey.ISort(0, IKey.Len()-1, true); }
+      if (FKLen > 0) { FKey.ISort(0, FKey.Len()-1, true); }
+      if (SKLen > 0) { SKey.ISort(0, SKey.Len()-1, true); }
+    }
+    for (TInt c = 0; c < SKLen; c++) {
+      IKey.Add(SKey[c]);
+    }
+
+    // look for group matching the key
+    TGroupKey GroupKey = TGroupKey(IKey, FKey);
+
+    TInt RowIdx = it.GetRowIdx();
+    if (!Grouping.IsKey(GroupKey)) {
+      // Grouping key hasn't been seen before, create a new group
+      TPair<TInt, TIntV> NewGroup;
+      NewGroup.Val1 = GroupNum;
+      NewGroup.Val2.Add(IntCols[IdColIdx][RowIdx]);
+      Grouping.AddDat(GroupKey, NewGroup);
+      if (GroupColName != "") {
+        GroupAndRowIds.Add(TPair<TInt, TInt>(GroupNum, RowIdx));
+      }
+      if (KeepUnique) { 
+        UniqueVec.Add(RowIdx);
+      }
+      GroupNum++;
+    } else {
+      // Grouping key has been seen before, update corresponding group
+      if (!KeepUnique) {
+        TPair<TInt, TIntV>& NewGroup = Grouping.GetDat(GroupKey);
+        NewGroup.Val2.Add(IntCols[IdColIdx][RowIdx]);
+        if (GroupColName != "") {
+          GroupAndRowIds.Add(TPair<TInt, TInt>(NewGroup.Val1, RowIdx));
+        }
+      }
+    }
+  }
+
+  double endIter = omp_get_wtime();
+  printf("Iter time = %f\n", endIter-endInit);
+
+  // update group mapping
+  if (!KeepUnique) {
+    TPair<TStrV, TBool> GroupStmt(GroupBy, Ordered);
+    GroupStmtNames.AddDat(GroupColName, GroupStmt);
+    GroupIDMapping.AddDat(GroupStmt);
+    GroupMapping.AddDat(GroupStmt);
+    for (THash<TGroupKey, TPair<TInt, TIntV> >::TIter it = Grouping.BegI(); it < Grouping.EndI(); it++) {
+      TGroupKey key = it.GetKey();
+      TPair<TInt, TIntV> group = it.GetDat();
+      GroupIDMapping.GetDat(GroupStmt).AddDat(group.Val1, key);
+      GroupMapping.GetDat(GroupStmt).AddDat(key, group.Val2);
+    }
+  }
+
+  double endMapping = omp_get_wtime();
+  printf("Mapping time = %f\n", endMapping-endIter);
+
+  // add a column to the table
+  if (GroupColName != "") {
+    StoreGroupCol(GroupColName, GroupAndRowIds);
+    AddSchemaCol(GroupColName, atInt);  // update schema
+  }
+
+  double endStore = omp_get_wtime();
+  printf("Store time = %f\n", endStore-endMapping);
+}
+
 // grouping begins here
 void TTable::Group(const TStrV& GroupBy, const TStr& GroupColName, TBool Ordered) {
   TIntV UniqueVec;
@@ -876,6 +1021,7 @@ void TTable::Group(const TStrV& GroupBy, const TStr& GroupColName, TBool Ordered
 
 void TTable::Aggregate(const TStrV& GroupByAttrs, TAttrAggr AggOp,
  const TStr& ValAttr, const TStr& ResAttr, TBool Ordered) {
+  double startFn = omp_get_wtime();
   // check if grouping already exists
   TPair<TStrV, TBool> GroupStmtName(GroupByAttrs, Ordered);
 
@@ -883,6 +1029,8 @@ void TTable::Aggregate(const TStrV& GroupByAttrs, TAttrAggr AggOp,
     // group mapping does not exist, perform grouping first
     Group(GroupByAttrs, "", Ordered);
   }
+  double endGroup = omp_get_wtime();
+  printf("Group time = %f\n", endGroup-startFn);
 
   // group mapping exists, retrieve it and aggregate
   THash<TGroupKey, TIntV> Mapping = GroupMapping.GetDat(GroupStmtName);
@@ -901,6 +1049,9 @@ void TTable::Aggregate(const TStrV& GroupByAttrs, TAttrAggr AggOp,
     }
   }
   TInt ColIdx = ColTypeMap.GetDat(ResAttr).Val2;
+
+  double endAdd = omp_get_wtime();
+  printf("AddCol time = %f\n", endAdd-endGroup);
 
   #ifdef _OPENMP
   #pragma omp parallel for schedule(dynamic)
@@ -969,6 +1120,8 @@ void TTable::Aggregate(const TStrV& GroupByAttrs, TAttrAggr AggOp,
       }
     }
   }
+  double endIter = omp_get_wtime();
+  printf("Iter time = %f\n", endIter-endAdd);
 }
 
 void TTable::AggregateCols(const TStrV& AggrAttrs, TAttrAggr AggOp, const TStr& ResAttr) {
@@ -1126,7 +1279,7 @@ void TTable::AddIdColumn(const TStr& ColName) {
  PTable TTable::InitializeJointTable(const TTable& Table) {
   PTable JointTable = New(Context);
   JointTable->Name = Name + "_" + Table.Name;
-  JointTable->IntCols = TVec<TIntV>(IntCols.Len() + Table.IntCols.Len());
+  JointTable->IntCols = TVec<TIntV>(IntCols.Len() + Table.IntCols.Len() + 1);
   JointTable->FltCols = TVec<TFltV>(FltCols.Len() + Table.FltCols.Len());
   JointTable->StrColMaps = TVec<TIntV>(StrColMaps.Len() + Table.StrColMaps.Len());
   TStr Name1 = Name;
@@ -1165,6 +1318,10 @@ void TTable::AddIdColumn(const TStr& ColName) {
     //JointTable->AddLabel(CName, ColName);
     JointTable->AddSchemaCol(CName, ColType);
   }
+  TStr IdColName = JointTable->Name + "_id";
+  JointTable->ColTypeMap.AddDat(IdColName, 
+    TPair<TAttrType, TInt>(atInt, IntCols.Len() + Table.IntCols.Len()));
+  JointTable->AddSchemaCol(IdColName, atInt);
   return JointTable;
 }
 
@@ -1509,7 +1666,7 @@ PTable TTable::Join(const TStr& Col1, const TTable& Table, const TStr& Col2) {
     switch(ColType){
       case atInt:{
         THashMP<TInt, TIntV> T(TS.GetNumValidRows());
-        TS.GroupByIntCol(ColS, T, TIntV(), true);
+        TS.GroupByIntColMP(ColS, T);
         double endGroup = omp_get_wtime();
         printf("Group time = %f\n", endGroup-endInit);
         
@@ -1678,7 +1835,7 @@ PTable TTable::Join(const TStr& Col1, const TTable& Table, const TStr& Col2) {
   }
   #endif
   //double endAdd = omp_get_wtime();
-  JointTable->InitIds();
+  //JointTable->InitIds();
   //double endInitId = omp_get_wtime();
   //printf("InitId time = %f\n", endInitId-endAdd);
   return JointTable; 
@@ -1837,48 +1994,69 @@ void TTable::SelectAtomicConst(const TStr& Col, const TPrimitive& Val, TPredComp
   if(Remove){
     #ifdef _OPENMP
     if (GetMP()) {
+      double endInit = omp_get_wtime();
+      printf("Init time = %f\n", endInit-startFn);
       TIntPrV Partitions;
       GetPartitionRanges(Partitions, omp_get_max_threads()*CHUNKS_PER_THREAD);
       TInt PartitionSize = Partitions[0].GetVal2()-Partitions[0].GetVal1()+1;
       int RemoveCount = 0;
+      double endPart = omp_get_wtime();
+      printf("Partition time = %f\n", endPart-endInit);
+
+      TIntPrV Bounds(Partitions.Len());
     
       #pragma omp parallel for schedule(dynamic, CHUNKS_PER_THREAD) reduction(+:RemoveCount)
       for (int i = 0; i < Partitions.Len(); i++){
         TRowIterator RowI(Partitions[i].GetVal1(), this);
         TRowIterator EndI(Partitions[i].GetVal2(), this);
+        TInt FirstRowIdx = TTable::Invalid;
+        TInt LastRowIdx = TTable::Invalid;
+        TBool First = true;
         while (RowI < EndI) {
           TInt CurrRowIdx = RowI.GetRowIdx();
           TBool Result = RowI.CompareAtomicConst(ColIdx, Val, Cmp);
           RowI++;
-          if(!Result){ 
+          if(!Result) { 
             Next[CurrRowIdx] = TTable::Invalid;
             RemoveCount++;
+          } else { 
+            if (First) { FirstRowIdx = CurrRowIdx; First = false; }
+            LastRowIdx = CurrRowIdx; 
           }
         }
+        Bounds[i] = TIntPr(FirstRowIdx, LastRowIdx);
         //printf("Thread %d: i = %d, start = %d, end = %d\n", omp_get_thread_num(), i,
         //  Partitions[i].GetVal1().Val, Partitions[i].GetVal2().Val);
       }
-      NumValidRows -= RemoveCount;
+      double endIter = omp_get_wtime();
+      printf("Iter time = %f\n", endIter-endPart);
+      
       // repair the next vector
-      for (int i = 0; i < Next.Len();) {
-        if (Next[i] >= 0 && Next[Next[i]] == Invalid) {
-          // find first subsequent valid row
-          int j = Next[i]+1;
-          for (; j < Next.Len(); j++) {
-            if (Next[j] != Invalid || Next[j] == Last) { break;}
-          }
-          if (j < Next.Len() && (Next[j] != Invalid || Next[j] == Last)) {
-            Next[i] = j;
-            i = j;
-          } else {
-            Next[i] = Last;
-            LastValidRow = i;
-          }
-        } else {
-          i++;
+      TInt CurrBound = 0;
+      while (CurrBound < Bounds.Len() && Bounds[CurrBound].Val1 == TTable::Invalid) {
+        CurrBound++;
+      }
+      if (CurrBound == Bounds.Len()) {
+        // selected table is empty
+        Assert(NumValidRows == RemoveCount);
+        NumValidRows = 0;
+        FirstValidRow = TTable::Invalid;
+        LastValidRow = TTable::Invalid;
+      } else {
+        NumValidRows -= RemoveCount;
+        FirstValidRow = Bounds[CurrBound].Val1;
+        LastValidRow = Bounds[CurrBound].Val2;
+        TInt PrevBound = CurrBound++;
+        while (CurrBound < Bounds.Len()) {
+          if (Bounds[CurrBound].Val1 == TTable::Invalid) { CurrBound++; continue; }
+          Next[Bounds[PrevBound].Val2] = Bounds[CurrBound].Val1;
+          LastValidRow = Bounds[CurrBound].Val2;
+          PrevBound = CurrBound;
+          CurrBound++;
         }
       }
-      SetFirstValidRow();
+      double endRepair = omp_get_wtime();
+      printf("Repair time = %f\n", endRepair-endIter);
     } else {
     #endif
       TRowIteratorWithRemove RowI = BegRIWR();
@@ -2162,6 +2340,7 @@ void TTable::Order(const TStrV& OrderBy, const TStr& OrderColName, TBool ResetRa
   #endif
 
   // rewire Next vector
+  IsNextDirty = 1;
   if (NumValidRows > 0) {
     FirstValidRow = ValidRows[0];
   } else {
@@ -3146,6 +3325,12 @@ void TTable::AddNJointRowsMP(const TTable& T1, const TTable& T2, const TVec<TInt
   TInt FltOffset = T1.FltCols.Len();
   TInt StrOffset = T1.StrColMaps.Len();
 
+  TInt IdOffset = IntOffset + T2.IntCols.Len();
+  RowIdMap.Clr();
+  for (TInt IdCnt = 0; IdCnt < JointTableSize; IdCnt++) {
+    RowIdMap.AddDat(IdCnt, IdCnt);
+  }
+
   #ifdef _OPENMP
   #pragma omp parallel for schedule(dynamic, CHUNKS_PER_THREAD) 
   #endif
@@ -3174,6 +3359,7 @@ void TTable::AddNJointRowsMP(const TTable& T1, const TTable& T2, const TVec<TInt
       for(TInt i = 0; i < T2.StrColMaps.Len(); i++){
         StrColMaps[i+StrOffset][start+r] = T2.StrColMaps[i][CurrRowIdPr.GetVal2()];
       }
+      IntCols[IdOffset][start+r] = start+r;
     }
     for(TInt r = 0; r < NewRows; r++){
       Next[start+r] = start+r+1;
