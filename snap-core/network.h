@@ -1600,7 +1600,7 @@ public:
     friend class TNEANet;
   };
 
-  /// Node/Edge Attr iterator. Iterate through all node for one attr value.
+  /// Node/edge integer attribute iterator. Iterates through all nodes/edges for one integer attribute.
   class TAIntI {
   private:
     typedef TIntV::TIter TIntVecIter;
@@ -1617,13 +1617,13 @@ public:
     bool operator == (const TAIntI& I) const { return HI == I.HI; }
     /// Returns an attribute of the node.
     TInt GetDat() const { return HI[0]; }
-    /// Returns true if node or edge has been deleted.
+    /// Returns true if the attribute has been deleted.
     bool IsDeleted() const { return isNode ? GetDat() == Graph->GetIntAttrDefaultN(attr) : GetDat() == Graph->GetIntAttrDefaultE(attr); };
     TAIntI& operator++(int) { HI++; return *this; }
     friend class TNEANet;
   };
 
-  /// Node/Edge Attr iterator. Iterate through all node for one attr value.
+  /// Node/edge string attribute iterator. Iterates through all nodes/edges for one string attribute.
   class TAStrI {
   private:
     typedef TStrV::TIter TStrVecIter;
@@ -1640,13 +1640,13 @@ public:
     bool operator == (const TAStrI& I) const { return HI == I.HI; }
     /// Returns an attribute of the node.
     TStr GetDat() const { return HI[0]; }
-    /// Returns true if node or edge has been deleted.
+    /// Returns true if the attribute has been deleted.
     bool IsDeleted() const { return isNode ? GetDat() == Graph->GetStrAttrDefaultN(attr) : GetDat() == Graph->GetStrAttrDefaultE(attr); };
     TAStrI& operator++(int) { HI++; return *this; }
     friend class TNEANet;
   };
 
-  /// NodeEdge Attr iterator. Iterate through all node for one attr value.
+  /// Node/edge float attribute iterator. Iterates through all nodes/edges for one float attribute.
   class TAFltI {
   private:
     typedef TFltV::TIter TFltVecIter;
@@ -1663,7 +1663,7 @@ public:
     bool operator == (const TAFltI& I) const { return HI == I.HI; }
     /// Returns an attribute of the node.
     TFlt GetDat() const { return HI[0]; }
-    /// Returns true if node or edge has been deleted.
+    /// Returns true if the attribute has been deleted.
     bool IsDeleted() const { return isNode ? GetDat() == Graph->GetFltAttrDefaultN(attr) : GetDat() == Graph->GetFltAttrDefaultE(attr); };
     TAFltI& operator++(int) { HI++; return *this; }
     friend class TNEANet;
