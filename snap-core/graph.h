@@ -105,11 +105,11 @@ public:
     TEdgeI& operator++ (int) { do { CurEdge++; if (CurEdge >= CurNode.GetOutDeg()) { CurEdge=0; CurNode++; while (CurNode < EndNode && CurNode.GetOutDeg()==0) { CurNode++; } } } while (CurNode < EndNode && GetSrcNId()>GetDstNId()); return *this; }
     bool operator < (const TEdgeI& EdgeI) const { return CurNode<EdgeI.CurNode || (CurNode==EdgeI.CurNode && CurEdge<EdgeI.CurEdge); }
     bool operator == (const TEdgeI& EdgeI) const { return CurNode == EdgeI.CurNode && CurEdge == EdgeI.CurEdge; }
-    /// Gets edge ID. Always returns -1 since only edges in multigraphs have explicit IDs.
+    /// Returns edge ID. Always returns -1 since only edges in multigraphs have explicit IDs.
     int GetId() const { return -1; }
-    /// Gets the source of an edge. Since the graph is undirected this is the node with smaller ID of the edge endpoints.
+    /// Returns the source of the edge. Since the graph is undirected, this is the node with a smaller ID of the edge endpoints.
     int GetSrcNId() const { return CurNode.GetId(); }
-    /// Gets destination of an edge. Since the graph is undirected this is the node with greater ID of the edge endpoints.
+    /// Returns the destination of the edge. Since the graph is undirected, this is the node with a greater ID of the edge endpoints.
     int GetDstNId() const { return CurNode.GetOutNId(CurEdge); }
     friend class TUNGraph;
   };
@@ -295,11 +295,11 @@ public:
       while (CurNode < EndNode && CurNode.GetOutDeg()==0) { CurNode++; } }  return *this; }
     bool operator < (const TEdgeI& EdgeI) const { return CurNode<EdgeI.CurNode || (CurNode==EdgeI.CurNode && CurEdge<EdgeI.CurEdge); }
     bool operator == (const TEdgeI& EdgeI) const { return CurNode == EdgeI.CurNode && CurEdge == EdgeI.CurEdge; }
-    /// Gets edge ID. Always returns -1 since only edges in multigraphs have explicit IDs.
+    /// Returns edge ID. Always returns -1 since only edges in multigraphs have explicit IDs.
     int GetId() const { return -1; }
-    /// Gets the source node of an edge.
+    /// Returns the source node of the edge.
     int GetSrcNId() const { return CurNode.GetId(); }
-    /// Gets destination node of an edge.
+    /// Returns the destination node of the edge.
     int GetDstNId() const { return CurNode.GetOutNId(CurEdge); }
     friend class TNGraph;
   };

@@ -1575,11 +1575,11 @@ public:
     TEdgeI& operator++ (int) { EdgeHI++; return *this; }
     bool operator < (const TEdgeI& EdgeI) const { return EdgeHI < EdgeI.EdgeHI; }
     bool operator == (const TEdgeI& EdgeI) const { return EdgeHI == EdgeI.EdgeHI; }
-    /// Gets edge ID.
+    /// Returns edge ID.
     int GetId() const { return EdgeHI.GetDat().GetId(); }
-    /// Gets the source of an edge.
+    /// Returns the source of the edge.
     int GetSrcNId() const { return EdgeHI.GetDat().GetSrcNId(); }
-    /// Gets destination of an edge.
+    /// Returns the destination of the edge.
     int GetDstNId() const { return EdgeHI.GetDat().GetDstNId(); }
     /// Gets vector of attribute names.
     void GetAttrNames(TStrV& Names) const { Graph->AttrNameEI(GetId(), Names); }
