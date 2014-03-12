@@ -9,18 +9,24 @@ The following people also contributed to the development of SNAP
 (in alphabetical order).
 
 Justin Cheng
+Blaz Fortuna
 Florian Geigl
+Stephen Dean Guo
 Richard Hsu
+Mario Karlovcec
 Nikhil Khadke
 Myunghwan Kim
 Jason Jong
 Julian McAuley
+Morteza Milani
 Yonathan Perez
 Martin Raison
 Manuel Gomez Rodriguez
 Kenny Root
 Nicholas Shelly
 Rok Sosic
+Ming Han Teh
 Jaewon Yang
 Chenguang Zhu
+Ziga Zupanec
 
