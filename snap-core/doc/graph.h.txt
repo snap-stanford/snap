@@ -1,4 +1,4 @@
-/// Undirected_graph
+/// TUNGraph::Class
 Node IDs can be arbitrary non-negative integers. Nodes and edges have no attributes/data associated with them.
 There is at most one undirected edge between a pair of nodes.
 Self loops (one per node) are allowed but multiple (parallel) edges are not.
@@ -90,7 +90,7 @@ Graph:   3--0--4
 \endverbatim
 ///
 
-/// Directed_graph
+/// TNGraph::Class
 Node IDs can be arbitrary non-negative integers. Nodes and edges have no
 attributes/data associated with them.
 There is at most one directed edge from one source node to a destination
@@ -185,13 +185,19 @@ Edges:  0 -> 1, 1 -> 2, 0 -> 2, 1 -> 3, 3 -> 4, 2 -> 3
 \endverbatim
 ///
 
-/// Directed_multigraph
-Node IDs can be arbitrary non-negative integers. Nodes and edges have no
+/// TNEGraph::Class
+Node IDs can be arbitrary non-negative integers. Edges have IDs.
+Nodes and edges have no
 attributes/data associated with them.
 There can be more than one directed edge from one source node to a destination
 node.
-Self loops (one per node) are allowed as well as
-multiple (parallel) edges.
+Self loops (one per node) are allowed as well as multiple (parallel) edges.
+The directed multigraph data structure is implemented using sorted adjacency
+lists.
+This means adding a node takes constant time, while adding an edge takes
+linear time (since adjacency list is kept sorted) in the node degree.
+Accessing arbitrary node takes constant time and accessing any edge takes
+logarithmic time in the node degree.
 ///
 
 /// TNEGraph::TNodeI::GetInNId
@@ -243,6 +249,12 @@ memory.
 /// TNEGraph::IsOk
 For each node in the graph check that its neighbors are also nodes in the
 graph.
+///
+
+/// TNEGraph::GetSmallGraph
+\verbatim
+Edges:  0 -> 1, 0 -> 2, 0 -> 3, 0 -> 4, 1 -> 2, 1 -> 2
+\endverbatim
 ///
 
 /// Bipartite_graph

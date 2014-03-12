@@ -405,9 +405,7 @@ PNGraph TNGraph::GetSmallGraph() {
   PNGraph G = TNGraph::New();
   for (int i = 0; i < 5; i++) { G->AddNode(i); }
   G->AddEdge(0,1); G->AddEdge(1,2); G->AddEdge(0,2);
-  G->AddEdge(1,3);
-  G->AddEdge(3,4);
-  G->AddEdge(2,3);
+  G->AddEdge(1,3); G->AddEdge(3,4); G->AddEdge(2,3);
   return G;
 }
 
@@ -606,6 +604,16 @@ void TNEGraph::Dump(FILE *OutF) const {
     fprintf(OutF, "  %*d]  %*d  ->  %*d\n", EdgePlaces, EdgeI.GetId(), NodePlaces, EdgeI.GetSrcNId(), NodePlaces, EdgeI.GetDstNId());
   }
   fprintf(OutF, "\n");
+}
+
+// Return a small graph on 5 nodes and 6 edges.
+PNEGraph TNEGraph::GetSmallGraph() {
+  PNEGraph Graph = TNEGraph::New();
+  for (int i = 0; i < 5; i++) { Graph->AddNode(i); }
+  Graph->AddEdge(0,1);  Graph->AddEdge(0,2);
+  Graph->AddEdge(0,3);  Graph->AddEdge(0,4);
+  Graph->AddEdge(1,2);  Graph->AddEdge(1,2);
+  return Graph;
 }
 
 /////////////////////////////////////////////////
