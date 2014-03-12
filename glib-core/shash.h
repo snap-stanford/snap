@@ -1007,8 +1007,9 @@ public:
 // Set-Hash-Key-Iterator
 template <class TKey>
 class THashSetKeyI{
-private:
+public:
   typedef THashSetKey<TKey> TSetKey;
+private:
   TSetKey* KeyI;
   TSetKey* EndI;
 public:
@@ -1029,7 +1030,7 @@ public:
 
   const TKey& operator*() const { return KeyI->Key; }
   const TKey& operator()() const { return KeyI->Key; }
-  const TKey* operator->() const { return KeyI->Key; }
+  const TKey* operator->() const { return &KeyI->Key; }
 
   const TKey& GetKey() const {Assert((KeyI!=NULL)&&(KeyI->HashCd!=-1)); return KeyI->Key; }
 };
