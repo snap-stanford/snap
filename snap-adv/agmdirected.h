@@ -312,7 +312,9 @@ public:
     return ComG;
   }
 
-  void Dump2ModeCommunities(const TStr& OutFNm, const double MaxJac, const TIntStrH& NIDNameH =  THash<TInt, TStr>()) {
+  // RS:2014/03/11 default parameter values do not compile on OS X with g++-4.2
+  //void Dump2ModeCommunities(const TStr& OutFNm, const double MaxJac, const TIntStrH& NIDNameH =  THash<TInt, TStr>()) {
+  void Dump2ModeCommunities(const TStr& OutFNm, const double MaxJac, const TIntStrH& NIDNameH) {
     FILE* F = fopen(OutFNm.CStr(), "wt");
     for (int c = 0; c < InCmtyValHV.Len(); c++) {
       double Jacc = (double) InOutCmtyValHV[c].Len() / (double) (InCmtyValHV[c].Len() + OutCmtyValHV[c].Len() - InOutCmtyValHV[c].Len());
@@ -347,7 +349,10 @@ public:
     }
     fclose(F);
   }
-  void Draw2ModeCommunity(const int CID, const TStr& OutFNm, const TIntStrH& NIDNameH =  THash<TInt, TStr>(), const THash<TInt, TIntTr>& NIDColorH = THash<TInt, TIntTr>() ) {
+
+  // RS:2014/03/11 default parameter values do not compile on OS X with g++-4.2
+  //void Draw2ModeCommunity(const int CID, const TStr& OutFNm, const TIntStrH& NIDNameH =  THash<TInt, TStr>(), const THash<TInt, TIntTr>& NIDColorH = THash<TInt, TIntTr>() ) {
+  void Draw2ModeCommunity(const int CID, const TStr& OutFNm, const TIntStrH& NIDNameH, const THash<TInt, TIntTr>& NIDColorH) {
     TIntV CmtyVIn, CmtyVOut, CmtyVAll;
     InCmtyValHV[CID].GetKeyV(CmtyVIn);
     OutCmtyValHV[CID].GetKeyV(CmtyVOut);
