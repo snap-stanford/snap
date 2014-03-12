@@ -42,7 +42,6 @@ void TCesna::NeighborComInit(TFltIntPrV& NIdPhiV, const int InitComs) {
   F.Gen(G->GetNodes());
   SumFV.Gen(InitComs);
   NumComs = InitComs;
-  const int Edges = G->GetEdges();
   TIntSet InvalidNIDS(F.Len());
   TIntV ChosenNIDV(InitComs, 0); //FOR DEBUG
   //choose nodes with local minimum in conductance

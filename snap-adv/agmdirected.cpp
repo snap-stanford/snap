@@ -962,7 +962,7 @@ int TCoda::MLEGradAscent(const double& Thres, const int& MaxIter, const TStr Plo
 int TCoda::MLEGradAscentParallel(const double& Thres, const int& MaxIter, const int ChunkNum, const int ChunkSize, const TStr PlotNm, const double StepAlpha, const double StepBeta) {
   //parallel
   time_t InitTime = time(NULL);
-  uint64 StartTm = TSecTm::GetCurTm().GetAbsSecs();
+  //uint64 StartTm = TSecTm::GetCurTm().GetAbsSecs();
   TExeTm ExeTm, CheckTm;
   double PrevL = Likelihood(true);
   TIntFltPrV IterLV;
