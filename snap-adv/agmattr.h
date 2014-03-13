@@ -114,7 +114,8 @@ template<class PGraph>
       IAssertR(! NIDAttrH.GetDat(NID).IsIn(Ss.GetInt(1)), TStr::Fmt("NIdx:%d NID:%s, K:%d", NID.Val, NodeName.CStr(), Ss.GetInt(1)));
       NIDAttrH.GetDat(NID).Add(Ss.GetInt(1));
     }
-    printf("%d nodes, %d lines read \n",  NIDAttrH.Len(), Ss.GetLineNo());
+    printf("%s nodes, %s lines read \n",  TUInt64::GetStr(NIDAttrH.Len()).CStr(), TUInt64::GetStr(Ss.GetLineNo()).CStr());
+    //printf("%d nodes, %d lines read \n",  NIDAttrH.Len(), Ss.GetLineNo());
   }
   static void LoadNIDAttrHFromNIDKH(const TIntV& NIDV, const TStr& InFNm, THash<TInt, TIntV>& NIDAttrH) {
     TStrHash<TInt> TmpH;
@@ -248,9 +249,7 @@ private:
   TInt Attrs; // number of attributes
   TRnd Rnd; // random number generator
   TIntSet NIDToIdx; // original node ID vector NIDToIdx[i] = Node ID for index i, NIDToIdx.GetKey(NID) = index for NID
-  TFlt WeightAttr; // likelihood = log P(G|F) + WeightAttr * log P(X|F, W)
   TFlt RegCoef; //Regularization coefficient when we fit for P_c +: L1, -: L2
-  TFlt LassoCoef; // L1 regularization coefficient for W (MLE = argmax P(X|F, W) - LassoCoef * |W|)
   TFltV SumFV; // sum_u F_uc for each community c. Needed for efficient calculation
   TInt NumComs; // number of communities
   TVec<TIntSet> HOVIDSV; //NID pairs to hold out for cross validation
@@ -261,6 +260,8 @@ public:
   TFlt MinValW; // minimum value of W (for numerical reason)
   TFlt MaxValW; // maximum value of W (for numerical reason)
   TFlt NegWgt; // weight of negative example (a pair of nodes without an edge)
+  TFlt LassoCoef; // L1 regularization coefficient for W (MLE = argmax P(X|F, W) - LassoCoef * |W|)
+  TFlt WeightAttr; // likelihood = log P(G|F) + WeightAttr * log P(X|F, W)
   TFlt PNoCom; // base probability \varepsilon (edge probability between a pair of nodes sharing no community
   TBool DoParallel; // whether to use parallelism for computation
 
@@ -395,7 +396,6 @@ public:
     int HoldOutCnt = (int) ceil(HOFrac * G->GetNodes() * Attrs);
     TIntPrSet NIDKIDSet(HoldOutCnt);
     int Cnt = 0;
-    int PosCnt = 0;
     for (int h = 0; h < 10 * HoldOutCnt; h++) {
       int UID = Rnd.GetUniDevInt(F.Len());
       int KID = Rnd.GetUniDevInt(Attrs);

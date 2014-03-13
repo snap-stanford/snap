@@ -12,5 +12,5 @@ $(EXSNAP)/Snap.o:
 	make -C $(EXSNAP)
 
 clean:
-	rm -f *.o  $(MAIN)  $(MAIN).exe *.user
+	rm -f *.o  $(MAIN)  $(MAIN).exe
 	rm -rf Debug Release

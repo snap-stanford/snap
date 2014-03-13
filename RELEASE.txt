@@ -3,6 +3,44 @@ performance system for graph and network manipulation and analysis.
 
 This file contains a high-level description of changes in SNAP releases.
 
+Release 2.2, Mar 12, 2014
+
+- added CoDA, 2-mode community detection method, in examples/coda
+- added CESNA, community detection method for networks with node attributes,
+  in examples/cesna
+- added Infomap community detection algorithm in examples/community
+- added a second demo of connected components in tutorials/demo-cncom1.cpp
+- added a demo of text file parsing in tutorials/demo-TSsParser.cpp
+- added a function to plot multiple TMom hash tables on a single plot
+- extended TMom to compute the mode value of the data
+- added a PlotValV() function that plots error bars/variances
+- added SetVal() to TVec
+- added support for generating PNG on Mac OS X
+- improved Resize() to allocate maximum number of elements possible 
+- improved error handling of TZipIn for non-zip files
+- appended 'X' to the names of copy out scalar parameters in snap-core
+- added GetVal(), GetPrimHashCd() and GetSecHashCd() to TCnCom
+- replaced aborts with exceptions for Snap.py
+- updated Makefiles and code to compile on OS X Maverics
+- added g++ flags in Makefile
+- added compilation switches Snap.py, Snapworld, and backtraces in Makefile
+- added checks in accessing attributes in TNEANet
+- changed FailR to EFailR in TZipIn
+- fixed bug in TMom standard error computation
+- fixed an incorrect assertion in TBreathFS<PGraph>::GetRndPath()
+- fixed infinite loop in TNEANet::DelEdge()
+- fixed a problem in TNEANet::DelEdge()
+- fixed a problem in TNEANet::DelNode()
+- fixed TNEANet::Add{Int,Str,Flt}AttrDat[NE]() to use KeyId instead of NId
+- fixed a problem with a missing variable initialization in mag.cpp
+- fixed #26, change in endianness detection due to gcc compiler bug
+- fixed a bug in CntUniqBiDirEdges()
+- fixed small bugs in Cnt... functions in alg.h
+- fixed TMom plots
+- fixed incorrect index in glib-core/tm.h:GetMonthNm()
+- fixed incorrect index in TTm::GetCurLocTm().GetMonth()
+- made minor code changes to reduce compiler warnings
+
 Release 2.1, Sep 12, 2013
 
 - implemented a new network class TNEANet and PNEANet for graphs with

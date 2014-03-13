@@ -235,7 +235,7 @@ public:
     return abs(TmRtH.GetDat(NId1).Val1) < abs(TmRtH.GetDat(NId2).Val1) ? NId1 : NId2; }
 };
 
-/////////////////////////////////////////////////
+//#//////////////////////////////////////////////
 // Implementation
 namespace TSnap {
 
