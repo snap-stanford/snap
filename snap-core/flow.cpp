@@ -1,13 +1,6 @@
 namespace TSnap {
 
-// Bidirectional BFS for finding an augmenting path between the source and sink nodes
-// Returns the NId where the two directions of search meet up, or -1 if no augmenting path exists.
-// @param FwdNodeQ: Queue of NIds for the forward search from the source node
-// @param PredEdgeH: Hash from a NId to EId in the forward search. Indicates which edge was traversed to reach the node,
-//                   allowing for tracing the eventual path back to the source.
-// @param BwdNodeQ: Queue of NIds for the backward search from the sink node
-// @param SuccEdgeH: Hash from a NId to EId in the backward search. Indicates which edge was traversed to reach the node,
-//                   allowing for tracing the eventual path back to the sink.
+// Returns the NId where the two directions of search meet up, or -1 if no augmenting path exists. ##TSnap::IntFlowBiDBFS
 int IntFlowBiDBFS (const PNEANet &Net, const int& CapIndex, TIntV &Flow, TIntQ &FwdNodeQ, TIntH &PredEdgeH, TIntQ &BwdNodeQ, TIntH &SuccEdgeH, const int& SrcNId, const int& SnkNId) {
   FwdNodeQ.Push(SrcNId);
   PredEdgeH.AddDat(SrcNId, -1);
@@ -70,10 +63,7 @@ int IntFlowBiDBFS (const PNEANet &Net, const int& CapIndex, TIntV &Flow, TIntQ &
   return -1;
 }
 
-// Find the augmenting path. Calls bidirectional BFS to find the path, and then builds the two path vectors.
-// Returns the amount the flow can be augmented over the paths, 0 if no path can be found.
-// @param MidToSrcAugV: Contains the path vector from the midpoint node where the bi-d search met back to the source node
-// @param MidToSnkAugV: Contains the path vector from the midpoint node where the bi-d search met back to the sink node
+/// Returns the amount the flow can be augmented over the paths, 0 if no path can be found. ##TSnap::FindAugV
 int FindAugV (const PNEANet &Net, const int& CapIndex, TIntV &Flow, TIntQ &FwdNodeQ, TIntH &PredEdgeH, TIntQ &BwdNodeQ, TIntH &SuccEdgeH, TIntV &MidToSrcAugV, TIntV &MidToSnkAugV, const int& SrcNId, const int& SnkNId) {
   int MidPtNId = IntFlowBiDBFS(Net, CapIndex, Flow, FwdNodeQ, PredEdgeH, BwdNodeQ, SuccEdgeH, SrcNId, SnkNId);
   if (MidPtNId == -1) { return 0; }
@@ -108,8 +98,6 @@ int FindAugV (const PNEANet &Net, const int& CapIndex, TIntV &Flow, TIntQ &FwdNo
   return MinAug;
 }
 
-// Implementation of Edmonds-Karp Algorithm. Iterates, trying to find an augmenting path from source to sink.
-// If a path is found, augment the flow along that path. Flow is maximal when no such path can be found.
 int GetMaxFlowIntEK (PNEANet &Net, const int &SrcNId, const int &SnkNId) {
   IAssert(Net->IsNode(SrcNId));
   IAssert(Net->IsNode(SnkNId));
@@ -158,7 +146,8 @@ int GetMaxFlowIntEK (PNEANet &Net, const int &SrcNId, const int &SnkNId) {
   return MaxFlow;
 }
 
-
+//#///////////////////////////////////////////////
+/// Push relabel attr manager. ##PR_Manager
 class TPRManager {
 public:
   TPRManager(PNEANet &Net) : Net(Net), CapIndex(0), FlowV(Net->GetMxEId()), ExcessV(Net->GetMxNId()), EdgeNumsV(Net->GetMxNId()), LabelsV(Net->GetMxNId()), LabelCounts(Net->GetNodes() + 1), LabelLimit(0), MaxLabel(Net->GetNodes()), ActiveNodeSet(Net->GetMxNId()), ActiveCount(0) {
@@ -208,6 +197,7 @@ public:
     if (LabelCounts[OldLabel] == 0) { CheckGap (OldLabel); }
   }
 
+  /// Removes any gaps in node labels. ##TPRManager::CheckGap
   void CheckGap (int GapLabel) {
     for (TNEANet::TNodeI NI = Net->BegNI(); NI != Net->EndNI(); NI++) {
       int NId = NI.GetId();
@@ -230,7 +220,6 @@ public:
     return ActiveNodeSet[NId];
   }
 
-  // only call after HasActive is true
   int PopActive() {
     while (true) {
       IAssert (!ActiveNodeQ.Empty());
@@ -245,14 +234,12 @@ public:
     return -1;
   }
 
-  // only call after IsKey is false
   void PushActive(int NId) {
     ActiveNodeSet[NId] = 1;
     ActiveNodeQ.Push(NId);
     ActiveCount++;
   }
 
-  // only call after IsKey is true
   void RemoveActive(int NId) {
     ActiveNodeSet[NId] = 0;
     ActiveCount--;
@@ -278,6 +265,7 @@ private:
   int ActiveCount;
 };
 
+/// Pushes flow from a node \c NId to a neighbor \c OutNId over edge \c EId.
 void PushToOutNbr (TPRManager &PRM, const int &NId, const int &OutNId, const int &EId) {
   int MinPush = min(PRM.Capacity(EId) - PRM.Flow(EId), PRM.Excess(NId));
   PRM.Flow(EId) += MinPush;
@@ -285,6 +273,7 @@ void PushToOutNbr (TPRManager &PRM, const int &NId, const int &OutNId, const int
   PRM.Excess(OutNId) += MinPush;
 }
 
+/// Returns flow from a node \c NId to a neighbor \c InNId over edge \c EId.
 void PushToInNbr (TPRManager &PRM, const int &NId, const int &InNId, const int &EId) {
   int MinPush = min(PRM.Flow(EId), PRM.Excess(NId));
   PRM.Flow(EId) -= MinPush;
@@ -292,6 +281,7 @@ void PushToInNbr (TPRManager &PRM, const int &NId, const int &InNId, const int &
   PRM.Excess(InNId) += MinPush;
 }
 
+/// Increases the label of a node \c NId to allow valid pushes to some neighbor.
 void Relabel (TPRManager &PRM, const int &NId, const TNEANet::TNodeI &NI) {
   int MaxLabel = PRM.GetMaxLabel();
   int MinLabel = MaxLabel;
@@ -314,6 +304,7 @@ void Relabel (TPRManager &PRM, const int &NId, const TNEANet::TNodeI &NI) {
   }
 }
 
+/// Returns the ID of the neighbor that \c NId pushes to, -1 if no push was made.
 int PushRelabel (TPRManager &PRM, const int &NId, const TNEANet::TNodeI &NI) {
   int EdgeN = PRM.EdgeNum(NId);
   int EId = -1, NbrNId = -1, ResFlow = 0;
@@ -344,6 +335,7 @@ int PushRelabel (TPRManager &PRM, const int &NId, const TNEANet::TNodeI &NI) {
   return -1;
 }
 
+/// Implements the Global Relabeling heuristic. ##TSnap::GlobalRelabel
 void GlobalRelabel (PNEANet &Net, TPRManager &PRM, const int& SrcNId, const int& SnkNId) {
   TIntQ NodeQ;
   int size = Net->GetMxNId();

@@ -1,10 +1,29 @@
-How to run the flow test
+========================================================================
+    Flows: Single commodity maximal network flow
+========================================================================
 
-1. Make the flow example.
-1. Step into the examples/flows/ directory.
-2. Generate a random network file by running something like:
-   python net_gen.py 10000 1000000 1000 large.txt
-   This creates a text file called large.txt for a network with about
-     10000 nodes, 1000000 edges, and edge capacities between 0 and 1000
-3. Run the flows executable, specifying the input file you want
-   ./flows -i:large.txt
+This example shows how to compute the maximum network flow on a network
+using the functions provided in snap-core/flow.h. A binary file for a network
+with edge capacities must be supplied by the user. Each run of the example will
+choose a random source and sink node and run both the Edmonds-Karp algorithm 
+and Push-Relabel algorithm between the two nodes. Users may specify to run the
+example many times, and with multiple threads at once.
+
+The code works under Windows with Visual Studio or Cygwin with GCC,
+Mac OS X, Linux and other Unix variants with GCC. Make sure that a
+C++ compiler is installed on the system. Visual Studio project files
+and makefiles are provided. For makefiles, compile the code with
+"make all".
+
+/////////////////////////////////////////////////////////////////////////////
+Parameters:
+   -i:Input binary file for network (default:'')
+   -n:Number of runs per thread
+   -t:Number of threads to run
+
+/////////////////////////////////////////////////////////////////////////////
+Usage:
+
+Run the flow algorithms 200 times over 10 threads on the gplus network.
+
+flows -i:gplus -n:20 -t:10 
