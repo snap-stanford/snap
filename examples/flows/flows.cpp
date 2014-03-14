@@ -10,8 +10,8 @@ int BuildCapacityNetwork(const TStr& InFNm, PNEANet &Net, const int& SrcColId = 
   int MaxCap = 0;
   while (Ss.Next()) {
     if (! Ss.GetInt(SrcColId, SrcNId) || ! Ss.GetInt(DstColId, DstNId)) { continue; }
-    //Ss.GetInt(CapColId, CapVal);
-    CapVal = Random.GetUniDevInt(1, 10000);
+    Ss.GetInt(CapColId, CapVal);
+    //CapVal = Random.GetUniDevInt(1, 10000);
     MaxCap = max(CapVal, MaxCap);
     if (! Net->IsNode(SrcNId)) {
       Net->AddNode(SrcNId);
@@ -29,7 +29,7 @@ int BuildCapacityNetwork(const TStr& InFNm, PNEANet &Net, const int& SrcColId = 
 double getcputime() {
   struct rusage rusage;
   double result;
-  getrusage(RUSAGE_SELF, &rusage);
+  getrusage(RUSAGE_THREAD, &rusage);
   result =
     ((double) (rusage.ru_utime.tv_usec + rusage.ru_stime.tv_usec) / 1000000) +
     ((double) (rusage.ru_utime.tv_sec + rusage.ru_stime.tv_sec));
