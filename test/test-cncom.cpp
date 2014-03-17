@@ -101,7 +101,7 @@ TEST(CnComTest, UndirectedDisconnected) {
   double MxWccSz = GetMxWccSz(G);
   EXPECT_TRUE(MxWccSz > 0.86667 - EPSILON && MxWccSz < 0.86667 + EPSILON);
 
-  // Get graph with largest SCC
+  // Get graph with largest WCC
   PUNGraph GMx = GetMxWcc(G);
   EXPECT_TRUE(GMx->GetNodes() == 26);
   EXPECT_TRUE(GMx->GetEdges() == 27);
@@ -112,6 +112,9 @@ TEST(CnComTest, UndirectedDisconnected) {
   EXPECT_TRUE(SCnComV[0].Len() == 26);
   EXPECT_TRUE(SCnComV[1].Len() == 2);
   EXPECT_TRUE(SCnComV[2].Len() == 2);
+
+  double MxSccSz = GetMxSccSz(G);
+  EXPECT_TRUE(MxSccSz > 0.86667 - EPSILON && MxSccSz < 0.86667 + EPSILON);
 
   // Get largest bi-connected component
   PUNGraph GMxBi = GetMxBiCon(G);
@@ -231,7 +234,7 @@ TEST(CnComTest, DirectedDisconnected) {
   EXPECT_TRUE(WCnComV[1].Len() == 3);
   
   double MxWccSz = GetMxWccSz(G);
-  EXPECT_TRUE(MxWccSz > 0.90909 - EPSILON && MxWccSz < 0.90909 + EPSILON);
+  EXPECT_TRUE(MxWccSz > (0.90909 - EPSILON) && MxWccSz < (0.90909 + EPSILON));
   
   // Get graph with largest SCC
   PNGraph GMx = GetMxWcc(G);
@@ -241,8 +244,11 @@ TEST(CnComTest, DirectedDisconnected) {
   // Get strongly connected components
   TCnComV SCnComV;
   GetSccs(G, SCnComV);
-  EXPECT_TRUE(SCnComV[3].Len() == 4);
-  EXPECT_TRUE(SCnComV[27].Len() == 2);
+  EXPECT_TRUE(SCnComV[0].Len() == 4);
+  EXPECT_TRUE(SCnComV[1].Len() == 2);
+  
+  double MxSccSz = GetMxSccSz(G);
+  EXPECT_TRUE(MxSccSz > (0.12121 - EPSILON) && MxSccSz < (0.12121 + EPSILON));
   
   // Get largest bi-connected component
   PNGraph GMxBi = GetMxBiCon(G);
@@ -298,6 +304,4 @@ TEST(CnComTest, CompleteGraph) {
   TCnComV Cn1ComV;
   Get1CnCom(G, Cn1ComV);
   EXPECT_TRUE(Cn1ComV.Len() == 0);
-
-  
 }

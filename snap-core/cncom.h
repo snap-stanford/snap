@@ -395,6 +395,7 @@ void GetSccs(const PGraph& Graph, TCnComV& CnComV) {
   TSccVisitor<PGraph, false> Visitor(Graph);
   TCnCom::GetDfsVisitor(Graph, Visitor);
   CnComV = Visitor.CnComV;
+  CnComV.Sort(false);
 }
 
 template <class PGraph> 
@@ -410,12 +411,7 @@ double GetMxSccSz(const PGraph& Graph) {
   TCnComV CnComV;
   GetSccs(Graph, CnComV);
   if (Graph->GetNodes() == 0) { return 0; }
-  int MxSz = 0;
-  for (int i = 0; i < CnComV.Len(); i++) {
-    if (MxSz < CnComV[i].Len()) {
-      MxSz=CnComV[i].Len(); }
-  }
-  return MxSz / double(Graph->GetNodes());
+  else { return CnComV[0].Len() / double(Graph->GetNodes()); }
 }
   
 template <class PGraph>
