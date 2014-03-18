@@ -1,0 +1,482 @@
+﻿#Last,First,Title
+#
+Abler,W illiam,Director Orig W holesale
+Abramo,Caroline,Dir Trading	
+Acevedo,Rodolfo,Spec Sr Trading Supt
+Agarwalla,Dipak,Mgr Trading	
+Aggarwal,Anubhav,Associate - Rotation 1
+Allen,Phillip,Mng Dir Trading
+Alonso,Thomas,Dir Trading	
+Alport,Kysa,Staff Trading Supt
+Ames,Charles,Trading Analyst- Rotation 2
+Anderson,John,Spec Trading Supt
+Anderson,Robert,Spec Sr Trading Supt
+Arnold,John,VP Trading	
+Arora,Harpreet,VP Trading	
+Aucoin,Berney,Dir Structuring
+Aune,Stacey,Mgr Acctg	
+Badeer,Robert,Dir Trading	
+Bailey,Debra,Dir Comm Trading Supt
+Bailey,Susan,Spec SR Legal	
+Bajwa,Bilal,Trading Analyst- Rotation 3
+Bakondy,Robert,Dir Research Origination
+Ballard,Phillip,Director Orig W holesale
+Ballato,Russell,Trading Analyst- Rotation 1
+Barbe,Robin,Mgr Trading	
+Bates,Kimberly,Asst Admin II
+Baughman,Edward,VP Trading	
+Baughman Jr,Don,Mgr Trading	
+Belden,Timothy,Mng Dir Trading
+Benke,Terrell,Associate - Rotation 1
+Benson,Robert,Dir Trading	
+Bentley,Corry,Mgr Trading Supt
+Bishop,Serena,Analyst - Rotation 1
+Black,Tamara,Asst Sr Admin	
+Black,Troy,Mgr Trading	
+Blaine,Jay,Spec SR Trading
+Blaine,Michelle,Counsel SR III
+Blair,Christopher,Staff Trading Supt
+Boyt,Eric,Mgr Orig W holesale
+Braddock,Edward,Mgr Trading	
+Brawner,Sandra,Dir Trading	
+Breese,Mark,Director Orig W holesale
+Breslau,Craig,VP Trading	
+Brodbeck,Kelly,Dir Asset Dev Supt
+Broderick,Paul,Mgr Trading	
+Bronstein,Mara,Analyst - Rotation 1
+Broussard,Richard,Mgr Trading Supt
+Browner,Victor,Mgr Orig W holesale
+Bruce,James,Analyst - Rotation 2
+Bryan,Gary,Dir Trading	
+Bryson,Jesse,Spec Trading Supt
+Buerkle,James,Mgr Orig W holesale
+Burnett,Lisa,Spec Sr Trading Supt
+Bushman,Teresa,Counsel SR
+Buss,Jeremy,Associate - Rotation 3
+Calger,Christopher,Mng Dir Orig W holesale
+Calvert,Gray,Associate - Rotation 4
+Campbell,Larry,Spec Sr Trading Supt
+Capasso,Joseph,Spec SR Comm Supt
+Carnahan,Kathleen,Spec SR Legal	
+Carroll,Alexis,Sr Analyst - Rotation 1
+Carson,Michael,Mgr Trading	
+Cavanaugh,Darren,Analyst - Rotation 1
+Chaney,Craig,Dir Trading Supt
+Chen,Andrew,Associate - Rotation 2
+Chilkina,Elena,Associate - Rotation 1
+Choate,Jason,Spec Sr Trading Supt
+Choi,Paul,Dir Trading	
+Chu-Yang-Heu,Mog,Trading Analyst- Rotation 2
+Clark,Hall,Counsel SR
+Clifford,Douglas,VP Orig W holesale
+Cline,Kevin,Spec Sr Trading Supt
+Clynes,Terri,Dir Trading	
+Cocke,Jr,Stanley,Spec Trading Supt
+Collins,Dustin,Associate - Rotation 2
+Comeaux,Richard,Mgr Trading Supt
+Compean,Karla,Sr Analyst - Rotation 1
+Cook,Diane,Mgr Orig W holesale
+Cook,Mary,Counsel SR
+Cooper,Clarissa,Associate - Rotation 2
+Cooper,Tracy,Spec Legal
+Corbet,Nancy,Counsel SR
+Coulter,Edwin,Mgr Trading Supt
+Crandall,Sean,Dir Trading	
+Cross,Edith,Dir Structuring
+Cruver,Brian,Mgr Trans Supt	
+Cuilla,Martin,Mgr Trading	
+Culotta,Lindsay,Analyst - Rotation 1
+Curlee,Steven,Mgr Structuring
+Curry,Michael,Director Orig W holesale
+Cutsforth,Diane,Staff Trading Supt
+Dalton III,Oscar,Director Orig W holesale
+Daniels,Edmund,Counsel SR
+Danielson,David,Director Orig W holesale
+Davis,Angela,Counsel SR
+Davis Jr,Mark,VP Trading
+Day,Amanda,Associate - Rotation 2
+Day,Smith,Mgr Trading Supt
+Dean,Clint,Mgr Trading	
+Dean,Craig,Spec Trading Supt
+Deane,Ryan,Analyst - Rotation 2
+Decook,Todd,Spec Sr Trading Supt
+Detiveaux,Kim,Dir Trading Supt
+Diamond,Russell,Associate - Rotation 1
+Dicarlo,Louis,Mgr Structuring
+Dickerson,Lloyd,Associate - Rotation 1
+Dickson-Granmaye,Shtacy,Counsel SR	
+Dillard,Barbara,Mgr Orig W holesale
+Donohoe,Thomas,Mgr Trading	
+Donovan,Terry,Director Orig W holesale
+Dorland,Christopher,Mgr Trading	
+Driscoll,Michael,Sr Analyst - Rotation 1
+Duran,W illiam,Mng Dir Orig W holesale
+Dutta,Goutam,Mgr Trading	
+Dyer,Douglas,Director Orig W holesale
+Elafandi,Mohamed,Associate - Rotation 1
+Emmert,Caroline,Spec Trading Supt
+Emmons,Suzette,Associate - Rotation 2
+Eriksson,Fredrik,Analyst - Rotation 1
+Ermis,Frank,Dir Trading	
+Errigo,Joseph,Spec Sr Trading Supt
+Erwin,Kenton,Gen Counsel Asst
+Etringer,Michael,Director Orig W holesale
+Eubank,Marshall,Director Orig W holesale
+Fairley,David,Director Orig W holesale
+Farmer,Jerry,Mgr Trading	
+Fascetti,Louis,Mgr Trading	
+Feitler,Eric,Associate - Rotation 2
+Ferries,Nelson,Dir Trading	
+Figueroa,Christopher,Associate - Rotation 2
+Fillinger,Mark,Dir Trans Supt	
+Fischer,Mark,Dir Trading	
+Fitzwater,Loftus,Associate - Rotation 2
+Forney,John,Dir Trading	
+Foster,Christopher,VP Trading	
+Frank,Matthew,Associate - Rotation 2
+Fraser,Bridget,VP Trading	
+Freeland,Cara,Spec Sr Trading Supt
+Freije,W illiam,Analyst - Rotation 1
+Frihart,Bryant,Mgr Orig W holesale
+Fuller,David,Mgr Orig W holesale
+Gang,Lisa,Spec Sr Trading Supt
+Garcia,Miguel,Spec Sr Trading Supt
+Garcia,Santiago,Associate - Rotation 2
+Garg,Alok,Mgr Origination
+Gaskill,Christopher,Dir Trading	
+Gay,Randall,Associate - Rotation 1
+George,Robert,Gen Counsel Asst
+Germany,Chris,Mgr Trading	
+Gilbert,George,Dir Trading	
+Gilbert,Gerald,Spec SR Logistics
+Gilbert,James,Director Orig W holesale
+Gilbert,Michael,Dir Logistics	
+Gilbert-Smith,Douglas,Dir Trading	
+Gim,Steven,Trading Associate- Rotation 2
+Gimble,Mathew,Mgr Orig W holesale
+Giron,Gustavo,Trading Associate- Rotation 1 
+Gomez,Julie,VP Orig W holesale
+Goodell,Scott,Spec Sr Trading Supt
+Gordon II,John,Associate - Rotation 2
+Gray,Barbara,VP & Gen Cnsl	
+Greenberg,Mark,Counsel SR	
+Greer,Andrew,Spec Trading Supt
+Gregorcyk,Vicky,Dir Comm Trading Supt
+Griffith,John,Mgr Trading	
+Grigsby,Michael,VP Trading	
+Grube,Raimund,Mgr Orig W holesale
+Gualy,Jaime,Associate - Rotation 2
+Guerriero,Michael,VP Trading & Orig
+Guillaume,David,Associate - Rotation 2
+Gulmeden,Utku,Analyst - Rotation 2
+Gupta,Gautam,Mgr Trading	
+Guzman,Mark,Spec Trading Supt
+Ha,Amie,Analyst - Rotation 2
+Ha,Vicky,Mgr Trans Supt	
+Haase,Brenda,Mgr Comm Trading Supt
+Haggerty,John,Dir Trading	
+Hall,Stephen,Counsel SR	
+Hamlin,Mason,Analyst - Rotation 2
+Hanse,Patrick,Spec Sr Trading Supt
+Harasin,Leaf,Spec Trading Supt
+Harkness,Cynthia,Counsel Sr	
+Harris,Bruce,Dir Trading	
+Harrison,Tyrell,Sr Analyst - Rotation 1
+Heard,Marie,Spec SR Legal	
+Hearn III,Edward,Spec SR Legal	
+Heinitz,Mary,Spec SR Legal	
+Heintzelman,Peter,Mgr Orig W holesale
+Heizenrader,Timothy,Dir Trading	
+Helfrich,Christopher,Mgr Trading	
+Hemani,Sanjay,Associate - Rotation 1
+Henderson,Tosha,Director Orig W holesale
+Hendrickson,Scott,Dir Trading	
+Hendry,Brent,Counsel SR	
+Henry,Joseph,Counsel SR	
+Hernandez,Juan,Mgr Trading	
+Hernandez Veiga,Alejandro,Sr Analyst - Rotation 1
+Herndon,Rogers,VP Trading	
+Herrmann,Karen,Analyst - Rotation 2
+Hicks,Michelle,Counsel Sr	
+Hodge,Jeffrey,VP & Asst Gen Cnsl
+Hodge,John,Director Orig W holesale
+Hodges,Georganne,Vice President Accounting
+Holst,Keith,Dir Trading	
+Homco,James,Mgr Trading	
+Hrach,April,Coord Admin	
+Huan,Xiaoj un,Trading Associate- Rotation 1
+Huang,Jason,Trading Analyst- Rotation 1
+Imai,Rika,Mgr Trading Supt
+Irani,Eric,Analyst - Rotation 1
+Jacoby,Ben,Director Orig W holesale
+Jafry,Rahil,Director Orig W holesale
+Jester,Larry,Spec Sr Trading Supt
+John,Saj i,Mgr Trading	
+Jones,David,Director Orig W holesale
+Jones,Karen,Gen Counsel Asst
+Jones,Oliver,Mgr Structuring
+Jones,Tana,Spec SR Legal	
+Keavey,Peter,Mgr Trading	
+Keel,Allan,VP Orig W holesale
+Keenan,Jeffrey,Mgr Orig W holesale
+Keeney,W illiam,Mgr Orig W holesale
+Kelly,Michael,Associate - Rotation 2
+Kendall,Matthew,Analyst - Rotation 2
+King,Jeff,Mgr Trading	
+King,Joshua,Mgr Orig W holesale
+Kinneman,Jeffrey,VP Trading	
+Kinser,John,Spec Sr Trading Supt
+Koehler,Anne,Counsel SR	
+Koepke,Gwyn,Mgr Research	
+Krause,Gregory,Director Orig W holesale
+Krimsky,Steven,Director Orig W holesale
+Kroll,Heather,Director Orig W holesale
+Kuykendall,Tori,Mgr Trading	
+Lagrasta,Fred,VP Trading	
+Larkworthy,Carrie,Trading Analyst- Rotation 1
+Laurent,Mark,Spec Sr Trading Supt
+Laverell,Justin,Spec Trading Supt
+Lavorato,John,President & CEO
+Lee,Eugene,Spec Sr Trading Supt
+Lenartowicz,Christopher,Mgr Trading Supt
+Lenci-Gonzalez,Enrique,Associate - Rotation 2
+Lenhart,Matthew,Sr Analyst - Rotation 1
+Letzerich,W illiam,Mgr Orig W holesale
+Lewis,Andrew,Dir Trading	
+Lieskovsky,Jozef,Trading Associate- Rotation 1
+Linder,Eric,Spec Trading Supt
+Little,Kelli,Associate - Rotation 2
+Llodra,John,Dir Trading	
+Lorenz,Matthew,Mgr Trading	
+Lotz,Gretchen,Spec Sr Trading Supt
+Lucci,Paul,Director Orig W holesale
+Luce,Laura,VP Orig W holesale
+Luong,Steven,Associate - Rotation 1
+Mack,Iris,Mgr Trading	
+Maggi,Michael,Dir Trading	
+Mainzer,Elliot,Mgr Structuring
+Makkai,Peter,Sr Analyst - Rotation 1
+Mallory,Patrick,Sr Analyst - Rotation 1
+Malowney,John,Dir Trading	
+Mann,Cynthia,Counsel SR	
+Marks,David,Director Orig W holesale
+Martinez,Jennifer,Mgr Orig W holesale
+Maskell,David,Associate - Rotation 3
+May,Lawrence,Dir Trading	
+May,Thomas,Mgr Trading	
+McCarrel,Steven,Gen Counsel Asst
+McCracken,Gregory,Mgr Orig W holesale
+McCullough,Travis,VP & Asst Gen Cnsl
+McDonald,Michael,VP Orig W holesale
+McElreath,Alexander,Spec SR Comm Supt
+McKay,Bradley,Dir Trading	
+McKay,Jonathan,Dir Trading	
+McMichael Jr,Albert,VP Orig W holesale
+Mellencamp,Lisa,Counsel SR	
+Merriss,Steven,Spec Trading Supt
+Merten,Eric,Attorney
+Meyers,Albert,Spec Trading Supt
+Meyn,Jim,Dir Structuring
+Mier,Michael,Spec Trading Supt
+Miller,Jeffrey,Mgr Trading Supt
+Miller,Stephanie,Director Orig W holesale
+Mims-Thurston,Patrice,Dir Trading	
+Misra,Narsimha,Mgr Trading	
+Mitro,Fred,Director Orig W holesale
+Mixon,Mark,Spec Sr Trans Supt
+Moon,Eric,Mgr Structuring
+Moore,Castlen,Analyst - Rotation 1
+Moore,John,Director Orig W holesale
+Morse,Bradford,Mgr Trading	
+Motley,Matthew,Dir Trading	
+Mrha,Jean,VP Orig W holesale
+Muhl,Gil,VP Orig W holesale
+Mumm,Chris,Associate - Rotation 1
+Munoz,Victor,Mgr Orig W holesale
+Murphy,Harlan,Gen Counsel Asst
+Murrell,Russell,Mgr Orig W holesale
+Neal,Scott,VP Trading	
+Nelson,Cheryl,Counsel SR	
+Nelson,Kourtney,Analyst - Rotation 2
+Nemec,Gerald,Attorney
+Nettelton,John,Counsel SR	
+O'Neil,Murray,Dir Sr Trading Supt
+Ogden,Mary,Spec Legal	
+Oh,Jeffrey,Analyst - Rotation 2
+Oh,Seung-Taek,Trading Associate- Rotation 1 
+Olinde,Jr.,Donald,Mgr Trading Supt
+Ortiz,Luz Maria,Spec Trading Supt
+Otis,Brian,Mgr Orig W holesale
+Otto,Charles,Dir Trading	
+Pace,Andrew,Spec Trading Supt
+Padron,Juan,Trading Analyst- Rotation 1
+Page,Jonalan,Director Orig W holesale
+Paipanandiker,Chetan,Analyst - Rotation 2
+Panus,Stephanie,Spec SR Legal	
+Parks,Michelle,VP Generation Services
+Parks,Jr.,Joseph,Mgr Trading	
+Parquet,David,VP Orig W holesale
+Patel,Sheetal,Sr Analyst - Rotation 1
+Pehlivanova,Biliana,Trading Analyst- Rotation 1
+Penman,Gregg,Director Orig W holesale
+Pennington,Lani,Spec Trading Supt
+Pereira,Susan,Mgr Trading	
+Perlingiere,Debra,Spec Legal	
+Perry,Todd,Mgr Structuring
+Philip,W illis,Trading Associate- Rotation 1 
+Philippov,Maxim,Associate - Rotation 1
+Piazze,Tara,Analyst - Rotation 2
+Pierce,Joseph,Dir Acctg
+Pimenov,Vladi,Trading Associate- Rotation 2
+Pinto-leite,Francisco,Counsel SR
+Pizzolato,Paul,Dir Trading	
+Plachy,Denver,Trading Analyst- Rotation 1
+Platter,M,Spec Sr Trading Supt
+Podurgiel,Laura,Spec Sr Trading Supt
+Politis,Nick,Mgr Orig W holesale
+Pollan,Sylvia,Dir Trading	
+Polsky,Philip,Associate - Rotation 2
+Poppa,John,Spec Sr Trading Supt
+Porter,David,Spec Sr Trading Supt
+Portz,David,Counsel SR
+Presto,Darin,Spec Trading Supt
+Presto,Kevin,VP Trading
+Purcell,Mike,Staff Trading Supt
+Quenet,Joseph,Mgr Trading	
+Qureishi,Ibrahim,Sr Analyst - Rotation 1
+Radous,Kevin,Spec Sr Trans Supt
+Rainer,Eva,Mgr Orig W holesale
+Raque,Michele,Analyst - Rotation 1
+Rasmussen,Dale,Counsel SR
+Ratliff,Philip,Analyst - Rotation 2
+Rawal,Punit,Trading Associate- Rotation 1
+Rawson,Lester,Spec Sr Trading Supt
+Reitmeyer,James,Associate - Rotation 1
+Reves,Kelly,Spec Sr Trading Supt
+Reyes,James,Spec Sr Trading Supt
+Richter,Jeffrey,Dir Trading	
+Ring,Andrea,Dir Trading	
+Roberts,Linda,Director Orig W holesale
+Robinson,Donald,Spec Trading Supt
+Robinson,Mitchell,Dir Trading	
+Rodrigue,Robin,Sr Analyst - Rotation 1
+Rogers,Benjamin,Associate - Rotation 2
+Rorschach,Reagan,Associate - Rotation 2
+Rosenberg,David,Dir Trading	
+Rosman,Stewart,Dir Trading	
+Rossi,Roberta,Counsel Sr
+Runswick,Stacy,Staff Trading Supt
+Ruscitti,Kevin,Mgr Trading	
+Rust,W illiam,Mgr Trading	
+Ryan,David,Mgr Trading Supt
+Saibi,Eric,Sr Analyst - Rotation 1
+Salisbury,Holden,Analyst - Rotation 1
+Sanchez,Monique,Associate - Rotation 1
+Santucci,Anna,Spec Sr Trading Supt
+Sarnowski,Julie,Spec Trading Supt
+Savvas,Leonidas,Trading Analyst- Rotation 1
+Sayre,Charles,VP & Asst Gen Cnsl
+Scheuer,Janelle,Dir Trading	
+Schiavone,Paul,Trading Associate- Rotation 1
+Schneider,Bryce,Trading Associate- Rotation 1
+Scholtes,Diana,Dir Trading	
+Schuler,W,VP & Asst Gen Cnsl
+Scott,Susan,Analyst - Rotation 2
+Seely,Charles,Associate - Rotation 2
+Seigle,Clayton,Mgr Competitive Analysis
+Sell,Maximilian,Analyst - Rotation 1
+Serio,Erik,Mgr Trading Supt
+Sewell,Robert,Mgr Trading	
+Shackleton,Sara,Gen Counsel Asst
+Sheidun,Donna,Spec Trading Supt
+Shields,Jeffrey,Director Orig W holesale
+Shipos,Jennifer,Mgr Trading	
+Shively,Hunter,VP Trading
+Simpson,James,Mgr Orig W holesale
+Singer,John,Mgr Trading	
+Slaughter,Elizabeth,Mgr Trading Supt
+Slaughter,Jeffton,Director Orig W holesale
+Slinger,Ryan,Spec Trading Supt
+Smith,Mark,Mgr Trading	
+Smith,Mathew,Trading Associate- Rotation 2
+Smith,Shauywn,Associate - Rotation 1
+Solberg,Geir,Analyst - Rotation 2
+Sole iii,Carlos,Counsel SR
+South,Steven,Dir Trading	
+Stalford,Robert,Mgr Trading	
+Starnes,Chad,Spec Sr Trading Supt
+Stepenovitch,Joseph,Spec Sr Trading Supt
+Stephan,Nicholas,Associate - Rotation 2
+Stokley,Marlin,Associate - Rotation 2
+Storey,Geoffrey,Dir Trading	
+Sturm,Fletcher,VP Trading
+Sudduth,Julia,Associate - Rotation 1
+Swain,Stephen,Mgr Trading	
+Swerzbin,Michael,VP Trading
+Symes,Mary,Staff Trading Supt
+Tapscott,Ron,Director Orig W holesale
+Taylor,John,Mgr Trading	
+Taylor,Mark,VP & Gen Cnsl	
+Tholt,Jane,Dir Trading	
+Thomas,Jacob,VP Orig W holesale
+Thomas,Paul D.,Associate - Rotation 1
+Thome,Stephen,Mgr Orig W holesale
+Thompkins,Jason,Analyst - Rotation 3
+Thompson,C,VP Orig W holesale
+Thompson,Virginia,Staff Trading Supt
+Thorne,Judith,Mgr Mkt Intelligence
+Tian,Yuan,Associate - Rotation 3
+Titus,Matthew,Spec Sr Global Energy Svcs
+Tomaski,Richard,Director Orig W holesale
+Townsend,Judith,Mgr Trading	
+Trefz,Gregory,Spec Sr Trading Supt
+Trejo,Mauricio,Analyst - Rotation 1
+Tucker,Patrick,Dir Origination	
+Tweed,Sheila,VP & Asst Gen Cnsl
+Tycholiz,Barry,VP Orig W holesale
+Valderrama,Larry,Mgr Trading	
+Valdes,Maria,Spec Sr Trading Supt
+Van Gelder,John,Mgr Orig W holesale
+Van Hooser,Stephen,Gen Counsel Asst
+Van Houten,Maria,Spec Sr Trading Supt
+Vasquez,Miguel,Mgr Orig W holesale
+Vernon,Clayton,Mgr Trading Supt
+Versen,Victoria,Associate - Rotation 1
+Vetters,Charles,Director Orig W holesale
+Vickers,Frank,VP Orig W holesale
+Wagner,Joseph,Trading Associate- Rotation 2
+Wang,Steve,Mgr Orig W holesale
+Ward,Charles,Director Orig W holesale
+Ward,Kimberly,Mgr Orig W holesale
+Wente,Laura,Mgr Orig W holesale
+W heeler,Raymond,Associate - Rotation 2
+W hitaker,Fredrick,Director Orig W holesale
+W hitt,Mark,VP Orig W holesale
+W iggs,Brett,VP Bus Dev Orig	
+W ill,Lloyd,Dir Trading	
+W illiams,W illiam J,Analyst - Rotation 1
+W illis,Cory,Analyst - Rotation 2
+W illis,James,Associate - Rotation 1
+W ilson,Susan,Spec Trading Supt
+Wolfe,Gregory,VP Trading
+Wolfe,Stephen,Spec Sr Acctg	
+Wong,Michael D,Associate - Rotation 2
+Wood,George,Mgr Trading	
+Woodland,Andrea,Mgr Trans Supt	
+W right,Alice,Asst Sr Admin	
+Yawapongsiri,Virawan,Trading Associate- Rotation 4
+Yoder,Christian,Counsel SR
+Zipper,Andrew,VP Trading
+Zisman,Stuart,Gen Counsel Asst
+Zivic,Robyn,Mgr Trading	
+Zivley,Jill,Dir Trading	
+Sullivan-Shaklovitz,Colleen,Mng Dir Trading	
+Verity,Jacqueline,Spec Sr HR
+Hansen,Leslie,Counsel SR
+Moore,Janet,Counsel SR
+Carranza,Octavio,Contractor
+Postel,Adolph,Contractor
+Ragnetti,Sandra,Contractor
+Smith,Maureen,Dir Trading	
+Sager,Elizabeth,VP & Asst Gen Cnsl
+St. Clair,Carol,Gen Counsel Asst,

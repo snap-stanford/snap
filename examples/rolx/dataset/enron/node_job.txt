@@ -1,0 +1,524 @@
+12,spec trading supt
+13,associate - rotation 1
+14,spec trading supt
+15,spec trading supt
+18,spec sr trading supt
+19,spec trading supt
+20,analyst - rotation 2
+28,mgr trading supt
+34,mng dir orig w holesale
+48,spec sr trading supt
+53,dir trading
+54,dir trading
+55,dir trading
+56,dir trading
+59,dir trading
+63,mgr structuring
+79,spec trading supt
+91,sr analyst - rotation 1
+92,analyst - rotation 1
+115,sr analyst - rotation 1
+117,analyst - rotation 1
+119,analyst - rotation 1
+123,associate - rotation 1
+125,analyst - rotation 2
+129,stanley
+131,spec sr trading supt
+134,spec trading supt
+145,dir trading
+146,mgr structuring
+150,spec sr trading supt
+152,spec trading supt
+153,director orig w holesale
+154,vp & asst gen cnsl
+155,vp & asst gen cnsl
+159,vp orig w holesale
+160,vp orig w holesale
+219,spec trading supt
+220,spec trading supt
+221,mgr orig w holesale
+224,dir comm trading supt
+226,mgr trading
+230,mgr trading supt
+239,spec sr trading supt
+249,spec sr trading supt
+255,counsel sr
+257,mgr trading supt
+272,spec sr trading supt
+276,spec sr trading supt
+280,spec sr legal
+284,vp & asst gen cnsl
+288,spec sr legal
+292,spec sr trading supt
+294,counsel sr
+309,sr analyst - rotation 1
+314,mgr trading supt
+323,trading associate- rotation 1
+324,trading analyst- rotation 1
+329,counsel sr
+338,trading associate- rotation 1
+413,dir trading
+414,mgr trading
+465,mgr trading
+472,mgr acctg
+477,dir trading
+494,spec sr trading supt
+497,dir structuring
+504,director orig w holesale
+516,dir trading
+520,trading associate- rotation 1
+521,spec sr trading supt
+538,mgr trading supt
+548,mgr trading
+553,trading associate- rotation 1
+567,dir structuring
+578,trading analyst- rotation 1
+581,trading associate- rotation 2
+583,trading analyst- rotation 1
+584,vp trading
+588,associate - rotation 2
+591,sr analyst - rotation 1
+592,trading associate- rotation 1
+601,vp trading
+607,associate - rotation 1
+609,dir origination
+610,mgr trading
+614,mgr orig w holesale
+622,spec sr acctg
+623,trading associate- rotation 4
+629,mng dir trading
+650,asst sr admin
+652,dir trading
+654,vp trading
+673,dir trading
+675,associate - rotation 1
+677,dir trading
+687,dir trading
+701,president & ceo
+703,sr analyst - rotation 1
+712,dir trading
+717,director orig w holesale
+724,vp trading
+729,dir trading
+739,dir trading
+745,mgr trading
+747,vp trading
+752,trading associate- rotation 2
+753,dir trading
+758,mgr trading
+761,dir trading
+765,vp orig w holesale
+770,vp orig w holesale
+789,spec sr trading supt
+795,mgr trading
+818,director orig w holesale
+986,spec trading supt
+993,spec trading supt
+1019,counsel sr
+1043,vp trading
+1048,dir trading
+1073,spec sr trading supt
+1081,spec sr trans supt
+1090,gen counsel asst
+1091,gen counsel asst
+1092,vp & asst gen cnsl
+1095,spec sr trading supt
+1100,associate - rotation 1
+1103,vp trading
+1105,mgr trading
+1106,counsel sr
+1111,spec sr trading supt
+1112,dir trading
+1114,director orig w holesale
+1115,mgr trading
+1116,spec sr trading supt
+1117,director orig w holesale
+1118,spec sr logistics
+1120,mgr trading
+1121,spec sr trading supt
+1122,associate - rotation 2
+1124,spec trading supt
+1125,mgr trading supt
+1127,mgr trading
+1128,donald
+1133,mgr trading supt
+1135,spec sr trading supt
+1136,dir trading
+1137,mgr trading supt
+1139,mgr trading
+1140,spec sr trading supt
+1145,associate - rotation 2
+1146,trading analyst- rotation 1
+1147,mgr trading supt
+1148,mgr trading
+1150,mgr trading supt
+1228,dir trans supt
+1229,vp orig w holesale
+1280,spec sr trading supt
+1283,vp orig w holesale
+1399,mgr orig w holesale
+1459,mgr orig w holesale
+1537,analyst - rotation 2
+1538,analyst - rotation 2
+1546,mgr trading supt
+1954,analyst - rotation 1
+1989,associate - rotation 1
+1993,spec sr trading
+1995,spec sr comm supt
+1996,associate - rotation 2
+1998,spec trading supt
+1999,associate - rotation 2
+2000,analyst - rotation 2
+2001,analyst - rotation 2
+2004,trading analyst- rotation 1
+2006,mgr trading
+2008,associate - rotation 3
+2009,spec sr comm supt
+2011,spec sr trading supt
+2012,spec sr trading supt
+2013,trading associate- rotation 1
+2040,mgr orig w holesale
+2046,associate - rotation 1
+2060,mgr orig w holesale
+2063,dir structuring
+2065,director orig w holesale
+2075,mgr research
+2154,mgr trading
+2184,counsel sr
+2185,counsel sr
+2260,mgr orig w holesale
+2278,vp generation services
+2293,trading associate- rotation 2
+2346,mgr orig w holesale
+2347,dir trading
+2348,sr analyst - rotation 1
+2362,dir trading
+2365,counsel sr
+2378,sr analyst - rotation 1
+2386,director orig w holesale
+2387,analyst - rotation 2
+2390,counsel sr
+2465,dir asset dev supt
+2466,mgr orig w holesale
+2468,analyst - rotation 2
+2469,mgr trans supt
+2470,sr analyst - rotation 1
+2496,trading analyst- rotation 3
+2497,mgr trading
+2501,asst admin ii
+2505,analyst - rotation 1
+2513,associate - rotation 1
+2515,mgr trading
+2516,associate - rotation 2
+2519,associate - rotation 1
+2522,associate - rotation 2
+2524,dir trading
+2530,mgr trading
+2534,associate - rotation 1
+2537,director orig w holesale
+2540,trading analyst- rotation 1
+2544,analyst - rotation 1
+2547,director orig w holesale
+2548,mgr trading
+2553,mgr trading
+2557,associate - rotation 1
+2560,mgr orig w holesale
+2567,analyst - rotation 1
+2569,mgr orig w holesale
+2578,mgr trading
+2580,mgr orig w holesale
+2583,analyst - rotation 1
+2585,director orig w holesale
+2587,mgr trading
+2589,trading analyst- rotation 1
+2592,analyst - rotation 2
+2593,analyst - rotation 1
+2597,mgr orig w holesale
+2598,mgr trading
+2600,dir trading
+2602,associate - rotation 1
+2603,associate - rotation 1
+2605,analyst - rotation 3
+2606,spec sr global energy svcs
+2608,associate - rotation 1
+2988,spec sr trading supt
+3021,dir trading
+3098,spec sr legal
+3225,dir trading
+3502,gen counsel asst
+3519,mgr trading
+3548,sr analyst - rotation 1
+3591,mgr trading
+3605,director orig w holesale
+3619,mgr structuring
+3621,associate - rotation 2
+3622,associate - rotation 2
+3635,mgr structuring
+3638,director orig w holesale
+3641,associate - rotation 3
+3746,vice president accounting
+3782,spec sr trading supt
+3938,mgr trading
+3960,analyst - rotation 1
+3968,dir trading
+6306,vp & gen cnsl
+6542,associate - rotation 2
+6608,mgr origination
+6748,analyst - rotation 2
+6757,mgr competitive analysis
+6815,spec legal
+6822,dir structuring
+6825,associate - rotation 2
+6899,director orig w holesale
+7158,counsel sr
+7452,vp orig w holesale
+7568,associate - rotation 1
+7867,spec trading supt
+7985,dir trading
+8256,dir trading
+8306,vp & gen cnsl
+8499,vp orig w holesale
+8549,dir trading
+8849,sr analyst - rotation 1
+9394,associate - rotation 2
+10059,spec trading supt
+11089,director orig w holesale
+11503,vp orig w holesale
+11870,analyst - rotation 2
+12846,mgr trading
+13152,vp orig w holesale
+13250,dir trading
+14565,director orig w holesale
+14589,mgr trading
+14590,mgr trading
+14591,mgr trading
+14595,vp trading
+14596,vp trading
+14654,mgr orig w holesale
+14671,director orig w holesale
+14675,mgr trading
+14678,dir structuring
+14680,dir trading
+14681,dir trading
+14686,vp orig w holesale
+14693,dir trading
+14694,director orig w holesale
+14696,counsel sr
+14697,vp & gen cnsl
+14706,mgr trading
+14724,mgr trading
+14786,spec sr trans supt
+14791,director orig w holesale
+14794,dir trading
+14983,director orig w holesale
+15009,vp trading
+15089,vp trading
+15090,mgr trading
+15125,mgr orig w holesale
+15188,mgr trading
+15200,mgr trading
+15203,mgr structuring
+15207,associate - rotation 1
+15228,vp trading
+15258,dir trading
+16100,spec sr trading
+16101,associate - rotation 2
+16102,spec trading supt
+16103,mgr trading
+16106,spec sr trading supt
+16385,director orig w holesale
+16386,director orig w holesale
+16503,mgr trading
+16847,spec sr trading supt
+17285,donald
+17371,vp orig w holesale
+17990,president & ceo
+18408,mgr orig w holesale
+18549,counsel sr
+18846,mgr orig w holesale
+18896,mgr trans supt
+19115,mgr trading
+20114,associate - rotation 1
+20682,counsel sr
+20983,dir trading
+20989,mgr orig w holesale
+21087,dir trading
+21113,dir trading
+21300,mgr trading
+21506,mgr structuring
+21510,mgr orig w holesale
+22002,analyst - rotation 2
+24098,mgr structuring
+24121,analyst - rotation 1
+24181,spec sr trading supt
+24510,mgr trading
+24554,mgr trading
+24613,spec sr trading supt
+24633,spec sr trading supt
+24638,spec sr trading supt
+24789,mgr structuring
+25093,mgr orig w holesale
+25300,mgr trading
+25302,associate - rotation 1
+25343,mgr trading supt
+25901,vp orig w holesale
+26186,vp orig w holesale
+27084,mgr orig w holesale
+27103,trading analyst- rotation 3
+27113,associate - rotation 2
+27280,director orig w holesale
+27445,mgr trading
+27639,counsel sr
+27663,mgr orig w holesale
+27690,mgr trading
+28946,spec trading supt
+29097,mgr orig w holesale
+29118,counsel sr iii
+29572,trading analyst- rotation 1
+30543,coord admin
+31988,trading analyst- rotation 1
+32140,trading analyst- rotation 1
+32179,mgr trading
+32181,mgr trading
+32524,trading associate- rotation 1
+32590,trading associate- rotation 1
+33858,president & ceo
+33913,vp & gen cnsl
+34245,director orig w holesale
+34250,president & ceo
+34417,dir trading
+34507,dir trading
+34732,dir trading
+35226,sr analyst - rotation 1
+35318,dir trading
+35329,vp trading
+35517,vp orig w holesale
+35998,mgr trading
+36175,analyst - rotation 2
+36632,vp trading
+36647,asst admin ii
+36664,vp trading
+36681,vp trading
+37297,director orig w holesale
+37480,trading associate- rotation 2
+37595,staff trading supt
+37600,mgr structuring
+37602,mgr trading supt
+37671,vp trading
+37672,vp trading
+37771,mgr trading
+37773,vp trading
+37779,mgr orig w holesale
+37883,vp trading
+37887,dir trading
+37905,director orig w holesale
+37930,spec trading supt
+38178,spec sr trading supt
+38677,sr analyst - rotation 1
+38823,spec trading supt
+38824,sr analyst - rotation 1
+38923,mgr orig w holesale
+38925,spec sr trading supt
+38976,spec sr trading supt
+39703,spec sr trading supt
+39760,vp trading
+39774,staff trading supt
+39846,staff trading supt
+40321,sr analyst - rotation 1
+40324,sr analyst - rotation 1
+40352,mgr orig w holesale
+40850,vp trading
+41065,director orig w holesale
+41081,spec sr trading supt
+41682,gen counsel asst
+41713,vp & gen cnsl
+41726,counsel sr
+41926,spec sr trading supt
+43682,spec legal
+45127,attorney
+45151,attorney
+48657,vp orig w holesale
+48773,mgr trading
+49503,dir trading
+49730,counsel sr
+50078,mgr trading
+50343,mgr trading
+51797,analyst - rotation 2
+52462,analyst - rotation 2
+53543,vp orig w holesale
+54324,spec sr trading supt
+54685,counsel sr
+54867,mgr structuring
+55142,dir trading
+56219,dir trading
+57001,gen counsel asst
+57712,dir trading
+57735,dir trading
+59000,analyst - rotation 2
+59026,counsel sr
+59058,analyst - rotation 2
+59186,vp orig w holesale
+59195,associate - rotation 2
+59943,mgr trans supt
+60074,vp orig w holesale
+60089,dir trading
+60202,mgr trading
+61306,mgr orig w holesale
+61308,mgr trading
+64067,vp orig w holesale
+64098,president & ceo
+64586,associate - rotation 2
+64775,director orig w holesale
+66905,analyst - rotation 2
+67078,mgr trading
+67085,analyst - rotation 2
+67220,spec sr legal
+68273,counsel sr
+68534,counsel sr
+68865,mgr orig w holesale
+68896,dir trading
+69030,counsel sr
+69282,vp orig w holesale
+69670,spec sr trading supt
+70111,dir structuring
+70112,vp trading
+70113,asst sr admin
+70114,mgr orig w holesale
+70979,mgr trading
+71027,mgr trading
+71045,mgr trading
+71225,trading analyst- rotation 1
+71679,associate - rotation 1
+71770,mgr trading
+72455,mgr orig w holesale
+72469,dir trading
+73736,spec sr trading supt
+73987,trading associate- rotation 1
+74324,dir trading
+74971,director orig w holesale
+75013,director orig w holesale
+75831,mgr comm trading supt
+76986,vp orig w holesale
+77161,attorney
+77192,vp & asst gen cnsl
+77707,director orig w holesale
+78000,dir trading
+78016,dir comm trading supt
+78126,trading associate- rotation 1
+78321,gen counsel asst
+78965,vp orig w holesale
+79142,spec sr trading supt
+80141,spec sr hr
+81153,analyst - rotation 2
+81210,analyst - rotation 2
+81434,counsel sr iii
+81739,director orig w holesale
+82032,director orig w holesale
+82669,mgr trading
+83196,spec sr legal
+83275,mgr trading
+83600,analyst - rotation 2
+84715,mgr trading
+85699,vp orig w holesale
+86671,vp orig w holesale
+87384,dir trading

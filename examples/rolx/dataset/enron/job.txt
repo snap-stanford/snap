@@ -1,0 +1,483 @@
+﻿Last               First            Title                             Group                                              (Reported To)                Street Address                   Number          Works          No.           Locations      Locations      organization 
+Abler              W illiam         Director Orig W holesale          ENA Midwest Region Origination                      Edward D Baughman            1400 Smith St, Houston, Tx 
+Abramo             Caroline         Dir Trading                       ENA Middle Market Nymex New York - OLD              Fred D Lagrasta              1400 Smith St, Houston, Tx 
+Acevedo            Rodolfo          Spec Sr Trading Supt              ENA Southeast Region Origination                    Heather Swan Kroll           1400 Smith St, Houston, Tx 
+Agarwalla          Dipak            Mgr Trading                       ENA Fundamental Analysis/ IT                        Christopher J Gaskill        1400 Smith St, Houston, Tx 
+Aggarwal           Anubhav          Associate - Rotation  1           ENA Northeast Region Trading                        Mark D Davis Jr              1400 Smith St, Houston, Tx 
+Allen              Phillip          Mng Dir Trading                   ENA West Region Trading                             John J Lavorato              1400 Smith St, Houston, Tx                                                   Yes            Yes 
+Alonso             Thomas           Dir Trading                       ENA West Power Trading                              Timothy N Belden             1400 Smith St, Houston, Tx                                                   Yes            Yes 
+Alport             Kysa             Staff Trading Supt                ENA West Power Trading                              Jeffrey S Richter            1400 Smith St, Houston, Tx                                                                   
+Ames               Charles          Trading Analyst- Rotation 2       ENA NE / SE Region Trading                          Scott M Neal                 1400 Smith St, Houston, Tx 
+Anderson           John             Spec Trading Supt                 ENA West Power Real Time Scheduling                 W illiam J W illiams         1400 Smith St, Houston, Tx                                                   Yes            Yes 
+Anderson           Robert           Spec Sr Trading Supt              ENA West Power Fundamental Analysis                 Timothy A Heizenrader        1400 Smith St, Houston, Tx                                                                   
+Arnold             John             VP Trading                        ENA Financial                                       John J Lavorato              1400 Smith St, Houston, Tx 
+Arora              Harpreet         VP Trading                        ENA East Power Options Desk                         Kevin M Presto               1400 Smith St, Houston, Tx 
+Aucoin             Berney           Dir Structuring                   ENA-EES-East Power Trading                          Rogers Herndon               1400 Smith St, Houston, Tx 
+Aune               Stacey           Mgr Acctg                         ENA Trading, Origination & Power Plant A            Elaine P Schield             1400 Smith St, Houston, Tx 
+Badeer             Robert           Dir Trading                       ENA West Power Trading                              Timothy N Belden             1400 Smith St, Houston, Tx                                                   Yes            Yes 
+Bailey             Debra            Dir Comm Trading Supt             ENA Schedulers Trading                              Kevin M Presto               1400 Smith St, Houston, Tx 
+Bailey             Susan            Spec SR Legal                     ENA Legal - Financial Trading                       Mark Taylor                  1400 Smith St, Houston, Tx 
+Bajwa              Bilal            Trading Analyst- Rotation 3       ENA Fundamental Analysis/ IT                        Christopher J Gaskill        1400 Smith St, Houston, Tx 
+Bakondy            Robert           Dir Research Origination          West Pwr - West Devlp - San Francisco               David J Parquet              1400 Smith St, Houston, Tx                                                   Yes            Yes 
+Ballard            Phillip          Director Orig W holesale          ENA Energy Capital Services                         C John Thompson              1400 Smith St, Houston, Tx 
+Ballato            Russell          Trading Analyst- Rotation  1      ENA ERCOT Region Trading                            Douglas Gilbert-Smith        1400 Smith St, Houston, Tx 
+Barbe              Robin            Mgr Trading                       East Gas: Mid Market                                Frank W Vickers              1400 Smith St, Houston, Tx 
+Bates              Kimberly         Asst Admin  II                    ENA NE / SE Region Trading                          Scott M Neal                 1400 Smith St, Houston, Tx 
+Baughman           Edward           VP Trading                        ENA Midwest Region Origination                      W illiam D Duran             1400 Smith St, Houston, Tx 
+Baughman Jr        Don              Mgr Trading                       ENA Midwest Region Trading                          Fletcher J Sturm             1400 Smith St, Houston, Tx 
+Belden             Timothy          Mng Dir Trading                   ENA West Power Trading                              Louise Kitchen               1400 Smith St, Houston, Tx                                                   Yes            Yes 
+Benke              Terrell          Associate - Rotation  1           ENA ERCOT Region Origination                        Michael J Curry              1400 Smith St, Houston, Tx 
+Benson             Robert           Dir Trading                       ENA Northeast Region Trading                        Mark D Davis Jr              1400 Smith St, Houston, Tx 
+Bentley            Corry            Mgr Trading Supt                  ENA Schedulers Trading                              Kevin M Presto               1400 Smith St, Houston, Tx 
+Bishop             Serena           Analyst - Rotation  1             ENA West Power Trading                              Jeffrey S Richter            1400 Smith St, Houston, Tx                                                   Yes            Yes 
+Black              Tamara           Asst Sr Admin                     ENA Schedulers Trading                              Kevin M Presto               1400 Smith St, Houston, Tx 
+Black              Troy             Mgr Trading                       ENA Derivatives                                     Craig A Breslau              1400 Smith St, Houston, Tx 
+Blaine             Jay              Spec SR Trading                   ENA Southeast Region Trading                        Kevin M Presto               1400 Smith St, Houston, Tx 
+Blaine             Michelle         Counsel SR  III                   ENA Legal - Litigation                              Richard B Sanders            1400 Smith St, Houston, Tx 
+Blair              Christopher      Staff Trading Supt                ENA West Power Volume Management                   ?                             1400 Smith St, Houston, Tx                                                   Yes            Yes 
+Boyt               Eric             Mgr Orig W holesale               ENA Commodity Structuring                           Albert E McMichael Jr        1400 Smith St, Houston, Tx 
+Braddock           Edward           Mgr Trading                       ENA Southeast Region Origination                    Edward D Baughman            1400 Smith St, Houston, Tx 
+Brawner            Sandra           Dir Trading                       ENA NE / SE Region Trading                          Scott M Neal                 1400 Smith St, Houston, Tx 
+Breese             Mark             Director Orig W holesale          ENA Commodity Structuring                           Albert E McMichael Jr        1400 Smith St, Houston, Tx 
+Breslau            Craig            VP Trading                        ENA Derivatives                                     Fred D Lagrasta              1400 Smith St, Houston, Tx 
+Brodbeck           Kelly            Dir Asset Dev Supt                West Pwr - West Devlp - San Francisco               David J Parquet              1400 Smith St, Houston, Tx                                                   Yes            Yes 
+Broderick          Paul             Mgr Trading                       ENA Northeast Region Trading                        Mark D Davis Jr              1400 Smith St, Houston, Tx 
+Bronstein          Mara             Analyst - Rotation  1             ENA West Region Origination                         Barry L Tycholiz             1400 Smith St, Houston, Tx                                                   Yes            Yes 
+Broussard          Richard          Mgr Trading Supt                  ENA Power Trading                                   Lloyd J W ill                1400 Smith St, Houston, Tx 
+Browner            Victor           Mgr Orig W holesale               West Pwr - West Devlp - San Francisco               David J Parquet              1400 Smith St, Houston, Tx                                                   Yes            Yes 
+Bruce              James            Analyst - Rotation 2              NA - Wst Pwr Trd Structuring                        Todd A Perry                 1400 Smith St, Houston, Tx                                                   Yes            Yes 
+Bryan              Gary             Dir Trading                       East Gas Producer Orgination                        Frank W Vickers              1400 Smith St, Houston, Tx 
+Bryson             Jesse            Spec Trading Supt                 NA - Wst Pwr Orig Renewables                        Elliot E Mainzer             1400 Smith St, Houston, Tx                                                   Yes            Yes 
+Buerkle           James            Mgr Orig W holesale             West Pwr - West Orig - Portland                    Jacob S Thomas              1400 Smith St, Houston, Tx                                                 Yes           Yes 
+Burnett           Lisa            Spec Sr Trading Supt             ENA Northeast Region Trading                       Mark D Davis Jr             1400 Smith St, Houston, Tx 
+Bushman           Teresa          Counsel SR                       ENA Lgl-M&A / Investments/ Energy Capital          W Lance Schuler             1400 Smith St, Houston, Tx 
+Buss              Jeremy          Associate - Rotation 3           East Gas Producer Orgination                       Gary M Bryan                1400 Smith St, Houston, Tx 
+Calger            Christopher      Mng Dir Orig W holesale         West Pwr - West Orig Executive -Portland           Louise Kitchen              1400 Smith St, Houston, Tx                                                 Yes           Yes 
+Calvert           Gray            Associate - Rotation 4           West Pwr - West Devlp - San Francisco              Mark D Fillinger            1400 Smith St, Houston, Tx                                                 Yes           Yes 
+Campbell          Larry           Spec Sr Trading Supt             ENA Northeast Region Trading                       Mark D Davis Jr             1400 Smith St, Houston, Tx 
+Capasso           Joseph          Spec SR Comm Supt                ENA ERCOT Region Trading                           John M Forney               1400 Smith St, Houston, Tx 
+Carnahan          Kathleen        Spec SR Legal                    ENA Lgl-East & Upstrm Orig./ Gas Trading           Jeffrey T Hodge             1400 Smith St, Houston, Tx 
+Carroll           Alexis          Sr Analyst - Rotation  1         ENA Midwest Region Origination                     Edward D Baughman           1400 Smith St, Houston, Tx 
+Carson            Michael          Mgr Trading                     ENA Southeast Region Trading                       Rogers Herndon              1400 Smith St, Houston, Tx 
+Cavanaugh         Darren          Analyst - Rotation  1            ENA West Power Volume Management                   Murray P O'Neil             1400 Smith St, Houston, Tx                                                 Yes           Yes 
+Chaney            Craig            Dir Trading Supt                EEL Enron Credit Product Development               Jeffrey P Kinneman          1400 Smith St, Houston, Tx 
+Chen              Andrew          Associate - Rotation 2           ENA West Power - EES Transition                    Timothy N Belden            1400 Smith St, Houston, Tx                                                 Yes           Yes 
+Chilkina          Elena           Associate - Rotation  1          ENA Derivatives                                    Craig A Breslau             1400 Smith St, Houston, Tx 
+Choate            Jason           Spec Sr Trading Supt             ENA Northeast Region Trading                       Mark D Davis Jr             1400 Smith St, Houston, Tx 
+Choi              Paul             Dir Trading                     ENA West Power Middle Market                       Christopher H Foster        1400 Smith St, Houston, Tx                                                 Yes           Yes 
+Chu-Yang-Heu      Mog             Trading Analyst- Rotation 2      ENA Derivatives                                    Fred D Lagrasta             1400 Smith St, Houston, Tx 
+Clark             Hall            Counsel SR                       ENA Legal - West Origination                       Sheila Tweed                1400 Smith St, Houston, Tx                                                 Yes           Yes 
+Clifford          Douglas         VP Orig W holesale               ENA Generation  Investments                        Carl J Tricoli              1400 Smith St, Houston, Tx 
+Cline             Kevin           Spec Sr Trading Supt             ENA Fundamental Analysis                           Lloyd J W ill               1400 Smith St, Houston, Tx 
+Clynes            Terri            Dir Trading                     ENA Midwest Region Origination                     Edward D Baughman           1400 Smith St, Houston, Tx 
+Cocke, Jr         Stanley         Spec Trading Supt                ENA West Power Middle Market                       Christopher H Foster        1400 Smith St, Houston, Tx                                                 Yes           Yes 
+Collins           Dustin          Associate - Rotation 2           ENA Midwest Region Trading                         Edwin K Coulter             1400 Smith St, Houston, Tx 
+Comeaux           Richard          Mgr Trading Supt                ENA Genco                                          Lloyd J W ill               1400 Smith St, Houston, Tx 
+Compean           Karla           Sr Analyst - Rotation  1         ENA Commodity Structuring                          Jim Meyn                    1400 Smith St, Houston, Tx 
+Cook              Diane            Mgr Orig W holesale             ENA Energy Capital Services                        Joan M Quick                1400 Smith St, Houston, Tx 
+Cook              Mary            Counsel SR                       ENA Legal - Financial Trading                      Mark Taylor                 1400 Smith St, Houston, Tx 
+Cooper            Clarissa        Associate - Rotation 2           ENA-EES-East Power Trading                         Berney C Aucoin             1400 Smith St, Houston, Tx 
+Cooper            Tracy           Spec Legal                       ENA Lgl-M&A / Investments/ Energy Capital          W Lance Schuler             1400 Smith St, Houston, Tx 
+Corbet            Nancy           Counsel SR                       ENA Lgl-M&A / Investments/ Energy Capital          W Lance Schuler             1400 Smith St, Houston, Tx 
+Coulter           Edwin            Mgr Trading Supt                ENA East Power Service Desk                        Lloyd J W ill               1400 Smith St, Houston, Tx 
+Crandall          Sean             Dir Trading                     ENA West Power Trading                             Timothy N Belden            1400 Smith St, Houston, Tx                                                 Yes           Yes 
+Cross             Edith            Dir Structuring                 ENA-EES-East Power Trading                         Rogers Herndon              1400 Smith St, Houston, Tx 
+Cruver            Brian            Mgr Trans Supt                  EEL Enron Credit Product Development               Craig E Chaney              1400 Smith St, Houston, Tx 
+Cuilla            Martin           Mgr Trading                     ENA Midwest Region Trading                         Hunter Shively              1400 Smith St, Houston, Tx 
+Culotta           Lindsay         Analyst - Rotation  1            ENA Midwest Region Origination                     Laura L Luce                1400 Smith St, Houston, Tx 
+Curlee            Steven           Mgr Structuring                 ENA Commodity Structuring                          Albert E McMichael Jr       1400 Smith St, Houston, Tx 
+Curry             Michael          Director Orig W holesale        ENA ERCOT Region Origination                      ?                            1400 Smith St, Houston, Tx 
+Cutsforth         Diane           Staff Trading Supt               NA - West Power Pre-Scheduling                     Cara L Freeland             1400 Smith St, Houston, Tx                                                 Yes           Yes 
+Dalton  III       Oscar            Director Orig W holesale        ENA Midwest Region Origination                     Edward D Baughman           1400 Smith St, Houston, Tx 
+Daniels           Edmund          Counsel SR                       ENA Lgl-M&A / Investments/ Energy Capital          W Lance Schuler             1400 Smith St, Houston, Tx 
+Danielson         David            Director Orig W holesale        West Pwr - West Orig - San Francisco               Michael W McDonald          1400 Smith St, Houston, Tx                                                 Yes           Yes 
+Davis             Angela          Counsel SR                       ENA Lgl-M&A / Investments/ Energy Capital          W Lance Schuler             1400 Smith St, Houston, Tx 
+Davis Jr          Mark            VP Trading                       ENA Northeast Region Trading                       Kevin M Presto              1400 Smith St, Houston, Tx 
+Day               Amanda          Associate - Rotation 2           ENA Southeast Region Origination                   Heather Swan Kroll          1400 Smith St, Houston, Tx 
+Day               Smith            Mgr Trading Supt                ENA East Power Service Desk                        Lloyd J W ill               1400 Smith St, Houston, Tx 
+Dean              Clint            Mgr Trading                     ENA ERCOT Region Trading                           Douglas Gilbert-Smith       1400 Smith St, Houston, Tx 
+Dean              Craig           Spec Trading Supt                ENA West Power Real Time Scheduling                W illiam J W illiams        1400 Smith St, Houston, Tx                                                 Yes           Yes 
+Deane             Ryan            Analyst - Rotation 2             West Pwr - West Devlp - San Francisco              Mark D Fillinger            1400 Smith St, Houston, Tx                                                 Yes           Yes 
+Decook            Todd            Spec Sr Trading Supt             ENA Fundamental Analysis                           Lloyd J W ill               1400 Smith St, Houston, Tx 
+Detiveaux         Kim              Dir Trading Supt                EEL Enron Credit Product Development               Craig E Chaney              1400 Smith St, Houston, Tx 
+Diamond           Russell         Associate - Rotation  1          ENA Commodity Structuring                          Albert E McMichael Jr       1400 Smith St, Houston, Tx 
+Dicarlo           Louis            Mgr Structuring                 ENA Commodity Structuring                          Albert E McMichael Jr       1400 Smith St, Houston, Tx 
+Dickerson         Lloyd           Associate - Rotation  1          ENA-EES-East Power Trading                         Rogers Herndon              1400 Smith St, Houston, Tx 
+Dickson-GranmayeShtacy            Counsel SR                       ENA Lgl-East & Upstrm Orig./ Gas Trading           Jeffrey T Hodge             1400 Smith St, Houston, Tx 
+Dillard           Barbara          Mgr Orig W holesale             ENA Origination Enovate                            Laura L Luce                1400 Smith St, Houston, Tx 
+Donohoe           Thomas           Mgr Trading                     ENA Midwest Region Trading                         Hunter Shively              1400 Smith St, Houston, Tx 
+Donovan           Terry            Director Orig W holesale        ENA West Power - EES Transition                    Timothy N Belden            1400 Smith St, Houston, Tx                                                 Yes           Yes 
+Dorland           Christopher      Mgr Trading                     ENA Midwest Region Trading                         Fletcher J Sturm            1400 Smith St, Houston, Tx 
+Driscoll          Michael         Sr Analyst - Rotation  1         ENA West Power Trading                             Michael J Swerzbin          1400 Smith St, Houston, Tx                                                 Yes           Yes 
+Duran             W illiam         Mng Dir Orig W holesale         ENA Generation  Investments                        Louise Kitchen              1400 Smith St, Houston, Tx 
+Dutta             Goutam           Mgr Trading                     ENA Northeast Region Origination                   Mark D Davis Jr             1400 Smith St, Houston, Tx 
+Dyer              Douglas          Director Orig W holesale        West Pwr - West Orig - San Francisco               Michael W McDonald          1400 Smith St, Houston, Tx                                                 Yes           Yes 
+Elafandi          Mohamed         Associate - Rotation  1          NA - Wst Pwr Trd Structuring                       Todd A Perry                1400 Smith St, Houston, Tx                                                 Yes           Yes 
+Emmert            Caroline        Spec Trading Supt                ENA West Power Volume Management                  ?                            1400 Smith St, Houston, Tx                                                 Yes           Yes 
+Emmons            Suzette         Associate - Rotation 2           ENA Southeast Region Origination                   Heather Swan Kroll          1400 Smith St, Houston, Tx 
+Eriksson          Fredrik         Analyst - Rotation  1            West Pwr - West Orig - Portland                    Jonalan Page                1400 Smith St, Houston, Tx                                                 Yes           Yes 
+Ermis             Frank            Dir Trading                     ENA West Region Trading                            Phillip K Allen             1400 Smith St, Houston, Tx                                                 Yes           Yes 
+Errigo             Joseph          Spec Sr Trading Supt              ENA ERCOT Region Trading                           Douglas Gilbert-Smith        1400 Smith St, Houston, Tx 
+Erwin              Kenton          Gen Counsel Asst                  ENA Legal - West Origination                       Sheila Tweed                 1400 Smith St, Houston, Tx                                                  Yes            Yes 
+Etringer           Michael         Director Orig W holesale          West Pwr - West Orig Executive -Portland           Christopher F Calger         1400 Smith St, Houston, Tx                                                  Yes            Yes 
+Eubank             Marshall        Director Orig W holesale          ENA Energy Capital Services                        Scott D Josey                1400 Smith St, Houston, Tx 
+Fairley            David           Director Orig W holesale          ENA Southeast Region Origination                   W illiam D Duran             1400 Smith St, Houston, Tx 
+Farmer             Jerry           Mgr Trading                       ENA NG Texas Region G&A                            Thomas A Martin              1400 Smith St, Houston, Tx 
+Fascetti           Louis           Mgr Trading                       ENA Origination Enovate                            Laura L Luce                 1400 Smith St, Houston, Tx 
+Feitler            Eric            Associate - Rotation 2            ENA Derivatives                                    Craig A Breslau              1400 Smith St, Houston, Tx 
+Ferries            Nelson          Dir Trading                       East Gas: Producer Mid-Market                      Frank W Vickers              1400 Smith St, Houston, Tx 
+Figueroa           Christopher     Associate - Rotation 2            ENA Derivatives                                    Craig A Breslau              1400 Smith St, Houston, Tx 
+Fillinger          Mark            Dir Trans Supt                    West Pwr - West Devlp - San Francisco              David J Parquet              1400 Smith St, Houston, Tx                                                  Yes            Yes 
+Fischer            Mark            Dir Trading                       ENA West Power Trading                             Timothy N Belden             1400 Smith St, Houston, Tx                                                  Yes            Yes 
+Fitzwater          Loftus          Associate - Rotation 2            ENA Commodity Structuring                          Albert E McMichael Jr        1400 Smith St, Houston, Tx 
+Forney             John            Dir Trading                       ENA ERCOT Region Trading                           Rogers Herndon               1400 Smith St, Houston, Tx 
+Foster             Christopher     VP Trading                        ENA West Power Middle Market                       Timothy N Belden             1400 Smith St, Houston, Tx                                                  Yes            Yes 
+Frank              Matthew         Associate - Rotation 2            ENA Midwest Region Trading                         Jim Meyn                     1400 Smith St, Houston, Tx 
+Fraser             Bridget         VP Trading                        EnronCredit.comNA - Marketing                      Bryan Seyfried               1400 Smith St, Houston, Tx 
+Freeland           Cara            Spec Sr Trading Supt              NA - West Power Pre-Scheduling                     Sean R Crandall              1400 Smith St, Houston, Tx                                                  Yes            Yes 
+Freije             W illiam        Analyst - Rotation  1             ENA ERCOT Region Trading                           John M Forney                1400 Smith St, Houston, Tx 
+Frihart            Bryant          Mgr Orig W holesale               ENA Midwest Region Origination                     Laura L Luce                 1400 Smith St, Houston, Tx 
+Fuller             David           Mgr Orig W holesale               ENA West Region Origination                        Barry L Tycholiz             1400 Smith St, Houston, Tx                                                  Yes            Yes 
+Gang               Lisa            Spec Sr Trading Supt              NA - West Power Pre-Scheduling                     Cara L Freeland              1400 Smith St, Houston, Tx                                                  Yes            Yes 
+Garcia             Miguel          Spec Sr Trading Supt              ENA Southeast Region Trading                       Rogers Herndon               1400 Smith St, Houston, Tx 
+Garcia             Santiago        Associate - Rotation 2            ENA Commodity Structuring                          Albert E McMichael Jr        1400 Smith St, Houston, Tx 
+Garg               Alok            Mgr Origination                   EnronCredit.comNA - Marketing                      Bruce Harris                 1400 Smith St, Houston, Tx 
+Gaskill            Christopher     Dir Trading                       ENA Fundamental Analysis/ IT                       Hunter Shively               1400 Smith St, Houston, Tx 
+Gay                Randall         Associate - Rotation  1           ENA West Region Trading                            Phillip K Allen              1400 Smith St, Houston, Tx                                                  Yes            Yes 
+George             Robert          Gen Counsel Asst                  ENA Lgl-M&A / Investments/ Energy Capital          W Lance Schuler              1400 Smith St, Houston, Tx 
+Germany            Chris           Mgr Trading                       ENA NE / SE Region Trading                         Scott M Neal                 1400 Smith St, Houston, Tx 
+Gilbert            George          Dir Trading                       ENA Derivatives                                    Fred D Lagrasta              1400 Smith St, Houston, Tx 
+Gilbert            Gerald          Spec SR Logistics                 ENA East Power Service Desk                        Lloyd J W ill                1400 Smith St, Houston, Tx 
+Gilbert            James           Director Orig W holesale          West Power - West Devlp - Portland                 David J Parquet              1400 Smith St, Houston, Tx                                                  Yes            Yes 
+Gilbert            Michael         Dir Logistics                     ENA West Power Volume Management                   Murray P O'Neil              1400 Smith St, Houston, Tx                                                  Yes            Yes 
+Gilbert-Smith      Douglas         Dir Trading                       ENA ERCOT Region Trading                           Kevin M Presto               1400 Smith St, Houston, Tx 
+Gim                Steven          Trading Associate- Rotation 2     ENA Fundamental Analysis                           Lloyd J W ill                1400 Smith St, Houston, Tx 
+Gimble             Mathew          Mgr Orig W holesale               ENA Generation Development                        ?                             1400 Smith St, Houston, Tx 
+Giron              Gustavo         Trading Associate- Rotation  1    ENA Fundamental Analysis                           Lloyd J W ill                1400 Smith St, Houston, Tx 
+Gomez              Julie           VP Orig W holesale                ENA Fundamental Analysis - LT                      Louise Kitchen               1400 Smith St, Houston, Tx 
+Goodell            Scott           Spec Sr Trading Supt              ENA NE / SE Region Trading                         Scott M Neal                 1400 Smith St, Houston, Tx 
+Gordon  II         John            Associate - Rotation 2            ENA-EES-East Power Trading                         Berney C Aucoin              1400 Smith St, Houston, Tx 
+Gray               Barbara         VP & Gen Cnsl                     ENA Lgl-East & Upstrm Orig./ Gas Trading           Mark E Haedicke              1400 Smith St, Houston, Tx 
+Greenberg          Mark            Counsel SR                        ENA Physical Trading                               Mark Taylor                  1400 Smith St, Houston, Tx 
+Greer              Andrew          Spec Trading Supt                 ENA Midwest Region Trading                         Don C Baughman Jr            1400 Smith St, Houston, Tx 
+Gregorcyk          Vicky           Dir Comm Trading Supt             NA-Enron Assurance Services - EBS                  Wesley Colwell               1400 Smith St, Houston, Tx 
+Griffith           John            Mgr Trading                       ENA Financial                                      John D Arnold                1400 Smith St, Houston, Tx 
+Grigsby            Michael         VP Trading                        ENA West Region Trading                            Phillip K Allen              1400 Smith St, Houston, Tx                                                  Yes            Yes 
+Grube              Raimund         Mgr Orig W holesale               ENA Generation Development                         Ben F Jacoby                 1400 Smith St, Houston, Tx 
+Gualy              Jaime           Associate - Rotation 2            ENA East Power Options Desk                        Harpreet S Arora             1400 Smith St, Houston, Tx 
+Guerriero          Michael         VP Trading & Orig                 EA - W holesale Commercial Origination             Joseph G Kishkill            1400 Smith St, Houston, Tx 
+Guillaume          David           Associate - Rotation 2            West Power - West Devlp - Portland                 Jonalan Page                 1400 Smith St, Houston, Tx                                                  Yes            Yes 
+Gulmeden           Utku            Analyst - Rotation 2              ENA East Power Service Desk                        Thomas N May                 1400 Smith St, Houston, Tx 
+Gupta              Gautam          Mgr Trading                       ENA Northeast Region Trading                       Mark D Davis Jr              1400 Smith St, Houston, Tx 
+Guzman             Mark            Spec Trading Supt                 ENA West Power Real Time Scheduling                W illiam J W illiams         1400 Smith St, Houston, Tx                                                  Yes            Yes 
+Ha                 Amie            Analyst - Rotation 2              ENA Power Trading                                  Richard L Broussard          1400 Smith St, Houston, Tx 
+Ha                 Vicky           Mgr Trans Supt                    West Pwr - West Devlp - San Francisco              David J Parquet              1400 Smith St, Houston, Tx                                                  Yes            Yes 
+Haase              Brenda          Mgr Comm Trading Supt             NA-Enron Assurance Services - EBS                  Vicky Gregorcyk              1400 Smith St, Houston, Tx 
+Haggerty           John            Dir Trading                       EnronCredit.comNA - Marketing                      Bridget Fraser               1400 Smith St, Houston, Tx 
+Hall               Stephen         Counsel SR                        ENA Legal - Power Trading                         ?                             1400 Smith St, Houston, Tx 
+Hamlin             Mason           Analyst - Rotation 2              ENA Commodity Structuring                          Berney C Aucoin              1400 Smith St, Houston, Tx 
+Hanse              Patrick         Spec Sr Trading Supt              ENA Northeast Region Trading                       Mark D Davis Jr              1400 Smith St, Houston, Tx 
+Harasin            Leaf            Spec Trading Supt                 ENA West Power Real Time Scheduling                W illiam J W illiams         1400 Smith St, Houston, Tx                                                  Yes            Yes 
+Harkness           Cynthia         Counsel Sr                        ENA Lgl-M&A / Investments/ Energy Capital          W Lance Schuler              1400 Smith St, Houston, Tx 
+Harris             Bruce           Dir Trading                       EnronCredit.comNA - Marketing                      Jeffrey P Kinneman           1400 Smith St, Houston, Tx 
+Harrison           Tyrell          Sr Analyst - Rotation  1          ENA Origination - Denver                           Mark W hitt                  1400 Smith St, Houston, Tx 
+Heard              Marie           Spec SR Legal                     ENA Physical Trading                               Mark Taylor                  1400 Smith St, Houston, Tx 
+Hearn  III         Edward          Spec SR Legal                     ENA Legal - West Origination                       Sheila Tweed                 1400 Smith St, Houston, Tx                                                  Yes            Yes 
+Heinitz            Mary            Spec SR Legal                     ENA Lgl-M&A / Investments/ Energy Capital          W Lance Schuler              1400 Smith St, Houston, Tx 
+Heintzelman        Peter           Mgr Orig W holesale               ENA Generation  Investments                        Carl J Tricoli               1400 Smith St, Houston, Tx 
+Heizenrader        Timothy         Dir Trading                       ENA West Power Fundamental Analysis                Timothy N Belden             1400 Smith St, Houston, Tx                                                  Yes            Yes 
+Helfrich          Christopher      Mgr Trading                     EnronCredit.comNA - Trading                        Paul J Pizzolato            1400 Smith St, Houston, Tx 
+Hemani            Sanjay          Associate - Rotation  1          ENA-EES-East Power Trading                         Rogers Herndon              1400 Smith St, Houston, Tx 
+Henderson         Tosha            Director Orig W holesale        ENA Generation  Investments                        Carl J Tricoli              1400 Smith St, Houston, Tx 
+Hendrickson       Scott            Dir Trading                     ENA NE / SE Region Trading                         Scott M Neal                1400 Smith St, Houston, Tx 
+Hendry            Brent            Counsel SR                      ENA Legal - Financial Trading                      Mark Taylor                 1400 Smith St, Houston, Tx 
+Henry             Joseph           Counsel SR                      ENA Lgl-M&A / Investments/ Energy Capital          W Lance Schuler             1400 Smith St, Houston, Tx 
+Hernandez         Juan             Mgr Trading                     ENA Southeast Region Trading                       Rogers Herndon              1400 Smith St, Houston, Tx 
+Hernandez Veiga   Alejandro        Sr Analyst - Rotation  1        ENA Commodity Structuring                          Albert E McMichael Jr       1400 Smith St, Houston, Tx 
+Herndon           Rogers          VP Trading                       ENA-EES-East Power Trading                         Kevin M Presto              1400 Smith St, Houston, Tx 
+Herrmann          Karen           Analyst - Rotation 2             ENA Trading, Origination & Power Plant A          ?                            1400 Smith St, Houston, Tx 
+Hicks             Michelle         Counsel Sr                      ENA Lgl-M&A / Investments/ Energy Capital          W Lance Schuler             1400 Smith St, Houston, Tx 
+Hodge             Jeffrey         VP & Asst Gen Cnsl               ENA Lgl-East & Upstrm Orig./ Gas Trading           Mark E Haedicke             1400 Smith St, Houston, Tx 
+Hodge             John             Director Orig W holesale        ENA NE / SE Region Trading                         Scott M Neal                1400 Smith St, Houston, Tx 
+Hodges            Georganne       Vice President Accounting        ENA TRADING ORIGINATION & REPORTING                Wesley Colwell              1400 Smith St, Houston, Tx 
+Holst             Keith            Dir Trading                     ENA West Region Trading                            Phillip K Allen             1400 Smith St, Houston, Tx                                                 Yes           Yes 
+Homco             James            Mgr Trading                     EWS - EES Retail Gas Commodity                     Jess P Hewitt               1400 Smith St, Houston, Tx 
+Hrach             April            Coord Admin                     West Pwr - West Orig - San Francisco               David J Parquet             1400 Smith St, Houston, Tx                                                 Yes           Yes 
+Huan              Xiaoj un        Trading Associate- Rotation  1   ENA Commodity Structuring                          Albert E McMichael Jr       1400 Smith St, Houston, Tx 
+Huang             Jason           Trading Analyst- Rotation  1     ENA West Region Trading                            Michael D Grigsby           1400 Smith St, Houston, Tx                                                 Yes           Yes 
+Imai              Rika             Mgr Trading Supt                ENA Fundamental Analysis                           Lloyd J W ill               1400 Smith St, Houston, Tx 
+Irani             Eric            Analyst - Rotation  1            ENA Northeast Region Origination                   Edward D Baughman           1400 Smith St, Houston, Tx 
+Jacoby            Ben              Director Orig W holesale        ENA Generation Development                         W illiam D Duran            1400 Smith St, Houston, Tx 
+Jafry             Rahil            Director Orig W holesale        ENA Southeast Region Origination                   Heather Swan Kroll          1400 Smith St, Houston, Tx 
+Jester            Larry            Spec Sr Trading Supt            ENA ERCOT Region Origination                      ?                            1400 Smith St, Houston, Tx 
+John              Saj i            Mgr Trading                     ENA West Power - EES Transition                    Terry W Donovan             1400 Smith St, Houston, Tx                                                 Yes           Yes 
+Jones             David            Director Orig W holesale        ENA NE / SE Region Origination                     Frank W Vickers             1400 Smith St, Houston, Tx 
+Jones             Karen           Gen Counsel Asst                 ENA Legal - West Origination                       Sheila Tweed                1400 Smith St, Houston, Tx                                                 Yes           Yes 
+Jones             Oliver           Mgr Structuring                 ENA-EES-East Power Trading                         Berney C Aucoin             1400 Smith St, Houston, Tx 
+Jones             Tana             Spec SR Legal                   ENA Legal - Financial Trading                      Mark Taylor                 1400 Smith St, Houston, Tx 
+Keavey            Peter            Mgr Trading                     ENA NE / SE Region Trading                         Scott M Neal                1400 Smith St, Houston, Tx 
+Keel              Allan           VP Orig W holesale               ENA Energy Capital Services                        Scott D Josey               1400 Smith St, Houston, Tx 
+Keenan            Jeffrey          Mgr Orig W holesale             ENA Generation Development                         Ben F Jacoby                1400 Smith St, Houston, Tx 
+Keeney            W illiam         Mgr Orig W holesale             ENA Northeast Region Origination                   Carl J Tricoli              1400 Smith St, Houston, Tx 
+Kelly             Michael         Associate - Rotation 2           ENA Midwest Region Origination                     Edward D Baughman           1400 Smith St, Houston, Tx 
+Kendall           Matthew         Analyst - Rotation 2             ENA-EES-East Power Trading                         Narsimha Misra              1400 Smith St, Houston, Tx 
+King              Jeff             Mgr Trading                     ENA Midwest Region Trading                         Fletcher J Sturm            1400 Smith St, Houston, Tx 
+King              Joshua           Mgr Orig W holesale             EA - W holesale Commercial Origination             Brett R W iggs              1400 Smith St, Houston, Tx 
+Kinneman          Jeffrey         VP Trading                       EnronCredit.comNA - Executive                      John R Sherriff             1400 Smith St, Houston, Tx 
+Kinser            John             Spec Sr Trading Supt            ENA Midwest Region Trading                         Fletcher J Sturm            1400 Smith St, Houston, Tx 
+Koehler           Anne             Counsel SR                      ENA Legal - Financial Trading                      Mark Taylor                 1400 Smith St, Houston, Tx 
+Koepke            Gwyn             Mgr Research                    ENA Research Group                                 W incenty J Kaminski        1400 Smith St, Houston, Tx 
+Krause            Gregory          Director Orig W holesale        ENA Generation Development                         Ben F Jacoby                1400 Smith St, Houston, Tx 
+Krimsky           Steven           Director Orig W holesale        ENA Generation Development                         Ben F Jacoby                1400 Smith St, Houston, Tx 
+Kroll             Heather          Director Orig W holesale        ENA Southeast Region Origination                   W illiam D Duran            1400 Smith St, Houston, Tx 
+Kuykendall        Tori             Mgr Trading                     ENA West Region Trading                            Phillip K Allen             1400 Smith St, Houston, Tx                                                 Yes           Yes 
+Lagrasta          Fred            VP Trading                       ENA Derivatives                                    John J Lavorato             1400 Smith St, Houston, Tx 
+Larkworthy        Carrie          Trading Analyst- Rotation  1     ENA Midwest Region Trading                         Don C Baughman Jr           1400 Smith St, Houston, Tx 
+Laurent           Mark             Spec Sr Trading Supt            ENA Southeast Region Trading                       Rogers Herndon              1400 Smith St, Houston, Tx 
+Laverell          Justin           Spec Trading Supt               ENA Genco                                          Lloyd J W ill               1400 Smith St, Houston, Tx 
+Lavorato          John             President & CEO                 Enron Americas - Executive                        ?                            1400 Smith St, Houston, Tx 
+Lee               Eugene           Spec Sr Trading Supt            ENA West Power Volume Management                   Murray P O'Neil             1400 Smith St, Houston, Tx                                                 Yes           Yes 
+Lenartowicz       Christopher      Mgr Trading Supt                ENA Genco                                          Lloyd J W ill               1400 Smith St, Houston, Tx 
+Lenci-Gonzalez    Enrique         Associate - Rotation 2           ENA Mexico                                         Traci L Warner              1400 Smith St, Houston, Tx 
+Lenhart           Matthew          Sr Analyst - Rotation  1        ENA West Region Trading                            Phillip K Allen             1400 Smith St, Houston, Tx                                                 Yes           Yes 
+Letzerich         W illiam         Mgr Orig W holesale             ENA Northeast Region Origination                   W illiam D Duran            1400 Smith St, Houston, Tx 
+Lewis             Andrew           Dir Trading                     ENA Midwest Region Trading                         Hunter Shively              1400 Smith St, Houston, Tx 
+Lieskovsky        Jozef           Trading Associate- Rotation  1   ENA Fundamental Analysis/ IT                       Christopher J Gaskill       1400 Smith St, Houston, Tx 
+Linder            Eric             Spec Trading Supt               ENA West Power Real Time Scheduling                W illiam J W illiams        1400 Smith St, Houston, Tx                                                 Yes           Yes 
+Little            Kelli           Associate - Rotation 2           ENA Commodity Structuring                          Albert E McMichael Jr       1400 Smith St, Houston, Tx 
+Llodra            John             Dir Trading                     ENA Northeast Region Origination                   W illiam D Duran            1400 Smith St, Houston, Tx 
+Lorenz            Matthew          Mgr Trading                     ENA Midwest Region Trading                         Fletcher J Sturm            1400 Smith St, Houston, Tx 
+Lotz              Gretchen         Spec Sr Trading Supt            ENA Southeast Region Trading                       Rogers Herndon              1400 Smith St, Houston, Tx 
+Lucci             Paul             Director Orig W holesale        ENA Origination - Denver                           Mark W hitt                 1400 Smith St, Houston, Tx 
+Luce              Laura           VP Orig W holesale               ENA Origination Enovate                            John J Lavorato             1400 Smith St, Houston, Tx 
+Luong             Steven          Associate - Rotation  1          ENA Northeast Region Origination                   David B Marks               1400 Smith St, Houston, Tx 
+Mack              Iris             Mgr Trading                     ENA East Power Options Desk                        Harpreet S Arora            1400 Smith St, Houston, Tx 
+Maggi             Michael          Dir Trading                     ENA Financial                                      John D Arnold               1400 Smith St, Houston, Tx 
+Mainzer           Elliot           Mgr Structuring                 NA - Wst Pwr Trd Renewables                        Timothy N Belden            1400 Smith St, Houston, Tx                                                 Yes           Yes 
+Makkai            Peter            Sr Analyst - Rotation  1        ENA Northeast Region Trading                       Mark D Davis Jr             1400 Smith St, Houston, Tx 
+Mallory           Patrick          Sr Analyst - Rotation  1         ENA West Power Trading                             Jeffrey S Richter           1400 Smith St, Houston, Tx                                                  Yes           Yes 
+Malowney          John             Dir Trading                      ENA West Power Middle Market                       Christopher H Foster        1400 Smith St, Houston, Tx                                                  Yes           Yes 
+Mann              Cynthia          Counsel SR                       ENA Legal - Power Trading                          Elizabeth A Sager           1400 Smith St, Houston, Tx 
+Marks             David            Director Orig W holesale         ENA Northeast Region Origination                   W illiam D Duran            1400 Smith St, Houston, Tx 
+Martinez          Jennifer         Mgr Orig W holesale              East Gas Producer Orgination                       Frank W Vickers             1400 Smith St, Houston, Tx 
+Maskell           David            Associate - Rotation 3           ENA Southeast Region Trading                       Juan R Hernandez            1400 Smith St, Houston, Tx 
+May               Lawrence         Dir Trading                      ENA Financial                                      John D Arnold               1400 Smith St, Houston, Tx 
+May               Thomas           Mgr Trading                      ENA East Power Service Desk                        Lloyd J W ill               1400 Smith St, Houston, Tx 
+McCarrel          Steven           Gen Counsel Asst                 ENA Legal - West Origination                       Sheila Tweed                1400 Smith St, Houston, Tx                                                  Yes           Yes 
+McCracken         Gregory          Mgr Orig W holesale              ENA Generation  Investments                        Carl J Tricoli              1400 Smith St, Houston, Tx 
+McCullough        Travis           VP & Asst Gen Cnsl               ENA Lgl-M&A / Investments/ Energy Capital          W Lance Schuler             1400 Smith St, Houston, Tx 
+McDonald          Michael          VP Orig W holesale               West Pwr - West Orig - San Francisco               Christopher F Calger        1400 Smith St, Houston, Tx                                                  Yes           Yes 
+McElreath         Alexander        Spec SR Comm Supt                ENA Midwest Region Trading                         Don C Baughman Jr           1400 Smith St, Houston, Tx 
+McKay             Bradley          Dir Trading                      ENA NE / SE Region Trading                         Scott M Neal                1400 Smith St, Houston, Tx 
+McKay             Jonathan         Dir Trading                      ENA NE / SE Region Trading                         Scott M Neal                1400 Smith St, Houston, Tx 
+McMichael Jr      Albert           VP Orig W holesale               ENA Commodity Structuring                          Frank W Vickers             1400 Smith St, Houston, Tx 
+Mellencamp        Lisa             Counsel SR                       ENA Lgl-M&A / Investments/ Energy Capital          W Lance Schuler             1400 Smith St, Houston, Tx 
+Merriss           Steven           Spec Trading Supt                ENA West Power Real Time Scheduling                W illiam J W illiams        1400 Smith St, Houston, Tx                                                  Yes           Yes 
+Merten            Eric             Attorney                         ENA Lgl-M&A / Investments/ Energy Capital          Sheila Tweed                1400 Smith St, Houston, Tx 
+Meyers            Albert           Spec Trading Supt                ENA West Power Real Time Scheduling                W illiam J W illiams        1400 Smith St, Houston, Tx                                                  Yes           Yes 
+Meyn              Jim              Dir Structuring                  ENA Commodity Structuring                          W illiam D Duran            1400 Smith St, Houston, Tx 
+Mier              Michael          Spec Trading Supt                ENA West Power Real Time Scheduling                W illiam J W illiams        1400 Smith St, Houston, Tx                                                  Yes           Yes 
+Miller            Jeffrey          Mgr Trading Supt                 ENA East Power Service Desk                        Lloyd J W ill               1400 Smith St, Houston, Tx 
+Miller            Stephanie        Director Orig W holesale         ENA West Region Origination                        Barry L Tycholiz            1400 Smith St, Houston, Tx                                                  Yes           Yes 
+Mims-Thurston      Patrice         Dir Trading                      ENA Midwest Region Trading                         Hunter Shively              1400 Smith St, Houston, Tx 
+Misra             Narsimha         Mgr Trading                      ENA-EES-East Power Trading                         Rogers Herndon              1400 Smith St, Houston, Tx 
+Mitro             Fred             Director Orig W holesale         ENA Generation Development                         Ben F Jacoby                1400 Smith St, Houston, Tx 
+Mixon             Mark             Spec Sr Trans Supt               ENA Origination Enovate                            Laura L Luce                1400 Smith St, Houston, Tx 
+Moon              Eric             Mgr Structuring                  ENA Commodity Structuring                          Albert E McMichael Jr       1400 Smith St, Houston, Tx 
+Moore             Castlen          Analyst - Rotation  1            ENA-EES-East Power Trading                         Rogers Herndon              1400 Smith St, Houston, Tx 
+Moore             John             Director Orig W holesale         ENA Generation  Investments                        Mitchell O Robinson         1400 Smith St, Houston, Tx 
+Morse             Bradford         Mgr Trading                      ENA-EES-East Power Trading                         Rogers Herndon              1400 Smith St, Houston, Tx 
+Motley            Matthew          Dir Trading                      ENA West Power Trading                             Timothy N Belden            1400 Smith St, Houston, Tx                                                  Yes           Yes 
+Mrha              Jean             VP Orig W holesale               ENA Upstream Origination                           Louise Kitchen              1400 Smith St, Houston, Tx 
+Muhl              Gil              VP Orig W holesale               ENA NE / SE Region Origination                     Frank W Vickers             1400 Smith St, Houston, Tx 
+Mumm              Chris            Associate - Rotation  1          NA - Wst Pwr Orig Structuring                      Todd A Perry                1400 Smith St, Houston, Tx                                                  Yes           Yes 
+Munoz             Victor           Mgr Orig W holesale              ENA Generation  Investments                        Carl J Tricoli              1400 Smith St, Houston, Tx 
+Murphy            Harlan           Gen Counsel Asst                 ENA Legal - Power Trading                          Elizabeth A Sager           1400 Smith St, Houston, Tx 
+Murrell            Russell         Mgr Orig W holesale              ENA Midwest Region Origination                     Laura L Luce                1400 Smith St, Houston, Tx 
+Neal              Scott            VP Trading                       ENA NE / SE Region Trading                         John J Lavorato             1400 Smith St, Houston, Tx 
+Nelson            Cheryl           Counsel SR                       ENA Physical Trading                               Mark Taylor                 1400 Smith St, Houston, Tx 
+Nelson            Kourtney         Analyst - Rotation 2             ENA West Power Fundamental Analysis                Timothy A Heizenrader       1400 Smith St, Houston, Tx                                                  Yes           Yes 
+Nemec             Gerald           Attorney                         ENA Lgl-East & Upstrm Orig./ Gas Trading           Barbara N Gray              1400 Smith St, Houston, Tx 
+Nettelton         John             Counsel SR                       ENA Legal - Power Trading                          Elizabeth A Sager           1400 Smith St, Houston, Tx 
+O'Neil            Murray           Dir Sr Trading Supt              ENA West Power Volume Management                   Beth W Apollo               1400 Smith St, Houston, Tx                                                  Yes           Yes 
+Ogden             Mary             Spec Legal                       ENA Lgl-East & Upstrm Orig./ Gas Trading           Barbara N Gray              1400 Smith St, Houston, Tx 
+Oh                Jeffrey          Analyst - Rotation 2             NA - Wst Pwr Orig Structuring                      Todd A Perry                1400 Smith St, Houston, Tx                                                  Yes           Yes 
+Oh                Seung-Taek       Trading Associate- Rotation  1   ENA ERCOT Region Trading                           Lloyd J W ill               1400 Smith St, Houston, Tx 
+Olinde,Jr.        Donald           Mgr Trading Supt                 ENA ERCOT Region Trading                           Lloyd J W ill               1400 Smith St, Houston, Tx 
+Ortiz             Luz Maria        Spec Trading Supt                ENA Derivatives                                    Craig A Breslau             1400 Smith St, Houston, Tx 
+Otis              Brian            Mgr Orig W holesale              ENA Energy Capital Services                        Jesus Melendrez             1400 Smith St, Houston, Tx 
+Otto              Charles          Dir Trading                      ENA Derivatives                                    Fred D Lagrasta             1400 Smith St, Houston, Tx 
+Pace              Andrew           Spec Trading Supt                ENA Fundamental Analysis                           Lloyd J W ill               1400 Smith St, Houston, Tx 
+Padron            Juan             Trading Analyst- Rotation  1     ENA Midwest Region Trading                         Fletcher J Sturm            1400 Smith St, Houston, Tx 
+Page              Jonalan          Director Orig W holesale         West Power - West Devlp - Portland                 Christopher F Calger        1400 Smith St, Houston, Tx                                                  Yes           Yes 
+Paipanandiker     Chetan           Analyst - Rotation 2             EnronCredit.comNA - Trading                        Paul J Pizzolato            1400 Smith St, Houston, Tx 
+Panus             Stephanie        Spec SR Legal                    ENA Physical Trading                               Mark Taylor                 1400 Smith St, Houston, Tx 
+Parks             Michelle         VP Generation Services           ENA Generation  Investments                        Carl J Tricoli              1400 Smith St, Houston, Tx 
+Parks, Jr.        Joseph           Mgr Trading                      ENA NG Texas Region G&A                           ?                            1400 Smith St, Houston, Tx 
+Parquet           David            VP Orig W holesale               West Pwr - West Devlp - San Francisco              Christopher F Calger        1400 Smith St, Houston, Tx                                                  Yes           Yes 
+Patel             Sheetal          Sr Analyst - Rotation  1         ENA Derivatives                                    Fred D Lagrasta             1400 Smith St, Houston, Tx 
+Pehlivanova       Biliana          Trading Analyst- Rotation  1     ENA Fundamental Analysis/ IT                       Christopher J Gaskill       1400 Smith St, Houston, Tx 
+Penman            Gregg            Director Orig W holesale         ENA Origination Enovate                            Laura L Luce                1400 Smith St, Houston, Tx 
+Pennington        Lani             Spec Trading Supt                ENA West Power Fundamental Analysis                Timothy A Heizenrader       1400 Smith St, Houston, Tx                                                  Yes           Yes 
+Pereira           Susan            Mgr Trading                      ENA NE / SE Region Trading                         Scott M Neal                1400 Smith St, Houston, Tx 
+Perlingiere        Debra           Spec Legal                       ENA Lgl-East & Upstrm Orig./ Gas Trading           Jeffrey T Hodge             1400 Smith St, Houston, Tx 
+Perry             Todd             Mgr Structuring                  ENA West Power - EES Transition                    Timothy N Belden            1400 Smith St, Houston, Tx                                                  Yes           Yes 
+Philip            W illis          Trading Associate- Rotation  1   ENA Northeast Region Trading                       Mark D Davis Jr             1400 Smith St, Houston, Tx 
+Philippov         Maxim            Associate - Rotation  1          ENA-EES-East Power Trading                         Rogers Herndon              1400 Smith St, Houston, Tx 
+Piazze            Tara            Analyst - Rotation 2             ENA Southeast Region Origination                   Heather Swan Kroll          1400 Smith St, Houston, Tx 
+Pierce            Joseph           Dir Acctg                       ENA Trading, Origination & Power Plant A           Elaine P Schield            1400 Smith St, Houston, Tx 
+Pimenov           Vladi           Trading Associate- Rotation 2    ENA NE / SE Region Trading                         Scott M Neal                1400 Smith St, Houston, Tx 
+Pinto-leite       Francisco       Counsel SR                       ENA Legal - Financial Trading                      Mark Taylor                 1400 Smith St, Houston, Tx 
+Pizzolato         Paul             Dir Trading                     EnronCredit.comNA - Trading                        Jeffrey P Kinneman          1400 Smith St, Houston, Tx 
+Plachy            Denver          Trading Analyst- Rotation  1     ENA Fundamental Analysis/ IT                       Christopher J Gaskill       1400 Smith St, Houston, Tx 
+Platter           M               Spec Sr Trading Supt             ENA West Power Trading                             Jeffrey S Richter           1400 Smith St, Houston, Tx                                                 Yes           Yes 
+Podurgiel         Laura           Spec Sr Trading Supt             ENA Southeast Region Trading                       Rogers Herndon              1400 Smith St, Houston, Tx 
+Politis           Nick             Mgr Orig W holesale             ENA Northeast Region Origination                   W illiam D Duran            1400 Smith St, Houston, Tx 
+Pollan            Sylvia           Dir Trading                     ENA Midwest Region Origination                     Hunter Shively              1400 Smith St, Houston, Tx 
+Polsky            Philip          Associate - Rotation 2           ENA West Region Origination                        Barry L Tycholiz            1400 Smith St, Houston, Tx                                                 Yes           Yes 
+Poppa             John            Spec Sr Trading Supt             ENA Genco                                          Lloyd J W ill               1400 Smith St, Houston, Tx 
+Porter            David           Spec Sr Trading Supt             ENA West Power Real Time Scheduling                W illiam J W illiams        1400 Smith St, Houston, Tx                                                 Yes           Yes 
+Portz             David           Counsel SR                       ENA Legal - Power Trading                          Elizabeth A Sager           1400 Smith St, Houston, Tx 
+Presto            Darin           Spec Trading Supt                ENA West Power Real Time Scheduling                W illiam J W illiams        1400 Smith St, Houston, Tx                                                 Yes           Yes 
+Presto            Kevin           VP Trading                       ENA Schedulers Trading                             Louise Kitchen              1400 Smith St, Houston, Tx 
+Purcell           Mike            Staff Trading Supt               ENA West Power Volume Management                  ?                            1400 Smith St, Houston, Tx                                                 Yes           Yes 
+Quenet            Joseph           Mgr Trading                     ENA Northeast Region Trading                       Mark D Davis Jr             1400 Smith St, Houston, Tx 
+Qureishi          Ibrahim         Sr Analyst - Rotation  1         West Pwr - West Devlp - San Francisco              Mark D Fillinger            1400 Smith St, Houston, Tx                                                 Yes           Yes 
+Radous            Kevin           Spec Sr Trans Supt               ENA Origination Enovate                            Laura L Luce                1400 Smith St, Houston, Tx 
+Rainer            Eva              Mgr Orig W holesale             ENA Storage                                        Paul W Bieniawski           1400 Smith St, Houston, Tx 
+Raque             Michele         Analyst - Rotation  1            ENA-EES-East Power Trading                         Rogers Herndon              1400 Smith St, Houston, Tx 
+Rasmussen         Dale            Counsel SR                       ENA Legal - West Origination                       Sheila Tweed                1400 Smith St, Houston, Tx                                                 Yes           Yes 
+Ratliff           Philip          Analyst - Rotation 2             ENA Midwest Region Origination                     Edward D Baughman           1400 Smith St, Houston, Tx 
+Rawal             Punit           Trading Associate- Rotation  1   ENA Midwest Region Trading                         Don C Baughman Jr           1400 Smith St, Houston, Tx 
+Rawson            Lester          Spec Sr Trading Supt             NA - West Power Services Desk                      Gregory E Wolfe             1400 Smith St, Houston, Tx                                                 Yes           Yes 
+Reitmeyer         James           Associate - Rotation  1          ENA West Region Trading                            Phillip K Allen             1400 Smith St, Houston, Tx                                                 Yes           Yes 
+Reves             Kelly           Spec Sr Trading Supt             ENA Midwest Region Trading                         Don C Baughman Jr           1400 Smith St, Houston, Tx 
+Reyes             James           Spec Sr Trading Supt             ENA West Power Volume Management                  ?                            1400 Smith St, Houston, Tx                                                 Yes           Yes 
+Richter           Jeffrey          Dir Trading                     ENA West Power - EES Transition                    Timothy N Belden            1400 Smith St, Houston, Tx                                                 Yes           Yes 
+Ring              Andrea           Dir Trading                     ENA NE / SE Region Trading                         Scott M Neal                1400 Smith St, Houston, Tx 
+Roberts           Linda            Director Orig W holesale        ENA Midwest Region Origination                     Laura L Luce                1400 Smith St, Houston, Tx 
+Robinson          Donald          Spec Trading Supt                NA - West Power Pre-Scheduling                     Cara L Freeland             1400 Smith St, Houston, Tx                                                 Yes           Yes 
+Robinson          Mitchell         Dir Trading                     ENA Generation  Investments                        W illiam D Duran            1400 Smith St, Houston, Tx 
+Rodrigue          Robin           Sr Analyst - Rotation  1         ENA Origination Enovate                            Laura L Luce                1400 Smith St, Houston, Tx 
+Rogers            Benjamin        Associate - Rotation 2           ENA Northeast Region Trading                       Mark D Davis Jr             1400 Smith St, Houston, Tx 
+Rorschach         Reagan          Associate - Rotation 2           ENA Southeast Region Origination                   W illiam D Duran            1400 Smith St, Houston, Tx 
+Rosenberg         David            Dir Trading                     EA - W holesale Risk Management                    Remi J Collonges            1400 Smith St, Houston, Tx 
+Rosman            Stewart          Dir Trading                     ENA West Power Middle Market                       Christopher H Foster        1400 Smith St, Houston, Tx                                                 Yes           Yes 
+Rossi             Roberta         Counsel Sr                       ENA Lgl-M&A / Investments/ Energy Capital          W Lance Schuler             1400 Smith St, Houston, Tx 
+Runswick          Stacy           Staff Trading Supt               NA - West Power Pre-Scheduling                     Cara L Freeland             1400 Smith St, Houston, Tx                                                 Yes           Yes 
+Ruscitti          Kevin            Mgr Trading                     ENA Midwest Region Trading                         Hunter Shively              1400 Smith St, Houston, Tx 
+Rust              W illiam         Mgr Trading                     ENA Southeast Region Trading                       Kevin M Presto              1400 Smith St, Houston, Tx 
+Ryan              David            Mgr Trading Supt                ENA Fundamental Analysis                           Lloyd J W ill               1400 Smith St, Houston, Tx 
+Saibi             Eric            Sr Analyst - Rotation  1         ENA ERCOT Region Trading                           Douglas Gilbert-Smith       1400 Smith St, Houston, Tx 
+Salisbury         Holden          Analyst - Rotation  1            ENA West Power Trading                            ?                            1400 Smith St, Houston, Tx                                                 Yes           Yes 
+Sanchez           Monique         Associate - Rotation  1          ENA West Region Trading                            Phillip K Allen             1400 Smith St, Houston, Tx                                                 Yes           Yes 
+Santucci          Anna            Spec Sr Trading Supt             ENA-EES-East Power Trading                         Rogers Herndon              1400 Smith St, Houston, Tx 
+Sarnowski         Julie           Spec Trading Supt                ENA West Power Fundamental Analysis                Timothy A Heizenrader       1400 Smith St, Houston, Tx                                                 Yes           Yes 
+Savvas            Leonidas        Trading Analyst- Rotation  1     ENA NE / SE Region Trading                         Scott M Neal                1400 Smith St, Houston, Tx 
+Sayre             Charles         VP & Asst Gen Cnsl               ENA Physical Trading                               Mark Taylor                 1400 Smith St, Houston, Tx 
+Scheuer           Janelle          Dir Trading                     ENA Northeast Region Origination                   W illiam D Duran            1400 Smith St, Houston, Tx 
+Schiavone         Paul            Trading Associate- Rotation  1   ENA Southeast Region Trading                       W illiam C Rust             1400 Smith St, Houston, Tx 
+Schneider         Bryce           Trading Associate- Rotation  1   ENA Fundamental Analysis                           Lloyd J W ill               1400 Smith St, Houston, Tx 
+Scholtes          Diana            Dir Trading                     ENA West Power Trading                             Timothy N Belden            1400 Smith St, Houston, Tx                                                 Yes           Yes 
+Schuler           W               VP & Asst Gen Cnsl               ENA Lgl-M&A / Investments/ Energy Capital          Mark E Haedicke             1400 Smith St, Houston, Tx 
+Scott             Susan           Analyst - Rotation 2             ENA West Region Trading                            Michael D Grigsby           1400 Smith St, Houston, Tx                                                 Yes           Yes 
+Seely             Charles         Associate - Rotation 2           ENA Southeast Region Trading                       Juan R Hernandez            1400 Smith St, Houston, Tx 
+Seigle            Clayton          Mgr Competitive Analysis        ENA Competitive Analysis & Business Cont           Robert Johnston             1400 Smith St, Houston, Tx 
+Sell              Maximilian      Analyst - Rotation  1            ENA Northeast Region Origination                   David B Marks               1400 Smith St, Houston, Tx 
+Serio             Erik             Mgr Trading Supt                ENA Genco                                          Lloyd J W ill               1400 Smith St, Houston, Tx 
+Sewell            Robert           Mgr Trading                     ENA Midwest Region Origination                     Edward D Baughman           1400 Smith St, Houston, Tx 
+Shackleton        Sara            Gen Counsel Asst                 ENA Legal - Financial Trading                      Mark Taylor                 1400 Smith St, Houston, Tx 
+Sheidun           Donna           Spec Trading Supt                ENA West Power Volume Management                  ?                            1400 Smith St, Houston, Tx                                                 Yes           Yes 
+Shields           Jeffrey          Director Orig W holesale        West Pwr - West Orig - Portland                    Michael W McDonald          1400 Smith St, Houston, Tx                                                 Yes           Yes 
+Shipos            Jennifer         Mgr Trading                     ENA Derivatives                                    Craig A Breslau             1400 Smith St, Houston, Tx 
+Shively           Hunter          VP Trading                       ENA Midwest Region Trading                         John J Lavorato             1400 Smith St, Houston, Tx 
+Simpson           James            Mgr Orig W holesale             ENA Origination Enovate                            Laura L Luce                1400 Smith St, Houston, Tx 
+Singer            John             Mgr Trading                     East Gas: Producer Mid-Market                      Frank W Vickers             1400 Smith St, Houston, Tx 
+Slaughter         Elizabeth       Mgr Trading Supt                 EEL Enron Credit Marketing                        Kimberly A Friddle          1400 Smith St, Houston, Tx 
+Slaughter         Jeffton         Director Orig W holesale         West Pwr - West Orig - Portland                   Jacob S Thomas              1400 Smith St, Houston, Tx                                                 Yes           Yes 
+Slinger           Ryan            Spec Trading Supt                ENA West Power Real Time Scheduling               W illiam J W illiams        1400 Smith St, Houston, Tx                                                 Yes           Yes 
+Smith             Mark            Mgr Trading                      ENA Derivatives                                   Craig A Breslau             1400 Smith St, Houston, Tx 
+Smith             Mathew          Trading Associate- Rotation 2    ENA Fundamental Analysis/ IT                      Christopher J Gaskill       1400 Smith St, Houston, Tx 
+Smith             Shauywn         Associate - Rotation  1          East Gas Producer Orgination                      Jill T Zivley               1400 Smith St, Houston, Tx 
+Solberg           Geir            Analyst - Rotation 2             ENA West Power Real Time Scheduling               W illiam J W illiams        1400 Smith St, Houston, Tx                                                 Yes           Yes 
+Sole iii          Carlos          Counsel SR                       ENA Lgl-East & Upstrm Orig./ Gas Trading          Barbara N Gray              1400 Smith St, Houston, Tx 
+South             Steven          Dir Trading                      ENA West Region Trading                           Phillip K Allen             1400 Smith St, Houston, Tx                                                 Yes           Yes 
+Stalford          Robert          Mgr Trading                      ENA East Power Options Desk                       Harpreet S Arora            1400 Smith St, Houston, Tx 
+Starnes           Chad            Spec Sr Trading Supt             ENA Northeast Region Trading                      Mark D Davis Jr             1400 Smith St, Houston, Tx 
+Stepenovitch      Joseph          Spec Sr Trading Supt             ENA Northeast Region Trading                      Mark D Davis Jr             1400 Smith St, Houston, Tx 
+Stephan           Nicholas        Associate - Rotation 2           EnronCredit.comNA - Marketing                     Bruce Harris                1400 Smith St, Houston, Tx 
+Stokley           Marlin          Associate - Rotation 2           ENA West Power - EES Transition                   Timothy N Belden            1400 Smith St, Houston, Tx                                                 Yes           Yes 
+Storey            Geoffrey        Dir Trading                      ENA Midwest Region Trading                        Hunter Shively              1400 Smith St, Houston, Tx 
+Sturm             Fletcher        VP Trading                       ENA Midwest Region Trading                        Kevin M Presto              1400 Smith St, Houston, Tx 
+Sudduth           Julia           Associate - Rotation  1          ENA-EES-East Power Trading                        Rogers Herndon              1400 Smith St, Houston, Tx 
+Swain             Stephen         Mgr Trading                      ENA West Power - EES Transition                   Timothy N Belden            1400 Smith St, Houston, Tx                                                 Yes           Yes 
+Swerzbin          Michael         VP Trading                       ENA West Power Trading                            Timothy N Belden            1400 Smith St, Houston, Tx                                                 Yes           Yes 
+Symes             Mary            Staff Trading Supt               ENA West Power Real Time Scheduling               W illiam J W illiams        1400 Smith St, Houston, Tx                                                 Yes           Yes 
+Tapscott          Ron             Director Orig W holesale         ENA Generation Development                        Ben F Jacoby                1400 Smith St, Houston, Tx 
+Taylor            John            Mgr Trading                      East Gas: Mid Market                              Frank W Vickers             1400 Smith St, Houston, Tx 
+Taylor            Mark            VP & Gen Cnsl                    ENA Physical Trading                              Mark E Haedicke             1400 Smith St, Houston, Tx 
+Tholt             Jane            Dir Trading                      ENA West Region Trading                           Phillip K Allen             1400 Smith St, Houston, Tx                                                 Yes           Yes 
+Thomas            Jacob           VP Orig W holesale               West Pwr - West Orig - Portland                   Christopher F Calger        1400 Smith St, Houston, Tx                                                 Yes           Yes 
+Thomas            Paul D.         Associate - Rotation  1          ENA Northeast Region Trading                      Mark D Davis Jr             1400 Smith St, Houston, Tx 
+Thome             Stephen         Mgr Orig W holesale              West Pwr - West Orig - Portland                   Jacob S Thomas              1400 Smith St, Houston, Tx                                                 Yes           Yes 
+Thompkins         Jason           Analyst - Rotation 3             ENA Northeast Region Origination                  W illiam D Duran            1400 Smith St, Houston, Tx 
+Thompson          C               VP Orig W holesale               ENA Energy Finance G&A                            John J Lavorato             1400 Smith St, Houston, Tx 
+Thompson          Virginia        Staff Trading Supt               ENA West Power Volume Management                  Murray P O'Neil             1400 Smith St, Houston, Tx                                                 Yes           Yes 
+Thorne            Judith          Mgr Mkt  Intelligence            ENA South and East Texas Origination              John J Grass                1400 Smith St, Houston, Tx 
+Tian              Yuan            Associate - Rotation 3           ENA Commodity Structuring                         Albert E McMichael Jr       1400 Smith St, Houston, Tx 
+Titus             Matthew         Spec Sr Global Energy Svcs       ENA Derivatives                                   Fred D Lagrasta             1400 Smith St, Houston, Tx 
+Tomaski           Richard         Director Orig W holesale         ENA Origination Enovate                           Laura L Luce                1400 Smith St, Houston, Tx 
+Townsend          Judith          Mgr Trading                      ENA NE / SE Region Trading                        Scott M Neal                1400 Smith St, Houston, Tx 
+Trefz             Gregory         Spec Sr Trading Supt             ENA Commodity Structuring                         Berney C Aucoin             1400 Smith St, Houston, Tx 
+Trejo             Mauricio        Analyst - Rotation  1            ENA Southeast Region Trading                      Juan R Hernandez            1400 Smith St, Houston, Tx 
+Tucker            Patrick         Dir Origination                  ENA Origination Enovate                           Laura L Luce                1400 Smith St, Houston, Tx 
+Tweed             Sheila          VP & Asst Gen Cnsl               ENA Legal - West Origination                      Mark E Haedicke             1400 Smith St, Houston, Tx 
+Tycholiz          Barry           VP Orig W holesale               ENA West Region Origination                       John J Lavorato             1400 Smith St, Houston, Tx                                                 Yes           Yes 
+Valderrama        Larry           Mgr Trading                      ENA Midwest Region Origination                    Edward D Baughman           1400 Smith St, Houston, Tx 
+Valdes            Maria           Spec Sr Trading Supt             ENA Midwest Region Trading                        Fletcher J Sturm            1400 Smith St, Houston, Tx 
+Van Gelder        John            Mgr Orig W holesale              West Pwr - West Orig - Portland                   Jonalan Page                1400 Smith St, Houston, Tx                                                 Yes           Yes 
+Van Hooser        Stephen         Gen Counsel Asst                 ENA Lgl-East & Upstrm Orig./ Gas Trading          Barbara N Gray              1400 Smith St, Houston, Tx 
+Van Houten        Maria           Spec Sr Trading Supt             ENA West Power Fundamental Analysis               Timothy A Heizenrader       1400 Smith St, Houston, Tx                                                 Yes           Yes 
+Vasquez           Miguel          Mgr Orig W holesale              ENA Storage                                       Paul W Bieniawski           1400 Smith St, Houston, Tx 
+Vernon            Clayton         Mgr Trading Supt                 ENA Fundamental Analysis                          Lloyd J W ill               1400 Smith St, Houston, Tx 
+Versen            Victoria        Associate - Rotation  1          ENA NE / SE Region Trading                        Scott M Neal                1400 Smith St, Houston, Tx 
+Vetters           Charles         Director Orig W holesale         ENA Generation  Investments                       W illiam D Duran            1400 Smith St, Houston, Tx 
+Vickers           Frank           VP Orig W holesale               ENA NE / SE Region Origination                    John J Lavorato             1400 Smith St, Houston, Tx 
+Wagner            Joseph          Trading Associate- Rotation 2    ENA-EES-East Power Trading                        Rogers Herndon              1400 Smith St, Houston, Tx 
+Wang              Steve           Mgr Orig W holesale              ENA East Power Options Desk                       Harpreet S Arora            1400 Smith St, Houston, Tx 
+Ward              Charles         Director Orig W holesale         ENA Generation  Investments                       W illiam D Duran            1400 Smith St, Houston, Tx 
+Ward              Kimberly        Mgr Orig W holesale              ENA West Region Origination                       Barry L Tycholiz            1400 Smith St, Houston, Tx                                                 Yes           Yes 
+Wente             Laura           Mgr Orig W holesale              West Pwr - West Orig - Portland                   Jacob S Thomas              1400 Smith St, Houston, Tx                                                 Yes           Yes 
+W heeler          Raymond         Associate - Rotation 2           ENA Northeast Region Origination                  W illiam D Duran            1400 Smith St, Houston, Tx 
+W hitaker         Fredrick        Director Orig W holesale         ENA Generation Development                        Ben F Jacoby                1400 Smith St, Houston, Tx 
+W hitt            Mark            VP Orig W holesale               ENA Origination - Denver                          Barry L Tycholiz            1400 Smith St, Houston, Tx 
+W iggs            Brett           VP Bus Dev Orig                  EA - Commercial Development                       Joseph G Kishkill           1400 Smith St, Houston, Tx 
+W ill             Lloyd           Dir Trading                      ENA Fundamental Analysis                          Kevin M Presto              1400 Smith St, Houston, Tx 
+W illiams         W illiam J      Analyst - Rotation  1            ENA West Power Real Time Scheduling               Gregory E Wolfe             1400 Smith St, Houston, Tx                                                 Yes           Yes 
+W illis           Cory            Analyst - Rotation 2             ENA Northeast Region Trading                      Mark D Davis Jr             1400 Smith St, Houston, Tx 
+W illis           James           Associate - Rotation  1          ENA NE / SE Region Origination                    Frank W Vickers             1400 Smith St, Houston, Tx 
+W ilson           Susan           Spec Trading Supt                NA - West Power Pre-Scheduling                    Cara L Freeland             1400 Smith St, Houston, Tx                                                 Yes           Yes 
+Wolfe             Gregory         VP Trading                       NA - West Power Services Desk                     Timothy N Belden            1400 Smith St, Houston, Tx                                                 Yes           Yes 
+Wolfe             Stephen         Spec Sr Acctg                    ENA BAR Trade Accounts                            Tracy E  Irvin              1400 Smith St, Houston, Tx 
+Wong              Michael D       Associate - Rotation 2           West Pwr - West Orig - San Francisco              Michael W McDonald          1400 Smith St, Houston, Tx                                                 Yes           Yes 
+Wood              George          Mgr Trading                      ENA Northeast Region Origination                  W illiam D Duran            1400 Smith St, Houston, Tx 
+Woodland          Andrea          Mgr Trans Supt                   West Pwr - West Orig - Portland                   Jonalan Page                1400 Smith St, Houston, Tx                                                 Yes           Yes 
+W right           Alice           Asst Sr Admin                    ENA Legal - Power Trading                         Elizabeth A Sager           1400 Smith St, Houston, Tx 
+Yawapongsiri      Virawan         Trading Associate- Rotation 4    ENA Fundamental Analysis/ IT                      Christopher J Gaskill       1400 Smith St, Houston, Tx 
+Yoder             Christian       Counsel SR                       ENA Legal - Power Trading                         Elizabeth A Sager           1400 Smith St, Houston, Tx 
+Zipper            Andrew          VP Trading                       ENA Financial                                     John D Arnold               1400 Smith St, Houston, Tx 
+Zisman            Stuart          Gen Counsel Asst                 ENA Legal - Power Trading                         Barbara N Gray              1400 Smith St, Houston, Tx 
+Zivic             Robyn           Mgr Trading                      ENA Middle Market Nymex New York - OLD            Fred D Lagrasta             1400 Smith St, Houston, Tx 
+Zivley            Jill            Dir Trading                      East Gas Producer Orgination                      Frank W Vickers             1400 Smith St, Houston, Tx 
+Sullivan-ShaklovitzColleen        Mng Dir Trading                  ENA Fundamental Analysis - LT                     Louise Kitchen              1400 Smith St, Houston, Tx 
+Verity            Jacqueline      Spec Sr HR                       NA  International Administration                  David Oxley                 1400 Smith St, Houston, Tx 
+Hansen            Leslie          Counsel SR                       ENA Legal - Power Trading                         Elizabeth A Sager           1400 Smith St, Houston, Tx 
+Moore             Janet           Counsel SR                       ENA Legal - Power Trading                         Elizabeth A Sager           1400 Smith St, Houston, Tx 
+Carranza          Octavio         Contractor                       West Pwr - West Orig - San Francisco              April M Hrach               1400 Smith St, Houston, Tx                                                Yes            Yes 
+Postel            Adolph          Contractor                       East Power Generation Company                     Kevin M Presto              1400 Smith St, Houston, Tx 
+Ragnetti          Sandra          Contractor                       NA - West Power Administration                    Debra S Davidson            1400 Smith St, Houston, Tx 
+Smith             Maureen         Dir Trading                      East Gas: Mid Market                              Frank W Vickers             1400 Smith St, Houston, Tx 
+Sager             Elizabeth       VP & Asst Gen Cnsl               ENA Legal - Power Trading                         Mark E Haedicke             1400 Smith St, Houston, Tx 
+St. Clair         Carol           Gen Counsel Asst                 ENA Legal - Power Trading                         Elizabeth A Sager           1400 Smith St, Houston, Tx 
+
+                                                                                                                                                                                                                                                                                                      ECf000172418 
