@@ -33,7 +33,7 @@ int main(int argc, char* argv[]) {
     printf("Factorization use %f seconds\n", difftime(time(NULL), t));
     printf("finish factorization for r=%d\n", r);
     //PrintMatrix(G);
-    TFlt Error = ComputeDescriptionLength(V, G, F);
+    TFlt Error = CalcDescriptionLength(V, G, F);
     if (Error < MnError) {
       MnError = Error;
       FinalG = G;

@@ -5,12 +5,12 @@
 void PrintFeatures(const TIntFtrH& Features) {
   for (TIntFtrH::TIter HI = Features.BegI(); HI < Features.EndI(); HI++) {
     printf("%d: [", HI.GetKey()());
-    const TFtr& f = HI.GetDat();
-    for (int i = 0; i < f.Len(); ++i) {
+    const TFtr& Feature = HI.GetDat();
+    for (int i = 0; i < Feature.Len(); ++i) {
       if (i > 0) {
         printf(",");
       }
-      printf("%f", f[i]());
+      printf("%f", Feature[i]());
     }
     printf("]\n");
   }
@@ -36,11 +36,11 @@ int GetNumFeatures(const TIntFtrH& Features) {
   return Features.BegI().GetDat().Len();
 }
 
-TFtr GetNthFeature(const TIntFtrH& Features, const int n) {
+TFtr GetNthFeature(const TIntFtrH& Features, const int N) {
   TFtr NthFeature;
-  IAssert(0 <= n && n < GetNumFeatures(Features));
+  IAssert(0 <= N && N < GetNumFeatures(Features));
   for (TIntFtrH::TIter HI = Features.BegI(); HI < Features.EndI(); HI++) {
-    NthFeature.Add(HI.GetDat()[n]);
+    NthFeature.Add(HI.GetDat()[N]);
   }
   return NthFeature;
 }
@@ -134,12 +134,12 @@ void AppendFeatures(TIntFtrH& DstFeatures, const TIntFtrH& SrcFeatures,
   for (TIntFtrH::TIter HI = SrcFeatures.BegI();
       HI < SrcFeatures.EndI();
       HI++) {
-    const TFtr& f = HI.GetDat();
+    const TFtr& Feature = HI.GetDat();
     if (ColIdx >= 0) {
-      DstFeatures.GetDat(HI.GetKey()).Add(f[ColIdx]);
+      DstFeatures.GetDat(HI.GetKey()).Add(Feature[ColIdx]);
     } else {
-      for (int i = 0; i < f.Len(); ++i) {
-        DstFeatures.GetDat(HI.GetKey()).Add(f[i]);
+      for (int i = 0; i < Feature.Len(); ++i) {
+        DstFeatures.GetDat(HI.GetKey()).Add(Feature[i]);
       }
     }
   }
@@ -238,12 +238,12 @@ bool IsSimilarFeature(const TFtr& F1, const TFtr& F2,
 }
 
 TFltVV ConvertFeatureToMatrix(const TIntFtrH& Features,
-    const TIntIntH& NodeIdMtxIdH) {
+    const TIntIntH& NodeIdMtxIdxH) {
   const int NumNodes = Features.Len();
   const int NumFeatures = GetNumFeatures(Features);
   TFltVV FeaturesMtx(NumNodes, NumFeatures);
   for (TIntFtrH::TIter HI = Features.BegI(); HI < Features.EndI(); HI++) {
-    int i = GetMtxIdx(HI.GetKey(), NodeIdMtxIdH);
+    int i = GetMtxIdx(HI.GetKey(), NodeIdMtxIdxH);
     for (int j = 0; j < NumFeatures; ++j) {
       FeaturesMtx(i, j) = HI.GetDat()[j];
     }
@@ -269,47 +269,37 @@ void PrintMatrix(const TFltVV& Matrix) {
 }
 
 TFltVV CreateRandMatrix(const int XDim, const int YDim) {
-  //srand(time(NULL));
-  //TFltVV Matrix(XDim, YDim);
-  //for (int i = 0; i < XDim; ++i) {
-  //  for (int j = 0; j < YDim; ++j) {
-  //    Matrix(i, j) = (double) rand() / RAND_MAX;
-  //  }
-  //}
-  //return Matrix;
-  int seed = 13;
+  int Seed = 13;
   TFltVV Matrix(XDim, YDim);
   for (int i = 0; i < XDim; ++i) {
     for (int j = 0; j < YDim; ++j) {
-      Matrix(i, j) = (double)seed / 10007;
-      seed = (seed * 1871) % 10007;
+      Matrix(i, j) = (double)Seed / 10007;
+      Seed = (Seed * 1871) % 10007;
     }
   }
   return Matrix;
 }
 
-bool FltIsZero(const TFlt f) {
-  return TFlt::Abs(f) < TFlt::Eps;
+bool FltIsZero(const TFlt Number) {
+  return TFlt::Abs(Number) < TFlt::Eps;
 }
 
 void CalcNonNegativeFactorization(const TFltVV& V, const int NumRoles,
     TFltVV& W, TFltVV& H) {
-  double threshhold = 1e-6;
+  double Threshhold = 1e-6;
   double Cost = 100, NewCost = 0;
   int NumNodes = V.GetXDim();
   int NumFeatures = V.GetYDim();
   W = CreateRandMatrix(NumNodes, NumRoles);
   H = CreateRandMatrix(NumRoles, NumFeatures);
-  //FPrintMatrix(W, "w.txt");
-  //FPrintMatrix(H, "h.txt");
   TFltVV NewW(NumNodes, NumRoles);
   TFltVV NewH(NumRoles, NumFeatures);
   TFltVV Product(NumNodes, NumFeatures);
   TFltV Sum(NumRoles);
-  TFltVV *w = &W, *h = &H, *newW = &NewW, *newH = &NewH, *tmp;
+  TFltVV *PW = &W, *PH = &H, *PNewW = &NewW, *PNewH = &NewH, *Tmp;
   int IterNum = 1;
-  while (TFlt::Abs((NewCost - Cost)/Cost) > threshhold) {
-    TLinAlg::Multiply(*w, *h, Product);
+  while (TFlt::Abs((NewCost - Cost)/Cost) > Threshhold) {
+    TLinAlg::Multiply(*PW, *PH, Product);
     //converge condition
     Cost = NewCost;
     NewCost = 0;
@@ -324,54 +314,48 @@ void CalcNonNegativeFactorization(const TFltVV& V, const int NumRoles,
         double SumU = 0;
         for (int u = 0; u < NumFeatures; ++u) {
           if (!FltIsZero(Product(i, u))) {
-            SumU += V(i, u) / Product(i, u) * h->At(a, u);
+            SumU += V(i, u) / Product(i, u) * PH->At(a, u);
           }
         }
-        newW->At(i, a) = w->At(i, a) * SumU;
+        PNewW->At(i, a) = PW->At(i, a) * SumU;
       }
     }
-    //FPrintMatrix(NewW, "NewW.txt");
     for (int i = 0; i < NumRoles; i++) {
       Sum[i] = 0;
     }
     for (int i = 0; i < NumNodes; i++) {
       for (int j = 0; j < NumRoles; j++) {
-        Sum[j] += newW->At(i, j);
+        Sum[j] += PNewW->At(i, j);
       }
     }
     for (int i = 0; i < NumNodes; i++) {
       for (int j = 0; j < NumRoles; j++) {
-        newW->At(i, j) /= Sum[j];
+        PNewW->At(i, j) /= Sum[j];
       }
     }
-    //FPrintMatrix(NewW, "NewW.txt");
     // update H
-    double diff = 0;
     for (int a = 0; a < NumRoles; a++) {
       for (int u = 0; u < NumFeatures; u++) {
         double SumI = 0;
         for (int i = 0; i < NumNodes; ++i) {
           if (!FltIsZero(Product(i, u))) {
-            SumI += w->At(i, a) * V(i, u) / Product(i, u);
+            SumI += PW->At(i, a) * V(i, u) / Product(i, u);
           }
         }
-        newH->At(a, u) = h->At(a, u) * SumI;
-        //diff += TFlt::Abs(SumI - 1);
+        PNewH->At(a, u) = PH->At(a, u) * SumI;
       }
     }
-    printf("iteration %d, cost is %f\n", IterNum++, NewCost);
-    //if (diff / (NumRoles * NumFeatures) < threshhold) break;
-    //FPrintMatrix(NewH, "NewH.txt");
-    tmp = w; w = newW; newW = tmp;
-    tmp = h; h = newH; newH = tmp;
+    //printf("iteration %d, cost is %f\n", IterNum++, NewCost);
+    Tmp = PW; PW = PNewW; PNewW = Tmp;
+    Tmp = PH; PH = PNewH; PNewH = Tmp;
   }
 }
 
-TFlt ComputeDescriptionLength(const TFltVV& V, const TFltVV& G,
+TFlt CalcDescriptionLength(const TFltVV& V, const TFltVV& G,
     const TFltVV& F) {
-  int b = 64;
-  int m = b * V.GetYDim() * (V.GetXDim() + F.GetYDim());
-  TFlt e = 0;
+  int B = 64;
+  int M = B * V.GetYDim() * (V.GetXDim() + F.GetYDim());
+  TFlt E = 0;
   TFltVV GF(G.GetXDim(), F.GetYDim());
   TLinAlg::Multiply(G, F, GF);
   for (int i = 0; i < V.GetXDim(); ++i) {
@@ -379,32 +363,32 @@ TFlt ComputeDescriptionLength(const TFltVV& V, const TFltVV& G,
       TFlt ValueV = V(i, j);
       TFlt ValueGF = GF(i, j);
       if (FltIsZero(ValueV)) {
-        e += ValueGF;
+        E += ValueGF;
       } else if (!FltIsZero(ValueGF)) {
-        e += ValueV * TMath::Log(ValueV / ValueGF) - ValueV + ValueGF;
+        E += ValueV * TMath::Log(ValueV / ValueGF) - ValueV + ValueGF;
       }
     }
   }
-  return m + e;
+  return M + E;
 }
 
 TIntIntH CreateNodeIdMtxIdxHash(const TIntFtrH& Features) {
-  TIntIntH h;
-  TInt idx = 0;
+  TIntIntH H;
+  TInt Idx = 0;
   for (TIntFtrH::TIter HI = Features.BegI(); HI < Features.EndI(); HI++) {
-    h.AddDat(HI.GetKey(), idx);
-    idx++;
+    H.AddDat(HI.GetKey(), Idx);
+    Idx++;
   }
-  return h;
+  return H;
 }
 
-int GetMtxIdx(const TInt NodeId, const TIntIntH& NodeIdMtxIdH) {
-  return NodeIdMtxIdH.GetDat(NodeId)();
+int GetMtxIdx(const TInt NodeId, const TIntIntH& NodeIdMtxIdxH) {
+  return NodeIdMtxIdxH.GetDat(NodeId)();
 }
 
-int GetNodeId(const TInt MtxId, const TIntIntH& NodeIdMtxIdH) {
-  for (TIntIntH::TIter HI = NodeIdMtxIdH.BegI();
-      HI < NodeIdMtxIdH.EndI();
+int GetNodeId(const TInt MtxId, const TIntIntH& NodeIdMtxIdxH) {
+  for (TIntIntH::TIter HI = NodeIdMtxIdxH.BegI();
+      HI < NodeIdMtxIdxH.EndI();
       HI++) {
     if (HI.GetDat() == MtxId) {
       return HI.GetKey()();
@@ -413,7 +397,7 @@ int GetNodeId(const TInt MtxId, const TIntIntH& NodeIdMtxIdH) {
   return -1;
 }
 
-TIntIntH FindRoles(const TFltVV& G, const TIntIntH& NodeIdMtxIdH) {
+TIntIntH FindRoles(const TFltVV& G, const TIntIntH& NodeIdMtxIdxH) {
   TIntIntH Roles;
   for (int i = 0; i < G.GetXDim(); i++) {
     int Role = -1;
@@ -424,21 +408,20 @@ TIntIntH FindRoles(const TFltVV& G, const TIntIntH& NodeIdMtxIdH) {
         Role = j;
       }
     }
-    int NodeId = GetNodeId(i, NodeIdMtxIdH);
+    int NodeId = GetNodeId(i, NodeIdMtxIdxH);
     Roles.AddDat(NodeId, Role);
   }
   return Roles;
 }
 
 void PlotRoles(const PUNGraph Graph, const TIntIntH& Roles) {
-  std::string RoleToColor[10] = { "white", "black", "red", "green", "blue",
+  TStr RoleToColor[10] = { "white", "black", "red", "green", "blue",
       "yellow", "gold", "cyan", "magenta", "brown" };
   TIntStrH Color;
   for (TIntIntH::TIter HI = Roles.BegI(); HI < Roles.EndI(); HI++) {
-    Color.AddDat(HI.GetKey(), RoleToColor[HI.GetDat()].c_str());
+    Color.AddDat(HI.GetKey(), RoleToColor[HI.GetDat()].CStr());
   }
   TSnap::DrawGViz(Graph, gvlDot, "gviz_plot.png", "Dot", 1, Color);
-  //TGraphViz::Plot<PNGraph>(Graph, gvlDot, "gviz_plot.png", "", Color);
 }
 
 void PrintRoles(const TIntIntH& Roles) {
@@ -450,29 +433,29 @@ void PrintRoles(const TIntIntH& Roles) {
   printf("}\n");
 }
 
-void FPrintMatrix(const TFltVV& Matrix, const std::string& path) {
-  FILE *fp;
-  fp = fopen(path.data(), "w");
+void FPrintMatrix(const TFltVV& Matrix, const TStr& Path) {
+  FILE *Fp;
+  Fp = fopen(Path.CStr(), "w");
   int XDim = Matrix.GetXDim();
   int YDim = Matrix.GetYDim();
   for (int i = 0; i < XDim; ++i) {
     for (int j = 0; j < YDim; ++j) {
       if (j != 0) {
-        fprintf(fp, " ");
+        fprintf(Fp, " ");
       }
-      fprintf(fp, "%f", Matrix(i, j)());
+      fprintf(Fp, "%f", Matrix(i, j)());
     }
-    fprintf(fp, "\n");
+    fprintf(Fp, "\n");
   }
-  fclose(fp);
+  fclose(Fp);
 }
 
-void FPrintRoles(const TIntIntH& Roles, const std::string& path) {
-  FILE *fp;
-  fp = fopen(path.data(), "w");
-  fprintf(fp, "--roles (node ID role ID)--\n\n");
+void FPrintRoles(const TIntIntH& Roles, const TStr& Path) {
+  FILE *Fp;
+  Fp = fopen(Path.CStr(), "w");
+  fprintf(Fp, "--roles (node ID role ID)--\n\n");
   for (TIntIntH::TIter HI = Roles.BegI(); HI < Roles.EndI(); HI++) {
-    fprintf(fp, "%d\t%d\n", HI.GetKey()(), HI.GetDat()());
+    fprintf(Fp, "%d\t%d\n", HI.GetKey()(), HI.GetDat()());
   }
-  fclose(fp);
+  fclose(Fp);
 }
