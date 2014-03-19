@@ -285,8 +285,7 @@ bool FltIsZero(const TFlt Number) {
 }
 
 void CalcNonNegativeFactorization(const TFltVV& V, const int NumRoles,
-    TFltVV& W, TFltVV& H) {
-  double Threshhold = 1e-6;
+    TFltVV& W, TFltVV& H, const double Threshold) {
   double Cost = 100, NewCost = 0;
   int NumNodes = V.GetXDim();
   int NumFeatures = V.GetYDim();

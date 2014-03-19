@@ -9,6 +9,7 @@ int main(int argc, char* argv[]) {
   }
   int min_roles = atoi(argv[2]);
   int max_roles = atoi(argv[3]);
+  double Threshold = 1e-6;
   if (min_roles > max_roles || min_roles < 2) {
     printf("min roles and max roles should be integer and\n");
 	printf("2 <= min roles <= max roles\n");
@@ -30,7 +31,7 @@ int main(int argc, char* argv[]) {
     TFltVV G, F;
 	printf("factorizing for %d roles...\n", r);
     time_t t = time(NULL);
-    CalcNonNegativeFactorization(V, r, G, F);
+    CalcNonNegativeFactorization(V, r, G, F, Threshold);
     printf("Factorization uses %f seconds\n", difftime(time(NULL), t));
     //FPrintMatrix(G, "g.txt");
 	//FPrintMatrix(F, "f.txt");

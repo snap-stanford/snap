@@ -64,7 +64,7 @@ TFltVV CreateRandMatrix(const int XDim, const int YDim);
 bool FltIsZero(const TFlt Number);
 // Perform non-negative factorization: V = WH. 2nd dim of W == number of roles.
 void CalcNonNegativeFactorization(const TFltVV& V, const int NumRoles,
-    TFltVV& W, TFltVV& H);
+    TFltVV& W, TFltVV& H, const double Threshold);
 // Calculate the description length L = M + E.
 TFlt CalcDescriptionLength(const TFltVV& V, const TFltVV& G,
     const TFltVV& F);
