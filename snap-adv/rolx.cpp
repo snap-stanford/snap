@@ -297,7 +297,7 @@ void CalcNonNegativeFactorization(const TFltVV& V, const int NumRoles,
   TFltV Sum(NumRoles);
   TFltVV *PW = &W, *PH = &H, *PNewW = &NewW, *PNewH = &NewH, *Tmp;
   int IterNum = 1;
-  while (TFlt::Abs((NewCost - Cost)/Cost) > Threshhold) {
+  while (TFlt::Abs((NewCost - Cost)/Cost) > Threshold) {
     TLinAlg::Multiply(*PW, *PH, Product);
     //converge condition
     Cost = NewCost;
