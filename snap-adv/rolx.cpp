@@ -47,7 +47,6 @@ TFtr GetNthFeature(const TIntFtrH& Features, const int N) {
 
 TIntFtrH ExtractFeatures(const PUNGraph Graph) {
   TIntFtrH Features = CreateEmptyFeatures(Graph);
-  printf("finish createEmptyFeatures()\n");
   AddNeighborhoodFeatures(Graph, Features);
   printf("finish neighborhood features\n");
   AddRecursiveFeatures(Graph, Features);
@@ -57,7 +56,7 @@ TIntFtrH ExtractFeatures(const PUNGraph Graph) {
 
 void AddNeighborhoodFeatures(const PUNGraph Graph, TIntFtrH& Features) {
   AddLocalFeatures(Graph, Features);
-  printf("finish recursive features\n");
+  printf("finish local features\n");
   AddEgonetFeatures(Graph, Features);
   printf("finish egonet features\n");
 }
