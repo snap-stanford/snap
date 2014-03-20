@@ -47,7 +47,6 @@ TFtr GetNthFeature(const TIntFtrH& Features, const int N) {
 
 TIntFtrH ExtractFeatures(const PUNGraph Graph) {
   TIntFtrH Features = CreateEmptyFeatures(Graph);
-  printf("finish createEmptyFeatures()\n");
   AddNeighborhoodFeatures(Graph, Features);
   printf("finish neighborhood features\n");
   AddRecursiveFeatures(Graph, Features);
@@ -57,7 +56,7 @@ TIntFtrH ExtractFeatures(const PUNGraph Graph) {
 
 void AddNeighborhoodFeatures(const PUNGraph Graph, TIntFtrH& Features) {
   AddLocalFeatures(Graph, Features);
-  printf("finish recursive features\n");
+  printf("finish local features\n");
   AddEgonetFeatures(Graph, Features);
   printf("finish egonet features\n");
 }
@@ -285,8 +284,7 @@ bool FltIsZero(const TFlt Number) {
 }
 
 void CalcNonNegativeFactorization(const TFltVV& V, const int NumRoles,
-    TFltVV& W, TFltVV& H) {
-  double Threshhold = 1e-6;
+    TFltVV& W, TFltVV& H, const double Threshold) {
   double Cost = 100, NewCost = 0;
   int NumNodes = V.GetXDim();
   int NumFeatures = V.GetYDim();
@@ -298,7 +296,7 @@ void CalcNonNegativeFactorization(const TFltVV& V, const int NumRoles,
   TFltV Sum(NumRoles);
   TFltVV *PW = &W, *PH = &H, *PNewW = &NewW, *PNewH = &NewH, *Tmp;
   int IterNum = 1;
-  while (TFlt::Abs((NewCost - Cost)/Cost) > Threshhold) {
+  while (TFlt::Abs((NewCost - Cost)/Cost) > Threshold) {
     TLinAlg::Multiply(*PW, *PH, Product);
     //converge condition
     Cost = NewCost;
