@@ -4054,3 +4054,170 @@ void TTable::ProjectInPlace(const TStrV& ProjectCols) {
     S.Del(i);
   }
 }
+
+TInt TTable::CompareKeyVal(const TInt& K1, const TInt& V1, const TInt& K2, const TInt& V2) {
+  // if (K1 == K2) { 
+  //   if (V1 < V2) { return -1; }
+  //   else if (V1 > V2) { return 1; }
+  //   else return 0;
+  // }
+  // if (K1 < K2) { return -1; }
+  // else { return 1; }
+
+  if (K1 == K2) { return V1 - V2; }
+  else { return K1 - K2; }
+}
+
+TInt TTable::CheckSortedKeyVal(TIntV& Key, TIntV& Val, TInt Start, TInt End) {
+  TInt j;
+  for (j = Start; j < End; j++) {
+    if (CompareKeyVal(Key[j], Val[j], Key[j+1], Val[j+1]) > 0) {
+      break;
+    }
+  }
+  if (j >= End) { return 0; }
+  else { return 1; }
+}
+
+void TTable::ISortKeyVal(TIntV& Key, TIntV& Val, TInt Start, TInt End) {
+  if (Start < End) {
+    for (TInt i = Start+1; i <= End; i++) {
+      TInt K = Key[i];
+      TInt V = Val[i];
+      TInt j = i;
+      while ((Start < j) && (CompareKeyVal(Key[j-1], Val[j-1], K, V) > 0)) {
+        Key[j] = Key[j-1];
+        Val[j] = Val[j-1];
+        j--;
+      }
+      Key[j] = K;
+      Val[j] = V;
+    }
+  }
+}
+
+TInt TTable::GetPivotKeyVal(TIntV& Key, TIntV& Val, TInt Start, TInt End) {
+  TInt L = End - Start + 1;
+  const TInt Idx1 = Start + TInt::GetRnd(L);
+  const TInt Idx2 = Start + TInt::GetRnd(L);
+  const TInt Idx3 = Start + TInt::GetRnd(L);
+  if (CompareKeyVal(Key[Idx1], Val[Idx1], Key[Idx2], Val[Idx2]) < 0) {
+    if (CompareKeyVal(Key[Idx2], Val[Idx2], Key[Idx3], Val[Idx3]) < 0) { return Idx2; }
+    if (CompareKeyVal(Key[Idx1], Val[Idx1], Key[Idx3], Val[Idx3]) < 0) { return Idx3; }
+    return Idx1;
+  } else {
+    if (CompareKeyVal(Key[Idx3], Val[Idx3], Key[Idx2], Val[Idx2]) < 0) { return Idx2; }
+    if (CompareKeyVal(Key[Idx3], Val[Idx3], Key[Idx1], Val[Idx1]) < 0) { return Idx3; }
+    return Idx1;
+  }
+}
+
+
+TInt TTable::PartitionKeyVal(TIntV& Key, TIntV& Val, TInt Start, TInt End) {
+  TInt Pivot = GetPivotKeyVal(Key, Val, Start, End);
+  //printf("Pivot=%d\n", Pivot.Val);
+  TInt PivotKey = Key[Pivot];
+  TInt PivotVal = Val[Pivot];
+  Key.Swap(Pivot, End);
+  Val.Swap(Pivot, End);
+  TInt StoreIdx = Start;
+  for (TInt i = Start; i < End; i++) {
+    //printf("%d %d %d %d\n", Key[i].Val, Val[i].Val, PivotKey.Val, PivotVal.Val);
+    if (CompareKeyVal(Key[i], Val[i], PivotKey, PivotVal) <= 0) {
+      Key.Swap(i, StoreIdx);
+      Val.Swap(i, StoreIdx);
+      StoreIdx++;
+    }
+  }
+  //printf("StoreIdx=%d\n", StoreIdx.Val);
+  // move pivot value to its place
+  Key.Swap(StoreIdx, End);
+  Val.Swap(StoreIdx, End);
+  return StoreIdx;
+}
+
+void TTable::QSortKeyVal(TIntV& Key, TIntV& Val, TInt Start, TInt End) {
+  //printf("Thread=%d, Start=%d, End=%d\n", omp_get_thread_num(), Start.Val, End.Val);
+  TInt L = End-Start;
+  if (L <= 0) { return; }
+  if (CheckSortedKeyVal(Key, Val, Start, End) == 0) { return; }
+  
+  if (L <= 20) { ISortKeyVal(Key, Val, Start, End); }
+  else {
+    TInt Pivot = PartitionKeyVal(Key, Val, Start, End);
+    
+    if (Pivot > End) { return; }
+    if (L <= 500000) {
+      QSortKeyVal(Key, Val, Start, Pivot-1);
+      QSortKeyVal(Key, Val, Pivot+1, End);
+    } else {
+      #pragma omp task untied shared(Key, Val)
+      { QSortKeyVal(Key, Val, Start, Pivot-1); }
+        
+      #pragma omp task untied shared(Key, Val)
+      { QSortKeyVal(Key, Val, Pivot+1, End); }
+    }
+  }
+}
+
+void TTable::PSRSKeyVal(TIntV& Key, TIntV& Val, TInt Start, TInt End) {
+  TInt L = End-Start;
+  if (L <= 0) { return; }
+  if (CheckSortedKeyVal(Key, Val, Start, End) == 0) { return; }
+  TInt NumThreads = omp_get_max_threads();
+  if (L <= NumThreads*NumThreads) { QSortKeyVal(Key, Val, Start, End); return; }
+
+  // Phase 1: QSort partitions in parallel
+  TInt Sz = L+1;
+  TIntV IndV, NextV;
+  for (TInt i = 0; i < NumThreads; i++) {
+    IndV.Add(i * (Sz / NumThreads));
+  }
+  IndV.Add(Sz);
+
+  TIntPrV Samples(NumThreads*NumThreads, NumThreads*NumThreads);
+  TInt JumpSize = Sz/(NumThreads*NumThreads);
+
+  omp_set_num_threads(NumThreads);
+  #pragma omp parallel for schedule(static)
+  for (int i = 0; i < NumThreads; i++) {
+    QSortKeyVal(Key, Val, IndV[i], IndV[i+1] - 1);
+    for (TInt j = 0; j < NumThreads; j++) {
+      Samples[i+j] = TPair<TInt, TInt>(Key[IndV[i]+j*JumpSize], Val[IndV[i]+j*JumpSize]);
+    }
+  }
+
+  // Phase 2: Sort samples, select pivots and partition
+  Samples.Sort();
+
+  TIntV PivotKeys;
+  TIntV PivotVals;
+  for (TInt i = 1; i < NumThreads; i++) {
+    PivotKeys.Add(Samples[i*NumThreads+(NumThreads/2)-1].GetVal1());
+    PivotVals.Add(Samples[i*NumThreads+(NumThreads/2)-1].GetVal2());
+  }
+
+  TVec<TIntV> PivotOffsets(NumThreads);
+
+  omp_set_num_threads(NumThreads);
+  #pragma omp parallel for
+  for (int i = 0; i < NumThreads; i++) {
+    TInt Curr = 0;
+    TInt j = IndV[i];
+    while (j < IndV[i+1]) {
+      if (Curr >= NumThreads-1) { break; }
+      if (CompareKeyVal(Key[j], Val[j], PivotKeys[Curr], PivotVals[Curr]) >= 0) {
+        PivotOffsets[i].Add(j);
+        Curr++;
+      } else {
+        j++;
+      }
+    }
+    while (Curr < NumThreads-1) {
+      PivotOffsets[i].Add(j);
+    }
+  }
+
+  // Phase 3: Redistribute
+
+}

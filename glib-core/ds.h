@@ -1,3 +1,5 @@
+#include <omp.h>
+
 /////////////////////////////////////////////////
 // Address-Pointer
 template <class TRec>
@@ -496,9 +498,10 @@ public:
   void Pack();
   /// Takes over the data and the capacity from \c Vec. ##TVec::MoveFrom
   void MoveFrom(TVec<TVal, TSizeTy>& Vec);
+  /// Copy \c Sz values from \c Vec starting at \c Offset.
+  void CopyUniqueFrom(TVec<TVal, TSizeTy>& Vec, TInt Offset, TInt Sz);
   /// Swaps the contents of the vector with \c Vec.
   void Swap(TVec<TVal, TSizeTy>& Vec);
-  
   /// Tests whether the vector is empty. ##TVec::Empty
   bool Empty() const {return Vals==0;}
   /// Returns the number of elements in the vector. ##TVec::Len
@@ -747,14 +750,23 @@ void TVec<TVal, TSizeTy>::Resize(const TSizeTy& _MxVals){
     MxVals = TInt::Mx-1024;
   }
   if (ValT==NULL){
-    try {ValT=new TVal[MxVals];}
+    try {
+      //double start = omp_get_wtime();
+      ValT=new TVal[MxVals];
+      //double end = omp_get_wtime();
+      //printf("Malloc time = %f\n",end-start);
+    }
     catch (std::exception Ex){
       FailR(TStr::Fmt("TVec::Resize: %s, Length:%s, Capacity:%s, New capacity:%s, Type:%s [Program failed to allocate more memory. Solution: Get a bigger machine and a 64-bit compiler.]",
         Ex.what(), TInt::GetStr(Vals).CStr(), TInt::GetStr(MxVals).CStr(), TInt::GetStr(_MxVals).CStr(), GetTypeNm(*this).CStr()).CStr());}
   } else {
     TVal* NewValT = NULL;
     try {
-      NewValT=new TVal[MxVals];}
+      //double start = omp_get_wtime();
+      NewValT=new TVal[MxVals];
+      //double end = omp_get_wtime();
+      //printf("Malloc2 time = %f\n",end-start);
+    }
     catch (std::exception Ex){
       FailR(TStr::Fmt("TVec::Resize: %s, Length:%s, Capacity:%s, New capacity:%s, Type:%s [Program failed to allocate more memory. Solution: Get a bigger machine and a 64-bit compiler.]",
         Ex.what(), TInt::GetStr(Vals).CStr(), TInt::GetStr(MxVals).CStr(), TInt::GetStr(_MxVals).CStr(), GetTypeNm(*this).CStr()).CStr());}
@@ -911,6 +923,24 @@ void TVec<TVal, TSizeTy>::MoveFrom(TVec<TVal, TSizeTy>& Vec){
     if (ValT!=NULL && MxVals!=-1){delete[] ValT;}
     MxVals=Vec.MxVals; Vals=Vec.Vals; ValT=Vec.ValT;
     Vec.MxVals=0; Vec.Vals=0; Vec.ValT=NULL;
+  }
+}
+
+template <class TVal, class TSizeTy>
+void TVec<TVal, TSizeTy>::CopyUniqueFrom(TVec<TVal, TSizeTy>& Vec, TInt Offset, TInt Sz){
+  if (this!=&Vec){
+    if (ValT!=NULL && MxVals!=-1 && MxVals < Sz){
+      delete[] ValT;
+      ValT=new TVal[Sz];
+    }
+    if (Sz == 0) { Vals = 0; return; }
+    ValT[0] = Vec.ValT[Offset];
+    Vals = 1;
+    for (TSizeTy ValN=1; ValN<Sz; ValN++){
+      if (ValT[Vals-1] != Vec.ValT[Offset+ValN]) {
+        ValT[Vals++] = Vec.ValT[Offset+ValN];
+      }
+    }
   }
 }
 

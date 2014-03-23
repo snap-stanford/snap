@@ -221,6 +221,7 @@ namespace TSnap{
 	/// Convert table to a network. Suitable for PNEANet - Assumes no node and edge attributes. 
 	template<class PGraph> PGraph ToNetwork(PTable Table, const TStr& SrcCol, const TStr& DstCol, TAttrAggr AggrPolicy);
   template<class PGraphMP> PGraphMP ToGraphMP(PTable Table, const TStr& SrcCol, const TStr& DstCol);
+  template<class PGraphMP> PGraphMP ToGraphMP2(PTable Table, const TStr& SrcCol, const TStr& DstCol);
 }
 
 //#//////////////////////////////////////////////
@@ -238,6 +239,7 @@ public:
 	template<class PGraph> friend PGraph TSnap::ToNetwork(PTable Table, const TStr& SrcCol, const TStr& DstCol, 
 			TStrV& SrcAttrs, TStrV& DstAttrs, TStrV& EdgeAttrs, TAttrAggr AggrPolicy);
   template<class PGraphMP> friend PGraphMP TSnap::ToGraphMP(PTable Table, const TStr& SrcCol, const TStr& DstCol);
+  template<class PGraphMP> friend PGraphMP TSnap::ToGraphMP2(PTable Table, const TStr& SrcCol, const TStr& DstCol);
 
   static void SetMP(TInt Value) { UseMP = Value; }
   static TInt GetMP() { return UseMP; }
@@ -1080,6 +1082,14 @@ public:
 
   /// Debug: print sizes of various fields of table
   void PrintSize();
+
+  static TInt CompareKeyVal(const TInt& K1, const TInt& V1, const TInt& K2, const TInt& V2);
+  static TInt CheckSortedKeyVal(TIntV& Key, TIntV& Val, TInt Start, TInt End);
+  static void ISortKeyVal(TIntV& Key, TIntV& Val, TInt Start, TInt End);
+  static TInt GetPivotKeyVal(TIntV& Key, TIntV& Val, TInt Start, TInt End);
+  static TInt PartitionKeyVal(TIntV& Key, TIntV& Val, TInt Start, TInt End);
+  static void QSortKeyVal(TIntV& Key, TIntV& Val, TInt Start, TInt End);
+  static void PSRSKeyVal(TIntV& Key, TIntV& Val, TInt Start, TInt End);
 
   /// Get sequence of PageRank tables from given \c GraphSeq
   static TTableIterator GetMapPageRank(const TVec<PNEANet>& GraphSeq, 

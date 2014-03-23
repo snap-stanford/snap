@@ -1126,4 +1126,14 @@ void TNGraphMP::AddInEdge2(const int& SrcNId, const int& DstNId) {
   NodeH[NodeH.GetKeyId(DstNId)].InNIdV.AddAtm(SrcNId);
 }
 
+// add a node with a list of neighbors
+// (use TNGraphMP::IsOk to check whether the graph is consistent)
+void TNGraphMP::AddNodeWithEdges(const TInt& NId, TIntV& InNIdV, TIntV& OutNIdV) {
+  int NodeIdx = abs((NId.GetPrimHashCd()) % Reserved());
+  int NodeKeyId = NodeH.AddKey13(NodeIdx, NId);
+  NodeH[NodeKeyId] = TNode(NId);
+  NodeH[NodeKeyId].InNIdV.MoveFrom(InNIdV);
+  NodeH[NodeKeyId].OutNIdV.MoveFrom(OutNIdV);  
+}
+
 

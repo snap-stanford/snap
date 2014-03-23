@@ -1063,6 +1063,9 @@ public:
   void AddOutEdge2(const int& SrcNId, const int& DstNId);
   void AddInEdge2(const int& SrcNId, const int& DstNId);
 
+  /// Adds a node of ID NId to the graph, creates edges to the node from all nodes in vector InNIdV, creates edges from the node to all nodes in vector OutNIdV.
+  void AddNodeWithEdges(const TInt& NId, TIntV& InNIdV, TIntV& OutNIdV);
+
   /// Deletes an edge from node IDs SrcNId to DstNId from the graph. ##TNGraphMP::DelEdge
   void DelEdge(const int& SrcNId, const int& DstNId, const bool& IsDir = true);
   /// Tests whether an edge from node IDs SrcNId to DstNId exists in the graph.

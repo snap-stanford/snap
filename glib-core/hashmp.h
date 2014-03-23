@@ -167,6 +167,7 @@ public:
   int AddKey(const TKey& Key);
   int AddKey11(const int& Idx, const TKey& Key, bool& Found);
   int AddKey12(const int& Idx, const TKey& Key, bool& Found);
+  int AddKey13(const int& Idx, const TKey& Key);
   int AddKey1(const TKey& Key, bool& Found);
   int AddKey2(const int& Idx, const TKey& Key, bool& Found);
   TDat& AddDatId(const TKey& Key){
@@ -345,6 +346,44 @@ int THashMP<TKey, TDat, THashFunc>::AddKey12(const int& BegTableN, const TKey& K
   Table[TableN].HashCd.Val = 2;
 
   Found = false;
+  return TableN;
+}
+
+template<class TKey, class TDat, class THashFunc>
+int THashMP<TKey, TDat, THashFunc>::AddKey13(const int& BegTableN, const TKey& Key) {
+  //int CurVals = __sync_fetch_and_add(&NumVals.Val, 1);
+  //IAssertR(CurVals < Table.Len(), "Table must not be full");
+
+  const int Length = Table.Len();
+  //const int HashCd=abs(Key.GetSecHashCd());
+
+  // HashCd values:
+  //  -1: empty slot
+  //   1: occupied slot, invalid key
+  //   2: occupied slot, valid key
+
+  int TableN = BegTableN;
+  do {
+    int HashCd = Table[TableN].HashCd.Val;
+    if (HashCd == -1) {
+      // an empty slot
+      if (__sync_bool_compare_and_swap(&Table[TableN].HashCd.Val, -1, 1)) {
+        // an empty slot has been claimed, key is invalid
+        break;
+      }
+    } else {
+      // slot is occupied, move to the next slot
+      TableN++;
+      if (TableN >= Length) {
+        TableN = 0;
+      }
+    }
+  } while (1);
+
+  // write the key, indicate a valid key
+  Table[TableN].Key = Key;
+  Table[TableN].HashCd.Val = 2;
+
   return TableN;
 }
 
