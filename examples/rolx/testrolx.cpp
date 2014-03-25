@@ -3,20 +3,22 @@
 #include "rolx.h"
 
 int main(int argc, char* argv[]) {
-  if (argc < 4) {
-    printf("Usage: ./prototype <dataset file> <min roles> <max roles>\n");
+  Env = TEnv(argc, argv, TNotify::StdNotify);
+  Env.PrepArgs(TStr::Fmt("Rolx. build: %s, %s. Time: %s", __TIME__, __DATE__, TExeTm::GetCurTm()));
+  TExeTm ExeTm;
+  Try
+  const TStr InFNm = Env.GetIfArgPrefixStr("-i:", "graph.txt", "Input graph (one edge per line, tab/space separated)");
+  const TStr OutFNm = Env.GetIfArgPrefixStr("-o:", "roles", "Output file name prefix");
+  const int MinRoles = Env.GetIfArgPrefixInt("-l:", 2, "Lower bound of the number of roles");
+  const int MaxRoles = Env.GetIfArgPrefixInt("-u:", 10, "Upper bound of the number of roles");
+  double Threshold = 1e-6;
+  if (MinRoles > MaxRoles || MinRoles < 2) {
+    printf("min roles and max roles should be integer and\n");
+    printf("2 <= min roles <= max roles\n");
     exit(EXIT_SUCCESS);
   }
-  int min_roles = atoi(argv[2]);
-  int max_roles = atoi(argv[3]);
-  double Threshold = 1e-6;
-  if (min_roles > max_roles || min_roles < 2) {
-    printf("min roles and max roles should be integer and\n");
-	printf("2 <= min roles <= max roles\n");
-	exit(EXIT_SUCCESS);
-  }
   printf("loading file...\n");
-  PUNGraph Graph = TSnap::LoadEdgeList<PUNGraph>(argv[1], 0, 1);
+  PUNGraph Graph = TSnap::LoadEdgeList<PUNGraph>(InFNm, 0, 1);
   printf("extracting features...\n");
   TIntFtrH Features = ExtractFeatures(Graph);
   TIntIntH NodeIdMtxIdH = CreateNodeIdMtxIdxHash(Features);
@@ -27,14 +29,14 @@ int main(int argc, char* argv[]) {
   TFlt MnError = TFlt::Mx;
   TFltVV FinalG, FinalF;
   int NumRoles = -1;
-  for (int r = min_roles; r <= max_roles; ++r) {
+  for (int r = MinRoles; r <= MaxRoles; ++r) {
     TFltVV G, F;
-	printf("factorizing for %d roles...\n", r);
-    time_t t = time(NULL);
+    printf("factorizing for %d roles...\n", r);
+    //time_t t = time(NULL);
     CalcNonNegativeFactorization(V, r, G, F, Threshold);
-    printf("Factorization uses %f seconds\n", difftime(time(NULL), t));
+    //printf("Factorization uses %f seconds\n", difftime(time(NULL), t));
     //FPrintMatrix(G, "g.txt");
-	//FPrintMatrix(F, "f.txt");
+    //FPrintMatrix(F, "f.txt");
     TFlt Error = CalcDescriptionLength(V, G, F);
     if (Error < MnError) {
       MnError = Error;
@@ -47,7 +49,9 @@ int main(int argc, char* argv[]) {
   //FPrintMatrix(FinalF, "final_f.txt");
   printf("using %d roles, min error: %f\n", NumRoles, MnError());
   TIntIntH Roles = FindRoles(FinalG, NodeIdMtxIdH);
-  FPrintRoles(Roles, "roles.txt");
+  FPrintRoles(Roles, OutFNm);
   //PlotRoles(Graph, Roles);
+  Catch
+  printf("\nrun time: %s (%s)\n", ExeTm.GetTmStr(), TSecTm::GetCurTm().GetTmStr().CStr());
   return 0;
 }
