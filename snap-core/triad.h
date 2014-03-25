@@ -202,6 +202,7 @@ void GetTriads(const PGraph& Graph, TIntTrV& NIdCOTriadV, int SampleNodes) {
   }
 }
 
+#if 0
 void GetMergeSortedV(TIntV& NeighbourV, TNGraph::TNodeI NI) {
   int ind, j, k;
   ind = j = k = 0;
@@ -304,6 +305,7 @@ template<class PGraph> long long CountTriangles(const PGraph& Graph) {
 
   return cnt;
 }
+#endif
 
 // Count the number of edges that participate in at least one triad
 template <class PGraph>
