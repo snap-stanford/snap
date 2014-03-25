@@ -8,7 +8,7 @@ int main(int argc, char* argv[]) {
   TExeTm ExeTm;
   Try
   const TStr InFNm = Env.GetIfArgPrefixStr("-i:", "graph.txt", "Input graph (one edge per line, tab/space separated)");
-  const TStr OutFNm = Env.GetIfArgPrefixStr("-o:", "roles", "Output file name prefix");
+  const TStr OutFNm = Env.GetIfArgPrefixStr("-o:", "roles.txt", "Output file name prefix");
   const int MinRoles = Env.GetIfArgPrefixInt("-l:", 2, "Lower bound of the number of roles");
   const int MaxRoles = Env.GetIfArgPrefixInt("-u:", 10, "Upper bound of the number of roles");
   double Threshold = 1e-6;

@@ -17,19 +17,15 @@ and makefiles are provided. For makefiles, compile the code with
 
 ///////////////////////////////////////////////////////////////////////////////
 Parameters:
-Threshold: used as the converge condition in the non-negative factorization. In
-the factorization, it maximize f=sum_i(sum_u(V_iu*log((W*H)_iu-(W*H)_iu))). We
-use "abs((new_f - old_f)/old_f) < Threshold" as the converge condition. This
-threshold need to be carefully tuned according the to dataset size. We use 
-Threshold = 1e-6 for the enron-email dataset. 
+   -i:Input graph (one edge per line, tab/space separated) (default:'graph.txt')
+   -o:Output file prefix (default:'roles.txt')
+   -l:Lower bound of the number of roles (default: 2)
+   -u:Upper bound of the number of roles (default: 10)
 
 ///////////////////////////////////////////////////////////////////////////////
 Usage:
-./prototype <dataset file> <min roles> <max roles>
-<dataset file> is the graph file
-<min roles> and <max roles> is the minimum number of roles and the maximum 
-number of roles. The rolx will try on all the role numbers in the interval
-[min roles, max roles] and find the best one.
+Analyze the roles in the graph.
+./testrolx -i:graph.txt -o:roles.txt -l:3 -u:4
 
 ///////////////////////////////////////////////////////////////////////////////
 Design consideration:
