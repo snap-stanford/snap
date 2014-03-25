@@ -31,6 +31,9 @@ int TUNGraph::AddNode(const int& NId, const TIntV& NbrNIdV) {
   Node.NIdV = NbrNIdV;
   Node.NIdV.Sort();
   NEdges += Node.GetDeg();
+  for (int i = 0; i < NbrNIdV.Len(); i++) {
+    GetNode(NbrNIdV[i]).NIdV.AddSorted(NewNId);
+  }
   return NewNId;
 }
 
@@ -42,7 +45,7 @@ int TUNGraph::AddNode(const int& NId, const TVecPool<TInt>& Pool, const int& NId
   } else {
     IAssertR(!IsNode(NId), TStr::Fmt("NodeId %d already exists", NId));
     NewNId = NId;
-    MxNId = TMath::Mx(NewNId+1, MxNId());
+    MxNId = TMath::Mx(NewNId+1, MxNId()); 
   }
   TNode& Node = NodeH.AddDat(NewNId);
   Node.Id = NewNId;

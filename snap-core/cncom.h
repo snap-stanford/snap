@@ -395,6 +395,7 @@ void GetSccs(const PGraph& Graph, TCnComV& CnComV) {
   TSccVisitor<PGraph, false> Visitor(Graph);
   TCnCom::GetDfsVisitor(Graph, Visitor);
   CnComV = Visitor.CnComV;
+  CnComV.Sort(false);
 }
 
 template <class PGraph> 
