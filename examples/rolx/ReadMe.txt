@@ -20,7 +20,7 @@ Parameters:
    -i:Input graph (one edge per line, tab/space separated) (default:'graph.txt')
    -o:Output file prefix (default:'roles.txt')
    -l:Lower bound of the number of roles (default: 2)
-   -u:Upper bound of the number of roles (default: 10)
+   -u:Upper bound of the number of roles (default: 3)
 
 ///////////////////////////////////////////////////////////////////////////////
 Usage:

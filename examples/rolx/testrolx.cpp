@@ -10,7 +10,7 @@ int main(int argc, char* argv[]) {
   const TStr InFNm = Env.GetIfArgPrefixStr("-i:", "graph.txt", "Input graph (one edge per line, tab/space separated)");
   const TStr OutFNm = Env.GetIfArgPrefixStr("-o:", "roles.txt", "Output file name prefix");
   const int MinRoles = Env.GetIfArgPrefixInt("-l:", 2, "Lower bound of the number of roles");
-  const int MaxRoles = Env.GetIfArgPrefixInt("-u:", 10, "Upper bound of the number of roles");
+  const int MaxRoles = Env.GetIfArgPrefixInt("-u:", 3, "Upper bound of the number of roles");
   double Threshold = 1e-6;
   if (MinRoles > MaxRoles || MinRoles < 2) {
     printf("min roles and max roles should be integer and\n");
@@ -23,8 +23,8 @@ int main(int argc, char* argv[]) {
   TIntFtrH Features = ExtractFeatures(Graph);
   TIntIntH NodeIdMtxIdH = CreateNodeIdMtxIdxHash(Features);
   TFltVV V = ConvertFeatureToMatrix(Features, NodeIdMtxIdH);
-  printf("saving features...\n");
-  FPrintMatrix(V, "v.txt");
+  //printf("saving features...\n");
+  //FPrintMatrix(V, "v.txt");
   printf("feature matrix is saved in v.txt\n");
   TFlt MnError = TFlt::Mx;
   TFltVV FinalG, FinalF;
@@ -32,9 +32,7 @@ int main(int argc, char* argv[]) {
   for (int r = MinRoles; r <= MaxRoles; ++r) {
     TFltVV G, F;
     printf("factorizing for %d roles...\n", r);
-    //time_t t = time(NULL);
     CalcNonNegativeFactorization(V, r, G, F, Threshold);
-    //printf("Factorization uses %f seconds\n", difftime(time(NULL), t));
     //FPrintMatrix(G, "g.txt");
     //FPrintMatrix(F, "f.txt");
     TFlt Error = CalcDescriptionLength(V, G, F);
