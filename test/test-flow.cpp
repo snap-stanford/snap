@@ -2,8 +2,31 @@
 
 #include "Snap.h"
 
+int BuildCapacityNetwork(const TStr& InFNm, PNEANet &Net, const int& SrcColId = 0, const int& DstColId = 1, const int& CapColId = 2) {
+  TSsParser Ss(InFNm, ssfWhiteSep, true, true, true);
+  TRnd Random;
+  Net.Clr();
+  Net = TNEANet::New();
+  int SrcNId, DstNId, CapVal, EId;
+  int MaxCap = 0;
+  while (Ss.Next()) {
+    if (! Ss.GetInt(SrcColId, SrcNId) || ! Ss.GetInt(DstColId, DstNId) || ! Ss.GetInt(CapColId, CapVal)) { continue; }
+    MaxCap = max(CapVal, MaxCap);
+    if (! Net->IsNode(SrcNId)) {
+      Net->AddNode(SrcNId);
+    }
+    if (! Net->IsNode(DstNId)) {
+      Net->AddNode(DstNId);
+    }
+    EId = Net->AddEdge(SrcNId, DstNId);
+    Net->AddIntAttrDatE(EId, CapVal, TSnap::CapAttrName);
+  }
+  return MaxCap;
+}
+
 TEST(FlowTest, BasicTest) {
-  PNEANet Net = TNEANet::Load("flow/small_sample");
+  PNEANet Net;
+  BuildCapacityNetwork("Flow/small_sample.txt", Net);
   int PRFlow1 = TSnap::GetMaxFlowIntPR(Net, 53, 2);
   int EKFlow1 = TSnap::GetMaxFlowIntEK(Net, 53, 2);
   int PRFlow2 = TSnap::GetMaxFlowIntPR(Net, 86, 77);

@@ -5,7 +5,7 @@ int BuildCapacityNetwork(const TStr& InFNm, PNEANet &Net, const int& SrcColId = 
   TSsParser Ss(InFNm, ssfWhiteSep, true, true, true);
   TRnd Random;
   Net.Clr();
-  Net = TNEANet::New();;
+  Net = TNEANet::New();
   int SrcNId, DstNId, CapVal, EId;
   int MaxCap = 0;
   while (Ss.Next()) {
