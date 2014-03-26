@@ -42,6 +42,9 @@ template<class PGraph> int GetLen2Paths(const PGraph& Graph, const int& NId1, co
 /// Returns the 2 directed paths between a pair of nodes NId1, NId2 (NId1 --> U --> NId2). ##TSnap::GetLen2Paths
 template<class PGraph> int GetLen2Paths(const PGraph& Graph, const int& NId1, const int& NId2, TIntV& NbrV);
 
+void GetMergeSortedV(TIntV& NeighbourV, TNGraph::TNodeI NI);
+int GetCommon(TIntV& A, TIntV& B);
+
 /////////////////////////////////////////////////
 // Implementation
 
@@ -202,61 +205,6 @@ void GetTriads(const PGraph& Graph, TIntTrV& NIdCOTriadV, int SampleNodes) {
   }
 }
 
-#if 0
-void GetMergeSortedV(TIntV& NeighbourV, TNGraph::TNodeI NI) {
-  int ind, j, k;
-  ind = j = k = 0;
-  while (j < NI.GetInDeg() && k < NI.GetOutDeg()) {
-    int v1 = NI.GetInNId(j);
-    int v2 = NI.GetOutNId(k);
-    if (v1 <= v2) {
-      if ((ind == 0) || (NeighbourV[ind-1] != v1)) {
-        NeighbourV.Add(v1);
-        ind += 1;
-      }
-      j += 1;
-    }
-    else {
-      if ((ind == 0) || (NeighbourV[ind-1] != v2)) {
-        NeighbourV.Add(v2);
-        ind += 1;
-      }
-      k += 1;
-    }
-  }
-  while (j < NI.GetInDeg()) {
-    int v = NI.GetInNId(j);
-    if ((ind == 0) || (NeighbourV[ind-1] != v)) {
-        NeighbourV.Add(v);
-        ind += 1;
-    }
-    j += 1;
-  }
-  while (k < NI.GetOutDeg()) {
-    int v = NI.GetOutNId(k);
-    if ((ind == 0) || (NeighbourV[ind-1] != v)) {
-        NeighbourV.Add(v);
-        ind += 1;
-    }
-    k += 1;
-  }
-}
-
-int GetCommon(TIntV& A, TIntV& B) {
-  int i = 0, j = 0;
-  int ret = 0;
-  while (i < A.Len()) {
-    while (j < B.Len() && B[j] < A[i]) {
-      j += 1;
-    }
-    if (j == B.Len()) {
-      break;
-    }
-    if (B[j] == A[i]) ret += 1;
-    i += 1;
-  }
-  return ret;
-}
 
 template<class PGraph> long long CountTriangles(const PGraph& Graph) {
   THash<TInt, TInt> H;
@@ -305,7 +253,6 @@ template<class PGraph> long long CountTriangles(const PGraph& Graph) {
 
   return cnt;
 }
-#endif
 
 // Count the number of edges that participate in at least one triad
 template <class PGraph>

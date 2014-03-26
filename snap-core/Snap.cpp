@@ -24,6 +24,7 @@
 #include "gstat.cpp"         // graph statistics
 #include "centr.cpp"         // centrality measures
 #include "cmty.cpp"          // community detection algorithms
+#include "triad.cpp"         // clustering coefficient and triads
 
 // graph generators
 #include "ggen.cpp"          // graph generators (preferential attachment, small-world, ...)
