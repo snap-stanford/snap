@@ -206,7 +206,8 @@ void GetTriads(const PGraph& Graph, TIntTrV& NIdCOTriadV, int SampleNodes) {
 }
 
 
-template<class PGraph> long long CountTriangles(const PGraph& Graph) {
+template<class PGraph> 
+int64 CountTriangles(const PGraph& Graph) {
   THash<TInt, TInt> H;
   TIntV MapV;
 
@@ -240,13 +241,13 @@ template<class PGraph> long long CountTriangles(const PGraph& Graph) {
 
   }
 
-  long long cnt = 0;
+  int64 cnt = 0;
 #pragma omp parallel for schedule(dynamic) reduction(+:cnt)
   for (TInt i = 0; i < HigherDegNbrV.Len(); i++) {
     for (TInt j = 0; j < HigherDegNbrV[i].Len(); j++) {
       TInt NbrInd = H.GetDat(HigherDegNbrV[i][j]);
 
-      long long num = GetCommon(HigherDegNbrV[i], HigherDegNbrV[NbrInd]);
+      int64 num = GetCommon(HigherDegNbrV[i], HigherDegNbrV[NbrInd]);
       cnt += num;
     }
   }
