@@ -2863,26 +2863,52 @@ PTable TTable::GetEdgeTablePN(const PNGraphMP& Network, const TStr& TableName, T
   SR.Add(TPair<TStr,TAttrType>("src_id",atInt));
   SR.Add(TPair<TStr,TAttrType>("dst_id",atInt));
 
+  TNGraphMP::TEdgeI FirstEI = Network->BegEI();
   PTable T = New(TableName, SR, Context);
+  TInt NumEdges = Network->GetEdges();
+  TInt NumPartitions = omp_get_max_threads()*CHUNKS_PER_THREAD;
+  TInt PartitionSize = NumEdges/NumPartitions;
+  if (PartitionSize*NumPartitions < NumEdges) { NumPartitions++;}
 
-  TInt Cnt = 0;
-  // populate table columns
-  TNGraphMP::TEdgeI EdgeI = Network->BegEI();
-  while(EdgeI < Network->EndEI()){
-    T->IntCols[0].Add(EdgeI.GetSrcNId());
-    T->IntCols[1].Add(EdgeI.GetDstNId());
-    Cnt++;
-    EdgeI++;
+  typedef TPair<TNGraphMP::TEdgeI, TNGraphMP::TEdgeI> TEIPr;
+  TVec<TEIPr> Partitions;
+  TIntV PartitionSizes;
+  TNGraphMP::TEdgeI currStart = FirstEI;
+  TInt currCount = 0;
+  while (FirstEI < Network->EndEI()){
+    if (currCount == PartitionSize) {
+      Partitions.Add(TEIPr(currStart, FirstEI));
+      currStart = FirstEI;
+      PartitionSizes.Add(currCount);
+      //printf("added: %d\n", currCount.Val);
+      currCount = 0;
+    }
+    //printf("%d\n", currCount.Val);
+    FirstEI++;
+    currCount++;
   }
-  // set number of rows and "Next" vector
-  T->NumRows = Cnt;
-  T->NumValidRows = T->NumRows;
-  T->Next = TIntV(T->NumRows,0);
-  for(TInt i = 0; i < T->NumRows-1; i++){
-    T->Next.Add(i+1);
+  Partitions.Add(TEIPr(currStart, FirstEI));
+  PartitionSizes.Add(currCount);
+
+  T->ResizeTable(NumEdges);
+  #ifdef _OPENMP
+  #pragma omp parallel for schedule(dynamic, CHUNKS_PER_THREAD)
+  #endif
+  for (int p = 0; p < Partitions.Len(); p++) {
+    TNGraphMP::TEdgeI EdgeI = Partitions[p].GetVal1();
+    TNGraphMP::TEdgeI EndI = Partitions[p].GetVal2();
+    //printf("Thread = %d, p = %d, size = %d\n", omp_get_thread_num(), p, PartitionSizes[p].Val);
+    int start = T->GetEmptyRowsStart(PartitionSizes[p]);
+    while (EdgeI < EndI) {
+      T->IntCols[0][start] = EdgeI.GetSrcNId();
+      T->IntCols[1][start] = EdgeI.GetDstNId();
+      EdgeI++;
+      if (EdgeI < EndI) { T->Next[start] = start+1;}
+      start++;
+    }
   }
-  T->LastValidRow = T->NumRows-1;
-  T->Next.Add(Last);
+
+  Assert(T->NumRows == NumEdges);
   return T;
 }
 
