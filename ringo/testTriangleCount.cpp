@@ -32,10 +32,10 @@ int main(int argc, char* argv[]) {
   Profiler.ResetTimer(TimerId);
   Profiler.StartTimer(TimerId);
   gettimeofday(&start, NULL);
-  long long cnt = TSnap::CountTriangles(Graph);
+  int64 cnt = TSnap::CountTriangles(Graph);
   Profiler.StopTimer(TimerId);
   gettimeofday(&end, NULL);
-  printf("%lld\n", cnt);
+  printf("%s\n", TUInt64::GetStr(cnt).CStr());
   delta = ((end.tv_sec  - start.tv_sec) * 1000000u + 
             end.tv_usec - start.tv_usec) / 1.e6;
   printf("Count Triangles time (elapsed): %f, cpu: %f\n", delta, Profiler.GetTimerSec(TimerId));

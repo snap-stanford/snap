@@ -42,6 +42,9 @@ template<class PGraph> int GetLen2Paths(const PGraph& Graph, const int& NId1, co
 /// Returns the 2 directed paths between a pair of nodes NId1, NId2 (NId1 --> U --> NId2). ##TSnap::GetLen2Paths
 template<class PGraph> int GetLen2Paths(const PGraph& Graph, const int& NId1, const int& NId2, TIntV& NbrV);
 
+void GetMergeSortedV(TIntV& NeighbourV, TNGraph::TNodeI NI);
+int GetCommon(TIntV& A, TIntV& B);
+
 /////////////////////////////////////////////////
 // Implementation
 
@@ -202,62 +205,9 @@ void GetTriads(const PGraph& Graph, TIntTrV& NIdCOTriadV, int SampleNodes) {
   }
 }
 
-void GetMergeSortedV(TIntV& NeighbourV, TNGraph::TNodeI NI) {
-  int ind, j, k;
-  ind = j = k = 0;
-  while (j < NI.GetInDeg() && k < NI.GetOutDeg()) {
-    int v1 = NI.GetInNId(j);
-    int v2 = NI.GetOutNId(k);
-    if (v1 <= v2) {
-      if ((ind == 0) || (NeighbourV[ind-1] != v1)) {
-        NeighbourV.Add(v1);
-        ind += 1;
-      }
-      j += 1;
-    }
-    else {
-      if ((ind == 0) || (NeighbourV[ind-1] != v2)) {
-        NeighbourV.Add(v2);
-        ind += 1;
-      }
-      k += 1;
-    }
-  }
-  while (j < NI.GetInDeg()) {
-    int v = NI.GetInNId(j);
-    if ((ind == 0) || (NeighbourV[ind-1] != v)) {
-        NeighbourV.Add(v);
-        ind += 1;
-    }
-    j += 1;
-  }
-  while (k < NI.GetOutDeg()) {
-    int v = NI.GetOutNId(k);
-    if ((ind == 0) || (NeighbourV[ind-1] != v)) {
-        NeighbourV.Add(v);
-        ind += 1;
-    }
-    k += 1;
-  }
-}
 
-int GetCommon(TIntV& A, TIntV& B) {
-  int i = 0, j = 0;
-  int ret = 0;
-  while (i < A.Len()) {
-    while (j < B.Len() && B[j] < A[i]) {
-      j += 1;
-    }
-    if (j == B.Len()) {
-      break;
-    }
-    if (B[j] == A[i]) ret += 1;
-    i += 1;
-  }
-  return ret;
-}
-
-template<class PGraph> long long CountTriangles(const PGraph& Graph) {
+template<class PGraph> 
+int64 CountTriangles(const PGraph& Graph) {
   THash<TInt, TInt> H;
   TIntV MapV;
 
@@ -291,13 +241,13 @@ template<class PGraph> long long CountTriangles(const PGraph& Graph) {
 
   }
 
-  long long cnt = 0;
+  int64 cnt = 0;
 #pragma omp parallel for schedule(dynamic) reduction(+:cnt)
   for (TInt i = 0; i < HigherDegNbrV.Len(); i++) {
     for (TInt j = 0; j < HigherDegNbrV[i].Len(); j++) {
       TInt NbrInd = H.GetDat(HigherDegNbrV[i][j]);
 
-      long long num = GetCommon(HigherDegNbrV[i], HigherDegNbrV[NbrInd]);
+      int64 num = GetCommon(HigherDegNbrV[i], HigherDegNbrV[NbrInd]);
       cnt += num;
     }
   }

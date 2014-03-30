@@ -24,13 +24,17 @@ class TAtomicPredicate {
     TInt IntConst; ///< Int const value if this object is an integer constant
     TFlt FltConst; ///< Flt const value if this object is a float constant
     TStr StrConst; ///< Str const value if this object is a string constant
-	protected:
-		static const TAtomicPredicate NonAtom;
+  // OP RS: 2014/03/25, NonAtom does not work with Snap.py
+	//protected:
+		//static const TAtomicPredicate NonAtom;
   public:
     /// Default constructor
-    TAtomicPredicate() : Type(NonAtom.Type), IsConst(NonAtom.IsConst), 
-      Compare(NonAtom.Compare), Lvar(NonAtom.Lvar), Rvar(NonAtom.Rvar), 
-      IntConst(NonAtom.IntConst), FltConst(NonAtom.FltConst), StrConst(NonAtom.StrConst) {}
+    TAtomicPredicate() : Type(atInt), IsConst(true), 
+      Compare(EQ), Lvar(""), Rvar(""), 
+      IntConst(0), FltConst(0), StrConst("") {}
+    //TAtomicPredicate() : Type(NonAtom.Type), IsConst(NonAtom.IsConst), 
+    //  Compare(NonAtom.Compare), Lvar(NonAtom.Lvar), Rvar(NonAtom.Rvar), 
+    //  IntConst(NonAtom.IntConst), FltConst(NonAtom.FltConst), StrConst(NonAtom.StrConst) {}
     /// Construct predicate from given comparison op, variables and constants
     TAtomicPredicate(TAttrType Typ, TBool IsCnst, TPredComp Cmp, TStr L, TStr R, 
     TInt ICnst, TFlt FCnst, TStr SCnst) : Type(Typ), IsConst(IsCnst), 
