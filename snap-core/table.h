@@ -475,7 +475,7 @@ protected:
     double endGen = omp_get_wtime();
     printf("Gen time = %f\n", endGen-endPart);
     #ifdef _OPENMP
-    #pragma omp parallel for schedule(dynamic, CHUNKS_PER_THREAD) num_threads(8)
+    #pragma omp parallel for schedule(dynamic, CHUNKS_PER_THREAD) num_threads(1)
     #endif
     for (int i = 0; i < Partitions.Len(); i++){
       TRowIterator RowI(Partitions[i].GetVal1(), this);

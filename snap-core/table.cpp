@@ -2017,11 +2017,12 @@ void TTable::SelectAtomicConst(const TStr& Col, const TPrimitive& Val, TPredComp
           TInt CurrRowIdx = RowI.GetRowIdx();
           TBool Result = RowI.CompareAtomicConst(ColIdx, ThreadLocalVal, Cmp);
           RowI++;
-          if(!Result) { 
+          if(!Result) {
             Next[CurrRowIdx] = TTable::Invalid;
             RemoveCount++;
           } else { 
-            if (First) { FirstRowIdx = CurrRowIdx; First = false; }
+            if (First) { FirstRowIdx = CurrRowIdx; First = false; } 
+            else { Next[LastRowIdx] = CurrRowIdx; }
             LastRowIdx = CurrRowIdx; 
           }
         }
@@ -2047,7 +2048,8 @@ void TTable::SelectAtomicConst(const TStr& Col, const TPrimitive& Val, TPredComp
         NumValidRows -= RemoveCount;
         FirstValidRow = Bounds[CurrBound].Val1;
         LastValidRow = Bounds[CurrBound].Val2;
-        TInt PrevBound = CurrBound++;
+        TInt PrevBound = CurrBound;
+        CurrBound++;
         while (CurrBound < Bounds.Len()) {
           if (Bounds[CurrBound].Val1 == TTable::Invalid) { CurrBound++; continue; }
           Next[Bounds[PrevBound].Val2] = Bounds[CurrBound].Val1;
@@ -2055,7 +2057,9 @@ void TTable::SelectAtomicConst(const TStr& Col, const TPrimitive& Val, TPredComp
           PrevBound = CurrBound;
           CurrBound++;
         }
+        Next[Bounds[PrevBound].Val2] = TTable::Last;
       }
+      IsNextDirty = 1;
       double endRepair = omp_get_wtime();
       printf("Repair time = %f\n", endRepair-endIter);
     } else {
@@ -2068,6 +2072,7 @@ void TTable::SelectAtomicConst(const TStr& Col, const TPrimitive& Val, TPredComp
           RowI++;
         }
       }
+      IsNextDirty = 1;
     #ifdef _OPENMP
     }
     #endif
