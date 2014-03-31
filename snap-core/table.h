@@ -63,13 +63,13 @@ public:
   TPrimitive() { AttrType = atInt; IntVal = -1; }
   TPrimitive(const TInt& Val) { AttrType = atInt; IntVal = Val; }
   TPrimitive(const TFlt& Val) { AttrType = atFlt; FltVal = Val; }
-  TPrimitive(const TStr& Val) { AttrType = atStr; StrVal = Val; }
+  TPrimitive(const TStr& Val) { AttrType = atStr; StrVal = Val.CStr(); }
   TPrimitive(const TPrimitive& Prim) { 
     AttrType = Prim.AttrType; 
     switch(AttrType) {
       case atInt: IntVal = Prim.IntVal; break;
       case atFlt: FltVal = Prim.FltVal; break;
-      case atStr: StrVal = Prim.StrVal; break;
+      case atStr: StrVal = Prim.StrVal.CStr(); break;
     }
   }
 };

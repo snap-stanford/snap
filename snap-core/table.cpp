@@ -2005,8 +2005,9 @@ void TTable::SelectAtomicConst(const TStr& Col, const TPrimitive& Val, TPredComp
 
       TIntPrV Bounds(Partitions.Len());
     
-      #pragma omp parallel for schedule(dynamic, CHUNKS_PER_THREAD) reduction(+:RemoveCount)
+      #pragma omp parallel for schedule(dynamic, CHUNKS_PER_THREAD) reduction(+:RemoveCount) shared(Val)
       for (int i = 0; i < Partitions.Len(); i++){
+        TPrimitive ThreadLocalVal(Val);
         TRowIterator RowI(Partitions[i].GetVal1(), this);
         TRowIterator EndI(Partitions[i].GetVal2(), this);
         TInt FirstRowIdx = TTable::Invalid;
@@ -2014,7 +2015,7 @@ void TTable::SelectAtomicConst(const TStr& Col, const TPrimitive& Val, TPredComp
         TBool First = true;
         while (RowI < EndI) {
           TInt CurrRowIdx = RowI.GetRowIdx();
-          TBool Result = RowI.CompareAtomicConst(ColIdx, Val, Cmp);
+          TBool Result = RowI.CompareAtomicConst(ColIdx, ThreadLocalVal, Cmp);
           RowI++;
           if(!Result) { 
             Next[CurrRowIdx] = TTable::Invalid;
