@@ -54,24 +54,24 @@ public:
 //#//////////////////////////////////////////////
 /// Primitive class: Wrapper around primitive data types
 class TPrimitive {
-public:
+private:
   TInt IntVal;
   TFlt FltVal;
   TStr StrVal;
   TAttrType AttrType;
 
-  TPrimitive() { AttrType = atInt; IntVal = -1; }
-  TPrimitive(const TInt& Val) { AttrType = atInt; IntVal = Val; }
-  TPrimitive(const TFlt& Val) { AttrType = atFlt; FltVal = Val; }
-  TPrimitive(const TStr& Val) { AttrType = atStr; StrVal = Val.CStr(); }
-  TPrimitive(const TPrimitive& Prim) { 
-    AttrType = Prim.AttrType; 
-    switch(AttrType) {
-      case atInt: IntVal = Prim.IntVal; break;
-      case atFlt: FltVal = Prim.FltVal; break;
-      case atStr: StrVal = Prim.StrVal.CStr(); break;
-    }
-  }
+public:
+  TPrimitive() : IntVal(-1), FltVal(-1), StrVal(""), AttrType(atInt) {}
+  TPrimitive(const TInt& Val) : IntVal(Val), FltVal(-1), StrVal(""), AttrType(atInt) {}
+  TPrimitive(const TFlt& Val) : IntVal(-1), FltVal(Val), StrVal(""), AttrType(atFlt) {}
+  TPrimitive(const TStr& Val) : IntVal(-1), FltVal(-1), StrVal(Val.CStr()), AttrType(atStr) {}
+  TPrimitive(const TPrimitive& Prim) : IntVal(Prim.IntVal), FltVal(Prim.FltVal), 
+    StrVal(Prim.StrVal.CStr()), AttrType(Prim.AttrType) {}
+
+  TInt GetInt() const { return IntVal; }
+  TFlt GetFlt() const { return FltVal; }
+  TStr GetStr() const { return StrVal; }
+  TAttrType GetType() const { return AttrType; }
 };
 
 //#//////////////////////////////////////////////
@@ -135,7 +135,7 @@ public:
   /// Return value of string attribute specified by string column index for current row
   TStr GetStrAttr(TInt ColIdx) const;
   /// Return integer mapping of a string attribute value specified by string column index for current row
-  TInt GetStrMap(TInt ColIdx) const;
+  TInt GetStrMapById(TInt ColIdx) const;
   /// Return value of integer attribute specified by attribute name for current row
   TInt GetIntAttr(const TStr& Col) const;
   /// Return value of float attribute specified by attribute name for current row
@@ -143,7 +143,7 @@ public:
   /// Return value of string attribute specified by attribute name for current row
   TStr GetStrAttr(const TStr& Col) const;  
   /// Return integer mapping of string attribute specified by attribute name for current row
-  TInt GetStrMap(const TStr& Col) const;
+  TInt GetStrMapByName(const TStr& Col) const;
   /// Compare value in column \c ColIdx with given primitive \c Val
   TBool CompareAtomicConst(TInt ColIdx, const TPrimitive& Val, TPredComp Cmp);
 };
@@ -463,17 +463,17 @@ protected:
   }
 
   void GroupByIntColMP(const TStr& GroupBy, THashMP<TInt, TIntV>& Grouping) const {
-    double startFn = omp_get_wtime();
+    //double startFn = omp_get_wtime();
     GroupingSanityCheck(GroupBy, atInt);
     TIntPrV Partitions;
     GetPartitionRanges(Partitions, 8*CHUNKS_PER_THREAD);
     TInt PartitionSize = Partitions[0].GetVal2()-Partitions[0].GetVal1()+1;
-    double endPart = omp_get_wtime();
-    printf("Partition time = %f\n", endPart-startFn);
+    //double endPart = omp_get_wtime();
+    //printf("Partition time = %f\n", endPart-startFn);
 
     Grouping.Gen(NumValidRows);
-    double endGen = omp_get_wtime();
-    printf("Gen time = %f\n", endGen-endPart);
+    //double endGen = omp_get_wtime();
+    //printf("Gen time = %f\n", endGen-endPart);
     #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic, CHUNKS_PER_THREAD) num_threads(1)
     #endif
@@ -485,8 +485,8 @@ protected:
         RowI++;
       }
     }
-    double endAdd = omp_get_wtime();
-    printf("Add time = %f\n", endAdd-endGen);
+    //double endAdd = omp_get_wtime();
+    //printf("Add time = %f\n", endAdd-endGen);
   }
 
   /// Group/hash by a single column with float values. Returns hash table with grouping.
@@ -519,7 +519,7 @@ protected:
     if (All) {
       // optimize for the common and most expensive case - iterate over all valid rows
       for (TRowIterator it = BegRI(); it < EndRI(); it++) {
-        UpdateGrouping<TInt>(Grouping, it.GetStrMap(GroupBy), it.GetRowIdx());
+        UpdateGrouping<TInt>(Grouping, it.GetStrMapByName(GroupBy), it.GetRowIdx());
       }
     } else {
       // consider only rows in IndexSet

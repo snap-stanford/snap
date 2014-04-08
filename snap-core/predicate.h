@@ -124,7 +124,7 @@ class TPredicate {
 		};
 
 		/// Compare atomic string values Val1 and Val2 using predicate Cmp
-		static TBool EvalStrAtom(TStr Val1, TStr Val2, TPredComp Cmp) {
+		static TBool EvalStrAtom(const TStr& Val1, const TStr& Val2, TPredComp Cmp) {
 			switch (Cmp) {
 				case LT: return Val1 < Val2;
 				case LTE: return Val1 <= Val2;
