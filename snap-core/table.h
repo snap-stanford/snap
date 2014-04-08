@@ -673,12 +673,6 @@ public:
     PTable T = New(Table); T->Name = TableName; 
     return T; 
   }
-  /// Return pointer to a new table created from the rows \c RowIds of given \c Table
-  static PTable New(const PTable Table, const TStr& TableName, const TIntV& RowIds) { 
-    PTable T = new TTable(*Table, RowIds); 
-    T->Name = TableName; 
-    return T;
-  }
 
 /***** Save / Load functions *****/
   /// Load table from spread sheet (TSV, CSV, etc)
