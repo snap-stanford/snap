@@ -146,6 +146,8 @@ public:
   TInt GetStrMapByName(const TStr& Col) const;
   /// Compare value in column \c ColIdx with given primitive \c Val
   TBool CompareAtomicConst(TInt ColIdx, const TPrimitive& Val, TPredComp Cmp);
+  /// Compare value in column \c ColIdx with given TStr \c Val
+  TBool CompareAtomicConstTStr(TInt ColIdx, const  TStr& Val, TPredComp Cmp);
 };
 
 //#//////////////////////////////////////////////

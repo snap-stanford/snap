@@ -82,6 +82,13 @@ TBool TRowIterator::CompareAtomicConst(TInt ColIdx, const TPrimitive& Val, TPred
   return Result;
 }
 
+TBool TRowIterator::CompareAtomicConstTStr(TInt ColIdx, const TStr& Val, TPredComp Cmp) {
+  TBool Result;
+  //printf("string compare\n");
+  Result = TPredicate::EvalStrAtom(GetStrAttr(ColIdx), Val, Cmp);
+  return Result;
+}
+
 TRowIteratorWithRemove::TRowIteratorWithRemove(TInt RowIdx, TTable* TablePtr) :
   CurrRowIdx(RowIdx), Table(TablePtr), Start(RowIdx == TablePtr->FirstValidRow) {}
 
@@ -1960,6 +1967,7 @@ void TTable::ClassifyAtomic(const TStr& Col1, const TStr& Col2, TPredComp Cmp,
 void TTable::SelectAtomicConst(const TStr& Col, const TPrimitive& Val, TPredComp Cmp, 
   TIntV& SelectedRows, PTable& SelectedTable, TBool Remove, TBool Table) {
   //double startFn = omp_get_wtime();
+  TStr ValTStr(Val.GetStr());
   TAttrType Type = GetColType(Col);
   TInt ColIdx = GetColIdx(Col);
 
@@ -1991,7 +1999,12 @@ void TTable::SelectAtomicConst(const TStr& Col, const TPrimitive& Val, TPredComp
         TBool First = true;
         while (RowI < EndI) {
           TInt CurrRowIdx = RowI.GetRowIdx();
-          TBool Result = RowI.CompareAtomicConst(ColIdx, Val, Cmp);
+          TBool Result;
+          if (Type != atStr) {
+            Result = RowI.CompareAtomicConst(ColIdx, Val, Cmp);
+          } else {
+            Result = RowI.CompareAtomicConstTStr(ColIdx, ValTStr, Cmp);
+          }
           RowI++;
           if(!Result) {
             Next[CurrRowIdx] = TTable::Invalid;
@@ -2069,8 +2082,14 @@ void TTable::SelectAtomicConst(const TStr& Col, const TPrimitive& Val, TPredComp
         TRowIterator RowI(Partitions[i].GetVal1(), this);
         TRowIterator EndI(Partitions[i].GetVal2(), this);
         while (RowI < EndI) {
-          if (RowI.CompareAtomicConst(ColIdx, Val, Cmp)) { 
-            TotalSelectedRows++;
+          if (Type != atStr) {
+            if (RowI.CompareAtomicConst(ColIdx, Val, Cmp)) { 
+              TotalSelectedRows++;
+            }
+          } else {
+            if (RowI.CompareAtomicConstTStr(ColIdx, ValTStr, Cmp)) { 
+              TotalSelectedRows++;
+            }
           }
           RowI++;
         }
@@ -2089,8 +2108,14 @@ void TTable::SelectAtomicConst(const TStr& Col, const TPrimitive& Val, TPredComp
         TRowIterator RowI(Partitions[i].GetVal1(), this);
         TRowIterator EndI(Partitions[i].GetVal2(), this);
         while (RowI < EndI) {
-          if (RowI.CompareAtomicConst(ColIdx, Val, Cmp)) { 
-            LocalSelectedRows.Add(RowI.GetRowIdx());
+          if (Type != atStr) {
+            if (RowI.CompareAtomicConst(ColIdx, Val, Cmp)) { 
+              LocalSelectedRows.Add(RowI.GetRowIdx());
+            }
+          } else {
+            if (RowI.CompareAtomicConstTStr(ColIdx, ValTStr, Cmp)) { 
+              LocalSelectedRows.Add(RowI.GetRowIdx());
+            }
           }
           RowI++;
         }
