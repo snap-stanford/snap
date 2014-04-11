@@ -58,7 +58,8 @@ public:
   double GetPNoCom() { return PNoCom; }
   /// Compute the empirical edge probability between a pair of nodes who share no community (epsilon), based on current community affiliations.
   double CalcPNoComByCmtyVV(const int& SamplePairs = -1);
-  void GetNewtonStep(TFltVV& HVV, TFltV& GradV, TFltV& DeltaLV);
+  // OP RS 2014/04/10 commented out since there is no implementation
+  //void GetNewtonStep(TFltVV& HVV, TFltV& GradV, TFltV& DeltaLV);
   /// Compute sum of \c lambda_c (which is log (1 - \c p_c)) over \c C_uv (<tt>ComK</tt>). The function is used to compute edge probability \c P_uv.
   double SelectLambdaSum(const TIntSet& ComK);
   /// COMMENT.
