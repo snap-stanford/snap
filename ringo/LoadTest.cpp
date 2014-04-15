@@ -3,7 +3,8 @@
 #include <ctime>
 
 int main(int argc, char** argv){
-  char filename[500] = "/lfs/local/0/arijitb/benchmarks/soc-LiveJournal1.txt";
+  //char filename[500] = "/lfs/local/0/arijitb/benchmarks/soc-LiveJournal1.txt";
+  char filename[500] = "/lfs/local/0/arijitb/benchmarks/soc-LiveJournal2.txt";
   //char filename[500] = "/lfs/local/0/arijitb/benchmarks/twitter_rv.txt";
 
   TTableContext Context;

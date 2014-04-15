@@ -357,6 +357,7 @@ PTable TTable::LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm,
   int Len = Ss.GetStreamLen();
   int Rem = Len - Pos;
   int NumThreads = omp_get_max_threads();
+  //NumThreads = 1;
   int Delta = Rem / NumThreads;
 
   if (Delta < 1) Delta = 1;
@@ -416,9 +417,15 @@ PTable TTable::LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm,
 #pragma omp parallel for schedule(dynamic) reduction(+:Cnt)
   for (int i = 0; i < NumThreads; i++) {
     TIntV LineStartPosV = Ss.GetStartPosV(StartIntV[i], StartIntV[i+1]);
+
+    //printf("%d\n", LineStartPosV.Len());
+    //printf("%d %d\n", LineStartPosV[0].Val, LineStartPosV[1].Val);
+
     for (int j = 0; j < LineStartPosV.Len(); j++) {
       TVec<char*> FieldsV;
-      Ss.NextFromIndex(LineStartPosV[j], FieldsV);
+      char *orig;
+      Ss.NextFromIndex(LineStartPosV[j], FieldsV, orig);
+      //printf("num fields: %d\n", FieldsV.Len());
       if (FieldsV.Len() != S.Len()) {
         TExcept::Throw("Error reading tsv file");
       }
@@ -451,6 +458,11 @@ PTable TTable::LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm,
             break;
         }
       }
+      //printf("deleting...\n");
+      //for (int k = 0; k < FieldsV.Len(); k++) {
+      //  delete[] FieldsV[k];
+      //}
+      delete[] orig;
       Cnt++;
     }
   }

@@ -508,13 +508,16 @@ TIntV TSsParser::GetStartPosV(int Lb, int Ub) const {
     TInt StartPos = FInPt->GetLineStartPos(Lb);
     TInt EndPos = FInPt->GetLineEndPos(Lb);
 
-    Ret.Add(StartPos);
+    if (Lb <= EndPos && EndPos < Ub) {
+      Ret.Add(StartPos);
+    }
     Lb = EndPos + 1;
   }
   return Ret;
 }
 
-void TSsParser::NextFromIndex(TInt Index, TVec<char*>& FieldsV) { // split on SplitCh
+void TSsParser::NextFromIndex(TInt Index, TVec<char*>& FieldsV,
+  char*& orig) { // split on SplitCh
   FieldsV.Clr();
 
   //TChA Temp = FInPt->GetLine(Index);
@@ -523,6 +526,7 @@ void TSsParser::NextFromIndex(TInt Index, TVec<char*>& FieldsV) { // split on Sp
   //char* cur = LineStr.CStr();
 
   char* cur = FInPt->GetLine(Index);
+  orig = cur;
 
   if (SkipLeadBlanks) { // skip leading blanks
     while (*cur && TCh::IsWs(*cur)) { cur++; }

@@ -785,13 +785,17 @@ int TMIn::GetLineEndPos(int Ind) {
 }
 
 char* TMIn::GetLine(int Index) {
-  TStr LineStr;
-  TChA LineChA;
   TInt OldIndex = Index;
-  return &Bf[OldIndex];
-  //while (Index < BfL && Bf[Index] != '\n') {
-  //  Index++;
-  //}
+  while (Index < BfL && Bf[Index] != '\n') {
+    Index++;
+  }
+  char *s = (char *)malloc(Index - OldIndex + 1);
+  for (int i = 0; i < Index - OldIndex; i++) {
+    s[i] = Bf[OldIndex + i];
+  }
+  //strncpy(s, &Bf[OldIndex], Index - OldIndex);
+  s[Index - OldIndex] = 0;
+  return s;
   //LineChA.AddBf(&Bf[OldIndex],Index-OldIndex);
   //LineStr = LineChA;
   //return LineStr.CStr();
