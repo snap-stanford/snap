@@ -347,18 +347,39 @@ PTable TTable::LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm,
   for (TInt i = 0; i < RowLen; i++) {
     ColTypes[i] = T->GetSchemaColType(i);
   }
-  TInt Cnt = 0;
+  int Cnt = 0;
 
   endTime = omp_get_wtime();
   printf("Init time = %f\n", endTime-startTime);
 
   startTime = omp_get_wtime();
   int Pos = Ss.GetStreamPos();
-  while (Ss.Next()) {
-    Cnt++;
+  int Len = Ss.GetStreamLen();
+  int Rem = Len - Pos;
+  int NumThreads = omp_get_max_threads();
+  int Delta = Rem / NumThreads;
+
+  if (Delta < 1) Delta = 1;
+
+  TIntV StartIntV(NumThreads);
+
+  StartIntV[0] = Pos;
+  for (int i = 1; i < NumThreads; i++) {
+    StartIntV[i] = StartIntV[i-1] + Delta;
   }
+  StartIntV.Add(Len);
+
+  omp_set_num_threads(NumThreads);
+#pragma omp parallel for schedule(dynamic) reduction(+:Cnt)
+  for (int i = 0; i < NumThreads; i++) {
+    Cnt += Ss.CountNewLinesInRange(StartIntV[i], StartIntV[i+1]);
+  }
+
+  //while (Ss.Next()) {
+  //  Cnt++;
+  //}
   Ss.SetStreamPos(Pos);
-  printf("num rows: %d\n", Cnt.Val);
+  printf("num rows: %d\n", Cnt);
 
   endTime = omp_get_wtime();
   printf("Num row calc time = %f\n", endTime-startTime);
@@ -430,7 +451,7 @@ PTable TTable::LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm,
   }
 
   endTime = omp_get_wtime();
-  printf("num rows: %d\n", Cnt.Val);
+  printf("num rows: %d\n", Cnt);
 
   printf("Row adding time = %f\n", endTime-startTime);
 

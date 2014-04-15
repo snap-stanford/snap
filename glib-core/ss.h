@@ -127,13 +127,19 @@ public:
   double GetFlt(const int& FldN) const {
     double Val=0.0; IAssert(GetFlt(FldN, Val)); return Val; }
   
-  int GetStreamPos() {
+  int GetStreamPos() const {
     return FInPt->GetBfC();
+  }
+
+  int GetStreamLen() const {
+    return FInPt->GetBfL();
   }
 
   void SetStreamPos(int Pos) {
     return FInPt->SetBfC(Pos);
   }
+
+  int CountNewLinesInRange(int Lb, int Ub) const;
 
   const char* DumpStr() const;
 };

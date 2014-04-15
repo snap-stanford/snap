@@ -64,6 +64,8 @@ private:
 public:
   virtual void SetBfC(int Pos) {};
   virtual int GetBfC() { return -1; };
+  virtual int GetBfL() { return -1; };
+  virtual int CountNewLinesInRange(int, int) { return -1; };
 public:
   TSIn(): TSBase("Input-Stream"), FastMode(false){}
   TSIn(const TStr& Str);
@@ -395,7 +397,9 @@ private:
 private:
   int FindEol(int& BfN, bool& CrEnd);
   int GetBfC();
+  int GetBfL();
   void SetBfC(int Pos);
+  int CountNewLinesInRange(int Lb, int Ub);
 
 public:
   TMIn(const void* _Bf, const int& _BfL, const bool& TakeBf=false);

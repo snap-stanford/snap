@@ -493,3 +493,8 @@ const char* TSsParser::DumpStr() const {
   return ChA.CStr();
 }
 
+// Finds number of new line chars in interval [lb, ub)
+// Assumes that lines end in '\n'
+int TSsParser::CountNewLinesInRange(int Lb, int Ub) const {
+  return FInPt->CountNewLinesInRange(Lb, Ub);
+}

@@ -744,8 +744,27 @@ int TMIn::GetBfC() {
   return BfC;
 }
 
+int TMIn::GetBfL() {
+  return BfL;
+}
+
 void TMIn::SetBfC(int Pos) {
   BfC = Pos;
+}
+
+// Finds number of new line chars in interval [Lb, Ub)
+// Assumes that lines end in '\n'
+int TMIn::CountNewLinesInRange(int Lb, int Ub) {
+  int Cnt = 0;
+  if (Lb >= BfL) {
+    return 0;
+  }
+  for (int i = Lb; i < Ub; i++) {
+    if (Bf[i] == '\n') {
+      Cnt += 1;
+    }
+  }
+  return Cnt;
 }
 
 /////////////////////////////////////////////////
