@@ -553,6 +553,30 @@ TMIn::TMIn(const TStr& Str):
   BfL=Str.Len(); Bf=new char[BfL]; strncpy(Bf, Str.CStr(), BfL);
 }
 
+TMIn::TMIn(const TStr& FNm, int val):
+  TSBase("Input-Memory"), TSIn("Input-Memory"), Bf(NULL), BfC(0), BfL(0){
+  TFileId FileId;
+  int FLen;
+  EAssertR(!FNm.Empty(), "Empty file-name.");
+  FileId=fopen(FNm.CStr(), "rb");
+  EAssertR(FileId!=NULL, "Can not open file '"+FNm+"'.");
+
+  EAssertR(
+   fseek(FileId, 0, SEEK_END)==0,
+   "Error seeking into file '"+TStr(FNm)+"'.");
+  FLen=(int)ftell(FileId);
+  EAssertR(
+   fseek(FileId, 0, SEEK_SET)==0,
+   "Error seeking into file '"+TStr(FNm)+"'.");
+
+
+  Bf=new char[FLen];
+  BfL=int(fread(Bf, 1, FLen, FileId));
+  BfC=0;
+
+  printf("%d %d %d\n", FLen, BfC, BfL);
+}
+
 TMIn::TMIn(const TChA& ChA):
   TSBase("Input-Memory"), TSIn("Input-Memory"), Bf(NULL), BfC(0), BfL(0){
   BfL=ChA.Len(); Bf=new char[BfL]; strncpy(Bf, ChA.CStr(), BfL);
@@ -568,6 +592,10 @@ PSIn TMIn::New(const char* CStr){
 
 PSIn TMIn::New(const TStr& Str){
   return PSIn(new TMIn(Str));
+}
+
+PSIn TMIn::New(const TStr& FNm, int val){
+  return PSIn(new TMIn(FNm, val));
 }
 
 PSIn TMIn::New(const TChA& ChA){
@@ -592,10 +620,124 @@ int TMIn::GetBf(const void* LBf, const TSize& LBfL){
   return LBfS;
 }
 
+// Sets BfN to the end of line or end of buffer.
+// Returns 1, when an end of line was found, BfN is end of line.
+// Returns 0, when an end of line was not found and more data is required,
+//    BfN is end of buffer.
+// Returns -1, when an end of file was found, BfN is not defined.
+
+int TMIn::FindEol(int& BfN, bool& CrEnd) {
+  char Ch;
+  if (BfC >= BfL) {
+    // read more data, check for eof
+    if (Eof()) {
+      return -1;
+    }
+    if (CrEnd && Bf[BfC]=='\n') {
+      BfC++;
+      BfN = BfC-1;
+      return 1;
+    }
+  }
+
+  CrEnd = false;
+  while (BfC < BfL) {
+    Ch = Bf[BfC++];
+    if (Ch=='\n') {
+      BfN = BfC-1;
+      return 1;
+    }
+    if (Ch=='\r') {
+      if (BfC == BfL) {
+        CrEnd = true;
+        BfN = BfC-1;
+        return 0;
+      } else if (Bf[BfC]=='\n') {
+        BfC++;
+        BfN = BfC-2;
+        return 1;
+      }
+    }
+  }
+  BfN = BfC;
+
+  return 0;
+  //char Ch;
+
+  //if (Eof()) {
+  //  return -1;
+  //}
+
+  //CrEnd = false;
+  //while (BfC < BfL) {
+  //  Ch = Bf[BfC++];
+  //  if (Ch=='\n') {
+  //    BfN = BfC-1;
+  //    return 0;
+  //  }
+  //  if (Ch=='\r') {
+  //    if (BfC == BfL) {
+  //      CrEnd = true;
+  //      BfN = BfC-1;
+  //      return 0;
+  //    } else if (Bf[BfC]=='\n') {
+  //      BfC++;
+  //      BfN = BfC-2;
+  //      return 0;
+  //    }
+  //  }
+  //}
+  //BfN = BfC;
+  //return 0;
+}
+
 bool TMIn::GetNextLnBf(TChA& LnChA){
-  // not implemented
-  FailR(TStr::Fmt("TMIn::GetNextLnBf: not implemented").CStr());
-  return false;
+  int Status;
+  int BfN;        // new pointer to the end of line
+  int BfP;        // previous pointer to the line start
+  bool CrEnd;     // last character in previous buffer was CR
+
+  LnChA.Clr();
+
+  CrEnd = false;
+  do {
+    if (BfC >= BfL) {
+      // reset the current pointer, FindEol() will read a new buffer
+      BfP = 0;
+    } else {
+      BfP = BfC;
+    }
+    Status = FindEol(BfN,CrEnd);
+    if (Status >= 0) {
+      if (BfN-BfP > 0) {
+        LnChA.AddBf(&Bf[BfP],BfN-BfP);
+      }
+      if (Status == 1) {
+        // got a complete line
+        return true;
+      }
+    }
+    // get more data, if the line is incomplete
+  } while (Status == 0);
+
+  // eof or the last line has no newline
+  return !LnChA.Empty();
+
+  //int Status;
+  //int BfN;        // new pointer to the end of line
+  //bool CrEnd;     // last character in previous buffer was CR
+
+  //LnChA.Clr();
+
+  //CrEnd = false;
+  //Status = FindEol(BfN,CrEnd);
+  //if (Status == 0) {
+  //    LnChA.AddBf(&Bf[BfC],BfN-BfC);
+  //    return true;
+  //}
+
+  //// eof or the last line has no newline
+  //return false;
 }
 
 /////////////////////////////////////////////////

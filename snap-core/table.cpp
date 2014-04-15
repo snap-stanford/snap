@@ -386,6 +386,7 @@ PTable TTable::LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm,
     Cnt++;
   }
   // set number of rows and "Next" vector
+  printf("num rows: %d\n", Cnt.Val);
   T->NumRows = Cnt;
   T->NumValidRows = T->NumRows;
   T->Next = TIntV(T->NumRows,0);
