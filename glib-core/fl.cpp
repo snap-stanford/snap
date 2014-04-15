@@ -740,6 +740,14 @@ bool TMIn::GetNextLnBf(TChA& LnChA){
   //return false;
 }
 
+int TMIn::GetBfC() {
+  return BfC;
+}
+
+void TMIn::SetBfC(int Pos) {
+  BfC = Pos;
+}
+
 /////////////////////////////////////////////////
 // Output-Memory
 void TMOut::Resize(const int& ReqLen){

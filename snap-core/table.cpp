@@ -311,6 +311,11 @@ TTable::TTable(const TTable& Table, const TIntV& RowIDs) : Name(Table.Name),
 
 PTable TTable::LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm, 
  TTableContext& Context, const TIntV& RelevantCols, const char& Separator, TBool HasTitleLine) {
+
+  double startTime, endTime;
+  startTime = omp_get_wtime();
+
+  TIntV IntGroupByCols;
   TSsParser Ss(InFNm, Separator);
   Schema SR;
   if (RelevantCols.Len() == 0) {
@@ -343,6 +348,44 @@ PTable TTable::LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm,
     ColTypes[i] = T->GetSchemaColType(i);
   }
   TInt Cnt = 0;
+
+  endTime = omp_get_wtime();
+  printf("Init time = %f\n", endTime-startTime);
+
+  startTime = omp_get_wtime();
+  int Pos = Ss.GetStreamPos();
+  while (Ss.Next()) {
+    Cnt++;
+  }
+  Ss.SetStreamPos(Pos);
+  printf("num rows: %d\n", Cnt.Val);
+
+  endTime = omp_get_wtime();
+  printf("Num row calc time = %f\n", endTime-startTime);
+
+  startTime = omp_get_wtime();
+  TInt IntColIdx = 0;
+  TInt FltColIdx = 0;
+  for (TInt i = 0; i < RowLen; i++) {
+    switch (ColTypes[i]) {
+      case atInt:
+        T->IntCols[IntColIdx].Reserve(Cnt);
+        IntColIdx++;
+        break;
+      case atFlt:
+        T->FltCols[FltColIdx].Reserve(Cnt);
+        FltColIdx++;
+        break;
+      case atStr:
+        break;
+    }
+  }
+  endTime = omp_get_wtime();
+  printf("Resize time = %f\n", endTime-startTime);
+
+  startTime = omp_get_wtime();
+
+  Cnt = 0;
   // populate table columns
   while (Ss.Next()) {
     TInt IntColIdx = 0;
@@ -356,17 +399,17 @@ PTable TTable::LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm,
       switch (ColTypes[i]) {
         case atInt:
           if (RelevantCols.Len() == 0) {
-            T->IntCols[IntColIdx].Add(Ss.GetInt(i));
+            T->IntCols[IntColIdx].AddAtm(Ss.GetInt(i));
           } else {
-            T->IntCols[IntColIdx].Add(Ss.GetInt(RelevantCols[i]));
+            T->IntCols[IntColIdx].AddAtm(Ss.GetInt(RelevantCols[i]));
           }
           IntColIdx++;
           break;
         case atFlt:
           if (RelevantCols.Len() == 0) {
-            T->FltCols[FltColIdx].Add(Ss.GetFlt(i));
+            T->FltCols[FltColIdx].AddAtm(Ss.GetFlt(i));
           } else {
-            T->FltCols[FltColIdx].Add(Ss.GetFlt(RelevantCols[i]));
+            T->FltCols[FltColIdx].AddAtm(Ss.GetFlt(RelevantCols[i]));
           }
           FltColIdx++;
           break;
@@ -385,8 +428,15 @@ PTable TTable::LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm,
     }
     Cnt++;
   }
-  // set number of rows and "Next" vector
+
+  endTime = omp_get_wtime();
   printf("num rows: %d\n", Cnt.Val);
+
+  printf("Row adding time = %f\n", endTime-startTime);
+
+  startTime = omp_get_wtime();
+
+  // set number of rows and "Next" vector
   T->NumRows = Cnt;
   T->NumValidRows = T->NumRows;
   T->Next = TIntV(T->NumRows,0);
@@ -396,7 +446,16 @@ PTable TTable::LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm,
   T->IsNextDirty = 0;
   T->Next.Add(Last);
   T->LastValidRow = T->NumRows - 1;
+
+  endTime = omp_get_wtime();
+  printf("NextV time = %f\n", endTime-startTime);
+
+  startTime = omp_get_wtime();
+
   T->InitIds();
+
+  endTime = omp_get_wtime();
+  printf("Id time = %f\n", endTime-startTime);
   return T;
 }
 

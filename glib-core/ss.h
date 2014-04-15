@@ -126,6 +126,14 @@ public:
   /// Assumes \c FldN is a floating  point number its value is returned. If \c FldN is not an integer an exception is thrown.
   double GetFlt(const int& FldN) const {
     double Val=0.0; IAssert(GetFlt(FldN, Val)); return Val; }
+  
+  int GetStreamPos() {
+    return FInPt->GetBfC();
+  }
+
+  void SetStreamPos(int Pos) {
+    return FInPt->SetBfC(Pos);
+  }
 
   const char* DumpStr() const;
 };

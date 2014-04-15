@@ -62,6 +62,9 @@ private:
   TSIn(const TSIn&);
   TSIn& operator=(const TSIn&);
 public:
+  virtual void SetBfC(int Pos) {};
+  virtual int GetBfC() { return -1; };
+public:
   TSIn(): TSBase("Input-Stream"), FastMode(false){}
   TSIn(const TStr& Str);
   virtual ~TSIn(){}
@@ -391,6 +394,9 @@ private:
   TMIn& operator=(const TMIn&);
 private:
   int FindEol(int& BfN, bool& CrEnd);
+  int GetBfC();
+  void SetBfC(int Pos);
+
 public:
   TMIn(const void* _Bf, const int& _BfL, const bool& TakeBf=false);
   TMIn(TSIn& SIn);
