@@ -66,6 +66,9 @@ public:
   virtual int GetBfC() { return -1; };
   virtual int GetBfL() { return -1; };
   virtual int CountNewLinesInRange(int, int) { return -1; };
+  virtual int GetLineStartPos(int Ind) { return -1; };
+  virtual int GetLineEndPos(int Ind) { return -1; };
+  virtual char* GetLine(int Ind) { return NULL; };
 public:
   TSIn(): TSBase("Input-Stream"), FastMode(false){}
   TSIn(const TStr& Str);
@@ -400,6 +403,9 @@ private:
   int GetBfL();
   void SetBfC(int Pos);
   int CountNewLinesInRange(int Lb, int Ub);
+  int GetLineStartPos(int Ind);
+  int GetLineEndPos(int Ind);
+  char* GetLine(int Ind);
 
 public:
   TMIn(const void* _Bf, const int& _BfL, const bool& TakeBf=false);

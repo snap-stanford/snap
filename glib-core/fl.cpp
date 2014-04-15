@@ -767,6 +767,36 @@ int TMIn::CountNewLinesInRange(int Lb, int Ub) {
   return Cnt;
 }
 
+// Finds beginning of line in which Ind is present
+int TMIn::GetLineStartPos(int Ind) {
+  while (Ind > 0 && Bf[Ind-1] != '\n') {
+    Ind--;
+  }
+  return Ind;
+}
+
+// Finds end of line in which Ind is present
+int TMIn::GetLineEndPos(int Ind) {
+  while (Ind < BfL && Bf[Ind] != '\n') {
+    Ind++;
+  }
+  if (Ind == BfL) Ind--;
+  return Ind;
+}
+
+char* TMIn::GetLine(int Index) {
+  TStr LineStr;
+  TChA LineChA;
+  TInt OldIndex = Index;
+  return &Bf[OldIndex];
+  //while (Index < BfL && Bf[Index] != '\n') {
+  //  Index++;
+  //}
+  //LineChA.AddBf(&Bf[OldIndex],Index-OldIndex);
+  //LineStr = LineChA;
+  //return LineStr.CStr();
+}
+
 /////////////////////////////////////////////////
 // Output-Memory
 void TMOut::Resize(const int& ReqLen){

@@ -362,6 +362,8 @@ PTable TTable::LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm,
   if (Delta < 1) Delta = 1;
 
   TIntV StartIntV(NumThreads);
+  TIntV LineCountV(NumThreads);
+  TIntV PrefixSumV(NumThreads);
 
   StartIntV[0] = Pos;
   for (int i = 1; i < NumThreads; i++) {
@@ -372,12 +374,15 @@ PTable TTable::LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm,
   omp_set_num_threads(NumThreads);
 #pragma omp parallel for schedule(dynamic) reduction(+:Cnt)
   for (int i = 0; i < NumThreads; i++) {
-    Cnt += Ss.CountNewLinesInRange(StartIntV[i], StartIntV[i+1]);
+    LineCountV[i] = Ss.CountNewLinesInRange(StartIntV[i], StartIntV[i+1]);
+    Cnt += LineCountV[i];
   }
 
-  //while (Ss.Next()) {
-  //  Cnt++;
-  //}
+  PrefixSumV[0] = 0;
+  for (int i = 1; i < NumThreads; i++) {
+    PrefixSumV[i] = PrefixSumV[i-1] + LineCountV[i];
+  }
+
   Ss.SetStreamPos(Pos);
   printf("num rows: %d\n", Cnt);
 
@@ -407,48 +412,92 @@ PTable TTable::LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm,
   startTime = omp_get_wtime();
 
   Cnt = 0;
-  // populate table columns
-  while (Ss.Next()) {
-    TInt IntColIdx = 0;
-    TInt FltColIdx = 0;
-    TInt StrColIdx = 0;
-    Assert(Ss.GetFlds() == S.Len()); // compiled only in debug
-    if (Ss.GetFlds() != S.Len()) {
-      printf("%s\n", Ss[S.Len()]); TExcept::Throw("Error reading tsv file");
-    }
-    for (TInt i = 0; i < RowLen; i++) {
-      switch (ColTypes[i]) {
-        case atInt:
-          if (RelevantCols.Len() == 0) {
-            T->IntCols[IntColIdx].AddAtm(Ss.GetInt(i));
-          } else {
-            T->IntCols[IntColIdx].AddAtm(Ss.GetInt(RelevantCols[i]));
-          }
-          IntColIdx++;
-          break;
-        case atFlt:
-          if (RelevantCols.Len() == 0) {
-            T->FltCols[FltColIdx].AddAtm(Ss.GetFlt(i));
-          } else {
-            T->FltCols[FltColIdx].AddAtm(Ss.GetFlt(RelevantCols[i]));
-          }
-          FltColIdx++;
-          break;
-        case atStr:
-          TInt ColIdx;
-          if (RelevantCols.Len() == 0) {
-            ColIdx = i;
-          } else {
-            ColIdx = RelevantCols[i];
-          }
-          TStr Sval = TStr(Ss[ColIdx]);
-          T->AddStrVal(StrColIdx, Sval);
-          StrColIdx++;
-          break;
+  omp_set_num_threads(NumThreads);
+#pragma omp parallel for schedule(dynamic) reduction(+:Cnt)
+  for (int i = 0; i < NumThreads; i++) {
+    TIntV LineStartPosV = Ss.GetStartPosV(StartIntV[i], StartIntV[i+1]);
+    for (int j = 0; j < LineStartPosV.Len(); j++) {
+      TVec<char*> FieldsV;
+      Ss.NextFromIndex(LineStartPosV[j], FieldsV);
+      if (FieldsV.Len() != S.Len()) {
+        TExcept::Throw("Error reading tsv file");
       }
+      TInt IntColIdx = 0;
+      TInt FltColIdx = 0;
+      for (TInt j = 0; j < RowLen; j++) {
+        TInt RowIdx = PrefixSumV[i] + j;
+        switch (ColTypes[j]) {
+          case atInt:
+            if (RelevantCols.Len() == 0) {
+              T->IntCols[IntColIdx][RowIdx] = \
+                (Ss.GetIntFromFldV(FieldsV, j));
+            } else {
+              T->IntCols[IntColIdx][RowIdx] = \
+                (Ss.GetIntFromFldV(FieldsV, RelevantCols[j]));
+            }
+            IntColIdx++;
+            break;
+          case atFlt:
+            if (RelevantCols.Len() == 0) {
+              T->FltCols[FltColIdx][RowIdx] = \
+                (Ss.GetFltFromFldV(FieldsV, j));
+            } else {
+              T->FltCols[FltColIdx][RowIdx] = \
+                (Ss.GetFltFromFldV(FieldsV, RelevantCols[j]));
+            }
+            FltColIdx++;
+            break;
+          case atStr:
+            break;
+        }
+      }
+      Cnt++;
     }
-    Cnt++;
   }
+
+  //Cnt = 0;
+  //// populate table columns
+  //while (Ss.Next()) {
+  //  TInt IntColIdx = 0;
+  //  TInt FltColIdx = 0;
+  //  TInt StrColIdx = 0;
+  //  Assert(Ss.GetFlds() == S.Len()); // compiled only in debug
+  //  if (Ss.GetFlds() != S.Len()) {
+  //    printf("%s\n", Ss[S.Len()]); TExcept::Throw("Error reading tsv file");
+  //  }
+  //  for (TInt i = 0; i < RowLen; i++) {
+  //    switch (ColTypes[i]) {
+  //      case atInt:
+  //        if (RelevantCols.Len() == 0) {
+  //          T->IntCols[IntColIdx].AddAtm(Ss.GetInt(i));
+  //        } else {
+  //          T->IntCols[IntColIdx].AddAtm(Ss.GetInt(RelevantCols[i]));
+  //        }
+  //        IntColIdx++;
+  //        break;
+  //      case atFlt:
+  //        if (RelevantCols.Len() == 0) {
+  //          T->FltCols[FltColIdx].AddAtm(Ss.GetFlt(i));
+  //        } else {
+  //          T->FltCols[FltColIdx].AddAtm(Ss.GetFlt(RelevantCols[i]));
+  //        }
+  //        FltColIdx++;
+  //        break;
+  //      case atStr:
+  //        TInt ColIdx;
+  //        if (RelevantCols.Len() == 0) {
+  //          ColIdx = i;
+  //        } else {
+  //          ColIdx = RelevantCols[i];
+  //        }
+  //        TStr Sval = TStr(Ss[ColIdx]);
+  //        T->AddStrVal(StrColIdx, Sval);
+  //        StrColIdx++;
+  //        break;
+  //    }
+  //  }
+  //  Cnt++;
+  //}
 
   endTime = omp_get_wtime();
   printf("num rows: %d\n", Cnt);

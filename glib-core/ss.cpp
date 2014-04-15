@@ -498,3 +498,82 @@ const char* TSsParser::DumpStr() const {
 int TSsParser::CountNewLinesInRange(int Lb, int Ub) const {
   return FInPt->CountNewLinesInRange(Lb, Ub);
 }
+
+TIntV TSsParser::GetStartPosV(int Lb, int Ub) const {
+  TIntV Ret;
+  if (Lb >= GetStreamLen()) {
+    return Ret;
+  }
+  while (Lb < Ub) {
+    TInt StartPos = FInPt->GetLineStartPos(Lb);
+    TInt EndPos = FInPt->GetLineEndPos(Lb);
+
+    Ret.Add(StartPos);
+    Lb = EndPos + 1;
+  }
+  return Ret;
+}
+
+void TSsParser::NextFromIndex(TInt Index, TVec<char*>& FieldsV) { // split on SplitCh
+  FieldsV.Clr();
+
+  //TChA Temp = FInPt->GetLine(Index);
+  //TStr LineStr = Temp;
+
+  //char* cur = LineStr.CStr();
+
+  char* cur = FInPt->GetLine(Index);
+
+  if (SkipLeadBlanks) { // skip leading blanks
+    while (*cur && TCh::IsWs(*cur)) { cur++; }
+  }
+  char *last = cur;
+  while (*cur) {
+    if (SsFmt == ssfWhiteSep) { while (*cur && ! TCh::IsWs(*cur)) { cur++; } } 
+    else { while (*cur && *cur!=SplitCh) { cur++; } }
+    if (*cur == 0) { break; }
+    *cur = 0;  cur++;
+    FieldsV.Add(last);  last = cur;
+    if (SkipEmptyFld && strlen(FieldsV.Last())==0) { FieldsV.DelLast(); } // skip empty fields
+  }
+  FieldsV.Add(last);  // add last field
+}
+
+int TSsParser::GetIntFromFldV(TVec<char*>& FieldsV, const int& FldN) {
+  // parsing format {ws} [+/-] +{ddd}
+  int _Val = -1;
+  bool Minus=false;
+  const char *c = FieldsV[FldN];
+  while (TCh::IsWs(*c)) { c++; }
+  if (*c=='-') { Minus=true; c++; }
+  if (! TCh::IsNum(*c)) { return -1; }
+  _Val = TCh::GetNum(*c);  c++;
+  while (TCh::IsNum(*c)){ 
+    _Val = 10 * _Val + TCh::GetNum(*c); 
+    c++; 
+  }
+  if (Minus) { _Val = -_Val; }
+  if (*c != 0) { return -1; }
+  return _Val;
+}
+
+double TSsParser::GetFltFromFldV(TVec<char*>& FieldsV, const int& FldN) {
+  // parsing format {ws} [+/-] +{d} ([.]{d}) ([E|e] [+/-] +{d})
+  const char *c = FieldsV[FldN];
+  while (TCh::IsWs(*c)) { c++; }
+  if (*c=='+' || *c=='-') { c++; }
+  if (! TCh::IsNum(*c) && *c!='.') { return -1; }
+  while (TCh::IsNum(*c)) { c++; }
+  if (*c == '.') {
+    c++;
+    while (TCh::IsNum(*c)) { c++; }
+  }
+  if (*c=='e' || *c == 'E') {
+    c++;
+    if (*c == '+' || *c == '-' ) { c++; }
+    if (! TCh::IsNum(*c)) { return -1; }
+    while (TCh::IsNum(*c)) { c++; }
+  }
+  if (*c != 0) { return -1; }
+  return atof(FieldsV[FldN]);
+}

@@ -140,6 +140,12 @@ public:
   }
 
   int CountNewLinesInRange(int Lb, int Ub) const;
+  TIntV GetStartPosV(int Lb, int Ub) const;
+
+  void NextFromIndex(TInt Index, TVec<char*>& FieldsV);
+
+  int GetIntFromFldV(TVec<char*>& FieldsV, const int& FldN);
+  double GetFltFromFldV(TVec<char*>& FieldsV, const int& FldN);
 
   const char* DumpStr() const;
 };
