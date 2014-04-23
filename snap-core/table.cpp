@@ -2341,7 +2341,7 @@ void TTable::QSortPar(TIntV& V, const TVec<TAttrType>& SortByTypes, const TIntV&
   }
 }
 
-void TTable::Order(const TStrV& OrderBy, const TStr& OrderColName, TBool ResetRankByMSC, TBool Asc) {
+void TTable::Order(const TStrV& OrderBy, TStr OrderColName, TBool ResetRankByMSC, TBool Asc) {
   // get a vector of all valid row indices
   TIntV ValidRows = TIntV(NumValidRows);
   if (NumRows == NumValidRows) {

@@ -320,7 +320,7 @@ PGraphMP ToGraphMP(PTable Table, const TStr& SrcCol, const TStr& DstCol) {
     }
   }
 
-  double endSort = omp_get_wtime();
+  // double endSort = omp_get_wtime();
   // printf("Sort time = %f\n", endSort-endPopulate);
 
   // printf("sorted edge lists\n");

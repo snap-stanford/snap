@@ -749,7 +749,7 @@ public:
   void Count(const TStr& CountColName, const TStr& Col);
 
   /// Orders the rows according to the values in columns of OrderBy (in descending lexicographic order). 
-  void Order(const TStrV& OrderBy, const TStr& OrderColName = "", TBool ResetRankByMSC = false, TBool Asc = true);
+  void Order(const TStrV& OrderBy, TStr OrderColName = "", TBool ResetRankByMSC = false, TBool Asc = true);
   
   /// Aggregates values of ValAttr after grouping with respect to GroupByAttrs. Result are stored as new attribute ResAttr.
   void Aggregate(const TStrV& GroupByAttrs, TAttrAggr AggOp, const TStr& ValAttr,
