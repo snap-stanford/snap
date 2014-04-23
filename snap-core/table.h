@@ -234,7 +234,6 @@ protected:
   static const TInt Invalid; ///< Special value for Next vector entry - logically removed row.
 
   static TInt UseMP; ///< Global switch for choosing multi-threaded versions of TTable functions.
-	void IncrementNext();
 public:
   TStr Name; ///< Table Name
 	template<class PGraph> friend PGraph TSnap::ToGraph(PTable Table, const TStr& SrcCol, const TStr& DstCol, TAttrAggr AggrPolicy);
@@ -279,27 +278,10 @@ protected:
 
   TInt IsNextDirty; ///< Flag to signify whether the rows are stored in logical sequence or reordered. Used for optimizing GetPartitionRanges.
 
-public:
-  /***** value getters - getValue(column name, physical row Idx) *****/
-  // No type checking. Assuming ColName actually refers to the right type.
-  /// Gets the value of integer attribute \c ColName at row \c RowIdx.
-  TInt GetIntVal(const TStr& ColName, const TInt& RowIdx) { 
-    return IntCols[ColTypeMap.GetDat(ColName).Val2][RowIdx]; 
-  }
-  /// Gets the value of float attribute \c ColName at row \c RowIdx.
-  TFlt GetFltVal(const TStr& ColName, const TInt& RowIdx) { 
-    return FltCols[ColTypeMap.GetDat(ColName).Val2][RowIdx]; 
-  }
-  /// Gets the value of string attribute \c ColName at row \c RowIdx.
-  TStr GetStrVal(const TStr& ColName, const TInt& RowIdx) const { 
-    return GetStrVal(ColTypeMap.GetDat(ColName).Val2, RowIdx); 
-  }
-
-  /// Gets the schema of this table.
-  Schema GetSchema() { return S; }
-
 /***** Utility functions *****/
 protected:
+  /// Increments the next vector and set last, NumRows and NumValidRows.
+  void IncrementNext();
   /// Adds an integer column with name \c ColName.
   void AddIntCol(const TStr& ColName);
   /// Adds a float column with name \c ColName.
@@ -349,18 +331,8 @@ protected:
   void AddGraphAttributeV(TStrV& Attrs, TBool IsEdge, TBool IsSrc, TBool IsDst);
   /// Checks if given \c NodeId is seen earlier; if not, add it to \c Graph and hashmap \c NodeVals.
   void CheckAndAddIntNode(PNEANet Graph, THashSet<TInt>& NodeVals, TInt NodeId);
-
   /// Checks if given \c NodeVal is seen earlier; if not, add it to \c Graph and hashmap \c NodeVals.
-  template<class T>
-  TInt CheckAndAddFltNode(T Graph, THash<TFlt, TInt>& NodeVals, TFlt FNodeVal) {
-    if (!NodeVals.IsKey(FNodeVal)) {
-      TInt NodeVal = NodeVals.Len();
-      Graph->AddNode(NodeVal);
-      NodeVals.AddKey(FNodeVal);
-      NodeVals.AddDat(FNodeVal, NodeVal);
-      return NodeVal;
-    } else { return NodeVals.GetDat(FNodeVal); }
-  }
+  template<class T> TInt CheckAndAddFltNode(T Graph, THash<TFlt, TInt>& NodeVals, TFlt FNodeVal);
   /// Adds attributes of edge corresponding to \c RowId to the \c Graph.
   void AddEdgeAttributes(PNEANet& Graph, int RowId);
   /// Takes as parameters, and updates, maps NodeXAttrs: Node Id --> (attribute name --> Vector of attribute values).
@@ -384,180 +356,26 @@ protected:
   PNEANet GetNextGraphFromSequence();
 
   /// Aggregates vector into a single scalar value according to a policy. ##TTable::AggregateVector
-  template <class T> 
-  T AggregateVector(TVec<T>& V, TAttrAggr Policy) {
-    switch (Policy) {
-      case aaMin: {
-        T Res = V[0];
-        for (TInt i = 1; i < V.Len(); i++) {
-          if (V[i] < Res) { Res = V[i]; }
-        }
-        return Res;
-      }
-      case aaMax: {
-        T Res = V[0];
-        for (TInt i = 1; i < V.Len(); i++) {
-          if (V[i] > Res) { Res = V[i]; }
-        }
-        return Res;
-      }
-      case aaFirst: {
-        return V[0];
-      }
-      case aaLast:{
-        return V[V.Len()-1];
-      }
-      case aaSum: {
-        T Res = V[0];
-        for (TInt i = 1; i < V.Len(); i++) {
-          Res = Res + V[i];
-        }
-        return Res;
-      }
-      case aaMean: {
-        T Res = V[0];
-        for (TInt i = 1; i < V.Len(); i++) {
-          Res = Res + V[i];
-        }
-        //Res = Res / V.Len(); // TODO: Handle Str case separately?
-        return Res;
-      }
-      case aaMedian: {
-        V.Sort();
-        return V[V.Len()/2];
-      }
-      case aaCount: {
-        // NOTE: Code should never reach here
-        // I had to put this here to avoid a compiler warning.
-        // Is there a better way to do this?
-        return V[0];
-      }
-    }
-    // Added to remove a compiler warning.
-    T ShouldNotComeHere;
-    return ShouldNotComeHere;
-  }
+  template <class T> T AggregateVector(TVec<T>& V, TAttrAggr Policy);
 
   /***** Grouping Utility functions *************/
   /// Checks if grouping key exists and matches given attr type.
   void GroupingSanityCheck(const TStr& GroupBy, const TAttrType& AttrType) const;
-
-  /// Group/hash by a single column with integer values. ##TTable::GroupByIntCol
-  template <class T>
-  void GroupByIntCol(const TStr& GroupBy, T& Grouping, 
-   const TIntV& IndexSet, TBool All) const {
-    GroupingSanityCheck(GroupBy, atInt);
-    if (All) {
-       // Optimize for the common and most expensive case - iterate over only valid rows.
-      for (TRowIterator it = BegRI(); it < EndRI(); it++) {
-        UpdateGrouping<TInt>(Grouping, it.GetIntAttr(GroupBy), it.GetRowIdx());
-      }
-    } else {
-      // Consider only rows in IndexSet.
-      for (TInt i = 0; i < IndexSet.Len(); i++) {
-        if (IsRowValid(IndexSet[i])) {
-          TInt RowIdx = IndexSet[i];
-          const TIntV& Col = IntCols[GetColIdx(GroupBy)];       
-          UpdateGrouping<TInt>(Grouping, Col[RowIdx], RowIdx);
-        }
-      }
-    }
-  }
-
-  void GroupByIntColMP(const TStr& GroupBy, THashMP<TInt, TIntV>& Grouping) const {
-    //double startFn = omp_get_wtime();
-    GroupingSanityCheck(GroupBy, atInt);
-    TIntPrV Partitions;
-    GetPartitionRanges(Partitions, 8*CHUNKS_PER_THREAD);
-    TInt PartitionSize = Partitions[0].GetVal2()-Partitions[0].GetVal1()+1;
-    //double endPart = omp_get_wtime();
-    //printf("Partition time = %f\n", endPart-startFn);
-
-    Grouping.Gen(NumValidRows);
-    //double endGen = omp_get_wtime();
-    //printf("Gen time = %f\n", endGen-endPart);
-    #ifdef _OPENMP
-    #pragma omp parallel for schedule(dynamic, CHUNKS_PER_THREAD) num_threads(1)
-    #endif
-    for (int i = 0; i < Partitions.Len(); i++){
-      TRowIterator RowI(Partitions[i].GetVal1(), this);
-      TRowIterator EndI(Partitions[i].GetVal2(), this);
-      while (RowI < EndI) {
-        UpdateGrouping<TInt>(Grouping, RowI.GetIntAttr(GroupBy), RowI.GetRowIdx());
-        RowI++;
-      }
-    }
-    //double endAdd = omp_get_wtime();
-    //printf("Add time = %f\n", endAdd-endGen);
-  }
-
-  /// Group/hash by a single column with float values. Returns hash table with grouping.
-  template <class T>
-  void GroupByFltCol(const TStr& GroupBy, T& Grouping, 
-   const TIntV& IndexSet, TBool All) const {
-    GroupingSanityCheck(GroupBy, atFlt);
-    if (All) {
-       // Optimize for the common and most expensive case - iterate over only valid rows.
-      for (TRowIterator it = BegRI(); it < EndRI(); it++) {
-        UpdateGrouping<TFlt>(Grouping, it.GetFltAttr(GroupBy), it.GetRowIdx());
-      }
-    } else {
-      // Consider only rows in IndexSet.
-      for (TInt i = 0; i < IndexSet.Len(); i++) {
-        if (IsRowValid(IndexSet[i])) {
-          TInt RowIdx = IndexSet[i];
-          const TFltV& Col = FltCols[GetColIdx(GroupBy)];       
-          UpdateGrouping<TFlt>(Grouping, Col[RowIdx], RowIdx);
-        }
-      }
-    }
-  }
-
-  /// Group/hash by a single column with string values. Returns hash table with grouping.
-  template <class T>
-  void GroupByStrCol(const TStr& GroupBy, T& Grouping, 
-   const TIntV& IndexSet, TBool All) const {
-    GroupingSanityCheck(GroupBy, atStr);
-    if (All) {
-      // Optimize for the common and most expensive case - iterate over all valid rows.
-      for (TRowIterator it = BegRI(); it < EndRI(); it++) {
-        UpdateGrouping<TInt>(Grouping, it.GetStrMapByName(GroupBy), it.GetRowIdx());
-      }
-    } else {
-      // Consider only rows in IndexSet.
-      for (TInt i = 0; i < IndexSet.Len(); i++) {
-        if (IsRowValid(IndexSet[i])) {
-          TInt RowIdx = IndexSet[i];     
-          TInt ColIdx = ColTypeMap.GetDat(GroupBy).Val2;
-          UpdateGrouping<TInt>(Grouping, StrColMaps[ColIdx][RowIdx], RowIdx);
-        }
-      }
-    }
-  }
-
+  /// Groups/hashes by a single column with integer values. ##TTable::GroupByIntCol
+  template <class T> void GroupByIntCol(const TStr& GroupBy, T& Grouping, 
+    const TIntV& IndexSet, TBool All) const;
+  /// Groups/hashes by a single column with integer values, using OpenMP multi-threading.
+  void GroupByIntColMP(const TStr& GroupBy, THashMP<TInt, TIntV>& Grouping) const;
+  /// Groups/hashes by a single column with float values. Returns hash table with grouping.
+  template <class T> void GroupByFltCol(const TStr& GroupBy, T& Grouping, 
+    const TIntV& IndexSet, TBool All) const;
+  /// Groups/hashes by a single column with string values. Returns hash table with grouping.
+  template <class T> void GroupByStrCol(const TStr& GroupBy, T& Grouping, 
+    const TIntV& IndexSet, TBool All) const;
   /// Template for utility function to update a grouping hash map.
-  template <class T>
-  void UpdateGrouping(THash<T,TIntV>& Grouping, T Key, TInt Val) const{
-    if (Grouping.IsKey(Key)) {
-      Grouping.GetDat(Key).Add(Val);
-    } else {
-      TIntV NewGroup;
-      NewGroup.Add(Val);
-      Grouping.AddDat(Key, NewGroup);
-    }
-  }
-
+  template <class T> void UpdateGrouping(THash<T,TIntV>& Grouping, T Key, TInt Val) const;
   /// Template for utility function to update a parallel grouping hash map.
-  template <class T>
-  void UpdateGrouping(THashMP<T,TIntV>& Grouping, T Key, TInt Val) const{
-    if (Grouping.IsKey(Key)) {
-      Grouping.GetDat(Key).Add(Val);
-    } else {
-      TIntV NewGroup;
-      NewGroup.Add(Val);
-      Grouping.AddDat(Key, NewGroup);
-    }
-  }
+  template <class T> void UpdateGrouping(THashMP<T,TIntV>& Grouping, T Key, TInt Val) const;
 
   /***** Utility functions for sorting by columns *****/
   /// Returns positive value if R1 is bigger, negative value if R2 is bigger, and 0 if they are equal (strcmp semantics).
@@ -579,16 +397,17 @@ protected:
   void QSort(TIntV& V, TInt StartIdx, TInt EndIdx, const TVec<TAttrType>& SortByTypes, 
    const TIntV& SortByIndices, TBool Asc = true);
   /// Helper function for parallel QSort.
-  void Merge(TIntV& V, TInt Idx1, TInt Idx2, TInt Idx3, const TVec<TAttrType>& SortByTypes, const TIntV& SortByIndices, TBool Asc = true);
+  void Merge(TIntV& V, TInt Idx1, TInt Idx2, TInt Idx3, const TVec<TAttrType>& SortByTypes, 
+    const TIntV& SortByIndices, TBool Asc = true);
   /// Performs QSort in parallel on given vector \c V.
-  void QSortPar(TIntV& V, const TVec<TAttrType>& SortByTypes, const TIntV& SortByIndices, TBool Asc = true);
+  void QSortPar(TIntV& V, const TVec<TAttrType>& SortByTypes, const TIntV& SortByIndices, 
+    TBool Asc = true);
 
+/***** Utility functions for removing rows (not through iterator) *****/
   /// Checks if \c RowIdx corresponds to a valid (i.e. not deleted) row.
   bool IsRowValid(TInt RowIdx) const{ return Next[RowIdx] != Invalid;}
   /// Gets the id of the last valid row of the table.
   TInt GetLastValidRowIdx();
-
-/***** Utility functions for removing rows (not through iterator) *****/
   /// Removes first valid row of the table.
   void RemoveFirstRow();
   /// Removes row with id \c RowIdx.
@@ -712,6 +531,24 @@ public:
     return T;
   }
   
+/***** Value Getters - getValue(column name, physical row Idx) *****/
+  // No type checking. Assuming ColName actually refers to the right type.
+  /// Gets the value of integer attribute \c ColName at row \c RowIdx.
+  TInt GetIntVal(const TStr& ColName, const TInt& RowIdx) { 
+    return IntCols[ColTypeMap.GetDat(ColName).Val2][RowIdx]; 
+  }
+  /// Gets the value of float attribute \c ColName at row \c RowIdx.
+  TFlt GetFltVal(const TStr& ColName, const TInt& RowIdx) { 
+    return FltCols[ColTypeMap.GetDat(ColName).Val2][RowIdx]; 
+  }
+  /// Gets the value of string attribute \c ColName at row \c RowIdx.
+  TStr GetStrVal(const TStr& ColName, const TInt& RowIdx) const { 
+    return GetStrVal(ColTypeMap.GetDat(ColName).Val2, RowIdx); 
+  }
+
+  /// Gets the schema of this table.
+  Schema GetSchema() { return S; }
+
 /***** Graph handling *****/
   /// Creates a sequence of graphs based on values of column SplitAttr and windows specified by JumpSize and WindowSize.
   TVec<PNEANet> ToGraphSequence(TStr SplitAttr, TAttrAggr AggrPolicy, 
@@ -1107,6 +944,156 @@ public:
 };
 
 typedef TPair<TStr,TAttrType> TStrTypPr;
+
+template<class T>
+TInt TTable::CheckAndAddFltNode(T Graph, THash<TFlt, TInt>& NodeVals, TFlt FNodeVal) {
+  if (!NodeVals.IsKey(FNodeVal)) {
+    TInt NodeVal = NodeVals.Len();
+    Graph->AddNode(NodeVal);
+    NodeVals.AddKey(FNodeVal);
+    NodeVals.AddDat(FNodeVal, NodeVal);
+    return NodeVal;
+  } else { return NodeVals.GetDat(FNodeVal); }
+}
+
+template <class T> 
+T TTable::AggregateVector(TVec<T>& V, TAttrAggr Policy) {
+  switch (Policy) {
+    case aaMin: {
+      T Res = V[0];
+      for (TInt i = 1; i < V.Len(); i++) {
+        if (V[i] < Res) { Res = V[i]; }
+      }
+      return Res;
+    }
+    case aaMax: {
+      T Res = V[0];
+      for (TInt i = 1; i < V.Len(); i++) {
+        if (V[i] > Res) { Res = V[i]; }
+      }
+      return Res;
+    }
+    case aaFirst: {
+      return V[0];
+    }
+    case aaLast:{
+      return V[V.Len()-1];
+    }
+    case aaSum: {
+      T Res = V[0];
+      for (TInt i = 1; i < V.Len(); i++) {
+        Res = Res + V[i];
+      }
+      return Res;
+    }
+    case aaMean: {
+      T Res = V[0];
+      for (TInt i = 1; i < V.Len(); i++) {
+        Res = Res + V[i];
+      }
+      //Res = Res / V.Len(); // TODO: Handle Str case separately?
+      return Res;
+    }
+    case aaMedian: {
+      V.Sort();
+      return V[V.Len()/2];
+    }
+    case aaCount: {
+      // NOTE: Code should never reach here
+      // I had to put this here to avoid a compiler warning.
+      // Is there a better way to do this?
+      return V[0];
+    }
+  }
+  // Added to remove a compiler warning.
+  T ShouldNotComeHere;
+  return ShouldNotComeHere;
+}
+
+template <class T>
+void TTable::GroupByIntCol(const TStr& GroupBy, T& Grouping, 
+ const TIntV& IndexSet, TBool All) const {
+  GroupingSanityCheck(GroupBy, atInt);
+  if (All) {
+     // Optimize for the common and most expensive case - iterate over only valid rows.
+    for (TRowIterator it = BegRI(); it < EndRI(); it++) {
+      UpdateGrouping<TInt>(Grouping, it.GetIntAttr(GroupBy), it.GetRowIdx());
+    }
+  } else {
+    // Consider only rows in IndexSet.
+    for (TInt i = 0; i < IndexSet.Len(); i++) {
+      if (IsRowValid(IndexSet[i])) {
+        TInt RowIdx = IndexSet[i];
+        const TIntV& Col = IntCols[GetColIdx(GroupBy)];       
+        UpdateGrouping<TInt>(Grouping, Col[RowIdx], RowIdx);
+      }
+    }
+  }
+}
+
+template <class T>
+void TTable::GroupByFltCol(const TStr& GroupBy, T& Grouping, 
+ const TIntV& IndexSet, TBool All) const {
+  GroupingSanityCheck(GroupBy, atFlt);
+  if (All) {
+     // Optimize for the common and most expensive case - iterate over only valid rows.
+    for (TRowIterator it = BegRI(); it < EndRI(); it++) {
+      UpdateGrouping<TFlt>(Grouping, it.GetFltAttr(GroupBy), it.GetRowIdx());
+    }
+  } else {
+    // Consider only rows in IndexSet.
+    for (TInt i = 0; i < IndexSet.Len(); i++) {
+      if (IsRowValid(IndexSet[i])) {
+        TInt RowIdx = IndexSet[i];
+        const TFltV& Col = FltCols[GetColIdx(GroupBy)];       
+        UpdateGrouping<TFlt>(Grouping, Col[RowIdx], RowIdx);
+      }
+    }
+  }
+}
+
+template <class T>
+void TTable::GroupByStrCol(const TStr& GroupBy, T& Grouping, 
+ const TIntV& IndexSet, TBool All) const {
+  GroupingSanityCheck(GroupBy, atStr);
+  if (All) {
+    // Optimize for the common and most expensive case - iterate over all valid rows.
+    for (TRowIterator it = BegRI(); it < EndRI(); it++) {
+      UpdateGrouping<TInt>(Grouping, it.GetStrMapByName(GroupBy), it.GetRowIdx());
+    }
+  } else {
+    // Consider only rows in IndexSet.
+    for (TInt i = 0; i < IndexSet.Len(); i++) {
+      if (IsRowValid(IndexSet[i])) {
+        TInt RowIdx = IndexSet[i];     
+        TInt ColIdx = ColTypeMap.GetDat(GroupBy).Val2;
+        UpdateGrouping<TInt>(Grouping, StrColMaps[ColIdx][RowIdx], RowIdx);
+      }
+    }
+  }
+}
+
+template <class T>
+void TTable::UpdateGrouping(THash<T,TIntV>& Grouping, T Key, TInt Val) const{
+  if (Grouping.IsKey(Key)) {
+    Grouping.GetDat(Key).Add(Val);
+  } else {
+    TIntV NewGroup;
+    NewGroup.Add(Val);
+    Grouping.AddDat(Key, NewGroup);
+  }
+}
+
+template <class T>
+void TTable::UpdateGrouping(THashMP<T,TIntV>& Grouping, T Key, TInt Val) const{
+  if (Grouping.IsKey(Key)) {
+    Grouping.GetDat(Key).Add(Val);
+  } else {
+    TIntV NewGroup;
+    NewGroup.Add(Val);
+    Grouping.AddDat(Key, NewGroup);
+  }
+}
 
 namespace TSnap {
 

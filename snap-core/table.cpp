@@ -733,6 +733,33 @@ void TTable::GroupingSanityCheck(const TStr& GroupBy, const TAttrType& AttrType)
   }
 }
 
+void TTable::GroupByIntColMP(const TStr& GroupBy, THashMP<TInt, TIntV>& Grouping) const {
+  //double startFn = omp_get_wtime();
+  GroupingSanityCheck(GroupBy, atInt);
+  TIntPrV Partitions;
+  GetPartitionRanges(Partitions, 8*CHUNKS_PER_THREAD);
+  TInt PartitionSize = Partitions[0].GetVal2()-Partitions[0].GetVal1()+1;
+  //double endPart = omp_get_wtime();
+  //printf("Partition time = %f\n", endPart-startFn);
+
+  Grouping.Gen(NumValidRows);
+  //double endGen = omp_get_wtime();
+  //printf("Gen time = %f\n", endGen-endPart);
+  #ifdef _OPENMP
+  #pragma omp parallel for schedule(dynamic, CHUNKS_PER_THREAD) num_threads(1)
+  #endif
+  for (int i = 0; i < Partitions.Len(); i++){
+    TRowIterator RowI(Partitions[i].GetVal1(), this);
+    TRowIterator EndI(Partitions[i].GetVal2(), this);
+    while (RowI < EndI) {
+      UpdateGrouping<TInt>(Grouping, RowI.GetIntAttr(GroupBy), RowI.GetRowIdx());
+      RowI++;
+    }
+  }
+  //double endAdd = omp_get_wtime();
+  //printf("Add time = %f\n", endAdd-endGen);
+}
+
 void TTable::Unique(const TStr& Col) {
   TIntV RemainingRows;
   switch (GetColType(Col)) {
@@ -1623,7 +1650,7 @@ PTable TTable::SelfSimJoinPerGroup(const TStrV& GroupBy, const TStr& SimCol, con
 	return JointTable;
 }
 
-// Increment the next vector and set last, NumRows and NumValidRows
+// Increments the next vector and set last, NumRows and NumValidRows.
 void TTable::IncrementNext()
 {
 	// Advance the Next vector
