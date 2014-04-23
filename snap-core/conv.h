@@ -529,13 +529,13 @@ PGraphMP ToGraphMP2(PTable Table, const TStr& SrcCol, const TStr& DstCol) {
     }
   }
 
-  double endNode = omp_get_wtime();
+  // double endNode = omp_get_wtime();
   // printf("Node time = %f\n", endNode-endSort);
 
   TIntTrV Nodes;
   Nodes.Reserve(TotalSrcNodes+TotalDstNodes);
 
-  double endNodeResize = omp_get_wtime();
+  // double endNodeResize = omp_get_wtime();
   // printf("(NodeResize time = %f)\n", endNodeResize-endNode);
 
   TInt i = 0, j = 0;
@@ -555,7 +555,7 @@ PGraphMP ToGraphMP2(PTable Table, const TStr& SrcCol, const TStr& DstCol) {
   for (; i < TotalSrcNodes; i++) { Nodes.Add(TIntTr(SrcNodeIds[i].Val1, i, -1)); }
   for (; j < TotalDstNodes; j++) { Nodes.Add(TIntTr(DstNodeIds[j].Val1, -1, j)); }
 
-  double endMerge = omp_get_wtime();
+  // double endMerge = omp_get_wtime();
   // printf("Merge time = %f\n", endMerge-endNode);  
 
   TInt NumNodes = Nodes.Len();
