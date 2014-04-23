@@ -17,19 +17,19 @@ class TTable;
 class TTableContext;
 typedef TPt<TTable> PTable;
 
-/// Represent grouping key with IntV for integer and string attributes and FltV for float attributes.
+/// Represents grouping key with IntV for integer and string attributes and FltV for float attributes.
 typedef TPair<TIntV, TFltV> TGroupKey;
 
 //TODO: move to separate file (map.h / file with PR and HITS) 
 namespace TSnap {
 
-  /// Get sequence of PageRank tables from given \c GraphSeq into \c TableSeq
+  /// Gets sequence of PageRank tables from given \c GraphSeq into \c TableSeq.
   template <class PGraph>
   void MapPageRank(const TVec<PGraph>& GraphSeq, TVec<PTable>& TableSeq, 
       TTableContext& Context, const TStr& TableNamePrefix,
       const double& C, const double& Eps, const int& MaxIter);
 
-  /// Get sequence of Hits tables from given \c GraphSeq into \c TableSeq
+  /// Gets sequence of Hits tables from given \c GraphSeq into \c TableSeq.
   template <class PGraph>
   void MapHits(const TVec<PGraph>& GraphSeq, TVec<PTable>& TableSeq, 
     TTableContext& Context, const TStr& TableNamePrefix,
@@ -40,14 +40,14 @@ namespace TSnap {
 /// Execution context
 class TTableContext {
 protected:
-  TStrHash<TInt, TBigStrPool> StringVals; ///< StringPool - stores string data values and maps them to integers
+  TStrHash<TInt, TBigStrPool> StringVals; ///< StringPool - stores string data values and maps them to integers.
   friend class TTable;
 public:
-  /// Default constructor
+  /// Default constructor.
   TTableContext() {}
-  /// Load TTableContext in binary from \c SIn
+  /// Loads TTableContext in binary from \c SIn.
   TTableContext(TSIn& SIn): StringVals(SIn) {}
-  /// Save TTableContext in binary to \c SOut
+  /// Saves TTableContext in binary to \c SOut.
   void Save(TSOut& SOut) { StringVals.Save(SOut); }
 };
 
@@ -78,149 +78,149 @@ public:
 /// Table Row (Record)
 class TTableRow {
 protected:
-  TIntV IntVals; ///< Values of the int columns for this row
-  TFltV FltVals; ///< Values of the flt columns for this row
-  TStrV StrVals; ///< Values of the str columns for this row
+  TIntV IntVals; ///< Values of the int columns for this row.
+  TFltV FltVals; ///< Values of the flt columns for this row.
+  TStrV StrVals; ///< Values of the str columns for this row.
 public:
-  /// Default constructor
+  /// Default constructor.
   TTableRow() {}
-  /// Add int attribute to this row
+  /// Adds int attribute to this row.
   void AddInt(const TInt& Val) { IntVals.Add(Val); }
-  /// Add float attribute to this row
+  /// Adds float attribute to this row.
   void AddFlt(const TFlt& Val) { FltVals.Add(Val); }
-  /// Add string attribute to this row
+  /// Adds string attribute to this row.
   void AddStr(const TStr& Val) { StrVals.Add(Val); }
-  /// Get int attributes of this row
+  /// Gets int attributes of this row.
   TIntV GetIntVals() const { return IntVals; }
-  /// Get float attributes of this row
+  /// Gets float attributes of this row.
   TFltV GetFltVals() const { return FltVals; }
-  /// Get string attributes of this row
+  /// Gets string attributes of this row.
   TStrV GetStrVals() const { return StrVals; }
 };
 
-/// Possible policies for aggregating node attributes
+/// Possible policies for aggregating node attributes.
 typedef enum {aaMin, aaMax, aaFirst, aaLast, aaMean, aaMedian, aaSum, aaCount} TAttrAggr;
-/// Possible column-wise arithmetic operations
+/// Possible column-wise arithmetic operations.
 typedef enum {aoAdd, aoSub, aoMul, aoDiv, aoMod, aoMin, aoMax} TArithOp;
 
-/// A table schema is a vector of pairs <attribute name, attribute type>
+/// A table schema is a vector of pairs <attribute name, attribute type>.
 typedef TVec<TPair<TStr, TAttrType> > Schema; 
 
 //#//////////////////////////////////////////////
 /// Iterator class for TTable rows. ##Iterator
 class TRowIterator{ 
-  TInt CurrRowIdx; ///< Physical row index of current row pointed by iterator
-  const TTable* Table; ///< Reference to table containing this row
+  TInt CurrRowIdx; ///< Physical row index of current row pointed by iterator.
+  const TTable* Table; ///< Reference to table containing this row.
 public:
-  /// Default constructor
+  /// Default constructor.
   TRowIterator(): CurrRowIdx(0), Table(NULL) {}
-  /// Construct iterator to row \c RowIds of \c TablePtr
+  /// Constructs iterator to row \c RowIds of \c TablePtr.
   TRowIterator(TInt RowIdx, const TTable* TablePtr): CurrRowIdx(RowIdx), Table(TablePtr) {}
-  /// Copy constructor
+  /// Copy constructor.
   TRowIterator(const TRowIterator& RowI): CurrRowIdx(RowI.CurrRowIdx), Table(RowI.Table) {}
-  /// Increment iterator
+  /// Increments the iterator.
   TRowIterator& operator++(int);
-  /// Increment iterator (For Python compatibility)
+  /// Increments the iterator (For Python compatibility).
   TRowIterator& Next(); 
-  /// Check if this iterator points to a row that is before the one pointed by \c RowI
+  /// Checks if this iterator points to a row that is before the one pointed by \c RowI.
   bool operator < (const TRowIterator& RowI) const;
-  /// Check if this iterator points to the same row pointed by \c RowI
+  /// Checks if this iterator points to the same row pointed by \c RowI.
   bool operator == (const TRowIterator& RowI) const;
-  /// Get the id of the row pointed by this iterator
+  /// Gets the id of the row pointed by this iterator.
   TInt GetRowIdx() const;
-  /// Return value of integer attribute specified by integer column index for current row
+  /// Returns value of integer attribute specified by integer column index for current row.
   TInt GetIntAttr(TInt ColIdx) const;
-  /// Return value of floating point attribute specified by float column index for current row
+  /// Returns value of floating point attribute specified by float column index for current row.
   TFlt GetFltAttr(TInt ColIdx) const;
-  /// Return value of string attribute specified by string column index for current row
+  /// Returns value of string attribute specified by string column index for current row.
   TStr GetStrAttr(TInt ColIdx) const;
-  /// Return integer mapping of a string attribute value specified by string column index for current row
+  /// Returns integer mapping of a string attribute value specified by string column index for current row.
   TInt GetStrMapById(TInt ColIdx) const;
-  /// Return value of integer attribute specified by attribute name for current row
+  /// Returns value of integer attribute specified by attribute name for current row.
   TInt GetIntAttr(const TStr& Col) const;
-  /// Return value of float attribute specified by attribute name for current row
+  /// Returns value of float attribute specified by attribute name for current row.
   TFlt GetFltAttr(const TStr& Col) const;
-  /// Return value of string attribute specified by attribute name for current row
+  /// Returns value of string attribute specified by attribute name for current row.
   TStr GetStrAttr(const TStr& Col) const;  
-  /// Return integer mapping of string attribute specified by attribute name for current row
+  /// Returns integer mapping of string attribute specified by attribute name for current row.
   TInt GetStrMapByName(const TStr& Col) const;
-  /// Compare value in column \c ColIdx with given primitive \c Val
+  /// Compares value in column \c ColIdx with given primitive \c Val.
   TBool CompareAtomicConst(TInt ColIdx, const TPrimitive& Val, TPredComp Cmp);
-  /// Compare value in column \c ColIdx with given TStr \c Val
+  /// Compares value in column \c ColIdx with given TStr \c Val.
   TBool CompareAtomicConstTStr(TInt ColIdx, const  TStr& Val, TPredComp Cmp);
 };
 
 //#//////////////////////////////////////////////
 /// Iterator class for TTable rows, that allows logical row removal while iterating.
 class TRowIteratorWithRemove {
-  TInt CurrRowIdx; ///< Physical row index of current row pointer by iterator
-  TTable* Table; ///< Reference to table containing this row
-  TBool Start;	///< A flag indicating whether the current row in the first valid row of the table 
+  TInt CurrRowIdx; ///< Physical row index of current row pointer by iterator.
+  TTable* Table; ///< Reference to table containing this row.
+  TBool Start;	///< A flag indicating whether the current row in the first valid row of the table.
 public:
-  /// Default constructor
+  /// Default constructor.
   TRowIteratorWithRemove(): CurrRowIdx(0), Table(NULL), Start(true) {}
-  /// Construct iterator pointing to given row
+  /// Constructs iterator pointing to given row.
   TRowIteratorWithRemove(TInt RowIdx, TTable* TablePtr);
-  /// Construct iterator pointing to given row
+  /// Constructs iterator pointing to given row.
   TRowIteratorWithRemove(TInt RowIdx, TTable* TablePtr, TBool IsStart) : CurrRowIdx(RowIdx), 
     Table(TablePtr), Start(IsStart) {}
-  /// Copy constructor
+  /// Copy constructor.
   TRowIteratorWithRemove(const TRowIteratorWithRemove& RowI) : CurrRowIdx(RowI.CurrRowIdx), 
     Table(RowI.Table), Start(RowI.Start) {}
-  /// Increment iterator
+  /// Increments the iterator.
   TRowIteratorWithRemove& operator++(int);
-  /// Increment iterator (For Python compatibility)
+  /// Increments the iterator (For Python compatibility).
   TRowIteratorWithRemove& Next(); 
-  /// Check if this iterator points to a row that is before the one pointed by \c RowI
+  /// Checks if this iterator points to a row that is before the one pointed by \c RowI.
   bool operator < (const TRowIteratorWithRemove& RowI) const;
-  /// Check if this iterator points to the same row pointed by \c RowI
+  /// Checks if this iterator points to the same row pointed by \c RowI.
   bool operator == (const TRowIteratorWithRemove& RowI) const;
-  /// Get physical index of current row
+  /// Gets physical index of current row.
   TInt GetRowIdx() const;
-  /// Get physical index of next row
+  /// Gets physical index of next row.
   TInt GetNextRowIdx() const;
-  /// Return value of integer attribute specified by integer column index for next row
+  /// Returns value of integer attribute specified by integer column index for next row.
   TInt GetNextIntAttr(TInt ColIdx) const;
-  /// Return value of float attribute specified by float column index for next row
+  /// Returns value of float attribute specified by float column index for next row.
   TFlt GetNextFltAttr(TInt ColIdx) const;
-  /// Return value of string attribute specified by string column index for next row
+  /// Returns value of string attribute specified by string column index for next row.
   TStr GetNextStrAttr(TInt ColIdx) const;   
-  /// Return value of integer attribute specified by attribute name for next row
+  /// Returns value of integer attribute specified by attribute name for next row.
   TInt GetNextIntAttr(const TStr& Col) const;
-  /// Return value of float attribute specified by attribute name for next row
+  /// Returns value of float attribute specified by attribute name for next row.
   TFlt GetNextFltAttr(const TStr& Col) const;
-  /// Return value of string attribute specified by attribute name for next row
+  /// Returns value of string attribute specified by attribute name for next row.
   TStr GetNextStrAttr(const TStr& Col) const;   
-  /// Checks whether iterator points to first valid row of the table
+  /// Checks whether iterator points to first valid row of the table.
   TBool IsFirst() const;
-  /// Remove next row
+  /// Removes next row.
   void RemoveNext();
-  /// Compare value in column \c ColIdx with given primitive \c Val
+  /// Compares value in column \c ColIdx with given primitive \c Val.
   TBool CompareAtomicConst(TInt ColIdx, const TPrimitive& Val, TPredComp Cmp);
 };
 
 //#//////////////////////////////////////////////
-/// Iterator over a vector of tables
+/// Iterator over a vector of tables.
 class TTableIterator {
-  TVec<PTable> PTableV; ///< Vector of TTables which are to be iterated over
-  TInt CurrTableIdx; ///< Index of the current table pointed to by this iterator
+  TVec<PTable> PTableV; ///< Vector of TTables which are to be iterated over.
+  TInt CurrTableIdx; ///< Index of the current table pointed to by this iterator.
 public:
-  /// Default constructor
+  /// Default constructor.
   TTableIterator(TVec<PTable>& PTableV): PTableV(PTableV), CurrTableIdx(0) {}
-  /// Return next table in the sequence and update iterator
+  /// Returns next table in the sequence and update iterator.
   PTable Next() { return PTableV[CurrTableIdx++]; }
-  /// Check if iterator has reached end of the sequence
+  /// Checks if iterator has reached end of the sequence.
   bool HasNext() { return CurrTableIdx < PTableV.Len(); }
 };
 
-/// The name of the friend is not found by simple name lookup until a matching declaration is provided in that namespace scope (either before or after the class declaration granting friendship)
+/// The name of the friend is not found by simple name lookup until a matching declaration is provided in that namespace scope (either before or after the class declaration granting friendship).
 namespace TSnap{
-	/// Convert table to a directed/undirected graph. Suitable for PUNGraph and PNGraph, but not for PNEANet where attributes are expected. 
+	/// Converts table to a directed/undirected graph. Suitable for PUNGraph and PNGraph, but not for PNEANet where attributes are expected.
 	template<class PGraph> PGraph ToGraph(PTable Table, const TStr& SrcCol, const TStr& DstCol, TAttrAggr AggrPolicy);
-	/// Convert table to a network. Suitable for PNEANet - Requires node and edge attribute column names as vectors. 
+	/// Converts table to a network. Suitable for PNEANet - Requires node and edge attribute column names as vectors.
 	template<class PGraph> PGraph ToNetwork(PTable Table, const TStr& SrcCol, const TStr& DstCol, 
 			TStrV& SrcAttrs, TStrV& DstAttrs, TStrV& EdgeAttrs, TAttrAggr AggrPolicy);
-	/// Convert table to a network. Suitable for PNEANet - Assumes no node and edge attributes. 
+	/// Converts table to a network. Suitable for PNEANet - Assumes no node and edge attributes. 
 	template<class PGraph> PGraph ToNetwork(PTable Table, const TStr& SrcCol, const TStr& DstCol, TAttrAggr AggrPolicy);
   template<class PGraphMP> PGraphMP ToGraphMP(PTable Table, const TStr& SrcCol, const TStr& DstCol);
   template<class PGraphMP> PGraphMP ToGraphMP2(PTable Table, const TStr& SrcCol, const TStr& DstCol);
@@ -230,10 +230,10 @@ namespace TSnap{
 /// Table class: Relational table with columnar data storage
 class TTable {
 protected:
-  static const TInt Last; ///< Special value for Next vector entry - last row in table
-  static const TInt Invalid; ///< Special value for Next vector entry - logically removed row
+  static const TInt Last; ///< Special value for Next vector entry - last row in table.
+  static const TInt Invalid; ///< Special value for Next vector entry - logically removed row.
 
-  static TInt UseMP; ///< Global switch for choosing multi-threaded versions of TTable functions
+  static TInt UseMP; ///< Global switch for choosing multi-threaded versions of TTable functions.
 	void IncrementNext();
 public:
   TStr Name; ///< Table Name
@@ -247,31 +247,31 @@ public:
   static TInt GetMP() { return UseMP; }
 protected:
   TTableContext& Context;  ///< Execution Context. ##TTable::Context
-  Schema S; ///< Table Schema
+  Schema S; ///< Table Schema.
   TCRef CRef;
-  TInt NumRows; ///< Number of rows in the table (valid and invalid)
-  TInt NumValidRows; ///< Number of valid rows in the table (i.e. rows that were not logically removed)
-  TInt FirstValidRow; ///< Physical index of first valid row
-  TInt LastValidRow; ///< Physical index of last valid row
+  TInt NumRows; ///< Number of rows in the table (valid and invalid).
+  TInt NumValidRows; ///< Number of valid rows in the table (i.e. rows that were not logically removed).
+  TInt FirstValidRow; ///< Physical index of first valid row.
+  TInt LastValidRow; ///< Physical index of last valid row.
   TIntV Next; ///< A vector describing the logical order of the rows. ##TTable::Next
-  TVec<TIntV> IntCols; ///< Data columns of integer attributes
-  TVec<TFltV> FltCols; ///< Data columns of floating point attributes
+  TVec<TIntV> IntCols; ///< Data columns of integer attributes.
+  TVec<TFltV> FltCols; ///< Data columns of floating point attributes.
   TVec<TIntV> StrColMaps; ///< Data columns of integer mappings of string attributes. ##TTable::StrColMaps
   THash<TStr,TPair<TAttrType,TInt> > ColTypeMap; /// A mapping from column name to column type and column index among columns of the same type.
   TStr IdColName; ///< Name of column associated with (optional) permanent row identifiers.
-  TIntIntH RowIdMap; ///< Mapping of permanent row ids to physical id
+  TIntIntH RowIdMap; ///< Mapping of permanent row ids to physical id.
 
-  // Group mapping data structures
+  // Group mapping data structures.
   THash<TStr, TPair<TStrV, TBool> > GroupStmtNames; ///< Maps user-given grouping statement names to their group-by attributes. ##TTable::GroupStmtNames
   THash<TPair<TStrV, TBool>, THash<TInt, TGroupKey> >GroupIDMapping; ///< Maps grouping statements to their (group id --> group-by key) mapping. ##TTable::GroupIDMapping
   THash<TPair<TStrV, TBool>, THash<TGroupKey, TIntV> >GroupMapping; ///< Maps grouping statements to their (group-by key --> group id) mapping. ##TTable::GroupMapping
 
-  // Fields to be used when constructing a graph
-  TStr SrcCol; ///< Column (attribute) to serve as src nodes when constructing the graph
-  TStr DstCol; ///< Column (attribute) to serve as dst nodes when constructing the graph
-  TStrV EdgeAttrV; ///< List of columns (attributes) to serve as edge attributes
-  TStrV SrcNodeAttrV; ///< List of columns (attributes) to serve as source node attributes
-  TStrV DstNodeAttrV; ///< List of columns (attributes) to serve as destination node attributes
+  // Fields to be used when constructing a graph.
+  TStr SrcCol; ///< Column (attribute) to serve as src nodes when constructing the graph.
+  TStr DstCol; ///< Column (attribute) to serve as dst nodes when constructing the graph.
+  TStrV EdgeAttrV; ///< List of columns (attributes) to serve as edge attributes.
+  TStrV SrcNodeAttrV; ///< List of columns (attributes) to serve as source node attributes.
+  TStrV DstNodeAttrV; ///< List of columns (attributes) to serve as destination node attributes.
   TStrTrV CommonNodeAttrs; ///< List of attribute pairs with values common to source and destination and their common given name. ##TTable::CommonNodeAttrs
   TVec<TIntV> RowIdBuckets; ///< Partitioning of row ids into buckets corresponding to different graph objects when generating a sequence of graphs.
   TInt CurrBucket; ///< Current row id bucket - used when generating a sequence of graphs using an iterator.
@@ -281,76 +281,76 @@ protected:
 
 public:
   /***** value getters - getValue(column name, physical row Idx) *****/
-  // no type checking. assuming ColName actually refers to the right type.
-  /// Get the value of integer attribute \c ColName at row \c RowIdx
+  // No type checking. Assuming ColName actually refers to the right type.
+  /// Gets the value of integer attribute \c ColName at row \c RowIdx.
   TInt GetIntVal(const TStr& ColName, const TInt& RowIdx) { 
     return IntCols[ColTypeMap.GetDat(ColName).Val2][RowIdx]; 
   }
-  /// Get the value of float attribute \c ColName at row \c RowIdx
+  /// Gets the value of float attribute \c ColName at row \c RowIdx.
   TFlt GetFltVal(const TStr& ColName, const TInt& RowIdx) { 
     return FltCols[ColTypeMap.GetDat(ColName).Val2][RowIdx]; 
   }
-  /// Get the value of string attribute \c ColName at row \c RowIdx
+  /// Gets the value of string attribute \c ColName at row \c RowIdx.
   TStr GetStrVal(const TStr& ColName, const TInt& RowIdx) const { 
     return GetStrVal(ColTypeMap.GetDat(ColName).Val2, RowIdx); 
   }
 
-  /// Get the schema of this table
+  /// Gets the schema of this table.
   Schema GetSchema() { return S; }
 
 /***** Utility functions *****/
 protected:
-  /// Add an integer column with name \c ColName
+  /// Adds an integer column with name \c ColName.
   void AddIntCol(const TStr& ColName);
-  /// Add a float column with name \c ColName
+  /// Adds a float column with name \c ColName.
   void AddFltCol(const TStr& ColName);
-  /// Add a string column with name \c ColName
+  /// Adds a string column with name \c ColName.
   void AddStrCol(const TStr& ColName);
-  /// Adds a label attribute with positive labels on selected rows and negative labels on the rest
+  /// Adds a label attribute with positive labels on selected rows and negative labels on the rest.
   void ClassifyAux(const TIntV& SelectedRows, const TStr& LabelName, 
    const TInt& PositiveLabel = 1, const TInt& NegativeLabel=  0);
 
 /***** Utility functions for handling string values *****/
-  // Get the Key of the Context StringVals pool. Used by ToGraph method in conv.cpp
+  /// Gets the Key of the Context StringVals pool. Used by ToGraph method in conv.cpp.
   const char* GetContextKey(TInt Val) const {
 	  return Context.StringVals.GetKey(Val);
   }
-  /// Get the value in column with id \c ColIdx at row \c RowIdx
+  /// Gets the value in column with id \c ColIdx at row \c RowIdx.
   TStr GetStrVal(TInt ColIdx, TInt RowIdx) const { 
     return TStr(Context.StringVals.GetKey(StrColMaps[ColIdx][RowIdx])); 
   }
-  /// Add \c Val in column with id \c ColIdx
+  /// Adds \c Val in column with id \c ColIdx.
   void AddStrVal(const TInt& ColIdx, const TStr& Val);
-  /// Add \c Val in column with name \c Col
+  /// Adds \c Val in column with name \c Col.
   void AddStrVal(const TStr& Col, const TStr& Val);
 
 /***** Utility functions for handling Schema *****/
-  /// Get name of the id column of this table
+  /// Gets name of the id column of this table.
   TStr GetIdColName() const { return IdColName; }
-  /// Get name of the column with index \c Idx in the schema
+  /// Gets name of the column with index \c Idx in the schema.
   TStr GetSchemaColName(TInt Idx) const { return S[Idx].Val1; }
-  /// Get type of the column with index \c Idx in the schema
+  /// Gets type of the column with index \c Idx in the schema.
   TAttrType GetSchemaColType(TInt Idx) const { return S[Idx].Val2; }
-  /// Add column with name \c ColName and type \c ColType to the schema
+  /// Adds column with name \c ColName and type \c ColType to the schema.
   void AddSchemaCol(const TStr& ColName, TAttrType ColType) { 
     S.Add(TPair<TStr,TAttrType>(ColName, ColType)); 
   }
-  /// Get index of column \c ColName among columns of the same type in the schema
+  /// Gets index of column \c ColName among columns of the same type in the schema.
   TInt GetColIdx(const TStr& ColName) const { 
     return ColTypeMap.IsKey(ColName) ? ColTypeMap.GetDat(ColName).Val2 : TInt(-1); 
   }
-  /// Check if \c Attr is an attribute of this table schema
+  /// Checks if \c Attr is an attribute of this table schema.
   TBool IsAttr(const TStr& Attr);
 
 /***** Utility functions for building graph from TTable *****/
-  /// Add names of columns to be used as graph attributes
+  /// Adds names of columns to be used as graph attributes.
   void AddGraphAttribute(const TStr& Attr, TBool IsEdge, TBool IsSrc, TBool IsDst);
-  /// Add vector of names of columns to be used as graph attributes
+  /// Adds vector of names of columns to be used as graph attributes.
   void AddGraphAttributeV(TStrV& Attrs, TBool IsEdge, TBool IsSrc, TBool IsDst);
-  /// Check if given \c NodeId is seen earlier; if not, add it to \c Graph and hashmap \c NodeVals
+  /// Checks if given \c NodeId is seen earlier; if not, add it to \c Graph and hashmap \c NodeVals.
   void CheckAndAddIntNode(PNEANet Graph, THashSet<TInt>& NodeVals, TInt NodeId);
 
-  /// Check if given \c NodeVal is seen earlier; if not, add it to \c Graph and hashmap \c NodeVals
+  /// Checks if given \c NodeVal is seen earlier; if not, add it to \c Graph and hashmap \c NodeVals.
   template<class T>
   TInt CheckAndAddFltNode(T Graph, THash<TFlt, TInt>& NodeVals, TFlt FNodeVal) {
     if (!NodeVals.IsKey(FNodeVal)) {
@@ -361,29 +361,29 @@ protected:
       return NodeVal;
     } else { return NodeVals.GetDat(FNodeVal); }
   }
-  /// Add attributes of edge corresponding to \c RowId to the \c Graph
+  /// Adds attributes of edge corresponding to \c RowId to the \c Graph.
   void AddEdgeAttributes(PNEANet& Graph, int RowId);
-  /// Takes as parameters, and updates, maps NodeXAttrs: Node Id --> (attribute name --> Vector of attribute values)
+  /// Takes as parameters, and updates, maps NodeXAttrs: Node Id --> (attribute name --> Vector of attribute values).
   void AddNodeAttributes(TInt NId, TStrV NodeAttrV, TInt RowId, 
    THash<TInt, TStrIntVH>& NodeIntAttrs, THash<TInt, TStrFltVH>& NodeFltAttrs, 
    THash<TInt, TStrStrVH>& NodeStrAttrs);
-  /// Make a single pass over the rows in the given row id set, and creates nodes, edges, assigns node and edge attributes
+  /// Makes a single pass over the rows in the given row id set, and creates nodes, edges, assigns node and edge attributes.
   PNEANet BuildGraph(const TIntV& RowIds, TAttrAggr AggrPolicy);
-  /// Initialize the RowIdBuckets vector which will be used for the graph sequence creation.
+  /// Initializes the RowIdBuckets vector which will be used for the graph sequence creation.
   void InitRowIdBuckets(int NumBuckets);
-  /// Fill RowIdBuckets with sets of row ids ##TTable::FillBucketsByWindow
+  /// Fills RowIdBuckets with sets of row ids. ##TTable::FillBucketsByWindow
   void FillBucketsByWindow(TStr SplitAttr, TInt JumpSize, TInt WindowSize, 
    TInt StartVal, TInt EndVal);
-  /// Fill RowIdBuckets with sets of row ids ##TTable::FillBucketsByInterval
+  /// Fills RowIdBuckets with sets of row ids. ##TTable::FillBucketsByInterval
   void FillBucketsByInterval(TStr SplitAttr, TIntPrV SplitIntervals);
-  /// Return a sequence of graphs ##TTable::GetGraphsFromSequence
+  /// Returns a sequence of graphs. ##TTable::GetGraphsFromSequence
   TVec<PNEANet> GetGraphsFromSequence(TAttrAggr AggrPolicy);
-  /// Return the first graph of the sequence ##TTable::GetFirstGraphFromSequence
+  /// Returns the first graph of the sequence. ##TTable::GetFirstGraphFromSequence
   PNEANet GetFirstGraphFromSequence(TAttrAggr AggrPolicy);
-  /// Return the next graph in sequence corresponding to RowIdBuckets ##TTable::GetNextGraphFromSequence
+  /// Returns the next graph in sequence corresponding to RowIdBuckets. ##TTable::GetNextGraphFromSequence
   PNEANet GetNextGraphFromSequence();
 
-  /// Aggregate vector into a single scalar value according to a policy ##TTable::AggregateVector
+  /// Aggregates vector into a single scalar value according to a policy. ##TTable::AggregateVector
   template <class T> 
   T AggregateVector(TVec<T>& V, TAttrAggr Policy) {
     switch (Policy) {
@@ -428,18 +428,18 @@ protected:
       }
       case aaCount: {
         // NOTE: Code should never reach here
-        // I had to put this here to avoid a compiler warning
+        // I had to put this here to avoid a compiler warning.
         // Is there a better way to do this?
         return V[0];
       }
     }
-    // added to remove a compiler warning
+    // Added to remove a compiler warning.
     T ShouldNotComeHere;
     return ShouldNotComeHere;
   }
 
   /***** Grouping Utility functions *************/
-  /// Check if grouping key exists and matches given attr type.
+  /// Checks if grouping key exists and matches given attr type.
   void GroupingSanityCheck(const TStr& GroupBy, const TAttrType& AttrType) const;
 
   /// Group/hash by a single column with integer values. ##TTable::GroupByIntCol
@@ -448,12 +448,12 @@ protected:
    const TIntV& IndexSet, TBool All) const {
     GroupingSanityCheck(GroupBy, atInt);
     if (All) {
-       // optimize for the common and most expensive case - iterate over only valid rows
+       // Optimize for the common and most expensive case - iterate over only valid rows.
       for (TRowIterator it = BegRI(); it < EndRI(); it++) {
         UpdateGrouping<TInt>(Grouping, it.GetIntAttr(GroupBy), it.GetRowIdx());
       }
     } else {
-      // consider only rows in IndexSet
+      // Consider only rows in IndexSet.
       for (TInt i = 0; i < IndexSet.Len(); i++) {
         if (IsRowValid(IndexSet[i])) {
           TInt RowIdx = IndexSet[i];
@@ -497,12 +497,12 @@ protected:
    const TIntV& IndexSet, TBool All) const {
     GroupingSanityCheck(GroupBy, atFlt);
     if (All) {
-       // optimize for the common and most expensive case - iterate over only valid rows
+       // Optimize for the common and most expensive case - iterate over only valid rows.
       for (TRowIterator it = BegRI(); it < EndRI(); it++) {
         UpdateGrouping<TFlt>(Grouping, it.GetFltAttr(GroupBy), it.GetRowIdx());
       }
     } else {
-      // consider only rows in IndexSet
+      // Consider only rows in IndexSet.
       for (TInt i = 0; i < IndexSet.Len(); i++) {
         if (IsRowValid(IndexSet[i])) {
           TInt RowIdx = IndexSet[i];
@@ -519,12 +519,12 @@ protected:
    const TIntV& IndexSet, TBool All) const {
     GroupingSanityCheck(GroupBy, atStr);
     if (All) {
-      // optimize for the common and most expensive case - iterate over all valid rows
+      // Optimize for the common and most expensive case - iterate over all valid rows.
       for (TRowIterator it = BegRI(); it < EndRI(); it++) {
         UpdateGrouping<TInt>(Grouping, it.GetStrMapByName(GroupBy), it.GetRowIdx());
       }
     } else {
-      // consider only rows in IndexSet
+      // Consider only rows in IndexSet.
       for (TInt i = 0; i < IndexSet.Len(); i++) {
         if (IsRowValid(IndexSet[i])) {
           TInt RowIdx = IndexSet[i];     
@@ -535,7 +535,7 @@ protected:
     }
   }
 
-  /// Template for utility function to update a grouping hash map
+  /// Template for utility function to update a grouping hash map.
   template <class T>
   void UpdateGrouping(THash<T,TIntV>& Grouping, T Key, TInt Val) const{
     if (Grouping.IsKey(Key)) {
@@ -547,7 +547,7 @@ protected:
     }
   }
 
-  /// Template for utility function to update a parallel grouping hash map
+  /// Template for utility function to update a parallel grouping hash map.
   template <class T>
   void UpdateGrouping(THashMP<T,TIntV>& Grouping, T Key, TInt Val) const{
     if (Grouping.IsKey(Key)) {
@@ -560,42 +560,42 @@ protected:
   }
 
   /***** Utility functions for sorting by columns *****/
-  /// Returns positive value if R1 is bigger, negative value if R2 is bigger, and 0 if they are equal (strcmp semantics)
+  /// Returns positive value if R1 is bigger, negative value if R2 is bigger, and 0 if they are equal (strcmp semantics).
   inline TInt CompareRows(TInt R1, TInt R2, const TAttrType& CompareByType, 
    const TInt& CompareByIndex, TBool Asc = true);
-  /// Returns positive value if R1 is bigger, negative value if R2 is bigger, and 0 if they are equal (strcmp semantics)
+  /// Returns positive value if R1 is bigger, negative value if R2 is bigger, and 0 if they are equal (strcmp semantics).
   inline TInt CompareRows(TInt R1, TInt R2, const TVec<TAttrType>& CompareByTypes, 
    const TIntV& CompareByIndices, TBool Asc = true); 
-  /// Get pivot element for QSort.
+  /// Gets pivot element for QSort.
   TInt GetPivot(TIntV& V, TInt StartIdx, TInt EndIdx, const TVec<TAttrType>& SortByTypes, 
    const TIntV& SortByIndices, TBool Asc);
-  /// Partition vector for QSort
+  /// Partitions vector for QSort.
   TInt Partition(TIntV& V, TInt StartIdx, TInt EndIdx, const TVec<TAttrType>& SortByTypes,
    const TIntV& SortByIndices, TBool Asc);
-  /// Perform insertion sort on given vector \c V
+  /// Performs insertion sort on given vector \c V.
   void ISort(TIntV& V, TInt StartIdx, TInt EndIdx, const TVec<TAttrType>& SortByTypes, 
    const TIntV& SortByIndices, TBool Asc = true);
-  /// Perform QSort on given vector \c V
+  /// Performs QSort on given vector \c V.
   void QSort(TIntV& V, TInt StartIdx, TInt EndIdx, const TVec<TAttrType>& SortByTypes, 
    const TIntV& SortByIndices, TBool Asc = true);
-  /// Helper function for parallel QSort
+  /// Helper function for parallel QSort.
   void Merge(TIntV& V, TInt Idx1, TInt Idx2, TInt Idx3, const TVec<TAttrType>& SortByTypes, const TIntV& SortByIndices, TBool Asc = true);
-  /// Perform QSort in parallel on given vector \c V
+  /// Performs QSort in parallel on given vector \c V.
   void QSortPar(TIntV& V, const TVec<TAttrType>& SortByTypes, const TIntV& SortByIndices, TBool Asc = true);
 
-  /// Check if \c RowIdx corresponds to a valid (i.e. not deleted) row
+  /// Checks if \c RowIdx corresponds to a valid (i.e. not deleted) row.
   bool IsRowValid(TInt RowIdx) const{ return Next[RowIdx] != Invalid;}
-  /// Get the id of the last valid row of the table
+  /// Gets the id of the last valid row of the table.
   TInt GetLastValidRowIdx();
 
 /***** Utility functions for removing rows (not through iterator) *****/
-  /// Remove first valid row of the table
+  /// Removes first valid row of the table.
   void RemoveFirstRow();
-  /// Remove row with id \c RowIdx
+  /// Removes row with id \c RowIdx.
   void RemoveRow(TInt RowIdx, TInt PrevRowIdx);
-  /// Remove all rows that are not mentioned in the SORTED vector \c KeepV
+  /// Removes all rows that are not mentioned in the SORTED vector \c KeepV.
   void KeepSortedRows(const TIntV& KeepV);
-  /// Set the first valid row of the TTable
+  /// Sets the first valid row of the TTable.
   void SetFirstValidRow() {
     for (int i = 0; i < Next.Len(); i++) { 
       if(Next[i] != TTable::Invalid) { FirstValidRow = i; return;}
@@ -604,23 +604,23 @@ protected:
   }
 
 /***** Utility functions for Join *****/
-  /// Initialize an empty table for the join of this table with the given table
+  /// Initializes an empty table for the join of this table with the given table.
   PTable InitializeJointTable(const TTable& Table);
-  /// Add joint row T1[RowIdx1]<=>T2[RowIdx2]
+  /// Adds joint row T1[RowIdx1]<=>T2[RowIdx2].
   void AddJointRow(const TTable& T1, const TTable& T2, TInt RowIdx1, TInt RowIdx2);
 
-  /// Resize the table to hold \c RowCount rows
+  /// Resizes the table to hold \c RowCount rows.
   void ResizeTable(int RowCount);
-  /// Get the start index to a chunk of empty rows of size \c NewRows
+  /// Gets the start index to a chunk of empty rows of size \c NewRows.
   int GetEmptyRowsStart(int NewRows);
-  /// Add rows from \c Table that correspond to ids in \c RowIDs
+  /// Adds rows from \c Table that correspond to ids in \c RowIDs.
   void AddSelectedRows(const TTable& Table, const TIntV& RowIDs);
-  /// Add \c NewRows rows from the given vectors for each column type
+  /// Adds \c NewRows rows from the given vectors for each column type.
   void AddNRows(int NewRows, const TVec<TIntV>& IntColsP, const TVec<TFltV>& FltColsP, 
    const TVec<TIntV>& StrColMapsP);
-  /// Add rows from T1 and T2 to this table in a parallel manner. Used by JoinMP
+  /// Adds rows from T1 and T2 to this table in a parallel manner. Used by JoinMP.
   void AddNJointRowsMP(const TTable& T1, const TTable& T2, const TVec<TIntPrV>& JointRowIDSet);
-  /// Update table state after adding one or more rows
+  /// Updates table state after adding one or more rows.
   void UpdateTableForNewRow();
 
 public:
@@ -630,16 +630,16 @@ public:
   TTable(const TStr& TableName, const Schema& S, TTableContext& Context);
   TTable(TSIn& SIn, TTableContext& Context);
 
-  /// Constructor to build table out of a hash table of int->int
+  /// Constructor to build table out of a hash table of int->int.
   TTable(const TStr& TableName, const THash<TInt,TInt>& H, const TStr& Col1, 
    const TStr& Col2, TTableContext& Context, const TBool IsStrKeys = false);
-  /// Constructor to build table out of a hash table of int->float
+  /// Constructor to build table out of a hash table of int->float.
   TTable(const TStr& TableName, const THash<TInt,TFlt>& H, const TStr& Col1, 
    const TStr& Col2, TTableContext& Context, const TBool IsStrKeys = false);
   // TTable(const TStr& TableName, const THash<TInt,TStr>& H, const TStr& Col1, 
   //  const TStr& Col2, TTableContext& Context);
   
-  /// Copy constructor
+  /// Copy constructor.
   TTable(const TTable& Table): Name(Table.Name), Context(Table.Context), S(Table.S),
     NumRows(Table.NumRows), NumValidRows(Table.NumValidRows), FirstValidRow(Table.FirstValidRow),
     LastValidRow(Table.LastValidRow), Next(Table.Next), IntCols(Table.IntCols), 
@@ -658,185 +658,181 @@ public:
   static PTable New(const TStr& TableName, const Schema& S, TTableContext& Context) { 
     return new TTable(TableName, S, Context); 
   }
-  /// Return pointer to a table constructed from given int->int hash
+  /// Returns pointer to a table constructed from given int->int hash.
   static PTable New(const TStr& TableName, const THash<TInt,TInt>& H, const TStr& Col1, 
    const TStr& Col2, TTableContext& Context, const TBool IsStrKeys = false) {
     return new TTable(TableName, H, Col1, Col2, Context, IsStrKeys);
   }
-  /// Return pointer to a table constructed from given int->float hash
+  /// Returns pointer to a table constructed from given int->float hash.
   static PTable New(const TStr& TableName, const THash<TInt,TFlt>& H, const TStr& Col1, 
    const TStr& Col2, TTableContext& Context, const TBool IsStrKeys = false) {
     return new TTable(TableName, H, Col1, Col2, Context, IsStrKeys);
   }
-  /// Return pointer to a new table created from given \c Table
+  /// Returns pointer to a new table created from given \c Table.
   static PTable New(const PTable Table) { return new TTable(*Table); }
-  /// Return pointer to a new table created from given \c Table, with name set to \c TableName
+  /// Returns pointer to a new table created from given \c Table, with name set to \c TableName.
   static PTable New(const PTable Table, const TStr& TableName) { 
     PTable T = New(Table); T->Name = TableName; 
     return T; 
   }
 
 /***** Save / Load functions *****/
-  /// Load table from spread sheet (TSV, CSV, etc)
+  /// Loads table from spread sheet (TSV, CSV, etc).
   static PTable LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm, 
    TTableContext& Context, const char& Separator = '\t', TBool HasTitleLine = false);
-  /// Load table from spread sheet - but only load the columns specified by RelevantCols
+  /// Loads table from spread sheet - but only load the columns specified by RelevantCols.
   static PTable LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm, 
    TTableContext& Context, const TIntV& RelevantCols, const char& Separator = '\t', 
    TBool HasTitleLine = false);
-  /// Load table from spread sheet - compact prototype (tab-separated input file, has title line, anonymous table)
+  /// Loads table from spread sheet - compact prototype (tab-separated input file, has title line, anonymous table).
   static PTable LoadSS(const Schema& S, const TStr& InFnm, TTableContext& Context){
     return LoadSS(TStr(), S, InFnm, Context, '\t', true);
   }
-  /// Save table schema + content into a TSV file
+  /// Saves table schema + content into a TSV file.
   void SaveSS(const TStr& OutFNm);
-  /// Save table schema + content into a binary
+  /// Saves table schema + content into a binary.
   void SaveBin(const TStr& OutFNm);
-  /// Load table from binary. ##TTable::Load
+  /// Loads table from binary. ##TTable::Load
   static PTable Load(TSIn& SIn, TTableContext& Context){ return new TTable(SIn, Context);} 
-  /// Save table schema + content into binary. ##TTable::Save
+  /// Saves table schema + content into binary. ##TTable::Save
   void Save(TSOut& SOut);
 
-  /// Build table from hash table of int->int
+  /// Builds table from hash table of int->int.
   static PTable TableFromHashMap(const TStr& TableName, const THash<TInt,TInt>& H, 
    const TStr& Col1, const TStr& Col2, TTableContext& Context, const TBool IsStrKeys = false) {
     PTable T = New(TableName, H, Col1, Col2, Context, IsStrKeys);
     T->InitIds();
     return T;
   }
-  /// Build table from hash table of int->float
+  /// Builds table from hash table of int->float.
   static PTable TableFromHashMap(const TStr& TableName, const THash<TInt,TFlt>& H, 
    const TStr& Col1, const TStr& Col2, TTableContext& Context, const TBool IsStrKeys = false) {
     PTable T = New(TableName, H, Col1, Col2, Context, IsStrKeys);
     T->InitIds();
     return T;
   }
-
-  // Make a new TTable from the subset of physical indices of the rows of current table
-  // RS 11/26/13 commented out CopySubset(), it is not implemented
-  // PTable CopySubset(const TIntV& RowIds) const;
   
 /***** Graph handling *****/
-  /// Create a sequence of graphs based on values of column SplitAttr and windows specified by JumpSize and WindowSize.
+  /// Creates a sequence of graphs based on values of column SplitAttr and windows specified by JumpSize and WindowSize.
   TVec<PNEANet> ToGraphSequence(TStr SplitAttr, TAttrAggr AggrPolicy, 
     TInt WindowSize, TInt JumpSize, TInt StartVal = TInt::Mn, TInt EndVal = TInt::Mx);
-  /// Create a sequence of graphs based on values of column SplitAttr and intervals specified by SplitIntervals.
+  /// Creates a sequence of graphs based on values of column SplitAttr and intervals specified by SplitIntervals.
   TVec<PNEANet> ToVarGraphSequence(TStr SplitAttr, TAttrAggr AggrPolicy, TIntPrV SplitIntervals);
-  /// Create a sequence of graphs based on grouping specified by GroupAttr
+  /// Creates a sequence of graphs based on grouping specified by GroupAttr.
   TVec<PNEANet> ToGraphPerGroup(TStr GroupAttr, TAttrAggr AggrPolicy);
 
-  /// Create the graph sequence one at a time ##TTable::ToGraphSequenceIterator
+  /// Creates the graph sequence one at a time. ##TTable::ToGraphSequenceIterator
   PNEANet ToGraphSequenceIterator(TStr SplitAttr, TAttrAggr AggrPolicy, 
     TInt WindowSize, TInt JumpSize, TInt StartVal = TInt::Mn, TInt EndVal = TInt::Mx);
-  /// Create the graph sequence one at a time ##TTable::ToVarGraphSequenceIterator
+  /// Creates the graph sequence one at a time. ##TTable::ToVarGraphSequenceIterator
   PNEANet ToVarGraphSequenceIterator(TStr SplitAttr, TAttrAggr AggrPolicy, TIntPrV SplitIntervals);
-  /// Create the graph sequence one at a time ##TTable::ToGraphPerGroupIterator
+  /// Creates the graph sequence one at a time. ##TTable::ToGraphPerGroupIterator
   PNEANet ToGraphPerGroupIterator(TStr GroupAttr, TAttrAggr AggrPolicy);
-  /// Calls to this must be preceded by a call to one of the above ToGraph*Iterator functions
+  /// Calls to this must be preceded by a call to one of the above ToGraph*Iterator functions.
   PNEANet NextGraphIterator();
-  /// Check if the end of the graph sequence is reached
+  /// Checks if the end of the graph sequence is reached.
   TBool IsLastGraphOfSequence();
 
-  /// Get the name of the column to be used as src nodes in the graph
+  /// Gets the name of the column to be used as src nodes in the graph.
 	TStr GetSrcCol() const { return SrcCol; }
-  /// Set the name of the column to be used as src nodes in the graph
+  /// Sets the name of the column to be used as src nodes in the graph.
   void SetSrcCol(const TStr& Src) {
     if (!ColTypeMap.IsKey(Src)) { TExcept::Throw(Src + ": no such column"); }
     SrcCol = Src;
   }
-  /// Get the name of the column to be used as dst nodes in the graph
+  /// Gets the name of the column to be used as dst nodes in the graph.
 	TStr GetDstCol() const { return DstCol; }
-  /// Set the name of the column to be used as dst nodes in the graph
+  /// Sets the name of the column to be used as dst nodes in the graph.
   void SetDstCol(const TStr& Dst) {
     if (!ColTypeMap.IsKey(Dst)) { TExcept::Throw(Dst + ": no such column"); }
     DstCol = Dst;
   }
-  /// Specify column to be used as graph edge attribute
+  /// Adds column to be used as graph edge attribute.
   void AddEdgeAttr(const TStr& Attr) { AddGraphAttribute(Attr, true, false, false); }
-  /// Specify columns to be used as graph edge attributes
+  /// Adds columns to be used as graph edge attributes.
   void AddEdgeAttr(TStrV& Attrs) { AddGraphAttributeV(Attrs, true, false, false); }
-  /// Specify column to be used as src node atribute of the graph
+  /// Adds column to be used as src node atribute of the graph.
   void AddSrcNodeAttr(const TStr& Attr) { AddGraphAttribute(Attr, false, true, false); }
-  /// Specify columns to be used as src node attributes of the graph
+  /// Adds columns to be used as src node attributes of the graph.
   void AddSrcNodeAttr(TStrV& Attrs) { AddGraphAttributeV(Attrs, false, true, false); }
-  /// Specify column to be used as dst node atribute of the graph
+  /// Adds column to be used as dst node atribute of the graph.
   void AddDstNodeAttr(const TStr& Attr) { AddGraphAttribute(Attr, false, false, true); }
-  /// Specify columns to be used as dst node attributes of the graph
+  /// Adds columns to be used as dst node attributes of the graph.
   void AddDstNodeAttr(TStrV& Attrs) { AddGraphAttributeV(Attrs, false, false, true); }
-  /// Handling the common case where src and dst both belong to the same "universe" of entities
+  /// Handles the common case where src and dst both belong to the same "universe" of entities.
   void AddNodeAttr(const TStr& Attr) { AddSrcNodeAttr(Attr); AddDstNodeAttr(Attr); }
-  /// Handling the common case where src and dst both belong to the same "universe" of entities
+  /// Handles the common case where src and dst both belong to the same "universe" of entities.
   void AddNodeAttr(TStrV& Attrs) { AddSrcNodeAttr(Attrs); AddDstNodeAttr(Attrs); }
-  /// Set the columns to be used as both src and dst node attributes
+  /// Sets the columns to be used as both src and dst node attributes.
   void SetCommonNodeAttrs(const TStr& SrcAttr, const TStr& DstAttr, const TStr& CommonAttrName){ 
     CommonNodeAttrs.Add(TStrTr(SrcAttr, DstAttr, CommonAttrName));
   }
-  /// Get src node int attribute name vector
+  /// Gets src node int attribute name vector.
 	TStrV GetSrcNodeIntAttrV() const;
-  /// Get dst node int attribute name vector
+  /// Gets dst node int attribute name vector.
   TStrV GetDstNodeIntAttrV() const;
-  /// Get edge int attribute name vector
+  /// Gets edge int attribute name vector.
 	TStrV GetEdgeIntAttrV() const;
-  /// Get src node float attribute name vector
+  /// Gets src node float attribute name vector.
 	TStrV GetSrcNodeFltAttrV() const;
-  /// Get dst node float attribute name vector
+  /// Gets dst node float attribute name vector.
   TStrV GetDstNodeFltAttrV() const;
-  /// Get edge float attribute name vector
+  /// Gets edge float attribute name vector.
 	TStrV GetEdgeFltAttrV() const;
-  /// Get src node str attribute name vector
+  /// Gets src node str attribute name vector.
 	TStrV GetSrcNodeStrAttrV() const;
-  /// Get dst node str attribute name vector
+  /// Gets dst node str attribute name vector.
   TStrV GetDstNodeStrAttrV() const;
-  /// Get edge str attribute name vector
+  /// Gets edge str attribute name vector.
 	TStrV GetEdgeStrAttrV() const;
 
-  /// Extract node TTable from PNEANet
+  /// Extracts node TTable from PNEANet.
   static PTable GetNodeTable(const PNEANet& Network, const TStr& TableName, TTableContext& Context);
-  /// Extract edge TTable from PNEANet
+  /// Extracts edge TTable from PNEANet.
   static PTable GetEdgeTable(const PNEANet& Network, const TStr& TableName, TTableContext& Context);
 
   static PTable GetEdgeTablePN(const PNGraphMP& Network, const TStr& TableName, TTableContext& Context);
 
-  /// Extract node and edge property TTables from THash
+  /// Extracts node and edge property TTables from THash.
   static PTable GetFltNodePropertyTable(const PNEANet& Network, const TStr& TableName, 
    const TIntFltH& Property, const TStr& NodeAttrName, const TAttrType& NodeAttrType, 
    const TStr& PropertyAttrName, TTableContext& Context);
 
 /***** Basic Getters *****/
-  /// Get type of column \c ColName
+  /// Gets type of column \c ColName.
 	TAttrType GetColType(const TStr& ColName) const{ return ColTypeMap.GetDat(ColName).Val1; };
-  /// Get total number of rows in this table
+  /// Gets total number of rows in this table.
   TInt GetNumRows() const { return NumRows;}
-  /// Get number of valid, i.e. not deleted, rows in this table
+  /// Gets number of valid, i.e. not deleted, rows in this table.
   TInt GetNumValidRows() const { return NumValidRows;}
 
-  /// Get a map of logical to physical row ids
+  /// Gets a map of logical to physical row ids.
   THash<TInt, TInt> GetRowIdMap() const { return RowIdMap;}
 	
 /***** Iterators *****/
-  /// Get iterator to the first valid row of the table
+  /// Gets iterator to the first valid row of the table.
   TRowIterator BegRI() const { return TRowIterator(FirstValidRow, this);}
-  /// Get iterator to the last valid row of the table
+  /// Gets iterator to the last valid row of the table.
   TRowIterator EndRI() const { return TRowIterator(TTable::Last, this);}
-  /// Get iterator with reomve to the first valid row
+  /// Gets iterator with reomve to the first valid row.
   TRowIteratorWithRemove BegRIWR(){ return TRowIteratorWithRemove(FirstValidRow, this);}
-  /// Get iterator with reomve to the last valid row
+  /// Gets iterator with reomve to the last valid row.
   TRowIteratorWithRemove EndRIWR(){ return TRowIteratorWithRemove(TTable::Last, this);}
-  /// Partition the table into \c NumPartitions and populate \c Partitions with the ranges.
+  /// Partitions the table into \c NumPartitions and populate \c Partitions with the ranges.
   void GetPartitionRanges(TIntPrV& Partitions, TInt NumPartitions) const;
 
 /***** Table Operations *****/
-	/// Add a label to a column
+	/// Adds a label to a column.
 	void AddLabel(const TStr& Column, const TStr& NewLabel);
-  /// Rename a column
+  /// Renames a column.
   void Rename(const TStr& Column, const TStr& NewLabel);
 
-	/// Remove rows with duplicate values in given column
+	/// Removes rows with duplicate values in given column.
   void Unique(const TStr& Col);
-  /// Remove rows with duplicate values in given columns
+  /// Removes rows with duplicate values in given columns.
 	void Unique(const TStrV& Cols, TBool Ordered = true);
 
-	/// Select ##TTable::Select
+	/// Selects rows that satisfy given \c Predicate. ##TTable::Select
 	void Select(TPredicate& Predicate, TIntV& SelectedRows, TBool Remove = true);
   void Select(TPredicate& Predicate) {
     TIntV SelectedRows;
@@ -845,7 +841,7 @@ public:
   void Classify(TPredicate& Predicate, const TStr& LabelName, const TInt& PositiveLabel = 1, 
    const TInt& NegativeLabel = 0);
 
-  /// Select atomic ##TTable::SelectAtomic
+  /// Selects rows using atomic compare operation. ##TTable::SelectAtomic
   void SelectAtomic(const TStr& Col1, const TStr& Col2, TPredComp Cmp, 
    TIntV& SelectedRows, TBool Remove = true);
   void SelectAtomic(const TStr& Col1, const TStr& Col2, TPredComp Cmp) {
@@ -855,7 +851,7 @@ public:
   void ClassifyAtomic(const TStr& Col1, const TStr& Col2, TPredComp Cmp, 
    const TStr& LabelName, const TInt& PositiveLabel = 1, const TInt& NegativeLabel = 0);
 
-  /// Select rows where the value of \c Col matches given primitive \c Val
+  /// Selects rows where the value of \c Col matches given primitive \c Val.
   void SelectAtomicConst(const TStr& Col, const TPrimitive& Val, TPredComp Cmp, 
    TIntV& SelectedRows, PTable& SelectedTable, TBool Remove = true, TBool Table = true);
 
@@ -900,101 +896,101 @@ public:
     SelectAtomicConst(Col, Val, Cmp, SelectedTable);
   }
 
-  /// Store column for a group. Physical row ids have to be passed
+  /// Stores column for a group. Physical row ids have to be passed.
   void StoreGroupCol(const TStr& GroupColName, const TVec<TPair<TInt, TInt> >& GroupAndRowIds);
 
-  /// Helper function for grouping ##TTable::GroupAux
+  /// Helper function for grouping. ##TTable::GroupAux
   void GroupAux(const TStrV& GroupBy, THash<TGroupKey, TPair<TInt, TIntV> >& Grouping, 
    TBool Ordered, const TStr& GroupColName, TBool KeepUnique, TIntV& UniqueVec);
   void GroupAuxMP(const TStrV& GroupBy, THashGenericMP<TGroupKey, TPair<TInt, TIntV> >& Grouping, 
    TBool Ordered, const TStr& GroupColName, TBool KeepUnique, TIntV& UniqueVec);
 
-  /// Group rows depending on values of \c GroupBy columns ##TTable::Group
+  /// Groups rows depending on values of \c GroupBy columns. ##TTable::Group
   void Group(const TStrV& GroupBy, const TStr& GroupColName, TBool Ordered = true);
   
-  /// Count number of unique elements ##TTable::Count
+  /// Counts number of unique elements. ##TTable::Count
   void Count(const TStr& CountColName, const TStr& Col);
 
-  /// Order the rows according to the values in columns of OrderBy (in descending lexicographic order). 
+  /// Orders the rows according to the values in columns of OrderBy (in descending lexicographic order). 
   void Order(const TStrV& OrderBy, const TStr& OrderColName = "", TBool ResetRankByMSC = false, TBool Asc = true);
   
-  /// Aggregate values of ValAttr after grouping with respect to GroupByAttrs. Result stored as new attribute ResAttr
+  /// Aggregates values of ValAttr after grouping with respect to GroupByAttrs. Result are stored as new attribute ResAttr.
   void Aggregate(const TStrV& GroupByAttrs, TAttrAggr AggOp, const TStr& ValAttr,
    const TStr& ResAttr, TBool Ordered = true);
 
-  /// Aggregate attributes in AggrAttrs across columns
+  /// Aggregates attributes in AggrAttrs across columns.
   void AggregateCols(const TStrV& AggrAttrs, TAttrAggr AggOp, const TStr& ResAttr);
 
-  /// Splice table into subtables according to a grouping statement
+  /// Splices table into subtables according to a grouping statement.
   TVec<PTable> SpliceByGroup(const TStrV& GroupByAttrs, TBool Ordered = true);
 
-  /// Perform equijoin ##TTable::Join
+  /// Performs equijoin. ##TTable::Join
   PTable Join(const TStr& Col1, const TTable& Table, const TStr& Col2);
   PTable Join(const TStr& Col1, const PTable& Table, const TStr& Col2) { 
     return Join(Col1, *Table, Col2); 
   }
-  /// Join table with itself, on values of \c Col
+  /// Joins table with itself, on values of \c Col.
   PTable SelfJoin(const TStr& Col) { return Join(Col, *this, Col); }
   PTable SelfSimJoin(const TStrV& Cols, const TStr& DistanceColName, const TSimType& SimType, const TFlt& Threshold) { return SimJoin(Cols, *this, Cols, DistanceColName, SimType, Threshold); }
-	/// Perform join if the distance between two rows is less than the specified threshold.  ##TTable::SimJoinPerGroup - Returns table with schema (GroupId1, GroupId2, Similarity)
+	/// Performs join if the distance between two rows is less than the specified threshold. Returns table with schema (GroupId1, GroupId2, Similarity). ##TTable::SimJoinPerGroup
 	PTable SelfSimJoinPerGroup(const TStr& GroupAttr, const TStr& SimCol, const TStr& DistanceColName, const TSimType& SimType, const TFlt& Threshold);
 
-	/// Perform join if the distance between two rows is less than the specified threshold.  ##TTable::SimJoinPerGroup
+	/// Performs join if the distance between two rows is less than the specified threshold.  ##TTable::SimJoinPerGroup
 	PTable SelfSimJoinPerGroup(const TStrV& GroupBy, const TStr& SimCol, const TStr& DistanceColName, const TSimType& SimType, const TFlt& Threshold);
 
-	/// Perform join if the distance between two rows is less than the specified threshold.  ##TTable::SimJoin
+	/// Performs join if the distance between two rows is less than the specified threshold.  ##TTable::SimJoin
 	PTable SimJoin(const TStrV& Cols1, const TTable& Table, const TStrV& Cols2, const TStr& DistanceColName, const TSimType& SimType, const TFlt& Threshold);
-  /// Select first N rows from the table
+  /// Selects first N rows from the table.
   void SelectFirstNRows(const TInt& N);
 
-	// compute distances between elements in this->Col1 and Table->Col2 according
+	// Computes distances between elements in this->Col1 and Table->Col2 according
 	// to given metric. Store the distances in DistCol, but keep only rows where
 	// distance <= threshold
 	// void Dist(const TStr& Col1, const TTable& Table, const TStr Col2, const TStr& DistColName, 
   //  const TMetric& Metric, TFlt threshold);
 
-  /// Release memory of deleted rows, and defrag ##TTable::Defrag
+  /// Releases memory of deleted rows, and defrags. ##TTable::Defrag
   void Defrag();
 
-  /// Add entire int column to table
+  /// Adds entire int column to table.
   void StoreIntCol(const TStr& ColName, const TIntV& ColVals);
-  /// Add entire flt column to table
+  /// Adds entire flt column to table.
   void StoreFltCol(const TStr& ColName, const TFltV& ColVals);
-  /// Add entire str column to table
+  /// Adds entire str column to table.
   void StoreStrCol(const TStr& ColName, const TStrV& ColVals);
   
-  /// Add all the rows of the input table. Allows duplicate rows (not a union)
+  /// Adds all the rows of the input table. Allows duplicate rows (not a union).
   void AddTable(const TTable& T);
-  /// Append all rows of \c T to this table, and recalcutate indices.
+  /// Appends all rows of \c T to this table, and recalcutate indices.
   void ConcatTable(const PTable& T) {AddTable(*T); Reindex(); }
   
-  /// Add row corresponding to \c RI
+  /// Adds row corresponding to \c RI.
   void AddRow(const TRowIterator& RI);
-  /// Add row with values corresponding to the given vectors by type
+  /// Adds row with values corresponding to the given vectors by type.
   void AddRow(const TIntV& IntVals, const TFltV& FltVals, const TStrV& StrVals);
-  /// Add row with values taken from given TTableRow
+  /// Adds row with values taken from given TTableRow.
   void AddRow(const TTableRow& Row) { AddRow(Row.GetIntVals(), Row.GetFltVals(), Row.GetStrVals()); };
-  /// Get set of row ids of rows common with table \c T
+  /// Gets set of row ids of rows common with table \c T.
   void GetCollidingRows(const TTable& T, THashSet<TInt>& Collisions);
 
-  /// Return union of this table with given \c Table
+  /// Returns union of this table with given \c Table.
   PTable Union(const TTable& Table, const TStr& TableName);
   PTable Union(const PTable& Table, const TStr& TableName) { return Union(*Table, TableName); };
-  /// Return union of this table with given \c Table, preserving duplicates
+  /// Returns union of this table with given \c Table, preserving duplicates.
   PTable UnionAll(const TTable& Table, const TStr& TableName);
   PTable UnionAll(const PTable& Table, const TStr& TableName) { return UnionAll(*Table, TableName); };
   /// Same as TTable::ConcatTable
   void UnionAllInPlace(const TTable& Table);
   void UnionAllInPlace(const PTable& Table) { return UnionAllInPlace(*Table); };
-  /// Return intersection of this table with given \c Table
+  /// Returns intersection of this table with given \c Table.
   PTable Intersection(const TTable& Table, const TStr& TableName);
   PTable Intersection(const PTable& Table, const TStr& TableName) { return Intersection(*Table, TableName); };
-  /// Return table with rows that are present in this table but not in given \c Table
+  /// Returns table with rows that are present in this table but not in given \c Table.
   PTable Minus(TTable& Table, const TStr& TableName);
   PTable Minus(const PTable& Table, const TStr& TableName) { return Minus(*Table, TableName); };
-  /// Return table with only the columns in \c ProjectCols
+  /// Returns table with only the columns in \c ProjectCols.
   PTable Project(const TStrV& ProjectCols, const TStr& TableName);
-  /// Keep only the columns specified in \c ProjectCols
+  /// Keeps only the columns specified in \c ProjectCols.
   void ProjectInPlace(const TStrV& ProjectCols);
   
   /* Column-wise arithmetic operations */
@@ -1058,25 +1054,25 @@ public:
   /// Concatenates column values with given string value.
   void ColConcatConst(const TStr& Attr1, const TStr& Val, const TStr& Sep = "", const TStr& ResAttr="");
 
-  /// Read values of entire int column into \c Result
+  /// Reads values of entire int column into \c Result.
   void ReadIntCol(const TStr& ColName, TIntV& Result) const;
-  /// Read values of entire float column into \c Result
+  /// Reads values of entire float column into \c Result.
   void ReadFltCol(const TStr& ColName, TFltV& Result) const;
-  /// Read values of entire string column into \c Result
+  /// Reads values of entire string column into \c Result.
   void ReadStrCol(const TStr& ColName, TStrV& Result) const;
 
-  /// Add explicit row ids, initialize hash set mapping ids to physical rows
+  /// Adds explicit row ids, initialize hash set mapping ids to physical rows.
   void InitIds();
-  /// Reinitialize row ids
+  /// Reinitializes row ids.
   void Reindex();
 
-  /// Add a column of explicit integer identifiers to the rows
+  /// Adds a column of explicit integer identifiers to the rows.
   void AddIdColumn(const TStr& IdColName);
 
-  /// Distance based filter ##TTable::IsNextK
+  /// Distance based filter. ##TTable::IsNextK
   PTable IsNextK(const TStr& OrderCol, TInt K, const TStr& GroupBy, const TStr& RankColName = "");
 
-  /// Debug: print sizes of various fields of table
+  /// Debug: print sizes of various fields of table.
   void PrintSize();
 
   static TInt CompareKeyVal(const TInt& K1, const TInt& V1, const TInt& K2, const TInt& V2);
@@ -1087,7 +1083,7 @@ public:
   static void QSortKeyVal(TIntV& Key, TIntV& Val, TInt Start, TInt End);
   static void PSRSKeyVal(TIntV& Key, TIntV& Val, TInt Start, TInt End);
 
-  /// Get sequence of PageRank tables from given \c GraphSeq
+  /// Gets sequence of PageRank tables from given \c GraphSeq.
   static TTableIterator GetMapPageRank(const TVec<PNEANet>& GraphSeq, 
     TTableContext& Context, const TStr& TableNamePrefix = "PageRankTable",
     const double& C = 0.85, const double& Eps = 1e-4, const int& MaxIter = 100) {
@@ -1096,7 +1092,7 @@ public:
     return TTableIterator(TableSeq);
   }
 
-  /// Get sequence of Hits tables from given \c GraphSeq
+  /// Gets sequence of Hits tables from given \c GraphSeq.
   static TTableIterator GetMapHitsIterator(const TVec<PNEANet>& GraphSeq, 
     TTableContext& Context, const TStr& TableNamePrefix = "HitsTable",
     const int& MaxIter = 20) {
@@ -1114,14 +1110,14 @@ typedef TPair<TStr,TAttrType> TStrTypPr;
 
 namespace TSnap {
 
-  /// Get sequence of PageRank tables from given \c GraphSeq into \c TableSeq
+  /// Gets sequence of PageRank tables from given \c GraphSeq into \c TableSeq.
   template <class PGraph>
   void MapPageRank(const TVec<PGraph>& GraphSeq, TVec<PTable>& TableSeq, 
     TTableContext& Context, const TStr& TableNamePrefix,
     const double& C, const double& Eps, const int& MaxIter) {
     int NumGraphs = GraphSeq.Len();
     TableSeq.Reserve(NumGraphs, NumGraphs);
-    // this loop is parallelizable
+    // This loop is parallelizable.
     for (TInt i = 0; i < NumGraphs; i++){
       TIntFltH PRankH;
       GetPageRank(GraphSeq[i], PRankH, C, Eps, MaxIter);
@@ -1130,14 +1126,14 @@ namespace TSnap {
     }
   }
 
-  /// Get sequence of Hits tables from given \c GraphSeq into \c TableSeq
+  /// Gets sequence of Hits tables from given \c GraphSeq into \c TableSeq.
   template <class PGraph>
   void MapHits(const TVec<PGraph>& GraphSeq, TVec<PTable>& TableSeq, 
     TTableContext& Context, const TStr& TableNamePrefix,
     const int& MaxIter) {
     int NumGraphs = GraphSeq.Len();
     TableSeq.Reserve(NumGraphs, NumGraphs);
-    // this loop is parallelizable
+    // This loop is parallelizable.
     for (TInt i = 0; i < NumGraphs; i++){
       TIntFltH HubH;
       TIntFltH AuthH;
