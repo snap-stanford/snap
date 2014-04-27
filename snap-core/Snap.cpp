@@ -38,3 +38,4 @@
 // table data structures and algorithms
 #include "table.cpp"         // table
 #include "predicate.cpp"     // predicates
+#include "numpy.cpp" 				 // numpy conversion

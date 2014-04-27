@@ -44,5 +44,6 @@
 #include "predicate.h" 		 // predicate
 #include "table.h"         // table
 #include "conv.h" 				 // conversion functions - table to graph
+#include "numpy.h" 				 // numpy conversion
 
 #endif
