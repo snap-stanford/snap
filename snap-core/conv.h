@@ -179,14 +179,14 @@ PGraph ToNetwork(PTable Table, const TStr& SrcCol, const TStr& DstCol, TAttrAggr
 template<class PGraphMP>
 PGraphMP ToGraphMP(PTable Table, const TStr& SrcCol, const TStr& DstCol) {
   int MaxThreads = omp_get_max_threads();
-  double start = omp_get_wtime();
+  // double start = omp_get_wtime();
   //PGraphMP Graph = TNGraphMP::New(4850000, 69000000);
   PGraphMP Graph = TNGraphMP::New(41700000, 1470000000);
-  double endReserve = omp_get_wtime();
-  printf("Reserve time = %f\n", endReserve-start);
+  // double endReserve = omp_get_wtime();
+  // printf("Reserve time = %f\n", endReserve-start);
 
   //printf("TNGraphMP::New nodes %d, edges %d\n", Graph->GetNodes(), Graph->GetEdges());
-  printf("TNGraphMP::New reserved %d\n", Graph->Reserved());
+  // printf("TNGraphMP::New reserved %d\n", Graph->Reserved());
   
   // make single pass over all rows in the table
   
@@ -194,7 +194,7 @@ PGraphMP ToGraphMP(PTable Table, const TStr& SrcCol, const TStr& DstCol) {
   int Threads = MaxThreads/2; //40;
   int Delta = (Length + Threads - 1) / Threads;
 
-  printf("Build Threads %d\n", Threads);
+  // printf("Build Threads %d\n", Threads);
 
   TIntV OutVec(Length);
   TIntV InVec(Length);
@@ -202,7 +202,7 @@ PGraphMP ToGraphMP(PTable Table, const TStr& SrcCol, const TStr& DstCol) {
   const TInt SrcColIdx = Table->GetColIdx(SrcCol);
   const TInt DstColIdx = Table->GetColIdx(DstCol);
 
-  printf("%d %d\n", SrcColIdx.Val, DstColIdx.Val);
+  // printf("%d %d\n", SrcColIdx.Val, DstColIdx.Val);
   const int L1 = Length;
 
   //int *ps = &IntCols[SrcColIdx][0].Val;
@@ -240,16 +240,16 @@ PGraphMP ToGraphMP(PTable Table, const TStr& SrcCol, const TStr& DstCol) {
     __sync_fetch_and_add(&InVec[DstIdx].Val, 1);
     //InVec[DstIdx]++;
   }
-  double endNodes = omp_get_wtime();
-  printf("Add Node time = %f\n", endNodes-endReserve);
+  // double endNodes = omp_get_wtime();
+  // printf("Add Node time = %f\n", endNodes-endReserve);
   Graph->SetNodes(Nodes);
-  printf("nodes %d\n", Nodes);
+  // printf("nodes %d\n", Nodes);
 
   uint Edges = 0;
   for (int i = 0; i < Length; i++) {
     Edges += OutVec[i] + InVec[i];
   }
-  printf("edges %d\n", (int) (Edges/2));
+  // printf("edges %d\n", (int) (Edges/2));
 
   //
   // allocate edge lists
@@ -259,7 +259,7 @@ PGraphMP ToGraphMP(PTable Table, const TStr& SrcCol, const TStr& DstCol) {
   Threads = 1;
   Delta = (Length + Threads - 1) / Threads;
 
-  printf("Allocate Threads %d\n", Threads);
+  // printf("Allocate Threads %d\n", Threads);
 
   // requires memory allocation, no threads seems the best
   // #pragma omp parallel for schedule(static,Delta)
@@ -271,10 +271,10 @@ PGraphMP ToGraphMP(PTable Table, const TStr& SrcCol, const TStr& DstCol) {
     }
   }
 
-  double endAlloc = omp_get_wtime();
-  printf("Alloc time = %f\n", endAlloc-endNodes);
+  // double endAlloc = omp_get_wtime();
+  // printf("Alloc time = %f\n", endAlloc-endNodes);
 
-  printf("allocated edge lists\n");
+  // printf("allocated edge lists\n");
 
   //
   // assign edges
@@ -284,7 +284,7 @@ PGraphMP ToGraphMP(PTable Table, const TStr& SrcCol, const TStr& DstCol) {
   Threads = MaxThreads;//80;
   Delta = (Length + Threads - 1) / Threads;
 
-  printf("Assign Threads %d\n", Threads);
+  // printf("Assign Threads %d\n", Threads);
   omp_set_num_threads(Threads);
   #pragma omp parallel for schedule(static,Delta)
   for (int CurrRowIdx = 0; CurrRowIdx < Last; CurrRowIdx++) {
@@ -297,10 +297,10 @@ PGraphMP ToGraphMP(PTable Table, const TStr& SrcCol, const TStr& DstCol) {
     Graph->AddInEdge2(SVal, DVal);
   }
 
-  double endPopulate = omp_get_wtime();
-  printf("Populate time = %f\n", endPopulate-endAlloc);
+  // double endPopulate = omp_get_wtime();
+  // printf("Populate time = %f\n", endPopulate-endAlloc);
 
-  printf("populated edge lists\n");
+  // printf("populated edge lists\n");
 
   //
   // sort edges
@@ -309,7 +309,7 @@ PGraphMP ToGraphMP(PTable Table, const TStr& SrcCol, const TStr& DstCol) {
   Length = Graph->Reserved();
   Threads = MaxThreads*2;//160;
   Delta = (Length + Threads - 1) / Threads;
-  printf("Sort Threads %d\n", Threads);
+  // printf("Sort Threads %d\n", Threads);
 
   omp_set_num_threads(Threads);
   //#pragma omp parallel for schedule(static,Delta)
@@ -320,23 +320,22 @@ PGraphMP ToGraphMP(PTable Table, const TStr& SrcCol, const TStr& DstCol) {
     }
   }
 
-  double endSort = omp_get_wtime();
-  printf("Sort time = %f\n", endSort-endPopulate);
+  // double endSort = omp_get_wtime();
+  // printf("Sort time = %f\n", endSort-endPopulate);
 
-  printf("sorted edge lists\n");
+  // printf("sorted edge lists\n");
 
   return Graph;
 }
 
 template<class PGraphMP>
 PGraphMP ToGraphMP2(PTable Table, const TStr& SrcCol, const TStr& DstCol) {
-  double start = omp_get_wtime();
+  // double start = omp_get_wtime();
   const TInt SrcColIdx = Table->GetColIdx(SrcCol);
   const TInt DstColIdx = Table->GetColIdx(DstCol);
   const TInt NumRows = Table->NumValidRows;
 
   TIntV SrcCol1, DstCol1, SrcCol2, DstCol2;
-  //TIntPrV SrcPr, DstPr;
 
   #pragma omp parallel sections num_threads(4)
   {
@@ -348,21 +347,17 @@ PGraphMP ToGraphMP2(PTable Table, const TStr& SrcCol, const TStr& DstCol) {
     { DstCol1.Reserve(NumRows, NumRows); }
     #pragma omp section 
     { DstCol2.Reserve(NumRows, NumRows); }
-    // #pragma omp section 
-    // { SrcPr.Reserve(NumRows, NumRows); }
-    // #pragma omp section 
-    // { DstPr.Reserve(NumRows, NumRows); }
   }
 
-  double endResize = omp_get_wtime();
-  printf("Resize time = %f\n", endResize-start);
+  // double endResize = omp_get_wtime();
+  // printf("Resize time = %f\n", endResize-start);
 
   TIntPrV Partitions;
   Table->GetPartitionRanges(Partitions, omp_get_max_threads());
   TInt PartitionSize = Partitions[0].GetVal2()-Partitions[0].GetVal1()+1;
 
-  double endPartition = omp_get_wtime();
-  printf("Partition time = %f\n", endPartition-endResize);
+  // double endPartition = omp_get_wtime();
+  // printf("Partition time = %f\n", endPartition-endResize);
 
   omp_set_num_threads(omp_get_max_threads());
   #pragma omp parallel for schedule(static) 
@@ -378,42 +373,6 @@ PGraphMP ToGraphMP2(PTable Table, const TStr& SrcCol, const TStr& DstCol) {
       RowI++;
     }
   }
-
-  // omp_set_num_threads(omp_get_max_threads());
-  // #pragma omp parallel for schedule(static) 
-  // for (int i = 0; i < Partitions.Len(); i++) {
-  //   TRowIterator RowI(Partitions[i].GetVal1(), Table());
-  //   TRowIterator EndI(Partitions[i].GetVal2(), Table());
-  //   while (RowI < EndI) {
-  //     TInt RowId = RowI.GetRowIdx();
-  //     SrcPr[RowId] = TIntPr(RowI.GetIntAttr(SrcColIdx), RowI.GetIntAttr(DstColIdx));
-  //     DstPr[RowId] = TIntPr(RowI.GetIntAttr(DstColIdx), RowI.GetIntAttr(SrcColIdx));
-  //     RowI++;
-  //   }
-  // }  
-
-  double endCopy = omp_get_wtime();
-  printf("Copy time = %f\n", endCopy-endPartition);
-
-  // SrcPr.Sort();
-  // DstPr.Sort();
-  // double endPrSort = omp_get_wtime();
-  // printf("Pair sort time = %f\n", endPrSort-endCopy);
-
-  // omp_set_num_threads(omp_get_max_threads());
-  // #pragma omp parallel for schedule(static) 
-  // for (int i = 0; i < Partitions.Len(); i++) {
-  //   TRowIterator RowI(Partitions[i].GetVal1(), Table());
-  //   TRowIterator EndI(Partitions[i].GetVal2(), Table());
-  //   while (RowI < EndI) {
-  //     TInt RowId = RowI.GetRowIdx();
-  //     SrcCol1[RowId] = SrcPr[RowId].Val1;
-  //     SrcCol2[RowId] = DstPr[RowId].Val2;
-  //     DstCol1[RowId] = SrcPr[RowId].Val2;
-  //     DstCol2[RowId] = DstPr[RowId].Val1;
-  //     RowI++;
-  //   }
-  // }
 
   omp_set_num_threads(omp_get_max_threads());
   #pragma omp parallel 
@@ -438,8 +397,8 @@ PGraphMP ToGraphMP2(PTable Table, const TStr& SrcCol, const TStr& DstCol) {
   // TInt IsD = TTable::CheckSortedKeyVal(DstCol2, SrcCol2, 0, NumRows-1);
   // printf("IsSorted = %d %d\n", IsS.Val, IsD.Val);
 
-  double endSort = omp_get_wtime();
-  printf("Sort time = %f\n", endSort-endCopy);  
+  // double endSort = omp_get_wtime();
+  // printf("Sort time = %f\n", endSort-endCopy);  
   //return TNGraphMP::New(10, 100);
 
   TInt NumThreads = omp_get_max_threads();
@@ -503,14 +462,14 @@ PGraphMP ToGraphMP2(PTable Table, const TStr& SrcCol, const TStr& DstCol) {
     }
   }
 
-  for (TInt i = 0; i < SrcNodeCounts.Len(); i++) {
-    printf("%d ", SrcNodeCounts[i].Val);
-  }
-  printf("\n");
-  for (TInt i = 0; i < DstNodeCounts.Len(); i++) {
-    printf("%d ", DstNodeCounts[i].Val);
-  }
-  printf("\n");
+  // for (TInt i = 0; i < SrcNodeCounts.Len(); i++) {
+  //   printf("%d ", SrcNodeCounts[i].Val);
+  // }
+  // printf("\n");
+  // for (TInt i = 0; i < DstNodeCounts.Len(); i++) {
+  //   printf("%d ", DstNodeCounts[i].Val);
+  // }
+  // printf("\n");
 
   TInt TotalSrcNodes = 0;
   TIntV SrcIdOffsets;
@@ -526,7 +485,7 @@ PGraphMP ToGraphMP2(PTable Table, const TStr& SrcCol, const TStr& DstCol) {
     TotalDstNodes += DstNodeCounts[i];
   }
 
-  printf("Total Src = %d, Total Dst = %d\n", TotalSrcNodes.Val, TotalDstNodes.Val);
+  // printf("Total Src = %d, Total Dst = %d\n", TotalSrcNodes.Val, TotalDstNodes.Val);
 
   TIntPrV SrcNodeIds, DstNodeIds;
   #pragma omp parallel sections
@@ -570,14 +529,14 @@ PGraphMP ToGraphMP2(PTable Table, const TStr& SrcCol, const TStr& DstCol) {
     }
   }
 
-  double endNode = omp_get_wtime();
-  printf("Node time = %f\n", endNode-endSort);
+  // double endNode = omp_get_wtime();
+  // printf("Node time = %f\n", endNode-endSort);
 
   TIntTrV Nodes;
   Nodes.Reserve(TotalSrcNodes+TotalDstNodes);
 
-  double endNodeResize = omp_get_wtime();
-  printf("(NodeResize time = %f)\n", endNodeResize-endNode);
+  // double endNodeResize = omp_get_wtime();
+  // printf("(NodeResize time = %f)\n", endNodeResize-endNode);
 
   TInt i = 0, j = 0;
   while (i < TotalSrcNodes && j < TotalDstNodes) {
@@ -596,11 +555,11 @@ PGraphMP ToGraphMP2(PTable Table, const TStr& SrcCol, const TStr& DstCol) {
   for (; i < TotalSrcNodes; i++) { Nodes.Add(TIntTr(SrcNodeIds[i].Val1, i, -1)); }
   for (; j < TotalDstNodes; j++) { Nodes.Add(TIntTr(DstNodeIds[j].Val1, -1, j)); }
 
-  double endMerge = omp_get_wtime();
-  printf("Merge time = %f\n", endMerge-endNode);  
+  // double endMerge = omp_get_wtime();
+  // printf("Merge time = %f\n", endMerge-endNode);  
 
   TInt NumNodes = Nodes.Len();
-  printf("NumNodes = %d\n", NumNodes.Val);
+  // printf("NumNodes = %d\n", NumNodes.Val);
 
   PGraphMP Graph = TNGraphMP::New(NumNodes, NumRows);
   NumThreads = 1;
@@ -634,8 +593,8 @@ PGraphMP ToGraphMP2(PTable Table, const TStr& SrcCol, const TStr& DstCol) {
     //printf("Thread=%d, i=%d, t=%f\n", omp_get_thread_num(), m, endTr-startTr);
   }
 
-  double endAlloc = omp_get_wtime();
-  printf("Alloc time = %f\n", endAlloc-endMerge);  
+  // double endAlloc = omp_get_wtime();
+  // printf("Alloc time = %f\n", endAlloc-endMerge);  
 
   NumThreads = omp_get_max_threads();
   Delta = (NumNodes+NumThreads-1)/(10*NumThreads);
@@ -666,8 +625,8 @@ PGraphMP ToGraphMP2(PTable Table, const TStr& SrcCol, const TStr& DstCol) {
   }
   Graph->SetNodes(NumNodes);
 
-  double endAdd = omp_get_wtime();
-  printf("Add time = %f\n", endAdd-endAlloc);  
+  // double endAdd = omp_get_wtime();
+  // printf("Add time = %f\n", endAdd-endAlloc);  
 
   return Graph;
 }

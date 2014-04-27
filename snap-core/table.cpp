@@ -28,7 +28,7 @@ bool TRowIterator::operator == (const TRowIterator& RowI) const {
 TInt TRowIterator::GetRowIdx() const {
   return CurrRowIdx;
 }
-// we do not check column type in the iterator
+// We do not check column type in the iterator.
 TInt TRowIterator::GetIntAttr(TInt ColIdx) const {
   return Table->IntCols[ColIdx][CurrRowIdx];
 }
@@ -121,7 +121,7 @@ TInt TRowIteratorWithRemove::GetNextRowIdx() const {
   return (Start ? Table->FirstValidRow : Table->Next[CurrRowIdx]);
 }
 
-// we do not check column type in the iterator
+// We do not check column type in the iterator.
 TInt TRowIteratorWithRemove::GetNextIntAttr(TInt ColIdx) const {
   return Table->IntCols[ColIdx][GetNextRowIdx()];
 }
@@ -174,8 +174,8 @@ TBool TRowIteratorWithRemove::CompareAtomicConst(TInt ColIdx, const TPrimitive& 
   return Result;
 }
 
-// better not use default constructor as it leads to a memory leak
-// - OR - implement a destructor
+// Better not use default constructor as it leads to a memory leak.
+// - OR - implement a destructor.
 TTable::TTable(): Context(*(new TTableContext)), NumRows(0), NumValidRows(0),
   FirstValidRow(0), LastValidRow(-1) {}
 
@@ -619,7 +619,7 @@ void TTable::AddLabel(const TStr& column, const TStr& NewLabel) {
 
 void TTable::Rename(const TStr& column, const TStr& NewLabel) {
   // This function is necessary, for example to take the union of two tables 
-  // where the attribute names don't match
+  // where the attribute names don't match.
   if (!ColTypeMap.IsKey(column)) { TExcept::Throw("no such column " + column); }
   TPair<TAttrType,TInt> ColVal = ColTypeMap.GetDat(column);
   ColTypeMap.DelKey(column);
@@ -679,8 +679,8 @@ void TTable::KeepSortedRows(const TIntV& KeepV) {
         RowI.RemoveNext();
       }
     } else {
-      // covered all of KeepV. remove the rest of the rows
-      // current RowI.CurrRowIdx is the last element of KeepV
+      // Covered all of KeepV. Remove the rest of the rows.
+      // Current RowI.CurrRowIdx is the last element of KeepV.
       RowI.RemoveNext();
     }
   }
@@ -710,7 +710,7 @@ void TTable::GetPartitionRanges(TIntPrV& Partitions, TInt NumPartitions) const {
     }
     Partitions.Add(TIntPr(currStart, currRow));
   } else {
-    // optimize for the case when rows are logically in sequence
+    // Optimize for the case when rows are logically in sequence.
     currRow += PartitionSize;
     while (currRow != TTable::Last && currRow < Next.Len()) {
       if (Next[currRow] == TTable::Invalid) { currRow++; continue; }
@@ -731,6 +731,33 @@ void TTable::GroupingSanityCheck(const TStr& GroupBy, const TAttrType& AttrType)
   if (GetColType(GroupBy) != AttrType) {
     TExcept::Throw(GroupBy + " values are not of expected type");
   }
+}
+
+void TTable::GroupByIntColMP(const TStr& GroupBy, THashMP<TInt, TIntV>& Grouping) const {
+  //double startFn = omp_get_wtime();
+  GroupingSanityCheck(GroupBy, atInt);
+  TIntPrV Partitions;
+  GetPartitionRanges(Partitions, 8*CHUNKS_PER_THREAD);
+  TInt PartitionSize = Partitions[0].GetVal2()-Partitions[0].GetVal1()+1;
+  //double endPart = omp_get_wtime();
+  //printf("Partition time = %f\n", endPart-startFn);
+
+  Grouping.Gen(NumValidRows);
+  //double endGen = omp_get_wtime();
+  //printf("Gen time = %f\n", endGen-endPart);
+  #ifdef _OPENMP
+  #pragma omp parallel for schedule(dynamic, CHUNKS_PER_THREAD) num_threads(1)
+  #endif
+  for (int i = 0; i < Partitions.Len(); i++){
+    TRowIterator RowI(Partitions[i].GetVal1(), this);
+    TRowIterator EndI(Partitions[i].GetVal2(), this);
+    while (RowI < EndI) {
+      UpdateGrouping<TInt>(Grouping, RowI.GetIntAttr(GroupBy), RowI.GetRowIdx());
+      RowI++;
+    }
+  }
+  //double endAdd = omp_get_wtime();
+  //printf("Add time = %f\n", endAdd-endGen);
 }
 
 void TTable::Unique(const TStr& Col) {
@@ -772,17 +799,17 @@ void TTable::Unique(const TStrV& Cols, TBool Ordered) {
 }
 
 void TTable::StoreGroupCol(const TStr& GroupColName, const TVec<TPair<TInt, TInt> >& GroupAndRowIds) {
-  // add a column where the value of the i'th row is the group id of row i
+  // Add a column where the value of the i'th row is the group id of row i.
   IntCols.Add(TIntV(NumRows));
   TInt L = IntCols.Len();
   ColTypeMap.AddDat(GroupColName, TPair<TAttrType,TInt>(atInt, L-1));
-  // Store group id for each row
+  // Store group id for each row.
   for (TInt i = 0; i < GroupAndRowIds.Len(); i++) {
     IntCols[L-1][GroupAndRowIds[i].Val2] = GroupAndRowIds[i].Val1;
   }
 }
 
-// core crouping logic
+// Core crouping logic.
 void TTable::GroupAux(const TStrV& GroupBy, THash<TGroupKey, TPair<TInt, TIntV> >& Grouping, 
  TBool Ordered, const TStr& GroupColName, TBool KeepUnique, TIntV& UniqueVec) {
   TIntV IntGroupByCols;
@@ -892,7 +919,7 @@ void TTable::GroupAux(const TStrV& GroupBy, THash<TGroupKey, TPair<TInt, TIntV> 
   }
 }
 
-// core crouping logic
+// Core crouping logic.
 void TTable::GroupAuxMP(const TStrV& GroupBy, THashGenericMP<TGroupKey, TPair<TInt, TIntV> >& Grouping, 
  TBool Ordered, const TStr& GroupColName, TBool KeepUnique, TIntV& UniqueVec) {
   //double startFn = omp_get_wtime();
@@ -1623,7 +1650,7 @@ PTable TTable::SelfSimJoinPerGroup(const TStrV& GroupBy, const TStr& SimCol, con
 	return JointTable;
 }
 
-// Increment the next vector and set last, NumRows and NumValidRows
+// Increments the next vector and set last, NumRows and NumValidRows.
 void TTable::IncrementNext()
 {
 	// Advance the Next vector
@@ -2314,7 +2341,7 @@ void TTable::QSortPar(TIntV& V, const TVec<TAttrType>& SortByTypes, const TIntV&
   }
 }
 
-void TTable::Order(const TStrV& OrderBy, const TStr& OrderColName, TBool ResetRankByMSC, TBool Asc) {
+void TTable::Order(const TStrV& OrderBy, TStr OrderColName, TBool ResetRankByMSC, TBool Asc) {
   // get a vector of all valid row indices
   TIntV ValidRows = TIntV(NumValidRows);
   if (NumRows == NumValidRows) {
