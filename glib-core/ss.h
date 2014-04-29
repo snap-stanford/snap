@@ -127,22 +127,22 @@ public:
   double GetFlt(const int& FldN) const {
     double Val=0.0; IAssert(GetFlt(FldN, Val)); return Val; }
   
-  int GetStreamPos() const {
+  uint64_t GetStreamPos() const {
     return FInPt->GetBfC();
   }
 
-  int GetStreamLen() const {
+  uint64_t GetStreamLen() const {
     return FInPt->GetBfL();
   }
 
-  void SetStreamPos(int Pos) {
+  void SetStreamPos(uint64_t Pos) {
     return FInPt->SetBfC(Pos);
   }
 
-  int CountNewLinesInRange(int Lb, int Ub) const;
-  TIntV GetStartPosV(int Lb, int Ub) const;
+  uint64_t CountNewLinesInRange(uint64_t Lb, uint64_t Ub) const;
+  TVec<uint64_t> GetStartPosV(uint64_t Lb, uint64_t Ub) const;
 
-  void NextFromIndex(TInt Index, TVec<char*>& FieldsV, char*& orig);
+  void NextFromIndex(uint64_t Index, TVec<char*>& FieldsV, char*& orig);
 
   int GetIntFromFldV(TVec<char*>& FieldsV, const int& FldN);
   double GetFltFromFldV(TVec<char*>& FieldsV, const int& FldN);

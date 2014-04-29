@@ -315,7 +315,7 @@ PTable TTable::LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm,
   double startTime, endTime;
   startTime = omp_get_wtime();
 
-  TIntV IntGroupByCols;
+  TVec<uint64_t> IntGroupByCols;
   TSsParser Ss(InFNm, Separator);
   Schema SR;
   if (RelevantCols.Len() == 0) {
@@ -347,24 +347,24 @@ PTable TTable::LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm,
   for (TInt i = 0; i < RowLen; i++) {
     ColTypes[i] = T->GetSchemaColType(i);
   }
-  int Cnt = 0;
+  uint64_t Cnt = 0;
 
   endTime = omp_get_wtime();
   printf("Init time = %f\n", endTime-startTime);
 
   startTime = omp_get_wtime();
-  int Pos = Ss.GetStreamPos();
-  int Len = Ss.GetStreamLen();
-  int Rem = Len - Pos;
+  uint64_t Pos = Ss.GetStreamPos();
+  uint64_t Len = Ss.GetStreamLen();
+  uint64_t Rem = Len - Pos;
   int NumThreads = omp_get_max_threads();
   //NumThreads = 1;
-  int Delta = Rem / NumThreads;
+  uint64_t Delta = Rem / NumThreads;
 
   if (Delta < 1) Delta = 1;
 
-  TIntV StartIntV(NumThreads);
-  TIntV LineCountV(NumThreads);
-  TIntV PrefixSumV(NumThreads);
+  TVec<uint64_t> StartIntV(NumThreads);
+  TVec<uint64_t> LineCountV(NumThreads);
+  TVec<uint64_t> PrefixSumV(NumThreads);
 
   StartIntV[0] = Pos;
   for (int i = 1; i < NumThreads; i++) {
@@ -385,7 +385,7 @@ PTable TTable::LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm,
   }
 
   Ss.SetStreamPos(Pos);
-  printf("num rows: %d\n", Cnt);
+  printf("num rows: %llu\n", (unsigned long long)Cnt);
 
   endTime = omp_get_wtime();
   printf("Num row calc time = %f\n", endTime-startTime);
@@ -416,12 +416,12 @@ PTable TTable::LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm,
   omp_set_num_threads(NumThreads);
 #pragma omp parallel for schedule(dynamic) reduction(+:Cnt)
   for (int i = 0; i < NumThreads; i++) {
-    TIntV LineStartPosV = Ss.GetStartPosV(StartIntV[i], StartIntV[i+1]);
+    TVec<uint64_t> LineStartPosV = Ss.GetStartPosV(StartIntV[i], StartIntV[i+1]);
 
     //printf("%d\n", LineStartPosV.Len());
     //printf("%d %d\n", LineStartPosV[0].Val, LineStartPosV[1].Val);
 
-    for (int j = 0; j < LineStartPosV.Len(); j++) {
+    for (uint64_t j = 0; j < (uint64_t) LineStartPosV.Len(); j++) {
       TVec<char*> FieldsV;
       char *orig;
       Ss.NextFromIndex(LineStartPosV[j], FieldsV, orig);
@@ -512,7 +512,7 @@ PTable TTable::LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm,
   //}
 
   endTime = omp_get_wtime();
-  printf("num rows: %d\n", Cnt);
+  printf("num rows: %llu\n", (unsigned long long) Cnt);
 
   printf("Row adding time = %f\n", endTime-startTime);
 
@@ -521,23 +521,28 @@ PTable TTable::LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm,
   // set number of rows and "Next" vector
   T->NumRows = Cnt;
   T->NumValidRows = T->NumRows;
-  T->Next = TIntV(T->NumRows,0);
-  for (TInt i = 0; i < T->NumRows-1; i++) {
-    T->Next.Add(i+1);
+
+  printf("reserve start\n");
+  T->Next.Clr();
+  T->Next.Reserve(Cnt);
+  printf("reserve end\n");
+
+  omp_set_num_threads(NumThreads);
+  #pragma omp parallel for schedule(dynamic, 10000)
+  for (uint64_t i = 0; i < Cnt-1; i++) {
+    T->Next[i] = i+1;
   }
   T->IsNextDirty = 0;
-  T->Next.Add(Last);
+  T->Next[Cnt-1] = Last;
   T->LastValidRow = T->NumRows - 1;
 
   endTime = omp_get_wtime();
   printf("NextV time = %f\n", endTime-startTime);
 
-  startTime = omp_get_wtime();
-
-  T->InitIds();
-
-  endTime = omp_get_wtime();
-  printf("Id time = %f\n", endTime-startTime);
+  //startTime = omp_get_wtime();
+  //T->InitIds();
+  //endTime = omp_get_wtime();
+  //printf("Id time = %f\n", endTime-startTime);
   return T;
 }
 

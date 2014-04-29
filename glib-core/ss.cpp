@@ -495,18 +495,18 @@ const char* TSsParser::DumpStr() const {
 
 // Finds number of new line chars in interval [lb, ub)
 // Assumes that lines end in '\n'
-int TSsParser::CountNewLinesInRange(int Lb, int Ub) const {
+uint64_t TSsParser::CountNewLinesInRange(uint64_t Lb, uint64_t Ub) const {
   return FInPt->CountNewLinesInRange(Lb, Ub);
 }
 
-TIntV TSsParser::GetStartPosV(int Lb, int Ub) const {
-  TIntV Ret;
+TVec<uint64_t> TSsParser::GetStartPosV(uint64_t Lb, uint64_t Ub) const {
+  TVec<uint64_t> Ret;
   if (Lb >= GetStreamLen()) {
     return Ret;
   }
   while (Lb < Ub) {
-    TInt StartPos = FInPt->GetLineStartPos(Lb);
-    TInt EndPos = FInPt->GetLineEndPos(Lb);
+    uint64_t StartPos = FInPt->GetLineStartPos(Lb);
+    uint64_t EndPos = FInPt->GetLineEndPos(Lb);
 
     if (Lb <= EndPos && EndPos < Ub) {
       Ret.Add(StartPos);
@@ -516,7 +516,7 @@ TIntV TSsParser::GetStartPosV(int Lb, int Ub) const {
   return Ret;
 }
 
-void TSsParser::NextFromIndex(TInt Index, TVec<char*>& FieldsV,
+void TSsParser::NextFromIndex(uint64_t Index, TVec<char*>& FieldsV,
   char*& orig) { // split on SplitCh
   FieldsV.Clr();
 

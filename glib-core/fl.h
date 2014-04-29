@@ -62,13 +62,13 @@ private:
   TSIn(const TSIn&);
   TSIn& operator=(const TSIn&);
 public:
-  virtual void SetBfC(int Pos) {};
-  virtual int GetBfC() { return -1; };
-  virtual int GetBfL() { return -1; };
-  virtual int CountNewLinesInRange(int, int) { return -1; };
-  virtual int GetLineStartPos(int Ind) { return -1; };
-  virtual int GetLineEndPos(int Ind) { return -1; };
-  virtual char* GetLine(int Ind) { return NULL; };
+  virtual void SetBfC(uint64_t Pos) {};
+  virtual uint64_t GetBfC() { return -1; };
+  virtual uint64_t GetBfL() { return -1; };
+  virtual uint64_t CountNewLinesInRange(uint64_t, uint64_t) { return -1; };
+  virtual uint64_t GetLineStartPos(uint64_t Ind) { return -1; };
+  virtual uint64_t GetLineEndPos(uint64_t Ind) { return -1; };
+  virtual char* GetLine(uint64_t Ind) { return NULL; };
 public:
   TSIn(): TSBase("Input-Stream"), FastMode(false){}
   TSIn(const TStr& Str);
@@ -392,20 +392,20 @@ public:
 class TMIn: public TSIn{
 private:
   char* Bf;
-  int BfC, BfL;
+  uint64_t BfC, BfL;
 private:
   TMIn();
   TMIn(const TMIn&);
   TMIn& operator=(const TMIn&);
 private:
-  int FindEol(int& BfN, bool& CrEnd);
-  int GetBfC();
-  int GetBfL();
-  void SetBfC(int Pos);
-  int CountNewLinesInRange(int Lb, int Ub);
-  int GetLineStartPos(int Ind);
-  int GetLineEndPos(int Ind);
-  char* GetLine(int Ind);
+  int FindEol(uint64_t& BfN, bool& CrEnd);
+  uint64_t GetBfC();
+  uint64_t GetBfL();
+  void SetBfC(uint64_t Pos);
+  uint64_t CountNewLinesInRange(uint64_t Lb, uint64_t Ub);
+  uint64_t GetLineStartPos(uint64_t Ind);
+  uint64_t GetLineEndPos(uint64_t Ind);
+  char* GetLine(uint64_t Ind);
 
 public:
   TMIn(const void* _Bf, const int& _BfL, const bool& TakeBf=false);
@@ -419,7 +419,12 @@ public:
   static PSIn New(const TStr& Str);
   static PSIn New(const TStr& Str, int);
   static PSIn New(const TChA& ChA);
-  ~TMIn(){if (Bf!=NULL){delete[] Bf;}}
+
+  ~TMIn();
+  //~TMIn(){
+  //  if (Bf!=NULL){
+  //  delete[] Bf;
+  //}
 
   bool Eof(){return BfC==BfL;}
   int Len() const {return BfL-BfC;}

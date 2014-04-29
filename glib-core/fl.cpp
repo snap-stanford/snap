@@ -540,7 +540,7 @@ TMIn::TMIn(const void* _Bf, const int& _BfL, const bool& TakeBf):
 TMIn::TMIn(TSIn& SIn):
   TSBase("Input-Memory"), TSIn("Input-Memory"), Bf(NULL), BfC(0), BfL(0){
   BfL=SIn.Len(); Bf=new char[BfL];
-  for (int BfC=0; BfC<BfL; BfC++){Bf[BfC]=SIn.GetCh();}
+  for (uint64_t BfC=0; BfC<BfL; BfC++){Bf[BfC]=SIn.GetCh();}
 }
 
 TMIn::TMIn(const char* CStr):
@@ -556,25 +556,41 @@ TMIn::TMIn(const TStr& Str):
 TMIn::TMIn(const TStr& FNm, int val):
   TSBase("Input-Memory"), TSIn("Input-Memory"), Bf(NULL), BfC(0), BfL(0){
   TFileId FileId;
-  int FLen;
+  int fd;
+  uint64_t FLen;
   EAssertR(!FNm.Empty(), "Empty file-name.");
   FileId=fopen(FNm.CStr(), "rb");
+  fd = fileno(FileId);
+
   EAssertR(FileId!=NULL, "Can not open file '"+FNm+"'.");
 
   EAssertR(
    fseek(FileId, 0, SEEK_END)==0,
    "Error seeking into file '"+TStr(FNm)+"'.");
-  FLen=(int)ftell(FileId);
+  FLen=(uint64_t)ftell(FileId);
   EAssertR(
    fseek(FileId, 0, SEEK_SET)==0,
    "Error seeking into file '"+TStr(FNm)+"'.");
 
 
-  Bf=new char[FLen];
-  BfL=int(fread(Bf, 1, FLen, FileId));
-  BfC=0;
+  //Bf=new char[FLen];
+  //BfL=int(fread(Bf, 1, FLen, FileId));
+  //BfC=0;
 
-  printf("%d %d %d\n", FLen, BfC, BfL);
+  char *mapped;
+  mapped = (char *) mmap (0, FLen, PROT_READ, MAP_PRIVATE, fd, 0);
+
+  if (mapped == MAP_FAILED) {
+    printf("mmap failed: %d %s\n", fd, strerror (errno));
+  }
+
+  Bf = mapped;
+  BfC = 0;
+  BfL = FLen;
+
+  printf("%llu %llu %llu\n", (unsigned long long) FLen, 
+    (unsigned long long) BfC, 
+    (unsigned long long) BfL);
 }
 
 TMIn::TMIn(const TChA& ChA):
@@ -602,6 +618,12 @@ PSIn TMIn::New(const TChA& ChA){
   return PSIn(new TMIn(ChA));
 }
 
+TMIn::~TMIn(){
+  if (Bf!=NULL){
+    munmap(Bf, BfL);
+  }
+}
+
 char TMIn::GetCh(){
   EAssertR(BfC<BfL, "Reading beyond the end of stream.");
   return Bf[BfC++];
@@ -626,7 +648,7 @@ int TMIn::GetBf(const void* LBf, const TSize& LBfL){
 //    BfN is end of buffer.
 // Returns -1, when an end of file was found, BfN is not defined.
 
-int TMIn::FindEol(int& BfN, bool& CrEnd) {
+int TMIn::FindEol(uint64_t& BfN, bool& CrEnd) {
   char Ch;
   if (BfC >= BfL) {
     // read more data, check for eof
@@ -662,39 +684,12 @@ int TMIn::FindEol(int& BfN, bool& CrEnd) {
   BfN = BfC;
 
   return 0;
-  //char Ch;
-
-  //if (Eof()) {
-  //  return -1;
-  //}
-
-  //CrEnd = false;
-  //while (BfC < BfL) {
-  //  Ch = Bf[BfC++];
-  //  if (Ch=='\n') {
-  //    BfN = BfC-1;
-  //    return 0;
-  //  }
-  //  if (Ch=='\r') {
-  //    if (BfC == BfL) {
-  //      CrEnd = true;
-  //      BfN = BfC-1;
-  //      return 0;
-  //    } else if (Bf[BfC]=='\n') {
-  //      BfC++;
-  //      BfN = BfC-2;
-  //      return 0;
-  //    }
-  //  }
-  //}
-  //BfN = BfC;
-  //return 0;
 }
 
 bool TMIn::GetNextLnBf(TChA& LnChA){
   int Status;
-  int BfN;        // new pointer to the end of line
-  int BfP;        // previous pointer to the line start
+  uint64_t BfN;        // new pointer to the end of line
+  uint64_t BfP;        // previous pointer to the line start
   bool CrEnd;     // last character in previous buffer was CR
 
   LnChA.Clr();
@@ -740,26 +735,26 @@ bool TMIn::GetNextLnBf(TChA& LnChA){
   //return false;
 }
 
-int TMIn::GetBfC() {
+uint64_t TMIn::GetBfC() {
   return BfC;
 }
 
-int TMIn::GetBfL() {
+uint64_t TMIn::GetBfL() {
   return BfL;
 }
 
-void TMIn::SetBfC(int Pos) {
+void TMIn::SetBfC(uint64_t Pos) {
   BfC = Pos;
 }
 
 // Finds number of new line chars in interval [Lb, Ub)
 // Assumes that lines end in '\n'
-int TMIn::CountNewLinesInRange(int Lb, int Ub) {
-  int Cnt = 0;
+uint64_t TMIn::CountNewLinesInRange(uint64_t Lb, uint64_t Ub) {
+  uint64_t Cnt = 0;
   if (Lb >= BfL) {
     return 0;
   }
-  for (int i = Lb; i < Ub; i++) {
+  for (uint64_t i = Lb; i < Ub; i++) {
     if (Bf[i] == '\n') {
       Cnt += 1;
     }
@@ -768,7 +763,7 @@ int TMIn::CountNewLinesInRange(int Lb, int Ub) {
 }
 
 // Finds beginning of line in which Ind is present
-int TMIn::GetLineStartPos(int Ind) {
+uint64_t TMIn::GetLineStartPos(uint64_t Ind) {
   while (Ind > 0 && Bf[Ind-1] != '\n') {
     Ind--;
   }
@@ -776,7 +771,7 @@ int TMIn::GetLineStartPos(int Ind) {
 }
 
 // Finds end of line in which Ind is present
-int TMIn::GetLineEndPos(int Ind) {
+uint64_t TMIn::GetLineEndPos(uint64_t Ind) {
   while (Ind < BfL && Bf[Ind] != '\n') {
     Ind++;
   }
@@ -784,13 +779,13 @@ int TMIn::GetLineEndPos(int Ind) {
   return Ind;
 }
 
-char* TMIn::GetLine(int Index) {
-  TInt OldIndex = Index;
+char* TMIn::GetLine(uint64_t Index) {
+  uint64_t OldIndex = Index;
   while (Index < BfL && Bf[Index] != '\n') {
     Index++;
   }
   char *s = (char *)malloc(Index - OldIndex + 1);
-  for (int i = 0; i < Index - OldIndex; i++) {
+  for (uint64_t i = 0; i < Index - OldIndex; i++) {
     s[i] = Bf[OldIndex + i];
   }
   //strncpy(s, &Bf[OldIndex], Index - OldIndex);
