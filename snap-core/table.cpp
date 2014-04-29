@@ -418,21 +418,18 @@ PTable TTable::LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm,
   for (int i = 0; i < NumThreads; i++) {
     TVec<uint64_t> LineStartPosV = Ss.GetStartPosV(StartIntV[i], StartIntV[i+1]);
 
-    //printf("%d\n", LineStartPosV.Len());
-    //printf("%d %d\n", LineStartPosV[0].Val, LineStartPosV[1].Val);
-
-    for (uint64_t j = 0; j < (uint64_t) LineStartPosV.Len(); j++) {
+    for (uint64_t k = 0; k < (uint64_t) LineStartPosV.Len(); k++) {
       TVec<char*> FieldsV;
       char *orig;
-      Ss.NextFromIndex(LineStartPosV[j], FieldsV, orig);
-      //printf("num fields: %d\n", FieldsV.Len());
+      Ss.NextFromIndex(LineStartPosV[k], FieldsV, orig);
       if (FieldsV.Len() != S.Len()) {
         TExcept::Throw("Error reading tsv file");
       }
       TInt IntColIdx = 0;
       TInt FltColIdx = 0;
+      TInt RowIdx = PrefixSumV[i] + k;
+
       for (TInt j = 0; j < RowLen; j++) {
-        TInt RowIdx = PrefixSumV[i] + j;
         switch (ColTypes[j]) {
           case atInt:
             if (RelevantCols.Len() == 0) {
@@ -458,11 +455,7 @@ PTable TTable::LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm,
             break;
         }
       }
-      //printf("deleting...\n");
-      //for (int k = 0; k < FieldsV.Len(); k++) {
-      //  delete[] FieldsV[k];
-      //}
-      delete[] orig;
+      //delete[] orig;
       Cnt++;
     }
   }
@@ -522,10 +515,8 @@ PTable TTable::LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm,
   T->NumRows = Cnt;
   T->NumValidRows = T->NumRows;
 
-  printf("reserve start\n");
   T->Next.Clr();
   T->Next.Reserve(Cnt);
-  printf("reserve end\n");
 
   omp_set_num_threads(NumThreads);
   #pragma omp parallel for schedule(dynamic, 10000)
@@ -543,6 +534,12 @@ PTable TTable::LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm,
   //T->InitIds();
   //endTime = omp_get_wtime();
   //printf("Id time = %f\n", endTime-startTime);
+
+  //printf("%d %d\n", T->IntCols[0][0].Val, T->IntCols[1][0].Val);
+  //for (int i = 0; i < 10; i++) {
+  //  printf("%d ", T->IntCols[0][234 + 769 * i].Val);
+  //  printf("%d\n", T->IntCols[1][1232 + 824 * i].Val);
+  //}
   return T;
 }
 

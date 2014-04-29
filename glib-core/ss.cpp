@@ -520,11 +520,6 @@ void TSsParser::NextFromIndex(uint64_t Index, TVec<char*>& FieldsV,
   char*& orig) { // split on SplitCh
   FieldsV.Clr();
 
-  //TChA Temp = FInPt->GetLine(Index);
-  //TStr LineStr = Temp;
-
-  //char* cur = LineStr.CStr();
-
   char* cur = FInPt->GetLine(Index);
   orig = cur;
 
@@ -532,11 +527,13 @@ void TSsParser::NextFromIndex(uint64_t Index, TVec<char*>& FieldsV,
     while (*cur && TCh::IsWs(*cur)) { cur++; }
   }
   char *last = cur;
-  while (*cur) {
-    if (SsFmt == ssfWhiteSep) { while (*cur && ! TCh::IsWs(*cur)) { cur++; } } 
-    else { while (*cur && *cur!=SplitCh) { cur++; } }
+  while (*cur != 0 && *cur != '\n') {
+    if (SsFmt == ssfWhiteSep) { while (*cur && (*cur != '\n') && ! TCh::IsWs(*cur)) { cur++; } } 
+    else { while (*cur && *cur!=SplitCh && (*cur != '\n')) { cur++; } }
     if (*cur == 0) { break; }
-    *cur = 0;  cur++;
+    if (*cur == '\n') { break; }
+    //*cur = 0;  
+    cur++;
     FieldsV.Add(last);  last = cur;
     if (SkipEmptyFld && strlen(FieldsV.Last())==0) { FieldsV.DelLast(); } // skip empty fields
   }
@@ -557,7 +554,7 @@ int TSsParser::GetIntFromFldV(TVec<char*>& FieldsV, const int& FldN) {
     c++; 
   }
   if (Minus) { _Val = -_Val; }
-  if (*c != 0) { return -1; }
+  //if (*c != 0) { return -1; }
   return _Val;
 }
 

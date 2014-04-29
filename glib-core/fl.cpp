@@ -780,6 +780,7 @@ uint64_t TMIn::GetLineEndPos(uint64_t Ind) {
 }
 
 char* TMIn::GetLine(uint64_t Index) {
+  return &Bf[Index];
   uint64_t OldIndex = Index;
   while (Index < BfL && Bf[Index] != '\n') {
     Index++;
