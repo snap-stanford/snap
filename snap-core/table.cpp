@@ -396,11 +396,11 @@ PTable TTable::LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm,
   for (TInt i = 0; i < RowLen; i++) {
     switch (ColTypes[i]) {
       case atInt:
-        T->IntCols[IntColIdx].Reserve(Cnt);
+        T->IntCols[IntColIdx].Gen(Cnt);
         IntColIdx++;
         break;
       case atFlt:
-        T->FltCols[FltColIdx].Reserve(Cnt);
+        T->FltCols[FltColIdx].Gen(Cnt);
         FltColIdx++;
         break;
       case atStr:
@@ -460,6 +460,48 @@ PTable TTable::LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm,
     }
   }
 
+  endTime = omp_get_wtime();
+  printf("num rows: %llu\n", (unsigned long long) Cnt);
+
+  printf("Row adding time = %f\n", endTime-startTime);
+
+  startTime = omp_get_wtime();
+
+  // set number of rows and "Next" vector
+  T->NumRows = Cnt;
+  T->NumValidRows = T->NumRows;
+
+  T->Next.Clr();
+  T->Next.Reserve(Cnt);
+
+  omp_set_num_threads(NumThreads);
+  #pragma omp parallel for schedule(dynamic, 10000)
+  for (uint64_t i = 0; i < Cnt-1; i++) {
+    T->Next[i] = i+1;
+  }
+  T->IsNextDirty = 0;
+  T->Next[Cnt-1] = Last;
+  T->LastValidRow = T->NumRows - 1;
+
+  endTime = omp_get_wtime();
+  printf("NextV time = %f\n", endTime-startTime);
+
+  int sum = 0;
+
+  printf("Len: %d\n", T->IntCols[0].Len());
+  for (int i = 0; i < T->IntCols[0].Len(); i++)
+  {
+    if (i <= 10) {
+      printf("%d %d\n", T->IntCols[0][i].Val, T->IntCols[1][i].Val);
+    }
+    sum += T->IntCols[0][i] * 2 + T->IntCols[1][i] * 3;
+  }
+
+  printf("sum: %d\n", sum);
+
+
+
+
   //Cnt = 0;
   //// populate table columns
   //while (Ss.Next()) {
@@ -503,33 +545,6 @@ PTable TTable::LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm,
   //  }
   //  Cnt++;
   //}
-
-  endTime = omp_get_wtime();
-  printf("num rows: %llu\n", (unsigned long long) Cnt);
-
-  printf("Row adding time = %f\n", endTime-startTime);
-
-  startTime = omp_get_wtime();
-
-  // set number of rows and "Next" vector
-  T->NumRows = Cnt;
-  T->NumValidRows = T->NumRows;
-
-  T->Next.Clr();
-  T->Next.Reserve(Cnt);
-
-  omp_set_num_threads(NumThreads);
-  #pragma omp parallel for schedule(dynamic, 10000)
-  for (uint64_t i = 0; i < Cnt-1; i++) {
-    T->Next[i] = i+1;
-  }
-  T->IsNextDirty = 0;
-  T->Next[Cnt-1] = Last;
-  T->LastValidRow = T->NumRows - 1;
-
-  endTime = omp_get_wtime();
-  printf("NextV time = %f\n", endTime-startTime);
-
   //startTime = omp_get_wtime();
   //T->InitIds();
   //endTime = omp_get_wtime();
