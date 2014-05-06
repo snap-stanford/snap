@@ -922,6 +922,7 @@ void TTable::GroupAux(const TStrV& GroupBy, THash<TGroupKey, TPair<TInt, TIntV> 
 }
 
 // Core crouping logic.
+#ifdef _OPENMP
 void TTable::GroupAuxMP(const TStrV& GroupBy, THashGenericMP<TGroupKey, TPair<TInt, TIntV> >& Grouping, 
  TBool Ordered, const TStr& GroupColName, TBool KeepUnique, TIntV& UniqueVec) {
   //double startFn = omp_get_wtime();
@@ -1043,6 +1044,7 @@ void TTable::GroupAuxMP(const TStrV& GroupBy, THashGenericMP<TGroupKey, TPair<TI
   //double endStore = omp_get_wtime();
   //printf("Store time = %f\n", endStore-endMapping);
 }
+#endif // _OPENMP
 
 // grouping begins here
 void TTable::Group(const TStrV& GroupBy, const TStr& GroupColName, TBool Ordered) {
@@ -3369,6 +3371,7 @@ void TTable::AddNRows(int NewRows, const TVec<TIntV>& IntColsP, const TVec<TFltV
   }
 }
 
+#ifdef _OPENMP
 void TTable::AddNJointRowsMP(const TTable& T1, const TTable& T2, const TVec<TIntPrV>& JointRowIDSet) {
   //double startFn = omp_get_wtime();
   int JointTableSize = 0;
@@ -3399,9 +3402,7 @@ void TTable::AddNJointRowsMP(const TTable& T1, const TTable& T2, const TVec<TInt
     RowIdMap.AddDat(IdCnt, IdCnt);
   }
 
-  #ifdef _OPENMP
   #pragma omp parallel for schedule(dynamic, CHUNKS_PER_THREAD) 
-  #endif
   for (int j = 0; j < JointRowIDSet.Len(); j++) {
     const TIntPrV& RowIDs = JointRowIDSet[j];
     int start = StartOffsets[j];
@@ -3438,6 +3439,7 @@ void TTable::AddNJointRowsMP(const TTable& T1, const TTable& T2, const TVec<TInt
   //double endIterate = omp_get_wtime();
   //printf("Iterate time = %f\n",endIterate-endResize);
 }
+#endif // _OPENMP
 
 PTable TTable::UnionAll(const TTable& Table, const TStr& TableName) {
   Schema NewSchema;
