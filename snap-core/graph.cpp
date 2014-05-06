@@ -39,6 +39,9 @@ int TUNGraph::AddNode(const int& NId, const TIntV& NbrNIdV) {
   Node.NIdV = NbrNIdV;
   Node.NIdV.Sort();
   NEdges += Node.GetDeg();
+  for (int i = 0; i < NbrNIdV.Len(); i++) {
+    GetNode(NbrNIdV[i]).NIdV.AddSorted(NewNId);
+  }
   return NewNId;
 }
 
@@ -50,7 +53,7 @@ int TUNGraph::AddNode(const int& NId, const TVecPool<TInt>& Pool, const int& NId
   } else {
     IAssertR(!IsNode(NId), TStr::Fmt("NodeId %d already exists", NId));
     NewNId = NId;
-    MxNId = TMath::Mx(NewNId+1, MxNId());
+    MxNId = TMath::Mx(NewNId+1, MxNId()); 
   }
   TNode& Node = NodeH.AddDat(NewNId);
   Node.Id = NewNId;
@@ -431,9 +434,7 @@ PNGraph TNGraph::GetSmallGraph() {
   PNGraph G = TNGraph::New();
   for (int i = 0; i < 5; i++) { G->AddNode(i); }
   G->AddEdge(0,1); G->AddEdge(1,2); G->AddEdge(0,2);
-  G->AddEdge(1,3);
-  G->AddEdge(3,4);
-  G->AddEdge(2,3);
+  G->AddEdge(1,3); G->AddEdge(3,4); G->AddEdge(2,3);
   return G;
 }
 
@@ -632,6 +633,16 @@ void TNEGraph::Dump(FILE *OutF) const {
     fprintf(OutF, "  %*d]  %*d  ->  %*d\n", EdgePlaces, EdgeI.GetId(), NodePlaces, EdgeI.GetSrcNId(), NodePlaces, EdgeI.GetDstNId());
   }
   fprintf(OutF, "\n");
+}
+
+// Return a small graph on 5 nodes and 6 edges.
+PNEGraph TNEGraph::GetSmallGraph() {
+  PNEGraph Graph = TNEGraph::New();
+  for (int i = 0; i < 5; i++) { Graph->AddNode(i); }
+  Graph->AddEdge(0,1);  Graph->AddEdge(0,2);
+  Graph->AddEdge(0,3);  Graph->AddEdge(0,4);
+  Graph->AddEdge(1,2);  Graph->AddEdge(1,2);
+  return Graph;
 }
 
 /////////////////////////////////////////////////

@@ -25,7 +25,7 @@ typedef TPt<TNEGraph> PNEGraph;
 typedef TPt<TNGraphMP> PNGraphMP;
 
 //#//////////////////////////////////////////////
-/// Undirected graph. ##Undirected_graph
+/// Undirected graph. ##TUNGraph::Class
 class TUNGraph {
 public:
   typedef TUNGraph TNet;
@@ -112,11 +112,11 @@ public:
     TEdgeI& operator++ (int) { do { CurEdge++; if (CurEdge >= CurNode.GetOutDeg()) { CurEdge=0; CurNode++; while (CurNode < EndNode && CurNode.GetOutDeg()==0) { CurNode++; } } } while (CurNode < EndNode && GetSrcNId()>GetDstNId()); return *this; }
     bool operator < (const TEdgeI& EdgeI) const { return CurNode<EdgeI.CurNode || (CurNode==EdgeI.CurNode && CurEdge<EdgeI.CurEdge); }
     bool operator == (const TEdgeI& EdgeI) const { return CurNode == EdgeI.CurNode && CurEdge == EdgeI.CurEdge; }
-    /// Gets edge ID. Always returns -1 since only edges in multigraphs have explicit IDs.
+    /// Returns edge ID. Always returns -1 since only edges in multigraphs have explicit IDs.
     int GetId() const { return -1; }
-    /// Gets the source of an edge. Since the graph is undirected this is the node with smaller ID of the edge endpoints.
+    /// Returns the source of the edge. Since the graph is undirected, this is the node with a smaller ID of the edge endpoints.
     int GetSrcNId() const { return CurNode.GetId(); }
-    /// Gets destination of an edge. Since the graph is undirected this is the node with greater ID of the edge endpoints.
+    /// Returns the destination of the edge. Since the graph is undirected, this is the node with a greater ID of the edge endpoints.
     int GetDstNId() const { return CurNode.GetOutNId(CurEdge); }
     friend class TUNGraph;
   };
@@ -171,7 +171,7 @@ public:
   TNodeI EndNI() const { return TNodeI(NodeH.EndI()); }
   /// Returns an iterator referring to the node of ID NId in the graph.
   TNodeI GetNI(const int& NId) const { return TNodeI(NodeH.GetI(NId)); }
-  /// Returns the maximum id of a any node in the graph.
+  /// Returns an ID that is larger than any node ID in the graph.
   int GetMxNId() const { return MxNId; }
 
   /// Returns the number of edges in the graph.
@@ -226,9 +226,7 @@ public:
 };
 
 //#//////////////////////////////////////////////
-/// Directed Node Graph
-
-/// Directed graph. ##Directed_graph
+/// Directed graph. ##TNGraph::Class
 class TNGraph {
 public:
   typedef TNGraph TNet;
@@ -313,11 +311,11 @@ public:
       while (CurNode < EndNode && CurNode.GetOutDeg()==0) { CurNode++; } }  return *this; }
     bool operator < (const TEdgeI& EdgeI) const { return CurNode<EdgeI.CurNode || (CurNode==EdgeI.CurNode && CurEdge<EdgeI.CurEdge); }
     bool operator == (const TEdgeI& EdgeI) const { return CurNode == EdgeI.CurNode && CurEdge == EdgeI.CurEdge; }
-    /// Gets edge ID. Always returns -1 since only edges in multigraphs have explicit IDs.
+    /// Returns edge ID. Always returns -1 since only edges in multigraphs have explicit IDs.
     int GetId() const { return -1; }
-    /// Gets the source node of an edge.
+    /// Returns the source node of the edge.
     int GetSrcNId() const { return CurNode.GetId(); }
-    /// Gets destination node of an edge.
+    /// Returns the destination node of the edge.
     int GetDstNId() const { return CurNode.GetOutNId(CurEdge); }
     friend class TNGraph;
   };
@@ -374,7 +372,7 @@ public:
   TNodeI GetNI(const int& NId) const { return TNodeI(NodeH.GetI(NId)); }
   // GetNodeC() has been commented out. It was a quick shortcut, do not use.
   //const TNode& GetNodeC(const int& NId) const { return NodeH.GetDat(NId); }
-  /// Returns the maximum id of a any node in the graph.
+  /// Returns an ID that is larger than any node ID in the graph.
   int GetMxNId() const { return MxNId; }
 
   /// Returns the number of edges in the graph.
@@ -435,10 +433,7 @@ template <> struct IsDirected<TNGraph> { enum { Val = 1 }; };
 }
 
 //#//////////////////////////////////////////////
-/// Node Edge Graph
-
-// TODO TNEGraph describe time complexity for basic operations
-/// Directed multigraph. ##Directed_multigraph
+/// Directed multigraph. ##TNEGraph::Class
 class TNEGraph {
 public:
   typedef TNEGraph TNet;
@@ -602,7 +597,7 @@ public:
   TNodeI EndNI() const { return TNodeI(NodeH.EndI(), this); }
   /// Returns an iterator referring to the node of ID NId in the graph.
   TNodeI GetNI(const int& NId) const { return TNodeI(NodeH.GetI(NId), this); }
-  /// Returns the maximum id of a any node in the graph.
+  /// Returns an ID that is larger than any node ID in the graph.
   int GetMxNId() const { return MxNId; }
 
   /// Returns the number of edges in the graph.
@@ -627,9 +622,9 @@ public:
   TEdgeI BegEI() const { return TEdgeI(EdgeH.BegI(), this); }
   /// Returns an iterator referring to the past-the-end edge in the graph.
   TEdgeI EndEI() const { return TEdgeI(EdgeH.EndI(), this); }
-  // TODO document TNEGraph::GetEI()
+  /// Returns an iterator referring to edge with edge ID EId. 
   TEdgeI GetEI(const int& EId) const { return TEdgeI(EdgeH.GetI(EId), this); }
-  // TODO document TNEGraph::GetEI()
+  /// Returns an iterator referring to edge (SrcNId, DstNId) in the graph. 
   TEdgeI GetEI(const int& SrcNId, const int& DstNId) const { return GetEI(GetEId(SrcNId, DstNId)); }
 
   /// Returns an ID of a random node in the graph.
@@ -658,7 +653,7 @@ public:
   bool IsOk(const bool& ThrowExcept=true) const;
   /// Print the graph in a human readable form to an output stream OutF.
   void Dump(FILE *OutF=stdout) const;
-  // TODO implement and document TNEGraph::GetSmallGraph()
+  /// Returns a small multigraph on 5 nodes and 6 edges. ##TNEGraph::GetSmallGraph
   static PNEGraph GetSmallGraph();
   friend class TPt<TNEGraph>;
 };
@@ -770,15 +765,15 @@ public:
     int GetSrcNId() const { return CurNode.GetId(); }
     /// Gets destination ('right' side) of an edge. Since the graph is undirected this is the node with greater ID of the edge endpoints.
     int GetDstNId() const { return CurNode.GetOutNId(CurEdge); }
-    /// Gets the id of the node on the 'left' side of the edge.
+    /// Gets the ID of the node on the 'left' side of the edge.
     int GetLNId() const { return GetSrcNId(); }
-    /// Gets the id of the node on the 'right' side of the edge.
+    /// Gets the ID of the node on the 'right' side of the edge.
     int GetRNId() const { return GetDstNId(); }
     friend class TBPGraph;
   };
 private:
   TCRef CRef;
-  TInt MxNId;                 // maximum node id in the graph
+  TInt MxNId;                 // maximum node ID in the graph
   THash<TInt, TNode> LeftH;   // 'left' nodes
   THash<TInt, TNode> RightH;  // 'right' nodes
 private:
@@ -824,7 +819,7 @@ public:
   bool IsLNode(const int& NId) const { return LeftH.IsKey(NId); }
   /// Tests whether ID NId is a 'right' side node.
   bool IsRNode(const int& NId) const { return RightH.IsKey(NId); }
-  /// Returns the maximum id of a any node in the graph.
+  /// Returns an ID that is larger than any node ID in the graph.
   int GetMxNId() const { return MxNId; }
     
   /// Returns an iterator referring to the first node in the graph.

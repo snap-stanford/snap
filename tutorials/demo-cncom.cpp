@@ -196,6 +196,8 @@ void GetCnComDirectedDisconnected() {
   G->AddEdge(NNodes+1, NNodes+2);
   G->AddEdge(NNodes+2, NNodes+1);
 
+  printf("Nodes = %d, Edges = %d\n", G->GetNodes(), G->GetEdges());
+
   TIntStrH NodeLabelH;
   for (int i = 0; i < G->GetNodes(); i++) {
     NodeLabelH.AddDat(i, TStr::Fmt("%d", i));
@@ -229,9 +231,9 @@ void GetCnComDirectedDisconnected() {
   double MxWccSz = GetMxWccSz(G);
   printf("MxWccSz = %.5f\n", MxWccSz);
   
-  // Get graph with largest SCC
-  PNGraph GMx = GetMxWcc(G);
-  printf("GMx->GetNodes() = %d, GMx->GetEdges() = %d\n", GMx->GetNodes(), GMx->GetEdges());
+  // Get graph with largest WCC
+  PNGraph GWMx = GetMxWcc(G);
+  printf("GWMx->GetNodes() = %d, GWMx->GetEdges() = %d\n", GWMx->GetNodes(), GWMx->GetEdges());
   
   // Get strongly connected components
   TCnComV SCnComV;
@@ -239,6 +241,13 @@ void GetCnComDirectedDisconnected() {
   for (int i = 0; i < SCnComV.Len(); i++) {
     printf("SCnComV[%d].Len() = %d\n", i, SCnComV[i].Len());
   }
+  
+  double MxSccSz = GetMxSccSz(G);
+  printf("MxSccSz = %.5f\n", MxSccSz);
+  
+  // Get graph with largest SCC
+  PNGraph GSMx = GetMxScc(G);
+  printf("GSMx->GetNodes() = %d, GSMx->GetEdges() = %d\n", GSMx->GetNodes(), GSMx->GetEdges());
   
   // Get largest bi-connected component
   PNGraph GMxBi = GetMxBiCon(G);

@@ -134,6 +134,7 @@ public:
 
   // vertices
   int GetNodes() const { return NodeH.Len(); }
+  /// Returns an id that is larger than any node id in the network.
   int GetMxNId() const { return MxNId; }
   int AddNode(int NId, const int& InDeg, const int& OutDeg);
   int AddNode(int NId, const int& InDeg, const int& OutDeg, const TNodeDat& NodeDat);

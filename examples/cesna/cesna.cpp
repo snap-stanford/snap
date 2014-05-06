@@ -2,7 +2,9 @@
 #include "agmfast.h"
 #include "agmattr.h"
 #include "agm.h"
+#ifndef NOMP
 #include <omp.h>
+#endif
 
 int main(int argc, char* argv[]) {
   Env = TEnv(argc, argv, TNotify::StdNotify);
@@ -25,7 +27,9 @@ int main(int argc, char* argv[]) {
   const double StepBeta = Env.GetIfArgPrefixFlt("-sb:", 0.3, "Beta for backtracking line search");
   const double MinFeatFrac = Env.GetIfArgPrefixFlt("-mf:", 0.0, "If the fraction of nodes with positive values for an attribute is smaller than this, we ignore that attribute");
 
+#ifndef NOMP
   omp_set_num_threads(NumThreads);
+#endif
   PUNGraph G;
   TIntStrH NIDNameH;
   TStrHash<TInt> NIdNameH;

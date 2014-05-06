@@ -1,6 +1,12 @@
 #
 # Makefile for non-Microsoft compilers
-# 	tested only on Linux
+# 	tested only on Linux, Mac OS X
+#
+# Prerequisites:
+#	- download google test: https://code.google.com/p/googletest/
+#
+# Compile and run all the tests:
+#	make run
 #
 
 include ../Makefile.config

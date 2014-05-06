@@ -33,20 +33,20 @@ public:
   double Likelihood(const bool DoParallel = false);
   double LikelihoodForRow(const int UID);
   double LikelihoodForRow(const int UID, const TIntFltH& FU);
-  int MLENewton(const double& Thres, const int& MaxIter, const TStr PlotNm = TStr());
+  int MLENewton(const double& Thres, const int& MaxIter, const TStr& PlotNm = TStr());
   void GradientForRow(const int UID, TIntFltH& GradU, const TIntSet& CIDSet);
   double GradientForOneVar(const TFltV& AlphaKV, const int UID, const int CID, const double& Val);
   double HessianForOneVar(const TFltV& AlphaKV, const int UID, const int CID, const double& Val);
   double LikelihoodForOneVar(const TFltV& AlphaKV, const int UID, const int CID, const double& Val);
   void GetCmtyVV(TVec<TIntV>& CmtyVV);
   void GetCmtyVV(TVec<TIntV>& CmtyVV, const double Thres, const int MinSz = 3);
-  int FindComsByCV(TIntV& ComsV, const double HOFrac = 0.2, const int NumThreads = 20, const TStr PlotLFNm = TStr(), const double StepAlpha = 0.3, const double StepBeta = 0.1);
-  int FindComsByCV(const int NumThreads, const int MaxComs, const int MinComs, const int DivComs, const TStr OutFNm, const double StepAlpha = 0.3, const double StepBeta = 0.3);
+  int FindComsByCV(TIntV& ComsV, const double HOFrac = 0.2, const int NumThreads = 20, const TStr& PlotLFNm = TStr(), const double StepAlpha = 0.3, const double StepBeta = 0.1);
+  int FindComsByCV(const int NumThreads, const int MaxComs, const int MinComs, const int DivComs, const TStr& OutFNm, const double StepAlpha = 0.3, const double StepBeta = 0.3);
   double LikelihoodHoldOut(const bool DoParallel = false);
   double GetStepSizeByLineSearch(const int UID, const TIntFltH& DeltaV, const TIntFltH& GradV, const double& Alpha, const double& Beta, const int MaxIter = 10);
-  int MLEGradAscent(const double& Thres, const int& MaxIter, const TStr PlotNm, const double StepAlpha = 0.3, const double StepBeta = 0.1);
-  int MLEGradAscentParallel(const double& Thres, const int& MaxIter, const int ChunkNum, const int ChunkSize, const TStr PlotNm, const double StepAlpha = 0.3, const double StepBeta = 0.1);
-  int MLEGradAscentParallel(const double& Thres, const int& MaxIter, const int ChunkNum, const TStr PlotNm = TStr(), const double StepAlpha = 0.3, const double StepBeta = 0.1) {
+  int MLEGradAscent(const double& Thres, const int& MaxIter, const TStr& PlotNm, const double StepAlpha = 0.3, const double StepBeta = 0.1);
+  int MLEGradAscentParallel(const double& Thres, const int& MaxIter, const int ChunkNum, const int ChunkSize, const TStr& PlotNm, const double StepAlpha = 0.3, const double StepBeta = 0.1);
+  int MLEGradAscentParallel(const double& Thres, const int& MaxIter, const int ChunkNum, const TStr& PlotNm = TStr(), const double StepAlpha = 0.3, const double StepBeta = 0.1) {
     int ChunkSize = G->GetNodes() / 10 / ChunkNum;
     if (ChunkSize == 0) { ChunkSize = 1; }
     return MLEGradAscentParallel(Thres, MaxIter, ChunkNum, ChunkSize, PlotNm, StepAlpha, StepBeta);

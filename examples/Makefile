@@ -10,8 +10,10 @@ MakeAll:
 	$(MAKE) -C bigclam
 	$(MAKE) -C cascades
 	$(MAKE) -C centrality
+	$(MAKE) -C cesna
 	$(MAKE) -C circles
 	$(MAKE) -C cliques
+	$(MAKE) -C coda
 	$(MAKE) -C community
 	$(MAKE) -C concomp
 	$(MAKE) -C forestfire
@@ -38,8 +40,10 @@ clean:
 	$(MAKE) clean -C bigclam
 	$(MAKE) clean -C cascades
 	$(MAKE) clean -C centrality
+	$(MAKE) clean -C cesna
 	$(MAKE) clean -C circles
 	$(MAKE) clean -C cliques
+	$(MAKE) clean -C coda
 	$(MAKE) clean -C community
 	$(MAKE) clean -C concomp
 	$(MAKE) clean -C forestfire

@@ -16,7 +16,7 @@ void TTmInfo::InitMonthNmV(){
   // slovene
   SiMonthNmV.Add("jan"); SiMonthNmV.Add("feb"); SiMonthNmV.Add("mar");
   SiMonthNmV.Add("apr"); SiMonthNmV.Add("maj"); SiMonthNmV.Add("jun");
-  SiMonthNmV.Add("jul"); SiMonthNmV.Add("aug"); SiMonthNmV.Add("sep");
+  SiMonthNmV.Add("jul"); SiMonthNmV.Add("avg"); SiMonthNmV.Add("sep");
   SiMonthNmV.Add("okt"); SiMonthNmV.Add("nov"); SiMonthNmV.Add("dec");
   IAssert(SiMonthNmV.Len()==12);
 }

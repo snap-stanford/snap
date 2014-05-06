@@ -971,3 +971,14 @@ int TNEANet::DelAttrE(const TStr& attr) {
   KeyToIndexTypeE.DelKey(attr);
   return 0;
 }
+
+// Return a small graph on 5 nodes and 6 edges.
+PNEANet TNEANet::GetSmallGraph() {
+  PNEANet Net = TNEANet::New();
+  for (int i = 0; i < 5; i++) { Net->AddNode(i); }
+  Net->AddEdge(0,1);  Net->AddEdge(0,2);
+  Net->AddEdge(0,3);  Net->AddEdge(0,4);
+  Net->AddEdge(1,2);  Net->AddEdge(1,2);
+  return Net;
+}
+
