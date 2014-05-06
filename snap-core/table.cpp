@@ -316,7 +316,10 @@ PTable TTable::LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm,
   startTime = omp_get_wtime();
 
   TVec<uint64_t> IntGroupByCols;
+
   TSsParser Ss(InFNm, Separator);
+  Ss.SkipCommentLines();
+
   Schema SR;
   if (RelevantCols.Len() == 0) {
     SR = S;
@@ -381,7 +384,7 @@ PTable TTable::LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm,
 
   PrefixSumV[0] = 0;
   for (int i = 1; i < NumThreads; i++) {
-    PrefixSumV[i] = PrefixSumV[i-1] + LineCountV[i];
+    PrefixSumV[i] = PrefixSumV[i-1] + LineCountV[i-1];
   }
 
   Ss.SetStreamPos(Pos);
@@ -487,7 +490,7 @@ PTable TTable::LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm,
   printf("NextV time = %f\n", endTime-startTime);
 
   int sum = 0;
-
+  
   printf("Len: %d\n", T->IntCols[0].Len());
   for (int i = 0; i < T->IntCols[0].Len(); i++)
   {
@@ -498,8 +501,6 @@ PTable TTable::LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm,
   }
 
   printf("sum: %d\n", sum);
-
-
 
 
   //Cnt = 0;

@@ -378,6 +378,10 @@ TSsParser::~TSsParser() {
   //if (Bf != NULL) { delete [] Bf; }
 }
 
+void TSsParser::SkipCommentLines() {
+  FInPt->SkipCommentLines();
+}
+
 // Gets and parses the next line.
 // This version of Next() is older, slower, works with chars.
 // RS 01/22/13 obsolete, can be removed in the future

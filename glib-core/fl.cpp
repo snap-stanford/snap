@@ -797,6 +797,15 @@ char* TMIn::GetLine(uint64_t Index) {
   //return LineStr.CStr();
 }
 
+void TMIn::SkipCommentLines() {
+  while (BfC < BfL && TCh::IsHashCh(Bf[BfC])) {
+    while (BfC < BfL && Bf[BfC] != '\n') {
+      BfC++;
+    }
+    BfC++;
+  }
+}
+
 /////////////////////////////////////////////////
 // Output-Memory
 void TMOut::Resize(const int& ReqLen){

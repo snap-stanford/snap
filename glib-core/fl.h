@@ -68,6 +68,7 @@ public:
   virtual uint64_t CountNewLinesInRange(uint64_t, uint64_t) { return -1; };
   virtual uint64_t GetLineStartPos(uint64_t Ind) { return -1; };
   virtual uint64_t GetLineEndPos(uint64_t Ind) { return -1; };
+  virtual void SkipCommentLines() {};
   virtual char* GetLine(uint64_t Ind) { return NULL; };
 public:
   TSIn(): TSBase("Input-Stream"), FastMode(false){}
@@ -406,6 +407,7 @@ private:
   uint64_t GetLineStartPos(uint64_t Ind);
   uint64_t GetLineEndPos(uint64_t Ind);
   char* GetLine(uint64_t Ind);
+  void SkipCommentLines();
 
 public:
   TMIn(const void* _Bf, const int& _BfL, const bool& TakeBf=false);

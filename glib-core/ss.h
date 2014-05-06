@@ -97,6 +97,8 @@ public:
   uint64 GetLineNo() const { return LineCnt; }
   /// Checks whether the current line is a comment (starts with '#').
   bool IsCmt() const { return Len()>0 && GetFld(0)[0] == '#'; }
+  /// Skips lines that begin with a comment character
+  void SkipCommentLines();
   /// Checks for end of file.
   bool Eof() const { return FInPt->Eof(); }
   /// Returns the current line

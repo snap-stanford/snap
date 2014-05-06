@@ -4,16 +4,11 @@
 
 int main(int argc, char** argv){
   //char filename[500] = "/lfs/local/0/arijitb/benchmarks/soc-LiveJournal1.txt";
-  char filename[500] = "/lfs/local/0/arijitb/benchmarks/soc-LiveJournal2.txt";
-  //char filename[500] = "/lfs/local/0/arijitb/benchmarks/twitter_rv.txt";
+  char filename[500] = "/lfs/local/0/arijitb/benchmarks/twitter_rv.txt";
 
   TTableContext Context;
-  Schema S;
-  S.Add(TPair<TStr,TAttrType>("src", atInt));
-  S.Add(TPair<TStr,TAttrType>("dest", atInt));
-  TIntV RelevantCols;
-  RelevantCols.Add(0);
-  RelevantCols.Add(1);
+  Schema S; S.Add(TPair<TStr,TAttrType>("src", atInt)); S.Add(TPair<TStr,TAttrType>("dest", atInt));
+  TIntV RelevantCols; RelevantCols.Add(0); RelevantCols.Add(1);
 
   struct timeval start, end;
   float delta;
