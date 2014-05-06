@@ -222,8 +222,10 @@ namespace TSnap{
 			TStrV& SrcAttrs, TStrV& DstAttrs, TStrV& EdgeAttrs, TAttrAggr AggrPolicy);
 	/// Converts table to a network. Suitable for PNEANet - Assumes no node and edge attributes. 
 	template<class PGraph> PGraph ToNetwork(PTable Table, const TStr& SrcCol, const TStr& DstCol, TAttrAggr AggrPolicy);
+  #ifdef _OPENMP
   template<class PGraphMP> PGraphMP ToGraphMP(PTable Table, const TStr& SrcCol, const TStr& DstCol);
   template<class PGraphMP> PGraphMP ToGraphMP2(PTable Table, const TStr& SrcCol, const TStr& DstCol);
+  #endif // _OPENMP
 }
 
 //#//////////////////////////////////////////////
@@ -239,8 +241,10 @@ public:
 	template<class PGraph> friend PGraph TSnap::ToGraph(PTable Table, const TStr& SrcCol, const TStr& DstCol, TAttrAggr AggrPolicy);
 	template<class PGraph> friend PGraph TSnap::ToNetwork(PTable Table, const TStr& SrcCol, const TStr& DstCol, 
 			TStrV& SrcAttrs, TStrV& DstAttrs, TStrV& EdgeAttrs, TAttrAggr AggrPolicy);
+  #ifdef _OPENMP
   template<class PGraphMP> friend PGraphMP TSnap::ToGraphMP(PTable Table, const TStr& SrcCol, const TStr& DstCol);
   template<class PGraphMP> friend PGraphMP TSnap::ToGraphMP2(PTable Table, const TStr& SrcCol, const TStr& DstCol);
+  #endif // _OPENMP
 
   static void SetMP(TInt Value) { UseMP = Value; }
   static TInt GetMP() { return UseMP; }
@@ -364,8 +368,10 @@ protected:
   /// Groups/hashes by a single column with integer values. ##TTable::GroupByIntCol
   template <class T> void GroupByIntCol(const TStr& GroupBy, T& Grouping, 
     const TIntV& IndexSet, TBool All) const;
+  #ifdef _OPENMP
   /// Groups/hashes by a single column with integer values, using OpenMP multi-threading.
   void GroupByIntColMP(const TStr& GroupBy, THashMP<TInt, TIntV>& Grouping) const;
+  #endif // _OPENMP
   /// Groups/hashes by a single column with float values. Returns hash table with grouping.
   template <class T> void GroupByFltCol(const TStr& GroupBy, T& Grouping, 
     const TIntV& IndexSet, TBool All) const;
@@ -374,8 +380,10 @@ protected:
     const TIntV& IndexSet, TBool All) const;
   /// Template for utility function to update a grouping hash map.
   template <class T> void UpdateGrouping(THash<T,TIntV>& Grouping, T Key, TInt Val) const;
+  #ifdef _OPENMP
   /// Template for utility function to update a parallel grouping hash map.
   template <class T> void UpdateGrouping(THashMP<T,TIntV>& Grouping, T Key, TInt Val) const;
+  #endif // _OPENMP
 
   /***** Utility functions for sorting by columns *****/
   /// Returns positive value if R1 is bigger, negative value if R2 is bigger, and 0 if they are equal (strcmp semantics).
@@ -399,9 +407,11 @@ protected:
   /// Helper function for parallel QSort.
   void Merge(TIntV& V, TInt Idx1, TInt Idx2, TInt Idx3, const TVec<TAttrType>& SortByTypes, 
     const TIntV& SortByIndices, TBool Asc = true);
+  #ifdef _OPENMP
   /// Performs QSort in parallel on given vector \c V.
   void QSortPar(TIntV& V, const TVec<TAttrType>& SortByTypes, const TIntV& SortByIndices, 
     TBool Asc = true);
+  #endif // _OPENMP
 
 /***** Utility functions for removing rows (not through iterator) *****/
   /// Checks if \c RowIdx corresponds to a valid (i.e. not deleted) row.
@@ -437,8 +447,10 @@ protected:
   /// Adds \c NewRows rows from the given vectors for each column type.
   void AddNRows(int NewRows, const TVec<TIntV>& IntColsP, const TVec<TFltV>& FltColsP, 
    const TVec<TIntV>& StrColMapsP);
-  /// Adds rows from T1 and T2 to this table in a parallel manner. Used by JoinMP.
+  #ifdef _OPENMP
+  /// Adds rows from T1 and T2 to this table in a parallel manner. Used by Join.
   void AddNJointRowsMP(const TTable& T1, const TTable& T2, const TVec<TIntPrV>& JointRowIDSet);
+  #endif // _OPENMP
   /// Updates table state after adding one or more rows.
   void UpdateTableForNewRow();
 
@@ -628,7 +640,10 @@ public:
   /// Extracts edge TTable from PNEANet.
   static PTable GetEdgeTable(const PNEANet& Network, const TStr& TableName, TTableContext& Context);
 
+  #ifdef _OPENMP
+  /// Extracts edge TTable from parallel graph PNGraphMP.
   static PTable GetEdgeTablePN(const PNGraphMP& Network, const TStr& TableName, TTableContext& Context);
+  #endif // _OPENMP
 
   /// Extracts node and edge property TTables from THash.
   static PTable GetFltNodePropertyTable(const PNEANet& Network, const TStr& TableName, 
@@ -739,8 +754,10 @@ public:
   /// Helper function for grouping. ##TTable::GroupAux
   void GroupAux(const TStrV& GroupBy, THash<TGroupKey, TPair<TInt, TIntV> >& Grouping, 
    TBool Ordered, const TStr& GroupColName, TBool KeepUnique, TIntV& UniqueVec);
+  #ifdef _OPENMP
   void GroupAuxMP(const TStrV& GroupBy, THashGenericMP<TGroupKey, TPair<TInt, TIntV> >& Grouping, 
    TBool Ordered, const TStr& GroupColName, TBool KeepUnique, TIntV& UniqueVec);
+  #endif // _OPENMP
 
   /// Groups rows depending on values of \c GroupBy columns. ##TTable::Group
   void Group(const TStrV& GroupBy, const TStr& GroupColName, TBool Ordered = true);
@@ -918,7 +935,6 @@ public:
   static TInt GetPivotKeyVal(TIntV& Key, TIntV& Val, TInt Start, TInt End);
   static TInt PartitionKeyVal(TIntV& Key, TIntV& Val, TInt Start, TInt End);
   static void QSortKeyVal(TIntV& Key, TIntV& Val, TInt Start, TInt End);
-  static void PSRSKeyVal(TIntV& Key, TIntV& Val, TInt Start, TInt End);
 
   /// Gets sequence of PageRank tables from given \c GraphSeq.
   static TTableIterator GetMapPageRank(const TVec<PNEANet>& GraphSeq, 
@@ -1084,6 +1100,7 @@ void TTable::UpdateGrouping(THash<T,TIntV>& Grouping, T Key, TInt Val) const{
   }
 }
 
+#ifdef _OPENMP
 template <class T>
 void TTable::UpdateGrouping(THashMP<T,TIntV>& Grouping, T Key, TInt Val) const{
   if (Grouping.IsKey(Key)) {
@@ -1094,6 +1111,7 @@ void TTable::UpdateGrouping(THashMP<T,TIntV>& Grouping, T Key, TInt Val) const{
     Grouping.AddDat(Key, NewGroup);
   }
 }
+#endif // _OPENMP
 
 namespace TSnap {
 

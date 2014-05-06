@@ -176,6 +176,7 @@ PGraph ToNetwork(PTable Table, const TStr& SrcCol, const TStr& DstCol, TAttrAggr
 	return ToNetwork<PNEANet>(Table, SrcCol, DstCol, V, V, V, AggrPolicy);
 }
 
+#ifdef _OPENMP
 template<class PGraphMP>
 PGraphMP ToGraphMP(PTable Table, const TStr& SrcCol, const TStr& DstCol) {
   int MaxThreads = omp_get_max_threads();
@@ -630,6 +631,7 @@ PGraphMP ToGraphMP2(PTable Table, const TStr& SrcCol, const TStr& DstCol) {
 
   return Graph;
 }
+#endif // _OPENMP
 };
 
-#endif //CONV_H
+#endif // CONV_H
