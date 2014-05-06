@@ -3372,6 +3372,9 @@ void TTable::AddNJointRowsMP(const TTable& T1, const TTable& T2, const TVec<TInt
     StartOffsets[i] = JointTableSize;
     JointTableSize += JointRowIDSet[i].Len();
   }
+  if (JointTableSize == 0) {
+    TExcept::Throw("Joint table is empty");
+  }
   //double endOffsets = omp_get_wtime();
   //printf("Offsets time = %f\n",endOffsets-startFn);
   ResizeTable(JointTableSize);
