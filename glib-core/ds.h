@@ -1,5 +1,3 @@
-#include <omp.h>
-
 /////////////////////////////////////////////////
 // Address-Pointer
 template <class TRec>
