@@ -24,6 +24,6 @@ Parameters:
 /////////////////////////////////////////////////////////////////////////////
 Usage:
 
-Run the flow algorithms 200 times over 10 threads on the gplus network.
+Run the flow algorithms 200 times over 10 threads on a small sample network.
 
-flows -i:gplus -n:20 -t:10 
+./flows -i:small_sample -n:20 -t:10 
