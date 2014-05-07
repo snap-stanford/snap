@@ -73,9 +73,7 @@ public:
 /// Writes \c nbytes bytes starting at \c ptr to a file/socket descriptor \c fd.
 extern int WriteN(int fd, char *ptr, int nbytes);
 
-/// Sends the vector contents \c V via a file/socket descriptor \c FileDesc.
-/// Returns the number of bytes sent. If return value is negative, then some system call returned an error.
-/// Note: use int64 in unlikely case that V has more than INT_MAX bytes send.
+/// Sends the vector contents \c V via a file/socket descriptor \c FileDesc. ##SendVec
 template <class TVal, class TSizeTy>
 int64 SendVec(const TVec<TVal, TSizeTy>& V, int FileDesc) {
   int64 l = 0;
@@ -111,15 +109,10 @@ int64 SendVec(const TVec<TVal, TSizeTy>& V, int FileDesc) {
 }
 
 
-/// Sends the segmented vector contents \c V via a file/socket descriptor \c FileDesc.
-/// Returns the number of bytes sent. If return value is negative, then some system call returned an error.
-/// Unfortunately, C++ doesn't have templated typedefs, so we have to deal with this
-/// very nasty TVec of TVec's type. C++11 has alias declarations which can achieve
-/// templated-typedef-like behavior, but SNAP compiles with C++98. One possible alternative
-/// is to create a child class w/ template specialization, but that is not done here.
+/// Sends the segmented vector contents \c V via a file/socket descriptor \c FileDesc. ##SendVec64
 template <class TVal, class TSizeTy>
 int64 SendVec64(const TVec< TVec< TVal, TSizeTy > , TSizeTy >&Vec64, int FileDesc) {
-TSizeTy N =Vec64.Len();
+  TSizeTy N =Vec64.Len();
   int64 l=0;
   int r;
 
