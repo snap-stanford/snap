@@ -1,5 +1,7 @@
 #include "stdafx.h"
+#ifndef NOMP
 #include <omp.h>
+#endif
 
 int BuildCapacityNetwork(const TStr& InFNm, PNEANet &Net, const int& SrcColId = 0, const int& DstColId = 1, const int& CapColId = 2) {
   TSsParser Ss(InFNm, ssfWhiteSep, true, true, true);
@@ -29,7 +31,11 @@ int BuildCapacityNetwork(const TStr& InFNm, PNEANet &Net, const int& SrcColId = 
 double getcputime() {
   struct rusage rusage;
   double result;
+#ifndef NOMP
   getrusage(RUSAGE_THREAD, &rusage);
+#else
+  getrusage(RUSAGE_SELF, &rusage);
+#endif
   result =
     ((double) (rusage.ru_utime.tv_usec + rusage.ru_stime.tv_usec) / 1000000) +
     ((double) (rusage.ru_utime.tv_sec + rusage.ru_stime.tv_sec));
@@ -85,7 +91,9 @@ int main(int argc, char* argv[]) {
       
       #pragma omp critical
       {
+#ifndef NOMP
         printf("Thread: %d\n", omp_get_thread_num());
+#endif
         printf("Source: %d, Sink %d\n", SrcNId, SnkNId);
         printf("Max Flow: %d\n", NetMaxFlowEK);
         printf("PR CPU Time: %f\n", NetPRFlowRunTime);
