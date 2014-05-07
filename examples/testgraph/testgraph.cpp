@@ -12,7 +12,7 @@ int main(int argc, char* argv[]) {
   printf("Creating graph:\n");
   PGraph G = PGraph::TObj::New();
   for (int n = 0; n < 10; n++) {
-    G->AddNode(); // if no parameter is given, edge ids are 0,1,...,9
+    G->AddNode(); // if no parameter is given, node ids are 0,1,...,9
   }
   G->AddEdge(0, 1);
   for (int e = 0; e < 10; e++) {

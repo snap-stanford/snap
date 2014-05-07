@@ -31,6 +31,9 @@ int TGnuPlot::GetTics42() {
   char Buf[1024];
   char Version[1024];
   size_t n;
+
+  printf("running gnuplot\n");
+
   // get gnuplot version
   p = popen(TStr::Fmt("%s -V", TGnuPlot::GnuPlotFNm.CStr()).CStr(), "r");
   if (p == NULL) { // try running using the path
@@ -56,7 +59,7 @@ int TGnuPlot::GetTics42() {
 #endif
 }
 
-int TGnuPlot::Tics42 = TGnuPlot::GetTics42();
+int TGnuPlot::Tics42 = -2;
 TStr TGnuPlot::DefPlotFNm = "GnuPlot.plt";
 TStr TGnuPlot::DefDataFNm = "GnuPlot.tab";
 
@@ -842,6 +845,9 @@ void TGnuPlot::CreatePlotFile(const TStr& Comment) {
   if (YRange.Val1 != YRange.Val2) fprintf(F, "set yrange [%g:%g]\n", YRange.Val1(), YRange.Val2());
   if (! LblX.Empty()) fprintf(F, "set xlabel \"%s\"\n", LblX.CStr());
   if (! LblY.Empty()) fprintf(F, "set ylabel \"%s\"\n", LblY.CStr());
+  if (Tics42 < -1) {
+    Tics42 = GetTics42();
+  }
   if (Tics42) {
     fprintf(F, "set tics scale 2\n"); // New in version 4.2
   } else {
