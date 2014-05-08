@@ -1899,6 +1899,8 @@ public:
   }
   /// Returns an ID that is larger than any node ID in the network.
   int GetMxNId() const { return MxNId; }
+  /// Returns an ID that is larger than any edge ID in the network.
+  int GetMxEId() const { return MxEId; }
 
   /// Returns the number of edges in the graph.
   int GetEdges() const { return EdgeH.Len(); }
@@ -1981,12 +1983,19 @@ public:
   /// Gets the value of int attr from the node attr value vector.
   TInt GetIntAttrDatN(const TNodeI& NodeId, const TStr& attr) { return GetIntAttrDatN(NodeId.GetId(), attr); }
   TInt GetIntAttrDatN(const int& NId, const TStr& attr);
+
   /// Gets the value of str attr from the node attr value vector.
   TStr GetStrAttrDatN(const TNodeI& NodeId, const TStr& attr) { return GetStrAttrDatN(NodeId.GetId(), attr); }
   TStr GetStrAttrDatN(const int& NId, const TStr& attr);
   /// Gets the value of flt attr from the node attr value vector.
   TFlt GetFltAttrDatN(const TNodeI& NodeId, const TStr& attr) { return GetFltAttrDatN(NodeId.GetId(), attr); }
   TFlt GetFltAttrDatN(const int& NId, const TStr& attr);
+
+  /// Gets the index of the node attr value vector specified by str attr.
+  int GetIntAttrIndN(const TStr& attr);
+  /// Gets the value of int attr from the node attr value vector
+  TInt &GetIntAttrDatN(const TNodeI& NodeId, const int& index) { return GetIntAttrDatN(NodeId.GetId(), index); }
+  TInt &GetIntAttrDatN(const int& NId, const int& index);
 
   /// Gets the value of int attr from the edge attr value vector.
   TInt GetIntAttrDatE(const TEdgeI& EdgeId, const TStr& attr) { return GetIntAttrDatE(EdgeId.GetId(), attr); }
@@ -1997,6 +2006,12 @@ public:
   /// Gets the value of flt attr from the edge attr value vector.
   TFlt GetFltAttrDatE(const TEdgeI& EdgeId, const TStr& attr) { return GetFltAttrDatE(EdgeId.GetId(), attr); }
   TFlt GetFltAttrDatE(const int& EId, const TStr& attr);
+
+  /// Gets the index of the edge attr value vector specified by str attr.
+  int GetIntAttrIndE(const TStr& attr);
+  /// Gets the value of int attr from the edge attr value vector
+  TInt &GetIntAttrDatE(const TEdgeI& EdgeId, const int &index) { return GetIntAttrDatE(EdgeId.GetId(), index); }
+  TInt &GetIntAttrDatE(const int& EId, const int& index);
  
   /// Deletes the node attribute for NodeId.
   int DelAttrDatN(const TNodeI& NodeId, const TStr& attr) { return DelAttrDatN(NodeId.GetId(), attr); } 

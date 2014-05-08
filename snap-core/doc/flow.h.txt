@@ -1,0 +1,10 @@
+/// TSnap::GetMaxFlowIntEK
+Implements max flow using the Edmonds-Karp algorithm. http://en.wikipedia.org/wiki/Edmonds%E2%80%93Karp_algorithm
+Although the asymptotic run time of Edmonds-Karp is worse than that of Push Relabel, in practice Edmonds Karp works very well, especially if the network is sparse.
+Unless the degree of each node is on the order of the number of nodes, it is best to use Edmonds Karp over Push Relabel.
+///
+
+/// TSnap::GetMaxFlowIntPR
+Implements max flow using the Push-Relabel algorithm. http://en.wikipedia.org/wiki/Push%E2%80%93relabel_maximum_flow_algorithm
+The Global Relabel and Gap Relabel heuristics were also implemented to speed up the algorithm. http://link.springer.com/article/10.1007%2FPL00009180
+///

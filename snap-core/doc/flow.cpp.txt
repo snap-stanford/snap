@@ -1,0 +1,43 @@
+/// TSnap::IntFlowBiDBFS
+Bidirectional BFS for finding an augmenting path between the source and sink nodes.
+@param FwdNodeQ: Queue of NIds for the forward search from the source node.
+@param PredEdgeH: Hash from a NId to EId in the forward search. Indicates which edge was traversed to reach the node,
+                  allowing for tracing the eventual path back to the source.
+@param BwdNodeQ: Queue of NIds for the backward search from the sink node.
+@param SuccEdgeH: Hash from a NId to EId in the backward search. Indicates which edge was traversed to reach the node,                   
+                  allowing for tracing the eventual path back to the sink.
+///
+
+/// TSnap::FindAugV
+Find the augmenting path. Calls bidirectional BFS to find the path, and then builds the two path vectors.
+@param MidToSrcAugV: Contains the path vector from the midpoint node where the bi-d search met back to the source node.
+@param MidToSnkAugV: Contains the path vector from the midpoint node where the bi-d search met back to the sink node.
+///
+
+/// PR_Manager
+Flow algorithms require 2 attributes to be defined on each edge:
+   Capacity: The maximum amount of flow over the edge.
+   Flow: The current amount of flow over the edge.
+Push Relabel requires 3 attributes to be defined on each node: 
+   Label: An estimate of the distance from this node to the sink. Push Relabel pushes flow from nodes of higher labels to those of lower labels.
+   Excess: Sum of flows into the node minus sum of flows leaving the nodes. Push Relabel finds nodes with positive excess and pushes flow out of them. These values will never be negative.
+   EdgeNum: Push Relabel needs to cycle through the edges of a node; this attribute keeps track of which edge the cycle is at.
+The TPRManager class keeps maintains all of these attributes over the course of the algorithm, mostly to make the code easier to understand.
+It also maintains a queue of active nodes, which are nodes with positive excess and label < N, where N is the number of nodes.
+Each iteration of the Push Relabel algorithm pops an active node form the queue and tries to push flow from it. 
+The current implementation of the active queue is a FIFO queue. A highest label first scheme for the active queue is also very common.
+///
+
+/// TPRManager::CheckGap
+This method implements the gap heuristic. During the algorithm, if some label L no longer has any nodes of that label, 
+but there are nodes with labels K > L, then all of these nodes with labels K > L will not be able to push.
+Mark these nodes to no longer participate in pushing flow by setting their label to N, where N is the number of nodes.
+///
+
+/// TSnap::GlobalRelabel
+Since labels reflect an estimate of the distance from a node to the sink node, every now and then the Global Relabel heuristic will be run.
+This BFS over the residual network starting from the sink and updates each nodes label as the distance to the sink.
+Unreacheable nodes from the sink have their labels set to N, where N is the number of nodes.
+///
+
+

@@ -45,7 +45,8 @@ private:
       return SeriesV[Left] > SeriesV[Right]; }
   };
 private:
-  static int Tics42;        // 1 - "set ticks", 0 - "set ticscale", -1 - unknown
+  static int Tics42;        // 1 - "set ticks", 0 - "set ticscale"
+                            // -1 - unknown, -2 - not initialized
   TStr DataFNm, PlotFNm;
   TStr Title, LblX, LblY;
   TGpScaleTy ScaleTy;
