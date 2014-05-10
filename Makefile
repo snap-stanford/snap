@@ -11,7 +11,7 @@ MakeAll:
 	$(MAKE) -C examples
 
 TestAll:
-	$(MAKE) -C test run
+	$(MAKE) run -C test
 
 clean:
 	$(MAKE) clean -C snap-core
