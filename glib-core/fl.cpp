@@ -610,8 +610,8 @@ PSIn TMIn::New(const TStr& Str){
   return PSIn(new TMIn(Str));
 }
 
-PSIn TMIn::New(const TStr& FNm, int val){
-  return PSIn(new TMIn(FNm, val));
+PMIn TMIn::New(const TStr& FNm, int val){
+  return new TMIn(FNm, val);
 }
 
 PSIn TMIn::New(const TChA& ChA){
@@ -781,20 +781,6 @@ uint64_t TMIn::GetLineEndPos(uint64_t Ind) {
 
 char* TMIn::GetLine(uint64_t Index) {
   return &Bf[Index];
-  uint64_t OldIndex = Index;
-  while (Index < BfL && Bf[Index] != '\n') {
-    Index++;
-  }
-  char *s = (char *)malloc(Index - OldIndex + 1);
-  for (uint64_t i = 0; i < Index - OldIndex; i++) {
-    s[i] = Bf[OldIndex + i];
-  }
-  //strncpy(s, &Bf[OldIndex], Index - OldIndex);
-  s[Index - OldIndex] = 0;
-  return s;
-  //LineChA.AddBf(&Bf[OldIndex],Index-OldIndex);
-  //LineStr = LineChA;
-  //return LineStr.CStr();
 }
 
 void TMIn::SkipCommentLines() {

@@ -317,7 +317,7 @@ PTable TTable::LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm,
 
   TVec<uint64_t> IntGroupByCols;
 
-  TSsParser Ss(InFNm, Separator);
+  TSsParserMP Ss(InFNm, Separator);
   Ss.SkipCommentLines();
 
   Schema SR;
@@ -423,8 +423,7 @@ PTable TTable::LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm,
 
     for (uint64_t k = 0; k < (uint64_t) LineStartPosV.Len(); k++) {
       TVec<char*> FieldsV;
-      char *orig;
-      Ss.NextFromIndex(LineStartPosV[k], FieldsV, orig);
+      Ss.NextFromIndex(LineStartPosV[k], FieldsV);
       if (FieldsV.Len() != S.Len()) {
         TExcept::Throw("Error reading tsv file");
       }

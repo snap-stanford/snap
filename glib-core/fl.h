@@ -62,14 +62,14 @@ private:
   TSIn(const TSIn&);
   TSIn& operator=(const TSIn&);
 public:
-  virtual void SetBfC(uint64_t Pos) {};
-  virtual uint64_t GetBfC() { return -1; };
-  virtual uint64_t GetBfL() { return -1; };
-  virtual uint64_t CountNewLinesInRange(uint64_t, uint64_t) { return -1; };
-  virtual uint64_t GetLineStartPos(uint64_t Ind) { return -1; };
-  virtual uint64_t GetLineEndPos(uint64_t Ind) { return -1; };
-  virtual void SkipCommentLines() {};
-  virtual char* GetLine(uint64_t Ind) { return NULL; };
+  //virtual void SetBfC(uint64_t Pos) {};
+  //virtual uint64_t GetBfC() { return -1; };
+  //virtual uint64_t GetBfL() { return -1; };
+  //virtual uint64_t CountNewLinesInRange(uint64_t, uint64_t) { return -1; };
+  //virtual uint64_t GetLineStartPos(uint64_t Ind) { return -1; };
+  //virtual uint64_t GetLineEndPos(uint64_t Ind) { return -1; };
+  //virtual void SkipCommentLines() {};
+  //virtual char* GetLine(uint64_t Ind) { return NULL; };
 public:
   TSIn(): TSBase("Input-Stream"), FastMode(false){}
   TSIn(const TStr& Str);
@@ -400,15 +400,6 @@ private:
   TMIn& operator=(const TMIn&);
 private:
   int FindEol(uint64_t& BfN, bool& CrEnd);
-  uint64_t GetBfC();
-  uint64_t GetBfL();
-  void SetBfC(uint64_t Pos);
-  uint64_t CountNewLinesInRange(uint64_t Lb, uint64_t Ub);
-  uint64_t GetLineStartPos(uint64_t Ind);
-  uint64_t GetLineEndPos(uint64_t Ind);
-  char* GetLine(uint64_t Ind);
-  void SkipCommentLines();
-
 public:
   TMIn(const void* _Bf, const int& _BfL, const bool& TakeBf=false);
   TMIn(TSIn& SIn);
@@ -419,8 +410,8 @@ public:
   static PSIn New(const void* _Bf, const int& _BfL, const bool& TakeBf=false);
   static PSIn New(const char* CStr);
   static PSIn New(const TStr& Str);
-  static PSIn New(const TStr& Str, int);
   static PSIn New(const TChA& ChA);
+  static TPt<TMIn> New(const TStr& Str, int);
 
   ~TMIn();
   //~TMIn(){
@@ -436,8 +427,21 @@ public:
   void Reset(){Cs=TCs(); BfC=0;}
   bool GetNextLnBf(TChA& LnChA);
 
+  uint64_t GetBfC();
+  uint64_t GetBfL();
+  void SetBfC(uint64_t Pos);
+  uint64_t CountNewLinesInRange(uint64_t Lb, uint64_t Ub);
+  uint64_t GetLineStartPos(uint64_t Ind);
+  uint64_t GetLineEndPos(uint64_t Ind);
+  char* GetLine(uint64_t Ind);
+  void SkipCommentLines();
+
   char* GetBfAddr(){return Bf;}
+
+  friend class TPt<TMIn>;
 };
+
+typedef TPt<TMIn> PMIn;
 
 /////////////////////////////////////////////////
 // Output-Memory
