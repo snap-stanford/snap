@@ -3,9 +3,13 @@
 
 namespace TSnap {
 	/// Converts TIntV to Numpy array.
-	void TIntVToNumpy(TIntV& IntV, int* IntNumpyVec, int n);
+	void TIntVToNumpy(TIntV& IntV, nt* IntNumpyVecOut, int n);
 	/// Converts TFltV to Numpy array.
-	void TFltVToNumpy(TFltV& FltV, float* FltNumpyVec, int n);
+	void TFltVToNumpy(TFltV& FltV, float* FltNumpyVecOut, int n);
+	/// Converts NumpyArray to TIntV
+	void NumpyToTIntV(TIntV& IntV, int* IntNumpyVecIn, int n);
+	/// Converts NumpyArray to TFltV
+	void NumpyToTFltV(TFltV& FltV, float* FltNumpyVecIn, int n);
 }
 
 #endif
