@@ -100,6 +100,7 @@ template<class PGraph>
   static void LoadNIDAttrHFromNIDKH(const TIntV& NIDV, const TStr& InFNm, THash<TInt, TIntV>& NIDAttrH, const TStrHash<TInt>& NodeNameH, const TSsFmt Sep = ssfTabSep) {
     NIDAttrH.Clr();
     NIDAttrH.Gen(NIDV.Len());
+    printf("nodes in the graph:%d\n", NIDV.Len());
     for (int u = 0; u < NIDV.Len(); u++) { NIDAttrH.AddDat(NIDV[u]).Gen(0, 0); }
     TSsParser Ss(InFNm, ssfTabSep);
     while (Ss.Next()) {
@@ -110,7 +111,9 @@ template<class PGraph>
         IAssertR(NodeNameH.IsKey(NodeName), TStr::Fmt("NodeName:%s", NodeName.CStr())); 
         NID = NodeNameH.GetKeyId(NodeName);
       }
-      if (! NIDAttrH.IsKey(NID)) { continue; } //ignore nodes who are not in the graph
+      if (! NIDAttrH.IsKey(NID)) { 
+        //printf("NodeName %s, NID %d does not exist\n", NodeName.CStr(), NID);
+        continue; } //ignore nodes who are not in the graph
       IAssertR(! NIDAttrH.GetDat(NID).IsIn(Ss.GetInt(1)), TStr::Fmt("NIdx:%d NID:%s, K:%d", NID.Val, NodeName.CStr(), Ss.GetInt(1)));
       NIDAttrH.GetDat(NID).Add(Ss.GetInt(1));
     }
