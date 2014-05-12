@@ -3,7 +3,7 @@
 
 namespace TSnap {
 	/// Converts TIntV to Numpy array.
-	void TIntVToNumpy(TIntV& IntV, nt* IntNumpyVecOut, int n);
+	void TIntVToNumpy(TIntV& IntV, int* IntNumpyVecOut, int n);
 	/// Converts TFltV to Numpy array.
 	void TFltVToNumpy(TFltV& FltV, float* FltNumpyVecOut, int n);
 	/// Converts NumpyArray to TIntV
