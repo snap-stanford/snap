@@ -8,6 +8,10 @@ int main(int argc, char** argv){
   //char filename[500] = "/lfs/local/0/arijitb/benchmarks/soc-LiveJournal1.txt";
   //char filename[500] = "/lfs/local/0/arijitb/benchmarks/soc-LiveJournal3.txt";
   char filename[500] = "/lfs/local/0/arijitb/benchmarks/twitter_rv.txt";
+  int expected, sum = 0;
+
+  //expected = 795518540;   // LJ
+  expected = -550450634;  // Twitter
 
   TTableContext Context;
   Schema S; S.Add(TPair<TStr,TAttrType>("src", atInt)); S.Add(TPair<TStr,TAttrType>("dest", atInt));
@@ -28,6 +32,13 @@ int main(int argc, char** argv){
   delta = ((end.tv_sec  - start.tv_sec) * 1000000u + 
             end.tv_usec - start.tv_usec) / 1.e6;
   printf("Load time (elapsed): %f, cpu: %f\n", delta, Profiler.GetTimerSec(TimerId));
+
+  for (int i = 0; i < Q->GetNumRows(); i++) {
+    sum += Q->GetIntVal2(0, i) * 2 + Q->GetIntVal2(1, i) * 3;
+  }
+
+  printf("expected: %d, actual: %d\n", expected, sum);
+
 
   return 0;
 }

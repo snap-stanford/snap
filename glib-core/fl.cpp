@@ -588,7 +588,6 @@ TMIn::TMIn(const TStr& Str, bool FromFile):
       Bf = mapped;
       BfC = 0;
       BfL = FLen;
-      printf ("mapped\n");
     }
     IsMemoryMapped = true;
   }
