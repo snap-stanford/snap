@@ -492,12 +492,11 @@ const char* TSsParser::DumpStr() const {
 
 TSsParserMP::TSsParserMP(const TStr& FNm, const char& Separator, const bool& _SkipLeadBlanks, const bool& _SkipCmt, const bool& _SkipEmptyFld) : SsFmt(ssfSpaceSep), 
  SkipLeadBlanks(_SkipLeadBlanks), SkipCmt(_SkipCmt), SkipEmptyFld(_SkipEmptyFld), LineCnt(0), /*Bf(NULL),*/ SplitCh('\t'), LineStr(), FldV(), FInPt(NULL) {
-  FInPt = TMIn::New(FNm, 0); 
+  FInPt = TMIn::New(FNm, true);
   SplitCh = Separator;
 }
 
 TSsParserMP::~TSsParserMP() {
-  //if (Bf != NULL) { delete [] Bf; }
 }
 
 void TSsParserMP::SkipCommentLines() {

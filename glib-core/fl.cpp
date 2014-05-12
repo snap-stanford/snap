@@ -528,8 +528,8 @@ TStr TFInOut::GetFNm() const {
 
 /////////////////////////////////////////////////
 // Input-Memory
-TMIn::TMIn(const void* _Bf, const int& _BfL, const bool& TakeBf):
-  TSBase("Input-Memory"), TSIn("Input-Memory"), Bf(NULL), BfC(0), BfL(_BfL){
+TMIn::TMIn(const void* _Bf, const uint64_t& _BfL, const bool& TakeBf):
+  TSBase("Input-Memory"), TSIn("Input-Memory"), Bf(NULL), BfC(0), BfL(_BfL), IsMemoryMapped(false){
   if (TakeBf){
     Bf=(char*)_Bf;
   } else {
@@ -538,67 +538,68 @@ TMIn::TMIn(const void* _Bf, const int& _BfL, const bool& TakeBf):
 }
 
 TMIn::TMIn(TSIn& SIn):
-  TSBase("Input-Memory"), TSIn("Input-Memory"), Bf(NULL), BfC(0), BfL(0){
+  TSBase("Input-Memory"), TSIn("Input-Memory"), Bf(NULL), BfC(0), BfL(0), IsMemoryMapped(false){
   BfL=SIn.Len(); Bf=new char[BfL];
   for (uint64_t BfC=0; BfC<BfL; BfC++){Bf[BfC]=SIn.GetCh();}
 }
 
 TMIn::TMIn(const char* CStr):
-  TSBase("Input-Memory"), TSIn("Input-Memory"), Bf(NULL), BfC(0), BfL(0){
-  BfL=int(strlen(CStr)); Bf=new char[BfL+1]; strcpy(Bf, CStr);
+  TSBase("Input-Memory"), TSIn("Input-Memory"), Bf(NULL), BfC(0), BfL(0), IsMemoryMapped(false){
+  BfL=uint64_t(strlen(CStr)); Bf=new char[BfL+1]; strcpy(Bf, CStr);
 }
 
-TMIn::TMIn(const TStr& Str):
+// assumes that we can use mmap call if FromFile is true
+TMIn::TMIn(const TStr& Str, bool FromFile):
   TSBase("Input-Memory"), TSIn("Input-Memory"), Bf(NULL), BfC(0), BfL(0){
-  BfL=Str.Len(); Bf=new char[BfL]; strncpy(Bf, Str.CStr(), BfL);
-}
-
-TMIn::TMIn(const TStr& FNm, int val):
-  TSBase("Input-Memory"), TSIn("Input-Memory"), Bf(NULL), BfC(0), BfL(0){
-  TFileId FileId;
-  int fd;
-  uint64_t FLen;
-  EAssertR(!FNm.Empty(), "Empty file-name.");
-  FileId=fopen(FNm.CStr(), "rb");
-  fd = fileno(FileId);
-
-  EAssertR(FileId!=NULL, "Can not open file '"+FNm+"'.");
-
-  EAssertR(
-   fseek(FileId, 0, SEEK_END)==0,
-   "Error seeking into file '"+TStr(FNm)+"'.");
-  FLen=(uint64_t)ftell(FileId);
-  EAssertR(
-   fseek(FileId, 0, SEEK_SET)==0,
-   "Error seeking into file '"+TStr(FNm)+"'.");
-
-
-  //Bf=new char[FLen];
-  //BfL=int(fread(Bf, 1, FLen, FileId));
-  //BfC=0;
-
-  char *mapped;
-  mapped = (char *) mmap (0, FLen, PROT_READ, MAP_PRIVATE, fd, 0);
-
-  if (mapped == MAP_FAILED) {
-    printf("mmap failed: %d %s\n", fd, strerror (errno));
+  if (FromFile == false) {
+    BfL=Str.Len(); Bf=new char[BfL]; strncpy(Bf, Str.CStr(), BfL);
+    IsMemoryMapped = false;
   }
+  else {
+    TStr FNm = Str;
+    TFileId FileId;
+    int fd;
+    uint64_t FLen;
+    EAssertR(!FNm.Empty(), "Empty file-name.");
+    FileId=fopen(FNm.CStr(), "rb");
+    fd = fileno(FileId);
 
-  Bf = mapped;
-  BfC = 0;
-  BfL = FLen;
+    EAssertR(FileId!=NULL, "Can not open file '"+FNm+"'.");
 
-  printf("%llu %llu %llu\n", (unsigned long long) FLen, 
-    (unsigned long long) BfC, 
-    (unsigned long long) BfL);
+    EAssertR(
+        fseek(FileId, 0, SEEK_END)==0,
+        "Error seeking into file '"+TStr(FNm)+"'.");
+    FLen=(uint64_t)ftell(FileId);
+    EAssertR(
+        fseek(FileId, 0, SEEK_SET)==0,
+        "Error seeking into file '"+TStr(FNm)+"'.");
+
+    // memory map contents of file
+    char *mapped;
+    mapped = (char *) mmap (0, FLen, PROT_READ, MAP_PRIVATE, fd, 0);
+    IsMemoryMapped = true;
+
+    if (mapped == MAP_FAILED) {
+      printf("mmap failed: %d %s\n", fd, strerror (errno));
+      Bf = NULL;
+      BfC = BfL = 0;
+    }
+    else {
+      Bf = mapped;
+      BfC = 0;
+      BfL = FLen;
+      printf ("mapped\n");
+    }
+    IsMemoryMapped = true;
+  }
 }
 
 TMIn::TMIn(const TChA& ChA):
-  TSBase("Input-Memory"), TSIn("Input-Memory"), Bf(NULL), BfC(0), BfL(0){
+  TSBase("Input-Memory"), TSIn("Input-Memory"), Bf(NULL), BfC(0), BfL(0), IsMemoryMapped(false){
   BfL=ChA.Len(); Bf=new char[BfL]; strncpy(Bf, ChA.CStr(), BfL);
 }
 
-PSIn TMIn::New(const void* _Bf, const int& _BfL, const bool& TakeBf){
+PSIn TMIn::New(const void* _Bf, const uint64_t& _BfL, const bool& TakeBf){
   return PSIn(new TMIn(_Bf, _BfL, TakeBf));
 }
 
@@ -610,8 +611,8 @@ PSIn TMIn::New(const TStr& Str){
   return PSIn(new TMIn(Str));
 }
 
-PMIn TMIn::New(const TStr& FNm, int val){
-  return new TMIn(FNm, val);
+PMIn TMIn::New(const TStr& Str, bool FromFile){
+  return new TMIn(Str, FromFile);
 }
 
 PSIn TMIn::New(const TChA& ChA){
@@ -620,7 +621,12 @@ PSIn TMIn::New(const TChA& ChA){
 
 TMIn::~TMIn(){
   if (Bf!=NULL){
-    munmap(Bf, BfL);
+    if (IsMemoryMapped) {
+      munmap(Bf, BfL);
+    }
+    else {
+      delete[] Bf;
+    }
   }
 }
 
@@ -687,52 +693,9 @@ int TMIn::FindEol(uint64_t& BfN, bool& CrEnd) {
 }
 
 bool TMIn::GetNextLnBf(TChA& LnChA){
-  int Status;
-  uint64_t BfN;        // new pointer to the end of line
-  uint64_t BfP;        // previous pointer to the line start
-  bool CrEnd;     // last character in previous buffer was CR
-
-  LnChA.Clr();
-
-  CrEnd = false;
-  do {
-    if (BfC >= BfL) {
-      // reset the current pointer, FindEol() will read a new buffer
-      BfP = 0;
-    } else {
-      BfP = BfC;
-    }
-    Status = FindEol(BfN,CrEnd);
-    if (Status >= 0) {
-      if (BfN-BfP > 0) {
-        LnChA.AddBf(&Bf[BfP],BfN-BfP);
-      }
-      if (Status == 1) {
-        // got a complete line
-        return true;
-      }
-    }
-    // get more data, if the line is incomplete
-  } while (Status == 0);
-
-  // eof or the last line has no newline
-  return !LnChA.Empty();
-
-  //int Status;
-  //int BfN;        // new pointer to the end of line
-  //bool CrEnd;     // last character in previous buffer was CR
-
-  //LnChA.Clr();
-
-  //CrEnd = false;
-  //Status = FindEol(BfN,CrEnd);
-  //if (Status == 0) {
-  //    LnChA.AddBf(&Bf[BfC],BfN-BfC);
-  //    return true;
-  //}
-
-  //// eof or the last line has no newline
-  //return false;
+  // not implemented
+  FailR(TStr::Fmt("TMIn::GetNextLnBf: not implemented").CStr());
+  return false;
 }
 
 uint64_t TMIn::GetBfC() {
@@ -747,7 +710,6 @@ void TMIn::SetBfC(uint64_t Pos) {
   BfC = Pos;
 }
 
-// Finds number of new line chars in interval [Lb, Ub)
 // Assumes that lines end in '\n'
 uint64_t TMIn::CountNewLinesInRange(uint64_t Lb, uint64_t Ub) {
   uint64_t Cnt = 0;
@@ -762,7 +724,6 @@ uint64_t TMIn::CountNewLinesInRange(uint64_t Lb, uint64_t Ub) {
   return Cnt;
 }
 
-// Finds beginning of line in which Ind is present
 uint64_t TMIn::GetLineStartPos(uint64_t Ind) {
   while (Ind > 0 && Bf[Ind-1] != '\n') {
     Ind--;
@@ -770,7 +731,6 @@ uint64_t TMIn::GetLineStartPos(uint64_t Ind) {
   return Ind;
 }
 
-// Finds end of line in which Ind is present
 uint64_t TMIn::GetLineEndPos(uint64_t Ind) {
   while (Ind < BfL && Bf[Ind] != '\n') {
     Ind++;
