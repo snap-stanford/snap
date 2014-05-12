@@ -42,7 +42,6 @@ void TCesna::NeighborComInit(TFltIntPrV& NIdPhiV, const int InitComs) {
   F.Gen(G->GetNodes());
   SumFV.Gen(InitComs);
   NumComs = InitComs;
-  const int Edges = G->GetEdges();
   TIntSet InvalidNIDS(F.Len());
   TIntV ChosenNIDV(InitComs, 0); //FOR DEBUG
   //choose nodes with local minimum in conductance
@@ -700,7 +699,7 @@ int TCesna::MLEGradAscentParallel(const double& Thres, const int& MaxIter, const
     for (int i = 0; i < NIDOPTV.Len(); i++) { if (NIDOPTV[i] == 1) { OPTCnt++; } }
     // fit W (logistic regression)
     if (! PlotNm.Empty()) {
-      printf("\r%d iterations [%s] %lu secs", iter * ChunkSize * ChunkNum, ExeTm.GetTmStr(), TSecTm::GetCurTm().GetAbsSecs() - StartTm);
+      printf("\r%d iterations [%s] %s secs", iter * ChunkSize * ChunkNum, ExeTm.GetTmStr(), TUInt64::GetStr(TSecTm::GetCurTm().GetAbsSecs()-StartTm).CStr());
       if (PrevL > TFlt::Mn) { printf(" (%f) %d g %d s %d OPT", PrevL, NumNoChangeGrad, NumNoChangeStepSize, OPTCnt); }
       fflush(stdout);
     }
@@ -732,7 +731,7 @@ int TCesna::MLEGradAscentParallel(const double& Thres, const int& MaxIter, const
     }
   }
   if (! PlotNm.Empty()) {
-    printf("\nMLE completed with %d iterations(%lu secs)\n", iter, TSecTm::GetCurTm().GetAbsSecs() - StartTm);
+    printf("\nMLE completed with %d iterations(%s secs)\n", iter, TUInt64::GetStr(TSecTm::GetCurTm().GetAbsSecs()-StartTm).CStr());
     TGnuPlot::PlotValV(IterLV, PlotNm + ".likelihood_Q");
   } else {
     printf("\rMLE completed with %d iterations(%lu secs)", iter, time(NULL) - InitTime);

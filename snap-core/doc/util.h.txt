@@ -1,0 +1,10 @@
+/// SendVec
+Returns the number of bytes sent. If return value is negative, then some
+system call returned an error.
+///
+
+/// SendVec64
+Returns the number of bytes sent. If return value is negative, then some
+system call returned an error.
+///
+

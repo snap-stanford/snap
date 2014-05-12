@@ -912,6 +912,7 @@ void TTable::GroupingSanityCheck(const TStr& GroupBy, const TAttrType& AttrType)
   }
 }
 
+#ifdef _OPENMP
 void TTable::GroupByIntColMP(const TStr& GroupBy, THashMP<TInt, TIntV>& Grouping) const {
   //double startFn = omp_get_wtime();
   GroupingSanityCheck(GroupBy, atInt);
@@ -938,6 +939,7 @@ void TTable::GroupByIntColMP(const TStr& GroupBy, THashMP<TInt, TIntV>& Grouping
   //double endAdd = omp_get_wtime();
   //printf("Add time = %f\n", endAdd-endGen);
 }
+#endif // _OPENMP
 
 void TTable::Unique(const TStr& Col) {
   TIntV RemainingRows;
@@ -1099,6 +1101,7 @@ void TTable::GroupAux(const TStrV& GroupBy, THash<TGroupKey, TPair<TInt, TIntV> 
 }
 
 // Core crouping logic.
+#ifdef _OPENMP
 void TTable::GroupAuxMP(const TStrV& GroupBy, THashGenericMP<TGroupKey, TPair<TInt, TIntV> >& Grouping, 
  TBool Ordered, const TStr& GroupColName, TBool KeepUnique, TIntV& UniqueVec) {
   //double startFn = omp_get_wtime();
@@ -1220,6 +1223,7 @@ void TTable::GroupAuxMP(const TStrV& GroupBy, THashGenericMP<TGroupKey, TPair<TI
   //double endStore = omp_get_wtime();
   //printf("Store time = %f\n", endStore-endMapping);
 }
+#endif // _OPENMP
 
 // grouping begins here
 void TTable::Group(const TStrV& GroupBy, const TStr& GroupColName, TBool Ordered) {
@@ -1683,11 +1687,12 @@ PTable TTable::SelfSimJoinPerGroup(const TStr& GroupAttr, const TStr& SimCol, co
 	JointTable->FltCols = TVec<TFltV>(1);
 
 	for(TInt i=0;i<2;i++){
-		TStr CName = "GroupId_" + (i+1);
-		TPair<TAttrType, TInt> Group(atInt, (int)i);
-		JointTable->ColTypeMap.AddDat(CName, Group);
-		JointTable->AddSchemaCol(CName, atInt);
-	}
+    TInt Suffix = i+1;
+    TStr CName = "GroupId_" + Suffix.GetStr();
+    TPair<TAttrType, TInt> Group(atInt, (int)i);
+    JointTable->ColTypeMap.AddDat(CName, Group);
+    JointTable->AddSchemaCol(CName, atInt);
+  }
 
 	TPair<TAttrType, TInt> Group(atFlt, 0);
 	JointTable->ColTypeMap.AddDat(DistanceColName, Group);
@@ -2487,6 +2492,7 @@ void TTable::Merge(TIntV& V, TInt Idx1, TInt Idx2, TInt Idx3, const TVec<TAttrTy
   }
 }
 
+#ifdef _OPENMP
 void TTable::QSortPar(TIntV& V, const TVec<TAttrType>& SortByTypes, const TIntV& SortByIndices, TBool Asc) {
   TInt NumThreads = 8;
   TInt Sz = V.Len();
@@ -2519,6 +2525,7 @@ void TTable::QSortPar(TIntV& V, const TVec<TAttrType>& SortByTypes, const TIntV&
     NumThreads = NumThreads / 2;
   }
 }
+#endif // _OPENMP
 
 void TTable::Order(const TStrV& OrderBy, TStr OrderColName, TBool ResetRankByMSC, TBool Asc) {
   // get a vector of all valid row indices
@@ -3071,6 +3078,7 @@ PTable TTable::GetEdgeTable(const PNEANet& Network, const TStr& TableName, TTabl
   return T;
 }
 
+#ifdef _OPENMP
 PTable TTable::GetEdgeTablePN(const PNGraphMP& Network, const TStr& TableName, TTableContext& Context){
   Schema SR;
   SR.Add(TPair<TStr,TAttrType>("src_id",atInt));
@@ -3104,9 +3112,7 @@ PTable TTable::GetEdgeTablePN(const PNGraphMP& Network, const TStr& TableName, T
   PartitionSizes.Add(currCount);
 
   T->ResizeTable(NumEdges);
-  #ifdef _OPENMP
   #pragma omp parallel for schedule(dynamic, CHUNKS_PER_THREAD)
-  #endif
   for (int p = 0; p < Partitions.Len(); p++) {
     TNGraphMP::TEdgeI EdgeI = Partitions[p].GetVal1();
     TNGraphMP::TEdgeI EndI = Partitions[p].GetVal2();
@@ -3124,6 +3130,7 @@ PTable TTable::GetEdgeTablePN(const PNGraphMP& Network, const TStr& TableName, T
   Assert(T->NumRows == NumEdges);
   return T;
 }
+#endif // _OPENMP
 
 PTable TTable::GetFltNodePropertyTable(const PNEANet& Network, const TStr& TableName,
   const TIntFltH& Property, const TStr& NodeAttrName, const TAttrType& NodeAttrType,
@@ -3543,6 +3550,7 @@ void TTable::AddNRows(int NewRows, const TVec<TIntV>& IntColsP, const TVec<TFltV
   }
 }
 
+#ifdef _OPENMP
 void TTable::AddNJointRowsMP(const TTable& T1, const TTable& T2, const TVec<TIntPrV>& JointRowIDSet) {
   //double startFn = omp_get_wtime();
   int JointTableSize = 0;
@@ -3550,6 +3558,9 @@ void TTable::AddNJointRowsMP(const TTable& T1, const TTable& T2, const TVec<TInt
   for (int i = 0; i < JointRowIDSet.Len(); i++) {
     StartOffsets[i] = JointTableSize;
     JointTableSize += JointRowIDSet[i].Len();
+  }
+  if (JointTableSize == 0) {
+    TExcept::Throw("Joint table is empty");
   }
   //double endOffsets = omp_get_wtime();
   //printf("Offsets time = %f\n",endOffsets-startFn);
@@ -3570,9 +3581,7 @@ void TTable::AddNJointRowsMP(const TTable& T1, const TTable& T2, const TVec<TInt
     RowIdMap.AddDat(IdCnt, IdCnt);
   }
 
-  #ifdef _OPENMP
   #pragma omp parallel for schedule(dynamic, CHUNKS_PER_THREAD) 
-  #endif
   for (int j = 0; j < JointRowIDSet.Len(); j++) {
     const TIntPrV& RowIDs = JointRowIDSet[j];
     int start = StartOffsets[j];
@@ -3609,6 +3618,7 @@ void TTable::AddNJointRowsMP(const TTable& T1, const TTable& T2, const TVec<TInt
   //double endIterate = omp_get_wtime();
   //printf("Iterate time = %f\n",endIterate-endResize);
 }
+#endif // _OPENMP
 
 PTable TTable::UnionAll(const TTable& Table, const TStr& TableName) {
   Schema NewSchema;
@@ -4390,73 +4400,15 @@ void TTable::QSortKeyVal(TIntV& Key, TIntV& Val, TInt Start, TInt End) {
       QSortKeyVal(Key, Val, Start, Pivot-1);
       QSortKeyVal(Key, Val, Pivot+1, End);
     } else {
+      #ifdef _OPENMP
       #pragma omp task untied shared(Key, Val)
+      #endif
       { QSortKeyVal(Key, Val, Start, Pivot-1); }
         
+      #ifdef _OPENMP
       #pragma omp task untied shared(Key, Val)
+      #endif
       { QSortKeyVal(Key, Val, Pivot+1, End); }
     }
   }
-}
-
-void TTable::PSRSKeyVal(TIntV& Key, TIntV& Val, TInt Start, TInt End) {
-  TInt L = End-Start;
-  if (L <= 0) { return; }
-  if (CheckSortedKeyVal(Key, Val, Start, End) == 0) { return; }
-  TInt NumThreads = omp_get_max_threads();
-  if (L <= NumThreads*NumThreads) { QSortKeyVal(Key, Val, Start, End); return; }
-
-  // Phase 1: QSort partitions in parallel
-  TInt Sz = L+1;
-  TIntV IndV, NextV;
-  for (TInt i = 0; i < NumThreads; i++) {
-    IndV.Add(i * (Sz / NumThreads));
-  }
-  IndV.Add(Sz);
-
-  TIntPrV Samples(NumThreads*NumThreads, NumThreads*NumThreads);
-  TInt JumpSize = Sz/(NumThreads*NumThreads);
-
-  omp_set_num_threads(NumThreads);
-  #pragma omp parallel for schedule(static)
-  for (int i = 0; i < NumThreads; i++) {
-    QSortKeyVal(Key, Val, IndV[i], IndV[i+1] - 1);
-    for (TInt j = 0; j < NumThreads; j++) {
-      Samples[i+j] = TPair<TInt, TInt>(Key[IndV[i]+j*JumpSize], Val[IndV[i]+j*JumpSize]);
-    }
-  }
-
-  // Phase 2: Sort samples, select pivots and partition
-  Samples.Sort();
-
-  TIntV PivotKeys;
-  TIntV PivotVals;
-  for (TInt i = 1; i < NumThreads; i++) {
-    PivotKeys.Add(Samples[i*NumThreads+(NumThreads/2)-1].GetVal1());
-    PivotVals.Add(Samples[i*NumThreads+(NumThreads/2)-1].GetVal2());
-  }
-
-  TVec<TIntV> PivotOffsets(NumThreads);
-
-  omp_set_num_threads(NumThreads);
-  #pragma omp parallel for
-  for (int i = 0; i < NumThreads; i++) {
-    TInt Curr = 0;
-    TInt j = IndV[i];
-    while (j < IndV[i+1]) {
-      if (Curr >= NumThreads-1) { break; }
-      if (CompareKeyVal(Key[j], Val[j], PivotKeys[Curr], PivotVals[Curr]) >= 0) {
-        PivotOffsets[i].Add(j);
-        Curr++;
-      } else {
-        j++;
-      }
-    }
-    while (Curr < NumThreads-1) {
-      PivotOffsets[i].Add(j);
-    }
-  }
-
-  // Phase 3: Redistribute
-
 }

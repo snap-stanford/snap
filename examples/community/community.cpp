@@ -21,7 +21,7 @@ int main(int argc, char* argv[]) {
     CmtyAlgStr = "Girvan-Newman";
     Q = TSnap::CommunityGirvanNewman(Graph, CmtyV); }
   else if (CmtyAlg == 2) {
-    CmtyAlgStr = "Cluset-Newman-Moore";
+    CmtyAlgStr = "Clauset-Newman-Moore";
     Q = TSnap::CommunityCNM(Graph, CmtyV); }
   else if (CmtyAlg == 3) {
     CmtyAlgStr = "Infomap";

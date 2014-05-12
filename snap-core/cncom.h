@@ -235,7 +235,7 @@ public:
     return abs(TmRtH.GetDat(NId1).Val1) < abs(TmRtH.GetDat(NId2).Val1) ? NId1 : NId2; }
 };
 
-/////////////////////////////////////////////////
+//#//////////////////////////////////////////////
 // Implementation
 namespace TSnap {
 
@@ -395,6 +395,7 @@ void GetSccs(const PGraph& Graph, TCnComV& CnComV) {
   TSccVisitor<PGraph, false> Visitor(Graph);
   TCnCom::GetDfsVisitor(Graph, Visitor);
   CnComV = Visitor.CnComV;
+  CnComV.Sort(false);
 }
 
 template <class PGraph> 

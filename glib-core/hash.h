@@ -152,6 +152,7 @@ public:
     return *this;}
   bool operator==(const THash& Hash) const; //J: zdaj tak kot je treba
   bool operator < (const THash& Hash) const { Fail; return true; }
+  /// The [] operator takes KeyId, use GetDat() if you need value access via the key.
   const TDat& operator[](const int& KeyId) const {return GetHashKeyDat(KeyId).Dat;}
   TDat& operator[](const int& KeyId){return GetHashKeyDat(KeyId).Dat;}
   TDat& operator()(const TKey& Key){return AddDat(Key);}

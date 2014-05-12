@@ -759,6 +759,14 @@ TInt TNEANet::GetIntAttrDatN(const int& NId, const TStr& attr) {
   return VecOfIntVecsN[KeyToIndexTypeN.GetDat(attr).Val2][NodeH.GetKeyId(NId)];
 }
 
+TInt &TNEANet::GetIntAttrDatN(const int& NId, const int& index) {
+  return VecOfIntVecsN[index][NodeH.GetKeyId(NId)];
+}
+
+int TNEANet::GetIntAttrIndN(const TStr& attr) {
+  return KeyToIndexTypeN.GetDat(attr).Val2.Val;
+}
+
 TStr TNEANet::GetStrAttrDatN(const int& NId, const TStr& attr) {
   return VecOfStrVecsN[KeyToIndexTypeN.GetDat(attr).Val2][NodeH.GetKeyId(NId)];
 }
@@ -769,6 +777,14 @@ TFlt TNEANet::GetFltAttrDatN(const int& NId, const TStr& attr) {
 
 TInt TNEANet::GetIntAttrDatE(const int& EId, const TStr& attr) {
   return VecOfIntVecsE[KeyToIndexTypeE.GetDat(attr).Val2][EdgeH.GetKeyId(EId)];
+}
+
+TInt &TNEANet::GetIntAttrDatE(const int& EId, const int& index) {
+  return VecOfIntVecsE[index][EdgeH.GetKeyId(EId)];
+}
+
+int TNEANet::GetIntAttrIndE(const TStr& attr) {
+  return KeyToIndexTypeE.GetDat(attr).Val2.Val;
 }
 
 TStr TNEANet::GetStrAttrDatE(const int& EId, const TStr& attr) {
@@ -971,3 +987,14 @@ int TNEANet::DelAttrE(const TStr& attr) {
   KeyToIndexTypeE.DelKey(attr);
   return 0;
 }
+
+// Return a small graph on 5 nodes and 6 edges.
+PNEANet TNEANet::GetSmallGraph() {
+  PNEANet Net = TNEANet::New();
+  for (int i = 0; i < 5; i++) { Net->AddNode(i); }
+  Net->AddEdge(0,1);  Net->AddEdge(0,2);
+  Net->AddEdge(0,3);  Net->AddEdge(0,4);
+  Net->AddEdge(1,2);  Net->AddEdge(1,2);
+  return Net;
+}
+
