@@ -384,22 +384,29 @@ public:
 class TMIn: public TSIn{
 private:
   char* Bf;
-  int BfC, BfL;
+  uint64_t BfC, BfL;
+  bool IsMemoryMapped;
 private:
   TMIn();
   TMIn(const TMIn&);
   TMIn& operator=(const TMIn&);
+private:
+  int FindEol(uint64_t& BfN, bool& CrEnd);
 public:
-  TMIn(const void* _Bf, const int& _BfL, const bool& TakeBf=false);
+  TMIn(const void* _Bf, const uint64_t& _BfL, const bool& TakeBf=false);
   TMIn(TSIn& SIn);
   TMIn(const char* CStr);
-  TMIn(const TStr& Str);
+  /// first parameter is either used as character array or file name
+  TMIn(const TStr& Str, bool FromFile);
   TMIn(const TChA& ChA);
-  static PSIn New(const void* _Bf, const int& _BfL, const bool& TakeBf=false);
+  static PSIn New(const void* _Bf, const uint64_t& _BfL, const bool& TakeBf=false);
   static PSIn New(const char* CStr);
   static PSIn New(const TStr& Str);
   static PSIn New(const TChA& ChA);
-  ~TMIn(){if (Bf!=NULL){delete[] Bf;}}
+  static TPt<TMIn> New(const TStr& Str, bool FromFile);
+  //static TPt<TMIn> New(const TStr& Str, uint64_t);
+
+  ~TMIn();
 
   bool Eof(){return BfC==BfL;}
   int Len() const {return BfL-BfC;}
@@ -409,8 +416,26 @@ public:
   void Reset(){Cs=TCs(); BfC=0;}
   bool GetNextLnBf(TChA& LnChA);
 
+  uint64_t GetBfC();
+  uint64_t GetBfL();
+  void SetBfC(uint64_t Pos);
+
+  /// Finds number of new line chars in interval [Lb, Ub)
+  uint64_t CountNewLinesInRange(uint64_t Lb, uint64_t Ub);
+  /// Finds beginning of line in which Ind is present
+  uint64_t GetLineStartPos(uint64_t Ind);
+  /// Finds end of line in which Ind is present
+  uint64_t GetLineEndPos(uint64_t Ind);
+  char* GetLine(uint64_t Ind);
+  /// Move stream pointer along until a non commented line is found
+  void SkipCommentLines();
+
   char* GetBfAddr(){return Bf;}
+
+  friend class TPt<TMIn>;
 };
+
+typedef TPt<TMIn> PMIn;
 
 /////////////////////////////////////////////////
 // Output-Memory
