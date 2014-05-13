@@ -2311,6 +2311,11 @@ void TTable::SelectAtomicConst(const TStr& Col, const TPrimitive& Val, TPredComp
       SelectedTable->ResizeTable(TotalSelectedRows);
       //double endResize = omp_get_wtime();
       //printf("Resize time = %f\n", endResize-endCount);
+
+      if (TotalSelectedRows == 0) {
+        // printf("Select: Empty output!\n");
+        return;
+      }
     
       #pragma omp parallel for schedule(dynamic, CHUNKS_PER_THREAD)
       for (int i = 0; i < Partitions.Len(); i++){
@@ -3446,6 +3451,12 @@ void TTable::AddRow(const TIntV& IntVals, const TFltV& FltVals, const TStrV& Str
 }
 
 void TTable::ResizeTable(int RowCount) {
+  if (RowCount == 0) {
+    // initialize empty table
+    NumValidRows = 0;
+    FirstValidRow = TTable::Invalid;
+    LastValidRow = TTable::Invalid;
+  }
   if (Next.Len() < RowCount) {
     TInt FltOffset = IntCols.Len();
     TInt StrOffset = FltOffset + FltCols.Len();
