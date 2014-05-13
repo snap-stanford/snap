@@ -182,9 +182,9 @@ TTable::TTable(): Context(*(new TTableContext)), NumRows(0), NumValidRows(0),
 TTable::TTable(TTableContext& Context): Context(Context), NumRows(0), 
   NumValidRows(0), FirstValidRow(0), LastValidRow(-1) {} 
 
-TTable::TTable(const TStr& TableName, const Schema& TableSchema, 
-  TTableContext& Context): Name(TableName), Context(Context), S(TableSchema),
-  NumRows(0), NumValidRows(0), FirstValidRow(0), LastValidRow(-1), IsNextDirty(0) {
+TTable::TTable(const Schema& TableSchema, TTableContext& Context): Context(Context), 
+  S(TableSchema), NumRows(0), NumValidRows(0), FirstValidRow(0), LastValidRow(-1), 
+  IsNextDirty(0) {
   TInt IntColCnt = 0;
   TInt FltColCnt = 0;
   TInt StrColCnt = 0;
@@ -211,9 +211,9 @@ TTable::TTable(const TStr& TableName, const Schema& TableSchema,
   StrColMaps = TVec<TIntV>(StrColCnt);
 }
 
-TTable::TTable(TSIn& SIn, TTableContext& Context): Name(SIn), Context(Context),
-  NumRows(SIn), NumValidRows(SIn), FirstValidRow(SIn), LastValidRow(SIn),
-  Next(SIn), IntCols(SIn), FltCols(SIn), StrColMaps(SIn) {
+TTable::TTable(TSIn& SIn, TTableContext& Context): Context(Context), NumRows(SIn), 
+  NumValidRows(SIn), FirstValidRow(SIn), LastValidRow(SIn), Next(SIn), IntCols(SIn), 
+  FltCols(SIn), StrColMaps(SIn) {
   THash<TStr,TPair<TInt,TInt> > ColTypeIntMap(SIn);
 
   ColTypeMap.Clr();
@@ -239,10 +239,9 @@ TTable::TTable(TSIn& SIn, TTableContext& Context): Name(SIn), Context(Context),
   IsNextDirty = 0;
 }
 
-TTable::TTable(const TStr& TableName, const TIntIntH& H, const TStr& Col1, 
-  const TStr& Col2, TTableContext& Context, const TBool IsStrKeys) : 
-  Name(TableName), Context(Context), NumRows(H.Len()), NumValidRows(H.Len()),
-  FirstValidRow(0), LastValidRow(H.Len()-1) {
+TTable::TTable(const TIntIntH& H, const TStr& Col1, const TStr& Col2, 
+ TTableContext& Context, const TBool IsStrKeys) : Context(Context), NumRows(H.Len()), 
+  NumValidRows(H.Len()), FirstValidRow(0), LastValidRow(H.Len()-1) {
     TAttrType KeyType = IsStrKeys ? atStr : atInt;
     S.Add(TPair<TStr,TAttrType>(Col1, KeyType));
     S.Add(TPair<TStr,TAttrType>(Col2, atInt));
@@ -266,10 +265,9 @@ TTable::TTable(const TStr& TableName, const TIntIntH& H, const TStr& Col1,
     IsNextDirty = 0;
 }
 
-TTable::TTable(const TStr& TableName, const TIntFltH& H, const TStr& Col1, 
- const TStr& Col2, TTableContext& Context, const TBool IsStrKeys) :
-  Name(TableName), Context(Context), NumRows(H.Len()), NumValidRows(H.Len()), 
-  FirstValidRow(0), LastValidRow(H.Len()-1) {
+TTable::TTable(const TIntFltH& H, const TStr& Col1, const TStr& Col2, 
+ TTableContext& Context, const TBool IsStrKeys) : Context(Context), 
+  NumRows(H.Len()), NumValidRows(H.Len()), FirstValidRow(0), LastValidRow(H.Len()-1) {
     TAttrType KeyType = IsStrKeys ? atStr : atInt;
     S.Add(TPair<TStr,TAttrType>(Col1, KeyType));
     S.Add(TPair<TStr,TAttrType>(Col2, atFlt));
@@ -292,10 +290,10 @@ TTable::TTable(const TStr& TableName, const TIntFltH& H, const TStr& Col1,
     IsNextDirty = 0;
 }
 
-TTable::TTable(const TTable& Table, const TIntV& RowIDs) : Name(Table.Name), 
-  Context(Table.Context), S(Table.S), SrcCol(Table.SrcCol), DstCol(Table.DstCol),
-  EdgeAttrV(Table.EdgeAttrV), SrcNodeAttrV(Table.SrcNodeAttrV),
-  DstNodeAttrV(Table.DstNodeAttrV), CommonNodeAttrs(Table.CommonNodeAttrs) {
+TTable::TTable(const TTable& Table, const TIntV& RowIDs) : Context(Table.Context), 
+  S(Table.S), SrcCol(Table.SrcCol), DstCol(Table.DstCol), EdgeAttrV(Table.EdgeAttrV), 
+  SrcNodeAttrV(Table.SrcNodeAttrV), DstNodeAttrV(Table.DstNodeAttrV), 
+  CommonNodeAttrs(Table.CommonNodeAttrs) {
     ColTypeMap = Table.ColTypeMap;
     IntCols = TVec<TIntV>(Table.IntCols.Len());
     FltCols = TVec<TFltV>(Table.FltCols.Len());
@@ -309,8 +307,8 @@ TTable::TTable(const TTable& Table, const TIntV& RowIDs) : Name(Table.Name),
     InitIds();
 }
 
-PTable TTable::LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm, 
- TTableContext& Context, const TIntV& RelevantCols, const char& Separator, TBool HasTitleLine) {
+PTable TTable::LoadSS(const Schema& S, const TStr& InFNm, TTableContext& Context, 
+ const TIntV& RelevantCols, const char& Separator, TBool HasTitleLine) {
   TVec<uint64_t> IntGroupByCols;
   bool NoStringCols = true;
 
@@ -324,7 +322,7 @@ PTable TTable::LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm,
     }
   }
 
-  PTable T = New(TableName, SR, Context);
+  PTable T = New(SR, Context);
 
   // find col types and check for string cols
   TInt RowLen = SR.Len();
@@ -478,7 +476,7 @@ PTable TTable::LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm,
     T->Next[Cnt-1] = Last;
     T->LastValidRow = T->NumRows - 1;
 
-    TStr IdColName = TableName + "_id";
+    TStr IdColName = "_id";
     TInt IdCol = T->IntCols.Add();
     T->IntCols[IdCol].Gen(Cnt);
 
@@ -578,9 +576,9 @@ PTable TTable::LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm,
   return T;
 }
 
-PTable TTable::LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm, 
- TTableContext& Context, const char& Separator, TBool HasTitleLine) {
-  return LoadSS(TableName, S, InFNm, Context, TIntV(), Separator, HasTitleLine);
+PTable TTable::LoadSS(const Schema& S, const TStr& InFNm, TTableContext& Context, 
+ const char& Separator, TBool HasTitleLine) {
+  return LoadSS(S, InFNm, Context, TIntV(), Separator, HasTitleLine);
 }
 
 
@@ -628,7 +626,6 @@ void TTable::SaveBin(const TStr& OutFNm) {
 }
 
 void TTable::Save(TSOut& SOut) { 
-  Name.Save(SOut);
   NumRows.Save(SOut); 
   NumValidRows.Save(SOut); 
   FirstValidRow.Save(SOut); 
@@ -1399,8 +1396,7 @@ TVec<PTable> TTable::SpliceByGroup(const TStrV& GroupBy, TBool Ordered) {
   TInt cnt = 0;
   // iterate over groups
   for (THash<TGroupKey, TPair<TInt, TIntV> >::TIter it = Grouping.BegI(); it != Grouping.EndI(); it++) {
-    TStr TableName = Name + cnt.GetStr();
-    PTable GroupTable = TTable::New(TableName, NewSchema, Context);
+    PTable GroupTable = TTable::New(NewSchema, Context);
 
     TVec<TPair<TAttrType, TInt> > ColInfo;
     TIntV V;
@@ -1458,7 +1454,7 @@ TVec<PTable> TTable::SpliceByGroup(const TStrV& GroupBy, TBool Ordered) {
 }
 
 void TTable::InitIds() {
-  IdColName = Name + "_id";
+  IdColName = "_id";
   //Assert(NumRows == NumValidRows);
   AddIdColumn(IdColName);
 }
@@ -1492,20 +1488,13 @@ void TTable::AddIdColumn(const TStr& ColName) {
 
  PTable TTable::InitializeJointTable(const TTable& Table) {
   PTable JointTable = New(Context);
-  JointTable->Name = Name + "_" + Table.Name;
   JointTable->IntCols = TVec<TIntV>(IntCols.Len() + Table.IntCols.Len() + 1);
   JointTable->FltCols = TVec<TFltV>(FltCols.Len() + Table.FltCols.Len());
   JointTable->StrColMaps = TVec<TIntV>(StrColMaps.Len() + Table.StrColMaps.Len());
-  TStr Name1 = Name;
-  TStr Name2 = Table.Name;
-	if(Name1==Name2) {
-    Name1 = Name + "_1";
-    Name2 = Name + "_2";
-  }
   for (TInt i = 0; i < S.Len(); i++) {
     TStr ColName = GetSchemaColName(i);
     TAttrType ColType = GetSchemaColType(i);
-    TStr CName = Name1 + "." + ColName;
+    TStr CName = ColName + "-1";
     JointTable->ColTypeMap.AddDat(CName, ColTypeMap.GetDat(ColName));
     //JointTable->AddLabel(CName, ColName);
     JointTable->AddSchemaCol(CName, ColType);
@@ -1513,7 +1502,7 @@ void TTable::AddIdColumn(const TStr& ColName) {
   for (TInt i = 0; i < Table.S.Len(); i++) {
     TStr ColName = Table.GetSchemaColName(i);
     TAttrType ColType = Table.GetSchemaColType(i);
-    TStr CName = Name2 + "." + ColName;
+    TStr CName = ColName + "-2";
     TPair<TAttrType, TInt> NewDat = Table.ColTypeMap.GetDat(ColName);
     Assert(ColType == NewDat.Val1);
     // add offsets
@@ -1532,8 +1521,8 @@ void TTable::AddIdColumn(const TStr& ColName) {
     //JointTable->AddLabel(CName, ColName);
     JointTable->AddSchemaCol(CName, ColType);
   }
-  TStr IdColName = JointTable->Name + "_id";
-  JointTable->ColTypeMap.AddDat(IdColName, 
+  TStr IdColName = "_id";
+  JointTable->ColTypeMap.AddDat(IdColName,
     TPair<TAttrType, TInt>(atInt, IntCols.Len() + Table.IntCols.Len()));
   JointTable->AddSchemaCol(IdColName, atInt);
   return JointTable;
@@ -1682,7 +1671,6 @@ PTable TTable::SelfSimJoinPerGroup(const TStr& GroupAttr, const TStr& SimCol, co
 
   PTable JointTable = New(Context);
 	// Initialize the joint table - (GroupId1, GroupId2, Similarity)
-	JointTable->Name = Name + "_" + Name;
 	JointTable->IntCols = TVec<TIntV>(2);
 	JointTable->FltCols = TVec<TFltV>(1);
 
@@ -2974,7 +2962,7 @@ TBool TTable::IsLastGraphOfSequence() {
   return CurrBucket >= RowIdBuckets.Len() - 1;
 }
 
-PTable TTable::GetNodeTable(const PNEANet& Network, const TStr& TableName, TTableContext& Context) {
+PTable TTable::GetNodeTable(const PNEANet& Network, TTableContext& Context) {
   Schema SR;
   SR.Add(TPair<TStr,TAttrType>("node_id",atInt));
 
@@ -2996,7 +2984,7 @@ PTable TTable::GetNodeTable(const PNEANet& Network, const TStr& TableName, TTabl
     SR.Add(TPair<TStr,TAttrType>(StrAttrNames[i],atStr));
   }
 
-  PTable T = New(TableName, SR, Context);
+  PTable T = New(SR, Context);
 
   TInt Cnt = 0;
   // populate table columns
@@ -3026,7 +3014,7 @@ PTable TTable::GetNodeTable(const PNEANet& Network, const TStr& TableName, TTabl
   return T;
 }
 
-PTable TTable::GetEdgeTable(const PNEANet& Network, const TStr& TableName, TTableContext& Context) {
+PTable TTable::GetEdgeTable(const PNEANet& Network, TTableContext& Context) {
   Schema SR;
   SR.Add(TPair<TStr,TAttrType>("edg_id",atInt));
   SR.Add(TPair<TStr,TAttrType>("src_id",atInt));
@@ -3051,7 +3039,7 @@ PTable TTable::GetEdgeTable(const PNEANet& Network, const TStr& TableName, TTabl
     SR.Add(TPair<TStr,TAttrType>(StrAttrNames[i],atStr));
   }
 
-  PTable T = New(TableName, SR, Context);
+  PTable T = New(SR, Context);
 
   TInt Cnt = 0;
   // populate table columns
@@ -3084,13 +3072,13 @@ PTable TTable::GetEdgeTable(const PNEANet& Network, const TStr& TableName, TTabl
 }
 
 #ifdef _OPENMP
-PTable TTable::GetEdgeTablePN(const PNGraphMP& Network, const TStr& TableName, TTableContext& Context){
+PTable TTable::GetEdgeTablePN(const PNGraphMP& Network, TTableContext& Context){
   Schema SR;
   SR.Add(TPair<TStr,TAttrType>("src_id",atInt));
   SR.Add(TPair<TStr,TAttrType>("dst_id",atInt));
 
   TNGraphMP::TEdgeI FirstEI = Network->BegEI();
-  PTable T = New(TableName, SR, Context);
+  PTable T = New(SR, Context);
   TInt NumEdges = Network->GetEdges();
   TInt NumPartitions = omp_get_max_threads()*CHUNKS_PER_THREAD;
   TInt PartitionSize = NumEdges/NumPartitions;
@@ -3137,14 +3125,14 @@ PTable TTable::GetEdgeTablePN(const PNGraphMP& Network, const TStr& TableName, T
 }
 #endif // _OPENMP
 
-PTable TTable::GetFltNodePropertyTable(const PNEANet& Network, const TStr& TableName,
-  const TIntFltH& Property, const TStr& NodeAttrName, const TAttrType& NodeAttrType,
-  const TStr& PropertyAttrName, TTableContext& Context) {
+PTable TTable::GetFltNodePropertyTable(const PNEANet& Network, const TIntFltH& Property, 
+ const TStr& NodeAttrName, const TAttrType& NodeAttrType, const TStr& PropertyAttrName, 
+ TTableContext& Context) {
   Schema SR;
   // Determine type of node id
   SR.Add(TPair<TStr,TAttrType>(NodeAttrName,NodeAttrType));
   SR.Add(TPair<TStr,TAttrType>(PropertyAttrName,atFlt));
-  PTable T = New(TableName, SR, Context);
+  PTable T = New(SR, Context);
   TInt NodeColIdx = T->GetColIdx(NodeAttrName);
   TInt Cnt = 0;
   // populate table columns
@@ -3217,7 +3205,6 @@ PTable TTable::IsNextK(const TStr& OrderCol, TInt K, const TStr& GroupBy, const 
 
 void TTable::PrintSize() {
   double ApproxSize = 0;
-  printf("Table Name: %s\n", Name.CStr());
   printf("Total number of rows: %d\n", NumRows.Val);
   printf("Number of valid rows: %d\n", NumValidRows.Val);
   ApproxSize += NumRows*sizeof(TInt)/1000.0;  // Next vector
@@ -3631,14 +3618,14 @@ void TTable::AddNJointRowsMP(const TTable& T1, const TTable& T2, const TVec<TInt
 }
 #endif // _OPENMP
 
-PTable TTable::UnionAll(const TTable& Table, const TStr& TableName) {
+PTable TTable::UnionAll(const TTable& Table) {
   Schema NewSchema;
   for (TInt c = 0; c < S.Len(); c++) {
     if (S[c].Val1 != GetIdColName()) {
       NewSchema.Add(TPair<TStr,TAttrType>(S[c].Val1, S[c].Val2));
     }
   }
-  PTable result = TTable::New(TableName, NewSchema, Context);
+  PTable result = TTable::New(NewSchema, Context);
   result->AddTable(*this);
   result->UnionAllInPlace(Table);
   return result;
@@ -3650,7 +3637,7 @@ void TTable::UnionAllInPlace(const TTable& Table) {
   //result->InitIds();
 }
 
-PTable TTable::Union(const TTable& Table, const TStr& TableName) {
+PTable TTable::Union(const TTable& Table) {
   Schema NewSchema;
   THashSet<TInt> Collisions;
 
@@ -3659,7 +3646,7 @@ PTable TTable::Union(const TTable& Table, const TStr& TableName) {
       NewSchema.Add(TPair<TStr,TAttrType>(S[c].Val1, S[c].Val2));
     }
   }
-  PTable result = TTable::New(TableName, NewSchema, Context);
+  PTable result = TTable::New(NewSchema, Context);
 
   GetCollidingRows(Table, Collisions);
 
@@ -3681,7 +3668,7 @@ PTable TTable::Union(const TTable& Table, const TStr& TableName) {
   return result;
 }
 
-PTable TTable::Intersection(const TTable& Table, const TStr& TableName) {
+PTable TTable::Intersection(const TTable& Table) {
   Schema NewSchema;
   THashSet<TInt> Collisions;
 
@@ -3690,7 +3677,7 @@ PTable TTable::Intersection(const TTable& Table, const TStr& TableName) {
       NewSchema.Add(TPair<TStr,TAttrType>(S[c].Val1, S[c].Val2));
     }
   }
-  PTable result = TTable::New(TableName, NewSchema, Context);
+  PTable result = TTable::New(NewSchema, Context);
 
   GetCollidingRows(Table, Collisions);
 
@@ -3706,7 +3693,7 @@ PTable TTable::Intersection(const TTable& Table, const TStr& TableName) {
 
 // TTable cannot be const because we will eventually call Table->GroupAux
 // as of now, GroupAux cannot be const because it modifies the table in some cases
-PTable TTable::Minus(TTable& Table, const TStr& TableName) {
+PTable TTable::Minus(TTable& Table) {
   Schema NewSchema;
   THashSet<TInt> Collisions;
 
@@ -3715,7 +3702,7 @@ PTable TTable::Minus(TTable& Table, const TStr& TableName) {
       NewSchema.Add(TPair<TStr,TAttrType>(S[c].Val1, S[c].Val2));
     }
   }
-  PTable result = TTable::New(TableName, NewSchema, Context);
+  PTable result = TTable::New(NewSchema, Context);
 
   Table.GetCollidingRows(*this, Collisions);
 
@@ -3729,14 +3716,14 @@ PTable TTable::Minus(TTable& Table, const TStr& TableName) {
   return result;
 }
 
-PTable TTable::Project(const TStrV& ProjectCols, const TStr& TableName) {
+PTable TTable::Project(const TStrV& ProjectCols) {
   Schema NewSchema;
   for (TInt c = 0; c < ProjectCols.Len(); c++) {
     if (!ColTypeMap.IsKey(ProjectCols[c])) { TExcept::Throw("no such column " + ProjectCols[c]); }
     NewSchema.Add(TPair<TStr,TAttrType>(ProjectCols[c], GetColType(ProjectCols[c])));
   }
 
-  PTable result = TTable::New(TableName, NewSchema, Context);
+  PTable result = TTable::New(NewSchema, Context);
   result->AddTable(*this);
   result->InitIds();
   return result;
@@ -3894,7 +3881,7 @@ void TTable::ColMax(const TStr& Attr1, const TStr& Attr2, const TStr& ResultAttr
 }
 
 void TTable::ColGenericOp(const TStr& Attr1, TTable& Table, const TStr& Attr2, const TStr& ResAttr,
-  TArithOp op, TBool AddToFirstTable) {
+ TArithOp op, TBool AddToFirstTable) {
   // check if attributes are valid
   if (!IsAttr(Attr1)) { TExcept::Throw("No attribute present: " + Attr1); }
   if (!Table.IsAttr(Attr2)) { TExcept::Throw("No attribute present: " + Attr2); }
@@ -4007,27 +3994,27 @@ void TTable::ColGenericOp(const TStr& Attr1, TTable& Table, const TStr& Attr2, c
 }
 
 void TTable::ColAdd(const TStr& Attr1, TTable& Table, const TStr& Attr2, 
-  const TStr& ResultAttrName, TBool AddToFirstTable) {
+ const TStr& ResultAttrName, TBool AddToFirstTable) {
   ColGenericOp(Attr1, Table, Attr2, ResultAttrName, aoAdd, AddToFirstTable);
 }
 
 void TTable::ColSub(const TStr& Attr1, TTable& Table, const TStr& Attr2, 
-  const TStr& ResultAttrName, TBool AddToFirstTable) {
+ const TStr& ResultAttrName, TBool AddToFirstTable) {
   ColGenericOp(Attr1, Table, Attr2, ResultAttrName, aoSub, AddToFirstTable);
 }
 
 void TTable::ColMul(const TStr& Attr1, TTable& Table, const TStr& Attr2, 
-  const TStr& ResultAttrName, TBool AddToFirstTable) {
+ const TStr& ResultAttrName, TBool AddToFirstTable) {
   ColGenericOp(Attr1, Table, Attr2, ResultAttrName, aoMul, AddToFirstTable);
 }
 
 void TTable::ColDiv(const TStr& Attr1, TTable& Table, const TStr& Attr2, 
-  const TStr& ResultAttrName, TBool AddToFirstTable) {
+ const TStr& ResultAttrName, TBool AddToFirstTable) {
   ColGenericOp(Attr1, Table, Attr2, ResultAttrName, aoDiv, AddToFirstTable);
 }
 
 void TTable::ColMod(const TStr& Attr1, TTable& Table, const TStr& Attr2, 
-  const TStr& ResultAttrName, TBool AddToFirstTable) {
+ const TStr& ResultAttrName, TBool AddToFirstTable) {
   ColGenericOp(Attr1, Table, Attr2, ResultAttrName, aoMod, AddToFirstTable);
 }
 
@@ -4139,7 +4126,7 @@ void TTable::ColConcat(const TStr& Attr1, const TStr& Attr2, const TStr& Sep, co
 }
 
 void TTable::ColConcat(const TStr& Attr1, TTable& Table, const TStr& Attr2, const TStr& Sep, 
-    const TStr& ResAttr, TBool AddToFirstTable) {
+ const TStr& ResAttr, TBool AddToFirstTable) {
   // check if attributes are valid
   if (!IsAttr(Attr1)) { TExcept::Throw("No attribute present: " + Attr1); }
   if (!Table.IsAttr(Attr2)) { TExcept::Throw("No attribute present: " + Attr2); }
@@ -4203,8 +4190,7 @@ void TTable::ColConcat(const TStr& Attr1, TTable& Table, const TStr& Attr2, cons
   }
 }
 
-void TTable::ColConcatConst(const TStr& Attr1, const TStr& Val, const TStr& Sep, 
-    const TStr& ResAttr) {
+void TTable::ColConcatConst(const TStr& Attr1, const TStr& Val, const TStr& Sep, const TStr& ResAttr) {
   // check if attribute is valid
   if (!IsAttr(Attr1)) { TExcept::Throw("No attribute present: " + Attr1); }
 

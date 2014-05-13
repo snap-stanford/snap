@@ -26,14 +26,12 @@ namespace TSnap {
   /// Gets sequence of PageRank tables from given \c GraphSeq into \c TableSeq.
   template <class PGraph>
   void MapPageRank(const TVec<PGraph>& GraphSeq, TVec<PTable>& TableSeq, 
-      TTableContext& Context, const TStr& TableNamePrefix,
-      const double& C, const double& Eps, const int& MaxIter);
+      TTableContext& Context, const double& C, const double& Eps, const int& MaxIter);
 
   /// Gets sequence of Hits tables from given \c GraphSeq into \c TableSeq.
   template <class PGraph>
   void MapHits(const TVec<PGraph>& GraphSeq, TVec<PTable>& TableSeq, 
-    TTableContext& Context, const TStr& TableNamePrefix,
-    const int& MaxIter);
+    TTableContext& Context, const int& MaxIter);
 }
 
 //#//////////////////////////////////////////////
@@ -237,8 +235,7 @@ protected:
 
   static TInt UseMP; ///< Global switch for choosing multi-threaded versions of TTable functions.
 public:
-  TStr Name; ///< Table Name
-	template<class PGraph> friend PGraph TSnap::ToGraph(PTable Table, const TStr& SrcCol, const TStr& DstCol, TAttrAggr AggrPolicy);
+  template<class PGraph> friend PGraph TSnap::ToGraph(PTable Table, const TStr& SrcCol, const TStr& DstCol, TAttrAggr AggrPolicy);
 	template<class PGraph> friend PGraph TSnap::ToNetwork(PTable Table, const TStr& SrcCol, const TStr& DstCol, 
 			TStrV& SrcAttrs, TStrV& DstAttrs, TStrV& EdgeAttrs, TAttrAggr AggrPolicy);
   #ifdef _OPENMP
@@ -458,20 +455,20 @@ public:
 /***** Constructors *****/
   TTable(); 
   TTable(TTableContext& Context);
-  TTable(const TStr& TableName, const Schema& S, TTableContext& Context);
+  TTable(const Schema& S, TTableContext& Context);
   TTable(TSIn& SIn, TTableContext& Context);
 
   /// Constructor to build table out of a hash table of int->int.
-  TTable(const TStr& TableName, const THash<TInt,TInt>& H, const TStr& Col1, 
-   const TStr& Col2, TTableContext& Context, const TBool IsStrKeys = false);
+  TTable(const THash<TInt,TInt>& H, const TStr& Col1, const TStr& Col2, 
+   TTableContext& Context, const TBool IsStrKeys = false);
   /// Constructor to build table out of a hash table of int->float.
-  TTable(const TStr& TableName, const THash<TInt,TFlt>& H, const TStr& Col1, 
-   const TStr& Col2, TTableContext& Context, const TBool IsStrKeys = false);
+  TTable(const THash<TInt,TFlt>& H, const TStr& Col1, const TStr& Col2, 
+   TTableContext& Context, const TBool IsStrKeys = false);
   // TTable(const TStr& TableName, const THash<TInt,TStr>& H, const TStr& Col1, 
   //  const TStr& Col2, TTableContext& Context);
   
   /// Copy constructor.
-  TTable(const TTable& Table): Name(Table.Name), Context(Table.Context), S(Table.S),
+  TTable(const TTable& Table): Context(Table.Context), S(Table.S),
     NumRows(Table.NumRows), NumValidRows(Table.NumValidRows), FirstValidRow(Table.FirstValidRow),
     LastValidRow(Table.LastValidRow), Next(Table.Next), IntCols(Table.IntCols), 
     FltCols(Table.FltCols), StrColMaps(Table.StrColMaps), ColTypeMap(Table.ColTypeMap), 
@@ -486,38 +483,37 @@ public:
 
   static PTable New() { return new TTable(); }
   static PTable New(TTableContext& Context) { return new TTable(Context); }
-  static PTable New(const TStr& TableName, const Schema& S, TTableContext& Context) { 
-    return new TTable(TableName, S, Context); 
+  static PTable New(const Schema& S, TTableContext& Context) { 
+    return new TTable(S, Context); 
   }
   /// Returns pointer to a table constructed from given int->int hash.
-  static PTable New(const TStr& TableName, const THash<TInt,TInt>& H, const TStr& Col1, 
+  static PTable New(const THash<TInt,TInt>& H, const TStr& Col1, 
    const TStr& Col2, TTableContext& Context, const TBool IsStrKeys = false) {
-    return new TTable(TableName, H, Col1, Col2, Context, IsStrKeys);
+    return new TTable(H, Col1, Col2, Context, IsStrKeys);
   }
   /// Returns pointer to a table constructed from given int->float hash.
-  static PTable New(const TStr& TableName, const THash<TInt,TFlt>& H, const TStr& Col1, 
+  static PTable New(const THash<TInt,TFlt>& H, const TStr& Col1, 
    const TStr& Col2, TTableContext& Context, const TBool IsStrKeys = false) {
-    return new TTable(TableName, H, Col1, Col2, Context, IsStrKeys);
+    return new TTable(H, Col1, Col2, Context, IsStrKeys);
   }
   /// Returns pointer to a new table created from given \c Table.
   static PTable New(const PTable Table) { return new TTable(*Table); }
   /// Returns pointer to a new table created from given \c Table, with name set to \c TableName.
-  static PTable New(const PTable Table, const TStr& TableName) { 
-    PTable T = New(Table); T->Name = TableName; 
-    return T; 
-  }
+  // static PTable New(const PTable Table, const TStr& TableName) { 
+  //   PTable T = New(Table); T->Name = TableName; 
+  //   return T; 
+  // }
 
 /***** Save / Load functions *****/
   /// Loads table from spread sheet (TSV, CSV, etc).
-  static PTable LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm, 
-   TTableContext& Context, const char& Separator = '\t', TBool HasTitleLine = false);
+  static PTable LoadSS(const Schema& S, const TStr& InFNm, TTableContext& Context, 
+   const char& Separator = '\t', TBool HasTitleLine = false);
   /// Loads table from spread sheet - but only load the columns specified by RelevantCols.
-  static PTable LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm, 
-   TTableContext& Context, const TIntV& RelevantCols, const char& Separator = '\t', 
-   TBool HasTitleLine = false);
+  static PTable LoadSS(const Schema& S, const TStr& InFNm, TTableContext& Context, 
+   const TIntV& RelevantCols, const char& Separator = '\t', TBool HasTitleLine = false);
   /// Loads table from spread sheet - compact prototype (tab-separated input file, has title line, anonymous table).
   static PTable LoadSS(const Schema& S, const TStr& InFnm, TTableContext& Context){
-    return LoadSS(TStr(), S, InFnm, Context, '\t', true);
+    return LoadSS(S, InFnm, Context, '\t', true);
   }
   /// Saves table schema + content into a TSV file.
   void SaveSS(const TStr& OutFNm);
@@ -529,16 +525,16 @@ public:
   void Save(TSOut& SOut);
 
   /// Builds table from hash table of int->int.
-  static PTable TableFromHashMap(const TStr& TableName, const THash<TInt,TInt>& H, 
-   const TStr& Col1, const TStr& Col2, TTableContext& Context, const TBool IsStrKeys = false) {
-    PTable T = New(TableName, H, Col1, Col2, Context, IsStrKeys);
+  static PTable TableFromHashMap(const THash<TInt,TInt>& H, const TStr& Col1, const TStr& Col2, 
+   TTableContext& Context, const TBool IsStrKeys = false) {
+    PTable T = New(H, Col1, Col2, Context, IsStrKeys);
     T->InitIds();
     return T;
   }
   /// Builds table from hash table of int->float.
-  static PTable TableFromHashMap(const TStr& TableName, const THash<TInt,TFlt>& H, 
-   const TStr& Col1, const TStr& Col2, TTableContext& Context, const TBool IsStrKeys = false) {
-    PTable T = New(TableName, H, Col1, Col2, Context, IsStrKeys);
+  static PTable TableFromHashMap(const THash<TInt,TFlt>& H, const TStr& Col1, const TStr& Col2, 
+   TTableContext& Context, const TBool IsStrKeys = false) {
+    PTable T = New(H, Col1, Col2, Context, IsStrKeys);
     T->InitIds();
     return T;
   }
@@ -647,19 +643,19 @@ public:
 	TStrV GetEdgeStrAttrV() const;
 
   /// Extracts node TTable from PNEANet.
-  static PTable GetNodeTable(const PNEANet& Network, const TStr& TableName, TTableContext& Context);
+  static PTable GetNodeTable(const PNEANet& Network, TTableContext& Context);
   /// Extracts edge TTable from PNEANet.
-  static PTable GetEdgeTable(const PNEANet& Network, const TStr& TableName, TTableContext& Context);
+  static PTable GetEdgeTable(const PNEANet& Network, TTableContext& Context);
 
   #ifdef _OPENMP
   /// Extracts edge TTable from parallel graph PNGraphMP.
-  static PTable GetEdgeTablePN(const PNGraphMP& Network, const TStr& TableName, TTableContext& Context);
+  static PTable GetEdgeTablePN(const PNGraphMP& Network, TTableContext& Context);
   #endif // _OPENMP
 
   /// Extracts node and edge property TTables from THash.
-  static PTable GetFltNodePropertyTable(const PNEANet& Network, const TStr& TableName, 
-   const TIntFltH& Property, const TStr& NodeAttrName, const TAttrType& NodeAttrType, 
-   const TStr& PropertyAttrName, TTableContext& Context);
+  static PTable GetFltNodePropertyTable(const PNEANet& Network, const TIntFltH& Property, 
+   const TStr& NodeAttrName, const TAttrType& NodeAttrType, const TStr& PropertyAttrName, 
+   TTableContext& Context);
 
 /***** Basic Getters *****/
   /// Gets type of column \c ColName.
@@ -839,22 +835,22 @@ public:
   void GetCollidingRows(const TTable& T, THashSet<TInt>& Collisions);
 
   /// Returns union of this table with given \c Table.
-  PTable Union(const TTable& Table, const TStr& TableName);
-  PTable Union(const PTable& Table, const TStr& TableName) { return Union(*Table, TableName); };
+  PTable Union(const TTable& Table);
+  PTable Union(const PTable& Table) { return Union(*Table); };
   /// Returns union of this table with given \c Table, preserving duplicates.
-  PTable UnionAll(const TTable& Table, const TStr& TableName);
-  PTable UnionAll(const PTable& Table, const TStr& TableName) { return UnionAll(*Table, TableName); };
+  PTable UnionAll(const TTable& Table);
+  PTable UnionAll(const PTable& Table) { return UnionAll(*Table); };
   /// Same as TTable::ConcatTable
   void UnionAllInPlace(const TTable& Table);
   void UnionAllInPlace(const PTable& Table) { return UnionAllInPlace(*Table); };
   /// Returns intersection of this table with given \c Table.
-  PTable Intersection(const TTable& Table, const TStr& TableName);
-  PTable Intersection(const PTable& Table, const TStr& TableName) { return Intersection(*Table, TableName); };
+  PTable Intersection(const TTable& Table);
+  PTable Intersection(const PTable& Table) { return Intersection(*Table); };
   /// Returns table with rows that are present in this table but not in given \c Table.
-  PTable Minus(TTable& Table, const TStr& TableName);
-  PTable Minus(const PTable& Table, const TStr& TableName) { return Minus(*Table, TableName); };
+  PTable Minus(TTable& Table);
+  PTable Minus(const PTable& Table) { return Minus(*Table); };
   /// Returns table with only the columns in \c ProjectCols.
-  PTable Project(const TStrV& ProjectCols, const TStr& TableName);
+  PTable Project(const TStrV& ProjectCols);
   /// Keeps only the columns specified in \c ProjectCols.
   void ProjectInPlace(const TStrV& ProjectCols);
   
@@ -948,20 +944,18 @@ public:
   static void QSortKeyVal(TIntV& Key, TIntV& Val, TInt Start, TInt End);
 
   /// Gets sequence of PageRank tables from given \c GraphSeq.
-  static TTableIterator GetMapPageRank(const TVec<PNEANet>& GraphSeq, 
-    TTableContext& Context, const TStr& TableNamePrefix = "PageRankTable",
-    const double& C = 0.85, const double& Eps = 1e-4, const int& MaxIter = 100) {
+  static TTableIterator GetMapPageRank(const TVec<PNEANet>& GraphSeq, TTableContext& Context, 
+   const double& C = 0.85, const double& Eps = 1e-4, const int& MaxIter = 100) {
     TVec<PTable> TableSeq(GraphSeq.Len());
-    TSnap::MapPageRank(GraphSeq, TableSeq, Context, TableNamePrefix, C, Eps, MaxIter);
+    TSnap::MapPageRank(GraphSeq, TableSeq, Context, C, Eps, MaxIter);
     return TTableIterator(TableSeq);
   }
 
   /// Gets sequence of Hits tables from given \c GraphSeq.
   static TTableIterator GetMapHitsIterator(const TVec<PNEANet>& GraphSeq, 
-    TTableContext& Context, const TStr& TableNamePrefix = "HitsTable",
-    const int& MaxIter = 20) {
+   TTableContext& Context, const int& MaxIter = 20) {
     TVec<PTable> TableSeq(GraphSeq.Len());
-    TSnap::MapHits(GraphSeq, TableSeq, Context, TableNamePrefix, MaxIter);
+    TSnap::MapHits(GraphSeq, TableSeq, Context, MaxIter);
     return TTableIterator(TableSeq);
   }
 
@@ -1129,24 +1123,21 @@ namespace TSnap {
   /// Gets sequence of PageRank tables from given \c GraphSeq into \c TableSeq.
   template <class PGraph>
   void MapPageRank(const TVec<PGraph>& GraphSeq, TVec<PTable>& TableSeq, 
-    TTableContext& Context, const TStr& TableNamePrefix,
-    const double& C, const double& Eps, const int& MaxIter) {
+   TTableContext& Context, const double& C, const double& Eps, const int& MaxIter) {
     int NumGraphs = GraphSeq.Len();
     TableSeq.Reserve(NumGraphs, NumGraphs);
     // This loop is parallelizable.
     for (TInt i = 0; i < NumGraphs; i++){
       TIntFltH PRankH;
       GetPageRank(GraphSeq[i], PRankH, C, Eps, MaxIter);
-      TableSeq[i] = TTable::TableFromHashMap(TableNamePrefix + "_" + i.GetStr(), 
-        PRankH, "NodeId", "PageRank", Context, false);
+      TableSeq[i] = TTable::TableFromHashMap(PRankH, "NodeId", "PageRank", Context, false);
     }
   }
 
   /// Gets sequence of Hits tables from given \c GraphSeq into \c TableSeq.
   template <class PGraph>
   void MapHits(const TVec<PGraph>& GraphSeq, TVec<PTable>& TableSeq, 
-    TTableContext& Context, const TStr& TableNamePrefix,
-    const int& MaxIter) {
+    TTableContext& Context, const int& MaxIter) {
     int NumGraphs = GraphSeq.Len();
     TableSeq.Reserve(NumGraphs, NumGraphs);
     // This loop is parallelizable.
@@ -1154,8 +1145,8 @@ namespace TSnap {
       TIntFltH HubH;
       TIntFltH AuthH;
       GetHits(GraphSeq[i], HubH, AuthH, MaxIter);
-      PTable HubT =  TTable::TableFromHashMap("1", HubH, "NodeId", "Hub", Context, false);
-      PTable AuthT =  TTable::TableFromHashMap("2", AuthH, "NodeId", "Authority", Context, false);
+      PTable HubT =  TTable::TableFromHashMap(HubH, "NodeId", "Hub", Context, false);
+      PTable AuthT =  TTable::TableFromHashMap(AuthH, "NodeId", "Authority", Context, false);
       PTable HitsT = HubT->Join("NodeId", AuthT, "NodeId");
       HitsT->Rename("1.NodeId", "NodeId");
       HitsT->Rename("1.Hub", "Hub");
@@ -1165,7 +1156,6 @@ namespace TSnap {
       V.Add("Hub");
       V.Add("Authority");
       HitsT->ProjectInPlace(V);
-      HitsT->Name = TableNamePrefix + "_" + i.GetStr();
       TableSeq[i] = HitsT;
     }
   }
