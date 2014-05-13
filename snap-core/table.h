@@ -245,9 +245,17 @@ public:
 
   static void SetMP(TInt Value) { UseMP = Value; }
   static TInt GetMP() { return UseMP; }
+
+  /// Adds suffix to column name if it doesn't exist
+  static TStr NormalizeColName(const TStr& ColName) {
+    TStr Result = ColName;
+    if (Result.GetCh(0) == '_') { return Result; }
+    if (Result.GetCh(Result.Len()-2) == '-') { return Result; }
+    return Result + "-1";
+  }
 protected:
   TTableContext& Context;  ///< Execution Context. ##TTable::Context
-  Schema S; ///< Table Schema.
+  Schema Sch; ///< Table Schema.
   TCRef CRef;
   TInt NumRows; ///< Number of rows in the table (valid and invalid).
   TInt NumValidRows; ///< Number of valid rows in the table (i.e. rows that were not logically removed).
@@ -311,16 +319,41 @@ protected:
   /// Gets name of the id column of this table.
   TStr GetIdColName() const { return IdColName; }
   /// Gets name of the column with index \c Idx in the schema.
-  TStr GetSchemaColName(TInt Idx) const { return S[Idx].Val1; }
+  TStr GetSchemaColName(TInt Idx) const { return Sch[Idx].Val1; }
   /// Gets type of the column with index \c Idx in the schema.
-  TAttrType GetSchemaColType(TInt Idx) const { return S[Idx].Val2; }
+  TAttrType GetSchemaColType(TInt Idx) const { return Sch[Idx].Val2; }
   /// Adds column with name \c ColName and type \c ColType to the schema.
   void AddSchemaCol(const TStr& ColName, TAttrType ColType) { 
-    S.Add(TPair<TStr,TAttrType>(ColName, ColType)); 
+    TStr NColName = NormalizeColName(ColName);
+    Sch.Add(TPair<TStr,TAttrType>(NColName, ColType)); 
+  }
+  TBool IsColName(const TStr& ColName) const {
+    TStr NColName = NormalizeColName(ColName);
+    return ColTypeMap.IsKey(NColName);
+  }
+  /// Adds column with name \c ColName and type \c ColType to the ColTypeMap.
+  void AddColType(const TStr& ColName, TPair<TAttrType,TInt> ColType) { 
+    TStr NColName = NormalizeColName(ColName);
+    ColTypeMap.AddDat(NColName, ColType);
+  }
+  /// Adds column with name \c ColName and type \c ColType to the ColTypeMap.
+  void AddColType(const TStr& ColName, TAttrType ColType, TInt Index) { 
+    AddColType(ColName, TPair<TAttrType,TInt>(ColType, Index));
+  }
+  /// Adds column with name \c ColName and type \c ColType to the ColTypeMap.
+  void DelColType(const TStr& ColName) { 
+    TStr NColName = NormalizeColName(ColName);
+    ColTypeMap.DelKey(NColName);
+  }
+  /// Gets column type and index of \c ColName.
+  TPair<TAttrType, TInt> GetColTypeMap(const TStr& ColName) const { 
+    TStr NColName = NormalizeColName(ColName);
+    return ColTypeMap.GetDat(NColName); 
   }
   /// Gets index of column \c ColName among columns of the same type in the schema.
   TInt GetColIdx(const TStr& ColName) const { 
-    return ColTypeMap.IsKey(ColName) ? ColTypeMap.GetDat(ColName).Val2 : TInt(-1); 
+    TStr NColName = NormalizeColName(ColName);
+    return ColTypeMap.IsKey(NColName) ? ColTypeMap.GetDat(NColName).Val2 : TInt(-1); 
   }
   /// Checks if \c Attr is an attribute of this table schema.
   TBool IsAttr(const TStr& Attr);
@@ -468,7 +501,7 @@ public:
   //  const TStr& Col2, TTableContext& Context);
   
   /// Copy constructor.
-  TTable(const TTable& Table): Context(Table.Context), S(Table.S),
+  TTable(const TTable& Table): Context(Table.Context), Sch(Table.Sch),
     NumRows(Table.NumRows), NumValidRows(Table.NumValidRows), FirstValidRow(Table.FirstValidRow),
     LastValidRow(Table.LastValidRow), Next(Table.Next), IntCols(Table.IntCols), 
     FltCols(Table.FltCols), StrColMaps(Table.StrColMaps), ColTypeMap(Table.ColTypeMap), 
@@ -543,15 +576,15 @@ public:
   // No type checking. Assuming ColName actually refers to the right type.
   /// Gets the value of integer attribute \c ColName at row \c RowIdx.
   TInt GetIntVal(const TStr& ColName, const TInt& RowIdx) { 
-    return IntCols[ColTypeMap.GetDat(ColName).Val2][RowIdx]; 
+    return IntCols[GetColIdx(ColName)][RowIdx]; 
   }
   /// Gets the value of float attribute \c ColName at row \c RowIdx.
   TFlt GetFltVal(const TStr& ColName, const TInt& RowIdx) { 
-    return FltCols[ColTypeMap.GetDat(ColName).Val2][RowIdx]; 
+    return FltCols[GetColIdx(ColName)][RowIdx]; 
   }
   /// Gets the value of string attribute \c ColName at row \c RowIdx.
   TStr GetStrVal(const TStr& ColName, const TInt& RowIdx) const { 
-    return GetStrVal(ColTypeMap.GetDat(ColName).Val2, RowIdx); 
+    return GetStrVal(GetColIdx(ColName), RowIdx); 
   }
 
 /***** Value Getters - getValue(col idx, row Idx) *****/
@@ -566,7 +599,7 @@ public:
   }
 
   /// Gets the schema of this table.
-  Schema GetSchema() { return S; }
+  Schema GetSchema() { return Sch; }
 
 /***** Graph handling *****/
   /// Creates a sequence of graphs based on values of column SplitAttr and windows specified by JumpSize and WindowSize.
@@ -593,15 +626,15 @@ public:
 	TStr GetSrcCol() const { return SrcCol; }
   /// Sets the name of the column to be used as src nodes in the graph.
   void SetSrcCol(const TStr& Src) {
-    if (!ColTypeMap.IsKey(Src)) { TExcept::Throw(Src + ": no such column"); }
-    SrcCol = Src;
+    if (!IsColName(Src)) { TExcept::Throw(Src + ": no such column"); }
+    SrcCol = NormalizeColName(Src);
   }
   /// Gets the name of the column to be used as dst nodes in the graph.
 	TStr GetDstCol() const { return DstCol; }
   /// Sets the name of the column to be used as dst nodes in the graph.
   void SetDstCol(const TStr& Dst) {
-    if (!ColTypeMap.IsKey(Dst)) { TExcept::Throw(Dst + ": no such column"); }
-    DstCol = Dst;
+    if (!IsColName(Dst)) { TExcept::Throw(Dst + ": no such column"); }
+    DstCol = NormalizeColName(Dst);
   }
   /// Adds column to be used as graph edge attribute.
   void AddEdgeAttr(const TStr& Attr) { AddGraphAttribute(Attr, true, false, false); }
@@ -659,7 +692,10 @@ public:
 
 /***** Basic Getters *****/
   /// Gets type of column \c ColName.
-	TAttrType GetColType(const TStr& ColName) const{ return ColTypeMap.GetDat(ColName).Val1; };
+	TAttrType GetColType(const TStr& ColName) const { 
+    TStr NColName = NormalizeColName(ColName);
+    return ColTypeMap.GetDat(NColName).Val1; 
+  }
   /// Gets total number of rows in this table.
   TInt GetNumRows() const { return NumRows;}
   /// Gets number of valid, i.e. not deleted, rows in this table.
@@ -681,8 +717,6 @@ public:
   void GetPartitionRanges(TIntPrV& Partitions, TInt NumPartitions) const;
 
 /***** Table Operations *****/
-	/// Adds a label to a column.
-	void AddLabel(const TStr& Column, const TStr& NewLabel);
   /// Renames a column.
   void Rename(const TStr& Column, const TStr& NewLabel);
 
@@ -1087,7 +1121,7 @@ void TTable::GroupByStrCol(const TStr& GroupBy, T& Grouping,
     for (TInt i = 0; i < IndexSet.Len(); i++) {
       if (IsRowValid(IndexSet[i])) {
         TInt RowIdx = IndexSet[i];     
-        TInt ColIdx = ColTypeMap.GetDat(GroupBy).Val2;
+        TInt ColIdx = GetColIdx(GroupBy);
         UpdateGrouping<TInt>(Grouping, StrColMaps[ColIdx][RowIdx], RowIdx);
       }
     }
