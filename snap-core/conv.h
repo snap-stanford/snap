@@ -409,55 +409,67 @@ PGraphMP ToGraphMP2(PTable Table, const TStr& SrcCol, const TStr& DstCol) {
   SrcOffsets.Add(0);
   for (TInt i = 1; i < NumThreads; i++) {
     TInt CurrOffset = i * PartSize;
-    // TODO: ensure that CurrOffset stays within the current thread's partition
     while (CurrOffset < (i+1) * PartSize && 
           SrcCol1[CurrOffset-1] == SrcCol1[CurrOffset]) { 
       CurrOffset++; 
     }
-    Assert(CurrOffset < (i+1) * PartSize);
-    SrcOffsets.Add(CurrOffset);
+    if (CurrOffset < (i+1) * PartSize) { SrcOffsets.Add(CurrOffset); }
   }
   SrcOffsets.Add(NumRows);
 
   DstOffsets.Add(0);
   for (TInt i = 1; i < NumThreads; i++) {
     TInt CurrOffset = i * PartSize;
-    // TODO: ensure that CurrOffset stays within the current thread's partition
     while (CurrOffset < (i+1) * PartSize && 
           DstCol2[CurrOffset-1] == DstCol2[CurrOffset]) { 
       CurrOffset++; 
     }
-    Assert(CurrOffset < (i+1) * PartSize);
-    DstOffsets.Add(CurrOffset);
+    if (CurrOffset < (i+1) * PartSize) { DstOffsets.Add(CurrOffset); }
   }
   DstOffsets.Add(NumRows);
 
+  TInt SrcPartCnt = SrcOffsets.Len()-1;
+  TInt DstPartCnt = DstOffsets.Len()-1;
+
+  // for (TInt i = 0; i < SrcOffsets.Len(); i++) {
+  //   printf("%d ", SrcOffsets[i].Val);
+  // }
+  // printf("\n");
+  // for (TInt i = 0; i < DstOffsets.Len(); i++) {
+  //   printf("%d ", DstOffsets[i].Val);
+  // }
+  // printf("\n");
+
   TIntV SrcNodeCounts, DstNodeCounts;
-  SrcNodeCounts.Reserve(NumThreads, NumThreads);
-  DstNodeCounts.Reserve(NumThreads, NumThreads);
+  SrcNodeCounts.Reserve(SrcPartCnt, SrcPartCnt);
+  DstNodeCounts.Reserve(DstPartCnt, DstPartCnt);
 
   #pragma omp parallel for schedule(dynamic)
-  for (int t = 0; t < 2*NumThreads; t++) {
-    TInt i = t/2;
-    if (t % 2 == 0 && SrcOffsets[i] != SrcOffsets[i+1]) { 
-      SrcNodeCounts[i] = 1;
-      TInt CurrNode = SrcCol1[SrcOffsets[i]];
-      for (TInt j = SrcOffsets[i]+1; j < SrcOffsets[i+1]; j++) {
-        while (j < SrcOffsets[i+1] && SrcCol1[j] == CurrNode) { j++; }
-        if (j < SrcOffsets[i+1]) {
-          SrcNodeCounts[i]++;
-          CurrNode = SrcCol1[j];
+  for (int t = 0; t < SrcPartCnt+DstPartCnt; t++) {
+    if (t < SrcPartCnt) {
+      TInt i = t;
+      if (SrcOffsets[i] != SrcOffsets[i+1]) { 
+        SrcNodeCounts[i] = 1;
+        TInt CurrNode = SrcCol1[SrcOffsets[i]];
+        for (TInt j = SrcOffsets[i]+1; j < SrcOffsets[i+1]; j++) {
+          while (j < SrcOffsets[i+1] && SrcCol1[j] == CurrNode) { j++; }
+          if (j < SrcOffsets[i+1]) {
+            SrcNodeCounts[i]++;
+            CurrNode = SrcCol1[j];
+          }
         }
       }
-    }
-    if (t % 2 == 1 && DstOffsets[i] != DstOffsets[i+1]) { 
-      DstNodeCounts[i] = 1;
-      TInt CurrNode = DstCol2[DstOffsets[i]];
-      for (TInt j = DstOffsets[i]+1; j < DstOffsets[i+1]; j++) {
-        while (j < DstOffsets[i+1] && DstCol2[j] == CurrNode) { j++; }
-        if (j < DstOffsets[i+1]) {
-          DstNodeCounts[i]++;
-          CurrNode = DstCol2[j];
+    } else {
+      TInt i = t - SrcPartCnt;
+      if (DstOffsets[i] != DstOffsets[i+1]) { 
+        DstNodeCounts[i] = 1;
+        TInt CurrNode = DstCol2[DstOffsets[i]];
+        for (TInt j = DstOffsets[i]+1; j < DstOffsets[i+1]; j++) {
+          while (j < DstOffsets[i+1] && DstCol2[j] == CurrNode) { j++; }
+          if (j < DstOffsets[i+1]) {
+            DstNodeCounts[i]++;
+            CurrNode = DstCol2[j];
+          }
         }
       }
     }
@@ -474,14 +486,14 @@ PGraphMP ToGraphMP2(PTable Table, const TStr& SrcCol, const TStr& DstCol) {
 
   TInt TotalSrcNodes = 0;
   TIntV SrcIdOffsets;
-  for (int i = 0; i < NumThreads; i++) {
+  for (int i = 0; i < SrcPartCnt; i++) {
     SrcIdOffsets.Add(TotalSrcNodes);
     TotalSrcNodes += SrcNodeCounts[i];
   }
 
   TInt TotalDstNodes = 0;
   TIntV DstIdOffsets;
-  for (int i = 0; i < NumThreads; i++) {
+  for (int i = 0; i < DstPartCnt; i++) {
     DstIdOffsets.Add(TotalDstNodes);
     TotalDstNodes += DstNodeCounts[i];
   }
@@ -498,33 +510,37 @@ PGraphMP ToGraphMP2(PTable Table, const TStr& SrcCol, const TStr& DstCol) {
   }
 
   #pragma omp parallel for schedule(dynamic)
-  for (int t = 0; t < 2*NumThreads; t++) {
-    TInt i = t/2;
-    if (t % 2 == 0 && SrcOffsets[i] != SrcOffsets[i+1]) {
-      TInt CurrNode = SrcCol1[SrcOffsets[i]];
-      TInt ThreadOffset = SrcIdOffsets[i];
-      SrcNodeIds[ThreadOffset] = TIntPr(CurrNode, SrcOffsets[i]);
-      TInt CurrCount = 1;
-      for (TInt j = SrcOffsets[i]+1; j < SrcOffsets[i+1]; j++) {
-        while (j < SrcOffsets[i+1] && SrcCol1[j] == CurrNode) { j++; }
-        if (j < SrcOffsets[i+1]) {
-          CurrNode = SrcCol1[j];
-          SrcNodeIds[ThreadOffset+CurrCount] = TIntPr(CurrNode, j);
-          CurrCount++;
+  for (int t = 0; t < SrcPartCnt+DstPartCnt; t++) {
+    if (t < SrcPartCnt) {
+      TInt i = t;
+      if (SrcOffsets[i] != SrcOffsets[i+1]) {
+        TInt CurrNode = SrcCol1[SrcOffsets[i]];
+        TInt ThreadOffset = SrcIdOffsets[i];
+        SrcNodeIds[ThreadOffset] = TIntPr(CurrNode, SrcOffsets[i]);
+        TInt CurrCount = 1;
+        for (TInt j = SrcOffsets[i]+1; j < SrcOffsets[i+1]; j++) {
+          while (j < SrcOffsets[i+1] && SrcCol1[j] == CurrNode) { j++; }
+          if (j < SrcOffsets[i+1]) {
+            CurrNode = SrcCol1[j];
+            SrcNodeIds[ThreadOffset+CurrCount] = TIntPr(CurrNode, j);
+            CurrCount++;
+          }
         }
       }
-    }
-    if (t % 2 == 1 && DstOffsets[i] != DstOffsets[i+1]) {
-      TInt CurrNode = DstCol2[DstOffsets[i]];
-      TInt ThreadOffset = DstIdOffsets[i];
-      DstNodeIds[ThreadOffset] = TIntPr(CurrNode, DstOffsets[i]);
-      TInt CurrCount = 1;
-      for (TInt j = DstOffsets[i]+1; j < DstOffsets[i+1]; j++) {
-        while (j < DstOffsets[i+1] && DstCol2[j] == CurrNode) { j++; }
-        if (j < DstOffsets[i+1]) {
-          CurrNode = DstCol2[j];
-          DstNodeIds[ThreadOffset+CurrCount] = TIntPr(CurrNode, j);
-          CurrCount++;
+    } else {
+      TInt i = t - SrcPartCnt;  
+      if (DstOffsets[i] != DstOffsets[i+1]) {
+        TInt CurrNode = DstCol2[DstOffsets[i]];
+        TInt ThreadOffset = DstIdOffsets[i];
+        DstNodeIds[ThreadOffset] = TIntPr(CurrNode, DstOffsets[i]);
+        TInt CurrCount = 1;
+        for (TInt j = DstOffsets[i]+1; j < DstOffsets[i+1]; j++) {
+          while (j < DstOffsets[i+1] && DstCol2[j] == CurrNode) { j++; }
+          if (j < DstOffsets[i+1]) {
+            CurrNode = DstCol2[j];
+            DstNodeIds[ThreadOffset+CurrCount] = TIntPr(CurrNode, j);
+            CurrCount++;
+          }
         }
       }
     }

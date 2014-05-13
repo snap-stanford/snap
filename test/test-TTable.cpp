@@ -117,7 +117,29 @@ TEST(TTable, ParallelJoin) {
   EXPECT_EQ(24, P->GetNumValidRows().Val); 
 }
 
-// Tests ToGraphMP2 function.
+// Tests sequential table to graph function.
+TEST(TTable, ToGraph) {
+  TTableContext Context;
+
+  Schema LJS;
+  LJS.Add(TPair<TStr,TAttrType>("Src", atInt));
+  LJS.Add(TPair<TStr,TAttrType>("Dst", atInt));
+  TIntV RelevantCols; RelevantCols.Add(0); RelevantCols.Add(1);
+
+  PTable T1 = TTable::LoadSS("1", LJS, "table/soc-LiveJournal1_small.txt", Context, RelevantCols);
+
+  EXPECT_EQ(499, T1->GetNumRows().Val);
+  EXPECT_EQ(499, T1->GetNumValidRows().Val); 
+
+  TVec<TPair<TStr, TAttrType> > S = T1->GetSchema();
+  PNGraph Graph = TSnap::ToGraph<PNGraph>(T1, S[0].GetVal1(), S[1].GetVal1(), aaFirst);
+
+  EXPECT_EQ(689,Graph->GetNodes());
+  EXPECT_EQ(499,Graph->GetEdges());
+  EXPECT_EQ(1,Graph->IsOk());
+}
+
+// Tests parallel table to graph function.
 TEST(TTable, ToGraphMP2) {
   TTableContext Context;
 
@@ -134,7 +156,7 @@ TEST(TTable, ToGraphMP2) {
   TVec<TPair<TStr, TAttrType> > S = T1->GetSchema();
   PNGraphMP Graph = TSnap::ToGraphMP2<PNGraphMP>(T1, S[0].GetVal1(), S[1].GetVal1());
 
-  EXPECT_EQ(710,Graph->GetNodes());
+  EXPECT_EQ(689,Graph->GetNodes());
   EXPECT_EQ(499,Graph->GetEdges());
   EXPECT_EQ(1,Graph->IsOk());
 }
