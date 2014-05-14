@@ -558,6 +558,17 @@ public:
     return GetStrVal(ColTypeMap.GetDat(ColName).Val2, RowIdx); 
   }
 
+/***** Value Getters - getValue(col idx, row Idx) *****/
+  // No type and bound checking
+  /// Get the integer value at column \c ColIdx and row \c RowIdx
+  TInt GetIntVal2(const TInt& ColIdx, const TInt& RowIdx) { 
+    return IntCols[ColIdx][RowIdx]; 
+  }
+  /// Get the float value at column \c ColIdx and row \c RowIdx
+  TFlt GetFltVal2(const TFlt& ColIdx, const TFlt& RowIdx) { 
+    return FltCols[ColIdx][RowIdx]; 
+  }
+
   /// Gets the schema of this table.
   Schema GetSchema() { return S; }
 

@@ -964,6 +964,8 @@ public:
   int GetPrimHashCd() const {return Val;}
   int GetSecHashCd() const {return Val;}
 
+  static bool IsHashCh(const char& Ch){
+    return (Ch==HashCh);}
   static bool IsWs(const char& Ch){
     return (Ch==' ')||(Ch==TabCh)||(Ch==CrCh)||(Ch==LfCh);}
   static bool IsAlpha(const char& Ch){

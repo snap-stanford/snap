@@ -38,8 +38,13 @@ int main(int argc, char** argv){
   double t1=tim.tv_sec+(tim.tv_usec/1000000.0);
   
   TFIn FIn(srcfile);
-  printf("Result:\n");
   PTable T1 = TTable::Load(FIn, Context);
+
+  // Schema LJS;
+  // LJS.Add(TPair<TStr,TAttrType>("Src", atInt));
+  // LJS.Add(TPair<TStr,TAttrType>("Dst", atInt));
+  // TIntV RelevantCols; RelevantCols.Add(0); RelevantCols.Add(1);
+  // PTable T1 = TTable::LoadSS("1", LJS, srcfile, Context, RelevantCols);
 
   gettimeofday(&tim, NULL);
   double t2=tim.tv_sec+(tim.tv_usec/1000000.0);

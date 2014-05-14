@@ -53,86 +53,110 @@ TEST(TTable, ParallelSelect) {
   TTableContext Context;
 
   // TODO: Change this to point to a local copy of the LiveJournal table binary.
-  char srcfile[100] = "/dfs/ilfs2/0/ringo/benchmarks/soc-LiveJournal1.table";
-  
-  TFIn SIn(srcfile);
-  PTable T1 = TTable::Load(SIn, Context);
+  // char srcfile[100] = "/dfs/ilfs2/0/ringo/benchmarks/soc-LiveJournal1.table";
 
-  EXPECT_EQ(68993773, T1->GetNumRows().Val);
-  EXPECT_EQ(68993773, T1->GetNumValidRows().Val); 
+  Schema LJS;
+  LJS.Add(TPair<TStr,TAttrType>("Src", atInt));
+  LJS.Add(TPair<TStr,TAttrType>("Dst", atInt));
+  TIntV RelevantCols; RelevantCols.Add(0); RelevantCols.Add(1);
+
+  PTable T1 = TTable::LoadSS("1", LJS, "table/soc-LiveJournal1_small.txt", Context, RelevantCols);
+
+  EXPECT_EQ(499, T1->GetNumRows().Val);
+  EXPECT_EQ(499, T1->GetNumValidRows().Val); 
 
   PTable T2 = TTable::New("2", T1->GetSchema(), Context);
-  T1->SelectAtomicIntConst("Src", 10000, LT, T2);
+  T1->SelectAtomicIntConst("Src", 88, LT, T2);
 
-  EXPECT_EQ(581776, T2->GetNumRows().Val);
-  EXPECT_EQ(581776, T2->GetNumValidRows().Val); 
+  EXPECT_EQ(196, T2->GetNumRows().Val);
+  EXPECT_EQ(196, T2->GetNumValidRows().Val); 
 }
 
 // Tests parallel select in-place function.
 TEST(TTable, ParallelSelectInPlace) {
   TTableContext Context;
 
-  // TODO: Change this to point to a local copy of the LiveJournal table binary.
-  char srcfile[100] = "/dfs/ilfs2/0/ringo/benchmarks/soc-LiveJournal1.table";
-  
-  TFIn SIn(srcfile);
-  PTable T1 = TTable::Load(SIn, Context);
+  Schema LJS;
+  LJS.Add(TPair<TStr,TAttrType>("Src", atInt));
+  LJS.Add(TPair<TStr,TAttrType>("Dst", atInt));
+  TIntV RelevantCols; RelevantCols.Add(0); RelevantCols.Add(1);
 
-  EXPECT_EQ(68993773, T1->GetNumRows().Val);
-  EXPECT_EQ(68993773, T1->GetNumValidRows().Val); 
+  PTable T1 = TTable::LoadSS("1", LJS, "table/soc-LiveJournal1_small.txt", Context, RelevantCols);
 
-  PTable T2 = TTable::New("2", T1->GetSchema(), Context);
-  T1->SelectAtomicIntConst("Src", 10000, GT);
+  EXPECT_EQ(499, T1->GetNumRows().Val);
+  EXPECT_EQ(499, T1->GetNumValidRows().Val); 
 
-  EXPECT_EQ(68993773, T1->GetNumRows().Val);
-  EXPECT_EQ(68411783, T1->GetNumValidRows().Val); 
+  T1->SelectAtomicIntConst("Src", 87, GT);
+
+  EXPECT_EQ(499, T1->GetNumRows().Val);
+  EXPECT_EQ(303, T1->GetNumValidRows().Val); 
 }
 
 // Tests parallel join function.
 TEST(TTable, ParallelJoin) {
   TTableContext Context;
 
-  // TODO: Change this to point to a local copy of the LiveJournal table binary.
-  char srcfile1[100] = "/dfs/ilfs2/0/ringo/benchmarks/soc-LiveJournal1.table";
-  char srcfile2[100] = "/dfs/ilfs2/0/ringo/benchmarks/soc-LiveJournal1_10k.txt";
+  Schema LJS;
+  LJS.Add(TPair<TStr,TAttrType>("Src", atInt));
+  LJS.Add(TPair<TStr,TAttrType>("Dst", atInt));
+  TIntV RelevantCols; RelevantCols.Add(0); RelevantCols.Add(1);
+
+  PTable T1 = TTable::LoadSS("1", LJS, "table/soc-LiveJournal1_small.txt", Context, RelevantCols);
+
+  EXPECT_EQ(499, T1->GetNumRows().Val);
+  EXPECT_EQ(499, T1->GetNumValidRows().Val); 
   
-  TFIn SIn(srcfile1);
-  PTable T1 = TTable::Load(SIn, Context);
+  PTable T2 = TTable::LoadSS("2", LJS, "table/soc-LiveJournal1_small.txt", Context, RelevantCols);
 
-  EXPECT_EQ(68993773, T1->GetNumRows().Val);
-  EXPECT_EQ(68993773, T1->GetNumValidRows().Val); 
-  
-  // Create schema.
-  Schema S2;
-  S2.Add(TPair<TStr,TAttrType>("Index", atInt));
-  TIntV RelevantCols2;
-  PTable T2 = TTable::LoadSS("2", S2, srcfile2, Context, RelevantCols2);
+  EXPECT_EQ(499, T2->GetNumRows().Val);
+  EXPECT_EQ(499, T2->GetNumValidRows().Val); 
 
-  EXPECT_EQ(10000, T2->GetNumRows().Val);
-  EXPECT_EQ(10000, T2->GetNumValidRows().Val); 
+  PTable P = T1->Join("Src", T2, "Dst");
 
-  PTable P = T1->Join("Src", T2, "Index");
-
-  EXPECT_EQ(1128462, P->GetNumRows().Val);
-  EXPECT_EQ(1128462, P->GetNumValidRows().Val); 
+  EXPECT_EQ(24, P->GetNumRows().Val);
+  EXPECT_EQ(24, P->GetNumValidRows().Val); 
 }
 
-// Tests ToGraphMP2 function.
+// Tests sequential table to graph function.
+TEST(TTable, ToGraph) {
+  TTableContext Context;
+
+  Schema LJS;
+  LJS.Add(TPair<TStr,TAttrType>("Src", atInt));
+  LJS.Add(TPair<TStr,TAttrType>("Dst", atInt));
+  TIntV RelevantCols; RelevantCols.Add(0); RelevantCols.Add(1);
+
+  PTable T1 = TTable::LoadSS("1", LJS, "table/soc-LiveJournal1_small.txt", Context, RelevantCols);
+
+  EXPECT_EQ(499, T1->GetNumRows().Val);
+  EXPECT_EQ(499, T1->GetNumValidRows().Val); 
+
+  TVec<TPair<TStr, TAttrType> > S = T1->GetSchema();
+  PNGraph Graph = TSnap::ToGraph<PNGraph>(T1, S[0].GetVal1(), S[1].GetVal1(), aaFirst);
+
+  EXPECT_EQ(689,Graph->GetNodes());
+  EXPECT_EQ(499,Graph->GetEdges());
+  EXPECT_EQ(1,Graph->IsOk());
+}
+
+// Tests parallel table to graph function.
 TEST(TTable, ToGraphMP2) {
   TTableContext Context;
 
-  char srcfile[100] = "/dfs/ilfs2/0/ringo/benchmarks/soc-LiveJournal1.table";
-  
-  TFIn FIn(srcfile);
-  PTable T1 = TTable::Load(FIn, Context);
+  Schema LJS;
+  LJS.Add(TPair<TStr,TAttrType>("Src", atInt));
+  LJS.Add(TPair<TStr,TAttrType>("Dst", atInt));
+  TIntV RelevantCols; RelevantCols.Add(0); RelevantCols.Add(1);
 
-  EXPECT_EQ(68993773, T1->GetNumRows().Val);
-  EXPECT_EQ(68993773, T1->GetNumValidRows().Val); 
+  PTable T1 = TTable::LoadSS("1", LJS, "table/soc-LiveJournal1_small.txt", Context, RelevantCols);
+
+  EXPECT_EQ(499, T1->GetNumRows().Val);
+  EXPECT_EQ(499, T1->GetNumValidRows().Val); 
 
   TVec<TPair<TStr, TAttrType> > S = T1->GetSchema();
   PNGraphMP Graph = TSnap::ToGraphMP2<PNGraphMP>(T1, S[0].GetVal1(), S[1].GetVal1());
 
-  EXPECT_EQ(4847571,Graph->GetNodes());
-  EXPECT_EQ(68993773,Graph->GetEdges());
+  EXPECT_EQ(689,Graph->GetNodes());
+  EXPECT_EQ(499,Graph->GetEdges());
   EXPECT_EQ(1,Graph->IsOk());
 }
