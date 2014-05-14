@@ -759,7 +759,7 @@ TInt TNEANet::GetIntAttrDatN(const int& NId, const TStr& attr) {
   return VecOfIntVecsN[KeyToIndexTypeN.GetDat(attr).Val2][NodeH.GetKeyId(NId)];
 }
 
-TInt &TNEANet::GetIntAttrDatN(const int& NId, const int& index) {
+TInt TNEANet::GetIntAttrIndDatN(const int& NId, const int& index) {
   return VecOfIntVecsN[index][NodeH.GetKeyId(NId)];
 }
 
@@ -779,7 +779,7 @@ TInt TNEANet::GetIntAttrDatE(const int& EId, const TStr& attr) {
   return VecOfIntVecsE[KeyToIndexTypeE.GetDat(attr).Val2][EdgeH.GetKeyId(EId)];
 }
 
-TInt &TNEANet::GetIntAttrDatE(const int& EId, const int& index) {
+TInt TNEANet::GetIntAttrIndDatE(const int& EId, const int& index) {
   return VecOfIntVecsE[index][EdgeH.GetKeyId(EId)];
 }
 

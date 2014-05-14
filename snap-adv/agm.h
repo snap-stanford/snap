@@ -82,6 +82,24 @@ public:
     Graph->Defrag();
     return Graph;
   }
+  template <class PGraph>
+  static PGraph LoadEdgeListStr(const TStr& InFNm, TStrHash<TInt>& NodeNameH, const int& SrcColId = 0, const int& DstColId = 1, const TSsFmt SsFmt = ssfTabSep) {
+    TSsParser Ss(InFNm, SsFmt);
+    PGraph Graph = PGraph::TObj::New();
+    TStrHash<TInt> StrSet(Mega(1), true);
+    while (Ss.Next()) {
+      const int SrcNId = StrSet.AddKey(Ss[SrcColId]);
+      const int DstNId = StrSet.AddKey(Ss[DstColId]);
+      if (! Graph->IsNode(SrcNId)) { Graph->AddNode(SrcNId); }
+      if (! Graph->IsNode(DstNId)) { Graph->AddNode(DstNId); }
+      Graph->AddEdge(SrcNId, DstNId);
+    }
+    NodeNameH = StrSet;
+    NodeNameH.Pack();
+
+    Graph->Defrag();
+    return Graph;
+  }
 
   template<class PGraph>
   static void GVizComGraph(const PGraph& Graph,const TVec<TIntV >& CmtyVV, const TStr& OutFNm, const TStr& Desc = TStr()){
