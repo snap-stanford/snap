@@ -25,7 +25,7 @@ int IntFlowBiDBFS (const PNEANet &Net, const int& CapIndex, TIntV &Flow, TIntQ &
     for (int EdgeN = 0; EdgeN < FwdNI.GetOutDeg(); EdgeN++) {
       int NextNId = FwdNI.GetOutNId(EdgeN);
       int NextEId = FwdNI.GetOutEId(EdgeN);
-      if (!PredEdgeH.IsKey(NextNId) && Net->GetIntAttrDatE(NextEId, CapIndex) > Flow[NextEId]) {
+      if (!PredEdgeH.IsKey(NextNId) && Net->GetIntAttrIndDatE(NextEId, CapIndex) > Flow[NextEId]) {
         PredEdgeH.AddDat(NextNId, NextEId);
         if (SuccEdgeH.IsKey(NextNId)) {
           return NextNId;
@@ -51,7 +51,7 @@ int IntFlowBiDBFS (const PNEANet &Net, const int& CapIndex, TIntV &Flow, TIntQ &
     for (int EdgeN = 0; EdgeN < BwdNI.GetInDeg(); EdgeN++) {
       int PrevNId = BwdNI.GetInNId(EdgeN);
       int PrevEId = BwdNI.GetInEId(EdgeN);
-      if (!SuccEdgeH.IsKey(PrevNId) && Net->GetIntAttrDatE(PrevEId, CapIndex) > Flow[PrevEId]) {
+      if (!SuccEdgeH.IsKey(PrevNId) && Net->GetIntAttrIndDatE(PrevEId, CapIndex) > Flow[PrevEId]) {
         SuccEdgeH.AddDat(PrevNId, PrevEId);
         if (PredEdgeH.IsKey(PrevNId)) {
           return PrevNId;
@@ -77,7 +77,7 @@ int FindAugV (const PNEANet &Net, const int& CapIndex, TIntV &Flow, TIntQ &FwdNo
       AugFlow = Flow[EId];
     } else {
       NId = EI.GetSrcNId();
-      AugFlow = Net->GetIntAttrDatE(EId, CapIndex) - Flow[EId];
+      AugFlow = Net->GetIntAttrIndDatE(EId, CapIndex) - Flow[EId];
     }
     if (AugFlow < MinAug) { MinAug = AugFlow; }
   }
@@ -91,7 +91,7 @@ int FindAugV (const PNEANet &Net, const int& CapIndex, TIntV &Flow, TIntQ &FwdNo
       AugFlow = Flow[EId];
     } else {
       NId = EI.GetDstNId();
-      AugFlow = Net->GetIntAttrDatE(EId, CapIndex) - Flow[EId];
+      AugFlow = Net->GetIntAttrIndDatE(EId, CapIndex) - Flow[EId];
     }
     if (AugFlow < MinAug) { MinAug = AugFlow; }
   }
@@ -106,7 +106,7 @@ int GetMaxFlowIntEK (PNEANet &Net, const int &SrcNId, const int &SnkNId) {
   TIntV Flow(Net->GetMxEId());
   // Initialize flow values to 0, and make sure capacities are nonnegative
   for (TNEANet::TEdgeI EI = Net->BegEI(); EI != Net->EndEI(); EI++) {
-    IAssert(Net->GetIntAttrDatE(EI, CapIndex) >= 0);
+    IAssert(Net->GetIntAttrIndDatE(EI, CapIndex) >= 0);
     Flow[EI.GetId()] = 0;
   }
   // Return 0 if user attempts to flow from a node to itself.
@@ -168,7 +168,7 @@ public:
   }
 
   int Capacity (int EId) {
-    return Net->GetIntAttrDatE(EId, CapIndex);
+    return Net->GetIntAttrIndDatE(EId, CapIndex);
   }
 
   int &Flow (int EId) {

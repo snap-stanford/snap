@@ -1993,9 +1993,9 @@ public:
 
   /// Gets the index of the node attr value vector specified by str attr.
   int GetIntAttrIndN(const TStr& attr);
-  /// Gets the value of int attr from the node attr value vector
-  TInt &GetIntAttrDatN(const TNodeI& NodeId, const int& index) { return GetIntAttrDatN(NodeId.GetId(), index); }
-  TInt &GetIntAttrDatN(const int& NId, const int& index);
+  /// Gets the value of node int attr specified by the attr index.
+  TInt GetIntAttrIndDatN(const TNodeI& NodeId, const int& index) { return GetIntAttrIndDatN(NodeId.GetId(), index); }
+  TInt GetIntAttrIndDatN(const int& NId, const int& index);
 
   /// Gets the value of int attr from the edge attr value vector.
   TInt GetIntAttrDatE(const TEdgeI& EdgeId, const TStr& attr) { return GetIntAttrDatE(EdgeId.GetId(), attr); }
@@ -2009,9 +2009,9 @@ public:
 
   /// Gets the index of the edge attr value vector specified by str attr.
   int GetIntAttrIndE(const TStr& attr);
-  /// Gets the value of int attr from the edge attr value vector
-  TInt &GetIntAttrDatE(const TEdgeI& EdgeId, const int &index) { return GetIntAttrDatE(EdgeId.GetId(), index); }
-  TInt &GetIntAttrDatE(const int& EId, const int& index);
+  /// Gets the value of edge int attr specified by the attr index.
+  TInt GetIntAttrIndDatE(const TEdgeI& EdgeId, const int &index) { return GetIntAttrIndDatE(EdgeId.GetId(), index); }
+  TInt GetIntAttrIndDatE(const int& EId, const int& index);
  
   /// Deletes the node attribute for NodeId.
   int DelAttrDatN(const TNodeI& NodeId, const TStr& attr) { return DelAttrDatN(NodeId.GetId(), attr); } 
