@@ -338,7 +338,8 @@ protected:
   }
   /// Adds column with name \c ColName and type \c ColType to the ColTypeMap.
   void AddColType(const TStr& ColName, TAttrType ColType, TInt Index) { 
-    AddColType(ColName, TPair<TAttrType,TInt>(ColType, Index));
+    TStr NColName = NormalizeColName(ColName);
+    AddColType(NColName, TPair<TAttrType,TInt>(ColType, Index));
   }
   /// Adds column with name \c ColName and type \c ColType to the ColTypeMap.
   void DelColType(const TStr& ColName) { 
