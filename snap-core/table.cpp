@@ -671,20 +671,22 @@ void TTable::AddStrVal(const TStr& Col, const TStr& Val) {
 
 void TTable::AddGraphAttribute(const TStr& Attr, TBool IsEdge, TBool IsSrc, TBool IsDst) {
   if (!IsColName(Attr)) { TExcept::Throw(Attr + ": No such column"); }
-  if (IsEdge) { EdgeAttrV.Add(Attr); }
-  if (IsSrc) { SrcNodeAttrV.Add(Attr); }
-  if (IsDst) { DstNodeAttrV.Add(Attr); }
+  if (IsEdge) { EdgeAttrV.Add(NormalizeColName(Attr)); }
+  if (IsSrc) { SrcNodeAttrV.Add(NormalizeColName(Attr)); }
+  if (IsDst) { DstNodeAttrV.Add(NormalizeColName(Attr)); }
 }
 
 void TTable::AddGraphAttributeV(TStrV& Attrs, TBool IsEdge, TBool IsSrc, TBool IsDst) {
   for (TInt i = 0; i < Attrs.Len(); i++) {
-      if (!IsColName(Attrs[i])) {
-        TExcept::Throw(Attrs[i] + ": no such column");
-      }
-  }    
-  if (IsEdge) { EdgeAttrV.AddV(Attrs); }
-  if (IsSrc) { SrcNodeAttrV.AddV(Attrs); }
-  if (IsDst) { DstNodeAttrV.AddV(Attrs); }
+    if (!IsColName(Attrs[i])) {
+      TExcept::Throw(Attrs[i] + ": no such column");
+    }
+  }
+  for (TInt i = 0; i < Attrs.Len(); i++) {
+    if (IsEdge) { EdgeAttrV.Add(NormalizeColName(Attrs[i])); }
+    if (IsSrc) { SrcNodeAttrV.Add(NormalizeColName(Attrs[i])); }
+    if (IsDst) { DstNodeAttrV.Add(NormalizeColName(Attrs[i])); }    
+  }
 }
 
 TStrV TTable::GetSrcNodeIntAttrV() const {
@@ -936,10 +938,11 @@ void TTable::GroupByIntColMP(const TStr& GroupBy, THashMP<TInt, TIntV>& Grouping
 
 void TTable::Unique(const TStr& Col) {
   TIntV RemainingRows;
-  switch (GetColType(Col)) {
+  TStr NCol = NormalizeColName(Col);
+  switch (GetColType(NCol)) {
     case atInt: {
       TIntIntVH Grouping;
-      GroupByIntCol(Col, Grouping, TIntV(), true);
+      GroupByIntCol(NCol, Grouping, TIntV(), true);
       for (TIntIntVH::TIter it = Grouping.BegI(); it < Grouping.EndI(); it++) {
         RemainingRows.Add(it->Dat[0]);
       }
@@ -947,7 +950,7 @@ void TTable::Unique(const TStr& Col) {
     }
     case atFlt: {
       THash<TFlt,TIntV> Grouping;
-      GroupByFltCol(Col, Grouping, TIntV(), true);
+      GroupByFltCol(NCol, Grouping, TIntV(), true);
       for (THash<TFlt,TIntV>::TIter it = Grouping.BegI(); it < Grouping.EndI(); it++) {
         RemainingRows.Add(it->Dat[0]);
       }
@@ -955,7 +958,7 @@ void TTable::Unique(const TStr& Col) {
     } 
     case atStr: {
       TIntIntVH Grouping;
-      GroupByStrCol(Col, Grouping, TIntV(), true);
+      GroupByStrCol(NCol, Grouping, TIntV(), true);
       for (TIntIntVH::TIter it = Grouping.BegI(); it < Grouping.EndI(); it++) {
         RemainingRows.Add(it->Dat[0]);
       }
@@ -966,9 +969,10 @@ void TTable::Unique(const TStr& Col) {
 }
 
 void TTable::Unique(const TStrV& Cols, TBool Ordered) {
+  TStrV NCols = NormalizeColNameV(Cols);
   THash<TGroupKey, TPair<TInt, TIntV> > Grouping;
   TIntV UniqueVec;
-  GroupAux(Cols, Grouping, Ordered, "", true, UniqueVec);
+  GroupAux(NCols, Grouping, Ordered, "", true, UniqueVec);
   KeepSortedRows(UniqueVec);
 }
 
@@ -1220,34 +1224,36 @@ void TTable::GroupAuxMP(const TStrV& GroupBy, THashGenericMP<TGroupKey, TPair<TI
 
 // grouping begins here
 void TTable::Group(const TStrV& GroupBy, const TStr& GroupColName, TBool Ordered) {
+  TStrV NGroupBy = NormalizeColNameV(GroupBy);
+  TStr NGroupColName = NormalizeColName(GroupColName);
   TIntV UniqueVec;
-  THash<TGroupKey, TPair<TInt, TIntV> >Grouping;
+  THash<TGroupKey, TPair<TInt, TIntV> > Grouping;
   // by default, we assume we don't want unique rows
-  GroupAux(GroupBy, Grouping, Ordered, GroupColName, false, UniqueVec);
+  GroupAux(NGroupBy, Grouping, Ordered, NGroupColName, false, UniqueVec);
 }
 
 void TTable::Aggregate(const TStrV& GroupByAttrs, TAttrAggr AggOp,
  const TStr& ValAttr, const TStr& ResAttr, TBool Ordered) {
-  //double startFn = omp_get_wtime();
-  // check if grouping already exists
-  TPair<TStrV, TBool> GroupStmtName(GroupByAttrs, Ordered);
+  // double startFn = omp_get_wtime();
+  TStrV NGroupByAttrs = NormalizeColNameV(GroupByAttrs);
 
+  // check if grouping already exists
+  TPair<TStrV, TBool> GroupStmtName(NGroupByAttrs, Ordered);
   if (!GroupMapping.IsKey(GroupStmtName)) {
     // group mapping does not exist, perform grouping first
-    Group(GroupByAttrs, "", Ordered);
+    Group(NGroupByAttrs, "", Ordered);
   }
-  //double endGroup = omp_get_wtime();
-  //printf("Group time = %f\n", endGroup-startFn);
+  // double endGroup = omp_get_wtime();
+  // printf("Group time = %f\n", endGroup-startFn);
 
   // group mapping exists, retrieve it and aggregate
   THash<TGroupKey, TIntV> Mapping = GroupMapping.GetDat(GroupStmtName);
 
+  TAttrType T = GetColType(ValAttr);
+
   // add column corresponding to result attribute type
-  if (AggOp == aaCount) {
-    AddIntCol(ResAttr);
-  }
+  if (AggOp == aaCount) { AddIntCol(ResAttr); } 
   else {
-    TAttrType T = GetColType(ValAttr);
     if (T == atInt) { AddIntCol(ResAttr); }
     else if (T == atFlt) { AddFltCol(ResAttr); }
     else {
@@ -1256,9 +1262,10 @@ void TTable::Aggregate(const TStrV& GroupByAttrs, TAttrAggr AggOp,
     }
   }
   TInt ColIdx = GetColIdx(ResAttr);
+  TInt AggrColIdx = GetColIdx(ValAttr);
 
-  //double endAdd = omp_get_wtime();
-  //printf("AddCol time = %f\n", endAdd-endGroup);
+  // double endAdd = omp_get_wtime();
+  // printf("AddCol time = %f\n", endAdd-endGroup);
 
   #ifdef _OPENMP
   #pragma omp parallel for schedule(dynamic)
@@ -1270,65 +1277,37 @@ void TTable::Aggregate(const TStrV& GroupByAttrs, TAttrAggr AggOp,
     // find valid rows of group
     TIntV ValidRows;
     for (TInt i = 0; i < GroupRows.Len(); i++) {
-      if (!RowIdMap.IsKey(GroupRows[i])) {
-        // TODO: This should not be necessary, there is a bug to fix
-        continue;
-      }
+      // TODO: This should not be necessary
+      if (!RowIdMap.IsKey(GroupRows[i])) { continue; }
       TInt RowId = RowIdMap.GetDat(GroupRows[i]);
       // GroupRows has physical row indices
       if (RowId != Invalid) { ValidRows.Add(RowId); }
     }
 
+    TInt sz = ValidRows.Len();
+    if (sz <= 0) continue;
     // Count is handled separately (other operations have aggregation policies defined in a template)
     if (AggOp == aaCount) {
-      TInt sz = ValidRows.Len();
       for (TInt i = 0; i < sz; i++) { IntCols[ColIdx][ValidRows[i]] = sz; }
-    }
-    else {
+    } else {
       // aggregate based on column type
-      TAttrType T = GetColType(ValAttr);
-      if (T == atStr) {
-        TExcept::Throw("Invalid aggregation for Str type!");
-      }
-      else if (T == atInt) {
+      if (T == atInt) {
         TIntV V;
-        TInt sz = ValidRows.Len();
-        if (sz <= 0) continue;
-
-        TInt AggrColIdx = GetColIdx(ValAttr);
-        for (TInt i = 0; i < sz; i++) {
-          V.Add(IntCols[AggrColIdx][ValidRows[i]]);
-        }
+        for (TInt i = 0; i < sz; i++) { V.Add(IntCols[AggrColIdx][ValidRows[i]]); }
         TInt Res = AggregateVector<TInt>(V, AggOp);
-        if (AggOp == aaMean) {
-          Res = Res / sz;
-        }
-        for (TInt i = 0; i < sz; i++) {
-          IntCols[ColIdx][ValidRows[i]] = Res;
-        }
-      }
-      else {
+        if (AggOp == aaMean) { Res = Res / sz; }
+        for (TInt i = 0; i < sz; i++) { IntCols[ColIdx][ValidRows[i]] = Res; }
+      } else {
         TFltV V;
-        TInt sz = ValidRows.Len();
-        if (sz <= 0) { continue; }
-
-        TInt AggrColIdx = GetColIdx(ValAttr);
-        for (TInt i = 0; i < sz; i++) {
-          V.Add(FltCols[AggrColIdx][ValidRows[i]]);
-        }
+        for (TInt i = 0; i < sz; i++) { V.Add(FltCols[AggrColIdx][ValidRows[i]]); }
         TFlt Res = AggregateVector<TFlt>(V, AggOp);
-        if (AggOp == aaMean) {
-          Res /= sz;
-        }
-
-        for (TInt i = 0; i < sz; i++) {
-          FltCols[ColIdx][ValidRows[i]] = Res;
-        }
+        if (AggOp == aaMean) { Res /= sz; }
+        for (TInt i = 0; i < sz; i++) { FltCols[ColIdx][ValidRows[i]] = Res; }
       }
     }
   }
-  //double endIter = omp_get_wtime();
-  //printf("Iter time = %f\n", endIter-endAdd);
+  // double endIter = omp_get_wtime();
+  // printf("Iter time = %f\n", endIter-endAdd);
 }
 
 void TTable::AggregateCols(const TStrV& AggrAttrs, TAttrAggr AggOp, const TStr& ResAttr) {
@@ -1376,6 +1355,7 @@ void TTable::Count(const TStr& CountColName, const TStr& Col) {
 }
 
 TVec<PTable> TTable::SpliceByGroup(const TStrV& GroupBy, TBool Ordered) {
+  TStrV NGroupBy = NormalizeColNameV(GroupBy);
   TIntV UniqueVec;
   THash<TGroupKey, TPair<TInt, TIntV> >Grouping;
   TVec<PTable> Result;
@@ -1387,7 +1367,7 @@ TVec<PTable> TTable::SpliceByGroup(const TStrV& GroupBy, TBool Ordered) {
     }
   }
 
-  GroupAux(GroupBy, Grouping, Ordered, "", false, UniqueVec);
+  GroupAux(NGroupBy, Grouping, Ordered, "", false, UniqueVec);
 
   TInt cnt = 0;
   // iterate over groups
@@ -1744,8 +1724,9 @@ PTable TTable::SelfSimJoinPerGroup(const TStr& GroupAttr, const TStr& SimCol, co
 
 /// SimJoinPerGroup performs SimJoin based on a set of attributes. Performs the grouping internally 
 /// and returns a projection of the columns on which groupby was performed along with the similarity.
-PTable TTable::SelfSimJoinPerGroup(const TStrV& GroupBy, const TStr& SimCol, const TStr& DistanceColName, const TSimType& SimType, const TFlt& Threshold)
-{
+PTable TTable::SelfSimJoinPerGroup(const TStrV& GroupBy, const TStr& SimCol, 
+ const TStr& DistanceColName, const TSimType& SimType, const TFlt& Threshold) {
+  TStrV NGroupBy = NormalizeColNameV(GroupBy);
 	TStrV ProjectionV;
 	
 	// Only keep the GroupBy cols and the SimCol
@@ -1760,7 +1741,7 @@ PTable TTable::SelfSimJoinPerGroup(const TStrV& GroupBy, const TStr& SimCol, con
 	TStr CName = "Group";
   TIntV UniqueVec;
   THash<TGroupKey, TPair<TInt, TIntV> > Grouping;
-  GroupAux(GroupBy, Grouping, false, CName, false, UniqueVec);
+  GroupAux(NGroupBy, Grouping, false, CName, false, UniqueVec);
 	PTable GroupJointTable = SelfSimJoinPerGroup(CName, SimCol, DistanceColName, SimType, Threshold);
 	PTable JointTable = InitializeJointTable(*this);
 
@@ -1805,7 +1786,7 @@ PTable TTable::SelfSimJoinPerGroup(const TStrV& GroupBy, const TStr& SimCol, con
 		for(TInt j=0; j<JointTable->Sch.Len(); j++)
 		{
 			TStr ColName = JointTable->Sch[j].Val1;
-			if(ColName.IsSuffix("." + GroupBy[i]))
+			if(ColName.IsStrIn(GroupBy[i]))
 			{
 				ProjectionV.Add(ColName);
 			}
@@ -3283,7 +3264,7 @@ void TTable::GetCollidingRows(const TTable& Table, THashSet<TInt>& Collisions) {
       printf("(%s,%d) != (%s,%d)\n", Sch[c].Val1.CStr(), Sch[c].Val2, Table.Sch[c].Val1.CStr(), Table.Sch[c].Val2); 
       TExcept::Throw("GetCollidingRows: schemas do not match!");
     }
-    GroupBy.Add(Sch[c].Val1);
+    GroupBy.Add(NormalizeColName(Sch[c].Val1));
     TPair<TAttrType, TInt> ColType = Table.GetColTypeMap(Sch[c].Val1);
     switch (ColType.Val1) {
       case atInt:
@@ -3767,7 +3748,7 @@ void TTable::AddStrCol(const TStr& ColName) {
 }
 
 void TTable::ClassifyAux(const TIntV& SelectedRows, const TStr& LabelName, const TInt& PositiveLabel, const TInt& NegativeLabel) {
-  Sch.Add(TPair<TStr,TAttrType>(LabelName, atInt));
+  AddSchemaCol(LabelName, atInt);
   TInt LabelColIdx = IntCols.Len();
   AddColType(LabelName, atInt, LabelColIdx);
   IntCols.Add(TIntV(NumRows));
@@ -4257,10 +4238,11 @@ void TTable::ReadStrCol(const TStr& ColName, TStrV& Result) const{
 }
 
 void TTable::ProjectInPlace(const TStrV& ProjectCols) {
-  for (TInt c = 0; c < ProjectCols.Len(); c++) {
-    if (!IsColName(ProjectCols[c])) { TExcept::Throw("no such column " + ProjectCols[c]); }
+  TStrV NProjectCols = NormalizeColNameV(ProjectCols);
+  for (TInt c = 0; c < NProjectCols.Len(); c++) {
+    if (!IsColName(NProjectCols[c])) { TExcept::Throw("no such column " + NProjectCols[c]); }
   }
-  THashSet<TStr> ProjectColsSet = THashSet<TStr>(ProjectCols);
+  THashSet<TStr> ProjectColsSet = THashSet<TStr>(NProjectCols);
   // Delete the column vectors
   for (TInt i = Sch.Len() - 1; i >= 0; i--) {
     TStr ColName = GetSchemaColName(i);

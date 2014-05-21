@@ -249,9 +249,16 @@ public:
   /// Adds suffix to column name if it doesn't exist
   static TStr NormalizeColName(const TStr& ColName) {
     TStr Result = ColName;
+    if (Result.Len() == 0) { return Result; }
     if (Result.GetCh(0) == '_') { return Result; }
     if (Result.GetCh(Result.Len()-2) == '-') { return Result; }
     return Result + "-1";
+  }
+  /// Adds suffix to column name if it doesn't exist
+  static TStrV NormalizeColNameV(const TStrV& Cols) {
+    TStrV NCols;
+    for (TInt i = 0; i < Cols.Len(); i++) { NCols.Add(NormalizeColName(Cols[i])); }
+    return NCols;
   }
 protected:
   TTableContext& Context;  ///< Execution Context. ##TTable::Context
@@ -487,6 +494,23 @@ protected:
   /// Updates table state after adding one or more rows.
   void UpdateTableForNewRow();
 
+/***** Utility functions for Group *****/
+  /// Helper function for grouping. ##TTable::GroupAux
+  void GroupAux(const TStrV& GroupBy, THash<TGroupKey, TPair<TInt, TIntV> >& Grouping, 
+   TBool Ordered, const TStr& GroupColName, TBool KeepUnique, TIntV& UniqueVec);
+  #ifdef _OPENMP
+  /// Parallel helper function for grouping.
+  void GroupAuxMP(const TStrV& GroupBy, THashGenericMP<TGroupKey, TPair<TInt, TIntV> >& Grouping, 
+   TBool Ordered, const TStr& GroupColName, TBool KeepUnique, TIntV& UniqueVec);
+  #endif // _OPENMP
+  /// Stores column for a group. Physical row ids have to be passed.
+  void StoreGroupCol(const TStr& GroupColName, const TVec<TPair<TInt, TInt> >& GroupAndRowIds);
+
+  /// Reinitializes row ids.
+  void Reindex();
+  /// Adds a column of explicit integer identifiers to the rows.
+  void AddIdColumn(const TStr& IdColName);
+
 public:
 /***** Constructors *****/
   TTable(); 
@@ -653,7 +677,7 @@ public:
   void AddNodeAttr(TStrV& Attrs) { AddSrcNodeAttr(Attrs); AddDstNodeAttr(Attrs); }
   /// Sets the columns to be used as both src and dst node attributes.
   void SetCommonNodeAttrs(const TStr& SrcAttr, const TStr& DstAttr, const TStr& CommonAttrName){ 
-    CommonNodeAttrs.Add(TStrTr(SrcAttr, DstAttr, CommonAttrName));
+    CommonNodeAttrs.Add(TStrTr(NormalizeColName(SrcAttr), NormalizeColName(DstAttr), NormalizeColName(CommonAttrName)));
   }
   /// Gets src node int attribute name vector.
 	TStrV GetSrcNodeIntAttrV() const;
@@ -787,17 +811,6 @@ public:
   void SelectAtomicFltConst(const TStr& Col, const TFlt& Val, TPredComp Cmp, PTable& SelectedTable) {
     SelectAtomicConst(Col, Val, Cmp, SelectedTable);
   }
-
-  /// Stores column for a group. Physical row ids have to be passed.
-  void StoreGroupCol(const TStr& GroupColName, const TVec<TPair<TInt, TInt> >& GroupAndRowIds);
-
-  /// Helper function for grouping. ##TTable::GroupAux
-  void GroupAux(const TStrV& GroupBy, THash<TGroupKey, TPair<TInt, TIntV> >& Grouping, 
-   TBool Ordered, const TStr& GroupColName, TBool KeepUnique, TIntV& UniqueVec);
-  #ifdef _OPENMP
-  void GroupAuxMP(const TStrV& GroupBy, THashGenericMP<TGroupKey, TPair<TInt, TIntV> >& Grouping, 
-   TBool Ordered, const TStr& GroupColName, TBool KeepUnique, TIntV& UniqueVec);
-  #endif // _OPENMP
 
   /// Groups rows depending on values of \c GroupBy columns. ##TTable::Group
   void Group(const TStrV& GroupBy, const TStr& GroupColName, TBool Ordered = true);
@@ -957,11 +970,6 @@ public:
 
   /// Adds explicit row ids, initialize hash set mapping ids to physical rows.
   void InitIds();
-  /// Reinitializes row ids.
-  void Reindex();
-
-  /// Adds a column of explicit integer identifiers to the rows.
-  void AddIdColumn(const TStr& IdColName);
 
   /// Distance based filter. ##TTable::IsNextK
   PTable IsNextK(const TStr& OrderCol, TInt K, const TStr& GroupBy, const TStr& RankColName = "");
