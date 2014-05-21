@@ -26,14 +26,12 @@ namespace TSnap {
   /// Gets sequence of PageRank tables from given \c GraphSeq into \c TableSeq.
   template <class PGraph>
   void MapPageRank(const TVec<PGraph>& GraphSeq, TVec<PTable>& TableSeq, 
-      TTableContext& Context, const TStr& TableNamePrefix,
-      const double& C, const double& Eps, const int& MaxIter);
+      TTableContext& Context, const double& C, const double& Eps, const int& MaxIter);
 
   /// Gets sequence of Hits tables from given \c GraphSeq into \c TableSeq.
   template <class PGraph>
   void MapHits(const TVec<PGraph>& GraphSeq, TVec<PTable>& TableSeq, 
-    TTableContext& Context, const TStr& TableNamePrefix,
-    const int& MaxIter);
+    TTableContext& Context, const int& MaxIter);
 }
 
 //#//////////////////////////////////////////////
@@ -237,8 +235,7 @@ protected:
 
   static TInt UseMP; ///< Global switch for choosing multi-threaded versions of TTable functions.
 public:
-  TStr Name; ///< Table Name
-	template<class PGraph> friend PGraph TSnap::ToGraph(PTable Table, const TStr& SrcCol, const TStr& DstCol, TAttrAggr AggrPolicy);
+  template<class PGraph> friend PGraph TSnap::ToGraph(PTable Table, const TStr& SrcCol, const TStr& DstCol, TAttrAggr AggrPolicy);
 	template<class PGraph> friend PGraph TSnap::ToNetwork(PTable Table, const TStr& SrcCol, const TStr& DstCol, 
 			TStrV& SrcAttrs, TStrV& DstAttrs, TStrV& EdgeAttrs, TAttrAggr AggrPolicy);
   #ifdef _OPENMP
@@ -248,9 +245,24 @@ public:
 
   static void SetMP(TInt Value) { UseMP = Value; }
   static TInt GetMP() { return UseMP; }
+
+  /// Adds suffix to column name if it doesn't exist
+  static TStr NormalizeColName(const TStr& ColName) {
+    TStr Result = ColName;
+    if (Result.Len() == 0) { return Result; }
+    if (Result.GetCh(0) == '_') { return Result; }
+    if (Result.GetCh(Result.Len()-2) == '-') { return Result; }
+    return Result + "-1";
+  }
+  /// Adds suffix to column name if it doesn't exist
+  static TStrV NormalizeColNameV(const TStrV& Cols) {
+    TStrV NCols;
+    for (TInt i = 0; i < Cols.Len(); i++) { NCols.Add(NormalizeColName(Cols[i])); }
+    return NCols;
+  }
 protected:
   TTableContext& Context;  ///< Execution Context. ##TTable::Context
-  Schema S; ///< Table Schema.
+  Schema Sch; ///< Table Schema.
   TCRef CRef;
   TInt NumRows; ///< Number of rows in the table (valid and invalid).
   TInt NumValidRows; ///< Number of valid rows in the table (i.e. rows that were not logically removed).
@@ -314,17 +326,45 @@ protected:
   /// Gets name of the id column of this table.
   TStr GetIdColName() const { return IdColName; }
   /// Gets name of the column with index \c Idx in the schema.
-  TStr GetSchemaColName(TInt Idx) const { return S[Idx].Val1; }
+  TStr GetSchemaColName(TInt Idx) const { return Sch[Idx].Val1; }
   /// Gets type of the column with index \c Idx in the schema.
-  TAttrType GetSchemaColType(TInt Idx) const { return S[Idx].Val2; }
+  TAttrType GetSchemaColType(TInt Idx) const { return Sch[Idx].Val2; }
   /// Adds column with name \c ColName and type \c ColType to the schema.
   void AddSchemaCol(const TStr& ColName, TAttrType ColType) { 
-    S.Add(TPair<TStr,TAttrType>(ColName, ColType)); 
+    TStr NColName = NormalizeColName(ColName);
+    Sch.Add(TPair<TStr,TAttrType>(NColName, ColType)); 
+  }
+  TBool IsColName(const TStr& ColName) const {
+    TStr NColName = NormalizeColName(ColName);
+    return ColTypeMap.IsKey(NColName);
+  }
+  /// Adds column with name \c ColName and type \c ColType to the ColTypeMap.
+  void AddColType(const TStr& ColName, TPair<TAttrType,TInt> ColType) { 
+    TStr NColName = NormalizeColName(ColName);
+    ColTypeMap.AddDat(NColName, ColType);
+  }
+  /// Adds column with name \c ColName and type \c ColType to the ColTypeMap.
+  void AddColType(const TStr& ColName, TAttrType ColType, TInt Index) { 
+    TStr NColName = NormalizeColName(ColName);
+    AddColType(NColName, TPair<TAttrType,TInt>(ColType, Index));
+  }
+  /// Adds column with name \c ColName and type \c ColType to the ColTypeMap.
+  void DelColType(const TStr& ColName) { 
+    TStr NColName = NormalizeColName(ColName);
+    ColTypeMap.DelKey(NColName);
+  }
+  /// Gets column type and index of \c ColName.
+  TPair<TAttrType, TInt> GetColTypeMap(const TStr& ColName) const { 
+    TStr NColName = NormalizeColName(ColName);
+    return ColTypeMap.GetDat(NColName); 
   }
   /// Gets index of column \c ColName among columns of the same type in the schema.
   TInt GetColIdx(const TStr& ColName) const { 
-    return ColTypeMap.IsKey(ColName) ? ColTypeMap.GetDat(ColName).Val2 : TInt(-1); 
+    TStr NColName = NormalizeColName(ColName);
+    return ColTypeMap.IsKey(NColName) ? ColTypeMap.GetDat(NColName).Val2 : TInt(-1); 
   }
+  /// Returns a re-numbered column name based on number of existing columns with conflicting names.
+  TStr RenumberColName(const TStr& ColName) const;
   /// Checks if \c Attr is an attribute of this table schema.
   TBool IsAttr(const TStr& Attr);
 
@@ -454,24 +494,41 @@ protected:
   /// Updates table state after adding one or more rows.
   void UpdateTableForNewRow();
 
+/***** Utility functions for Group *****/
+  /// Helper function for grouping. ##TTable::GroupAux
+  void GroupAux(const TStrV& GroupBy, THash<TGroupKey, TPair<TInt, TIntV> >& Grouping, 
+   TBool Ordered, const TStr& GroupColName, TBool KeepUnique, TIntV& UniqueVec);
+  #ifdef _OPENMP
+  /// Parallel helper function for grouping.
+  void GroupAuxMP(const TStrV& GroupBy, THashGenericMP<TGroupKey, TPair<TInt, TIntV> >& Grouping, 
+   TBool Ordered, const TStr& GroupColName, TBool KeepUnique, TIntV& UniqueVec);
+  #endif // _OPENMP
+  /// Stores column for a group. Physical row ids have to be passed.
+  void StoreGroupCol(const TStr& GroupColName, const TVec<TPair<TInt, TInt> >& GroupAndRowIds);
+
+  /// Reinitializes row ids.
+  void Reindex();
+  /// Adds a column of explicit integer identifiers to the rows.
+  void AddIdColumn(const TStr& IdColName);
+
 public:
 /***** Constructors *****/
   TTable(); 
   TTable(TTableContext& Context);
-  TTable(const TStr& TableName, const Schema& S, TTableContext& Context);
+  TTable(const Schema& S, TTableContext& Context);
   TTable(TSIn& SIn, TTableContext& Context);
 
   /// Constructor to build table out of a hash table of int->int.
-  TTable(const TStr& TableName, const THash<TInt,TInt>& H, const TStr& Col1, 
-   const TStr& Col2, TTableContext& Context, const TBool IsStrKeys = false);
+  TTable(const THash<TInt,TInt>& H, const TStr& Col1, const TStr& Col2, 
+   TTableContext& Context, const TBool IsStrKeys = false);
   /// Constructor to build table out of a hash table of int->float.
-  TTable(const TStr& TableName, const THash<TInt,TFlt>& H, const TStr& Col1, 
-   const TStr& Col2, TTableContext& Context, const TBool IsStrKeys = false);
+  TTable(const THash<TInt,TFlt>& H, const TStr& Col1, const TStr& Col2, 
+   TTableContext& Context, const TBool IsStrKeys = false);
   // TTable(const TStr& TableName, const THash<TInt,TStr>& H, const TStr& Col1, 
   //  const TStr& Col2, TTableContext& Context);
   
   /// Copy constructor.
-  TTable(const TTable& Table): Name(Table.Name), Context(Table.Context), S(Table.S),
+  TTable(const TTable& Table): Context(Table.Context), Sch(Table.Sch),
     NumRows(Table.NumRows), NumValidRows(Table.NumValidRows), FirstValidRow(Table.FirstValidRow),
     LastValidRow(Table.LastValidRow), Next(Table.Next), IntCols(Table.IntCols), 
     FltCols(Table.FltCols), StrColMaps(Table.StrColMaps), ColTypeMap(Table.ColTypeMap), 
@@ -486,39 +543,34 @@ public:
 
   static PTable New() { return new TTable(); }
   static PTable New(TTableContext& Context) { return new TTable(Context); }
-  static PTable New(const TStr& TableName, const Schema& S, TTableContext& Context) { 
-    return new TTable(TableName, S, Context); 
+  static PTable New(const Schema& S, TTableContext& Context) { 
+    return new TTable(S, Context); 
   }
   /// Returns pointer to a table constructed from given int->int hash.
-  static PTable New(const TStr& TableName, const THash<TInt,TInt>& H, const TStr& Col1, 
+  static PTable New(const THash<TInt,TInt>& H, const TStr& Col1, 
    const TStr& Col2, TTableContext& Context, const TBool IsStrKeys = false) {
-    return new TTable(TableName, H, Col1, Col2, Context, IsStrKeys);
+    return new TTable(H, Col1, Col2, Context, IsStrKeys);
   }
   /// Returns pointer to a table constructed from given int->float hash.
-  static PTable New(const TStr& TableName, const THash<TInt,TFlt>& H, const TStr& Col1, 
+  static PTable New(const THash<TInt,TFlt>& H, const TStr& Col1, 
    const TStr& Col2, TTableContext& Context, const TBool IsStrKeys = false) {
-    return new TTable(TableName, H, Col1, Col2, Context, IsStrKeys);
+    return new TTable(H, Col1, Col2, Context, IsStrKeys);
   }
   /// Returns pointer to a new table created from given \c Table.
   static PTable New(const PTable Table) { return new TTable(*Table); }
   /// Returns pointer to a new table created from given \c Table, with name set to \c TableName.
-  static PTable New(const PTable Table, const TStr& TableName) { 
-    PTable T = New(Table); T->Name = TableName; 
-    return T; 
-  }
+  // static PTable New(const PTable Table, const TStr& TableName) { 
+  //   PTable T = New(Table); T->Name = TableName; 
+  //   return T; 
+  // }
 
 /***** Save / Load functions *****/
   /// Loads table from spread sheet (TSV, CSV, etc).
-  static PTable LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm, 
-   TTableContext& Context, const char& Separator = '\t', TBool HasTitleLine = false);
+  static PTable LoadSS(const Schema& S, const TStr& InFNm, TTableContext& Context, 
+   const char& Separator = '\t', TBool HasTitleLine = false);
   /// Loads table from spread sheet - but only load the columns specified by RelevantCols.
-  static PTable LoadSS(const TStr& TableName, const Schema& S, const TStr& InFNm, 
-   TTableContext& Context, const TIntV& RelevantCols, const char& Separator = '\t', 
-   TBool HasTitleLine = false);
-  /// Loads table from spread sheet - compact prototype (tab-separated input file, has title line, anonymous table).
-  static PTable LoadSS(const Schema& S, const TStr& InFnm, TTableContext& Context){
-    return LoadSS(TStr(), S, InFnm, Context, '\t', true);
-  }
+  static PTable LoadSS(const Schema& S, const TStr& InFNm, TTableContext& Context, 
+   const TIntV& RelevantCols, const char& Separator = '\t', TBool HasTitleLine = false);
   /// Saves table schema + content into a TSV file.
   void SaveSS(const TStr& OutFNm);
   /// Saves table schema + content into a binary.
@@ -529,16 +581,16 @@ public:
   void Save(TSOut& SOut);
 
   /// Builds table from hash table of int->int.
-  static PTable TableFromHashMap(const TStr& TableName, const THash<TInt,TInt>& H, 
-   const TStr& Col1, const TStr& Col2, TTableContext& Context, const TBool IsStrKeys = false) {
-    PTable T = New(TableName, H, Col1, Col2, Context, IsStrKeys);
+  static PTable TableFromHashMap(const THash<TInt,TInt>& H, const TStr& Col1, const TStr& Col2, 
+   TTableContext& Context, const TBool IsStrKeys = false) {
+    PTable T = New(H, Col1, Col2, Context, IsStrKeys);
     T->InitIds();
     return T;
   }
   /// Builds table from hash table of int->float.
-  static PTable TableFromHashMap(const TStr& TableName, const THash<TInt,TFlt>& H, 
-   const TStr& Col1, const TStr& Col2, TTableContext& Context, const TBool IsStrKeys = false) {
-    PTable T = New(TableName, H, Col1, Col2, Context, IsStrKeys);
+  static PTable TableFromHashMap(const THash<TInt,TFlt>& H, const TStr& Col1, const TStr& Col2, 
+   TTableContext& Context, const TBool IsStrKeys = false) {
+    PTable T = New(H, Col1, Col2, Context, IsStrKeys);
     T->InitIds();
     return T;
   }
@@ -547,15 +599,15 @@ public:
   // No type checking. Assuming ColName actually refers to the right type.
   /// Gets the value of integer attribute \c ColName at row \c RowIdx.
   TInt GetIntVal(const TStr& ColName, const TInt& RowIdx) { 
-    return IntCols[ColTypeMap.GetDat(ColName).Val2][RowIdx]; 
+    return IntCols[GetColIdx(ColName)][RowIdx]; 
   }
   /// Gets the value of float attribute \c ColName at row \c RowIdx.
   TFlt GetFltVal(const TStr& ColName, const TInt& RowIdx) { 
-    return FltCols[ColTypeMap.GetDat(ColName).Val2][RowIdx]; 
+    return FltCols[GetColIdx(ColName)][RowIdx]; 
   }
   /// Gets the value of string attribute \c ColName at row \c RowIdx.
   TStr GetStrVal(const TStr& ColName, const TInt& RowIdx) const { 
-    return GetStrVal(ColTypeMap.GetDat(ColName).Val2, RowIdx); 
+    return GetStrVal(GetColIdx(ColName), RowIdx); 
   }
 
 /***** Value Getters - getValue(col idx, row Idx) *****/
@@ -570,7 +622,7 @@ public:
   }
 
   /// Gets the schema of this table.
-  Schema GetSchema() { return S; }
+  Schema GetSchema() { return Sch; }
 
 /***** Graph handling *****/
   /// Creates a sequence of graphs based on values of column SplitAttr and windows specified by JumpSize and WindowSize.
@@ -597,15 +649,15 @@ public:
 	TStr GetSrcCol() const { return SrcCol; }
   /// Sets the name of the column to be used as src nodes in the graph.
   void SetSrcCol(const TStr& Src) {
-    if (!ColTypeMap.IsKey(Src)) { TExcept::Throw(Src + ": no such column"); }
-    SrcCol = Src;
+    if (!IsColName(Src)) { TExcept::Throw(Src + ": no such column"); }
+    SrcCol = NormalizeColName(Src);
   }
   /// Gets the name of the column to be used as dst nodes in the graph.
 	TStr GetDstCol() const { return DstCol; }
   /// Sets the name of the column to be used as dst nodes in the graph.
   void SetDstCol(const TStr& Dst) {
-    if (!ColTypeMap.IsKey(Dst)) { TExcept::Throw(Dst + ": no such column"); }
-    DstCol = Dst;
+    if (!IsColName(Dst)) { TExcept::Throw(Dst + ": no such column"); }
+    DstCol = NormalizeColName(Dst);
   }
   /// Adds column to be used as graph edge attribute.
   void AddEdgeAttr(const TStr& Attr) { AddGraphAttribute(Attr, true, false, false); }
@@ -625,7 +677,7 @@ public:
   void AddNodeAttr(TStrV& Attrs) { AddSrcNodeAttr(Attrs); AddDstNodeAttr(Attrs); }
   /// Sets the columns to be used as both src and dst node attributes.
   void SetCommonNodeAttrs(const TStr& SrcAttr, const TStr& DstAttr, const TStr& CommonAttrName){ 
-    CommonNodeAttrs.Add(TStrTr(SrcAttr, DstAttr, CommonAttrName));
+    CommonNodeAttrs.Add(TStrTr(NormalizeColName(SrcAttr), NormalizeColName(DstAttr), NormalizeColName(CommonAttrName)));
   }
   /// Gets src node int attribute name vector.
 	TStrV GetSrcNodeIntAttrV() const;
@@ -647,23 +699,26 @@ public:
 	TStrV GetEdgeStrAttrV() const;
 
   /// Extracts node TTable from PNEANet.
-  static PTable GetNodeTable(const PNEANet& Network, const TStr& TableName, TTableContext& Context);
+  static PTable GetNodeTable(const PNEANet& Network, TTableContext& Context);
   /// Extracts edge TTable from PNEANet.
-  static PTable GetEdgeTable(const PNEANet& Network, const TStr& TableName, TTableContext& Context);
+  static PTable GetEdgeTable(const PNEANet& Network, TTableContext& Context);
 
   #ifdef _OPENMP
   /// Extracts edge TTable from parallel graph PNGraphMP.
-  static PTable GetEdgeTablePN(const PNGraphMP& Network, const TStr& TableName, TTableContext& Context);
+  static PTable GetEdgeTablePN(const PNGraphMP& Network, TTableContext& Context);
   #endif // _OPENMP
 
   /// Extracts node and edge property TTables from THash.
-  static PTable GetFltNodePropertyTable(const PNEANet& Network, const TStr& TableName, 
-   const TIntFltH& Property, const TStr& NodeAttrName, const TAttrType& NodeAttrType, 
-   const TStr& PropertyAttrName, TTableContext& Context);
+  static PTable GetFltNodePropertyTable(const PNEANet& Network, const TIntFltH& Property, 
+   const TStr& NodeAttrName, const TAttrType& NodeAttrType, const TStr& PropertyAttrName, 
+   TTableContext& Context);
 
 /***** Basic Getters *****/
   /// Gets type of column \c ColName.
-	TAttrType GetColType(const TStr& ColName) const{ return ColTypeMap.GetDat(ColName).Val1; };
+	TAttrType GetColType(const TStr& ColName) const { 
+    TStr NColName = NormalizeColName(ColName);
+    return ColTypeMap.GetDat(NColName).Val1; 
+  }
   /// Gets total number of rows in this table.
   TInt GetNumRows() const { return NumRows;}
   /// Gets number of valid, i.e. not deleted, rows in this table.
@@ -685,8 +740,6 @@ public:
   void GetPartitionRanges(TIntPrV& Partitions, TInt NumPartitions) const;
 
 /***** Table Operations *****/
-	/// Adds a label to a column.
-	void AddLabel(const TStr& Column, const TStr& NewLabel);
   /// Renames a column.
   void Rename(const TStr& Column, const TStr& NewLabel);
 
@@ -759,17 +812,6 @@ public:
     SelectAtomicConst(Col, Val, Cmp, SelectedTable);
   }
 
-  /// Stores column for a group. Physical row ids have to be passed.
-  void StoreGroupCol(const TStr& GroupColName, const TVec<TPair<TInt, TInt> >& GroupAndRowIds);
-
-  /// Helper function for grouping. ##TTable::GroupAux
-  void GroupAux(const TStrV& GroupBy, THash<TGroupKey, TPair<TInt, TIntV> >& Grouping, 
-   TBool Ordered, const TStr& GroupColName, TBool KeepUnique, TIntV& UniqueVec);
-  #ifdef _OPENMP
-  void GroupAuxMP(const TStrV& GroupBy, THashGenericMP<TGroupKey, TPair<TInt, TIntV> >& Grouping, 
-   TBool Ordered, const TStr& GroupColName, TBool KeepUnique, TIntV& UniqueVec);
-  #endif // _OPENMP
-
   /// Groups rows depending on values of \c GroupBy columns. ##TTable::Group
   void Group(const TStrV& GroupBy, const TStr& GroupColName, TBool Ordered = true);
   
@@ -839,22 +881,22 @@ public:
   void GetCollidingRows(const TTable& T, THashSet<TInt>& Collisions);
 
   /// Returns union of this table with given \c Table.
-  PTable Union(const TTable& Table, const TStr& TableName);
-  PTable Union(const PTable& Table, const TStr& TableName) { return Union(*Table, TableName); };
+  PTable Union(const TTable& Table);
+  PTable Union(const PTable& Table) { return Union(*Table); };
   /// Returns union of this table with given \c Table, preserving duplicates.
-  PTable UnionAll(const TTable& Table, const TStr& TableName);
-  PTable UnionAll(const PTable& Table, const TStr& TableName) { return UnionAll(*Table, TableName); };
+  PTable UnionAll(const TTable& Table);
+  PTable UnionAll(const PTable& Table) { return UnionAll(*Table); };
   /// Same as TTable::ConcatTable
   void UnionAllInPlace(const TTable& Table);
   void UnionAllInPlace(const PTable& Table) { return UnionAllInPlace(*Table); };
   /// Returns intersection of this table with given \c Table.
-  PTable Intersection(const TTable& Table, const TStr& TableName);
-  PTable Intersection(const PTable& Table, const TStr& TableName) { return Intersection(*Table, TableName); };
+  PTable Intersection(const TTable& Table);
+  PTable Intersection(const PTable& Table) { return Intersection(*Table); };
   /// Returns table with rows that are present in this table but not in given \c Table.
-  PTable Minus(TTable& Table, const TStr& TableName);
-  PTable Minus(const PTable& Table, const TStr& TableName) { return Minus(*Table, TableName); };
+  PTable Minus(TTable& Table);
+  PTable Minus(const PTable& Table) { return Minus(*Table); };
   /// Returns table with only the columns in \c ProjectCols.
-  PTable Project(const TStrV& ProjectCols, const TStr& TableName);
+  PTable Project(const TStrV& ProjectCols);
   /// Keeps only the columns specified in \c ProjectCols.
   void ProjectInPlace(const TStrV& ProjectCols);
   
@@ -928,11 +970,6 @@ public:
 
   /// Adds explicit row ids, initialize hash set mapping ids to physical rows.
   void InitIds();
-  /// Reinitializes row ids.
-  void Reindex();
-
-  /// Adds a column of explicit integer identifiers to the rows.
-  void AddIdColumn(const TStr& IdColName);
 
   /// Distance based filter. ##TTable::IsNextK
   PTable IsNextK(const TStr& OrderCol, TInt K, const TStr& GroupBy, const TStr& RankColName = "");
@@ -948,20 +985,18 @@ public:
   static void QSortKeyVal(TIntV& Key, TIntV& Val, TInt Start, TInt End);
 
   /// Gets sequence of PageRank tables from given \c GraphSeq.
-  static TTableIterator GetMapPageRank(const TVec<PNEANet>& GraphSeq, 
-    TTableContext& Context, const TStr& TableNamePrefix = "PageRankTable",
-    const double& C = 0.85, const double& Eps = 1e-4, const int& MaxIter = 100) {
+  static TTableIterator GetMapPageRank(const TVec<PNEANet>& GraphSeq, TTableContext& Context, 
+   const double& C = 0.85, const double& Eps = 1e-4, const int& MaxIter = 100) {
     TVec<PTable> TableSeq(GraphSeq.Len());
-    TSnap::MapPageRank(GraphSeq, TableSeq, Context, TableNamePrefix, C, Eps, MaxIter);
+    TSnap::MapPageRank(GraphSeq, TableSeq, Context, C, Eps, MaxIter);
     return TTableIterator(TableSeq);
   }
 
   /// Gets sequence of Hits tables from given \c GraphSeq.
   static TTableIterator GetMapHitsIterator(const TVec<PNEANet>& GraphSeq, 
-    TTableContext& Context, const TStr& TableNamePrefix = "HitsTable",
-    const int& MaxIter = 20) {
+   TTableContext& Context, const int& MaxIter = 20) {
     TVec<PTable> TableSeq(GraphSeq.Len());
-    TSnap::MapHits(GraphSeq, TableSeq, Context, TableNamePrefix, MaxIter);
+    TSnap::MapHits(GraphSeq, TableSeq, Context, MaxIter);
     return TTableIterator(TableSeq);
   }
 
@@ -1093,7 +1128,7 @@ void TTable::GroupByStrCol(const TStr& GroupBy, T& Grouping,
     for (TInt i = 0; i < IndexSet.Len(); i++) {
       if (IsRowValid(IndexSet[i])) {
         TInt RowIdx = IndexSet[i];     
-        TInt ColIdx = ColTypeMap.GetDat(GroupBy).Val2;
+        TInt ColIdx = GetColIdx(GroupBy);
         UpdateGrouping<TInt>(Grouping, StrColMaps[ColIdx][RowIdx], RowIdx);
       }
     }
@@ -1129,24 +1164,21 @@ namespace TSnap {
   /// Gets sequence of PageRank tables from given \c GraphSeq into \c TableSeq.
   template <class PGraph>
   void MapPageRank(const TVec<PGraph>& GraphSeq, TVec<PTable>& TableSeq, 
-    TTableContext& Context, const TStr& TableNamePrefix,
-    const double& C, const double& Eps, const int& MaxIter) {
+   TTableContext& Context, const double& C, const double& Eps, const int& MaxIter) {
     int NumGraphs = GraphSeq.Len();
     TableSeq.Reserve(NumGraphs, NumGraphs);
     // This loop is parallelizable.
     for (TInt i = 0; i < NumGraphs; i++){
       TIntFltH PRankH;
       GetPageRank(GraphSeq[i], PRankH, C, Eps, MaxIter);
-      TableSeq[i] = TTable::TableFromHashMap(TableNamePrefix + "_" + i.GetStr(), 
-        PRankH, "NodeId", "PageRank", Context, false);
+      TableSeq[i] = TTable::TableFromHashMap(PRankH, "NodeId", "PageRank", Context, false);
     }
   }
 
   /// Gets sequence of Hits tables from given \c GraphSeq into \c TableSeq.
   template <class PGraph>
   void MapHits(const TVec<PGraph>& GraphSeq, TVec<PTable>& TableSeq, 
-    TTableContext& Context, const TStr& TableNamePrefix,
-    const int& MaxIter) {
+    TTableContext& Context, const int& MaxIter) {
     int NumGraphs = GraphSeq.Len();
     TableSeq.Reserve(NumGraphs, NumGraphs);
     // This loop is parallelizable.
@@ -1154,8 +1186,8 @@ namespace TSnap {
       TIntFltH HubH;
       TIntFltH AuthH;
       GetHits(GraphSeq[i], HubH, AuthH, MaxIter);
-      PTable HubT =  TTable::TableFromHashMap("1", HubH, "NodeId", "Hub", Context, false);
-      PTable AuthT =  TTable::TableFromHashMap("2", AuthH, "NodeId", "Authority", Context, false);
+      PTable HubT =  TTable::TableFromHashMap(HubH, "NodeId", "Hub", Context, false);
+      PTable AuthT =  TTable::TableFromHashMap(AuthH, "NodeId", "Authority", Context, false);
       PTable HitsT = HubT->Join("NodeId", AuthT, "NodeId");
       HitsT->Rename("1.NodeId", "NodeId");
       HitsT->Rename("1.Hub", "Hub");
@@ -1165,7 +1197,6 @@ namespace TSnap {
       V.Add("Hub");
       V.Add("Authority");
       HitsT->ProjectInPlace(V);
-      HitsT->Name = TableNamePrefix + "_" + i.GetStr();
       TableSeq[i] = HitsT;
     }
   }

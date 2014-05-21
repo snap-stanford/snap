@@ -25,7 +25,7 @@ TEST(TTable, LoadSave) {
   RelevantCols.Add(0); RelevantCols.Add(1); RelevantCols.Add(2);
   RelevantCols.Add(3); RelevantCols.Add(4); RelevantCols.Add(5);
 
-  PTable P = TTable::LoadSS("Grades", GradeS, "table/grades.txt", Context, RelevantCols);
+  PTable P = TTable::LoadSS(GradeS, "table/grades.txt", Context, RelevantCols);
 
   EXPECT_EQ(5, P->GetNumRows().Val);
   EXPECT_EQ(5, P->GetNumValidRows().Val); 
@@ -37,8 +37,8 @@ TEST(TTable, LoadSave) {
   P->SaveSS("table/p1.txt");
 
   // Test SaveSS by loading the saved table and testing values again.
-  GradeS.Add(TPair<TStr,TAttrType>("Grades_id", atInt));
-  P = TTable::LoadSS("Grades", GradeS, "table/p1.txt", Context, RelevantCols, '\t', true);
+  GradeS.Add(TPair<TStr,TAttrType>("_id", atInt));
+  P = TTable::LoadSS(GradeS, "table/p1.txt", Context, RelevantCols, '\t', true);
 
   EXPECT_EQ(5, P->GetNumRows().Val);
   EXPECT_EQ(5, P->GetNumValidRows().Val); 
@@ -60,12 +60,12 @@ TEST(TTable, ParallelSelect) {
   LJS.Add(TPair<TStr,TAttrType>("Dst", atInt));
   TIntV RelevantCols; RelevantCols.Add(0); RelevantCols.Add(1);
 
-  PTable T1 = TTable::LoadSS("1", LJS, "table/soc-LiveJournal1_small.txt", Context, RelevantCols);
+  PTable T1 = TTable::LoadSS(LJS, "table/soc-LiveJournal1_small.txt", Context, RelevantCols);
 
   EXPECT_EQ(499, T1->GetNumRows().Val);
   EXPECT_EQ(499, T1->GetNumValidRows().Val); 
 
-  PTable T2 = TTable::New("2", T1->GetSchema(), Context);
+  PTable T2 = TTable::New(T1->GetSchema(), Context);
   T1->SelectAtomicIntConst("Src", 88, LT, T2);
 
   EXPECT_EQ(196, T2->GetNumRows().Val);
@@ -81,7 +81,7 @@ TEST(TTable, ParallelSelectInPlace) {
   LJS.Add(TPair<TStr,TAttrType>("Dst", atInt));
   TIntV RelevantCols; RelevantCols.Add(0); RelevantCols.Add(1);
 
-  PTable T1 = TTable::LoadSS("1", LJS, "table/soc-LiveJournal1_small.txt", Context, RelevantCols);
+  PTable T1 = TTable::LoadSS(LJS, "table/soc-LiveJournal1_small.txt", Context, RelevantCols);
 
   EXPECT_EQ(499, T1->GetNumRows().Val);
   EXPECT_EQ(499, T1->GetNumValidRows().Val); 
@@ -101,12 +101,12 @@ TEST(TTable, ParallelJoin) {
   LJS.Add(TPair<TStr,TAttrType>("Dst", atInt));
   TIntV RelevantCols; RelevantCols.Add(0); RelevantCols.Add(1);
 
-  PTable T1 = TTable::LoadSS("1", LJS, "table/soc-LiveJournal1_small.txt", Context, RelevantCols);
+  PTable T1 = TTable::LoadSS(LJS, "table/soc-LiveJournal1_small.txt", Context, RelevantCols);
 
   EXPECT_EQ(499, T1->GetNumRows().Val);
   EXPECT_EQ(499, T1->GetNumValidRows().Val); 
   
-  PTable T2 = TTable::LoadSS("2", LJS, "table/soc-LiveJournal1_small.txt", Context, RelevantCols);
+  PTable T2 = TTable::LoadSS(LJS, "table/soc-LiveJournal1_small.txt", Context, RelevantCols);
 
   EXPECT_EQ(499, T2->GetNumRows().Val);
   EXPECT_EQ(499, T2->GetNumValidRows().Val); 
@@ -126,7 +126,7 @@ TEST(TTable, ToGraph) {
   LJS.Add(TPair<TStr,TAttrType>("Dst", atInt));
   TIntV RelevantCols; RelevantCols.Add(0); RelevantCols.Add(1);
 
-  PTable T1 = TTable::LoadSS("1", LJS, "table/soc-LiveJournal1_small.txt", Context, RelevantCols);
+  PTable T1 = TTable::LoadSS(LJS, "table/soc-LiveJournal1_small.txt", Context, RelevantCols);
 
   EXPECT_EQ(499, T1->GetNumRows().Val);
   EXPECT_EQ(499, T1->GetNumValidRows().Val); 
@@ -148,7 +148,7 @@ TEST(TTable, ToGraphMP2) {
   LJS.Add(TPair<TStr,TAttrType>("Dst", atInt));
   TIntV RelevantCols; RelevantCols.Add(0); RelevantCols.Add(1);
 
-  PTable T1 = TTable::LoadSS("1", LJS, "table/soc-LiveJournal1_small.txt", Context, RelevantCols);
+  PTable T1 = TTable::LoadSS(LJS, "table/soc-LiveJournal1_small.txt", Context, RelevantCols);
 
   EXPECT_EQ(499, T1->GetNumRows().Val);
   EXPECT_EQ(499, T1->GetNumValidRows().Val); 
