@@ -356,6 +356,8 @@ protected:
     TStr NColName = NormalizeColName(ColName);
     return ColTypeMap.IsKey(NColName) ? ColTypeMap.GetDat(NColName).Val2 : TInt(-1); 
   }
+  /// Returns a re-numbered column name based on number of existing columns with conflicting names.
+  TStr RenumberColName(const TStr& ColName) const;
   /// Checks if \c Attr is an attribute of this table schema.
   TBool IsAttr(const TStr& Attr);
 
@@ -545,10 +547,6 @@ public:
   /// Loads table from spread sheet - but only load the columns specified by RelevantCols.
   static PTable LoadSS(const Schema& S, const TStr& InFNm, TTableContext& Context, 
    const TIntV& RelevantCols, const char& Separator = '\t', TBool HasTitleLine = false);
-  /// Loads table from spread sheet - compact prototype (tab-separated input file, has title line, anonymous table).
-  static PTable LoadSS(const Schema& S, const TStr& InFnm, TTableContext& Context){
-    return LoadSS(S, InFnm, Context, '\t', true);
-  }
   /// Saves table schema + content into a TSV file.
   void SaveSS(const TStr& OutFNm);
   /// Saves table schema + content into a binary.

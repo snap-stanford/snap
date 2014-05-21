@@ -1490,7 +1490,7 @@ void TTable::AddIdColumn(const TStr& ColName) {
   for (TInt i = 0; i < Sch.Len(); i++) {
     TStr ColName = GetSchemaColName(i);
     TAttrType ColType = GetSchemaColType(i);
-    TStr CName = ColName + "-1";
+    TStr CName = JointTable->RenumberColName(ColName);
     TPair<TAttrType, TInt> TypeMap = GetColTypeMap(ColName);
     JointTable->AddColType(CName, TypeMap);
     //JointTable->AddLabel(CName, ColName);
@@ -1499,7 +1499,7 @@ void TTable::AddIdColumn(const TStr& ColName) {
   for (TInt i = 0; i < Table.Sch.Len(); i++) {
     TStr ColName = Table.GetSchemaColName(i);
     TAttrType ColType = Table.GetSchemaColType(i);
-    TStr CName = ColName + "-2";
+    TStr CName = JointTable->RenumberColName(ColName);
     TPair<TAttrType, TInt> NewDat = Table.GetColTypeMap(ColName);
     Assert(ColType == NewDat.Val1);
     // add offsets
@@ -3727,6 +3727,22 @@ PTable TTable::Project(const TStrV& ProjectCols) {
 
 TBool TTable::IsAttr(const TStr& Attr) {
   return IsColName(Attr);
+}
+
+TStr TTable::RenumberColName(const TStr& ColName) const {
+  TStr NColName = ColName;
+  if (NColName.GetCh(NColName.Len()-2) == '-') { 
+    NColName = NColName.GetSubStr(0,NColName.Len()-3); 
+  }
+  TInt Conflicts = 0;
+  for (TInt i = 0; i < Sch.Len(); i++) {
+    if (NColName == Sch[i].Val1.GetSubStr(0, Sch[i].Val1.Len()-3)) {
+      Conflicts++;
+    }
+  }
+  Conflicts++;
+  NColName = NColName + "-" + Conflicts.GetStr();
+  return NColName;
 }
 
 void TTable::AddIntCol(const TStr& ColName) {
