@@ -17,7 +17,7 @@ int main(int argc, char* argv[]){
   TIntV RelevantCols;
   RelevantCols.Add(0); RelevantCols.Add(1); RelevantCols.Add(2); RelevantCols.Add(3); RelevantCols.Add(4);
 
-  PTable P = TTable::LoadSS("Posts", PostS, "/dfs/ilfs2/0/ringo/StackOverflow_2/posts.tsv", Context, RelevantCols);
+  PTable P = TTable::LoadSS(PostS, "/dfs/ilfs2/0/ringo/StackOverflow_2/posts.tsv", Context, RelevantCols);
   printf("Load done\n");
 
   TStrV cols;

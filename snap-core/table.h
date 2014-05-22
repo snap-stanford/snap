@@ -367,6 +367,19 @@ protected:
   TStr RenumberColName(const TStr& ColName) const;
   /// Checks if \c Attr is an attribute of this table schema.
   TBool IsAttr(const TStr& Attr);
+  
+/***** Utility functions for adding rows and tables to TTable *****/
+  /// Adds all the rows of the input table. Allows duplicate rows (not a union).
+  void AddTable(const TTable& T);
+  /// Appends all rows of \c T to this table, and recalculate indices.
+  void ConcatTable(const PTable& T) {AddTable(*T); Reindex(); }
+  
+  /// Adds row corresponding to \c RI.
+  void AddRow(const TRowIterator& RI);
+  /// Adds row with values corresponding to the given vectors by type.
+  void AddRow(const TIntV& IntVals, const TFltV& FltVals, const TStrV& StrVals);
+  /// Adds row with values taken from given TTableRow.
+  void AddRow(const TTableRow& Row) { AddRow(Row.GetIntVals(), Row.GetFltVals(), Row.GetStrVals()); };
 
 /***** Utility functions for building graph from TTable *****/
   /// Adds names of columns to be used as graph attributes.
@@ -398,6 +411,8 @@ protected:
   PNEANet GetFirstGraphFromSequence(TAttrAggr AggrPolicy);
   /// Returns the next graph in sequence corresponding to RowIdBuckets. ##TTable::GetNextGraphFromSequence
   PNEANet GetNextGraphFromSequence();
+  /// Checks if the end of the graph sequence is reached.
+  TBool IsLastGraphOfSequence();
 
   /// Aggregates vector into a single scalar value according to a policy. ##TTable::AggregateVector
   template <class T> T AggregateVector(TVec<T>& V, TAttrAggr Policy);
@@ -511,6 +526,19 @@ protected:
   /// Adds a column of explicit integer identifiers to the rows.
   void AddIdColumn(const TStr& IdColName);
 
+  static TInt CompareKeyVal(const TInt& K1, const TInt& V1, const TInt& K2, const TInt& V2);
+  static TInt CheckSortedKeyVal(TIntV& Key, TIntV& Val, TInt Start, TInt End);
+  static void ISortKeyVal(TIntV& Key, TIntV& Val, TInt Start, TInt End);
+  static TInt GetPivotKeyVal(TIntV& Key, TIntV& Val, TInt Start, TInt End);
+  static TInt PartitionKeyVal(TIntV& Key, TIntV& Val, TInt Start, TInt End);
+  static void QSortKeyVal(TIntV& Key, TIntV& Val, TInt Start, TInt End);
+
+  /// Gets set of row ids of rows common with table \c T.
+  void GetCollidingRows(const TTable& T, THashSet<TInt>& Collisions);
+
+  /// Debug: print sizes of various fields of table.
+  void PrintSize();
+
 public:
 /***** Constructors *****/
   TTable(); 
@@ -613,11 +641,11 @@ public:
 /***** Value Getters - getValue(col idx, row Idx) *****/
   // No type and bound checking
   /// Get the integer value at column \c ColIdx and row \c RowIdx
-  TInt GetIntVal2(const TInt& ColIdx, const TInt& RowIdx) { 
+  TInt GetIntValAtRowIdx(const TInt& ColIdx, const TInt& RowIdx) { 
     return IntCols[ColIdx][RowIdx]; 
   }
   /// Get the float value at column \c ColIdx and row \c RowIdx
-  TFlt GetFltVal2(const TFlt& ColIdx, const TFlt& RowIdx) { 
+  TFlt GetFltValAtRowIdx(const TFlt& ColIdx, const TFlt& RowIdx) { 
     return FltCols[ColIdx][RowIdx]; 
   }
 
@@ -642,8 +670,6 @@ public:
   PNEANet ToGraphPerGroupIterator(TStr GroupAttr, TAttrAggr AggrPolicy);
   /// Calls to this must be preceded by a call to one of the above ToGraph*Iterator functions.
   PNEANet NextGraphIterator();
-  /// Checks if the end of the graph sequence is reached.
-  TBool IsLastGraphOfSequence();
 
   /// Gets the name of the column to be used as src nodes in the graph.
 	TStr GetSrcCol() const { return SrcCol; }
@@ -865,20 +891,6 @@ public:
   void StoreFltCol(const TStr& ColName, const TFltV& ColVals);
   /// Adds entire str column to table.
   void StoreStrCol(const TStr& ColName, const TStrV& ColVals);
-  
-  /// Adds all the rows of the input table. Allows duplicate rows (not a union).
-  void AddTable(const TTable& T);
-  /// Appends all rows of \c T to this table, and recalcutate indices.
-  void ConcatTable(const PTable& T) {AddTable(*T); Reindex(); }
-  
-  /// Adds row corresponding to \c RI.
-  void AddRow(const TRowIterator& RI);
-  /// Adds row with values corresponding to the given vectors by type.
-  void AddRow(const TIntV& IntVals, const TFltV& FltVals, const TStrV& StrVals);
-  /// Adds row with values taken from given TTableRow.
-  void AddRow(const TTableRow& Row) { AddRow(Row.GetIntVals(), Row.GetFltVals(), Row.GetStrVals()); };
-  /// Gets set of row ids of rows common with table \c T.
-  void GetCollidingRows(const TTable& T, THashSet<TInt>& Collisions);
 
   /// Returns union of this table with given \c Table.
   PTable Union(const TTable& Table);
@@ -973,16 +985,6 @@ public:
 
   /// Distance based filter. ##TTable::IsNextK
   PTable IsNextK(const TStr& OrderCol, TInt K, const TStr& GroupBy, const TStr& RankColName = "");
-
-  /// Debug: print sizes of various fields of table.
-  void PrintSize();
-
-  static TInt CompareKeyVal(const TInt& K1, const TInt& V1, const TInt& K2, const TInt& V2);
-  static TInt CheckSortedKeyVal(TIntV& Key, TIntV& Val, TInt Start, TInt End);
-  static void ISortKeyVal(TIntV& Key, TIntV& Val, TInt Start, TInt End);
-  static TInt GetPivotKeyVal(TIntV& Key, TIntV& Val, TInt Start, TInt End);
-  static TInt PartitionKeyVal(TIntV& Key, TIntV& Val, TInt Start, TInt End);
-  static void QSortKeyVal(TIntV& Key, TIntV& Val, TInt Start, TInt End);
 
   /// Gets sequence of PageRank tables from given \c GraphSeq.
   static TTableIterator GetMapPageRank(const TVec<PNEANet>& GraphSeq, TTableContext& Context, 

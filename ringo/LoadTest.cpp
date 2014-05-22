@@ -25,7 +25,7 @@ int main(int argc, char** argv){
   Profiler.StartTimer(TimerId);
   gettimeofday(&start, NULL);
   TFIn FIn(filename);
-  PTable Q = TTable::LoadSS("Table", S, filename, Context, RelevantCols);
+  PTable Q = TTable::LoadSS(S, filename, Context, RelevantCols);
   Profiler.StopTimer(TimerId);
   gettimeofday(&end, NULL);
   delta = ((end.tv_sec  - start.tv_sec) * 1000000u + 
@@ -33,7 +33,7 @@ int main(int argc, char** argv){
   printf("Load time (elapsed): %f, cpu: %f\n", delta, Profiler.GetTimerSec(TimerId));
 
   for (int i = 0; i < Q->GetNumRows(); i++) {
-    sum += Q->GetIntVal2(0, i) * 2 + Q->GetIntVal2(1, i) * 3;
+    sum += Q->GetIntValAtRowIdx(0, i) * 2 + Q->GetIntValAtRowIdx(1, i) * 3;
   }
 
   printf("expected: %d, actual: %d\n", expected, sum);

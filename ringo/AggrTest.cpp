@@ -14,7 +14,7 @@ int main(){
   RelevantCols.Add(0); RelevantCols.Add(1); RelevantCols.Add(2);
   RelevantCols.Add(3); RelevantCols.Add(4); RelevantCols.Add(5);
 
-  PTable P = TTable::LoadSS("Grades", GradeS, "tests/grades.txt", Context, RelevantCols);
+  PTable P = TTable::LoadSS(GradeS, "tests/grades.txt", Context, RelevantCols);
 
   P->SaveSS("tests/p1.txt");
 

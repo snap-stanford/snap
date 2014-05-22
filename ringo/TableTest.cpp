@@ -13,7 +13,7 @@ int main(){
   RelevantCols.Add(1);
   RelevantCols.Add(2);
   // create table
-  PTable T = TTable::LoadSS("Animals", AnimalS, "tests/animals.txt", Context, RelevantCols);
+  PTable T = TTable::LoadSS(AnimalS, "tests/animals.txt", Context, RelevantCols);
   //PTable T = TTable::LoadSS("Animals", AnimalS, "animals.txt");
   T->Unique("Animal");
   TTable Ts = *T;  // did we fix problem with copy-c'tor ?

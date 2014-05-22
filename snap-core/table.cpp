@@ -3200,7 +3200,6 @@ void TTable::PrintSize() {
   printf("Approximated size is %f KB\n", ApproxSize);
 }
 
-
 void TTable::AddTable(const TTable& T) {
   //for (TInt c = 0; c < S.Len(); c++) {
   //  if (S[c] != T.S[c]) { printf("(%s,%d) != (%s,%d)\n", S[c].Val1.CStr(), S[c].Val2, T.S[c].Val1.CStr(), T.S[c].Val2); TExcept::Throw("when adding tables, their schemas must match!"); }

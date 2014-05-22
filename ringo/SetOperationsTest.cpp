@@ -14,26 +14,26 @@ int main(){
   RelevantCols.Add(2);
   RelevantCols.Add(3);
 
-  PTable P = TTable::LoadSS("Animals", AnimalS, "tests/animals.txt", Context, RelevantCols);
-  PTable Q = TTable::LoadSS("MoreAnimals", AnimalS, "tests/more_animals.txt", Context, RelevantCols);
+  PTable P = TTable::LoadSS(AnimalS, "tests/animals.txt", Context, RelevantCols);
+  PTable Q = TTable::LoadSS(AnimalS, "tests/more_animals.txt", Context, RelevantCols);
 
-  PTable P1 = P->UnionAll(*P, "foo");
-  PTable P2 = P1->UnionAll(*Q, "foo");
+  PTable P1 = P->UnionAll(*P);
+  PTable P2 = P1->UnionAll(*Q);
   P2->SaveSS("tests/unionall.txt");
 
-  PTable R = P->Union(*Q, "union");
+  PTable R = P->Union(*Q);
   R->SaveSS("tests/union.txt");
 
-  PTable S = P->Intersection(*Q, "intersection");
+  PTable S = P->Intersection(*Q);
   S->SaveSS("tests/intersection.txt");
 
-  PTable M = P->Minus(*Q, "minus");
+  PTable M = P->Minus(*Q);
   M->SaveSS("tests/minus.txt");
 
   TStrV Cols;
   Cols.Add("Animal");
   Cols.Add("Size");
-  PTable T = P->Project(Cols, "projection");
+  PTable T = P->Project(Cols);
 
   P->ProjectInPlace(Cols);
 

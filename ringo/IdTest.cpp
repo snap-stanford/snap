@@ -19,7 +19,7 @@ int main(){
   RelevantCols.Add(0);
   RelevantCols.Add(1);
 
-  PTable P = TTable::LoadSS("Country", CountryS, "tests/country.txt", Context, RelevantCols);
+  PTable P = TTable::LoadSS(CountryS, "tests/country.txt", Context, RelevantCols);
   P->SaveSS("tests/p.txt");
 
   P->Unique("Continent");
@@ -37,7 +37,7 @@ int main(){
     printf("Id: %d, Row: %d\n", id.Val, row.Val);
   }
 
-  PTable Q = TTable::LoadSS("Cont", ContinentS, "tests/continent.txt", Context, RelevantCols);
+  PTable Q = TTable::LoadSS(ContinentS, "tests/continent.txt", Context, RelevantCols);
   Q->SaveSS("tests/q.txt");
 
   PTable R = P->Join("Continent", *Q, "Continent");
