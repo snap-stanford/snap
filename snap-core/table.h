@@ -365,6 +365,10 @@ protected:
   }
   /// Returns a re-numbered column name based on number of existing columns with conflicting names.
   TStr RenumberColName(const TStr& ColName) const;
+  /// Removes suffix to column name if exists
+  TStr DenormalizeColName(const TStr& ColName) const;
+  /// Removes suffix to column names in the Schema
+  Schema DenormalizeSchema() const;
   /// Checks if \c Attr is an attribute of this table schema.
   TBool IsAttr(const TStr& Attr);
   
@@ -411,8 +415,6 @@ protected:
   PNEANet GetFirstGraphFromSequence(TAttrAggr AggrPolicy);
   /// Returns the next graph in sequence corresponding to RowIdBuckets. ##TTable::GetNextGraphFromSequence
   PNEANet GetNextGraphFromSequence();
-  /// Checks if the end of the graph sequence is reached.
-  TBool IsLastGraphOfSequence();
 
   /// Aggregates vector into a single scalar value according to a policy. ##TTable::AggregateVector
   template <class T> T AggregateVector(TVec<T>& V, TAttrAggr Policy);
@@ -650,7 +652,7 @@ public:
   }
 
   /// Gets the schema of this table.
-  Schema GetSchema() { return Sch; }
+  Schema GetSchema() { return DenormalizeSchema(); }
 
 /***** Graph handling *****/
   /// Creates a sequence of graphs based on values of column SplitAttr and windows specified by JumpSize and WindowSize.
@@ -670,6 +672,8 @@ public:
   PNEANet ToGraphPerGroupIterator(TStr GroupAttr, TAttrAggr AggrPolicy);
   /// Calls to this must be preceded by a call to one of the above ToGraph*Iterator functions.
   PNEANet NextGraphIterator();
+  /// Checks if the end of the graph sequence is reached.
+  TBool IsLastGraphOfSequence();
 
   /// Gets the name of the column to be used as src nodes in the graph.
 	TStr GetSrcCol() const { return SrcCol; }

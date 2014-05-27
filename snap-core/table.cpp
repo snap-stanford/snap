@@ -591,12 +591,14 @@ void TTable::SaveSS(const TStr& OutFNm) {
     return;
   }
 
+  Schema DSch = DenormalizeSchema();
+
   TInt L = Sch.Len();
   // print title (schema)
   for (TInt i = 0; i < L-1; i++) {
-    fprintf(F, "%s\t", GetSchemaColName(i).CStr());
+    fprintf(F, "%s\t", DSch[i].Val1.CStr());
   }  
-  fprintf(F, "%s\n", GetSchemaColName(L-1).CStr());
+  fprintf(F, "%s\n", DSch[L-1].Val1.CStr());
   // print table contents
   for (TRowIterator RowI = BegRI(); RowI < EndRI(); RowI++) {
     for (TInt i = 0; i < L; i++) {
@@ -641,15 +643,16 @@ void TTable::Save(TSOut& SOut) {
   TInt atStrVal = TInt(2);
   for (THash<TStr,TPair<TAttrType,TInt> >::TIter it = ColTypeMap.BegI(); it < ColTypeMap.EndI(); it++) {
     TPair<TAttrType,TInt> dat = it.GetDat();
+    TStr DColName = DenormalizeColName(it.GetKey());
     switch (dat.GetVal1()) {
       case atInt:
-        ColTypeIntMap.AddDat(it.GetKey(), TPair<TInt,TInt>(atIntVal, dat.GetVal2()));
+        ColTypeIntMap.AddDat(DColName, TPair<TInt,TInt>(atIntVal, dat.GetVal2()));
         break;
       case atFlt:
-        ColTypeIntMap.AddDat(it.GetKey(), TPair<TInt,TInt>(atFltVal, dat.GetVal2()));
+        ColTypeIntMap.AddDat(DColName, TPair<TInt,TInt>(atFltVal, dat.GetVal2()));
         break;
       case atStr:
-        ColTypeIntMap.AddDat(it.GetKey(), TPair<TInt,TInt>(atStrVal, dat.GetVal2()));
+        ColTypeIntMap.AddDat(DColName, TPair<TInt,TInt>(atStrVal, dat.GetVal2()));
         break;
     }
   }
@@ -3723,6 +3726,31 @@ TStr TTable::RenumberColName(const TStr& ColName) const {
   Conflicts++;
   NColName = NColName + "-" + Conflicts.GetStr();
   return NColName;
+}
+
+TStr TTable::DenormalizeColName(const TStr& ColName) const {
+  TStr DColName = ColName;
+  if (DColName.Len() == 0) { return DColName; }
+  if (DColName.GetCh(0) == '_') { return DColName; }
+  if (DColName.GetCh(DColName.Len()-2) == '-') { 
+    DColName = DColName.GetSubStr(0,DColName.Len()-3); 
+  }
+  TInt Conflicts = 0;
+  for (TInt i = 0; i < Sch.Len(); i++) {
+    if (DColName == Sch[i].Val1.GetSubStr(0, Sch[i].Val1.Len()-3)) {
+      Conflicts++;
+    }
+  }
+  if (Conflicts > 1) { return ColName; } 
+  else { return DColName; }
+}
+
+Schema TTable::DenormalizeSchema() const {
+  Schema DSch;
+  for (TInt i = 0; i < Sch.Len(); i++) {
+    DSch.Add(TPair<TStr, TAttrType>(DenormalizeColName(Sch[i].Val1), Sch[i].Val2));
+  }
+  return DSch;
 }
 
 void TTable::AddIntCol(const TStr& ColName) {
