@@ -32,8 +32,6 @@ int TGnuPlot::GetTics42() {
   char Version[1024];
   size_t n;
 
-  printf("running gnuplot\n");
-
   // get gnuplot version
   p = popen(TStr::Fmt("%s -V", TGnuPlot::GnuPlotFNm.CStr()).CStr(), "r");
   if (p == NULL) { // try running using the path
@@ -884,7 +882,8 @@ void TGnuPlot::RunGnuPlot() const {
   //if (system(TStr::Fmt("./%s %s", GpFNm.CStr(), PlotFNm.CStr()).CStr())==0) { return; }
   //#endif
   //if (system(TStr::Fmt("%s%s %s", GpPath.CStr(), GpFNm.CStr(), PlotFNm.CStr()).CStr())==0) { return; }
-  //FailR(TStr::Fmt("Cat not find GnuPlot (%s) for plot %s. Set the PATH.", GpFNm.CStr(), PlotFNm.CStr()).CStr());
-  //ErrNotify(TStr::Fmt("Cat not find GnuPlot (%s) for plot %s. Set the PATH.", GpFNm.CStr(), PlotFNm.CStr()).CStr());
-  fprintf(stderr, "[%s:%d] Cat not find GnuPlot (%s) for plot %s. Set the $$PATH variable or TGnuPlot::GnuPlotPath. (%s)\n", __FILE__, __LINE__, GnuPlotFNm.CStr(), PlotFNm.CStr(), TGnuPlot::GnuPlotPath.CStr());
+  //FailR(TStr::Fmt("Cannot find GnuPlot (%s) for plot %s. Set the PATH.", GpFNm.CStr(), PlotFNm.CStr()).CStr());
+  //ErrNotify(TStr::Fmt("Cannot find GnuPlot (%s) for plot %s. Set the PATH.", GpFNm.CStr(), PlotFNm.CStr()).CStr());
+  fprintf(stderr, "[%s:%d] Cannot find GnuPlot (%s) for plot %s. Set the $$PATH variable or TGnuPlot::GnuPlotPath. (%s)\n", __FILE__, __LINE__, GnuPlotFNm.CStr(), PlotFNm.CStr(), TGnuPlot::GnuPlotPath.CStr());
 }
+
