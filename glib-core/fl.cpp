@@ -548,7 +548,7 @@ TMIn::TMIn(const char* CStr):
   BfL=uint64_t(strlen(CStr)); Bf=new char[BfL+1]; strcpy(Bf, CStr);
 }
 
-// assumes that we can use mmap call if FromFile is true
+/* GLib_LINUX should be defined if FromFile is true */
 TMIn::TMIn(const TStr& Str, bool FromFile):
   TSBase("Input-Memory"), TSIn("Input-Memory"), Bf(NULL), BfC(0), BfL(0){
   if (FromFile == false) {
@@ -556,6 +556,7 @@ TMIn::TMIn(const TStr& Str, bool FromFile):
     IsMemoryMapped = false;
   }
   else {
+#ifdef GLib_LINUX
     TStr FNm = Str;
     TFileId FileId;
     int fd;
@@ -590,6 +591,9 @@ TMIn::TMIn(const TStr& Str, bool FromFile):
       BfL = FLen;
     }
     IsMemoryMapped = true;
+#else
+    TExcept::Throw("TMIn::TMIn(TStr, Bool): GLib_LINUX undefined.\n");
+#endif
   }
 }
 
@@ -621,7 +625,9 @@ PSIn TMIn::New(const TChA& ChA){
 TMIn::~TMIn(){
   if (Bf!=NULL){
     if (IsMemoryMapped) {
+#ifdef GLib_LINUX
       munmap(Bf, BfL);
+#endif
     }
     else {
       delete[] Bf;
