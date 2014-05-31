@@ -38,7 +38,7 @@ TEST(TTable, LoadSave) {
 
   // Test SaveSS by loading the saved table and testing values again.
   GradeS.Add(TPair<TStr,TAttrType>("_id", atInt));
-  P = TTable::LoadSS(GradeS, "table/p1.txt", Context, RelevantCols, '\t', true);
+  P = TTable::LoadSS(GradeS, "table/p1.txt", Context, RelevantCols);
 
   EXPECT_EQ(5, P->GetNumRows().Val);
   EXPECT_EQ(5, P->GetNumValidRows().Val); 

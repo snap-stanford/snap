@@ -595,6 +595,7 @@ void TTable::SaveSS(const TStr& OutFNm) {
 
   TInt L = Sch.Len();
   // print title (schema)
+  fprintf(F, "# ");
   for (TInt i = 0; i < L-1; i++) {
     fprintf(F, "%s\t", DSch[i].Val1.CStr());
   }  
