@@ -583,6 +583,10 @@ PTable TTable::LoadSS(const Schema& S, const TStr& InFNm, TTableContext& Context
 
 
 void TTable::SaveSS(const TStr& OutFNm) {
+  if (NumValidRows == 0) {
+    printf("Table is empty");
+    return;
+  }
   FILE* F = fopen(OutFNm.CStr(), "w");
   // debug
   if (F == NULL) {
