@@ -476,7 +476,7 @@ PTable TTable::LoadSS(const Schema& S, const TStr& InFNm, TTableContext& Context
     T->Next[Cnt-1] = Last;
     T->LastValidRow = T->NumRows - 1;
 
-    TStr IdColName = "_id";
+    T->IdColName = "_id";
     TInt IdCol = T->IntCols.Add();
     T->IntCols[IdCol].Gen(Cnt);
 
@@ -487,8 +487,8 @@ PTable TTable::LoadSS(const Schema& S, const TStr& InFNm, TTableContext& Context
       T->IntCols[IdCol][i] = i;
     }
 
-    T->AddSchemaCol(IdColName, atInt);
-    T->AddColType(IdColName, atInt, T->IntCols.Len()-1);
+    T->AddSchemaCol(T->IdColName, atInt);
+    T->AddColType(T->IdColName, atInt, T->IntCols.Len()-1);
   
   } else {
   #endif
