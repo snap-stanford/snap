@@ -2843,12 +2843,16 @@ void TTable::FillBucketsByWindow(TStr SplitAttr, TInt JumpSize, TInt WindowSize,
     if (Next[i] == Invalid) { continue; }
     int SplitVal = IntCols[SplitColId][i];
     if (SplitVal < StartVal || SplitVal > EndVal) { continue; }
+    int RowVal = SplitVal - StartVal;
     if (JumpSize == 0) { // expanding windows
-      MinBucket = (SplitVal-StartVal)/WindowSize;
+      MinBucket = RowVal/WindowSize;
       MaxBucket = NumBuckets-1;
-    } else { // sliding/disjoint windows
-      MinBucket = max(0,(SplitVal-WindowSize-StartVal)/JumpSize + 1);
-      MaxBucket = (SplitVal - StartVal)/JumpSize;  
+    } else if (JumpSize == WindowSize) { // disjoint windows
+      MinBucket = MaxBucket = RowVal/JumpSize;  
+    } else { // sliding windows
+      if (RowVal < WindowSize) { MinBucket = 0; }
+      else { MinBucket = (RowVal-WindowSize)/JumpSize + 1; }
+      MaxBucket = RowVal/JumpSize;  
     }
     for (TInt j = MinBucket; j <= MaxBucket; j++) { RowIdBuckets[j].Add(i); }
   }
@@ -2908,6 +2912,7 @@ PNEANet TTable::GetNextGraphFromSequence() {
 // If EndVal == TInt.Mx, then the buckets will end at the max value of SplitAttr in the table. 
 TVec<PNEANet> TTable::ToGraphSequence(TStr SplitAttr, TAttrAggr AggrPolicy, TInt WindowSize, TInt JumpSize, TInt StartVal, TInt EndVal) {
   FillBucketsByWindow(SplitAttr, JumpSize, WindowSize, StartVal, EndVal);
+  printf("buckets filled\n");
   return GetGraphsFromSequence(AggrPolicy);  
 }
 
