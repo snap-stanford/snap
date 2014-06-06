@@ -29,10 +29,9 @@ int BuildCapacityNetwork(const TStr& InFNm, PNEANet &Net, const int& SrcColId = 
 }
 
 double getcputime() {
-  double result = 0.0;
-#ifndef NORUSAGE
+  double result;
   struct rusage rusage;
-#ifndef NOMP
+#ifdef RUSAGE_THREAD
   getrusage(RUSAGE_THREAD, &rusage);
 #else
   getrusage(RUSAGE_SELF, &rusage);
@@ -40,7 +39,6 @@ double getcputime() {
   result =
     ((double) (rusage.ru_utime.tv_usec + rusage.ru_stime.tv_usec) / 1000000) +
     ((double) (rusage.ru_utime.tv_sec + rusage.ru_stime.tv_sec));
-#endif
   return result;
 }
 
