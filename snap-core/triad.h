@@ -221,14 +221,14 @@ int64 CountTriangles(const PGraph& Graph) {
   TVec<TIntV> HigherDegNbrV(ind);
 
 #pragma omp parallel for schedule(dynamic)
-  for (TInt i = 0; i < ind; i++) {
+  for (int i = 0; i < ind; i++) {
     TNGraph::TNodeI NI = Graph->GetNI(MapV[i]);
     TIntV NbrV;
 
     GetMergeSortedV(NbrV, NI);
 
     TIntV V;
-    for (TInt j = 0; j < NbrV.Len(); j++) {
+    for (int j = 0; j < NbrV.Len(); j++) {
       TInt Vert = NbrV[j];
       TInt Deg = Graph->GetNI(Vert).GetDeg();
       if (Deg > NI.GetDeg() || 
@@ -243,8 +243,8 @@ int64 CountTriangles(const PGraph& Graph) {
 
   int64 cnt = 0;
 #pragma omp parallel for schedule(dynamic) reduction(+:cnt)
-  for (TInt i = 0; i < HigherDegNbrV.Len(); i++) {
-    for (TInt j = 0; j < HigherDegNbrV[i].Len(); j++) {
+  for (int i = 0; i < HigherDegNbrV.Len(); i++) {
+    for (int j = 0; j < HigherDegNbrV[i].Len(); j++) {
       TInt NbrInd = H.GetDat(HigherDegNbrV[i][j]);
 
       int64 num = GetCommon(HigherDegNbrV[i], HigherDegNbrV[NbrInd]);
