@@ -294,6 +294,8 @@ PSIn TFIn::New(const TStr& FNm){
     printf("*** Exception: %s\n", Except->GetMsgStr().CStr());
     EFailR(Except->GetMsgStr());
   }
+
+  return PSIn(new TFIn(FNm));
 }
 
 PSIn TFIn::New(const TStr& FNm, bool& OpenedP){
