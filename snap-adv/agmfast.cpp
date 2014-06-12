@@ -413,7 +413,7 @@ double TAGMFast::HessianForOneVar(const TFltV& AlphaKV, const int UID, const int
 }
 
 /// Newton method: DEPRECATED
-int TAGMFast::MLENewton(const double& Thres, const int& MaxIter, const TStr PlotNm) {
+int TAGMFast::MLENewton(const double& Thres, const int& MaxIter, const TStr& PlotNm) {
   TExeTm ExeTm;
   int iter = 0, PrevIter = 0;
   TIntFltPrV IterLV;
@@ -538,7 +538,7 @@ void TAGMFast::GetCmtyVV(TVec<TIntV>& CmtyVV, const double Thres, const int MinS
 }
 
 /// estimate number of communities using cross validation
-int TAGMFast::FindComsByCV(const int NumThreads, const int MaxComs, const int MinComs, const int DivComs, const TStr OutFNm, const double StepAlpha, const double StepBeta) {
+int TAGMFast::FindComsByCV(const int NumThreads, const int MaxComs, const int MinComs, const int DivComs, const TStr& OutFNm, const double StepAlpha, const double StepBeta) {
     double ComsGap = exp(TMath::Log((double) MaxComs / (double) MinComs) / (double) DivComs);
     TIntV ComsV;
     ComsV.Add(MinComs);
@@ -551,7 +551,7 @@ int TAGMFast::FindComsByCV(const int NumThreads, const int MaxComs, const int Mi
     return FindComsByCV(ComsV, 0.1, NumThreads, OutFNm + ".CV.likelihood", StepAlpha, StepBeta);
 }
 
-int TAGMFast::FindComsByCV(TIntV& ComsV, const double HOFrac, const int NumThreads, const TStr PlotLFNm, const double StepAlpha, const double StepBeta) {
+int TAGMFast::FindComsByCV(TIntV& ComsV, const double HOFrac, const int NumThreads, const TStr& PlotLFNm, const double StepAlpha, const double StepBeta) {
   if (ComsV.Len() == 0) {
     int MaxComs = G->GetNodes() / 5;
     ComsV.Add(2);
@@ -687,7 +687,7 @@ double TAGMFast::GetStepSizeByLineSearch(const int UID, const TIntFltH& DeltaV, 
   return StepSize;
 }
 
-int TAGMFast::MLEGradAscent(const double& Thres, const int& MaxIter, const TStr PlotNm, const double StepAlpha, const double StepBeta) {
+int TAGMFast::MLEGradAscent(const double& Thres, const int& MaxIter, const TStr& PlotNm, const double StepAlpha, const double StepBeta) {
   time_t InitTime = time(NULL);
   TExeTm ExeTm, CheckTm;
   int iter = 0, PrevIter = 0;
@@ -758,7 +758,7 @@ int TAGMFast::MLEGradAscent(const double& Thres, const int& MaxIter, const TStr 
   return iter;
 }
 
-int TAGMFast::MLEGradAscentParallel(const double& Thres, const int& MaxIter, const int ChunkNum, const int ChunkSize, const TStr PlotNm, const double StepAlpha, const double StepBeta) {
+int TAGMFast::MLEGradAscentParallel(const double& Thres, const int& MaxIter, const int ChunkNum, const int ChunkSize, const TStr& PlotNm, const double StepAlpha, const double StepBeta) {
   //parallel
   time_t InitTime = time(NULL);
   uint64 StartTm = TSecTm::GetCurTm().GetAbsSecs();
