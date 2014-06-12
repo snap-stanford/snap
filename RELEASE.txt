@@ -3,6 +3,122 @@ performance system for graph and network manipulation and analysis.
 
 This file contains a high-level description of changes in SNAP releases.
 
+Release 2.2, Mar 12, 2014
+
+- added CoDA, 2-mode community detection method, in examples/coda
+- added CESNA, community detection method for networks with node attributes,
+  in examples/cesna
+- added Infomap community detection algorithm in examples/community
+- added a second demo of connected components in tutorials/demo-cncom1.cpp
+- added a demo of text file parsing in tutorials/demo-TSsParser.cpp
+- added a function to plot multiple TMom hash tables on a single plot
+- extended TMom to compute the mode value of the data
+- added a PlotValV() function that plots error bars/variances
+- added SetVal() to TVec
+- added support for generating PNG on Mac OS X
+- improved Resize() to allocate maximum number of elements possible 
+- improved error handling of TZipIn for non-zip files
+- appended 'X' to the names of copy out scalar parameters in snap-core
+- added GetVal(), GetPrimHashCd() and GetSecHashCd() to TCnCom
+- replaced aborts with exceptions for Snap.py
+- updated Makefiles and code to compile on OS X Maverics
+- added g++ flags in Makefile
+- added compilation switches Snap.py, Snapworld, and backtraces in Makefile
+- added checks in accessing attributes in TNEANet
+- changed FailR to EFailR in TZipIn
+- fixed bug in TMom standard error computation
+- fixed an incorrect assertion in TBreathFS<PGraph>::GetRndPath()
+- fixed infinite loop in TNEANet::DelEdge()
+- fixed a problem in TNEANet::DelEdge()
+- fixed a problem in TNEANet::DelNode()
+- fixed TNEANet::Add{Int,Str,Flt}AttrDat[NE]() to use KeyId instead of NId
+- fixed a problem with a missing variable initialization in mag.cpp
+- fixed #26, change in endianness detection due to gcc compiler bug
+- fixed a bug in CntUniqBiDirEdges()
+- fixed small bugs in Cnt... functions in alg.h
+- fixed TMom plots
+- fixed incorrect index in glib-core/tm.h:GetMonthNm()
+- fixed incorrect index in TTm::GetCurLocTm().GetMonth()
+- made minor code changes to reduce compiler warnings
+
+Release 2.1, Sep 12, 2013
+
+- implemented a new network class TNEANet and PNEANet for graphs with
+  attributes
+- added new GetVal1() and GetVal2() methods to access components of TPair
+- renamed Get*Values() to Get*Val()
+- added a new function to create a rewired version (using configuation model)
+  of a given graph
+- added sorting to TGStatVec::GetValV
+- extended function TSnap::PrintInfo() in gbase.h
+- added statistics for undirected graphs.
+- added Strong and Bi-connected component statistics
+- added functions to plot k-Core decomposition plots
+- updated graph statistics
+- implemented TTable::Defrag
+- changed some casts in unicode.h to fix compilation errors on gcc 4.8.1
+- defined NDEBUG compilation flag to disable assertions in production
+- improved saving of PNG and EPS files to take into account the full path
+- added static variables in TGnuPlot: GnuPlotPath and GnuPlotFNm for
+  gnuplot executable
+- added a final renormalization step to GetHits() needed for disconnected
+  graphs
+- added GraphVizLayout sfdp
+- added benchmark for THash and TVec
+- improved PlotHops
+- fixed a bug in TSsParser::GetLineStr()
+- fixed a small bug in GetKCoreEdges()
+- updated cncom.h:IsWeaklyConn() so that it does not crash for empty graphs
+- fixed #38 community example does not work on email-Enron.txt
+- fixed zygote example on Mac OS X
+- made changes needed for snap.py on Windows
+- changed gbase.h so that it compiles with swig
+- moved WriteN() to util.cpp to prevent compile warnings on Mac OS X
+- made Snapworld functions defined only on Unix-like systems
+- make bigclam.cpp faster
+- added fixed vector size to the hash, vec benchmarks
+- made minor code changes to reduce compiler warnings
+- fixed demo-topology-benchmark.cpp compilation on Cygwin
+- commented out class IsDerivedFrom
+
+Release 2.0, May 13, 2013
+
+- significantly changed several classes and methods, not backward compatible.
+  This version is not able to read binary files or class serializations,
+  produced by previous SNAP versions.
+- added support for 64-bit vector length in TVec
+- added support for 64-bit vector length in TVecPool
+- implemented a new hash function for TVec with 10x improvement over the
+  previous one. This change is not backward compatible for hash tables. Old
+  hash functions are available in TVecHashF_OldGLib.
+- implemented new 10x faster hash functions for TPair, TTriple, TQuad and TTuple
+- added 64-bit random number generators GetUniDevInt64() and GetUniDevUInt64()
+- implemented new TVec method UnionLen() and GetMemSize()
+- moved vector access functions in TLocClust from private to public
+- added new examples agmfit, bigclam, circles, zygote, XcodeTest
+- added new tutorials for bfsdfs, cncom, gviz, triad
+- added new unit tests for alg, bfsdfs, cncom, gvi, THashSet, triad
+- added Mac OS X Xcode support for examples
+- added Mac OS X support for doxygen
+- fixed #36 normalized eigenvector centrality values to use L2 rather than L1
+- fixed #17 integer overflow bug in TSnap::GenRndGnm()
+- fixed a bug in THashSet::Defrag()
+- fixed a bug in IsTree()
+- fixed a bug in TVec::NextPerm()
+- fixed GetNodeTriads(), it was not checking for an empty group
+- changed GetTriads and GetClustCf to return triads as int64 rather than int
+  to prevent integer overflow for large graphs
+- implemented much faster TSsParser
+- added OpenMP compilation flags
+- implemented stackdump for g++
+- merged updates from the most recent version of GLib
+- undefined __STDC_LIMIT_MACROS in base.h to prevent double definition warnings
+- removed include <stdio.h> in examples/*/stdefx.h to correctly define SIZE_MAX
+- removed a redundant GetNodeTriads() variant
+- changed type of PGraph::TNodeI to PGraph::TObj::TNodeI in triad.h
+- fixed warnings about implicit conversions from int64 to int in dt.h, tm.h,
+  os.h.
+
 Release 1.11, Dec 21, 2012
 
 - added new examples netinf, infopath

@@ -50,6 +50,47 @@ double _GirvanNewmanGetModularity(const PUNGraph& G, const TIntH& OutDegH, const
   else { return Mod/(2.0*OrigEdges); }
 }
 
+TIntFltH MapEquationNew2Modules(PUNGraph& Graph, TIntH& Module, TIntFltH& Qi, int a, int b){
+  TIntFltH Qi1;
+  Qi1 = Qi;	
+  float InModule=0.0, OutModule=0.0, Val;
+  int Mds[2] = {a,b};
+  for (int i=0; i<2; i++) {
+    InModule=0.0, OutModule=0.0;
+    if (Qi1.IsKey(Mds[i])){
+      int CentralModule = Mds[i];
+      for (TUNGraph::TEdgeI EI = Graph->BegEI(); EI < Graph->EndEI(); EI++) {
+        if (Module.GetDat(EI.GetSrcNId()) == Module.GetDat(EI.GetDstNId()) && Module.GetDat(EI.GetDstNId()) == CentralModule) {
+          InModule += 1.0;
+        } else if ((Module.GetDat(EI.GetSrcNId()) == CentralModule && Module.GetDat(EI.GetDstNId()) != CentralModule) || (Module.GetDat(EI.GetSrcNId()) != CentralModule && Module.GetDat(EI.GetDstNId()) == CentralModule)) {
+          OutModule +=1.0;
+        }
+	    }
+      Val = 0.0;
+      if (InModule+OutModule > 0) {
+        Val = OutModule/(InModule+OutModule);
+      }
+      Qi1.DelKey(Mds[i]);
+      Qi1.AddDat(Mds[i],Val);
+    } else {
+      Qi1.DelKey(Mds[i]);
+      Qi1.AddDat(Mds[i],0.0);
+    }
+  }
+	
+  return Qi1;
+}
+
+float Equation(PUNGraph& Graph, TIntFltH& PAlpha,float& SumPAlphaLogPAlpha, TIntFltH& Qi){
+  float SumPAlpha = 1.0, SumQi = 0.0, SumQiLogQi=0.0, SumQiSumPAlphaLogQiSumPAlpha = 0.0;
+  for (int i=0; i<Qi.Len(); i++) {
+    SumQi += Qi[i];
+    SumQiLogQi += Qi[i]*log(Qi[i]);
+    SumQiSumPAlphaLogQiSumPAlpha += (Qi[i]+SumPAlpha)*log(Qi[i]+SumPAlpha);
+  }
+  return (SumQi*log(SumQi)-2*SumQiLogQi-SumPAlphaLogPAlpha+SumQiSumPAlphaLogQiSumPAlpha);
+}
+
 } // namespace TSnapDetail
 
 // Maximum modularity clustering by Girvan-Newman algorithm (slow)
@@ -75,6 +116,73 @@ double CommunityGirvanNewman(PUNGraph& Graph, TCnComV& CmtyV) {
     if (Cmty1.Len()==0 || Cmty2.Len() == 0) { break; }
   }
   return BestQ;
+}
+
+// Rosvall-Bergstrom community detection algorithm based on information theoretic approach.
+// See: Rosvall M., Bergstrom C. T., Maps of random walks on complex networks reveal community structure, Proc. Natl. Acad. Sci. USA 105, 1118-1123 (2008)
+double Infomap(PUNGraph& Graph, TCnComV& CmtyV){	
+  TIntH DegH; 
+  TIntFltH PAlpha; // probability of visiting node alpha
+  TIntH Module; // module of each node
+  TIntFltH Qi; // probability of leaving each module
+  float SumPAlphaLogPAlpha = 0.0;
+  int Br = 0;
+  const int e = Graph->GetEdges(); 
+
+  // initial values
+  for (TUNGraph::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
+    DegH.AddDat(NI.GetId(), NI.GetDeg());
+    float d = ((float)NI.GetDeg()/(float)(2*e));
+    PAlpha.AddDat(NI.GetId(), d);
+    SumPAlphaLogPAlpha += d*log(d);
+    Module.AddDat(NI.GetId(),Br);
+    Qi.AddDat(Module[Br],1.0);
+    Br+=1;
+  }
+
+  float MinCodeLength = TSnapDetail::Equation(Graph,PAlpha,SumPAlphaLogPAlpha,Qi);
+  float NewCodeLength, PrevIterationCodeLength = 0.0;
+  int OldModule, NewModule;
+
+  do {
+    PrevIterationCodeLength = MinCodeLength;
+      for (TUNGraph::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
+        MinCodeLength = TSnapDetail::Equation(Graph, PAlpha, SumPAlphaLogPAlpha, Qi);
+        for (int i=0; i<DegH.GetDat(NI.GetId()); i++) {
+          OldModule = Module.GetDat(NI.GetId());
+          NewModule = Module.GetDat(NI.GetNbrNId(i));
+          if (OldModule!=NewModule){
+            Module.DelKey(NI.GetId()); 
+            Module.AddDat(NI.GetId(),NewModule);
+            Qi = TSnapDetail::MapEquationNew2Modules(Graph,Module,Qi,OldModule, NewModule);
+            NewCodeLength = TSnapDetail::Equation(Graph,PAlpha,SumPAlphaLogPAlpha, Qi);
+            if (NewCodeLength<MinCodeLength) {
+              MinCodeLength = NewCodeLength;
+              OldModule = NewModule;
+            } else {
+              Module.DelKey(NI.GetId());
+              Module.AddDat(NI.GetId(),OldModule);
+            }
+          }
+       }
+     }
+   } while (MinCodeLength<PrevIterationCodeLength);
+
+  Module.SortByDat(true);
+  int Mod=-1;
+  for (int i=0; i<Module.Len(); i++) {
+    if (Module[i]>Mod){
+      Mod = Module[i];
+      TCnCom t;
+      for (TUNGraph::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++){
+        if (Module.GetDat(NI.GetId())==Mod)
+        t.Add(NI.GetId());
+      }
+      CmtyV.Add(t);
+    }
+  }
+
+  return MinCodeLength;
 }
 
 namespace TSnapDetail {

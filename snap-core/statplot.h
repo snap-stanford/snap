@@ -19,9 +19,13 @@ template <class PGraph> void PlotSccDistr(const PGraph& Graph, const TStr& FNmPr
 template <class PGraph> void PlotClustCf(const PGraph& Graph, const TStr& FNmPref, TStr DescStr=TStr());
 /// Plots the cumulative distribution of the shortest path lengths of a Graph. Implementation is based on ANF.
 /// @param IsDir false: ignore edge directions and consider graph as undirected.
-template <class PGraph> void PlotHops(const PGraph& Graph, const TStr& FNmPref, const TStr& DescStr, const bool& IsDir=false, const int& NApprox=32);
+template <class PGraph> void PlotHops(const PGraph& Graph, const TStr& FNmPref, TStr DescStr=TStr(), const bool& IsDir=false, const int& NApprox=32);
 /// Plots the distribution of the shortest path lengths of a Graph. Implementation is based on BFS.
 template <class PGraph> void PlotShortPathDistr(const PGraph& Graph, const TStr& FNmPref, TStr DescStr=TStr(), int TestNodes=TInt::Mx);
+/// Plots the k-Core node-size distribution: Core k vs. number of nodes in k-core
+template <class PGraph> void PlotKCoreNodes(const PGraph& Graph, const TStr& FNmPref, TStr DescStr=TStr());
+/// Plots the k-Core edge-size distribution: Core k vs. number of edges in k-core
+template <class PGraph> void PlotKCoreEdges(const PGraph& Graph, const TStr& FNmPref, TStr DescStr=TStr());
 
 /// Plots the eigen-value rank distribution of the Graph adjacency matrix. Plots first EigVals eigenvalues.
 void PlotEigValRank(const PUNGraph& Graph, const int& EigVals, const TStr& FNmPref, TStr DescStr=TStr());
@@ -119,15 +123,16 @@ void PlotClustCf(const PGraph& Graph, const TStr& FNmPref, TStr DescStr) {
 }
 
 template <class PGraph>
-void PlotHops(const PGraph& Graph, const TStr& FNmPref, const TStr& DescStr, const bool& IsDir, const int& NApprox) {
+void PlotHops(const PGraph& Graph, const TStr& FNmPref, TStr DescStr, const bool& IsDir, const int& NApprox) {
   TIntFltKdV DistNbrsV;
   TSnap::GetAnf(Graph, DistNbrsV, -1, IsDir, NApprox);
   const double EffDiam = TSnap::TSnapDetail::CalcEffDiam(DistNbrsV, 0.9);
+  if (DescStr.Empty()) { DescStr = FNmPref; }
   TGnuPlot GnuPlot("hop."+FNmPref, TStr::Fmt("%s. Hop plot. EffDiam: %g, G(%d, %d)",
     DescStr.CStr(), EffDiam, Graph->GetNodes(), Graph->GetEdges()));
   GnuPlot.SetXYLabel("Number of hops", "Number of pairs of nodes");
   GnuPlot.SetScale(gpsLog10Y);
-  GnuPlot.AddPlot(DistNbrsV, gpwLinesPoints, "");
+  GnuPlot.AddPlot(DistNbrsV, gpwLinesPoints, "", "pt 6");
   GnuPlot.SavePng();
 }
 
@@ -157,5 +162,28 @@ void PlotShortPathDistr(const PGraph& Graph, const TStr& FNmPref, TStr DescStr, 
     TStr::Fmt("%s. G(%d, %d). Diam: avg:%.2f  eff:%.2f  max:%d", DescStr.CStr(), Graph->GetNodes(), Graph->GetEdges(),
     AvgDiam, EffDiam, FullDiam), "Number of hops", "Number of shortest paths", gpsLog10Y, false, gpwLinesPoints);
 }
+  
+template <class PGraph>
+void PlotKCoreNodes(const PGraph& Graph, const TStr& FNmPref, TStr DescStr) {
+  TIntPrV CoreNodesV;
+  TSnap::GetKCoreNodes(Graph, CoreNodesV);
+  if (DescStr.Empty()) { DescStr = FNmPref; }
+  TGnuPlot::PlotValV(CoreNodesV, "coreNodes."+FNmPref, TStr::Fmt("%s. G(%d, %d).", DescStr.CStr(), Graph->GetNodes(), Graph->GetEdges()), "k-Core", "Number of nodes in the k-Core", gpsLog10Y, false, gpwLinesPoints);
+}
+
+template <class PGraph>
+void PlotKCoreEdges(const PGraph& Graph, const TStr& FNmPref, TStr DescStr) {
+  TIntPrV CoreEdgesV;
+  TSnap::GetKCoreEdges(Graph, CoreEdgesV);
+  if (DescStr.Empty()) { DescStr = FNmPref; }
+  TGnuPlot::PlotValV(CoreEdgesV, "coreEdges."+FNmPref, TStr::Fmt("%s. G(%d, %d).", DescStr.CStr(), Graph->GetNodes(), Graph->GetEdges()), "k-Core", "Number of edges in the k-Core", gpsLog10Y, false, gpwLinesPoints);
+}
+
+//TIntPrV CoreNV, CoreEV;
+//TSnap::GetKCoreNodes(UG, CoreNV);
+//TSnap::GetKCoreEdges(UG, CoreEV);
+//TGnuPlot::PlotValV(CoreNV, "kcoreN.fullUndir", "kCore nodes size", "k-Core", "Number of nodes", gpsLog10Y);
+//TGnuPlot::PlotValV(CoreEV, "kcoreE.fullUndir", "kCore edges size", "k-Core", "Number of edges", gpsLog10Y);
+
 
 } // namespace TSnap

@@ -12,6 +12,7 @@
 
 // graph data structures
 #include "graph.cpp"         // graphs
+#include "network.cpp"       // networks
 #include "timenet.cpp"       // time evolving networks
 
 // algorithms
@@ -23,6 +24,7 @@
 #include "gstat.cpp"         // graph statistics
 #include "centr.cpp"         // centrality measures
 #include "cmty.cpp"          // community detection algorithms
+#include "flow.cpp"          // network flow algorithms
 
 // graph generators
 #include "ggen.cpp"          // graph generators (preferential attachment, small-world, ...)

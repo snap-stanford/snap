@@ -23,47 +23,62 @@ template <class PGraph> int GetMxInDegNId(const PGraph& Graph);
 template <class PGraph> int GetMxOutDegNId(const PGraph& Graph);
 
 // degree histograms
-// TODO ROK document GetInDegCnt()
+/// Returns an in-degree histogram: a set of pairs <code>(in-degree, number of nodes of such in-degree)</code>
 template <class PGraph> void GetInDegCnt(const PGraph& Graph, TIntPrV& DegToCntV);
-// TODO ROK document GetInDegCnt()
+/// Returns an in-degree histogram: a set of pairs <code>(in-degree, number of nodes of such in-degree)</code>
 template <class PGraph> void GetInDegCnt(const PGraph& Graph, TFltPrV& DegToCntV);
-// TODO ROK document GetOutDegCnt()
+/// Returns an out-degree histogram: a set of pairs <code>(out-degree, number of nodes of such out-degree)</code>
 template <class PGraph> void GetOutDegCnt(const PGraph& Graph, TIntPrV& DegToCntV);
-// TODO ROK document GetOutDegCnt()
+/// Returns an out-degree histogram: a set of pairs <code>(out-degree, number of nodes of such out-degree)</code>
 template <class PGraph> void GetOutDegCnt(const PGraph& Graph, TFltPrV& DegToCntV);
-// TODO ROK document GetDegCnt()
+/// Returns a degree histogram: a set of pairs <code>(degree, number of nodes of such degree)</code>
 template <class PGraph> void GetDegCnt(const PGraph& Graph, TIntPrV& DegToCntV);
-// TODO ROK document GetDegCnt()
+/// Returns a degree histogram: a set of pairs <code>(degree, number of nodes of such degree)</code>
 template <class PGraph> void GetDegCnt(const PGraph& Graph, TFltPrV& DegToCntV);
-// TODO ROK document GetDegSeqV()
+/// Returns a degree sequence vector.
 template <class PGraph> void GetDegSeqV(const PGraph& Graph, TIntV& DegV);
-// TODO ROK document GetDegSeqV()
+/// Returns an in- and out-degree sequence vectors.
 template <class PGraph> void GetDegSeqV(const PGraph& Graph, TIntV& InDegV, TIntV& OutDegV);
 
+/// Returns a vector of pairs <code>(node id, node in-degree)</code>
 template <class PGraph> void GetNodeInDegV(const PGraph& Graph, TIntPrV& NIdInDegV);
+/// Returns a vector of pairs <code>(node id, node out-degree)</code>
 template <class PGraph> void GetNodeOutDegV(const PGraph& Graph, TIntPrV& NIdOutDegV);
 
+/// Counts unique undirected edges in the graph \c Graph. Nodes <code>(u,v)<\code> (where <code>u!=v</code>) are connected via an undirected edge if there exists an edge in either direction <code>(u,v)</code> or <code>(v,u)</code>.
 template <class PGraph> int CntUniqUndirEdges(const PGraph& Graph);
+/// Counts unique directed edges in the graph \c Graph. Nodes <code>(u,v)<\code> (where <code>u!=v</code>) are connected via an directted edge if there exists a directed edge from node \c u to node \c v.
 template <class PGraph> int CntUniqDirEdges(const PGraph& Graph);
+/// Counts unique bidirectional edges in the graph \c Graph. Edge is bidirectional is there exist directed edges in both directions: <code>(u,v)</code> and <code>(v,u)</code>
 template <class PGraph> int CntUniqBiDirEdges(const PGraph& Graph);
+/// Counts the number fo of self-edges in a graph. Edge <code>(u,u)</code> is a self-edge.
 template <class PGraph> int CntSelfEdges(const PGraph& Graph);
 
 /////////////////////////////////////////////////
 // Manipulation
+/// Returs an undirected version of the graph. For every edge <code>(u,v)</code> an edge <code>(v,u)</code> is added (if it does not yet exist).
 template <class PGraph> PGraph GetUnDir(const PGraph& Graph);
+/// Makes the graph undirected. For every edge <code>(u,v)</code> an edge <code>(v,u)</code> is added (if it does not yet exist).
 template <class PGraph> void MakeUnDir(const PGraph& Graph);
+/// Adds a self-edge to every node in the graph.
 template <class PGraph> void AddSelfEdges(const PGraph& Graph);
+/// Removes all the self-edges from the graph.
 template <class PGraph> void DelSelfEdges(const PGraph& Graph);
-template <class PGraph> void DelBiDirEdges(const PGraph& Graph);
 
+//TODO Implement:
+//template <class PGraph> void DelBiDirEdges(const PGraph& Graph);
+
+/// Removes nodes with ids stored in \c NIdV from the graph.
 template <class PGraph> void DelNodes(PGraph& Graph, const TIntV& NIdV);
+/// Removes all the zero-degree nodes, that isolated nodes, from the graph.
 template <class PGraph> void DelZeroDegNodes(PGraph& Graph);
+/// Removes all the node of out-degree \c OutDegK and all the nodes of in-degree \c InDegK from the graph.
 template <class PGraph> void DelDegKNodes(PGraph& Graph, const int& OutDegK, const int& InDegK);
 
 /////////////////////////////////////////////////
 // Tree Routines
-template <class PGraph> bool IsTree(const PGraph& Graph, int& RootNId);
-template <class PGraph> int GetTreeRootNId(const PGraph& Graph) { int RootNId; Assert(IsTree(Graph, RootNId));  return RootNId; }
+template <class PGraph> bool IsTree(const PGraph& Graph, int& RootNIdX);
+template <class PGraph> int GetTreeRootNId(const PGraph& Graph) { int RootNId; bool Tree; Tree = IsTree(Graph, RootNId);  Assert(Tree);  return RootNId; }
 template <class PGraph> void GetTreeSig(const PGraph& Graph, const int& RootNId, TIntV& Sig);
 template <class PGraph> void GetTreeSig(const PGraph& Graph, const int& RootNId, TIntV& Sig, TIntPrV& NodeMap);
 
@@ -261,7 +276,6 @@ void GetNodeOutDegV(const PGraph& Graph, TIntPrV& NIdOutDegV) {
   }
 }
 
-/// Counts unique undirected edges in the graph Graph.
 template <class PGraph>
 int CntUniqUndirEdges(const PGraph& Graph) {
   TIntSet NbrSet;
@@ -271,8 +285,7 @@ int CntUniqUndirEdges(const PGraph& Graph) {
     NbrSet.Clr(false);
     for (int e = 0; e < NI.GetDeg(); e++) { // unique neighbors of a node
       const int NbrId = NI.GetNbrNId(e);
-      // add self edges separately
-      if (NbrId == NI.GetId()) {
+      if (NbrId == NI.GetId()) { // remember self-edges
         SelfNbrSet.AddKey(NbrId);
       } else {
         NbrSet.AddKey(NbrId);
@@ -280,10 +293,11 @@ int CntUniqUndirEdges(const PGraph& Graph) {
     }
     Cnt += NbrSet.Len();
   }
-  return Cnt / 2 + SelfNbrSet.Len();
+  // OP RS 2014/06/11 self-edges are currently not used 
+  //return Cnt / 2 + SelfNbrSet.Len();
+  return Cnt / 2;
 }
 
-/// Counts unique directed edges in the graph Graph.
 template <class PGraph>
 int CntUniqDirEdges(const PGraph& Graph) {
   TIntSet NbrSet;
@@ -291,14 +305,14 @@ int CntUniqDirEdges(const PGraph& Graph) {
   for (typename PGraph::TObj::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
     NbrSet.Clr(false);
     for (int e = 0; e < NI.GetOutDeg(); e++) { // unique out-neighbors of a node
-      NbrSet.AddKey(NI.GetOutNId(e));
+      if (NI.GetOutNId(e) != NI.GetId()) { // skip self-edges
+        NbrSet.AddKey(NI.GetOutNId(e)); }
     }
     Cnt += NbrSet.Len();
   }
   return Cnt;
 }
 
-/// Counts unique bidirectional edges in the graph Graph.
 template <class PGraph>
 int CntUniqBiDirEdges(const PGraph& Graph) {
   if (! Graph->HasFlag(gfDirected)) { // graph is undirected
@@ -314,14 +328,16 @@ int CntUniqBiDirEdges(const PGraph& Graph) {
       if (Graph->IsEdge(DstId, SrcId)) { Cnt++; }
     }
   }
-  return 2*Cnt;
+  return Cnt;
 }
 
 template <class PGraph>
 int CntSelfEdges(const PGraph& Graph) {
   int Cnt = 0;
   for (typename PGraph::TObj::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
-    if (Graph->IsEdge(NI.GetId(), NI.GetId())) { Cnt++; }
+    for (int e = 0; e < NI.GetOutDeg(); e++) {
+      if (NI.GetId() == NI.GetOutNId(e)) { Cnt++; }
+    }
   }
   return Cnt;
 }

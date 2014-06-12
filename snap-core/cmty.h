@@ -11,7 +11,7 @@ template<typename PGraph> double GetModularity(const PGraph& G, const TCnComV& C
 /// Returns the number of edges between the nodes NIdV and the edges pointing outside the set NIdV.
 /// @param EdgesIn Number of edges between the nodes NIdV.
 /// @param EdgesOut Number of edges between the nodes in NIdV and the rest of the graph.
-template<typename PGraph> void GetEdgesInOut(const PGraph& Graph, const TIntV& NIdV, int& EdgesIn, int& EdgesOut);
+template<typename PGraph> void GetEdgesInOut(const PGraph& Graph, const TIntV& NIdV, int& EdgesInX, int& EdgesOutX);
 
 /// Girvan-Newman community detection algorithm based on Betweenness centrality.
 /// See: Girvan M. and Newman M. E. J., Community structure in social and biological networks, Proc. Natl. Acad. Sci. USA 99, 7821-7826 (2002)
@@ -21,6 +21,10 @@ double CommunityGirvanNewman(PUNGraph& Graph, TCnComV& CmtyV);
 /// At every step of the algorithm two communities that contribute maximum positive value to global modularity are merged.
 /// See: Finding community structure in very large networks, A. Clauset, M.E.J. Newman, C. Moore, 2004
 double CommunityCNM(const PUNGraph& Graph, TCnComV& CmtyV);
+
+/// Rosvall-Bergstrom community detection algorithm based on information theoretic approach.
+/// See: Rosvall M., Bergstrom C. T., Maps of random walks on complex networks reveal community structure, Proc. Natl. Acad. Sci. USA 105, 1118–1123 (2008)
+double Infomap(PUNGraph& Graph, TCnComV& CmtyV);
 
 namespace TSnapDetail {
 /// A single step of Girvan-Newman clustering procedure.

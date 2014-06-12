@@ -40,12 +40,6 @@ PUNGraph GenGeoPrefAttach(const int& Nodes, const int& OutDeg, const double& Bet
 PUNGraph GenSmallWorld(const int& Nodes, const int& NodeOutDeg, const double& RewireProb, TRnd& Rnd=TInt::Rnd);
 /// Generates a random undirect graph with a given degree sequence.
 PUNGraph GenConfModel(const TIntV& DegSeqV, TRnd& Rnd=TInt::Rnd);
-/// Rewire a random undirected graph. Keeps node degrees the same, but randomly rewires the edges.
-PUNGraph GenRewire(const PUNGraph& Graph, const int& NSwitch=100, TRnd& Rnd=TInt::Rnd);
-/// Rewire a random directed graph. Keeps node degrees the same, but randomly rewires the edges.
-PNGraph  GenRewire(const PNGraph& Graph, const int& NSwitch=100, TRnd& Rnd=TInt::Rnd);
-/// Rewire a random bipartite graph. Keeps node degrees the same, but randomly rewires the edges.
-PBPGraph GenRewire(const PBPGraph& Graph, const int& NSwitch=100, TRnd& Rnd=TInt::Rnd);
 /// Generates a random Forest Fire, directed graph with given probabilities.
 PNGraph GenForestFire(const int& Nodes, const double& FwdProb, const double& BckProb);
 /// Generates a random scale-free network using the Copying Model.
@@ -55,6 +49,16 @@ PNGraph GenRMat(const int& Nodes, const int& Edges, const double& A, const doubl
 /// Generates a R-Mat graph, with a synthetic copy of the Epinions social network.
 PNGraph GenRMatEpinions();
 
+  
+/// Rewire a random undirected graph. Keeps node degrees the same, but randomly rewires the edges.
+PUNGraph GenRewire(const PUNGraph& Graph, const int& NSwitch=100, TRnd& Rnd=TInt::Rnd);
+/// Rewire a random directed graph. Keeps node degrees the same, but randomly rewires the edges.
+PNGraph  GenRewire(const PNGraph& Graph, const int& NSwitch=100, TRnd& Rnd=TInt::Rnd);
+/// Rewire a random bipartite graph. Keeps node degrees the same, but randomly rewires the edges.
+PBPGraph GenRewire(const PBPGraph& Graph, const int& NSwitch=100, TRnd& Rnd=TInt::Rnd);
+/// Generate a random graph using (approximately) the same node degrees as in G using the configuration model.
+PUNGraph GenConfModel(const PUNGraph& G);
+  
 /////////////////////////////////////////////////
 // Implementation
 template <class PGraph>
@@ -71,7 +75,7 @@ PGraph GenGrid(const int& Rows, const int& Cols, const bool& IsDir) {
       if (r < Rows-1) { // bottom node
         Graph.AddEdge(nodeId, nodeId+Cols); 
         if (Graph.HasFlag(gfDirected) && ! IsDir) { 
-          Graph.AddEdge(nodeId+Cols-1, nodeId); }
+          Graph.AddEdge(nodeId+Cols, nodeId); }
       }
       if (c < Cols-1) { // right node
         Graph.AddEdge(nodeId, nodeId+1); 
@@ -105,7 +109,7 @@ PGraph GenCircle(const int& Nodes, const int& NodeOutDeg, const bool& IsDir) {
   for (int n = 0; n < Nodes; n++) {
     for (int x = 0; x < NodeOutDeg; x++) {
       Graph->AddEdge(n, (n+x+1) % Nodes);
-      if (Graph->HasFlag(gfDirected) && ! IsDir) { Graph->AddEdge((n+x) % Nodes, n); }
+      if (Graph->HasFlag(gfDirected) && ! IsDir) { Graph->AddEdge((n+x+1) % Nodes, n); }
     }
   }
   return Graph;

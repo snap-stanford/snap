@@ -1,5 +1,3 @@
-#include <gtest/gtest.h>
-
 #include "Snap.h"
 
 PUNGraph TriadGetTestTUNGraph();

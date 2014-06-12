@@ -511,7 +511,10 @@ void TLinAlg::Gemm(const double& Alpha, const TFltVV& A, const TFltVV& B, const 
 	int d_j = D.GetRows();
 	
 	// assertions for dimensions
-	Assert(a_i == c_j && b_i == c_i && a_i == b_j && c_i == d_i && c_j == d_j);
+  bool Cnd = a_i == c_j && b_i == c_i && a_i == b_j && c_i == d_i && c_j == d_j;
+  if (Cnd) {
+	  Assert(Cnd);
+  }
 
 	double Aij, Bij, Cij;
 
@@ -1132,149 +1135,156 @@ void TSparseSVD::Lanczos(const TMatrix& Matrix, int NumEig,
         int Iters, const TSpSVDReOrtoType& ReOrtoType,
         TFltV& EigValV, TFltVV& EigVecVV, const bool& SvdMatrixProductP) {
 
-    if (SvdMatrixProductP) {
-        // if this fails, use transposed matrix
-        IAssert(Matrix.GetRows() >= Matrix.GetCols());
-    } else {
-        IAssert(Matrix.GetRows() == Matrix.GetCols());
-    }
+  if (SvdMatrixProductP) {
+    // if this fails, use transposed matrix
+    IAssert(Matrix.GetRows() >= Matrix.GetCols());
+  } else {
+    IAssert(Matrix.GetRows() == Matrix.GetCols());
+  }
   IAssertR(NumEig <= Iters, TStr::Fmt("%d <= %d", NumEig, Iters));
 
-    //if (ReOrtoType == ssotFull) printf("Full reortogonalization\n");
-    int i, N = Matrix.GetCols(), K; // K - current dimension of T
-    double t = 0.0, eps = 1e-6; // t - 1-norm of T
+  //if (ReOrtoType == ssotFull) printf("Full reortogonalization\n");
+  int i, N = Matrix.GetCols(), K = 0; // K - current dimension of T
+  double t = 0.0, eps = 1e-6; // t - 1-norm of T
 
-    //sequence of Ritz's vectors
-    TFltVV Q(N, Iters);
-    double tmp = 1/sqrt((double)N);
-    for (i = 0; i < N; i++)
-        Q(i,0) = tmp;
-    //converget Ritz's vectors
-    TVec<TFltV> ConvgQV(Iters);
-    TIntV CountConvgV(Iters);
-    for (i = 0; i < Iters; i++) CountConvgV[i] = 0;
-    // const int ConvgTreshold = 50;
+  //sequence of Ritz's vectors
+  TFltVV Q(N, Iters);
+  double tmp = 1/sqrt((double)N);
+  for (i = 0; i < N; i++) {
+    Q(i,0) = tmp;
+  }
+  //converget Ritz's vectors
+  TVec<TFltV> ConvgQV(Iters);
+  TIntV CountConvgV(Iters);
+  for (i = 0; i < Iters; i++) CountConvgV[i] = 0;
+  // const int ConvgTreshold = 50;
 
-    //diagonal and subdiagonal of T
-    TFltV d(Iters+1), e(Iters+1);
-    //eigenvectors of T
-    //TFltVV V;
-    TFltVV V(Iters, Iters);
+  //diagonal and subdiagonal of T
+  TFltV d(Iters+1), e(Iters+1);
+  //eigenvectors of T
+  //TFltVV V;
+  TFltVV V(Iters, Iters);
 
-    // z - current Lanczos's vector
-    TFltV z(N), bb(Iters), aa(Iters), y(N);
-    //printf("svd(%d,%d)...\n", NumEig, Iters);
+  // z - current Lanczos's vector
+  TFltV z(N), bb(Iters), aa(Iters), y(N);
+  //printf("svd(%d,%d)...\n", NumEig, Iters);
 
-    if (SvdMatrixProductP) {
-        // A = Matrix'*Matrix
-        MultiplyATA(Matrix, Q, 0, z);
-    } else {
-        // A = Matrix
-        Matrix.Multiply(Q, 0, z);
+  if (SvdMatrixProductP) {
+    // A = Matrix'*Matrix
+    MultiplyATA(Matrix, Q, 0, z);
+  } else {
+    // A = Matrix
+    Matrix.Multiply(Q, 0, z);
+  }
+
+  for (int j = 0; j < (Iters-1); j++) {
+    //printf("%d..\r",j+2);
+
+    //calculates (j+1)-th Lanczos's vector
+    // aa[j] = <Q(:,j), z>
+    aa[j] = TLinAlg::DotProduct(Q, j, z);
+    //printf(" %g -- ", aa[j].Val); //HACK
+
+    TLinAlg::AddVec(-aa[j], Q, j, z);
+    if (j > 0) {
+      // z := -aa[j] * Q(:,j) + z
+      TLinAlg::AddVec(-bb[j-1], Q, j-1, z);
+
+      //reortogonalization
+      if (ReOrtoType == ssotSelective || ReOrtoType == ssotFull) {
+        for (i = 0; i <= j; i++) {
+        // if i-tj vector converget, than we have to ortogonalize against it
+          if ((ReOrtoType == ssotFull) ||
+            (bb[j-1] * TFlt::Abs(V(K-1, i)) < eps * t)) {
+
+            ConvgQV[i].Reserve(N,N); CountConvgV[i]++;
+            TFltV& vec = ConvgQV[i];
+            //vec = Q * V(:,i)
+            for (int k = 0; k < N; k++) {
+              vec[k] = 0.0;
+              for (int l = 0; l < K; l++) {
+                vec[k] += Q(k,l) * V(l,i);
+              }
+            }
+            TLinAlg::AddVec(-TLinAlg::DotProduct(ConvgQV[i], z), ConvgQV[i], z ,z);
+          }
+        }
+      }
     }
 
-    for (int j = 0; j < (Iters-1); j++) {
-        //printf("%d..\r",j+2);
-
-        //calculates (j+1)-th Lanczos's vector
-        // aa[j] = <Q(:,j), z>
-        aa[j] = TLinAlg::DotProduct(Q, j, z);
-        //printf(" %g -- ", aa[j].Val); //HACK
-
-        TLinAlg::AddVec(-aa[j], Q, j, z);
-        if (j > 0) {
-            // z := -aa[j] * Q(:,j) + z
-            TLinAlg::AddVec(-bb[j-1], Q, j-1, z);
-
-            //reortogonalization
-            if (ReOrtoType == ssotSelective || ReOrtoType == ssotFull) {
-                for (i = 0; i <= j; i++) {
-                    // if i-tj vector converget, than we have to ortogonalize against it
-                    if ((ReOrtoType == ssotFull) ||
-                        (bb[j-1] * TFlt::Abs(V(K-1, i)) < eps * t)) {
-
-                        ConvgQV[i].Reserve(N,N); CountConvgV[i]++;
-                        TFltV& vec = ConvgQV[i];
-                        //vec = Q * V(:,i)
-                        for (int k = 0; k < N; k++) {
-                            vec[k] = 0.0;
-                            for (int l = 0; l < K; l++)
-                                vec[k] += Q(k,l) * V(l,i);
-                        }
-                        TLinAlg::AddVec(-TLinAlg::DotProduct(ConvgQV[i], z), ConvgQV[i], z ,z);
-                    }
-                }
-            }
-        }
-
-        //adds (j+1)-th Lanczos's vector to Q
-        bb[j] = TLinAlg::Norm(z);
+    //adds (j+1)-th Lanczos's vector to Q
+    bb[j] = TLinAlg::Norm(z);
     if (!(bb[j] > 1e-10)) {
       printf("Rank of matrix is only %d\n", j+2);
       printf("Last singular value is %g\n", bb[j].Val);
       break;
     }
-        for (i = 0; i < N; i++)
-            Q(i, j+1) = z[i] / bb[j];
 
-        //next Lanzcos vector
-        if (SvdMatrixProductP) {
-            // A = Matrix'*Matrix
-            MultiplyATA(Matrix, Q, j+1, z);
-        } else {
-            // A = Matrix
-            Matrix.Multiply(Q, j+1, z);
-        }
+    for (i = 0; i < N; i++) {
+      Q(i, j+1) = z[i] / bb[j];
+    }
 
-        //calculate T (K x K matrix)
-        K = j + 2;
-        // calculate diagonal
-        for (i = 1; i < K; i++) d[i] = aa[i-1];
-        d[K] = TLinAlg::DotProduct(Q, K-1, z);
-        // calculate subdiagonal
-        e[1] = 0.0;
-        for (i = 2; i <= K; i++) e[i] = bb[i-2];
+    //next Lanzcos vector
+    if (SvdMatrixProductP) {
+      // A = Matrix'*Matrix
+      MultiplyATA(Matrix, Q, j+1, z);
+    } else {
+      // A = Matrix
+      Matrix.Multiply(Q, j+1, z);
+    }
 
-        //calculate 1-norm of T
-        t = TFlt::GetMx(TFlt::Abs(d[1]) + TFlt::Abs(e[2]), TFlt::Abs(e[K]) + TFlt::Abs(d[K]));
-        for (i = 2; i < K; i++)
-            t = TFlt::GetMx(t, TFlt::Abs(e[i]) + TFlt::Abs(d[i]) + TFlt::Abs(e[i+1]));
+    //calculate T (K x K matrix)
+    K = j + 2;
+    // calculate diagonal
+    for (i = 1; i < K; i++) d[i] = aa[i-1];
+    d[K] = TLinAlg::DotProduct(Q, K-1, z);
+    // calculate subdiagonal
+    e[1] = 0.0;
+    for (i = 2; i <= K; i++) e[i] = bb[i-2];
 
-        //set V to identity matrix
-        //V.Gen(K,K);
-        for (i = 0; i < K; i++) {
-            for (int k = 0; k < K; k++)
-                V(i,k) = 0.0;
-            V(i,i) = 1.0;
-        }
+    //calculate 1-norm of T
+    t = TFlt::GetMx(TFlt::Abs(d[1]) + TFlt::Abs(e[2]), TFlt::Abs(e[K]) + TFlt::Abs(d[K]));
+    for (i = 2; i < K; i++) {
+      t = TFlt::GetMx(t, TFlt::Abs(e[i]) + TFlt::Abs(d[i]) + TFlt::Abs(e[i+1]));
+    }
 
-        //eigenvectors of T
-        TNumericalStuff::EigSymmetricTridiag(d, e, K, V);
-    }//for
-    //printf("\n");
-
-    // Finds NumEig largest eigen values
-    TFltIntKdV sv(K);
+    //set V to identity matrix
+    //V.Gen(K,K);
     for (i = 0; i < K; i++) {
-        sv[i].Key = TFlt::Abs(d[i+1]);
-        sv[i].Dat = i;
+      for (int k = 0; k < K; k++) {
+        V(i,k) = 0.0;
+      }
+      V(i,i) = 1.0;
     }
-    sv.Sort(false);
 
-    TFltV uu(Matrix.GetRows());
-    const int FinalNumEig = TInt::GetMn(NumEig, K);
-    EigValV.Reserve(FinalNumEig,0);
-    EigVecVV.Gen(Matrix.GetCols(), FinalNumEig);
-    for (i = 0; i < FinalNumEig; i++) {
-        //printf("s[%d] = %20.15f\r", i, sv[i].Key.Val);
-        int ii = sv[i].Dat;
-        double sigma = d[ii+1].Val;
-        // calculate singular value
-        EigValV.Add(sigma);
-        // calculate i-th right singular vector ( V := Q * W )
-        TLinAlg::Multiply(Q, V, ii, EigVecVV, i);
-    }
-    //printf("done                           \n");
+    //eigenvectors of T
+    TNumericalStuff::EigSymmetricTridiag(d, e, K, V);
+  }//for
+
+  //printf("\n");
+
+  // Finds NumEig largest eigen values
+  TFltIntKdV sv(K);
+  for (i = 0; i < K; i++) {
+    sv[i].Key = TFlt::Abs(d[i+1]);
+    sv[i].Dat = i;
+  }
+  sv.Sort(false);
+
+  TFltV uu(Matrix.GetRows());
+  const int FinalNumEig = TInt::GetMn(NumEig, K);
+  EigValV.Reserve(FinalNumEig,0);
+  EigVecVV.Gen(Matrix.GetCols(), FinalNumEig);
+  for (i = 0; i < FinalNumEig; i++) {
+    //printf("s[%d] = %20.15f\r", i, sv[i].Key.Val);
+    int ii = sv[i].Dat;
+    double sigma = d[ii+1].Val;
+    // calculate singular value
+    EigValV.Add(sigma);
+    // calculate i-th right singular vector ( V := Q * W )
+    TLinAlg::Multiply(Q, V, ii, EigVecVV, i);
+  }
+  //printf("done                           \n");
 }
 
 void TSparseSVD::Lanczos2(const TMatrix& Matrix, int MaxNumEig,
@@ -1290,7 +1300,7 @@ void TSparseSVD::Lanczos2(const TMatrix& Matrix, int MaxNumEig,
   //IAssertR(NumEig <= Iters, TStr::Fmt("%d <= %d", NumEig, Iters));
 
   //if (ReOrtoType == ssotFull) printf("Full reortogonalization\n");
-  int i, N = Matrix.GetCols(), K; // K - current dimension of T
+  int i, N = Matrix.GetCols(), K = 0; // K - current dimension of T
   double t = 0.0, eps = 1e-6; // t - 1-norm of T
 
   //sequence of Ritz's vectors

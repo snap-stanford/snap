@@ -694,3 +694,25 @@ void TStrUtil::GetStdNameV(TStr AuthorNames, TStrV& StdNameV) {
     }
   }
 }
+
+//#//////////////////////////////////////////////
+/// Snapworld supporting functions
+
+#if defined(SW_WRITEN)
+int WriteN(int fd, char *ptr, int nbytes) {
+  int nleft;
+  int nwritten;
+
+  nleft = nbytes;
+  while (nleft > 0) {
+    nwritten = (int) write(fd, ptr, nleft);
+    if (nwritten <= 0) {
+      return nwritten;
+    }
+    nleft -= nwritten;
+    ptr += nwritten;
+  }
+  return (nbytes-nleft);
+}
+#endif
+

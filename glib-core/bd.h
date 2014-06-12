@@ -300,7 +300,7 @@ template <> struct TStaticAssert<true> { enum { value = 1 }; };
 template<int IntVal> struct TStaticAssertTest{};
 
 #define CAssert(Cond) \
-  { typedef TStaticAssertTest<sizeof(TStaticAssert<(Cond)==0?false:true>)> TestStaticAssert; }
+  /* typedef TStaticAssertTest<sizeof(TStaticAssert<(Cond)==0?false:true>)> TestStaticAssert; */
 
 /////////////////////////////////////////////////
 // Xml-Object-Serialization
@@ -498,7 +498,7 @@ public:
   //const TRec* operator()() const {return Addr;}
   //TRec* operator()() {return Addr;}
 
-  bool Empty() const {return Addr==NULL;}
+  bool Empty() const { return Addr==NULL;}
   void Clr(){UnRef(); Addr=NULL;}
   int GetRefs() const {
     if (Addr==NULL){return -1;} else {return Addr->CRef.GetRefs();}}

@@ -331,6 +331,12 @@ PUNGraph GenPrefAttach(const int& Nodes, const int& NodeOutDeg, TRnd& Rnd) {
   }
   return GraphPt;
 }
+  
+PUNGraph GenConfModel(const PUNGraph& G) {
+  TIntV DegSeqV(G->GetNodes(), 0);
+  TSnap::GetDegSeqV(G, DegSeqV);
+  return TSnap::GenConfModel(DegSeqV);
+}
 
 namespace TSnapDetail {
 /// Sample random point from the surface of a Dim-dimensional unit sphere.

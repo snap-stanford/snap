@@ -57,6 +57,8 @@ public:
   int GetSecHashCd() const {return TPairHashImpl::GetHashCd(Val2.GetSecHashCd(), Val1.GetSecHashCd()); }
 
   void GetVal(TVal1& _Val1, TVal2& _Val2) const {_Val1=Val1; _Val2=Val2;}
+  const TVal1& GetVal1() const { return Val1;}
+  const TVal2& GetVal2() const { return Val2;}
   TStr GetStr() const {
     return TStr("Pair(")+Val1.GetStr()+", "+Val2.GetStr()+")";}
 };
@@ -437,10 +439,6 @@ public:
   explicit TVec(TSIn& SIn): MxVals(0), Vals(0), ValT(NULL){Load(SIn);}
   void Load(TSIn& SIn);
   void Save(TSOut& SOut) const;
-  /// Sends the vector contents via a socket \c fd.
-  int Send(int sd);
-  /// Writes \c nbytes bytes starting at \c ptr to a file/socket descriptor \c fd.
-  int WriteN(int fd, char *ptr, int nbytes);
   void LoadXml(const PXmlTok& XmlTok, const TStr& Nm="");
   void SaveXml(TSOut& SOut, const TStr& Nm) const;
   
@@ -531,6 +529,8 @@ public:
   /// Adds a new element at the end of the vector, after its current last element. ##TVec::Add1
   TSizeTy Add(const TVal& Val){ AssertR(MxVals!=-1, "This vector was obtained from TVecPool. Such vectors cannot change its size!");
     if (Vals==MxVals){Resize();} ValT[Vals]=Val; return Vals++;}
+  TSizeTy Add(TVal& Val){ AssertR(MxVals!=-1, "This vector was obtained from TVecPool. Such vectors cannot change its size!");
+    if (Vals==MxVals){Resize();} ValT[Vals]=Val; return Vals++;}
   /// Adds element \c Val at the end of the vector. #TVec::Add2
   TSizeTy Add(const TVal& Val, const TSizeTy& ResizeLen){ AssertR(MxVals!=-1, "This vector was obtained from TVecPool. Such vectors cannot change its size!");
     if (Vals==MxVals){Resize(MxVals+ResizeLen);} ValT[Vals]=Val; return Vals++;}
@@ -550,6 +550,8 @@ public:
   const TVal& GetVal(const TSizeTy& ValN) const {return operator[](ValN);}
   /// Returns a reference to the element at position \c ValN in the vector.
   TVal& GetVal(const TSizeTy& ValN){return operator[](ValN);}
+  /// Sets the value of element at position \c ValN to \c Val.
+  void SetVal(const TSizeTy& ValN, const TVal& Val){AssertR((0<=ValN)&&(ValN<Vals), GetXOutOfBoundsErrMsg(ValN)); ValT[ValN] = Val;}
   /// Returns a vector on elements at positions <tt>BValN...EValN</tt>.
   void GetSubValV(const TSizeTy& BValN, const TSizeTy& EValN, TVec<TVal, TSizeTy>& ValV) const;
   /// Inserts new element \c Val before the element at position \c ValN.
@@ -728,10 +730,14 @@ public:
 template <class TVal, class TSizeTy>
 void TVec<TVal, TSizeTy>::Resize(const TSizeTy& _MxVals){
   IAssertR(MxVals!=-1, TStr::Fmt("Can not increase the capacity of the vector. %s. [Program failed to allocate more memory. Solution: Get a bigger machine and a 64-bit compiler.]", GetTypeNm(*this).CStr()).CStr());
+  IAssertR(MxVals!=(TInt::Mx-1024), TStr::Fmt("Buffer size at maximum. %s. [Program refuses to allocate more memory. Solution-1: Send your test case to developers.]", GetTypeNm(*this).CStr()).CStr());
   if (_MxVals==-1){
     if (Vals==0){MxVals=16;} else {MxVals*=2;}
   } else {
     if (_MxVals<=MxVals){return;} else {MxVals=_MxVals;}
+  }
+  if (MxVals < 0) {
+    MxVals = TInt::Mx-1024;
   }
   if (ValT==NULL){
     try {ValT=new TVal[MxVals];}
@@ -780,45 +786,6 @@ void TVec<TVal, TSizeTy>::Save(TSOut& SOut) const {
   if (MxVals!=-1){SOut.Save(MxVals);} else {SOut.Save(Vals);}
   SOut.Save(Vals);
   for (TSizeTy ValN=0; ValN<Vals; ValN++){ValT[ValN].Save(SOut);}
-}
-
-template <class TVal, class TSizeTy>
-int TVec<TVal, TSizeTy>::WriteN(int fd, char *ptr, int nbytes) {
-  int nleft;
-  int nwritten;
-
-  nleft = nbytes;
-  while (nleft > 0) {
-    nwritten = write(fd, ptr, nleft);
-    if (nwritten <= 0) {
-      return nwritten;
-    }
-    nleft -= nwritten;
-    ptr += nwritten;
-  }
-  return (nbytes-nleft);
-}
-
-template <class TVal, class TSizeTy>
-int TVec<TVal, TSizeTy>::Send(int sd) {
-  int l;
-  int n;
-  l = 0;
-  if (MxVals!=-1) {
-    l += WriteN(sd, (char *) &MxVals, (int) sizeof(TSizeTy));
-  } else {
-    l += WriteN(sd, (char *) &Vals, (int) sizeof(TSizeTy));
-  }
-  l += WriteN(sd, (char *) &Vals, (int) sizeof(TSizeTy));
-  for (TSizeTy ValN=0; ValN<Vals; ValN += 100000){
-    n = 100000;
-    if ((Vals - ValN) < 100000) {
-      n = Vals - ValN;
-    }
-    l += WriteN(sd, (char *) &ValT[ValN], (int) (n*sizeof(TVal)));
-  }
-
-  return l;
 }
 
 template <class TVal, class TSizeTy>
@@ -1721,10 +1688,14 @@ public:
 template <class TVal>
 void TVec<TVal>::Resize(const int& _MxVals){
   IAssertR(MxVals!=-1, TStr::Fmt("Can not resize buffer. %s. [Program failed to allocate more memory. Solution: Get a bigger machine and a 64-bit compiler.]", GetTypeNm(*this).CStr()).CStr());
+  IAssertR(MxVals!=(TInt::Mx-1024), TStr::Fmt("Buffer size at maximum. %s. [Program refuses to allocate more memory. Solution-2: Send your test case to developers.]", GetTypeNm(*this).CStr()).CStr());
   if (_MxVals==-1){
     if (Vals==0){MxVals=16;} else {MxVals*=2;}
   } else {
     if (_MxVals<=MxVals){return;} else {MxVals=_MxVals;}
+  }
+  if (MxVals < 0) {
+    MxVals = TInt::Mx-1024;
   }
   if (ValT==NULL){
     try {ValT=new TVal[MxVals];}
@@ -3664,12 +3635,18 @@ TLstNd<TVal>* TLst<TVal>::SearchBack(const TVal& Val){
 
 /////////////////////////////////////////////////
 // Common-List-Types
-typedef TLst<TInt> TIntL; typedef TLstNd<TInt>* PIntLN;
-typedef TLst<TIntKd> TIntKdL; typedef TLstNd<TIntKd>* PIntKdLN;
-typedef TLst<TFlt> TFltL; typedef TLstNd<TFlt>* PFltLN;
-typedef TLst<TFltIntKd> TFltIntKdL; typedef TLstNd<TFltIntKd>* PFltIntKdLN;
-typedef TLst<TAscFltIntKd> TAscFltIntKdL; typedef TLstNd<TAscFltIntKd>* PAscFltIntKdLN;
-typedef TLst<TStr> TStrL; typedef TLstNd<TStr>* PStrLN;
+typedef TLst<TInt> TIntL;
+typedef TLstNd<TInt>* PIntLN;
+typedef TLst<TIntKd> TIntKdL;
+typedef TLstNd<TIntKd>* PIntKdLN;
+typedef TLst<TFlt> TFltL;
+typedef TLstNd<TFlt>* PFltLN;
+typedef TLst<TFltIntKd> TFltIntKdL;
+typedef TLstNd<TFltIntKd>* PFltIntKdLN;
+typedef TLst<TAscFltIntKd> TAscFltIntKdL;
+typedef TLstNd<TAscFltIntKd>* PAscFltIntKdLN;
+typedef TLst<TStr> TStrL;
+typedef TLstNd<TStr>* PStrLN;
 
 /////////////////////////////////////////////////
 // Record-File

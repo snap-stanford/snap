@@ -1175,11 +1175,11 @@ double TMAGFitBern::DoEStepApxOneIter(const TFltV& TrueMuV, TFltVV& NewPhiVV, co
 	}
 
 	const int Iter = 3;
-	int NId;
 
 	NewVal.Gen(NAttrs * Iter);
 	for(int i = 0; i < NNodes * Iter; i++) {
 		for(int l = 0; l < NAttrs; l++) {
+			const int NId = TMAGNodeBern::Rnd.GetUniDevInt(NNodes);
 			const int AId = TMAGNodeBern::Rnd.GetUniDevInt(NAttrs);
 			double Delta = 0.0;
 			if(KnownVV(NId, AId)) {

@@ -9,7 +9,9 @@ SNAP is written in C++ and it scales to massive graphs with hundreds
 of millions of nodes and billions of edges.
 
 /////////////////////////////////////////////////////////////////////////////
-Directory structure: http://snap.stanford.edu/snap/description.html
+
+Directory structure:
+  http://snap.stanford.edu/snap/description.html
 
   snap-core: 
         the core SNAP graph library
@@ -39,11 +41,12 @@ working directory.
 
 /////////////////////////////////////////////////////////////////////////////
 
-Example applications are available in the examples directory and
-described at http://snap.stanford.edu/snap/description.html.
+Example applications for advanced SNAP functionality are available
+in the examples directory and described at:
+  http://snap.stanford.edu/snap/description.html.
 
 To compile from the command line, execute:
-  make all : compiles all sample applications
+  make all   # compiles SNAP and all sample applications
 
 To compile on Mac OSX, using Xcode:
   1. From the Toolbar, select Scheme (e.g. 'bigclam').
@@ -128,6 +131,7 @@ Description of examples:
 	Demonstrates some of the basic SNAP functionality.
 
 /////////////////////////////////////////////////////////////////////////////
+
 SNAP documentation:
   http://snap.stanford.edu/snap/doc.html
 
@@ -153,8 +157,33 @@ Network types:
   	memory efficient implementation of TNodeNet (avoids memory
 	fragmentation)
 
+To generate reference manuals, install doxygen (www.doxygen.org), and execute:
+  cd doxygen; make all    # generates user and developer reference manuals
+
 /////////////////////////////////////////////////////////////////////////////
-SNAP files: http://snap.stanford.edu/snap/description.html
+
+SNAP tutorials
+
+Sample programs demonstrating the use of foundational SNAP classes and
+functionality are available in the tutorials directory.
+
+To compile all the tutorials, execute the following command line:
+  cd tutorials; make all    # generates all the tutorials
+
+/////////////////////////////////////////////////////////////////////////////
+
+SNAP unit tests
+
+Unit tests are available in the test directory.
+
+To run unit tests, install googletest (code.google.com/p/googletest) and
+execute:
+  cd test; make run    # compiles and runs all the tests
+
+/////////////////////////////////////////////////////////////////////////////
+
+Description of SNAP files:
+  http://snap.stanford.edu/snap/description.html
 
 snap-core:
   alg.h : Simple algorithms like counting node degrees, simple graph

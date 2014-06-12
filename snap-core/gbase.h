@@ -6,7 +6,7 @@
 
 //#//////////////////////////////////////////////
 /// Graph Flags, used for quick testing of graph types. ##TGraphFlag
-typedef enum {
+typedef enum TGraphFlag_ {
   gfUndef=0,    ///< default value, no flags
   gfDirected,   ///< directed graph (TNGraph, TNEGraph), else graph is undirected TUNGraph
   gfMultiGraph, ///< have explicit edges (multigraph): TNEGraph, TNodeEdgeNet
@@ -41,6 +41,9 @@ template <class TGraph> struct IsBipart     { enum { Val = 0 }; };
   (Flag)==gfSources ? TSnap::IsSources<TGraph::TNet>::Val : \
   (Flag)==gfBipart ? TSnap::IsBipart<TGraph::TNet>::Val : 0)
 
+#if 0
+// RS 2013/08/19, commented out IsDerivedFrom, it is not called anywhere
+//  swig throws an error
 /// Tests (at compile time) whether TDerivClass is derived from TBaseClass
 template<class TDerivClass, class TBaseClass>
 class IsDerivedFrom {
@@ -52,6 +55,7 @@ private:
 public:
   enum { Val = sizeof(Test(static_cast<TDerivClass*>(0))) == sizeof(Yes) ? 1 : 0 };
 };
+#endif
 
 /////////////////////////////////////////////////
 // Graph Base
@@ -66,6 +70,11 @@ template <class PGraph> void PrintInfo(const PGraph& Graph, const TStr& Desc="",
 
 // Forward declaration, definition in triad.h
 template <class PGraph> int64 GetTriads(const PGraph& Graph, int64& ClosedTriads, int64& OpenTriads, int SampleNodes=-1);
+template <class PGraph> double GetBfsEffDiam(const PGraph& Graph, const int& NTestNodes, const bool& IsDir, double& EffDiam, int& FullDiam);
+template <class PGraph> double GetMxWccSz(const PGraph& Graph);
+template <class PGraph> double GetMxSccSz(const PGraph& Graph);
+template<class PGraph> int GetKCoreNodes(const PGraph& Graph, TIntPrV& CoreIdSzV);
+template<class PGraph> int GetKCoreEdges(const PGraph& Graph, TIntPrV& CoreIdSzV);
 
 template <class PGraph>
 void PrintInfo(const PGraph& Graph, const TStr& Desc, const TStr& OutFNm, const bool& Fast) {
@@ -97,7 +106,15 @@ void PrintInfo(const PGraph& Graph, const TStr& Desc, const TStr& OutFNm, const 
     }
   }
   int64 Closed=0, Open=0;
-  if (! Fast) { TSnap::GetTriads(Graph, Closed, Open); }
+  double WccSz=0, SccSz=0;
+  double EffDiam=0;
+  int FullDiam=0;
+  if (! Fast) {
+    TSnap::GetTriads(Graph, Closed, Open);
+    WccSz = TSnap::GetMxWccSz(Graph);
+    SccSz = TSnap::GetMxSccSz(Graph);
+    TSnap::GetBfsEffDiam(Graph, 100, false, EffDiam, FullDiam);
+  }
   // print info
   fprintf(F, "\n");
   fprintf(F, "  Nodes:                    %d\n", Graph->GetNodes());
@@ -111,9 +128,17 @@ void PrintInfo(const PGraph& Graph, const TStr& Desc, const TStr& OutFNm, const 
     fprintf(F, "  Unique undirected edges:  %d\n", UniqUnDirE.Len());
     fprintf(F, "  Self Edges:               %d\n", SelfEdges);
     fprintf(F, "  BiDir Edges:              %d\n", BiDirEdges);
-    fprintf(F, "  Closed triangles          %s\n", TUInt64::GetStr(Closed).CStr());
-    fprintf(F, "  Open triangles            %s\n", TUInt64::GetStr(Open).CStr());
-    fprintf(F, "  Frac. of closed triads    %f\n", Closed/double(Closed+Open));
+    fprintf(F, "  Closed triangles:         %s\n", TUInt64::GetStr(Closed).CStr());
+    fprintf(F, "  Open triangles:           %s\n", TUInt64::GetStr(Open).CStr());
+    fprintf(F, "  Frac. of closed triads:   %f\n", Closed/double(Closed+Open));
+    fprintf(F, "  Connected component size: %f\n", WccSz);
+    fprintf(F, "  Strong conn. comp. size:  %f\n", SccSz);
+    fprintf(F, "  Approx. full diameter:    %d\n", FullDiam);
+    fprintf(F, "  90%% effective diameter:  %f\n", EffDiam);
+    //fprintf(F, "  Core\tNodes\tEdges\n");
+    //for (int i  = 0; i < CNodesV.Len(); i++) {
+    //  printf("  %d\t%d\t%d\n", CNodesV[i].Val1(), CNodesV[i].Val2(), CEdgesV[i].Val2());
+    //}
   }
   if (! OutFNm.Empty()) { fclose(F); }
 }
@@ -227,7 +252,7 @@ private:
   void MakeHeap(const int& First, const int& Len);
 public:
   THeap() : HeapV() { }
-  THeap(const int& MxVals) : Cmp(), HeapV(0, MxVals) { }
+  THeap(const int& MxVals) : Cmp(), HeapV(MxVals, 0) { }
   THeap(const TCmp& _Cmp) : Cmp(_Cmp), HeapV() { }
   THeap(const TVec<TVal>& Vec) : Cmp(), HeapV(Vec) { MakeHeap(); }
   THeap(const TVec<TVal>& Vec, const TCmp& _Cmp) : Cmp(_Cmp), HeapV(Vec) { MakeHeap(); }

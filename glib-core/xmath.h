@@ -137,6 +137,7 @@ private:
   TFlt Mn, Mx;
   TFlt Mean, Vari, SDev, SErr;
   TFlt Median, Quart1, Quart3;
+  TFlt Mode;
   TFltV DecileV; // 0=min 1=1.decile, ..., 9=9.decile, 10=max
   TFltV PercentileV; // 0=min 1=1.percentile, ..., 9=9.percentile, 10=max
 public:
@@ -146,7 +147,7 @@ public:
     UsableP(false), UnusableVal(-1),
     Mn(), Mx(),
     Mean(), Vari(), SDev(), SErr(),
-    Median(), Quart1(), Quart3(),
+    Median(), Quart1(), Quart3(), Mode(),
     DecileV(), PercentileV(){}
   TMom(const TMom& Mom):
     DefP(Mom.DefP), ValWgtV(Mom.ValWgtV),
@@ -154,7 +155,7 @@ public:
     UsableP(Mom.UsableP), UnusableVal(Mom.UnusableVal),
     Mn(Mom.Mn), Mx(Mom.Mx),
     Mean(Mom.Mean), Vari(Mom.Vari), SDev(Mom.SDev), SErr(Mom.SErr),
-    Median(Mom.Median), Quart1(Mom.Quart1), Quart3(Mom.Quart3),
+    Median(Mom.Median), Quart1(Mom.Quart1), Quart3(Mom.Quart3), Mode(Mom.Mode),
     DecileV(Mom.DecileV), PercentileV(Mom.PercentileV){}
   static PMom New(){return PMom(new TMom());}
   static void NewV(TMomV& MomV, const int& Moms){
@@ -174,7 +175,7 @@ public:
     UsableP(SIn), UnusableVal(SIn),
     Mn(SIn), Mx(SIn),
     Mean(SIn), Vari(SIn), SDev(SIn), SErr(SIn),
-    Median(SIn), Quart1(SIn), Quart3(SIn),
+    Median(SIn), Quart1(SIn), Quart3(SIn), Mode(SIn),
     DecileV(SIn), PercentileV(SIn){}
   static PMom Load(TSIn& SIn){return new TMom(SIn);}
   void Save(TSOut& SOut) const {
@@ -184,7 +185,7 @@ public:
     UsableP.Save(SOut); UnusableVal.Save(SOut);
     Mn.Save(SOut); Mx.Save(SOut);
     Mean.Save(SOut); Vari.Save(SOut); SDev.Save(SOut); SErr.Save(SOut);
-    Median.Save(SOut); Quart1.Save(SOut); Quart3.Save(SOut);
+    Median.Save(SOut); Quart1.Save(SOut); Quart3.Save(SOut); Mode.Save(SOut);
     DecileV.Save(SOut); PercentileV.Save(SOut);}
 
   TMom& operator=(const TMom& Mom){
@@ -194,7 +195,7 @@ public:
     UsableP=Mom.UsableP; UnusableVal=Mom.UnusableVal;
     Mn=Mom.Mn; Mx=Mom.Mx;
     Mean=Mom.Mean; Vari=Mom.Vari; SDev=Mom.SDev; SErr=Mom.SErr;
-    Median=Mom.Median; Quart1=Mom.Quart1; Quart3=Mom.Quart3;
+    Median=Mom.Median; Quart1=Mom.Quart1; Quart3=Mom.Quart3; Mode=Mom.Mode;
     DecileV=Mom.DecileV; PercentileV=Mom.PercentileV;
     return *this;}
   bool operator==(const TMom& Mom) const {
@@ -243,6 +244,7 @@ public:
   double GetMedian() const {Assert(DefP&&UsableP); return Median;}
   double GetQuart1() const {Assert(DefP&&UsableP); return Quart1;}
   double GetQuart3() const {Assert(DefP&&UsableP); return Quart3;}
+  double GetMode() const {Assert(DefP&&UsableP); return Mode;}
   double GetDecile(const int& DecileN) const {
     Assert(DefP&&UsableP); return DecileV[DecileN];}
   double GetPercentile(const int& PercentileN) const {

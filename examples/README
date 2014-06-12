@@ -24,7 +24,7 @@ Code for example applications: http://snap.stanford.edu/snap/download.html
 To compile from the command line, execute:
   make all : compiles all sample applications
 
-To compile on Mac OSX, using Xcode:
+To compile on Mac OS X, using Xcode:
   1. From the Toolbar, select Scheme (e.g. 'bigclam').
   2. Product -> Build.  (or Cmd + B).
   3. Run executable via the command line; or

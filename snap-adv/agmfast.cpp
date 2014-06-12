@@ -413,7 +413,7 @@ double TAGMFast::HessianForOneVar(const TFltV& AlphaKV, const int UID, const int
 }
 
 /// Newton method: DEPRECATED
-int TAGMFast::MLENewton(const double& Thres, const int& MaxIter, const TStr PlotNm) {
+int TAGMFast::MLENewton(const double& Thres, const int& MaxIter, const TStr& PlotNm) {
   TExeTm ExeTm;
   int iter = 0, PrevIter = 0;
   TIntFltPrV IterLV;
@@ -422,7 +422,9 @@ int TAGMFast::MLENewton(const double& Thres, const int& MaxIter, const TStr Plot
   TIntV NIdxV;
   G->GetNIdV(NIdxV);
   int CID, UID, NewtonIter;
-  double Fuc, PrevFuc, Grad, H;
+  double Fuc;
+  //double PrevFuc;
+  double Grad, H;
   while(iter < MaxIter) {
     NIdxV.Shuffle(Rnd);
     for (int ui = 0; ui < F.Len(); ui++, iter++) {
@@ -461,7 +463,7 @@ int TAGMFast::MLENewton(const double& Thres, const int& MaxIter, const TStr Plot
           IAssertR(AlphaKV[e] <= 1.0, TStr::Fmt("AlphaKV=%f, %f, %f", AlphaKV[e].Val, PNoCom.Val, GetCom(UI.GetNbrNId(e), CID)));
         }
         Fuc = GetCom(UID, CID);
-        PrevFuc = Fuc;
+        //PrevFuc = Fuc;
         Grad = GradientForOneVar(AlphaKV, UID, CID, Fuc), H = 0.0;
         if (Grad <= 1e-3 && Grad >= -0.1) { continue; }
         NewtonIter = 0;
@@ -536,7 +538,7 @@ void TAGMFast::GetCmtyVV(TVec<TIntV>& CmtyVV, const double Thres, const int MinS
 }
 
 /// estimate number of communities using cross validation
-int TAGMFast::FindComsByCV(const int NumThreads, const int MaxComs, const int MinComs, const int DivComs, const TStr OutFNm, const double StepAlpha, const double StepBeta) {
+int TAGMFast::FindComsByCV(const int NumThreads, const int MaxComs, const int MinComs, const int DivComs, const TStr& OutFNm, const double StepAlpha, const double StepBeta) {
     double ComsGap = exp(TMath::Log((double) MaxComs / (double) MinComs) / (double) DivComs);
     TIntV ComsV;
     ComsV.Add(MinComs);
@@ -549,7 +551,7 @@ int TAGMFast::FindComsByCV(const int NumThreads, const int MaxComs, const int Mi
     return FindComsByCV(ComsV, 0.1, NumThreads, OutFNm + ".CV.likelihood", StepAlpha, StepBeta);
 }
 
-int TAGMFast::FindComsByCV(TIntV& ComsV, const double HOFrac, const int NumThreads, const TStr PlotLFNm, const double StepAlpha, const double StepBeta) {
+int TAGMFast::FindComsByCV(TIntV& ComsV, const double HOFrac, const int NumThreads, const TStr& PlotLFNm, const double StepAlpha, const double StepBeta) {
   if (ComsV.Len() == 0) {
     int MaxComs = G->GetNodes() / 5;
     ComsV.Add(2);
@@ -685,7 +687,7 @@ double TAGMFast::GetStepSizeByLineSearch(const int UID, const TIntFltH& DeltaV, 
   return StepSize;
 }
 
-int TAGMFast::MLEGradAscent(const double& Thres, const int& MaxIter, const TStr PlotNm, const double StepAlpha, const double StepBeta) {
+int TAGMFast::MLEGradAscent(const double& Thres, const int& MaxIter, const TStr& PlotNm, const double StepAlpha, const double StepBeta) {
   time_t InitTime = time(NULL);
   TExeTm ExeTm, CheckTm;
   int iter = 0, PrevIter = 0;
@@ -756,7 +758,7 @@ int TAGMFast::MLEGradAscent(const double& Thres, const int& MaxIter, const TStr 
   return iter;
 }
 
-int TAGMFast::MLEGradAscentParallel(const double& Thres, const int& MaxIter, const int ChunkNum, const int ChunkSize, const TStr PlotNm, const double StepAlpha, const double StepBeta) {
+int TAGMFast::MLEGradAscentParallel(const double& Thres, const int& MaxIter, const int ChunkNum, const int ChunkSize, const TStr& PlotNm, const double StepAlpha, const double StepBeta) {
   //parallel
   time_t InitTime = time(NULL);
   uint64 StartTm = TSecTm::GetCurTm().GetAbsSecs();
@@ -809,7 +811,7 @@ int TAGMFast::MLEGradAscentParallel(const double& Thres, const int& MaxIter, con
           GradientForRow(u, GradV, CIDSet);
           if (Norm2(GradV) < 1e-4) { NIDOPTV[u] = 1; continue; }
           double LearnRate = GetStepSizeByLineSearch(u, GradV, GradV, StepAlpha, StepBeta, 5);
-          if (LearnRate <= 1e-5) { NewNIDV[ui] = -2; continue; }
+          if (LearnRate == 0.0) { NewNIDV[ui] = -2; continue; }
           for (int ci = 0; ci < GradV.Len(); ci++) {
             int CID = GradV.GetKey(ci);
             double Change = LearnRate * GradV.GetDat(CID);

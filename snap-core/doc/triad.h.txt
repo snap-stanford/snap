@@ -46,23 +46,26 @@ Considers the graph as undirected.
 
 /// TSnap::GetNodeTriads
 Considers the graph as undirected.
+@param Graph Input graph
+@param NId Input node
 ///
 
 /// TSnap::GetNodeTriads1
 Considers the graph as undirected.
-///
-
-/// TSnap::GetNodeTriads2
-Considers the graph as undirected.
-@param InGroupEdges  Number of triads (NId, G1, G2), where G1 and G2 are in GroupSet
-@param InOutGroupEdges Number of triads (NId, G1, O1), where G1 in GroupSet and O1 not in GroupSet
+@param Graph Input graph
+@param NId Input node
+@param ClosedNTriadsX On return contains the number of closed triads
+@param OpenNTriadsX On return contains the number of open triads
 ///
 
 /// TSnap::GetNodeTriads3
 Considers the graph as undirected.
-@param InGroupEdges Number of triads (NId, G1, G2), where G1 and G2 are in GroupSet
-@param InOutGroupEdges Number of triads (NId, G1, O1), where G1 in GroupSet and O1 not in GroupSet
-@param OutGroupEdges Number of triads (NId, O1, O2), where O1 and O2 are not in GroupSet
+@param Graph Input graph
+@param NId Input node
+@param GroupSet Input set with node neighbors
+@param InGroupEdgesX On return contains the number of triads (NId, G1, G2), where G1 and G2 are in GroupSet
+@param InOutGroupEdgesX On return contains the number of triads (NId, G1, O1), where G1 is in GroupSet and O1 not in GroupSet
+@param OutGroupEdgesX On return contains the number of triads (NId, O1, O2), where O1 and O2 are not in GroupSet
 ///
 
 /// TSnap::GetTriadParticip

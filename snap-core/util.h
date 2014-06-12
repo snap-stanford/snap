@@ -64,3 +64,78 @@ public:
   /// Splits a list of people's names.
   static void GetStdNameV(TStr AuthorNames, TStrV& StdNameV);
 };
+
+//#//////////////////////////////////////////////
+/// Snapworld supporting functions
+
+#if defined(SW_WRITEN)
+
+/// Writes \c nbytes bytes starting at \c ptr to a file/socket descriptor \c fd.
+extern int WriteN(int fd, char *ptr, int nbytes);
+
+/// Sends the vector contents \c V via a file/socket descriptor \c FileDesc. ##SendVec
+template <class TVal, class TSizeTy>
+int64 SendVec(const TVec<TVal, TSizeTy>& V, int FileDesc) {
+  int64 l = 0;
+  int n;
+  int r;
+  TSizeTy Vals = V.Len();
+  int ChunkSize = 25600;
+
+  r = WriteN(FileDesc, (char *) &Vals, (int) sizeof(TSizeTy));
+  if (r < 0) {
+    return r;
+  }
+  l += r;
+
+  r = WriteN(FileDesc, (char *) &Vals, (int) sizeof(TSizeTy));
+  if (r < 0) {
+    return r;
+  }
+  l += r;
+
+  for (TSizeTy ValN = 0; ValN < Vals; ValN += ChunkSize) {
+    n = ChunkSize;
+    if ((Vals - ValN) < ChunkSize) {
+      n = Vals - ValN;
+    }
+    r = WriteN(FileDesc, (char *) &V[ValN], (int) (n*sizeof(TVal)));
+    if (r < 0) {
+      return r;
+    }
+    l += r;
+  }
+  return l;
+}
+
+
+/// Sends the segmented vector contents \c V via a file/socket descriptor \c FileDesc. ##SendVec64
+template <class TVal, class TSizeTy>
+int64 SendVec64(const TVec< TVec< TVal, TSizeTy > , TSizeTy >&Vec64, int FileDesc) {
+  TSizeTy N =Vec64.Len();
+  int64 l=0;
+  int r;
+
+  r = WriteN(FileDesc, (char *) &N, (int) sizeof(TSizeTy));
+  if (r < 0) {
+    return r;
+  }
+  l += r;
+
+  r = WriteN(FileDesc, (char *) &N, (int) sizeof(TSizeTy));
+  if (r < 0) {
+    return r;
+  }
+  l += r;
+
+  for (typename TVec< TVec< TVal, TSizeTy >, TSizeTy >::TIter it=Vec64.BegI(); it!=Vec64.EndI(); ++it) {
+    r = SendVec(*it, FileDesc);
+    if (r < 0) {
+      return r;
+    }
+    l += r;
+  }
+
+  return l;
+}
+#endif

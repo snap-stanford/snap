@@ -1,6 +1,12 @@
 #
 # Makefile for non-Microsoft compilers
-# 	tested only on Linux
+# 	tested only on Linux, Mac OS X
+#
+# Prerequisites:
+#	- download google test: https://code.google.com/p/googletest/
+#
+# Compile and run all the tests:
+#	make run
 #
 
 include ../Makefile.config
@@ -9,9 +15,10 @@ LIBS += -lgtest
 ## Main application file
 MAIN = run-all-tests
 
-TESTS = \
+TEST_SRCS = \
 	test-helper.cpp \
-	test-TUNGraph.cpp test-TNGraph.cpp test-TNEGraph.cpp \
+	test-TUNGraph.cpp test-TNGraph.cpp \
+	test-TNEGraph.cpp test-TNEANet.cpp \
 	test-TNodeNet.cpp test-TNodeEDatNet.cpp test-TNodeEdgeNet.cpp \
 	test-subgraph.cpp \
 	test-TStrPool.cpp \
@@ -24,14 +31,20 @@ TESTS = \
 	test-alg.cpp \
 	test-triad.cpp \
 	test-THash.cpp \
-	test-THashSet.cpp
+	test-THashSet.cpp \
+	test-flow.cpp
+
+TEST_OBJS = $(TEST_SRCS:.cpp=.o)
 
 all: $(MAIN)
 run: test
 
 # COMPILE
-$(MAIN): $(MAIN).cpp $(TESTS) $(CSNAP)/Snap.o
-	$(CC) $(CXXFLAGS) -o $(MAIN) $(MAIN).cpp $(TESTS) $(CSNAP)/Snap.o -I$(CSNAP) -I$(CGLIB) $(LDFLAGS) $(LIBS)
+.cpp.o:
+	$(CC) $(CXXFLAGS) -I$(CSNAP) -I$(CGLIB) -c $<
+
+$(MAIN): $(MAIN).o $(TEST_OBJS) $(CSNAP)/Snap.o
+	$(CC) $(CXXFLAGS) -o $(MAIN) $^ -I$(CSNAP) -I$(CGLIB) $(LDFLAGS) $(LIBS)
 
 $(CSNAP)/Snap.o:
 	$(MAKE) -C $(CSNAP)

@@ -61,10 +61,10 @@ int TKCore<PGraph>::GetCoreEdges() const {
 template<class PGraph>
 int TKCore<PGraph>::GetNextCore() {
   TIntV DelV;
-  int NDel=-1, Pass=1, AllDeg=0;
+  int NDel=-1, AllDeg=0; //Pass=1;
   TExeTm ExeTm;
   CurK++;
-  printf("Get K-core: %d\n", CurK());
+  //printf("Get K-core: %d\n", CurK());
   while (NDel != 0) {
     NDel = 0;
     for (int k = DegH.FFirstKeyId(); DegH.FNextKeyId(k); ) {
@@ -81,9 +81,9 @@ int TKCore<PGraph>::GetNextCore() {
         NDel++;  AllDeg++;
       }
     }
-    printf("\r  pass %d]  %d deleted,  %d all deleted  [%s]", Pass++, NDel, AllDeg, ExeTm.GetStr());
+    //printf("\r  pass %d]  %d deleted,  %d all deleted  [%s]", Pass++, NDel, AllDeg, ExeTm.GetStr());
   }
-  printf("\n");
+  //printf("\n");
   DegH.Defrag();
   DegH.GetKeyV(NIdV);
   NIdV.Sort();
@@ -107,6 +107,30 @@ PGraph GetKCore(const PGraph& Graph, const int& K) {
   TKCore<PGraph> KCore(Graph);
   KCore.GetCoreK(K);
   return TSnap::GetSubGraph(Graph, KCore.GetNIdV());
+}
+
+/// Returns the number of nodes in each core of order K (where K=0, 1, ...)
+template<class PGraph>
+int GetKCoreNodes(const PGraph& Graph, TIntPrV& CoreIdSzV) {
+  TKCore<PGraph> KCore(Graph);
+  CoreIdSzV.Clr();
+  CoreIdSzV.Add(TIntPr(0, Graph->GetNodes()));
+  for (int i = 1; KCore.GetNextCore() > 0; i++) {
+    CoreIdSzV.Add(TIntPr(i, KCore.GetCoreNodes()));
+  }
+  return KCore.GetCurK();
+}
+
+/// Returns the number of edges in each core of order K (where K=0, 1, ...)
+template<class PGraph>
+int GetKCoreEdges(const PGraph& Graph, TIntPrV& CoreIdSzV) {
+  TKCore<PGraph> KCore(Graph);
+  CoreIdSzV.Clr();
+  CoreIdSzV.Add(TIntPr(0, Graph->GetEdges()));
+  for (int i = 1; KCore.GetNextCore() > 0; i++) {
+    CoreIdSzV.Add(TIntPr(i, KCore.GetCoreEdges()));
+  }
+  return KCore.GetCurK();
 }
 
 } // namespace TSnap

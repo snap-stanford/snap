@@ -354,7 +354,10 @@ void TMom::Def(){
         if (Val>Mx){Mx=Val;}
       }
       Vari=Vari/SumW;
-      SErr=sqrt(Vari/(ValWgtV.Len()*(ValWgtV.Len()-1)));
+      // SErr=sqrt(Vari/(ValWgtV.Len()*(ValWgtV.Len()-1))); //J: This seems to be wrong
+      if (Vari > 0.0 && SumW > 0.0) {
+        SErr=sqrt(double(Vari))/sqrt(double(SumW)); //J: This seems to ok: StdDev/sqrt(N)
+      } else { SErr = Mx; } // some big number
     }
     // Standard-Deviation
     SDev=sqrt(double(Vari));
@@ -381,6 +384,14 @@ void TMom::Def(){
         if (CurSumW > 0.75*SumW) { Quart3 = ValWgtV[ValN].Val1; }
         //else if (CurSumW == 0.75*SumW) { Quart3 = 0.5 * (ValWgtV[ValN].Val1+ValWgtV[ValN+1].Val1); }
       }
+    }
+    // Mode (value with max total weight)
+    THash<TFlt, TFlt> ValWgtH;
+    for (int i = 0; i < ValWgtV.Len(); i++) {
+      ValWgtH.AddDat(ValWgtV[i].Val1) += ValWgtV[i].Val2; }
+    Mode = TFlt::Mn; double MxWgt=TFlt::Mn;
+    for (int v = 0; v < ValWgtH.Len(); v++) {
+      if (ValWgtH[v] > MxWgt) { MxWgt=ValWgtH[v]; Mode=ValWgtH.GetKey(v); }
     }
     // Deciles & Percentiles
     CurSumW = 0;
@@ -803,7 +814,7 @@ void TLinReg::NR_covsrt(
 }
 
 void TLinReg::NR_gaussj(TFltVV& a, const int& n, TFltVV& b, const int& m){
-  int i, icol, irow=0, j, k, l, ll;
+  int i, icol=0, irow=0, j, k, l, ll;
   double big, dum, pivinv;
 
   TIntV indxc(n+1);

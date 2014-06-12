@@ -26,6 +26,10 @@ TGStat::TGStat(const PNGraph& Graph, const TSecTm& GraphTm, TFSet StatFSet, cons
   TakeStat(Graph, GraphTm, StatFSet, GraphName);
 }
 
+TGStat::TGStat(const PUNGraph& Graph, const TSecTm& GraphTm, TFSet StatFSet, const TStr& GraphName) {
+  TakeStat(Graph, GraphTm, StatFSet, GraphName);
+}
+
 TGStat::TGStat(const PNEGraph& Graph, const TSecTm& GraphTm, TFSet StatFSet, const TStr& GraphName) {
   TakeStat(Graph, GraphTm, StatFSet, GraphName);
 }
@@ -69,14 +73,14 @@ bool TGStat::operator < (const TGStat& GStat) const {
 }
 
 bool TGStat::HasVal(const TGStatVal& StatVal) const {
+  if (StatVal == gsvIndex) { return true; }
   if (StatVal == gsvTime) { return Time.IsDef(); }
-  if (StatVal == gsvWccSize) { return HasVal(gsvWccNodes) && HasVal(gsvNodes); }
   return ValStatH.IsKey(int(StatVal));
 }
 
 double TGStat::GetVal(const TGStatVal& StatVal) const {
+  if (StatVal == gsvIndex) { return -1; }
   if (StatVal == gsvTime) { return Time.GetAbsSecs(); }
-  if (StatVal == gsvWccSize) { return GetVal(gsvWccNodes) / GetVal(gsvNodes); }
   if (! ValStatH.IsKey(int(StatVal))) { return -1.0; }
   return ValStatH.GetDat(int(StatVal));
 }
@@ -99,18 +103,23 @@ void TGStat::GetDistr(const TGStatDistr& Distr, TFltPrV& FltPrV) const {
 }
 
 void TGStat::TakeStat(const PNGraph& Graph, const TSecTm& _Time, TFSet StatFSet, const TStr& GraphName) {
-  printf("\n===TakeStat:  G(%u, %u)\n", Graph->GetNodes(), Graph->GetEdges());
+  printf("\n===TakeStat:  G(%u, %u) at %s\n", Graph->GetNodes(), Graph->GetEdges(), _Time.IsDef()?_Time.GetStr().CStr():"");
   TExeTm ExeTm, FullTm;
   Time = _Time;
   GraphNm = GraphName;
   if (StatFSet.In(gsvNone)) { return; }
   TakeBasicStat(Graph, false);
   TakeDiam(Graph, StatFSet, false);
-  if (StatFSet.In(gsdWcc) || StatFSet.In(gsdWccHops) || StatFSet.In(gsvFullDiam) || StatFSet.In(gsvEffWccDiam)) {
+  if (StatFSet.In(gsdWcc) || StatFSet.In(gsdWccHops) || StatFSet.In(gsvFullDiam) || StatFSet.In(gsvEffWccDiam) || StatFSet.In(gsvWccNodes) || StatFSet.In(gsvWccSrcNodes) || StatFSet.In(gsvWccDstNodes) || StatFSet.In(gsvWccEdges) || StatFSet.In(gsvWccUniqEdges) || StatFSet.In(gsvWccBiDirEdges)) {
     PNGraph WccGraph = TSnap::GetMxWcc(Graph);
     TakeBasicStat(WccGraph, true);
     TakeDiam(WccGraph, StatFSet, true);
+    SetVal(gsvWccSize, WccGraph->GetNodes()/double(Graph->GetNodes()));
   }
+  // strongly connected component
+  TakeSccStat(Graph, StatFSet);
+  // strongly connected component
+  TakeBccStat(Graph, StatFSet);
   // degrees
   TakeDegDistr(Graph, StatFSet);
   // components
@@ -122,7 +131,39 @@ void TGStat::TakeStat(const PNGraph& Graph, const TSecTm& _Time, TFSet StatFSet,
     TakeClustCf(Graph); }
   if (StatFSet.In(gsdTriadPart)) {
     TakeTriadPart(Graph); }
-  printf("  [%s]\n", FullTm.GetTmStr());
+  printf("**[%s]\n", FullTm.GetTmStr());
+}
+
+void TGStat::TakeStat(const PUNGraph& Graph, const TSecTm& _Time, TFSet StatFSet, const TStr& GraphName) {
+  printf("\n===TakeStat:  UG(%u, %u) at %s\n", Graph->GetNodes(), Graph->GetEdges(), _Time.IsDef()?_Time.GetStr().CStr():"");
+  TExeTm ExeTm, FullTm;
+  Time = _Time;
+  GraphNm = GraphName;
+  if (StatFSet.In(gsvNone)) { return; }
+  TakeBasicStat(Graph, false);
+  TakeDiam(Graph, StatFSet, false);
+  if (StatFSet.In(gsdWcc) || StatFSet.In(gsdWccHops) || StatFSet.In(gsvFullDiam) || StatFSet.In(gsvEffWccDiam) || StatFSet.In(gsvWccNodes) || StatFSet.In(gsvWccSrcNodes) || StatFSet.In(gsvWccDstNodes) || StatFSet.In(gsvWccEdges) || StatFSet.In(gsvWccUniqEdges) || StatFSet.In(gsvWccBiDirEdges)) {
+    PUNGraph WccGraph = TSnap::GetMxWcc(Graph);
+    TakeBasicStat(WccGraph, true);
+    TakeDiam(WccGraph, StatFSet, true);
+    SetVal(gsvWccSize, WccGraph->GetNodes()/double(Graph->GetNodes()));
+  }
+  // strongly connected component
+  //TakeSccStat(Graph, StatFSet);
+  // strongly connected component
+  TakeBccStat(Graph, StatFSet);
+  // degrees
+  TakeDegDistr(Graph, StatFSet);
+  // components
+  TakeConnComp(Graph, StatFSet);
+  // spectral
+  //TakeSpectral(Graph, StatFSet, -1);
+  // clustering coeffient
+  if (StatFSet.In(gsdClustCf) || StatFSet.In(gsvClustCf)) {
+    TakeClustCf(Graph); }
+  if (StatFSet.In(gsdTriadPart)) {
+    TakeTriadPart(Graph); }
+  printf("**[%s]\n", FullTm.GetTmStr());
 }
 
 void TGStat::TakeSpectral(const PNGraph& Graph, const int _TakeSngVals) {
@@ -130,9 +171,11 @@ void TGStat::TakeSpectral(const PNGraph& Graph, const int _TakeSngVals) {
 }
 
 void TGStat::TakeSpectral(const PNGraph& Graph, TFSet StatFSet, int _TakeSngVals) {
+  TExeTm ExeTm;
   if (_TakeSngVals == -1) { _TakeSngVals = TakeSngVals; }
   // singular values, vectors
   if (StatFSet.In(gsdSngVal)) {
+    printf("sing-vals...");  
     const int SngVals = TMath::Mn(_TakeSngVals, Graph->GetNodes()/2);
     TFltV SngValV1;
     TSnap::GetSngVals(Graph, SngVals, SngValV1);
@@ -142,8 +185,10 @@ void TGStat::TakeSpectral(const PNGraph& Graph, TFSet StatFSet, int _TakeSngVals
     for (int i = 0; i < SngValV1.Len(); i++) {
       SngValV.Add(TFltPr(i+1, SngValV1[i]));
     }
+    printf("[%s]  ", ExeTm.GetTmStr());
   }
   if (StatFSet.In(gsdSngVec)) {
+    printf("sing-vec...");  
     TFltV LeftV, RightV;
     TSnap::GetSngVec(Graph, LeftV, RightV);
     LeftV.Sort(false);
@@ -152,6 +197,7 @@ void TGStat::TakeSpectral(const PNGraph& Graph, TFSet StatFSet, int _TakeSngVals
     for (int i = 0; i < TMath::Mn(Kilo(10), LeftV.Len()/2); i++) {
       if (LeftV[i] > 0) { SngVec.Add(TFltPr(i+1, LeftV[i])); }
     }
+    printf("[%s]  ", ExeTm.GetTmStr());
   }
 }
 
@@ -262,6 +308,7 @@ TStr TGStat::GetValStr(const TGStatVal& Val) {
   static TIntStrH ValTyStrH;
   if (ValTyStrH.Empty()) {
     ValTyStrH.AddDat(gsvNone, "None");
+    ValTyStrH.AddDat(gsvIndex, "Index");
     ValTyStrH.AddDat(gsvTime, "Time");
     ValTyStrH.AddDat(gsvNodes, "Nodes");
     ValTyStrH.AddDat(gsvZeroNodes, "ZeroNodes");
@@ -277,6 +324,10 @@ TStr TGStat::GetValStr(const TGStatVal& Val) {
     ValTyStrH.AddDat(gsvWccEdges, "WccEdges");
     ValTyStrH.AddDat(gsvWccUniqEdges, "WccUniqEdges");
     ValTyStrH.AddDat(gsvWccBiDirEdges, "WccBiDirEdges");
+    ValTyStrH.AddDat(gsvSccNodes, "SccNodes");
+    ValTyStrH.AddDat(gsvSccEdges, "SccEdges");
+    ValTyStrH.AddDat(gsvBccNodes, "BccNodes");
+    ValTyStrH.AddDat(gsvBccEdges, "BccEdges");
     ValTyStrH.AddDat(gsvFullDiam, "FullDiam");
     ValTyStrH.AddDat(gsvEffDiam, "EffDiam");
     ValTyStrH.AddDat(gsvEffWccDiam, "EffWccDiam");
@@ -289,6 +340,8 @@ TStr TGStat::GetValStr(const TGStatVal& Val) {
     ValTyStrH.AddDat(gsvOpenTriads, "OpenTr");
     ValTyStrH.AddDat(gsvClosedTriads, "ClosedTr");
     ValTyStrH.AddDat(gsvWccSize, "WccSize");
+    ValTyStrH.AddDat(gsvSccSize, "SccSize");
+    ValTyStrH.AddDat(gsvBccSize, "BccSize");
     ValTyStrH.AddDat(gsvMx, "Mx");
   }
   IAssert(ValTyStrH.IsKey(int(Val)));
@@ -411,6 +464,14 @@ void TGStatVec::Add(const PNGraph& Graph, const TSecTm& Time, const TStr& GraphN
   Add(TGStat::New(Graph, Time, StatFSet, GraphNm));
 }
 
+void TGStatVec::Add(const PUNGraph& Graph, const TSecTm& Time, const TStr& GraphNm) {
+  if (Graph->GetNodes() < (int) TGStatVec::MinNodesEdges) {
+    printf(" ** TGStatVec::Add: graph too small (%d nodes).SKIP\n", Graph->GetNodes());
+    return;
+  }
+  Add(TGStat::New(Graph, Time, StatFSet, GraphNm));
+}
+
 void TGStatVec::Add(const PNEGraph& Graph, const TSecTm& Time, const TStr& GraphNm) {
   if (Graph->GetNodes() < (int) TGStatVec::MinNodesEdges) {
     printf(" ** TGStatVec::Add: graph too small (%d nodes).SKIP\n", Graph->GetNodes());
@@ -451,10 +512,12 @@ void TGStatVec::GetValV(const TGStatVal& XVal, const TGStatVal& YVal, TFltPrV& V
   ValV.Gen(Len(), 0);
   double x;
   for (int t = 0; t < Len(); t++) {
-    if (XVal == gsvTime) { x = t+1; }
+    if (XVal == gsvIndex) { x = t+1; }
+    else if (XVal == gsvTime) { x = GetTime(t); }
     else { x = At(t)->GetVal(XVal); }
     ValV.Add(TFltPr(x, At(t)->GetVal(YVal)));
   }
+  ValV.Sort(true); // sort by ascending x value
 }
 
 PGStat TGStatVec::GetAvgGStat(const bool& ClipAt1) {
