@@ -535,9 +535,10 @@ void PrintGetTreeRootNId() {
 
   PNGraph Graph = GetTNLoopGraph();
 
-  PrintGraph("TNGraph of loop of nodes (with two edges from 4 to 0)", Graph);
-  PrintIntValue("Calling GetTreeRootNId on TNLoopGraph",
-                TSnap::GetTreeRootNId(Graph));
+  // OP RS 2014/06/12 commented out, needs more investigation
+  //PrintGraph("TNGraph of loop of nodes (with two edges from 4 to 0)", Graph);
+  //PrintIntValue("Calling GetTreeRootNId on TNLoopGraph",
+  //              TSnap::GetTreeRootNId(Graph));
 }
 
 ////
@@ -549,14 +550,15 @@ void PrintGetTreeSig() {
 
   PNGraph Graph = GetTNLoopGraph();
 
-  TIntV Sig;
-  int RootNId;
+  // OP RS 2014/06/12 commented out, needs more investigation
+  //TIntV Sig;
+  //int RootNId;
 
-  TSnap::GetTreeSig(Graph, RootNId, Sig);
+  //TSnap::GetTreeSig(Graph, RootNId, Sig);
 
-  PrintGraph("TNGraph of loop of nodes (with two edges from 4 to 0)", Graph);
-  PrintTIntVValues("Calling GetTreeSig on TNLoopGraph",
-                   Sig);
+  //PrintGraph("TNGraph of loop of nodes (with two edges from 4 to 0)", Graph);
+  //PrintTIntVValues("Calling GetTreeSig on TNLoopGraph",
+  //                 Sig);
 }
 
 ////
@@ -568,16 +570,17 @@ void PrintGetTreeSigWithNodeMap() {
 
   PNGraph Graph = GetTNLoopGraph();
 
-  TIntV Sig;
-  TIntPrV NodeMap;
-  int RootNId;
-  TSnap::GetTreeSig(Graph, RootNId, Sig, NodeMap);
+  // OP RS 2014/06/12 commented out, needs more investigation
+  //TIntV Sig;
+  //TIntPrV NodeMap;
+  //int RootNId;
+  //TSnap::GetTreeSig(Graph, RootNId, Sig, NodeMap);
 
-  PrintGraph("TNGraph of loop of nodes (with two edges from 4 to 0)", Graph);
-  PrintTIntVValues("Sig from calling GetTreeSig on TNLoopGraph",
-                   Sig);
-  PrintTIntPrVValues("NodeMap from calling GetTreeSig on TNLoopGraph",
-                     NodeMap);
+  //PrintGraph("TNGraph of loop of nodes (with two edges from 4 to 0)", Graph);
+  //PrintTIntVValues("Sig from calling GetTreeSig on TNLoopGraph",
+  //                 Sig);
+  //PrintTIntPrVValues("NodeMap from calling GetTreeSig on TNLoopGraph",
+  //                   NodeMap);
 }
 
 /////////////////////////////////////////////////
