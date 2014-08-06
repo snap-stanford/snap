@@ -492,6 +492,8 @@ public:
   void Clr(const bool& DoDel=true, const TSizeTy& NoDelLim=-1);
   /// Truncates the vector's length and capacity to \c _Vals elements. ##TVec::Trunc
   void Trunc(const TSizeTy& _Vals=-1);
+  /// Reduces the vector's length to \c _Vals elements, which must be less than the current length.
+  void Reduce(const TSizeTy& _Vals=-1) {Vals = _Vals;}
   /// The vector reduces its capacity (frees memory) to match its size.
   void Pack();
   /// Takes over the data and the capacity from \c Vec. ##TVec::MoveFrom

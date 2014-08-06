@@ -138,7 +138,7 @@ void GetPageRankMP1(const PGraph& Graph, TIntFltH& PRankH, const double& C, cons
   //int hcount1 = 0;
   //int hcount2 = 0;
   for (int iter = 0; iter < MaxIter; iter++) {
-    time_t t = time(0);
+    //time_t t = time(0);
     //printf("%s%d\n", ctime(&t),iter);
     //int j = 0;
     //for (typename PGraph::TObj::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++, j++) {
@@ -219,7 +219,7 @@ void GetPageRankMP2(const PGraph& Graph, TIntFltH& PRankH, const double& C, cons
   //int hcount1 = 0;
   //int hcount2 = 0;
   for (int iter = 0; iter < MaxIter; iter++) {
-    time_t t = time(0);
+    //time_t t = time(0);
     //printf("%s%d\n", ctime(&t),iter);
     //int j = 0;
     //for (typename PGraph::TObj::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++, j++) {
