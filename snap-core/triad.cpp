@@ -1,6 +1,6 @@
 namespace TSnap {
 
-#if 0
+#if 1
 // initial version 
 void GetMergeSortedV(TIntV& NeighbourV, TNGraph::TNodeI NI) {
   int ind, j, k;
@@ -44,7 +44,7 @@ void GetMergeSortedV(TIntV& NeighbourV, TNGraph::TNodeI NI) {
 
 #if 1
 // improved version
-void GetMergeSortedV(TIntV& NeighbourV, TNGraph::TNodeI NI) {
+void GetMergeSortedV1(TIntV& NeighbourV, TNGraph::TNodeI NI) {
   int j = 0;
   int k = 0;
   int prev = -1;
@@ -97,7 +97,7 @@ void GetMergeSortedV(TIntV& NeighbourV, TNGraph::TNodeI NI) {
 }
 #endif
 
-#if 0
+#if 1
 // initial version 
 int GetCommon(TIntV& A, TIntV& B) {
   int i = 0, j = 0;
@@ -118,7 +118,7 @@ int GetCommon(TIntV& A, TIntV& B) {
 
 #if 1
 // improved version
-int GetCommon(TIntV& A, TIntV& B) {
+int GetCommon1(TIntV& A, TIntV& B) {
   int i, j;
   int ret = 0;
   int alen, blen;
@@ -162,3 +162,4 @@ int GetCommon(TIntV& A, TIntV& B) {
 #endif
 
 }
+

@@ -41,15 +41,17 @@ template<class PGraph> int GetCmnNbrs(const PGraph& Graph, const int& NId1, cons
 template<class PGraph> int GetLen2Paths(const PGraph& Graph, const int& NId1, const int& NId2);
 /// Returns the 2 directed paths between a pair of nodes NId1, NId2 (NId1 --> U --> NId2). ##TSnap::GetLen2Paths
 template<class PGraph> int GetLen2Paths(const PGraph& Graph, const int& NId1, const int& NId2, TIntV& NbrV);
-/// Returns the number of triangles in graph \c Graph
+/// Returns the number of triangles in graph \c Graph, original version
 template<class PGraph> int64 CountTriangles(const PGraph& Graph);
-/// Returns the number of triangles in graph \c Graph
+/// Returns the number of triangles in graph \c Graph, newer version
 template<class PGraph> int64 GetTriangleCnt(const PGraph& Graph);
 /// Merges neighbors.
 template<class PGraph> void MergeNbrs(TIntV& NeighbourV, const typename PGraph::TObj::TNodeI& NI);
 
 void GetMergeSortedV(TIntV& NeighbourV, TNGraph::TNodeI NI);
+void GetMergeSortedV1(TIntV& NeighbourV, TNGraph::TNodeI NI);
 int GetCommon(TIntV& A, TIntV& B);
+int GetCommon1(TIntV& A, TIntV& B);
 
 /////////////////////////////////////////////////
 // Implementation
@@ -265,14 +267,20 @@ int64 CountTriangles(const PGraph& Graph) {
 template<class PGraph> 
 int64 GetTriangleCnt(const PGraph& Graph) {
   struct timeval start, end;
+  struct timeval startall, endall;
   float delta;
   TTmProfiler Profiler;
   int TimerId = Profiler.AddTimer("Profiler");
+  int TimerAll = Profiler.AddTimer("ProfilerAll");
   const int NNodes = Graph->GetNodes();
 
   TIntV MapV(NNodes);
   TVec<typename PGraph::TObj::TNodeI> NV(NNodes);
   NV.Reduce(0);
+
+  Profiler.ResetTimer(TimerAll);
+  Profiler.StartTimer(TimerAll);
+  gettimeofday(&startall, NULL);
 
   Profiler.ResetTimer(TimerId);
   Profiler.StartTimer(TimerId);
@@ -369,7 +377,7 @@ int64 GetTriangleCnt(const PGraph& Graph) {
       //TInt NbrInd = H.GetDat(HigherDegNbrV[i][j]);
       TInt NbrInd = IndV[HigherDegNbrV[i][j]];
 
-      int64 num = GetCommon(HigherDegNbrV[i], HigherDegNbrV[NbrInd]);
+      int64 num = GetCommon1(HigherDegNbrV[i], HigherDegNbrV[NbrInd]);
       cnt += num;
     }
   }
@@ -379,6 +387,12 @@ int64 GetTriangleCnt(const PGraph& Graph) {
   delta = ((end.tv_sec  - start.tv_sec) * 1000000u +
             end.tv_usec - start.tv_usec) / 1.e6;
   printf("__count__\ttime %7.3f\tcpu %8.3f\n", delta, Profiler.GetTimerSec(TimerId));
+
+  gettimeofday(&endall, NULL);
+  Profiler.StopTimer(TimerAll);
+  delta = ((endall.tv_sec  - startall.tv_sec) * 1000000u +
+            endall.tv_usec - startall.tv_usec) / 1.e6;
+  printf("__all__  \ttime %7.3f\tcpu %8.3f\n", delta, Profiler.GetTimerSec(TimerAll));
 
   return cnt;
 }
