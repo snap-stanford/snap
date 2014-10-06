@@ -3,6 +3,29 @@ performance system for graph and network manipulation and analysis.
 
 This file contains a high-level description of changes in SNAP releases.
 
+Release 2.3, Jun 16, 2014
+
+- implemented RolX algorithm for detecting node roles
+- implemented flow agorithms
+- added an example for the RolX algorithm
+- added an example for the flow algorithms
+- implemented a new function GetEgonet()
+- added tests and demo code for functions in alg.h
+- changed gnuplot version test, so that it runs only on demand, not at start
+- expanded cncom tests and the demo
+- expanded the code to work on non-OpenMP Mac OS X
+- renamed GetIntAttrDatN to GetIntAttrIndDatN so that it works in Snap.py
+- renamed GetIntAttrDatE to GetIntAttrIndDatE so that it works in Snap.py
+- updated the AGM related code to work with SWIG
+- added an error description when file open fails
+- fix a bug in loading attributes when the node ids are non-integers
+- fixed kronfit to use the right output file name given by arg "-o:"
+- fixed TUNGraph::AddNode() to add reciprocal edges when given vector
+- fixed a bug with GetMxSccSz
+- fixed GenCircle and GenGrid to add reciprocal edges properly
+- improved the fix for sorting the SCC sizes
+- improved the handling of getrusage()
+
 Release 2.2, Mar 12, 2014
 
 - added CoDA, 2-mode community detection method, in examples/coda

@@ -76,15 +76,27 @@ Description of examples:
   centrality :
 	Computes node centrality measures for a graph: closeness, eigen,
 	degree, betweenness, page rank, hubs and authorities.
+  cesna :
+        Implements a large scale overlapping community detection method
+        for networks with node attributes based on Communities from
+        Edge Structure and Node Attributes (CESNA).
   cliques :
 	Finds overlapping dense groups of nodes in networks,
 	based on the Clique Percolation Method.
+  coda :
+        Implements a large scale overlapping community detection method 
+        based on Communities through Directed Affiliations (CoDA), which
+        handles directed as well as undirected networks. The method is able
+        to find 2-mode communities where the member nodes form a bipartite
+        connectivity structure.
   community :
-	Implements network community detection algorithms: Girvan-Newman
-	and Clauset-Newman-Moore.
+	Implements network community detection algorithms: Girvan-Newman,
+	Clauset-Newman-Moore and Infomap.
   concomp :
 	Computes weakly, strongly and biconnected connected components,
 	articulation points and bridge edges of a graph.
+  flows :
+        Computes the maximum network flow in a network.
   forestfire : 
 	Generates graphs using the Forest Fire model.
   graphgen : 
@@ -127,32 +139,45 @@ Description of examples:
 	distribution, hop plot, clustering coefficient, distribution of sizes
 	of connected components, spectral properties of graph adjacency
 	matrix, etc.
+  rolx :
+        Implements the rolx algorithm for analysing the structural
+        roles in the graph.
   testgraph :
 	Demonstrates some of the basic SNAP functionality.
+  zygote :
+        Demonstrates how to use SNAP with the Zygote library, which
+        significantly speeds up computations that need to process the
+        same large graph many times.
 
 /////////////////////////////////////////////////////////////////////////////
 
 SNAP documentation:
   http://snap.stanford.edu/snap/doc.html
 
-The library defines Graphs (nodes and edges) and Networks (graph with data
+The library defines Graphs (nodes and edges) and Networks (graphs with data
 associated with nodes and edges).
 
 Graph types:
   TNGraph : 
   	directed graph (single directed edge between a pair of nodes)
-  TNEGraph : 
-  	directed multi-graph (any number of directed edges between a pair of
-	nodes)
   TUNGraph : 
   	undirected graph (single undirected edge between a pair of nodes)
+  TNEGraph : 
+  	directed multi-graph (multiple directed edges can exist between
+        a pair of nodes)
 
 Network types:
   TNodeNet<TNodeData> : 
-  	like TNGraph but with TNodeData object for each node
+  	like TNGraph, but with TNodeData object for each node
+  TNodeEDatNet<TNodeData,TEdgeData> :
+        like TNGraph, but with TNodeData object for each node and TEdgeData
+        object for each edge
   TNodeEdgeNet<TNodeData, TEdgeData> : 
   	like TNEGraph but with TNodeData object for each node and TEdgeData
 	object for each edge
+  TNEANet :
+        like TNEGraph, but with attributes on nodes and edges. The attributes
+        are dynamic in that they can be defined at runtime
   TBigNet<TNodeData> : 
   	memory efficient implementation of TNodeNet (avoids memory
 	fragmentation)
@@ -203,6 +228,7 @@ snap-core:
         components, articular nodes and bridge edges.
   ff.h : Forest Fire model for generating networks that densify and have
         shrinking diameters.
+  flow.h: Maximum flow algorithms.
   gbase.h : Defines flags that are used to identify functionality of graphs.
   ggen.h : Various graph generators: random graphs, copying model,
         preferential attachment, RMAT, configuration model, Small world model.
@@ -231,7 +257,7 @@ snap-core:
         string manipulation, URL and domain manipulation routines.
 
 snap-adv:
-  agm.h : Implements the Affiliation Graph Model (AGM).
+  agm*.h : Implements the Affiliation Graph Model (AGM).
   cliques.h : Maximal clique detection and Clique Percolation method.
   graphcounter.h : Performs fast graph isomorphism testing to count the
         frequency of topologically distinct sub-graphs.
@@ -240,6 +266,7 @@ snap-adv:
   mag.h : Implements the Multiplicative Attribute Graph (MAG).
   ncp.h : Network community profile plot. Implements local spectral graph
         partitioning method to efficiently find communities in networks.
+  rolx.h : Node role detection.
   subgraphenum.h : Enumerates all connected induced sub-graphs of particular
         size.
 

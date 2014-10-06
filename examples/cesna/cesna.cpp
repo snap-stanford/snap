@@ -32,14 +32,17 @@ int main(int argc, char* argv[]) {
 #endif
   PUNGraph G;
   TIntStrH NIDNameH;
-  TStrHash<TInt> NIdNameH;
+  TStrHash<TInt> NodeNameH;
   TVec<TFltV> Wck;
   TVec<TIntV> EstCmtyVV;
   if (InFNm.IsStrIn(".ungraph")) {
     TFIn GFIn(InFNm);
     G = TUNGraph::Load(GFIn);
   } else {
-    G = TAGMUtil::LoadEdgeListStr<PUNGraph>(InFNm, NIDNameH);
+    G = TAGMUtil::LoadEdgeListStr<PUNGraph>(InFNm, NodeNameH);
+    NIDNameH.Gen(NodeNameH.Len());
+    for (int s = 0; s < NodeNameH.Len(); s++) { NIDNameH.AddDat(s, NodeNameH.GetKey(s)); }
+
   }
   if (LabelFNm.Len() > 0) {
     TSsParser Ss(LabelFNm, ssfTabSep);
@@ -61,7 +64,7 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  TCesnaUtil::LoadNIDAttrHFromNIDKH(NIDV, AttrFNm, RawNIDAttrH);
+  TCesnaUtil::LoadNIDAttrHFromNIDKH(NIDV, AttrFNm, RawNIDAttrH, NodeNameH);
   TCesnaUtil::FilterLowEntropy(RawNIDAttrH, NIDAttrH, RawFeatNameH, FeatNameH, MinFeatFrac);
 
   TExeTm RunTm;

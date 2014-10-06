@@ -73,11 +73,10 @@ public:
 /// Writes \c nbytes bytes starting at \c ptr to a file/socket descriptor \c fd.
 extern int WriteN(int fd, char *ptr, int nbytes);
 
-/// Sends the vector contents \c V via a file/socket descriptor \c FileDesc.
-/// Returns the number of bytes sent. If return value is negative, then some system call returned an error.
+/// Sends the vector contents \c V via a file/socket descriptor \c FileDesc. ##SendVec
 template <class TVal, class TSizeTy>
-int SendVec(const TVec<TVal, TSizeTy>& V, int FileDesc) {
-  int l = 0;
+int64 SendVec(const TVec<TVal, TSizeTy>& V, int FileDesc) {
+  int64 l = 0;
   int n;
   int r;
   TSizeTy Vals = V.Len();
@@ -108,5 +107,35 @@ int SendVec(const TVec<TVal, TSizeTy>& V, int FileDesc) {
   }
   return l;
 }
-#endif
 
+
+/// Sends the segmented vector contents \c V via a file/socket descriptor \c FileDesc. ##SendVec64
+template <class TVal, class TSizeTy>
+int64 SendVec64(const TVec< TVec< TVal, TSizeTy > , TSizeTy >&Vec64, int FileDesc) {
+  TSizeTy N =Vec64.Len();
+  int64 l=0;
+  int r;
+
+  r = WriteN(FileDesc, (char *) &N, (int) sizeof(TSizeTy));
+  if (r < 0) {
+    return r;
+  }
+  l += r;
+
+  r = WriteN(FileDesc, (char *) &N, (int) sizeof(TSizeTy));
+  if (r < 0) {
+    return r;
+  }
+  l += r;
+
+  for (typename TVec< TVec< TVal, TSizeTy >, TSizeTy >::TIter it=Vec64.BegI(); it!=Vec64.EndI(); ++it) {
+    r = SendVec(*it, FileDesc);
+    if (r < 0) {
+      return r;
+    }
+    l += r;
+  }
+
+  return l;
+}
+#endif

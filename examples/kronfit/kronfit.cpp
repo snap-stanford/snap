@@ -47,7 +47,7 @@ int main(int argc, char* argv[]) {
   //  LogLike = KronLL.GradDescent2(GradIter, LrnRate, MnStep, MxStep, WarmUp, NSamples); }
   //else{ Fail; }
   const TKronMtx& FitMtx = KronLL.GetProbMtx();
-  FILE *F = fopen(TStr::Fmt("KronFit-%s.tab", InFNm.GetFMid().CStr()).CStr(), "at");
+  FILE *F = fopen(OutFNm.CStr(), "w");
   fprintf(F, "Input\t%s\n", InFNm.CStr());
   TStrV ParamV; Env.GetCmLn().SplitOnAllCh(' ', ParamV);
   fprintf(F, "Command line options\n");

@@ -11,7 +11,7 @@ DEMOS = \
         demo-TNEANet \
 	demo-subgraph demo-ggen \
 	demo-gio demo-gviz \
-	demo-cncom demo-cncom1 demo-bfsdfs \
+	demo-alg demo-cncom demo-cncom1 demo-bfsdfs \
 	demo-triad \
 	demo-THash \
 	demo-topology-benchmark \

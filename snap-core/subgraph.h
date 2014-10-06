@@ -46,6 +46,12 @@ template<class PGraph> PGraph GetRndSubGraph(const PGraph& Graph, const int& NNo
 /// Returns a random subgraph of graph Graph with NEdges edges. ##TSnap::GetRndESubGraph
 template<class PGraph> PGraph GetRndESubGraph(const PGraph& Graph, const int& NEdges);
 
+// get egonet of a center node
+/// Returns the egonet of node CtrNId as center in undirected graph Graph. And returns number of edges around the egonet.
+PUNGraph GetEgonet(const PUNGraph& Graph, const int CtrNId, int& ArndEdges);
+/// Returns the egonet of node CtrNId as center in directed graph Graph. And returns number of edges go in and out the egonet.
+PNGraph GetEgonet(const PNGraph& Graph, const int CtrNId, int& InEdges, int& OutEdges);
+
 /////////////////////////////////////////////////
 // Implementation
 namespace TSnapDetail {

@@ -31,6 +31,7 @@ int TGnuPlot::GetTics42() {
   char Buf[1024];
   char Version[1024];
   size_t n;
+
   // get gnuplot version
   p = popen(TStr::Fmt("%s -V", TGnuPlot::GnuPlotFNm.CStr()).CStr(), "r");
   if (p == NULL) { // try running using the path
@@ -56,7 +57,7 @@ int TGnuPlot::GetTics42() {
 #endif
 }
 
-int TGnuPlot::Tics42 = TGnuPlot::GetTics42();
+int TGnuPlot::Tics42 = -2;
 TStr TGnuPlot::DefPlotFNm = "GnuPlot.plt";
 TStr TGnuPlot::DefDataFNm = "GnuPlot.tab";
 
@@ -578,6 +579,7 @@ void TGnuPlot::SavePng(const TStr& FNm, const int& SizeX, const int& SizeY, cons
   if (Terminal.Empty()) {
     //#ifdef GLib_WIN
     //#ifndef GLib_MACOSX  // The standard GNUPlot for MacOS does not support PNG (Jure: actually version 4.6 DOES!)
+    // RS 2014/06/17 standard GNUPlot is tricky to configure for PNG on MacOS
     AddCmd(TStr::Fmt("set terminal png size %d,%d", SizeX, SizeY));
     AddCmd(TStr::Fmt("set output '%s'", FNm.CStr()));
     //#else // EPS
@@ -842,6 +844,9 @@ void TGnuPlot::CreatePlotFile(const TStr& Comment) {
   if (YRange.Val1 != YRange.Val2) fprintf(F, "set yrange [%g:%g]\n", YRange.Val1(), YRange.Val2());
   if (! LblX.Empty()) fprintf(F, "set xlabel \"%s\"\n", LblX.CStr());
   if (! LblY.Empty()) fprintf(F, "set ylabel \"%s\"\n", LblY.CStr());
+  if (Tics42 < -1) {
+    Tics42 = GetTics42();
+  }
   if (Tics42) {
     fprintf(F, "set tics scale 2\n"); // New in version 4.2
   } else {
@@ -878,7 +883,8 @@ void TGnuPlot::RunGnuPlot() const {
   //if (system(TStr::Fmt("./%s %s", GpFNm.CStr(), PlotFNm.CStr()).CStr())==0) { return; }
   //#endif
   //if (system(TStr::Fmt("%s%s %s", GpPath.CStr(), GpFNm.CStr(), PlotFNm.CStr()).CStr())==0) { return; }
-  //FailR(TStr::Fmt("Cat not find GnuPlot (%s) for plot %s. Set the PATH.", GpFNm.CStr(), PlotFNm.CStr()).CStr());
-  //ErrNotify(TStr::Fmt("Cat not find GnuPlot (%s) for plot %s. Set the PATH.", GpFNm.CStr(), PlotFNm.CStr()).CStr());
-  fprintf(stderr, "[%s:%d] Cat not find GnuPlot (%s) for plot %s. Set the $$PATH variable or TGnuPlot::GnuPlotPath. (%s)\n", __FILE__, __LINE__, GnuPlotFNm.CStr(), PlotFNm.CStr(), TGnuPlot::GnuPlotPath.CStr());
+  //FailR(TStr::Fmt("Cannot find GnuPlot (%s) for plot %s. Set the PATH.", GpFNm.CStr(), PlotFNm.CStr()).CStr());
+  //ErrNotify(TStr::Fmt("Cannot find GnuPlot (%s) for plot %s. Set the PATH.", GpFNm.CStr(), PlotFNm.CStr()).CStr());
+  fprintf(stderr, "[%s:%d] Cannot find GnuPlot (%s) for plot %s. Set the $$PATH variable or TGnuPlot::GnuPlotPath. (%s)\n", __FILE__, __LINE__, GnuPlotFNm.CStr(), PlotFNm.CStr(), TGnuPlot::GnuPlotPath.CStr());
 }
+

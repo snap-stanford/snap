@@ -1243,6 +1243,7 @@ public:
   TUInt64& operator=(const TUInt64& Int){Val=Int.Val; return *this;}
   TUInt64& operator+=(const TUInt64& Int){Val+=Int.Val; return *this;}
   TUInt64& operator-=(const TUInt64& Int){Val-=Int.Val; return *this;}
+  TUInt64& operator*=(const TUInt64& Int){Val*=Int.Val; return *this;}
   TUInt64 operator++(int){Val++; return *this;}
   TUInt64 operator--(int){Val--; return *this;}
   int GetMemUsed() const {return sizeof(TUInt64);}

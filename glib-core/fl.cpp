@@ -288,6 +288,13 @@ TFIn::TFIn(const TStr& FNm, bool& OpenedP):
 }
 
 PSIn TFIn::New(const TStr& FNm){
+  try {
+    return PSIn(new TFIn(FNm));
+  } catch (PExcept& Except) {
+    printf("*** Exception: %s\n", Except->GetMsgStr().CStr());
+    EFailR(Except->GetMsgStr());
+  }
+
   return PSIn(new TFIn(FNm));
 }
 

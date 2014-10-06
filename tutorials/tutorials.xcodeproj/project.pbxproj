@@ -1,0 +1,192 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXFileReference section */
+		84BF298D16CDC14E008D0F07 /* .DS_Store */ = {isa = PBXFileReference; lastKnownFileType = file; path = .DS_Store; sourceTree = "<group>"; };
+		84BF298E16CDC14E008D0F07 /* bfsdfs */ = {isa = PBXFileReference; lastKnownFileType = folder; path = bfsdfs; sourceTree = "<group>"; };
+		84BF298F16CDC14E008D0F07 /* cncom */ = {isa = PBXFileReference; lastKnownFileType = folder; path = cncom; sourceTree = "<group>"; };
+		84BF299016CDC14E008D0F07 /* demo-bfsdfs.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "demo-bfsdfs.cpp"; sourceTree = "<group>"; };
+		84BF299116CDC14E008D0F07 /* demo-bfsdfs.dSYM */ = {isa = PBXFileReference; lastKnownFileType = wrapper.dsym; path = "demo-bfsdfs.dSYM"; sourceTree = "<group>"; };
+		84BF299216CDC14E008D0F07 /* demo-cncom.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "demo-cncom.cpp"; sourceTree = "<group>"; };
+		84BF299316CDC14E008D0F07 /* demo-cncom.dSYM */ = {isa = PBXFileReference; lastKnownFileType = wrapper.dsym; path = "demo-cncom.dSYM"; sourceTree = "<group>"; };
+		84BF299416CDC14E008D0F07 /* demo-ggen.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "demo-ggen.cpp"; sourceTree = "<group>"; };
+		84BF299516CDC14E008D0F07 /* demo-ggen.dSYM */ = {isa = PBXFileReference; lastKnownFileType = wrapper.dsym; path = "demo-ggen.dSYM"; sourceTree = "<group>"; };
+		84BF299616CDC14E008D0F07 /* demo-gio.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "demo-gio.cpp"; sourceTree = "<group>"; };
+		84BF299716CDC14E008D0F07 /* demo-gio.dSYM */ = {isa = PBXFileReference; lastKnownFileType = wrapper.dsym; path = "demo-gio.dSYM"; sourceTree = "<group>"; };
+		84BF299816CDC14E008D0F07 /* demo-gviz.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "demo-gviz.cpp"; sourceTree = "<group>"; };
+		84BF299916CDC14E008D0F07 /* demo-gviz.dSYM */ = {isa = PBXFileReference; lastKnownFileType = wrapper.dsym; path = "demo-gviz.dSYM"; sourceTree = "<group>"; };
+		84BF299A16CDC14E008D0F07 /* demo-subgraph.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "demo-subgraph.cpp"; sourceTree = "<group>"; };
+		84BF299B16CDC14E008D0F07 /* demo-subgraph.dSYM */ = {isa = PBXFileReference; lastKnownFileType = wrapper.dsym; path = "demo-subgraph.dSYM"; sourceTree = "<group>"; };
+		84BF299C16CDC14E008D0F07 /* demo-THash.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "demo-THash.cpp"; sourceTree = "<group>"; };
+		84BF299D16CDC14E008D0F07 /* demo-TNEGraph.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "demo-TNEGraph.cpp"; sourceTree = "<group>"; };
+		84BF299E16CDC14E008D0F07 /* demo-TNEGraph.dSYM */ = {isa = PBXFileReference; lastKnownFileType = wrapper.dsym; path = "demo-TNEGraph.dSYM"; sourceTree = "<group>"; };
+		84BF299F16CDC14E008D0F07 /* demo-TNGraph.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "demo-TNGraph.cpp"; sourceTree = "<group>"; };
+		84BF29A016CDC14E008D0F07 /* demo-TNGraph.dSYM */ = {isa = PBXFileReference; lastKnownFileType = wrapper.dsym; path = "demo-TNGraph.dSYM"; sourceTree = "<group>"; };
+		84BF29A116CDC14E008D0F07 /* demo-TNodeEDatNet.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "demo-TNodeEDatNet.cpp"; sourceTree = "<group>"; };
+		84BF29A216CDC14E008D0F07 /* demo-TNodeEDatNet.dSYM */ = {isa = PBXFileReference; lastKnownFileType = wrapper.dsym; path = "demo-TNodeEDatNet.dSYM"; sourceTree = "<group>"; };
+		84BF29A316CDC14E008D0F07 /* demo-TNodeEdgeNet.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "demo-TNodeEdgeNet.cpp"; sourceTree = "<group>"; };
+		84BF29A416CDC14E008D0F07 /* demo-TNodeEdgeNet.dSYM */ = {isa = PBXFileReference; lastKnownFileType = wrapper.dsym; path = "demo-TNodeEdgeNet.dSYM"; sourceTree = "<group>"; };
+		84BF29A516CDC14E008D0F07 /* demo-TNodeNet.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "demo-TNodeNet.cpp"; sourceTree = "<group>"; };
+		84BF29A616CDC14E008D0F07 /* demo-TNodeNet.dSYM */ = {isa = PBXFileReference; lastKnownFileType = wrapper.dsym; path = "demo-TNodeNet.dSYM"; sourceTree = "<group>"; };
+		84BF29A716CDC14E008D0F07 /* demo-TUNGraph.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "demo-TUNGraph.cpp"; sourceTree = "<group>"; };
+		84BF29A816CDC14E008D0F07 /* demo-TUNGraph.dSYM */ = {isa = PBXFileReference; lastKnownFileType = wrapper.dsym; path = "demo-TUNGraph.dSYM"; sourceTree = "<group>"; };
+		84BF29A916CDC14E008D0F07 /* graphviz */ = {isa = PBXFileReference; lastKnownFileType = folder; path = graphviz; sourceTree = "<group>"; };
+		84BF29AA16CDC14E008D0F07 /* Makefile */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		84BF298516CDC14E008D0F07 = {
+			isa = PBXGroup;
+			children = (
+				84BF298D16CDC14E008D0F07 /* .DS_Store */,
+				84BF298E16CDC14E008D0F07 /* bfsdfs */,
+				84BF298F16CDC14E008D0F07 /* cncom */,
+				84BF299016CDC14E008D0F07 /* demo-bfsdfs.cpp */,
+				84BF299116CDC14E008D0F07 /* demo-bfsdfs.dSYM */,
+				84BF299216CDC14E008D0F07 /* demo-cncom.cpp */,
+				84BF299316CDC14E008D0F07 /* demo-cncom.dSYM */,
+				84BF299416CDC14E008D0F07 /* demo-ggen.cpp */,
+				84BF299516CDC14E008D0F07 /* demo-ggen.dSYM */,
+				84BF299616CDC14E008D0F07 /* demo-gio.cpp */,
+				84BF299716CDC14E008D0F07 /* demo-gio.dSYM */,
+				84BF299816CDC14E008D0F07 /* demo-gviz.cpp */,
+				84BF299916CDC14E008D0F07 /* demo-gviz.dSYM */,
+				84BF299A16CDC14E008D0F07 /* demo-subgraph.cpp */,
+				84BF299B16CDC14E008D0F07 /* demo-subgraph.dSYM */,
+				84BF299C16CDC14E008D0F07 /* demo-THash.cpp */,
+				84BF299D16CDC14E008D0F07 /* demo-TNEGraph.cpp */,
+				84BF299E16CDC14E008D0F07 /* demo-TNEGraph.dSYM */,
+				84BF299F16CDC14E008D0F07 /* demo-TNGraph.cpp */,
+				84BF29A016CDC14E008D0F07 /* demo-TNGraph.dSYM */,
+				84BF29A116CDC14E008D0F07 /* demo-TNodeEDatNet.cpp */,
+				84BF29A216CDC14E008D0F07 /* demo-TNodeEDatNet.dSYM */,
+				84BF29A316CDC14E008D0F07 /* demo-TNodeEdgeNet.cpp */,
+				84BF29A416CDC14E008D0F07 /* demo-TNodeEdgeNet.dSYM */,
+				84BF29A516CDC14E008D0F07 /* demo-TNodeNet.cpp */,
+				84BF29A616CDC14E008D0F07 /* demo-TNodeNet.dSYM */,
+				84BF29A716CDC14E008D0F07 /* demo-TUNGraph.cpp */,
+				84BF29A816CDC14E008D0F07 /* demo-TUNGraph.dSYM */,
+				84BF29A916CDC14E008D0F07 /* graphviz */,
+				84BF29AA16CDC14E008D0F07 /* Makefile */,
+			);
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXLegacyTarget section */
+		84BF298C16CDC14E008D0F07 /* tutorials */ = {
+			isa = PBXLegacyTarget;
+			buildArgumentsString = "$(ACTION)";
+			buildConfigurationList = 84BF29AB16CDC14E008D0F07 /* Build configuration list for PBXLegacyTarget "tutorials" */;
+			buildPhases = (
+			);
+			buildToolPath = /usr/bin/make;
+			buildWorkingDirectory = /Users/sheridan/GoogleDrive/snap_proj/snap/tutorials;
+			dependencies = (
+			);
+			name = tutorials;
+			passBuildSettingsInEnvironment = 1;
+			productName = tutorials;
+		};
+/* End PBXLegacyTarget section */
+
+/* Begin PBXProject section */
+		84BF298716CDC14E008D0F07 /* Project object */ = {
+			isa = PBXProject;
+			buildConfigurationList = 84BF298A16CDC14E008D0F07 /* Build configuration list for PBXProject "tutorials" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 84BF298516CDC14E008D0F07;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				84BF298C16CDC14E008D0F07 /* tutorials */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin XCBuildConfiguration section */
+		84BF298816CDC14E008D0F07 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				COPY_PHASE_STRIP = NO;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx10.6;
+			};
+			name = Debug;
+		};
+		84BF298916CDC14E008D0F07 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				COPY_PHASE_STRIP = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				SDKROOT = macosx10.6;
+			};
+			name = Release;
+		};
+		84BF29AC16CDC14E008D0F07 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				DEBUGGING_SYMBOLS = YES;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = tutorials;
+			};
+			name = Debug;
+		};
+		84BF29AD16CDC14E008D0F07 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = tutorials;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		84BF298A16CDC14E008D0F07 /* Build configuration list for PBXProject "tutorials" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				84BF298816CDC14E008D0F07 /* Debug */,
+				84BF298916CDC14E008D0F07 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		84BF29AB16CDC14E008D0F07 /* Build configuration list for PBXLegacyTarget "tutorials" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				84BF29AC16CDC14E008D0F07 /* Debug */,
+				84BF29AD16CDC14E008D0F07 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 84BF298716CDC14E008D0F07 /* Project object */;
+}
