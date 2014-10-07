@@ -1033,6 +1033,11 @@ public:
   const TKey* operator->() const { return &KeyI->Key; }
   THashSetKeyI& Next() { operator++(1); return *this; }
 
+    /// Tests whether the iterator has been initialized.
+  bool IsEmpty() const { return KeyI == NULL; }
+  /// Tests whether the iterator is pointing to the past-end element.
+  bool IsEnd() const { return EndI == KeyI; }
+
   const TKey& GetKey() const {Assert((KeyI!=NULL)&&(KeyI->HashCd!=-1)); return KeyI->Key; }
 };
 
