@@ -1031,6 +1031,7 @@ public:
   const TKey& operator*() const { return KeyI->Key; }
   const TKey& operator()() const { return KeyI->Key; }
   const TKey* operator->() const { return &KeyI->Key; }
+  THashSetKeyI& Next() { operator++(1); return *this; }
 
   const TKey& GetKey() const {Assert((KeyI!=NULL)&&(KeyI->HashCd!=-1)); return KeyI->Key; }
 };
