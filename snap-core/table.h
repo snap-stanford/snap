@@ -249,9 +249,10 @@ public:
   /// Adds suffix to column name if it doesn't exist
   static TStr NormalizeColName(const TStr& ColName) {
     TStr Result = ColName;
-    if (Result.Len() == 0) { return Result; }
+    int RLen = Result.Len();
+    if (RLen == 0) { return Result; }
     if (Result.GetCh(0) == '_') { return Result; }
-    if (Result.GetCh(Result.Len()-2) == '-') { return Result; }
+    if (RLen >= 2  &&  Result.GetCh(RLen-2) == '-') { return Result; }
     return Result + "-1";
   }
   /// Adds suffix to column name if it doesn't exist

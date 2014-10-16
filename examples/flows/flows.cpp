@@ -29,9 +29,9 @@ int BuildCapacityNetwork(const TStr& InFNm, PNEANet &Net, const int& SrcColId = 
 }
 
 double getcputime() {
-  struct rusage rusage;
   double result;
-#ifndef NOMP
+  struct rusage rusage;
+#ifdef RUSAGE_THREAD
   getrusage(RUSAGE_THREAD, &rusage);
 #else
   getrusage(RUSAGE_SELF, &rusage);

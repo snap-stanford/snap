@@ -15,6 +15,8 @@ int main(int argc, char* argv[]) {
   struct timeval startall, endall;
   float delta;
   TTmProfiler Profiler;
+  TIntFltH PRankH;
+
   int TimerId = Profiler.AddTimer("Profiler");
   int TimerAll = Profiler.AddTimer("ProfilerAll");
 
@@ -24,8 +26,8 @@ int main(int argc, char* argv[]) {
   Profiler.StartTimer(TimerAll);
   Profiler.StartTimer(TimerId);
 
-  gettimeofday(&startall, NULL);
   gettimeofday(&start, NULL);
+  gettimeofday(&startall, NULL);
 
   TFIn FIn(filename);
   PNGraph Graph = TNGraph::Load(FIn);
@@ -39,10 +41,9 @@ int main(int argc, char* argv[]) {
     Profiler.ResetTimer(TimerId);
     Profiler.StartTimer(TimerId);
     gettimeofday(&start, NULL);
-    int64 cnt = TSnap::CountTriangles(Graph);
+    TSnap::GetPageRankMP2(Graph, PRankH, 0.85);
     Profiler.StopTimer(TimerId);
     gettimeofday(&end, NULL);
-    printf("%s\n", TUInt64::GetStr(cnt).CStr());
     delta = ((end.tv_sec  - start.tv_sec) * 1000000u + 
               end.tv_usec - start.tv_usec) / 1.e6;
     printf("CountTriangles time (elapsed): %f, cpu: %f\n", delta, Profiler.GetTimerSec(TimerId));
@@ -54,27 +55,6 @@ int main(int argc, char* argv[]) {
             endall.tv_usec - startall.tv_usec) / 1.e6;
   printf("__all__  \ttime %7.3f\tcpu %8.3f\n", delta, Profiler.GetTimerSec(TimerAll));
 
-  Profiler.ResetTimer(TimerAll);
-  Profiler.StartTimer(TimerAll);
-
-  for (int i = 0; i < 10; i++) {
-    Profiler.ResetTimer(TimerId);
-    Profiler.StartTimer(TimerId);
-    gettimeofday(&start, NULL);
-    int64 cnt = TSnap::GetTriangleCnt(Graph);
-    Profiler.StopTimer(TimerId);
-    gettimeofday(&end, NULL);
-    printf("%s\n", TUInt64::GetStr(cnt).CStr());
-    delta = ((end.tv_sec  - start.tv_sec) * 1000000u + 
-              end.tv_usec - start.tv_usec) / 1.e6;
-    printf("TSnap::GetTriangleCnt time (elapsed): %f, cpu: %f\n", delta, Profiler.GetTimerSec(TimerId));
-  }
-
-  gettimeofday(&endall, NULL);
-  Profiler.StopTimer(TimerAll);
-  delta = ((endall.tv_sec  - startall.tv_sec) * 1000000u +
-            endall.tv_usec - startall.tv_usec) / 1.e6;
-  printf("__all__  \ttime %7.3f\tcpu %8.3f\n", delta, Profiler.GetTimerSec(TimerAll));
-
   return 0;
 }
+

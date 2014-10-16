@@ -7,7 +7,7 @@ include ../Makefile.config
 HEADER = Engine.h
 CPP = Engine.cpp
 
-TEST = LoadTest FilterTest AggrTest GroupTest IdTest ArithOpsTest SetOperationsTest TableTest TableTest1 Benchmark BenchmarkAshton ToGraphTest SimJoinTest SimJoinPerGroupTest
+TEST = LoadTest FilterTest AggrTest GroupTest IdTest ArithOpsTest SetOperationsTest TableTest TableTest1 Benchmark BenchmarkAshton ToGraphTest SimJoinTest SimJoinPerGroupTest 
 
 all: $(TEST)
 
@@ -80,10 +80,18 @@ ParToGraphTest: ParToGraphTest.cpp $(CSNAP)/Snap.o
 ParLargeGraph: ParLargeGraph.cpp $(CSNAP)/Snap.o
 	$(CC) $(CXXFLAGS) -o $@ $@.cpp $(CSNAP)/Snap.o -I$(CSNAP) -I$(CGLIB) $(LDFLAGS) $(LIBS)
 
+testTriangleCount: testTriangleCount.cpp  $(CSNAP)/Snap.o
+	$(CC) $(CXXFLAGS) -o $@ $@.cpp $(CSNAP)/Snap.o -I$(CSNAP) -I$(CGLIB) $(LDFLAGS) $(LIBS)
+
+testPageRank: testPageRank.cpp  $(CSNAP)/Snap.o
+	$(CC) $(CXXFLAGS) -o $@ $@.cpp $(CSNAP)/Snap.o -I$(CSNAP) -I$(CGLIB) $(LDFLAGS) $(LIBS)
+
 $(CSNAP)/Snap.o:
 	$(MAKE) -C $(CSNAP)
 
 clean:
-	rm -f *.o $(TEST) $(PARALLEL) *.exe *.out
+	rm -f *.o $(TEST) $(PARALLEL) *.exe *.out testTriangleCount testPageRank
 	rm -rf Debug Release
 	rm -rf *.Err demo*.dat
+	$(MAKE) clean -C $(CSNAP)
+
