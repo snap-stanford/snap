@@ -1533,14 +1533,16 @@ void TTable::AddJointRow(const TTable& T1, const TTable& T2, TInt RowIdx1, TInt 
   for (TInt i = 0; i < T2.StrColMaps.Len(); i++) {
     StrColMaps[i+StrOffset].Add(T2.StrColMaps[i][RowIdx2]);
   }
-
-	NumRows++;
-	NumValidRows++;
+  TInt IdOffset = IntOffset + T2.IntCols.Len(); 
+  NumRows++;
+  NumValidRows++;
   if (!Next.Empty()) {
     Next[Next.Len()-1] = NumValidRows-1;
     LastValidRow = NumValidRows-1;
   }
   Next.Add(Last);
+  RowIdMap.AddDat(NumRows-1,NumRows-1);
+  IntCols[IdOffset].Add(NumRows-1);
 }
 
 /// Returns Similarity based join of two tables based on a given distance metric 
@@ -3193,24 +3195,50 @@ PTable TTable::IsNextK(const TStr& OrderCol, TInt K, const TStr& GroupBy, const 
   return T;
 }
 
-void TTable::PrintSize() {
-  double ApproxSize = 0;
-  printf("Total number of rows: %d\n", NumRows.Val);
-  printf("Number of valid rows: %d\n", NumValidRows.Val);
-  ApproxSize += NumRows*sizeof(TInt)/1000.0;  // Next vector
-  printf("Number of Int columns: %d\n", IntCols.Len());
-  ApproxSize += IntCols.Len()*NumRows*sizeof(TInt)/1000.0;
-  printf("Number of Flt columns: %d\n", FltCols.Len());
-  ApproxSize += FltCols.Len()*NumRows*sizeof(TFlt)/1000.0;
-  printf("Number of Str columns: %d\n", StrColMaps.Len());
-  ApproxSize += StrColMaps.Len()*NumRows*sizeof(TInt)/1000.0;
-  // printf("Number of Int node values : %d\n", IntNodeVals.Len());
-  // ApproxSize += IntNodeVals.Len()*sizeof(TInt)/1000.0;
-  // printf("Number of Flt node values : %d\n", FltNodeVals.Len());
-  // ApproxSize += FltNodeVals.Len()*(sizeof(TInt) + sizeof(TFlt))/1000.0;
-  // printf("Number of Str node values : %d\n", StrNodeVals.Len());
-  // ApproxSize += StrNodeVals.Len()*sizeof(TInt)/1000.0;
-  printf("Approximated size is %f KB\n", ApproxSize);
+void TTable::PrintSize(){
+	printf("Total number of rows: %d\n", NumRows.Val);
+	printf("Number of valid rows: %d\n", NumValidRows.Val);
+	printf("Number of Int columns: %d\n", IntCols.Len());
+	printf("Number of Flt columns: %d\n", FltCols.Len());
+	printf("Number of Str columns: %d\n", StrColMaps.Len());
+	TSize MemUsed = GetMemUsed();
+	printf("Approximated size is %lu KB\n", MemUsed);
+}
+
+TSize TTable::GetMemUsed() {
+  TSize ApproxSize = 0;
+  ApproxSize += Next.GetMemUsed()/1000;  // Next vector
+  for(int i = 0; i < IntCols.Len(); i++){
+  	ApproxSize += IntCols[i].GetMemUsed()/1000;
+  }
+  for(int i = 0; i < FltCols.Len(); i++){
+  	ApproxSize += FltCols[i].GetMemUsed()/1000;
+  }
+  for(int i = 0; i < StrColMaps.Len(); i++){
+  	ApproxSize += StrColMaps[i].GetMemUsed()/1000;
+  }
+  ApproxSize += RowIdMap.GetMemUsed()/1000;
+  ApproxSize += GroupIDMapping.GetMemUsed()/1000;
+  ApproxSize += GroupMapping.GetMemUsed()/1000;
+  ApproxSize += RowIdBuckets.GetMemUsed() / 1000;
+  return ApproxSize;
+}
+
+void TTable::PrintContextSize(){
+	printf("Number of strings in pool: ");
+	printf("%d\n", Context.StringVals.GetStrs());
+	printf("Pool size (allocated):");
+	printf("%lu\n", Context.StringVals.Size());
+	printf("Pool length (used):");
+	printf("%lu\n", Context.StringVals.Len());
+	TSize MemUsed = GetContextMemUsed();
+	printf("Approximate memory used for Context: %lu KB\n", MemUsed);
+}
+
+TSize TTable::GetContextMemUsed(){
+	TSize ApproxSize = 0;
+	ApproxSize += Context.StringVals.GetMemUsed();
+	return ApproxSize;
 }
 
 void TTable::AddTable(const TTable& T) {
