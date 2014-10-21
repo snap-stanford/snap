@@ -9,8 +9,8 @@ template<typename PGraph> double GetModularity(const PGraph& G, const TIntV& NId
 /// The function runs much faster if the number of edges in graph G is given (GEdges parameter).
 template<typename PGraph> double GetModularity(const PGraph& G, const TCnComV& CmtyV, int GEdges=-1);
 /// Returns the number of edges between the nodes NIdV and the edges pointing outside the set NIdV.
-/// @param EdgesIn Number of edges between the nodes NIdV.
-/// @param EdgesOut Number of edges between the nodes in NIdV and the rest of the graph.
+/// @param EdgesInX Number of edges between the nodes NIdV.
+/// @param EdgesOutX Number of edges between the nodes in NIdV and the rest of the graph.
 template<typename PGraph> void GetEdgesInOut(const PGraph& Graph, const TIntV& NIdV, int& EdgesInX, int& EdgesOutX);
 
 /// Girvan-Newman community detection algorithm based on Betweenness centrality.
