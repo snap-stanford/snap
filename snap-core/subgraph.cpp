@@ -111,7 +111,9 @@ PNGraph GetEgonet(const PNGraph& Graph, const int CtrNId, int& InEdges, int& Out
   NewGraph.AddNode(CtrNId);
   const TNGraph::TNodeI& CtrNode = Graph->GetNI(CtrNId);
   for (int i = 0; i < CtrNode.GetDeg(); ++i) {
-    NewGraph.AddNode(CtrNode.GetNbrNId(i));
+    if (!NewGraph.IsNode(CtrNode.GetNbrNId(i))) {
+      NewGraph.AddNode(CtrNode.GetNbrNId(i));
+    }
   }
   InEdges = 0;
   OutEdges = 0;
