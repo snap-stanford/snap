@@ -2629,7 +2629,7 @@ template <class TVal, class TSizeTy>
 int TVecPool<TVal, TSizeTy>::AddV(const TValV& ValV) {
   const TSizeTy ValVLen = ValV.Len();
   if (ValVLen == 0) { return 0; }
-  if (MxVals < Vals+ValVLen) { Resize(Vals+max(ValVLen, GrowBy)); }
+  if (MxVals < Vals+ValVLen) { Resize(Vals+MAX(ValVLen, GrowBy)); }
   if (FastCopy) { memcpy(ValBf+Vals, ValV.BegI(), sizeof(TVal)*ValV.Len()); }
   else { for (uint ValN=0; ValN < ValVLen; ValN++) { ValBf[Vals+ValN]=ValV[ValN]; } }
   Vals+=ValVLen;  IdToOffV.Add(Vals);
@@ -2639,7 +2639,7 @@ int TVecPool<TVal, TSizeTy>::AddV(const TValV& ValV) {
 template <class TVal, class TSizeTy>
 int TVecPool<TVal, TSizeTy>::AddEmptyV(const int& ValVLen) {
   if (ValVLen==0){return 0;}
-  if (MxVals < Vals+ValVLen){Resize(Vals+max(TSize(ValVLen), GrowBy)); }
+  if (MxVals < Vals+ValVLen){Resize(Vals+MAX(TSize(ValVLen), GrowBy)); }
   Vals+=ValVLen; IdToOffV.Add(Vals);
   return IdToOffV.Len()-1;
 }
@@ -2868,7 +2868,7 @@ template<class TVal>
 int TVecPool<TVal>::AddV(const TValV& ValV) {
   const ::TSize ValVLen = ValV.Len();
   if (ValVLen == 0) { return 0; }
-  if (MxVals < Vals+ValVLen) { Resize(Vals+max(ValVLen, GrowBy)); }
+  if (MxVals < Vals+ValVLen) { Resize(Vals+MAX(ValVLen, GrowBy)); }
   if (FastCopy) { memcpy(ValBf+Vals, ValV.BegI(), sizeof(TVal)*ValV.Len()); }
   else { for (uint ValN=0; ValN < ValVLen; ValN++) { ValBf[Vals+ValN]=ValV[ValN]; } }
   Vals+=ValVLen;  IdToOffV.Add(Vals);
@@ -2878,7 +2878,7 @@ int TVecPool<TVal>::AddV(const TValV& ValV) {
 template<class TVal>
 int TVecPool<TVal>::AddEmptyV(const int& ValVLen) {
   if (ValVLen==0){return 0;}
-  if (MxVals < Vals+ValVLen){Resize(Vals+max(TSize(ValVLen), GrowBy)); }
+  if (MxVals < Vals+ValVLen){Resize(Vals+MAX(TSize(ValVLen), GrowBy)); }
   Vals+=ValVLen; IdToOffV.Add(Vals);
   return IdToOffV.Len()-1;
 }
