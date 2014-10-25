@@ -2436,7 +2436,17 @@ void TTable::QSort(TIntV& V, TInt StartIdx, TInt EndIdx, const TVec<TAttrType>& 
       if (Pivot > EndIdx) {
         return;
       }
-      QSort(V, StartIdx, Pivot-1, SortByTypes, SortByIndices, Asc);
+      // Everything <= Pivot will be in StartIdx, Pivot-1. Shrink this
+      // range to ignore elements equal to the pivot in the first
+      // recursive call, to optimize for the case when a lot of
+      // rows are equal.
+      int Ub = Pivot - 1;
+      while (Ub >= StartIdx && CompareRows(
+        V[Ub], V[Pivot], SortByTypes, SortByIndices, Asc) == 0) {
+        Ub -= 1;
+      }
+
+      QSort(V, StartIdx, Ub, SortByTypes, SortByIndices, Asc);
       QSort(V, Pivot+1, EndIdx, SortByTypes, SortByIndices, Asc);
     }
   }
