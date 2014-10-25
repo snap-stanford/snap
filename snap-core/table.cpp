@@ -311,7 +311,6 @@ PTable TTable::LoadSS(const Schema& S, const TStr& InFNm, TTableContext& Context
  const TIntV& RelevantCols, const char& Separator, TBool HasTitleLine) {
   TVec<uint64_t> IntGroupByCols;
   bool NoStringCols = true;
-
   // find schema
   Schema SR;
   if (RelevantCols.Len() == 0) {
@@ -321,9 +320,7 @@ PTable TTable::LoadSS(const Schema& S, const TStr& InFNm, TTableContext& Context
       SR.Add(S[RelevantCols[i]]);
     }
   }
-
   PTable T = New(SR, Context);
-
   // find col types and check for string cols
   TInt RowLen = SR.Len();
   TVec<TAttrType> ColTypes = TVec<TAttrType>(RowLen);
@@ -333,7 +330,7 @@ PTable TTable::LoadSS(const Schema& S, const TStr& InFNm, TTableContext& Context
       NoStringCols = false;
     }
   }
-
+  //printf("read schema\n");
   #ifdef _OPENMP
   #ifdef GLib_LINUX
   // Right now, can load in parallel only in Linux (for mmap) and if
@@ -495,7 +492,6 @@ PTable TTable::LoadSS(const Schema& S, const TStr& InFNm, TTableContext& Context
   #endif
   // Sequential load
   TSsParser Ss(InFNm, Separator);
-
   // if title line (i.e. names of the columns) is included as first row in the
   // input file - use it to validate schema
   if (HasTitleLine) {
@@ -512,6 +508,7 @@ PTable TTable::LoadSS(const Schema& S, const TStr& InFNm, TTableContext& Context
   }
 
   // populate table columns
+  //printf("starting to populate table\n");
   uint64_t Cnt = 0;
   while (Ss.Next()) {
     TInt IntColIdx = 0;
@@ -554,7 +551,7 @@ PTable TTable::LoadSS(const Schema& S, const TStr& InFNm, TTableContext& Context
     }
     Cnt += 1;
   }
-
+  //printf("finished populating table\n");
   // set number of rows and "Next" vector
   T->NumRows = Cnt;
   T->NumValidRows = T->NumRows;
@@ -3201,11 +3198,11 @@ void TTable::PrintSize(){
 	printf("Number of Int columns: %d\n", IntCols.Len());
 	printf("Number of Flt columns: %d\n", FltCols.Len());
 	printf("Number of Str columns: %d\n", StrColMaps.Len());
-	TSize MemUsed = GetMemUsed();
+	TSize MemUsed = GetMemUsedKB();
 	printf("Approximated size is %lu KB\n", MemUsed);
 }
 
-TSize TTable::GetMemUsed() {
+TSize TTable::GetMemUsedKB() {
   TSize ApproxSize = 0;
   ApproxSize += Next.GetMemUsed()/1000;  // Next vector
   for(int i = 0; i < IntCols.Len(); i++){
@@ -3226,16 +3223,14 @@ TSize TTable::GetMemUsed() {
 
 void TTable::PrintContextSize(){
 	printf("Number of strings in pool: ");
-	printf("%d\n", Context.StringVals.GetStrs());
-	printf("Pool size (allocated):");
-	printf("%lu\n", Context.StringVals.Size());
-	printf("Pool length (used):");
-	printf("%lu\n", Context.StringVals.Len());
-	TSize MemUsed = GetContextMemUsed();
+	printf("%d\n", Context.StringVals.Len());
+	printf("Number of entries in hash table: ");
+	printf("%d\n", Context.StringVals.Reserved());
+	TSize MemUsed = GetContextMemUsedKB();
 	printf("Approximate memory used for Context: %lu KB\n", MemUsed);
 }
 
-TSize TTable::GetContextMemUsed(){
+TSize TTable::GetContextMemUsedKB(){
 	TSize ApproxSize = 0;
 	ApproxSize += Context.StringVals.GetMemUsed();
 	return ApproxSize;

@@ -790,7 +790,7 @@ public:
       }
       printf("TStrHash: Memory used for hash table: %lu\n", MemUsed);
       MemUsed += 8 + Pool->GetMemUsed();
-      return ::TSize(MemUsed);
+      return ::TSize(MemUsed/1000);
   }
 
   const TDat& GetDat(const char *Key) const { return KeyDatV[GetKeyId(Key)].Dat; }
