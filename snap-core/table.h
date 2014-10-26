@@ -539,9 +539,6 @@ protected:
   /// Gets set of row ids of rows common with table \c T.
   void GetCollidingRows(const TTable& T, THashSet<TInt>& Collisions);
 
-  /// Debug: print sizes of various fields of table.
-  void PrintSize();
-
 public:
 /***** Constructors *****/
   TTable(); 
@@ -1006,6 +1003,13 @@ public:
     TSnap::MapHits(GraphSeq, TableSeq, Context, MaxIter);
     return TTableIterator(TableSeq);
   }
+  
+  void PrintSize();
+  void PrintContextSize();
+  /// Returns approximate memory used by table in [KB]
+  TSize GetMemUsedKB();
+  /// Returns approximate memory used by table context in [KB]
+  TSize GetContextMemUsedKB();
 
   friend class TPt<TTable>;
   friend class TRowIterator;

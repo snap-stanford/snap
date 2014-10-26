@@ -683,6 +683,9 @@ public:
   bool Empty() const { return ! Len(); }
   char* operator () () const { return Bf; }
   TBigStrPool& operator = (const TBigStrPool& Pool);
+  ::TSize GetMemUsed(){
+  	return 4 * sizeof(int) + IdOffV.GetMemUsed() + MxBfL;
+  }
 
   int AddStr(const char *Str, uint Len);
   int AddStr(const char *Str) { return AddStr(Str, uint(strlen(Str)) + 1); }
@@ -777,6 +780,18 @@ public:
   TDat& operator[](const int& KeyId){return GetHashKeyDat(KeyId).Dat;}
   const TDat& operator () (const char *Key) const { return GetDat(Key);}
   //TDat& operator ()(const char *Key){return AddDat(Key);} // add if not found
+  ::TSize GetMemUsed() const {
+      int64 MemUsed = sizeof(bool)+2*sizeof(int);
+      MemUsed += int64(PortV.Reserved()) * int64(sizeof(TInt));
+      for (int KeyDatN = 0; KeyDatN < KeyDatV.Len(); KeyDatN++) {
+          MemUsed += int64(2 * sizeof(TInt));
+          MemUsed += int64(KeyDatV[KeyDatN].Key.GetMemUsed());
+          MemUsed += int64(KeyDatV[KeyDatN].Dat.GetMemUsed());
+      }
+      printf("TStrHash: Memory used for hash table: %lu\n", MemUsed);
+      MemUsed += 8 + Pool->GetMemUsed();
+      return ::TSize(MemUsed/1000);
+  }
 
   const TDat& GetDat(const char *Key) const { return KeyDatV[GetKeyId(Key)].Dat; }
   const TDat& GetDat(const TStr& Key) const { return GetDat(Key.CStr()); }
