@@ -916,7 +916,11 @@ void TTable::GroupingSanityCheck(const TStr& GroupBy, const TAttrType& AttrType)
 }
 
 #ifdef _OPENMP
-void TTable::GroupByIntColMP(const TStr& GroupBy, THashMP<TInt, TIntV>& Grouping) const {
+void TTable::GroupByIntColMP(const TStr& GroupBy, THashMP<TInt, TIntV>& Grouping, TBool UsePhysicalIds) const {
+  TInt IdColIdx = GetColIdx(IdColName);
+  if(!UsePhysicalIds && IdColIdx < 0){
+  	TExcept::Throw("Grouping: Either use physical row ids, or have an id column");
+  }
   //double startFn = omp_get_wtime();
   GroupingSanityCheck(GroupBy, atInt);
   TIntPrV Partitions;
@@ -935,7 +939,8 @@ void TTable::GroupByIntColMP(const TStr& GroupBy, THashMP<TInt, TIntV>& Grouping
     TRowIterator RowI(Partitions[i].GetVal1(), this);
     TRowIterator EndI(Partitions[i].GetVal2(), this);
     while (RowI < EndI) {
-      UpdateGrouping<TInt>(Grouping, RowI.GetIntAttr(GroupBy), RowI.GetRowIdx());
+      TInt idx = UsePhysicalIds ? RowI.GetRowIdx() : RowI.GetIntAttr(IdColIdx);
+      UpdateGrouping<TInt>(Grouping, RowI.GetIntAttr(GroupBy), idx);
       RowI++;
     }
   }
@@ -950,7 +955,7 @@ void TTable::Unique(const TStr& Col) {
   switch (GetColType(NCol)) {
     case atInt: {
       TIntIntVH Grouping;
-      GroupByIntCol(NCol, Grouping, TIntV(), true);
+      GroupByIntCol(NCol, Grouping, TIntV(), true, true);
       for (TIntIntVH::TIter it = Grouping.BegI(); it < Grouping.EndI(); it++) {
         RemainingRows.Add(it->Dat[0]);
       }
@@ -958,7 +963,7 @@ void TTable::Unique(const TStr& Col) {
     }
     case atFlt: {
       THash<TFlt,TIntV> Grouping;
-      GroupByFltCol(NCol, Grouping, TIntV(), true);
+      GroupByFltCol(NCol, Grouping, TIntV(), true, true);
       for (THash<TFlt,TIntV>::TIter it = Grouping.BegI(); it < Grouping.EndI(); it++) {
         RemainingRows.Add(it->Dat[0]);
       }
@@ -966,7 +971,7 @@ void TTable::Unique(const TStr& Col) {
     } 
     case atStr: {
       TIntIntVH Grouping;
-      GroupByStrCol(NCol, Grouping, TIntV(), true);
+      GroupByStrCol(NCol, Grouping, TIntV(), true, true);
       for (TIntIntVH::TIter it = Grouping.BegI(); it < Grouping.EndI(); it++) {
         RemainingRows.Add(it->Dat[0]);
       }
@@ -984,7 +989,7 @@ void TTable::Unique(const TStrV& Cols, TBool Ordered) {
   TStrV NCols = NormalizeColNameV(Cols);
   THash<TGroupKey, TPair<TInt, TIntV> > Grouping;
   TIntV UniqueVec;
-  GroupAux(NCols, Grouping, Ordered, "", true, UniqueVec);
+  GroupAux(NCols, Grouping, Ordered, "", true, UniqueVec, true);
   KeepSortedRows(UniqueVec);
 }
 
@@ -1001,7 +1006,11 @@ void TTable::StoreGroupCol(const TStr& GroupColName, const TVec<TPair<TInt, TInt
 
 // Core crouping logic.
 void TTable::GroupAux(const TStrV& GroupBy, THash<TGroupKey, TPair<TInt, TIntV> >& Grouping, 
- TBool Ordered, const TStr& GroupColName, TBool KeepUnique, TIntV& UniqueVec) {
+ TBool Ordered, const TStr& GroupColName, TBool KeepUnique, TIntV& UniqueVec, TBool UsePhysicalIds) {
+  TInt IdColIdx = GetColIdx(IdColName);
+  if(!UsePhysicalIds && IdColIdx < 0){
+  	TExcept::Throw("Grouping: Either use physical row ids, or have an id column");
+  }
   TIntV IntGroupByCols;
   TIntV FltGroupByCols;
   TIntV StrGroupByCols;
@@ -1031,8 +1040,6 @@ void TTable::GroupAux(const TStrV& GroupBy, THash<TGroupKey, TPair<TInt, TIntV> 
   TInt SKLen = StrGroupByCols.Len();
 
   TInt GroupNum = 0;
-  TInt IdColIdx = GetColIdx(IdColName);
-
   TVec<TPair<TInt, TInt> > GroupAndRowIds;
   //printf("done GroupAux initialization\n");
 
@@ -1065,28 +1072,25 @@ void TTable::GroupAux(const TStrV& GroupBy, THash<TGroupKey, TPair<TInt, TIntV> 
     TGroupKey GroupKey = TGroupKey(IKey, FKey);
 
     TInt RowIdx = it.GetRowIdx();
+    TInt idx = UsePhysicalIds ? it.GetRowIdx() : IntCols[IdColIdx][it.GetRowIdx()];
     if (!Grouping.IsKey(GroupKey)) {
       // Grouping key hasn't been seen before, create a new group
       TPair<TInt, TIntV> NewGroup;
       NewGroup.Val1 = GroupNum;
-      if(IdColIdx > 0){
-      	NewGroup.Val2.Add(IntCols[IdColIdx][RowIdx]);
-      }
+      NewGroup.Val2.Add(idx);
       Grouping.AddDat(GroupKey, NewGroup);
       if (GroupColName != "") {
         GroupAndRowIds.Add(TPair<TInt, TInt>(GroupNum, RowIdx));
       }
       if (KeepUnique) { 
-        UniqueVec.Add(RowIdx);
+        UniqueVec.Add(idx);
       }
       GroupNum++;
     } else {
       // Grouping key has been seen before, update corresponding group
       if (!KeepUnique) {
         TPair<TInt, TIntV>& NewGroup = Grouping.GetDat(GroupKey);
-        if(IdColIdx > 0){
-        	NewGroup.Val2.Add(IntCols[IdColIdx][RowIdx]);
-        }
+        NewGroup.Val2.Add(idx);
         if (GroupColName != "") {
           GroupAndRowIds.Add(TPair<TInt, TInt>(NewGroup.Val1, RowIdx));
         }
@@ -1114,10 +1118,11 @@ void TTable::GroupAux(const TStrV& GroupBy, THash<TGroupKey, TPair<TInt, TIntV> 
   }
 }
 
+/*
 // Core crouping logic.
 #ifdef _OPENMP
 void TTable::GroupAuxMP(const TStrV& GroupBy, THashGenericMP<TGroupKey, TPair<TInt, TIntV> >& Grouping, 
- TBool Ordered, const TStr& GroupColName, TBool KeepUnique, TIntV& UniqueVec) {
+ TBool Ordered, const TStr& GroupColName, TBool KeepUnique, TIntV& UniqueVec, TBool UsePhysicalIds) {
   //double startFn = omp_get_wtime();
   TIntV IntGroupByCols;
   TIntV FltGroupByCols;
@@ -1242,33 +1247,51 @@ void TTable::GroupAuxMP(const TStrV& GroupBy, THashGenericMP<TGroupKey, TPair<TI
   //printf("Store time = %f\n", endStore-endMapping);
 }
 #endif // _OPENMP
+*/
 
 // grouping begins here
-void TTable::Group(const TStrV& GroupBy, const TStr& GroupColName, TBool Ordered) {
+void TTable::Group(const TStrV& GroupBy, const TStr& GroupColName, TBool Ordered, TBool UsePhysicalIds) {
   TStrV NGroupBy = NormalizeColNameV(GroupBy);
   TStr NGroupColName = NormalizeColName(GroupColName);
   TIntV UniqueVec;
   THash<TGroupKey, TPair<TInt, TIntV> > Grouping;
   // by default, we assume we don't want unique rows
-  GroupAux(NGroupBy, Grouping, Ordered, NGroupColName, false, UniqueVec);
+  GroupAux(NGroupBy, Grouping, Ordered, NGroupColName, false, UniqueVec, UsePhysicalIds);
 }
 
 void TTable::Aggregate(const TStrV& GroupByAttrs, TAttrAggr AggOp,
  const TStr& ValAttr, const TStr& ResAttr, TBool Ordered) {
   // double startFn = omp_get_wtime();
   TStrV NGroupByAttrs = NormalizeColNameV(GroupByAttrs);
+  
+  TBool UsePhysicalIds = (GetColIdx(IdColName) < 0);
 
   // check if grouping already exists
   TPair<TStrV, TBool> GroupStmtName(NGroupByAttrs, Ordered);
   if (!GroupMapping.IsKey(GroupStmtName)) {
     // group mapping does not exist, perform grouping first
-    Group(NGroupByAttrs, "", Ordered);
+    Group(NGroupByAttrs, "", Ordered, UsePhysicalIds);
+  } else{
+  	//printf("found it!\n");
   }
   // double endGroup = omp_get_wtime();
   // printf("Group time = %f\n", endGroup-startFn);
 
   // group mapping exists, retrieve it and aggregate
   THash<TGroupKey, TIntV> Mapping = GroupMapping.GetDat(GroupStmtName);
+  /*
+  for(THash<TGroupKey, TIntV>::TIter it = Mapping.BegI(); it < Mapping.EndI(); it++){
+  	TGroupKey gk = it.GetKey();
+  	TIntV ik = gk.Val1;
+  	TFltV fk = gk.Val2;
+  	for(int i = 0; i < ik.Len(); i++){ printf("%d ",ik[i].Val);} 
+  	for(int i = 0; i < fk.Len(); i++){ printf("%f ",fk[i].Val);} 
+  	printf("-->");
+  	TIntV v = it.GetDat();
+  	for(int i = 0; i < v.Len(); i++){ printf("%d ",v[i].Val);} 
+  	printf("\n");
+  }
+  */
 
   TAttrType T = GetColType(ValAttr);
 
@@ -3344,7 +3367,7 @@ void TTable::GetCollidingRows(const TTable& Table, THashSet<TInt>& Collisions) {
   SKLen = StrGroupByCols.Len();
 
   // group rows of first table
-  GroupAux(GroupBy, Grouping, true, "", false, UniqueVec);
+  GroupAux(GroupBy, Grouping, true, "", false, UniqueVec, true);
 
   // find colliding rows of second table
   for (TRowIterator it = Table.BegRI(); it < Table.EndRI(); it++) {
