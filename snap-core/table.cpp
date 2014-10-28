@@ -3437,6 +3437,49 @@ void TTable::UpdateTableForNewRow() {
   NumValidRows++;
 }
 
+void TTable::UpdateFltFromTable(const TStr& KeyAttr, const TStr& UpdateAttr, const TTable& Table, 
+  	const TStr& FKeyAttr, const TStr& ReadAttr, TFlt DefaultFltVal){
+  	if(!IsColName(KeyAttr)){ TExcept::Throw("Bad KeyAttr parameter");}
+  	if(!IsColName(UpdateAttr)){ TExcept::Throw("Bad UpdateAttr parameter");}
+  	if(!Table.IsColName(FKeyAttr)){ TExcept::Throw("Bad FKeyAttr parameter");}
+  	if(!Table.IsColName(ReadAttr)){ TExcept::Throw("Bad ReadAttr parameter");}
+  	
+  	TAttrType KeyType = GetColType(KeyAttr);
+  	TAttrType FKeyType = Table.GetColType(FKeyAttr);
+  	if(KeyType != FKeyType){TExcept::Throw("Key Type Mismatch");}
+  	if(GetColType(UpdateAttr) != atFlt || Table.GetColType(ReadAttr) != atFlt){
+  		TExcept::Throw("Expecting Float values");
+  	}
+  	TStr NKeyAttr = NormalizeColName(KeyAttr);
+  	TStr NUpdateAttr = NormalizeColName(UpdateAttr);
+  	TStr NFKeyAttr = Table.NormalizeColName(FKeyAttr);
+  	TStr NReadAttr = Table.NormalizeColName(ReadAttr);
+  	TInt UpdateColIdx = GetColIdx(UpdateAttr);
+  	
+  	for(TRowIterator iter = BegRI(); iter < EndRI(); iter++){
+  		FltCols[UpdateColIdx][iter.GetRowIdx()] = DefaultFltVal;
+  	}
+  	
+  	switch(KeyType){
+  		// TODO: add support for other cases of KeyType
+  		case atInt:{
+  			TIntIntVH Grouping;
+  			GroupByIntCol(NKeyAttr, Grouping, TIntV(), true);
+  			for(TRowIterator RI = Table.BegRI(); RI < Table.EndRI(); RI++){
+  				TInt K = RI.GetIntAttr(NFKeyAttr);
+  				if(Grouping.IsKey(K)){
+  					TIntV UpdateRows = Grouping.GetDat(K);
+  					for(int i = 0; i < UpdateRows.Len(); i++){
+  						FltCols[UpdateColIdx][UpdateRows[i]] = RI.GetFltAttr(NReadAttr);
+  					 } // end of for loop
+  				} // end of if statement
+  			} // end of for loop
+  			break;
+  		} // end of case atInt
+  	} // end of outer switch statement
+}
+
+
 // can ONLY be called when a table is being initialised (before IDs are allocated)
 void TTable::AddRow(const TRowIterator& RI) {
   for (TInt c = 0; c < Sch.Len(); c++) {
@@ -3873,8 +3916,8 @@ void TTable::ColGenericOpMP(TInt ArgColIdx1, TInt ArgColIdx2, TAttrType ArgType1
       			if (op == aoMin) { IntCols[ResColIdx][RowI.GetRowIdx()] = (V1 < V2) ? V1 : V2;}
       			if (op == aoMax) { IntCols[ResColIdx][RowI.GetRowIdx()] = (V1 > V2) ? V1 : V2;}
 			} else{
-				TFlt V1 = RowI.GetFltAttr(ArgColIdx1);
-				TFlt V2 = RowI.GetFltAttr(ArgColIdx2);
+			    TFlt V1 = (ArgType1 == atInt) ? (TFlt)RowI.GetIntAttr(ArgColIdx1) : RowI.GetFltAttr(ArgColIdx1);
+			    TFlt V2 = (ArgType2 == atInt) ? (TFlt)RowI.GetIntAttr(ArgColIdx2) : RowI.GetFltAttr(ArgColIdx2);
 				if (op == aoAdd) { FltCols[ResColIdx][RowI.GetRowIdx()] = V1 + V2; }
       			if (op == aoSub) { FltCols[ResColIdx][RowI.GetRowIdx()] = V1 - V2; }
       			if (op == aoMul) { FltCols[ResColIdx][RowI.GetRowIdx()] = V1 * V2; }
@@ -3898,27 +3941,25 @@ void TTable::ColGenericOp(const TStr& Attr1, const TStr& Attr2, const TStr& ResA
   // check if attributes are valid
   if (!IsAttr(Attr1)) TExcept::Throw("No attribute present: " + Attr1);
   if (!IsAttr(Attr2)) TExcept::Throw("No attribute present: " + Attr2);
-
   TPair<TAttrType, TInt> Info1 = GetColTypeMap(Attr1);
   TPair<TAttrType, TInt> Info2 = GetColTypeMap(Attr2);
-
-  if (Info1.Val1 == atStr || Info2.Val1 == atStr) {
+  TAttrType Arg1Type = Info1.Val1;
+  TAttrType Arg2Type = Info2.Val1;
+  if (Arg1Type == atStr || Arg2Type == atStr) {
     TExcept::Throw("Only numeric columns supported in arithmetic operations.");
   }
-  if(Info1.Val1 == atInt && Info2.Val2 == atFlt && ResAttr == ""){
+  if(Arg1Type == atInt && Arg2Type == atFlt && ResAttr == ""){
   	TExcept::Throw("Trying to write float values to an existing int-typed column");
   }
-
   // source column indices
   TInt ColIdx1 = Info1.Val2;
   TInt ColIdx2 = Info2.Val2;
-
+  
   // destination column index
   TInt ColIdx3 = ColIdx1;
-
   // Create empty result column with type that of first attribute
   if (ResAttr != "") {
-      if (Info1.Val1 == atInt && Info2.Val1 == atInt) {
+      if (Arg1Type == atInt && Arg2Type == atInt) {
           AddIntCol(ResAttr);
       }
       else {
@@ -3926,17 +3967,16 @@ void TTable::ColGenericOp(const TStr& Attr1, const TStr& Attr2, const TStr& ResA
       }
       ColIdx3 = GetColIdx(ResAttr);
   }
-  
   #ifdef _OPENMP
   if(GetMP()){
-  	ColGenericOpMP(ColIdx1, ColIdx2, Info1.Val1, Info2.Val1, ColIdx3, op);
+  	ColGenericOpMP(ColIdx1, ColIdx2, Arg1Type, Arg2Type, ColIdx3, op);
   	return;
   }
   #endif	//_OPENMP
-
   TAttrType ResType = atFlt;
-  if(Info1.Val1 == atInt && Info2.Val1 == atInt){ ResType = atInt;}
+  if(Arg1Type == atInt && Arg2Type == atInt){ printf("hooray!\n"); ResType = atInt;}
   for (TRowIterator RowI = BegRI(); RowI < EndRI(); RowI++) {
+  	//printf("%d %d %d %d\n", ColIdx1.Val, ColIdx2.Val, ColIdx3.Val, RowI.GetRowIdx().Val);
 		if(ResType == atInt){
 			TInt V1 = RowI.GetIntAttr(ColIdx1);
 			TInt V2 = RowI.GetIntAttr(ColIdx2);
@@ -3948,8 +3988,8 @@ void TTable::ColGenericOp(const TStr& Attr1, const TStr& Attr2, const TStr& ResA
       		if (op == aoMin) { IntCols[ColIdx3][RowI.GetRowIdx()] = (V1 < V2) ? V1 : V2;}
       		if (op == aoMax) { IntCols[ColIdx3][RowI.GetRowIdx()] = (V1 > V2) ? V1 : V2;}
 		} else{
-			TFlt V1 = RowI.GetFltAttr(ColIdx1);
-			TFlt V2 = RowI.GetFltAttr(ColIdx2);
+			TFlt V1 = (Arg1Type == atInt) ? (TFlt)RowI.GetIntAttr(ColIdx1) : RowI.GetFltAttr(ColIdx1);
+			TFlt V2 = (Arg2Type == atInt) ? (TFlt)RowI.GetIntAttr(ColIdx2) : RowI.GetFltAttr(ColIdx2);
 			if (op == aoAdd) { FltCols[ColIdx3][RowI.GetRowIdx()] = V1 + V2; }
       		if (op == aoSub) { FltCols[ColIdx3][RowI.GetRowIdx()] = V1 - V2; }
       		if (op == aoMul) { FltCols[ColIdx3][RowI.GetRowIdx()] = V1 * V2; }

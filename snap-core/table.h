@@ -893,6 +893,11 @@ public:
   void StoreFltCol(const TStr& ColName, const TFltV& ColVals);
   /// Adds entire str column to table.
   void StoreStrCol(const TStr& ColName, const TStrV& ColVals);
+  
+  // Assumption: KeyAttr is a primary key in this table, and FKeyAttr is a primary key in 
+  // the argument table. Equivalent to SQL's: UPDATE this SET UpdateAttr = ReadAttr WHERE KeyAttr = FKeyAttr
+  void UpdateFltFromTable(const TStr& KeyAttr, const TStr& UpdateAttr, const TTable& Table, 
+  	const TStr& FKeyAttr, const TStr& ReadAttr, TFlt DefaultFltVal = 0.0);
 
   /// Returns union of this table with given \c Table.
   PTable Union(const TTable& Table);
@@ -1087,6 +1092,7 @@ T TTable::AggregateVector(TVec<T>& V, TAttrAggr Policy) {
 template <class T>
 void TTable::GroupByIntCol(const TStr& GroupBy, T& Grouping, 
  const TIntV& IndexSet, TBool All) const {
+ // TO do: add a check if grouping already exists and is valid
   GroupingSanityCheck(GroupBy, atInt);
   if (All) {
      // Optimize for the common and most expensive case - iterate over only valid rows.
