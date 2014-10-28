@@ -263,6 +263,7 @@ TTable::TTable(const TIntIntH& H, const TStr& Col1, const TStr& Col2,
     }
     Next[NumRows-1] = Last;
     IsNextDirty = 0;
+    InitIds();
 }
 
 TTable::TTable(const TIntFltH& H, const TStr& Col1, const TStr& Col2, 
@@ -288,6 +289,7 @@ TTable::TTable(const TIntFltH& H, const TStr& Col1, const TStr& Col2,
   }
   Next[NumRows-1] = Last;
   IsNextDirty = 0;
+  InitIds();
 }
 
 TTable::TTable(const TTable& Table, const TIntV& RowIDs) : Context(Table.Context), 
@@ -863,6 +865,7 @@ void TTable::KeepSortedRows(const TIntV& KeepV) {
       RowI.RemoveNext();
     }
   }
+  LastValidRow = KeepV[KeepV.Len()-1];
 }
 
 void TTable::GetPartitionRanges(TIntPrV& Partitions, TInt NumPartitions) const {
@@ -974,6 +977,10 @@ void TTable::Unique(const TStr& Col) {
 }
 
 void TTable::Unique(const TStrV& Cols, TBool Ordered) {
+  if(Cols.Len() == 1){ 
+  	Unique(Cols[0]);
+  	return;
+  }
   TStrV NCols = NormalizeColNameV(Cols);
   THash<TGroupKey, TPair<TInt, TIntV> > Grouping;
   TIntV UniqueVec;
@@ -1000,6 +1007,7 @@ void TTable::GroupAux(const TStrV& GroupBy, THash<TGroupKey, TPair<TInt, TIntV> 
   TIntV StrGroupByCols;
   // get indices for each column type
   for (TInt c = 0; c < GroupBy.Len(); c++) {
+  	//printf("GroupBy col %d: %s\n", c.Val, GroupBy[c].CStr());
     if (!IsColName(GroupBy[c])) { 
       TExcept::Throw("no such column " + GroupBy[c]); 
     }
@@ -1017,7 +1025,7 @@ void TTable::GroupAux(const TStrV& GroupBy, THash<TGroupKey, TPair<TInt, TIntV> 
         break;
     }
   }
-
+  
   TInt IKLen = IntGroupByCols.Len();
   TInt FKLen = FltGroupByCols.Len();
   TInt SKLen = StrGroupByCols.Len();
@@ -1026,6 +1034,7 @@ void TTable::GroupAux(const TStrV& GroupBy, THash<TGroupKey, TPair<TInt, TIntV> 
   TInt IdColIdx = GetColIdx(IdColName);
 
   TVec<TPair<TInt, TInt> > GroupAndRowIds;
+  //printf("done GroupAux initialization\n");
 
   // iterate over rows
   for (TRowIterator it = BegRI(); it < EndRI(); it++) {
@@ -1051,7 +1060,7 @@ void TTable::GroupAux(const TStrV& GroupBy, THash<TGroupKey, TPair<TInt, TIntV> 
     for (TInt c = 0; c < SKLen; c++) {
       IKey.Add(SKey[c]);
     }
-
+    
     // look for group matching the key
     TGroupKey GroupKey = TGroupKey(IKey, FKey);
 
@@ -1060,7 +1069,9 @@ void TTable::GroupAux(const TStrV& GroupBy, THash<TGroupKey, TPair<TInt, TIntV> 
       // Grouping key hasn't been seen before, create a new group
       TPair<TInt, TIntV> NewGroup;
       NewGroup.Val1 = GroupNum;
-      NewGroup.Val2.Add(IntCols[IdColIdx][RowIdx]);
+      if(IdColIdx > 0){
+      	NewGroup.Val2.Add(IntCols[IdColIdx][RowIdx]);
+      }
       Grouping.AddDat(GroupKey, NewGroup);
       if (GroupColName != "") {
         GroupAndRowIds.Add(TPair<TInt, TInt>(GroupNum, RowIdx));
@@ -1073,14 +1084,15 @@ void TTable::GroupAux(const TStrV& GroupBy, THash<TGroupKey, TPair<TInt, TIntV> 
       // Grouping key has been seen before, update corresponding group
       if (!KeepUnique) {
         TPair<TInt, TIntV>& NewGroup = Grouping.GetDat(GroupKey);
-        NewGroup.Val2.Add(IntCols[IdColIdx][RowIdx]);
+        if(IdColIdx > 0){
+        	NewGroup.Val2.Add(IntCols[IdColIdx][RowIdx]);
+        }
         if (GroupColName != "") {
           GroupAndRowIds.Add(TPair<TInt, TInt>(NewGroup.Val1, RowIdx));
         }
       }
     }
   }
-
   // update group mapping
   if (!KeepUnique) {
     TPair<TStrV, TBool> GroupStmt(GroupBy, Ordered);
@@ -1175,7 +1187,9 @@ void TTable::GroupAuxMP(const TStrV& GroupBy, THashGenericMP<TGroupKey, TPair<TI
       // Grouping key hasn't been seen before, create a new group
       TPair<TInt, TIntV> NewGroup;
       NewGroup.Val1 = GroupNum;
-      NewGroup.Val2.Add(IntCols[IdColIdx][RowIdx]);
+      if(IdColIdx > 0){
+      	NewGroup.Val2.Add(IntCols[IdColIdx][RowIdx]);
+      }
       Grouping.AddDat(GroupKey, NewGroup);
       if (GroupColName != "") {
         GroupAndRowIds.Add(TPair<TInt, TInt>(GroupNum, RowIdx));
@@ -1188,7 +1202,9 @@ void TTable::GroupAuxMP(const TStrV& GroupBy, THashGenericMP<TGroupKey, TPair<TI
       // Grouping key has been seen before, update corresponding group
       if (!KeepUnique) {
         TPair<TInt, TIntV>& NewGroup = Grouping.GetDat(GroupKey);
-        NewGroup.Val2.Add(IntCols[IdColIdx][RowIdx]);
+        if(IdColIdx > 0){
+        	NewGroup.Val2.Add(IntCols[IdColIdx][RowIdx]);
+        }
         if (GroupColName != "") {
           GroupAndRowIds.Add(TPair<TInt, TInt>(NewGroup.Val1, RowIdx));
         }
@@ -2445,7 +2461,6 @@ void TTable::QSort(TIntV& V, TInt StartIdx, TInt EndIdx, const TVec<TAttrType>& 
         V[Ub], V[Pivot], SortByTypes, SortByIndices, Asc) == 0) {
         Ub -= 1;
       }
-
       QSort(V, StartIdx, Ub, SortByTypes, SortByIndices, Asc);
       QSort(V, Pivot+1, EndIdx, SortByTypes, SortByIndices, Asc);
     }
@@ -3442,7 +3457,6 @@ void TTable::AddRow(const TRowIterator& RI) {
        break;
     }
   }
-
   UpdateTableForNewRow();
 }
 
@@ -3659,20 +3673,25 @@ void TTable::UnionAllInPlace(const TTable& Table) {
   //result->InitIds();
 }
 
+
 PTable TTable::Union(const TTable& Table) {
   Schema NewSchema;
   THashSet<TInt> Collisions;
+  TStrV ColNames;
 
   for (TInt c = 0; c < Sch.Len(); c++) {
     if (Sch[c].Val1 != GetIdColName()) {
       NewSchema.Add(TPair<TStr,TAttrType>(Sch[c].Val1, Sch[c].Val2));
+      ColNames.Add(Sch[c].Val1);
     }
   }
   PTable result = TTable::New(NewSchema, Context);
-
-  GetCollidingRows(Table, Collisions);
-
+  
+  GetCollidingRows(Table, Collisions); 
+  
   result->AddTable(*this);
+
+  result->Unique(ColNames);
 
   // this part should be made faster by adding all the rows in one go
   for (TRowIterator it = Table.BegRI(); it < Table.EndRI(); it++) {
@@ -3680,7 +3699,7 @@ PTable TTable::Union(const TTable& Table) {
       result->AddRow(it);
     }
   }
-  
+
   // printf("this: %d %d, table: %d %d, result: %d %d\n", 
   //   this->GetNumRows().Val, this->GetNumValidRows().Val,
   //   Table.GetNumRows().Val, Table.GetNumValidRows().Val, 
@@ -3689,6 +3708,7 @@ PTable TTable::Union(const TTable& Table) {
   result->InitIds();
   return result;
 }
+
 
 PTable TTable::Intersection(const TTable& Table) {
   Schema NewSchema;
@@ -3830,6 +3850,44 @@ void TTable::ClassifyAux(const TIntV& SelectedRows, const TStr& LabelName, const
   }
 }
 
+#ifdef _OPENMP
+void TTable::ColGenericOpMP(TInt ArgColIdx1, TInt ArgColIdx2, TAttrType ArgType1, TAttrType ArgType2, TInt ResColIdx, TArithOp op){
+	TAttrType ResType = atFlt;
+	if(ArgType1 == atInt && ArgType2 == atInt){ ResType = atInt;}
+	TIntPrV Partitions;
+	GetPartitionRanges(Partitions, omp_get_max_threads()*CHUNKS_PER_THREAD);
+	TInt PartitionSize = Partitions[0].GetVal2()-Partitions[0].GetVal1()+1;
+	#pragma omp parallel for schedule(dynamic, CHUNKS_PER_THREAD)
+	for (int i = 0; i < Partitions.Len(); i++){
+		TRowIterator RowI(Partitions[i].GetVal1(), this);
+		TRowIterator EndI(Partitions[i].GetVal2(), this);
+		while(RowI < EndI){
+			if(ResType == atInt){
+				TInt V1 = RowI.GetIntAttr(ArgColIdx1);
+				TInt V2 = RowI.GetIntAttr(ArgColIdx2);
+				if (op == aoAdd) { IntCols[ResColIdx][RowI.GetRowIdx()] = V1 + V2; }
+      			if (op == aoSub) { IntCols[ResColIdx][RowI.GetRowIdx()] = V1 - V2; }
+      			if (op == aoMul) { IntCols[ResColIdx][RowI.GetRowIdx()] = V1 * V2; }
+      			if (op == aoDiv) { IntCols[ResColIdx][RowI.GetRowIdx()] = V1 / V2; }
+      			if (op == aoMod) { IntCols[ResColIdx][RowI.GetRowIdx()] = V1 % V2; }
+      			if (op == aoMin) { IntCols[ResColIdx][RowI.GetRowIdx()] = (V1 < V2) ? V1 : V2;}
+      			if (op == aoMax) { IntCols[ResColIdx][RowI.GetRowIdx()] = (V1 > V2) ? V1 : V2;}
+			} else{
+				TFlt V1 = RowI.GetFltAttr(ArgColIdx1);
+				TFlt V2 = RowI.GetFltAttr(ArgColIdx2);
+				if (op == aoAdd) { FltCols[ResColIdx][RowI.GetRowIdx()] = V1 + V2; }
+      			if (op == aoSub) { FltCols[ResColIdx][RowI.GetRowIdx()] = V1 - V2; }
+      			if (op == aoMul) { FltCols[ResColIdx][RowI.GetRowIdx()] = V1 * V2; }
+      			if (op == aoDiv) { FltCols[ResColIdx][RowI.GetRowIdx()] = V1 / V2; }
+      			if (op == aoMod) { TExcept::Throw("Cannot find modulo for float columns");  }
+      			if (op == aoMin) { FltCols[ResColIdx][RowI.GetRowIdx()] = (V1 < V2) ? V1 : V2;}
+      			if (op == aoMax) { FltCols[ResColIdx][RowI.GetRowIdx()] = (V1 > V2) ? V1 : V2;}
+			}
+		}
+	}
+}
+#endif	//_OPENMP
+
 /* Performs generic operations on two numeric attributes
  * Operation can be +, -, *, /, %, min or max
  * Alternative is to write separate functions for each operation
@@ -3847,6 +3905,9 @@ void TTable::ColGenericOp(const TStr& Attr1, const TStr& Attr2, const TStr& ResA
   if (Info1.Val1 == atStr || Info2.Val1 == atStr) {
     TExcept::Throw("Only numeric columns supported in arithmetic operations.");
   }
+  if(Info1.Val1 == atInt && Info2.Val2 == atFlt && ResAttr == ""){
+  	TExcept::Throw("Trying to write float values to an existing int-typed column");
+  }
 
   // source column indices
   TInt ColIdx1 = Info1.Val2;
@@ -3857,7 +3918,7 @@ void TTable::ColGenericOp(const TStr& Attr1, const TStr& Attr2, const TStr& ResA
 
   // Create empty result column with type that of first attribute
   if (ResAttr != "") {
-      if (Info1.Val1 == atInt) {
+      if (Info1.Val1 == atInt && Info2.Val1 == atInt) {
           AddIntCol(ResAttr);
       }
       else {
@@ -3865,50 +3926,38 @@ void TTable::ColGenericOp(const TStr& Attr1, const TStr& Attr2, const TStr& ResA
       }
       ColIdx3 = GetColIdx(ResAttr);
   }
+  
+  #ifdef _OPENMP
+  if(GetMP()){
+  	ColGenericOpMP(ColIdx1, ColIdx2, Info1.Val1, Info2.Val1, ColIdx3, op);
+  	return;
+  }
+  #endif	//_OPENMP
 
+  TAttrType ResType = atFlt;
+  if(Info1.Val1 == atInt && Info2.Val1 == atInt){ ResType = atInt;}
   for (TRowIterator RowI = BegRI(); RowI < EndRI(); RowI++) {
-    if (Info1.Val1 == atInt) {
-      TInt Val, CurVal;
-      CurVal = RowI.GetIntAttr(ColIdx1);
-      if (Info2.Val1 == atInt) {
-        Val = RowI.GetIntAttr(ColIdx2);
-      }
-      else {
-        Val = RowI.GetFltAttr(ColIdx2);
-      }
-      if (op == aoAdd) { IntCols[ColIdx3][RowI.GetRowIdx()] = CurVal + Val; }
-      if (op == aoSub) { IntCols[ColIdx3][RowI.GetRowIdx()] = CurVal - Val; }
-      if (op == aoMul) { IntCols[ColIdx3][RowI.GetRowIdx()] = CurVal * Val; }
-      if (op == aoDiv) { IntCols[ColIdx3][RowI.GetRowIdx()] = CurVal / Val; }
-      if (op == aoMod) { IntCols[ColIdx3][RowI.GetRowIdx()] = CurVal % Val; }
-      if (op == aoMin) {
-        IntCols[ColIdx3][RowI.GetRowIdx()] = (CurVal < Val) ? CurVal : Val;
-      }
-      if (op == aoMax) {
-        IntCols[ColIdx3][RowI.GetRowIdx()] = (CurVal > Val) ? CurVal : Val;
-      }
-    }
-    else {
-      TFlt Val, CurVal;
-      CurVal = RowI.GetFltAttr(ColIdx1);
-      if (Info2.Val1 == atInt) {
-        Val = RowI.GetIntAttr(ColIdx2);
-      }
-      else {
-        Val = RowI.GetFltAttr(ColIdx2);
-      }
-      if (op == aoAdd) { FltCols[ColIdx3][RowI.GetRowIdx()] = CurVal + Val; }
-      if (op == aoSub) { FltCols[ColIdx3][RowI.GetRowIdx()] = CurVal - Val; }
-      if (op == aoMul) { FltCols[ColIdx3][RowI.GetRowIdx()] = CurVal * Val; }
-      if (op == aoDiv) { FltCols[ColIdx3][RowI.GetRowIdx()] = CurVal / Val; }
-      if (op == aoMod) { TExcept::Throw("Cannot find modulo for float columns"); }
-      if (op == aoMin) {
-        FltCols[ColIdx3][RowI.GetRowIdx()] = (CurVal < Val) ? CurVal : Val;
-      }
-      if (op == aoMax) {
-        FltCols[ColIdx3][RowI.GetRowIdx()] = (CurVal > Val) ? CurVal : Val;
-      }
-    }
+		if(ResType == atInt){
+			TInt V1 = RowI.GetIntAttr(ColIdx1);
+			TInt V2 = RowI.GetIntAttr(ColIdx2);
+			if (op == aoAdd) { IntCols[ColIdx3][RowI.GetRowIdx()] = V1 + V2; }
+      		if (op == aoSub) { IntCols[ColIdx3][RowI.GetRowIdx()] = V1 - V2; }
+      		if (op == aoMul) { IntCols[ColIdx3][RowI.GetRowIdx()] = V1 * V2; }
+      		if (op == aoDiv) { IntCols[ColIdx3][RowI.GetRowIdx()] = V1 / V2; }
+      		if (op == aoMod) { IntCols[ColIdx3][RowI.GetRowIdx()] = V1 % V2; }
+      		if (op == aoMin) { IntCols[ColIdx3][RowI.GetRowIdx()] = (V1 < V2) ? V1 : V2;}
+      		if (op == aoMax) { IntCols[ColIdx3][RowI.GetRowIdx()] = (V1 > V2) ? V1 : V2;}
+		} else{
+			TFlt V1 = RowI.GetFltAttr(ColIdx1);
+			TFlt V2 = RowI.GetFltAttr(ColIdx2);
+			if (op == aoAdd) { FltCols[ColIdx3][RowI.GetRowIdx()] = V1 + V2; }
+      		if (op == aoSub) { FltCols[ColIdx3][RowI.GetRowIdx()] = V1 - V2; }
+      		if (op == aoMul) { FltCols[ColIdx3][RowI.GetRowIdx()] = V1 * V2; }
+      		if (op == aoDiv) { FltCols[ColIdx3][RowI.GetRowIdx()] = V1 / V2; }
+      		if (op == aoMod) { TExcept::Throw("Cannot find modulo for float columns");  }
+      		if (op == aoMin) { FltCols[ColIdx3][RowI.GetRowIdx()] = (V1 < V2) ? V1 : V2;}
+      		if (op == aoMax) { FltCols[ColIdx3][RowI.GetRowIdx()] = (V1 > V2) ? V1 : V2;}
+		}
   }
 }
 

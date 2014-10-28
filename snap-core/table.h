@@ -918,6 +918,7 @@ public:
 
   /// Performs columnwise arithmetic operation ##TTable::ColGenericOp
   void ColGenericOp(const TStr& Attr1, const TStr& Attr2, const TStr& ResAttr, TArithOp op);
+  void ColGenericOpMP(TInt ArgColIdx1, TInt ArgColIdx2, TAttrType ArgType1, TAttrType ArgType2, TInt ResColIdx, TArithOp op);
   /// Performs columnwise addition. See TTable::ColGenericOp
   void ColAdd(const TStr& Attr1, const TStr& Attr2, const TStr& ResultAttrName="");
   /// Performs columnwise subtraction. See TTable::ColGenericOp
