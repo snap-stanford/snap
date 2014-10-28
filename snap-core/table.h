@@ -105,6 +105,67 @@ typedef enum {aoAdd, aoSub, aoMul, aoDiv, aoMod, aoMin, aoMax} TArithOp;
 typedef TVec<TPair<TStr, TAttrType> > Schema; 
 
 //#//////////////////////////////////////////////
+/// A class representing a cached grouping statement identifier
+class GroupStmt{
+protected:
+	TStrV GroupByAttrs;
+	TBool Ordered;
+	TBool UsePhysicalRowIds;
+	TBool Valid;
+public:
+	GroupStmt(): GroupByAttrs(TStrV()), Ordered(true), UsePhysicalRowIds(true), Valid(true){}
+	GroupStmt(const TStrV& Attrs): GroupByAttrs(Attrs), Ordered(true), UsePhysicalRowIds(true), Valid(true){}
+	GroupStmt(const TStrV& Attrs, TBool ordered, TBool physical): GroupByAttrs(Attrs), Ordered(ordered), UsePhysicalRowIds(physical), Valid(true){}
+	GroupStmt(const GroupStmt& stmt): GroupByAttrs(stmt.GroupByAttrs), Ordered(stmt.Ordered), UsePhysicalRowIds(stmt.UsePhysicalRowIds), Valid(stmt.Valid){}
+	TBool UsePhysicalIds(){return UsePhysicalRowIds;}
+	TBool operator ==(const GroupStmt& stmt) const{
+		if(stmt.Ordered != Ordered || stmt.UsePhysicalRowIds != UsePhysicalRowIds){ return false;}
+		if(stmt.GroupByAttrs.Len() != GroupByAttrs.Len()){ return false;}
+		for(int i = 0; i < GroupByAttrs.Len(); i++){
+			if(stmt.GroupByAttrs[i] != GroupByAttrs[i]){ return false;}
+		}
+		return true;
+	}
+	TBool IsValid(){ return Valid;}
+	void Invalidate(){ Valid = false;}
+	TBool IncludesAttr(const TStr& Attr){
+		for(int i = 0; i < GroupByAttrs.Len(); i++){
+			if(GroupByAttrs[i] == Attr){ return true;}
+		}
+		return false;
+	}
+	TSize GetMemUsed() const{
+		TSize sz = 3 * sizeof(TBool);
+		sz += GroupByAttrs.GetMemUsed();
+		for(int i = 0; i < GroupByAttrs.Len(); i++){
+			sz += GroupByAttrs[i].GetMemUsed();
+		}
+		return sz;
+	}
+	
+	int GetPrimHashCd() const{
+		int hc1 = GroupByAttrs.GetPrimHashCd();
+		TTriple<TBool,TBool,TBool> flags;
+		int hc2 = flags.GetPrimHashCd();
+		return TPairHashImpl::GetHashCd(hc1, hc2);
+	}
+	
+	int GetSecHashCd() const{
+		int hc1 = GroupByAttrs.GetSecHashCd();
+		TTriple<TBool,TBool,TBool> flags;
+		int hc2 = flags.GetSecHashCd();
+		return TPairHashImpl::GetHashCd(hc1, hc2);
+	}
+	
+	void Print(){
+		for(int i = 0; i < GroupByAttrs.Len(); i++){
+			printf("%s ", GroupByAttrs[i].CStr());
+		}
+		printf("Ordered: %d, UsePhysicalRows: %d, Valid: %d\n", Ordered.Val, UsePhysicalRowIds.Val, Valid.Val);
+	}
+};
+
+//#//////////////////////////////////////////////
 /// Iterator class for TTable rows. ##Iterator
 class TRowIterator{ 
   TInt CurrRowIdx; ///< Physical row index of current row pointed by iterator.
@@ -278,9 +339,11 @@ protected:
   TIntIntH RowIdMap; ///< Mapping of permanent row ids to physical id.
 
   // Group mapping data structures.
-  THash<TStr, TPair<TStrV, TBool> > GroupStmtNames; ///< Maps user-given grouping statement names to their group-by attributes. ##TTable::GroupStmtNames
-  THash<TPair<TStrV, TBool>, THash<TInt, TGroupKey> >GroupIDMapping; ///< Maps grouping statements to their (group id --> group-by key) mapping. ##TTable::GroupIDMapping
-  THash<TPair<TStrV, TBool>, THash<TGroupKey, TIntV> >GroupMapping; ///< Maps grouping statements to their (group-by key --> group id) mapping. ##TTable::GroupMapping
+  THash<TStr, GroupStmt > GroupStmtNames; ///< Maps user-given grouping statement names to their group-by attributes. ##TTable::GroupStmtNames
+  THash<GroupStmt, THash<TInt, TGroupKey> >GroupIDMapping; ///< Maps grouping statements to their (group id --> group-by key) mapping. ##TTable::GroupIDMapping
+  THash<GroupStmt, THash<TGroupKey, TIntV> >GroupMapping; ///< Maps grouping statements to their (group-by key --> group id) mapping. ##TTable::GroupMapping
+  void InvalidatePhysicalGroupings(); // to be called when rows are added / physically removed
+  void InvalidateAffectedGroupings(const TStr& Attr); // to be called when attributes are removed (projected) or values updated in-place
 
   // Fields to be used when constructing a graph.
   TStr SrcCol; ///< Column (attribute) to serve as src nodes when constructing the graph.
@@ -425,17 +488,17 @@ protected:
   void GroupingSanityCheck(const TStr& GroupBy, const TAttrType& AttrType) const;
   /// Groups/hashes by a single column with integer values. ##TTable::GroupByIntCol
   template <class T> void GroupByIntCol(const TStr& GroupBy, T& Grouping, 
-    const TIntV& IndexSet, TBool All, TBool UsePhysicalIds = false) const;
+    const TIntV& IndexSet, TBool All, TBool UsePhysicalIds = true) const;
   #ifdef _OPENMP
   /// Groups/hashes by a single column with integer values, using OpenMP multi-threading.
   void GroupByIntColMP(const TStr& GroupBy, THashMP<TInt, TIntV>& Grouping, TBool UsePhysicalIds = false) const;
   #endif // _OPENMP
   /// Groups/hashes by a single column with float values. Returns hash table with grouping.
   template <class T> void GroupByFltCol(const TStr& GroupBy, T& Grouping, 
-    const TIntV& IndexSet, TBool All, TBool UsePhysicalIds = false) const;
+    const TIntV& IndexSet, TBool All, TBool UsePhysicalIds = true) const;
   /// Groups/hashes by a single column with string values. Returns hash table with grouping.
   template <class T> void GroupByStrCol(const TStr& GroupBy, T& Grouping, 
-    const TIntV& IndexSet, TBool All, TBool UsePhysicalIds = false) const;
+    const TIntV& IndexSet, TBool All, TBool UsePhysicalIds = true) const;
   /// Template for utility function to update a grouping hash map.
   template <class T> void UpdateGrouping(THash<T,TIntV>& Grouping, T Key, TInt Val) const;
   #ifdef _OPENMP
@@ -515,7 +578,7 @@ protected:
 /***** Utility functions for Group *****/
   /// Helper function for grouping. ##TTable::GroupAux
   void GroupAux(const TStrV& GroupBy, THash<TGroupKey, TPair<TInt, TIntV> >& Grouping, 
-   TBool Ordered, const TStr& GroupColName, TBool KeepUnique, TIntV& UniqueVec, TBool UsePhysicalIds = false);
+   TBool Ordered, const TStr& GroupColName, TBool KeepUnique, TIntV& UniqueVec, TBool UsePhysicalIds = true);
   #ifdef _OPENMP
   /// Parallel helper function for grouping. - we currently don't support such parallel grouping by complex keys
   //void GroupAuxMP(const TStrV& GroupBy, THashGenericMP<TGroupKey, TPair<TInt, TIntV> >& Grouping, 
@@ -841,7 +904,7 @@ public:
   }
 
   /// Groups rows depending on values of \c GroupBy columns. ##TTable::Group
-  void Group(const TStrV& GroupBy, const TStr& GroupColName, TBool Ordered = true, TBool UsePhysicalIds = false);
+  void Group(const TStrV& GroupBy, const TStr& GroupColName, TBool Ordered = true, TBool UsePhysicalIds = true);
   
   /// Counts number of unique elements. ##TTable::Count
   void Count(const TStr& CountColName, const TStr& Col);

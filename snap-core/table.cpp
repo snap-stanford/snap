@@ -1097,17 +1097,20 @@ void TTable::GroupAux(const TStrV& GroupBy, THash<TGroupKey, TPair<TInt, TIntV> 
       }
     }
   }
+  printf("KeepUnique: %d\n", KeepUnique.Val);
   // update group mapping
   if (!KeepUnique) {
-    TPair<TStrV, TBool> GroupStmt(GroupBy, Ordered);
-    GroupStmtNames.AddDat(GroupColName, GroupStmt);
-    GroupIDMapping.AddDat(GroupStmt);
-    GroupMapping.AddDat(GroupStmt);
+    GroupStmt Stmt(NormalizeColNameV(GroupBy), Ordered, UsePhysicalIds);
+    GroupStmtNames.AddDat(GroupColName, Stmt);
+    GroupIDMapping.AddKey(Stmt);
+    GroupMapping.AddKey(Stmt);
+    //printf("Adding statement: ");
+    //Stmt.Print();
     for (THash<TGroupKey, TPair<TInt, TIntV> >::TIter it = Grouping.BegI(); it < Grouping.EndI(); it++) {
       TGroupKey key = it.GetKey();
       TPair<TInt, TIntV> group = it.GetDat();
-      GroupIDMapping.GetDat(GroupStmt).AddDat(group.Val1, key);
-      GroupMapping.GetDat(GroupStmt).AddDat(key, group.Val2);
+      GroupIDMapping.GetDat(Stmt).AddDat(group.Val1, TGroupKey(key));
+      GroupMapping.GetDat(Stmt).AddDat(TGroupKey(key), TIntV(group.Val2));
     }
   }
 
@@ -1259,16 +1262,34 @@ void TTable::Group(const TStrV& GroupBy, const TStr& GroupColName, TBool Ordered
   GroupAux(NGroupBy, Grouping, Ordered, NGroupColName, false, UniqueVec, UsePhysicalIds);
 }
 
+void TTable::InvalidatePhysicalGroupings(){
+	//TODO
+}
+
+void TTable::InvalidateAffectedGroupings(const TStr& Attr){
+	//TODO
+}
+
 void TTable::Aggregate(const TStrV& GroupByAttrs, TAttrAggr AggOp,
  const TStr& ValAttr, const TStr& ResAttr, TBool Ordered) {
   // double startFn = omp_get_wtime();
   TStrV NGroupByAttrs = NormalizeColNameV(GroupByAttrs);
   
   TBool UsePhysicalIds = (GetColIdx(IdColName) < 0);
+  
+  /*
+  printf("Existing Statements:\n");
+  for(THash<GroupStmt,THash<TGroupKey,TIntV> >::TIter it = GroupMapping.BegI(); it < GroupMapping.EndI(); it++){
+  	GroupStmt s = it.GetKey();
+  	s.Print();
+  } 
+  */
 
   // check if grouping already exists
-  TPair<TStrV, TBool> GroupStmtName(NGroupByAttrs, Ordered);
-  if (!GroupMapping.IsKey(GroupStmtName)) {
+  GroupStmt Stmt(NGroupByAttrs, Ordered, UsePhysicalIds);
+  //printf("looking for statement:\n");
+  //Stmt.Print();
+  if (!GroupMapping.IsKey(Stmt)) {
     // group mapping does not exist, perform grouping first
     Group(NGroupByAttrs, "", Ordered, UsePhysicalIds);
   } else{
@@ -1278,7 +1299,7 @@ void TTable::Aggregate(const TStrV& GroupByAttrs, TAttrAggr AggOp,
   // printf("Group time = %f\n", endGroup-startFn);
 
   // group mapping exists, retrieve it and aggregate
-  THash<TGroupKey, TIntV> Mapping = GroupMapping.GetDat(GroupStmtName);
+  THash<TGroupKey, TIntV> Mapping = GroupMapping.GetDat(Stmt);
   /*
   for(THash<TGroupKey, TIntV>::TIter it = Mapping.BegI(); it < Mapping.EndI(); it++){
   	TGroupKey gk = it.GetKey();
@@ -1866,15 +1887,20 @@ PTable TTable::Join(const TStr& Col1, const TTable& Table, const TStr& Col2) {
   // double startFn = omp_get_wtime();
   if (!IsColName(Col1)) {
     TExcept::Throw("no such column " + Col1);
+    printf("no such column %s\n", Col1.CStr());
   }
   if (!Table.IsColName(Col2)) {
     TExcept::Throw("no such column " + Col2);
+    printf("no such column %s\n", Col2.CStr());
   }
   if (GetColType(Col1) != Table.GetColType(Col2)) {
     TExcept::Throw("Trying to Join on columns of different type");
+    printf("Trying to Join on columns of different type\n");
   }
+  //printf("passed initial checks\n");
   // initialize result table
   PTable JointTable = InitializeJointTable(Table);
+  //printf("initialized joint table\n");
   // hash smaller table (group by column)
   TAttrType ColType = GetColType(Col1);
   TBool ThisIsSmaller = (NumValidRows <= Table.NumValidRows);
@@ -3487,7 +3513,7 @@ void TTable::UpdateFltFromTable(const TStr& KeyAttr, const TStr& UpdateAttr, con
   		// TODO: add support for other cases of KeyType
   		case atInt:{
   			TIntIntVH Grouping;
-  			GroupByIntCol(NKeyAttr, Grouping, TIntV(), true);
+  			GroupByIntCol(NKeyAttr, Grouping, TIntV(), true, true);
   			for(TRowIterator RI = Table.BegRI(); RI < Table.EndRI(); RI++){
   				TInt K = RI.GetIntAttr(NFKeyAttr);
   				if(Grouping.IsKey(K)){
