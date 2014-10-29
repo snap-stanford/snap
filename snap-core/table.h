@@ -1009,6 +1009,8 @@ public:
   /// Performs columnwise arithmetic operation with column of given table.
   void ColGenericOp(const TStr& Attr1, TTable& Table, const TStr& Attr2, const TStr& ResAttr, 
     TArithOp op, TBool AddToFirstTable);
+  // void ColGenericOpMP(TTable& Table, TBool AddToFirstTable, TInt ArgColIdx1, TInt ArgColIdx2,
+  //  TAttrType ArgType1, TAttrType ArgType2, TInt ResColIdx, TArithOp op);
   /// Performs columnwise addition with column of given table.
   void ColAdd(const TStr& Attr1, TTable& Table, const TStr& Attr2, const TStr& ResAttr="",
     TBool AddToFirstTable=true);
@@ -1027,6 +1029,7 @@ public:
 
   /// Performs arithmetic op of column values and given \c Num
   void ColGenericOp(const TStr& Attr1, const TFlt& Num, const TStr& ResAttr, TArithOp op, const TBool floatCast);
+  void ColGenericOpMP(TInt ColIdx1, TInt ColIdx2, TAttrType ArgType, TFlt Num, TArithOp op, TBool ShouldCast);
   /// Performs addition of column values and given \c Num
   void ColAdd(const TStr& Attr1, const TFlt& Num, const TStr& ResultAttrName="", const TBool floatCast=false);
   /// Performs subtraction of column values and given \c Num
