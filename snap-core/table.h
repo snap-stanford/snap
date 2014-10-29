@@ -505,6 +505,7 @@ protected:
   /// Template for utility function to update a parallel grouping hash map.
   template <class T> void UpdateGrouping(THashMP<T,TIntV>& Grouping, T Key, TInt Val) const;
   #endif // _OPENMP
+  void PrintGrouping(const THash<TGroupKey, TIntV>& Grouping) const;
 
   /***** Utility functions for sorting by columns *****/
   /// Returns positive value if R1 is bigger, negative value if R2 is bigger, and 0 if they are equal (strcmp semantics).
@@ -586,6 +587,9 @@ protected:
   #endif // _OPENMP
   /// Stores column for a group. Physical row ids have to be passed.
   void StoreGroupCol(const TStr& GroupColName, const TVec<TPair<TInt, TInt> >& GroupAndRowIds);
+  /// Register (cache) result of a grouping statement by a single group-by attribute
+  /// T is a hash table mapping a key x to rows keyed by x  => DISABLED FOR NOW
+  //template<class T> void RegisterGrouping(const T& Grouping, const TStr& GroupByCol, TBool UsePhysicalRows);
 
   /// Reinitializes row ids.
   void Reindex();
@@ -1257,6 +1261,19 @@ void TTable::UpdateGrouping(THashMP<T,TIntV>& Grouping, T Key, TInt Val) const{
   }
 }
 #endif // _OPENMP
+
+/*
+template<class T> 
+void TTable::RegisterGrouping(const T& Grouping, const TStr& GroupByCol, TBool UsePhysicalIds){
+	TStrV GroupByVec;
+	GroupByVec.Add(GroupByCol);
+	GroupStmt Stmt(NormalizeColNameV(GroupByVec), true, UsePhysicalIds);
+	GroupMapping.AddKey(Stmt);
+	for(T::TIter it = Grouping.BegI(); it < Grouping.EndI(); it++){
+		GroupMapping.GetDat(Stmt).AddDat(it.GetKey(), TIntV(it.GetDat()));
+	}
+}
+*/
 
 namespace TSnap {
 

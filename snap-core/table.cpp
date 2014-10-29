@@ -1097,7 +1097,7 @@ void TTable::GroupAux(const TStrV& GroupBy, THash<TGroupKey, TPair<TInt, TIntV> 
       }
     }
   }
-  printf("KeepUnique: %d\n", KeepUnique.Val);
+  // printf("KeepUnique: %d\n", KeepUnique.Val);
   // update group mapping
   if (!KeepUnique) {
     GroupStmt Stmt(NormalizeColNameV(GroupBy), Ordered, UsePhysicalIds);
@@ -1252,13 +1252,11 @@ void TTable::GroupAuxMP(const TStrV& GroupBy, THashGenericMP<TGroupKey, TPair<TI
 #endif // _OPENMP
 */
 
-// grouping begins here
 void TTable::Group(const TStrV& GroupBy, const TStr& GroupColName, TBool Ordered, TBool UsePhysicalIds) {
   TStrV NGroupBy = NormalizeColNameV(GroupBy);
   TStr NGroupColName = NormalizeColName(GroupColName);
   TIntV UniqueVec;
   THash<TGroupKey, TPair<TInt, TIntV> > Grouping;
-  // by default, we assume we don't want unique rows
   GroupAux(NGroupBy, Grouping, Ordered, NGroupColName, false, UniqueVec, UsePhysicalIds);
 }
 
@@ -1272,47 +1270,73 @@ void TTable::InvalidateAffectedGroupings(const TStr& Attr){
 
 void TTable::Aggregate(const TStrV& GroupByAttrs, TAttrAggr AggOp,
  const TStr& ValAttr, const TStr& ResAttr, TBool Ordered) {
+ 
+   for (TInt c = 0; c < GroupByAttrs.Len(); c++) {
+    if (!IsColName(GroupByAttrs[c])) { 
+      TExcept::Throw("no such column " + GroupByAttrs[c]); 
+    }
+   }
+    
   // double startFn = omp_get_wtime();
   TStrV NGroupByAttrs = NormalizeColNameV(GroupByAttrs);
-  
   TBool UsePhysicalIds = (GetColIdx(IdColName) < 0);
   
-  /*
-  printf("Existing Statements:\n");
-  for(THash<GroupStmt,THash<TGroupKey,TIntV> >::TIter it = GroupMapping.BegI(); it < GroupMapping.EndI(); it++){
-  	GroupStmt s = it.GetKey();
-  	s.Print();
-  } 
-  */
+  
+  THash<TInt,TIntV> GroupByIntMapping;
+  THash<TFlt,TIntV> GroupByFltMapping;
+  THash<TInt,TIntV> GroupByStrMapping;
+  THash<TGroupKey,TIntV> Mapping;
+  #ifdef _OPENMP
+  THashMP<TInt,TIntV> GroupByIntMapping_MP;
+  #endif
+  TInt NumOfGroups = 0;
+  TInt GroupingCase = 0;
 
   // check if grouping already exists
   GroupStmt Stmt(NGroupByAttrs, Ordered, UsePhysicalIds);
-  //printf("looking for statement:\n");
-  //Stmt.Print();
-  if (!GroupMapping.IsKey(Stmt)) {
-    // group mapping does not exist, perform grouping first
-    Group(NGroupByAttrs, "", Ordered, UsePhysicalIds);
+  if (GroupMapping.IsKey(Stmt)) {
+    Mapping = GroupMapping.GetDat(Stmt);
   } else{
-  	//printf("found it!\n");
+  	if(NGroupByAttrs.Len() == 1){
+  		switch(GetColType(NGroupByAttrs[0])){
+  			case atInt:
+  				#ifdef _OPENMP
+  				if(GetMP()){
+  					GroupByIntColMP(NGroupByAttrs[0], GroupByIntMapping_MP, UsePhysicalIds);
+  					NumOfGroups = GroupByIntMapping_MP.Len();
+  					GroupingCase = 4;
+  					break;
+  				}
+  				#endif //_OPENMP
+  				GroupByIntCol(NGroupByAttrs[0], GroupByIntMapping, TIntV(), true, UsePhysicalIds);
+  				NumOfGroups = GroupByIntMapping.Len();
+  				GroupingCase = 1;
+  				break;
+  			case atFlt:
+  				GroupByFltCol(NGroupByAttrs[0], GroupByFltMapping, TIntV(), true, UsePhysicalIds);
+  				NumOfGroups = GroupByFltMapping.Len();
+  				GroupingCase = 2;
+  				break;
+  			case atStr:
+  				GroupByStrCol(NGroupByAttrs[0], GroupByStrMapping, TIntV(), true, UsePhysicalIds);
+  				NumOfGroups = GroupByStrMapping.Len();
+  				GroupingCase = 3;
+  				break;
+  		}
+  	}
+  	else{
+  		TIntV UniqueVector;
+  		THash<TGroupKey, TPair<TInt, TIntV> > Mapping_aux;
+  		GroupAux(NGroupByAttrs, Mapping_aux, Ordered, "", false, UniqueVector, UsePhysicalIds);
+  		for(THash<TGroupKey, TPair<TInt, TIntV> >::TIter it = Mapping_aux.BegI(); it < Mapping_aux.EndI(); it++){
+  			Mapping.AddDat(it.GetKey(), it.GetDat().Val2);
+  		}
+  		NumOfGroups = Mapping.Len();
+  	}
   }
+    
   // double endGroup = omp_get_wtime();
   // printf("Group time = %f\n", endGroup-startFn);
-
-  // group mapping exists, retrieve it and aggregate
-  THash<TGroupKey, TIntV> Mapping = GroupMapping.GetDat(Stmt);
-  /*
-  for(THash<TGroupKey, TIntV>::TIter it = Mapping.BegI(); it < Mapping.EndI(); it++){
-  	TGroupKey gk = it.GetKey();
-  	TIntV ik = gk.Val1;
-  	TFltV fk = gk.Val2;
-  	for(int i = 0; i < ik.Len(); i++){ printf("%d ",ik[i].Val);} 
-  	for(int i = 0; i < fk.Len(); i++){ printf("%f ",fk[i].Val);} 
-  	printf("-->");
-  	TIntV v = it.GetDat();
-  	for(int i = 0; i < v.Len(); i++){ printf("%d ",v[i].Val);} 
-  	printf("\n");
-  }
-  */
 
   TAttrType T = GetColType(ValAttr);
 
@@ -1335,11 +1359,31 @@ void TTable::Aggregate(const TStrV& GroupByAttrs, TAttrAggr AggOp,
   #ifdef _OPENMP
   #pragma omp parallel for schedule(dynamic)
   #endif
-  for (int i = 0; i < Mapping.Len(); i++) {
-    THash<TGroupKey, TIntV>::TIter it = Mapping.GetI(Mapping.GetKey(i));
-    TIntV& GroupRows = it.GetDat();
-    
+  for (int i = 0; i < NumOfGroups; i++) {
+  	// TODO: avoid this copy - use refernces
+  	TIntV* GroupRows;
+  	switch(GroupingCase){
+  		case 0:
+  			GroupRows = & Mapping.GetDat(Mapping.GetKey(i));
+  			break;
+  		case 1:
+  			GroupRows = & GroupByIntMapping.GetDat(GroupByIntMapping.GetKey(i));
+  			break;
+  		case 2:
+  			GroupRows = & GroupByIntMapping.GetDat(GroupByIntMapping.GetKey(i));
+  			break;
+  	    case 3:
+  			GroupRows = & GroupByStrMapping.GetDat(GroupByStrMapping.GetKey(i));
+  			break;
+  		case 4:
+  			#ifdef _OPENMP
+  			GroupRows = & GroupByIntMapping_MP.GetDat(GroupByIntMapping_MP.GetKey(i));
+  			#endif
+  			break;
+  	}
+
     // find valid rows of group
+    /*
     TIntV ValidRows;
     for (TInt i = 0; i < GroupRows.Len(); i++) {
       // TODO: This should not be necessary
@@ -1348,7 +1392,8 @@ void TTable::Aggregate(const TStrV& GroupByAttrs, TAttrAggr AggOp,
       // GroupRows has physical row indices
       if (RowId != Invalid) { ValidRows.Add(RowId); }
     }
-
+    */
+	TIntV& ValidRows = *GroupRows;
     TInt sz = ValidRows.Len();
     if (sz <= 0) continue;
     // Count is handled separately (other operations have aggregation policies defined in a template)
@@ -1411,6 +1456,20 @@ void TTable::AggregateCols(const TStrV& AggrAttrs, TAttrAggr AggOp, const TStr& 
   } else {
     TExcept::Throw("AggregateCols: Only Int and Flt aggregation supported right now");
   }
+}
+
+void TTable::PrintGrouping(const THash<TGroupKey, TIntV>& Mapping) const{
+	for(THash<TGroupKey, TIntV>::TIter it = Mapping.BegI(); it < Mapping.EndI(); it++){
+  		TGroupKey gk = it.GetKey();
+  		TIntV ik = gk.Val1;
+  		TFltV fk = gk.Val2;
+  		for(int i = 0; i < ik.Len(); i++){ printf("%d ",ik[i].Val);} 
+  		for(int i = 0; i < fk.Len(); i++){ printf("%f ",fk[i].Val);} 
+  		printf("-->");
+  		TIntV v = it.GetDat();
+  		for(int i = 0; i < v.Len(); i++){ printf("%d ",v[i].Val);} 
+  		printf("\n");
+  	}
 }
 
 void TTable::Count(const TStr& CountColName, const TStr& Col) {
