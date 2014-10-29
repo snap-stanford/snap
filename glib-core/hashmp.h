@@ -263,8 +263,8 @@ int THashMP<TKey, TDat, THashFunc>::AddKey(const TKey& Key) {
     (!__sync_bool_compare_and_swap(&Table[TableN].HashCd.Val, -1, HashCd))) {
     TableN = (TableN + 1) % Table.Len();    
   }
-
   Table[TableN].Key = Key;
+  __sync_fetch_and_add(&NumVals.Val, 1);
   return TableN;
 }
 
