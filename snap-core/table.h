@@ -490,9 +490,11 @@ protected:
   template <class T> void GroupByIntCol(const TStr& GroupBy, T& Grouping, 
     const TIntV& IndexSet, TBool All, TBool UsePhysicalIds = true) const;
   #ifdef _OPENMP
+  public:	//Should be protected - this is for debug only
   /// Groups/hashes by a single column with integer values, using OpenMP multi-threading.
   void GroupByIntColMP(const TStr& GroupBy, THashMP<TInt, TIntV>& Grouping, TBool UsePhysicalIds = true) const;
   #endif // _OPENMP
+  protected:
   /// Groups/hashes by a single column with float values. Returns hash table with grouping.
   template <class T> void GroupByFltCol(const TStr& GroupBy, T& Grouping, 
     const TIntV& IndexSet, TBool All, TBool UsePhysicalIds = true) const;
@@ -1266,8 +1268,10 @@ void TTable::UpdateGrouping(THash<T,TIntV>& Grouping, T Key, TInt Val) const{
 template <class T>
 void TTable::UpdateGrouping(THashMP<T,TIntV>& Grouping, T Key, TInt Val) const{
   if (Grouping.IsKey(Key)) {
+  	//printf("y\n");
     Grouping.GetDat(Key).Add(Val);
   } else {
+  	//printf("n\n");
     TIntV NewGroup;
     NewGroup.Add(Val);
     Grouping.AddDat(Key, NewGroup);
