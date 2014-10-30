@@ -491,7 +491,7 @@ protected:
     const TIntV& IndexSet, TBool All, TBool UsePhysicalIds = true) const;
   #ifdef _OPENMP
   /// Groups/hashes by a single column with integer values, using OpenMP multi-threading.
-  void GroupByIntColMP(const TStr& GroupBy, THashMP<TInt, TIntV>& Grouping, TBool UsePhysicalIds = false) const;
+  void GroupByIntColMP(const TStr& GroupBy, THashMP<TInt, TIntV>& Grouping, TBool UsePhysicalIds = true) const;
   #endif // _OPENMP
   /// Groups/hashes by a single column with float values. Returns hash table with grouping.
   template <class T> void GroupByFltCol(const TStr& GroupBy, T& Grouping, 

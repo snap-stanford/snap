@@ -1991,7 +1991,7 @@ PTable TTable::Join(const TStr& Col1, const TTable& Table, const TStr& Col2) {
     switch(ColType){
       case atInt:{
         THashMP<TInt, TIntV> T(TS.GetNumValidRows());
-        TS.GroupByIntColMP(ColS, T);
+        TS.GroupByIntColMP(ColS, T, true);
         // double endGroup = omp_get_wtime();
         // printf("Group time = %f\n", endGroup-endInit);
         
