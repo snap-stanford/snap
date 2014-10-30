@@ -940,6 +940,7 @@ void TTable::GroupByIntColMP(const TStr& GroupBy, THashMP<TInt, TIntV>& Grouping
     TRowIterator EndI(Partitions[i].GetVal2(), this);
     while (RowI < EndI) {
       TInt idx = UsePhysicalIds ? RowI.GetRowIdx() : RowI.GetIntAttr(IdColIdx);
+      // printf("updating grouping with key = %d, row_id = %d\n", RowI.GetIntAttr(GroupBy).Val, idx.Val);
       UpdateGrouping<TInt>(Grouping, RowI.GetIntAttr(GroupBy), idx);
       RowI++;
     }
@@ -1281,13 +1282,13 @@ void TTable::Aggregate(const TStrV& GroupByAttrs, TAttrAggr AggOp,
   TStrV NGroupByAttrs = NormalizeColNameV(GroupByAttrs);
   TBool UsePhysicalIds = (GetColIdx(IdColName) < 0);
   
-  
   THash<TInt,TIntV> GroupByIntMapping;
   THash<TFlt,TIntV> GroupByFltMapping;
   THash<TInt,TIntV> GroupByStrMapping;
   THash<TGroupKey,TIntV> Mapping;
   #ifdef _OPENMP
-  THashMP<TInt,TIntV> GroupByIntMapping_MP;
+  THashMP<TInt,TIntV> GroupByIntMapping_MP(NumValidRows);
+  TIntV GroupByIntMPKeys(NumValidRows);
   #endif
   TInt NumOfGroups = 0;
   TInt GroupingCase = 0;
@@ -1303,8 +1304,22 @@ void TTable::Aggregate(const TStrV& GroupByAttrs, TAttrAggr AggOp,
   				#ifdef _OPENMP
   				if(GetMP()){
   					GroupByIntColMP(NGroupByAttrs[0], GroupByIntMapping_MP, UsePhysicalIds);
-  					NumOfGroups = GroupByIntMapping_MP.Len();
+  					int x = 0;
+					for(THashMP<TInt,TIntV>::TIter it = GroupByIntMapping_MP.BegI(); it < GroupByIntMapping_MP.EndI(); it++){
+						GroupByIntMPKeys[x] = it.GetKey();
+						x++;
+						/*
+						printf("%d --> ", it.GetKey().Val);
+						TIntV& V = it.GetDat();
+						for(int i = 0; i < V.Len(); i++){
+							printf(" %d", V[i].Val); 
+						}
+						printf("\n");
+						*/
+					}
+  					NumOfGroups = x;
   					GroupingCase = 4;
+  					printf("Number of groups: %d\n", NumOfGroups.Val);
   					break;
   				}
   				#endif //_OPENMP
@@ -1358,26 +1373,25 @@ void TTable::Aggregate(const TStrV& GroupByAttrs, TAttrAggr AggOp,
 
   #ifdef _OPENMP
   #pragma omp parallel for schedule(dynamic)
-  #endif
-  for (int i = 0; i < NumOfGroups; i++) {
-  	// TODO: avoid this copy - use refernces
+  #endif 
+  for (int g = 0; g < NumOfGroups; g++) {
   	TIntV* GroupRows;
   	switch(GroupingCase){
   		case 0:
-  			GroupRows = & Mapping.GetDat(Mapping.GetKey(i));
+  			GroupRows = & Mapping.GetDat(Mapping.GetKey(g));
   			break;
   		case 1:
-  			GroupRows = & GroupByIntMapping.GetDat(GroupByIntMapping.GetKey(i));
+  			GroupRows = & GroupByIntMapping.GetDat(GroupByIntMapping.GetKey(g));
   			break;
   		case 2:
-  			GroupRows = & GroupByIntMapping.GetDat(GroupByIntMapping.GetKey(i));
+  			GroupRows = & GroupByIntMapping.GetDat(GroupByIntMapping.GetKey(g));
   			break;
   	    case 3:
-  			GroupRows = & GroupByStrMapping.GetDat(GroupByStrMapping.GetKey(i));
+  			GroupRows = & GroupByStrMapping.GetDat(GroupByStrMapping.GetKey(g));
   			break;
   		case 4:
   			#ifdef _OPENMP
-  			GroupRows = & GroupByIntMapping_MP.GetDat(GroupByIntMapping_MP.GetKey(i));
+  			GroupRows = & GroupByIntMapping_MP.GetDat(GroupByIntMPKeys[g]);
   			#endif
   			break;
   	}
@@ -3545,12 +3559,84 @@ void TTable::UpdateTableForNewRow() {
   NumValidRows++;
 }
 
+#ifdef _OPENMP
+void TTable::SetFltColToConstMP(TInt UpdateColIdx, TFlt DefaultFltVal){
+    if(!GetMP()){ TExcept::Throw("Not Using MP!");}
+	TIntPrV Partitions;
+	GetPartitionRanges(Partitions, omp_get_max_threads()*CHUNKS_PER_THREAD);
+	TInt PartitionSize = Partitions[0].GetVal2()-Partitions[0].GetVal1()+1;
+	#pragma omp parallel for schedule(dynamic, CHUNKS_PER_THREAD)
+	for (int i = 0; i < Partitions.Len(); i++){
+		TRowIterator RowI(Partitions[i].GetVal1(), this);
+		TRowIterator EndI(Partitions[i].GetVal2(), this);
+		while(RowI < EndI){
+			FltCols[UpdateColIdx][RowI.GetRowIdx()] = DefaultFltVal;
+		}
+	}
+}
+
+void TTable::UpdateFltFromTableMP(const TStr& KeyAttr, const TStr& UpdateAttr, const TTable& Table, 
+  	const TStr& FKeyAttr, const TStr& ReadAttr, TFlt DefaultFltVal){
+	if(!GetMP()){ TExcept::Throw("Not Using MP!");}
+  	TAttrType KeyType = GetColType(KeyAttr);
+  	TAttrType FKeyType = Table.GetColType(FKeyAttr);
+  	if(KeyType != FKeyType){TExcept::Throw("Key Type Mismatch");}
+  	if(GetColType(UpdateAttr) != atFlt || Table.GetColType(ReadAttr) != atFlt){
+  		TExcept::Throw("Expecting Float values");
+  	}
+  	TStr NKeyAttr = NormalizeColName(KeyAttr);
+  	TStr NUpdateAttr = NormalizeColName(UpdateAttr);
+  	TStr NFKeyAttr = Table.NormalizeColName(FKeyAttr);
+  	TStr NReadAttr = Table.NormalizeColName(ReadAttr);
+  	TInt UpdateColIdx = GetColIdx(UpdateAttr);
+
+  	// TODO: this should be a generic vector operation
+  	SetFltColToConstMP(UpdateColIdx, DefaultFltVal);
+
+	TIntPrV Partitions;
+	Table.GetPartitionRanges(Partitions, omp_get_max_threads()*CHUNKS_PER_THREAD);
+	TInt PartitionSize = Partitions[0].GetVal2()-Partitions[0].GetVal1()+1;
+	TIntV Locks(NumValidRows);
+	Locks.PutAll(0);	// need to parallelize this...
+  	switch(KeyType){
+  		// TODO: add support for other cases of KeyType
+  		case atInt:{
+  			THashMP<TInt,TIntV> Grouping;
+  			GroupByIntColMP(NKeyAttr, Grouping, true);
+			#pragma omp parallel for schedule(dynamic, CHUNKS_PER_THREAD)
+			for (int i = 0; i < Partitions.Len(); i++){
+				TRowIterator RowI(Partitions[i].GetVal1(), &Table);
+				TRowIterator EndI(Partitions[i].GetVal2(), &Table);
+				while(RowI < EndI){
+  					TInt K = RowI.GetIntAttr(NFKeyAttr);
+  					if(Grouping.IsKey(K)){
+  						TIntV UpdateRows = Grouping.GetDat(K);
+  						for(int i = 0; i < UpdateRows.Len(); i++){
+  							if(!__sync_bool_compare_and_swap(&Locks[i].Val, 0, 1)){ continue;}
+  							FltCols[UpdateColIdx][UpdateRows[i]] = RowI.GetFltAttr(NReadAttr);
+  					 	} // end of for loop
+  					} // end of if statement
+  				} // end of while loop
+  			}	// end of for loop
+  			break;
+  		} // end of case atInt
+  	} // end of outer switch statement
+}
+#endif	//_OPENMP
+
 void TTable::UpdateFltFromTable(const TStr& KeyAttr, const TStr& UpdateAttr, const TTable& Table, 
   	const TStr& FKeyAttr, const TStr& ReadAttr, TFlt DefaultFltVal){
   	if(!IsColName(KeyAttr)){ TExcept::Throw("Bad KeyAttr parameter");}
   	if(!IsColName(UpdateAttr)){ TExcept::Throw("Bad UpdateAttr parameter");}
   	if(!Table.IsColName(FKeyAttr)){ TExcept::Throw("Bad FKeyAttr parameter");}
   	if(!Table.IsColName(ReadAttr)){ TExcept::Throw("Bad ReadAttr parameter");}
+  	
+  	#ifdef _OPENMP
+  	if(GetMP()){
+  		UpdateFltFromTableMP(KeyAttr, UpdateAttr,Table, FKeyAttr, ReadAttr, DefaultFltVal);
+  		return;
+  	}
+  	#endif	//_OPENMP
   	
   	TAttrType KeyType = GetColType(KeyAttr);
   	TAttrType FKeyType = Table.GetColType(FKeyAttr);
@@ -3564,7 +3650,7 @@ void TTable::UpdateFltFromTable(const TStr& KeyAttr, const TStr& UpdateAttr, con
   	TStr NReadAttr = Table.NormalizeColName(ReadAttr);
   	TInt UpdateColIdx = GetColIdx(UpdateAttr);
   	
-  	for(TRowIterator iter = BegRI(); iter < EndRI(); iter++){
+    for(TRowIterator iter = BegRI(); iter < EndRI(); iter++){
   		FltCols[UpdateColIdx][iter.GetRowIdx()] = DefaultFltVal;
   	}
   	
