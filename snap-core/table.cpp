@@ -933,7 +933,7 @@ void TTable::GroupByIntColMP(const TStr& GroupBy, THashMP<TInt, TIntV>& Grouping
   //double endGen = omp_get_wtime();
   //printf("Gen time = %f\n", endGen-endPart);
   #ifdef _OPENMP
-  #pragma omp parallel for schedule(dynamic, CHUNKS_PER_THREAD) num_threads(1)
+  #pragma omp parallel for schedule(dynamic, CHUNKS_PER_THREAD) //num_threads(1)
   #endif
   for (int i = 0; i < Partitions.Len(); i++){
     TRowIterator RowI(Partitions[i].GetVal1(), this);
@@ -1319,7 +1319,7 @@ void TTable::Aggregate(const TStrV& GroupByAttrs, TAttrAggr AggOp,
 					}
   					NumOfGroups = x;
   					GroupingCase = 4;
-  					printf("Number of groups: %d\n", NumOfGroups.Val);
+  					//printf("Number of groups: %d\n", NumOfGroups.Val);
   					break;
   				}
   				#endif //_OPENMP
@@ -3571,6 +3571,7 @@ void TTable::SetFltColToConstMP(TInt UpdateColIdx, TFlt DefaultFltVal){
 		TRowIterator EndI(Partitions[i].GetVal2(), this);
 		while(RowI < EndI){
 			FltCols[UpdateColIdx][RowI.GetRowIdx()] = DefaultFltVal;
+			RowI++;
 		}
 	}
 }
@@ -3592,18 +3593,19 @@ void TTable::UpdateFltFromTableMP(const TStr& KeyAttr, const TStr& UpdateAttr, c
 
   	// TODO: this should be a generic vector operation
   	SetFltColToConstMP(UpdateColIdx, DefaultFltVal);
-
+  		
 	TIntPrV Partitions;
 	Table.GetPartitionRanges(Partitions, omp_get_max_threads()*CHUNKS_PER_THREAD);
 	TInt PartitionSize = Partitions[0].GetVal2()-Partitions[0].GetVal1()+1;
-	TIntV Locks(NumValidRows);
+	TIntV Locks(NumRows);
 	Locks.PutAll(0);	// need to parallelize this...
   	switch(KeyType){
   		// TODO: add support for other cases of KeyType
   		case atInt:{
   			THashMP<TInt,TIntV> Grouping;
+  			// must use physical row ids
   			GroupByIntColMP(NKeyAttr, Grouping, true);
-			#pragma omp parallel for schedule(dynamic, CHUNKS_PER_THREAD)
+			#pragma omp parallel for schedule(dynamic, CHUNKS_PER_THREAD) //num_threads(1)
 			for (int i = 0; i < Partitions.Len(); i++){
 				TRowIterator RowI(Partitions[i].GetVal1(), &Table);
 				TRowIterator EndI(Partitions[i].GetVal2(), &Table);
@@ -3611,11 +3613,14 @@ void TTable::UpdateFltFromTableMP(const TStr& KeyAttr, const TStr& UpdateAttr, c
   					TInt K = RowI.GetIntAttr(NFKeyAttr);
   					if(Grouping.IsKey(K)){
   						TIntV UpdateRows = Grouping.GetDat(K);
-  						for(int i = 0; i < UpdateRows.Len(); i++){
-  							if(!__sync_bool_compare_and_swap(&Locks[i].Val, 0, 1)){ continue;}
-  							FltCols[UpdateColIdx][UpdateRows[i]] = RowI.GetFltAttr(NReadAttr);
+  						for(int j = 0; j < UpdateRows.Len(); j++){
+  							if(!__sync_bool_compare_and_swap(&Locks[UpdateRows[j]].Val, 0, 1)){ continue;}
+  							//printf("key = %d, row = %d, old_score = %f\n", K.Val, j, UpdateRows[j].Val, FltCols[UpdateColIdx][UpdateRows[j]].Val);
+  							FltCols[UpdateColIdx][UpdateRows[j]] = RowI.GetFltAttr(NReadAttr);
+  							//printf("key = %d, new_score = %f\n", K.Val, j, FltCols[UpdateColIdx][UpdateRows[j]].Val);
   					 	} // end of for loop
   					} // end of if statement
+  					RowI++;
   				} // end of while loop
   			}	// end of for loop
   			break;
