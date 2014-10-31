@@ -918,6 +918,7 @@ void TTable::GroupingSanityCheck(const TStr& GroupBy, const TAttrType& AttrType)
 #ifdef _OPENMP
 void TTable::GroupByIntColMP(const TStr& GroupBy, THashMP<TInt, TIntV>& Grouping, TBool UsePhysicalIds) const {
   TInt IdColIdx = GetColIdx(IdColName);
+  TInt GroupByColIdx = GetColIdx(GroupBy);
   if(!UsePhysicalIds && IdColIdx < 0){
   	TExcept::Throw("Grouping: Either use physical row ids, or have an id column");
   }
@@ -941,7 +942,7 @@ void TTable::GroupByIntColMP(const TStr& GroupBy, THashMP<TInt, TIntV>& Grouping
     while (RowI < EndI) {
       TInt idx = UsePhysicalIds ? RowI.GetRowIdx() : RowI.GetIntAttr(IdColIdx);
       // printf("updating grouping with key = %d, row_id = %d\n", RowI.GetIntAttr(GroupBy).Val, idx.Val);
-      UpdateGrouping<TInt>(Grouping, RowI.GetIntAttr(GroupBy), idx);
+      UpdateGrouping<TInt>(Grouping, RowI.GetIntAttr(GroupByColIdx), idx);
       RowI++;
     }
   }
