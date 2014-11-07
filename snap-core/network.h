@@ -153,8 +153,8 @@ public:
   int AddNode(int NId = -1);
   /// Adds a node of ID NId and node data NodeDat to the network. ##TNodeNet::AddNode-1
   int AddNode(int NId, const TNodeData& NodeDat);
-  /// Adds a node NodeId and its node data to the network.
-  int AddNode(const TNodeI& NodeId) { return AddNode(NodeId.GetId(), NodeId.GetDat()); }
+  /// Adds a node NodeI and its node data to the network.
+  int AddNode(const TNodeI& NodeI) { return AddNode(NodeI.GetId(), NodeI.GetDat()); }
   /// Deletes node of ID NId from the network. ##TNodeNet::DelNode
   void DelNode(const int& NId);
   /// Deletes node of ID NodeI.GetId() from the network.
@@ -564,8 +564,8 @@ public:
   int AddNode(int NId = -1);
   /// Adds a node of ID NId and node data NodeDat to the network. ##TNodeEDatNet::AddNode-1
   int AddNode(int NId, const TNodeData& NodeDat);
-  /// Adds a node NodeId and its node data to the network.
-  int AddNode(const TNodeI& NodeId) { return AddNode(NodeId.GetId(), NodeId.GetDat()); }
+  /// Adds a node NodeI and its node data to the network.
+  int AddNode(const TNodeI& NodeI) { return AddNode(NodeI.GetId(), NodeI.GetDat()); }
   /// Deletes node of ID NId from the network. ##TNodeEDatNet::DelNode
   void DelNode(const int& NId);
   /// Deletes node of ID NodeI.GetId() from the network.
@@ -1092,8 +1092,8 @@ public:
   int AddNode(int NId = -1);
   /// Adds node data to node with ID NId. ##TNodeEdgeNet::AddNode-1
   int AddNode(int NId, const TNodeData& NodeDat);
-  /// Adds a node NodeId and its node data to the network.
-  int AddNode(const TNodeI& NodeId) { return AddNode(NodeId.GetId(), NodeId.GetDat()); }
+  /// Adds a node NodeI and its node data to the network.
+  int AddNode(const TNodeI& NodeI) { return AddNode(NodeI.GetId(), NodeI.GetDat()); }
   /// Deletes node of ID NId from the network. ##TNodeEdgeNet::DelNode
   void DelNode(const int& NId);
   /// Deletes node of ID NodeI.GetId() from the network.
@@ -1754,7 +1754,7 @@ public:
   /// Adds a node of ID NId to the graph. ##TNEANet::AddNode
   int AddNode(int NId = -1);
   /// Adds a node of ID NodeI.GetId() to the graph.
-  int AddNode(const TNodeI& NodeId) { return AddNode(NodeId.GetId()); }
+  int AddNode(const TNodeI& NodeI) { return AddNode(NodeI.GetId()); }
   /// Deletes node of ID NId from the graph. ##TNEANet::DelNode
   void DelNode(const int& NId);
   /// Deletes node of ID NodeI.GetId() from the graph.
@@ -1961,63 +1961,80 @@ public:
   void Dump(FILE *OutF=stdout) const;
 
   /// Attribute based add function for attr to Int value. ##TNEANet::AddIntAttrDatN
-  int AddIntAttrDatN(const TNodeI& NodeId, const TInt& value, const TStr& attr) { return AddIntAttrDatN(NodeId.GetId(), value, attr); }
+  int AddIntAttrDatN(const TNodeI& NodeI, const TInt& value, const TStr& attr) { return AddIntAttrDatN(NodeI.GetId(), value, attr); }
   int AddIntAttrDatN(const int& NId, const TInt& value, const TStr& attr);
   /// Attribute based add function for attr to Str value. ##TNEANet::AddStrAttrDatN
-  int AddStrAttrDatN(const TNodeI& NodeId, const TStr& value, const TStr& attr) { return AddStrAttrDatN(NodeId.GetId(), value, attr); }
+  int AddStrAttrDatN(const TNodeI& NodeI, const TStr& value, const TStr& attr) { return AddStrAttrDatN(NodeI.GetId(), value, attr); }
   int AddStrAttrDatN(const int& NId, const TStr& value, const TStr& attr);
   /// Attribute based add function for attr to Flt value. ##TNEANet::AddFltAttrDatN
-  int AddFltAttrDatN(const TNodeI& NodeId, const TFlt& value, const TStr& attr) { return AddFltAttrDatN(NodeId.GetId(), value, attr); }
+  int AddFltAttrDatN(const TNodeI& NodeI, const TFlt& value, const TStr& attr) { return AddFltAttrDatN(NodeI.GetId(), value, attr); }
   int AddFltAttrDatN(const int& NId, const TFlt& value, const TStr& attr);
 
   /// Attribute based add function for attr to Int value. ##TNEANet::AddIntAttrDatE
-  int AddIntAttrDatE(const TEdgeI& EdgeId, const TInt& value, const TStr& attr) { return AddIntAttrDatE(EdgeId.GetId(), value, attr); }
+  int AddIntAttrDatE(const TEdgeI& EdgeI, const TInt& value, const TStr& attr) { return AddIntAttrDatE(EdgeI.GetId(), value, attr); }
   int AddIntAttrDatE(const int& EId, const TInt& value, const TStr& attr);
   /// Attribute based add function for attr to Str value. ##TNEANet::AddStrAttrDatE
-  int AddStrAttrDatE(const TEdgeI& EdgeId, const TStr& value, const TStr& attr) { return AddStrAttrDatE(EdgeId.GetId(), value, attr); }
+  int AddStrAttrDatE(const TEdgeI& EdgeI, const TStr& value, const TStr& attr) { return AddStrAttrDatE(EdgeI.GetId(), value, attr); }
   int AddStrAttrDatE(const int& EId, const TStr& value, const TStr& attr);
   /// Attribute based add function for attr to Flt value. ##TNEANet::AddFltAttrDatE
-  int AddFltAttrDatE(const TEdgeI& EdgeId, const TFlt& value, const TStr& attr) { return AddFltAttrDatE(EdgeId.GetId(), value, attr); }
+  int AddFltAttrDatE(const TEdgeI& EdgeI, const TFlt& value, const TStr& attr) { return AddFltAttrDatE(EdgeI.GetId(), value, attr); }
   int AddFltAttrDatE(const int& EId, const TFlt& value, const TStr& attr);
 
   /// Gets the value of int attr from the node attr value vector.
-  TInt GetIntAttrDatN(const TNodeI& NodeId, const TStr& attr) { return GetIntAttrDatN(NodeId.GetId(), attr); }
+  TInt GetIntAttrDatN(const TNodeI& NodeI, const TStr& attr) { return GetIntAttrDatN(NodeI.GetId(), attr); }
   TInt GetIntAttrDatN(const int& NId, const TStr& attr);
 
   /// Gets the value of str attr from the node attr value vector.
-  TStr GetStrAttrDatN(const TNodeI& NodeId, const TStr& attr) { return GetStrAttrDatN(NodeId.GetId(), attr); }
+  TStr GetStrAttrDatN(const TNodeI& NodeI, const TStr& attr) { return GetStrAttrDatN(NodeI.GetId(), attr); }
   TStr GetStrAttrDatN(const int& NId, const TStr& attr);
   /// Gets the value of flt attr from the node attr value vector.
-  TFlt GetFltAttrDatN(const TNodeI& NodeId, const TStr& attr) { return GetFltAttrDatN(NodeId.GetId(), attr); }
+  TFlt GetFltAttrDatN(const TNodeI& NodeI, const TStr& attr) { return GetFltAttrDatN(NodeI.GetId(), attr); }
   TFlt GetFltAttrDatN(const int& NId, const TStr& attr);
 
-  /// Gets the index of the node attr value vector specified by str attr.
+  /// Gets the index of the node attr value vector specified by \c attr (same as GetAttrIndN for compatibility reasons).
   int GetIntAttrIndN(const TStr& attr);
-  /// Gets the value of node int attr specified by the attr index.
-  TInt GetIntAttrIndDatN(const TNodeI& NodeId, const int& index) { return GetIntAttrIndDatN(NodeId.GetId(), index); }
+  /// Gets the index of the node attr value vector specified by \c attr.
+  int GetAttrIndN(const TStr& attr);
+
+  /// Gets the value of an int node attr specified by node iterator \c NodeI and the attr \c index.
+  TInt GetIntAttrIndDatN(const TNodeI& NodeI, const int& index) { return GetIntAttrIndDatN(NodeI.GetId(), index); }
+  /// Gets the value of an int node attr specified by node ID \c NId and the attr \c index.
   TInt GetIntAttrIndDatN(const int& NId, const int& index);
 
+  /// Gets the value of a string node attr specified by node iterator \c NodeI and the attr \c index.
+  TStr GetStrAttrIndDatN(const TNodeI& NodeI, const int& index) { return GetStrAttrIndDatN(NodeI.GetId(), index); }
+  /// Gets the value of a string node attr specified by node ID \c NId and the attr \c index.
+  TStr GetStrAttrIndDatN(const int& NId, const int& index);
+
+  /// Gets the value of a float node attr specified by node iterator \c NodeI and the attr \c index.
+  TFlt GetFltAttrIndDatN(const TNodeI& NodeI, const int& index) { return GetFltAttrIndDatN(NodeI.GetId(), index); }
+  /// Gets the value of a float node attr specified by node ID \c NId and the attr \c index.
+  TFlt GetFltAttrIndDatN(const int& NId, const int& index);
+
   /// Gets the value of int attr from the edge attr value vector.
-  TInt GetIntAttrDatE(const TEdgeI& EdgeId, const TStr& attr) { return GetIntAttrDatE(EdgeId.GetId(), attr); }
+  TInt GetIntAttrDatE(const TEdgeI& EdgeI, const TStr& attr) { return GetIntAttrDatE(EdgeI.GetId(), attr); }
   TInt GetIntAttrDatE(const int& EId, const TStr& attr);
   /// Gets the value of str attr from the edge attr value vector.
-  TStr GetStrAttrDatE(const TEdgeI& EdgeId, const TStr& attr) { return GetStrAttrDatE(EdgeId.GetId(), attr); }
+  TStr GetStrAttrDatE(const TEdgeI& EdgeI, const TStr& attr) { return GetStrAttrDatE(EdgeI.GetId(), attr); }
   TStr GetStrAttrDatE(const int& EId, const TStr& attr);
   /// Gets the value of flt attr from the edge attr value vector.
-  TFlt GetFltAttrDatE(const TEdgeI& EdgeId, const TStr& attr) { return GetFltAttrDatE(EdgeId.GetId(), attr); }
+  TFlt GetFltAttrDatE(const TEdgeI& EdgeI, const TStr& attr) { return GetFltAttrDatE(EdgeI.GetId(), attr); }
   TFlt GetFltAttrDatE(const int& EId, const TStr& attr);
 
-  /// Gets the index of the edge attr value vector specified by str attr.
+  /// Gets the index of the edge attr value vector specified by \c attr (same as GetAttrIndN for compatibility reasons).
   int GetIntAttrIndE(const TStr& attr);
+  /// Gets the index of the edge attr value vector specified by \c attr.
+  int GetAttrIndE(const TStr& attr);
+
   /// Gets the value of edge int attr specified by the attr index.
-  TInt GetIntAttrIndDatE(const TEdgeI& EdgeId, const int &index) { return GetIntAttrIndDatE(EdgeId.GetId(), index); }
+  TInt GetIntAttrIndDatE(const TEdgeI& EdgeI, const int &index) { return GetIntAttrIndDatE(EdgeI.GetId(), index); }
   TInt GetIntAttrIndDatE(const int& EId, const int& index);
  
-  /// Deletes the node attribute for NodeId.
-  int DelAttrDatN(const TNodeI& NodeId, const TStr& attr) { return DelAttrDatN(NodeId.GetId(), attr); } 
+  /// Deletes the node attribute for NodeI.
+  int DelAttrDatN(const TNodeI& NodeI, const TStr& attr) { return DelAttrDatN(NodeI.GetId(), attr); } 
   int DelAttrDatN(const int& NId, const TStr& attr); 
-  /// Deletes the edge attribute for NodeId.
-  int DelAttrDatE(const TEdgeI& EdgeId, const TStr& attr) { return DelAttrDatE(EdgeId.GetId(), attr); } 
+  /// Deletes the edge attribute for NodeI.
+  int DelAttrDatE(const TEdgeI& EdgeI, const TStr& attr) { return DelAttrDatE(EdgeI.GetId(), attr); } 
   int DelAttrDatE(const int& EId, const TStr& attr); 
 
   /// Adds a new Int node attribute to the hashmap.
