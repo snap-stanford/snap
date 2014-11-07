@@ -158,7 +158,7 @@ void TNEANet::AttrValueEI(const TInt& EId, TStrIntPrH::TIter EdgeHI, TStrV& Valu
   Values = TVec<TStr>();
   while (!EdgeHI.IsEnd()) {
     if (!EdgeAttrIsDeleted(EId, EdgeHI)) {
-      Values.Add(GetNodeAttrValue(EId, EdgeHI));
+      Values.Add(GetEdgeAttrValue(EId, EdgeHI));
     }
     EdgeHI++;
   }  
