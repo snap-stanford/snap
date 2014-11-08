@@ -2021,14 +2021,25 @@ public:
   TFlt GetFltAttrDatE(const TEdgeI& EdgeI, const TStr& attr) { return GetFltAttrDatE(EdgeI.GetId(), attr); }
   TFlt GetFltAttrDatE(const int& EId, const TStr& attr);
 
-  /// Gets the index of the edge attr value vector specified by \c attr (same as GetAttrIndN for compatibility reasons).
+  /// Gets the index of the edge attr value vector specified by \c attr (same as GetAttrIndE for compatibility reasons).
   int GetIntAttrIndE(const TStr& attr);
   /// Gets the index of the edge attr value vector specified by \c attr.
   int GetAttrIndE(const TStr& attr);
 
-  /// Gets the value of edge int attr specified by the attr index.
-  TInt GetIntAttrIndDatE(const TEdgeI& EdgeI, const int &index) { return GetIntAttrIndDatE(EdgeI.GetId(), index); }
+  /// Gets the value of an int edge attr specified by edge iterator \c EdgeI and the attr \c index.
+  TInt GetIntAttrIndDatE(const TEdgeI& EdgeI, const int& index) { return GetIntAttrIndDatE(EdgeI.GetId(), index); }
+  /// Gets the value of an int edge attr specified by edge ID \c EId and the attr \c index.
   TInt GetIntAttrIndDatE(const int& EId, const int& index);
+ 
+  /// Gets the value of a float edge attr specified by edge iterator \c EdgeI and the attr \c index.
+  TFlt GetFltAttrIndDatE(const TEdgeI& EdgeI, const int& index) { return GetFltAttrIndDatE(EdgeI.GetId(), index); }
+  /// Gets the value of an int edge attr specified by edge ID \c EId and the attr \c index.
+  TFlt GetFltAttrIndDatE(const int& EId, const int& index);
+ 
+  /// Gets the value of a string edge attr specified by edge iterator \c EdgeI and the attr \c index.
+  TStr GetStrAttrIndDatE(const TEdgeI& EdgeI, const int& index) { return GetStrAttrIndDatE(EdgeI.GetId(), index); }
+  /// Gets the value of an int edge attr specified by edge ID \c EId and the attr \c index.
+  TStr GetStrAttrIndDatE(const int& EId, const int& index);
  
   /// Deletes the node attribute for NodeI.
   int DelAttrDatN(const TNodeI& NodeI, const TStr& attr) { return DelAttrDatN(NodeI.GetId(), attr); } 
