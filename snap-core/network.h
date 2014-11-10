@@ -2067,22 +2067,40 @@ public:
   /// Removes all the values for edge  attr.
   int DelAttrE(const TStr& attr);
 
-  // Returns true if NId deleted for current node attr iterator.
+  // Returns true if \c attr exists for node \c NId and has default value.
+  bool IsAttrDeletedN(const int& NId, const TStr& attr) const;
+  // Returns true if Int \c attr exists for node \c NId and has default value.
+  bool IsIntAttrDeletedN(const int& NId, const TStr& attr) const;
+  // Returns true if Str \c attr exists for node \c NId and has default value.
+  bool IsStrAttrDeletedN(const int& NId, const TStr& attr) const;
+  // Returns true if Flt \c attr exists for node \c NId and has default value.
+  bool IsFltAttrDeletedN(const int& NId, const TStr& attr) const;
+
+  // Returns true if NId attr deleted for current node attr iterator.
   bool NodeAttrIsDeleted(const int& NId, const TStrIntPrH::TIter& NodeHI) const;
-  // Returns true if NId deleted for current node int attr iterator.
+  // Returns true if NId attr deleted value for current node int attr iterator.
   bool NodeAttrIsIntDeleted(const int& NId, const TStrIntPrH::TIter& NodeHI) const;
-  // Returns true if NId deleted for current node str attr iterator.
+  // Returns true if NId attr deleted value for current node str attr iterator.
   bool NodeAttrIsStrDeleted(const int& NId, const TStrIntPrH::TIter& NodeHI) const;
-  // Returns true if NId deleted for current node flt attr iterator.
+  // Returns true if NId attr deleted value for current node flt attr iterator.
   bool NodeAttrIsFltDeleted(const int& NId, const TStrIntPrH::TIter& NodeHI) const;
 
-  // Returns true if EId deleted for current edge attr iterator.
+  // Returns true if \c attr exists for edge \c EId and has default value.
+  bool IsAttrDeletedE(const int& EId, const TStr& attr) const;
+  // Returns true if Int \c attr exists for edge \c EId and has default value.
+  bool IsIntAttrDeletedE(const int& EId, const TStr& attr) const;
+  // Returns true if Str \c attr exists for edge \c NId and has default value.
+  bool IsStrAttrDeletedE(const int& EId, const TStr& attr) const;
+  // Returns true if Flt \c attr exists for edge \c NId and has default value.
+  bool IsFltAttrDeletedE(const int& EId, const TStr& attr) const;
+
+  // Returns true if EId attr deleted for current edge attr iterator.
   bool EdgeAttrIsDeleted(const int& EId, const TStrIntPrH::TIter& EdgeHI) const;
-  // Returns true if EId deleted for current edge int attr iterator.
+  // Returns true if EId attr deleted for current edge int attr iterator.
   bool EdgeAttrIsIntDeleted(const int& EId, const TStrIntPrH::TIter& EdgeHI) const;
-  // Returns true if EId deleted for current edge str attr iterator.
+  // Returns true if EId attr deleted for current edge str attr iterator.
   bool EdgeAttrIsStrDeleted(const int& EId, const TStrIntPrH::TIter& EdgeHI) const;
-  // Returns true if EId deleted for current edge flt attr iterator.
+  // Returns true if EId attr deleted for current edge flt attr iterator.
   bool EdgeAttrIsFltDeleted(const int& EId, const TStrIntPrH::TIter& EdgeHI) const;
 
   // Returns node attribute value, converted to Str type.

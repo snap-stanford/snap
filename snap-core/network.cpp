@@ -105,6 +105,25 @@ void TNEANet::FltAttrValueNI(const TInt& NId, TStrIntPrH::TIter NodeHI, TFltV& V
   }  
 }
 
+bool TNEANet::IsAttrDeletedN(const int& NId, const TStr& attr) const {
+  bool IntDel = IsIntAttrDeletedN(NId, attr);
+  bool StrDel = IsStrAttrDeletedN(NId, attr);
+  bool FltDel = IsFltAttrDeletedN(NId, attr);
+  return IntDel || StrDel || FltDel;
+}
+
+bool TNEANet::IsIntAttrDeletedN(const int& NId, const TStr& attr) const {
+  return NodeAttrIsIntDeleted(NId, KeyToIndexTypeN.GetI(attr));
+}
+
+bool TNEANet::IsStrAttrDeletedN(const int& NId, const TStr& attr) const {
+  return NodeAttrIsStrDeleted(NId, KeyToIndexTypeN.GetI(attr));
+}
+
+bool TNEANet::IsFltAttrDeletedN(const int& NId, const TStr& attr) const {
+  return NodeAttrIsFltDeleted(NId, KeyToIndexTypeN.GetI(attr));
+}
+
 bool TNEANet::NodeAttrIsDeleted(const int& NId, const TStrIntPrH::TIter& NodeHI) const {
   bool IntDel = NodeAttrIsIntDeleted(NId, NodeHI);
   bool StrDel = NodeAttrIsStrDeleted(NId, NodeHI);
@@ -113,20 +132,26 @@ bool TNEANet::NodeAttrIsDeleted(const int& NId, const TStrIntPrH::TIter& NodeHI)
 }
 
 bool TNEANet::NodeAttrIsIntDeleted(const int& NId, const TStrIntPrH::TIter& NodeHI) const {
-  return (NodeHI.GetDat().Val1 == IntType &&
-    GetIntAttrDefaultN(NodeHI.GetKey()) == this->VecOfIntVecsN.GetVal(
+  if (NodeHI.GetDat().Val1 != IntType) {
+    return false;
+  }
+  return (GetIntAttrDefaultN(NodeHI.GetKey()) == this->VecOfIntVecsN.GetVal(
     this->KeyToIndexTypeN.GetDat(NodeHI.GetKey()).Val2).GetVal(NodeH.GetKeyId(NId)));
 }
 
 bool TNEANet::NodeAttrIsStrDeleted(const int& NId, const TStrIntPrH::TIter& NodeHI) const {
-  return (NodeHI.GetDat().Val1 == StrType &&
-    GetStrAttrDefaultN(NodeHI.GetKey()) == this->VecOfStrVecsN.GetVal(
+  if (NodeHI.GetDat().Val1 != StrType) {
+    return false;
+  }
+  return (GetStrAttrDefaultN(NodeHI.GetKey()) == this->VecOfStrVecsN.GetVal(
     this->KeyToIndexTypeN.GetDat(NodeHI.GetKey()).Val2).GetVal(NodeH.GetKeyId(NId)));
 }
 
 bool TNEANet::NodeAttrIsFltDeleted(const int& NId, const TStrIntPrH::TIter& NodeHI) const {
-  return (NodeHI.GetDat().Val1 == FltType &&
-    GetFltAttrDefaultN(NodeHI.GetKey()) == this->VecOfFltVecsN.GetVal(
+  if (NodeHI.GetDat().Val1 != FltType) {
+    return false;
+  }
+  return (GetFltAttrDefaultN(NodeHI.GetKey()) == this->VecOfFltVecsN.GetVal(
     this->KeyToIndexTypeN.GetDat(NodeHI.GetKey()).Val2).GetVal(NodeH.GetKeyId(NId)));
 }
 
@@ -225,6 +250,25 @@ void TNEANet::FltAttrValueEI(const TInt& EId, TStrIntPrH::TIter EdgeHI, TFltV& V
     }
     EdgeHI++;
   }  
+}
+
+bool TNEANet::IsAttrDeletedE(const int& EId, const TStr& attr) const {
+  bool IntDel = IsIntAttrDeletedE(EId, attr);
+  bool StrDel = IsStrAttrDeletedE(EId, attr);
+  bool FltDel = IsFltAttrDeletedE(EId, attr);
+  return IntDel || StrDel || FltDel;
+}
+
+bool TNEANet::IsIntAttrDeletedE(const int& EId, const TStr& attr) const {
+  return EdgeAttrIsIntDeleted(EId, KeyToIndexTypeE.GetI(attr));
+}
+
+bool TNEANet::IsStrAttrDeletedE(const int& EId, const TStr& attr) const {
+  return EdgeAttrIsStrDeleted(EId, KeyToIndexTypeE.GetI(attr));
+}
+
+bool TNEANet::IsFltAttrDeletedE(const int& EId, const TStr& attr) const {
+  return EdgeAttrIsFltDeleted(EId, KeyToIndexTypeE.GetI(attr));
 }
 
 bool TNEANet::EdgeAttrIsDeleted(const int& EId, const TStrIntPrH::TIter& EdgeHI) const {
