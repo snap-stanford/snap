@@ -383,8 +383,6 @@ protected:
   void AddRow(const TRowIterator& RI);
   /// Adds row with values corresponding to the given vectors by type.
   void AddRow(const TIntV& IntVals, const TFltV& FltVals, const TStrV& StrVals);
-  /// Adds row with values taken from given TTableRow.
-  void AddRow(const TTableRow& Row) { AddRow(Row.GetIntVals(), Row.GetFltVals(), Row.GetStrVals()); };
 
 /***** Utility functions for building graph from TTable *****/
   /// Adds names of columns to be used as graph attributes.
@@ -625,7 +623,9 @@ public:
     T->InitIds();
     return T;
   }
-  
+  /// Adds row with values taken from given TTableRow.
+  void AddRow(const TTableRow& Row) { AddRow(Row.GetIntVals(), Row.GetFltVals(), Row.GetStrVals()); };
+
 /***** Value Getters - getValue(column name, physical row Idx) *****/
   // No type checking. Assuming ColName actually refers to the right type.
   /// Gets the value of integer attribute \c ColName at row \c RowIdx.
