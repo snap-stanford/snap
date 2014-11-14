@@ -7,154 +7,154 @@ This test benchmarks the different steps in an implementation of PageRank using 
 */
 
 int main(int argc, char** argv){
-	int Iters = 10;
-	TBool debug = false;
-	//TStr infile = "/lfs/madmax2/0/yonathan/twitter_rv.txt";
-	TStr infile = "/lfs/madmax2/0/yonathan/soc-LiveJournal1-noheader.txt";
-	if(debug){ infile = "/lfs/madmax2/0/yonathan/edges.tsv";}
-	Schema S;
-	S.Add(TPair<TStr,TAttrType>("src", atInt));
-	S.Add(TPair<TStr,TAttrType>("dst", atInt));
-	TTableContext Context;
-	TTable::SetMP(false);
+  int Iters = 10;
+  TBool debug = false;
+  //TStr infile = "/lfs/madmax2/0/yonathan/twitter_rv.txt";
+  TStr infile = "/lfs/madmax2/0/yonathan/soc-LiveJournal1-noheader.txt";
+  if(debug){ infile = "/lfs/madmax2/0/yonathan/edges.tsv";}
+  Schema S;
+  S.Add(TPair<TStr,TAttrType>("src", atInt));
+  S.Add(TPair<TStr,TAttrType>("dst", atInt));
+  TTableContext Context;
+  TTable::SetMP(false);
 	
-	float ft_max, mu_max;
+  float ft_max, mu_max;
 	
-	timeval timer0;
-	gettimeofday(&timer0, NULL);
-	double t1 = timer0.tv_sec + (timer0.tv_usec/1000000.0);
-	PTable Edges = TTable::LoadSS(S, infile, Context);
-	gettimeofday(&timer0, NULL);
-	double t2 = timer0.tv_sec + (timer0.tv_usec/1000000.0);
-	printf("Time to load table: %f\n", t2 - t1);
-	getmaxcpumem(&ft_max, &mu_max);
-	printf("time: %0.3f seconds, memory: %0.3f MB\n", ft_max, mu_max);
-	printf("\n");
+  timeval timer0;
+  gettimeofday(&timer0, NULL);
+  double t1 = timer0.tv_sec + (timer0.tv_usec/1000000.0);
+  PTable Edges = TTable::LoadSS(S, infile, Context);
+  gettimeofday(&timer0, NULL);
+  double t2 = timer0.tv_sec + (timer0.tv_usec/1000000.0);
+  printf("Time to load table: %f\n", t2 - t1);
+  getmaxcpumem(&ft_max, &mu_max);
+  printf("time: %0.3f seconds, memory: %0.3f MB\n", ft_max, mu_max);
+  printf("\n");
 	
-	/// generate nodes table ///
-	// Projections
-	timeval timer1;
-	gettimeofday(&timer1, NULL);
-	t1 = timer1.tv_sec + (timer1.tv_usec/1000000.0);
+  /// generate nodes table ///
+  // Projections
+  timeval timer1;
+  gettimeofday(&timer1, NULL);
+  t1 = timer1.tv_sec + (timer1.tv_usec/1000000.0);
 	
-	TStrV SrcProj;
-	SrcProj.Add("src");
-	PTable SrcT = Edges->Project(SrcProj);
-	TStrV DstProj;
-	DstProj.Add("dst");
-	PTable DstT = Edges->Project(DstProj);
+  TStrV SrcProj;
+  SrcProj.Add("src");
+  PTable SrcT = Edges->Project(SrcProj);
+  TStrV DstProj;
+  DstProj.Add("dst");
+  PTable DstT = Edges->Project(DstProj);
 	
-	gettimeofday(&timer1, NULL);
-	t2 = timer1.tv_sec + (timer1.tv_usec/1000000.0);
-	printf("Time to project node columns: %f\n", t2 - t1);
-	getmaxcpumem(&ft_max, &mu_max);
-	printf("time: %0.3f seconds, memory: %0.3f MB\n", ft_max, mu_max);
-	printf("\n");
+  gettimeofday(&timer1, NULL);
+  t2 = timer1.tv_sec + (timer1.tv_usec/1000000.0);
+  printf("Time to project node columns: %f\n", t2 - t1);
+  getmaxcpumem(&ft_max, &mu_max);
+  printf("time: %0.3f seconds, memory: %0.3f MB\n", ft_max, mu_max);
+  printf("\n");
 	
-	// Unique Src Table
-	timeval timer2;
-	gettimeofday(&timer2, NULL);
-	t1 = timer2.tv_sec + (timer2.tv_usec/1000000.0);
+  // Unique Src Table
+  timeval timer2;
+  gettimeofday(&timer2, NULL);
+  t1 = timer2.tv_sec + (timer2.tv_usec/1000000.0);
 	
-	SrcT->Unique("src");
-	SrcT->Rename("src","NId");
-	if(debug){SrcT->SaveSS("SrcNodes.tsv");}
+  SrcT->Unique("src");
+  SrcT->Rename("src","NId");
+  if(debug){SrcT->SaveSS("SrcNodes.tsv");}
 	
-	gettimeofday(&timer2, NULL);
-	t2 = timer2.tv_sec + (timer2.tv_usec/1000000.0);
-	printf("Time for src unique: %f\n", t2 - t1);
-	getmaxcpumem(&ft_max, &mu_max);
-	printf("time: %0.3f seconds, memory: %0.3f MB\n", ft_max, mu_max);
-	printf("\n");
+  gettimeofday(&timer2, NULL);
+  t2 = timer2.tv_sec + (timer2.tv_usec/1000000.0);
+  printf("Time for src unique: %f\n", t2 - t1);
+  getmaxcpumem(&ft_max, &mu_max);
+  printf("time: %0.3f seconds, memory: %0.3f MB\n", ft_max, mu_max);
+  printf("\n");
 	
-	// Unique Dst Table
-	timeval timer3;
-	gettimeofday(&timer3, NULL);
-	t1 = timer3.tv_sec + (timer3.tv_usec/1000000.0);
+  // Unique Dst Table
+  timeval timer3;
+  gettimeofday(&timer3, NULL);
+  t1 = timer3.tv_sec + (timer3.tv_usec/1000000.0);
 	
-	DstT->Unique("dst");
-	DstT->Rename("dst","NId");
-	if(debug){DstT->SaveSS("DstNodes.tsv");}
+  DstT->Unique("dst");
+  DstT->Rename("dst","NId");
+  if(debug){DstT->SaveSS("DstNodes.tsv");}
 	
-	gettimeofday(&timer3, NULL);
-	t2 = timer3.tv_sec + (timer3.tv_usec/1000000.0);
-	printf("Time for dst unique: %f\n", t2 - t1);
-	getmaxcpumem(&ft_max, &mu_max);
-	printf("time: %0.3f seconds, memory: %0.3f MB\n", ft_max, mu_max);
-	printf("\n");
+  gettimeofday(&timer3, NULL);
+  t2 = timer3.tv_sec + (timer3.tv_usec/1000000.0);
+  printf("Time for dst unique: %f\n", t2 - t1);
+  getmaxcpumem(&ft_max, &mu_max);
+  printf("time: %0.3f seconds, memory: %0.3f MB\n", ft_max, mu_max);
+  printf("\n");
 	
-	// Union Src & Dst
-	timeval timer4;
-	gettimeofday(&timer4, NULL);
-	t1 = timer4.tv_sec + (timer4.tv_usec/1000000.0);
+  // Union Src & Dst
+  timeval timer4;
+  gettimeofday(&timer4, NULL);
+  t1 = timer4.tv_sec + (timer4.tv_usec/1000000.0);
 	
-	PTable Nodes = SrcT->Union(DstT);
-	if(debug){Nodes->SaveSS("UnionNodes.tsv");}
+  PTable Nodes = SrcT->Union(DstT);
+  if(debug){Nodes->SaveSS("UnionNodes.tsv");}
 	
-	gettimeofday(&timer4, NULL);
-	t2 = timer4.tv_sec + (timer4.tv_usec/1000000.0);
-	printf("Time to union src & dst: %f\n", t2 - t1);
-	getmaxcpumem(&ft_max, &mu_max);
-	printf("time: %0.3f seconds, memory: %0.3f MB\n", ft_max, mu_max);
-	printf("\n");
+  gettimeofday(&timer4, NULL);
+  t2 = timer4.tv_sec + (timer4.tv_usec/1000000.0);
+  printf("Time to union src & dst: %f\n", t2 - t1);
+  getmaxcpumem(&ft_max, &mu_max);
+  printf("time: %0.3f seconds, memory: %0.3f MB\n", ft_max, mu_max);
+  printf("\n");
 	
-	// initialize node scores in Nodes table
-	timeval timer5;
-	gettimeofday(&timer5, NULL);
-	t1 = timer5.tv_sec + (timer5.tv_usec/1000000.0);
-	
-	TInt NumNodes = Nodes->GetNumValidRows();
-	printf("Num of nodes: %d\n", NumNodes.Val);
-	TFltV Scores(Nodes->GetNumRows());
-	for(int i = 0; i < Nodes->GetNumRows(); i++){
-		Scores[i] = 1.0/NumNodes;	
-	}
-	Nodes->StoreFltCol("score",Scores);
-	if(debug){Nodes->SaveSS("InitNodes.tsv");}
-	
-	gettimeofday(&timer5, NULL);
-	t2 = timer5.tv_sec + (timer5.tv_usec/1000000.0);
-	printf("Time to initialize scores for node table: %f\n", t2 - t1);
-	getmaxcpumem(&ft_max, &mu_max);
-	printf("time: %0.3f seconds, memory: %0.3f MB\n", ft_max, mu_max);
-	printf("\n");
-	
-	TTable::SetMP(true);
-		
-	//find out degrees of all nodes
-	timeval timer6;
-	gettimeofday(&timer6, NULL);
-	t1 = timer6.tv_sec + (timer6.tv_usec/1000000.0);
+  // initialize node scores in Nodes table
+  timeval timer5;
+  gettimeofday(&timer5, NULL);
+  t1 = timer5.tv_sec + (timer5.tv_usec/1000000.0);
 
-	Edges->Count("src","out_degree");
+  TInt NumNodes = Nodes->GetNumValidRows();
+  printf("Num of nodes: %d\n", NumNodes.Val);
+  TFltV Scores(Nodes->GetNumRows());
+  for(int i = 0; i < Nodes->GetNumRows(); i++){
+  	Scores[i] = 1.0/NumNodes;	
+  }
+  Nodes->StoreFltCol("score",Scores);
+  if(debug){Nodes->SaveSS("InitNodes.tsv");}
 	
-	gettimeofday(&timer6, NULL);
-	t2 = timer6.tv_sec + (timer6.tv_usec/1000000.0);
-	printf("Time to compute out degrees: %f\n", t2 - t1);
-	getmaxcpumem(&ft_max, &mu_max);
-	printf("time: %0.3f seconds, memory: %0.3f MB\n", ft_max, mu_max);
-	printf("\n");
+  gettimeofday(&timer5, NULL);
+  t2 = timer5.tv_sec + (timer5.tv_usec/1000000.0);
+  printf("Time to initialize scores for node table: %f\n", t2 - t1);
+  getmaxcpumem(&ft_max, &mu_max);
+  printf("time: %0.3f seconds, memory: %0.3f MB\n", ft_max, mu_max);
+  printf("\n");
 	
-	// initialize node scores in Edges table
-	timeval timer7;
-	gettimeofday(&timer7, NULL);
-	t1 = timer7.tv_sec + (timer7.tv_usec/1000000.0);
+  TTable::SetMP(true);
+		
+  //find out degrees of all nodes
+  timeval timer6;
+  gettimeofday(&timer6, NULL);
+  t1 = timer6.tv_sec + (timer6.tv_usec/1000000.0);
+
+  Edges->Count("src","out_degree");
+
+  gettimeofday(&timer6, NULL);
+  t2 = timer6.tv_sec + (timer6.tv_usec/1000000.0);
+  printf("Time to compute out degrees: %f\n", t2 - t1);
+  getmaxcpumem(&ft_max, &mu_max);
+  printf("time: %0.3f seconds, memory: %0.3f MB\n", ft_max, mu_max);
+  printf("\n");
 	
-	TFltV ScoresE(Edges->GetNumRows());
-	for(int i = 0; i < ScoresE.Len(); i++){
-		ScoresE[i] = 1.0/NumNodes;	
-	}
-	Edges->StoreFltCol("score",ScoresE);
-	if(debug){Edges->SaveSS("InitEdges.tsv");}
+  // initialize node scores in Edges table
+  timeval timer7;
+  gettimeofday(&timer7, NULL);
+  t1 = timer7.tv_sec + (timer7.tv_usec/1000000.0);
 	
-	gettimeofday(&timer7, NULL);
-	t2 = timer7.tv_sec + (timer7.tv_usec/1000000.0);
-	printf("Time to initialize node scores in Edges table: %f\n", t2 - t1);
-	getmaxcpumem(&ft_max, &mu_max);
-	printf("time: %0.3f seconds, memory: %0.3f MB\n", ft_max, mu_max);
-	printf("\n");
+  TFltV ScoresE(Edges->GetNumRows());
+  for(int i = 0; i < ScoresE.Len(); i++){
+  	ScoresE[i] = 1.0/NumNodes;	
+  }
+  Edges->StoreFltCol("score",ScoresE);
+  if(debug){Edges->SaveSS("InitEdges.tsv");}
 	
-	for(int i = 0; i < Iters; i++){
+  gettimeofday(&timer7, NULL);
+  t2 = timer7.tv_sec + (timer7.tv_usec/1000000.0);
+  printf("Time to initialize node scores in Edges table: %f\n", t2 - t1);
+  getmaxcpumem(&ft_max, &mu_max);
+  printf("time: %0.3f seconds, memory: %0.3f MB\n", ft_max, mu_max);
+  printf("\n");
+	
+  for(int i = 0; i < Iters; i++){
 		char buf[5];
 		sprintf(buf,"%d",i);
 		buf[4] = 0;
@@ -272,6 +272,6 @@ int main(int argc, char** argv){
 			printf("time: %0.3f seconds, memory: %0.3f MB\n", ft_max, mu_max);
 			printf("\n");
 		}
-	}
-	return 0;
+  }
+  return 0;
 }
