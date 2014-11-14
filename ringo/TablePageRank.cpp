@@ -275,17 +275,3 @@ int main(int argc, char** argv){
 	}
 	return 0;
 }
-
-/*
- TODO:
- 	Low priority:
- 	# Parallelize AddTable
- 	# Optimize Unique
- 	# Parallelize GroupByXCol
- 	# Parallelize Union, GetCollidingRows
- 	# Parallelize StoreXCol
- 	# Fix parameter naming for Count
- 	High Priority:
- 	# Parallelize ColGenericOp (2)
- 	# Parallelize UpdateFromTable (3)
-*/
