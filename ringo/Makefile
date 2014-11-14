@@ -7,14 +7,16 @@ include ../Makefile.config
 HEADER = Engine.h
 CPP = Engine.cpp
 
-#TEST = ExplicitStringTableTest1 ExplicitStringTableTest2 ExplicitStringTableTest3 ExplicitStringTableTest4 ExplicitStringTableTest5 ExplicitStringTableTest6 PhysicalOrderSortTest1 PhysicalOrderSortTest2 LoadTest
-#TEST = PhysicalOrderSortTest1 PhysicalOrderSortTest2
-TEST = ParallelGroupByTest TablePageRank
-# GenerateMockTsv RowBasedTableTest LoadTest FilterTest AggrTest GroupTest IdTest ArithOpsTest SetOperationsTest TableTest
+TEST = RowBasedTableTest ExplicitStringTableTest1 ExplicitStringTableTest2 ExplicitStringTableTest3 ExplicitStringTableTest4 ExplicitStringTableTest5 ExplicitStringTableTest6 \
+PhysicalOrderSortTest1 PhysicalOrderSortTest2 ParallelGroupByTest TablePageRank LoadTest FilterTest AggrTest GroupTest IdTest ArithOpsTest SetOperationsTest TableTest
+#TEST = ThresholdJoinTest 
 
 all: $(TEST)
 
 # COMPILE:
+ThresholdJoinTest: ThresholdJoinTest.cpp $(CSNAP)/Snap.o
+	$(CC) $(CXXFLAGS) -o $@ $@.cpp $(CSNAP)/Snap.o -I$(CSNAP) -I$(CGLIB) $(LDFLAGS) $(LIBS)
+	
 ParallelGroupByTest: ParallelGroupByTest.cpp $(CSNAP)/Snap.o
 	$(CC) $(CXXFLAGS) -o $@ $@.cpp $(CSNAP)/Snap.o -I$(CSNAP) -I$(CGLIB) $(LDFLAGS) $(LIBS)
 	
