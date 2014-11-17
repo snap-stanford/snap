@@ -111,7 +111,7 @@ PGraph ToNetwork(PTable Table, const TStr& SrcCol, const TStr& DstCol,
     Graph->AddEdge(SVal, DVal, CurrRowIdx);
 
 		// Aggregate edge attributes and add to graph
-		for (TInt i = 0; i < Table->EdgeAttrV.Len(); i++) {
+		for (TInt i = 0; i < EdgeAttrV.Len(); i++) {
 			TStr ColName = EdgeAttrV[i];
 			TAttrType T = Table->GetColType(ColName);
 			TInt Index = Table->GetColIdx(ColName);
