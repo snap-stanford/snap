@@ -35,7 +35,11 @@ int main(int argc, char* argv[])
   PTable EdgeTable = MergeEdgeTables(EdgeTblV, EdgeSchema, Hash, Context);
   
   double ts3 = Tick();
-  PNEANet Graph = TSnap::ToNetwork<PNEANet>(EdgeTable, EdgeSchema.GetVal(0).GetVal1(), EdgeSchema.GetVal(1).GetVal1(), aaLast);
+  TStrV V;
+  TStrV VE;
+  VE.Add(EdgeSchema.GetVal(2).GetVal1());
+  PNEANet Graph = TSnap::ToNetwork<PNEANet>(EdgeTable, EdgeSchema.GetVal(0).GetVal1(), EdgeSchema.GetVal(1).GetVal1(), 
+						V, V, VE, aaLast);
   double ts4 = Tick();
   
   //int nIters = 1;
@@ -79,7 +83,7 @@ int main(int argc, char* argv[])
 //  FeaturesOut->PutStrFmtLn("Total number of edges = %d", Graph->GetEdges());
 
   PSOut TimeOut = TFOut::New(PrefixPath + TStr("time.txt"), true);
-  TimeOut->PutStrFmtLn("Experiment %s - %s", PrefixPath.CStr(), (isPar ? "Parallel" : "Sequential"));
+  TimeOut->PutStrFmtLn("Experiment Weighted - %s - %s", PrefixPath.CStr(), (isPar ? "Parallel" : "Sequential"));
   TimeOut->PutStrFmtLn("Input Time = %f", GetCPUTimeUsage(ts1, ts2));
   TimeOut->PutStrFmtLn("Preprocessing Time = %f", GetCPUTimeUsage(ts2, ts3));
   TimeOut->PutStrFmtLn("Conversion Time = %f", GetCPUTimeUsage(ts3, ts4));
