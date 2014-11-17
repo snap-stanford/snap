@@ -753,7 +753,15 @@ int TNEANet::AddFltAttrDatE(const int& EId, const TFlt& value, const TStr& attr)
     VecOfFltVecsE.Add(NewVec);
   }
   return 0;
-} 
+}
+
+TVec<TFlt>& TNEANet::GetFltAttrVecE(const TStr& attr) {
+  return VecOfFltVecsE[KeyToIndexTypeE.GetDat(attr).Val2];
+}
+
+int TNEANet::GetFltKeyIdE(const int& EId) {
+  return EdgeH.GetKeyId(EId);
+}
 
 TInt TNEANet::GetIntAttrDatN(const int& NId, const TStr& attr) {
   return VecOfIntVecsN[KeyToIndexTypeN.GetDat(attr).Val2][NodeH.GetKeyId(NId)];
@@ -998,3 +1006,36 @@ PNEANet TNEANet::GetSmallGraph() {
   return Net;
 }
 
+TFlt TNEANet::GetWeightOutEdges(const TNodeI& NI, const TStr& attr) {
+  TNode Node = GetNode(NI.GetId());
+  TIntV OutEIdV = Node.OutEIdV;
+  TFlt total = 0;
+  int len = Node.OutEIdV.Len();
+  for (int i = 0; i < len; i++) {
+    total += GetFltAttrDatE(Node.OutEIdV[i], attr);
+  }
+  return total;
+}
+
+void TNEANet::GetWeightOutEdgesV(TFltV& OutWeights, const TFltV& AttrVal) {
+  for (TEdgeI it = BegEI(); it < EndEI(); it++) {
+    int EId = it.GetId();
+    int SrcId = it.GetSrcNId();
+    OutWeights[SrcId] +=AttrVal[GetFltKeyIdE(EId)];
+  }
+}
+
+bool TNEANet::IsFltAttrE(const TStr& attr) {
+  return (KeyToIndexTypeE.IsKey(attr) && 
+    KeyToIndexTypeE.GetDat(attr).Val1 == FltType);
+}
+
+bool TNEANet::IsIntAttrE(const TStr& attr) {
+  return (KeyToIndexTypeE.IsKey(attr) && 
+    KeyToIndexTypeE.GetDat(attr).Val1 == IntType);
+}
+
+bool TNEANet::IsStrAttrE(const TStr& attr) {
+  return (KeyToIndexTypeE.IsKey(attr) && 
+    KeyToIndexTypeE.GetDat(attr).Val1 == StrType);
+}

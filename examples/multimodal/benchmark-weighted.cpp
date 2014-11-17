@@ -35,7 +35,7 @@ int main(int argc, char* argv[])
   PTable EdgeTable = MergeEdgeTables(EdgeTblV, EdgeSchema, Hash, Context);
   
   double ts3 = Tick();
-  PNGraphMP Graph = TSnap::ToGraphMP2<PNGraphMP>(EdgeTable, EdgeSchema.GetVal(0).GetVal1(), EdgeSchema.GetVal(1).GetVal1());
+  PNEANet Graph = TSnap::ToNetwork<PNEANet>(EdgeTable, EdgeSchema.GetVal(0).GetVal1(), EdgeSchema.GetVal(1).GetVal1(), aaLast);
   double ts4 = Tick();
   
   //int nIters = 1;
@@ -44,9 +44,9 @@ int main(int argc, char* argv[])
   for (int i = 0; i < nIters; i++) {
     PageRankResults = TIntFltH(ExpectedSz);
     #ifdef _OPENMP
-    TSnap::GetPageRankMP2(Graph, PageRankResults, 0.849999999999998, 0.0001, 10);
+    TSnap::GetWeightedPageRankMP2(Graph, PageRankResults, EdgeSchema.GetVal(2).GetVal1(), 0.849999999999998, 0.0001, 10);
     #else
-    TSnap::GetPageRank(Graph, PageRankResults, 0.849999999999998, 0.0001, 10);
+    TSnap::GetWeightedPageRank(Graph, PageRankResults, EdgeSchema.GetVal(2).GetVal1(), 0.849999999999998, 0.0001, 10);
     #endif
   }
   double ts5 = Tick();
@@ -56,6 +56,11 @@ int main(int argc, char* argv[])
     ResultOut->PutStrFmtLn("%s\t%f9", OriNIdV[it.GetKey()].CStr(), it.GetDat().Val);
   }
   double ts6 = Tick();
+
+  bool isPar = false;
+  #ifdef _OPENMP
+  isPar = true;
+  #endif
 
 //  PSOut FeaturesOut = TFOut::New(PrefixPath + "features.txt");
 //  FeaturesOut->PutStrFmtLn("Photo %d", PPhotoTbl->GetNumRows().Val);
@@ -74,11 +79,12 @@ int main(int argc, char* argv[])
 //  FeaturesOut->PutStrFmtLn("Total number of edges = %d", Graph->GetEdges());
 
   PSOut TimeOut = TFOut::New(PrefixPath + TStr("time.txt"), true);
+  TimeOut->PutStrFmtLn("Experiment %s - %s", PrefixPath.CStr(), (isPar ? "Parallel" : "Sequential"));
   TimeOut->PutStrFmtLn("Input Time = %f", GetCPUTimeUsage(ts1, ts2));
   TimeOut->PutStrFmtLn("Preprocessing Time = %f", GetCPUTimeUsage(ts2, ts3));
   TimeOut->PutStrFmtLn("Conversion Time = %f", GetCPUTimeUsage(ts3, ts4));
   TimeOut->PutStrFmtLn("Computing Time = %f", GetCPUTimeUsage(ts4, ts5)/nIters);
   TimeOut->PutStrFmtLn("Output Time = %f", GetCPUTimeUsage(ts5, ts6));
 
-	return 0;
+  return 0;
 }
