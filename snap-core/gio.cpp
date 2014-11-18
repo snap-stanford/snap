@@ -7,11 +7,9 @@ PNEANet LoadEdgeListNet(const TStr& InFNm, const char& Separator) {
   TStrIntH StrAttrVals;
   int SrcColId = -1;
   int DstColId = -1;
-  TStr SchemaStart("#SCHEMA");
-  TStr SrcIdName("SrcNId");
-  TStr DstIdName("DstNId");
   /* Read in attribute positions */
   while (Ss.Next() && (Ss.GetFlds() > 0 && Ss.GetFld(0)[0] == '#')) {
+    printf("%s", Ss.GetFld(0));
     if (SchemaStart != Ss.GetFld(0)) continue;
     for (int i = 1; i < Ss.GetFlds(); i++) {
       if (SrcIdName == Ss.GetFld(i)) {
@@ -25,15 +23,15 @@ PNEANet LoadEdgeListNet(const TStr& InFNm, const char& Separator) {
       TStr Attr(Ss.GetFld(i));
       TStr AttrType;
       TStr AttrName;
-      Attr.SplitOnCh(AttrType, ":", AttrName);
-      if (AttrType == "Int") {
-        IntAttrVals[AttrName] = i-1;
+      Attr.SplitOnCh(AttrType, ':', AttrName);
+      if (AttrType == IntTypePrefix) {
+        IntAttrVals.AddDat(AttrName, i-1);
       }
-      if (AttrType == "Flt") {
-        FltAttrVals[AttrName] = i-1;
+      if (AttrType == FltTypePrefix) {
+        FltAttrVals.AddDat(AttrName, i-1);
       }
-      if (AttrType == "Str") {
-        StrAttrVals[AttrName] = i-1;
+      if (AttrType == StrTypePrefix) {
+        StrAttrVals.AddDat(AttrName, i-1);
       }
     }
   }
@@ -43,7 +41,7 @@ PNEANet LoadEdgeListNet(const TStr& InFNm, const char& Separator) {
   return LoadEdgeListNet(InFNm, SrcColId, DstColId, IntAttrVals, FltAttrVals, StrAttrVals, Separator);
 }
 
-PNEANet LoadEdgeListNet(const TStr& InFNm, const int SrcColId, const DstColId, const TStrIntH& IntAttrVals,
+PNEANet LoadEdgeListNet(const TStr& InFNm, const int SrcColId, const int DstColId, const TStrIntH& IntAttrVals,
   const TStrIntH& FltAttrVals, const TStrIntH& StrAttrVals, const char& Separator) {
   TSsParser Ss(InFNm, Separator);
   PNEANet Graph = PNEANet::New();
@@ -53,41 +51,71 @@ PNEANet LoadEdgeListNet(const TStr& InFNm, const int SrcColId, const DstColId, c
     if (! Graph->IsNode(SrcNId)) { Graph->AddNode(SrcNId); }
     if (! Graph->IsNode(DstNId)) { Graph->AddNode(DstNId); }
     int EId = Graph->AddEdge(SrcNId, DstNId);
-    float FltAttrVal;
+    double FltAttrVal;
     for (TStrIntH::TIter it = FltAttrVals.BegI(); it < FltAttrVals.EndI(); it++) {
       Ss.GetFlt(it.GetDat(), FltAttrVal);
-      Graph->AddFltAttrDatN(EId, FltAttrVal, it.GetKey());
+      Graph->AddFltAttrDatE(EId, FltAttrVal, it.GetKey());
     }
     int IntAttrVal;
     for (TStrIntH::TIter it = IntAttrVals.BegI(); it < IntAttrVals.EndI(); it++) {
       Ss.GetInt(it.GetDat(), IntAttrVal);
-      Graph->AddIntAttrDatN(EId, IntAttrVal, it.GetKey());
+      Graph->AddIntAttrDatE(EId, IntAttrVal, it.GetKey());
     }
     char* StrAttrVal;
     for (TStrIntH::TIter it = StrAttrVals.BegI(); it < StrAttrVals.EndI(); it++) {
       StrAttrVal = Ss.GetFld(it.GetDat());
-      Graph->AddIntAttrDatN(EId, TStr(StrAttrVal), it.GetKey());
+      Graph->AddStrAttrDatE(EId, TStr(StrAttrVal), it.GetKey());
     }
   }
+  return Graph;
 }
 
-/*void SaveEdgeListNet(const PNEANet& Graph, const TStr& OutFNm, const TStr& Desc) {
+void WriteSchemaToFile(FILE *F, const PNEANet& Graph, TStrV &IntAttrNames, TStrV &FltAttrNames, TStrV &StrAttrNames) {
+  fprintf(F, "%s\t%s\t%s", SchemaStart.CStr(), SrcIdName.CStr(), DstIdName.CStr());
+  for(int i = 0; i < IntAttrNames.Len(); i++) {
+    fprintf(F, "\t%s:%s", IntTypePrefix.CStr(), IntAttrNames[i].CStr());
+  }
+  for(int i = 0; i < FltAttrNames.Len(); i++) {
+    fprintf(F, "\t%s:%s", FltTypePrefix.CStr(), FltAttrNames[i].CStr());
+  }
+  for(int i = 0; i < StrAttrNames.Len(); i++) {
+    fprintf(F, "\t%s:%s", StrTypePrefix.CStr(), StrAttrNames[i].CStr());
+  }
+  fprintf(F, "\n");
+}
+
+void SaveEdgeListNet(const PNEANet& Graph, const TStr& OutFNm, const TStr& Desc) {
   FILE *F = fopen(OutFNm.CStr(), "wt");
-  TStr SchemaStart("#SCHEMA");
-  TStr SrcIdName("SrcNId");
-  TStr DstIdName("DstNId");
-  if (HasGraphFlag(PNEANet, gfDirected)) { fprintf(F, "# Directed network: %s \n", OutFNm.CStr()); } 
-  else { fprintf(F, "# Undirected network (each unordered pair of nodes is saved once): %s\n", OutFNm.CStr()); }
+  fprintf(F, "# Directed network: %s \n", OutFNm.CStr());
   if (! Desc.Empty()) { fprintf(F, "# %s\n", Desc.CStr()); }
   fprintf(F, "# Nodes: %d Edges: %d\n", Graph->GetNodes(), Graph->GetEdges());
-  fprintf(F, "%s\t%s\t%s", SchemaStart.CStr(), SrcIdName().CStr(), DstIdName.CStr());
-  for()
+  
+  TStrV IntAttrNames;
+  TStrV FltAttrNames;
+  TStrV StrAttrNames;
+  Graph->GetAttrENames(IntAttrNames, FltAttrNames, StrAttrNames);
 
-  for (typename PGraph::TObj::TEdgeI ei = Graph->BegEI(); ei < Graph->EndEI(); ei++) {
-    fprintf(F, "%d\t%d\n", ei.GetSrcNId(), ei.GetDstNId());
+  WriteSchemaToFile(F, Graph, IntAttrNames, FltAttrNames, StrAttrNames);
+
+  // Write out node ids and attributes.
+  for (TNEANet::TEdgeI EI = Graph->BegEI(); EI < Graph->EndEI(); EI++) {
+    fprintf(F, "%d\t%d", EI.GetSrcNId(), EI.GetDstNId());
+    for(int i = 0; i < IntAttrNames.Len(); i++) {
+      int AttrIntVal = Graph->GetIntAttrDatE(EI.GetId(), IntAttrNames[i]);
+      fprintf(F, "\t%d", AttrIntVal);
+    }
+    for(int i = 0; i < FltAttrNames.Len(); i++) {
+      double AttrFltVal = Graph->GetFltAttrDatE(EI.GetId(), FltAttrNames[i]);
+      fprintf(F, "\t%f", AttrFltVal);
+    }
+    for(int i = 0; i < StrAttrNames.Len(); i++) {
+      char * AttrStrVal = Graph->GetStrAttrDatE(EI.GetId(), StrAttrNames[i]).CStr();
+      fprintf(F, "\t%s", AttrStrVal);
+    }
+    fprintf(F, "\n");
   }
   fclose(F);
-}*/
+}
 
 
 /// For more info see ORA Network Analysis Data (http://www.casos.cs.cmu.edu/computational_tools/data2.php)

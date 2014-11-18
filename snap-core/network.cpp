@@ -994,3 +994,17 @@ PNEANet TNEANet::GetSmallGraph() {
   return Net;
 }
 
+void TNEANet::GetAttrENames(TStrV& IntAttrNames, TStrV& FltAttrNames, TStrV& StrAttrNames) const {
+  for (TStrIntPrH::TIter it = KeyToIndexTypeE.BegI(); it < KeyToIndexTypeE.EndI(); it++) {
+    if (it.GetDat().GetVal1() == IntType) {
+      IntAttrNames.Add(it.GetKey());
+    }
+    if (it.GetDat().GetVal1() == FltType) {
+      FltAttrNames.Add(it.GetKey());
+    }
+    if (it.GetDat().GetVal1() == StrType) {
+      StrAttrNames.Add(it.GetKey());
+    }
+  }
+}
+

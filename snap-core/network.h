@@ -2062,6 +2062,9 @@ public:
   // Returns edge attribute value, converted to Str type.
   TStr GetEdgeAttrValue(const int& EId, const TStrIntPrH::TIter& EdgeHI) const;
  
+  /// Fills each of the vectors with the names of edge attributes of the given type.
+  void GetAttrENames(TStrV& IntAttrNames, TStrV& FltAttrNames, TStrV& StrAttrNames) const;
+
   /// Returns a small multigraph on 5 nodes and 6 edges. ##TNEANet::GetSmallGraph
   static PNEANet GetSmallGraph();
   friend class TPt<TNEANet>;
