@@ -6,6 +6,11 @@ namespace TSnap {
 template <class PGraph> PGraph LoadEdgeList(const TStr& InFNm, const int& SrcColId=0, const int& DstColId=1);
 /// Loads a (directed, undirected or multi) graph from a text file InFNm with 1 edge per line ('Separator' separated columns, integer node ids).
 template <class PGraph> PGraph LoadEdgeList(const TStr& InFNm, const int& SrcColId, const int& DstColId, const char& Separator);
+/// Loads a network from the text file InFNm with 1 edge per line ('Separator' separated columns, integer node ids).
+PNEANet LoadEdgeListNet(const TStr& InFNm, const char& Separator);
+/// Loads a network from the text file InFNm with 1 edge per line ('Separator' separated columns, integer node ids).
+PNEANet LoadEdgeListNet(const TStr& InFNm, const int SrcColId, const DstColId, const TStrIntH& IntAttrVals,
+  const TStrIntH& FltAttrVals, const TStrIntH& StrAttrVals, const char& Separator);
 /// Loads a (directed, undirected or multi) graph from a text file InFNm with 1 edge per line (whitespace separated columns, arbitrary string node ids).
 template <class PGraph> PGraph LoadEdgeListStr(const TStr& InFNm, const int& SrcColId=0, const int& DstColId=1);
 /// Loads a (directed, undirected or multi) graph from a text file InFNm with 1 edge per line (whitespace separated columns, arbitrary string node ids).
