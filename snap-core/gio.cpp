@@ -1,22 +1,20 @@
 namespace TSnap {
 
-PNEANet LoadEdgeListNet(const TStr& InFNm, const char& Separator) {
+// Reads the schema from the file, and fills the SrcColId, DstColId, and the vectors with the index,
+// within a given line, at which the source/destination nodes and attributes can be found in the file.
+// The schema must have the format specified in WriteSchemaToFile.
+void ReadSchemaFromFile(const TStr &InFNm, const char& Separator, int& SrcColId, int& DstColId, TStrIntH& IntAttrVals, TStrIntH& FltAttrVals, TStrIntH& StrAttrVals) {
   TSsParser Ss(InFNm, Separator, true, false, false);
-  TStrIntH IntAttrVals;
-  TStrIntH FltAttrVals;
-  TStrIntH StrAttrVals;
-  int SrcColId = -1;
-  int DstColId = -1;
-  /* Read in attribute positions */
+
   while (Ss.Next() && (Ss.GetFlds() > 0 && Ss.GetFld(0)[0] == '#')) {
     printf("%s", Ss.GetFld(0));
-    if (SchemaStart != Ss.GetFld(0)) continue;
+    if (SCHEMA_START != Ss.GetFld(0)) continue;
     for (int i = 1; i < Ss.GetFlds(); i++) {
-      if (SrcIdName == Ss.GetFld(i)) {
+      if (SRC_ID_NAME == Ss.GetFld(i)) {
         SrcColId = i-1;
         continue;
       }
-      if (DstIdName == Ss.GetFld(i)) {
+      if (DST_ID_NAME == Ss.GetFld(i)) {
         DstColId = i-1;
         continue;
       }
@@ -24,20 +22,26 @@ PNEANet LoadEdgeListNet(const TStr& InFNm, const char& Separator) {
       TStr AttrType;
       TStr AttrName;
       Attr.SplitOnCh(AttrType, ':', AttrName);
-      if (AttrType == IntTypePrefix) {
+      if (AttrType == INT_TYPE_PREFIX) {
         IntAttrVals.AddDat(AttrName, i-1);
       }
-      if (AttrType == FltTypePrefix) {
+      if (AttrType == FLT_TYPE_PREFIX) {
         FltAttrVals.AddDat(AttrName, i-1);
       }
-      if (AttrType == StrTypePrefix) {
+      if (AttrType == STR_TYPE_PREFIX) {
         StrAttrVals.AddDat(AttrName, i-1);
       }
     }
   }
-  if (SrcColId == -1 || DstColId == -1) {
-    //Do some error handling.
-  }
+}
+
+PNEANet LoadEdgeListNet(const TStr& InFNm, const char& Separator) {
+  TStrIntH IntAttrVals;
+  TStrIntH FltAttrVals;
+  TStrIntH StrAttrVals;
+  int SrcColId = -1;
+  int DstColId = -1;
+  ReadSchemaFromFile(InFNm, Separator, SrcColId, DstColId, IntAttrVals, FltAttrVals, StrAttrVals);
   return LoadEdgeListNet(InFNm, SrcColId, DstColId, IntAttrVals, FltAttrVals, StrAttrVals, Separator);
 }
 
@@ -70,16 +74,18 @@ PNEANet LoadEdgeListNet(const TStr& InFNm, const int SrcColId, const int DstColI
   return Graph;
 }
 
+// Writes the schema out to the file, which consists of the SrcNId, DstNId, and edge attributes, separated by tabs.
+// Edge attributes are written in the format <Type>:<Name>, where Type is eihter Int, Flt, or Str.
 void WriteSchemaToFile(FILE *F, const PNEANet& Graph, TStrV &IntAttrNames, TStrV &FltAttrNames, TStrV &StrAttrNames) {
-  fprintf(F, "%s\t%s\t%s", SchemaStart.CStr(), SrcIdName.CStr(), DstIdName.CStr());
+  fprintf(F, "%s\t%s\t%s", SCHEMA_START.CStr(), SRC_ID_NAME.CStr(), DST_ID_NAME.CStr());
   for(int i = 0; i < IntAttrNames.Len(); i++) {
-    fprintf(F, "\t%s:%s", IntTypePrefix.CStr(), IntAttrNames[i].CStr());
+    fprintf(F, "\t%s:%s", INT_TYPE_PREFIX.CStr(), IntAttrNames[i].CStr());
   }
   for(int i = 0; i < FltAttrNames.Len(); i++) {
-    fprintf(F, "\t%s:%s", FltTypePrefix.CStr(), FltAttrNames[i].CStr());
+    fprintf(F, "\t%s:%s", FLT_TYPE_PREFIX.CStr(), FltAttrNames[i].CStr());
   }
   for(int i = 0; i < StrAttrNames.Len(); i++) {
-    fprintf(F, "\t%s:%s", StrTypePrefix.CStr(), StrAttrNames[i].CStr());
+    fprintf(F, "\t%s:%s", STR_TYPE_PREFIX.CStr(), StrAttrNames[i].CStr());
   }
   fprintf(F, "\n");
 }

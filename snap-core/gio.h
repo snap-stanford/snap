@@ -2,12 +2,12 @@
 // Loading and saving graphs from/to various file formats.
 namespace TSnap {
 
-const TStr SchemaStart("#SCHEMA");
-const TStr SrcIdName("SrcNId");
-const TStr DstIdName("DstNId");
-const TStr IntTypePrefix("Int");
-const TStr FltTypePrefix("Flt");
-const TStr StrTypePrefix("Str");
+const TStr SCHEMA_START("#SCHEMA");
+const TStr SRC_ID_NAME("SrcNId");
+const TStr DST_ID_NAME("DstNId");
+const TStr INT_TYPE_PREFIX("Int");
+const TStr FLT_TYPE_PREFIX("Flt");
+const TStr STR_TYPE_PREFIX("Str");
 
 /// Loads a (directed, undirected or multi) graph from a text file InFNm with 1 edge per line (whitespace separated columns, integer node ids).
 template <class PGraph> PGraph LoadEdgeList(const TStr& InFNm, const int& SrcColId=0, const int& DstColId=1);
@@ -42,7 +42,7 @@ TVec<PNGraph> LoadDyNetGraphV(const TStr& FNm);
 
 /// Saves a graph into a text file. Each line contains two columns and encodes a single edge: <source node id><tab><destination node id>
 template <class PGraph> void SaveEdgeList(const PGraph& Graph, const TStr& OutFNm, const TStr& Desc=TStr());
-/// Saves a graph into a text file. Each line contains two columns and encodes a single edge followed by its attributes.
+/// Saves a network into a text file. Each line contains at least two columns and encodes a single edge followed by its attributes.
 void SaveEdgeListNet(const PNEANet& Graph, const TStr& OutFNm, const TStr& Desc);
 /// Saves a graph in a Pajek .NET format.
 template <class PGraph> void SavePajek(const PGraph& Graph, const TStr& OutFNm);
