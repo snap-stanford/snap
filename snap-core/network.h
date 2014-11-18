@@ -2057,6 +2057,13 @@ public:
   // Returns true if EId deleted for current edge flt attr iterator.
   bool EdgeAttrIsFltDeleted(const int& EId, const TStrIntPrH::TIter& EdgeHI) const;
 
+  // Returns true if EId deleted for the given int attr.
+  bool EdgeAttrIsIntDeleted(const int& EId, const TStr& Attr);
+  // Returns true if EId deleted for the given str attr.
+  bool EdgeAttrIsStrDeleted(const int& EId, const TStr& Attr);
+  // Returns true if EId deleted for the given flt attr.
+  bool EdgeAttrIsFltDeleted(const int& EId, const TStr& Attr);
+
   // Returns node attribute value, converted to Str type.
   TStr GetNodeAttrValue(const int& NId, const TStrIntPrH::TIter& NodeHI) const;
   // Returns edge attribute value, converted to Str type.

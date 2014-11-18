@@ -57,18 +57,23 @@ PNEANet LoadEdgeListNet(const TStr& InFNm, const int SrcColId, const int DstColI
     int EId = Graph->AddEdge(SrcNId, DstNId);
     double FltAttrVal;
     for (TStrIntH::TIter it = FltAttrVals.BegI(); it < FltAttrVals.EndI(); it++) {
-      Ss.GetFlt(it.GetDat(), FltAttrVal);
-      Graph->AddFltAttrDatE(EId, FltAttrVal, it.GetKey());
+      if (Ss.GetFlt(it.GetDat(), FltAttrVal)) {
+        Graph->AddFltAttrDatE(EId, FltAttrVal, it.GetKey());
+      }
     }
     int IntAttrVal;
     for (TStrIntH::TIter it = IntAttrVals.BegI(); it < IntAttrVals.EndI(); it++) {
-      Ss.GetInt(it.GetDat(), IntAttrVal);
-      Graph->AddIntAttrDatE(EId, IntAttrVal, it.GetKey());
+      if (Ss.GetInt(it.GetDat(), IntAttrVal)) {
+        Graph->AddIntAttrDatE(EId, IntAttrVal, it.GetKey());
+      }
     }
     char* StrAttrVal;
+    TStr empty("-");
     for (TStrIntH::TIter it = StrAttrVals.BegI(); it < StrAttrVals.EndI(); it++) {
       StrAttrVal = Ss.GetFld(it.GetDat());
-      Graph->AddStrAttrDatE(EId, TStr(StrAttrVal), it.GetKey());
+      if (empty != (StrAttrVal)) {
+        Graph->AddStrAttrDatE(EId, TStr(StrAttrVal), it.GetKey());
+      }
     }
   }
   return Graph;
@@ -107,14 +112,26 @@ void SaveEdgeListNet(const PNEANet& Graph, const TStr& OutFNm, const TStr& Desc)
   for (TNEANet::TEdgeI EI = Graph->BegEI(); EI < Graph->EndEI(); EI++) {
     fprintf(F, "%d\t%d", EI.GetSrcNId(), EI.GetDstNId());
     for(int i = 0; i < IntAttrNames.Len(); i++) {
+      if (Graph->EdgeAttrIsIntDeleted(EI.GetId(), IntAttrNames[i])) {
+        fprintf(F, "\t-");
+        continue;
+      }
       int AttrIntVal = Graph->GetIntAttrDatE(EI.GetId(), IntAttrNames[i]);
       fprintf(F, "\t%d", AttrIntVal);
     }
     for(int i = 0; i < FltAttrNames.Len(); i++) {
+      if (Graph->EdgeAttrIsFltDeleted(EI.GetId(), FltAttrNames[i])) {
+        fprintf(F, "\t-");
+        continue;
+      }
       double AttrFltVal = Graph->GetFltAttrDatE(EI.GetId(), FltAttrNames[i]);
       fprintf(F, "\t%f", AttrFltVal);
     }
     for(int i = 0; i < StrAttrNames.Len(); i++) {
+      if (Graph->EdgeAttrIsStrDeleted(EI.GetId(), StrAttrNames[i])) {
+        fprintf(F, "\t-");
+        continue;
+      }
       char * AttrStrVal = Graph->GetStrAttrDatE(EI.GetId(), StrAttrNames[i]).CStr();
       fprintf(F, "\t%s", AttrStrVal);
     }

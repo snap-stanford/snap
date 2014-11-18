@@ -252,6 +252,28 @@ bool TNEANet::EdgeAttrIsFltDeleted(const int& EId, const TStrIntPrH::TIter& Edge
     this->KeyToIndexTypeE.GetDat(EdgeHI.GetKey()).Val2).GetVal(EdgeH.GetKeyId(EId)));
 }
 
+bool TNEANet::EdgeAttrIsIntDeleted(const int& EId, const TStr& Attr) {
+  if (this->KeyToIndexTypeE.IsKey(Attr) && this->KeyToIndexTypeE.GetDat(Attr).Val1 == IntType) {
+    TInt Val = this->GetIntAttrDatE(EId, Attr);
+    return Val == this->GetIntAttrDefaultE(Attr);
+  }
+  return true;
+}
+bool TNEANet::EdgeAttrIsStrDeleted(const int& EId, const TStr& Attr) {
+  if (this->KeyToIndexTypeE.IsKey(Attr) && this->KeyToIndexTypeE.GetDat(Attr).Val1 == StrType) {
+    TStr Val = this->GetStrAttrDatE(EId, Attr);
+    return Val == this->GetStrAttrDefaultE(Attr);
+  }
+  return true;
+}
+bool TNEANet::EdgeAttrIsFltDeleted(const int& EId, const TStr& Attr) {
+  if (this->KeyToIndexTypeE.IsKey(Attr) && this->KeyToIndexTypeE.GetDat(Attr).Val1 == FltType) {
+    TFlt Val = this->GetFltAttrDatE(EId, Attr);
+    return Val == this->GetFltAttrDefaultE(Attr);
+  }
+  return true;
+}
+
 TStr TNEANet::GetEdgeAttrValue(const int& EId, const TStrIntPrH::TIter& EdgeHI) const {
   if (EdgeHI.GetDat().Val1 == IntType) {
     return (this->VecOfIntVecsE.GetVal(
