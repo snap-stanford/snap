@@ -1,4 +1,5 @@
 //#include "table.h"
+//#include <sys/time.h>
 
 TInt const TTable::Last = -1;
 TInt const TTable::Invalid = -2;
@@ -917,6 +918,10 @@ void TTable::GroupingSanityCheck(const TStr& GroupBy, const TAttrType& AttrType)
 
 #ifdef _OPENMP
 void TTable::GroupByIntColMP(const TStr& GroupBy, THashMP<TInt, TIntV>& Grouping, TBool UsePhysicalIds) const {
+  timeval timer0;
+  gettimeofday(&timer0, NULL);
+  double t1 = timer0.tv_sec + (timer0.tv_usec/1000000.0);
+  //printf("X\n");
   TInt IdColIdx = GetColIdx(IdColName);
   TInt GroupByColIdx = GetColIdx(GroupBy);
   if(!UsePhysicalIds && IdColIdx < 0){
@@ -933,6 +938,7 @@ void TTable::GroupByIntColMP(const TStr& GroupBy, THashMP<TInt, TIntV>& Grouping
   Grouping.Gen(NumValidRows);
   //double endGen = omp_get_wtime();
   //printf("Gen time = %f\n", endGen-endPart);
+  //printf("S\n");
   #ifdef _OPENMP
   #pragma omp parallel for schedule(dynamic, CHUNKS_PER_THREAD) //num_threads(1)
   #endif
@@ -946,6 +952,9 @@ void TTable::GroupByIntColMP(const TStr& GroupBy, THashMP<TInt, TIntV>& Grouping
       RowI++;
     }
   }
+  gettimeofday(&timer0, NULL);
+  double t2 = timer0.tv_sec + (timer0.tv_usec/1000000.0);
+  printf("Grouping time: %f\n", t2 - t1);
   //double endAdd = omp_get_wtime();
   //printf("Add time = %f\n", endAdd-endGen);
 }
@@ -1376,7 +1385,7 @@ void TTable::Aggregate(const TStrV& GroupByAttrs, TAttrAggr AggOp,
   #pragma omp parallel for schedule(dynamic)
   #endif 
   for (int g = 0; g < NumOfGroups; g++) {
-  	TIntV* GroupRows;
+  	TIntV* GroupRows = NULL;
   	switch(GroupingCase){
   		case 0:
   			GroupRows = & Mapping.GetDat(Mapping.GetKey(g));
@@ -2162,6 +2171,140 @@ PTable TTable::Join(const TStr& Col1, const TTable& Table, const TStr& Col2) {
   #endif
   return JointTable; 
 }
+
+void TTable::ThresholdJoinInputCorrectness(const TStr& KeyCol1, const TStr& JoinCol1, const TTable& Table, 
+  const TStr& KeyCol2, const TStr& JoinCol2){
+  if (!IsColName(KeyCol1)) {
+    printf("no such column %s\n", KeyCol1.CStr());
+    TExcept::Throw("no such column " + KeyCol1);
+  }
+  if (!Table.IsColName(KeyCol2)) {
+    printf("no such column %s\n", KeyCol2.CStr());
+    TExcept::Throw("no such column " + KeyCol2);
+  }
+  if (!IsColName(JoinCol1)) {
+    printf("no such column %s\n", JoinCol1.CStr());
+    TExcept::Throw("no such column " + JoinCol1);
+  }
+  if (!Table.IsColName(JoinCol2)) {
+    printf("no such column %s\n", JoinCol2.CStr());
+    TExcept::Throw("no such column " + JoinCol2);
+  }
+  if (GetColType(JoinCol1) != Table.GetColType(JoinCol2)) {
+    printf("Trying to Join on columns of different type\n");
+    TExcept::Throw("Trying to Join on columns of different type");
+  }
+  if (GetColType(KeyCol1) != Table.GetColType(KeyCol2)) {
+    printf("Key type mismatch\n");
+    TExcept::Throw("Key type mismatch");
+  }
+}
+
+void TTable::ThresholdJoinCountCollisions(const TTable& TB, const TTable& TS, 
+  const TIntIntVH& T, TInt JoinColIdxB, TInt KeyColIdxB, TInt KeyColIdxS, 
+  THash<TIntPr,TIntTr>& Counters, TBool ThisIsSmaller){
+    // iterate over big table and count / record joint tuples
+  	for (TRowIterator RowI = TB.BegRI(); RowI < TB.EndRI(); RowI++) {
+  	  // value to join on from big table
+  		TInt JVal = RowI.GetIntAttr(JoinColIdxB);
+  		//printf("JVal: %d\n", JVal.Val);
+  		if(T.IsKey(JVal)){
+  		  // read key attribute of big table row
+        TInt KeyB = RowI.GetIntAttr(KeyColIdxB);
+        // read row ids from small table with join attribute value of JVal
+        const TIntV& RelevantRows = T.GetDat(JVal);
+        for(int i = 0; i < RelevantRows.Len(); i++){
+          // read key attribute of relevant row from small table
+          TInt KeyS = TS.IntCols[KeyColIdxS][RelevantRows[i]];
+        	// create a pair of keys - serves as a key in Counters
+        	TIntPr Keys = ThisIsSmaller ? TIntPr(KeyS, KeyB) : TIntPr(KeyB, KeyS);
+					if(Counters.IsKey(Keys)){
+					  // if the key pair has been seen before - increment its counter by 1
+						TIntTr& V = Counters.GetDat(Keys);
+						V.Val3 = V.Val3 + 1;
+					} else{
+					  // if the key pair hasn't been seen before - add it with value of 
+					  // row indices that create a joint record with this key pair
+					  if(ThisIsSmaller){
+						  Counters.AddDat(Keys, TIntTr(RelevantRows[i], RowI.GetRowIdx(),1));
+						} else{
+						  Counters.AddDat(Keys, TIntTr(RowI.GetRowIdx(), RelevantRows[i],1));
+						}
+					}
+        }	// end of for loop
+      }	// end of if statement
+    } // end of for loop
+}
+
+PTable TTable::ThresholdJoinOutputTable(const THash<TIntPr,TIntTr>& Counters, TInt Threshold, const TTable& Table){
+  // initialize result table
+  PTable JointTable = InitializeJointTable(Table);
+  for(THash<TIntPr,TIntTr>::TIter iter = Counters.BegI(); iter < Counters.EndI(); iter++){
+    TIntTr& Counter = iter.GetDat();
+    //printf("keys: %d, %d\n", iter.GetKey().Val1.Val, iter.GetKey().Val2.Val);
+    //printf("selected rows: %d,%d, counter: %d\n", Counter.Val1.Val, Counter.Val2.Val, Counter.Val3.Val);
+    if(Counter.Val3 >= Threshold){
+      JointTable->AddJointRow(*this, Table, Counter.Val1, Counter.Val2);
+    }
+  }
+  return JointTable;
+  }
+
+// expected output: one joint tuple (R1,R2) with:
+// (1) R1[KeyCol1] = K1 and R2[KeyCol2] = K2 
+// for every pair of keys (K1,K2) such that the number of joint tuples 
+// (joint on R1[JoinCol1] = R2[JointCol2]) that hold property (1) is at least Threshold
+PTable TTable::ThresholdJoin(const TStr& KeyCol1, const TStr& JoinCol1, const TTable& Table, 
+  const TStr& KeyCol2, const TStr& JoinCol2, TInt Threshold){
+  // test input correctness
+  ThresholdJoinInputCorrectness(KeyCol1, JoinCol1, Table, KeyCol2, JoinCol2);
+  printf("verified input correctness\n");
+  // type of column on which we join (currently support only int)
+  TAttrType JoinColType = GetColType(JoinCol1);
+  // type of key column (currently support only int)
+  TAttrType KeyType = GetColType(KeyCol1);
+  // Determine which table is smaller
+  TBool ThisIsSmaller = (NumValidRows <= Table.NumValidRows);
+  const TTable& TS = ThisIsSmaller ? *this : Table;
+  const TTable& TB = ThisIsSmaller ?  Table : *this;
+  TStr JoinColS = JoinCol1;
+  TInt JoinColIdxB = GetColIdx(JoinCol2);
+  TInt KeyColIdxS = GetColIdx(KeyCol1);
+  TInt KeyColIdxB = GetColIdx(KeyCol2);
+  if(!ThisIsSmaller){
+  	JoinColS = JoinCol2;
+    JoinColIdxB = GetColIdx(JoinCol1);
+  	KeyColIdxS = GetColIdx(KeyCol2);
+    KeyColIdxB = GetColIdx(KeyCol1);
+  }
+  
+  // debug print
+  //printf("JoinColS = %d, JoinColIdxB = %d, KeyColIdxS = %d, KeyColIdxB = %d\n", 
+  	//GetColIdx(JoinColS).Val, JoinColIdxB.Val, KeyColIdxS.Val, KeyColIdxB.Val);
+  //printf("starting switch-case\n");
+  
+  if(KeyType != atInt && KeyType != atStr){
+    printf("ThresholdJoin only supports integer or string key attributes\n");
+    TExcept::Throw("ThresholdJoin only supports integer or string key attributes");
+  }
+  if(JoinColType != atInt && JoinColType != atStr){
+    printf("ThresholdJoin only supports integer or string join attributes\n");
+    TExcept::Throw("ThresholdJoin only supports integer or string join attributes");
+  }
+  // hash the smaller table T: join col value --> physical row ids of rows with that value
+  TIntIntVH T;
+  TS.GroupByIntCol(JoinColS, T, TIntV(), true);
+  // Counters: (K1,K2) --> (RowIdx1,RowIdx2, count) where K1 is a key from KeyCol1, 
+  // K2 is a key from Table's KeyCol2; RowIdx1 and RowIdx2 are physical row ids
+  // that participates in a joint tuple that satisfies (1).
+  // count is the count of joint records that satisfy (1).
+  // In case of string attributes - the integer mappings of the key attribute values are used.
+  THash<TIntPr,TIntTr> Counters;
+  ThresholdJoinCountCollisions(TB, TS, T, JoinColIdxB, KeyColIdxB, KeyColIdxS, Counters, ThisIsSmaller);
+  //printf("second loop - %d joint row candidates\n", Counters.Len());
+  return ThresholdJoinOutputTable(Counters, Threshold, Table);
+}
+
 
 void TTable::Select(TPredicate& Predicate, TIntV& SelectedRows, TBool Remove) {
   TIntV Selected;
@@ -3587,10 +3730,12 @@ void TTable::UpdateFltFromTableMP(const TStr& KeyAttr, const TStr& UpdateAttr, c
   		TExcept::Throw("Expecting Float values");
   	}
   	TStr NKeyAttr = NormalizeColName(KeyAttr);
-  	TStr NUpdateAttr = NormalizeColName(UpdateAttr);
-  	TStr NFKeyAttr = Table.NormalizeColName(FKeyAttr);
-  	TStr NReadAttr = Table.NormalizeColName(ReadAttr);
+  	//TStr NUpdateAttr = NormalizeColName(UpdateAttr);
+  	//TStr NFKeyAttr = Table.NormalizeColName(FKeyAttr);
+  	//TStr NReadAttr = Table.NormalizeColName(ReadAttr);
   	TInt UpdateColIdx = GetColIdx(UpdateAttr);
+  	TInt FKeyColIdx = GetColIdx(FKeyAttr);
+  	TInt ReadColIdx = GetColIdx(ReadAttr);
 
   	// TODO: this should be a generic vector operation
   	SetFltColToConstMP(UpdateColIdx, DefaultFltVal);
@@ -3606,18 +3751,19 @@ void TTable::UpdateFltFromTableMP(const TStr& KeyAttr, const TStr& UpdateAttr, c
   			THashMP<TInt,TIntV> Grouping;
   			// must use physical row ids
   			GroupByIntColMP(NKeyAttr, Grouping, true);
-			#pragma omp parallel for schedule(dynamic, CHUNKS_PER_THREAD) //num_threads(1)
+			#pragma omp parallel for schedule(dynamic, CHUNKS_PER_THREAD) // num_threads(1)
 			for (int i = 0; i < Partitions.Len(); i++){
 				TRowIterator RowI(Partitions[i].GetVal1(), &Table);
 				TRowIterator EndI(Partitions[i].GetVal2(), &Table);
 				while(RowI < EndI){
-  					TInt K = RowI.GetIntAttr(NFKeyAttr);
+  					TInt K = RowI.GetIntAttr(FKeyColIdx);
   					if(Grouping.IsKey(K)){
-  						TIntV UpdateRows = Grouping.GetDat(K);
+  						TIntV& UpdateRows = Grouping.GetDat(K);
   						for(int j = 0; j < UpdateRows.Len(); j++){
-  							if(!__sync_bool_compare_and_swap(&Locks[UpdateRows[j]].Val, 0, 1)){ continue;}
+  							int* lock = &Locks[UpdateRows[j]].Val;
+  							if(!__sync_bool_compare_and_swap(lock, 0, 1)){ continue;}
   							//printf("key = %d, row = %d, old_score = %f\n", K.Val, j, UpdateRows[j].Val, FltCols[UpdateColIdx][UpdateRows[j]].Val);
-  							FltCols[UpdateColIdx][UpdateRows[j]] = RowI.GetFltAttr(NReadAttr);
+  							FltCols[UpdateColIdx][UpdateRows[j]] = RowI.GetFltAttr(ReadColIdx);
   							//printf("key = %d, new_score = %f\n", K.Val, j, FltCols[UpdateColIdx][UpdateRows[j]].Val);
   					 	} // end of for loop
   					} // end of if statement
@@ -3668,7 +3814,7 @@ void TTable::UpdateFltFromTable(const TStr& KeyAttr, const TStr& UpdateAttr, con
   			for(TRowIterator RI = Table.BegRI(); RI < Table.EndRI(); RI++){
   				TInt K = RI.GetIntAttr(NFKeyAttr);
   				if(Grouping.IsKey(K)){
-  					TIntV UpdateRows = Grouping.GetDat(K);
+  					TIntV& UpdateRows = Grouping.GetDat(K);
   					for(int i = 0; i < UpdateRows.Len(); i++){
   						FltCols[UpdateColIdx][UpdateRows[i]] = RI.GetFltAttr(NReadAttr);
   					 } // end of for loop
