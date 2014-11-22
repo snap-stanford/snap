@@ -2204,17 +2204,17 @@ void TTable::ThresholdJoinCountCollisions(const TTable& TB, const TTable& TS,
   const TIntIntVH& T, TInt JoinColIdxB, TInt KeyColIdxB, TInt KeyColIdxS, 
   THash<TIntPr,TIntTr>& Counters, TBool ThisIsSmaller, TAttrType JoinColType, TAttrType KeyType){
     // iterate over big table and count / record joint tuples
-  	for (TRowIterator RowI = TB.BegRI(); RowI < TB.EndRI(); RowI++) {
-  	  // value to join on from big table
-  		TInt JVal = 0;
-  		if(JoinColType == atStr){
-  		  JVal = RowI.GetStrMapById(JoinColIdxB);
-  		} else{
-  		  JVal = RowI.GetIntAttr(JoinColIdxB);
-  		}
-  		//printf("JVal: %d\n", JVal.Val);
-  		if(T.IsKey(JVal)){
-  		  // read key attribute of big table row
+    for (TRowIterator RowI = TB.BegRI(); RowI < TB.EndRI(); RowI++) {
+    // value to join on from big table
+      TInt JVal = 0;
+      if(JoinColType == atStr){
+        JVal = RowI.GetStrMapById(JoinColIdxB);
+      } else{
+        JVal = RowI.GetIntAttr(JoinColIdxB);
+      }
+      //printf("JVal: %d\n", JVal.Val);
+      if(T.IsKey(JVal)){
+        // read key attribute of big table row
         TInt KeyB = 0;
         if(KeyType == atStr){
           KeyB = RowI.GetStrMapById(KeyColIdxB);
@@ -2233,19 +2233,19 @@ void TTable::ThresholdJoinCountCollisions(const TTable& TB, const TTable& TS,
           }
           // create a pair of keys - serves as a key in Counters
           TIntPr Keys = ThisIsSmaller ? TIntPr(KeyS, KeyB) : TIntPr(KeyB, KeyS);
-		      if(Counters.IsKey(Keys)){
-			    // if the key pair has been seen before - increment its counter by 1
-						TIntTr& V = Counters.GetDat(Keys);
-						V.Val3 = V.Val3 + 1;
-					} else{
-					  // if the key pair hasn't been seen before - add it with value of 
-					  // row indices that create a joint record with this key pair
-					  if(ThisIsSmaller){
-						  Counters.AddDat(Keys, TIntTr(RelevantRows[i], RowI.GetRowIdx(),1));
-						} else{
-						  Counters.AddDat(Keys, TIntTr(RowI.GetRowIdx(), RelevantRows[i],1));
-						}
-					}
+          if(Counters.IsKey(Keys)){
+          // if the key pair has been seen before - increment its counter by 1
+            TIntTr& V = Counters.GetDat(Keys);
+            V.Val3 = V.Val3 + 1;
+          } else{
+            // if the key pair hasn't been seen before - add it with value of 
+            // row indices that create a joint record with this key pair
+            if(ThisIsSmaller){
+              Counters.AddDat(Keys, TIntTr(RelevantRows[i], RowI.GetRowIdx(),1));
+            } else{
+              Counters.AddDat(Keys, TIntTr(RowI.GetRowIdx(), RelevantRows[i],1));
+            }
+          }
         }	// end of for loop
       }	// end of if statement
     } // end of for loop
@@ -2255,16 +2255,16 @@ void TTable::ThresholdJoinCountPerJoinKeyCollisions(const TTable& TB, const TTab
   const TIntIntVH& T, TInt JoinColIdxB, TInt KeyColIdxB, TInt KeyColIdxS, 
   THash<TIntTr,TIntTr>& Counters, TBool ThisIsSmaller, TAttrType JoinColType, TAttrType KeyType){
     for (TRowIterator RowI = TB.BegRI(); RowI < TB.EndRI(); RowI++) {
-  	  // value to join on from big table
-  		TInt JVal = 0;
-  		if(JoinColType == atStr){
-  		  JVal = RowI.GetStrMapById(JoinColIdxB);
-  		} else{
-  		  JVal = RowI.GetIntAttr(JoinColIdxB);
-  		}
-  		//printf("JVal: %d\n", JVal.Val);
-  		if(T.IsKey(JVal)){
-  		  // read key attribute of big table row
+      // value to join on from big table
+      TInt JVal = 0;
+      if(JoinColType == atStr){
+        JVal = RowI.GetStrMapById(JoinColIdxB);
+       } else{
+        JVal = RowI.GetIntAttr(JoinColIdxB);
+       }
+      //printf("JVal: %d\n", JVal.Val);
+      if(T.IsKey(JVal)){
+        // read key attribute of big table row
         TInt KeyB = 0;
         if(KeyType == atStr){
           KeyB = RowI.GetStrMapById(KeyColIdxB);
@@ -2284,19 +2284,19 @@ void TTable::ThresholdJoinCountPerJoinKeyCollisions(const TTable& TB, const TTab
         	// create a pair of keys - serves as a key in Counters
         	TIntPr Keys = ThisIsSmaller ? TIntPr(KeyS, KeyB) : TIntPr(KeyB, KeyS);
         	TIntTr K(Keys.Val1,Keys.Val2,JVal);
-					if(Counters.IsKey(K)){
-					  // if the key pair has been seen before - increment its counter by 1
-						TIntTr& V = Counters.GetDat(K);
-						V.Val3 = V.Val3 + 1;
-					} else{
-					  // if the key pair hasn't been seen before - add it with value of 
-					  // row indices that create a joint record with this key pair
-					  if(ThisIsSmaller){
-						  Counters.AddDat(K, TIntTr(RelevantRows[i], RowI.GetRowIdx(),1));
-						} else{
-						  Counters.AddDat(K, TIntTr(RowI.GetRowIdx(), RelevantRows[i],1));
-						}
-					}
+          if(Counters.IsKey(K)){
+            // if the key pair has been seen before - increment its counter by 1
+            TIntTr& V = Counters.GetDat(K);
+            V.Val3 = V.Val3 + 1;
+          } else{
+            // if the key pair hasn't been seen before - add it with value of 
+            // row indices that create a joint record with this key pair
+            if(ThisIsSmaller){
+              Counters.AddDat(K, TIntTr(RelevantRows[i], RowI.GetRowIdx(),1));
+            } else{
+              Counters.AddDat(K, TIntTr(RowI.GetRowIdx(), RelevantRows[i],1));
+            }
+          }
         }	// end of for loop
       }	// end of if statement
     } // end of for loop
