@@ -2202,24 +2202,39 @@ void TTable::ThresholdJoinInputCorrectness(const TStr& KeyCol1, const TStr& Join
 
 void TTable::ThresholdJoinCountCollisions(const TTable& TB, const TTable& TS, 
   const TIntIntVH& T, TInt JoinColIdxB, TInt KeyColIdxB, TInt KeyColIdxS, 
-  THash<TIntPr,TIntTr>& Counters, TBool ThisIsSmaller){
+  THash<TIntPr,TIntTr>& Counters, TBool ThisIsSmaller, TAttrType JoinColType, TAttrType KeyType){
     // iterate over big table and count / record joint tuples
   	for (TRowIterator RowI = TB.BegRI(); RowI < TB.EndRI(); RowI++) {
   	  // value to join on from big table
-  		TInt JVal = RowI.GetIntAttr(JoinColIdxB);
+  		TInt JVal = 0;
+  		if(JoinColType == atStr){
+  		  JVal = RowI.GetStrMapById(JoinColIdxB);
+  		} else{
+  		  JVal = RowI.GetIntAttr(JoinColIdxB);
+  		}
   		//printf("JVal: %d\n", JVal.Val);
   		if(T.IsKey(JVal)){
   		  // read key attribute of big table row
-        TInt KeyB = RowI.GetIntAttr(KeyColIdxB);
+        TInt KeyB = 0;
+        if(KeyType == atStr){
+          KeyB = RowI.GetStrMapById(KeyColIdxB);
+        } else{
+          KeyB = RowI.GetIntAttr(KeyColIdxB);
+        } 
         // read row ids from small table with join attribute value of JVal
         const TIntV& RelevantRows = T.GetDat(JVal);
         for(int i = 0; i < RelevantRows.Len(); i++){
           // read key attribute of relevant row from small table
-          TInt KeyS = TS.IntCols[KeyColIdxS][RelevantRows[i]];
-        	// create a pair of keys - serves as a key in Counters
-        	TIntPr Keys = ThisIsSmaller ? TIntPr(KeyS, KeyB) : TIntPr(KeyB, KeyS);
-					if(Counters.IsKey(Keys)){
-					  // if the key pair has been seen before - increment its counter by 1
+          TInt KeyS = 0;
+          if(KeyType == atStr){
+            KeyS = TS.StrColMaps[KeyColIdxS][RelevantRows[i]];
+          } else{
+            KeyS = TS.IntCols[KeyColIdxS][RelevantRows[i]];
+          }
+          // create a pair of keys - serves as a key in Counters
+          TIntPr Keys = ThisIsSmaller ? TIntPr(KeyS, KeyB) : TIntPr(KeyB, KeyS);
+		      if(Counters.IsKey(Keys)){
+			    // if the key pair has been seen before - increment its counter by 1
 						TIntTr& V = Counters.GetDat(Keys);
 						V.Val3 = V.Val3 + 1;
 					} else{
@@ -2236,6 +2251,57 @@ void TTable::ThresholdJoinCountCollisions(const TTable& TB, const TTable& TS,
     } // end of for loop
 }
 
+void TTable::ThresholdJoinCountPerJoinKeyCollisions(const TTable& TB, const TTable& TS, 
+  const TIntIntVH& T, TInt JoinColIdxB, TInt KeyColIdxB, TInt KeyColIdxS, 
+  THash<TIntTr,TIntTr>& Counters, TBool ThisIsSmaller, TAttrType JoinColType, TAttrType KeyType){
+    for (TRowIterator RowI = TB.BegRI(); RowI < TB.EndRI(); RowI++) {
+  	  // value to join on from big table
+  		TInt JVal = 0;
+  		if(JoinColType == atStr){
+  		  JVal = RowI.GetStrMapById(JoinColIdxB);
+  		} else{
+  		  JVal = RowI.GetIntAttr(JoinColIdxB);
+  		}
+  		//printf("JVal: %d\n", JVal.Val);
+  		if(T.IsKey(JVal)){
+  		  // read key attribute of big table row
+        TInt KeyB = 0;
+        if(KeyType == atStr){
+          KeyB = RowI.GetStrMapById(KeyColIdxB);
+        } else{
+          KeyB = RowI.GetIntAttr(KeyColIdxB);
+        } 
+        // read row ids from small table with join attribute value of JVal
+        const TIntV& RelevantRows = T.GetDat(JVal);
+        for(int i = 0; i < RelevantRows.Len(); i++){
+          // read key attribute of relevant row from small table
+          TInt KeyS = 0;
+          if(KeyType == atStr){
+            KeyS = TS.StrColMaps[KeyColIdxS][RelevantRows[i]];
+          } else{
+            KeyS = TS.IntCols[KeyColIdxS][RelevantRows[i]];
+          }
+        	// create a pair of keys - serves as a key in Counters
+        	TIntPr Keys = ThisIsSmaller ? TIntPr(KeyS, KeyB) : TIntPr(KeyB, KeyS);
+        	TIntTr K(Keys.Val1,Keys.Val2,JVal);
+					if(Counters.IsKey(K)){
+					  // if the key pair has been seen before - increment its counter by 1
+						TIntTr& V = Counters.GetDat(K);
+						V.Val3 = V.Val3 + 1;
+					} else{
+					  // if the key pair hasn't been seen before - add it with value of 
+					  // row indices that create a joint record with this key pair
+					  if(ThisIsSmaller){
+						  Counters.AddDat(K, TIntTr(RelevantRows[i], RowI.GetRowIdx(),1));
+						} else{
+						  Counters.AddDat(K, TIntTr(RowI.GetRowIdx(), RelevantRows[i],1));
+						}
+					}
+        }	// end of for loop
+      }	// end of if statement
+    } // end of for loop
+  }
+
 PTable TTable::ThresholdJoinOutputTable(const THash<TIntPr,TIntTr>& Counters, TInt Threshold, const TTable& Table){
   // initialize result table
   PTable JointTable = InitializeJointTable(Table);
@@ -2248,17 +2314,35 @@ PTable TTable::ThresholdJoinOutputTable(const THash<TIntPr,TIntTr>& Counters, TI
     }
   }
   return JointTable;
+}
+
+PTable TTable::ThresholdJoinPerJoinKeyOutputTable(const THash<TIntTr,TIntTr>& Counters, TInt Threshold, const TTable& Table){
+  PTable JointTable = InitializeJointTable(Table);
+  for(THash<TIntTr,TIntTr>::TIter iter = Counters.BegI(); iter < Counters.EndI(); iter++){
+    const TIntTr& Counter = iter.GetDat();
+    const TIntTr& Keys = iter.GetKey();
+    THashSet<TIntPr> Pairs;
+    if(Counter.Val3 >= Threshold){
+      TIntPr K(Keys.Val1,Keys.Val2);
+      if(!Pairs.IsKey(K)){
+        Pairs.AddKey(K);
+        JointTable->AddJointRow(*this, Table, Counter.Val1, Counter.Val2);
+      }
+    }
   }
+  return JointTable;
+}
+
 
 // expected output: one joint tuple (R1,R2) with:
 // (1) R1[KeyCol1] = K1 and R2[KeyCol2] = K2 
 // for every pair of keys (K1,K2) such that the number of joint tuples 
 // (joint on R1[JoinCol1] = R2[JointCol2]) that hold property (1) is at least Threshold
 PTable TTable::ThresholdJoin(const TStr& KeyCol1, const TStr& JoinCol1, const TTable& Table, 
-  const TStr& KeyCol2, const TStr& JoinCol2, TInt Threshold){
+  const TStr& KeyCol2, const TStr& JoinCol2, TInt Threshold, TBool PerJoinKey){
   // test input correctness
   ThresholdJoinInputCorrectness(KeyCol1, JoinCol1, Table, KeyCol2, JoinCol2);
-  printf("verified input correctness\n");
+  //printf("verified input correctness\n");
   // type of column on which we join (currently support only int)
   TAttrType JoinColType = GetColType(JoinCol1);
   // type of key column (currently support only int)
@@ -2291,18 +2375,72 @@ PTable TTable::ThresholdJoin(const TStr& KeyCol1, const TStr& JoinCol1, const TT
     printf("ThresholdJoin only supports integer or string join attributes\n");
     TExcept::Throw("ThresholdJoin only supports integer or string join attributes");
   }
+  //printf("starting the real stuff!\n");
   // hash the smaller table T: join col value --> physical row ids of rows with that value
   TIntIntVH T;
-  TS.GroupByIntCol(JoinColS, T, TIntV(), true);
+  if(JoinColType == atInt){
+    TS.GroupByIntCol(JoinColS, T, TIntV(), true);
+  } else if(JoinColType == atStr){
+    TS.GroupByStrCol(JoinColS, T, TIntV(), true);
+  } else{
+    TExcept::Throw("ThresholdJoin only supports integer or string join attributes");
+  } 
+  
+ /*
+  for(THash<TInt,TIntV>::TIter it = T.BegI(); it < T.EndI(); it++){
+    if(JoinColType == atStr){
+      printf("%s -->", Context.StringVals.GetKey(it.GetKey().Val));
+    } else{
+      printf("%d -->", it.GetKey().Val);
+    }
+    const TIntV& V = it.GetDat();
+    for(int sr = 0; sr < V.Len(); sr++){
+      printf(" %d", V[sr].Val);
+    }
+    printf("\n");
+  }
+  */
+  
   // Counters: (K1,K2) --> (RowIdx1,RowIdx2, count) where K1 is a key from KeyCol1, 
   // K2 is a key from Table's KeyCol2; RowIdx1 and RowIdx2 are physical row ids
   // that participates in a joint tuple that satisfies (1).
   // count is the count of joint records that satisfy (1).
   // In case of string attributes - the integer mappings of the key attribute values are used.
-  THash<TIntPr,TIntTr> Counters;
-  ThresholdJoinCountCollisions(TB, TS, T, JoinColIdxB, KeyColIdxB, KeyColIdxS, Counters, ThisIsSmaller);
-  //printf("second loop - %d joint row candidates\n", Counters.Len());
-  return ThresholdJoinOutputTable(Counters, Threshold, Table);
+  if(PerJoinKey){
+    //printf("PerJoinKey\n");
+    THash<TIntTr,TIntTr> Counters;
+    ThresholdJoinCountPerJoinKeyCollisions(TB, TS, T, JoinColIdxB, KeyColIdxB, KeyColIdxS, Counters, ThisIsSmaller, JoinColType, KeyType);
+    /*
+    for(THash<TIntTr,TIntTr>::TIter it = Counters.BegI(); it < Counters.EndI(); it++){
+      const TIntTr& K = it.GetKey();
+      const TIntTr& V = it.GetDat();
+      if(KeyType == atStr){
+        printf("%s %s --> %d %d %d\n", Context.StringVals.GetKey(K.Val1), Context.StringVals.GetKey(K.Val2), V.Val1.Val, V.Val2.Val, V.Val3.Val);
+      } else{
+        printf("%d %d --> %d %d %d\n", K.Val1.Val, K.Val2.Val, V.Val1.Val, V.Val2.Val, V.Val3.Val); 
+      }
+    }
+    */
+    //printf("found collisions\n");
+    return ThresholdJoinPerJoinKeyOutputTable(Counters, Threshold, Table);
+  } else{
+    //printf("not PerJoinKey\n");
+    THash<TIntPr,TIntTr> Counters;
+    ThresholdJoinCountCollisions(TB, TS, T, JoinColIdxB, KeyColIdxB, KeyColIdxS, Counters, ThisIsSmaller, JoinColType, KeyType);
+    /*
+    for(THash<TIntPr,TIntTr>::TIter it = Counters.BegI(); it < Counters.EndI(); it++){
+      const TIntPr& K = it.GetKey();
+      const TIntTr& V = it.GetDat();
+      if(KeyType == atStr){
+        printf("%s %s --> %d %d %d\n", Context.StringVals.GetKey(K.Val1), Context.StringVals.GetKey(K.Val2), V.Val1.Val, V.Val2.Val, V.Val3.Val);
+      } else{
+        printf("%d %d --> %d %d %d\n", K.Val1.Val, K.Val2.Val, V.Val1.Val, V.Val2.Val, V.Val3.Val); 
+      }
+    }
+    */
+    //printf("found collisions\n");
+    return ThresholdJoinOutputTable(Counters, Threshold, Table);
+  }
 }
 
 
