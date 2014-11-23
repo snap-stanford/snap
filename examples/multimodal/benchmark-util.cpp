@@ -10,7 +10,7 @@ double Tick() {
   #else
   struct rusage rusage;
   getrusage(RUSAGE_SELF, &rusage);
-  
+
   float cputime =
   ((float) (rusage.ru_utime.tv_usec + rusage.ru_stime.tv_usec) / 1000000) +
   ((float) (rusage.ru_utime.tv_sec + rusage.ru_stime.tv_sec));
@@ -38,7 +38,7 @@ PTable Load(const Schema& TblSchema, const int nCols, const TStr& TsvFileName, T
   return PTbl;
 }
 
-void LoadFlickrTables(const TStr& PrefixPath, TTableContext& Context, 
+void LoadFlickrTables(const TStr& PrefixPath, TTableContext& Context,
   TVec<PTable>& NodeTblV, Schema& NodeSchema, TVec<PTable>& EdgeTblV, Schema& EdgeSchema) {
   Schema PhotoSchema;
   PhotoSchema.Add(TPair<TStr,TAttrType>("Id", atStr));
@@ -48,28 +48,28 @@ void LoadFlickrTables(const TStr& PrefixPath, TTableContext& Context,
   PhotoSchema.Add(TPair<TStr,TAttrType>("Media", atStr));
   PhotoSchema.Add(TPair<TStr,TAttrType>("URL", atStr));
   PTable PPhotoTbl = Load(PhotoSchema, 1, PrefixPath + TStr("photos.tsv"), Context);
-  
+
   Schema UserSchema;
   UserSchema.Add(TPair<TStr,TAttrType>("Id", atStr));
   UserSchema.Add(TPair<TStr,TAttrType>("UserName", atStr));
   UserSchema.Add(TPair<TStr,TAttrType>("RealName", atStr));
   UserSchema.Add(TPair<TStr,TAttrType>("Location", atStr));
   PTable PUserTbl = Load(UserSchema, 1, PrefixPath + TStr("users.tsv"), Context);
-  
+
   Schema TagSchema;
   TagSchema.Add(TPair<TStr,TAttrType>("Id", atStr));
   TagSchema.Add(TPair<TStr,TAttrType>("MachineTag", atStr));
   TagSchema.Add(TPair<TStr,TAttrType>("Text", atStr));
   TagSchema.Add(TPair<TStr,TAttrType>("DisplayedText", atStr));
   PTable PTagTbl = Load(TagSchema, 1, PrefixPath + TStr("tags.tsv"), Context);
-  
+
   Schema CommentSchema;
   CommentSchema.Add(TPair<TStr,TAttrType>("Id", atStr));
   CommentSchema.Add(TPair<TStr,TAttrType>("CreatedDate", atInt));
   CommentSchema.Add(TPair<TStr,TAttrType>("PermanentLink", atStr));
   CommentSchema.Add(TPair<TStr,TAttrType>("Text", atStr));
   PTable PCommentTbl = Load(CommentSchema, 1, PrefixPath + TStr("comments.tsv"), Context);
-  
+
   Schema LocationSchema;
   LocationSchema.Add(TPair<TStr,TAttrType>("Id", atStr));
   LocationSchema.Add(TPair<TStr,TAttrType>("WoeId", atInt));
@@ -108,7 +108,7 @@ void LoadFlickrTables(const TStr& PrefixPath, TTableContext& Context,
   StdEdgeSchema.Add(TPair<TStr,TAttrType>("DstId", atStr));
 
   PTable PPhotoOwnerTbl = Load(StdEdgeSchema, 2, PrefixPath + "photo_owner_edges.tsv", Context, 1.0);
-  
+
   PTable PPhotoCommentTbl = Load(StdEdgeSchema, 2, PrefixPath + "photo_comment_edges.tsv", Context, 0.2);
 
   PTable PPhotoLocationTbl = Load(StdEdgeSchema, 2, PrefixPath + "photo_location_edges.tsv", Context, 0.05);
@@ -123,13 +123,13 @@ void LoadFlickrTables(const TStr& PrefixPath, TTableContext& Context,
 
   //PTable PPhotoTaggerTbl = Load(StdEdgeSchema, 2, PrefixPath + "photo_tagger_edges_dupremoved.tsv", Context);
   //PTable PTaggerTagTbl = Load(StdEdgeSchema, 2, PrefixPath + "tagger_tag_edges_dupremoved.tsv", Context);
-  
+
   Schema TaggerTagSchema;
   TaggerTagSchema.Add(TPair<TStr,TAttrType>("SrcId", atStr));
   TaggerTagSchema.Add(TPair<TStr,TAttrType>("DstId", atStr));
   TaggerTagSchema.Add(TPair<TStr,TAttrType>("PhotoId", atStr));
   PTable PTaggerTagTbl = Load(TaggerTagSchema, 2, PrefixPath + "tagger_tag_edges.tsv", Context, 0.1);
-  
+
   EdgeTblV.Add(PPhotoOwnerTbl);
   EdgeTblV.Add(PPhotoCommentTbl);
   EdgeTblV.Add(PPhotoLocationTbl);

@@ -2,83 +2,41 @@
 #include <Snap.h>
 #include <stdio.h>
 #include <omp.h>
-#include "benchmark-util.cpp"
-#include "multimodal.cpp"
 
-PSOut StdOut = TStdOut::New(); 
+PSOut StdOut = TStdOut::New();
 
-int main(int argc, char* argv[])
-{
-  TEnv Env(argc, argv);
-  TStr PrefixPath = Env.GetArgs() > 1 ? Env.GetArg(1) : TStr("");
-  
-  double ts1 = Tick();
-  TTableContext Context;
-  TVec<PTable> NodeTblV = TVec<PTable>();
-  TVec<PTable> EdgeTblV = TVec<PTable>();
-  Schema NodeSchema = Schema();
-  Schema EdgeSchema = Schema();
-  LoadFlickrTables(PrefixPath, Context, NodeTblV, NodeSchema, EdgeTblV, EdgeSchema);
-  
-  double ts2 = Tick();
-
-  int ExpectedSz = 0;
-  for (TVec<PTable>::TIter it = NodeTblV.BegI(); it < NodeTblV.EndI(); it++) {
-    PTable Table = *it;
-    ExpectedSz += Table->GetNumRows();
+int main(int argc, char* argv[]) {
+  TMVNet Graph = TMVNet();
+  Graph.AddNType(TStr("Photo"));
+  Graph.AddNType(TStr("User"));
+  StdOut->PutStrFmtLn("TypeId %d - %d - %d", Graph.AddNType(TStr("User")), Graph.GetNTypeId(TStr("Photo")), Graph.GetNTypeId(TStr("User")));
+  int NId1 = Graph.AddNode(1, 0);
+  int NId2 = Graph.AddNode(1, 1);
+  int NId3 = Graph.AddNode(0, 1);
+  int NId4 = Graph.AddNode(1, 2);
+  int NId5 = Graph.AddNode(0, 0);
+  StdOut->PutStrFmtLn("Nodes %d %d %d", NId1, NId2, NId3);
+  StdOut->PutStrFmtLn("Size = %d", Graph.GetNodes());
+  for (TMVNet::TNodeI Iter = Graph.BegNI(); Iter < Graph.EndNI(); Iter++) {
+    StdOut->PutStrFmtLn("Iter = %d, %d", Iter.GetTypeId(), Iter.GetId());
   }
-  
-  THash<TStr, TInt> Hash(ExpectedSz);
-  TStrV OriNIdV(ExpectedSz);
-  
-  MergeNodeTables(NodeTblV, NodeSchema, Hash, OriNIdV);
-  PTable EdgeTable = MergeEdgeTables(EdgeTblV, EdgeSchema, Hash, Context);
-  
-  double ts3 = Tick();
-  PNGraphMP Graph = TSnap::ToGraphMP2<PNGraphMP>(EdgeTable, EdgeSchema.GetVal(0).GetVal1(), EdgeSchema.GetVal(1).GetVal1());
-  double ts4 = Tick();
-  
-  //int nIters = 1;
-  int nIters = 40;
-  TIntFltH PageRankResults;
-  for (int i = 0; i < nIters; i++) {
-    PageRankResults = TIntFltH(ExpectedSz);
-    #ifdef _OPENMP
-    TSnap::GetPageRankMP2(Graph, PageRankResults, 0.849999999999998, 0.0001, 10);
-    #else
-    TSnap::GetPageRank(Graph, PageRankResults, 0.849999999999998, 0.0001, 10);
-    #endif
+
+  int EId1 = Graph.AddEdge(NId1, NId2, 0);
+  StdOut->PutStrFmtLn("Edges %d", EId1);
+  StdOut->PutStrFmtLn("IsEdge(%d) = %d", EId1, Graph.IsEdge(EId1));
+  StdOut->PutStrFmtLn("IsEdge(%d) = %d", 1, Graph.IsEdge(1));
+  int EId;
+  StdOut->PutStrFmtLn("IsEdge(%d, %d) = %d", NId1, NId2, Graph.IsEdge(NId1, NId2, true));
+  StdOut->PutStrFmtLn("IsEdge(%d, %d) = %d - %d", NId1, NId2, Graph.IsEdge(NId1, NId2, EId, true), EId);
+  StdOut->PutStrFmtLn("IsEdge(%d, %d) = %d", NId1, NId3, Graph.IsEdge(NId1, NId3, true));
+  StdOut->PutStrFmtLn("IsEdge(%d, %d) = %d - %d", NId1, NId3, Graph.IsEdge(NId1, NId3, EId, true), EId);
+
+  int EId2 = Graph.AddEdge(NId1, NId2, 0);
+  int EId3 = Graph.AddEdge(NId1, NId3, 1);
+  int EId4 = Graph.AddEdge(NId1, NId4, 1, 10);
+  int EId5 = Graph.AddEdge(NId1, NId5, 0);
+  for (TMVNet::TEdgeI Iter = Graph.BegEI(); Iter < Graph.EndEI(); Iter++) {
+    StdOut->PutStrFmtLn("Edge Iter = %d, %d", Iter.GetTypeId(), Iter.GetId());
   }
-  double ts5 = Tick();
-
-  PSOut ResultOut = TFOut::New(PrefixPath + TStr("page-rank-results.tsv"));
-  for (TIntFltH::TIter it = PageRankResults.BegI(); it < PageRankResults.EndI(); it++) {
-    ResultOut->PutStrFmtLn("%s\t%f9", OriNIdV[it.GetKey()].CStr(), it.GetDat().Val);
-  }
-  double ts6 = Tick();
-
-//  PSOut FeaturesOut = TFOut::New(PrefixPath + "features.txt");
-//  FeaturesOut->PutStrFmtLn("Photo %d", PPhotoTbl->GetNumRows().Val);
-//  FeaturesOut->PutStrFmtLn("Users %d", PUserTbl->GetNumRows().Val);
-//  FeaturesOut->PutStrFmtLn("Tags %d", PTagTbl->GetNumRows().Val);
-//  FeaturesOut->PutStrFmtLn("Comments %d", PCommentTbl->GetNumRows().Val);
-//  FeaturesOut->PutStrFmtLn("Locations %d", PLocationTbl->GetNumRows().Val);
-//  FeaturesOut->PutStrFmtLn("Photo - Owner %d", PPhotoOwnerTbl->GetNumRows().Val);
-//  FeaturesOut->PutStrFmtLn("Photo - Comment %d", PPhotoCommentTbl->GetNumRows().Val);
-//  FeaturesOut->PutStrFmtLn("Photo - Location %d", PPhotoLocationTbl->GetNumRows().Val);
-//  FeaturesOut->PutStrFmtLn("Comment - User %d", PCommentUserTbl->GetNumRows().Val);  
-//  FeaturesOut->PutStrFmtLn("Comment - User %d", PCommentUserTbl->GetNumRows().Val);
-////  FeaturesOut->PutStrFmtLn("Photo - Tagger %d", PPhotoTaggerTbl->GetNumRows().Val);
-//  FeaturesOut->PutStrFmtLn("Tagger - Tag %d", PTaggerTagTbl->GetNumRows().Val);
-//  FeaturesOut->PutStrFmtLn("Total number of nodes = %d", Graph->GetNodes());
-//  FeaturesOut->PutStrFmtLn("Total number of edges = %d", Graph->GetEdges());
-
-  PSOut TimeOut = TFOut::New(PrefixPath + TStr("time.txt"), true);
-  TimeOut->PutStrFmtLn("Input Time = %f", GetCPUTimeUsage(ts1, ts2));
-  TimeOut->PutStrFmtLn("Preprocessing Time = %f", GetCPUTimeUsage(ts2, ts3));
-  TimeOut->PutStrFmtLn("Conversion Time = %f", GetCPUTimeUsage(ts3, ts4));
-  TimeOut->PutStrFmtLn("Computing Time = %f", GetCPUTimeUsage(ts4, ts5)/nIters);
-  TimeOut->PutStrFmtLn("Output Time = %f", GetCPUTimeUsage(ts5, ts6));
-
-	return 0;
+  StdOut->PutStrFmtLn("Edge Size = %d", Graph.GetEdges());
 }

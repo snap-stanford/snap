@@ -5,13 +5,13 @@
 #include "benchmark-util.cpp"
 #include "multimodal.cpp"
 
-PSOut StdOut = TStdOut::New();
+PSOut StdOut = TStdOut::New(); 
 
 int main(int argc, char* argv[])
 {
   TEnv Env(argc, argv);
   TStr PrefixPath = Env.GetArgs() > 1 ? Env.GetArg(1) : TStr("");
-
+  
   double ts1 = Tick();
   TTableContext Context;
   TVec<PTable> NodeTblV = TVec<PTable>();
@@ -19,7 +19,7 @@ int main(int argc, char* argv[])
   Schema NodeSchema = Schema();
   Schema EdgeSchema = Schema();
   LoadFlickrTables(PrefixPath, Context, NodeTblV, NodeSchema, EdgeTblV, EdgeSchema);
-
+  
   double ts2 = Tick();
 
   int ExpectedSz = 0;
@@ -27,21 +27,21 @@ int main(int argc, char* argv[])
     PTable Table = *it;
     ExpectedSz += Table->GetNumRows();
   }
-
+  
   THash<TStr, TInt> Hash(ExpectedSz);
   TStrV OriNIdV(ExpectedSz);
-
+  
   MergeNodeTables(NodeTblV, NodeSchema, Hash, OriNIdV);
   PTable EdgeTable = MergeEdgeTables(EdgeTblV, EdgeSchema, Hash, Context);
-
+  
   double ts3 = Tick();
   TStrV V;
   TStrV VE;
   VE.Add(EdgeSchema.GetVal(2).GetVal1());
-  PNEANet Graph = TSnap::ToNetwork<PNEANet>(EdgeTable, EdgeSchema.GetVal(0).GetVal1(), EdgeSchema.GetVal(1).GetVal1(),
+  PNEANet Graph = TSnap::ToNetwork<PNEANet>(EdgeTable, EdgeSchema.GetVal(0).GetVal1(), EdgeSchema.GetVal(1).GetVal1(), 
 						V, V, VE, aaLast);
   double ts4 = Tick();
-
+  
   //int nIters = 1;
   int nIters = 40;
   TIntFltH PageRankResults;
@@ -75,7 +75,7 @@ int main(int argc, char* argv[])
 //  FeaturesOut->PutStrFmtLn("Photo - Owner %d", PPhotoOwnerTbl->GetNumRows().Val);
 //  FeaturesOut->PutStrFmtLn("Photo - Comment %d", PPhotoCommentTbl->GetNumRows().Val);
 //  FeaturesOut->PutStrFmtLn("Photo - Location %d", PPhotoLocationTbl->GetNumRows().Val);
-//  FeaturesOut->PutStrFmtLn("Comment - User %d", PCommentUserTbl->GetNumRows().Val);
+//  FeaturesOut->PutStrFmtLn("Comment - User %d", PCommentUserTbl->GetNumRows().Val);  
 //  FeaturesOut->PutStrFmtLn("Comment - User %d", PCommentUserTbl->GetNumRows().Val);
 ////  FeaturesOut->PutStrFmtLn("Photo - Tagger %d", PPhotoTaggerTbl->GetNumRows().Val);
 //  FeaturesOut->PutStrFmtLn("Tagger - Tag %d", PTaggerTagTbl->GetNumRows().Val);
