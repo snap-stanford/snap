@@ -15,7 +15,7 @@ int main(int argc, char* argv[])
   double ts1 = Tick();
   TTableContext Context;
   TVec<PTable> NodeTblV = TVec<PTable>();
-  TVec<PTable> EdgeTblV = TVec<PTable>();
+  TVec<TPair<PTable, int> > EdgeTblV = TVec<TPair<PTable, int> >();
   Schema NodeSchema = Schema();
   Schema EdgeSchema = Schema();
   LoadFlickrTables(PrefixPath, Context, NodeTblV, NodeSchema, EdgeTblV, EdgeSchema);
