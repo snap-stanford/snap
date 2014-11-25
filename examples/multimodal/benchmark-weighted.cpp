@@ -42,10 +42,10 @@ int main(int argc, char* argv[])
 						V, V, VE, aaLast);
   double ts4 = Tick();
 
-  //int nIters = 1;
-  int nIters = 40;
+  //int nExps = 1;
+  int nExps = 40;
   TIntFltH PageRankResults;
-  for (int i = 0; i < nIters; i++) {
+  for (int i = 0; i < nExps; i++) {
     PageRankResults = TIntFltH(ExpectedSz);
     #ifdef _OPENMP
     TSnap::GetWeightedPageRankMP2(Graph, PageRankResults, EdgeSchema.GetVal(2).GetVal1(), 0.849999999999998, 0.0001, 10);
@@ -87,7 +87,7 @@ int main(int argc, char* argv[])
   TimeOut->PutStrFmtLn("Input Time = %f", GetCPUTimeUsage(ts1, ts2));
   TimeOut->PutStrFmtLn("Preprocessing Time = %f", GetCPUTimeUsage(ts2, ts3));
   TimeOut->PutStrFmtLn("Conversion Time = %f", GetCPUTimeUsage(ts3, ts4));
-  TimeOut->PutStrFmtLn("Computing Time = %f", GetCPUTimeUsage(ts4, ts5)/nIters);
+  TimeOut->PutStrFmtLn("Computing Time = %f", GetCPUTimeUsage(ts4, ts5)/nExps);
   TimeOut->PutStrFmtLn("Output Time = %f", GetCPUTimeUsage(ts5, ts6));
 
   return 0;

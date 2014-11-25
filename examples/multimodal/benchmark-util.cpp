@@ -39,7 +39,7 @@ PTable Load(const Schema& TblSchema, const int nCols, const TStr& TsvFileName, T
 }
 
 void LoadFlickrTables(const TStr& PrefixPath, TTableContext& Context,
-  TVec<PTable>& NodeTblV, Schema& NodeSchema, TVec<PTable>& EdgeTblV, Schema& EdgeSchema) {
+  TVec<PTable>& NodeTblV, Schema& NodeSchema, TVec<TPair<PTable,int> >& EdgeTblV, Schema& EdgeSchema) {
   Schema PhotoSchema;
   PhotoSchema.Add(TPair<TStr,TAttrType>("Id", atStr));
   PhotoSchema.Add(TPair<TStr,TAttrType>("UploadedDate", atInt));
@@ -130,13 +130,13 @@ void LoadFlickrTables(const TStr& PrefixPath, TTableContext& Context,
   TaggerTagSchema.Add(TPair<TStr,TAttrType>("PhotoId", atStr));
   PTable PTaggerTagTbl = Load(TaggerTagSchema, 2, PrefixPath + "tagger_tag_edges.tsv", Context, 0.1);
 
-  EdgeTblV.Add(PPhotoOwnerTbl);
-  EdgeTblV.Add(PPhotoCommentTbl);
-  EdgeTblV.Add(PPhotoLocationTbl);
-  EdgeTblV.Add(PCommentUserTbl);
-  EdgeTblV.Add(PPhotoTagTbl);
+  EdgeTblV.Add(TPair<PTable,int>(PPhotoOwnerTbl, 3));
+  EdgeTblV.Add(TPair<PTable,int>(PPhotoCommentTbl, 1));
+  EdgeTblV.Add(TPair<PTable,int>(PPhotoLocationTbl, 3));
+  EdgeTblV.Add(TPair<PTable,int>(PCommentUserTbl, 1));
+  EdgeTblV.Add(TPair<PTable,int>(PPhotoTagTbl, 1));
   //EdgeTblV.Add(PPhotoTaggerTbl);
-  EdgeTblV.Add(PTaggerTagTbl);
+  EdgeTblV.Add(TPair<PTable,int>(PTaggerTagTbl, 2));
 
   EdgeSchema.Add(TPair<TStr,TAttrType>("SrcId", atStr));
   EdgeSchema.Add(TPair<TStr,TAttrType>("DstId", atStr));

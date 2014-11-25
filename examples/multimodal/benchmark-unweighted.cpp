@@ -15,7 +15,7 @@ int main(int argc, char* argv[])
   double ts1 = Tick();
   TTableContext Context;
   TVec<PTable> NodeTblV = TVec<PTable>();
-  TVec<PTable> EdgeTblV = TVec<PTable>();
+  TVec<TPair<PTable, int> > EdgeTblV = TVec<TPair<PTable, int> >();
   Schema NodeSchema = Schema();
   Schema EdgeSchema = Schema();
   LoadFlickrTables(PrefixPath, Context, NodeTblV, NodeSchema, EdgeTblV, EdgeSchema);
@@ -50,8 +50,11 @@ int main(int argc, char* argv[])
   // Add edge types
   TStr SrcETypeNames[] = {TStr("Photos"), TStr("Photos"), TStr("Photos"), TStr("Comments"), TStr("Photos"), TStr("Users")};
   TStr DstETypeNames[] = {TStr("Users"), TStr("Comments"), TStr("Locations"), TStr("Users"), TStr("Tags"), TStr("Tags")};
+  int index = 0;
   for (int i = 0; i < EdgeTblV.Len(); i++) {
-    Graph->AddEType(TStr("Edge" + i), SrcETypeNames[i], DstETypeNames[i]);
+    int direction = EdgeTblV[i].GetVal2();
+    if ((direction & 2) != 0) { Graph->AddEType(TStr("Edge" + (index++)), SrcETypeNames[i], DstETypeNames[i]); }
+    if ((direction & 1) != 0) { Graph->AddEType(TStr("Edge" + (index++)), DstETypeNames[i], SrcETypeNames[i]); }
   }
   for (int i = 0; i < NodeTblV.Len(); i++) {
     PTable Table = NodeTblV[i];
@@ -65,8 +68,10 @@ int main(int argc, char* argv[])
   }
   TStr SrcIdColName("SrcId");
   TStr DstIdColName("DstId");
+  index = 0;
   for (int i = 0; i < EdgeTblV.Len(); i++) {
-    PTable Table = EdgeTblV[i];
+    PTable Table = EdgeTblV[i].GetVal1();
+    int direction = EdgeTblV[i].GetVal2();
     for (int CurrRowIdx = 0; CurrRowIdx < Table->GetNumRows(); CurrRowIdx++) {
       TStr OriginalSrcId = Table->GetStrVal(SrcIdColName, CurrRowIdx);
       IAssertR(Hash.IsKey(OriginalSrcId), "SrcId of edges must be a node Id");
@@ -75,8 +80,12 @@ int main(int argc, char* argv[])
       IAssertR(Hash.IsKey(OriginalDstId), "DstId of edges must be a node Id");
       TInt UniversalDstId = Hash.GetDat(OriginalDstId);
       //StdOut->PutStrFmtLn("Edge %d->%d : %d->%d", UniversalSrcId, UniversalDstId, Graph->GetNTypeId(UniversalSrcId), Graph->GetNTypeId(UniversalDstId));
-      Graph->AddEdge(UniversalSrcId, UniversalDstId, i);
+      int j = 0;
+      if ((direction & 2) != 0) { Graph->AddEdge(UniversalSrcId, UniversalDstId, (index+j)); j++; }
+      if ((direction & 1) != 0) { Graph->AddEdge(UniversalDstId, UniversalSrcId, (index+j)); }
     }
+    if (direction == 3) { index += 2; }
+    else { index++; }
   }
 
   double ts4 = Tick();
