@@ -2,7 +2,7 @@
 #	configuration variables for the example
 
 ## Main application file
-MAIN = benchmark-TNEANet-unweighted
+MAIN = benchmark-unweighted
 DEPH = 
 DEPCPP = 
 

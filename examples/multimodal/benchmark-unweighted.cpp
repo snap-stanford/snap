@@ -108,21 +108,21 @@ int main(int argc, char* argv[])
   }
   double ts6 = Tick();
 
-//  PSOut FeaturesOut = TFOut::New(PrefixPath + "features.txt");
-//  FeaturesOut->PutStrFmtLn("Photo %d", PPhotoTbl->GetNumRows().Val);
-//  FeaturesOut->PutStrFmtLn("Users %d", PUserTbl->GetNumRows().Val);
-//  FeaturesOut->PutStrFmtLn("Tags %d", PTagTbl->GetNumRows().Val);
-//  FeaturesOut->PutStrFmtLn("Comments %d", PCommentTbl->GetNumRows().Val);
-//  FeaturesOut->PutStrFmtLn("Locations %d", PLocationTbl->GetNumRows().Val);
-//  FeaturesOut->PutStrFmtLn("Photo - Owner %d", PPhotoOwnerTbl->GetNumRows().Val);
-//  FeaturesOut->PutStrFmtLn("Photo - Comment %d", PPhotoCommentTbl->GetNumRows().Val);
-//  FeaturesOut->PutStrFmtLn("Photo - Location %d", PPhotoLocationTbl->GetNumRows().Val);
-//  FeaturesOut->PutStrFmtLn("Comment - User %d", PCommentUserTbl->GetNumRows().Val);
-//  FeaturesOut->PutStrFmtLn("Comment - User %d", PCommentUserTbl->GetNumRows().Val);
-////  FeaturesOut->PutStrFmtLn("Photo - Tagger %d", PPhotoTaggerTbl->GetNumRows().Val);
-//  FeaturesOut->PutStrFmtLn("Tagger - Tag %d", PTaggerTagTbl->GetNumRows().Val);
-//  FeaturesOut->PutStrFmtLn("Total number of nodes = %d", Graph->GetNodes());
-//  FeaturesOut->PutStrFmtLn("Total number of edges = %d", Graph->GetEdges());
+  PSOut FeaturesOut = TFOut::New(PrefixPath + "features.txt");
+  FeaturesOut->PutStrFmtLn("Photo %d", NodeTblV[0]->GetNumRows().Val);
+  FeaturesOut->PutStrFmtLn("Users %d", NodeTblV[1]->GetNumRows().Val);
+  FeaturesOut->PutStrFmtLn("Tags %d", NodeTblV[2]->GetNumRows().Val);
+  FeaturesOut->PutStrFmtLn("Comments %d", NodeTblV[3]->GetNumRows().Val);
+  FeaturesOut->PutStrFmtLn("Locations %d", NodeTblV[4]->GetNumRows().Val);
+  FeaturesOut->PutStrFmtLn("Photo - Owner %d", EdgeTblV[0].GetVal1()->GetNumRows().Val);
+  FeaturesOut->PutStrFmtLn("Photo - Comment %d", EdgeTblV[1].GetVal1()->GetNumRows().Val);
+  FeaturesOut->PutStrFmtLn("Photo - Location %d", EdgeTblV[2].GetVal1()->GetNumRows().Val);
+  FeaturesOut->PutStrFmtLn("Comment - User %d", EdgeTblV[3].GetVal1()->GetNumRows().Val);
+  FeaturesOut->PutStrFmtLn("Photo - Tag %d", EdgeTblV[4].GetVal1()->GetNumRows().Val);
+//  FeaturesOut->PutStrFmtLn("Photo - Tagger %d", PPhotoTaggerTbl->GetNumRows().Val);
+  FeaturesOut->PutStrFmtLn("Tagger - Tag %d", EdgeTblV[5].GetVal1()->GetNumRows().Val);
+  FeaturesOut->PutStrFmtLn("Total number of nodes = %d", Graph->GetNodes());
+  FeaturesOut->PutStrFmtLn("Total number of edges = %d", Graph->GetEdges());
 
   PSOut TimeOut = TFOut::New(PrefixPath + TStr("time.txt"), true);
   TimeOut->PutStrFmtLn("Input Time = %f", GetCPUTimeUsage(ts1, ts2));
