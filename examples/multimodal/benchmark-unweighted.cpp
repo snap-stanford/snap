@@ -20,6 +20,11 @@ int main(int argc, char* argv[])
   Schema EdgeSchema = Schema();
   LoadFlickrTables(PrefixPath, Context, NodeTblV, NodeSchema, EdgeTblV, EdgeSchema);
 
+  Schema RandNodeListSchema;
+  RandNodeListSchema.Add(TPair<TStr,TAttrType>("NTypeName", atStr));
+  RandNodeListSchema.Add(TPair<TStr,TAttrType>("Id", atStr));
+  PTable RandNodeListTbl = Load(RandNodeListSchema, 2, PrefixPath+TStr("rand_node_ids_1000.tsv"), Context);
+
   double ts2 = Tick();
 
   int ExpectedSz = 0;
@@ -90,22 +95,29 @@ int main(int argc, char* argv[])
 
   double ts4 = Tick();
 
-  //int nExps = 1;
-  int nExps = 40;
-  TIntFltH PageRankResults;
+  int nExps = 100;
+//  int nExps = 40;
+//  TIntFltH PageRankResults;
+//  for (int i = 0; i < nExps; i++) {
+////    #ifdef _OPENMP
+////    TSnap::GetPageRankMP2(Graph, PageRankResults, 0.849999999999998, 0.0001, 10);
+////    #else
+//    TSnap::GetPageRank(Graph, PageRankResults, 0.849999999999998, 0.0001, 10);
+////    #endif
+//  }
+
   for (int i = 0; i < nExps; i++) {
-//    #ifdef _OPENMP
-//    TSnap::GetPageRankMP2(Graph, PageRankResults, 0.849999999999998, 0.0001, 10);
-//    #else
-    TSnap::GetPageRank(Graph, PageRankResults, 0.849999999999998, 0.0001, 10);
-//    #endif
+    TStr NodeIdStr = RandNodeListTbl->GetStrVal(RandNodeListSchema.GetVal(1).GetVal1(), i);
+    TInt Id = Hash.GetDat(NodeIdStr);
+    TSnap::GetBfsTree(Graph, Id.Val, true, false);
   }
+
   double ts5 = Tick();
 
-  PSOut ResultOut = TFOut::New(PrefixPath + TStr("page-rank-results.tsv"));
-  for (TIntFltH::TIter it = PageRankResults.BegI(); it < PageRankResults.EndI(); it++) {
-    ResultOut->PutStrFmtLn("%s\t%f9", OriNIdH.GetDat(it.GetKey()).CStr(), it.GetDat().Val);
-  }
+//  PSOut ResultOut = TFOut::New(PrefixPath + TStr("page-rank-results.tsv"));
+//  for (TIntFltH::TIter it = PageRankResults.BegI(); it < PageRankResults.EndI(); it++) {
+//    ResultOut->PutStrFmtLn("%s\t%f9", OriNIdH.GetDat(it.GetKey()).CStr(), it.GetDat().Val);
+//  }
   double ts6 = Tick();
 
   PSOut FeaturesOut = TFOut::New(PrefixPath + "features.txt");
