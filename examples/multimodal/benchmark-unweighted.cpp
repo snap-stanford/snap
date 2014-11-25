@@ -29,42 +29,60 @@ int main(int argc, char* argv[])
   }
 
   THash<TStr, TInt> Hash(ExpectedSz);
-  TStrV OriNIdV(ExpectedSz);
+  THash<TInt, TStr> OriNIdH(ExpectedSz);
 
-  MergeNodeTables(NodeTblV, NodeSchema, Hash, OriNIdV);
-  PTable EdgeTable = MergeEdgeTables(EdgeTblV, EdgeSchema, Hash, Context);
+  //MergeNodeTables(NodeTblV, NodeSchema, Hash, OriNIdH);
+  //PTable EdgeTable = MergeEdgeTables(EdgeTblV, EdgeSchema, Hash, Context);
 
   double ts3 = Tick();
-  TStrV V;
-  TStrV VE;
-  VE.Add(EdgeSchema.GetVal(2).GetVal1());
-  PNEANet Graph = TSnap::ToNetwork<PNEANet>(EdgeTable, EdgeSchema.GetVal(0).GetVal1(), EdgeSchema.GetVal(1).GetVal1(),
-						V, V, VE, aaLast);
+  //PNGraphMP Graph = TSnap::ToGraphMP2<PNGraphMP>(EdgeTable, EdgeSchema.GetVal(0).GetVal1(), EdgeSchema.GetVal(1).GetVal1());
+  PMVNet Graph = TMVNet::New();
+  TStr IdColName("Id");
+  TStr NTypeNames[] = {TStr("Photos"), TStr("Users"), TStr("Tags"), TStr("Comments"), TStr("Location")};
+  for (int i = 0; i < NodeTblV.Len(); i++) {
+    PTable Table = NodeTblV[i];
+    int NTypeId = Graph->AddNType(NTypeNames[i]);
+    for (int CurrRowIdx = 0; CurrRowIdx < Table->GetNumRows(); CurrRowIdx++) {
+      TStr Val = Table->GetStrVal(IdColName, CurrRowIdx);
+      int NId = Graph->AddNode(NTypeId);
+      Hash.AddDat(Val, NId);
+      OriNIdH.AddDat(NId, Val);
+    }
+  }
+  TStr SrcIdColName("SrcId");
+  TStr DstIdColName("DstId");
+  for (int i = 0; i < EdgeTblV.Len(); i++) {
+    PTable Table = EdgeTblV[i];
+    for (int CurrRowIdx = 0; CurrRowIdx < Table->GetNumRows(); CurrRowIdx++) {
+      TStr OriginalSrcId = Table->GetStrVal(SrcIdColName, CurrRowIdx);
+      IAssertR(Hash.IsKey(OriginalSrcId), "SrcId of edges must be a node Id");
+      TInt UniversalSrcId = Hash.GetDat(OriginalSrcId);
+      TStr OriginalDstId = Table->GetStrVal(DstIdColName, CurrRowIdx);
+      IAssertR(Hash.IsKey(OriginalDstId), "DstId of edges must be a node Id");
+      TInt UniversalDstId = Hash.GetDat(OriginalDstId);
+      Graph->AddEdge(UniversalSrcId, UniversalDstId, 0);
+    }
+  }
+
   double ts4 = Tick();
 
-  //int nIters = 1;
-  int nIters = 40;
+  int nIters = 1;
+  //int nIters = 40;
   TIntFltH PageRankResults;
   for (int i = 0; i < nIters; i++) {
-    PageRankResults = TIntFltH(ExpectedSz);
-    #ifdef _OPENMP
-    TSnap::GetWeightedPageRankMP2(Graph, PageRankResults, EdgeSchema.GetVal(2).GetVal1(), 0.849999999999998, 0.0001, 10);
-    #else
-    TSnap::GetWeightedPageRank(Graph, PageRankResults, EdgeSchema.GetVal(2).GetVal1(), 0.849999999999998, 0.0001, 10);
-    #endif
+//    #ifdef _OPENMP
+//    TSnap::GetPageRankMP2(Graph, PageRankResults, 0.849999999999998, 0.0001, 10);
+//    #else
+    TSnap::GetPageRank(Graph, PageRankResults, 0.849999999999998, 0.0001, 10);
+//    #endif
   }
   double ts5 = Tick();
 
   PSOut ResultOut = TFOut::New(PrefixPath + TStr("page-rank-results.tsv"));
   for (TIntFltH::TIter it = PageRankResults.BegI(); it < PageRankResults.EndI(); it++) {
-    ResultOut->PutStrFmtLn("%s\t%f9", OriNIdV[it.GetKey()].CStr(), it.GetDat().Val);
+    ResultOut->PutStrFmtLn("%s\t%f9", OriNIdH.GetDat(it.GetKey()).CStr(), it.GetDat().Val);
   }
   double ts6 = Tick();
-
-  bool isPar = false;
-  #ifdef _OPENMP
-  isPar = true;
-  #endif
 
 //  PSOut FeaturesOut = TFOut::New(PrefixPath + "features.txt");
 //  FeaturesOut->PutStrFmtLn("Photo %d", PPhotoTbl->GetNumRows().Val);
@@ -83,12 +101,11 @@ int main(int argc, char* argv[])
 //  FeaturesOut->PutStrFmtLn("Total number of edges = %d", Graph->GetEdges());
 
   PSOut TimeOut = TFOut::New(PrefixPath + TStr("time.txt"), true);
-  TimeOut->PutStrFmtLn("Experiment Weighted - %s - %s", PrefixPath.CStr(), (isPar ? "Parallel" : "Sequential"));
   TimeOut->PutStrFmtLn("Input Time = %f", GetCPUTimeUsage(ts1, ts2));
   TimeOut->PutStrFmtLn("Preprocessing Time = %f", GetCPUTimeUsage(ts2, ts3));
   TimeOut->PutStrFmtLn("Conversion Time = %f", GetCPUTimeUsage(ts3, ts4));
   TimeOut->PutStrFmtLn("Computing Time = %f", GetCPUTimeUsage(ts4, ts5)/nIters);
   TimeOut->PutStrFmtLn("Output Time = %f", GetCPUTimeUsage(ts5, ts6));
 
-  return 0;
+	return 0;
 }

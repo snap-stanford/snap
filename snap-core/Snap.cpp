@@ -12,6 +12,7 @@
 
 // graph data structures
 #include "graph.cpp"         // graphs
+#include "mgraph.cpp"        // multimodal graphs
 #include "network.cpp"       // networks
 #include "timenet.cpp"       // time evolving networks
 

@@ -14,6 +14,7 @@
 
 // graph data structures
 #include "graph.h"           // graphs
+#include "mgraph.h"          // multimodal graphs
 #include "network.h"         // networks
 #include "bignet.h"          // large networks
 #include "timenet.h"         // time evolving networks
