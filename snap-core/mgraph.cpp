@@ -2,40 +2,13 @@
 
 /////////////////////////////////////////////////
 // Attribute Node Edge Network
-int TMVNet::AddNType(const TStr& NTypeName) {
-  int KeyId = NTypeH.GetKeyId(NTypeName);
-  // Has the type been added?
-  if (KeyId == -1) {
-    // Not added.
-    int NTypeId = TypeNodeV.Len();
-    NTypeH.AddDat(NTypeName, NTypeId);
-    TypeNodeV.Add(TNodeType(NTypeId, NTypeName));
-    return NTypeId;
-  } else {
-    // Added. Return the stored id.
-    TStr TempKey;
-    int NTypeId;
-    NTypeH.GetKeyDat(KeyId, TempKey, NTypeId);
-    return NTypeId;
-  }
-}
 
-int TMVNet::AddNode(const int& NTypeId, int NId) {
-  AssertNTypeId(NTypeId);
-  TNodeType* NodeType = &TypeNodeV[NTypeId];
-  if (NId == -1) {
-    NId = NodeType->MxNId; NodeType->MxNId++;
-  } else {
-    IAssertR(!IsNode(NTypeId, NId), TStr::Fmt("NodeId %d with type %d already exists", NId, NTypeId));
-    NodeType->MxNId = TMath::Mx(NId+1, NodeType->GetMxNId());
-  }
-  NodeType->NodeH.AddDat(NId, TNode(NTypeId, NId));
-  Sz++;
-  return GetGlobalNId(NTypeId, NId);
-}
+const int TCVNode::DEF_WEIGHT = 4;
+const int TCVNode::DEF_WEIGHT_COEFF = 2;
+const int TCVNode::DEF_EXPAND_RATIO = 2;
 
 /*
-void TMVNet::DelNode(const int& NId) {
+void TMNet::DelNode(const int& NId) {
   int i;
 
   const TNode& Node = GetNode(NId);
@@ -95,41 +68,8 @@ void TMVNet::DelNode(const int& NId) {
   NodeH.DelKey(NId);
 }*/
 
-int TMVNet::AddEdge(const int& SrcNId, const int& DstNId, const int& ETypeId, int EId) {
-  if (EId == -1) { EId = MxEId;  MxEId++; }
-  else { MxEId = TMath::Mx(EId+1, MxEId()); }
-
-  IAssertR(!IsEdge(EId), TStr::Fmt("EdgeId %d already exists", EId));
-  IAssertR(IsNode(SrcNId) && IsNode(DstNId), TStr::Fmt("%d or %d not a node.", SrcNId, DstNId).CStr());
-  EdgeH.AddDat(EId, TEdge(ETypeId, EId, SrcNId, DstNId));
-  GetNode(SrcNId).OutEIdV.AddSorted(EId);
-  GetNode(DstNId).InEIdV.AddSorted(EId);
-
-  return EId;
-}
-
-bool TMVNet::IsEdge(const int& SrcNId, const int& DstNId, int& EId, const bool& IsDir) const {
-  const TNode& SrcNode = GetNode(SrcNId);
-  for (int edge = 0; edge < SrcNode.GetOutDeg(); edge++) {
-    const TEdge& Edge = GetEdge(SrcNode.GetOutEId(edge));
-    if (DstNId == Edge.GetDstNId()) {
-      EId = Edge.GetId();
-      return true;
-    }
-  }
-  if (! IsDir) {
-    for (int edge = 0; edge < SrcNode.GetInDeg(); edge++) {
-      const TEdge& Edge = GetEdge(SrcNode.GetInEId(edge));
-      if (DstNId == Edge.GetSrcNId()) {
-        EId = Edge.GetId();
-        return true;
-      }
-    }
-  }
-  return false;
-}
 /*
-void TMVNet::DelEdge(const int& EId) {
+void TMNet::DelEdge(const int& EId) {
   int i;
 
   IAssert(IsEdge(EId));
@@ -154,7 +94,7 @@ void TMVNet::DelEdge(const int& EId) {
 }
 
 // delete all edges between the two nodes
-void TMVNet::DelEdge(const int& SrcNId, const int& DstNId, const bool& IsDir) {
+void TMNet::DelEdge(const int& SrcNId, const int& DstNId, const bool& IsDir) {
   int EId = 0;
   bool Edge = IsEdge(SrcNId, DstNId, EId, IsDir);
   IAssert(Edge); // there is at least one edge
@@ -164,7 +104,7 @@ void TMVNet::DelEdge(const int& SrcNId, const int& DstNId, const bool& IsDir) {
   }
 }
 
-void TMVNet::Defrag(const bool& OnlyNodeLinks) {
+void TMNet::Defrag(const bool& OnlyNodeLinks) {
   for (int kid = NodeH.FFirstKeyId(); NodeH.FNextKeyId(kid); ) {
     TNode& Node = NodeH[kid];
     Node.InEIdV.Pack();  Node.OutEIdV.Pack();
@@ -173,7 +113,7 @@ void TMVNet::Defrag(const bool& OnlyNodeLinks) {
   if (! OnlyNodeLinks && ! EdgeH.IsKeyIdEqKeyN()) { EdgeH.Defrag(); }
 }
 
-bool TMVNet::IsOk(const bool& ThrowExcept) const {
+bool TMNet::IsOk(const bool& ThrowExcept) const {
   bool RetVal = true;
   for (int N = NodeH.FFirstKeyId(); NodeH.FNextKeyId(N); ) {
     const TNode& Node = NodeH[N];
@@ -226,7 +166,7 @@ bool TMVNet::IsOk(const bool& ThrowExcept) const {
   return RetVal;
 }
 
-void TMVNet::Dump(FILE *OutF) const {
+void TMNet::Dump(FILE *OutF) const {
   const int NodePlaces = (int) ceil(log10((double) GetNodes()));
   const int EdgePlaces = (int) ceil(log10((double) GetEdges()));
   fprintf(OutF, "-------------------------------------------------\nDirected Node-Edge Network: nodes: %d, edges: %d\n", GetNodes(), GetEdges());
@@ -285,7 +225,7 @@ void TMVNet::Dump(FILE *OutF) const {
   fprintf(OutF, "\n");
 }
 
-TFlt TMVNet::GetWeightOutEdges(const TNodeI& NI, const TStr& attr) {
+TFlt TMNet::GetWeightOutEdges(const TNodeI& NI, const TStr& attr) {
   TNode Node = GetNode(NI.GetId());
   TIntV OutEIdV = Node.OutEIdV;
   TFlt total = 0;
@@ -296,7 +236,7 @@ TFlt TMVNet::GetWeightOutEdges(const TNodeI& NI, const TStr& attr) {
   return total;
 }
 
-void TMVNet::GetWeightOutEdgesV(TFltV& OutWeights, const TFltV& AttrVal) {
+void TMNet::GetWeightOutEdgesV(TFltV& OutWeights, const TFltV& AttrVal) {
   for (TEdgeI it = BegEI(); it < EndEI(); it++) {
     int EId = it.GetId();
     int SrcId = it.GetSrcNId();
@@ -304,17 +244,17 @@ void TMVNet::GetWeightOutEdgesV(TFltV& OutWeights, const TFltV& AttrVal) {
   }
 }
 
-bool TMVNet::IsFltAttrE(const TStr& attr) {
+bool TMNet::IsFltAttrE(const TStr& attr) {
   return (KeyToIndexTypeE.IsKey(attr) &&
     KeyToIndexTypeE.GetDat(attr).Val1 == FltType);
 }
 
-bool TMVNet::IsIntAttrE(const TStr& attr) {
+bool TMNet::IsIntAttrE(const TStr& attr) {
   return (KeyToIndexTypeE.IsKey(attr) &&
     KeyToIndexTypeE.GetDat(attr).Val1 == IntType);
 }
 
-bool TMVNet::IsStrAttrE(const TStr& attr) {
+bool TMNet::IsStrAttrE(const TStr& attr) {
   return (KeyToIndexTypeE.IsKey(attr) &&
     KeyToIndexTypeE.GetDat(attr).Val1 == StrType);
 }

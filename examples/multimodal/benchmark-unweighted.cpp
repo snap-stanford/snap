@@ -37,8 +37,22 @@ int main(int argc, char* argv[])
   double ts3 = Tick();
   //PNGraphMP Graph = TSnap::ToGraphMP2<PNGraphMP>(EdgeTable, EdgeSchema.GetVal(0).GetVal1(), EdgeSchema.GetVal(1).GetVal1());
   PMVNet Graph = TMVNet::New();
+//  PCVNet Graph = TCVNet::New();
   TStr IdColName("Id");
-  TStr NTypeNames[] = {TStr("Photos"), TStr("Users"), TStr("Tags"), TStr("Comments"), TStr("Location")};
+  TStr NTypeNames[] = {TStr("Photos"), TStr("Users"), TStr("Tags"), TStr("Comments"), TStr("Locations")};
+
+  // Add node types
+  for (int i = 0; i < NodeTblV.Len(); i++) {
+    PTable Table = NodeTblV[i];
+    Graph->AddNType(NTypeNames[i]);
+  }
+
+  // Add edge types
+  TStr SrcETypeNames[] = {TStr("Photos"), TStr("Photos"), TStr("Photos"), TStr("Comments"), TStr("Photos"), TStr("Users")};
+  TStr DstETypeNames[] = {TStr("Users"), TStr("Comments"), TStr("Locations"), TStr("Users"), TStr("Tags"), TStr("Tags")};
+  for (int i = 0; i < EdgeTblV.Len(); i++) {
+    Graph->AddEType(TStr("Edge" + i), SrcETypeNames[i], DstETypeNames[i]);
+  }
   for (int i = 0; i < NodeTblV.Len(); i++) {
     PTable Table = NodeTblV[i];
     int NTypeId = Graph->AddNType(NTypeNames[i]);
@@ -60,16 +74,17 @@ int main(int argc, char* argv[])
       TStr OriginalDstId = Table->GetStrVal(DstIdColName, CurrRowIdx);
       IAssertR(Hash.IsKey(OriginalDstId), "DstId of edges must be a node Id");
       TInt UniversalDstId = Hash.GetDat(OriginalDstId);
-      Graph->AddEdge(UniversalSrcId, UniversalDstId, 0);
+      //StdOut->PutStrFmtLn("Edge %d->%d : %d->%d", UniversalSrcId, UniversalDstId, Graph->GetNTypeId(UniversalSrcId), Graph->GetNTypeId(UniversalDstId));
+      Graph->AddEdge(UniversalSrcId, UniversalDstId, i);
     }
   }
 
   double ts4 = Tick();
 
-  int nIters = 1;
-  //int nIters = 40;
+  //int nExps = 1;
+  int nExps = 40;
   TIntFltH PageRankResults;
-  for (int i = 0; i < nIters; i++) {
+  for (int i = 0; i < nExps; i++) {
 //    #ifdef _OPENMP
 //    TSnap::GetPageRankMP2(Graph, PageRankResults, 0.849999999999998, 0.0001, 10);
 //    #else
@@ -104,7 +119,7 @@ int main(int argc, char* argv[])
   TimeOut->PutStrFmtLn("Input Time = %f", GetCPUTimeUsage(ts1, ts2));
   TimeOut->PutStrFmtLn("Preprocessing Time = %f", GetCPUTimeUsage(ts2, ts3));
   TimeOut->PutStrFmtLn("Conversion Time = %f", GetCPUTimeUsage(ts3, ts4));
-  TimeOut->PutStrFmtLn("Computing Time = %f", GetCPUTimeUsage(ts4, ts5)/nIters);
+  TimeOut->PutStrFmtLn("Computing Time = %f", GetCPUTimeUsage(ts4, ts5)/nExps);
   TimeOut->PutStrFmtLn("Output Time = %f", GetCPUTimeUsage(ts5, ts6));
 
 	return 0;
