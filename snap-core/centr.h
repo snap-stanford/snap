@@ -6,7 +6,7 @@ namespace TSnap {
 /// Returns Degree centrality of a given node NId.
 /// Degree centrality if a node is defined as its degree/(N-1), where N is the number of nodes in the network.
 double GetDegreeCentr(const PUNGraph& Graph, const int& NId);
-/// Returns Farness centrality of a given node NId. 
+/// Returns Farness centrality of a given node NId.
 /// Farness centrality of a node is the average shortest path length to all other nodes that reside is the same connected component as the given node.
 double GetFarnessCentr(const PUNGraph& Graph, const int& NId);
 /// Returns Closeness centrality of a given node NId.
@@ -32,7 +32,7 @@ void GetBetweennessCentr(const PUNGraph& Graph, TIntFltH& NIdBtwH, TIntPrFltH& E
 /// Computes (approximate) Beetweenness Centrality of all nodes and all edges of the network.
 /// To obtain exact betweenness values one needs to solve single-source shortest-path problem for every node.
 /// To speed up the algorithm we solve the shortest-path problem for the BtwNIdV subset of nodes. This gives centrality values that are about Graph->GetNodes()/BtwNIdV.Len() times lower than the exact betweenness centrality valus.
-/// See "A Faster Algorithm for Beetweenness Centrality", Ulrik Brandes, Journal of Mathematical Sociology, 2001, and 
+/// See "A Faster Algorithm for Beetweenness Centrality", Ulrik Brandes, Journal of Mathematical Sociology, 2001, and
 /// "Centrality Estimation in Large Networks", Urlik Brandes and Christian Pich, 2006 for more details.
 void GetBetweennessCentr(const PUNGraph& Graph, const TIntV& BtwNIdV, TIntFltH& NodeBtwH, const bool& DoNodeCent, TIntPrFltH& EdgeBtwH, const bool& DoEdgeCent);
 
@@ -63,7 +63,7 @@ template<class PGraph> void GetHitsMP(const PGraph& Graph, TIntFltH& NIdHubH, TI
 #endif
 
 /////////////////////////////////////////////////
-// Implementation 
+// Implementation
 template <class PGraph>
 int GetNodeEcc(const PGraph& Graph, const int& NId, const bool& IsDir) {
   int NodeEcc;
@@ -140,7 +140,7 @@ void GetPageRankMP1(const PGraph& Graph, TIntFltH& PRankH, const double& C, cons
     PRankH.AddDat(NI.GetId(), 1.0/NNodes);
     //IAssert(NI.GetId() == PRankH.GetKey(PRankH.Len()-1));
   }
-  
+
   TFltV TmpV(NNodes);
 
   //int hcount1 = 0;
@@ -212,7 +212,7 @@ void GetPageRankMP2(const PGraph& Graph, TIntFltH& PRankH, const double& C, cons
 
   TFltV PRankV(MxId+1);
   TIntV OutDegV(MxId+1);
-  
+
   //for (typename PGraph::TObj::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
   #pragma omp parallel for schedule(dynamic,10000)
   for (int j = 0; j < NNodes; j++) {
@@ -288,6 +288,75 @@ void GetPageRankMP2(const PGraph& Graph, TIntFltH& PRankH, const double& C, cons
     typename PGraph::TObj::TNodeI NI = NV[i];
     //PRankH.AddDat(NI.GetId(), PRankV[NI.GetId()]);
     PRankH[i] = PRankV[NI.GetId()];
+  }
+}
+
+// Page Rank -- there are two different implementations (uncomment the desired 2 lines):
+//   Berkhin -- (the correct way) see Algorithm 1 of P. Berkhin, A Survey on PageRank Computing, Internet Mathematics, 2005
+//   iGraph -- iGraph implementation(which treats leaked PageRank in a funny way)
+// This is a parallel, optimized version.
+template<class PGraph>
+void GetPageRankMP3(const PGraph& Graph, TIntFltH& PRankH, const double& C, const double& Eps, const int& MaxIter) {
+  const int NNodes = Graph->GetNodes();
+  TVec<typename PGraph::TObj::TNodeI> NV;
+  PRankH.Gen(NNodes);
+  TIntIntH NIdH(NNodes);
+  int c = 0;
+  for (typename PGraph::TObj::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
+    NV.Add(NI);
+    PRankH.AddDat(NI.GetId(), 1.0/NNodes);
+    int Id = NI.GetId();
+    NIdH.AddDat(Id, c++);
+  }
+
+  TFltV PRankV(NNodes);
+  TIntV OutDegV(NNodes);
+  #pragma omp parallel for schedule(dynamic,10000)
+  for (int j = 0; j < NNodes; j++) {
+    int Id = NV[j].GetId();
+    PRankV[NIdH.GetDat(Id)] = 1.0/NNodes;
+    OutDegV[NIdH.GetDat(Id)] = NV[j].GetOutDeg();
+  }
+
+  TFltV TmpV(NNodes);
+
+  for (int iter = 0; iter < MaxIter; iter++) {
+    #pragma omp parallel for schedule(dynamic,10000)
+    for (int j = 0; j < NNodes; j++) {
+      typename PGraph::TObj::TNodeI NI = NV[j];
+      TFlt Tmp = 0;
+      for (int e = 0; e < NI.GetInDeg(); e++) {
+        const int InNId = NI.GetInNId(e);
+        const int OutDeg = OutDegV[NIdH.GetDat(InNId)];
+        if (OutDeg > 0) {
+          Tmp += PRankV[NIdH.GetDat(InNId)] / OutDeg;
+        }
+      }
+      TmpV[j] =  C*Tmp; // Berkhin (the correct way of doing it)
+      ////TmpV[j] =  C*TmpV[j] + (1.0-C)*OneOver; // iGraph
+    }
+    double sum = 0;
+    #pragma omp parallel for reduction(+:sum) schedule(dynamic,10000)
+    for (int i = 0; i < TmpV.Len(); i++) { sum += TmpV[i]; }
+    const double Leaked = (1.0-sum) / double(NNodes);
+
+    double diff = 0;
+    #pragma omp parallel for reduction(+:diff) schedule(dynamic,10000)
+    for (int i = 0; i < NNodes; i++) {
+      typename PGraph::TObj::TNodeI NI = NV[i];
+      double NewVal = TmpV[i] + Leaked; // Berkhin
+      //NewVal = TmpV[i] / sum;  // iGraph
+      int Id = NI.GetId();
+      diff += fabs(NewVal-PRankV[NIdH.GetDat(Id)]);
+      PRankV[NIdH.GetDat(Id)] = NewVal;
+    }
+    if (diff < Eps) { break; }
+  }
+
+  #pragma omp parallel for schedule(dynamic,10000)
+  for (int i = 0; i < NNodes; i++) {
+    typename PGraph::TObj::TNodeI NI = NV[i];
+    PRankH[i] = PRankV[NIdH.GetDat(NI.GetId())];
   }
 }
 #endif
