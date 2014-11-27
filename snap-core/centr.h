@@ -301,6 +301,7 @@ void GetPageRankMP3(const PGraph& Graph, TIntFltH& PRankH, const double& C, cons
   TVec<typename PGraph::TObj::TNodeI> NV;
   PRankH.Gen(NNodes);
   TIntIntH NIdH(NNodes);
+  double t1 = omp_get_wtime();
   int c = 0;
   for (typename PGraph::TObj::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
     NV.Add(NI);
@@ -308,6 +309,8 @@ void GetPageRankMP3(const PGraph& Graph, TIntFltH& PRankH, const double& C, cons
     int Id = NI.GetId();
     NIdH.AddDat(Id, c++);
   }
+  double t2 = omp_get_wtime();
+  printf("Preprocessing %f\n", t2-t1);
 
   TFltV PRankV(NNodes);
   TIntV OutDegV(NNodes);
@@ -317,6 +320,8 @@ void GetPageRankMP3(const PGraph& Graph, TIntFltH& PRankH, const double& C, cons
     PRankV[NIdH.GetDat(Id)] = 1.0/NNodes;
     OutDegV[NIdH.GetDat(Id)] = NV[j].GetOutDeg();
   }
+  double t3 = omp_get_wtime();
+  printf("Collect degree %f\n", t3-t2);
 
   TFltV TmpV(NNodes);
 
@@ -326,10 +331,10 @@ void GetPageRankMP3(const PGraph& Graph, TIntFltH& PRankH, const double& C, cons
       typename PGraph::TObj::TNodeI NI = NV[j];
       TFlt Tmp = 0;
       for (int e = 0; e < NI.GetInDeg(); e++) {
-        const int InNId = NI.GetInNId(e);
-        const int OutDeg = OutDegV[NIdH.GetDat(InNId)];
+        const int InNId = NIdH.GetDat(NI.GetInNId(e));
+        const int OutDeg = OutDegV[InNId];
         if (OutDeg > 0) {
-          Tmp += PRankV[NIdH.GetDat(InNId)] / OutDeg;
+          Tmp += PRankV[InNId] / OutDeg;
         }
       }
       TmpV[j] =  C*Tmp; // Berkhin (the correct way of doing it)
@@ -346,18 +351,22 @@ void GetPageRankMP3(const PGraph& Graph, TIntFltH& PRankH, const double& C, cons
       typename PGraph::TObj::TNodeI NI = NV[i];
       double NewVal = TmpV[i] + Leaked; // Berkhin
       //NewVal = TmpV[i] / sum;  // iGraph
-      int Id = NI.GetId();
-      diff += fabs(NewVal-PRankV[NIdH.GetDat(Id)]);
-      PRankV[NIdH.GetDat(Id)] = NewVal;
+      int Id = NIdH.GetDat(NI.GetId());
+      diff += fabs(NewVal-PRankV[Id]);
+      PRankV[Id] = NewVal;
     }
     if (diff < Eps) { break; }
   }
+  double t4 = omp_get_wtime();
+  printf("Iterate %f\n", t4-t3);
 
   #pragma omp parallel for schedule(dynamic,10000)
   for (int i = 0; i < NNodes; i++) {
     typename PGraph::TObj::TNodeI NI = NV[i];
     PRankH[i] = PRankV[NIdH.GetDat(NI.GetId())];
   }
+  double t5 = omp_get_wtime();
+  printf("Post-process %f\n", t5-t4);
 }
 #endif
 

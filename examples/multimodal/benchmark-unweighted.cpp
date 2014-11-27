@@ -96,7 +96,7 @@ int main(int argc, char* argv[])
   double ts4 = Tick();
 
 //  int nExps = 1;
-  int nExps = 20;
+  int nExps = 40;
   TIntFltH PageRankResults;
   for (int i = 0; i < nExps; i++) {
     #ifdef _OPENMP
