@@ -366,10 +366,10 @@ public:
   };
 
 private:
-  static const int NID_NBITS = 26;
-  static const int NID_FLAG = (1 << NID_NBITS) - 1;
-  static int GetGlobalNId(const int& NTypeId, const int& NId) { return (NTypeId << NID_NBITS) + NId;}
-  static int GetLocalNId(const int& GlobalNId) { return GlobalNId & NID_FLAG; }
+  static const int NTYPEID_NBITS = 3; // The number of types must be at most 2^NTYPEID_NBITS
+  static const int NTYPEID_FLAG = (1 << NTYPEID_NBITS) - 1;
+  static int GetGlobalNId(const int& NTypeId, const int& NId) { return (NId << NTYPEID_NBITS) + NTypeId;}
+  static int GetLocalNId(const int& GlobalNId) { return GlobalNId >> NTYPEID_NBITS; }
 
 private:
   TCRef CRef;
@@ -422,7 +422,7 @@ public:
     return *this; }
 
   /// Gets the NTypeId
-  static int GetNTypeId(const int& NId) { return NId >> NID_NBITS; } // Assuming that GlobaLNId is positive here
+  static int GetNTypeId(const int& NId) { return NId & NTYPEID_FLAG; } // Assuming that GlobalNId is positive here
 
   /// Adds a new type with the given string into the graph.
   int AddNType(const TStr& NTypeName) {
