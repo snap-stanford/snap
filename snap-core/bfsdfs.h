@@ -331,10 +331,15 @@ template <class PGraph>
 int GetShortestDistancesMP2(const PGraph& Graph, const int& StartNId, const bool& FollowOut, const bool& FollowIn, TIntV& ShortestDists) {
   PSOut StdOut = TStdOut::New();
   int MxNId = Graph->GetMxNId();
-  int InfDepth = 2147483647;
+  int NonNodeDepth = 2147483647; // INT_MAX
+  int InfDepth = 2147483646; // INT_MAX - 1
   ShortestDists.Gen(MxNId);
-  ShortestDists.PutAll(InfDepth);
-
+  #pragma omp parallel for schedule(dynamic,10000)
+  for (int NId = 0; NId < MxNId; NId++) {
+    if (Graph->IsNode(NId)) { ShortestDists[NId] = InfDepth; }
+    else { ShortestDists[NId] = NonNodeDepth; }
+  }
+  
   TIntV Vec1(MxNId, 0); // ensure enough capacity
   TIntV Vec2(MxNId, 0); // ensure enough capacity
 
@@ -360,7 +365,7 @@ int GetShortestDistancesMP2(const PGraph& Graph, const int& StartNId, const bool
     } else {
       #pragma omp parallel for schedule(dynamic,10000)
       for (int NId = 0; NId < MxNId; NId++) {
-        if (ShortestDists[NId] == InfDepth && Graph->IsNode(NId)) {
+        if (ShortestDists[NId] == InfDepth) {
           typename PGraph::TObj::TNodeI NI = Graph->GetNI(NId);
           for (int e = 0; e < NI.GetInDeg(); e++) {
             const int InNId = NI.GetInNId(e);
