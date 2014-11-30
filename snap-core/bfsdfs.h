@@ -240,7 +240,7 @@ int GetShortPath(const PGraph& Graph, const int& SrcNId, TIntH& NIdToDistH, cons
   return NIdToDistH[NIdToDistH.Len()-1];
 }
 
-template <class PGraph> 
+template <class PGraph>
 int GetShortPath(const PGraph& Graph, const int& SrcNId, const int& DstNId, const bool& IsDir) {
   TBreathFS<PGraph> BFS(Graph);
   BFS.DoBfs(SrcNId, true, ! IsDir, DstNId, TInt::Mx);
@@ -325,6 +325,62 @@ double GetBfsEffDiam(const PGraph& Graph, const int& NTestNodes, const TIntV& Su
   EffDiam = TSnap::TSnapDetail::CalcEffDiamPdf(DistNbrsPdfV, 0.9);  // effective diameter (90-th percentile)
   FullDiam = DistNbrsPdfV.Last().Key;                 // approximate full diameter (max shortest path length over the sampled nodes)
   return EffDiam;                                     // average shortest path length
+}
+
+template <class PGraph>
+int GetShortestDistancesMP2(const PGraph& Graph, const int& StartNId, const bool& FollowOut, const bool& FollowIn, TIntV& ShortestDists) {
+  PSOut StdOut = TStdOut::New();
+  int MxNId = Graph->GetMxNId();
+  int InfDepth = 2147483647;
+  ShortestDists.Gen(MxNId);
+  ShortestDists.PutAll(InfDepth);
+
+  TIntV Vec1(MxNId, 0); // ensure enough capacity
+  TIntV Vec2(MxNId, 0); // ensure enough capacity
+
+  ShortestDists[StartNId] = 0;
+  TIntV* PCurV = &Vec1;
+  PCurV->Add(StartNId);
+  TIntV* PNextV = &Vec2;
+  int Depth = 0; // current depth
+  while (!PCurV->Empty()) {
+    Depth++; // increase depth
+    if (PCurV->Len() < (MxNId / 4)) {
+      #pragma omp parallel for schedule(dynamic,10000)
+      for (int i = 0; i < PCurV->Len(); i++) {
+        int NId = PCurV->GetVal(i);
+        typename PGraph::TObj::TNodeI NI = Graph->GetNI(NId);
+        for (int e = 0; e < NI.GetOutDeg(); e++) {
+          const int OutNId = NI.GetOutNId(e);
+          if (__sync_bool_compare_and_swap(&(ShortestDists[OutNId].Val), InfDepth, Depth)) {
+            PNextV->AddAtm(OutNId);
+          }
+        }
+      }
+    } else {
+      #pragma omp parallel for schedule(dynamic,10000)
+      for (int NId = 0; NId < MxNId; NId++) {
+        if (ShortestDists[NId] == InfDepth && Graph->IsNode(NId)) {
+          typename PGraph::TObj::TNodeI NI = Graph->GetNI(NId);
+          for (int e = 0; e < NI.GetInDeg(); e++) {
+            const int InNId = NI.GetInNId(e);
+            if (ShortestDists[InNId] < Depth) {
+              ShortestDists[NId] = Depth;
+              PNextV->AddAtm(NId);
+              break;
+            }
+          }
+        }
+      }
+    }
+    // swap pointer, no copying
+    TIntV* Tmp = PCurV;
+    PCurV = PNextV;
+    PNextV = Tmp;
+    // clear next
+    PNextV->Reduce(0); // reduce length, does not initialize new array
+  }
+  return Depth-1;
 }
 
 } // namespace TSnap

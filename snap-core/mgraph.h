@@ -373,6 +373,7 @@ private:
 
 private:
   TCRef CRef;
+  TInt MxNId;
   TInt MxEId;
   THash<TStr, int> NTypeH;
   THash<TStr, int> ETypeH;
@@ -458,6 +459,15 @@ public:
 
   /// Returns the number of nodes in the graph.
   int GetNodes() const { return Sz; }
+  /// Returns an ID that is larger than any node ID in the network.
+  int GetMxNId() const {
+    return MxNId;
+  }
+  /// Returns an ID that is larger than any node ID of the given type in the network.
+  int GetMxNId(const int& NTypeId) const {
+    AssertNTypeId(NTypeId);
+    return TypeNodeV[NTypeId].MxNId;
+  }
   /// Adds a node of ID NId to the graph. ##TNEANet::AddNode
   int AddNode(const int& NTypeId, int NId = -1) {
     AssertNTypeId(NTypeId);
@@ -472,8 +482,10 @@ public:
     NewNode.AddInETypeIds(InETypes[NTypeId]);
     NewNode.AddOutETypeIds(OutETypes[NTypeId]);
     NodeType->NodeH.AddDat(NId, NewNode);
+    int GlobalNId = GetGlobalNId(NTypeId, NId);
+    MxNId = TMath::Mx(GlobalNId+1, MxNId());
     Sz++;
-    return GetGlobalNId(NTypeId, NId);
+    return GlobalNId;
   }
   /// Adds a node of ID NodeI.GetId() to the graph.
   int AddNode(const TNodeI& NodeId) { return AddNode(NodeId.GetTypeId(), NodeId.GetId()); }
@@ -505,12 +517,6 @@ public:
   }
   TNodeI GetNI(const int& NTypeId, const int& NId) const {
     return TNodeI(TypeNodeV.GetI(NTypeId), TypeNodeV[NTypeId].NodeH.GetI(NId), this);
-  }
-
-  /// Returns an ID that is larger than any node ID in the network.
-  int GetMxNId(const int& NTypeId) const {
-    AssertNTypeId(NTypeId);
-    return TypeNodeV[NTypeId].MxNId;
   }
 
   int AddEType(const TStr& ETypeName, const TStr& SrcNTypeName, const TStr& DstNTypeName) {
