@@ -1,6 +1,6 @@
 namespace TSnap {
 
-// Reads the schema from the file, and fills the SrcColId, DstColId, and the vectors with the index,
+// Reads the schema from the file (that is being parsed), and fills the SrcColId, DstColId, and the vectors with the index,
 // within a given line, at which the source/destination nodes and edge attributes can be found in the file.
 // The schema must have the format specified in WriteEdgeSchemaToFile.
 int ReadEdgeSchemaFromFile(TSsParser& Ss, const char& Separator, int& SrcColId, int& DstColId, TStrIntH& IntAttrEVals, TStrIntH& FltAttrEVals, TStrIntH& StrAttrEVals) {
@@ -31,6 +31,9 @@ int ReadEdgeSchemaFromFile(TSsParser& Ss, const char& Separator, int& SrcColId, 
   return 0;
 }
 
+// Reads the edges from the file being parsed and adds the nodes/edges and edge attributes
+// at the positions specified by SrcColId, DstColId, IntAttrEVal, etc. to the Graph.
+// Continues going through the file until it hits the sentinel line EDGES_END.
 void ReadEdgesFromFile(TSsParser& Ss, const char& Separator, PNEANet& Graph, int& SrcColId, int& DstColId, TStrIntH& IntAttrEVals, TStrIntH& FltAttrEVals, TStrIntH& StrAttrEVals) {
   int SrcNId, DstNId;
   while (Ss.Next()) {
@@ -90,6 +93,9 @@ int ReadNodeSchemaFromFile(TSsParser& Ss, const char& Separator, int& NId, TStrI
   return 0;
 }
 
+// Reads the nodes from the file being parsed and adds the nodes and node attributes
+// at the positions specified by NColId, IntAttrEVal, etc. to the Graph.
+// Continues going through the file until it hits the sentinel line NODES_END.
 void ReadNodesFromFile(TSsParser& Ss, const char& Separator, PNEANet& Graph, int& NColId, TStrIntH& IntAttrNVals, TStrIntH& FltAttrNVals, TStrIntH& StrAttrNVals) {
   int NId;
   while (Ss.Next()) {
@@ -149,8 +155,8 @@ PNEANet LoadEdgeListNet(const TStr& InFNm, const char& Separator) {
   return Graph;
 }
 
-// Writes the schema out to the file, which consists of the SrcNId, DstNId, and edge attributes, separated by tabs.
-// Edge attributes are written in the format <Type>:<Name>, where Type is eihter Int, Flt, or Str.
+// Writes the schema out to the file, which consists of the NId and node attributes, separated by tabs.
+// Node attributes are written in the format <Type>:<Name>, where Type is either Int, Flt, or Str.
 void WriteNodeSchemaToFile(FILE *F, TStrV &IntAttrNNames, TStrV &FltAttrNNames, TStrV &StrAttrNNames) {
   fprintf(F, "%s\t%s", NODES_START.CStr(), NID_NAME.CStr());
   for(int i = 0; i < IntAttrNNames.Len(); i++) {
@@ -165,6 +171,9 @@ void WriteNodeSchemaToFile(FILE *F, TStrV &IntAttrNNames, TStrV &FltAttrNNames, 
   fprintf(F, "\n");
 }
 
+// Writes nodes out to the file. Each line consists of the node id followed by the
+// int attributes in the order specified by the TStrV IntAttrNNames, the float attributes
+// in the order specified by FltAttrNNames, and the string attributes specified by StrAttrNNames. 
 void WriteNodesToFile(FILE *F, const PNEANet& Graph, TStrV &IntAttrNNames, TStrV &FltAttrNNames, TStrV &StrAttrNNames) {
   for (TNEANet::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
     fprintf(F, "%d", NI.GetId());
@@ -197,7 +206,7 @@ void WriteNodesToFile(FILE *F, const PNEANet& Graph, TStrV &IntAttrNNames, TStrV
 }
 
 // Writes the schema out to the file, which consists of the SrcNId, DstNId, and edge attributes, separated by tabs.
-// Edge attributes are written in the format <Type>:<Name>, where Type is eihter Int, Flt, or Str.
+// Edge attributes are written in the format <Type>:<Name>, where Type is either Int, Flt, or Str.
 void WriteEdgeSchemaToFile(FILE *F, TStrV &IntAttrENames, TStrV &FltAttrENames, TStrV &StrAttrENames) {
   fprintf(F, "%s\t%s\t%s", EDGES_START.CStr(), SRC_ID_NAME.CStr(), DST_ID_NAME.CStr());
   for(int i = 0; i < IntAttrENames.Len(); i++) {
@@ -212,6 +221,9 @@ void WriteEdgeSchemaToFile(FILE *F, TStrV &IntAttrENames, TStrV &FltAttrENames, 
   fprintf(F, "\n");
 }
 
+// Writes edges out to the file. Each line consists of the SrcNId and DstNId followed by the
+// int attributes in the order specified by the TStrV IntAttrENames, the float attributes
+// in the order specified by FltAttrENames, and the string attributes specified by StrAttrENames. 
 void WriteEdgesToFile(FILE *F, const PNEANet& Graph, TStrV &IntAttrENames, TStrV &FltAttrENames, TStrV &StrAttrENames) {
   for (TNEANet::TEdgeI EI = Graph->BegEI(); EI < Graph->EndEI(); EI++) {
     fprintf(F, "%d\t%d", EI.GetSrcNId(), EI.GetDstNId());
