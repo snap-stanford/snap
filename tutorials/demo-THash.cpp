@@ -49,6 +49,11 @@ void ManipulateTableInt(TIntIntH& TableInt) {
     Value = TableInt.GetDat(Key);
   }
 
+  // update values from (i,i+1) to (i,i+2)
+  for (i = 0; i < NElems; i++) {
+    TableInt.AddDat(i,i*10);
+  }
+
   // delete elements by a key
   for (i = 0; i < NElems; i += DDist) {
     TableInt.DelKey(i);

@@ -169,7 +169,7 @@ void WriteNodesToFile(FILE *F, const PNEANet& Graph, TStrV &IntAttrNNames, TStrV
   for (TNEANet::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
     fprintf(F, "%d", NI.GetId());
     for(int i = 0; i < IntAttrNNames.Len(); i++) {
-      if (Graph->NodeAttrIsIntDeleted(NI.GetId(), IntAttrNNames[i])) {
+      if (Graph->IsIntAttrDeletedN(NI.GetId(), IntAttrNNames[i])) {
         fprintf(F, "\t%s", NULL_VAL.CStr());
         continue;
       }
@@ -177,7 +177,7 @@ void WriteNodesToFile(FILE *F, const PNEANet& Graph, TStrV &IntAttrNNames, TStrV
       fprintf(F, "\t%d", AttrIntVal);
     }
     for(int i = 0; i < FltAttrNNames.Len(); i++) {
-      if (Graph->NodeAttrIsFltDeleted(NI.GetId(), FltAttrNNames[i])) {
+      if (Graph->IsFltAttrDeletedN(NI.GetId(), FltAttrNNames[i])) {
         fprintf(F, "\t%s", NULL_VAL.CStr());
         continue;
       }
@@ -185,7 +185,7 @@ void WriteNodesToFile(FILE *F, const PNEANet& Graph, TStrV &IntAttrNNames, TStrV
       fprintf(F, "\t%f", AttrFltVal);
     }
     for(int i = 0; i < StrAttrNNames.Len(); i++) {
-      if (Graph->NodeAttrIsStrDeleted(NI.GetId(), StrAttrNNames[i])) {
+      if (Graph->IsStrAttrDeletedN(NI.GetId(), StrAttrNNames[i])) {
         fprintf(F, "\t%s", NULL_VAL.CStr());
         continue;
       }
@@ -216,7 +216,7 @@ void WriteEdgesToFile(FILE *F, const PNEANet& Graph, TStrV &IntAttrENames, TStrV
   for (TNEANet::TEdgeI EI = Graph->BegEI(); EI < Graph->EndEI(); EI++) {
     fprintf(F, "%d\t%d", EI.GetSrcNId(), EI.GetDstNId());
     for(int i = 0; i < IntAttrENames.Len(); i++) {
-      if (Graph->EdgeAttrIsIntDeleted(EI.GetId(), IntAttrENames[i])) {
+      if (Graph->IsIntAttrDeletedE(EI.GetId(), IntAttrENames[i])) {
         fprintf(F, "\t%s", NULL_VAL.CStr());
         continue;
       }
@@ -224,7 +224,7 @@ void WriteEdgesToFile(FILE *F, const PNEANet& Graph, TStrV &IntAttrENames, TStrV
       fprintf(F, "\t%d", AttrIntVal);
     }
     for(int i = 0; i < FltAttrENames.Len(); i++) {
-      if (Graph->EdgeAttrIsFltDeleted(EI.GetId(), FltAttrENames[i])) {
+      if (Graph->IsFltAttrDeletedE(EI.GetId(), FltAttrENames[i])) {
         fprintf(F, "\t%s", NULL_VAL.CStr());
         continue;
       }
@@ -232,7 +232,7 @@ void WriteEdgesToFile(FILE *F, const PNEANet& Graph, TStrV &IntAttrENames, TStrV
       fprintf(F, "\t%f", AttrFltVal);
     }
     for(int i = 0; i < StrAttrENames.Len(); i++) {
-      if (Graph->EdgeAttrIsStrDeleted(EI.GetId(), StrAttrENames[i])) {
+      if (Graph->IsStrAttrDeletedE(EI.GetId(), StrAttrENames[i])) {
         fprintf(F, "\t%s", NULL_VAL.CStr());
         continue;
       }
