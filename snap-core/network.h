@@ -2048,6 +2048,13 @@ public:
   // Returns true if NId deleted for current node flt attr iterator.
   bool NodeAttrIsFltDeleted(const int& NId, const TStrIntPrH::TIter& NodeHI) const;
 
+  // Returns true if NId deleted for the given int attr.
+  bool NodeAttrIsIntDeleted(const int& NId, const TStr& Attr);
+  // Returns true if NId deleted for the given str attr.
+  bool NodeAttrIsStrDeleted(const int& NId, const TStr& Attr);
+  // Returns true if NId deleted for the given flt attr.
+  bool NodeAttrIsFltDeleted(const int& NId, const TStr& Attr);
+
   // Returns true if EId deleted for current edge attr iterator.
   bool EdgeAttrIsDeleted(const int& EId, const TStrIntPrH::TIter& EdgeHI) const;
   // Returns true if EId deleted for current edge int attr iterator.
@@ -2068,7 +2075,9 @@ public:
   TStr GetNodeAttrValue(const int& NId, const TStrIntPrH::TIter& NodeHI) const;
   // Returns edge attribute value, converted to Str type.
   TStr GetEdgeAttrValue(const int& EId, const TStrIntPrH::TIter& EdgeHI) const;
- 
+
+  /// Fills each of the vectors with the names of node attributes of the given type.
+  void GetAttrNNames(TStrV& IntAttrNames, TStrV& FltAttrNames, TStrV& StrAttrNames) const;
   /// Fills each of the vectors with the names of edge attributes of the given type.
   void GetAttrENames(TStrV& IntAttrNames, TStrV& FltAttrNames, TStrV& StrAttrNames) const;
 

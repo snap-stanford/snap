@@ -130,6 +130,28 @@ bool TNEANet::NodeAttrIsFltDeleted(const int& NId, const TStrIntPrH::TIter& Node
     this->KeyToIndexTypeN.GetDat(NodeHI.GetKey()).Val2).GetVal(NodeH.GetKeyId(NId)));
 }
 
+bool TNEANet::NodeAttrIsIntDeleted(const int& NId, const TStr& Attr) {
+  if (this->KeyToIndexTypeN.IsKey(Attr) && this->KeyToIndexTypeN.GetDat(Attr).Val1 == IntType) {
+    TInt Val = this->GetIntAttrDatN(NId, Attr);
+    return Val == this->GetIntAttrDefaultN(Attr);
+  }
+  return true;
+}
+bool TNEANet::NodeAttrIsStrDeleted(const int& NId, const TStr& Attr) {
+  if (this->KeyToIndexTypeN.IsKey(Attr) && this->KeyToIndexTypeN.GetDat(Attr).Val1 == StrType) {
+    TStr Val = this->GetStrAttrDatN(NId, Attr);
+    return Val == this->GetStrAttrDefaultN(Attr);
+  }
+  return true;
+}
+bool TNEANet::NodeAttrIsFltDeleted(const int& NId, const TStr& Attr) {
+  if (this->KeyToIndexTypeN.IsKey(Attr) && this->KeyToIndexTypeN.GetDat(Attr).Val1 == FltType) {
+    TFlt Val = this->GetFltAttrDatN(NId, Attr);
+    return Val == this->GetFltAttrDefaultN(Attr);
+  }
+  return true;
+}
+
 TStr TNEANet::GetNodeAttrValue(const int& NId, const TStrIntPrH::TIter& NodeHI) const {
   if (NodeHI.GetDat().Val1 == IntType) {
     return (this->VecOfIntVecsN.GetVal(
@@ -1014,6 +1036,20 @@ PNEANet TNEANet::GetSmallGraph() {
   Net->AddEdge(0,3);  Net->AddEdge(0,4);
   Net->AddEdge(1,2);  Net->AddEdge(1,2);
   return Net;
+}
+
+void TNEANet::GetAttrNNames(TStrV& IntAttrNames, TStrV& FltAttrNames, TStrV& StrAttrNames) const {
+  for (TStrIntPrH::TIter it = KeyToIndexTypeN.BegI(); it < KeyToIndexTypeN.EndI(); it++) {
+    if (it.GetDat().GetVal1() == IntType) {
+      IntAttrNames.Add(it.GetKey());
+    }
+    if (it.GetDat().GetVal1() == FltType) {
+      FltAttrNames.Add(it.GetKey());
+    }
+    if (it.GetDat().GetVal1() == StrType) {
+      StrAttrNames.Add(it.GetKey());
+    }
+  }
 }
 
 void TNEANet::GetAttrENames(TStrV& IntAttrNames, TStrV& FltAttrNames, TStrV& StrAttrNames) const {
