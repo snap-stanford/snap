@@ -4,6 +4,68 @@
 template<class TNode>
 class TMNet;
 
+class TSVNode {
+private:
+  TInt TypeId;
+  TInt Id;
+  TVec<TIntV > InEIdVV, OutEIdVV;
+  TInt InDeg, OutDeg;
+public:
+  TSVNode() : TypeId(-1), Id(-1), InEIdVV(), OutEIdVV(), InDeg(0), OutDeg(0) { }
+  TSVNode(const int& NTypeId, const int& NId) : TypeId(NTypeId), Id(NId), InEIdVV(), OutEIdVV(), InDeg(0), OutDeg(0) { }
+  TSVNode(const TSVNode& Node) : TypeId(Node.TypeId), Id(Node.Id), InEIdVV(Node.InEIdVV), OutEIdVV(Node.OutEIdVV), InDeg(0), OutDeg(0) { }
+  TSVNode(TSIn& SIn) : TypeId(SIn), Id(SIn), InEIdVV(SIn), OutEIdVV(SIn), InDeg(0), OutDeg(0) { }
+  void Save(TSOut& SOut) const { TypeId.Save(SOut); Id.Save(SOut); InEIdVV.Save(SOut); OutEIdVV.Save(SOut); InDeg.Save(SOut); OutDeg.Save(SOut); }
+  int GetTypeId() const { return TypeId; }
+  int GetId() const { return Id; }
+  int GetDeg() const { return GetInDeg() + GetOutDeg(); }
+  int GetInDeg(const int& ETypeId) const {return InEIdVV[ETypeId].Len();}
+  int GetInDeg() const { return InDeg; }
+  int GetOutDeg(int ETypeId) const {return OutEIdVV[ETypeId].Len();}
+  int GetOutDeg() const { return OutDeg; }
+  void AddInETypeIds(const TIntV& ETypeIds) {
+    int MxETypeId = -1;
+    for (int i = 0; i < ETypeIds.Len(); i++) {
+      if (MxETypeId < ETypeIds[i]) { MxETypeId = ETypeIds[i]; }
+    }
+    InEIdVV.Reserve(MxETypeId+1, MxETypeId+1);
+    for (int i = 0; i < ETypeIds.Len(); i++) {
+      InEIdVV[ETypeIds[i]] = TIntV();
+    }
+  }
+  void AddOutETypeIds(const TIntV& ETypeIds) {
+    int MxETypeId = -1;
+    for (int i = 0; i < ETypeIds.Len(); i++) {
+      if (MxETypeId < ETypeIds[i]) { MxETypeId = ETypeIds[i]; }
+    }
+    OutEIdVV.Reserve(MxETypeId+1, MxETypeId+1);
+    for (int i = 0; i < ETypeIds.Len(); i++) {
+      OutEIdVV[ETypeIds[i]] = TIntV();
+    }
+  }
+  void AddInNbr(const int& ETypeId, const int& EId) { InEIdVV[ETypeId].Add(EId); InDeg++; }
+  void AddOutNbr(const int& ETypeId, const int& EId) { OutEIdVV[ETypeId].Add(EId); OutDeg++; }
+  int GetInEId(const int& EdgeN) const {
+    int CumSum = 0;
+    int ETypeId = 0;
+    for (; ETypeId < InEIdVV.Len(); ETypeId++) {
+      CumSum += InEIdVV[ETypeId].Len();
+      if (CumSum > EdgeN) { CumSum -= InEIdVV[ETypeId].Len(); break; }
+    }
+    return InEIdVV[ETypeId][EdgeN-CumSum];
+  }
+  int GetOutEId(const int& EdgeN) const {
+    int CumSum = 0;
+    int ETypeId = 0;
+    for (; ETypeId < OutEIdVV.Len(); ETypeId++) {
+      CumSum += OutEIdVV[ETypeId].Len();
+      if (CumSum > EdgeN) { CumSum -= OutEIdVV[ETypeId].Len(); break; }
+    }
+    return OutEIdVV[ETypeId][EdgeN-CumSum];
+  }
+  friend class TMNet<TSVNode>;
+};
+
 class TMVNode {
 private:
   TInt TypeId; // Node type ID
@@ -641,6 +703,8 @@ public:
   friend class TPt<TMNet>;
 };
 
+typedef TMNet<TSVNode> TSVNet;
+typedef TPt<TSVNet> PSVNet;
 typedef TMNet<TMVNode> TMVNet;
 typedef TPt<TMVNet> PMVNet;
 typedef TMNet<TCVNode> TCVNet;
