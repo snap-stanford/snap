@@ -409,9 +409,9 @@ void GetPageRankMNetMP(const PGraph& Graph, TIntFltH& PRankH, const double& C, c
 //  printf("Pre-process %f\n", t2-t1);
 
   TFltV TmpV(NNodes);
-  double i1 = 0;
-  double i2 = 0;
-  double i3 = 0;
+  //double i1 = 0;
+  //double i2 = 0;
+  //double i3 = 0;
   for (int iter = 0; iter < MaxIter; iter++) {
 //    double ti1 = omp_get_wtime();
     #pragma omp parallel for schedule(dynamic,10000)
