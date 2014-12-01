@@ -383,7 +383,7 @@ void GetPageRankMNetMP(const PGraph& Graph, TIntFltH& PRankH, const double& C, c
   TVec<typename PGraph::TObj::TNodeI> NV;
   PRankH.Gen(NNodes);
 
-  double t1 = omp_get_wtime();
+//  double t1 = omp_get_wtime();
   int MxNTypeId = Graph->GetMxNTypeId();
   TVec<TFltV> PRankVV(MxNTypeId);
   TVec<TIntV> OutDegVV(MxNTypeId);
@@ -405,15 +405,15 @@ void GetPageRankMNetMP(const PGraph& Graph, TIntFltH& PRankH, const double& C, c
     PRankVV[NTypeId][LocalNId] = 1.0/NNodes;
     OutDegVV[NTypeId][LocalNId] = NI.GetOutDeg();
   }
-  double t2 = omp_get_wtime();
-  printf("Pre-process %f\n", t2-t1);
+//  double t2 = omp_get_wtime();
+//  printf("Pre-process %f\n", t2-t1);
 
   TFltV TmpV(NNodes);
   double i1 = 0;
   double i2 = 0;
   double i3 = 0;
   for (int iter = 0; iter < MaxIter; iter++) {
-    double ti1 = omp_get_wtime();
+//    double ti1 = omp_get_wtime();
     #pragma omp parallel for schedule(dynamic,10000)
     for (int j = 0; j < NNodes; j++) {
       typename PGraph::TObj::TNodeI NI = NV[j];
@@ -427,15 +427,15 @@ void GetPageRankMNetMP(const PGraph& Graph, TIntFltH& PRankH, const double& C, c
       }
       TmpV[j] =  C*Tmp; // Berkhin (the correct way of doing it)
     }
-    double ti2 = omp_get_wtime();
-    i1 += (ti2 - ti1);
+//    double ti2 = omp_get_wtime();
+//    i1 += (ti2 - ti1);
 
     double sum = 0;
     #pragma omp parallel for reduction(+:sum) schedule(dynamic,10000)
     for (int i = 0; i < TmpV.Len(); i++) { sum += TmpV[i]; }
     const double Leaked = (1.0-sum) / double(NNodes);
-    double ti3 = omp_get_wtime();
-    i2 += (ti3 - ti2);
+//    double ti3 = omp_get_wtime();
+//    i2 += (ti3 - ti2);
 
     double diff = 0;
     #pragma omp parallel for reduction(+:diff) schedule(dynamic,10000)
@@ -448,16 +448,16 @@ void GetPageRankMNetMP(const PGraph& Graph, TIntFltH& PRankH, const double& C, c
       diff += fabs(NewVal-PRankVV[NTypeId][LocalNId]);
       PRankVV[NTypeId][LocalNId] = NewVal;
     }
-    double ti4 = omp_get_wtime();
-    i3 += (ti4 - ti3);
+//    double ti4 = omp_get_wtime();
+//    i3 += (ti4 - ti3);
     //printf("counts %d %d\n", hcount1, hcount2);
     if (diff < Eps) { break; }
   }
-  double t3 = omp_get_wtime();
-  printf("Iterate %f\n", t3-t2);
-  printf("Compute new weights %f\n", i1);
-  printf("Compute sum %f\n", i2);
-  printf("Update weights %f\n", i3);
+//  double t3 = omp_get_wtime();
+//  printf("Iterate %f\n", t3-t2);
+//  printf("Compute new weights %f\n", i1);
+//  printf("Compute sum %f\n", i2);
+//  printf("Update weights %f\n", i3);
 
   #pragma omp parallel for schedule(dynamic,10000)
   for (int i = 0; i < NNodes; i++) {
@@ -466,8 +466,8 @@ void GetPageRankMNetMP(const PGraph& Graph, TIntFltH& PRankH, const double& C, c
     int LocalNId = NI.GetLocalId();
     PRankH[i] = PRankVV[NTypeId][LocalNId];
   }
-  double t4 = omp_get_wtime();
-  printf("Post-process %f\n", t4-t3);
+//  double t4 = omp_get_wtime();
+//  printf("Post-process %f\n", t4-t3);
 }
 //#endif // _OPENMP
 
