@@ -267,6 +267,8 @@ public:
 
     /// Returns ID of the current node.
     int GetId() const { return HashI.GetDat().GetId(); }
+    /// Returns the type-wise ID of the current node.
+    int GetLocalId() const { return TMNet::GetLocalNId(GetId()); }
     /// Returns type ID of the current node.
     int GetTypeId() const { return HashI.GetDat().GetTypeId(); }
     /// Returns degree of the current node, the sum of in-degree and out-degree.
@@ -369,7 +371,6 @@ private:
   static const int NTYPEID_NBITS = 3; // The number of types must be at most 2^NTYPEID_NBITS
   static const int NTYPEID_FLAG = (1 << NTYPEID_NBITS) - 1;
   static int GetGlobalNId(const int& NTypeId, const int& NId) { return (NId << NTYPEID_NBITS) + NTypeId;}
-  static int GetLocalNId(const int& GlobalNId) { return GlobalNId >> NTYPEID_NBITS; }
 
 private:
   TCRef CRef;
@@ -424,6 +425,7 @@ public:
 
   /// Gets the NTypeId
   static int GetNTypeId(const int& NId) { return NId & NTYPEID_FLAG; } // Assuming that GlobalNId is positive here
+  static int GetLocalNId(const int& GlobalNId) { return GlobalNId >> NTYPEID_NBITS; }
 
   /// Returns an ID that is larger than any node type ID in the network.
   int GetMxNTypeId() const { return TypeNodeV.Len(); }
