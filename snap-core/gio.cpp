@@ -129,7 +129,7 @@ PNEANet LoadEdgeListNet(const TStr& InFNm, const char& Separator) {
   PNEANet Graph = PNEANet::New();
   TSsParser Ss(InFNm, Separator, true, false, false);
 
-  while (Ss.Next() && (Ss.GetFlds() > 0 && Ss.GetFld(0)[0] == '#')) {
+  while (Ss.Next()) {
     if (Ss.GetFlds() == 0) continue;
     if (NODES_START == Ss.GetFld(0)) {
       // Map node attribute names to column number in the file.
