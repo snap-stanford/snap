@@ -328,6 +328,65 @@ double GetBfsEffDiam(const PGraph& Graph, const int& NTestNodes, const TIntV& Su
 }
 
 template <class PGraph>
+int GetShortestDistances(const PGraph& Graph, const int& StartNId, const bool& FollowOut, const bool& FollowIn, TIntV& ShortestDists) {
+  PSOut StdOut = TStdOut::New();
+  int MxNId = Graph->GetMxNId();
+  int NonNodeDepth = 2147483647; // INT_MAX
+  int InfDepth = 2147483646; // INT_MAX - 1
+  ShortestDists.Gen(MxNId);
+  for (int NId = 0; NId < MxNId; NId++) {
+    if (Graph->IsNode(NId)) { ShortestDists[NId] = InfDepth; }
+    else { ShortestDists[NId] = NonNodeDepth; }
+  }
+
+  TIntV Vec1(MxNId, 0); // ensure enough capacity
+  TIntV Vec2(MxNId, 0); // ensure enough capacity
+
+  ShortestDists[StartNId] = 0;
+  TIntV* PCurV = &Vec1;
+  PCurV->Add(StartNId);
+  TIntV* PNextV = &Vec2;
+  int Depth = 0; // current depth
+  while (!PCurV->Empty()) {
+    Depth++; // increase depth
+    if (PCurV->Len() < (MxNId / 4)) {
+      for (int i = 0; i < PCurV->Len(); i++) {
+        int NId = PCurV->GetVal(i);
+        typename PGraph::TObj::TNodeI NI = Graph->GetNI(NId);
+        for (int e = 0; e < NI.GetOutDeg(); e++) {
+          const int OutNId = NI.GetOutNId(e);
+          if (ShortestDists[OutNId].Val == InfDepth) {
+            ShortestDists[OutNId] = Depth;
+            PNextV->Add(OutNId);
+          }
+        }
+      }
+    } else {
+      for (int NId = 0; NId < MxNId; NId++) {
+        if (ShortestDists[NId] == InfDepth) {
+          typename PGraph::TObj::TNodeI NI = Graph->GetNI(NId);
+          for (int e = 0; e < NI.GetInDeg(); e++) {
+            const int InNId = NI.GetInNId(e);
+            if (ShortestDists[InNId] < Depth) {
+              ShortestDists[NId] = Depth;
+              PNextV->AddAtm(NId);
+              break;
+            }
+          }
+        }
+      }
+    }
+    // swap pointer, no copying
+    TIntV* Tmp = PCurV;
+    PCurV = PNextV;
+    PNextV = Tmp;
+    // clear next
+    PNextV->Reduce(0); // reduce length, does not initialize new array
+  }
+  return Depth-1;
+}
+
+template <class PGraph>
 int GetShortestDistancesMP2(const PGraph& Graph, const int& StartNId, const bool& FollowOut, const bool& FollowIn, TIntV& ShortestDists) {
   PSOut StdOut = TStdOut::New();
   int MxNId = Graph->GetMxNId();
@@ -339,7 +398,7 @@ int GetShortestDistancesMP2(const PGraph& Graph, const int& StartNId, const bool
     if (Graph->IsNode(NId)) { ShortestDists[NId] = InfDepth; }
     else { ShortestDists[NId] = NonNodeDepth; }
   }
-  
+
   TIntV Vec1(MxNId, 0); // ensure enough capacity
   TIntV Vec2(MxNId, 0); // ensure enough capacity
 

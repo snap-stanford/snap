@@ -425,13 +425,16 @@ public:
   /// Gets the NTypeId
   static int GetNTypeId(const int& NId) { return NId & NTYPEID_FLAG; } // Assuming that GlobalNId is positive here
 
+  /// Returns an ID that is larger than any node type ID in the network.
+  int GetMxNTypeId() const { return TypeNodeV.Len(); }
+
   /// Adds a new type with the given string into the graph.
   int AddNType(const TStr& NTypeName) {
     int KeyId = NTypeH.GetKeyId(NTypeName);
     // Has the type been added?
     if (KeyId == -1) {
       // Not added.
-      int NTypeId = TypeNodeV.Len();
+      int NTypeId = GetMxNTypeId();
       NTypeH.AddDat(NTypeName, NTypeId);
       TypeNodeV.Add(TNodeType(NTypeId, NTypeName));
       IAssertR(NTypeId == InETypes.Len(), TStr::Fmt("InETypes has inconsistent length."));
