@@ -45,6 +45,8 @@ public:
   }
   void AddInNbr(const int& ETypeId, const int& EId) { InEIdVV[ETypeId].Add(EId); InDeg++; }
   void AddOutNbr(const int& ETypeId, const int& EId) { OutEIdVV[ETypeId].Add(EId); OutDeg++; }
+  void DelInNbr(const int& ETypeId, const int& EId) { InEIdVV[ETypeId].DelIfIn(EId); InDeg--; }
+  void DelOutNbr(const int& ETypeId, const int& EId) { OutEIdVV[ETypeId].DelIfIn(EId); OutDeg--; }
   int GetInEId(const int& EdgeN) const {
     int CumSum = 0;
     int ETypeId = 0;
@@ -96,6 +98,8 @@ public:
   void AddOutNbr(const int& ETypeId, const int& EId) {
     OutEIdV.AddSorted(EId);
   }
+  void DelInNbr(const int& ETypeId, const int& EId) { InEIdV.DelIfIn(EId); }
+  void DelOutNbr(const int& ETypeId, const int& EId) { OutEIdV.DelIfIn(EId); }
   friend class TMNet<TMVNode>;
 };
 
@@ -235,6 +239,24 @@ public:
     OutTypeDegV[ETypeId]++;
     OutDeg++;
   }
+  /// Delete an edge with ID EId and type ETypeId.
+  void DelInNbr(const int& ETypeId, const int& EId) {
+    int ValN = InEIdV.SearchForw(EId, InTypeIndexV[ETypeId]);
+    for (int MValN=ValN+1; MValN<InTypeIndexV[ETypeId]+InTypeDegV[ETypeId]; MValN++){
+      InEIdV[MValN-1]=InEIdV[MValN];
+    }
+    InDeg--;
+    InTypeDegV[ETypeId]--;
+  }
+  void DelOutNbr(const int& ETypeId, const int& EId) {
+    int ValN = OutEIdV.SearchForw(EId, OutTypeIndexV[ETypeId]);
+    for (int MValN=ValN+1; MValN<OutTypeIndexV[ETypeId]+OutTypeDegV[ETypeId]; MValN++){
+      OutEIdV[MValN-1]=OutEIdV[MValN];
+    }
+    OutDeg--;
+    OutTypeDegV[ETypeId]--;
+  }
+
   friend class TMNet<TCVNode>;
 };
 
@@ -564,12 +586,25 @@ public:
     return TypeNodeV[NTypeId].NodeH.IsKey(NId);
   }
 
-/*
+  void DelNode(const int& NTypeId, const int& NId) {
+    const TNode& Node = GetNode(NTypeId, NId);
+    for (int out = 0; out < Node.GetOutDeg(); out++) {
+      const int EId = Node.GetOutEId(out);
+      DelEdge(EId);
+    }
+    for (int in = 0; in < Node.GetInDeg(); in++) {
+      const int EId = Node.GetInEId(in);
+      DelEdge(EId);
+    }
+    TypeNodeV[NTypeId].NodeH.DelKey(NId);
+    Sz--;
+  }
   /// Deletes node of ID NId from the graph. ##TNEANet::DelNode
-  void DelNode(const int& TypeId, const int& NId);
+  void DelNode(const int& NId) { DelNode(GetNTypeId(NId), GetLocalNId(NId)); }
+
   /// Deletes node of ID NodeI.GetId() from the graph.
   void DelNode(const TNode& NodeI) { DelNode(NodeI.GetTypeId(), NodeI.GetId()); }
-*/
+
   /// Returns an iterator referring to the first node in the graph.
   TNodeI BegNI() const {
     return TNodeI(TypeNodeV.BegI(), this);
@@ -624,12 +659,27 @@ public:
   }
   /// Adds an edge between EdgeI.GetSrcNId() and EdgeI.GetDstNId() to the graph.
   int AddEdge(const TEdgeI& EdgeI) { return AddEdge(EdgeI.GetSrcNId(), EdgeI.GetDstNId(), EdgeI.GetTypeId(), EdgeI.GetId()); }
-/*
+
   /// Deletes an edge with edge ID EId from the graph.
-  void DelEdge(const int& EId);
+  void DelEdge(const int& EId) {
+    IAssert(IsEdge(EId));
+    TEdge Edge = GetEdge(EId);
+    int ETypeId = Edge.GetTypeId();
+    const int SrcNId = Edge.GetSrcNId();
+    const int DstNId = Edge.GetDstNId();
+    GetNode(SrcNId).DelOutNbr(ETypeId, EId);
+    GetNode(DstNId).DelInNbr(ETypeId, EId);
+    EdgeH.DelKey(EId);
+  }
   /// Deletes all edges between node IDs SrcNId and DstNId from the graph. ##TNEANet::DelEdge
-  void DelEdge(const int& SrcNId, const int& DstNId, const bool& IsDir = true);
-*/
+  void DelEdge(const int& SrcNId, const int& DstNId, const bool& IsDir = true) {
+    int EId;
+    IAssert(IsEdge(SrcNId, DstNId, EId, IsDir)); // there is at least one edge
+    while (IsEdge(SrcNId, DstNId, EId, IsDir)) {
+      DelEdge(EId);
+    }
+  }
+
   /// Tests whether an edge with edge ID EId exists in the graph.
   bool IsEdge(const int& EId) const { return EdgeH.IsKey(EId); }
   /// Tests whether an edge between node IDs SrcNId and DstNId exists in the graph.
