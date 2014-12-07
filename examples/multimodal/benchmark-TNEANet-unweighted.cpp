@@ -41,8 +41,8 @@ int main(int argc, char* argv[])
   //PNGraphMP Graph = TSnap::ToGraphMP2<PNGraphMP>(EdgeTable, EdgeSchema.GetVal(0).GetVal1(), EdgeSchema.GetVal(1).GetVal1());
   double ts4 = Tick();
 
-  int nExps = 1;
-  //int nExps = 40;
+  //int nExps = 1;
+  int nExps = 40;
   TIntFltH PageRankResults;
   for (int i = 0; i < nExps; i++) {
     PageRankResults = TIntFltH(ExpectedSz);
@@ -54,7 +54,7 @@ int main(int argc, char* argv[])
   }
   double ts5 = Tick();
 
-  TSnap::PrintInfo(Graph, TStr(""), TStr(PrefixPath + TStr("NetworkInfo.txt")), false);
+//  TSnap::PrintInfo(Graph, TStr(""), TStr(PrefixPath + TStr("NetworkInfo.txt")), false);
 
   PSOut ResultOut = TFOut::New(PrefixPath + TStr("page-rank-results.tsv"));
   for (TIntFltH::TIter it = PageRankResults.BegI(); it < PageRankResults.EndI(); it++) {

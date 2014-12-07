@@ -46,9 +46,8 @@ int main(int argc, char* argv[]) {
   int nExps = 10;
 
   for (int i = 0; i < nExps; i++) {
-
     double t1 = Tick();
-    PMVNet Graph = LoadGraph<PMVNet>(NodeTblV, EdgeTblV, NStrH, NIdH);
+    PCVNet Graph = LoadGraph<PCVNet>(NodeTblV, EdgeTblV, NStrH, NIdH);
     double t2 = Tick();
     DelNodeExp(Graph, DeletedNStrV, NStrH);
     double t3 = Tick();
@@ -63,5 +62,5 @@ int main(int argc, char* argv[]) {
   TimeOut->PutStrFmtLn("Conversion = %f s", convertTime/nExps);
   TimeOut->PutStrFmtLn("Node Deletion = %f s", deleteTime/nExps);
 
-	return 0;
+  return 0;
 }
