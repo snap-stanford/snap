@@ -65,6 +65,18 @@ public:
     }
     return OutEIdVV[ETypeId][EdgeN-CumSum];
   }
+  void GetInEIdV(TIntV& EIdV) const {
+    EIdV.Gen(InDeg, 0);
+    for (int i = 0; i < InEIdVV.Len(); i++) {
+      EIdV.AddV(InEIdVV[i]);
+    }
+  }
+  void GetOutEIdV(TIntV& EIdV) const {
+    EIdV.Gen(OutDeg, 0);
+    for (int i = 0; i < OutEIdVV.Len(); i++) {
+      EIdV.AddV(OutEIdVV[i]);
+    }
+  }
   friend class TMNet<TSVNode>;
 };
 
@@ -88,6 +100,8 @@ public:
   int GetInEId(const int& EdgeN) const { return InEIdV[EdgeN]; }
   int GetOutEId(const int& EdgeN) const { return OutEIdV[EdgeN]; }
   int GetNbrEId(const int& EdgeN) const { return EdgeN<GetOutDeg()?GetOutEId(EdgeN):GetInEId(EdgeN-GetOutDeg()); }
+  void GetInEIdV(TIntV& EIdV) const { EIdV = InEIdV; }
+  void GetOutEIdV(TIntV& EIdV) const { EIdV = OutEIdV; }
   bool IsInEId(const int& EId) const { return InEIdV.SearchBin(EId) != -1; }
   bool IsOutEId(const int& EId) const { return OutEIdV.SearchBin(EId) != -1; }
   void AddInETypeIds(const TIntV& ETypeIds) { } // Do nothing.
@@ -177,6 +191,22 @@ public:
     return OutEIdV[OutTypeIndexV[ETypeId] + EdgeN - CumSum];
   }
   int GetNbrEId(const int& EdgeN) const { return EdgeN<GetOutDeg()?GetOutEId(EdgeN):GetInEId(EdgeN-GetOutDeg()); }
+  void GetInEIdV(TIntV& EIdV) const {
+    EIdV.Gen(InDeg, 0);
+    for (int ETypeId = 0; ETypeId < InTypeDegV.Len(); ETypeId++) {
+      for (int i = InTypeIndexV[ETypeId]; i < InTypeIndexV[ETypeId] + InTypeDegV[ETypeId]; i++) {
+        EIdV.Add(InEIdV[i]);
+      }
+    }
+  }
+  void GetOutEIdV(TIntV& EIdV) const {
+    EIdV.Gen(OutDeg, 0);
+    for (int ETypeId = 0; ETypeId < OutTypeDegV.Len(); ETypeId++) {
+      for (int i = OutTypeIndexV[ETypeId]; i < OutTypeIndexV[ETypeId] + OutTypeDegV[ETypeId]; i++) {
+        EIdV.Add(OutEIdV[i]);
+      }
+    }
+  }
   //bool IsInEId(const int& EId) const { return InEIdV.SearchBin(EId) != -1; }
   //bool IsOutEId(const int& EId) const { return OutEIdV.SearchBin(EId) != -1; }
   void AddInETypeIds(const TIntV& ETypeIds) {
@@ -588,13 +618,14 @@ public:
 
   void DelNode(const int& NTypeId, const int& NId) {
     const TNode& Node = GetNode(NTypeId, NId);
-    for (int out = 0; out < Node.GetOutDeg(); out++) {
-      const int EId = Node.GetOutEId(out);
-      DelEdge(EId);
+    TIntV EIdV;
+    Node.GetOutEIdV(EIdV);
+    for (int out = 0; out < EIdV.Len(); out++) {
+      DelEdge(EIdV[out]);
     }
-    for (int in = 0; in < Node.GetInDeg(); in++) {
-      const int EId = Node.GetInEId(in);
-      DelEdge(EId);
+    Node.GetInEIdV(EIdV);
+    for (int in = 0; in < EIdV.Len(); in++) {
+      DelEdge(EIdV[in]);
     }
     TypeNodeV[NTypeId].NodeH.DelKey(NId);
     Sz--;
@@ -716,6 +747,30 @@ public:
   TEdgeI GetEI(const int& EId) const { return TEdgeI(EdgeH.GetI(EId), this); }
   /// Returns an iterator referring to edge (SrcNId, DstNId) in the graph.
   TEdgeI GetEI(const int& SrcNId, const int& DstNId) const { return GetEI(GetEId(SrcNId, DstNId)); }
+
+  /// Returns an ID of a random node in the graph.
+  int GetRndNId(TRnd& Rnd=TInt::Rnd) {
+    int RandN = Rnd.GetUniDevInt(Sz);
+    int Ct = 0;
+    int NTypeId = 0;
+    for (; NTypeId < TypeNodeV.Len(); NTypeId++) {
+      Ct += TypeNodeV[NTypeId].NodeH.Len();
+      if (Ct > RandN) { break; }
+    }
+    return GetRndNId(NTypeId, Rnd);
+  }
+  /// Returns an iterator referring to a random node in the graph.
+  TNodeI GetRndNI(TRnd& Rnd=TInt::Rnd) { return GetNI(GetRndNId(Rnd)); }
+  /// Returns an ID of a random node with the given type in the graph.
+  int GetRndNId(const int& NTypeId, TRnd& Rnd=TInt::Rnd) {
+    return TypeNodeV[NTypeId].NodeH.GetKey(TypeNodeV[NTypeId].NodeH.GetRndKeyId(Rnd, 0.8));
+  }
+  /// Returns an iterator referring to a random node with the given type in the graph.
+  TNodeI GetRndNI(const int& NTypeId, TRnd& Rnd=TInt::Rnd) { return GetNI(GetRndNId(NTypeId, Rnd)); }
+  /// Returns an ID of a random edge in the graph.
+  int GetRndEId(TRnd& Rnd=TInt::Rnd) { return EdgeH.GetKey(EdgeH.GetRndKeyId(Rnd, 0.8)); }
+  /// Returns an iterator referring to a random edge in the graph.
+  TEdgeI GetRndEI(TRnd& Rnd=TInt::Rnd) { return GetEI(GetRndEId(Rnd)); }
 /*
   /// Tests whether the graph is empty (has zero nodes).
   bool Empty() const { return GetNodes()==0; }

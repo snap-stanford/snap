@@ -20,104 +20,35 @@ int main(int argc, char* argv[])
   Schema EdgeSchema = Schema();
   LoadFlickrTables(PrefixPath, Context, NodeTblV, NodeSchema, EdgeTblV, EdgeSchema);
 
-  Schema RandNodeListSchema;
-  RandNodeListSchema.Add(TPair<TStr,TAttrType>("NTypeName", atStr));
-  RandNodeListSchema.Add(TPair<TStr,TAttrType>("Id", atStr));
-  PTable RandNodeListTbl = Load(RandNodeListSchema, 2, PrefixPath+TStr("rand_node_ids_1000.tsv"), Context);
+  TStrV RandNStrV;
+  LoadNodes(PrefixPath, TStr("rand_node_ids_bfs.tsv"), RandNStrV);
 
   double ts2 = Tick();
 
-  int ExpectedSz = 0;
-  for (TVec<PTable>::TIter it = NodeTblV.BegI(); it < NodeTblV.EndI(); it++) {
-    PTable Table = *it;
-    ExpectedSz += Table->GetNumRows();
-  }
+  TStrIntH NStrH;
+  TIntStrH NIdH;
+  CreateIdHashes(NodeTblV, NStrH, NIdH);
 
-  THash<TStr, TInt> Hash(ExpectedSz);
-  THash<TInt, TStr> OriNIdH(ExpectedSz);
-
-  //MergeNodeTables(NodeTblV, NodeSchema, Hash, OriNIdH);
-  //PTable EdgeTable = MergeEdgeTables(EdgeTblV, EdgeSchema, Hash, Context);
 
   double ts3 = Tick();
-  //PNGraphMP Graph = TSnap::ToGraphMP2<PNGraphMP>(EdgeTable, EdgeSchema.GetVal(0).GetVal1(), EdgeSchema.GetVal(1).GetVal1());
-  PMVNet Graph = TMVNet::New();
-//  PCVNet Graph = TCVNet::New();
-  TStr IdColName("Id");
-  TStr NTypeNames[] = {TStr("Photos"), TStr("Users"), TStr("Tags"), TStr("Comments"), TStr("Locations")};
-
-  // Add node types
-  for (int i = 0; i < NodeTblV.Len(); i++) {
-    PTable Table = NodeTblV[i];
-    Graph->AddNType(NTypeNames[i]);
-  }
-
-  // Add edge types
-  TStr SrcETypeNames[] = {TStr("Photos"), TStr("Photos"), TStr("Photos"), TStr("Comments"), TStr("Photos"), TStr("Users")};
-  TStr DstETypeNames[] = {TStr("Users"), TStr("Comments"), TStr("Locations"), TStr("Users"), TStr("Tags"), TStr("Tags")};
-  int index = 0;
-  for (int i = 0; i < EdgeTblV.Len(); i++) {
-    int direction = EdgeTblV[i].GetVal2();
-    if ((direction & 2) != 0) { Graph->AddEType(TStr("Edge" + (index++)), SrcETypeNames[i], DstETypeNames[i]); }
-    if ((direction & 1) != 0) { Graph->AddEType(TStr("Edge" + (index++)), DstETypeNames[i], SrcETypeNames[i]); }
-  }
-  for (int i = 0; i < NodeTblV.Len(); i++) {
-    PTable Table = NodeTblV[i];
-    int NTypeId = Graph->AddNType(NTypeNames[i]);
-    for (int CurrRowIdx = 0; CurrRowIdx < Table->GetNumRows(); CurrRowIdx++) {
-      TStr Val = Table->GetStrVal(IdColName, CurrRowIdx);
-      int NId = Graph->AddNode(NTypeId);
-      Hash.AddDat(Val, NId);
-      OriNIdH.AddDat(NId, Val);
-    }
-  }
-  TStr SrcIdColName("SrcId");
-  TStr DstIdColName("DstId");
-  index = 0;
-  for (int i = 0; i < EdgeTblV.Len(); i++) {
-    PTable Table = EdgeTblV[i].GetVal1();
-    int direction = EdgeTblV[i].GetVal2();
-    for (int CurrRowIdx = 0; CurrRowIdx < Table->GetNumRows(); CurrRowIdx++) {
-      TStr OriginalSrcId = Table->GetStrVal(SrcIdColName, CurrRowIdx);
-      IAssertR(Hash.IsKey(OriginalSrcId), "SrcId of edges must be a node Id");
-      TInt UniversalSrcId = Hash.GetDat(OriginalSrcId);
-      TStr OriginalDstId = Table->GetStrVal(DstIdColName, CurrRowIdx);
-      IAssertR(Hash.IsKey(OriginalDstId), "DstId of edges must be a node Id");
-      TInt UniversalDstId = Hash.GetDat(OriginalDstId);
-      //StdOut->PutStrFmtLn("Edge %d->%d : %d->%d", UniversalSrcId, UniversalDstId, Graph->GetNTypeId(UniversalSrcId), Graph->GetNTypeId(UniversalDstId));
-      int j = 0;
-      if ((direction & 2) != 0) { Graph->AddEdge(UniversalSrcId, UniversalDstId, (index+j)); j++; }
-      if ((direction & 1) != 0) { Graph->AddEdge(UniversalDstId, UniversalSrcId, (index+j)); }
-    }
-    if (direction == 3) { index += 2; }
-    else { index++; }
-  }
+  PSVNet Graph = LoadGraph<PSVNet>(NodeTblV, EdgeTblV, NStrH, NIdH);
 
   double ts4 = Tick();
 
-//  int nExps = 1;
-  int nExps = 40;
-  TIntFltH PageRankResults;
-  for (int i = 0; i < nExps; i++) {
-    #ifdef _OPENMP
-    TSnap::GetPageRankMP3(Graph, PageRankResults, 0.849999999999998, 0.0001, 10);
-    #else
-    TSnap::GetPageRank(Graph, PageRankResults, 0.849999999999998, 0.0001, 10);
-    #endif
-  }
+//  TIntFltH PageRankResults;
+//  int nExps = 40;
+//  PageRankExp(Graph, nExps, PageRankResults);
 
-//  for (int i = 0; i < nExps; i++) {
-//    TStr NodeIdStr = RandNodeListTbl->GetStrVal(RandNodeListSchema.GetVal(1).GetVal1(), i);
-//    TInt Id = Hash.GetDat(NodeIdStr);
-//    TSnap::GetBfsTree(Graph, Id.Val, true, false);
-//  }
+  TIntV BFSResults;
+  int nExps = 1;
+  BFSExp(Graph, RandNStrV, NStrH, nExps, BFSResults);
 
   double ts5 = Tick();
 
-  PSOut ResultOut = TFOut::New(PrefixPath + TStr("page-rank-results.tsv"));
-  for (TIntFltH::TIter it = PageRankResults.BegI(); it < PageRankResults.EndI(); it++) {
-    ResultOut->PutStrFmtLn("%s\t%f9", OriNIdH.GetDat(it.GetKey()).CStr(), it.GetDat().Val);
-  }
+//  PSOut ResultOut = TFOut::New(PrefixPath + TStr("page-rank-results.tsv"));
+//  for (TIntFltH::TIter it = PageRankResults.BegI(); it < PageRankResults.EndI(); it++) {
+//    ResultOut->PutStrFmtLn("%s\t%f9", NIdH.GetDat(it.GetKey()).CStr(), it.GetDat().Val);
+//  }
   double ts6 = Tick();
 
   PSOut FeaturesOut = TFOut::New(PrefixPath + "features.txt");

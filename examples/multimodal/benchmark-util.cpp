@@ -142,3 +142,107 @@ void LoadFlickrTables(const TStr& PrefixPath, TTableContext& Context,
   EdgeSchema.Add(TPair<TStr,TAttrType>("DstId", atStr));
   EdgeSchema.Add(TPair<TStr,TAttrType>("Weight", atFlt));
 }
+
+void LoadNodes(const TStr& PrefixPath, const TStr& RandNodeFileName, TStrV& NStrV) {
+  Schema RandNodeListSchema;
+  RandNodeListSchema.Add(TPair<TStr,TAttrType>("NTypeName", atStr));
+  RandNodeListSchema.Add(TPair<TStr,TAttrType>("Id", atStr));
+  TTableContext Context;
+  PTable RandNTbl = Load(RandNodeListSchema, 2, PrefixPath+RandNodeFileName, Context);
+
+  NStrV.Gen(RandNTbl->GetNumRows().Val);
+  for (int i = 0; i < RandNTbl->GetNumRows(); i++) {
+    TStr NStr = RandNTbl->GetStrVal(RandNodeListSchema.GetVal(1).GetVal1(), i);
+    NStrV[i] = NStr;
+  }
+}
+
+void CreateIdHashes(const TVec<PTable>& NodeTblV, TStrIntH& NStrH, TIntStrH& NIdH) {
+  int ExpectedSz = 0;
+  for (TVec<PTable>::TIter it = NodeTblV.BegI(); it < NodeTblV.EndI(); it++) {
+    ExpectedSz += (*it)->GetNumRows();
+  }
+  NStrH.Gen(ExpectedSz);
+  NIdH.Gen(ExpectedSz);
+}
+
+template <class PGraph>
+PGraph LoadGraph(const TVec<PTable>& NodeTblV, const TVec<TPair<PTable, int> >& EdgeTblV, TStrIntH& NStrH, TIntStrH& NIdH) {
+  PGraph Graph = PGraph::TObj::New();
+  TStr IdColName("Id");
+  TStr NTypeNames[] = {TStr("Photos"), TStr("Users"), TStr("Tags"), TStr("Comments"), TStr("Locations")};
+
+  // Add node types
+  for (int i = 0; i < NodeTblV.Len(); i++) {
+    PTable Table = NodeTblV[i];
+    Graph->AddNType(NTypeNames[i]);
+  }
+
+  // Add edge types
+  TStr SrcETypeNames[] = {TStr("Photos"), TStr("Photos"), TStr("Photos"), TStr("Comments"), TStr("Photos"), TStr("Users")};
+  TStr DstETypeNames[] = {TStr("Users"), TStr("Comments"), TStr("Locations"), TStr("Users"), TStr("Tags"), TStr("Tags")};
+  int index = 0;
+  for (int i = 0; i < EdgeTblV.Len(); i++) {
+    int direction = EdgeTblV[i].GetVal2();
+    if ((direction & 2) != 0) { Graph->AddEType(TStr("Edge" + (index++)), SrcETypeNames[i], DstETypeNames[i]); }
+    if ((direction & 1) != 0) { Graph->AddEType(TStr("Edge" + (index++)), DstETypeNames[i], SrcETypeNames[i]); }
+  }
+  for (int i = 0; i < NodeTblV.Len(); i++) {
+    PTable Table = NodeTblV[i];
+    int NTypeId = Graph->AddNType(NTypeNames[i]);
+    for (int CurrRowIdx = 0; CurrRowIdx < Table->GetNumRows(); CurrRowIdx++) {
+      TStr NStr = Table->GetStrVal(IdColName, CurrRowIdx);
+      int NId = Graph->AddNode(NTypeId);
+      NStrH.AddDat(NStr, NId);
+      NIdH.AddDat(NId, NStr);
+    }
+  }
+  TStr SrcIdColName("SrcId");
+  TStr DstIdColName("DstId");
+  index = 0;
+  for (int i = 0; i < EdgeTblV.Len(); i++) {
+    PTable Table = EdgeTblV[i].GetVal1();
+    int direction = EdgeTblV[i].GetVal2();
+    for (int CurrRowIdx = 0; CurrRowIdx < Table->GetNumRows(); CurrRowIdx++) {
+      TStr SrcNStr = Table->GetStrVal(SrcIdColName, CurrRowIdx);
+      IAssertR(NStrH.IsKey(SrcNStr), "SrcId of edges must be a node Id");
+      TInt UniversalSrcId = NStrH.GetDat(SrcNStr);
+      TStr DstNStr = Table->GetStrVal(DstIdColName, CurrRowIdx);
+      IAssertR(NStrH.IsKey(DstNStr), "DstId of edges must be a node Id");
+      TInt UniversalDstId = NStrH.GetDat(DstNStr);
+      //StdOut->PutStrFmtLn("Edge %d->%d : %d->%d", UniversalSrcId, UniversalDstId, Graph->GetNTypeId(UniversalSrcId), Graph->GetNTypeId(UniversalDstId));
+      int j = 0;
+      if ((direction & 2) != 0) { Graph->AddEdge(UniversalSrcId, UniversalDstId, (index+j)); j++; }
+      if ((direction & 1) != 0) { Graph->AddEdge(UniversalDstId, UniversalSrcId, (index+j)); }
+    }
+    if (direction == 3) { index += 2; }
+    else { index++; }
+  }
+  return Graph;
+}
+
+template <class PGraph>
+void PageRankExp(const PGraph& Graph, const int nExps, TIntFltH& PageRankResults) {
+  for (int i = 0; i < nExps; i++) {
+    #ifdef _OPENMP
+//    TSnap::GetPageRankMP2(Graph, PageRankResults, 0.849999999999998, 0.0001, 10);
+    TSnap::GetPageRankMNetMP(Graph, PageRankResults, 0.849999999999998, 0.0001, 10);
+    #else
+    TSnap::GetPageRank(Graph, PageRankResults, 0.849999999999998, 0.0001, 10);
+    #endif
+  }
+}
+
+template <class PGraph>
+void BFSExp(const PGraph& Graph, const TStrV& RandNStrs, const TStrIntH& NStrH,
+            const int nExps, TIntV& BFSResults) {
+  for (int i = 0; i < nExps; i++) {
+    TStr NStr = RandNStrs[i];
+    TInt NId = NStrH.GetDat(NStr);
+    #ifdef _OPENMP
+    TSnap::GetShortestDistancesMP2(Graph, NId.Val, true, false, BFSResults);
+    #else
+    TSnap::GetShortestDistances(Graph, NId.Val, true, false, BFSResults);
+    #endif
+  }
+}
