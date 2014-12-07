@@ -47,10 +47,13 @@ int main(int argc, char* argv[]) {
 
   for (int i = 0; i < nExps; i++) {
     double t1 = Tick();
-    PCVNet Graph = LoadGraph<PCVNet>(NodeTblV, EdgeTblV, NStrH, NIdH);
+    //PNEANet Graph = LoadGraph<PNEANet>(NodeTblV, EdgeTblV, NStrH, NIdH);
+    PCVNet Graph = LoadGraphMNet<PCVNet>(NodeTblV, EdgeTblV, NStrH, NIdH);
+    StdOut->PutStrFmtLn("Size %d-%d", Graph->GetNodes(), Graph->GetEdges());
     double t2 = Tick();
     DelNodeExp(Graph, DeletedNStrV, NStrH);
     double t3 = Tick();
+    StdOut->PutStrFmtLn("Size %d-%d", Graph->GetNodes(), Graph->GetEdges());
     convertTime += (t2-t1);
     deleteTime += (t3-t2);
   }

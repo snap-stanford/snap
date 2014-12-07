@@ -170,6 +170,39 @@ template <class PGraph>
 PGraph LoadGraph(const TVec<PTable>& NodeTblV, const TVec<TPair<PTable, int> >& EdgeTblV, TStrIntH& NStrH, TIntStrH& NIdH) {
   PGraph Graph = PGraph::TObj::New();
   TStr IdColName("Id");
+
+  for (int i = 0; i < NodeTblV.Len(); i++) {
+    PTable Table = NodeTblV[i];
+    for (int CurrRowIdx = 0; CurrRowIdx < Table->GetNumRows(); CurrRowIdx++) {
+      TStr NStr = Table->GetStrVal(IdColName, CurrRowIdx);
+      int NId = Graph->AddNode();
+      NStrH.AddDat(NStr, NId);
+      NIdH.AddDat(NId, NStr);
+    }
+  }
+  TStr SrcIdColName("SrcId");
+  TStr DstIdColName("DstId");
+  for (int i = 0; i < EdgeTblV.Len(); i++) {
+    PTable Table = EdgeTblV[i].GetVal1();
+    int direction = EdgeTblV[i].GetVal2();
+    for (int CurrRowIdx = 0; CurrRowIdx < Table->GetNumRows(); CurrRowIdx++) {
+      TStr SrcNStr = Table->GetStrVal(SrcIdColName, CurrRowIdx);
+      IAssertR(NStrH.IsKey(SrcNStr), "SrcId of edges must be a node Id");
+      TInt SrcNId = NStrH.GetDat(SrcNStr);
+      TStr DstNStr = Table->GetStrVal(DstIdColName, CurrRowIdx);
+      IAssertR(NStrH.IsKey(DstNStr), "DstId of edges must be a node Id");
+      TInt DstNId = NStrH.GetDat(DstNStr);
+      if ((direction & 2) != 0) { Graph->AddEdge(SrcNId, DstNId); }
+      if ((direction & 1) != 0) { Graph->AddEdge(DstNId, SrcNId); }
+    }
+  }
+  return Graph;
+}
+
+template <class PGraph>
+PGraph LoadGraphMNet(const TVec<PTable>& NodeTblV, const TVec<TPair<PTable, int> >& EdgeTblV, TStrIntH& NStrH, TIntStrH& NIdH) {
+  PGraph Graph = PGraph::TObj::New();
+  TStr IdColName("Id");
   TStr NTypeNames[] = {TStr("Photos"), TStr("Users"), TStr("Tags"), TStr("Comments"), TStr("Locations")};
 
   // Add node types
