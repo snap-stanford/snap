@@ -6,11 +6,12 @@
 PSOut StdOut = TStdOut::New();
 
 int main(int argc, char* argv[]) {
+//  PSVNet PGraph = PSVNet::New();
 //  PCVNet PGraph = PCVNet::New();
-  PSVNet PGraph = PSVNet::New();
-  PGraph->AddNType(TStr("Photo"));
-  PGraph->AddNType(TStr("User"));
-  PGraph->AddNType(TStr("Tag"));
+  PMVNet PGraph = PMVNet::New();
+  int NTypeId1 = PGraph->AddNType(TStr("Photo"));
+  int NTypeId2 = PGraph->AddNType(TStr("User"));
+  int NTypeId3 = PGraph->AddNType(TStr("Tag"));
   int ETypeId1 = PGraph->AddEType(TStr("EType1"), TStr("Photo"), TStr("User"));
   int ETypeId2 = PGraph->AddEType(TStr("EType2"), TStr("User"), TStr("Photo"));
   int ETypeId3 = PGraph->AddEType(TStr("EType3"), TStr("User"), TStr("Photo"));
@@ -25,7 +26,7 @@ int main(int argc, char* argv[]) {
   int NId6 = PGraph->AddNode(2, 1);
   StdOut->PutStrFmtLn("Nodes %d %d %d %d %d %d", NId1, NId2, NId3, NId4, NId5, NId6);
   StdOut->PutStrFmtLn("Size = %d", PGraph->GetNodes());
-  for (TSVNet::TNodeI Iter = PGraph->BegNI(); Iter < PGraph->EndNI(); Iter++) {
+  for (TMVNet::TNodeI Iter = PGraph->BegNI(); Iter < PGraph->EndNI(); Iter++) {
     StdOut->PutStrFmtLn("Iter = %d, %d", Iter.GetTypeId(), Iter.GetId());
   }
 
@@ -46,7 +47,7 @@ int main(int argc, char* argv[]) {
   int EId5 = PGraph->AddEdge(NId3, NId1, ETypeId1);
   int EId6 = PGraph->AddEdge(NId3, NId6, ETypeId4);
   int EId7 = PGraph->AddEdge(NId3, NId6, ETypeId4);
-  for (TSVNet::TEdgeI Iter = PGraph->BegEI(); Iter < PGraph->EndEI(); Iter++) {
+  for (TMVNet::TEdgeI Iter = PGraph->BegEI(); Iter < PGraph->EndEI(); Iter++) {
     StdOut->PutStrFmtLn("Edge = %d:%d", Iter.GetTypeId(), Iter.GetId());
   }
   StdOut->PutStrFmtLn("Edge Size = %d", PGraph->GetEdges());
@@ -55,24 +56,34 @@ int main(int argc, char* argv[]) {
     StdOut->PutStrFmtLn("Edge %d", PGraph->GetNI(NId3).GetOutEId(i));
   }
 
-  PGraph->DelEdge(EId5);
-  PGraph->DelEdge(EId3);
-  StdOut->PutStrFmtLn("Edge Size = %d", PGraph->GetEdges());
-  PGraph->DelEdge(NId3, NId6, true);
-  for (TSVNet::TEdgeI Iter = PGraph->BegEI(); Iter < PGraph->EndEI(); Iter++) {
+  TStrV NTypeNameV;
+  NTypeNameV.Add(TStr("Photo"));
+  NTypeNameV.Add(TStr("User"));
+  PMVNet PSubGraph = PGraph->GetSubGraph(NTypeNameV);
+  StdOut->PutStrFmtLn("Size = %d", PSubGraph->GetNodes());
+  StdOut->PutStrFmtLn("Edge Size = %d", PSubGraph->GetEdges());
+  for (TMVNet::TEdgeI Iter = PSubGraph->BegEI(); Iter < PSubGraph->EndEI(); Iter++) {
     StdOut->PutStrFmtLn("Edge = %d:%d", Iter.GetTypeId(), Iter.GetId());
   }
-  StdOut->PutStrFmtLn("Edge Size = %d", PGraph->GetEdges());
 
-  PGraph->DelNode(NId2);
-  StdOut->PutStrFmtLn("Size = %d", PGraph->GetNodes());
-  for (TSVNet::TNodeI Iter = PGraph->BegNI(); Iter < PGraph->EndNI(); Iter++) {
-    StdOut->PutStrFmtLn("Node = %d:%d", Iter.GetTypeId(), Iter.GetId());
-  }
-  for (TSVNet::TEdgeI Iter = PGraph->BegEI(); Iter < PGraph->EndEI(); Iter++) {
-    StdOut->PutStrFmtLn("Edge = %d:%d", Iter.GetTypeId(), Iter.GetId());
-  }
-  StdOut->PutStrFmtLn("Edge Size = %d", PGraph->GetEdges());
+//  PGraph->DelEdge(EId5);
+//  PGraph->DelEdge(EId3);
+//  StdOut->PutStrFmtLn("Edge Size = %d", PGraph->GetEdges());
+//  PGraph->DelEdge(NId3, NId6, true);
+//  for (TSVNet::TEdgeI Iter = PGraph->BegEI(); Iter < PGraph->EndEI(); Iter++) {
+//    StdOut->PutStrFmtLn("Edge = %d:%d", Iter.GetTypeId(), Iter.GetId());
+//  }
+//  StdOut->PutStrFmtLn("Edge Size = %d", PGraph->GetEdges());
+//
+//  PGraph->DelNode(NId2);
+//  StdOut->PutStrFmtLn("Size = %d", PGraph->GetNodes());
+//  for (TSVNet::TNodeI Iter = PGraph->BegNI(); Iter < PGraph->EndNI(); Iter++) {
+//    StdOut->PutStrFmtLn("Node = %d:%d", Iter.GetTypeId(), Iter.GetId());
+//  }
+//  for (TSVNet::TEdgeI Iter = PGraph->BegEI(); Iter < PGraph->EndEI(); Iter++) {
+//    StdOut->PutStrFmtLn("Edge = %d:%d", Iter.GetTypeId(), Iter.GetId());
+//  }
+//  StdOut->PutStrFmtLn("Edge Size = %d", PGraph->GetEdges());
 
 //  TIntV ShortestDists;
 //  StdOut->PutStrFmtLn("Depth = %d", TSnap::GetShortestDistances(PGraph, NId1, false, false, ShortestDists));

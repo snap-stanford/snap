@@ -13,7 +13,21 @@ private:
 public:
   TSVNode() : TypeId(-1), Id(-1), InEIdVV(), OutEIdVV(), InDeg(0), OutDeg(0) { }
   TSVNode(const int& NTypeId, const int& NId) : TypeId(NTypeId), Id(NId), InEIdVV(), OutEIdVV(), InDeg(0), OutDeg(0) { }
-  TSVNode(const TSVNode& Node) : TypeId(Node.TypeId), Id(Node.Id), InEIdVV(Node.InEIdVV), OutEIdVV(Node.OutEIdVV), InDeg(0), OutDeg(0) { }
+  TSVNode(const TSVNode& Node) : TypeId(Node.TypeId), Id(Node.Id), InEIdVV(Node.InEIdVV), OutEIdVV(Node.OutEIdVV), InDeg(Node.InDeg), OutDeg(Node.OutDeg) { }
+  TSVNode(const TSVNode& Node, const TIntV& InETypeIdV, const TIntV& OutETypeIdV) :
+                TypeId(Node.TypeId), Id(Node.Id), InEIdVV(Node.InEIdVV.Len()), OutEIdVV(Node.OutEIdVV.Len()),
+                InDeg(0), OutDeg(0) {
+    for (int i = 0; i < InETypeIdV.Len(); i++) {
+      int ETypeId = InETypeIdV[i];
+      InEIdVV[ETypeId] = Node.InEIdVV[ETypeId];
+      InDeg += Node.InEIdVV[ETypeId].Len();
+    }
+    for (int i = 0; i < OutETypeIdV.Len(); i++) {
+      int ETypeId = OutETypeIdV[i];
+      OutEIdVV[ETypeId] = Node.OutEIdVV[ETypeId];
+      OutDeg += Node.OutEIdVV[ETypeId].Len();
+    }
+  }
   TSVNode(TSIn& SIn) : TypeId(SIn), Id(SIn), InEIdVV(SIn), OutEIdVV(SIn), InDeg(0), OutDeg(0) { }
   void Save(TSOut& SOut) const { TypeId.Save(SOut); Id.Save(SOut); InEIdVV.Save(SOut); OutEIdVV.Save(SOut); InDeg.Save(SOut); OutDeg.Save(SOut); }
   int GetTypeId() const { return TypeId; }
@@ -85,13 +99,31 @@ private:
   TInt TypeId; // Node type ID
   TInt Id; // Get global ID
   TIntV InEIdV, OutEIdV;
-
+  TIntV InETypeIdV, OutETypeIdV;
 public:
-  TMVNode() : TypeId(-1), Id(-1), InEIdV(), OutEIdV(){ }
-  TMVNode(const int& NTypeId, const int& NId) : TypeId(NTypeId), Id(NId), InEIdV(), OutEIdV() { }
-  TMVNode(const TMVNode& Node) : TypeId(Node.TypeId), Id(Node.Id), InEIdV(Node.InEIdV), OutEIdV(Node.OutEIdV) { }
-  TMVNode(TSIn& SIn) : TypeId(SIn), Id(SIn), InEIdV(SIn), OutEIdV(SIn) { }
-  void Save(TSOut& SOut) const { TypeId.Save(SOut); Id.Save(SOut); InEIdV.Save(SOut); OutEIdV.Save(SOut); }
+  TMVNode() : TypeId(-1), Id(-1), InEIdV(), OutEIdV(), InETypeIdV(), OutETypeIdV() { }
+  TMVNode(const int& NTypeId, const int& NId) : TypeId(NTypeId), Id(NId), InEIdV(), OutEIdV(), InETypeIdV(), OutETypeIdV() { }
+  TMVNode(const TMVNode& Node) : TypeId(Node.TypeId), Id(Node.Id), InEIdV(Node.InEIdV), OutEIdV(Node.OutEIdV),
+                                        InETypeIdV(Node.InETypeIdV), OutETypeIdV(Node.OutETypeIdV) { }
+  TMVNode(const TMVNode& Node, const TIntV& InETypeIdV, const TIntV& OutETypeIdV) :
+            TypeId(Node.TypeId), Id(Node.Id), InEIdV(Node.InEIdV.Len()), OutEIdV(Node.OutEIdV.Len()),
+            InETypeIdV(Node.InETypeIdV.Len()), OutETypeIdV(Node.OutETypeIdV.Len()) {
+    TIntSet InETypeIdSet(InETypeIdV);
+    for (int i = 0; i < Node.InEIdV.Len(); i++) {
+      if (InETypeIdSet.IsKey(Node.InETypeIdV[i])) {
+        InEIdV.Add(Node.InEIdV[i]);
+      }
+    }
+    TIntSet OutETypeIdSet(OutETypeIdV);
+    for (int i = 0; i < Node.OutEIdV.Len(); i++) {
+      if (OutETypeIdSet.IsKey(Node.OutETypeIdV[i])) {
+        OutEIdV.Add(Node.OutEIdV[i]);
+      }
+    }
+  }
+  TMVNode(TSIn& SIn) : TypeId(SIn), Id(SIn), InEIdV(SIn), OutEIdV(SIn), InETypeIdV(SIn), OutETypeIdV(SIn) { }
+  void Save(TSOut& SOut) const { TypeId.Save(SOut); Id.Save(SOut); InEIdV.Save(SOut); OutEIdV.Save(SOut);
+                                  InETypeIdV.Save(SOut); OutETypeIdV.Save(SOut); }
   int GetTypeId() const { return TypeId; }
   int GetId() const { return Id; }
   int GetDeg() const { return GetInDeg() + GetOutDeg(); }
@@ -102,18 +134,28 @@ public:
   int GetNbrEId(const int& EdgeN) const { return EdgeN<GetOutDeg()?GetOutEId(EdgeN):GetInEId(EdgeN-GetOutDeg()); }
   void GetInEIdV(TIntV& EIdV) const { EIdV = InEIdV; }
   void GetOutEIdV(TIntV& EIdV) const { EIdV = OutEIdV; }
-  bool IsInEId(const int& EId) const { return InEIdV.SearchBin(EId) != -1; }
-  bool IsOutEId(const int& EId) const { return OutEIdV.SearchBin(EId) != -1; }
+  bool IsInEId(const int& EId) const { return InEIdV.SearchForw(EId) != -1; }
+  bool IsOutEId(const int& EId) const { return OutEIdV.SearchForw(EId) != -1; }
   void AddInETypeIds(const TIntV& ETypeIds) { } // Do nothing.
   void AddOutETypeIds(const TIntV& ETypeIds) { } // Do nothing.
   void AddInNbr(const int& ETypeId, const int& EId) {
-    InEIdV.AddSorted(EId);
+    InETypeIdV.Add(ETypeId);
+    InEIdV.Add(EId);
   }
   void AddOutNbr(const int& ETypeId, const int& EId) {
-    OutEIdV.AddSorted(EId);
+    OutETypeIdV.Add(ETypeId);
+    OutEIdV.Add(EId);
   }
-  void DelInNbr(const int& ETypeId, const int& EId) { InEIdV.DelIfIn(EId); }
-  void DelOutNbr(const int& ETypeId, const int& EId) { OutEIdV.DelIfIn(EId); }
+  void DelInNbr(const int& ETypeId, const int& EId) {
+    int EIdN = InEIdV.SearchBack(EId);
+    InETypeIdV.Del(EIdN);
+    InEIdV.Del(EIdN);
+  }
+  void DelOutNbr(const int& ETypeId, const int& EId) {
+    int EIdN = OutEIdV.SearchBack(EId);
+    OutETypeIdV.Del(EIdN);
+    OutEIdV.Del(EIdN);
+  }
   friend class TMNet<TMVNode>;
 };
 
@@ -160,6 +202,44 @@ public:
   TCVNode(const TCVNode& Node) : TypeId(Node.TypeId), Id(Node.Id), InEIdV(Node.InEIdV), OutEIdV(Node.OutEIdV),
                                     InDeg(Node.InDeg), OutDeg(Node.OutDeg), InTypeIndexV(Node.InTypeIndexV), OutTypeIndexV(Node.OutTypeIndexV),
                                     InTypeDegV(Node.InTypeDegV), OutTypeDegV(Node.OutTypeDegV) { }
+  TCVNode(const TCVNode& Node, const TIntV& InETypeIdV, const TIntV& OutETypeIdV) :
+                                    TypeId(Node.TypeId), Id(Node.Id), InDeg(0), OutDeg(0),
+                                    InTypeIndexV(Node.InTypeIndexV.Len()), OutTypeIndexV(Node.OutTypeIndexV.Len()),
+                                    InTypeDegV(Node.InTypeDegV.Len()), OutTypeDegV(Node.OutTypeDegV.Len()) {
+    for (TIntV::TIter iter = InETypeIdV.BegI(); iter < InETypeIdV.EndI(); iter++) {
+      InDeg += Node.InTypeDegV[*iter];
+      InTypeDegV[*iter] = Node.InTypeDegV[*iter];
+    }
+    int index = 0;
+    InEIdV.Gen(InDeg);
+    TIntSet InETypeIdSet(InETypeIdV);
+    for (int ETypeId = 0; ETypeId < InTypeIndexV.Len(); ETypeId++) {
+      InTypeIndexV[ETypeId] = index;
+      if (InETypeIdSet.IsKey(ETypeId)) {
+        for (int i = Node.InTypeIndexV[ETypeId]; i < Node.InTypeIndexV[ETypeId] + Node.InTypeDegV[ETypeId]; i++) {
+          InEIdV[index++] = Node.InEIdV[i];
+        }
+      }
+    }
+    IAssert(index == InDeg);
+
+    for (TIntV::TIter iter = OutETypeIdV.BegI(); iter < OutETypeIdV.EndI(); iter++) {
+      OutDeg += Node.OutTypeDegV[*iter];
+      OutTypeDegV[*iter] = Node.OutTypeDegV[*iter];
+    }
+    index = 0;
+    OutEIdV.Gen(OutDeg);
+    TIntSet OutETypeIdSet(OutETypeIdV);
+    for (int ETypeId = 0; ETypeId < OutTypeIndexV.Len(); ETypeId++) {
+      OutTypeIndexV[ETypeId] = index;
+      if (OutETypeIdSet.IsKey(ETypeId)) {
+        for (int i = Node.OutTypeIndexV[ETypeId]; i < Node.OutTypeIndexV[ETypeId] + Node.OutTypeDegV[ETypeId]; i++) {
+          OutEIdV[index++] = Node.OutEIdV[i];
+        }
+      }
+    }
+    IAssert(index == OutDeg);
+  }
   TCVNode(TSIn& SIn) : TypeId(SIn), Id(SIn), InEIdV(SIn), OutEIdV(SIn), InDeg(SIn), OutDeg(SIn),
                                     InTypeIndexV(SIn), OutTypeIndexV(SIn), InTypeDegV(SIn), OutTypeDegV(SIn) { }
   void Save(TSOut& SOut) const { TypeId.Save(SOut); Id.Save(SOut); InEIdV.Save(SOut); OutEIdV.Save(SOut);
@@ -328,6 +408,13 @@ public:
     TNodeType() : Id(-1), Name(), MxNId(0), NodeH(){ }
     TNodeType(const int& NTypeId, const TStr& NTypeName) : Id(NTypeId), Name(NTypeName), MxNId(0), NodeH(){ }
     TNodeType(const TNodeType& NodeType) : Id(NodeType.Id), Name(NodeType.Name), MxNId(NodeType.MxNId), NodeH(NodeType.NodeH) { }
+    TNodeType(const TNodeType& NodeType, const TIntV& InETypeIdV, const TIntV& OutETypeIdV) :
+              Id(NodeType.Id), Name(NodeType.Name), MxNId(NodeType.MxNId), NodeH(NodeType.NodeH.Len()) {
+      for (typename THash<TInt,TNode>::TIter iter = NodeType.NodeH.BegI(); iter < NodeType.NodeH.EndI(); iter++) {
+        TNode NewNode(iter.GetDat(), InETypeIdV, OutETypeIdV);
+        NodeH.AddDat(iter.GetKey(), NewNode);
+      }
+    }
     TNodeType(TSIn& SIn) : Id(SIn), Name(SIn), MxNId(SIn), NodeH(SIn) { }
     void Save(TSOut& SOut) const { Id.Save(SOut); Name.Save(SOut); MxNId.Save(SOut); NodeH.Save(SOut); }
     int GetId() const { return Id; }
@@ -642,12 +729,18 @@ public:
   }
   /// Returns an iterator referring to the past-the-end node in the graph.
   TNodeI EndNI() const { return TNodeI(TypeNodeV.EndI(), this); }
+
   /// Returns an iterator referring to the node of ID NId in the graph.
   TNodeI GetNI(const int& NId) const {
     int NTypeId = GetNTypeId(NId);
     int LocalNId = GetLocalNId(NId);
     return GetNI(NTypeId, LocalNId);
   }
+
+  TNodeI BegNI(const int& NTypeId) const { return TNodeI(TypeNodeV.GetI(NTypeId), this); }
+
+  TNodeI EndNI(const int& NTypeId) const { return TNodeI(TypeNodeV.GetI(NTypeId), TypeNodeV[NTypeId].NodeH.EndI(), this); }
+
   TNodeI GetNI(const int& NTypeId, const int& NId) const {
     return TNodeI(TypeNodeV.GetI(NTypeId), TypeNodeV[NTypeId].NodeH.GetI(NId), this);
   }
@@ -805,6 +898,81 @@ public:
   //Fills OutWeights with the outgoing weight from each node.
   void GetWeightOutEdgesV(TFltV& OutWeights, const TFltV& AttrVal) ;
 */
+
+  TPt<TMNet<TNode> > GetSubGraph(const TIntV& NTypeIdV) {
+    TPt<TMNet<TNode> > PNewGraph = New();
+    TMNet<TNode>& NewGraph = *PNewGraph;
+    TIntSet NTypeIdSet(NTypeIdV);
+    for (typename THash<TStr,int>::TIter iter = NTypeH.BegI(); iter < NTypeH.EndI(); iter++) {
+      if (NTypeIdSet.IsKey(TInt(iter.GetDat()))) { NewGraph.NTypeH.AddDat(iter.GetKey(), iter.GetDat()); }
+    }
+    TIntIntH EdgeCounter;
+    for (int i = 0; i < InETypes.Len(); i++) {
+      if (!NTypeIdSet.IsKey(TInt(i))) { continue; }
+      for (int j = 0; j < InETypes[i].Len(); j++) {
+        EdgeCounter.AddDat(InETypes[i][j], TInt(1));
+      }
+    }
+    for (int i = 0; i < OutETypes.Len(); i++) {
+      if (!NTypeIdSet.IsKey(TInt(i))) { continue; }
+      for (int j = 0; j < OutETypes[i].Len(); j++) {
+        if (EdgeCounter.IsKey(OutETypes[i][j])) { EdgeCounter.AddDat(OutETypes[i][j], TInt(2)); }
+      }
+    }
+    TIntSet ETypeIdSet;
+    for (typename TIntIntH::TIter iter = EdgeCounter.BegI(); iter < EdgeCounter.EndI(); iter++) {
+      if (iter.GetDat().Val == 2) { ETypeIdSet.AddKey(iter.GetKey()); }
+    }
+
+    for (typename THash<TStr,int>::TIter iter = ETypeH.BegI(); iter < ETypeH.EndI(); iter++) {
+      if (ETypeIdSet.IsKey(TInt(iter.GetDat()))) { NewGraph.ETypeH.AddDat(iter.GetKey(), iter.GetDat()); }
+    }
+    NewGraph.InETypes.Gen(InETypes.Len());
+    for (int i = 0; i < InETypes.Len(); i++) {
+      for (int j = 0; j < InETypes[i].Len(); j++) {
+        int ETypeId = InETypes[i][j];
+        if (ETypeIdSet.IsKey(ETypeId)) { NewGraph.InETypes[i].Add(ETypeId); }
+      }
+    }
+    NewGraph.OutETypes.Gen(OutETypes.Len());
+    for (int i = 0; i < OutETypes.Len(); i++) {
+      for (int j = 0; j < OutETypes[i].Len(); j++) {
+        int ETypeId = OutETypes[i][j];
+        if (ETypeIdSet.IsKey(ETypeId)) { NewGraph.OutETypes[i].Add(ETypeId); }
+      }
+    }
+
+    NewGraph.Sz = 0;
+    NewGraph.TypeNodeV.Gen(TypeNodeV.Len());
+    for (int NTypeId = 0; NTypeId < TypeNodeV.Len(); NTypeId++) {
+      if (NTypeIdSet.IsKey(NTypeId)) {
+        NewGraph.TypeNodeV[NTypeId] = TNodeType(TypeNodeV[NTypeId], NewGraph.InETypes[NTypeId], NewGraph.OutETypes[NTypeId]);
+        NewGraph.Sz += NewGraph.TypeNodeV[NTypeId].NodeH.Len();
+      } else {
+        NewGraph.TypeNodeV[NTypeId] = TNodeType(TypeNodeV[NTypeId].GetId(), TypeNodeV[NTypeId].GetName());
+      }
+    }
+
+    NewGraph.MxNId = MxNId;
+    int MaxEId = 0;
+    for (TEdgeI iter = BegEI(); iter < EndEI(); iter++) {
+      if (!ETypeIdSet.IsKey(iter.GetTypeId())) { continue; }
+      int EId = iter.GetId();
+      NewGraph.EdgeH.AddDat(EId, TEdge(iter.GetTypeId(), EId, iter.GetSrcNId(), iter.GetDstNId()));
+      if (MaxEId < EId) { MaxEId = EId; }
+    }
+    NewGraph.MxEId = MaxEId + 1;
+    return PNewGraph;
+  }
+
+  TPt<TMNet<TNode> > GetSubGraph(const TStrV& NTypeNameV) {
+    TIntV NTypeIdV;
+    for (int i = 0; i < NTypeNameV.Len(); i++) {
+      NTypeIdV.Add(NTypeH.GetDat(NTypeNameV[i]));
+    }
+    return GetSubGraph(NTypeIdV);
+  }
+
   friend class TPt<TMNet>;
 };
 

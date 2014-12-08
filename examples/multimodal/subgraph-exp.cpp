@@ -8,12 +8,8 @@
 PSOut StdOut = TStdOut::New();
 
 template <class PGraph>
-void DelNodeExp(const PGraph& Graph, const TStrV& DeletedNStrV, const TStrIntH& NStrH) {
-  for (int i = 0; i < DeletedNStrV.Len(); i++) {
-    TStr NStr = DeletedNStrV[i];
-    TInt NId = NStrH.GetDat(NStr);
-    Graph->DelNode(NId);
-  }
+PGraph SubgraphExtractExp(const PGraph& Graph, const TIntV& NTypeIdV) {
+  return Graph->GetSubGraph(NTypeIdV);
 }
 
 int main(int argc, char* argv[]) {
@@ -30,40 +26,38 @@ int main(int argc, char* argv[]) {
 
   double ts2 = Tick();
 
-  TStrV DeletedNStrV;
-  LoadNodes(PrefixPath, TStr("rand_node_ids_deleted.tsv"), DeletedNStrV);
-
-  double ts3 = Tick();
-
   TStrIntH NStrH;
   TIntStrH NIdH;
   CreateIdHashes(NodeTblV, NStrH, NIdH);
 
-  double ts4 = Tick();
+  double ts3 = Tick();
 
   double convertTime = 0;
-  double deleteTime = 0;
+  double subgraphTime = 0;
   int nExps = 10;
 
+  TIntV NTypeIdV;
+  NTypeIdV.Add(0);
+  NTypeIdV.Add(1);
+  NTypeIdV.Add(2);
   for (int i = 0; i < nExps; i++) {
     double t1 = Tick();
-    //PNEANet Graph = LoadGraph<PNEANet>(NodeTblV, EdgeTblV, NStrH, NIdH);
     PMVNet Graph = LoadGraphMNet<PMVNet>(NodeTblV, EdgeTblV, NStrH, NIdH);
-    StdOut->PutStrFmtLn("Size %d-%d", Graph->GetNodes(), Graph->GetEdges());
     double t2 = Tick();
-    DelNodeExp(Graph, DeletedNStrV, NStrH);
+    PMVNet Subgraph = SubgraphExtractExp(Graph, NTypeIdV);
     double t3 = Tick();
-    StdOut->PutStrFmtLn("Size %d-%d", Graph->GetNodes(), Graph->GetEdges());
     convertTime += (t2-t1);
-    deleteTime += (t3-t2);
+    subgraphTime += (t3-t2);
+    StdOut->PutStrFmtLn("Graph Size %d-%d", Graph->GetNodes(), Graph->GetEdges());
+    StdOut->PutStrFmtLn("Subgraph Size %d-%d", Subgraph->GetNodes(), Subgraph->GetEdges());
+
   }
 
   PSOut TimeOut = TFOut::New(PrefixPath + TStr("time.txt"), true);
   TimeOut->PutStrFmtLn("Loading Graph Tables = %f s", GetCPUTimeUsage(ts1, ts2));
-  TimeOut->PutStrFmtLn("Loading Deleted Nodes = %f s", GetCPUTimeUsage(ts2, ts3));
-  TimeOut->PutStrFmtLn("Preprocessing = %f s", GetCPUTimeUsage(ts3, ts4));
+  TimeOut->PutStrFmtLn("Preprocessing = %f s", GetCPUTimeUsage(ts2, ts3));
   TimeOut->PutStrFmtLn("Conversion = %f s", convertTime/nExps);
-  TimeOut->PutStrFmtLn("Node Deletion = %f s", deleteTime/nExps);
+  TimeOut->PutStrFmtLn("Node Deletion = %f s", subgraphTime/nExps);
 
   return 0;
 }
