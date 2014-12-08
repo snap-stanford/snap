@@ -50,10 +50,10 @@ int main(int argc, char* argv[]) {
     subgraphTime += (t3-t2);
     StdOut->PutStrFmtLn("Graph Size %d-%d", Graph->GetNodes(), Graph->GetEdges());
     StdOut->PutStrFmtLn("Subgraph Size %d-%d", Subgraph->GetNodes(), Subgraph->GetEdges());
-
   }
 
   PSOut TimeOut = TFOut::New(PrefixPath + TStr("time.txt"), true);
+  TimeOut->PutStrFmtLn("===== Subgraph Extraction - PMVNet =====");
   TimeOut->PutStrFmtLn("Loading Graph Tables = %f s", GetCPUTimeUsage(ts1, ts2));
   TimeOut->PutStrFmtLn("Preprocessing = %f s", GetCPUTimeUsage(ts2, ts3));
   TimeOut->PutStrFmtLn("Conversion = %f s", convertTime/nExps);
