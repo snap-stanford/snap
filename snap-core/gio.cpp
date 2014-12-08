@@ -33,11 +33,15 @@ int ReadEdgeSchemaFromFile(TSsParser& Ss, const char& Separator, int& SrcColId, 
 
 // Reads the edges from the file being parsed and adds the nodes/edges and edge attributes
 // at the positions specified by SrcColId, DstColId, IntAttrEVal, etc. to the Graph.
-// Continues going through the file until it hits the sentinel line EDGES_END.
-void ReadEdgesFromFile(TSsParser& Ss, const char& Separator, PNEANet& Graph, int& SrcColId, int& DstColId, TStrIntH& IntAttrEVals, TStrIntH& FltAttrEVals, TStrIntH& StrAttrEVals) {
+// Continues going through the file until it hits the sentinel line END_SENTINEL, the end of the file,
+// or a schema line. Returns a bool indicating whether the current line in the TSsParser is a schema line.
+bool ReadEdgesFromFile(TSsParser& Ss, const char& Separator, PNEANet& Graph, int& SrcColId, int& DstColId, TStrIntH& IntAttrEVals, TStrIntH& FltAttrEVals, TStrIntH& StrAttrEVals) {
   int SrcNId, DstNId;
   while (Ss.Next()) {
-    if (EDGES_END == Ss.GetFld(0)) { return; }
+    if (Ss.GetFlds() == 0) continue;
+    if (END_SENTINEL == Ss.GetFld(0)) { return false; }
+    if (EDGES_START == Ss.GetFld(0)) { return true; }
+    if (NODES_START == Ss.GetFld(0)) { return true; }
     if (Ss.GetFld(0)[0] == '#') { continue; }
     if (! Ss.GetInt(SrcColId, SrcNId) || ! Ss.GetInt(DstColId, DstNId)) { continue; }
     if (! Graph->IsNode(SrcNId)) { Graph->AddNode(SrcNId); }
@@ -63,6 +67,7 @@ void ReadEdgesFromFile(TSsParser& Ss, const char& Separator, PNEANet& Graph, int
       }
     }
   }
+  return false;
 }
 
 
@@ -95,11 +100,15 @@ int ReadNodeSchemaFromFile(TSsParser& Ss, const char& Separator, int& NId, TStrI
 
 // Reads the nodes from the file being parsed and adds the nodes and node attributes
 // at the positions specified by NColId, IntAttrEVal, etc. to the Graph.
-// Continues going through the file until it hits the sentinel line NODES_END.
-void ReadNodesFromFile(TSsParser& Ss, const char& Separator, PNEANet& Graph, int& NColId, TStrIntH& IntAttrNVals, TStrIntH& FltAttrNVals, TStrIntH& StrAttrNVals) {
+// Continues going through the file until it hits the sentinel line END_SENTINEL, the end of the file,
+// or a schema line. Returns a bool indicating whether the current line in the TSsParser is a schema line.
+bool ReadNodesFromFile(TSsParser& Ss, const char& Separator, PNEANet& Graph, int& NColId, TStrIntH& IntAttrNVals, TStrIntH& FltAttrNVals, TStrIntH& StrAttrNVals) {
   int NId;
   while (Ss.Next()) {
-    if (NODES_END == Ss.GetFld(0)) { return; }
+    if (Ss.GetFlds() == 0) continue;
+    if (END_SENTINEL == Ss.GetFld(0)) { return false; }
+    if (EDGES_START == Ss.GetFld(0)) { return true; }
+    if (NODES_START == Ss.GetFld(0)) { return true; }
     if (Ss.GetFld(0)[0] == '#') { continue; }
     if (! Ss.GetInt(NColId, NId)) { continue; }
     if (! Graph->IsNode(NId)) { Graph->AddNode(NId); }
@@ -123,13 +132,16 @@ void ReadNodesFromFile(TSsParser& Ss, const char& Separator, PNEANet& Graph, int
       }
     }
   }
+  return false;
 }
 
 PNEANet LoadEdgeListNet(const TStr& InFNm, const char& Separator) {
   PNEANet Graph = PNEANet::New();
   TSsParser Ss(InFNm, Separator, true, false, false);
+  bool isSchemaLine = false;
 
-  while (Ss.Next()) {
+  while (isSchemaLine || Ss.Next()) {
+    isSchemaLine = false;
     if (Ss.GetFlds() == 0) continue;
     if (NODES_START == Ss.GetFld(0)) {
       // Map node attribute names to column number in the file.
@@ -138,9 +150,8 @@ PNEANet LoadEdgeListNet(const TStr& InFNm, const char& Separator) {
       TStrIntH StrAttrNVals;
       int NColId = -1;
       ReadNodeSchemaFromFile(Ss, Separator, NColId, IntAttrNVals, FltAttrNVals, StrAttrNVals);
-      ReadNodesFromFile(Ss, Separator, Graph, NColId, IntAttrNVals, FltAttrNVals, StrAttrNVals);
-    }
-    if (EDGES_START == Ss.GetFld(0)) {
+      isSchemaLine = ReadNodesFromFile(Ss, Separator, Graph, NColId, IntAttrNVals, FltAttrNVals, StrAttrNVals);
+    } else if (EDGES_START == Ss.GetFld(0)) {
       // Map edge attribute names to column number in the file.
       TStrIntH IntAttrEVals;
       TStrIntH FltAttrEVals;
@@ -148,7 +159,7 @@ PNEANet LoadEdgeListNet(const TStr& InFNm, const char& Separator) {
       int SrcColId = -1;
       int DstColId = -1;
       ReadEdgeSchemaFromFile(Ss, Separator, SrcColId, DstColId, IntAttrEVals, FltAttrEVals, StrAttrEVals);
-      ReadEdgesFromFile(Ss, Separator, Graph, SrcColId, DstColId, IntAttrEVals, FltAttrEVals, StrAttrEVals);
+      isSchemaLine = ReadEdgesFromFile(Ss, Separator, Graph, SrcColId, DstColId, IntAttrEVals, FltAttrEVals, StrAttrEVals);
     }
   }
 
@@ -267,7 +278,7 @@ void SaveEdgeListNet(const PNEANet& Graph, const TStr& OutFNm, const TStr& Desc)
   Graph->GetAttrNNames(IntAttrNNames, FltAttrNNames, StrAttrNNames);
   WriteNodeSchemaToFile(F, IntAttrNNames, FltAttrNNames, StrAttrNNames);
   WriteNodesToFile(F, Graph, IntAttrNNames, FltAttrNNames, StrAttrNNames);
-  fprintf(F, "%s\n", NODES_END.CStr());
+  fprintf(F, "%s\n", END_SENTINEL.CStr());
   
   TStrV IntAttrENames;
   TStrV FltAttrENames;
@@ -275,7 +286,7 @@ void SaveEdgeListNet(const PNEANet& Graph, const TStr& OutFNm, const TStr& Desc)
   Graph->GetAttrENames(IntAttrENames, FltAttrENames, StrAttrENames);
   WriteEdgeSchemaToFile(F, IntAttrENames, FltAttrENames, StrAttrENames);
   WriteEdgesToFile(F, Graph, IntAttrENames, FltAttrENames, StrAttrENames);
-  fprintf(F, "%s\n", EDGES_END.CStr());
+  fprintf(F, "%s\n", END_SENTINEL.CStr());
 
   fclose(F);
 }

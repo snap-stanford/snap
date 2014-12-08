@@ -4,8 +4,7 @@ namespace TSnap {
 
 const TStr EDGES_START("#EDGES");
 const TStr NODES_START("#NODES");
-const TStr EDGES_END("#END_EDGES");
-const TStr NODES_END("#END_NODES");
+const TStr END_SENTINEL("#END");
 const TStr SRC_ID_NAME("SrcNId");
 const TStr DST_ID_NAME("DstNId");
 const TStr NID_NAME("NId");
