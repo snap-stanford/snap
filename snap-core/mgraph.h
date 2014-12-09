@@ -485,9 +485,21 @@ public:
     /// Returns ID of EdgeN-th neighboring node. ##TNEANet::TNodeI::GetNbrNId
     int GetNbrNId(const int& EdgeN) const { const TEdge& E = Graph->GetEdge(HashI.GetDat().GetNbrEId(EdgeN)); return GetId()==E.GetSrcNId() ? E.GetDstNId():E.GetSrcNId(); }
     /// Tests whether node with ID NId points to the current node.
-    bool IsInNId(const int& NId) const;
+    bool IsInNId(const int& NId) const {
+      const TNode& Node = HashI.GetDat();
+      for (int edge = 0; edge < Node.GetInDeg(); edge++) {
+        if (NId == Graph->GetEdge(Node.GetInEId(edge)).GetSrcNId()) { return true; }
+      }
+      return false;
+    }
     /// Tests whether the current node points to node with ID NId.
-    bool IsOutNId(const int& NId) const;
+    bool IsOutNId(const int& NId) const {
+      const TNode& Node = HashI.GetDat();
+      for (int edge = 0; edge < Node.GetOutDeg(); edge++) {
+        if (NId == Graph->GetEdge(Node.GetOutEId(edge)).GetDstNId()) { return true; }
+      }
+      return false;
+    }
     /// Tests whether node with ID NId is a neighbor of the current node.
     bool IsNbrNId(const int& NId) const { return IsOutNId(NId) || IsInNId(NId); }
     /// Returns ID of EdgeN-th in-edge.
@@ -624,6 +636,12 @@ public:
     KeyToIndexTypeN=Graph.KeyToIndexTypeN; KeyToIndexTypeE=Graph.KeyToIndexTypeE;}
     return *this; }
 
+  bool HasFlag(const TGraphFlag& Flag) const {
+    if (Flag == gfDirected) { return true; }
+    else if (Flag == gfMultiGraph) { return true; }
+    else return false;
+  }
+
   /// Gets the NTypeId
   static int GetNTypeId(const int& NId) { return NId & NTYPEID_FLAG; } // Assuming that GlobalNId is positive here
   static int GetLocalNId(const int& GlobalNId) { return GlobalNId >> NTYPEID_NBITS; }
@@ -743,6 +761,13 @@ public:
 
   TNodeI GetNI(const int& NTypeId, const int& NId) const {
     return TNodeI(TypeNodeV.GetI(NTypeId), TypeNodeV[NTypeId].NodeH.GetI(NId), this);
+  }
+
+  void GetNIdV(TIntV& NIdV) const {
+    NIdV.Gen(GetNodes(), 0);
+    for (TNodeI NI = BegNI(); NI < EndNI(); NI++) {
+      NIdV.Add(NI.GetId());
+    }
   }
 
   int AddEType(const TStr& ETypeName, const TStr& SrcNTypeName, const TStr& DstNTypeName) {
