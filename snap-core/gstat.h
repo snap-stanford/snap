@@ -451,8 +451,8 @@ void TGStat::TakeClustCf(const PGraph& Graph, const int& SampleNodes) {
   int64 Open, Close;
   const double ClustCf =  TSnap::GetClustCf(Graph, ClustCfV, Close, Open, SampleNodes);
   SetVal(gsvClustCf, ClustCf);
-  SetVal(gsvOpenTriads, Open);
-  SetVal(gsvClosedTriads, Close);
+  SetVal(gsvOpenTriads, (double)Open);
+  SetVal(gsvClosedTriads, (double)Close);
   printf("[%s]  ", ExeTm.GetTmStr());
 }
 

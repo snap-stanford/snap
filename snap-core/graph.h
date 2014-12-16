@@ -65,6 +65,9 @@ public:
 
     /// Increment iterator.
     TNodeI& operator++ (int) { NodeHI++; return *this; }
+    /// Decrement iterator.
+    TNodeI& operator-- (int) { NodeHI--; return *this; }
+
 
     bool operator < (const TNodeI& NodeI) const { return NodeHI < NodeI.NodeHI; }
     bool operator == (const TNodeI& NodeI) const { return NodeHI == NodeI.NodeHI; }
@@ -256,6 +259,9 @@ public:
     TNodeI& operator = (const TNodeI& NodeI) { NodeHI = NodeI.NodeHI; return *this; }
     /// Increment iterator.
     TNodeI& operator++ (int) { NodeHI++; return *this; }
+    /// Decrement iterator.
+    TNodeI& operator-- (int) { NodeHI--; return *this; }
+
     bool operator < (const TNodeI& NodeI) const { return NodeHI < NodeI.NodeHI; }
     bool operator == (const TNodeI& NodeI) const { return NodeHI == NodeI.NodeHI; }
     /// Returns ID of the current node.
@@ -465,6 +471,9 @@ public:
     TNodeI& operator = (const TNodeI& NodeI) { NodeHI = NodeI.NodeHI; Graph=NodeI.Graph; return *this; }
     /// Increment iterator.
     TNodeI& operator++ (int) { NodeHI++; return *this; }
+    /// Decrement iterator.
+    TNodeI& operator-- (int) { NodeHI--; return *this; }
+
     bool operator < (const TNodeI& NodeI) const { return NodeHI < NodeI.NodeHI; }
     bool operator == (const TNodeI& NodeI) const { return NodeHI == NodeI.NodeHI; }
     /// Returns ID of the current node.
