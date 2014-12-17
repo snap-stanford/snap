@@ -2,16 +2,17 @@
 // Loading and saving graphs from/to various file formats.
 namespace TSnap {
 
-const TStr EDGES_START("#EDGES");
-const TStr NODES_START("#NODES");
-const TStr END_SENTINEL("#END");
-const TStr SRC_ID_NAME("SrcNId");
-const TStr DST_ID_NAME("DstNId");
-const TStr NID_NAME("NId");
-const TStr INT_TYPE_PREFIX("Int");
-const TStr FLT_TYPE_PREFIX("Flt");
-const TStr STR_TYPE_PREFIX("Str");
-const TStr NULL_VAL("__null__");
+//const TStr EDGES_START("#EDGES");
+const TStr EDGES_START = ("#EDGES");
+const TStr NODES_START = ("#NODES");
+const TStr END_SENTINEL = ("#END");
+const TStr SRC_ID_NAME = ("SrcNId");
+const TStr DST_ID_NAME = ("DstNId");
+const TStr NID_NAME = ("NId");
+const TStr INT_TYPE_PREFIX = ("Int");
+const TStr FLT_TYPE_PREFIX = ("Flt");
+const TStr STR_TYPE_PREFIX = ("Str");
+const TStr NULL_VAL = ("__null__");
 
 /// Loads a (directed, undirected or multi) graph from a text file InFNm with 1 edge per line (whitespace separated columns, integer node ids).
 template <class PGraph> PGraph LoadEdgeList(const TStr& InFNm, const int& SrcColId=0, const int& DstColId=1);
