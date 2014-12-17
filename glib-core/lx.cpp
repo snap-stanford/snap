@@ -263,7 +263,7 @@ void TILxSymSt::Restore(TILx& Lx){
   Lx.Sym=Sym;
   Lx.Str=Str; Lx.UcStr=UcStr; Lx.CmtStr=CmtStr;
   Lx.Bool=Bool; Lx.Int=Int; Lx.Flt=Flt;
-  Lx.SymLnN=SymLnN; Lx.SymLnChN=SymLnChN; Lx.SymChN=Lx.SymChN;}
+  Lx.SymLnN=SymLnN; Lx.SymLnChN=SymLnChN; Lx.SymChN=SymChN;}
 
 /////////////////////////////////////////////////
 // Lexical-Input

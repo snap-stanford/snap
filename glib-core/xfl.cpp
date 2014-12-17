@@ -179,7 +179,7 @@ bool TFFile::Next(TStr& FNm){
 
         struct stat Stat;
         int ErrCd = stat(FNm.CStr(), &Stat);
-        if (ErrCd == 0) {
+        if (ErrCd != 0) {
           Assert(ErrCd==0); // !bn: assert-with-exception [pa se drugje po tej funkciji]
         }
 
@@ -204,7 +204,7 @@ bool TFFile::Next(TStr& FNm){
         FFileDesc->DirEnt = NULL;
         int ErrCd = closedir(FFileDesc->FDesc);
         FFileDesc->FDesc = NULL;
-        if (ErrCd == 0) {
+        if (ErrCd != 0) {
           Assert(ErrCd==0);
         }
         break;
