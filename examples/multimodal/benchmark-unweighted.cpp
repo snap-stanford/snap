@@ -30,6 +30,7 @@ int main(int argc, char* argv[])
   CreateIdHashes(NodeTblV, NStrH, NIdH);
 
 
+
   double ts3 = Tick();
   PSVNet Graph = LoadGraphMNet(NodeTblV, EdgeTblV, NStrH, NIdH);
 //  PNEANet Graph = LoadGraph<PNEANet>(NodeTblV, EdgeTblV, NStrH, NIdH);

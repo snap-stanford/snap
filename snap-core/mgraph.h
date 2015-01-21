@@ -1,6 +1,8 @@
 #ifndef MGRAPH_H_
 #define MGRAPH_H_
 
+#include "network.h"
+
 template<class TNode>
 class TMNet;
 
@@ -98,8 +100,8 @@ class TMVNode {
 private:
   TInt TypeId; // Node type ID
   TInt Id; // Get global ID
-  TIntV InEIdV, OutEIdV;
-  TIntV InETypeIdV, OutETypeIdV;
+  TIntV InEIdV, OutEIdV; // Vectors of EIds
+  TIntV InETypeIdV, OutETypeIdV; // Vectors of ETypeIds
 public:
   TMVNode() : TypeId(-1), Id(-1), InEIdV(), OutEIdV(), InETypeIdV(), OutETypeIdV() { }
   TMVNode(const int& NTypeId, const int& NId) : TypeId(NTypeId), Id(NId), InEIdV(), OutEIdV(), InETypeIdV(), OutETypeIdV() { }
@@ -369,10 +371,6 @@ public:
 
   friend class TMNet<TCVNode>;
 };
-
-//class TMNet;
-///// Pointer
-//typedef TPt<TMNet> PMVNet;
 
 //#//////////////////////////////////////////////
 /// Directed multigraph with node edge attributes. ##TNEANet::Class
@@ -928,9 +926,11 @@ public:
     TPt<TMNet<TNode> > PNewGraph = New();
     TMNet<TNode>& NewGraph = *PNewGraph;
     TIntSet NTypeIdSet(NTypeIdV);
+    // Initialize node types
     for (typename THash<TStr,int>::TIter iter = NTypeH.BegI(); iter < NTypeH.EndI(); iter++) {
       if (NTypeIdSet.IsKey(TInt(iter.GetDat()))) { NewGraph.NTypeH.AddDat(iter.GetKey(), iter.GetDat()); }
     }
+    // Find relevant edges
     TIntIntH EdgeCounter;
     for (int i = 0; i < InETypes.Len(); i++) {
       if (!NTypeIdSet.IsKey(TInt(i))) { continue; }
@@ -996,6 +996,42 @@ public:
       NTypeIdV.Add(NTypeH.GetDat(NTypeNameV[i]));
     }
     return GetSubGraph(NTypeIdV);
+  }
+
+  PNEANet GetSubGraphTNEANet(const TIntV& NTypeIdV) {
+    PNEANet PNewGraph = PNEANet::New();
+
+    for (int i = 0; i < NTypeIdV.Len(); i++) {
+      TInt NTypeId = NTypeIdV[i];
+      for (typename THash<TInt,TNode>::TIter iter = TypeNodeV[NTypeId].NodeH.BegI(); iter < TypeNodeV[NTypeId].NodeH.EndI(); iter++) {
+        PNewGraph->AddNode(GetGlobalNId(NTypeId, iter.GetKey().Val));
+      }
+    }
+
+    // Find relevant edge types
+    TIntSet NTypeIdSet(NTypeIdV);
+    TIntIntH EdgeCounter;
+    for (int i = 0; i < InETypes.Len(); i++) {
+      if (!NTypeIdSet.IsKey(TInt(i))) { continue; }
+      for (int j = 0; j < InETypes[i].Len(); j++) {
+        EdgeCounter.AddDat(InETypes[i][j], TInt(1));
+      }
+    }
+    for (int i = 0; i < OutETypes.Len(); i++) {
+      if (!NTypeIdSet.IsKey(TInt(i))) { continue; }
+      for (int j = 0; j < OutETypes[i].Len(); j++) {
+        if (EdgeCounter.IsKey(OutETypes[i][j])) { EdgeCounter.AddDat(OutETypes[i][j], TInt(2)); }
+      }
+    }
+    TIntSet ETypeIdSet;
+    for (typename TIntIntH::TIter iter = EdgeCounter.BegI(); iter < EdgeCounter.EndI(); iter++) {
+      if (iter.GetDat().Val == 2) { ETypeIdSet.AddKey(iter.GetKey()); }
+    }
+    // Add edges
+    for (TEdgeI iter = BegEI(); iter < EndEI(); iter++) {
+      if (ETypeIdSet.IsKey(iter.GetTypeId())) { PNewGraph->AddEdge(iter.GetSrcNId(), iter.GetDstNId(), iter.GetId()); }
+    }
+    return PNewGraph;
   }
 
   friend class TPt<TMNet>;
