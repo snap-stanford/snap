@@ -32,6 +32,7 @@ int main(int argc, char* argv[])
 
   double ts3 = Tick();
   PSVNet Graph = LoadGraphMNet(NodeTblV, EdgeTblV, NStrH, NIdH);
+//  PNEANet Graph = LoadGraph<PNEANet>(NodeTblV, EdgeTblV, NStrH, NIdH);
 
   double ts4 = Tick();
 
@@ -40,7 +41,7 @@ int main(int argc, char* argv[])
 //  PageRankExp(Graph, nExps, PageRankResults);
 
   TIntV BFSResults;
-  int nExps = 1;
+  int nExps = 10;
   BFSExp(Graph, RandNStrV, NStrH, nExps, BFSResults);
 
   double ts5 = Tick();
