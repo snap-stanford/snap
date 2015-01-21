@@ -1,3 +1,6 @@
+#ifndef NETWORK_H_
+#define NETWORK_H_
+
 /////////////////////////////////////////////////
 // Node Data
 // TNodeData has to implement the following methods:
@@ -1724,7 +1727,7 @@ public:
   /// Constructor for loading the graph from a (binary) stream SIn.
   TNEANet(TSIn& SIn) : MxNId(SIn), MxEId(SIn), NodeH(SIn), EdgeH(SIn),
     KeyToIndexTypeN(SIn), KeyToIndexTypeE(SIn), IntDefaultsN(SIn), IntDefaultsE(SIn),
-    StrDefaultsN(SIn), StrDefaultsE(SIn), FltDefaultsN(SIn), FltDefaultsE(SIn), 
+    StrDefaultsN(SIn), StrDefaultsE(SIn), FltDefaultsN(SIn), FltDefaultsE(SIn),
     VecOfIntVecsN(SIn), VecOfIntVecsE(SIn), VecOfStrVecsN(SIn),VecOfStrVecsE(SIn),
     VecOfFltVecsN(SIn), VecOfFltVecsE(SIn) { }
   /// Saves the graph to a (binary) stream SOut.
@@ -1803,7 +1806,7 @@ public:
   /// Returns a vector of attr values for node NId.
   void AttrValueNI(const TInt& NId, TStrV& Values) const {
     AttrValueNI(NId, KeyToIndexTypeN.BegI(), Values);}
-  void AttrValueNI(const TInt& NId, TStrIntPrH::TIter NodeHI, TStrV& Values) const; 
+  void AttrValueNI(const TInt& NId, TStrIntPrH::TIter NodeHI, TStrV& Values) const;
   /// Returns a vector of int attr names for node NId.
   void IntAttrNameNI(const TInt& NId, TStrV& Names) const {
     IntAttrNameNI(NId, KeyToIndexTypeN.BegI(), Names);}
@@ -1811,7 +1814,7 @@ public:
   /// Returns a vector of attr values for node NId.
   void IntAttrValueNI(const TInt& NId, TIntV& Values) const {
     IntAttrValueNI(NId, KeyToIndexTypeN.BegI(), Values);}
-  void IntAttrValueNI(const TInt& NId, TStrIntPrH::TIter NodeHI, TIntV& Values) const; 
+  void IntAttrValueNI(const TInt& NId, TStrIntPrH::TIter NodeHI, TIntV& Values) const;
   /// Returns a vector of str attr names for node NId.
   void StrAttrNameNI(const TInt& NId, TStrV& Names) const {
     StrAttrNameNI(NId, KeyToIndexTypeN.BegI(), Names);}
@@ -1819,7 +1822,7 @@ public:
   /// Returns a vector of attr values for node NId.
   void StrAttrValueNI(const TInt& NId, TStrV& Values) const {
     StrAttrValueNI(NId, KeyToIndexTypeN.BegI(), Values);}
-  void StrAttrValueNI(const TInt& NId, TStrIntPrH::TIter NodeHI, TStrV& Values) const; 
+  void StrAttrValueNI(const TInt& NId, TStrIntPrH::TIter NodeHI, TStrV& Values) const;
   /// Returns a vector of int attr names for node NId.
   void FltAttrNameNI(const TInt& NId, TStrV& Names) const {
     FltAttrNameNI(NId, KeyToIndexTypeN.BegI(), Names);}
@@ -1827,7 +1830,7 @@ public:
   /// Returns a vector of attr values for node NId.
   void FltAttrValueNI(const TInt& NId, TFltV& Values) const {
     FltAttrValueNI(NId, KeyToIndexTypeN.BegI(), Values);}
-  void FltAttrValueNI(const TInt& NId, TStrIntPrH::TIter NodeHI, TFltV& Values) const; 
+  void FltAttrValueNI(const TInt& NId, TStrIntPrH::TIter NodeHI, TFltV& Values) const;
 
   /// Returns a vector of attr names for edge EId.
   void AttrNameEI(const TInt& EId, TStrV& Names) const {
@@ -1844,7 +1847,7 @@ public:
   /// Returns a vector of attr values for edge EId.
   void IntAttrValueEI(const TInt& EId, TIntV& Values) const {
     IntAttrValueEI(EId, KeyToIndexTypeE.BegI(), Values);}
-  void IntAttrValueEI(const TInt& EId, TStrIntPrH::TIter EdgeHI, TIntV& Values) const; 
+  void IntAttrValueEI(const TInt& EId, TStrIntPrH::TIter EdgeHI, TIntV& Values) const;
   /// Returns a vector of str attr names for node NId.
   void StrAttrNameEI(const TInt& EId, TStrV& Names) const {
     StrAttrNameEI(EId, KeyToIndexTypeE.BegI(), Names);}
@@ -1852,7 +1855,7 @@ public:
   /// Returns a vector of attr values for node NId.
   void StrAttrValueEI(const TInt& EId, TStrV& Values) const {
     StrAttrValueEI(EId, KeyToIndexTypeE.BegI(), Values);}
-  void StrAttrValueEI(const TInt& EId, TStrIntPrH::TIter EdgeHI, TStrV& Values) const; 
+  void StrAttrValueEI(const TInt& EId, TStrIntPrH::TIter EdgeHI, TStrV& Values) const;
   /// Returns a vector of int attr names for node NId.
   void FltAttrNameEI(const TInt& EId, TStrV& Names) const {
     FltAttrNameEI(EId, KeyToIndexTypeE.BegI(), Names);}
@@ -1860,7 +1863,7 @@ public:
   /// Returns a vector of attr values for node NId.
   void FltAttrValueEI(const TInt& EId, TFltV& Values) const {
     FltAttrValueEI(EId, KeyToIndexTypeE.BegI(), Values);}
-  void FltAttrValueEI(const TInt& EId, TStrIntPrH::TIter EdgeHI, TFltV& Values) const; 
+  void FltAttrValueEI(const TInt& EId, TStrIntPrH::TIter EdgeHI, TFltV& Values) const;
 
   /// Returns an iterator referring to the first edge's int attribute.
   TAIntI BegEAIntI(const TStr& attr) const {
@@ -1924,9 +1927,9 @@ public:
   TEdgeI BegEI() const { return TEdgeI(EdgeH.BegI(), this); }
   /// Returns an iterator referring to the past-the-end edge in the graph.
   TEdgeI EndEI() const { return TEdgeI(EdgeH.EndI(), this); }
-  /// Returns an iterator referring to edge with edge ID EId. 
+  /// Returns an iterator referring to edge with edge ID EId.
   TEdgeI GetEI(const int& EId) const { return TEdgeI(EdgeH.GetI(EId), this); }
-  /// Returns an iterator referring to edge (SrcNId, DstNId) in the graph. 
+  /// Returns an iterator referring to edge (SrcNId, DstNId) in the graph.
   TEdgeI GetEI(const int& SrcNId, const int& DstNId) const { return GetEI(GetEId(SrcNId, DstNId)); }
 
   /// Returns an ID of a random node in the graph.
@@ -1948,7 +1951,7 @@ public:
   void Clr() { MxNId=0; MxEId=0; NodeH.Clr(); EdgeH.Clr(),
     KeyToIndexTypeN.Clr(), KeyToIndexTypeE.Clr(), IntDefaultsN.Clr(), IntDefaultsE.Clr(),
     StrDefaultsN.Clr(), StrDefaultsE.Clr(), FltDefaultsN.Clr(), FltDefaultsE.Clr(),
-    VecOfIntVecsN.Clr(), VecOfIntVecsE.Clr(), VecOfStrVecsN.Clr(), VecOfStrVecsE.Clr(), 
+    VecOfIntVecsN.Clr(), VecOfIntVecsE.Clr(), VecOfStrVecsN.Clr(), VecOfStrVecsE.Clr(),
     VecOfFltVecsN.Clr(), VecOfFltVecsE.Clr();}
   /// Reserves memory for a graph of Nodes nodes and Edges edges.
   void Reserve(const int& Nodes, const int& Edges) {
@@ -2012,13 +2015,13 @@ public:
   /// Gets the value of edge int attr specified by the attr index.
   TInt GetIntAttrIndDatE(const TEdgeI& EdgeId, const int &index) { return GetIntAttrIndDatE(EdgeId.GetId(), index); }
   TInt GetIntAttrIndDatE(const int& EId, const int& index);
- 
+
   /// Deletes the node attribute for NodeId.
-  int DelAttrDatN(const TNodeI& NodeId, const TStr& attr) { return DelAttrDatN(NodeId.GetId(), attr); } 
-  int DelAttrDatN(const int& NId, const TStr& attr); 
+  int DelAttrDatN(const TNodeI& NodeId, const TStr& attr) { return DelAttrDatN(NodeId.GetId(), attr); }
+  int DelAttrDatN(const int& NId, const TStr& attr);
   /// Deletes the edge attribute for NodeId.
-  int DelAttrDatE(const TEdgeI& EdgeId, const TStr& attr) { return DelAttrDatE(EdgeId.GetId(), attr); } 
-  int DelAttrDatE(const int& EId, const TStr& attr); 
+  int DelAttrDatE(const TEdgeI& EdgeId, const TStr& attr) { return DelAttrDatE(EdgeId.GetId(), attr); }
+  int DelAttrDatE(const int& EId, const TStr& attr);
 
   /// Adds a new Int node attribute to the hashmap.
   int AddIntAttrN(const TStr& attr, TInt defaultValue=TInt::Mn);
@@ -2076,7 +2079,7 @@ public:
   int GetFltKeyIdE(const int& EId);
   //Fills OutWeights with the outgoing weight from each node.
   void GetWeightOutEdgesV(TFltV& OutWeights, const TFltV& AttrVal) ;
- 
+
   /// Returns a small multigraph on 5 nodes and 6 edges. ##TNEANet::GetSmallGraph
   static PNEANet GetSmallGraph();
   friend class TPt<TNEANet>;
@@ -2087,3 +2090,4 @@ namespace TSnap {
 template <> struct IsMultiGraph<TNEANet> { enum { Val = 1 }; };
 template <> struct IsDirected<TNEANet> { enum { Val = 1 }; };
 }
+#endif // NETWORK_H_

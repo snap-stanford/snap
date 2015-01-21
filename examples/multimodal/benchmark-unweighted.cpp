@@ -31,7 +31,7 @@ int main(int argc, char* argv[])
 
 
   double ts3 = Tick();
-  PSVNet Graph = LoadGraphMNet(NodeTblV, EdgeTblV, NStrH, NIdH);
+  PSVNet Graph = LoadGraphMNet<PSVNet>(NodeTblV, EdgeTblV, NStrH, NIdH);
 
   double ts4 = Tick();
 

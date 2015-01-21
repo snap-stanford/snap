@@ -12,6 +12,11 @@ PGraph SubgraphExtractExp(const PGraph& Graph, const TIntV& NTypeIdV) {
   return Graph->GetSubGraph(NTypeIdV);
 }
 
+template <class PGraph>
+PNEANet SubgraphExtractTNEANetExp(const PGraph& Graph, const TIntV& NTypeIdV) {
+  return Graph->GetSubGraphTNEANet(NTypeIdV);
+}
+
 int main(int argc, char* argv[]) {
   TEnv Env(argc, argv);
   TStr PrefixPath = Env.GetArgs() > 1 ? Env.GetArg(1) : TStr("");
@@ -34,7 +39,7 @@ int main(int argc, char* argv[]) {
 
   double convertTime = 0;
   double subgraphTime = 0;
-  int nExps = 10;
+  int nExps = 20;
 
   TIntV NTypeIdV;
   NTypeIdV.Add(0);
@@ -44,7 +49,8 @@ int main(int argc, char* argv[]) {
     double t1 = Tick();
     PMVNet Graph = LoadGraphMNet<PMVNet>(NodeTblV, EdgeTblV, NStrH, NIdH);
     double t2 = Tick();
-    PMVNet Subgraph = SubgraphExtractExp(Graph, NTypeIdV);
+    //PMVNet Subgraph = SubgraphExtractExp(Graph, NTypeIdV);
+    PNEANet Subgraph = SubgraphExtractTNEANetExp(Graph, NTypeIdV);
     double t3 = Tick();
     convertTime += (t2-t1);
     subgraphTime += (t3-t2);

@@ -66,32 +66,32 @@ int main(int argc, char* argv[]) {
     StdOut->PutStrFmtLn("Edge = %d:%d", Iter.GetTypeId(), Iter.GetId());
   }
 
-//  PGraph->DelEdge(EId5);
-//  PGraph->DelEdge(EId3);
-//  StdOut->PutStrFmtLn("Edge Size = %d", PGraph->GetEdges());
-//  PGraph->DelEdge(NId3, NId6, true);
-//  for (TSVNet::TEdgeI Iter = PGraph->BegEI(); Iter < PGraph->EndEI(); Iter++) {
-//    StdOut->PutStrFmtLn("Edge = %d:%d", Iter.GetTypeId(), Iter.GetId());
-//  }
-//  StdOut->PutStrFmtLn("Edge Size = %d", PGraph->GetEdges());
-//
-//  PGraph->DelNode(NId2);
-//  StdOut->PutStrFmtLn("Size = %d", PGraph->GetNodes());
-//  for (TSVNet::TNodeI Iter = PGraph->BegNI(); Iter < PGraph->EndNI(); Iter++) {
-//    StdOut->PutStrFmtLn("Node = %d:%d", Iter.GetTypeId(), Iter.GetId());
-//  }
-//  for (TSVNet::TEdgeI Iter = PGraph->BegEI(); Iter < PGraph->EndEI(); Iter++) {
-//    StdOut->PutStrFmtLn("Edge = %d:%d", Iter.GetTypeId(), Iter.GetId());
-//  }
-//  StdOut->PutStrFmtLn("Edge Size = %d", PGraph->GetEdges());
+  PGraph->DelEdge(EId5);
+  PGraph->DelEdge(EId3);
+  StdOut->PutStrFmtLn("Edge Size = %d", PGraph->GetEdges());
+  PGraph->DelEdge(NId3, NId6, true);
+  for (TSVNet::TEdgeI Iter = PGraph->BegEI(); Iter < PGraph->EndEI(); Iter++) {
+    StdOut->PutStrFmtLn("Edge = %d:%d", Iter.GetTypeId(), Iter.GetId());
+  }
+  StdOut->PutStrFmtLn("Edge Size = %d", PGraph->GetEdges());
 
-//  TIntV ShortestDists;
-//  StdOut->PutStrFmtLn("Depth = %d", TSnap::GetShortestDistances(PGraph, NId1, false, false, ShortestDists));
-//  for (TSVNet::TNodeI Iter = PGraph->BegNI(); Iter < PGraph->EndNI(); Iter++) {
-//    int NId = Iter.GetId();
-//    StdOut->PutStrFmtLn("Shortest Dist = %d:%d", NId, ShortestDists[NId]);
-//  }
-//
-//  TIntFltH PageRankH;
-//  TSnap::GetPageRankMNetMP(PGraph, PageRankH, 0.849999999999998, 0.0001, 10);
+  PGraph->DelNode(NId2);
+  StdOut->PutStrFmtLn("Size = %d", PGraph->GetNodes());
+  for (TSVNet::TNodeI Iter = PGraph->BegNI(); Iter < PGraph->EndNI(); Iter++) {
+    StdOut->PutStrFmtLn("Node = %d:%d", Iter.GetTypeId(), Iter.GetId());
+  }
+  for (TSVNet::TEdgeI Iter = PGraph->BegEI(); Iter < PGraph->EndEI(); Iter++) {
+    StdOut->PutStrFmtLn("Edge = %d:%d", Iter.GetTypeId(), Iter.GetId());
+  }
+  StdOut->PutStrFmtLn("Edge Size = %d", PGraph->GetEdges());
+
+  TIntV ShortestDists;
+  StdOut->PutStrFmtLn("Depth = %d", TSnap::GetShortestDistances(PGraph, NId1, false, false, ShortestDists));
+  for (TSVNet::TNodeI Iter = PGraph->BegNI(); Iter < PGraph->EndNI(); Iter++) {
+    int NId = Iter.GetId();
+    StdOut->PutStrFmtLn("Shortest Dist = %d:%d", NId, ShortestDists[NId]);
+  }
+
+  TIntFltH PageRankH;
+  TSnap::GetPageRankMNetMP(PGraph, PageRankH, 0.849999999999998, 0.0001, 10);
 }
