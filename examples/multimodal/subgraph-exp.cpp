@@ -42,9 +42,15 @@ int main(int argc, char* argv[]) {
   int nExps = 20;
 
   TIntV NTypeIdV;
-  NTypeIdV.Add(0);
-  NTypeIdV.Add(1);
-  NTypeIdV.Add(2);
+  if (Env.GetArgs() > 2) {
+    for (int i = 2; i < Env.GetArgs(); i++) {
+      NTypeIdV.Add(Env.GetArg(i).GetInt());
+    }
+  } else {
+    NTypeIdV.Add(0);
+    NTypeIdV.Add(1);
+    NTypeIdV.Add(2);
+  }
   for (int i = 0; i < nExps; i++) {
     double t1 = Tick();
     PMVNet Graph = LoadGraphMNet<PMVNet>(NodeTblV, EdgeTblV, NStrH, NIdH);
