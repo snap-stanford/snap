@@ -66,6 +66,7 @@ int main(int argc, char* argv[]) {
 
   PSOut TimeOut = TFOut::New(PrefixPath + TStr("time.txt"), true);
   TimeOut->PutStrFmtLn("===== Subgraph Extraction - PMVNet =====");
+  TimeOut->PutStrLn(Env.GetCmLn());
   TimeOut->PutStrFmtLn("Loading Graph Tables = %f s", GetCPUTimeUsage(ts1, ts2));
   TimeOut->PutStrFmtLn("Preprocessing = %f s", GetCPUTimeUsage(ts2, ts3));
   TimeOut->PutStrFmtLn("Conversion = %f s", convertTime/nExps);
