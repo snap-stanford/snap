@@ -39,7 +39,7 @@ PTable Load(const Schema& TblSchema, const int nCols, const TStr& TsvFileName, T
 }
 
 void LoadFlickrTables(const TStr& PrefixPath, TTableContext& Context,
-  TVec<PTable>& NodeTblV, Schema& NodeSchema, TVec<TPair<PTable,int> >& EdgeTblV, Schema& EdgeSchema) {
+  TVec<TPair<PTable,TStr> >& NodeTblV, Schema& NodeSchema, TVec<TPair<PTable,int> >& EdgeTblV, Schema& EdgeSchema) {
   Schema PhotoSchema;
   PhotoSchema.Add(TPair<TStr,TAttrType>("Id", atStr));
   PhotoSchema.Add(TPair<TStr,TAttrType>("UploadedDate", atInt));
@@ -48,6 +48,7 @@ void LoadFlickrTables(const TStr& PrefixPath, TTableContext& Context,
   PhotoSchema.Add(TPair<TStr,TAttrType>("Media", atStr));
   PhotoSchema.Add(TPair<TStr,TAttrType>("URL", atStr));
   PTable PPhotoTbl = Load(PhotoSchema, 1, PrefixPath + TStr("photos.tsv"), Context);
+  NodeTblV.Add(TPair<PTable,TStr>(PPhotoTbl, TStr("Photos")));
 
   Schema UserSchema;
   UserSchema.Add(TPair<TStr,TAttrType>("Id", atStr));
@@ -55,6 +56,7 @@ void LoadFlickrTables(const TStr& PrefixPath, TTableContext& Context,
   UserSchema.Add(TPair<TStr,TAttrType>("RealName", atStr));
   UserSchema.Add(TPair<TStr,TAttrType>("Location", atStr));
   PTable PUserTbl = Load(UserSchema, 1, PrefixPath + TStr("users.tsv"), Context);
+  NodeTblV.Add(TPair<PTable,TStr>(PUserTbl, TStr("Users")));
 
   Schema TagSchema;
   TagSchema.Add(TPair<TStr,TAttrType>("Id", atStr));
@@ -62,6 +64,7 @@ void LoadFlickrTables(const TStr& PrefixPath, TTableContext& Context,
   TagSchema.Add(TPair<TStr,TAttrType>("Text", atStr));
   TagSchema.Add(TPair<TStr,TAttrType>("DisplayedText", atStr));
   PTable PTagTbl = Load(TagSchema, 1, PrefixPath + TStr("tags.tsv"), Context);
+  NodeTblV.Add(TPair<PTable,TStr>(PTagTbl, TStr("Tags")));
 
   Schema CommentSchema;
   CommentSchema.Add(TPair<TStr,TAttrType>("Id", atStr));
@@ -69,6 +72,7 @@ void LoadFlickrTables(const TStr& PrefixPath, TTableContext& Context,
   CommentSchema.Add(TPair<TStr,TAttrType>("PermanentLink", atStr));
   CommentSchema.Add(TPair<TStr,TAttrType>("Text", atStr));
   PTable PCommentTbl = Load(CommentSchema, 1, PrefixPath + TStr("comments.tsv"), Context);
+  NodeTblV.Add(TPair<PTable,TStr>(PCommentTbl, TStr("Comments")));
 
   Schema LocationSchema;
   LocationSchema.Add(TPair<TStr,TAttrType>("Id", atStr));
@@ -94,14 +98,9 @@ void LoadFlickrTables(const TStr& PrefixPath, TTableContext& Context,
   LocationSchema.Add(TPair<TStr,TAttrType>("CountryWoeId", atStr));
   LocationSchema.Add(TPair<TStr,TAttrType>("CountryName", atStr));
   PTable PLocationTbl = Load(LocationSchema, 1, PrefixPath + TStr("locations.tsv"), Context);
+  NodeTblV.Add(TPair<PTable,TStr>(PLocationTbl, TStr("Locations")));
 
   NodeSchema.Add(TPair<TStr,TAttrType>("Id", atStr));
-
-  NodeTblV.Add(PPhotoTbl);
-  NodeTblV.Add(PUserTbl);
-  NodeTblV.Add(PTagTbl);
-  NodeTblV.Add(PCommentTbl);
-  NodeTblV.Add(PLocationTbl);
 
   Schema StdEdgeSchema = Schema();
   StdEdgeSchema.Add(TPair<TStr,TAttrType>("SrcId", atStr));
@@ -143,26 +142,30 @@ void LoadFlickrTables(const TStr& PrefixPath, TTableContext& Context,
   EdgeSchema.Add(TPair<TStr,TAttrType>("Weight", atFlt));
 }
 
-void LoadNodes(const TStr& PrefixPath, const TStr& RandNodeFileName, TStrV& NStrV) {
+/// Load a mixed-type node list. The results are grouped by types.
+void LoadMixedTypeNodeList(const TStr& PrefixPath, const TStr& RandNodeFileName, THash<TStr,TStrV> NodeH) {
   Schema RandNodeListSchema;
   RandNodeListSchema.Add(TPair<TStr,TAttrType>("NTypeName", atStr));
   RandNodeListSchema.Add(TPair<TStr,TAttrType>("Id", atStr));
   TTableContext Context;
   PTable RandNTbl = Load(RandNodeListSchema, 2, PrefixPath+RandNodeFileName, Context);
 
-  NStrV.Gen(RandNTbl->GetNumRows().Val);
   for (int i = 0; i < RandNTbl->GetNumRows(); i++) {
+    TStr NTypeStr = RandNTbl->GetStrVal(RandNodeListSchema.GetVal(0).GetVal1(), i);
     TStr NStr = RandNTbl->GetStrVal(RandNodeListSchema.GetVal(1).GetVal1(), i);
-    NStrV[i] = NStr;
+    if (NodeH.IsKey(NTypeStr)) {
+      NodeH.AddDat(NTypeStr).Gen(RandNTbl->GetNumRows().Val); // over-estimate
+    }
+    NodeH.GetDat(NTypeStr).Add(NStr);
   }
 }
 
-void CreateIdHashes(const TVec<PTable>& NodeTblV, TStrIntH& NStrH, TIntStrH& NIdH) {
+void CreateIdHashes(const TVec<TPair<PTable,TStr> >& NodeTblV, THash<TStr,TStrH>& NStrH, TIntStrH& NIdH) {
   int ExpectedSz = 0;
-  for (TVec<PTable>::TIter it = NodeTblV.BegI(); it < NodeTblV.EndI(); it++) {
-    ExpectedSz += (*it)->GetNumRows();
+  for (TVec<TPair<PTable,TStr> >::TIter it = NodeTblV.BegI(); it < NodeTblV.EndI(); it++) {
+    ExpectedSz += (*it).GetVal1()->GetNumRows();
   }
-  NStrH.Gen(ExpectedSz);
+  NStrH.Gen(NodeTblV.Len());
   NIdH.Gen(ExpectedSz);
 }
 
@@ -200,15 +203,14 @@ PGraph LoadGraph(const TVec<PTable>& NodeTblV, const TVec<TPair<PTable, int> >& 
 }
 
 template <class PGraph>
-PGraph LoadGraphMNet(const TVec<PTable>& NodeTblV, const TVec<TPair<PTable, int> >& EdgeTblV, TStrIntH& NStrH, TIntStrH& NIdH) {
+PGraph LoadGraphMNet(const TVec<TPair<PTable,TStr> >& NodeTblV, const TVec<TPair<PTable, int> >& EdgeTblV, THash<TStr,TStrH>& NStrH, TIntStrH& NIdH) {
   PGraph Graph = PGraph::TObj::New();
   TStr IdColName("Id");
-  TStr NTypeNames[] = {TStr("Photos"), TStr("Users"), TStr("Tags"), TStr("Comments"), TStr("Locations")};
 
   // Add node types
   for (int i = 0; i < NodeTblV.Len(); i++) {
-    PTable Table = NodeTblV[i];
-    Graph->AddNType(NTypeNames[i]);
+    Graph->AddNType(NodeTblV[i].GetVal2());
+    NStrH.AddDat(NodeTblV[i].GetVal2());
   }
 
   // Add edge types
@@ -221,32 +223,37 @@ PGraph LoadGraphMNet(const TVec<PTable>& NodeTblV, const TVec<TPair<PTable, int>
     if ((direction & 1) != 0) { Graph->AddEType(TStr("Edge" + (index++)), DstETypeNames[i], SrcETypeNames[i]); }
   }
   for (int i = 0; i < NodeTblV.Len(); i++) {
-    PTable Table = NodeTblV[i];
-    int NTypeId = Graph->AddNType(NTypeNames[i]);
+    PTable Table = NodeTblV[i].GetVal1();
+    int NTypeId = Graph->GetNTypeId(NodeTblV[i].GetVal2());
+    TStrH* PNStrH = &(NStrH.GetDat(NodeTblV[i].GetVal2()));
+    PNStrH->Gen(Table->GetNumRows());
     for (int CurrRowIdx = 0; CurrRowIdx < Table->GetNumRows(); CurrRowIdx++) {
       TStr NStr = Table->GetStrVal(IdColName, CurrRowIdx);
       int NId = Graph->AddNode(NTypeId);
-      NStrH.AddDat(NStr, NId);
+      PNStrH->AddDat(NStr, NId);
       NIdH.AddDat(NId, NStr);
     }
   }
   TStr SrcIdColName("SrcId");
   TStr DstIdColName("DstId");
   index = 0;
+
   for (int i = 0; i < EdgeTblV.Len(); i++) {
     PTable Table = EdgeTblV[i].GetVal1();
     int direction = EdgeTblV[i].GetVal2();
     for (int CurrRowIdx = 0; CurrRowIdx < Table->GetNumRows(); CurrRowIdx++) {
       TStr SrcNStr = Table->GetStrVal(SrcIdColName, CurrRowIdx);
-      IAssertR(NStrH.IsKey(SrcNStr), "SrcId of edges must be a node Id");
-      TInt UniversalSrcId = NStrH.GetDat(SrcNStr);
+      TInt UniversalSrcId = NStrH.GetDat(SrcETypeNames[i]).GetDat(SrcNStr);
       TStr DstNStr = Table->GetStrVal(DstIdColName, CurrRowIdx);
-      IAssertR(NStrH.IsKey(DstNStr), "DstId of edges must be a node Id");
-      TInt UniversalDstId = NStrH.GetDat(DstNStr);
+      TInt UniversalDstId = NStrH.GetDat(DstETypeNames[i]).GetDat(DstNStr);
       //StdOut->PutStrFmtLn("Edge %d->%d : %d->%d", UniversalSrcId, UniversalDstId, Graph->GetNTypeId(UniversalSrcId), Graph->GetNTypeId(UniversalDstId));
       int j = 0;
-      if ((direction & 2) != 0) { Graph->AddEdge(UniversalSrcId, UniversalDstId, (index+j)); j++; }
-      if ((direction & 1) != 0) { Graph->AddEdge(UniversalDstId, UniversalSrcId, (index+j)); }
+      if ((direction & 2) != 0) {
+        Graph->AddEdge(UniversalSrcId, UniversalDstId, (index+j)); j++;
+      }
+      if ((direction & 1) != 0) {
+        Graph->AddEdge(UniversalDstId, UniversalSrcId, (index+j));
+      }
     }
     if (direction == 3) { index += 2; }
     else { index++; }

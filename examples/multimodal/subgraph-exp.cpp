@@ -23,15 +23,15 @@ int main(int argc, char* argv[]) {
 
   double ts1 = Tick();
   TTableContext Context;
-  TVec<PTable> NodeTblV = TVec<PTable>();
-  TVec<TPair<PTable, int> > EdgeTblV = TVec<TPair<PTable, int> >();
+  TVec<TPair<PTable,TStr> > NodeTblV = TVec<TPair<PTable,TStr> >();
+  TVec<TPair<PTable,int> > EdgeTblV = TVec<TPair<PTable, int> >();
   Schema NodeSchema = Schema();
   Schema EdgeSchema = Schema();
   LoadFlickrTables(PrefixPath, Context, NodeTblV, NodeSchema, EdgeTblV, EdgeSchema);
 
   double ts2 = Tick();
 
-  TStrIntH NStrH;
+  THash<TStr,TStrH> NStrH;
   TIntStrH NIdH;
   CreateIdHashes(NodeTblV, NStrH, NIdH);
 
@@ -49,7 +49,7 @@ int main(int argc, char* argv[]) {
   } else {
     NTypeIdV.Add(0);
     NTypeIdV.Add(1);
-    NTypeIdV.Add(2);
+    //NTypeIdV.Add(2);
   }
   for (int i = 0; i < nExps; i++) {
     double t1 = Tick();

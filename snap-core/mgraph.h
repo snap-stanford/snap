@@ -1000,7 +1000,6 @@ public:
 
   PNEANet GetSubGraphTNEANet(const TIntV& NTypeIdV) {
     PNEANet PNewGraph = PNEANet::New();
-
     for (int i = 0; i < NTypeIdV.Len(); i++) {
       TInt NTypeId = NTypeIdV[i];
       for (typename THash<TInt,TNode>::TIter iter = TypeNodeV[NTypeId].NodeH.BegI(); iter < TypeNodeV[NTypeId].NodeH.EndI(); iter++) {
@@ -1025,11 +1024,15 @@ public:
     }
     TIntSet ETypeIdSet;
     for (typename TIntIntH::TIter iter = EdgeCounter.BegI(); iter < EdgeCounter.EndI(); iter++) {
-      if (iter.GetDat().Val == 2) { ETypeIdSet.AddKey(iter.GetKey()); }
+      if (iter.GetDat().Val == 2) {
+        ETypeIdSet.AddKey(iter.GetKey());
+      }
     }
     // Add edges
     for (TEdgeI iter = BegEI(); iter < EndEI(); iter++) {
-      if (ETypeIdSet.IsKey(iter.GetTypeId())) { PNewGraph->AddEdge(iter.GetSrcNId(), iter.GetDstNId(), iter.GetId()); }
+      if (ETypeIdSet.IsKey(iter.GetTypeId())) {
+        PNewGraph->AddEdge(iter.GetSrcNId(), iter.GetDstNId(), iter.GetId());
+      }
     }
     return PNewGraph;
   }
