@@ -93,6 +93,12 @@ public:
       EIdV.AddV(OutEIdVV[i]);
     }
   }
+  void GetInEIdV(const TInt ETypeId, TIntV& EIdV) const {
+    EIdV = InEIdVV[ETypeId.Val];
+  }
+  void GetOutEIdV(const TInt ETypeId, TIntV& EIdV) const {
+    EIdV = OutEIdVV[ETypeId.Val];
+  }
   friend class TMNet<TSVNode>;
 };
 
@@ -157,6 +163,16 @@ public:
     int EIdN = OutEIdV.SearchBack(EId);
     OutETypeIdV.Del(EIdN);
     OutEIdV.Del(EIdN);
+  }
+  void GetInEIdV(const TInt ETypeId, TIntV& EIdV) const {
+    for (int i = 0; i < InEIdV.Len(); i++) {
+      if (InETypeIdV[i] == ETypeId) { EIdV.Add(InEIdV[i]); }
+    }
+  }
+  void GetOutEIdV(const TInt ETypeId, TIntV& EIdV) const {
+    for (int i = 0; i < OutEIdV.Len(); i++) {
+      if (OutETypeIdV[i] == ETypeId) { EIdV.Add(OutEIdV[i]); }
+    }
   }
   friend class TMNet<TMVNode>;
 };
@@ -368,7 +384,16 @@ public:
     OutDeg--;
     OutTypeDegV[ETypeId]--;
   }
-
+  void GetInEIdV(const TInt ETypeId, TIntV& EIdV) const {
+    for (int i = InTypeIndexV[ETypeId.Val]; i < InTypeIndexV[ETypeId.Val] + InTypeDegV[ETypeId.Val]; i++) {
+      EIdV.Add(InEIdV[i]);
+    }
+  }
+  void GetOutEIdV(const TInt ETypeId, TIntV& EIdV) const {
+    for (int i = OutTypeIndexV[ETypeId.Val]; i < OutTypeIndexV[ETypeId.Val] + OutTypeDegV[ETypeId.Val]; i++) {
+      EIdV.Add(OutEIdV[i]);
+    }
+  }
   friend class TMNet<TCVNode>;
 };
 
@@ -999,14 +1024,6 @@ public:
   }
 
   PNEANet GetSubGraphTNEANet(const TIntV& NTypeIdV) {
-    PNEANet PNewGraph = PNEANet::New();
-    for (int i = 0; i < NTypeIdV.Len(); i++) {
-      TInt NTypeId = NTypeIdV[i];
-      for (typename THash<TInt,TNode>::TIter iter = TypeNodeV[NTypeId].NodeH.BegI(); iter < TypeNodeV[NTypeId].NodeH.EndI(); iter++) {
-        PNewGraph->AddNode(GetGlobalNId(NTypeId, iter.GetKey().Val));
-      }
-    }
-
     // Find relevant edge types
     TIntSet NTypeIdSet(NTypeIdV);
     TIntIntH EdgeCounter;
@@ -1022,16 +1039,57 @@ public:
         if (EdgeCounter.IsKey(OutETypes[i][j])) { EdgeCounter.AddDat(OutETypes[i][j], TInt(2)); }
       }
     }
-    TIntSet ETypeIdSet;
+    TIntV ETypeIdV;
     for (typename TIntIntH::TIter iter = EdgeCounter.BegI(); iter < EdgeCounter.EndI(); iter++) {
       if (iter.GetDat().Val == 2) {
-        ETypeIdSet.AddKey(iter.GetKey());
+        ETypeIdV.Add(iter.GetKey());
       }
     }
+
+    return GetSubGraphTNEANet2(NTypeIdV, ETypeIdV);
+  }
+
+  PNEANet GetSubGraphTNEANet(const TIntV& NTypeIdV, const TIntV& ETypeIdV) {
+    PNEANet PNewGraph = PNEANet::New();
+    for (int i = 0; i < NTypeIdV.Len(); i++) {
+      TInt NTypeId = NTypeIdV[i];
+      for (typename THash<TInt,TNode>::TIter iter = TypeNodeV[NTypeId].NodeH.BegI(); iter < TypeNodeV[NTypeId].NodeH.EndI(); iter++) {
+        PNewGraph->AddNode(GetGlobalNId(NTypeId, iter.GetKey().Val));
+      }
+    }
+
+    TIntSet ETypeIdSet(ETypeIdV);
     // Add edges
     for (TEdgeI iter = BegEI(); iter < EndEI(); iter++) {
       if (ETypeIdSet.IsKey(iter.GetTypeId())) {
         PNewGraph->AddEdge(iter.GetSrcNId(), iter.GetDstNId(), iter.GetId());
+      }
+    }
+    return PNewGraph;
+  }
+
+  PNEANet GetSubGraphTNEANet2(const TIntV& NTypeIdV, const TIntV& ETypeIdV) {
+    PNEANet PNewGraph = PNEANet::New();
+    // Add nodes
+    for (int i = 0; i < NTypeIdV.Len(); i++) {
+      TInt NTypeId = NTypeIdV[i];
+      for (typename THash<TInt,TNode>::TIter iter = TypeNodeV[NTypeId].NodeH.BegI(); iter < TypeNodeV[NTypeId].NodeH.EndI(); iter++) {
+        PNewGraph->AddNode(GetGlobalNId(NTypeId, iter.GetKey().Val));
+      }
+    }
+    // Add edges
+    for (int i = 0; i < NTypeIdV.Len(); i++) {
+      TInt NTypeId = NTypeIdV[i];
+      for (typename THash<TInt,TNode>::TIter iter = TypeNodeV[NTypeId].NodeH.BegI(); iter < TypeNodeV[NTypeId].NodeH.EndI(); iter++) {
+        TNode* PNode = &(iter.GetDat());
+        for (int j = 0; j < ETypeIdV.Len(); j++) {
+          TIntV EIdV;
+          PNode->GetOutEIdV(ETypeIdV[j].Val, EIdV);
+          for (int k = 0; k < EIdV.Len(); k++) {
+            TInt EId = EIdV[k];
+            PNewGraph->AddEdge(PNode->GetId(), GetEdge(EId).GetDstNId(), EId);
+          }
+        }
       }
     }
     return PNewGraph;

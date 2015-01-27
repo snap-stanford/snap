@@ -53,9 +53,9 @@ int main(int argc, char* argv[]) {
   }
   for (int i = 0; i < nExps; i++) {
     double t1 = Tick();
-    PMVNet Graph = LoadGraphMNet<PMVNet>(NodeTblV, EdgeTblV, NStrH, NIdH);
+    PCVNet Graph = LoadGraphMNet<PCVNet>(NodeTblV, EdgeTblV, NStrH, NIdH);
     double t2 = Tick();
-    //PMVNet Subgraph = SubgraphExtractExp(Graph, NTypeIdV);
+    //PCVNet Subgraph = SubgraphExtractExp(Graph, NTypeIdV);
     PNEANet Subgraph = SubgraphExtractTNEANetExp(Graph, NTypeIdV);
     double t3 = Tick();
     convertTime += (t2-t1);
@@ -65,7 +65,7 @@ int main(int argc, char* argv[]) {
   }
 
   PSOut TimeOut = TFOut::New(PrefixPath + TStr("time.txt"), true);
-  TimeOut->PutStrFmtLn("===== Subgraph Extraction - PMVNet =====");
+  TimeOut->PutStrFmtLn("===== Subgraph Extraction - PCVNet =====");
   TimeOut->PutStrLn(Env.GetCmLn());
   TimeOut->PutStrFmtLn("Loading Graph Tables = %f s", GetCPUTimeUsage(ts1, ts2));
   TimeOut->PutStrFmtLn("Preprocessing = %f s", GetCPUTimeUsage(ts2, ts3));
