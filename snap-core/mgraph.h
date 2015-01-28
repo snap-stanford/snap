@@ -1078,13 +1078,19 @@ public:
       }
     }
     // Add edges
+    TIntSet ETypeIdSet(ETypeIdV);
     for (int i = 0; i < NTypeIdV.Len(); i++) {
       TInt NTypeId = NTypeIdV[i];
+      TIntV* POutETypes = &(OutETypes[NTypeId]);
+      TIntV OutETypeIdV;
+      for (TIntV::TIter iter = POutETypes->BegI(); iter < POutETypes->EndI(); iter++) {
+        if (ETypeIdSet.IsKey(*iter)) { OutETypeIdV.Add(*iter); }
+      }
       for (typename THash<TInt,TNode>::TIter iter = TypeNodeV[NTypeId].NodeH.BegI(); iter < TypeNodeV[NTypeId].NodeH.EndI(); iter++) {
         TNode* PNode = &(iter.GetDat());
-        for (int j = 0; j < ETypeIdV.Len(); j++) {
+        for (int j = 0; j < OutETypeIdV.Len(); j++) {
           TIntV EIdV;
-          PNode->GetOutEIdV(ETypeIdV[j].Val, EIdV);
+          PNode->GetOutEIdV(OutETypeIdV.GetVal(j).Val, EIdV);
           for (int k = 0; k < EIdV.Len(); k++) {
             TInt EId = EIdV[k];
             PNewGraph->AddEdge(PNode->GetId(), GetEdge(EId).GetDstNId(), EId);
