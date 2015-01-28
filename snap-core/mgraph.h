@@ -165,11 +165,13 @@ public:
     OutEIdV.Del(EIdN);
   }
   void GetInEIdV(const TInt ETypeId, TIntV& EIdV) const {
+    EIdV.Reduce(0); // Clear
     for (int i = 0; i < InEIdV.Len(); i++) {
       if (InETypeIdV[i] == ETypeId) { EIdV.Add(InEIdV[i]); }
     }
   }
   void GetOutEIdV(const TInt ETypeId, TIntV& EIdV) const {
+    EIdV.Reduce(0); // Clear
     for (int i = 0; i < OutEIdV.Len(); i++) {
       if (OutETypeIdV[i] == ETypeId) { EIdV.Add(OutEIdV[i]); }
     }
@@ -385,13 +387,19 @@ public:
     OutTypeDegV[ETypeId]--;
   }
   void GetInEIdV(const TInt ETypeId, TIntV& EIdV) const {
-    for (int i = InTypeIndexV[ETypeId.Val]; i < InTypeIndexV[ETypeId.Val] + InTypeDegV[ETypeId.Val]; i++) {
-      EIdV.Add(InEIdV[i]);
+    int Sz = InTypeDegV[ETypeId].Val;
+    EIdV.Gen(Sz);
+    int Ind = InTypeIndexV[ETypeId].Val;
+    for (int i = 0; i < Sz; i++) {
+      EIdV[i] = InEIdV[Ind+i];
     }
   }
   void GetOutEIdV(const TInt ETypeId, TIntV& EIdV) const {
-    for (int i = OutTypeIndexV[ETypeId.Val]; i < OutTypeIndexV[ETypeId.Val] + OutTypeDegV[ETypeId.Val]; i++) {
-      EIdV.Add(OutEIdV[i]);
+    int Sz = OutTypeDegV[ETypeId].Val;
+    EIdV.Gen(Sz);
+    int Ind = OutTypeIndexV[ETypeId].Val;
+    for (int i = 0; i < Sz; i++) {
+      EIdV[i] = OutEIdV[Ind+i];
     }
   }
   friend class TMNet<TCVNode>;
@@ -1079,6 +1087,7 @@ public:
     }
     // Add edges
     TIntSet ETypeIdSet(ETypeIdV);
+    TIntV EIdV; // Use same vector to save memory
     for (int i = 0; i < NTypeIdV.Len(); i++) {
       TInt NTypeId = NTypeIdV[i];
       TIntV* POutETypes = &(OutETypes[NTypeId]);
@@ -1089,7 +1098,6 @@ public:
       for (typename THash<TInt,TNode>::TIter iter = TypeNodeV[NTypeId].NodeH.BegI(); iter < TypeNodeV[NTypeId].NodeH.EndI(); iter++) {
         TNode* PNode = &(iter.GetDat());
         for (int j = 0; j < OutETypeIdV.Len(); j++) {
-          TIntV EIdV;
           PNode->GetOutEIdV(OutETypeIdV.GetVal(j).Val, EIdV);
           for (int k = 0; k < EIdV.Len(); k++) {
             TInt EId = EIdV[k];
