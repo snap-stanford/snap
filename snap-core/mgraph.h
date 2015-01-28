@@ -388,7 +388,7 @@ public:
   }
   void GetInEIdV(const TInt ETypeId, TIntV& EIdV) const {
     int Sz = InTypeDegV[ETypeId].Val;
-    EIdV.Gen(Sz);
+    EIdV.Reserve(Sz, Sz);
     int Ind = InTypeIndexV[ETypeId].Val;
     for (int i = 0; i < Sz; i++) {
       EIdV[i] = InEIdV[Ind+i];
@@ -396,7 +396,7 @@ public:
   }
   void GetOutEIdV(const TInt ETypeId, TIntV& EIdV) const {
     int Sz = OutTypeDegV[ETypeId].Val;
-    EIdV.Gen(Sz);
+    EIdV.Reserve(Sz, Sz);
     int Ind = OutTypeIndexV[ETypeId].Val;
     for (int i = 0; i < Sz; i++) {
       EIdV[i] = OutEIdV[Ind+i];
