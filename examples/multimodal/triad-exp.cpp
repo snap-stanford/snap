@@ -14,7 +14,7 @@ int main(int argc, char* argv[])
 
   double ts1 = Tick();
   TTableContext Context;
-  TVec<PTable> NodeTblV = TVec<PTable>();
+  TVec<TPair<PTable,TStr> > NodeTblV = TVec<TPair<PTable,TStr> >();
   TVec<TPair<PTable, int> > EdgeTblV = TVec<TPair<PTable, int> >();
   Schema NodeSchema = Schema();
   Schema EdgeSchema = Schema();
@@ -22,7 +22,7 @@ int main(int argc, char* argv[])
 
   double ts2 = Tick();
 
-  TStrIntH NStrH;
+  THash<TStr,TStrH> NStrH;
   TIntStrH NIdH;
   CreateIdHashes(NodeTblV, NStrH, NIdH);
 
@@ -41,6 +41,7 @@ int main(int argc, char* argv[])
 
   PSOut TimeOut = TFOut::New(PrefixPath + TStr("time.txt"), true);
   TimeOut->PutStrFmtLn("===== Triad Counting - PSVNet =====");
+  TimeOut->PutStrLn(Env.GetCmLn());
   TimeOut->PutStrFmtLn("Input Time = %f", GetCPUTimeUsage(ts1, ts2));
   TimeOut->PutStrFmtLn("Preprocessing Time = %f", GetCPUTimeUsage(ts2, ts3));
   TimeOut->PutStrFmtLn("Conversion Time = %f", GetCPUTimeUsage(ts3, ts4));
