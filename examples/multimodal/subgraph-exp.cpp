@@ -51,9 +51,10 @@ int main(int argc, char* argv[]) {
     NTypeIdV.Add(1);
     //NTypeIdV.Add(2);
   }
+  PCVNet InitGraph = LoadGraphMNet<PCVNet>(NodeTblV, EdgeTblV, NStrH, NIdH);
   for (int i = 0; i < nExps; i++) {
     double t1 = Tick();
-    PCVNet Graph = LoadGraphMNet<PCVNet>(NodeTblV, EdgeTblV, NStrH, NIdH);
+    PCVNet Graph = InitGraph;
     double t2 = Tick();
     //PCVNet Subgraph = SubgraphExtractExp(Graph, NTypeIdV);
     PNEANet Subgraph = SubgraphExtractTNEANetExp(Graph, NTypeIdV);

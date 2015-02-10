@@ -31,7 +31,7 @@ int main(int argc, char* argv[]) {
   double ts2 = Tick();
 
   TStrV DeletedNStrV;
-  LoadNodes(PrefixPath, TStr("rand_node_ids_deleted.tsv"), DeletedNStrV);
+  LoadMixedTypeNodeList(PrefixPath, TStr("rand_node_ids_deleted.tsv"), DeletedNStrV);
 
   double ts3 = Tick();
 

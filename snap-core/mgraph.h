@@ -742,6 +742,7 @@ public:
     Sz++;
     return GlobalNId;
   }
+  int AddNode(const TStr& NTypeStr) { return AddNode(GetNTypeId(NTypeStr)); }
   /// Adds a node of ID NodeI.GetId() to the graph.
   int AddNode(const TNodeI& NodeId) { return AddNode(NodeId.GetTypeId(), NodeId.GetId()); }
   /// Validates the global NId
@@ -819,6 +820,8 @@ public:
       return ETypeId;
     }
   }
+  /// Gets the typeId of an edge type
+  int GetETypeId(const TStr& ETypeStr) { return ETypeH.GetDat(ETypeStr); }
 
   /// Returns an ID that is larger than any edge ID in the network.
   int GetMxEId() const { return MxEId; }
@@ -837,6 +840,7 @@ public:
 
     return EId;
   }
+  int AddEdge(const int& SrcNId, const int& DstNId, const TStr& ETypeStr) { return AddEdge(SrcNId, DstNId, GetETypeId(ETypeStr)); }
   /// Adds an edge between EdgeI.GetSrcNId() and EdgeI.GetDstNId() to the graph.
   int AddEdge(const TEdgeI& EdgeI) { return AddEdge(EdgeI.GetSrcNId(), EdgeI.GetDstNId(), EdgeI.GetTypeId(), EdgeI.GetId()); }
 

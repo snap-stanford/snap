@@ -12,6 +12,8 @@ int main(int argc, char* argv[])
   TEnv Env(argc, argv);
   TStr PrefixPath = Env.GetArgs() > 1 ? Env.GetArg(1) : TStr("");
 
+  int nExps = 10;
+
   double ts1 = Tick();
   TTableContext Context;
   TVec<TPair<PTable,TStr> > NodeTblV = TVec<TPair<PTable,TStr> >();
@@ -20,38 +22,30 @@ int main(int argc, char* argv[])
   Schema EdgeSchema = Schema();
   LoadFlickrTables(PrefixPath, Context, NodeTblV, NodeSchema, EdgeTblV, EdgeSchema);
 
-  THash<TStr,TStrV> RandNStrV;
-  LoadMixedTypeNodeList(PrefixPath, TStr("rand_node_ids_1000.tsv"), RandNStrV);
-
-  double ts2 = Tick();
+  TVec<TPair<TStr,TStr> > RandNV;
+  LoadNodeList(PrefixPath, TStr("rand_node_ids_all.tsv"), RandNV);
+  StdOut->PutStrFmtLn("RandNV.Len() = %d", RandNV.Len());
 
   THash<TStr,TStrH> NStrH;
   TIntStrH NIdH;
   CreateIdHashes(NodeTblV, NStrH, NIdH);
 
+  double ts2 = Tick();
 
+  double PreprocessTime = 0;
+  double ConstructTime = 0;
 
-  double ts3 = Tick();
-  PSVNet Graph = LoadGraphMNet<PSVNet>(NodeTblV, EdgeTblV, NStrH, NIdH);
-//  PNEANet Graph = LoadGraph<PNEANet>(NodeTblV, EdgeTblV, NStrH, NIdH);
-
-  double ts4 = Tick();
-
-//  TIntFltH PageRankResults;
-//  int nExps = 40;
-//  PageRankExp(Graph, nExps, PageRankResults);
-
-  TIntV BFSResults;
-  int nExps = 10;
-//  BFSExp(Graph, RandNStrV, NStrH, nExps, BFSResults);
-
-  double ts5 = Tick();
-
-//  PSOut ResultOut = TFOut::New(PrefixPath + TStr("page-rank-results.tsv"));
-//  for (TIntFltH::TIter it = PageRankResults.BegI(); it < PageRankResults.EndI(); it++) {
-//    ResultOut->PutStrFmtLn("%s\t%f9", NIdH.GetDat(it.GetKey()).CStr(), it.GetDat().Val);
-//  }
-  double ts6 = Tick();
+  PSVNet Graph;
+  for (int i = 0; i < nExps; i++) {
+    double ts3 = Tick();
+    TVec<TVec<TTriple<TStr,TStr,TBool> > > RandNbrVV;
+    CreateNborList(NodeTblV, EdgeTblV, RandNV, RandNbrVV);
+    double ts4 = Tick();
+    Graph = LoadGraphMNetRandom<PSVNet>(NodeTblV, EdgeTblV, RandNV, RandNbrVV, NStrH, NIdH);
+    double ts5 = Tick();
+    PreprocessTime += (ts4-ts3);
+    ConstructTime += (ts5-ts4);
+  }
 
   PSOut FeaturesOut = TFOut::New(PrefixPath + "features.txt");
   FeaturesOut->PutStrFmtLn("Photo %d", NodeTblV[0].GetVal1()->GetNumRows().Val);
@@ -70,11 +64,11 @@ int main(int argc, char* argv[])
   FeaturesOut->PutStrFmtLn("Total number of edges = %d", Graph->GetEdges());
 
   PSOut TimeOut = TFOut::New(PrefixPath + TStr("time.txt"), true);
+  TimeOut->PutStrFmtLn("===== Random Construction - PSVNet =====");
+  TimeOut->PutStrLn(Env.GetCmLn());
   TimeOut->PutStrFmtLn("Input Time = %f", GetCPUTimeUsage(ts1, ts2));
-  TimeOut->PutStrFmtLn("Preprocessing Time = %f", GetCPUTimeUsage(ts2, ts3));
-  TimeOut->PutStrFmtLn("Conversion Time = %f", GetCPUTimeUsage(ts3, ts4));
-  TimeOut->PutStrFmtLn("Computing Time = %f", GetCPUTimeUsage(ts4, ts5)/nExps);
-  TimeOut->PutStrFmtLn("Output Time = %f", GetCPUTimeUsage(ts5, ts6));
+  TimeOut->PutStrFmtLn("Preprocessing Time = %f", PreprocessTime/nExps);
+  TimeOut->PutStrFmtLn("Construction Time = %f", ConstructTime/nExps);
 
 	return 0;
 }
