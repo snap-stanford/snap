@@ -16,6 +16,7 @@
 #include "graph.h"           // graphs
 #include "mgraph.h"          // multimodal graphs
 #include "network.h"         // networks
+#include "networkmp.h"       // networks OMP
 #include "bignet.h"          // large networks
 #include "timenet.h"         // time evolving networks
 

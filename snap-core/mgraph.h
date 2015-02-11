@@ -2,6 +2,7 @@
 #define MGRAPH_H_
 
 #include "network.h"
+#include "networkmp.h"
 
 template<class TNode>
 class TMNet;
@@ -714,10 +715,10 @@ public:
 
   /// Returns the number of nodes in the graph.
   int GetNodes() const { return Sz; }
+  /// Returns the number of nodes of a specific type in the graph.
+  int GetNodes(const int& NTypeId) const { return TypeNodeV[NTypeId].NodeH.Len(); }
   /// Returns an ID that is larger than any node ID in the network.
-  int GetMxNId() const {
-    return MxNId;
-  }
+  int GetMxNId() const { return MxNId; }
   /// Returns an ID that is larger than any node ID of the given type in the network.
   int GetMxNId(const int& NTypeId) const {
     AssertNTypeId(NTypeId);
@@ -1061,6 +1062,7 @@ public:
     return GetSubGraphTNEANet2(NTypeIdV, ETypeIdV);
   }
 
+  /// Extracts the subgraph by scanning and filtering all edges (edge-based)
   PNEANet GetSubGraphTNEANet(const TIntV& NTypeIdV, const TIntV& ETypeIdV) {
     PNEANet PNewGraph = PNEANet::New();
     for (int i = 0; i < NTypeIdV.Len(); i++) {
@@ -1080,6 +1082,7 @@ public:
     return PNewGraph;
   }
 
+  /// Extracts the subgraph by finding the nodes and then finding all neighbors (node-based)
   PNEANet GetSubGraphTNEANet2(const TIntV& NTypeIdV, const TIntV& ETypeIdV) {
     PNEANet PNewGraph = PNEANet::New();
     // Add nodes
@@ -1108,6 +1111,59 @@ public:
             PNewGraph->AddEdge(PNode->GetId(), GetEdge(EId).GetDstNId(), EId);
           }
         }
+      }
+    }
+    return PNewGraph;
+  }
+
+  PNEANetMP GetSubGraphTNEANetMP(const TIntV& NTypeIdV) {
+    // Find relevant edge types
+    TIntSet NTypeIdSet(NTypeIdV);
+    TIntIntH EdgeCounter;
+    for (int i = 0; i < InETypes.Len(); i++) {
+      if (!NTypeIdSet.IsKey(TInt(i))) { continue; }
+      for (int j = 0; j < InETypes[i].Len(); j++) {
+        EdgeCounter.AddDat(InETypes[i][j], TInt(1));
+      }
+    }
+    for (int i = 0; i < OutETypes.Len(); i++) {
+      if (!NTypeIdSet.IsKey(TInt(i))) { continue; }
+      for (int j = 0; j < OutETypes[i].Len(); j++) {
+        if (EdgeCounter.IsKey(OutETypes[i][j])) { EdgeCounter.AddDat(OutETypes[i][j], TInt(2)); }
+      }
+    }
+    TIntV ETypeIdV;
+    for (typename TIntIntH::TIter iter = EdgeCounter.BegI(); iter < EdgeCounter.EndI(); iter++) {
+      if (iter.GetDat().Val == 2) {
+        ETypeIdV.Add(iter.GetKey());
+      }
+    }
+
+    return GetSubGraphTNEANetMP(NTypeIdV, ETypeIdV);
+  }
+
+  PNEANetMP GetSubGraphTNEANetMP(const TIntV& NTypeIdV, const TIntV& ETypeIdV) {
+    PSOut StdOut = TStdOut::New();
+    int SubgraphSz = 0;
+    for (TIntV::TIter iter = NTypeIdV.BegI(); iter < NTypeIdV.EndI(); iter++) {
+      SubgraphSz += GetNodes((*iter).Val);
+    }
+    StdOut->PutStrFmtLn("SubgraphSz = %d", SubgraphSz);
+    PNEANetMP PNewGraph = TNEANetMP::New(SubgraphSz, EdgeH.Len()); // TODO: Need smaller size
+    #pragma omp parallel for schedule(dynamic)
+    for (int i = 0; i < NTypeIdV.Len(); i++) {
+      TInt NTypeId = NTypeIdV[i];
+      for (typename THash<TInt,TNode>::TIter iter = TypeNodeV[NTypeId].NodeH.BegI(); iter < TypeNodeV[NTypeId].NodeH.EndI(); iter++) {
+        PNewGraph->AddNode(GetGlobalNId(NTypeId, iter.GetKey().Val));
+      }
+    }
+    PNewGraph->SetNodes(SubgraphSz);
+
+    TIntSet ETypeIdSet(ETypeIdV);
+    // Add edges
+    for (TEdgeI iter = BegEI(); iter < EndEI(); iter++) {
+      if (ETypeIdSet.IsKey(iter.GetTypeId())) {
+        PNewGraph->AddEdge(iter.GetSrcNId(), iter.GetDstNId(), iter.GetId());
       }
     }
     return PNewGraph;
