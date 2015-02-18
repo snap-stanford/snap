@@ -678,6 +678,8 @@ inline PNEANetMP ToTNEANetMP(PTable Table, const TStr& SrcCol, const TStr& DstCo
     }
   }
 
+  double w1 = omp_get_wtime();
+
   omp_set_num_threads(omp_get_max_threads());
   #pragma omp parallel
   {
@@ -693,6 +695,9 @@ inline PNEANetMP ToTNEANetMP(PTable Table, const TStr& SrcCol, const TStr& DstCo
     }
     #pragma omp taskwait
   }
+
+  double w2 = omp_get_wtime();
+  printf("Sort %f\n", (w2-w1));
 
   TInt NumThreads = omp_get_max_threads();
   TInt PartSize = (NumRows/NumThreads);
@@ -860,7 +865,7 @@ inline PNEANetMP ToTNEANetMP(PTable Table, const TStr& SrcCol, const TStr& DstCo
   // printf("NumNodes = %d\n", NumNodes.Val);
 
   PNEANetMP Graph = TNEANetMP::New(NumNodes, NumRows);
-  NumThreads = 1;
+  NumThreads = omp_get_max_threads();
   int Delta = (NumNodes+NumThreads-1)/NumThreads;
 
   TVec<TIntV> InVV(NumNodes);
