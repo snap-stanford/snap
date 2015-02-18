@@ -309,6 +309,8 @@ public:
   int AddNode(int NId = -1);
   /// Adds a node of ID NodeI.GetId() to the graph.
   int AddNode(const TNodeI& NodeId) { return AddNode(NodeId.GetId()); }
+  /// Adds a node along with its neighbor edges.
+  void AddNodeWithEdges(const TInt& NId, TIntV& InEIdV, TIntV& OutEIdV);
 //  /// Deletes node of ID NId from the graph. ##TNEANetMP::DelNode
 //  void DelNode(const int& NId);
 //  /// Deletes node of ID NodeI.GetId() from the graph.
@@ -455,12 +457,21 @@ public:
   /// Returns an ID that is larger than any edge ID in the network.
   int GetMxEId() const { return MxEId; }
 
+  /// Returns the number of nodes reserved in the network.
+  int Reserved() const {return NodeH.GetReservedKeyIds();}
+  /// Returns the number of edges reserved in the network.
+  int ReservedE() const {return EdgeH.GetReservedKeyIds();}
+
   /// Returns the number of edges in the graph.
   int GetEdges() const { return EdgeH.Len(); }
+  /// Sets the number of edges in the graph.
+  void SetEdges(const int& Length) { EdgeH.SetLen(Length); }
   /// Adds an edge with ID EId between node IDs SrcNId and DstNId to the graph. ##TNEANetMP::AddEdge
   int AddEdge(const int& SrcNId, const int& DstNId, int EId  = -1);
   /// Adds an edge between EdgeI.GetSrcNId() and EdgeI.GetDstNId() to the graph.
   int AddEdge(const TEdgeI& EdgeI) { return AddEdge(EdgeI.GetSrcNId(), EdgeI.GetDstNId(), EdgeI.GetId()); }
+  /// Adds an edge without checking its adjacent nodes' neighborhood
+  void AddEdgeUnchecked(const TInt& EId, const int SrcNId, const int DstNId);
 //  /// Deletes an edge with edge ID EId from the graph.
 //  void DelEdge(const int& EId);
 //  /// Deletes all edges between node IDs SrcNId and DstNId from the graph. ##TNEANetMP::DelEdge

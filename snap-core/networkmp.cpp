@@ -312,6 +312,16 @@ int TNEANetMP::AddNode(int NId) {
   return NId;
 }
 
+// add a node with a list of neighbors
+// (use TNGraphMP::IsOk to check whether the graph is consistent)
+void TNEANetMP::AddNodeWithEdges(const TInt& NId, TIntV& InEIdV, TIntV& OutEIdV) {
+  int NodeIdx = abs((NId.GetPrimHashCd()) % Reserved());
+  int NodeKeyId = NodeH.AddKey13(NodeIdx, NId);
+  NodeH[NodeKeyId] = TNode(NId);
+  NodeH[NodeKeyId].InEIdV.MoveFrom(InEIdV);
+  NodeH[NodeKeyId].OutEIdV.MoveFrom(OutEIdV);
+}
+
 //void TNEANetMP::DelNode(const int& NId) {
 //  int i;
 //
@@ -420,6 +430,12 @@ int TNEANetMP::AddEdge(const int& SrcNId, const int& DstNId, int EId) {
     FltVec[NodeH.GetKeyId(EId)] = GetFltAttrDefaultE(attr);
   }
   return EId;
+}
+
+void TNEANetMP::AddEdgeUnchecked(const TInt& EId, const int SrcNId, const int DstNId) {
+  int Idx = abs((EId.GetPrimHashCd()) % ReservedE());
+  int KeyId = EdgeH.AddKey13(Idx, EId);
+  EdgeH[KeyId] = TEdge(EId, SrcNId, DstNId);
 }
 
 //void TNEANetMP::DelEdge(const int& EId) {

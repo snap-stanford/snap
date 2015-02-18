@@ -17,6 +17,11 @@ PNEANet SubgraphExtractTNEANetExp(const PGraph& Graph, const TIntV& NTypeIdV) {
   return Graph->GetSubGraphTNEANet(NTypeIdV);
 }
 
+template <class PGraph>
+PNEANetMP SubgraphExtractTNEANetMPExp(const PGraph& Graph, const TIntV& NTypeIdV) {
+  return Graph->GetSubGraphTNEANetMP(NTypeIdV);
+}
+
 int main(int argc, char* argv[]) {
   TEnv Env(argc, argv);
   TStr PrefixPath = Env.GetArgs() > 1 ? Env.GetArg(1) : TStr("");
@@ -24,7 +29,7 @@ int main(int argc, char* argv[]) {
   double ts1 = Tick();
   TTableContext Context;
   TVec<TPair<PTable,TStr> > NodeTblV = TVec<TPair<PTable,TStr> >();
-  TVec<TPair<PTable,int> > EdgeTblV = TVec<TPair<PTable, int> >();
+  TVec<TQuad<PTable,TStr,TStr,TBool> > EdgeTblV = TVec<TQuad<PTable,TStr,TStr,TBool> >();
   Schema NodeSchema = Schema();
   Schema EdgeSchema = Schema();
   LoadFlickrTables(PrefixPath, Context, NodeTblV, NodeSchema, EdgeTblV, EdgeSchema);
@@ -57,7 +62,8 @@ int main(int argc, char* argv[]) {
     PCVNet Graph = InitGraph;
     double t2 = Tick();
     //PCVNet Subgraph = SubgraphExtractExp(Graph, NTypeIdV);
-    PNEANet Subgraph = SubgraphExtractTNEANetExp(Graph, NTypeIdV);
+    //PNEANet Subgraph = SubgraphExtractTNEANetExp(Graph, NTypeIdV);
+    PNEANetMP Subgraph = SubgraphExtractTNEANetMPExp(Graph, NTypeIdV);
     double t3 = Tick();
     convertTime += (t2-t1);
     subgraphTime += (t3-t2);

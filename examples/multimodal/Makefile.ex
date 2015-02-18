@@ -2,7 +2,7 @@
 #	configuration variables for the example
 
 ## Main application file
-MAIN = rand-construct-exp
+MAIN = graph-construct-exp
 DEPH = 
 DEPCPP = 
 

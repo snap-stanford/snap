@@ -392,6 +392,61 @@ PGraph LoadGraphMNetRandom(const TVec<TPair<PTable,TStr> >& NodeTblV, const TVec
   return Graph;
 }
 
+void BuildCombinedEdgeTable(const TVec<TPair<PTable,TStr> >& NodeTblV, const TVec<TQuad<PTable,TStr,TStr,TBool> >& EdgeTblV, THash<TStr,TStrH>& NStrH, TIntStrH& NIdH, PTable CombinedEdgeTbl) {
+  TStr IdColName("Id");
+
+  TInt NId(0);
+
+  // Find all nodes
+  for (int i = 0; i < NodeTblV.Len(); i++) {
+    PTable Table = NodeTblV[i].GetVal1();
+    TStrH StrH(Table->GetNumRows());
+    NStrH.AddDat(NodeTblV[i].GetVal2(), StrH);
+    TStrH* PNStrH = &(NStrH.GetDat(NodeTblV[i].GetVal2()));
+    for (int CurrRowIdx = 0; CurrRowIdx < Table->GetNumRows(); CurrRowIdx++) {
+      TStr NStr = Table->GetStrVal(IdColName, CurrRowIdx);
+      PNStrH->AddDat(NStr, NId);
+      NIdH.AddDat(NId, NStr);
+      NId += 1;
+    }
+  }
+
+  // Add edges
+  TStr IdColName1("SrcId");
+  TStr IdColName2("DstId");
+
+//  int Len = 0;
+//  for (int i = 0; i < EdgeTblV.Len(); i++) {
+//    PTable Table = EdgeTblV[i].GetVal1();
+//    Len += Table->GetNumRows().Val;
+//  }
+  for (int i = 0; i < EdgeTblV.Len(); i++) {
+    PTable Table;
+    TStr SrcETypeName;
+    TStr DstETypeName;
+    TBool IsDirectionReverse;
+    EdgeTblV[i].GetVal(Table, SrcETypeName, DstETypeName, IsDirectionReverse);
+
+    TStr SrcIdColName, DstIdColName;
+    if (!IsDirectionReverse) { SrcIdColName = IdColName1; DstIdColName = IdColName2; }
+    else { SrcIdColName = IdColName2; DstIdColName = IdColName1; }
+    for (int CurrRowIdx = 0; CurrRowIdx < Table->GetNumRows(); CurrRowIdx++) {
+      TStr SrcNStr = Table->GetStrVal(SrcIdColName, CurrRowIdx);
+      TInt SrcNId = NStrH.GetDat(SrcETypeName).GetDat(SrcNStr);
+      TStr DstNStr = Table->GetStrVal(DstIdColName, CurrRowIdx);
+      TInt DstNId = NStrH.GetDat(DstETypeName).GetDat(DstNStr);
+
+      TTableRow Row;
+      Row.AddInt(SrcNId);
+      Row.AddInt(DstNId);
+      CombinedEdgeTbl->AddRow(Row);
+
+//      SrcIdV.Add(SrcNId);
+//      DstIdV.Add(DstNId);
+    }
+  }
+}
+
 template <class PGraph>
 void PageRankExp(const PGraph& Graph, const int nExps, TIntFltH& PageRankResults) {
   for (int i = 0; i < nExps; i++) {
