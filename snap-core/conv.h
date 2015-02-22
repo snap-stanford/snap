@@ -864,14 +864,14 @@ inline PNEANetMP ToTNEANetMP(PTable Table, const TStr& SrcCol, const TStr& DstCo
   Sw->Start(TStopwatch::AddNeighborhoods);
   TInt NumNodes = Nodes.Len();
   PNEANetMP Graph = TNEANetMP::New(NumNodes, NumRows);
-  NumThreads = omp_get_max_threads();
-  int Delta = (NumNodes+NumThreads-1)/NumThreads;
+//  NumThreads = omp_get_max_threads();
+//  int Delta = (NumNodes+NumThreads-1)/NumThreads;
 
   TVec<TIntV> InVV(NumNodes);
   TVec<TIntV> OutVV(NumNodes);
 
-  omp_set_num_threads(NumThreads);
-  #pragma omp parallel for schedule(static,Delta)
+//  omp_set_num_threads(NumThreads);
+  #pragma omp parallel for schedule(static,100)
   for (int m = 0; m < NumNodes; m++) {
     //double startTr = omp_get_wtime();
     //TIntV OutV, InV;
@@ -895,10 +895,10 @@ inline PNEANetMP ToTNEANetMP(PTable Table, const TStr& SrcCol, const TStr& DstCo
     //printf("Thread=%d, i=%d, t=%f\n", omp_get_thread_num(), m, endTr-startTr);
   }
 
-  NumThreads = omp_get_max_threads();
-  Delta = (NumNodes+NumThreads-1)/(10*NumThreads);
-  omp_set_num_threads(NumThreads);
-  #pragma omp parallel for schedule(dynamic)
+//  NumThreads = omp_get_max_threads();
+//  Delta = (NumNodes+NumThreads-1)/(10*NumThreads);
+//  omp_set_num_threads(NumThreads);
+  #pragma omp parallel for schedule(static,100)
   for (int m = 0; m < NumNodes; m++) {
     //double startTr = omp_get_wtime();
     //TIntV OutV, InV;
