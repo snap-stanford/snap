@@ -6,22 +6,23 @@
 #include "multimodal.cpp"
 
 PSOut StdOut = TStdOut::New();
+TStopwatch* Sw = TStopwatch::GetInstance();
 
 int main(int argc, char* argv[])
 {
   TEnv Env(argc, argv);
   TStr PrefixPath = Env.GetArgs() > 1 ? Env.GetArg(1) : TStr("");
 
-  double ts1 = Tick();
+  Sw->Start(TStopwatch::LoadTables);
   TTableContext Context;
   TVec<TPair<PTable,TStr> > NodeTblV = TVec<TPair<PTable,TStr> >();
   TVec<TQuad<PTable,TStr,TStr,TBool> > EdgeTblV = TVec<TQuad<PTable,TStr,TStr,TBool> >();
   Schema NodeSchema = Schema();
   Schema EdgeSchema = Schema();
   LoadFlickrTables(PrefixPath, Context, NodeTblV, NodeSchema, EdgeTblV, EdgeSchema);
+  Sw->Stop(TStopwatch::LoadTables);
 
-  double ts2 = Tick();
-
+  Sw->Start(TStopwatch::Preprocess);
   THash<TStr,TStrH> NStrH;
   TIntStrH NIdH;
   Schema S;
@@ -29,22 +30,28 @@ int main(int argc, char* argv[])
   S.Add(TPair<TStr,TAttrType>("DstId", atInt));
   PTable CombinedTable = TTable::New(S, Context);
   BuildCombinedEdgeTable(NodeTblV, EdgeTblV, NStrH, NIdH, CombinedTable);
+  Sw->Stop(TStopwatch::Preprocess);
 
-  double ts3 = Tick();
   int nExps = 20;
-  for (int i = 0; i < 20; i++) {
+  for (int i = 0; i < nExps; i++) {
+    Sw->Start(TStopwatch::Compute);
     PNEANetMP Graph = TSnap::ToTNEANetMP(CombinedTable, TStr("SrcId"), TStr("DstId"));
+    Sw->Stop(TStopwatch::Compute);
   }
 //  StdOut->PutStrFmtLn("Graph %d-%d", Graph->GetNodes(), Graph->GetEdges());
-
-  double ts4 = Tick();
-
   PSOut TimeOut = TFOut::New(PrefixPath + TStr("time.txt"), true);
   TimeOut->PutStrLn("===== Graph Construction =====");
   TimeOut->PutStrLn(Env.GetCmLn());
-  TimeOut->PutStrFmtLn("Input Time = %f", GetCPUTimeUsage(ts1, ts2));
-  TimeOut->PutStrFmtLn("Preprocessing Time = %f", GetCPUTimeUsage(ts2, ts3));
-  TimeOut->PutStrFmtLn("Graph Construction Time = %f", GetCPUTimeUsage(ts3, ts4)/nExps);
+  TimeOut->PutStrFmtLn("Input Time = %f from %d", Sw->Avg(TStopwatch::LoadTables), Sw->Cnt(TStopwatch::LoadTables));
+  TimeOut->PutStrFmtLn("Preprocessing Time = %f from %d", Sw->Avg(TStopwatch::Preprocess), Sw->Cnt(TStopwatch::Preprocess));
+  TimeOut->PutStrFmtLn("Graph Construction Time = %f from %d", Sw->Avg(TStopwatch::Compute), Sw->Cnt(TStopwatch::Compute));
+  TimeOut->PutStrFmtLn("Allocate Copies = %f from %d", Sw->Avg(TStopwatch::AllocateColumnCopies), Sw->Cnt(TStopwatch::AllocateColumnCopies));
+  TimeOut->PutStrFmtLn("Copy = %f from %d", Sw->Avg(TStopwatch::CopyColumns), Sw->Cnt(TStopwatch::CopyColumns));
+  TimeOut->PutStrFmtLn("Sort = %f from %d", Sw->Avg(TStopwatch::Sort), Sw->Cnt(TStopwatch::Sort));
+  TimeOut->PutStrFmtLn("Group = %f from %d", Sw->Avg(TStopwatch::Group), Sw->Cnt(TStopwatch::Group));
+  TimeOut->PutStrFmtLn("Merge Neighborhood = %f from %d", Sw->Avg(TStopwatch::MergeNeighborhoods), Sw->Cnt(TStopwatch::MergeNeighborhoods));
+  TimeOut->PutStrFmtLn("Add Neighborhood = %f from %d", Sw->Avg(TStopwatch::AddNeighborhoods), Sw->Cnt(TStopwatch::AddNeighborhoods));
+  TimeOut->PutStrFmtLn("Add Edges = %f from %d", Sw->Avg(TStopwatch::AddEdges), Sw->Cnt(TStopwatch::AddEdges));
 
 	return 0;
 }

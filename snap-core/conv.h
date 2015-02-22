@@ -1,6 +1,8 @@
 #ifndef CONV_H
 #define CONV_H
 
+#include "stopwatch.h"
+
 namespace TSnap {
 
 template<class PGraph>
@@ -637,7 +639,9 @@ PGraphMP ToGraphMP2(PTable Table, const TStr& SrcCol, const TStr& DstCol) {
 #endif // _OPENMP
 
 inline PNEANetMP ToTNEANetMP(PTable Table, const TStr& SrcCol, const TStr& DstCol) {
-  // double start = omp_get_wtime();
+  TStopwatch* Sw = TStopwatch::GetInstance();
+
+  Sw->Start(TStopwatch::AllocateColumnCopies);
   const TInt SrcColIdx = Table->GetColIdx(SrcCol);
   const TInt DstColIdx = Table->GetColIdx(DstCol);
   const TInt NumRows = Table->NumValidRows;
@@ -655,7 +659,9 @@ inline PNEANetMP ToTNEANetMP(PTable Table, const TStr& SrcCol, const TStr& DstCo
     #pragma omp section
     { EdgeCol2.Reserve(NumRows, NumRows); }
   }
+  Sw->Stop(TStopwatch::AllocateColumnCopies);
 
+  Sw->Start(TStopwatch::CopyColumns);
   TIntPrV Partitions;
   Table->GetPartitionRanges(Partitions, omp_get_max_threads());
   TInt PartitionSize = Partitions[0].GetVal2()-Partitions[0].GetVal1()+1;
@@ -677,9 +683,9 @@ inline PNEANetMP ToTNEANetMP(PTable Table, const TStr& SrcCol, const TStr& DstCo
       RowI++;
     }
   }
+  Sw->Stop(TStopwatch::CopyColumns);
 
-  double w1 = omp_get_wtime();
-
+  Sw->Start(TStopwatch::Sort);
   omp_set_num_threads(omp_get_max_threads());
   #pragma omp parallel
   {
@@ -695,10 +701,9 @@ inline PNEANetMP ToTNEANetMP(PTable Table, const TStr& SrcCol, const TStr& DstCo
     }
     #pragma omp taskwait
   }
+  Sw->Stop(TStopwatch::Sort);
 
-  double w2 = omp_get_wtime();
-  printf("Sort %f\n", (w2-w1));
-
+  Sw->Start(TStopwatch::Group);
   TInt NumThreads = omp_get_max_threads();
   TInt PartSize = (NumRows/NumThreads);
 
@@ -794,6 +799,7 @@ inline PNEANetMP ToTNEANetMP(PTable Table, const TStr& SrcCol, const TStr& DstCo
     { DstNodeIds.Reserve(TotalDstNodes, TotalDstNodes); }
   }
 
+  // Find the starting offset of each node (in both src and dst)
   #pragma omp parallel for schedule(dynamic)
   for (int t = 0; t < SrcPartCnt+DstPartCnt; t++) {
     if (t < SrcPartCnt) {
@@ -830,16 +836,12 @@ inline PNEANetMP ToTNEANetMP(PTable Table, const TStr& SrcCol, const TStr& DstCo
       }
     }
   }
+  Sw->Stop(TStopwatch::Group);
 
-  // double endNode = omp_get_wtime();
-  // printf("Node time = %f\n", endNode-endSort);
-
-  // categorize each node into either src node, dst node or both
+  Sw->Start(TStopwatch::MergeNeighborhoods);
+  // Find the combined neighborhood (both out-neighbors and in-neighbors) of each node
   TIntTrV Nodes;
   Nodes.Reserve(TotalSrcNodes+TotalDstNodes);
-
-  // double endNodeResize = omp_get_wtime();
-  // printf("(NodeResize time = %f)\n", endNodeResize-endNode);
 
   TInt i = 0, j = 0;
   while (i < TotalSrcNodes && j < TotalDstNodes) {
@@ -857,13 +859,10 @@ inline PNEANetMP ToTNEANetMP(PTable Table, const TStr& SrcCol, const TStr& DstCo
   }
   for (; i < TotalSrcNodes; i++) { Nodes.Add(TIntTr(SrcNodeIds[i].Val1, i, -1)); }
   for (; j < TotalDstNodes; j++) { Nodes.Add(TIntTr(DstNodeIds[j].Val1, -1, j)); }
+  Sw->Stop(TStopwatch::MergeNeighborhoods);
 
-  // double endMerge = omp_get_wtime();
-  // printf("Merge time = %f\n", endMerge-endNode);
-
+  Sw->Start(TStopwatch::AddNeighborhoods);
   TInt NumNodes = Nodes.Len();
-  // printf("NumNodes = %d\n", NumNodes.Val);
-
   PNEANetMP Graph = TNEANetMP::New(NumNodes, NumRows);
   NumThreads = omp_get_max_threads();
   int Delta = (NumNodes+NumThreads-1)/NumThreads;
@@ -896,9 +895,6 @@ inline PNEANetMP ToTNEANetMP(PTable Table, const TStr& SrcCol, const TStr& DstCo
     //printf("Thread=%d, i=%d, t=%f\n", omp_get_thread_num(), m, endTr-startTr);
   }
 
-  // double endAlloc = omp_get_wtime();
-  // printf("Alloc time = %f\n", endAlloc-endMerge);
-
   NumThreads = omp_get_max_threads();
   Delta = (NumNodes+NumThreads-1)/(10*NumThreads);
   omp_set_num_threads(NumThreads);
@@ -923,11 +919,11 @@ inline PNEANetMP ToTNEANetMP(PTable Table, const TStr& SrcCol, const TStr& DstCo
       InVV[m].CopyUniqueFrom(EdgeCol2, Offset, Sz);
     }
     Graph->AddNodeWithEdges(n, InVV[m], OutVV[m]);
-    //double endTr = omp_get_wtime();
-    //printf("Thread=%d, i=%d, t=%f\n", omp_get_thread_num(), m, endTr-startTr);
   }
   Graph->SetNodes(NumNodes);
+  Sw->Stop(TStopwatch::AddNeighborhoods);
 
+  Sw->Start(TStopwatch::AddEdges);
   omp_set_num_threads(omp_get_max_threads());
   #pragma omp parallel for schedule(static)
   for (int i = 0; i < Partitions.Len(); i++) {
@@ -942,6 +938,7 @@ inline PNEANetMP ToTNEANetMP(PTable Table, const TStr& SrcCol, const TStr& DstCo
     }
   }
   Graph->SetEdges(NumRows);
+  Sw->Stop(TStopwatch::AddEdges);
 
   // double endAdd = omp_get_wtime();
   // printf("Add time = %f\n", endAdd-endAlloc);

@@ -49,4 +49,7 @@
 #include "conv.h" 				 // conversion functions - table to graph
 #include "numpy.h" 				 // numpy conversion
 
+// util
+#include "stopwatch.h"
+
 #endif
