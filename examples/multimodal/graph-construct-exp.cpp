@@ -32,7 +32,7 @@ int main(int argc, char* argv[])
   BuildCombinedEdgeTable(NodeTblV, EdgeTblV, NStrH, NIdH, CombinedTable);
   Sw->Stop(TStopwatch::Preprocess);
 
-  int nExps = 20;
+  int nExps = 40;
   for (int i = 0; i < nExps; i++) {
     Sw->Start(TStopwatch::Compute);
     PNEANetMP Graph = TSnap::ToTNEANetMP(CombinedTable, TStr("SrcId"), TStr("DstId"));

@@ -881,43 +881,16 @@ inline PNEANetMP ToTNEANetMP(PTable Table, const TStr& SrcCol, const TStr& DstCo
       TInt Offset = SrcNodeIds[i].GetVal2();
       TInt Sz = EdgeCol1.Len()-Offset;
       if (i < SrcNodeIds.Len()-1) { Sz = SrcNodeIds[i+1].GetVal2()-Offset; }
-      //printf("OutV: %d %d %d\n", n.Val, Offset.Val, Sz.Val);
       OutVV[m].Reserve(Sz);
-    }
-    if (j >= 0) {
-      TInt Offset = DstNodeIds[j].GetVal2();
-      TInt Sz = EdgeCol2.Len()-Offset;
-      if (j < DstNodeIds.Len()-1) { Sz = DstNodeIds[j+1].GetVal2()-Offset; }
-      //printf("OutV: %d %d %d\n", n.Val, Offset.Val, Sz.Val);
-      InVV[m].Reserve(Sz);
-    }
-    //double endTr = omp_get_wtime();
-    //printf("Thread=%d, i=%d, t=%f\n", omp_get_thread_num(), m, endTr-startTr);
-  }
-
-//  NumThreads = omp_get_max_threads();
-//  Delta = (NumNodes+NumThreads-1)/(10*NumThreads);
-//  omp_set_num_threads(NumThreads);
-  #pragma omp parallel for schedule(static,100)
-  for (int m = 0; m < NumNodes; m++) {
-    //double startTr = omp_get_wtime();
-    //TIntV OutV, InV;
-    TInt n, i, j;
-    Nodes[m].GetVal(n, i, j);
-    if (i >= 0) {
-      TInt Offset = SrcNodeIds[i].GetVal2();
-      TInt Sz = EdgeCol1.Len()-Offset;
-      if (i < SrcNodeIds.Len()-1) { Sz = SrcNodeIds[i+1].GetVal2()-Offset; }
-      //printf("OutV: %d %d %d\n", n.Val, Offset.Val, Sz.Val);
       OutVV[m].CopyUniqueFrom(EdgeCol1, Offset, Sz);
     }
     if (j >= 0) {
       TInt Offset = DstNodeIds[j].GetVal2();
       TInt Sz = EdgeCol2.Len()-Offset;
       if (j < DstNodeIds.Len()-1) { Sz = DstNodeIds[j+1].GetVal2()-Offset; }
-      //printf("OutV: %d %d %d\n", n.Val, Offset.Val, Sz.Val);
+      InVV[m].Reserve(Sz);
       InVV[m].CopyUniqueFrom(EdgeCol2, Offset, Sz);
-    }
+    } 
     Graph->AddNodeWithEdges(n, InVV[m], OutVV[m]);
   }
   Graph->SetNodes(NumNodes);
