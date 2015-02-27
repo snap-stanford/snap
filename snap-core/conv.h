@@ -890,7 +890,387 @@ inline PNEANetMP ToTNEANetMP(PTable Table, const TStr& SrcCol, const TStr& DstCo
       if (j < DstNodeIds.Len()-1) { Sz = DstNodeIds[j+1].GetVal2()-Offset; }
       InVV[m].Reserve(Sz);
       InVV[m].CopyUniqueFrom(EdgeCol2, Offset, Sz);
-    } 
+    }
+    Graph->AddNodeWithEdges(n, InVV[m], OutVV[m]);
+  }
+  Graph->SetNodes(NumNodes);
+  Sw->Stop(TStopwatch::AddNeighborhoods);
+
+  Sw->Start(TStopwatch::AddEdges);
+  omp_set_num_threads(omp_get_max_threads());
+  #pragma omp parallel for schedule(static)
+  for (int i = 0; i < Partitions.Len(); i++) {
+    TRowIterator RowI(Partitions[i].GetVal1(), Table());
+    TRowIterator EndI(Partitions[i].GetVal2(), Table());
+    while (RowI < EndI) {
+      TInt RowId = RowI.GetRowIdx(); // EdgeId
+      TInt SrcId = RowI.GetIntAttr(SrcColIdx);
+      TInt DstId = RowI.GetIntAttr(DstColIdx);
+      Graph->AddEdgeUnchecked(RowId, SrcId, DstId);
+      RowI++;
+    }
+  }
+  Graph->SetEdges(NumRows);
+  Sw->Stop(TStopwatch::AddEdges);
+
+  // double endAdd = omp_get_wtime();
+  // printf("Add time = %f\n", endAdd-endAlloc);
+
+  return Graph;
+}
+
+inline PNEANetMP ToTNEANetMP2(PTable Table, const TStr& SrcCol, const TStr& DstCol) {
+  TStopwatch* Sw = TStopwatch::GetInstance();
+
+  Sw->Start(TStopwatch::AllocateColumnCopies);
+  const TInt SrcColIdx = Table->GetColIdx(SrcCol);
+  const TInt DstColIdx = Table->GetColIdx(DstCol);
+  const TInt NumRows = Table->NumValidRows;
+
+  TIntV SrcCol1, EdgeCol1, EdgeCol2, DstCol2;
+
+  #pragma omp parallel sections num_threads(4)
+  {
+    #pragma omp section
+    { SrcCol1.Reserve(NumRows, NumRows); }
+    #pragma omp section
+    { EdgeCol1.Reserve(NumRows, NumRows); }
+    #pragma omp section
+    { DstCol2.Reserve(NumRows, NumRows); }
+    #pragma omp section
+    { EdgeCol2.Reserve(NumRows, NumRows); }
+  }
+  Sw->Stop(TStopwatch::AllocateColumnCopies);
+
+  Sw->Start(TStopwatch::CopyColumns);
+  TIntPrV Partitions;
+  int NThreads = omp_get_max_threads();
+//  int NThreads = 3;
+  Table->GetPartitionRanges(Partitions, NThreads);
+  TInt PartitionSize = Partitions[0].GetVal2()-Partitions[0].GetVal1()+1;
+
+  // double endPartition = omp_get_wtime();
+  // printf("Partition time = %f\n", endPartition-endResize);
+
+  omp_set_num_threads(omp_get_max_threads());
+  #pragma omp parallel for schedule(static)
+  for (int i = 0; i < Partitions.Len(); i++) {
+    TRowIterator RowI(Partitions[i].GetVal1(), Table());
+    TRowIterator EndI(Partitions[i].GetVal2(), Table());
+    while (RowI < EndI) {
+      TInt RowId = RowI.GetRowIdx();
+      SrcCol1[RowId] = RowI.GetIntAttr(SrcColIdx);
+      EdgeCol1[RowId] = RowId;
+      DstCol2[RowId] = RowI.GetIntAttr(DstColIdx);
+      EdgeCol2[RowId] = RowId;
+      RowI++;
+    }
+  }
+
+//  printf("NumRows = %d\n", NumRows.Val);
+//  printf("NThreads = %d\n", NThreads);
+//  for (int i = 0; i < Partitions.Len(); i++) {
+//    printf("Partition %d %d->%d\n", i, Partitions[i].GetVal1().Val, Partitions[i].GetVal2().Val);
+//  }
+  int Parts[NThreads+1];
+  for (int i = 0; i < NThreads; i++) {
+    Parts[i] = NumRows.Val * i / NThreads;
+  }
+  Parts[NThreads] = NumRows;
+//  for (int i = 0; i < NThreads+1; i++) {
+//    printf("Parts[%d] = %d\n", i, Parts[i]);
+//  }
+  Sw->Stop(TStopwatch::CopyColumns);
+
+  Sw->Start(TStopwatch::Sort);
+  TInt ExtremePoints[4][NThreads];
+  omp_set_num_threads(omp_get_max_threads());
+  #pragma omp parallel
+  {
+    #pragma omp for schedule(static) nowait
+    for (int i = 0; i < NThreads; i++) {
+      TInt StartPos = Parts[i];
+      TInt EndPos = Parts[i+1]-1;
+      // TODO: Handle empty partition
+      TTable::QSortKeyVal(SrcCol1, EdgeCol1, StartPos, EndPos);
+      ExtremePoints[0][i] = SrcCol1[StartPos];
+      ExtremePoints[2][i] = SrcCol1[EndPos];
+    }
+    #pragma omp for schedule(static) nowait
+    for (int i = 0; i < NThreads; i++) {
+      TInt StartPos = Parts[i];
+      TInt EndPos = Parts[i+1]-1;
+      // TODO: Handle empty partition
+      TTable::QSortKeyVal(DstCol2, EdgeCol2, StartPos, EndPos);
+      ExtremePoints[1][i] = DstCol2[StartPos];
+      ExtremePoints[3][i] = DstCol2[EndPos];
+    }
+  }
+//  for (int i = 0; i < NThreads; i++) {
+//    printf("ExtremePoints[%d] = %d-%d -> %d-%d\n", i, ExtremePoints[0][i].Val, ExtremePoints[1][i].Val, ExtremePoints[2][i].Val, ExtremePoints[3][i].Val);
+//  }
+
+  // find min points
+  TInt MinId(INT_MAX);
+  for (int j = 0; j < 2; j++) {
+    for (int i = 0; i < NThreads; i++) {
+      if (MinId > ExtremePoints[j][i]) { MinId = ExtremePoints[j][i]; }
+    }
+  }
+  TInt MaxId(-1);
+  for (int j = 2; j < 4; j++) {
+    for (int i = 0; i < NThreads; i++) {
+      if (MaxId < ExtremePoints[j][i]) { MaxId = ExtremePoints[j][i]; }
+    }
+  }
+//  printf("MinId = %d\n", MinId.Val);
+//  printf("MaxId = %d\n", MaxId.Val);
+  Sw->Stop(TStopwatch::Sort);
+
+  Sw->Start(TStopwatch::Group);
+  int NumCollectors = omp_get_max_threads();
+//  int NumCollectors = 2;
+  int Range = MaxId.Val - MinId.Val;
+  TIntV IdRanges(NumCollectors+1);
+  for (int j = 0; j < NumCollectors; j++) {
+    IdRanges[j] = MinId + Range*j/NumCollectors;
+  }
+  IdRanges[NumCollectors] = MaxId;
+//  for (int i = 0; i < NumCollectors+1; i++) {
+//    printf("IdRanges[%d] = %d\n", i, IdRanges[i].Val);
+//  }
+
+  int SrcOffsets[NThreads][NumCollectors+1];
+  #pragma omp parallel for schedule(static)
+  for (int i = 0; i < NThreads; i++) {
+    int CollectorId = 0;
+    for (int j = Parts[i]; j < Parts[i+1]; j++) {
+      if (SrcCol1[j] >= IdRanges[CollectorId]) {
+        SrcOffsets[i][CollectorId++] = j;
+      }
+    }
+    while (CollectorId <= NumCollectors) {
+      SrcOffsets[i][CollectorId++] = Parts[i+1];
+    }
+  }
+  int DstOffsets[NThreads][NumCollectors+1];
+  #pragma omp parallel for schedule(static)
+  for (int i = 0; i < NThreads; i++) {
+    int CollectorId = 0;
+    for (int j = Parts[i]; j < Parts[i+1]; j++) {
+      if (DstCol2[j] >= IdRanges[CollectorId]) {
+        DstOffsets[i][CollectorId++] = j;
+      }
+    }
+    while (CollectorId <= NumCollectors) {
+      DstOffsets[i][CollectorId++] = Parts[i+1];
+    }
+  }
+//  for (int i = 0; i < NThreads; i++) {
+//    for (int j = 0; j < NumCollectors+1; j++) {
+//      printf("SrcOffsets[%d][%d] = %d\n", i, j, SrcOffsets[i][j]);
+//    }
+//  }
+//  for (int i = 0; i < NThreads; i++) {
+//    for (int j = 0; j < NumCollectors+1; j++) {
+//      printf("DstOffsets[%d][%d] = %d\n", i, j, DstOffsets[i][j]);
+//    }
+//  }
+
+  TIntV SrcCollectorOffsets(NumCollectors+1);
+  SrcCollectorOffsets[0] = 0;
+  for (int k = 0; k < NumCollectors; k++) {
+    int SumOffset = 0;
+    for (int i = 0; i < NThreads; i++) {
+      SumOffset += SrcOffsets[i][k+1] - SrcOffsets[i][k];
+    }
+    SrcCollectorOffsets[k+1] = SrcCollectorOffsets[k] + SumOffset;
+  }
+  TIntV DstCollectorOffsets(NumCollectors+1);
+  DstCollectorOffsets[0] = 0;
+  for (int k = 0; k < NumCollectors; k++) {
+    int SumOffset = 0;
+    for (int i = 0; i < NThreads; i++) {
+      SumOffset += DstOffsets[i][k+1] - DstOffsets[i][k];
+    }
+    DstCollectorOffsets[k+1] = DstCollectorOffsets[k] + SumOffset;
+  }
+//  for (int i = 0; i < NumCollectors+1; i++) {
+//    printf("SrcCollectorOffsets[%d] = %d\n", i, SrcCollectorOffsets[i].Val);
+//  }
+//  for (int i = 0; i < NumCollectors+1; i++) {
+//    printf("DstCollectorOffsets[%d] = %d\n", i, DstCollectorOffsets[i].Val);
+//  }
+
+  TIntV SrcCol3, EdgeCol3, EdgeCol4, DstCol4;
+  #pragma omp parallel sections num_threads(4)
+  {
+    #pragma omp section
+    { SrcCol3.Reserve(NumRows, NumRows); }
+    #pragma omp section
+    { EdgeCol3.Reserve(NumRows, NumRows); }
+    #pragma omp section
+    { DstCol4.Reserve(NumRows, NumRows); }
+    #pragma omp section
+    { EdgeCol4.Reserve(NumRows, NumRows); }
+  }
+
+  TIntV SrcNodeCounts(NumCollectors), DstNodeCounts(NumCollectors);
+  #pragma omp parallel for schedule(static)
+  for (int k = 0; k < NumCollectors; k++) {
+    int ind = SrcCollectorOffsets[k];
+    for (int i = 0; i < NThreads; i++) {
+      for (int j = SrcOffsets[i][k]; j < SrcOffsets[i][k+1]; j++) {
+        SrcCol3[ind] = SrcCol1[j];
+        EdgeCol3[ind] = EdgeCol1[j];
+        ind++;
+      }
+    }
+    TTable::QSortKeyVal(SrcCol3, EdgeCol3, SrcCollectorOffsets[k], SrcCollectorOffsets[k+1]-1);
+    int SrcCount = 0;
+    if (SrcCollectorOffsets[k+1] > SrcCollectorOffsets[k]) {
+      SrcCount = 1;
+      for (int j = SrcCollectorOffsets[k]+1; j < SrcCollectorOffsets[k+1]; j++) {
+        if (SrcCol3[j] != SrcCol3[j-1]) { SrcCount++; }
+      }
+    }
+    SrcNodeCounts[k] = SrcCount;
+
+    ind = DstCollectorOffsets[k];
+    for (int i = 0; i < NThreads; i++) {
+      for (int j = DstOffsets[i][k]; j < DstOffsets[i][k+1]; j++) {
+        DstCol4[ind] = DstCol2[j];
+        EdgeCol4[ind] = EdgeCol2[j];
+        ind++;
+      }
+    }
+    TTable::QSortKeyVal(DstCol4, EdgeCol4, DstCollectorOffsets[k], DstCollectorOffsets[k+1]-1);
+    int DstCount = 0;
+    if (DstCollectorOffsets[k+1] > DstCollectorOffsets[k]) {
+      DstCount = 1;
+      for (int j = DstCollectorOffsets[k]+1; j < DstCollectorOffsets[k+1]; j++) {
+        if (DstCol4[j] != DstCol4[j-1]) { DstCount++; }
+      }
+    }
+    DstNodeCounts[k] = DstCount;
+  }
+
+  TInt TotalSrcNodes = 0;
+  TIntV SrcIdOffsets;
+  for (int i = 0; i < NumCollectors; i++) {
+    SrcIdOffsets.Add(TotalSrcNodes);
+    TotalSrcNodes += SrcNodeCounts[i];
+  }
+
+  TInt TotalDstNodes = 0;
+  TIntV DstIdOffsets;
+  for (int i = 0; i < NumCollectors; i++) {
+    DstIdOffsets.Add(TotalDstNodes);
+    TotalDstNodes += DstNodeCounts[i];
+  }
+
+  // find vector of (node_id, start_offset) where start_offset is the index of the first row with node_id
+  TIntPrV SrcNodeIds, DstNodeIds;
+  #pragma omp parallel sections
+  {
+    #pragma omp section
+    { SrcNodeIds.Reserve(TotalSrcNodes, TotalSrcNodes); }
+    #pragma omp section
+    { DstNodeIds.Reserve(TotalDstNodes, TotalDstNodes); }
+  }
+
+  // Find the starting offset of each node (in both src and dst)
+  #pragma omp parallel for schedule(dynamic)
+  for (int t = 0; t < 2*NumCollectors; t++) {
+    if (t < NumCollectors) {
+      TInt i = t;
+      if (SrcCollectorOffsets[i] < SrcCollectorOffsets[i+1]) {
+        TInt CurrNode = SrcCol3[SrcCollectorOffsets[i]];
+        TInt ThreadOffset = SrcIdOffsets[i];
+        SrcNodeIds[ThreadOffset] = TIntPr(CurrNode, SrcCollectorOffsets[i]);
+        TInt CurrCount = 1;
+        for (TInt j = SrcCollectorOffsets[i]+1; j < SrcCollectorOffsets[i+1]; j++) {
+          while (j < SrcCollectorOffsets[i+1] && SrcCol3[j] == CurrNode) { j++; }
+          if (j < SrcCollectorOffsets[i+1]) {
+            CurrNode = SrcCol3[j];
+            SrcNodeIds[ThreadOffset+CurrCount] = TIntPr(CurrNode, j);
+            CurrCount++;
+          }
+        }
+      }
+    } else {
+      TInt i = t - NumCollectors;
+      if (DstCollectorOffsets[i] < DstCollectorOffsets[i+1]) {
+        TInt CurrNode = DstCol4[DstCollectorOffsets[i]];
+        TInt ThreadOffset = DstIdOffsets[i];
+        DstNodeIds[ThreadOffset] = TIntPr(CurrNode, DstCollectorOffsets[i]);
+        TInt CurrCount = 1;
+        for (TInt j = DstCollectorOffsets[i]+1; j < DstCollectorOffsets[i+1]; j++) {
+          while (j < DstCollectorOffsets[i+1] && DstCol4[j] == CurrNode) { j++; }
+          if (j < DstCollectorOffsets[i+1]) {
+            CurrNode = DstCol4[j];
+            DstNodeIds[ThreadOffset+CurrCount] = TIntPr(CurrNode, j);
+            CurrCount++;
+          }
+        }
+      }
+    }
+  }
+  Sw->Stop(TStopwatch::Group);
+
+  Sw->Start(TStopwatch::MergeNeighborhoods);
+  // Find the combined neighborhood (both out-neighbors and in-neighbors) of each node
+  TIntTrV Nodes;
+  Nodes.Reserve(TotalSrcNodes+TotalDstNodes);
+
+  TInt i = 0, j = 0;
+  while (i < TotalSrcNodes && j < TotalDstNodes) {
+    if (SrcNodeIds[i].Val1 == DstNodeIds[j].Val1) {
+      Nodes.Add(TIntTr(SrcNodeIds[i].Val1, i, j));
+      i++;
+      j++;
+    } else if (SrcNodeIds[i].Val1 < DstNodeIds[j].Val1) {
+      Nodes.Add(TIntTr(SrcNodeIds[i].Val1, i, -1));
+      i++;
+    } else {
+      Nodes.Add(TIntTr(DstNodeIds[j].Val1, -1, j));
+      j++;
+    }
+  }
+  for (; i < TotalSrcNodes; i++) { Nodes.Add(TIntTr(SrcNodeIds[i].Val1, i, -1)); }
+  for (; j < TotalDstNodes; j++) { Nodes.Add(TIntTr(DstNodeIds[j].Val1, -1, j)); }
+  Sw->Stop(TStopwatch::MergeNeighborhoods);
+
+  Sw->Start(TStopwatch::AddNeighborhoods);
+  TInt NumNodes = Nodes.Len();
+  PNEANetMP Graph = TNEANetMP::New(NumNodes, NumRows);
+//  NumThreads = omp_get_max_threads();
+//  int Delta = (NumNodes+NumThreads-1)/NumThreads;
+
+  TVec<TIntV> InVV(NumNodes);
+  TVec<TIntV> OutVV(NumNodes);
+
+//  omp_set_num_threads(NumThreads);
+  #pragma omp parallel for schedule(static,100)
+  for (int m = 0; m < NumNodes; m++) {
+    //double startTr = omp_get_wtime();
+    //TIntV OutV, InV;
+    TInt n, i, j;
+    Nodes[m].GetVal(n, i, j);
+    if (i >= 0) {
+      TInt Offset = SrcNodeIds[i].GetVal2();
+      TInt Sz = EdgeCol3.Len()-Offset;
+      if (i < SrcNodeIds.Len()-1) { Sz = SrcNodeIds[i+1].GetVal2()-Offset; }
+      OutVV[m].Reserve(Sz);
+      OutVV[m].CopyUniqueFrom(EdgeCol3, Offset, Sz);
+    }
+    if (j >= 0) {
+      TInt Offset = DstNodeIds[j].GetVal2();
+      TInt Sz = EdgeCol4.Len()-Offset;
+      if (j < DstNodeIds.Len()-1) { Sz = DstNodeIds[j+1].GetVal2()-Offset; }
+      InVV[m].Reserve(Sz);
+      InVV[m].CopyUniqueFrom(EdgeCol4, Offset, Sz);
+    }
     Graph->AddNodeWithEdges(n, InVV[m], OutVV[m]);
   }
   Graph->SetNodes(NumNodes);

@@ -225,6 +225,7 @@ namespace TSnap{
   template<class PGraphMP> PGraphMP ToGraphMP(PTable Table, const TStr& SrcCol, const TStr& DstCol);
   template<class PGraphMP> PGraphMP ToGraphMP2(PTable Table, const TStr& SrcCol, const TStr& DstCol);
   PNEANetMP ToTNEANetMP(PTable Table, const TStr& SrcCol, const TStr& DstCol);
+  PNEANetMP ToTNEANetMP2(PTable Table, const TStr& SrcCol, const TStr& DstCol);
   #endif // _OPENMP
 }
 
@@ -245,6 +246,7 @@ public:
   template<class PGraphMP> friend PGraphMP TSnap::ToGraphMP(PTable Table, const TStr& SrcCol, const TStr& DstCol);
   template<class PGraphMP> friend PGraphMP TSnap::ToGraphMP2(PTable Table, const TStr& SrcCol, const TStr& DstCol);
   friend PNEANetMP TSnap::ToTNEANetMP(PTable Table, const TStr& SrcCol, const TStr& DstCol);
+  friend PNEANetMP TSnap::ToTNEANetMP2(PTable Table, const TStr& SrcCol, const TStr& DstCol);
   #endif // _OPENMP
 
   static void SetMP(TInt Value) { UseMP = Value; }

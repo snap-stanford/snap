@@ -35,7 +35,7 @@ int main(int argc, char* argv[])
   int nExps = 40;
   for (int i = 0; i < nExps; i++) {
     Sw->Start(TStopwatch::Compute);
-    PNEANetMP Graph = TSnap::ToTNEANetMP(CombinedTable, TStr("SrcId"), TStr("DstId"));
+    PNEANetMP Graph = TSnap::ToTNEANetMP2(CombinedTable, TStr("SrcId"), TStr("DstId"));
     Sw->Stop(TStopwatch::Compute);
   }
 //  StdOut->PutStrFmtLn("Graph %d-%d", Graph->GetNodes(), Graph->GetEdges());
