@@ -974,7 +974,7 @@ inline PNEANetMP ToTNEANetMP2(PTable Table, const TStr& SrcCol, const TStr& DstC
 //  }
   int Parts[NThreads+1];
   for (int i = 0; i < NThreads; i++) {
-    Parts[i] = NumRows.Val * i / NThreads;
+    Parts[i] = NumRows.Val / NThreads * i;
   }
   Parts[NThreads] = NumRows;
 //  for (int i = 0; i < NThreads+1; i++) {
@@ -1033,7 +1033,7 @@ inline PNEANetMP ToTNEANetMP2(PTable Table, const TStr& SrcCol, const TStr& DstC
   int Range = MaxId.Val - MinId.Val;
   TIntV IdRanges(NumCollectors+1);
   for (int j = 0; j < NumCollectors; j++) {
-    IdRanges[j] = MinId + Range*j/NumCollectors;
+    IdRanges[j] = MinId + Range/NumCollectors*j;
   }
   IdRanges[NumCollectors] = MaxId;
 //  for (int i = 0; i < NumCollectors+1; i++) {
