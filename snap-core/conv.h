@@ -1035,7 +1035,7 @@ inline PNEANetMP ToTNEANetMP2(PTable Table, const TStr& SrcCol, const TStr& DstC
   for (int j = 0; j < NumCollectors; j++) {
     IdRanges[j] = MinId + Range/NumCollectors*j;
   }
-  IdRanges[NumCollectors] = MaxId;
+  IdRanges[NumCollectors] = MaxId+1;
 //  for (int i = 0; i < NumCollectors+1; i++) {
 //    printf("IdRanges[%d] = %d\n", i, IdRanges[i].Val);
 //  }
@@ -1161,6 +1161,14 @@ inline PNEANetMP ToTNEANetMP2(PTable Table, const TStr& SrcCol, const TStr& DstC
     SrcIdOffsets.Add(TotalSrcNodes);
     TotalSrcNodes += SrcNodeCounts[i];
   }
+
+//  printf("Sorted = %d - %d\n", SrcCol3.IsSorted(), DstCol4.IsSorted());
+//  for (int i = 0; i < NumRows-1; i++) {
+//    if (SrcCol3[i] > SrcCol3[i+1]) { printf("i=%d: %d %d\n", i, SrcCol3[i].Val, SrcCol3[i+1].Val); }
+//  }
+//  for (int i = 0; i < NumRows-1; i++) {
+//    if (DstCol4[i] > DstCol4[i+1]) { printf("i=%d: %d %d\n", i, DstCol4[i].Val, DstCol4[i+1].Val); }
+//  }
 
   TInt TotalDstNodes = 0;
   TIntV DstIdOffsets;
