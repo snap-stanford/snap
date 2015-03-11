@@ -46,24 +46,28 @@ private:
   int Bands;
   int Rows;
   int Dim;
+  int ExpectedSz;
   DistMeasure Type;
   int NearDist;
 
   TVec<TPt<HashFunc> > HashFuncV;
   TVec<TFltV> DataV;
-  TVec<THash<TIntV, TIntV> > SigBucketVHV;
+  TVec<THash<TInt, TIntV> > SigBucketVHV;
 
-  TVec<TIntV> ComputeSignature(TFltV Datum);
+  TInt ComputeSignature(TFltV Datum, int Band);
   bool IsNear(TFltV Datum1, TFltV Datum2);
 
 public:
   TLSHash();
   TLSHash(int Bands, int Rows, int Dim, DistMeasure Type, int NearDist = 1);
+  TLSHash(int Bands, int Rows, int Dim, int ExpectedSz, DistMeasure Type,
+    int NearDist = 1);
   ~TLSHash();
 
   void Init();
 
-  void Insert(TFltV Datum);
+  void Add(TFltV Datum);
+  void AddV(TVec<TFltV> DataV);
   void Remove(TFltV Datum);
 
   TVec<TFltV> GetCandidates(TFltV Datum);

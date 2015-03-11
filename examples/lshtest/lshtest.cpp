@@ -20,13 +20,15 @@ int main() {
   TRnd Gen;
   Gen.Randomize();
 
+  TVec<TFltV> DataV;
   for (int i=0; i<1000000; i++) {
     TFltV Datum;
     for (int j=0; j<3; j++) {
       Datum.Add(Gen.GetUniDev()*2100);
     }
-    LSH.Insert(Datum);
+    DataV.Add(Datum);
   }
+  LSH.AddV(DataV);
   
   TVec<TPair<TFltV, TFltV> > NeighborsV = LSH.GetAllCandidatePairs();
   printf("Number of Candidates: %d\n", NeighborsV.Len());

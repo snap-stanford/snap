@@ -59,18 +59,14 @@ int TLSHash::EuclideanHash::Hash(TFltV Datum) {
   return static_cast<int>(Proj);
 }
 
-TVec<TIntV> TLSHash::ComputeSignature(TFltV Datum) {
-  TVec<TIntV> SigV;
-  for (int i=0; i<Bands; i++) {
-    TIntV Sig;
-    for (int r = 0; r<Rows; r++) {
-      int ind = i*Rows + r;
-      int Hash = HashFuncV[ind]->Hash(Datum);
-      Sig.Add(Hash);
-    }
-    SigV.Add(Sig);
+TInt TLSHash::ComputeSignature(TFltV Datum, int Band) {
+  int Sig = 0;
+  for (int r = 0; r<Rows; r++) {
+    int ind = Band*Rows + r;
+    int Hash = HashFuncV[ind]->Hash(Datum);
+    Sig = TPairHashImpl::GetHashCd(Sig, Hash);
   }
-  return SigV;
+  return Sig;
 }
 
 bool TLSHash::IsNear(TFltV Datum1, TFltV Datum2) {
@@ -84,8 +80,13 @@ bool TLSHash::IsNear(TFltV Datum1, TFltV Datum2) {
 
 TLSHash::TLSHash() { }
 
-TLSHash::TLSHash(int Bands, int Rows, int Dim, DistMeasure Type, int NearDist) : Bands(Bands), 
-  Rows(Rows), Dim(Dim), Type(Type), NearDist(NearDist) { }
+TLSHash::TLSHash(int Bands, int Rows, int Dim, DistMeasure Type, int NearDist) :
+  Bands(Bands), Rows(Rows), Dim(Dim), ExpectedSz(0),  Type(Type),
+  NearDist(NearDist) { }
+
+TLSHash::TLSHash(int Bands, int Rows, int Dim, int ExpectedSz,
+  DistMeasure Type, int NearDist) : Bands(Bands), Rows(Rows), Dim(Dim),
+  ExpectedSz(ExpectedSz), Type(Type), NearDist(NearDist) { }
 
 TLSHash::~TLSHash() { }
 
@@ -104,21 +105,34 @@ void TLSHash::Init() {
   }
 
   for (int i=0; i<Bands; i++) {
-    SigBucketVHV.Add(THash<TIntV, TIntV> ());
+    SigBucketVHV.Add(THash<TInt, TIntV> (ExpectedSz, true));
   }
 }
 
-void TLSHash::Insert(TFltV Datum) {
+void TLSHash::Add(TFltV Datum) {
   int Id = DataV.Len();
   DataV.Add(Datum);
 
-  TVec<TIntV> SigV = ComputeSignature(Datum);
   for (int i=0; i<Bands; i++) {
-    TIntV& Sig = SigV[i];
-    THash<TIntV, TIntV> &SigBucketVH = SigBucketVHV[i];
+    TInt Sig = ComputeSignature(Datum, i);
+    THash<TInt, TIntV> &SigBucketVH = SigBucketVHV[i];
 
     int KeyId = SigBucketVH.AddKey(Sig);
     SigBucketVH[KeyId].Add(Id);
+  }
+}
+
+void TLSHash::AddV(TVec<TFltV> NewV) {
+  int StartId = DataV.Len();
+  DataV.AddV(NewV);
+
+  #pragma omp parallel for num_threads(4) schedule(dynamic)
+  for (int i=0; i<Bands; i++) {
+    THash<TInt, TIntV> &SigBucketVH = SigBucketVHV[i];
+    for (int j=0; j<NewV.Len(); j++) {
+      int KeyId = SigBucketVH.AddKey(ComputeSignature(NewV[j], i));
+      SigBucketVH[KeyId].Add(StartId+j);
+    }
   }
 }
 
@@ -127,8 +141,8 @@ void TLSHash::Remove(TFltV Datum) {
   if (Id == -1) { return; }
   DataV[Id] = TFltV();
   for (int i=0; i<SigBucketVHV.Len(); i++) {
-    THash<TIntV, TIntV> &SigBucketVH = SigBucketVHV[i];
-    TVec<TIntV> SigV;
+    THash<TInt, TIntV> &SigBucketVH = SigBucketVHV[i];
+    TVec<TInt> SigV;
     SigBucketVH.GetKeyV(SigV);
 
     for (int j=0; j<SigV.Len(); j++) {
@@ -142,12 +156,10 @@ void TLSHash::Remove(TFltV Datum) {
 }
 
 TVec<TFltV> TLSHash::GetCandidates(TFltV Datum) {
-  TVec<TIntV> SigV = ComputeSignature(Datum);
-
   THashSet<TInt> CandidateIds;
   for (int i=0; i<Bands; i++) {
-    TIntV Sig = SigV[i];
-    THash<TIntV, TIntV> SigBucketVH = SigBucketVHV[i];
+    TInt Sig = ComputeSignature(Datum, i);
+    THash<TInt, TIntV>& SigBucketVH = SigBucketVHV[i];
 
     if (!SigBucketVH.IsKey(Sig)) {
       continue;
