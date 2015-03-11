@@ -19,7 +19,7 @@ PNEANet SubgraphExtractTNEANetExp(const PGraph& Graph, const TIntV& NTypeIdV) {
 
 template <class PGraph>
 PNEANetMP SubgraphExtractTNEANetMPExp(const PGraph& Graph, const TIntV& NTypeIdV) {
-  return Graph->GetSubGraphTNEANetMP(NTypeIdV);
+  return Graph->GetSubGraphTNEANetMP2(NTypeIdV);
 }
 
 int main(int argc, char* argv[]) {
