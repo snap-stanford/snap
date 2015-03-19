@@ -4,11 +4,11 @@
 class TStopwatch {
 public:
   /// List of all experiments
-  typedef enum {LoadTables, Preprocess, Compute, Postprocess, StoreOutputs,
-      AllocateColumnCopies, CopyColumns, Sort, Group, MergeNeighborhoods, AddNeighborhoods, AddEdges,
-      Sort2, ComputeOffset} TExperiment;
+  typedef enum {LoadTables, Preprocess, ConstructGraph, Compute, Postprocess, StoreOutputs,
+      AllocateColumnCopies, CopyColumns, Sort, Group, MergeNeighborhoods, AddNeighborhoods, AddEdges, Sort2, ComputeOffset,
+      ComputeETypes, EstimateSizes, InitGraph, ExtractNbrETypes, CopyNodes, PopulateGraph} TExperiment;
   /// The expected number of experiments (must be at least equal to the size of the above list)
-  static const int NEXPS = 15;
+  static const int NEXPS = 25;
 
   static TStopwatch* GetInstance() {
     static TStopwatch instance; // Guaranteed to be destroyed. Instantiated on first use.

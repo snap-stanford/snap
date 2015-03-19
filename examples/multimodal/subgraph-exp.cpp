@@ -26,25 +26,20 @@ int main(int argc, char* argv[]) {
   TEnv Env(argc, argv);
   TStr PrefixPath = Env.GetArgs() > 1 ? Env.GetArg(1) : TStr("");
 
-  double ts1 = Tick();
+  TStopwatch* Sw = TStopwatch::GetInstance();
+  Sw->Start(TStopwatch::LoadTables);
   TTableContext Context;
   TVec<TPair<PTable,TStr> > NodeTblV = TVec<TPair<PTable,TStr> >();
   TVec<TQuad<PTable,TStr,TStr,TBool> > EdgeTblV = TVec<TQuad<PTable,TStr,TStr,TBool> >();
   Schema NodeSchema = Schema();
   Schema EdgeSchema = Schema();
   LoadFlickrTables(PrefixPath, Context, NodeTblV, NodeSchema, EdgeTblV, EdgeSchema);
+  Sw->Stop(TStopwatch::LoadTables);
 
-  double ts2 = Tick();
-
+  Sw->Start(TStopwatch::Preprocess);
   THash<TStr,TStrH> NStrH;
   TIntStrH NIdH;
   CreateIdHashes(NodeTblV, NStrH, NIdH);
-
-  double ts3 = Tick();
-
-  double convertTime = 0;
-  double subgraphTime = 0;
-  int nExps = 20;
 
   TIntV NTypeIdV;
   if (Env.GetArgs() > 2) {
@@ -56,17 +51,19 @@ int main(int argc, char* argv[]) {
     NTypeIdV.Add(1);
     //NTypeIdV.Add(2);
   }
+  Sw->Stop(TStopwatch::Preprocess);
+
+  Sw->Start(TStopwatch::ConstructGraph);
   PCVNet InitGraph = LoadGraphMNet<PCVNet>(NodeTblV, EdgeTblV, NStrH, NIdH);
+  Sw->Stop(TStopwatch::ConstructGraph);
+  int nExps = 20;
   for (int i = 0; i < nExps; i++) {
-    double t1 = Tick();
+    Sw->Start(TStopwatch::Compute);
     PCVNet Graph = InitGraph;
-    double t2 = Tick();
     //PCVNet Subgraph = SubgraphExtractExp(Graph, NTypeIdV);
     //PNEANet Subgraph = SubgraphExtractTNEANetExp(Graph, NTypeIdV);
     PNEANetMP Subgraph = SubgraphExtractTNEANetMPExp(Graph, NTypeIdV);
-    double t3 = Tick();
-    convertTime += (t2-t1);
-    subgraphTime += (t3-t2);
+    Sw->Stop(TStopwatch::Compute);
     StdOut->PutStrFmtLn("Graph Size %d-%d", Graph->GetNodes(), Graph->GetEdges());
     StdOut->PutStrFmtLn("Subgraph Size %d-%d", Subgraph->GetNodes(), Subgraph->GetEdges());
   }
@@ -74,10 +71,16 @@ int main(int argc, char* argv[]) {
   PSOut TimeOut = TFOut::New(PrefixPath + TStr("time.txt"), true);
   TimeOut->PutStrFmtLn("===== Subgraph Extraction - PCVNet =====");
   TimeOut->PutStrLn(Env.GetCmLn());
-  TimeOut->PutStrFmtLn("Loading Graph Tables = %f s", GetCPUTimeUsage(ts1, ts2));
-  TimeOut->PutStrFmtLn("Preprocessing = %f s", GetCPUTimeUsage(ts2, ts3));
-  TimeOut->PutStrFmtLn("Conversion = %f s", convertTime/nExps);
-  TimeOut->PutStrFmtLn("Node Deletion = %f s", subgraphTime/nExps);
+  TimeOut->PutStrFmtLn("Input Time = %f from %d", Sw->Avg(TStopwatch::LoadTables), Sw->Cnt(TStopwatch::LoadTables));
+  TimeOut->PutStrFmtLn("Preprocessing Time = %f from %d", Sw->Avg(TStopwatch::Preprocess), Sw->Cnt(TStopwatch::Preprocess));
+  TimeOut->PutStrFmtLn("Graph Construction Time = %f from %d", Sw->Avg(TStopwatch::ConstructGraph), Sw->Cnt(TStopwatch::ConstructGraph));
+  TimeOut->PutStrFmtLn("Subgraph = %f from %d", Sw->Avg(TStopwatch::Compute), Sw->Cnt(TStopwatch::Compute));
+  TimeOut->PutStrFmtLn("ComputeETypes = %f from %d", Sw->Avg(TStopwatch::ComputeETypes), Sw->Cnt(TStopwatch::ComputeETypes));
+  TimeOut->PutStrFmtLn("EstimateSizes = %f from %d", Sw->Avg(TStopwatch::EstimateSizes), Sw->Cnt(TStopwatch::EstimateSizes));
+  TimeOut->PutStrFmtLn("InitGraph = %f from %d", Sw->Avg(TStopwatch::InitGraph), Sw->Cnt(TStopwatch::InitGraph));
+  TimeOut->PutStrFmtLn("ExtractNbrETypes = %f from %d", Sw->Sum(TStopwatch::ExtractNbrETypes)/Sw->Cnt(TStopwatch::Compute), Sw->Cnt(TStopwatch::Compute));
+  TimeOut->PutStrFmtLn("CopyNodes = %f from %d", Sw->Sum(TStopwatch::CopyNodes)/Sw->Cnt(TStopwatch::Compute), Sw->Cnt(TStopwatch::Compute));
+  TimeOut->PutStrFmtLn("PopulateGraph = %f from %d", Sw->Sum(TStopwatch::PopulateGraph)/Sw->Cnt(TStopwatch::Compute), Sw->Cnt(TStopwatch::Compute));
 
   return 0;
 }
