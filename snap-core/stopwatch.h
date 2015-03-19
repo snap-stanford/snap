@@ -5,7 +5,8 @@ class TStopwatch {
 public:
   /// List of all experiments
   typedef enum {LoadTables, Preprocess, Compute, Postprocess, StoreOutputs,
-      AllocateColumnCopies, CopyColumns, Sort, Group, MergeNeighborhoods, AddNeighborhoods, AddEdges} TExperiment;
+      AllocateColumnCopies, CopyColumns, Sort, Group, MergeNeighborhoods, AddNeighborhoods, AddEdges,
+      Sort2, ComputeOffset} TExperiment;
   /// The expected number of experiments (must be at least equal to the size of the above list)
   static const int NEXPS = 15;
 
