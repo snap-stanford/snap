@@ -49,24 +49,32 @@ int main(int argc, char* argv[]) {
   } else {
     NTypeIdV.Add(0);
     NTypeIdV.Add(1);
-    //NTypeIdV.Add(2);
+    NTypeIdV.Add(2);
   }
   Sw->Stop(TStopwatch::Preprocess);
 
   Sw->Start(TStopwatch::ConstructGraph);
-  PCVNet InitGraph = LoadGraphMNet<PCVNet>(NodeTblV, EdgeTblV, NStrH, NIdH);
+  PCVNet Graph = LoadGraphMNet<PCVNet>(NodeTblV, EdgeTblV, NStrH, NIdH);
   Sw->Stop(TStopwatch::ConstructGraph);
   int nExps = 20;
+  PNEANetMP Subgraph;
   for (int i = 0; i < nExps; i++) {
+    StdOut->PutStrFmtLn("i = %d", i);
     Sw->Start(TStopwatch::Compute);
-    PCVNet Graph = InitGraph;
     //PCVNet Subgraph = SubgraphExtractExp(Graph, NTypeIdV);
     //PNEANet Subgraph = SubgraphExtractTNEANetExp(Graph, NTypeIdV);
-    PNEANetMP Subgraph = SubgraphExtractTNEANetMPExp(Graph, NTypeIdV);
+    Subgraph = SubgraphExtractTNEANetMPExp(Graph, NTypeIdV);
     Sw->Stop(TStopwatch::Compute);
-    StdOut->PutStrFmtLn("Graph Size %d-%d", Graph->GetNodes(), Graph->GetEdges());
-    StdOut->PutStrFmtLn("Subgraph Size %d-%d", Subgraph->GetNodes(), Subgraph->GetEdges());
   }
+  // Sanity test
+  StdOut->PutStrFmtLn("Graph Size %d-%d", Graph->GetNodes(), Graph->GetEdges());
+  StdOut->PutStrFmtLn("Subgraph Size %d-%d", Subgraph->GetNodes(), Subgraph->GetEdges());
+  int InDeg = 0;
+  int OutDeg = 0;
+  for (TNEANetMP::TNodeI NI = Subgraph->BegNI(); NI < Subgraph->EndNI(); NI++) {
+    InDeg += NI.GetInDeg(); OutDeg += NI.GetOutDeg();
+  }
+  StdOut->PutStrFmtLn("InDeg = %d; OutDeg = %d", InDeg, OutDeg);
 
   PSOut TimeOut = TFOut::New(PrefixPath + TStr("time.txt"), true);
   TimeOut->PutStrFmtLn("===== Subgraph Extraction - PCVNet =====");

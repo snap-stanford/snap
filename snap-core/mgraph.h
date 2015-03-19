@@ -1243,18 +1243,20 @@ public:
       Sw->Stop(TStopwatch::ExtractNbrETypes);
 
       Sw->Start(TStopwatch::CopyNodes);
-      TVec<TNode> TmpNodeV(GetNodes(NTypeId), 0);
-      for (typename THash<TInt,TNode>::TIter iter = TypeNodeV[NTypeId].NodeH.BegI(); iter < TypeNodeV[NTypeId].NodeH.EndI(); iter++) {
-        TmpNodeV.Add(iter.GetDat());
-      }
+//      TVec<TNode> TmpNodeV(GetNodes(NTypeId), 0);
+//      for (typename THash<TInt,TNode>::TIter iter = TypeNodeV[NTypeId].NodeH.BegI(); iter < TypeNodeV[NTypeId].NodeH.EndI(); iter++) {
+//        TmpNodeV.Add(iter.GetDat());
+//      }
       Sw->Stop(TStopwatch::CopyNodes);
 
       Sw->Start(TStopwatch::PopulateGraph);
+      THash<TInt,TNode> *NodeHPtr = &(TypeNodeV[NTypeId].NodeH);
       #pragma omp parallel for schedule(static)
-      for (int i = 0; i < TmpNodeV.Len(); i++) {
-        TNode* PNode = &(TmpNodeV[i]);
-//      for (typename THash<TInt,TNode>::TIter iter2 = TypeNodeV[NTypeId].NodeH.BegI(); iter2 < TypeNodeV[NTypeId].NodeH.EndI(); iter2++) {
-//        TNode* PNode = &(iter2.GetDat());
+      for (int KeyId = 0; KeyId < NodeHPtr->GetMxKeyIds(); KeyId++) {
+        if (!NodeHPtr->IsKeyId(KeyId)) { continue; }
+        TNode* PNode = &((*NodeHPtr)[KeyId]);
+//      for (int i = 0; i < TmpNodeV.Len(); i++) {
+//        TNode* PNode = &(TmpNodeV[i]);
         int NId = PNode->GetId();
         TIntV EIdV;
         TIntV OutEIdV;
