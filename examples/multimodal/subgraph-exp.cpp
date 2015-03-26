@@ -50,34 +50,35 @@ int main(int argc, char* argv[]) {
     NTypeIdV.Add(0);
     NTypeIdV.Add(1);
     NTypeIdV.Add(2);
+    NTypeIdV.Add(3);
   }
   Sw->Stop(TStopwatch::Preprocess);
 
   Sw->Start(TStopwatch::ConstructGraph);
-  PCVNet Graph = LoadGraphMNet<PCVNet>(NodeTblV, EdgeTblV, NStrH, NIdH);
+  PSVNet Graph = LoadGraphMNet<PSVNet>(NodeTblV, EdgeTblV, NStrH, NIdH);
   Sw->Stop(TStopwatch::ConstructGraph);
   int nExps = 20;
-  PNEANetMP Subgraph;
+//  PNEANetMP Subgraph;
   for (int i = 0; i < nExps; i++) {
     StdOut->PutStrFmtLn("i = %d", i);
     Sw->Start(TStopwatch::Compute);
-    //PCVNet Subgraph = SubgraphExtractExp(Graph, NTypeIdV);
+    //PSVNet Subgraph = SubgraphExtractExp(Graph, NTypeIdV);
     //PNEANet Subgraph = SubgraphExtractTNEANetExp(Graph, NTypeIdV);
-    Subgraph = SubgraphExtractTNEANetMPExp(Graph, NTypeIdV);
+    PNEANetMP Subgraph = SubgraphExtractTNEANetMPExp(Graph, NTypeIdV);
     Sw->Stop(TStopwatch::Compute);
   }
-  // Sanity test
-  StdOut->PutStrFmtLn("Graph Size %d-%d", Graph->GetNodes(), Graph->GetEdges());
-  StdOut->PutStrFmtLn("Subgraph Size %d-%d", Subgraph->GetNodes(), Subgraph->GetEdges());
-  int InDeg = 0;
-  int OutDeg = 0;
-  for (TNEANetMP::TNodeI NI = Subgraph->BegNI(); NI < Subgraph->EndNI(); NI++) {
-    InDeg += NI.GetInDeg(); OutDeg += NI.GetOutDeg();
-  }
-  StdOut->PutStrFmtLn("InDeg = %d; OutDeg = %d", InDeg, OutDeg);
+//  // Sanity test
+//  StdOut->PutStrFmtLn("Graph Size %d-%d", Graph->GetNodes(), Graph->GetEdges());
+//  StdOut->PutStrFmtLn("Subgraph Size %d-%d", Subgraph->GetNodes(), Subgraph->GetEdges());
+//  int InDeg = 0;
+//  int OutDeg = 0;
+//  for (TNEANetMP::TNodeI NI = Subgraph->BegNI(); NI < Subgraph->EndNI(); NI++) {
+//    InDeg += NI.GetInDeg(); OutDeg += NI.GetOutDeg();
+//  }
+//  StdOut->PutStrFmtLn("InDeg = %d; OutDeg = %d", InDeg, OutDeg);
 
   PSOut TimeOut = TFOut::New(PrefixPath + TStr("time.txt"), true);
-  TimeOut->PutStrFmtLn("===== Subgraph Extraction - PCVNet =====");
+  TimeOut->PutStrFmtLn("===== Subgraph Extraction - PSVNet =====");
   TimeOut->PutStrLn(Env.GetCmLn());
   TimeOut->PutStrFmtLn("Input Time = %f from %d", Sw->Avg(TStopwatch::LoadTables), Sw->Cnt(TStopwatch::LoadTables));
   TimeOut->PutStrFmtLn("Preprocessing Time = %f from %d", Sw->Avg(TStopwatch::Preprocess), Sw->Cnt(TStopwatch::Preprocess));
