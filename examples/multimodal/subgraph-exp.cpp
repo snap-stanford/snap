@@ -90,6 +90,8 @@ int main(int argc, char* argv[]) {
   TimeOut->PutStrFmtLn("ExtractNbrETypes = %f from %d", Sw->Sum(TStopwatch::ExtractNbrETypes)/Sw->Cnt(TStopwatch::Compute), Sw->Cnt(TStopwatch::Compute));
   TimeOut->PutStrFmtLn("CopyNodes = %f from %d", Sw->Sum(TStopwatch::CopyNodes)/Sw->Cnt(TStopwatch::Compute), Sw->Cnt(TStopwatch::Compute));
   TimeOut->PutStrFmtLn("PopulateGraph = %f from %d", Sw->Sum(TStopwatch::PopulateGraph)/Sw->Cnt(TStopwatch::Compute), Sw->Cnt(TStopwatch::Compute));
+  TimeOut->PutStrFmtLn("ExtractEdges = %f from %d", Sw->Sum(TStopwatch::ExtractEdges)/Sw->Cnt(TStopwatch::Compute), Sw->Cnt(TStopwatch::Compute));
+  TimeOut->PutStrFmtLn("BuildSubgraph = %f from %d", Sw->Sum(TStopwatch::BuildSubgraph)/Sw->Cnt(TStopwatch::Compute), Sw->Cnt(TStopwatch::Compute));
 
   return 0;
 }

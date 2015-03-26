@@ -1125,59 +1125,6 @@ public:
     return PNewGraph;
   }
 
-  PNEANetMP GetSubGraphTNEANetMP(const TIntV& NTypeIdV) {
-    // Find relevant edge types
-    TIntSet NTypeIdSet(NTypeIdV);
-    TIntIntH EdgeCounter;
-    for (int i = 0; i < InETypes.Len(); i++) {
-      if (!NTypeIdSet.IsKey(TInt(i))) { continue; }
-      for (int j = 0; j < InETypes[i].Len(); j++) {
-        EdgeCounter.AddDat(InETypes[i][j], TInt(1));
-      }
-    }
-    for (int i = 0; i < OutETypes.Len(); i++) {
-      if (!NTypeIdSet.IsKey(TInt(i))) { continue; }
-      for (int j = 0; j < OutETypes[i].Len(); j++) {
-        if (EdgeCounter.IsKey(OutETypes[i][j])) { EdgeCounter.AddDat(OutETypes[i][j], TInt(2)); }
-      }
-    }
-    TIntV ETypeIdV;
-    for (typename TIntIntH::TIter iter = EdgeCounter.BegI(); iter < EdgeCounter.EndI(); iter++) {
-      if (iter.GetDat().Val == 2) {
-        ETypeIdV.Add(iter.GetKey());
-      }
-    }
-
-    return GetSubGraphTNEANetMP(NTypeIdV, ETypeIdV);
-  }
-
-  PNEANetMP GetSubGraphTNEANetMP(const TIntV& NTypeIdV, const TIntV& ETypeIdV) {
-    PSOut StdOut = TStdOut::New();
-    int SubgraphSz = 0;
-    for (TIntV::TIter iter = NTypeIdV.BegI(); iter < NTypeIdV.EndI(); iter++) {
-      SubgraphSz += GetNodes((*iter).Val);
-    }
-    StdOut->PutStrFmtLn("SubgraphSz = %d", SubgraphSz);
-    PNEANetMP PNewGraph = TNEANetMP::New(SubgraphSz, EdgeH.Len()); // TODO: Need smaller size
-    #pragma omp parallel for schedule(dynamic)
-    for (int i = 0; i < NTypeIdV.Len(); i++) {
-      TInt NTypeId = NTypeIdV[i];
-      for (typename THash<TInt,TNode>::TIter iter = TypeNodeV[NTypeId].NodeH.BegI(); iter < TypeNodeV[NTypeId].NodeH.EndI(); iter++) {
-        PNewGraph->AddNode(GetGlobalNId(NTypeId, iter.GetKey().Val));
-      }
-    }
-    PNewGraph->SetNodes(SubgraphSz);
-
-    TIntSet ETypeIdSet(ETypeIdV);
-    // Add edges
-    for (TEdgeI iter = BegEI(); iter < EndEI(); iter++) {
-      if (ETypeIdSet.IsKey(iter.GetTypeId())) {
-        PNewGraph->AddEdge(iter.GetSrcNId(), iter.GetDstNId(), iter.GetId());
-      }
-    }
-    return PNewGraph;
-  }
-
   PNEANetMP GetSubGraphTNEANetMP2(const TIntV& NTypeIdV) {
     TStopwatch* Sw = TStopwatch::GetInstance();
     Sw->Start(TStopwatch::ComputeETypes);
@@ -1204,7 +1151,85 @@ public:
     }
     Sw->Stop(TStopwatch::ComputeETypes);
 
-    return GetSubGraphTNEANetMP2(NTypeIdV, ETypeIdV);
+    return GetSubGraphTNEANetMP(NTypeIdV, ETypeIdV);
+  }
+
+  /// Extracts the subgraph by finding the nodes and then finding all neighbors (node-based)
+  PNEANetMP GetSubGraphTNEANetMP(const TIntV& NTypeIdV, const TIntV& ETypeIdV) {
+    TStopwatch* Sw = TStopwatch::GetInstance();
+    Sw->Start(TStopwatch::EstimateSizes);
+    int SubgraphSz = 0;
+    for (TIntV::TIter iter = NTypeIdV.BegI(); iter < NTypeIdV.EndI(); iter++) {
+      SubgraphSz += GetNodes((*iter).Val);
+    }
+    int SubgraphEdgeSz = 0;
+    for (TIntV::TIter iter = ETypeIdV.BegI(); iter < ETypeIdV.EndI(); iter++) {
+      SubgraphEdgeSz += GetEdges((*iter).Val);
+    }
+    Sw->Stop(TStopwatch::EstimateSizes);
+
+    Sw->Start(TStopwatch::InitGraph);
+    PNEANetMP PNewGraph = TNEANetMP::New(SubgraphSz, SubgraphEdgeSz);
+    TIntSet ETypeIdSet(ETypeIdV);
+    Sw->Stop(TStopwatch::InitGraph);
+
+    TIntV OutETypeIdVV[NTypeIdV.Len()];
+    TIntV InETypeIdVV[NTypeIdV.Len()];
+    Sw->Start(TStopwatch::ExtractNbrETypes);
+    #pragma omp parallel for schedule(static)
+    for (int i = 0; i < NTypeIdV.Len(); i++) {
+
+      TInt NTypeId = NTypeIdV[i];
+      TIntV* POutETypes = &(OutETypes[NTypeId]);
+      for (TIntV::TIter iter = POutETypes->BegI(); iter < POutETypes->EndI(); iter++) {
+        if (ETypeIdSet.IsKey(*iter)) { OutETypeIdVV[i].Add(*iter); }
+      }
+      TIntV* PInETypes = &(InETypes[NTypeId]);
+      for (TIntV::TIter iter = PInETypes->BegI(); iter < PInETypes->EndI(); iter++) {
+        if (ETypeIdSet.IsKey(*iter)) { InETypeIdVV[i].Add(*iter); }
+      }
+    }
+    Sw->Stop(TStopwatch::ExtractNbrETypes);
+
+    TIntV Offsets(NTypeIdV.Len()+1);
+    Offsets[0] = 0;
+    for (int i = 0; i < NTypeIdV.Len(); i++) {
+      Offsets[i+1] = Offsets[i] + TypeNodeV[NTypeIdV[i]].NodeH.GetMxKeyIds();
+    }
+
+    Sw->Start(TStopwatch::PopulateGraph);
+    #pragma omp parallel for schedule(static)
+    for (int j = 0; j < Offsets[NTypeIdV.Len()]; j++) {
+      int i;
+      Offsets.SearchBinLeft(j, i);
+      THash<TInt,TNode> *NodeHPtr = &(TypeNodeV[NTypeIdV[i]].NodeH);
+      int KeyId = j - Offsets[i];
+
+      if (!NodeHPtr->IsKeyId(KeyId)) { continue; }
+      TNode* PNode = &((*NodeHPtr)[KeyId]);
+      int NId = PNode->GetId();
+      TIntV EIdV;
+      TIntV OutEIdV;
+      for (TIntV::TIter iter = OutETypeIdVV[i].BegI(); iter < OutETypeIdVV[i].EndI(); iter++) {
+        PNode->GetOutEIdV((*iter).Val, EIdV);
+        OutEIdV.AddV(EIdV);
+      }
+      TIntV InEIdV;
+      for (TIntV::TIter iter = InETypeIdVV[i].BegI(); iter < InETypeIdVV[i].EndI(); iter++) {
+        PNode->GetInEIdV((*iter).Val, EIdV);
+        InEIdV.AddV(EIdV);
+      }
+      PNewGraph->AddNodeWithEdges(NId, InEIdV, OutEIdV);
+      for (TIntV::TIter iter = OutEIdV.BegI(); iter < OutEIdV.EndI(); iter++) {
+        PNewGraph->AddEdgeUnchecked((*iter), NId, GetEdge(*iter).GetDstNId());
+      }
+
+    }
+    Sw->Stop(TStopwatch::PopulateGraph);
+
+    PNewGraph->SetNodes(SubgraphSz);
+    PNewGraph->SetEdges(SubgraphEdgeSz);
+    return PNewGraph;
   }
 
   /// Extracts the subgraph by finding the nodes and then finding all neighbors (node-based)
@@ -1258,6 +1283,7 @@ public:
 //      for (int i = 0; i < TmpNodeV.Len(); i++) {
 //        TNode* PNode = &(TmpNodeV[i]);
         int NId = PNode->GetId();
+        Sw->Start(TStopwatch::ExtractEdges);
         TIntV EIdV;
         TIntV OutEIdV;
         for (TIntV::TIter iter = OutETypeIdV.BegI(); iter < OutETypeIdV.EndI(); iter++) {
@@ -1269,13 +1295,20 @@ public:
           PNode->GetInEIdV((*iter).Val, EIdV);
           InEIdV.AddV(EIdV);
         }
+        Sw->Stop(TStopwatch::ExtractEdges);
+
+        Sw->Start(TStopwatch::BuildSubgraph);
         PNewGraph->AddNodeWithEdges(NId, InEIdV, OutEIdV);
+
         for (TIntV::TIter iter = OutEIdV.BegI(); iter < OutEIdV.EndI(); iter++) {
           PNewGraph->AddEdgeUnchecked((*iter), NId, GetEdge(*iter).GetDstNId());
         }
+        Sw->Stop(TStopwatch::BuildSubgraph);
       }
       Sw->Stop(TStopwatch::PopulateGraph);
     }
+    #pragma omp barrier
+
     PNewGraph->SetNodes(SubgraphSz);
     PNewGraph->SetEdges(SubgraphEdgeSz);
     return PNewGraph;

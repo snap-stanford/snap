@@ -695,6 +695,8 @@ public:
   TSizeTy SearchBin(const TVal& Val) const;
   /// Returns the position of an element with value \c Val. ##TVec::SearchBin1
   TSizeTy SearchBin(const TVal& Val, TSizeTy& InsValN) const;
+  /// Returns the position of an element with value \c Val. ##TVec::SearchBin1
+  TSizeTy SearchBinLeft(const TVal& Val, TSizeTy& InsValN) const;
   /// Returns the position of an element with value \c Val. ##TVec::SearchForw
   TSizeTy SearchForw(const TVal& Val, const TSizeTy& BValN=0) const;
   /// Returns the position of an element with value \c Val. ##TVec::SearchBack
@@ -1379,6 +1381,17 @@ TSizeTy TVec<TVal, TSizeTy>::SearchBin(const TVal& Val, TSizeTy& InsValN) const 
     if (Val<ValT[ValN]){RValN=ValN-1;} else {LValN=ValN+1;}
   }
   InsValN=LValN; return -1;
+}
+
+template <class TVal, class TSizeTy>
+TSizeTy TVec<TVal, TSizeTy>::SearchBinLeft(const TVal& Val, TSizeTy& InsValN) const {
+  TSizeTy LValN=0, RValN=Len()-1;
+  while (RValN>=LValN){
+    TSizeTy ValN=(LValN+RValN)/2;
+    if (Val==ValT[ValN]){InsValN=ValN; return ValN;}
+    if (Val<ValT[ValN]){RValN=ValN-1;} else {LValN=ValN+1;}
+  }
+  InsValN=RValN; return -1;
 }
 
 template <class TVal, class TSizeTy>
