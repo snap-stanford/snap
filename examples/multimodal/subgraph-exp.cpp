@@ -55,14 +55,14 @@ int main(int argc, char* argv[]) {
   Sw->Stop(TStopwatch::Preprocess);
 
   Sw->Start(TStopwatch::ConstructGraph);
-  PSVNet Graph = LoadGraphMNet<PSVNet>(NodeTblV, EdgeTblV, NStrH, NIdH);
+  PCVNet Graph = LoadGraphMNet<PCVNet>(NodeTblV, EdgeTblV, NStrH, NIdH);
   Sw->Stop(TStopwatch::ConstructGraph);
   int nExps = 20;
 //  PNEANetMP Subgraph;
   for (int i = 0; i < nExps; i++) {
     StdOut->PutStrFmtLn("i = %d", i);
     Sw->Start(TStopwatch::Compute);
-    //PSVNet Subgraph = SubgraphExtractExp(Graph, NTypeIdV);
+    //PCVNet Subgraph = SubgraphExtractExp(Graph, NTypeIdV);
     //PNEANet Subgraph = SubgraphExtractTNEANetExp(Graph, NTypeIdV);
     PNEANetMP Subgraph = SubgraphExtractTNEANetMPExp(Graph, NTypeIdV);
     Sw->Stop(TStopwatch::Compute);
@@ -78,7 +78,7 @@ int main(int argc, char* argv[]) {
 //  StdOut->PutStrFmtLn("InDeg = %d; OutDeg = %d", InDeg, OutDeg);
 
   PSOut TimeOut = TFOut::New(PrefixPath + TStr("time.txt"), true);
-  TimeOut->PutStrFmtLn("===== Subgraph Extraction - PSVNet =====");
+  TimeOut->PutStrFmtLn("===== Subgraph Extraction - PCVNet =====");
   TimeOut->PutStrLn(Env.GetCmLn());
   TimeOut->PutStrFmtLn("Input Time = %f from %d", Sw->Avg(TStopwatch::LoadTables), Sw->Cnt(TStopwatch::LoadTables));
   TimeOut->PutStrFmtLn("Preprocessing Time = %f from %d", Sw->Avg(TStopwatch::Preprocess), Sw->Cnt(TStopwatch::Preprocess));
