@@ -1253,7 +1253,8 @@ public:
     TIntSet ETypeIdSet(ETypeIdV);
     Sw->Stop(TStopwatch::InitGraph);
 
-
+    int NThreads = omp_get_max_threads();
+    TIntV VectorPool[3*NThreads];
     for (int i = 0; i < NTypeIdV.Len(); i++) {
       Sw->Start(TStopwatch::ExtractNbrETypes);
       TInt NTypeId = NTypeIdV[i];
@@ -1272,8 +1273,7 @@ public:
       Sw->Start(TStopwatch::PopulateGraph);
       THash<TInt,TNode> *NodeHPtr = &(TypeNodeV[NTypeId].NodeH);
 
-      TIntV VectorPool[3*omp_get_num_threads()];
-
+      omp_set_num_threads(NThreads);
       #pragma omp parallel for schedule(static)
       for (int KeyId = 0; KeyId < NodeHPtr->GetMxKeyIds(); KeyId++) {
         if (!NodeHPtr->IsKeyId(KeyId)) { continue; }
@@ -1287,7 +1287,7 @@ public:
         TIntV* OutEIdV = &(VectorPool[3*ThreadIdx+1]);
         TIntV* InEIdV = &(VectorPool[3*ThreadIdx+2]);
 
-        //Sw->Start(TStopwatch::ExtractEdges);
+        Sw->Start(TStopwatch::ExtractEdges);
         TNode* PNode = &((*NodeHPtr)[KeyId]);
         int NId = PNode->GetId();
 
@@ -1303,15 +1303,15 @@ public:
           PNode->GetInEIdV((*iter).Val, *EIdV);
           InEIdV->AddV(*EIdV);
         }
-        //Sw->Stop(TStopwatch::ExtractEdges);
+        Sw->Stop(TStopwatch::ExtractEdges);
 
-        //Sw->Start(TStopwatch::BuildSubgraph);
+        Sw->Start(TStopwatch::BuildSubgraph);
         PNewGraph->AddNodeWithEdges(NId, *InEIdV, *OutEIdV);
 
         for (TIntV::TIter iter = OutEIdV->BegI(); iter < OutEIdV->EndI(); iter++) {
           PNewGraph->AddEdgeUnchecked((*iter), NId, GetEdge(*iter).GetDstNId());
         }
-        //Sw->Stop(TStopwatch::BuildSubgraph);
+        Sw->Stop(TStopwatch::BuildSubgraph);
       }
       Sw->Stop(TStopwatch::PopulateGraph);
     }
