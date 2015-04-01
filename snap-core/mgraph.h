@@ -390,20 +390,22 @@ public:
     OutTypeDegV[ETypeId]--;
   }
   void GetInEIdV(const TInt ETypeId, TIntV& EIdV) const {
-    int Sz = InTypeDegV[ETypeId].Val;
-    EIdV.Reserve(Sz, Sz);
-    int Ind = InTypeIndexV[ETypeId].Val;
-    for (int i = 0; i < Sz; i++) {
-      EIdV[i] = InEIdV[Ind+i];
-    }
+//    int Sz = InTypeDegV[ETypeId].Val;
+//    EIdV.Reserve(Sz, Sz);
+//    int Ind = InTypeIndexV[ETypeId].Val;
+//    for (int i = 0; i < Sz; i++) {
+//      EIdV[i] = InEIdV[Ind+i];
+//    }
+    InEIdV.GetSubValV(InTypeIndexV[ETypeId].Val, InTypeDegV[ETypeId].Val+InTypeDegV[ETypeId].Val, EIdV);
   }
   void GetOutEIdV(const TInt ETypeId, TIntV& EIdV) const {
-    int Sz = OutTypeDegV[ETypeId].Val;
-    EIdV.Reserve(Sz, Sz);
-    int Ind = OutTypeIndexV[ETypeId].Val;
-    for (int i = 0; i < Sz; i++) {
-      EIdV[i] = OutEIdV[Ind+i];
-    }
+//    int Sz = OutTypeDegV[ETypeId].Val;
+//    EIdV.Reserve(Sz, Sz);
+//    int Ind = OutTypeIndexV[ETypeId].Val;
+//    for (int i = 0; i < Sz; i++) {
+//      EIdV[i] = OutEIdV[Ind+i];
+//    }
+    OutEIdV.GetSubValV(OutTypeIndexV[ETypeId].Val, OutTypeDegV[ETypeId].Val+OutTypeDegV[ETypeId].Val, EIdV);
   }
   friend class TMNet<TCVNode>;
 };
@@ -1267,41 +1269,46 @@ public:
       }
       Sw->Stop(TStopwatch::ExtractNbrETypes);
 
-      Sw->Start(TStopwatch::CopyNodes);
-//      TVec<TNode> TmpNodeV(GetNodes(NTypeId), 0);
-//      for (typename THash<TInt,TNode>::TIter iter = TypeNodeV[NTypeId].NodeH.BegI(); iter < TypeNodeV[NTypeId].NodeH.EndI(); iter++) {
-//        TmpNodeV.Add(iter.GetDat());
-//      }
-      Sw->Stop(TStopwatch::CopyNodes);
-
       Sw->Start(TStopwatch::PopulateGraph);
       THash<TInt,TNode> *NodeHPtr = &(TypeNodeV[NTypeId].NodeH);
+
+      TIntV VectorPool[3*omp_get_num_threads()];
+
       #pragma omp parallel for schedule(static)
       for (int KeyId = 0; KeyId < NodeHPtr->GetMxKeyIds(); KeyId++) {
         if (!NodeHPtr->IsKeyId(KeyId)) { continue; }
-        
+
+//        TIntV EIdV;
+//        TIntV OutEIdV;
+//        TIntV InEIdV;
+
+        int ThreadIdx = omp_get_thread_num();
+        TIntV* EIdV = &(VectorPool[3*ThreadIdx]);
+        TIntV* OutEIdV = &(VectorPool[3*ThreadIdx+1]);
+        TIntV* InEIdV = &(VectorPool[3*ThreadIdx+2]);
+
         //Sw->Start(TStopwatch::ExtractEdges);
         TNode* PNode = &((*NodeHPtr)[KeyId]);
         int NId = PNode->GetId();
 
         //Sw->Start(TStopwatch::ExtractEdges);
-        TIntV EIdV;
-        TIntV OutEIdV;
+
+        OutEIdV->Reduce(0);
         for (TIntV::TIter iter = OutETypeIdV.BegI(); iter < OutETypeIdV.EndI(); iter++) {
-          PNode->GetOutEIdV((*iter).Val, EIdV);
-          OutEIdV.AddV(EIdV);
+          PNode->GetOutEIdV((*iter).Val, *EIdV);
+          OutEIdV->AddV(*EIdV);
         }
-        TIntV InEIdV;
+        InEIdV->Reduce(0);
         for (TIntV::TIter iter = InETypeIdV.BegI(); iter < InETypeIdV.EndI(); iter++) {
-          PNode->GetInEIdV((*iter).Val, EIdV);
-          InEIdV.AddV(EIdV);
+          PNode->GetInEIdV((*iter).Val, *EIdV);
+          InEIdV->AddV(*EIdV);
         }
         //Sw->Stop(TStopwatch::ExtractEdges);
 
         //Sw->Start(TStopwatch::BuildSubgraph);
-        PNewGraph->AddNodeWithEdges(NId, InEIdV, OutEIdV);
+        PNewGraph->AddNodeWithEdges(NId, *InEIdV, *OutEIdV);
 
-        for (TIntV::TIter iter = OutEIdV.BegI(); iter < OutEIdV.EndI(); iter++) {
+        for (TIntV::TIter iter = OutEIdV->BegI(); iter < OutEIdV->EndI(); iter++) {
           PNewGraph->AddEdgeUnchecked((*iter), NId, GetEdge(*iter).GetDstNId());
         }
         //Sw->Stop(TStopwatch::BuildSubgraph);
