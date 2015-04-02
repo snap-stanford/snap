@@ -389,23 +389,49 @@ public:
     OutDeg--;
     OutTypeDegV[ETypeId]--;
   }
-  void GetInEIdV(const TInt ETypeId, TIntV& EIdV) const {
-//    int Sz = InTypeDegV[ETypeId].Val;
-//    EIdV.Reserve(Sz, Sz);
-//    int Ind = InTypeIndexV[ETypeId].Val;
-//    for (int i = 0; i < Sz; i++) {
-//      EIdV[i] = InEIdV[Ind+i];
-//    }
-    InEIdV.GetSubValV(InTypeIndexV[ETypeId].Val, InTypeDegV[ETypeId].Val+InTypeDegV[ETypeId].Val, EIdV);
+  void GetInEIdV(const TInt& ETypeId, TIntV& EIdV) const {
+    int Sz = InTypeDegV[ETypeId].Val;
+    EIdV.Reserve(Sz, Sz);
+    int Ind = InTypeIndexV[ETypeId].Val;
+    for (int i = 0; i < Sz; i++) {
+      EIdV[i] = InEIdV[Ind+i];
+    }
   }
-  void GetOutEIdV(const TInt ETypeId, TIntV& EIdV) const {
-//    int Sz = OutTypeDegV[ETypeId].Val;
-//    EIdV.Reserve(Sz, Sz);
-//    int Ind = OutTypeIndexV[ETypeId].Val;
-//    for (int i = 0; i < Sz; i++) {
-//      EIdV[i] = OutEIdV[Ind+i];
-//    }
-    OutEIdV.GetSubValV(OutTypeIndexV[ETypeId].Val, OutTypeDegV[ETypeId].Val+OutTypeDegV[ETypeId].Val, EIdV);
+  void GetOutEIdV(const TInt& ETypeId, TIntV& EIdV) const {
+    int Sz = OutTypeDegV[ETypeId].Val;
+    EIdV.Reserve(Sz, Sz);
+    int Ind = OutTypeIndexV[ETypeId].Val;
+    for (int i = 0; i < Sz; i++) {
+      EIdV[i] = OutEIdV[Ind+i];
+    }
+  }
+  void GetInEIdV(const TIntV& ETypeIdV, TIntV& EIdV) const {
+    int Sz = 0;
+    for (int k = 0; k < ETypeIdV.Len(); k++) {
+      Sz += InTypeDegV[ETypeIdV[k]].Val;
+    }
+    EIdV.Reserve(Sz, 0);
+    int Ind;
+    for (int k = 0; k < ETypeIdV.Len(); k++) {
+      Ind = InTypeIndexV[ETypeIdV[k]].Val;
+      for (int i = 0; i < InTypeDegV[ETypeIdV[k]]; i++) {
+        EIdV.Add(InEIdV[Ind]);
+      }
+    }
+  }
+  void GetOutEIdV(const TIntV& ETypeIdV, TIntV& EIdV) const {
+    int Sz = 0;
+    for (int k = 0; k < ETypeIdV.Len(); k++) {
+      Sz += OutTypeDegV[ETypeIdV[k]].Val;
+    }
+    EIdV.Reserve(Sz, 0);
+    int Ind;
+    for (int k = 0; k < ETypeIdV.Len(); k++) {
+      Ind = OutTypeIndexV[ETypeIdV[k]].Val;
+      for (int i = 0; i < OutTypeDegV[ETypeIdV[k]]; i++) {
+        EIdV.Add(OutEIdV[Ind]);
+      }
+    }
   }
   friend class TMNet<TCVNode>;
 };
@@ -1253,8 +1279,8 @@ public:
     TIntSet ETypeIdSet(ETypeIdV);
     Sw->Stop(TStopwatch::InitGraph);
 
-    int NThreads = omp_get_max_threads();
-    TIntV VectorPool[3*NThreads];
+//    int NThreads = omp_get_max_threads();
+//    TIntV VectorPool[2*NThreads];
     for (int i = 0; i < NTypeIdV.Len(); i++) {
       Sw->Start(TStopwatch::ExtractNbrETypes);
       TInt NTypeId = NTypeIdV[i];
@@ -1273,49 +1299,43 @@ public:
       Sw->Start(TStopwatch::PopulateGraph);
       THash<TInt,TNode> *NodeHPtr = &(TypeNodeV[NTypeId].NodeH);
 
-      omp_set_num_threads(NThreads);
+//      omp_set_num_threads(NThreads);
       #pragma omp parallel for schedule(static)
       for (int KeyId = 0; KeyId < NodeHPtr->GetMxKeyIds(); KeyId++) {
         if (!NodeHPtr->IsKeyId(KeyId)) { continue; }
 
-//        TIntV EIdV;
-//        TIntV OutEIdV;
-//        TIntV InEIdV;
-
-        int ThreadIdx = omp_get_thread_num();
-        TIntV* EIdV = &(VectorPool[3*ThreadIdx]);
-        TIntV* OutEIdV = &(VectorPool[3*ThreadIdx+1]);
-        TIntV* InEIdV = &(VectorPool[3*ThreadIdx+2]);
+        TIntV OutEIdV;
+        TIntV InEIdV;
 
         Sw->Start(TStopwatch::ExtractEdges);
         TNode* PNode = &((*NodeHPtr)[KeyId]);
         int NId = PNode->GetId();
 
         //Sw->Start(TStopwatch::ExtractEdges);
-
-        OutEIdV->Reduce(0);
-        for (TIntV::TIter iter = OutETypeIdV.BegI(); iter < OutETypeIdV.EndI(); iter++) {
-          PNode->GetOutEIdV((*iter).Val, *EIdV);
-          OutEIdV->AddV(*EIdV);
-        }
-        InEIdV->Reduce(0);
-        for (TIntV::TIter iter = InETypeIdV.BegI(); iter < InETypeIdV.EndI(); iter++) {
-          PNode->GetInEIdV((*iter).Val, *EIdV);
-          InEIdV->AddV(*EIdV);
-        }
+//        OutEIdV.Reduce(0);
+//        for (TIntV::TIter iter = OutETypeIdV.BegI(); iter < OutETypeIdV.EndI(); iter++) {
+//          PNode->GetOutEIdV((*iter).Val, *EIdV);
+//          OutEIdV->AddV(*EIdV);
+//        }
+//        InEIdV.Reduce(0);
+//        for (TIntV::TIter iter = InETypeIdV.BegI(); iter < InETypeIdV.EndI(); iter++) {
+//          PNode->GetInEIdV((*iter).Val, *EIdV);
+//          InEIdV->AddV(*EIdV);
+//        }
+        PNode->GetOutEIdV(OutETypeIdV, OutEIdV);
+        PNode->GetInEIdV(InETypeIdV, InEIdV);
         Sw->Stop(TStopwatch::ExtractEdges);
 
         Sw->Start(TStopwatch::BuildSubgraph);
-        PNewGraph->AddNodeWithEdges(NId, *InEIdV, *OutEIdV);
+        PNewGraph->AddNodeWithEdges(NId, InEIdV, OutEIdV);
 
-        for (TIntV::TIter iter = OutEIdV->BegI(); iter < OutEIdV->EndI(); iter++) {
+        for (TIntV::TIter iter = OutEIdV.BegI(); iter < OutEIdV.EndI(); iter++) {
           PNewGraph->AddEdgeUnchecked((*iter), NId, GetEdge(*iter).GetDstNId());
         }
         Sw->Stop(TStopwatch::BuildSubgraph);
       }
       Sw->Stop(TStopwatch::PopulateGraph);
     }
-    #pragma omp barrier
 
     PNewGraph->SetNodes(SubgraphSz);
     PNewGraph->SetEdges(SubgraphEdgeSz);
