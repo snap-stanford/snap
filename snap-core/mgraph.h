@@ -102,6 +102,18 @@ public:
   void GetOutEIdV(const TInt ETypeId, TIntV& EIdV) const {
     EIdV = OutEIdVV[ETypeId.Val];
   }
+  void GetInEIdV(const TIntV& ETypeIdV, TIntV& EIdV) const {
+    EIdV.Reserve(InDeg, 0);
+    for (int k = 0; k < ETypeIdV.Len(); k++) {
+      EIdV.AddV(InEIdVV[ETypeIdV[k].Val]);
+    }
+  }
+  void GetOutEIdV(const TIntV& ETypeIdV, TIntV& EIdV) const {
+    EIdV.Reserve(OutDeg, 0);
+    for (int k = 0; k < ETypeIdV.Len(); k++) {
+      EIdV.AddV(OutEIdVV[ETypeIdV[k].Val]);
+    }
+  }
   friend class TMNet<TSVNode>;
 };
 
@@ -167,16 +179,34 @@ public:
     OutETypeIdV.Del(EIdN);
     OutEIdV.Del(EIdN);
   }
-  void GetInEIdV(const TInt ETypeId, TIntV& EIdV) const {
+  void GetInEIdV(const TInt& ETypeId, TIntV& EIdV) const {
     EIdV.Reduce(0); // Clear
     for (int i = 0; i < InEIdV.Len(); i++) {
       if (InETypeIdV[i] == ETypeId) { EIdV.Add(InEIdV[i]); }
     }
   }
-  void GetOutEIdV(const TInt ETypeId, TIntV& EIdV) const {
+  void GetOutEIdV(const TInt& ETypeId, TIntV& EIdV) const {
     EIdV.Reduce(0); // Clear
     for (int i = 0; i < OutEIdV.Len(); i++) {
       if (OutETypeIdV[i] == ETypeId) { EIdV.Add(OutEIdV[i]); }
+    }
+  }
+  void GetInEIdV(const TIntV& ETypeIdV, TIntV& EIdV) const {
+    EIdV.Reserve(InEIdV.Len(), 0);
+    for (int k = 0; k < ETypeIdV.Len(); k++) {
+      TInt ETypeId = ETypeIdV[k];
+      for (int i = 0; i < InETypeIdV.Len(); i++) {
+        if (InETypeIdV[i] == ETypeId) { EIdV.Add(InEIdV[i]); }
+      }
+    }
+  }
+  void GetOutEIdV(const TIntV& ETypeIdV, TIntV& EIdV) const {
+    EIdV.Reserve(OutEIdV.Len(), 0);
+    for (int k = 0; k < ETypeIdV.Len(); k++) {
+      TInt ETypeId = ETypeIdV[k];
+      for (int i = 0; i < OutETypeIdV.Len(); i++) {
+        if (OutETypeIdV[i] == ETypeId) { EIdV.Add(OutEIdV[i]); }
+      }
     }
   }
   friend class TMNet<TMVNode>;
@@ -1307,7 +1337,7 @@ public:
         TIntV OutEIdV;
         TIntV InEIdV;
 
-        Sw->Start(TStopwatch::ExtractEdges);
+//        Sw->Start(TStopwatch::ExtractEdges);
         TNode* PNode = &((*NodeHPtr)[KeyId]);
         int NId = PNode->GetId();
 
@@ -1324,15 +1354,15 @@ public:
 //        }
         PNode->GetOutEIdV(OutETypeIdV, OutEIdV);
         PNode->GetInEIdV(InETypeIdV, InEIdV);
-        Sw->Stop(TStopwatch::ExtractEdges);
+//        Sw->Stop(TStopwatch::ExtractEdges);
 
-        Sw->Start(TStopwatch::BuildSubgraph);
+//        Sw->Start(TStopwatch::BuildSubgraph);
         PNewGraph->AddNodeWithEdges(NId, InEIdV, OutEIdV);
 
         for (TIntV::TIter iter = OutEIdV.BegI(); iter < OutEIdV.EndI(); iter++) {
           PNewGraph->AddEdgeUnchecked((*iter), NId, GetEdge(*iter).GetDstNId());
         }
-        Sw->Stop(TStopwatch::BuildSubgraph);
+//        Sw->Stop(TStopwatch::BuildSubgraph);
       }
       Sw->Stop(TStopwatch::PopulateGraph);
     }
