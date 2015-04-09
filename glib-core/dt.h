@@ -951,6 +951,7 @@ public:
   TCh(const char& _Val): Val(_Val){}
   operator char() const {return Val;}
   explicit TCh(TSIn& SIn){SIn.Load(Val);}
+  void Load(TSIn& SIn) {SIn.Load(Val);}
   void Save(TSOut& SOut) const {SOut.Save(Val);}
   void LoadXml(const PXmlTok& XmlTok, const TStr& Nm);
   void SaveXml(TSOut& SOut, const TStr& Nm) const;
