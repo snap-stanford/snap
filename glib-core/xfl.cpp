@@ -246,6 +246,13 @@ TStr TDir::GetExeDir(){
   return TStr::GetNrFPath(TStr(Bf).GetFPath());
 }
 
+bool TDir::Exists(const TStr& FPathFNm) {
+  struct stat Stat;   
+  const int ErrCd = stat(FPathFNm.CStr(), &Stat);
+  if (ErrCd == 0 && S_ISDIR(Stat.st_mode)) { return true; }
+  return false;
+}
+
 bool TDir::GenDir(const TStr& FPathFNm){
   return CreateDirectory(FPathFNm.CStr(), NULL)!=0;
 }
