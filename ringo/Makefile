@@ -7,11 +7,37 @@ include ../Makefile.config
 HEADER = Engine.h
 CPP = Engine.cpp
 
-TEST = LoadTest FilterTest AggrTest GroupTest IdTest ArithOpsTest SetOperationsTest TableTest TableTest1 Benchmark BenchmarkAshton ToGraphTest SimJoinTest SimJoinPerGroupTest 
+TEST = RowBasedTableTest ExplicitStringTableTest1 ExplicitStringTableTest2 ExplicitStringTableTest3 ExplicitStringTableTest4 ExplicitStringTableTest5 ExplicitStringTableTest6 \
+PhysicalOrderSortTest1 PhysicalOrderSortTest2 ParallelGroupByTest TablePageRank LoadTest FilterTest AggrTest GroupTest IdTest ArithOpsTest SetOperationsTest TableTest
+#TEST = ThresholdJoinTest 
 
 all: $(TEST)
 
 # COMPILE:
+ThresholdJoinTest: ThresholdJoinTest.cpp $(CSNAP)/Snap.o
+	$(CC) $(CXXFLAGS) -o $@ $@.cpp $(CSNAP)/Snap.o -I$(CSNAP) -I$(CGLIB) $(LDFLAGS) $(LIBS)
+	
+ParallelGroupByTest: ParallelGroupByTest.cpp $(CSNAP)/Snap.o
+	$(CC) $(CXXFLAGS) -o $@ $@.cpp $(CSNAP)/Snap.o -I$(CSNAP) -I$(CGLIB) $(LDFLAGS) $(LIBS)
+	
+TablePageRank: TablePageRank.cpp $(CSNAP)/Snap.o
+	$(CC) $(CXXFLAGS) -o $@ $@.cpp $(CSNAP)/Snap.o -I$(CSNAP) -I$(CGLIB) $(LDFLAGS) $(LIBS)
+	
+LoadTest: LoadTest.cpp $(CSNAP)/Snap.o
+	$(CC) $(CXXFLAGS) -o $@ $@.cpp $(CSNAP)/Snap.o -I$(CSNAP) -I$(CGLIB) $(LDFLAGS) $(LIBS)
+	
+ExplicitStringTableTest%: ExplicitStringTableTest%.cpp $(CSNAP)/Snap.o
+	$(CC) $(CXXFLAGS) -o $@ $@.cpp $(CSNAP)/Snap.o -I$(CSNAP) -I$(CGLIB) $(LDFLAGS) $(LIBS)
+	
+PhysicalOrderSortTest%: PhysicalOrderSortTest%.cpp $(CSNAP)/Snap.o
+	$(CC) $(CXXFLAGS) -o $@ $@.cpp $(CSNAP)/Snap.o -I$(CSNAP) -I$(CGLIB) $(LDFLAGS) $(LIBS)
+	
+GenerateMockTsv: GenerateMockTsv.cpp $(CSNAP)/Snap.o
+	$(CC) $(CXXFLAGS) -o $@ $@.cpp $(CSNAP)/Snap.o -I$(CSNAP) -I$(CGLIB) $(LDFLAGS) $(LIBS)
+	
+RowBasedTableTest: RowBasedTableTest.cpp $(CSNAP)/Snap.o
+	$(CC) $(CXXFLAGS) -o $@ $@.cpp $(CSNAP)/Snap.o -I$(CSNAP) -I$(CGLIB) $(LDFLAGS) $(LIBS)
+	
 LoadTest: LoadTest.cpp $(CSNAP)/Snap.o
 	$(CC) $(CXXFLAGS) -o $@ $@.cpp $(CSNAP)/Snap.o -I$(CSNAP) -I$(CGLIB) $(LDFLAGS) $(LIBS)
 

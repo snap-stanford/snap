@@ -801,6 +801,7 @@ public:
   bool Empty() const { return ! Len(); }
   char* operator () () const { return Bf; }
   TStrPool& operator = (const TStrPool& Pool);
+  ::TSize GetMemUsed(){ return 4 * sizeof(int) + MxBfL;}
 
   uint AddStr(const char *Str, const uint& Len);
   uint AddStr(const char *Str) { return AddStr(Str, uint(strlen(Str)) + 1); }
