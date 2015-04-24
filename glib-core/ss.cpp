@@ -589,19 +589,19 @@ const char* TSsParserMP::DumpStr() const {
 
 // Finds number of new line chars in interval [lb, ub)
 // Assumes that lines end in '\n'
-uint64_t TSsParserMP::CountNewLinesInRange(uint64_t Lb, uint64_t Ub) const {
+uint64 TSsParserMP::CountNewLinesInRange(uint64 Lb, uint64 Ub) const {
   return FInPt->CountNewLinesInRange(Lb, Ub);
 }
 
-TVec<uint64_t> TSsParserMP::GetStartPosV(uint64_t Lb, uint64_t Ub) const {
-  TVec<uint64_t> Ret;
+TVec<uint64> TSsParserMP::GetStartPosV(uint64 Lb, uint64 Ub) const {
+  TVec<uint64> Ret;
   if (Lb >= GetStreamLen()) {
     return Ret;
   }
   while (Lb < Ub) {
     // Find line corresponding to Lb
-    uint64_t StartPos = FInPt->GetLineStartPos(Lb);
-    uint64_t EndPos = FInPt->GetLineEndPos(Lb);
+    uint64 StartPos = FInPt->GetLineStartPos(Lb);
+    uint64 EndPos = FInPt->GetLineEndPos(Lb);
 
     // If line ends in given range, add to count
     if (Lb <= EndPos && EndPos < Ub) {
@@ -615,7 +615,7 @@ TVec<uint64_t> TSsParserMP::GetStartPosV(uint64_t Lb, uint64_t Ub) const {
 
 // Essesntially the same as TssParser::Next
 // For parallel load, FldV cannot be shared across many threads
-void TSsParserMP::NextFromIndex(uint64_t Index, TVec<char*>& FieldsV) 
+void TSsParserMP::NextFromIndex(uint64 Index, TVec<char*>& FieldsV) 
 { 
   // split on SplitCh
   FieldsV.Clr();

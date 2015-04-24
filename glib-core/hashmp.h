@@ -1,3 +1,8 @@
+#ifndef hashmp_h
+#define hashmp_h
+
+#ifdef _OPENMP
+
 #include "bd.h"
 
 /////////////////////////////////////////////////
@@ -560,3 +565,7 @@ int THashMP<TKey, TDat, THashFunc>::GetRndKeyId(TRnd& Rnd, const double& EmptyFr
   printf("*** ERROR *** THashMP<TKey, TDat, THashFunc>::GetRndKeyId called\n");
   return 0;
 }
+
+#endif // openmp
+
+#endif // hashmp_h

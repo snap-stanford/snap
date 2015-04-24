@@ -428,11 +428,6 @@ protected:
     TStr NColName = NormalizeColName(ColName);
     return ColTypeMap.GetDat(NColName);
   }
-  /// Gets index of column \c ColName among columns of the same type in the schema.
-  TInt GetColIdx(const TStr& ColName) const {
-    TStr NColName = NormalizeColName(ColName);
-    return ColTypeMap.IsKey(NColName) ? ColTypeMap.GetDat(NColName).Val2 : TInt(-1);
-  }
   /// Returns a re-numbered column name based on number of existing columns with conflicting names.
   TStr RenumberColName(const TStr& ColName) const;
   /// Removes suffix to column name if exists
@@ -710,6 +705,12 @@ public:
   void AddRow(const TTableRow& Row) { AddRow(Row.GetIntVals(), Row.GetFltVals(), Row.GetStrVals()); };
 
 /***** Value Getters - getValue(column name, physical row Idx) *****/
+  /// Gets index of column \c ColName among columns of the same type in the schema.
+  TInt GetColIdx(const TStr& ColName) const {
+    TStr NColName = NormalizeColName(ColName);
+    return ColTypeMap.IsKey(NColName) ? ColTypeMap.GetDat(NColName).Val2 : TInt(-1);
+  }
+
   // No type checking. Assuming ColName actually refers to the right type.
   /// Gets the value of integer attribute \c ColName at row \c RowIdx.
   TInt GetIntVal(const TStr& ColName, const TInt& RowIdx) {
@@ -794,11 +795,11 @@ public:
     CommonNodeAttrs.Add(TStrTr(NormalizeColName(SrcAttr), NormalizeColName(DstAttr), NormalizeColName(CommonAttrName)));
   }
   /// Gets src node int attribute name vector.
-	TStrV GetSrcNodeIntAttrV() const;
+  TStrV GetSrcNodeIntAttrV() const;
   /// Gets dst node int attribute name vector.
   TStrV GetDstNodeIntAttrV() const;
   /// Gets edge int attribute name vector.
-	TStrV GetEdgeIntAttrV() const;
+  TStrV GetEdgeIntAttrV() const;
   /// Gets src node float attribute name vector.
 	TStrV GetSrcNodeFltAttrV() const;
   /// Gets dst node float attribute name vector.

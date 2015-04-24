@@ -312,7 +312,7 @@ TTable::TTable(const TTable& Table, const TIntV& RowIDs) : Context(Table.Context
 
 PTable TTable::LoadSS(const Schema& S, const TStr& InFNm, TTableContext& Context,
  const TIntV& RelevantCols, const char& Separator, TBool HasTitleLine) {
-  TVec<uint64_t> IntGroupByCols;
+  TVec<uint64> IntGroupByCols;
   bool NoStringCols = true;
   // find schema
   Schema SR;
@@ -359,18 +359,18 @@ PTable TTable::LoadSS(const Schema& S, const TStr& InFNm, TTableContext& Context
 
     // Divide remaining part of stream into equal sized chunks
     // Find starting position in stream for each thread
-    uint64_t Cnt = 0;
-    uint64_t Pos = Ss.GetStreamPos();
-    uint64_t Len = Ss.GetStreamLen();
-    uint64_t Rem = Len - Pos;
+    uint64 Cnt = 0;
+    uint64 Pos = Ss.GetStreamPos();
+    uint64 Len = Ss.GetStreamLen();
+    uint64 Rem = Len - Pos;
     int NumThreads = omp_get_max_threads();
 
-    uint64_t Delta = Rem / NumThreads;
+    uint64 Delta = Rem / NumThreads;
     if (Delta < 1) Delta = 1;
 
-    TVec<uint64_t> StartIntV(NumThreads);
-    TVec<uint64_t> LineCountV(NumThreads);
-    TVec<uint64_t> PrefixSumV(NumThreads);
+    TVec<uint64> StartIntV(NumThreads);
+    TVec<uint64> LineCountV(NumThreads);
+    TVec<uint64> PrefixSumV(NumThreads);
 
     StartIntV[0] = Pos;
     for (int i = 1; i < NumThreads; i++) {
@@ -416,10 +416,10 @@ PTable TTable::LoadSS(const Schema& S, const TStr& InFNm, TTableContext& Context
 #pragma omp parallel for schedule(dynamic) reduction(+:Cnt)
     for (int i = 0; i < NumThreads; i++) {
       // calculate beginning of each line handled by thread
-      TVec<uint64_t> LineStartPosV = Ss.GetStartPosV(StartIntV[i], StartIntV[i+1]);
+      TVec<uint64> LineStartPosV = Ss.GetStartPosV(StartIntV[i], StartIntV[i+1]);
 
       // parse line and fill rows
-      for (uint64_t k = 0; k < (uint64_t) LineStartPosV.Len(); k++) {
+      for (uint64 k = 0; k < (uint64) LineStartPosV.Len(); k++) {
         TVec<char*> FieldsV;
         Ss.NextFromIndex(LineStartPosV[k], FieldsV);
         if (FieldsV.Len() != S.Len()) {
@@ -469,7 +469,7 @@ PTable TTable::LoadSS(const Schema& S, const TStr& InFNm, TTableContext& Context
 
     omp_set_num_threads(NumThreads);
 #pragma omp parallel for schedule(dynamic, 10000)
-    for (uint64_t i = 0; i < Cnt-1; i++) {
+    for (uint64 i = 0; i < Cnt-1; i++) {
       T->Next[i] = i+1;
     }
     T->IsNextDirty = 0;
@@ -483,7 +483,7 @@ PTable TTable::LoadSS(const Schema& S, const TStr& InFNm, TTableContext& Context
     // initialize ID column
     omp_set_num_threads(NumThreads);
     #pragma omp parallel for schedule(dynamic, 10000)
-    for (uint64_t i = 0; i < Cnt; i++) {
+    for (uint64 i = 0; i < Cnt; i++) {
       T->IntCols[IdCol][i] = i;
     }
 
@@ -512,7 +512,7 @@ PTable TTable::LoadSS(const Schema& S, const TStr& InFNm, TTableContext& Context
 
   // populate table columns
   //printf("starting to populate table\n");
-  uint64_t Cnt = 0;
+  uint64 Cnt = 0;
   while (Ss.Next()) {
     TInt IntColIdx = 0;
     TInt FltColIdx = 0;
@@ -561,7 +561,7 @@ PTable TTable::LoadSS(const Schema& S, const TStr& InFNm, TTableContext& Context
 
   T->Next.Clr();
   T->Next.Gen(Cnt);
-  for (uint64_t i = 0; i < Cnt-1; i++) {
+  for (uint64 i = 0; i < Cnt-1; i++) {
     T->Next[i] = i+1;
   }
   T->IsNextDirty = 0;
@@ -4701,6 +4701,7 @@ void TTable::ColGenericOp(const TStr& Attr1, const TFlt& Num, const TStr& ResAtt
   }
 }
 
+#ifdef _OPENMP
 void TTable::ColGenericOpMP(TInt ColIdx1, TInt ColIdx2, TAttrType ArgType, TFlt Num, TArithOp op, TBool ShouldCast){
 	TIntPrV Partitions;
 	GetPartitionRanges(Partitions, omp_get_max_threads()*CHUNKS_PER_THREAD);
@@ -4730,6 +4731,7 @@ void TTable::ColGenericOpMP(TInt ColIdx1, TInt ColIdx2, TAttrType ArgType, TFlt 
 		}
 	}
 }
+#endif
 
 void TTable::ColAdd(const TStr& Attr1, const TFlt& Num, const TStr& ResultAttrName, const TBool floatCast) {
   ColGenericOp(Attr1, Num, ResultAttrName, aoAdd, floatCast);
