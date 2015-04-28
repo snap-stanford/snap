@@ -370,6 +370,7 @@ int GetShortestDistances(const PGraph& Graph, const int& StartNId, const bool& F
   return Depth-1;
 }
 
+#ifdef _OPENMP
 template <class PGraph>
 int GetShortestDistancesMP2(const PGraph& Graph, const int& StartNId, const bool& FollowOut, const bool& FollowIn, TIntV& ShortestDists) {
   int MxNId = Graph->GetMxNId();
@@ -427,5 +428,6 @@ int GetShortestDistancesMP2(const PGraph& Graph, const int& StartNId, const bool
   }
   return Depth-1;
 }
+#endif // OPENMP
 
 } // namespace TSnap

@@ -570,7 +570,9 @@ PTable TTable::LoadSS(const Schema& S, const TStr& InFNm, TTableContext& Context
 
   T->InitIds();
   #ifdef _OPENMP
+  #ifdef GLib_LINUX
   }
+  #endif
   #endif
 
   return T;
@@ -2910,14 +2912,14 @@ void TTable::QSortPar(TIntV& V, const TVec<TAttrType>& SortByTypes, const TIntV&
 
   omp_set_num_threads(NumThreads);
   #pragma omp parallel for
-  for (TInt i = 0; i < NumThreads; i++) {
+  for (int i = 0; i < NumThreads; i++) {
     QSort(V, IndV[i], IndV[i+1] - 1, SortByTypes, SortByIndices, Asc);
   }
 
   while (NumThreads > 1) {
     omp_set_num_threads(NumThreads / 2);
     #pragma omp parallel for
-    for (TInt i = 0; i < NumThreads; i += 2) {
+    for (int i = 0; i < NumThreads; i += 2) {
       Merge(V, IndV[i], IndV[i+1], IndV[i+2], SortByTypes, SortByIndices, Asc);
     }
 
@@ -4014,7 +4016,7 @@ void TTable::ResizeTable(int RowCount) {
     #ifdef _OPENMP
     #pragma omp parallel for schedule(static)
     #endif
-    for (TInt i = 0; i < TotalCols+1; i++) {
+    for (int i = 0; i < TotalCols+1; i++) {
       if (i < FltOffset) {
         IntCols[i].Reserve(RowCount, RowCount); 
       } else if (i < StrOffset) {
@@ -4032,7 +4034,7 @@ void TTable::ResizeTable(int RowCount) {
     #ifdef _OPENMP
     #pragma omp parallel for schedule(static)
     #endif
-    for (TInt i = 0; i < TotalCols+1; i++) {
+    for (int i = 0; i < TotalCols+1; i++) {
       if (i < FltOffset) {
         IntCols[i].Trunc(RowCount); 
       } else if (i < StrOffset) {
@@ -5064,12 +5066,16 @@ void TTable::QSortKeyVal(TIntV& Key, TIntV& Val, TInt Start, TInt End) {
       QSortKeyVal(Key, Val, Pivot+1, End);
     } else {
       #ifdef _OPENMP
+      #ifndef GLib_WIN32
       #pragma omp task untied shared(Key, Val)
+      #endif
       #endif
       { QSortKeyVal(Key, Val, Start, Pivot-1); }
         
       #ifdef _OPENMP
+      #ifndef GLib_WIN32
       #pragma omp task untied shared(Key, Val)
+      #endif
       #endif
       { QSortKeyVal(Key, Val, Pivot+1, End); }
     }

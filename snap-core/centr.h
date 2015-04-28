@@ -122,7 +122,7 @@ void GetPageRank(const PGraph& Graph, TIntFltH& PRankH, const double& C, const d
   }
 }
 
-//#ifdef _OPENMP
+#ifdef _OPENMP
 // Page Rank -- there are two different implementations (uncomment the desired 2 lines):
 //   Berkhin -- (the correct way) see Algorithm 1 of P. Berkhin, A Survey on PageRank Computing, Internet Mathematics, 2005
 //   iGraph -- iGraph implementation(which treats leaked PageRank in a funny way)
@@ -470,7 +470,7 @@ void GetPageRankMNetMP(const PGraph& Graph, TIntFltH& PRankH, const double& C, c
   double t4 = omp_get_wtime();
   printf("Post-process %f\n", t4-t3);
 }
-//#endif // _OPENMP
+#endif // _OPENMP
 
 template<class PGraph>
 void GetHits(const PGraph& Graph, TIntFltH& NIdHubH, TIntFltH& NIdAuthH, const int& MaxIter) {

@@ -732,7 +732,7 @@ public:
     return IntCols[ColIdx][RowIdx];
   }
   /// Get the float value at column \c ColIdx and row \c RowIdx
-  TFlt GetFltValAtRowIdx(const TFlt& ColIdx, const TFlt& RowIdx) {
+  TFlt GetFltValAtRowIdx(const TInt& ColIdx, const TInt& RowIdx) {
     return FltCols[ColIdx][RowIdx];
   }
 

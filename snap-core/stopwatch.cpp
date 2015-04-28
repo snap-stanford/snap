@@ -5,7 +5,7 @@ double TStopwatch::Tick() {
   #else
   #ifdef GLib_WIN32
   return GetTickCount() / 1000.0;
-  #elif defined(GLib_GLIBC)
+  #else
   struct rusage rusage;
   getrusage(RUSAGE_SELF, &rusage);
 
