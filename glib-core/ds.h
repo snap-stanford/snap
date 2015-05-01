@@ -123,6 +123,30 @@ public:
   }
 };
 
+/// Compares the triple by the second value.
+template <class TVal1, class TVal2, class TVal3>
+class TCmpTrByVal2 {
+private:
+  bool IsAsc;
+public:
+  TCmpPairByVal2(const bool& AscSort=true) : IsAsc(AscSort) { }
+  bool operator () (const TTriple<TVal1, TVal2, TVal3>& P1, const TTriple<TVal1, TVal2, TVal3>& P2) const {
+    if (IsAsc) { return P1.Val2 < P2.Val2; } else { return P2.Val2 < P1.Val2; }
+  }
+};
+
+/// Compares the triple by the third value.
+template <class TVal1, class TVal2, class TVal3>
+class TCmpTrByVal3 {
+private:
+  bool IsAsc;
+public:
+  TCmpPairByVal2(const bool& AscSort=true) : IsAsc(AscSort) { }
+  bool operator () (const TTriple<TVal1, TVal2, TVal3>& P1, const TTriple<TVal1, TVal2, TVal3>& P2) const {
+    if (IsAsc) { return P1.Val3 < P2.Val3; } else { return P2.Val3 < P1.Val3; }
+  }
+};
+
 /////////////////////////////////////////////////
 // Triple
 template <class TVal1, class TVal2, class TVal3>
