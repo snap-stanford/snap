@@ -3860,109 +3860,120 @@ void TTable::SetFltColToConstMP(TInt UpdateColIdx, TFlt DefaultFltVal){
 	}
 }
 
-void TTable::UpdateFltFromTableMP(const TStr& KeyAttr, const TStr& UpdateAttr, const TTable& Table, 
-  	const TStr& FKeyAttr, const TStr& ReadAttr, TFlt DefaultFltVal){
-	if(!GetMP()){ TExcept::Throw("Not Using MP!");}
-  	TAttrType KeyType = GetColType(KeyAttr);
-  	TAttrType FKeyType = Table.GetColType(FKeyAttr);
-  	if(KeyType != FKeyType){TExcept::Throw("Key Type Mismatch");}
-  	if(GetColType(UpdateAttr) != atFlt || Table.GetColType(ReadAttr) != atFlt){
-  		TExcept::Throw("Expecting Float values");
-  	}
-  	TStr NKeyAttr = NormalizeColName(KeyAttr);
-  	//TStr NUpdateAttr = NormalizeColName(UpdateAttr);
-  	//TStr NFKeyAttr = Table.NormalizeColName(FKeyAttr);
-  	//TStr NReadAttr = Table.NormalizeColName(ReadAttr);
-  	TInt UpdateColIdx = GetColIdx(UpdateAttr);
-  	TInt FKeyColIdx = GetColIdx(FKeyAttr);
-  	TInt ReadColIdx = GetColIdx(ReadAttr);
+void TTable::UpdateFltFromTableMP(const TStr& KeyAttr, const TStr& UpdateAttr,
+    const TTable& Table, const TStr& FKeyAttr, const TStr& ReadAttr,
+    TFlt DefaultFltVal) {
+	if (!GetMP()) {
+    TExcept::Throw("Not Using MP!");
+  }
 
-  	// TODO: this should be a generic vector operation
-  	SetFltColToConstMP(UpdateColIdx, DefaultFltVal);
+  TAttrType KeyType = GetColType(KeyAttr);
+  TAttrType FKeyType = Table.GetColType(FKeyAttr);
+  if(KeyType != FKeyType){TExcept::Throw("Key Type Mismatch");}
+  if(GetColType(UpdateAttr) != atFlt || Table.GetColType(ReadAttr) != atFlt){
+    TExcept::Throw("Expecting Float values");
+  }
+  TStr NKeyAttr = NormalizeColName(KeyAttr);
+  //TStr NUpdateAttr = NormalizeColName(UpdateAttr);
+  //TStr NFKeyAttr = Table.NormalizeColName(FKeyAttr);
+  //TStr NReadAttr = Table.NormalizeColName(ReadAttr);
+  TInt UpdateColIdx = GetColIdx(UpdateAttr);
+  TInt FKeyColIdx = GetColIdx(FKeyAttr);
+  TInt ReadColIdx = GetColIdx(ReadAttr);
+
+  // TODO: this should be a generic vector operation
+  SetFltColToConstMP(UpdateColIdx, DefaultFltVal);
   		
 	TIntPrV Partitions;
 	Table.GetPartitionRanges(Partitions, omp_get_max_threads()*CHUNKS_PER_THREAD);
 	TInt PartitionSize = Partitions[0].GetVal2()-Partitions[0].GetVal1()+1;
 	TIntV Locks(NumRows);
 	Locks.PutAll(0);	// need to parallelize this...
-  	switch(KeyType){
-  		// TODO: add support for other cases of KeyType
-  		case atInt:{
-  			THashMP<TInt,TIntV> Grouping;
-  			// must use physical row ids
-  			GroupByIntColMP(NKeyAttr, Grouping, true);
-			#pragma omp parallel for schedule(dynamic, CHUNKS_PER_THREAD) // num_threads(1)
-			for (int i = 0; i < Partitions.Len(); i++){
-				TRowIterator RowI(Partitions[i].GetVal1(), &Table);
-				TRowIterator EndI(Partitions[i].GetVal2(), &Table);
-				while(RowI < EndI){
-  					TInt K = RowI.GetIntAttr(FKeyColIdx);
-  					if(Grouping.IsKey(K)){
-  						TIntV& UpdateRows = Grouping.GetDat(K);
-  						for(int j = 0; j < UpdateRows.Len(); j++){
-  							int* lock = &Locks[UpdateRows[j]].Val;
-  							if(!__sync_bool_compare_and_swap(lock, 0, 1)){ continue;}
-  							//printf("key = %d, row = %d, old_score = %f\n", K.Val, j, UpdateRows[j].Val, FltCols[UpdateColIdx][UpdateRows[j]].Val);
-  							FltCols[UpdateColIdx][UpdateRows[j]] = RowI.GetFltAttr(ReadColIdx);
-  							//printf("key = %d, new_score = %f\n", K.Val, j, FltCols[UpdateColIdx][UpdateRows[j]].Val);
-  					 	} // end of for loop
-  					} // end of if statement
-  					RowI++;
-  				} // end of while loop
-  			}	// end of for loop
-  			break;
-  		} // end of case atInt
-  	} // end of outer switch statement
+
+  switch (KeyType) {
+    // TODO: add support for other cases of KeyType
+    case atInt: {
+        THashMP<TInt,TIntV> Grouping;
+        // must use physical row ids
+        GroupByIntColMP(NKeyAttr, Grouping, true);
+        #pragma omp parallel for schedule(dynamic, CHUNKS_PER_THREAD) // num_threads(1)
+			  for (int i = 0; i < Partitions.Len(); i++) {
+				  TRowIterator RowI(Partitions[i].GetVal1(), &Table);
+				  TRowIterator EndI(Partitions[i].GetVal2(), &Table);
+				  while (RowI < EndI) {
+            TInt K = RowI.GetIntAttr(FKeyColIdx);
+            if (Grouping.IsKey(K)) {
+              TIntV& UpdateRows = Grouping.GetDat(K);
+              for (int j = 0; j < UpdateRows.Len(); j++) {
+                int* lock = &Locks[UpdateRows[j]].Val;
+                if (!__sync_bool_compare_and_swap(lock, 0, 1)) {
+                  continue;
+                }
+                //printf("key = %d, row = %d, old_score = %f\n", K.Val, j, UpdateRows[j].Val, FltCols[UpdateColIdx][UpdateRows[j]].Val);
+  							  FltCols[UpdateColIdx][UpdateRows[j]] = RowI.GetFltAttr(ReadColIdx);
+  							  //printf("key = %d, new_score = %f\n", K.Val, j, FltCols[UpdateColIdx][UpdateRows[j]].Val);
+              } // end of for loop
+            } // end of if statement
+            RowI++;
+          } // end of while loop
+        }	// end of for loop
+      } // end of case atInt
+      break;
+    default:
+      break;
+  } // end of outer switch statement
 }
 #endif	//_OPENMP
 
 void TTable::UpdateFltFromTable(const TStr& KeyAttr, const TStr& UpdateAttr, const TTable& Table, 
-  	const TStr& FKeyAttr, const TStr& ReadAttr, TFlt DefaultFltVal){
-  	if(!IsColName(KeyAttr)){ TExcept::Throw("Bad KeyAttr parameter");}
-  	if(!IsColName(UpdateAttr)){ TExcept::Throw("Bad UpdateAttr parameter");}
-  	if(!Table.IsColName(FKeyAttr)){ TExcept::Throw("Bad FKeyAttr parameter");}
-  	if(!Table.IsColName(ReadAttr)){ TExcept::Throw("Bad ReadAttr parameter");}
+  const TStr& FKeyAttr, const TStr& ReadAttr, TFlt DefaultFltVal){
+  if(!IsColName(KeyAttr)){ TExcept::Throw("Bad KeyAttr parameter");}
+  if(!IsColName(UpdateAttr)){ TExcept::Throw("Bad UpdateAttr parameter");}
+  if(!Table.IsColName(FKeyAttr)){ TExcept::Throw("Bad FKeyAttr parameter");}
+  if(!Table.IsColName(ReadAttr)){ TExcept::Throw("Bad ReadAttr parameter");}
+  
+#ifdef _OPENMP
+  if(GetMP()){
+    UpdateFltFromTableMP(KeyAttr, UpdateAttr,Table, FKeyAttr, ReadAttr, DefaultFltVal);
+    return;
+  }
+#endif	//_OPENMP
   	
-  	#ifdef _OPENMP
-  	if(GetMP()){
-  		UpdateFltFromTableMP(KeyAttr, UpdateAttr,Table, FKeyAttr, ReadAttr, DefaultFltVal);
-  		return;
-  	}
-  	#endif	//_OPENMP
+  TAttrType KeyType = GetColType(KeyAttr);
+  TAttrType FKeyType = Table.GetColType(FKeyAttr);
+  if(KeyType != FKeyType){TExcept::Throw("Key Type Mismatch");}
+  if(GetColType(UpdateAttr) != atFlt || Table.GetColType(ReadAttr) != atFlt){
+    TExcept::Throw("Expecting Float values");
+  }
+  TStr NKeyAttr = NormalizeColName(KeyAttr);
+  TStr NUpdateAttr = NormalizeColName(UpdateAttr);
+  TStr NFKeyAttr = Table.NormalizeColName(FKeyAttr);
+  TStr NReadAttr = Table.NormalizeColName(ReadAttr);
+  TInt UpdateColIdx = GetColIdx(UpdateAttr);
   	
-  	TAttrType KeyType = GetColType(KeyAttr);
-  	TAttrType FKeyType = Table.GetColType(FKeyAttr);
-  	if(KeyType != FKeyType){TExcept::Throw("Key Type Mismatch");}
-  	if(GetColType(UpdateAttr) != atFlt || Table.GetColType(ReadAttr) != atFlt){
-  		TExcept::Throw("Expecting Float values");
-  	}
-  	TStr NKeyAttr = NormalizeColName(KeyAttr);
-  	TStr NUpdateAttr = NormalizeColName(UpdateAttr);
-  	TStr NFKeyAttr = Table.NormalizeColName(FKeyAttr);
-  	TStr NReadAttr = Table.NormalizeColName(ReadAttr);
-  	TInt UpdateColIdx = GetColIdx(UpdateAttr);
+  for(TRowIterator iter = BegRI(); iter < EndRI(); iter++){
+    FltCols[UpdateColIdx][iter.GetRowIdx()] = DefaultFltVal;
+  }
   	
-    for(TRowIterator iter = BegRI(); iter < EndRI(); iter++){
-  		FltCols[UpdateColIdx][iter.GetRowIdx()] = DefaultFltVal;
-  	}
-  	
-  	switch(KeyType){
-  		// TODO: add support for other cases of KeyType
-  		case atInt:{
-  			TIntIntVH Grouping;
-  			GroupByIntCol(NKeyAttr, Grouping, TIntV(), true, true);
-  			for(TRowIterator RI = Table.BegRI(); RI < Table.EndRI(); RI++){
-  				TInt K = RI.GetIntAttr(NFKeyAttr);
-  				if(Grouping.IsKey(K)){
-  					TIntV& UpdateRows = Grouping.GetDat(K);
-  					for(int i = 0; i < UpdateRows.Len(); i++){
-  						FltCols[UpdateColIdx][UpdateRows[i]] = RI.GetFltAttr(NReadAttr);
-  					 } // end of for loop
-  				} // end of if statement
-  			} // end of for loop
-  			break;
-  		} // end of case atInt
-  	} // end of outer switch statement
+  switch(KeyType) {
+    // TODO: add support for other cases of KeyType
+    case atInt: {
+        TIntIntVH Grouping;
+        GroupByIntCol(NKeyAttr, Grouping, TIntV(), true, true);
+        for (TRowIterator RI = Table.BegRI(); RI < Table.EndRI(); RI++) {
+          TInt K = RI.GetIntAttr(NFKeyAttr);
+          if (Grouping.IsKey(K)) {
+            TIntV& UpdateRows = Grouping.GetDat(K);
+            for (int i = 0; i < UpdateRows.Len(); i++) {
+              FltCols[UpdateColIdx][UpdateRows[i]] = RI.GetFltAttr(NReadAttr);
+            } // end of for loop
+          } // end of if statement
+        } // end of for loop
+      } // end of case atInt
+      break;
+    default:
+      break;
+  } // end of outer switch statement
 }
 
 
