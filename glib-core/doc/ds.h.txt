@@ -161,6 +161,10 @@ assumes the vector is sorted.
 If the element is not found return value is -1. Uses binary search and thus assumes the vector is sorted.
 ///
 
+/// TVec::SearchBinLeft
+If the element is not found return value is -1. Uses binary search and thus assumes the vector is sorted.
+///
+
 /// TVec::SearchForw
 If the element is not found return value is -1. Uses linear search starting at
 position \c BValN.

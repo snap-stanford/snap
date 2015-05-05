@@ -697,7 +697,7 @@ public:
   TSizeTy SearchBin(const TVal& Val) const;
   /// Returns the position of an element with value \c Val. ##TVec::SearchBin1
   TSizeTy SearchBin(const TVal& Val, TSizeTy& InsValN) const;
-  /// Returns the position of an element with value \c Val. ##TVec::SearchBin1
+  /// Returns the position of an element with value \c Val. ##TVec::SearchBinLeft
   TSizeTy SearchBinLeft(const TVal& Val, TSizeTy& InsValN) const;
   /// Returns the position of an element with value \c Val. ##TVec::SearchForw
   TSizeTy SearchForw(const TVal& Val, const TSizeTy& BValN=0) const;
