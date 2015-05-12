@@ -29,7 +29,7 @@ double Infomap(PUNGraph& Graph, TCnComV& CmtyV);
 double InfomapOnline(PUNGraph& Graph, int n1, int n2, TIntFltH& PAlpha, double& SumPAlphaLogPAlpha, TIntFltH& Qi, TIntH& Module, int& Br, TCnComV& CmtyV);
 
 void CmtyEvolutionFileBatch(TStr InFNm, TIntIntHH& sizesCont, TIntIntHH& cCont, TIntIntVH& edges, double alpha, double beta, int CmtyAlg);
-void CmtyEvolutionFileBatch(TStr InFNm, TIntIntVH& sizesContV, TIntIntVH& cContV, TIntIntVH& edges, double alpha, double beta, int CmtyAlg);
+void CmtyEvolutionFileBatchV(TStr InFNm, TIntIntVH& sizesContV, TIntIntVH& cContV, TIntIntVH& edges, double alpha, double beta, int CmtyAlg);
 void CmtyEvolutionJson(TStr& Json, TIntIntVH& sizesContV, TIntIntVH& cContV, TIntIntVH& edges);
 TStr CmtyTest(TStr t, int CmtyAlg);
 void ReebSimplify(PNGraph& Graph, TIntH& t, int e, PNGraph& gFinal, TIntH& tFinal, bool collapse);
