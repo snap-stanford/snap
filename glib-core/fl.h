@@ -409,7 +409,7 @@ public:
   ~TMIn();
 
   bool Eof(){return BfC==BfL;}
-  int Len() const {return BfL-BfC;}
+  int Len() const {return (int)(BfL-BfC);}
   char GetCh();
   char PeekCh();
   int GetBf(const void* LBf, const TSize& LBfL);

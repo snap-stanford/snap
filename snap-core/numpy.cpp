@@ -16,7 +16,7 @@ void TFltVToNumpy(TFltV& FltV, float* FltNumpyVecOut, int n) {
 		int limit = min(FltV.Len(), n);
 
     for (int i=0; i < limit; i++) {
-        FltNumpyVecOut[i] = FltV[i];
+        FltNumpyVecOut[i] = (float)FltV[i];
 		}
 }
 

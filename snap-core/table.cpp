@@ -1780,16 +1780,16 @@ PTable TTable::SimJoin(const TStrV& Cols1, const TTable& Table, const TStrV& Col
 						float Longitude1  = GetColType(Cols1[1])==atInt ? (float)RowI.GetIntAttr(Cols1[1]) : (float)RowI.GetFltAttr(Cols1[1]);
 						float Longitude2  = Table.GetColType(Cols2[1])==atInt ? (float)RowI2.GetIntAttr(Cols2[1]) : (float)RowI2.GetFltAttr(Cols2[1]);
 
-						Latitude1 *= M_PI/180.0;
-						Latitude2 *= M_PI/180.0;
-						Longitude1 *= M_PI/180.0;
-						Longitude2 *= M_PI/180.0;
+						Latitude1 *= (float)M_PI/180.0f;
+						Latitude2 *= (float)M_PI/180.0f;
+						Longitude1 *= (float)M_PI/180.0f;
+						Longitude2 *= (float)M_PI/180.0f;
 
 						float dlon = Longitude2 - Longitude1;
 						float dlat = Latitude2 - Latitude1;
 						float a = pow(sin(dlat/2), 2) + cos(Latitude1)*cos(Latitude2)*pow(sin(dlon/2), 2);
 						float c = 2*atan2(sqrt(a), sqrt(1-a));
-						distance = Radius*c;
+						distance = ((float)Radius.Val)*c;
 
 						if(distance<=Threshold){
 							JointTable->AddJointRow(*this, Table, RowI.GetRowIdx(), RowI2.GetRowIdx());
@@ -1878,7 +1878,7 @@ PTable TTable::SelfSimJoinPerGroup(const TStr& GroupAttr, const TStr& SimCol, co
 				}
 
 				int unionCount = Vals1H.Len() + Vals2H.Len() - intersectionCount;
-				float distance = 1.0 - (float)intersectionCount/unionCount;
+				float distance = 1.0f - (float)intersectionCount/unionCount;
 
 				// Add a new row to the JointTable
 				if(distance<=Threshold){

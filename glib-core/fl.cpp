@@ -533,26 +533,26 @@ TMIn::TMIn(const void* _Bf, const uint64& _BfL, const bool& TakeBf):
   if (TakeBf){
     Bf=(char*)_Bf;
   } else {
-    Bf=new char[BfL]; memmove(Bf, _Bf, BfL);
+    Bf=new char[(unsigned int)BfL]; memmove(Bf, _Bf, (unsigned int)BfL);
   }
 }
 
 TMIn::TMIn(TSIn& SIn):
   TSBase("Input-Memory"), TSIn("Input-Memory"), Bf(NULL), BfC(0), BfL(0), IsMemoryMapped(false){
-  BfL=SIn.Len(); Bf=new char[BfL];
+  BfL=SIn.Len(); Bf=new char[(unsigned int)BfL];
   for (uint64 BfC=0; BfC<BfL; BfC++){Bf[BfC]=SIn.GetCh();}
 }
 
 TMIn::TMIn(const char* CStr):
   TSBase("Input-Memory"), TSIn("Input-Memory"), Bf(NULL), BfC(0), BfL(0), IsMemoryMapped(false){
-  BfL=uint64(strlen(CStr)); Bf=new char[BfL+1]; strcpy(Bf, CStr);
+  BfL=uint64(strlen(CStr)); Bf=new char[(unsigned int)BfL+1]; strcpy(Bf, CStr);
 }
 
 /* GLib_LINUX should be defined if FromFile is true */
 TMIn::TMIn(const TStr& Str, bool FromFile):
   TSBase("Input-Memory"), TSIn("Input-Memory"), Bf(NULL), BfC(0), BfL(0){
   if (FromFile == false) {
-    BfL=Str.Len(); Bf=new char[BfL]; strncpy(Bf, Str.CStr(), BfL);
+    BfL=Str.Len(); Bf=new char[(unsigned int)BfL]; strncpy(Bf, Str.CStr(), (unsigned int)BfL);
     IsMemoryMapped = false;
   }
   else {
@@ -599,7 +599,7 @@ TMIn::TMIn(const TStr& Str, bool FromFile):
 
 TMIn::TMIn(const TChA& ChA):
   TSBase("Input-Memory"), TSIn("Input-Memory"), Bf(NULL), BfC(0), BfL(0), IsMemoryMapped(false){
-  BfL=ChA.Len(); Bf=new char[BfL]; strncpy(Bf, ChA.CStr(), BfL);
+  BfL=ChA.Len(); Bf=new char[(unsigned int)BfL]; strncpy(Bf, ChA.CStr(), (unsigned int)BfL);
 }
 
 PSIn TMIn::New(const void* _Bf, const uint64& _BfL, const bool& TakeBf){

@@ -84,9 +84,9 @@ TIntFltH MapEquationNew2Modules(PUNGraph& Graph, TIntH& Module, TIntFltH& Qi, in
 float Equation(PUNGraph& Graph, TIntFltH& PAlpha,float& SumPAlphaLogPAlpha, TIntFltH& Qi){
   float SumPAlpha = 1.0, SumQi = 0.0, SumQiLogQi=0.0, SumQiSumPAlphaLogQiSumPAlpha = 0.0;
   for (int i=0; i<Qi.Len(); i++) {
-    SumQi += Qi[i];
-    SumQiLogQi += Qi[i]*log(Qi[i]);
-    SumQiSumPAlphaLogQiSumPAlpha += (Qi[i]+SumPAlpha)*log(Qi[i]+SumPAlpha);
+    SumQi += (float)Qi[i];
+    SumQiLogQi += (float)(Qi[i]*log(Qi[i]));
+    SumQiSumPAlphaLogQiSumPAlpha += (float)((Qi[i]+SumPAlpha)*log(Qi[i]+SumPAlpha));
   }
   return (SumQi*log(SumQi)-2*SumQiLogQi-SumPAlphaLogPAlpha+SumQiSumPAlphaLogQiSumPAlpha);
 }
