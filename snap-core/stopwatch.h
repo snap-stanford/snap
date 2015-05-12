@@ -18,7 +18,9 @@ public:
   }
 
 private:
-  TStopwatch() {}; // Constructor? (the {} brackets) are needed here.
+  TStopwatch() {
+    for (int i = 0; i < NEXPS; i++) { Mins[i] = 100000000000.0; }
+  }; // Constructor? (the {} brackets) are needed here.
 
   // Dont forget to declare these two. You want to make sure they
   // are unacceptable otherwise you may accidentally get copies of
@@ -29,6 +31,8 @@ private:
   double Starts[NEXPS];
   int Cnts[NEXPS];
   double Sums[NEXPS];
+  double Maxs[NEXPS];
+  double Mins[NEXPS];
 
 private:
   double Tick();
@@ -44,6 +48,10 @@ public:
   double Sum(const TExperiment Exp) const;
   /// Returns the average time of all experiments
   double Avg(const TExperiment Exp) const;
+  /// Returns the maximum time of all experiments
+  double Max(const TExperiment Exp) const;
+  /// Returns the minimum time of all experiments
+  double Min(const TExperiment Exp) const;
 };
 
 #endif //STOPWATCH_H

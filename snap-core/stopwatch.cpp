@@ -18,7 +18,10 @@ void TStopwatch::Start(const TExperiment Exp) {
 }
 
 void TStopwatch::Stop(const TExperiment Exp) {
-  Sums[Exp] += Tick() - Starts[Exp];
+  double Duration = Tick() - Starts[Exp];
+  Sums[Exp] += Duration;
+  Maxs[Exp] = Maxs[Exp] >= Duration ? Maxs[Exp] : Duration;
+  Mins[Exp] = Mins[Exp] <= Duration ? Mins[Exp] : Duration;
   Cnts[Exp]++;
 }
 
@@ -32,4 +35,12 @@ double TStopwatch::Sum(const TExperiment Exp) const {
 
 double TStopwatch::Avg(const TExperiment Exp) const {
   return Sums[Exp] / Cnts[Exp];
+}
+
+double TStopwatch::Max(const TExperiment Exp) const {
+  return Maxs[Exp];
+}
+
+double TStopwatch::Min(const TExperiment Exp) const {
+  return Mins[Exp];
 }

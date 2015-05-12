@@ -89,9 +89,12 @@ int main(int argc, char* argv[]) {
   TimeOut->PutStrFmtLn("InitGraph = %f from %d", Sw->Avg(TStopwatch::InitGraph), Sw->Cnt(TStopwatch::InitGraph));
   TimeOut->PutStrFmtLn("ExtractNbrETypes = %f from %d", Sw->Sum(TStopwatch::ExtractNbrETypes)/Sw->Cnt(TStopwatch::Compute), Sw->Cnt(TStopwatch::Compute));
   TimeOut->PutStrFmtLn("CopyNodes = %f from %d", Sw->Sum(TStopwatch::CopyNodes)/Sw->Cnt(TStopwatch::Compute), Sw->Cnt(TStopwatch::Compute));
-  TimeOut->PutStrFmtLn("PopulateGraph = %f from %d", Sw->Sum(TStopwatch::PopulateGraph)/Sw->Cnt(TStopwatch::Compute), Sw->Cnt(TStopwatch::Compute));
-  TimeOut->PutStrFmtLn("ExtractEdges = %f from %d", Sw->Sum(TStopwatch::ExtractEdges)/Sw->Cnt(TStopwatch::Compute), Sw->Cnt(TStopwatch::Compute));
-  TimeOut->PutStrFmtLn("BuildSubgraph = %f from %d", Sw->Sum(TStopwatch::BuildSubgraph)/Sw->Cnt(TStopwatch::Compute), Sw->Cnt(TStopwatch::Compute));
+  TimeOut->PutStrFmtLn("PopulateGraph = %f,%f,%f from %d", Sw->Sum(TStopwatch::PopulateGraph)/Sw->Cnt(TStopwatch::Compute),
+                                          Sw->Max(TStopwatch::PopulateGraph), Sw->Min(TStopwatch::PopulateGraph), Sw->Cnt(TStopwatch::Compute));
+  TimeOut->PutStrFmtLn("ExtractEdges = %f,%f,%f from %d", Sw->Sum(TStopwatch::ExtractEdges)/Sw->Cnt(TStopwatch::Compute),
+                                          Sw->Max(TStopwatch::ExtractEdges), Sw->Min(TStopwatch::ExtractEdges), Sw->Cnt(TStopwatch::Compute));
+  TimeOut->PutStrFmtLn("BuildSubgraph = %f,%f,%f from %d", Sw->Sum(TStopwatch::BuildSubgraph)/Sw->Cnt(TStopwatch::Compute),
+                                          Sw->Max(TStopwatch::BuildSubgraph), Sw->Min(TStopwatch::BuildSubgraph), Sw->Cnt(TStopwatch::Compute));
 
   return 0;
 }
