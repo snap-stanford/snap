@@ -197,25 +197,25 @@ public:
     double Val=0.0; IAssert(GetFlt(FldN, Val)); return Val; }
   
   /// Returns position of stream pointer
-  uint64_t GetStreamPos() const {
+  uint64 GetStreamPos() const {
     return FInPt->GetBfC(); }
 
   /// Returns length of stream
-  uint64_t GetStreamLen() const {
+  uint64 GetStreamLen() const {
     return FInPt->GetBfL(); }
 
   /// Sets position of stream pointer
-  void SetStreamPos(uint64_t Pos) {
+  void SetStreamPos(uint64 Pos) {
     return FInPt->SetBfC(Pos); }
 
   /// Counts number of occurences of '\n' in [Lb, Ub)
-  uint64_t CountNewLinesInRange(uint64_t Lb, uint64_t Ub) const;
+  uint64 CountNewLinesInRange(uint64 Lb, uint64 Ub) const;
 
   /// Finds start positions of all lines ending somewhere in [Lb, Ub)
-  TVec<uint64_t> GetStartPosV(uint64_t Lb, uint64_t Ub) const;
+  TVec<uint64> GetStartPosV(uint64 Lb, uint64 Ub) const;
 
   /// Loads next line starting from a given position
-  void NextFromIndex(uint64_t Index, TVec<char*>& FieldsV);
+  void NextFromIndex(uint64 Index, TVec<char*>& FieldsV);
 
   /// Gets integer at field \c FldN
   int GetIntFromFldV(TVec<char*>& FieldsV, const int& FldN);

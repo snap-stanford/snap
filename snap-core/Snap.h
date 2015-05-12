@@ -2,6 +2,7 @@
 #define snap_main_h
 
 /// ##mainpage
+#define _USE_MATH_DEFINES    // to use cmath's constants for VS
 
 /////////////////////////////////////////////////
 // SNAP library

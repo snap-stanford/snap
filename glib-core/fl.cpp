@@ -528,7 +528,7 @@ TStr TFInOut::GetFNm() const {
 
 /////////////////////////////////////////////////
 // Input-Memory
-TMIn::TMIn(const void* _Bf, const uint64_t& _BfL, const bool& TakeBf):
+TMIn::TMIn(const void* _Bf, const uint64& _BfL, const bool& TakeBf):
   TSBase("Input-Memory"), TSIn("Input-Memory"), Bf(NULL), BfC(0), BfL(_BfL), IsMemoryMapped(false){
   if (TakeBf){
     Bf=(char*)_Bf;
@@ -540,12 +540,12 @@ TMIn::TMIn(const void* _Bf, const uint64_t& _BfL, const bool& TakeBf):
 TMIn::TMIn(TSIn& SIn):
   TSBase("Input-Memory"), TSIn("Input-Memory"), Bf(NULL), BfC(0), BfL(0), IsMemoryMapped(false){
   BfL=SIn.Len(); Bf=new char[BfL];
-  for (uint64_t BfC=0; BfC<BfL; BfC++){Bf[BfC]=SIn.GetCh();}
+  for (uint64 BfC=0; BfC<BfL; BfC++){Bf[BfC]=SIn.GetCh();}
 }
 
 TMIn::TMIn(const char* CStr):
   TSBase("Input-Memory"), TSIn("Input-Memory"), Bf(NULL), BfC(0), BfL(0), IsMemoryMapped(false){
-  BfL=uint64_t(strlen(CStr)); Bf=new char[BfL+1]; strcpy(Bf, CStr);
+  BfL=uint64(strlen(CStr)); Bf=new char[BfL+1]; strcpy(Bf, CStr);
 }
 
 /* GLib_LINUX should be defined if FromFile is true */
@@ -560,7 +560,7 @@ TMIn::TMIn(const TStr& Str, bool FromFile):
     TStr FNm = Str;
     TFileId FileId;
     int fd;
-    uint64_t FLen;
+    uint64 FLen;
     EAssertR(!FNm.Empty(), "Empty file-name.");
     FileId=fopen(FNm.CStr(), "rb");
     fd = fileno(FileId);
@@ -570,7 +570,7 @@ TMIn::TMIn(const TStr& Str, bool FromFile):
     EAssertR(
         fseek(FileId, 0, SEEK_END)==0,
         "Error seeking into file '"+TStr(FNm)+"'.");
-    FLen=(uint64_t)ftell(FileId);
+    FLen=(uint64)ftell(FileId);
     EAssertR(
         fseek(FileId, 0, SEEK_SET)==0,
         "Error seeking into file '"+TStr(FNm)+"'.");
@@ -602,7 +602,7 @@ TMIn::TMIn(const TChA& ChA):
   BfL=ChA.Len(); Bf=new char[BfL]; strncpy(Bf, ChA.CStr(), BfL);
 }
 
-PSIn TMIn::New(const void* _Bf, const uint64_t& _BfL, const bool& TakeBf){
+PSIn TMIn::New(const void* _Bf, const uint64& _BfL, const bool& TakeBf){
   return PSIn(new TMIn(_Bf, _BfL, TakeBf));
 }
 
@@ -659,7 +659,7 @@ int TMIn::GetBf(const void* LBf, const TSize& LBfL){
 //    BfN is end of buffer.
 // Returns -1, when an end of file was found, BfN is not defined.
 
-int TMIn::FindEol(uint64_t& BfN, bool& CrEnd) {
+int TMIn::FindEol(uint64& BfN, bool& CrEnd) {
   char Ch;
   if (BfC >= BfL) {
     // read more data, check for eof
@@ -703,25 +703,25 @@ bool TMIn::GetNextLnBf(TChA& LnChA){
   return false;
 }
 
-uint64_t TMIn::GetBfC() {
+uint64 TMIn::GetBfC() {
   return BfC;
 }
 
-uint64_t TMIn::GetBfL() {
+uint64 TMIn::GetBfL() {
   return BfL;
 }
 
-void TMIn::SetBfC(uint64_t Pos) {
+void TMIn::SetBfC(uint64 Pos) {
   BfC = Pos;
 }
 
 // Assumes that lines end in '\n'
-uint64_t TMIn::CountNewLinesInRange(uint64_t Lb, uint64_t Ub) {
-  uint64_t Cnt = 0;
+uint64 TMIn::CountNewLinesInRange(uint64 Lb, uint64 Ub) {
+  uint64 Cnt = 0;
   if (Lb >= BfL) {
     return 0;
   }
-  for (uint64_t i = Lb; i < Ub; i++) {
+  for (uint64 i = Lb; i < Ub; i++) {
     if (Bf[i] == '\n') {
       Cnt += 1;
     }
@@ -729,14 +729,14 @@ uint64_t TMIn::CountNewLinesInRange(uint64_t Lb, uint64_t Ub) {
   return Cnt;
 }
 
-uint64_t TMIn::GetLineStartPos(uint64_t Ind) {
+uint64 TMIn::GetLineStartPos(uint64 Ind) {
   while (Ind > 0 && Bf[Ind-1] != '\n') {
     Ind--;
   }
   return Ind;
 }
 
-uint64_t TMIn::GetLineEndPos(uint64_t Ind) {
+uint64 TMIn::GetLineEndPos(uint64 Ind) {
   while (Ind < BfL && Bf[Ind] != '\n') {
     Ind++;
   }
@@ -744,7 +744,7 @@ uint64_t TMIn::GetLineEndPos(uint64_t Ind) {
   return Ind;
 }
 
-char* TMIn::GetLine(uint64_t Index) {
+char* TMIn::GetLine(uint64 Index) {
   return &Bf[Index];
 }
 

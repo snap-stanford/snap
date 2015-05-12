@@ -860,7 +860,7 @@ PBPGraph TBPGraph::GetSmallGraph() {
 }
 
 
-
+#if defined(GLib_UNIX) && defined(_OPENMP)
 /////////////////////////////////////////////////
 // Directed Node Graph MP
 bool TNGraphMP::HasFlag(const TGraphFlag& Flag) const {
@@ -1146,5 +1146,4 @@ void TNGraphMP::AddNodeWithEdges(const TInt& NId, TIntV& InNIdV, TIntV& OutNIdV)
   NodeH[NodeKeyId].InNIdV.MoveFrom(InNIdV);
   NodeH[NodeKeyId].OutNIdV.MoveFrom(OutNIdV);  
 }
-
-
+#endif

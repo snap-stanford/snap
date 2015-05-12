@@ -1,3 +1,5 @@
+#if defined(GLib_UNIX) && defined(_OPENMP)
+
 /////////////////////////////////////////////////
 // Attribute Node Edge Network
 bool TNEANetMP::HasFlag(const TGraphFlag& Flag) const {
@@ -1045,3 +1047,5 @@ bool TNEANetMP::IsStrAttrE(const TStr& attr) {
   return (KeyToIndexTypeE.IsKey(attr) &&
     KeyToIndexTypeE.GetDat(attr).Val1 == StrType);
 }
+
+#endif

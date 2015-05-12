@@ -178,7 +178,7 @@ PGraph ToNetwork(PTable Table, const TStr& SrcCol, const TStr& DstCol, TAttrAggr
 	return ToNetwork<PNEANet>(Table, SrcCol, DstCol, V, V, V, AggrPolicy);
 }
 
-#ifdef _OPENMP
+#if defined(GLib_UNIX) && defined(_OPENMP)
 template<class PGraphMP>
 PGraphMP ToGraphMP(PTable Table, const TStr& SrcCol, const TStr& DstCol) {
   PNGraphMP Graph;
@@ -636,7 +636,6 @@ PGraphMP ToGraphMP2(PTable Table, const TStr& SrcCol, const TStr& DstCol) {
 
   return Graph;
 }
-#endif // _OPENMP
 
 inline PNEANetMP ToTNEANetMP(PTable Table, const TStr& SrcCol, const TStr& DstCol) {
   TStopwatch* Sw = TStopwatch::GetInstance();
@@ -644,7 +643,7 @@ inline PNEANetMP ToTNEANetMP(PTable Table, const TStr& SrcCol, const TStr& DstCo
   Sw->Start(TStopwatch::AllocateColumnCopies);
   const TInt SrcColIdx = Table->GetColIdx(SrcCol);
   const TInt DstColIdx = Table->GetColIdx(DstCol);
-  const TInt NumRows = Table->NumValidRows;
+  const TInt NumRows = Table->GetNumValidRows();
 
   TIntV SrcCol1, EdgeCol1, EdgeCol2, DstCol2;
 
@@ -691,15 +690,21 @@ inline PNEANetMP ToTNEANetMP(PTable Table, const TStr& SrcCol, const TStr& DstCo
   {
     #pragma omp single nowait
     {
+      #ifndef GLib_WIN32
       #pragma omp task untied shared(SrcCol1, EdgeCol1)
+      #endif
       { TTable::QSortKeyVal(SrcCol1, EdgeCol1, 0, NumRows-1); }
     }
     #pragma omp single nowait
     {
+      #ifndef GLib_WIN32
       #pragma omp task untied shared(EdgeCol2, DstCol2)
+      #endif
      { TTable::QSortKeyVal(DstCol2, EdgeCol2, 0, NumRows-1); }
     }
+    #ifndef GLib_WIN32
     #pragma omp taskwait
+    #endif
   }
   Sw->Stop(TStopwatch::Sort);
 
@@ -944,8 +949,8 @@ inline PNEANetMP ToTNEANetMP2(PTable Table, const TStr& SrcCol, const TStr& DstC
 
   Sw->Start(TStopwatch::CopyColumns);
   TIntPrV Partitions;
-  int NThreads = omp_get_max_threads();
-//  int NThreads = 3;
+//  int NThreads = omp_get_max_threads();
+  const int NThreads = 40;
   Table->GetPartitionRanges(Partitions, NThreads);
   TInt PartitionSize = Partitions[0].GetVal2()-Partitions[0].GetVal1()+1;
 
@@ -1028,8 +1033,8 @@ inline PNEANetMP ToTNEANetMP2(PTable Table, const TStr& SrcCol, const TStr& DstC
   Sw->Stop(TStopwatch::Sort);
 
   Sw->Start(TStopwatch::Group);
-  int NumCollectors = omp_get_max_threads();
-//  int NumCollectors = 2;
+//  const int NumCollectors = omp_get_max_threads();
+  const int NumCollectors = 20;
   int Range = MaxId.Val - MinId.Val;
   TIntV IdRanges(NumCollectors+1);
   for (int j = 0; j < NumCollectors; j++) {
@@ -1307,6 +1312,8 @@ inline PNEANetMP ToTNEANetMP2(PTable Table, const TStr& SrcCol, const TStr& DstC
   return Graph;
 }
 
-};
+#endif // GLib_UNIX && _OPENMP
+
+}; // TSnap namespace
 
 #endif // CONV_H

@@ -1,3 +1,8 @@
+#ifndef hashmp_h
+#define hashmp_h
+
+#if defined(GLib_UNIX) && defined(_OPENMP)
+
 #include "bd.h"
 
 /////////////////////////////////////////////////
@@ -263,8 +268,8 @@ int THashMP<TKey, TDat, THashFunc>::AddKey(const TKey& Key) {
     (!__sync_bool_compare_and_swap(&Table[TableN].HashCd.Val, -1, HashCd))) {
     TableN = (TableN + 1) % Table.Len();    
   }
-
   Table[TableN].Key = Key;
+  __sync_fetch_and_add(&NumVals.Val, 1);
   return TableN;
 }
 
@@ -560,3 +565,7 @@ int THashMP<TKey, TDat, THashFunc>::GetRndKeyId(TRnd& Rnd, const double& EmptyFr
   printf("*** ERROR *** THashMP<TKey, TDat, THashFunc>::GetRndKeyId called\n");
   return 0;
 }
+
+#endif // Glib_UNIX && openmp
+
+#endif // hashmp_h

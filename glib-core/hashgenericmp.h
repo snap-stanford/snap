@@ -1,5 +1,6 @@
 #include "bd.h"
 
+#ifdef GLib_GLIBC
 inline unsigned int __sync_fetch_and_add_2(volatile unsigned int* p, unsigned int incr)
 {
     unsigned int result;
@@ -9,6 +10,7 @@ inline unsigned int __sync_fetch_and_add_2(volatile unsigned int* p, unsigned in
             "memory");
     return result + 1;
 }
+#endif
 
 /////////////////////////////////////////////////
 // Hash-Table
@@ -173,7 +175,7 @@ public:
         if (port_lock == false) continue;
 
         volatile unsigned int *p = (volatile unsigned int *)&FFreeKeyId.Val;
-        KeyId = __sync_fetch_and_add_2(p, 1);
+        KeyId = __sync_fetch_and_add(p, 1);
 
         //KeyId = __sync_fetch_and_add(&FFreeKeyId.Val, 1);
 
@@ -438,7 +440,7 @@ int THashGenericMP<TKey, TDat, THashFunc>::AddKeyPar(const TKey& Key){
         if (port_lock == false) continue;
 
         volatile unsigned int *p = (volatile unsigned int *)&FFreeKeyId.Val;
-        KeyId = __sync_fetch_and_add_2(p, 1);
+        KeyId = __sync_fetch_and_add(p, 1);
 
         //KeyId = __sync_fetch_and_add(&FFreeKeyId.Val, 1);
 
@@ -691,7 +693,7 @@ bool THashGenericMP<TKey, TDat, THashFunc>::AddDatIfNotExist(const TKey& Key, co
       if (port_lock == false) continue;
 
       volatile unsigned int *p = (volatile unsigned int *)&FFreeKeyId.Val;
-      KeyId = __sync_fetch_and_add_2(p, 1);
+      KeyId = __sync_fetch_and_add(p, 1);
 
       //KeyId = __sync_fetch_and_add(&FFreeKeyId.Val, 1);
 

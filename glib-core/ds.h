@@ -538,8 +538,10 @@ public:
   TSizeTy Add(){ AssertR(MxVals!=-1, "This vector was obtained from TVecPool. Such vectors cannot change its size!");
     if (Vals==MxVals){Resize();} return Vals++;}
 
+  #if defined(GLib_UNIX) && defined(_OPENMP)
   TSizeTy AddAtm(const TVal& Val){ const int Idx = __sync_fetch_and_add(&Vals, 1);
   ValT[Idx]=Val; return Idx;}
+  #endif
 
   /// Adds a new element at the end of the vector, after its current last element. ##TVec::Add1
   TSizeTy Add(const TVal& Val){ AssertR(MxVals!=-1, "This vector was obtained from TVecPool. Such vectors cannot change its size!");
@@ -695,7 +697,7 @@ public:
   TSizeTy SearchBin(const TVal& Val) const;
   /// Returns the position of an element with value \c Val. ##TVec::SearchBin1
   TSizeTy SearchBin(const TVal& Val, TSizeTy& InsValN) const;
-  /// Returns the position of an element with value \c Val. ##TVec::SearchBin1
+  /// Returns the position of an element with value \c Val. ##TVec::SearchBinLeft
   TSizeTy SearchBinLeft(const TVal& Val, TSizeTy& InsValN) const;
   /// Returns the position of an element with value \c Val. ##TVec::SearchForw
   TSizeTy SearchForw(const TVal& Val, const TSizeTy& BValN=0) const;
