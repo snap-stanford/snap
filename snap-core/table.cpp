@@ -310,189 +310,178 @@ TTable::TTable(const TTable& Table, const TIntV& RowIDs) : Context(Table.Context
   InitIds();
 }
 
-PTable TTable::LoadSS(const Schema& S, const TStr& InFNm, TTableContext& Context,
- const TIntV& RelevantCols, const char& Separator, TBool HasTitleLine) {
-  TVec<uint64> IntGroupByCols;
-  bool NoStringCols = true;
-  // find schema
-  Schema SR;
-  if (RelevantCols.Len() == 0) {
-    SR = S;
-  } else {
-    for (TInt i = 0; i < RelevantCols.Len(); i++) {
-      SR.Add(S[RelevantCols[i]]);
-    }
-  }
-  PTable T = New(SR, Context);
-  // find col types and check for string cols
-  TInt RowLen = SR.Len();
+#if defined(GLib_LINUX) && defined(_OPENMP)
+void TTable::LoadSSPar(PTable& T, const Schema& S, const TStr& InFNm, const TIntV& RelevantCols, 
+                        const char& Separator, TBool HasTitleLine) {
+  // preloaded necessary variables
+  TInt RowLen = T->Sch.Len();
   TVec<TAttrType> ColTypes = TVec<TAttrType>(RowLen);
   for (TInt i = 0; i < RowLen; i++) {
     ColTypes[i] = T->GetSchemaColType(i);
-    if (ColTypes[i] == atStr) {
-      NoStringCols = false;
+  }
+
+  TSsParserMP Ss(InFNm, Separator);
+  Ss.SkipCommentLines();
+
+  // if title line (i.e. names of the columns) is included as first row in the
+  // input file - use it to validate schema
+  if (HasTitleLine) {
+    Ss.Next();
+    if (S.Len() != Ss.GetFlds()) {
+      printf("%s\n", Ss[0]); TExcept::Throw("Table Schema Mismatch!");
+    }
+    for (TInt i = 0; i < Ss.GetFlds(); i++) {
+      // remove carriage return char
+      TInt L = strlen(Ss[i]);
+      if (Ss[i][L-1] < ' ') { Ss[i][L-1] = 0; }
+      if (NormalizeColName(S[i].Val1) != NormalizeColName(Ss[i])) { TExcept::Throw("Table Schema Mismatch!"); }
     }
   }
-  //printf("read schema\n");
-  #ifdef _OPENMP
-  #ifdef GLib_LINUX
-  // Right now, can load in parallel only in Linux (for mmap) and if
-  // there are no string columns
-  if (GetMP() && NoStringCols) {
-    TSsParserMP Ss(InFNm, Separator);
-    Ss.SkipCommentLines();
 
-    // if title line (i.e. names of the columns) is included as first row in the
-    // input file - use it to validate schema
-    if (HasTitleLine) {
-      Ss.Next();
-      if (S.Len() != Ss.GetFlds()) {
-        printf("%s\n", Ss[0]); TExcept::Throw("Table Schema Mismatch!");
+  // Divide remaining part of stream into equal sized chunks
+  // Find starting position in stream for each thread
+  uint64 Cnt = 0;
+  uint64 Pos = Ss.GetStreamPos();
+  uint64 Len = Ss.GetStreamLen();
+  uint64 Rem = Len - Pos;
+  int NumThreads = omp_get_max_threads();
+
+  uint64 Delta = Rem / NumThreads;
+  if (Delta < 1) Delta = 1;
+
+  TVec<uint64> StartIntV(NumThreads);
+  TVec<uint64> LineCountV(NumThreads);
+  TVec<uint64> PrefixSumV(NumThreads);
+
+  StartIntV[0] = Pos;
+  for (int i = 1; i < NumThreads; i++) {
+    StartIntV[i] = StartIntV[i-1] + Delta;
+  }
+  StartIntV.Add(Len);
+
+  // Find number of lines handled by each thread
+  omp_set_num_threads(NumThreads);
+  #pragma omp parallel for schedule(dynamic) reduction(+:Cnt)
+  for (int i = 0; i < NumThreads; i++) {
+    LineCountV[i] = Ss.CountNewLinesInRange(StartIntV[i], StartIntV[i+1]);
+    Cnt += LineCountV[i];
+  }
+
+  // Calculate row index offsets for each thread
+  PrefixSumV[0] = 0;
+  for (int i = 1; i < NumThreads; i++) {
+    PrefixSumV[i] = PrefixSumV[i-1] + LineCountV[i-1];
+  }
+  Ss.SetStreamPos(Pos);
+
+  // allocate memory for columns
+  TInt IntColIdx = 0;
+  TInt FltColIdx = 0;
+  for (TInt i = 0; i < RowLen; i++) {
+    switch (ColTypes[i]) {
+      case atInt:
+        T->IntCols[IntColIdx].Gen(Cnt);
+        IntColIdx++;
+        break;
+      case atFlt:
+        T->FltCols[FltColIdx].Gen(Cnt);
+        FltColIdx++;
+        break;
+      case atStr:
+        break;
+    }
+  }
+
+  Cnt = 0;
+  omp_set_num_threads(NumThreads);
+  #pragma omp parallel for schedule(dynamic) reduction(+:Cnt)
+  for (int i = 0; i < NumThreads; i++) {
+    // calculate beginning of each line handled by thread
+    TVec<uint64> LineStartPosV = Ss.GetStartPosV(StartIntV[i], StartIntV[i+1]);
+
+    // parse line and fill rows
+    for (uint64 k = 0; k < (uint64) LineStartPosV.Len(); k++) {
+      TVec<char*> FieldsV;
+      Ss.NextFromIndex(LineStartPosV[k], FieldsV);
+      if (FieldsV.Len() != S.Len()) {
+        TExcept::Throw("Error reading tsv file");
       }
-      for (TInt i = 0; i < Ss.GetFlds(); i++) {
-        // remove carriage return char
-        TInt L = strlen(Ss[i]);
-        if (Ss[i][L-1] < ' ') { Ss[i][L-1] = 0; }
-        if (NormalizeColName(S[i].Val1) != NormalizeColName(Ss[i])) { TExcept::Throw("Table Schema Mismatch!"); }
-      }
-    }
+      TInt IntColIdx = 0;
+      TInt FltColIdx = 0;
+      TInt RowIdx = PrefixSumV[i] + k;
 
-    // Divide remaining part of stream into equal sized chunks
-    // Find starting position in stream for each thread
-    uint64 Cnt = 0;
-    uint64 Pos = Ss.GetStreamPos();
-    uint64 Len = Ss.GetStreamLen();
-    uint64 Rem = Len - Pos;
-    int NumThreads = omp_get_max_threads();
-
-    uint64 Delta = Rem / NumThreads;
-    if (Delta < 1) Delta = 1;
-
-    TVec<uint64> StartIntV(NumThreads);
-    TVec<uint64> LineCountV(NumThreads);
-    TVec<uint64> PrefixSumV(NumThreads);
-
-    StartIntV[0] = Pos;
-    for (int i = 1; i < NumThreads; i++) {
-      StartIntV[i] = StartIntV[i-1] + Delta;
-    }
-    StartIntV.Add(Len);
-
-    // Find number of lines handled by each thread
-    omp_set_num_threads(NumThreads);
-#pragma omp parallel for schedule(dynamic) reduction(+:Cnt)
-    for (int i = 0; i < NumThreads; i++) {
-      LineCountV[i] = Ss.CountNewLinesInRange(StartIntV[i], StartIntV[i+1]);
-      Cnt += LineCountV[i];
-    }
-
-    // Calculate row index offsets for each thread
-    PrefixSumV[0] = 0;
-    for (int i = 1; i < NumThreads; i++) {
-      PrefixSumV[i] = PrefixSumV[i-1] + LineCountV[i-1];
-    }
-    Ss.SetStreamPos(Pos);
-
-    // allocate memory for columns
-    TInt IntColIdx = 0;
-    TInt FltColIdx = 0;
-    for (TInt i = 0; i < RowLen; i++) {
-      switch (ColTypes[i]) {
-        case atInt:
-          T->IntCols[IntColIdx].Gen(Cnt);
-          IntColIdx++;
-          break;
-        case atFlt:
-          T->FltCols[FltColIdx].Gen(Cnt);
-          FltColIdx++;
-          break;
-        case atStr:
-          break;
-      }
-    }
-
-    Cnt = 0;
-    omp_set_num_threads(NumThreads);
-#pragma omp parallel for schedule(dynamic) reduction(+:Cnt)
-    for (int i = 0; i < NumThreads; i++) {
-      // calculate beginning of each line handled by thread
-      TVec<uint64> LineStartPosV = Ss.GetStartPosV(StartIntV[i], StartIntV[i+1]);
-
-      // parse line and fill rows
-      for (uint64 k = 0; k < (uint64) LineStartPosV.Len(); k++) {
-        TVec<char*> FieldsV;
-        Ss.NextFromIndex(LineStartPosV[k], FieldsV);
-        if (FieldsV.Len() != S.Len()) {
-          TExcept::Throw("Error reading tsv file");
+      for (TInt j = 0; j < RowLen; j++) {
+        switch (ColTypes[j]) {
+          case atInt:
+            if (RelevantCols.Len() == 0) {
+              T->IntCols[IntColIdx][RowIdx] = \
+                (Ss.GetIntFromFldV(FieldsV, j));
+            } else {
+              T->IntCols[IntColIdx][RowIdx] = \
+                (Ss.GetIntFromFldV(FieldsV, RelevantCols[j]));
+            }
+            IntColIdx++;
+            break;
+          case atFlt:
+            if (RelevantCols.Len() == 0) {
+              T->FltCols[FltColIdx][RowIdx] = \
+                (Ss.GetFltFromFldV(FieldsV, j));
+            } else {
+              T->FltCols[FltColIdx][RowIdx] = \
+                (Ss.GetFltFromFldV(FieldsV, RelevantCols[j]));
+            }
+            FltColIdx++;
+            break;
+          case atStr:
+            TExcept::Throw("TTable::LoadSS:: Str Col found\n");
+            break;
         }
-        TInt IntColIdx = 0;
-        TInt FltColIdx = 0;
-        TInt RowIdx = PrefixSumV[i] + k;
-
-        for (TInt j = 0; j < RowLen; j++) {
-          switch (ColTypes[j]) {
-            case atInt:
-              if (RelevantCols.Len() == 0) {
-                T->IntCols[IntColIdx][RowIdx] = \
-                  (Ss.GetIntFromFldV(FieldsV, j));
-              } else {
-                T->IntCols[IntColIdx][RowIdx] = \
-                  (Ss.GetIntFromFldV(FieldsV, RelevantCols[j]));
-              }
-              IntColIdx++;
-              break;
-            case atFlt:
-              if (RelevantCols.Len() == 0) {
-                T->FltCols[FltColIdx][RowIdx] = \
-                  (Ss.GetFltFromFldV(FieldsV, j));
-              } else {
-                T->FltCols[FltColIdx][RowIdx] = \
-                  (Ss.GetFltFromFldV(FieldsV, RelevantCols[j]));
-              }
-              FltColIdx++;
-              break;
-            case atStr:
-              TExcept::Throw("TTable::LoadSS:: Str Col found\n");
-              break;
-          }
-        }
-        Cnt++;
       }
+      Cnt++;
     }
+  }
 
-    // set number of rows and "Next" vector
-    T->NumRows = Cnt;
-    T->NumValidRows = T->NumRows;
+  // set number of rows and "Next" vector
+  T->NumRows = Cnt;
+  T->NumValidRows = T->NumRows;
 
-    T->Next.Clr();
-    T->Next.Gen(Cnt);
+  T->Next.Clr();
+  T->Next.Gen(Cnt);
 
-    omp_set_num_threads(NumThreads);
-#pragma omp parallel for schedule(dynamic, 10000)
-    for (uint64 i = 0; i < Cnt-1; i++) {
-      T->Next[i] = i+1;
-    }
-    T->IsNextDirty = 0;
-    T->Next[Cnt-1] = Last;
-    T->LastValidRow = T->NumRows - 1;
+  omp_set_num_threads(NumThreads);
+  #pragma omp parallel for schedule(dynamic, 10000)
+  for (uint64 i = 0; i < Cnt-1; i++) {
+    T->Next[i] = i+1;
+  }
+  T->IsNextDirty = 0;
+  T->Next[Cnt-1] = Last;
+  T->LastValidRow = T->NumRows - 1;
 
-    T->IdColName = "_id";
-    TInt IdCol = T->IntCols.Add();
-    T->IntCols[IdCol].Gen(Cnt);
+  T->IdColName = "_id";
+  TInt IdCol = T->IntCols.Add();
+  T->IntCols[IdCol].Gen(Cnt);
 
-    // initialize ID column
-    omp_set_num_threads(NumThreads);
-    #pragma omp parallel for schedule(dynamic, 10000)
-    for (uint64 i = 0; i < Cnt; i++) {
-      T->IntCols[IdCol][i] = i;
-    }
+  // initialize ID column
+  omp_set_num_threads(NumThreads);
+  #pragma omp parallel for schedule(dynamic, 10000)
+  for (uint64 i = 0; i < Cnt; i++) {
+    T->IntCols[IdCol][i] = i;
+  }
 
-    T->AddSchemaCol(T->IdColName, atInt);
-    T->AddColType(T->IdColName, atInt, T->IntCols.Len()-1);
-  
-  } else {
-  #endif
-  #endif
+  T->AddSchemaCol(T->IdColName, atInt);
+  T->AddColType(T->IdColName, atInt, T->IntCols.Len()-1);
+}
+#endif // OpenMP && Linux
+
+void TTable::LoadSSSeq(PTable& T, const Schema& S, const TStr& InFNm, const TIntV& RelevantCols, 
+                        const char& Separator, TBool HasTitleLine) {
+  // preloaded necessary variables
+  TInt RowLen = T->Sch.Len();
+  TVec<TAttrType> ColTypes = TVec<TAttrType>(RowLen);
+  for (TInt i = 0; i < RowLen; i++) {
+    ColTypes[i] = T->GetSchemaColType(i);
+  }
+
   // Sequential load
   TSsParser Ss(InFNm, Separator);
   // if title line (i.e. names of the columns) is included as first row in the
@@ -569,12 +558,43 @@ PTable TTable::LoadSS(const Schema& S, const TStr& InFNm, TTableContext& Context
   T->LastValidRow = T->NumRows - 1;
 
   T->InitIds();
-  #ifdef _OPENMP
-  #ifdef GLib_LINUX
-  }
-  #endif
-  #endif
+}
 
+PTable TTable::LoadSS(const Schema& S, const TStr& InFNm, TTableContext& Context,
+ const TIntV& RelevantCols, const char& Separator, TBool HasTitleLine) {
+  TVec<uint64> IntGroupByCols;
+  bool NoStringCols = true;
+
+  // find the schema for the new table which contains only relevant columns
+  Schema SR;
+  if (RelevantCols.Len() == 0) {
+    SR = S;
+  } else {
+    for (TInt i = 0; i < RelevantCols.Len(); i++) {
+      SR.Add(S[RelevantCols[i]]);
+    }
+  }
+  PTable T = New(SR, Context);
+
+  // find col types and check for string cols
+  for (TInt i = 0; i < SR.Len(); i++) {
+    if (T->GetSchemaColType(i) == atStr) {
+      NoStringCols = false;
+      break;
+    }
+  }
+
+  if (GetMP() && NoStringCols) {
+    // Right now, can load in parallel only in Linux (for mmap) and if
+    // there are no string columns
+    #if defined(GLib_LINUX) && defined(_OPENMP)
+    LoadSSPar(T, S, InFNm, RelevantCols, Separator, HasTitleLine);
+    #else
+    LoadSSSeq(T, S, InFNm, RelevantCols, Separator, HasTitleLine);
+    #endif
+  } else {
+    LoadSSSeq(T, S, InFNm, RelevantCols, Separator, HasTitleLine);
+  }
   return T;
 }
 
@@ -918,7 +938,7 @@ void TTable::GroupingSanityCheck(const TStr& GroupBy, const TAttrType& AttrType)
   }
 }
 
-#ifdef _OPENMP
+#if defined(GLib_UNIX) && defined(_OPENMP)
 void TTable::GroupByIntColMP(const TStr& GroupBy, THashMP<TInt, TIntV>& Grouping, TBool UsePhysicalIds) const {
   timeval timer0;
   gettimeofday(&timer0, NULL);
@@ -960,7 +980,7 @@ void TTable::GroupByIntColMP(const TStr& GroupBy, THashMP<TInt, TIntV>& Grouping
   //double endAdd = omp_get_wtime();
   //printf("Add time = %f\n", endAdd-endGen);
 }
-#endif // _OPENMP
+#endif // Glib_UNIX && _OPENMP
 
 void TTable::Unique(const TStr& Col) {
   TIntV RemainingRows;
@@ -1298,7 +1318,7 @@ void TTable::Aggregate(const TStrV& GroupByAttrs, TAttrAggr AggOp,
   THash<TFlt,TIntV> GroupByFltMapping;
   THash<TInt,TIntV> GroupByStrMapping;
   THash<TGroupKey,TIntV> Mapping;
-  #ifdef _OPENMP
+  #if defined(GLib_UNIX) && defined(_OPENMP)
   THashMP<TInt,TIntV> GroupByIntMapping_MP(NumValidRows);
   TIntV GroupByIntMPKeys(NumValidRows);
   #endif
@@ -1313,7 +1333,7 @@ void TTable::Aggregate(const TStrV& GroupByAttrs, TAttrAggr AggOp,
   	if(NGroupByAttrs.Len() == 1){
   		switch(GetColType(NGroupByAttrs[0])){
   			case atInt:
-  				#ifdef _OPENMP
+  				#if defined(GLib_UNIX) && defined(_OPENMP)
   				if(GetMP()){
   					GroupByIntColMP(NGroupByAttrs[0], GroupByIntMapping_MP, UsePhysicalIds);
   					int x = 0;
@@ -1334,7 +1354,7 @@ void TTable::Aggregate(const TStrV& GroupByAttrs, TAttrAggr AggOp,
   					//printf("Number of groups: %d\n", NumOfGroups.Val);
   					break;
   				}
-  				#endif //_OPENMP
+  				#endif // GLib_UNIX && _OPENMP
   				GroupByIntCol(NGroupByAttrs[0], GroupByIntMapping, TIntV(), true, UsePhysicalIds);
   				NumOfGroups = GroupByIntMapping.Len();
   				GroupingCase = 1;
@@ -1402,7 +1422,7 @@ void TTable::Aggregate(const TStrV& GroupByAttrs, TAttrAggr AggOp,
   			GroupRows = & GroupByStrMapping.GetDat(GroupByStrMapping.GetKey(g));
   			break;
   		case 4:
-  			#ifdef _OPENMP
+  			#if defined(GLib_UNIX) && defined(_OPENMP)
   			GroupRows = & GroupByIntMapping_MP.GetDat(GroupByIntMPKeys[g]);
   			#endif
   			break;
@@ -1998,7 +2018,7 @@ PTable TTable::Join(const TStr& Col1, const TTable& Table, const TStr& Col2) {
   // printf("Init time = %f\n", endInit-startFn);
   // iterate over the rows of the bigger table and check for "collisions" 
   // with the group keys for the small table.
-  #ifdef _OPENMP
+  #if defined(GLib_UNIX) && defined(_OPENMP)
   if (GetMP()) {
     switch(ColType){
       case atInt:{
@@ -2168,7 +2188,7 @@ PTable TTable::Join(const TStr& Col1, const TTable& Table, const TStr& Col2) {
       }
       break;
     }
-  #ifdef _OPENMP
+  #if defined(GLib_UNIX) && defined(_OPENMP)
   }
   #endif
   return JointTable; 
@@ -3491,7 +3511,7 @@ PTable TTable::GetEdgeTable(const PNEANet& Network, TTableContext& Context) {
   return T;
 }
 
-#ifdef _OPENMP
+#if defined(GLib_UNIX) && defined(_OPENMP)
 PTable TTable::GetEdgeTablePN(const PNGraphMP& Network, TTableContext& Context){
   Schema SR;
   SR.Add(TPair<TStr,TAttrType>("src_id",atInt));
@@ -3543,7 +3563,7 @@ PTable TTable::GetEdgeTablePN(const PNGraphMP& Network, TTableContext& Context){
   Assert(T->NumRows == NumEdges);
   return T;
 }
-#endif // _OPENMP
+#endif // GLib_UNIX && _OPENMP
 
 PTable TTable::GetFltNodePropertyTable(const PNEANet& Network, const TIntFltH& Property, 
  const TStr& NodeAttrName, const TAttrType& NodeAttrType, const TStr& PropertyAttrName, 
@@ -3843,7 +3863,7 @@ void TTable::UpdateTableForNewRow() {
   NumValidRows++;
 }
 
-#ifdef _OPENMP
+#if defined(GLib_UNIX) && defined(_OPENMP)
 void TTable::SetFltColToConstMP(TInt UpdateColIdx, TFlt DefaultFltVal){
     if(!GetMP()){ TExcept::Throw("Not Using MP!");}
 	TIntPrV Partitions;
@@ -3923,7 +3943,7 @@ void TTable::UpdateFltFromTableMP(const TStr& KeyAttr, const TStr& UpdateAttr,
       break;
   } // end of outer switch statement
 }
-#endif	//_OPENMP
+#endif	//GLib_UNIX && _OPENMP
 
 void TTable::UpdateFltFromTable(const TStr& KeyAttr, const TStr& UpdateAttr, const TTable& Table, 
   const TStr& FKeyAttr, const TStr& ReadAttr, TFlt DefaultFltVal){
@@ -3932,12 +3952,12 @@ void TTable::UpdateFltFromTable(const TStr& KeyAttr, const TStr& UpdateAttr, con
   if(!Table.IsColName(FKeyAttr)){ TExcept::Throw("Bad FKeyAttr parameter");}
   if(!Table.IsColName(ReadAttr)){ TExcept::Throw("Bad ReadAttr parameter");}
   
-#ifdef _OPENMP
+#if defined(GLib_UNIX) && defined(_OPENMP)
   if(GetMP()){
     UpdateFltFromTableMP(KeyAttr, UpdateAttr,Table, FKeyAttr, ReadAttr, DefaultFltVal);
     return;
   }
-#endif	//_OPENMP
+#endif	//GLib_UNIX && _OPENMP
   	
   TAttrType KeyType = GetColType(KeyAttr);
   TAttrType FKeyType = Table.GetColType(FKeyAttr);

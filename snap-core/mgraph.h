@@ -1183,7 +1183,7 @@ public:
     return PNewGraph;
   }
 
-  #ifdef _OPENMP
+  #if defined(GLib_UNIX) && defined(_OPENMP)
   PNEANetMP GetSubGraphTNEANetMP2(const TIntV& NTypeIdV) {
     TStopwatch* Sw = TStopwatch::GetInstance();
     Sw->Start(TStopwatch::ComputeETypes);

@@ -282,7 +282,7 @@ namespace TSnap{
 	/// Converts table to a network. Suitable for PNEANet - Assumes no node and edge attributes.
 	template<class PGraph> PGraph ToNetwork(PTable Table, const TStr& SrcCol, const TStr& DstCol, TAttrAggr AggrPolicy);
 
-  #ifdef _OPENMP
+  #if defined(GLib_UNIX) && defined(_OPENMP)
   template<class PGraphMP> PGraphMP ToGraphMP(PTable Table, const TStr& SrcCol, const TStr& DstCol);
   template<class PGraphMP> PGraphMP ToGraphMP2(PTable Table, const TStr& SrcCol, const TStr& DstCol);
   PNEANetMP ToTNEANetMP(PTable Table, const TStr& SrcCol, const TStr& DstCol);
@@ -303,7 +303,7 @@ public:
 	template<class PGraph> friend PGraph TSnap::ToNetwork(PTable Table, const TStr& SrcCol, const TStr& DstCol,
 			TStrV& SrcAttrs, TStrV& DstAttrs, TStrV& EdgeAttrs, TAttrAggr AggrPolicy);
 
-  #ifdef _OPENMP
+  #if defined(GLib_UNIX) && defined(_OPENMP)
   template<class PGraphMP> friend PGraphMP TSnap::ToGraphMP(PTable Table, const TStr& SrcCol, const TStr& DstCol);
   template<class PGraphMP> friend PGraphMP TSnap::ToGraphMP2(PTable Table, const TStr& SrcCol, const TStr& DstCol);
   friend PNEANetMP TSnap::ToTNEANetMP(PTable Table, const TStr& SrcCol, const TStr& DstCol);
@@ -488,11 +488,11 @@ protected:
   /// Groups/hashes by a single column with integer values. ##TTable::GroupByIntCol
   template <class T> void GroupByIntCol(const TStr& GroupBy, T& Grouping, 
     const TIntV& IndexSet, TBool All, TBool UsePhysicalIds = true) const;
-  #ifdef _OPENMP
+  #if defined(GLib_UNIX) && defined(_OPENMP)
   public:	//Should be protected - this is for debug only
   /// Groups/hashes by a single column with integer values, using OpenMP multi-threading.
   void GroupByIntColMP(const TStr& GroupBy, THashMP<TInt, TIntV>& Grouping, TBool UsePhysicalIds = true) const;
-  #endif // _OPENMP
+  #endif // GLib_UNIX && _OPENMP
   protected:
   /// Groups/hashes by a single column with float values. Returns hash table with grouping.
   template <class T> void GroupByFltCol(const TStr& GroupBy, T& Grouping, 
@@ -502,10 +502,10 @@ protected:
     const TIntV& IndexSet, TBool All, TBool UsePhysicalIds = true) const;
   /// Template for utility function to update a grouping hash map.
   template <class T> void UpdateGrouping(THash<T,TIntV>& Grouping, T Key, TInt Val) const;
-  #ifdef _OPENMP
+  #if defined(GLib_UNIX) && defined(_OPENMP)
   /// Template for utility function to update a parallel grouping hash map.
   template <class T> void UpdateGrouping(THashMP<T,TIntV>& Grouping, T Key, TInt Val) const;
-  #endif // _OPENMP
+  #endif // GLib_UNIX && _OPENMP
   void PrintGrouping(const THash<TGroupKey, TIntV>& Grouping) const;
 
   /***** Utility functions for sorting by columns *****/
@@ -587,6 +587,13 @@ protected:
   #endif // _OPENMP
   /// Updates table state after adding one or more rows.
   void UpdateTableForNewRow();
+
+  #if defined(GLib_LINUX) && defined(_OPENMP)
+  /// Parallelly loads data from input file at InFNm into NewTable. Only work when NewTable has no string columns.
+  static void LoadSSPar(PTable& NewTable, const Schema& S, const TStr& InFNm, const TIntV& RelevantCols, const char& Separator, TBool HasTitleLine);
+  #endif
+  /// Sequentially loads data from input file at InFNm into NewTable
+  static void LoadSSSeq(PTable& NewTable, const Schema& S, const TStr& InFNm, const TIntV& RelevantCols, const char& Separator, TBool HasTitleLine);
 
 /***** Utility functions for Group *****/
   /// Helper function for grouping. ##TTable::GroupAux
@@ -987,7 +994,7 @@ public:
   // the argument table. Equivalent to SQL's: UPDATE this SET UpdateAttr = ReadAttr WHERE KeyAttr = FKeyAttr
   void UpdateFltFromTable(const TStr& KeyAttr, const TStr& UpdateAttr, const TTable& Table, 
   	const TStr& FKeyAttr, const TStr& ReadAttr, TFlt DefaultFltVal = 0.0);
-  #ifdef _OPENMP
+ #if defined(GLib_UNIX) && defined(_OPENMP)
   void UpdateFltFromTableMP(const TStr& KeyAttr, const TStr& UpdateAttr, const TTable& Table, 
   	const TStr& FKeyAttr, const TStr& ReadAttr, TFlt DefaultFltVal = 0.0);
   // TODO: this should be a generic vector operation (parallel equivalent to TVec::PutAll)
@@ -1284,7 +1291,7 @@ void TTable::UpdateGrouping(THash<T,TIntV>& Grouping, T Key, TInt Val) const{
   }
 }
 
-#ifdef _OPENMP
+#if defined(GLib_UNIX) && defined(_OPENMP)
 template <class T>
 void TTable::UpdateGrouping(THashMP<T,TIntV>& Grouping, T Key, TInt Val) const{
   if (Grouping.IsKey(Key)) {
@@ -1297,7 +1304,7 @@ void TTable::UpdateGrouping(THashMP<T,TIntV>& Grouping, T Key, TInt Val) const{
     Grouping.AddDat(Key, NewGroup);
   }
 }
-#endif // _OPENMP
+#endif // GLib_UNIX && _OPENMP
 
 /*
 template<class T> 

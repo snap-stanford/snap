@@ -860,7 +860,7 @@ PBPGraph TBPGraph::GetSmallGraph() {
 }
 
 
-#ifdef _OPENMP
+#if defined(GLib_UNIX) && defined(_OPENMP)
 /////////////////////////////////////////////////
 // Directed Node Graph MP
 bool TNGraphMP::HasFlag(const TGraphFlag& Flag) const {

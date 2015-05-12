@@ -1,4 +1,4 @@
-#ifdef _OPENMP
+#if defined(GLib_UNIX) && defined(_OPENMP)
 
 /////////////////////////////////////////////////
 // Attribute Node Edge Network

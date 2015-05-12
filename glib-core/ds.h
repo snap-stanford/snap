@@ -538,7 +538,7 @@ public:
   TSizeTy Add(){ AssertR(MxVals!=-1, "This vector was obtained from TVecPool. Such vectors cannot change its size!");
     if (Vals==MxVals){Resize();} return Vals++;}
 
-  #ifdef _OPENMP
+  #if defined(GLib_UNIX) && defined(_OPENMP)
   TSizeTy AddAtm(const TVal& Val){ const int Idx = __sync_fetch_and_add(&Vals, 1);
   ValT[Idx]=Val; return Idx;}
   #endif

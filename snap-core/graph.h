@@ -894,7 +894,7 @@ namespace TSnap {
 template <> struct IsBipart<TBPGraph> { enum { Val = 1 }; };
 }
 
-#ifdef _OPENMP
+#if defined(GLib_UNIX) && defined(_OPENMP)
 // TNGraph for multi-threaded operations
 class TNGraphMP {
 public:

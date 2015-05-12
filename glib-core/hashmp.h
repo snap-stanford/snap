@@ -1,7 +1,7 @@
 #ifndef hashmp_h
 #define hashmp_h
 
-#ifdef _OPENMP
+#if defined(GLib_UNIX) && defined(_OPENMP)
 
 #include "bd.h"
 
@@ -566,6 +566,6 @@ int THashMP<TKey, TDat, THashFunc>::GetRndKeyId(TRnd& Rnd, const double& EmptyFr
   return 0;
 }
 
-#endif // openmp
+#endif // Glib_UNIX && openmp
 
 #endif // hashmp_h
