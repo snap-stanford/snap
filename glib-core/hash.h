@@ -788,7 +788,7 @@ public:
           MemUsed += int64(KeyDatV[KeyDatN].Key.GetMemUsed());
           MemUsed += int64(KeyDatV[KeyDatN].Dat.GetMemUsed());
       }
-      printf("TStrHash: Memory used for hash table: %lld\n", MemUsed);
+      printf("TStrHash: Memory used for hash table: %s\n", TUInt64::GetStr(MemUsed).CStr());
       MemUsed += 8 + Pool->GetMemUsed();
       return ::TSize(MemUsed/1000);
   }

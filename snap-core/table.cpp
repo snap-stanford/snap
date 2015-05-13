@@ -545,16 +545,16 @@ void TTable::LoadSSSeq(PTable& T, const Schema& S, const TStr& InFNm, const TInt
   }
   //printf("finished populating table\n");
   // set number of rows and "Next" vector
-  T->NumRows = Cnt;
+  T->NumRows = static_cast<int>(Cnt);
   T->NumValidRows = T->NumRows;
 
   T->Next.Clr();
-  T->Next.Gen(Cnt);
+  T->Next.Gen(static_cast<int>(Cnt));
   for (uint64 i = 0; i < Cnt-1; i++) {
-    T->Next[i] = i+1;
+    T->Next[static_cast<int>(i)] = static_cast<int>(i+1);
   }
   T->IsNextDirty = 0;
-  T->Next[Cnt-1] = Last;
+  T->Next[static_cast<int>(Cnt-1)] = Last;
   T->LastValidRow = T->NumRows - 1;
 
   T->InitIds();
@@ -1780,16 +1780,16 @@ PTable TTable::SimJoin(const TStrV& Cols1, const TTable& Table, const TStrV& Col
 						float Longitude1  = GetColType(Cols1[1])==atInt ? (float)RowI.GetIntAttr(Cols1[1]) : (float)RowI.GetFltAttr(Cols1[1]);
 						float Longitude2  = Table.GetColType(Cols2[1])==atInt ? (float)RowI2.GetIntAttr(Cols2[1]) : (float)RowI2.GetFltAttr(Cols2[1]);
 
-						Latitude1 *= (float)M_PI/180.0f;
-						Latitude2 *= (float)M_PI/180.0f;
-						Longitude1 *= (float)M_PI/180.0f;
-						Longitude2 *= (float)M_PI/180.0f;
+						Latitude1 *= static_cast<float>(M_PI/180.0);
+						Latitude2 *= static_cast<float>(M_PI/180.0);
+						Longitude1 *= static_cast<float>(M_PI/180.0);
+						Longitude2 *= static_cast<float>(M_PI/180.0);
 
 						float dlon = Longitude2 - Longitude1;
 						float dlat = Latitude2 - Latitude1;
 						float a = pow(sin(dlat/2), 2) + cos(Latitude1)*cos(Latitude2)*pow(sin(dlon/2), 2);
 						float c = 2*atan2(sqrt(a), sqrt(1-a));
-						distance = ((float)Radius.Val)*c;
+						distance = (static_cast<float>(Radius.Val))*c;
 
 						if(distance<=Threshold){
 							JointTable->AddJointRow(*this, Table, RowI.GetRowIdx(), RowI2.GetRowIdx());
@@ -4716,7 +4716,7 @@ void TTable::ColGenericOp(const TStr& Attr1, const TFlt& Num, const TStr& ResAtt
   for (TRowIterator RowI = BegRI(); RowI < EndRI(); RowI++) {
     if ((ArgType == atInt) && !shouldCast) {
       TInt CurVal = RowI.GetIntAttr(ColIdx1);
-      TInt Val = (TInt) Num;
+      TInt Val = static_cast<int>(Num);
       if (op == aoAdd) { IntCols[ColIdx2][RowI.GetRowIdx()] = CurVal + Val; }
       if (op == aoSub) { IntCols[ColIdx2][RowI.GetRowIdx()] = CurVal - Val; }
       if (op == aoMul) { IntCols[ColIdx2][RowI.GetRowIdx()] = CurVal * Val; }
@@ -4746,7 +4746,7 @@ void TTable::ColGenericOpMP(TInt ColIdx1, TInt ColIdx2, TAttrType ArgType, TFlt 
 		while(RowI < EndI){
 			if ((ArgType == atInt) && !ShouldCast) {
       			TInt CurVal = RowI.GetIntAttr(ColIdx1);
-      			TInt Val = (TInt) Num;
+      			TInt Val = static_cast<int>(Num);
       			if (op == aoAdd) { IntCols[ColIdx2][RowI.GetRowIdx()] = CurVal + Val; }
       			if (op == aoSub) { IntCols[ColIdx2][RowI.GetRowIdx()] = CurVal - Val; }
       			if (op == aoMul) { IntCols[ColIdx2][RowI.GetRowIdx()] = CurVal * Val; }
