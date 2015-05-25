@@ -570,7 +570,9 @@ PTable TTable::LoadSS(const Schema& S, const TStr& InFNm, TTableContext& Context
 
   T->InitIds();
   #ifdef _OPENMP
+  #ifdef GLib_LINUX
   }
+  #endif
   #endif
 
   return T;
