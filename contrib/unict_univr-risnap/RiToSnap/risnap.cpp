@@ -53,7 +53,7 @@ int main(int argc, char** argv) {
   
   RefGraph = TNodeEDatNet<TStr, TStr>::Load(RefLoad);
   QueGraph = TNodeEDatNet<TStr, TStr>::Load(QueLoad);
-  
+
   loadTime = end_time(loadTimeHandle);
   
   loaded = true;
@@ -65,7 +65,7 @@ int main(int argc, char** argv) {
     //start the matching process, call Match of type matchtype
     //between reference graph and query graph
     int retid = Match(matchtype, RefGraph, QueGraph);
-    
+
     matchTime = end_time(matchTimeHandle);
     totalTime = end_time(totalTimeHandle);
     std::cout<<"total time: "<<totalTime<<"\n";

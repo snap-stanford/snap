@@ -34,16 +34,59 @@ compatibility maps as bit vectors is required.
     Compiling RI Snap
 ===============================================================================
 
-To compile the source code and build an executable for RI Snap and RI-DS Snap
-as well use "make all". To clean the files execute "make clean".
+To compile the source code and build the executables for RI Snap and RI-DS Snap
+test use "make all". To clean the files execute "make clean". You will find
+risnap and risnapds executables within RiToSnap and RI_dsToSnap directories,
+respectively.
 
 
-////////////////////////////////////////
-Usage:
+  ////////////////////////////////////////
+  Usage:
 
-risnap [iso ind mono] reference query
+  risnap [iso ind mono] reference query
 
-risnapds [ind ind mono] reference query
+  risnapds [iso mono] reference query
+
+
+The sources for command line tools above are in the files risnap.cpp and
+risnapds.cpp. To use RI and RI-DS directly in your C++ code and call the
+appropriate function, see examples in these files.
+
+
+===============================================================================
+    Execute RI Snap example
+===============================================================================
+
+If you want to test RI Snap, we provide you two simple reference and query
+networks. Execute the following command:
+
+  ./risnap [iso ind mono] reference.snap query.snap
+
+or
+
+  ./risnapds [iso mono] reference.snap query.snap
+
+where reference.snap and query.snap contains the following networks of type
+TNodeEDatNet<TStr, TStr> (see risnap.cpp, risnapds.cpp file for source code):
+
+	reference.snap		query.snap
+
+	4 Nodes:		4 Nodes
+	 A B C Br		 A B C Br
+	5 Edges: 		3 Edges
+	 (0 1)			 (0 1)
+	 (2 1)			 (2 1)
+	 (2 3)			 (2 3)
+	 (0 3)		
+	 (0 2)		
+
+
+To load your own networks in our example use TNodeEDatNet<TStr, TStr> network
+type. Otherwise you can import directly the library header from the files
+rinetmatch.h or rids.h and call the Match function (see risnap.cpp,
+risnapds.cpp for further references).
+If you want to use other types for the annotation of nodes and
+edges, please make sure they have already defined the '==' operator.
 
 
 ===============================================================================

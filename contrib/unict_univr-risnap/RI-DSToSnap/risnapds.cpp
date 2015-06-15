@@ -1,12 +1,5 @@
 /*
- * ri3.cpp
- *
- *  Created on: Aug 2, 2012
- *      Author: vbonnici
- */
-
-/*
-Copyright (c) 2013 by Rosalba Giugno
+Copyright (c) 2015 by Rosalba Giugno
 
 This library contains portions of other open source products covered by separate
 licenses. Please see the corresponding source files for specific terms.

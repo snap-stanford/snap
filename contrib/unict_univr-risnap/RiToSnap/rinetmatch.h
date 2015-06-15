@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2013 by Rosalba Giugno
+Copyright (c) 2015 by Rosalba Giugno
 
 This library contains portions of other open source products covered by separate
 licenses. Please see the corresponding source files for specific terms.
@@ -409,7 +409,7 @@ public:
         if (MapNodeToState[m] < SId) {
           Edges[SId][ECount].SetSource(MapNodeToState[n]);
           Edges[SId][ECount].SetTarget(MapNodeToState[m]);
-          //Edges[SId][ECount].SetAttr(&SSG->GetEI(n, m).GetDat());
+          Edges[SId][ECount].SetAttr(&SSG->GetEI(n, m).GetDat());
           ECount++;
         }
       }
@@ -419,7 +419,7 @@ public:
 
           Edges[SId][ECount].SetTarget(MapNodeToState[n]);
           Edges[SId][ECount].SetSource(MapNodeToState[m]);
-          //Edges[SId][ECount].SetAttr(&SSG->GetEI(m, n).GetDat());
+          Edges[SId][ECount].SetAttr(&SSG->GetEI(m, n).GetDat());
           ECount++;
         }
       }
@@ -793,7 +793,7 @@ public:
     for (int me = 0; me < MaMa.GetEdgesSizes()[SId]; me++) {
       Source = Solution[MaMa.GetEdges()[SId][me].GetSource()];
       Target = Solution[MaMa.GetEdges()[SId][me].GetTarget()];
-
+      
       for (IId = 0; IId < GetOutAdjSize(RGraph, Source); IId++) {
         if (GetNthOutAdjList(RGraph, Source, IId) == Target) {
           if (RGraph->GetEI(Source, GetNthOutAdjList(RGraph, Source, IId)).GetDat() !=

@@ -1,12 +1,5 @@
-/* 
- * File:   ri3.h
- * Author: davide
- *
- * Created on 19 aprile 2014, 20.19
- */
-
 /*
-Copyright (c) 2013 by Rosalba Giugno
+Copyright (c) 2015 by Rosalba Giugno
 
 This library contains portions of other open source products covered by separate
 licenses. Please see the corresponding source files for specific terms.
@@ -848,7 +841,7 @@ public:
         if (MapNodeToState[m] < SId) {
           Edges[SId][ECount].SetSource(MapNodeToState[n]);
           Edges[SId][ECount].SetTarget(MapNodeToState[m]);
-          //Edges[SId][ECount].SetAttr(&SSG->GetEI(n, m).GetDat());
+          Edges[SId][ECount].SetAttr(&SSG->GetEI(n, m).GetDat());
           //Edges[SId][ECount].SetId(GetEdgeId(SSG, n, i));
           ECount++;
         }
@@ -859,7 +852,7 @@ public:
 
           Edges[SId][ECount].SetTarget(MapNodeToState[n]);
           Edges[SId][ECount].SetSource(MapNodeToState[m]);
-          //Edges[SId][ECount].SetAttr(&SSG->GetEI(m, n).GetDat());
+          Edges[SId][ECount].SetAttr(&SSG->GetEI(m, n).GetDat());
           //Edges[SId][ECount].SetId(GetEdgeId(SSG, n, i));
           ECount++;
         }
