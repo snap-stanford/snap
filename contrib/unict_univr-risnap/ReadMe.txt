@@ -34,10 +34,10 @@ compatibility maps as bit vectors is required.
     Compiling RI Snap
 ===============================================================================
 
-In order to compile the source code and build the executables for RI Snap and RI-DS Snap
-test use "make all". To clean the files execute "make clean". You will find
-risnap and risnapds executables within RiToSnap and RI_dsToSnap directories,
-respectively.
+In order to compile the source code and build the executables for RI Snap and 
+RI-DS Snap test use "make all". In order to clean the files execute
+"make clean". You will find "risnap" and "risnapds" executables within RiToSnap
+and RI_dsToSnap directories, respectively.
 
 
   ////////////////////////////////////////
@@ -57,7 +57,7 @@ appropriate function, see examples in these files.
     Execute RI Snap example
 ===============================================================================
 
-If you want to test RI Snap, we provide you two simple reference and query
+In order to test RI Snap, we provide you two simple reference and query
 networks. Execute the following command:
 
   ./risnap [iso ind mono] reference.snap query.snap
@@ -85,7 +85,7 @@ In order to load your own networks in our example use TNodeEDatNet<TStr, TStr>
 network type from Snap library. Otherwise you can import directly the library
 header from files rinetmatch.h or rids.h and call the Match function (see
 risnap.cpp, risnapds.cpp for further references).
-If you have to use other annotation type for nodes and edges, please make sure
+If you have to use other annotation types for nodes and edges, please make sure
 they have already defined the '==' operator.
 
 
