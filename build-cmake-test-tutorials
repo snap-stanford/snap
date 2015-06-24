@@ -1,0 +1,2 @@
+#!/bin/sh
+./build-cmake -DTESTS=ON -DTUTORIALS=ON "$@"

@@ -1,0 +1,30 @@
+#!/bin/bash
+# Copyright - 2015 - Jan Christoph Uhde <Jan@UhdeJC.com>
+
+project_root="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
+build_dir="${project_root}-build"
+
+args=()
+cm_flags=()
+for arg in $@; do
+    case $arg in
+        -v|--verbose)
+            export VERBOSE=1
+            export V=1
+        ;;
+        -d|--debug)
+            cm_flags+=( '-DCMAKE_BUILD_TYPE=Debug' )
+        ;;
+        -c|--clean)
+            rm -fr $build_dir
+        ;;
+        *)
+            args+=( "$arg" )
+        ;;
+    esac
+done
+
+test -d $build_dir || mkdir $build_dir || { exit 1; }
+cd $build_dir || { exit 1; }
+cmake "${cm_flags[@]}" "${args[@]}" "$project_root" && \
+make -j $(nproc)
