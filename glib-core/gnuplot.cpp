@@ -12,7 +12,7 @@
   TStr TGnuPlot::GnuPlotPath = "/usr/bin";
   TStr TGnuPlot::GnuPlotFNm = "gnuplot.exe";
 #elif defined(GLib_MACOSX) 
-  TStr TGnuPlot::GnuPlotPath = "/opt/local/bin";
+  TStr TGnuPlot::GnuPlotPath = "/usr/local/bin";
   TStr TGnuPlot::GnuPlotFNm = "gnuplot";
 #else 
   TStr TGnuPlot::GnuPlotPath = "/usr/bin";
