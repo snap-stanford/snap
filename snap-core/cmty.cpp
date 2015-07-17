@@ -436,7 +436,7 @@ double InfomapOnline(PUNGraph& Graph, int n1, int n2, TIntFltH& PAlpha, double& 
   return MinCodeLength;
 }
 
-void CmtyEvolutionFileBatch(TStr InFNm, TIntIntVH& sizesContV, TIntIntVH& cContV, TIntIntVH& edges, double alpha, double beta, int CmtyAlg) {
+void CmtyEvolutionFileBatchV(TStr InFNm, TIntIntVH& sizesContV, TIntIntVH& cContV, TIntIntVH& edges, double alpha, double beta, int CmtyAlg) {
   TIntIntHH sizesCont;
   TIntIntHH cCont;
   CmtyEvolutionFileBatch(InFNm, sizesCont, cCont, edges, alpha, beta, CmtyAlg);
@@ -829,7 +829,7 @@ TStr CmtyTest(TStr InFNm, int CmtyAlg){
   TIntIntVH edges;
   double alpha = 0.5;
   double beta = 0.75;
-  CmtyEvolutionFileBatch(InFNm, sizesContV, cContV, edges, alpha, beta, CmtyAlg);
+  CmtyEvolutionFileBatchV(InFNm, sizesContV, cContV, edges, alpha, beta, CmtyAlg);
   TStr out;
   //int a = sizesContV.Len();
   //int b = cContV.Len();
