@@ -5,8 +5,8 @@
 all: MakeAll
 
 MakeAll:
-	$(MAKE) -C agmgen
 	$(MAKE) -C agmfit
+	$(MAKE) -C agmgen
 	$(MAKE) -C bigclam
 	$(MAKE) -C cascades
 	$(MAKE) -C centrality
@@ -23,8 +23,8 @@ MakeAll:
 	$(MAKE) -C infopath
 	$(MAKE) -C kcores
 	$(MAKE) -C kronem
-	$(MAKE) -C krongen
 	$(MAKE) -C kronfit
+	$(MAKE) -C krongen
 	$(MAKE) -C magfit
 	$(MAKE) -C maggen
 	$(MAKE) -C mkdatasets
@@ -33,6 +33,7 @@ MakeAll:
 	$(MAKE) -C netevol
 	$(MAKE) -C netinf
 	$(MAKE) -C netstat
+	$(MAKE) -C rolx
 	$(MAKE) -C testgraph
 
 clean:

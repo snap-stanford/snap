@@ -175,7 +175,7 @@ void GetPageRank(const PGraph& Graph, TIntFltH& PRankH, const double& C, const d
   TFltV TmpV(NNodes);
 
   for (int iter = 0; iter < MaxIter; iter++) {
-    time_t t = time(0);
+    //time_t t = time(0);
     //printf("%s%d\n", ctime(&t),iter);
     //#pragma omp parallel for schedule(dynamic,10000)
     for (int j = 0; j < NNodes; j++) {
