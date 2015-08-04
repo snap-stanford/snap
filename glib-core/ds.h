@@ -516,9 +516,9 @@ public:
   /// Returns a reference to the one before last element of the vector.
   TVal& LastLast(){ AssertR(1<Vals, GetXOutOfBoundsErrMsg(Vals-2)); return ValT[Vals-2];}
   /// Returns a reference to a random element in the vector.
-  const TVal& GetRndVal(const TRnd& Rnd=TInt::Rnd) const { return GetVal(Rnd.GetUniDevInt(Len())); }
+  const TVal& GetRndVal(TRnd& Rnd=TInt::Rnd) const { return GetVal(Rnd.GetUniDevInt(Len())); }
   /// Returns a reference to a random element in the vector.
-  TVal& GetRndVal(const TRnd& Rnd=TInt::Rnd) { return GetVal(Rnd.GetUniDevInt(Len())); }
+  TVal& GetRndVal(TRnd& Rnd=TInt::Rnd) { return GetVal(Rnd.GetUniDevInt(Len())); }
   
   /// Returns an iterator pointing to the first element in the vector.
   TIter BegI() const {return ValT;}
