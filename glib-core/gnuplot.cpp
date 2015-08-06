@@ -12,7 +12,7 @@
   TStr TGnuPlot::GnuPlotPath = "/usr/bin";
   TStr TGnuPlot::GnuPlotFNm = "gnuplot.exe";
 #elif defined(GLib_MACOSX) 
-  TStr TGnuPlot::GnuPlotPath = "/opt/local/bin";
+  TStr TGnuPlot::GnuPlotPath = "/usr/local/bin";
   TStr TGnuPlot::GnuPlotFNm = "gnuplot";
 #else 
   TStr TGnuPlot::GnuPlotPath = "/usr/bin";
@@ -135,7 +135,11 @@ TStr TGnuPlot::GetSeriesPlotStr(const int& SeriesId) {
     //IAssertR(Series.DataFNm.SearchCh('=') != -1, TStr::Fmt("Expression %s is not a function", Series.DataFNm.CStr()));
     PlotStr += Series.DataFNm;
   }
-  PlotStr += " title \"" + Series.Label + "\"";
+  if (Series.SeriesTy == gpwErrBars) {
+    PlotStr += " notitle";
+  } else {
+    PlotStr += " title \"" + Series.Label + "\"";
+  }
   // hard coded line style
   if (Series.WithStyle.Empty()) {
     if (Series.SeriesTy == gpwLines) Series.WithStyle = "lw 1";

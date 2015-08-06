@@ -463,8 +463,8 @@ private:
 public:
     THist() { }
     THist(const double& _MnVal, const double& _MxVal, const int& Buckets):
-      MnVal(_MnVal), MxVal(_MxVal), BucketV(Buckets),
-	  BucketSize(1.01 * double(MxVal - MnVal) / double(Buckets)) { }
+      MnVal(_MnVal), MxVal(_MxVal), BucketV(Buckets) {
+      BucketSize = (MxVal == MnVal) ? 1.0 : (1.01 * double(MxVal - MnVal) / double(Buckets)); }
 
     void Add(const double& Val, const bool& OnlyInP);
 

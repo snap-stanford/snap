@@ -6,7 +6,7 @@
 #elif defined(GLib_CYGWIN)
   TStr TZipIn::SevenZipPath = "/usr/bin";
 #elif defined(GLib_MACOSX) 
-  TStr TZipIn::SevenZipPath = "/opt/local/bin";
+  TStr TZipIn::SevenZipPath = "/usr/local/bin";
 #else 
   TStr TZipIn::SevenZipPath = "/usr/bin";
 #endif

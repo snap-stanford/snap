@@ -474,7 +474,6 @@ void TNEANet::DelEdge(const int& EId) {
   const int DstNId = GetEdge(EId).GetDstNId();
   GetNode(SrcNId).OutEIdV.DelIfIn(EId);
   GetNode(DstNId).InEIdV.DelIfIn(EId);
-  EdgeH.DelKey(EId);
 
   for (i = 0; i < VecOfIntVecsE.Len(); i++) {
     TVec<TInt>& IntVec = VecOfIntVecsE[i];
@@ -488,6 +487,8 @@ void TNEANet::DelEdge(const int& EId) {
     TVec<TFlt>& FltVec = VecOfFltVecsE[i];
     FltVec.Ins(EdgeH.GetKeyId(EId), TFlt::Mn);
   }
+
+  EdgeH.DelKey(EId);
 }
 
 // delete all edges between the two nodes

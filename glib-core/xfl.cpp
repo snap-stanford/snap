@@ -179,7 +179,7 @@ bool TFFile::Next(TStr& FNm){
 
         struct stat Stat;
         int ErrCd = stat(FNm.CStr(), &Stat);
-        if (ErrCd == 0) {
+        if (ErrCd != 0) {
           Assert(ErrCd==0); // !bn: assert-with-exception [pa se drugje po tej funkciji]
         }
 
@@ -204,7 +204,7 @@ bool TFFile::Next(TStr& FNm){
         FFileDesc->DirEnt = NULL;
         int ErrCd = closedir(FFileDesc->FDesc);
         FFileDesc->FDesc = NULL;
-        if (ErrCd == 0) {
+        if (ErrCd != 0) {
           Assert(ErrCd==0);
         }
         break;
@@ -244,6 +244,15 @@ TStr TDir::GetExeDir(){
   int BfL=GetModuleFileName(NULL, Bf, MxBfL);
   IAssert((BfL!=0)&&(BfL<MxBfL));
   return TStr::GetNrFPath(TStr(Bf).GetFPath());
+}
+
+bool TDir::Exists(const TStr& FPathFNm) {
+#if defined(GLib_UNIX)
+  struct stat Stat;   
+  const int ErrCd = stat(FPathFNm.CStr(), &Stat);
+  if (ErrCd == 0 && S_ISDIR(Stat.st_mode)) { return true; }
+#endif
+  return false;
 }
 
 bool TDir::GenDir(const TStr& FPathFNm){
