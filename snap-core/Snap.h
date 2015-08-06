@@ -13,6 +13,7 @@
 #include "util.h"
 
 // graph data structures
+#include "attr.h"			 // sparse attributes
 #include "graph.h"           // graphs
 #include "network.h"         // networks
 #include "bignet.h"          // large networks
