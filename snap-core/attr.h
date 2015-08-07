@@ -29,9 +29,21 @@ public:
   int AddSAttrDat(const TInt& Id, const TStr& AttrName, TInt& Val); 
   int AddSAttrDat(const TInt& Id, const TInt& AttrId, TInt& Val);
 
+  int AddSAttrDat(const TInt& Id, const TStr& AttrName, TFlt& Val); 
+  int AddSAttrDat(const TInt& Id, const TInt& AttrId, TFlt& Val);
+
+  int AddSAttrDat(const TInt& Id, const TStr& AttrName, TStr& Val); 
+  int AddSAttrDat(const TInt& Id, const TInt& AttrId, TStr& Val);
+
   /// Get functions
   int GetSAttrDat(const TInt& Id, const TStr& AttrName, TInt& Val) const; 
   int GetSAttrDat(const TInt& Id, const TInt& AttrId, TInt& Val) const;
+
+  int GetSAttrDat(const TInt& Id, const TStr& AttrName, TFlt& Val) const; 
+  int GetSAttrDat(const TInt& Id, const TInt& AttrId, TFlt& Val) const;
+
+  int GetSAttrDat(const TInt& Id, const TStr& AttrName, TStr& Val) const; 
+  int GetSAttrDat(const TInt& Id, const TInt& AttrId, TStr& Val) const;
 
   /// Del functions
   int DelSAttrDat(const TInt& Id, const TStr& AttrName); 
@@ -83,9 +95,21 @@ public:
   int AddSAttrDat(const TPair<TInt, TInt>& Id, const TStr& AttrName, TInt& Val); 
   int AddSAttrDat(const TPair<TInt, TInt>& Id, const TInt& AttrId, TInt& Val);
 
+  int AddSAttrDat(const TPair<TInt, TInt>& Id, const TStr& AttrName, TFlt& Val); 
+  int AddSAttrDat(const TPair<TInt, TInt>& Id, const TInt& AttrId, TFlt& Val);
+
+  int AddSAttrDat(const TPair<TInt, TInt>& Id, const TStr& AttrName, TStr& Val); 
+  int AddSAttrDat(const TPair<TInt, TInt>& Id, const TInt& AttrId, TStr& Val);
+
   /// Get functions
   int GetSAttrDat(const TPair<TInt, TInt>& Id, const TStr& AttrName, TInt& Val) const; 
   int GetSAttrDat(const TPair<TInt, TInt>& Id, const TInt& AttrId, TInt& Val) const;
+
+  int GetSAttrDat(const TPair<TInt, TInt>& Id, const TStr& AttrName, TFlt& Val) const; 
+  int GetSAttrDat(const TPair<TInt, TInt>& Id, const TInt& AttrId, TFlt& Val) const;
+
+  int GetSAttrDat(const TPair<TInt, TInt>& Id, const TStr& AttrName, TStr& Val) const; 
+  int GetSAttrDat(const TPair<TInt, TInt>& Id, const TInt& AttrId, TStr& Val) const;
 
   /// Del functions
   int DelSAttrDat(const TPair<TInt, TInt>& Id, const TStr& AttrName); 
