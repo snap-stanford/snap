@@ -6,8 +6,35 @@ int TSparseAttrSingle::AddSAttrDat(const TInt& Id, const TStr& AttrName, TInt& V
 } 
 int TSparseAttrSingle::AddSAttrDat(const TInt& Id, const TInt& AttrId, TInt& Val) {
   if (!AttrIdToName.IsKey(AttrId)) { return -1; }
+  if (AttrIdToName.GetDat(AttrId).GetVal1() != atInt) { return -1; }
   TPair<TInt, TInt> Key(AttrId, Id);
   IntAttrVals.AddDat(Key, Val);
+  return 0;
+}
+
+int TSparseAttrSingle::AddSAttrDat(const TInt& Id, const TStr& AttrName, TFlt& Val) {
+  if (!AttrNameToId.IsKey(AttrName)) { return -1; }
+  TInt AttrId = AttrNameToId.GetDat(AttrName).GetVal2();
+  return AddSAttrDat(Id, AttrId, Val);
+} 
+int TSparseAttrSingle::AddSAttrDat(const TInt& Id, const TInt& AttrId, TFlt& Val) {
+  if (!AttrIdToName.IsKey(AttrId)) { return -1; }
+  if (AttrIdToName.GetDat(AttrId).GetVal1() != atFlt) { return -1; }
+  TPair<TInt, TInt> Key(AttrId, Id);
+  FltAttrVals.AddDat(Key, Val);
+  return 0;
+}
+
+int TSparseAttrSingle::AddSAttrDat(const TInt& Id, const TStr& AttrName, TStr& Val) {
+  if (!AttrNameToId.IsKey(AttrName)) { return -1; }
+  TInt AttrId = AttrNameToId.GetDat(AttrName).GetVal2();
+  return AddSAttrDat(Id, AttrId, Val);
+} 
+int TSparseAttrSingle::AddSAttrDat(const TInt& Id, const TInt& AttrId, TStr& Val) {
+  if (!AttrIdToName.IsKey(AttrId)) { return -1; }
+  if (AttrIdToName.GetDat(AttrId).GetVal1() != atStr) { return -1; }
+  TPair<TInt, TInt> Key(AttrId, Id);
+  StrAttrVals.AddDat(Key, Val);
   return 0;
 }
 
@@ -26,6 +53,34 @@ int TSparseAttrSingle::GetSAttrDat(const TInt& Id, const TInt& AttrId, TInt& Val
   return -1;
 }
 
+int TSparseAttrSingle::GetSAttrDat(const TInt& Id, const TStr& AttrName, TFlt& Val) const {
+  if (!AttrNameToId.IsKey(AttrName)) { return -1; }
+  TInt AttrId = AttrNameToId.GetDat(AttrName).GetVal2();
+  return GetSAttrDat(Id, AttrId, Val);
+} 
+int TSparseAttrSingle::GetSAttrDat(const TInt& Id, const TInt& AttrId, TFlt& Val) const {
+  TPair<TInt, TInt> Key(AttrId, Id);
+  if (FltAttrVals.IsKey(Key)) {
+    Val = FltAttrVals.GetDat(Key);
+    return 0;
+  }
+  return -1;
+}
+
+int TSparseAttrSingle::GetSAttrDat(const TInt& Id, const TStr& AttrName, TStr& Val) const {
+  if (!AttrNameToId.IsKey(AttrName)) { return -1; }
+  TInt AttrId = AttrNameToId.GetDat(AttrName).GetVal2();
+  return GetSAttrDat(Id, AttrId, Val);
+} 
+int TSparseAttrSingle::GetSAttrDat(const TInt& Id, const TInt& AttrId, TStr& Val) const {
+  TPair<TInt, TInt> Key(AttrId, Id);
+  if (StrAttrVals.IsKey(Key)) {
+    Val = StrAttrVals.GetDat(Key);
+    return 0;
+  }
+  return -1;
+}
+
 /// Del functions
 int TSparseAttrSingle::DelSAttrDat(const TInt& Id, const TStr& AttrName) {
   if (!AttrNameToId.IsKey(AttrName)) { return -1; }
@@ -36,6 +91,12 @@ int TSparseAttrSingle::DelSAttrDat(const TInt& Id, const TInt& AttrId) {
   TPair<TInt, TInt> Key(AttrId, Id);
   if (IntAttrVals.IsKey(Key)) {
     IntAttrVals.DelKey(Key);
+    return 0;
+  } else if (FltAttrVals.IsKey(Key)) {
+    FltAttrVals.DelKey(Key);
+    return 0;
+  } else if (StrAttrVals.IsKey(Key)) {
+    StrAttrVals.DelKey(Key);
     return 0;
   }
   return -1;
@@ -104,6 +165,7 @@ int TSparseAttrSingle::AddSAttr(const TStr& Name, const TAttrType& AttrType, TIn
   if (AttrType != atInt && AttrType != atFlt && AttrType != atStr) {
     return -1; // type must be defined and can only have a single type
   }
+  if (AttrNameToId.IsKey(Name)) { return -1; }
   AttrId = AttrNameToId.GetMxKeyIds();
   TPair<TInt, TInt> TypeAndId(AttrType, AttrId);
   AttrNameToId.AddDat(Name, TypeAndId);
@@ -142,8 +204,35 @@ int TSparseAttrPair::AddSAttrDat(const TPair<TInt, TInt>& Id, const TStr& AttrNa
 } 
 int TSparseAttrPair::AddSAttrDat(const TPair<TInt, TInt>& Id, const TInt& AttrId, TInt& Val) {
   if (!AttrIdToName.IsKey(AttrId)) { return -1; }
+  if (AttrIdToName.GetDat(AttrId).GetVal1() != atInt) { return -1; }
   TPair<TInt, TPair<TInt, TInt> > Key(AttrId, Id);
   IntAttrVals.AddDat(Key, Val);
+  return 0;
+}
+
+int TSparseAttrPair::AddSAttrDat(const TPair<TInt, TInt>& Id, const TStr& AttrName, TFlt& Val) {
+  if (!AttrNameToId.IsKey(AttrName)) { return -1; }
+  TInt AttrId = AttrNameToId.GetDat(AttrName).GetVal2();
+  return AddSAttrDat(Id, AttrId, Val);
+} 
+int TSparseAttrPair::AddSAttrDat(const TPair<TInt, TInt>& Id, const TInt& AttrId, TFlt& Val) {
+  if (!AttrIdToName.IsKey(AttrId)) { return -1; }
+  if (AttrIdToName.GetDat(AttrId).GetVal1() != atFlt) { return -1; }
+  TPair<TInt, TPair<TInt, TInt> > Key(AttrId, Id);
+  FltAttrVals.AddDat(Key, Val);
+  return 0;
+}
+
+int TSparseAttrPair::AddSAttrDat(const TPair<TInt, TInt>& Id, const TStr& AttrName, TStr& Val) {
+  if (!AttrNameToId.IsKey(AttrName)) { return -1; }
+  TInt AttrId = AttrNameToId.GetDat(AttrName).GetVal2();
+  return AddSAttrDat(Id, AttrId, Val);
+} 
+int TSparseAttrPair::AddSAttrDat(const TPair<TInt, TInt>& Id, const TInt& AttrId, TStr& Val) {
+  if (!AttrIdToName.IsKey(AttrId)) { return -1; }
+  if (AttrIdToName.GetDat(AttrId).GetVal1() != atStr) { return -1; }
+  TPair<TInt, TPair<TInt, TInt> > Key(AttrId, Id);
+  StrAttrVals.AddDat(Key, Val);
   return 0;
 }
 
@@ -162,6 +251,34 @@ int TSparseAttrPair::GetSAttrDat(const TPair<TInt, TInt>& Id, const TInt& AttrId
   return -1;
 }
 
+int TSparseAttrPair::GetSAttrDat(const TPair<TInt, TInt>& Id, const TStr& AttrName, TFlt& Val) const {
+  if (!AttrNameToId.IsKey(AttrName)) { return -1; }
+  TInt AttrId = AttrNameToId.GetDat(AttrName).GetVal2();
+  return GetSAttrDat(Id, AttrId, Val);
+} 
+int TSparseAttrPair::GetSAttrDat(const TPair<TInt, TInt>& Id, const TInt& AttrId, TFlt& Val) const {
+  TPair<TInt, TPair<TInt, TInt> > Key(AttrId, Id);
+  if (FltAttrVals.IsKey(Key)) {
+    Val = FltAttrVals.GetDat(Key);
+    return 0;
+  }
+  return -1;
+}
+
+int TSparseAttrPair::GetSAttrDat(const TPair<TInt, TInt>& Id, const TStr& AttrName, TStr& Val) const {
+  if (!AttrNameToId.IsKey(AttrName)) { return -1; }
+  TInt AttrId = AttrNameToId.GetDat(AttrName).GetVal2();
+  return GetSAttrDat(Id, AttrId, Val);
+} 
+int TSparseAttrPair::GetSAttrDat(const TPair<TInt, TInt>& Id, const TInt& AttrId, TStr& Val) const {
+  TPair<TInt, TPair<TInt, TInt> > Key(AttrId, Id);
+  if (StrAttrVals.IsKey(Key)) {
+    Val = StrAttrVals.GetDat(Key);
+    return 0;
+  }
+  return -1;
+}
+
 /// Del functions
 int TSparseAttrPair::DelSAttrDat(const TPair<TInt, TInt>& Id, const TStr& AttrName) {
   if (!AttrNameToId.IsKey(AttrName)) { return -1; }
@@ -172,6 +289,12 @@ int TSparseAttrPair::DelSAttrDat(const TPair<TInt, TInt>& Id, const TInt& AttrId
   TPair<TInt, TPair<TInt, TInt> > Key(AttrId, Id);
   if (IntAttrVals.IsKey(Key)) {
     IntAttrVals.DelKey(Key);
+    return 0;
+  } else if (FltAttrVals.IsKey(Key)) {
+    FltAttrVals.DelKey(Key);
+    return 0;
+  } else if (StrAttrVals.IsKey(Key)) {
+    StrAttrVals.DelKey(Key);
     return 0;
   }
   return -1;
