@@ -67,43 +67,36 @@ void TSparseAttrSingle::GetSAttrV(const TInt& Id, TAttrType AttrType, TAttrPrV& 
       }
     }
   }
-  /* Alternative implementation
-  if (AttrType == atInt || AttrType == atAny) {
-    for (THash<TPair<TInt, TInt>, TInt>::TIter it = IntAttrVals.BegI(); it < IntAttrVals.EndI(); it++) {
-      if (it.GetKey().GetVal2() == Id) {
-        TInt AttrId = it.GetKey().GetVal1();
-        TStr Name = AttrIdToName.GetDat(AttrId).GetVal2();
-        TAttrPr Dat(Name, atInt);
-        AttrV.Add(Dat);
-      }
-    }
-  }
-  if (AttrType == atFlt || AttrType == atAny) {
-    for (THash<TPair<TInt, TInt>, TFlt>::TIter it = FltAttrVals.BegI(); it < FltAttrVals.EndI(); it++) {
-      if (it.GetKey().GetVal2() == Id) {
-        TInt AttrId = it.GetKey().GetVal1();
-        TStr Name = AttrIdToName.GetDat(AttrId).GetVal2();
-        TAttrPr Dat(Name, atFlt);
-        AttrV.Add(Dat);
-      }
-    }
-  }
-  if (AttrType == atStr || AttrType == atAny) {
-    for (THash<TPair<TInt, TInt>, TStr>::TIter it = StrAttrVals.BegI(); it < StrAttrVals.EndI(); it++) {
-      if (it.GetKey().GetVal2() == Id) {
-        TInt AttrId = it.GetKey().GetVal1();
-        TStr Name = AttrIdToName.GetDat(AttrId).GetVal2();
-        TAttrPr Dat(Name, atStr);
-        AttrV.Add(Dat);
-      }
-    }
-  }
-  */
 }
 
 /// Get values over all nodes
-int TSparseAttrSingle::GetIdVSAttr(const TStr& AttrName, TIntV& IdV, TIntV& ValV) {
-  return -1; //not implemented
+int TSparseAttrSingle::GetIdVSAttr(const TStr& AttrName, TIntV& IdV) {
+  if (!AttrNameToId.IsKey(AttrName)) { return -1; }
+  TPair<TInt, TInt> TypeAndId = AttrNameToId.GetDat(AttrName);
+  TAttrType Type = static_cast<TAttrType>(TypeAndId.GetVal1().Val);
+  TInt AttrId = TypeAndId.GetVal2();
+  if (Type == atInt) {
+    for (THash<TPair<TInt, TInt>, TInt>::TIter it = IntAttrVals.BegI(); it < IntAttrVals.EndI(); it++) {
+      if (it.GetKey().GetVal1() == AttrId) {
+        IdV.Add(it.GetKey().GetVal2());
+      }
+    }
+  } else if (Type == atFlt) {
+    for (THash<TPair<TInt, TInt>, TFlt>::TIter it = FltAttrVals.BegI(); it < FltAttrVals.EndI(); it++) {
+      if (it.GetKey().GetVal1() == AttrId) {
+        IdV.Add(it.GetKey().GetVal2());
+      }
+    }
+  } else if (Type == atStr) {
+    for (THash<TPair<TInt, TInt>, TStr>::TIter it = StrAttrVals.BegI(); it < StrAttrVals.EndI(); it++) {
+      if (it.GetKey().GetVal1() == AttrId) {
+        IdV.Add(it.GetKey().GetVal2());
+      }
+    }
+  } else {
+    return -1;
+  }
+  return 0;
 }
 
 /// Add Attribute mapping
@@ -210,43 +203,36 @@ void TSparseAttrPair::GetSAttrV(const TPair<TInt, TInt>& Id, TAttrType AttrType,
       }
     }
   }
-  /* Alternative implementation
-  if (AttrType == atInt || AttrType == atAny) {
-    for (THash<TPair<TInt, TPair<TInt, TInt> >, TInt>::TIter it = IntAttrVals.BegI(); it < IntAttrVals.EndI(); it++) {
-      if (it.GetKey().GetVal2() == Id) {
-        TInt AttrId = it.GetKey().GetVal1();
-        TStr Name = AttrIdToName.GetDat(AttrId).GetVal2();
-        TAttrPr Dat(Name, atInt);
-        AttrV.Add(Dat);
-      }
-    }
-  }
-  if (AttrType == atFlt || AttrType == atAny) {
-    for (THash<TPair<TInt, TPair<TInt, TInt> >, TFlt>::TIter it = FltAttrVals.BegI(); it < FltAttrVals.EndI(); it++) {
-      if (it.GetKey().GetVal2() == Id) {
-        TInt AttrId = it.GetKey().GetVal1();
-        TStr Name = AttrIdToName.GetDat(AttrId).GetVal2();
-        TAttrPr Dat(Name, atFlt);
-        AttrV.Add(Dat);
-      }
-    }
-  }
-  if (AttrType == atStr || AttrType == atAny) {
-    for (THash<TPair<TInt, TPair<TInt, TInt> >, TStr>::TIter it = StrAttrVals.BegI(); it < StrAttrVals.EndI(); it++) {
-      if (it.GetKey().GetVal2() == Id) {
-        TInt AttrId = it.GetKey().GetVal1();
-        TStr Name = AttrIdToName.GetDat(AttrId).GetVal2();
-        TAttrPr Dat(Name, atStr);
-        AttrV.Add(Dat);
-      }
-    }
-  }
-  */
 }
 
 /// Get values over all nodes
-int TSparseAttrPair::GetIdVSAttr(const TStr& AttrName, TIntV& IdV, TIntV& ValV) {
-  return -1; //not implemented
+int TSparseAttrPair::GetIdVSAttr(const TStr& AttrName, TVec<TPair<TInt, TInt> >& IdV) {
+  if (!AttrNameToId.IsKey(AttrName)) { return -1; }
+  TPair<TInt, TInt> TypeAndId = AttrNameToId.GetDat(AttrName);
+  TAttrType Type = static_cast<TAttrType>(TypeAndId.GetVal1().Val);
+  TInt AttrId = TypeAndId.GetVal2();
+  if (Type == atInt) {
+    for (THash<TPair<TInt, TPair<TInt, TInt> >, TInt>::TIter it = IntAttrVals.BegI(); it < IntAttrVals.EndI(); it++) {
+      if (it.GetKey().GetVal1() == AttrId) {
+        IdV.Add(it.GetKey().GetVal2());
+      }
+    }
+  } else if (Type == atFlt) {
+    for (THash<TPair<TInt, TPair<TInt, TInt> >, TFlt>::TIter it = FltAttrVals.BegI(); it < FltAttrVals.EndI(); it++) {
+      if (it.GetKey().GetVal1() == AttrId) {
+        IdV.Add(it.GetKey().GetVal2());
+      }
+    }
+  } else if (Type == atStr) {
+    for (THash<TPair<TInt, TPair<TInt, TInt> >, TStr>::TIter it = StrAttrVals.BegI(); it < StrAttrVals.EndI(); it++) {
+      if (it.GetKey().GetVal1() == AttrId) {
+        IdV.Add(it.GetKey().GetVal2());
+      }
+    }
+  } else {
+    return -1;
+  }
+  return 0;
 }
 
 /// Add Attribute mapping

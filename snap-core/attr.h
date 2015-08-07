@@ -1,4 +1,3 @@
-
 class TSparseAttrSingle {
 public:
   enum TAttrType { atUndef, atInt, atFlt, atStr, atAny };
@@ -10,8 +9,8 @@ private:
   THash<TInt, TPair<TInt, TStr> > AttrIdToName;
 
   THash<TPair<TInt, TInt>, TInt> IntAttrVals;
-  THash<TPair<TInt, TInt>, TInt> FltAttrVals;
-  THash<TPair<TInt, TInt>, TInt> StrAttrVals;
+  THash<TPair<TInt, TInt>, TFlt> FltAttrVals;
+  THash<TPair<TInt, TInt>, TStr> StrAttrVals;
 public:
   TSparseAttrSingle() : AttrNameToId(), AttrIdToName(), IntAttrVals(),
     FltAttrVals(), StrAttrVals() { }
@@ -42,7 +41,7 @@ public:
   void GetSAttrV(const TInt& Id, TAttrType AttrType, TAttrPrV& AttrV);
 
   /// Get values over all nodes
-  int GetIdVSAttr(const TStr& AttrName, TIntV& IdV, TIntV& ValV);
+  int GetIdVSAttr(const TStr& AttrName, TIntV& IdV);
 
   /// Add Attribute mapping
   int AddSAttr(const TStr& Name, const TAttrType& AttrType, TInt& AttrId);
@@ -64,8 +63,8 @@ private:
   THash<TInt, TPair<TInt, TStr> > AttrIdToName;
 
   THash<TPair<TInt, TPair<TInt, TInt> >, TInt> IntAttrVals;
-  THash<TPair<TInt, TPair<TInt, TInt> >, TInt> FltAttrVals;
-  THash<TPair<TInt, TPair<TInt, TInt> >, TInt> StrAttrVals;
+  THash<TPair<TInt, TPair<TInt, TInt> >, TFlt> FltAttrVals;
+  THash<TPair<TInt, TPair<TInt, TInt> >, TStr> StrAttrVals;
 public:
   TSparseAttrPair() : AttrNameToId(), AttrIdToName(), IntAttrVals(),
     FltAttrVals(), StrAttrVals() { }
@@ -96,7 +95,7 @@ public:
   void GetSAttrV(const TPair<TInt, TInt>& Id, TAttrType AttrType, TAttrPrV& AttrV);
 
   /// Get values over all nodes
-  int GetIdVSAttr(const TStr& AttrName, TIntV& IdV, TIntV& ValV);
+  int GetIdVSAttr(const TStr& AttrName, TVec<TPair<TInt, TInt> >& IdV);
 
   /// Add Attribute mapping
   int AddSAttr(const TStr& Name, const TAttrType& AttrType, TInt& AttrId);
