@@ -3,29 +3,32 @@ public:
   enum TAttrType { atUndef, atInt, atFlt, atStr, atAny };
   typedef TPair<TStr, TAttrType> TAttrPr;
   typedef TVec<TAttrPr> TAttrPrV;
+  typedef THash<TInt, TIntStrPr> TIntIntStrPrH;
 private:
   // Sparse Attributes Name Mapping
-  THash<TStr, TPair<TInt, TInt> > AttrNameToId;
-  THash<TInt, TPair<TInt, TStr> > AttrIdToName;
+  TStrIntPrH AttrNameToId;
+  TIntIntStrPrH AttrIdToName;
 
-  THash<TPair<TInt, TInt>, TInt> IntAttrVals;
-  THash<TPair<TInt, TInt>, TFlt> FltAttrVals;
-  THash<TPair<TInt, TInt>, TStr> StrAttrVals;
+  TIntPrIntH IntAttrVals;
+  TIntPrFltH FltAttrVals;
+  TIntPrStrH StrAttrVals;
+private:
+  int GetIdVSAttr(const TInt& AttrId, const TAttrType Type, TIntV& IdV);
 public:
   TSparseAttrSingle() : AttrNameToId(), AttrIdToName(), IntAttrVals(),
     FltAttrVals(), StrAttrVals() { }
   TSparseAttrSingle(const TSparseAttrSingle& Attrs) : AttrNameToId(Attrs.AttrNameToId),
     AttrIdToName(Attrs.AttrIdToName), IntAttrVals(Attrs.IntAttrVals),
     FltAttrVals(Attrs.FltAttrVals), StrAttrVals(Attrs.StrAttrVals) { }
-  /// Constructor for loading attributes from a (binary) stream SIn.
+  // Constructor for loading attributes from a (binary) stream SIn.
   TSparseAttrSingle(TSIn& SIn) : AttrNameToId(SIn), AttrIdToName(SIn),
     IntAttrVals(SIn), FltAttrVals(SIn), StrAttrVals(SIn) { }
-  /// Saves the attributes to a (binary) stream SOut.
+  // Saves the attributes to a (binary) stream SOut.
   void Save(TSOut& SOut) const {
     AttrNameToId.Save(SOut); AttrIdToName.Save(SOut);
     IntAttrVals.Save(SOut); FltAttrVals.Save(SOut); StrAttrVals.Save(SOut); }
 
-  /// Add functions
+  // Add functions
   int AddSAttrDat(const TInt& Id, const TStr& AttrName, TInt& Val); 
   int AddSAttrDat(const TInt& Id, const TInt& AttrId, TInt& Val);
 
@@ -35,7 +38,7 @@ public:
   int AddSAttrDat(const TInt& Id, const TStr& AttrName, TStr& Val); 
   int AddSAttrDat(const TInt& Id, const TInt& AttrId, TStr& Val);
 
-  /// Get functions
+  // Get functions
   int GetSAttrDat(const TInt& Id, const TStr& AttrName, TInt& Val) const; 
   int GetSAttrDat(const TInt& Id, const TInt& AttrId, TInt& Val) const;
 
@@ -45,20 +48,21 @@ public:
   int GetSAttrDat(const TInt& Id, const TStr& AttrName, TStr& Val) const; 
   int GetSAttrDat(const TInt& Id, const TInt& AttrId, TStr& Val) const;
 
-  /// Del functions
+  // Del functions
   int DelSAttrDat(const TInt& Id, const TStr& AttrName); 
   int DelSAttrDat(const TInt& Id, const TInt& AttrId);
 
-  /// GetNames
+  // GetNames
   void GetSAttrV(const TInt& Id, TAttrType AttrType, TAttrPrV& AttrV);
 
-  /// Get values over all nodes
+  // Get ids of all items with given attribute
   int GetIdVSAttr(const TStr& AttrName, TIntV& IdV);
+  int GetIdVSAttr(const TInt& AttrId, TIntV& IdV);
 
-  /// Add Attribute mapping
+  // Add Attribute mapping
   int AddSAttr(const TStr& Name, const TAttrType& AttrType, TInt& AttrId);
 
-  /// Attribute Name to ID conversion and vice versa
+  // Attribute Name to ID conversion and vice versa
   int GetSAttrId(const TStr& Name, TInt& AttrId, TAttrType& AttrType) const;
   int GetSAttrName(const TInt& AttrId, TStr& Name, TAttrType& AttrType) const;
 };
@@ -69,62 +73,69 @@ public:
   enum TAttrType { atUndef, atInt, atFlt, atStr, atAny };
   typedef TPair<TStr, TAttrType> TAttrPr;
   typedef TVec<TAttrPr> TAttrPrV;
+  typedef THash<TInt, TIntStrPr> TIntIntStrPrH;
+  typedef THash<TIntIntPrPr, TInt> TIntIntPrPrIntH;
+  typedef THash<TIntIntPrPr, TFlt> TIntIntPrPrFltH;
+  typedef THash<TIntIntPrPr, TStr> TIntIntPrPrStrH;
 private:
   // Sparse Attributes Name Mapping
-  THash<TStr, TPair<TInt, TInt> > AttrNameToId;
-  THash<TInt, TPair<TInt, TStr> > AttrIdToName;
+  TStrIntPrH AttrNameToId;
+  TIntIntStrPrH AttrIdToName;
 
-  THash<TPair<TInt, TPair<TInt, TInt> >, TInt> IntAttrVals;
-  THash<TPair<TInt, TPair<TInt, TInt> >, TFlt> FltAttrVals;
-  THash<TPair<TInt, TPair<TInt, TInt> >, TStr> StrAttrVals;
+  TIntIntPrPrIntH IntAttrVals;
+  TIntIntPrPrFltH FltAttrVals;
+  TIntIntPrPrStrH StrAttrVals;
+private:
+  int GetIdVSAttr(const TInt& AttrId, const TAttrType Type, TIntPrV& IdV);
 public:
   TSparseAttrPair() : AttrNameToId(), AttrIdToName(), IntAttrVals(),
     FltAttrVals(), StrAttrVals() { }
   TSparseAttrPair(const TSparseAttrPair& Attrs) : AttrNameToId(Attrs.AttrNameToId),
     AttrIdToName(Attrs.AttrIdToName), IntAttrVals(Attrs.IntAttrVals),
     FltAttrVals(Attrs.FltAttrVals), StrAttrVals(Attrs.StrAttrVals) { }
-  /// Constructor for loading attributes from a (binary) stream SIn.
+  // Constructor for loading attributes from a (binary) stream SIn.
   TSparseAttrPair(TSIn& SIn) : AttrNameToId(SIn), AttrIdToName(SIn),
     IntAttrVals(SIn), FltAttrVals(SIn), StrAttrVals(SIn) { }
-  /// Saves the attributes to a (binary) stream SOut.
+  // Saves the attributes to a (binary) stream SOut.
   void Save(TSOut& SOut) const {
     AttrNameToId.Save(SOut); AttrIdToName.Save(SOut);
     IntAttrVals.Save(SOut); FltAttrVals.Save(SOut); StrAttrVals.Save(SOut); }
 
-  /// Add functions
-  int AddSAttrDat(const TPair<TInt, TInt>& Id, const TStr& AttrName, TInt& Val); 
-  int AddSAttrDat(const TPair<TInt, TInt>& Id, const TInt& AttrId, TInt& Val);
+  // Add functions
+  int AddSAttrDat(const TIntPr& Id, const TStr& AttrName, TInt& Val); 
+  int AddSAttrDat(const TIntPr& Id, const TInt& AttrId, TInt& Val);
 
-  int AddSAttrDat(const TPair<TInt, TInt>& Id, const TStr& AttrName, TFlt& Val); 
-  int AddSAttrDat(const TPair<TInt, TInt>& Id, const TInt& AttrId, TFlt& Val);
+  int AddSAttrDat(const TIntPr& Id, const TStr& AttrName, TFlt& Val); 
+  int AddSAttrDat(const TIntPr& Id, const TInt& AttrId, TFlt& Val);
 
-  int AddSAttrDat(const TPair<TInt, TInt>& Id, const TStr& AttrName, TStr& Val); 
-  int AddSAttrDat(const TPair<TInt, TInt>& Id, const TInt& AttrId, TStr& Val);
+  int AddSAttrDat(const TIntPr& Id, const TStr& AttrName, TStr& Val); 
+  int AddSAttrDat(const TIntPr& Id, const TInt& AttrId, TStr& Val);
 
-  /// Get functions
-  int GetSAttrDat(const TPair<TInt, TInt>& Id, const TStr& AttrName, TInt& Val) const; 
-  int GetSAttrDat(const TPair<TInt, TInt>& Id, const TInt& AttrId, TInt& Val) const;
+  // Get functions
+  int GetSAttrDat(const TIntPr& Id, const TStr& AttrName, TInt& Val) const; 
+  int GetSAttrDat(const TIntPr& Id, const TInt& AttrId, TInt& Val) const;
 
-  int GetSAttrDat(const TPair<TInt, TInt>& Id, const TStr& AttrName, TFlt& Val) const; 
-  int GetSAttrDat(const TPair<TInt, TInt>& Id, const TInt& AttrId, TFlt& Val) const;
+  int GetSAttrDat(const TIntPr& Id, const TStr& AttrName, TFlt& Val) const; 
+  int GetSAttrDat(const TIntPr& Id, const TInt& AttrId, TFlt& Val) const;
 
-  int GetSAttrDat(const TPair<TInt, TInt>& Id, const TStr& AttrName, TStr& Val) const; 
-  int GetSAttrDat(const TPair<TInt, TInt>& Id, const TInt& AttrId, TStr& Val) const;
+  int GetSAttrDat(const TIntPr& Id, const TStr& AttrName, TStr& Val) const; 
+  int GetSAttrDat(const TIntPr& Id, const TInt& AttrId, TStr& Val) const;
 
-  /// Del functions
-  int DelSAttrDat(const TPair<TInt, TInt>& Id, const TStr& AttrName); 
-  int DelSAttrDat(const TPair<TInt, TInt>& Id, const TInt& AttrId);
+  // Del functions
+  int DelSAttrDat(const TIntPr& Id, const TStr& AttrName); 
+  int DelSAttrDat(const TIntPr& Id, const TInt& AttrId);
 
-  /// GetNames
-  void GetSAttrV(const TPair<TInt, TInt>& Id, TAttrType AttrType, TAttrPrV& AttrV);
+  // GetNames
+  void GetSAttrV(const TIntPr& Id, TAttrType AttrType, TAttrPrV& AttrV);
 
-  /// Get values over all nodes
-  int GetIdVSAttr(const TStr& AttrName, TVec<TPair<TInt, TInt> >& IdV);
+  // Get ids of all items with given attribute
+  int GetIdVSAttr(const TStr& AttrName, TIntPrV& IdV);
+  int GetIdVSAttr(const TInt& AttrId, TIntPrV& IdV);
 
-  /// Add Attribute mapping
+  // Add Attribute mapping
   int AddSAttr(const TStr& Name, const TAttrType& AttrType, TInt& AttrId);
 
-  /// Attribute Name to ID conversion and vice versa
+  // Attribute Name to ID conversion and vice versa
   int GetSAttrId(const TStr& Name, TInt& AttrId, TAttrType& AttrType) const;
   int GetSAttrName(const TInt& AttrId, TStr& Name, TAttrType& AttrType) const;
 };
