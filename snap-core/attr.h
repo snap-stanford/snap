@@ -1,9 +1,8 @@
+enum TAttrType { atUndef, atInt, atFlt, atStr, atAny };
+typedef TPair<TStr, TAttrType> TAttrPr;
+typedef TVec<TAttrPr> TAttrPrV;
+
 class TSparseAttrSingle {
-public:
-  enum TAttrType { atUndef, atInt, atFlt, atStr, atAny };
-  typedef TPair<TStr, TAttrType> TAttrPr;
-  typedef TVec<TAttrPr> TAttrPrV;
-  typedef THash<TInt, TIntStrPr> TIntIntStrPrH;
 private:
   // Sparse Attributes Name Mapping
   TStrIntPrH AttrNameToId;
@@ -69,14 +68,6 @@ public:
 
 
 class TSparseAttrPair {
-public:
-  enum TAttrType { atUndef, atInt, atFlt, atStr, atAny };
-  typedef TPair<TStr, TAttrType> TAttrPr;
-  typedef TVec<TAttrPr> TAttrPrV;
-  typedef THash<TInt, TIntStrPr> TIntIntStrPrH;
-  typedef THash<TIntIntPrPr, TInt> TIntIntPrPrIntH;
-  typedef THash<TIntIntPrPr, TFlt> TIntIntPrPrFltH;
-  typedef THash<TIntIntPrPr, TStr> TIntIntPrPrStrH;
 private:
   // Sparse Attributes Name Mapping
   TStrIntPrH AttrNameToId;
