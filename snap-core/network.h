@@ -1703,30 +1703,36 @@ private:
   TVec<TStrV> VecOfStrVecsN, VecOfStrVecsE;
   TVec<TFltV> VecOfFltVecsN, VecOfFltVecsE;
   enum { IntType, StrType, FltType };
+
+  TSparseAttrSingle SAttrN;
+  TSparseAttrSingle SAttrE;
+
 public:
   TNEANet() : CRef(), MxNId(0), MxEId(0), NodeH(), EdgeH(),
     KeyToIndexTypeN(), KeyToIndexTypeE(), IntDefaultsN(), IntDefaultsE(),
     StrDefaultsN(), StrDefaultsE(), FltDefaultsN(), FltDefaultsE(),
     VecOfIntVecsN(), VecOfIntVecsE(), VecOfStrVecsN(), VecOfStrVecsE(),
-    VecOfFltVecsN(), VecOfFltVecsE() { }
+    VecOfFltVecsN(), VecOfFltVecsE(), SAttrN(), SAttrE() { }
   /// Constructor that reserves enough memory for a graph of nodes and edges.
   explicit TNEANet(const int& Nodes, const int& Edges) : CRef(),
     MxNId(0), MxEId(0), NodeH(), EdgeH(), KeyToIndexTypeN(), KeyToIndexTypeE(),
     IntDefaultsN(), IntDefaultsE(), StrDefaultsN(), StrDefaultsE(),
     FltDefaultsN(), FltDefaultsE(), VecOfIntVecsN(), VecOfIntVecsE(),
-    VecOfStrVecsN(), VecOfStrVecsE(), VecOfFltVecsN(), VecOfFltVecsE()
+    VecOfStrVecsN(), VecOfStrVecsE(), VecOfFltVecsN(), VecOfFltVecsE(),
+    SAttrN(), SAttrE()
     { Reserve(Nodes, Edges); }
   TNEANet(const TNEANet& Graph) : MxNId(Graph.MxNId), MxEId(Graph.MxEId),
     NodeH(Graph.NodeH), EdgeH(Graph.EdgeH), KeyToIndexTypeN(), KeyToIndexTypeE(),
     IntDefaultsN(), IntDefaultsE(), StrDefaultsN(), StrDefaultsE(),
     FltDefaultsN(), FltDefaultsE(), VecOfIntVecsN(), VecOfIntVecsE(),
-    VecOfStrVecsN(), VecOfStrVecsE(), VecOfFltVecsN(), VecOfFltVecsE() { }
+    VecOfStrVecsN(), VecOfStrVecsE(), VecOfFltVecsN(), VecOfFltVecsE(),
+    SAttrN(), SAttrE() { }
   /// Constructor for loading the graph from a (binary) stream SIn.
   TNEANet(TSIn& SIn) : MxNId(SIn), MxEId(SIn), NodeH(SIn), EdgeH(SIn),
     KeyToIndexTypeN(SIn), KeyToIndexTypeE(SIn), IntDefaultsN(SIn), IntDefaultsE(SIn),
     StrDefaultsN(SIn), StrDefaultsE(SIn), FltDefaultsN(SIn), FltDefaultsE(SIn), 
     VecOfIntVecsN(SIn), VecOfIntVecsE(SIn), VecOfStrVecsN(SIn),VecOfStrVecsE(SIn),
-    VecOfFltVecsN(SIn), VecOfFltVecsE(SIn) { }
+    VecOfFltVecsN(SIn), VecOfFltVecsE(SIn), SAttrN(SIn), SAttrE(SIn) { }
   /// Saves the graph to a (binary) stream SOut.
   void Save(TSOut& SOut) const {
     MxNId.Save(SOut); MxEId.Save(SOut); NodeH.Save(SOut); EdgeH.Save(SOut);
@@ -1736,7 +1742,8 @@ public:
     FltDefaultsN.Save(SOut); FltDefaultsE.Save(SOut);
     VecOfIntVecsN.Save(SOut); VecOfIntVecsE.Save(SOut);
     VecOfStrVecsN.Save(SOut); VecOfStrVecsE.Save(SOut);
-    VecOfFltVecsN.Save(SOut); VecOfFltVecsE.Save(SOut); }
+    VecOfFltVecsN.Save(SOut); VecOfFltVecsE.Save(SOut);
+    SAttrN.Save(SOut); SAttrE.Save(SOut); }
   /// Static cons returns pointer to graph. Ex: PNEANet Graph=TNEANet::New().
   static PNEANet New() { return PNEANet(new TNEANet()); }
   /// Static constructor that returns a pointer to the graph and reserves enough memory for Nodes nodes and Edges edges. ##TNEANet::New
@@ -2112,6 +2119,71 @@ public:
   void GetAttrNNames(TStrV& IntAttrNames, TStrV& FltAttrNames, TStrV& StrAttrNames) const;
   /// Fills each of the vectors with the names of edge attributes of the given type.
   void GetAttrENames(TStrV& IntAttrNames, TStrV& FltAttrNames, TStrV& StrAttrNames) const;
+
+
+  //Node Sparse Attributes
+  int AddSAttrDatN(const TInt& NId, const TStr& AttrName, TInt& Val); 
+  int AddSAttrDatN(const TInt& NId, const TInt& AttrId, TInt& Val);
+
+  int AddSAttrDatN(const TInt& NId, const TStr& AttrName, TFlt& Val); 
+  int AddSAttrDatN(const TInt& NId, const TInt& AttrId, TFlt& Val);
+
+  int AddSAttrDatN(const TInt& NId, const TStr& AttrName, TStr& Val); 
+  int AddSAttrDatN(const TInt& NId, const TInt& AttrId, TStr& Val);
+
+  int GetSAttrDatN(const TInt& NId, const TStr& AttrName, TInt& Val) const; 
+  int GetSAttrDatN(const TInt& NId, const TInt& AttrId, TInt& Val) const;
+
+  int GetSAttrDatN(const TInt& NId, const TStr& AttrName, TFlt& Val) const; 
+  int GetSAttrDatN(const TInt& NId, const TInt& AttrId, TFlt& Val) const;
+
+  int GetSAttrDatN(const TInt& NId, const TStr& AttrName, TStr& Val) const; 
+  int GetSAttrDatN(const TInt& NId, const TInt& AttrId, TStr& Val) const;
+
+  int DelSAttrDatN(const TInt& NId, const TStr& AttrName); 
+  int DelSAttrDatN(const TInt& NId, const TInt& AttrId);
+
+  void GetSAttrVN(const TInt& NId, TAttrType AttrType, TAttrPrV& AttrV);
+
+  int GetIdVSAttrN(const TStr& AttrName, TIntV& IdV);
+  int GetIdVSAttrN(const TInt& AttrId, TIntV& IdV);
+
+  int AddSAttrN(const TStr& Name, const TAttrType& AttrType, TInt& AttrId);
+
+  int GetSAttrIdN(const TStr& Name, TInt& AttrId, TAttrType& AttrType) const;
+  int GetSAttrNameN(const TInt& AttrId, TStr& Name, TAttrType& AttrType) const;
+
+  //Edge Sparse Attributes
+  int AddSAttrDatE(const TInt& EId, const TStr& AttrName, TInt& Val); 
+  int AddSAttrDatE(const TInt& EId, const TInt& AttrId, TInt& Val);
+
+  int AddSAttrDatE(const TInt& EId, const TStr& AttrName, TFlt& Val); 
+  int AddSAttrDatE(const TInt& EId, const TInt& AttrId, TFlt& Val);
+
+  int AddSAttrDatE(const TInt& EId, const TStr& AttrName, TStr& Val); 
+  int AddSAttrDatE(const TInt& EId, const TInt& AttrId, TStr& Val);
+
+  int GetSAttrDatE(const TInt& EId, const TStr& AttrName, TInt& Val) const; 
+  int GetSAttrDatE(const TInt& EId, const TInt& AttrId, TInt& Val) const;
+
+  int GetSAttrDatE(const TInt& EId, const TStr& AttrName, TFlt& Val) const; 
+  int GetSAttrDatE(const TInt& EId, const TInt& AttrId, TFlt& Val) const;
+
+  int GetSAttrDatE(const TInt& EId, const TStr& AttrName, TStr& Val) const; 
+  int GetSAttrDatE(const TInt& EId, const TInt& AttrId, TStr& Val) const;
+
+  int DelSAttrDatE(const TInt& EId, const TStr& AttrName); 
+  int DelSAttrDatE(const TInt& EId, const TInt& AttrId);
+
+  void GetSAttrVE(const TInt& EId, TAttrType AttrType, TAttrPrV& AttrV);
+
+  int GetIdVSAttrE(const TStr& AttrName, TIntV& IdV);
+  int GetIdVSAttrE(const TInt& AttrId, TIntV& IdV);
+
+  int AddSAttrE(const TStr& Name, const TAttrType& AttrType, TInt& AttrId);
+
+  int GetSAttrIdE(const TStr& Name, TInt& AttrId, TAttrType& AttrType) const;
+  int GetSAttrNameE(const TInt& AttrId, TStr& Name, TAttrType& AttrType) const;
 
   /// Returns a small multigraph on 5 nodes and 6 edges. ##TNEANet::GetSmallGraph
   static PNEANet GetSmallGraph();

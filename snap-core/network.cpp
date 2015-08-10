@@ -1091,3 +1091,162 @@ void TNEANet::GetAttrENames(TStrV& IntAttrNames, TStrV& FltAttrNames, TStrV& Str
   }
 }
 
+int TNEANet::AddSAttrDatN(const TInt& NId, const TStr& AttrName, TInt& Val) {
+  return SAttrN.AddSAttrDat(NId, AttrName, Val);
+}
+
+int TNEANet::AddSAttrDatN(const TInt& NId, const TInt& AttrId, TInt& Val) {
+  return SAttrN.AddSAttrDat(NId, AttrId, Val);
+}
+
+int TNEANet::AddSAttrDatN(const TInt& NId, const TStr& AttrName, TFlt& Val) {
+  return SAttrN.AddSAttrDat(NId, AttrName, Val);
+}
+
+int TNEANet::AddSAttrDatN(const TInt& NId, const TInt& AttrId, TFlt& Val) {
+  return SAttrN.AddSAttrDat(NId, AttrId, Val);
+}
+
+int TNEANet::AddSAttrDatN(const TInt& NId, const TStr& AttrName, TStr& Val) {
+  return SAttrN.AddSAttrDat(NId, AttrName, Val);
+}
+
+int TNEANet::AddSAttrDatN(const TInt& NId, const TInt& AttrId, TStr& Val) {
+  return SAttrN.AddSAttrDat(NId, AttrId, Val);
+}
+
+int TNEANet::GetSAttrDatN(const TInt& NId, const TStr& AttrName, TInt& Val) const {
+  return SAttrN.GetSAttrDat(NId, AttrName, Val);
+}
+
+int TNEANet::GetSAttrDatN(const TInt& NId, const TInt& AttrId, TInt& Val) const {
+  return SAttrN.GetSAttrDat(NId, AttrId, Val);
+}
+
+int TNEANet::GetSAttrDatN(const TInt& NId, const TStr& AttrName, TFlt& Val) const {
+  return SAttrN.GetSAttrDat(NId, AttrName, Val);
+}
+
+int TNEANet::GetSAttrDatN(const TInt& NId, const TInt& AttrId, TFlt& Val) const {
+  return SAttrN.GetSAttrDat(NId, AttrId, Val);
+}
+
+int TNEANet::GetSAttrDatN(const TInt& NId, const TStr& AttrName, TStr& Val) const {
+  return SAttrN.GetSAttrDat(NId, AttrName, Val);
+}
+
+int TNEANet::GetSAttrDatN(const TInt& NId, const TInt& AttrId, TStr& Val) const {
+  return SAttrN.GetSAttrDat(NId, AttrId, Val);
+}
+
+int TNEANet::DelSAttrDatN(const TInt& NId, const TStr& AttrName) {
+  return SAttrN.DelSAttrDat(NId, AttrName);
+}
+
+int TNEANet::DelSAttrDatN(const TInt& NId, const TInt& AttrId) {
+  return SAttrN.DelSAttrDat(NId, AttrId);
+}
+
+void TNEANet::GetSAttrVN(const TInt& NId, TAttrType AttrType, TAttrPrV& AttrV) {
+  SAttrN.GetSAttrV(NId, AttrType, AttrV);
+}
+
+int TNEANet::GetIdVSAttrN(const TStr& AttrName, TIntV& IdV) {
+  return SAttrN.GetIdVSAttr(AttrName, IdV);
+}
+
+int TNEANet::GetIdVSAttrN(const TInt& AttrId, TIntV& IdV) {
+  return SAttrN.GetIdVSAttr(AttrId, IdV);
+}
+
+int TNEANet::AddSAttrN(const TStr& Name, const TAttrType& AttrType, TInt& AttrId) {
+  return SAttrN.AddSAttr(Name, AttrType, AttrId);
+}
+
+int TNEANet::GetSAttrIdN(const TStr& Name, TInt& AttrId, TAttrType& AttrType) const {
+  return SAttrN.GetSAttrId(Name, AttrId, AttrType);
+}
+
+int TNEANet::GetSAttrNameN(const TInt& AttrId, TStr& Name, TAttrType& AttrType) const {
+  return SAttrN.GetSAttrName(AttrId, Name, AttrType);
+}
+
+int TNEANet::AddSAttrDatE(const TInt& EId, const TStr& AttrName, TInt& Val) {
+  return SAttrE.AddSAttrDat(EId, AttrName, Val);
+}
+
+int TNEANet::AddSAttrDatE(const TInt& EId, const TInt& AttrId, TInt& Val) {
+  return SAttrE.AddSAttrDat(EId, AttrId, Val);
+}
+
+int TNEANet::AddSAttrDatE(const TInt& EId, const TStr& AttrName, TFlt& Val) {
+  return SAttrE.AddSAttrDat(EId, AttrName, Val);
+}
+
+int TNEANet::AddSAttrDatE(const TInt& EId, const TInt& AttrId, TFlt& Val) {
+  return SAttrE.AddSAttrDat(EId, AttrId, Val);
+}
+
+int TNEANet::AddSAttrDatE(const TInt& EId, const TStr& AttrName, TStr& Val) {
+  return SAttrE.AddSAttrDat(EId, AttrName, Val);
+}
+
+int TNEANet::AddSAttrDatE(const TInt& EId, const TInt& AttrId, TStr& Val) {
+  return SAttrE.AddSAttrDat(EId, AttrId, Val);
+}
+
+int TNEANet::GetSAttrDatE(const TInt& EId, const TStr& AttrName, TInt& Val) const {
+  return SAttrE.GetSAttrDat(EId, AttrName, Val);
+}
+
+int TNEANet::GetSAttrDatE(const TInt& EId, const TInt& AttrId, TInt& Val) const {
+  return SAttrE.GetSAttrDat(EId, AttrId, Val);
+}
+
+int TNEANet::GetSAttrDatE(const TInt& EId, const TStr& AttrName, TFlt& Val) const {
+  return SAttrE.GetSAttrDat(EId, AttrName, Val);
+}
+
+int TNEANet::GetSAttrDatE(const TInt& EId, const TInt& AttrId, TFlt& Val) const {
+  return SAttrE.GetSAttrDat(EId, AttrId, Val);
+}
+
+int TNEANet::GetSAttrDatE(const TInt& EId, const TStr& AttrName, TStr& Val) const {
+  return SAttrE.GetSAttrDat(EId, AttrName, Val);
+}
+
+int TNEANet::GetSAttrDatE(const TInt& EId, const TInt& AttrId, TStr& Val) const {
+  return SAttrE.GetSAttrDat(EId, AttrId, Val);
+}
+
+int TNEANet::DelSAttrDatE(const TInt& EId, const TStr& AttrName) {
+  return SAttrE.DelSAttrDat(EId, AttrName);
+}
+
+int TNEANet::DelSAttrDatE(const TInt& EId, const TInt& AttrId) {
+  return SAttrE.DelSAttrDat(EId, AttrId);
+}
+
+void TNEANet::GetSAttrVE(const TInt& EId, TAttrType AttrType, TAttrPrV& AttrV) {
+  SAttrE.GetSAttrV(EId, AttrType, AttrV);
+}
+
+int TNEANet::GetIdVSAttrE(const TStr& AttrName, TIntV& IdV) {
+  return SAttrE.GetIdVSAttr(AttrName, IdV);
+}
+
+int TNEANet::GetIdVSAttrE(const TInt& AttrId, TIntV& IdV) {
+  return SAttrE.GetIdVSAttr(AttrId, IdV);
+}
+
+int TNEANet::AddSAttrE(const TStr& Name, const TAttrType& AttrType, TInt& AttrId) {
+  return SAttrE.AddSAttr(Name, AttrType, AttrId);
+}
+
+int TNEANet::GetSAttrIdE(const TStr& Name, TInt& AttrId, TAttrType& AttrType) const {
+  return SAttrE.GetSAttrId(Name, AttrId, AttrType);
+}
+
+int TNEANet::GetSAttrNameE(const TInt& AttrId, TStr& Name, TAttrType& AttrType) const {
+  return SAttrE.GetSAttrName(AttrId, Name, AttrType);
+}

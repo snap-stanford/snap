@@ -120,18 +120,24 @@ private:
   TCRef CRef;
   TInt MxNId, NEdges;
   THash<TInt, TNode> NodeH;
+
+  TSparseAttrSingle SAttrN;
+  TSparseAttrPair SAttrE;
 private:
   TNode& GetNode(const int& NId) { return NodeH.GetDat(NId); }
   const TNode& GetNode(const int& NId) const { return NodeH.GetDat(NId); }
+  TIntPr OrderEdgeNodes(const int& SrcNId, const int& DstNId) const;
 public:
-  TUNGraph() : CRef(), MxNId(0), NEdges(0), NodeH() { }
+  TUNGraph() : CRef(), MxNId(0), NEdges(0), NodeH(), SAttrN(), SAttrE() { }
   /// Constructor that reserves enough memory for a graph of Nodes nodes and Edges edges.
-  explicit TUNGraph(const int& Nodes, const int& Edges) : MxNId(0), NEdges(0) { Reserve(Nodes, Edges); }
-  TUNGraph(const TUNGraph& Graph) : MxNId(Graph.MxNId), NEdges(Graph.NEdges), NodeH(Graph.NodeH) { }
+  explicit TUNGraph(const int& Nodes, const int& Edges) : MxNId(0), NEdges(0), SAttrN(), SAttrE() { Reserve(Nodes, Edges); }
+  TUNGraph(const TUNGraph& Graph) : MxNId(Graph.MxNId), NEdges(Graph.NEdges), NodeH(Graph.NodeH),
+    SAttrN(), SAttrE() { }
   /// Constructor that loads the graph from a (binary) stream SIn.
-  TUNGraph(TSIn& SIn) : MxNId(SIn), NEdges(SIn), NodeH(SIn) { }
+  TUNGraph(TSIn& SIn) : MxNId(SIn), NEdges(SIn), NodeH(SIn), SAttrN(SIn), SAttrE(SIn) { }
   /// Saves the graph to a (binary) stream SOut.
-  void Save(TSOut& SOut) const { MxNId.Save(SOut); NEdges.Save(SOut); NodeH.Save(SOut); }
+  void Save(TSOut& SOut) const { MxNId.Save(SOut); NEdges.Save(SOut); NodeH.Save(SOut);
+    SAttrN.Save(SOut); SAttrE.Save(SOut); }
   /// Static constructor that returns a pointer to the graph. Call: PUNGraph Graph = TUNGraph::New().
   static PUNGraph New() { return new TUNGraph(); }
   /// Static constructor that returns a pointer to the graph and reserves enough memory for Nodes nodes and Edges edges. ##TUNGraph::New
@@ -210,6 +216,70 @@ public:
   void Dump(FILE *OutF=stdout) const;
   /// Returns a small graph on 5 nodes and 5 edges. ##TUNGraph::GetSmallGraph
   static PUNGraph GetSmallGraph();
+
+  //Node Sparse Attributes
+  int AddSAttrDatN(const TInt& NId, const TStr& AttrName, TInt& Val); 
+  int AddSAttrDatN(const TInt& NId, const TInt& AttrId, TInt& Val);
+
+  int AddSAttrDatN(const TInt& NId, const TStr& AttrName, TFlt& Val); 
+  int AddSAttrDatN(const TInt& NId, const TInt& AttrId, TFlt& Val);
+
+  int AddSAttrDatN(const TInt& NId, const TStr& AttrName, TStr& Val); 
+  int AddSAttrDatN(const TInt& NId, const TInt& AttrId, TStr& Val);
+
+  int GetSAttrDatN(const TInt& NId, const TStr& AttrName, TInt& Val) const; 
+  int GetSAttrDatN(const TInt& NId, const TInt& AttrId, TInt& Val) const;
+
+  int GetSAttrDatN(const TInt& NId, const TStr& AttrName, TFlt& Val) const; 
+  int GetSAttrDatN(const TInt& NId, const TInt& AttrId, TFlt& Val) const;
+
+  int GetSAttrDatN(const TInt& NId, const TStr& AttrName, TStr& Val) const; 
+  int GetSAttrDatN(const TInt& NId, const TInt& AttrId, TStr& Val) const;
+
+  int DelSAttrDatN(const TInt& NId, const TStr& AttrName); 
+  int DelSAttrDatN(const TInt& NId, const TInt& AttrId);
+
+  void GetSAttrVN(const TInt& NId, TAttrType AttrType, TAttrPrV& AttrV);
+
+  int GetIdVSAttrN(const TStr& AttrName, TIntV& IdV);
+  int GetIdVSAttrN(const TInt& AttrId, TIntV& IdV);
+
+  int AddSAttrN(const TStr& Name, const TAttrType& AttrType, TInt& AttrId);
+
+  int GetSAttrIdN(const TStr& Name, TInt& AttrId, TAttrType& AttrType) const;
+  int GetSAttrNameN(const TInt& AttrId, TStr& Name, TAttrType& AttrType) const;
+
+  //Edge Sparse Attributes
+  int AddSAttrDatE(const int& SrcNId, const int& DstNId, const TStr& AttrName, TInt& Val); 
+  int AddSAttrDatE(const int& SrcNId, const int& DstNId, const TInt& AttrId, TInt& Val);
+
+  int AddSAttrDatE(const int& SrcNId, const int& DstNId, const TStr& AttrName, TFlt& Val); 
+  int AddSAttrDatE(const int& SrcNId, const int& DstNId, const TInt& AttrId, TFlt& Val);
+
+  int AddSAttrDatE(const int& SrcNId, const int& DstNId, const TStr& AttrName, TStr& Val); 
+  int AddSAttrDatE(const int& SrcNId, const int& DstNId, const TInt& AttrId, TStr& Val);
+
+  int GetSAttrDatE(const int& SrcNId, const int& DstNId, const TStr& AttrName, TInt& Val) const; 
+  int GetSAttrDatE(const int& SrcNId, const int& DstNId, const TInt& AttrId, TInt& Val) const;
+
+  int GetSAttrDatE(const int& SrcNId, const int& DstNId, const TStr& AttrName, TFlt& Val) const; 
+  int GetSAttrDatE(const int& SrcNId, const int& DstNId, const TInt& AttrId, TFlt& Val) const;
+
+  int GetSAttrDatE(const int& SrcNId, const int& DstNId, const TStr& AttrName, TStr& Val) const; 
+  int GetSAttrDatE(const int& SrcNId, const int& DstNId, const TInt& AttrId, TStr& Val) const;
+
+  int DelSAttrDatE(const int& SrcNId, const int& DstNId, const TStr& AttrName); 
+  int DelSAttrDatE(const int& SrcNId, const int& DstNId, const TInt& AttrId);
+
+  void GetSAttrVE(const int& SrcNId, const int& DstNId, TAttrType AttrType, TAttrPrV& AttrV);
+
+  int GetIdVSAttrE(const TStr& AttrName, TIntPrV& IdV);
+  int GetIdVSAttrE(const TInt& AttrId, TIntPrV& IdV);
+
+  int AddSAttrE(const TStr& Name, const TAttrType& AttrType, TInt& AttrId);
+
+  int GetSAttrIdE(const TStr& Name, TInt& AttrId, TAttrType& AttrType) const;
+  int GetSAttrNameE(const TInt& AttrId, TStr& Name, TAttrType& AttrType) const;
 
   friend class TUNGraphMtx;
   friend class TPt<TUNGraph>;
@@ -313,18 +383,20 @@ private:
   TCRef CRef;
   TInt MxNId;
   THash<TInt, TNode> NodeH;
+  TSparseAttrSingle SAttrN;
+  TSparseAttrPair SAttrE;
 private:
   TNode& GetNode(const int& NId) { return NodeH.GetDat(NId); }
   const TNode& GetNode(const int& NId) const { return NodeH.GetDat(NId); }
 public:
-  TNGraph() : CRef(), MxNId(0), NodeH() { }
+  TNGraph() : CRef(), MxNId(0), NodeH(), SAttrN(), SAttrE() { }
   /// Constructor that reserves enough memory for a graph of Nodes nodes and Edges edges.
-  explicit TNGraph(const int& Nodes, const int& Edges) : MxNId(0) { Reserve(Nodes, Edges); }
-  TNGraph(const TNGraph& Graph) : MxNId(Graph.MxNId), NodeH(Graph.NodeH) { }
+  explicit TNGraph(const int& Nodes, const int& Edges) : MxNId(0), SAttrN(), SAttrE() { Reserve(Nodes, Edges); }
+  TNGraph(const TNGraph& Graph) : MxNId(Graph.MxNId), NodeH(Graph.NodeH), SAttrN(), SAttrE() { }
   /// Constructor that loads the graph from a (binary) stream SIn.
-  TNGraph(TSIn& SIn) : MxNId(SIn), NodeH(SIn) { }
+  TNGraph(TSIn& SIn) : MxNId(SIn), NodeH(SIn), SAttrN(SIn), SAttrE(SIn) { }
   /// Saves the graph to a (binary) stream SOut.
-  void Save(TSOut& SOut) const { MxNId.Save(SOut); NodeH.Save(SOut); }
+  void Save(TSOut& SOut) const { MxNId.Save(SOut); NodeH.Save(SOut); SAttrN.Save(SOut); SAttrE.Save(SOut); }
   /// Static constructor that returns a pointer to the graph. Call: PNGraph Graph = TNGraph::New().
   static PNGraph New() { return new TNGraph(); }
   /// Static constructor that returns a pointer to the graph and reserves enough memory for Nodes nodes and Edges edges. ##TNGraph::New
@@ -407,6 +479,71 @@ public:
   void Dump(FILE *OutF=stdout) const;
   /// Returns a small graph on 5 nodes and 6 edges. ##TNGraph::GetSmallGraph
   static PNGraph GetSmallGraph();
+
+  //Node Sparse Attributes
+  int AddSAttrDatN(const TInt& NId, const TStr& AttrName, TInt& Val); 
+  int AddSAttrDatN(const TInt& NId, const TInt& AttrId, TInt& Val);
+
+  int AddSAttrDatN(const TInt& NId, const TStr& AttrName, TFlt& Val); 
+  int AddSAttrDatN(const TInt& NId, const TInt& AttrId, TFlt& Val);
+
+  int AddSAttrDatN(const TInt& NId, const TStr& AttrName, TStr& Val); 
+  int AddSAttrDatN(const TInt& NId, const TInt& AttrId, TStr& Val);
+
+  int GetSAttrDatN(const TInt& NId, const TStr& AttrName, TInt& Val) const; 
+  int GetSAttrDatN(const TInt& NId, const TInt& AttrId, TInt& Val) const;
+
+  int GetSAttrDatN(const TInt& NId, const TStr& AttrName, TFlt& Val) const; 
+  int GetSAttrDatN(const TInt& NId, const TInt& AttrId, TFlt& Val) const;
+
+  int GetSAttrDatN(const TInt& NId, const TStr& AttrName, TStr& Val) const; 
+  int GetSAttrDatN(const TInt& NId, const TInt& AttrId, TStr& Val) const;
+
+  int DelSAttrDatN(const TInt& NId, const TStr& AttrName); 
+  int DelSAttrDatN(const TInt& NId, const TInt& AttrId);
+
+  void GetSAttrVN(const TInt& NId, TAttrType AttrType, TAttrPrV& AttrV);
+
+  int GetIdVSAttrN(const TStr& AttrName, TIntV& IdV);
+  int GetIdVSAttrN(const TInt& AttrId, TIntV& IdV);
+
+  int AddSAttrN(const TStr& Name, const TAttrType& AttrType, TInt& AttrId);
+
+  int GetSAttrIdN(const TStr& Name, TInt& AttrId, TAttrType& AttrType) const;
+  int GetSAttrNameN(const TInt& AttrId, TStr& Name, TAttrType& AttrType) const;
+
+  //Edge Sparse Attributes
+  int AddSAttrDatE(const int& SrcNId, const int& DstNId, const TStr& AttrName, TInt& Val); 
+  int AddSAttrDatE(const int& SrcNId, const int& DstNId, const TInt& AttrId, TInt& Val);
+
+  int AddSAttrDatE(const int& SrcNId, const int& DstNId, const TStr& AttrName, TFlt& Val); 
+  int AddSAttrDatE(const int& SrcNId, const int& DstNId, const TInt& AttrId, TFlt& Val);
+
+  int AddSAttrDatE(const int& SrcNId, const int& DstNId, const TStr& AttrName, TStr& Val); 
+  int AddSAttrDatE(const int& SrcNId, const int& DstNId, const TInt& AttrId, TStr& Val);
+
+  int GetSAttrDatE(const int& SrcNId, const int& DstNId, const TStr& AttrName, TInt& Val) const; 
+  int GetSAttrDatE(const int& SrcNId, const int& DstNId, const TInt& AttrId, TInt& Val) const;
+
+  int GetSAttrDatE(const int& SrcNId, const int& DstNId, const TStr& AttrName, TFlt& Val) const; 
+  int GetSAttrDatE(const int& SrcNId, const int& DstNId, const TInt& AttrId, TFlt& Val) const;
+
+  int GetSAttrDatE(const int& SrcNId, const int& DstNId, const TStr& AttrName, TStr& Val) const; 
+  int GetSAttrDatE(const int& SrcNId, const int& DstNId, const TInt& AttrId, TStr& Val) const;
+
+  int DelSAttrDatE(const int& SrcNId, const int& DstNId, const TStr& AttrName); 
+  int DelSAttrDatE(const int& SrcNId, const int& DstNId, const TInt& AttrId);
+
+  void GetSAttrVE(const int& SrcNId, const int& DstNId, TAttrType AttrType, TAttrPrV& AttrV);
+
+  int GetIdVSAttrE(const TStr& AttrName, TIntPrV& IdV);
+  int GetIdVSAttrE(const TInt& AttrId, TIntPrV& IdV);
+
+  int AddSAttrE(const TStr& Name, const TAttrType& AttrType, TInt& AttrId);
+
+  int GetSAttrIdE(const TStr& Name, TInt& AttrId, TAttrType& AttrType) const;
+  int GetSAttrNameE(const TInt& AttrId, TStr& Name, TAttrType& AttrType) const;
+
   friend class TPt<TNGraph>;
   friend class TNGraphMtx;
 };
