@@ -12,7 +12,7 @@ private:
   TIntPrFltH FltAttrVals;
   TIntPrStrH StrAttrVals;
 private:
-  int GetIdVSAttr(const TInt& AttrId, const TAttrType Type, TIntV& IdV);
+  int GetIdVSAttr(const TInt& AttrId, const TAttrType Type, TIntV& IdV) const;
 public:
   TSparseAttrSingle() : AttrNameToId(), AttrIdToName(), IntAttrVals(),
     FltAttrVals(), StrAttrVals() { }
@@ -28,14 +28,14 @@ public:
     IntAttrVals.Save(SOut); FltAttrVals.Save(SOut); StrAttrVals.Save(SOut); }
 
   // Add functions
-  int AddSAttrDat(const TInt& Id, const TStr& AttrName, TInt& Val); 
-  int AddSAttrDat(const TInt& Id, const TInt& AttrId, TInt& Val);
+  int AddSAttrDat(const TInt& Id, const TStr& AttrName, const TInt& Val); 
+  int AddSAttrDat(const TInt& Id, const TInt& AttrId, const TInt& Val);
 
-  int AddSAttrDat(const TInt& Id, const TStr& AttrName, TFlt& Val); 
-  int AddSAttrDat(const TInt& Id, const TInt& AttrId, TFlt& Val);
+  int AddSAttrDat(const TInt& Id, const TStr& AttrName, const TFlt& Val); 
+  int AddSAttrDat(const TInt& Id, const TInt& AttrId, const TFlt& Val);
 
-  int AddSAttrDat(const TInt& Id, const TStr& AttrName, TStr& Val); 
-  int AddSAttrDat(const TInt& Id, const TInt& AttrId, TStr& Val);
+  int AddSAttrDat(const TInt& Id, const TStr& AttrName, const TStr& Val); 
+  int AddSAttrDat(const TInt& Id, const TInt& AttrId, const TStr& Val);
 
   // Get functions
   int GetSAttrDat(const TInt& Id, const TStr& AttrName, TInt& Val) const; 
@@ -52,11 +52,11 @@ public:
   int DelSAttrDat(const TInt& Id, const TInt& AttrId);
 
   // GetNames
-  void GetSAttrV(const TInt& Id, TAttrType AttrType, TAttrPrV& AttrV);
+  void GetSAttrV(const TInt& Id, const TAttrType AttrType, TAttrPrV& AttrV) const;
 
   // Get ids of all items with given attribute
-  int GetIdVSAttr(const TStr& AttrName, TIntV& IdV);
-  int GetIdVSAttr(const TInt& AttrId, TIntV& IdV);
+  int GetIdVSAttr(const TStr& AttrName, TIntV& IdV) const;
+  int GetIdVSAttr(const TInt& AttrId, TIntV& IdV) const;
 
   // Add Attribute mapping
   int AddSAttr(const TStr& Name, const TAttrType& AttrType, TInt& AttrId);
@@ -77,7 +77,7 @@ private:
   TIntIntPrPrFltH FltAttrVals;
   TIntIntPrPrStrH StrAttrVals;
 private:
-  int GetIdVSAttr(const TInt& AttrId, const TAttrType Type, TIntPrV& IdV);
+  int GetIdVSAttr(const TInt& AttrId, const TAttrType Type, TIntPrV& IdV) const;
 public:
   TSparseAttrPair() : AttrNameToId(), AttrIdToName(), IntAttrVals(),
     FltAttrVals(), StrAttrVals() { }
@@ -93,14 +93,14 @@ public:
     IntAttrVals.Save(SOut); FltAttrVals.Save(SOut); StrAttrVals.Save(SOut); }
 
   // Add functions
-  int AddSAttrDat(const TIntPr& Id, const TStr& AttrName, TInt& Val); 
-  int AddSAttrDat(const TIntPr& Id, const TInt& AttrId, TInt& Val);
+  int AddSAttrDat(const TIntPr& Id, const TStr& AttrName, const TInt& Val); 
+  int AddSAttrDat(const TIntPr& Id, const TInt& AttrId, const TInt& Val);
 
-  int AddSAttrDat(const TIntPr& Id, const TStr& AttrName, TFlt& Val); 
-  int AddSAttrDat(const TIntPr& Id, const TInt& AttrId, TFlt& Val);
+  int AddSAttrDat(const TIntPr& Id, const TStr& AttrName, const TFlt& Val); 
+  int AddSAttrDat(const TIntPr& Id, const TInt& AttrId, const TFlt& Val);
 
-  int AddSAttrDat(const TIntPr& Id, const TStr& AttrName, TStr& Val); 
-  int AddSAttrDat(const TIntPr& Id, const TInt& AttrId, TStr& Val);
+  int AddSAttrDat(const TIntPr& Id, const TStr& AttrName, const TStr& Val); 
+  int AddSAttrDat(const TIntPr& Id, const TInt& AttrId, const TStr& Val);
 
   // Get functions
   int GetSAttrDat(const TIntPr& Id, const TStr& AttrName, TInt& Val) const; 
@@ -117,11 +117,11 @@ public:
   int DelSAttrDat(const TIntPr& Id, const TInt& AttrId);
 
   // GetNames
-  void GetSAttrV(const TIntPr& Id, TAttrType AttrType, TAttrPrV& AttrV);
+  void GetSAttrV(const TIntPr& Id, const TAttrType AttrType, TAttrPrV& AttrV) const;
 
   // Get ids of all items with given attribute
-  int GetIdVSAttr(const TStr& AttrName, TIntPrV& IdV);
-  int GetIdVSAttr(const TInt& AttrId, TIntPrV& IdV);
+  int GetIdVSAttr(const TStr& AttrName, TIntPrV& IdV) const;
+  int GetIdVSAttr(const TInt& AttrId, TIntPrV& IdV) const;
 
   // Add Attribute mapping
   int AddSAttr(const TStr& Name, const TAttrType& AttrType, TInt& AttrId);

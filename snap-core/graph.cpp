@@ -199,27 +199,27 @@ PUNGraph TUNGraph::GetSmallGraph() {
   return Graph;
 }
 
-int TUNGraph::AddSAttrDatN(const TInt& NId, const TStr& AttrName, TInt& Val) {
+int TUNGraph::AddSAttrDatN(const TInt& NId, const TStr& AttrName, const TInt& Val) {
   return SAttrN.AddSAttrDat(NId, AttrName, Val);
 }
 
-int TUNGraph::AddSAttrDatN(const TInt& NId, const TInt& AttrId, TInt& Val) {
+int TUNGraph::AddSAttrDatN(const TInt& NId, const TInt& AttrId, const TInt& Val) {
   return SAttrN.AddSAttrDat(NId, AttrId, Val);
 }
 
-int TUNGraph::AddSAttrDatN(const TInt& NId, const TStr& AttrName, TFlt& Val) {
+int TUNGraph::AddSAttrDatN(const TInt& NId, const TStr& AttrName, const TFlt& Val) {
   return SAttrN.AddSAttrDat(NId, AttrName, Val);
 }
 
-int TUNGraph::AddSAttrDatN(const TInt& NId, const TInt& AttrId, TFlt& Val) {
+int TUNGraph::AddSAttrDatN(const TInt& NId, const TInt& AttrId, const TFlt& Val) {
   return SAttrN.AddSAttrDat(NId, AttrId, Val);
 }
 
-int TUNGraph::AddSAttrDatN(const TInt& NId, const TStr& AttrName, TStr& Val) {
+int TUNGraph::AddSAttrDatN(const TInt& NId, const TStr& AttrName, const TStr& Val) {
   return SAttrN.AddSAttrDat(NId, AttrName, Val);
 }
 
-int TUNGraph::AddSAttrDatN(const TInt& NId, const TInt& AttrId, TStr& Val) {
+int TUNGraph::AddSAttrDatN(const TInt& NId, const TInt& AttrId, const TStr& Val) {
   return SAttrN.AddSAttrDat(NId, AttrId, Val);
 }
 
@@ -255,15 +255,15 @@ int TUNGraph::DelSAttrDatN(const TInt& NId, const TInt& AttrId) {
   return SAttrN.DelSAttrDat(NId, AttrId);
 }
 
-void TUNGraph::GetSAttrVN(const TInt& NId, TAttrType AttrType, TAttrPrV& AttrV) {
+void TUNGraph::GetSAttrVN(const TInt& NId, const TAttrType AttrType, TAttrPrV& AttrV) const {
   SAttrN.GetSAttrV(NId, AttrType, AttrV);
 }
 
-int TUNGraph::GetIdVSAttrN(const TStr& AttrName, TIntV& IdV) {
+int TUNGraph::GetIdVSAttrN(const TStr& AttrName, TIntV& IdV) const {
   return SAttrN.GetIdVSAttr(AttrName, IdV);
 }
 
-int TUNGraph::GetIdVSAttrN(const TInt& AttrId, TIntV& IdV) {
+int TUNGraph::GetIdVSAttrN(const TInt& AttrId, TIntV& IdV) const {
   return SAttrN.GetIdVSAttr(AttrId, IdV);
 }
 
@@ -286,32 +286,32 @@ TIntPr TUNGraph::OrderEdgeNodes(const int& SrcNId, const int& DstNId) const{
   return TIntPr(DstNId, SrcNId);
 }
 
-int TUNGraph::AddSAttrDatE(const int& SrcNId, const int& DstNId, const TStr& AttrName, TInt& Val) {
+int TUNGraph::AddSAttrDatE(const int& SrcNId, const int& DstNId, const TStr& AttrName, const TInt& Val) {
   TIntPr EId = OrderEdgeNodes(SrcNId, DstNId);
   return SAttrE.AddSAttrDat(EId, AttrName, Val);
 }
 
-int TUNGraph::AddSAttrDatE(const int& SrcNId, const int& DstNId, const TInt& AttrId, TInt& Val) {
+int TUNGraph::AddSAttrDatE(const int& SrcNId, const int& DstNId, const TInt& AttrId, const TInt& Val) {
   TIntPr EId = OrderEdgeNodes(SrcNId, DstNId);
   return SAttrE.AddSAttrDat(EId, AttrId, Val);
 }
 
-int TUNGraph::AddSAttrDatE(const int& SrcNId, const int& DstNId, const TStr& AttrName, TFlt& Val) {
+int TUNGraph::AddSAttrDatE(const int& SrcNId, const int& DstNId, const TStr& AttrName, const TFlt& Val) {
   TIntPr EId = OrderEdgeNodes(SrcNId, DstNId);
   return SAttrE.AddSAttrDat(EId, AttrName, Val);
 }
 
-int TUNGraph::AddSAttrDatE(const int& SrcNId, const int& DstNId, const TInt& AttrId, TFlt& Val) {
+int TUNGraph::AddSAttrDatE(const int& SrcNId, const int& DstNId, const TInt& AttrId, const TFlt& Val) {
   TIntPr EId = OrderEdgeNodes(SrcNId, DstNId);
   return SAttrE.AddSAttrDat(EId, AttrId, Val);
 }
 
-int TUNGraph::AddSAttrDatE(const int& SrcNId, const int& DstNId, const TStr& AttrName, TStr& Val) {
+int TUNGraph::AddSAttrDatE(const int& SrcNId, const int& DstNId, const TStr& AttrName, const TStr& Val) {
   TIntPr EId = OrderEdgeNodes(SrcNId, DstNId);
   return SAttrE.AddSAttrDat(EId, AttrName, Val);
 }
 
-int TUNGraph::AddSAttrDatE(const int& SrcNId, const int& DstNId, const TInt& AttrId, TStr& Val) {
+int TUNGraph::AddSAttrDatE(const int& SrcNId, const int& DstNId, const TInt& AttrId, const TStr& Val) {
   TIntPr EId = OrderEdgeNodes(SrcNId, DstNId);
   return SAttrE.AddSAttrDat(EId, AttrId, Val);
 }
@@ -356,16 +356,16 @@ int TUNGraph::DelSAttrDatE(const int& SrcNId, const int& DstNId, const TInt& Att
   return SAttrE.DelSAttrDat(EId, AttrId);
 }
 
-void TUNGraph::GetSAttrVE(const int& SrcNId, const int& DstNId, TAttrType AttrType, TAttrPrV& AttrV) {
+void TUNGraph::GetSAttrVE(const int& SrcNId, const int& DstNId, const TAttrType AttrType, TAttrPrV& AttrV) const {
   TIntPr EId = OrderEdgeNodes(SrcNId, DstNId);
   SAttrE.GetSAttrV(EId, AttrType, AttrV);
 }
 
-int TUNGraph::GetIdVSAttrE(const TStr& AttrName, TIntPrV& IdV) {
+int TUNGraph::GetIdVSAttrE(const TStr& AttrName, TIntPrV& IdV) const {
   return SAttrE.GetIdVSAttr(AttrName, IdV);
 }
 
-int TUNGraph::GetIdVSAttrE(const TInt& AttrId, TIntPrV& IdV) {
+int TUNGraph::GetIdVSAttrE(const TInt& AttrId, TIntPrV& IdV) const {
   return SAttrE.GetIdVSAttr(AttrId, IdV);
 }
 
@@ -591,27 +591,27 @@ PNGraph TNGraph::GetSmallGraph() {
   return G;
 }
 
-int TNGraph::AddSAttrDatN(const TInt& NId, const TStr& AttrName, TInt& Val) {
+int TNGraph::AddSAttrDatN(const TInt& NId, const TStr& AttrName, const TInt& Val) {
   return SAttrN.AddSAttrDat(NId, AttrName, Val);
 }
 
-int TNGraph::AddSAttrDatN(const TInt& NId, const TInt& AttrId, TInt& Val) {
+int TNGraph::AddSAttrDatN(const TInt& NId, const TInt& AttrId, const TInt& Val) {
   return SAttrN.AddSAttrDat(NId, AttrId, Val);
 }
 
-int TNGraph::AddSAttrDatN(const TInt& NId, const TStr& AttrName, TFlt& Val) {
+int TNGraph::AddSAttrDatN(const TInt& NId, const TStr& AttrName, const TFlt& Val) {
   return SAttrN.AddSAttrDat(NId, AttrName, Val);
 }
 
-int TNGraph::AddSAttrDatN(const TInt& NId, const TInt& AttrId, TFlt& Val) {
+int TNGraph::AddSAttrDatN(const TInt& NId, const TInt& AttrId, const TFlt& Val) {
   return SAttrN.AddSAttrDat(NId, AttrId, Val);
 }
 
-int TNGraph::AddSAttrDatN(const TInt& NId, const TStr& AttrName, TStr& Val) {
+int TNGraph::AddSAttrDatN(const TInt& NId, const TStr& AttrName, const TStr& Val) {
   return SAttrN.AddSAttrDat(NId, AttrName, Val);
 }
 
-int TNGraph::AddSAttrDatN(const TInt& NId, const TInt& AttrId, TStr& Val) {
+int TNGraph::AddSAttrDatN(const TInt& NId, const TInt& AttrId, const TStr& Val) {
   return SAttrN.AddSAttrDat(NId, AttrId, Val);
 }
 
@@ -647,15 +647,15 @@ int TNGraph::DelSAttrDatN(const TInt& NId, const TInt& AttrId) {
   return SAttrN.DelSAttrDat(NId, AttrId);
 }
 
-void TNGraph::GetSAttrVN(const TInt& NId, TAttrType AttrType, TAttrPrV& AttrV) {
+void TNGraph::GetSAttrVN(const TInt& NId, const TAttrType AttrType, TAttrPrV& AttrV) const {
   SAttrN.GetSAttrV(NId, AttrType, AttrV);
 }
 
-int TNGraph::GetIdVSAttrN(const TStr& AttrName, TIntV& IdV) {
+int TNGraph::GetIdVSAttrN(const TStr& AttrName, TIntV& IdV) const {
   return SAttrN.GetIdVSAttr(AttrName, IdV);
 }
 
-int TNGraph::GetIdVSAttrN(const TInt& AttrId, TIntV& IdV) {
+int TNGraph::GetIdVSAttrN(const TInt& AttrId, TIntV& IdV) const {
   return SAttrN.GetIdVSAttr(AttrId, IdV);
 }
 
@@ -671,32 +671,32 @@ int TNGraph::GetSAttrNameN(const TInt& AttrId, TStr& Name, TAttrType& AttrType) 
   return SAttrN.GetSAttrName(AttrId, Name, AttrType);
 }
 
-int TNGraph::AddSAttrDatE(const int& SrcNId, const int& DstNId, const TStr& AttrName, TInt& Val) {
+int TNGraph::AddSAttrDatE(const int& SrcNId, const int& DstNId, const TStr& AttrName, const TInt& Val) {
   TIntPr EId(SrcNId, DstNId);
   return SAttrE.AddSAttrDat(EId, AttrName, Val);
 }
 
-int TNGraph::AddSAttrDatE(const int& SrcNId, const int& DstNId, const TInt& AttrId, TInt& Val) {
+int TNGraph::AddSAttrDatE(const int& SrcNId, const int& DstNId, const TInt& AttrId, const TInt& Val) {
   TIntPr EId(SrcNId, DstNId);
   return SAttrE.AddSAttrDat(EId, AttrId, Val);
 }
 
-int TNGraph::AddSAttrDatE(const int& SrcNId, const int& DstNId, const TStr& AttrName, TFlt& Val) {
+int TNGraph::AddSAttrDatE(const int& SrcNId, const int& DstNId, const TStr& AttrName, const TFlt& Val) {
   TIntPr EId(SrcNId, DstNId);
   return SAttrE.AddSAttrDat(EId, AttrName, Val);
 }
 
-int TNGraph::AddSAttrDatE(const int& SrcNId, const int& DstNId, const TInt& AttrId, TFlt& Val) {
+int TNGraph::AddSAttrDatE(const int& SrcNId, const int& DstNId, const TInt& AttrId, const TFlt& Val) {
   TIntPr EId(SrcNId, DstNId);
   return SAttrE.AddSAttrDat(EId, AttrId, Val);
 }
 
-int TNGraph::AddSAttrDatE(const int& SrcNId, const int& DstNId, const TStr& AttrName, TStr& Val) {
+int TNGraph::AddSAttrDatE(const int& SrcNId, const int& DstNId, const TStr& AttrName, const TStr& Val) {
   TIntPr EId(SrcNId, DstNId);
   return SAttrE.AddSAttrDat(EId, AttrName, Val);
 }
 
-int TNGraph::AddSAttrDatE(const int& SrcNId, const int& DstNId, const TInt& AttrId, TStr& Val) {
+int TNGraph::AddSAttrDatE(const int& SrcNId, const int& DstNId, const TInt& AttrId, const TStr& Val) {
   TIntPr EId(SrcNId, DstNId);
   return SAttrE.AddSAttrDat(EId, AttrId, Val);
 }
@@ -741,16 +741,16 @@ int TNGraph::DelSAttrDatE(const int& SrcNId, const int& DstNId, const TInt& Attr
   return SAttrE.DelSAttrDat(EId, AttrId);
 }
 
-void TNGraph::GetSAttrVE(const int& SrcNId, const int& DstNId, TAttrType AttrType, TAttrPrV& AttrV) {
+void TNGraph::GetSAttrVE(const int& SrcNId, const int& DstNId, const TAttrType AttrType, TAttrPrV& AttrV) const {
   TIntPr EId(SrcNId, DstNId);
   SAttrE.GetSAttrV(EId, AttrType, AttrV);
 }
 
-int TNGraph::GetIdVSAttrE(const TStr& AttrName, TIntPrV& IdV) {
+int TNGraph::GetIdVSAttrE(const TStr& AttrName, TIntPrV& IdV) const {
   return SAttrE.GetIdVSAttr(AttrName, IdV);
 }
 
-int TNGraph::GetIdVSAttrE(const TInt& AttrId, TIntPrV& IdV) {
+int TNGraph::GetIdVSAttrE(const TInt& AttrId, TIntPrV& IdV) const {
   return SAttrE.GetIdVSAttr(AttrId, IdV);
 }
 

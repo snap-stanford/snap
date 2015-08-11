@@ -2122,14 +2122,14 @@ public:
 
 
   //Node Sparse Attributes
-  int AddSAttrDatN(const TInt& NId, const TStr& AttrName, TInt& Val); 
-  int AddSAttrDatN(const TInt& NId, const TInt& AttrId, TInt& Val);
+  int AddSAttrDatN(const TInt& NId, const TStr& AttrName, const TInt& Val); 
+  int AddSAttrDatN(const TInt& NId, const TInt& AttrId, const TInt& Val);
 
-  int AddSAttrDatN(const TInt& NId, const TStr& AttrName, TFlt& Val); 
-  int AddSAttrDatN(const TInt& NId, const TInt& AttrId, TFlt& Val);
+  int AddSAttrDatN(const TInt& NId, const TStr& AttrName, const TFlt& Val); 
+  int AddSAttrDatN(const TInt& NId, const TInt& AttrId, const TFlt& Val);
 
-  int AddSAttrDatN(const TInt& NId, const TStr& AttrName, TStr& Val); 
-  int AddSAttrDatN(const TInt& NId, const TInt& AttrId, TStr& Val);
+  int AddSAttrDatN(const TInt& NId, const TStr& AttrName, const TStr& Val); 
+  int AddSAttrDatN(const TInt& NId, const TInt& AttrId, const TStr& Val);
 
   int GetSAttrDatN(const TInt& NId, const TStr& AttrName, TInt& Val) const; 
   int GetSAttrDatN(const TInt& NId, const TInt& AttrId, TInt& Val) const;
@@ -2143,10 +2143,10 @@ public:
   int DelSAttrDatN(const TInt& NId, const TStr& AttrName); 
   int DelSAttrDatN(const TInt& NId, const TInt& AttrId);
 
-  void GetSAttrVN(const TInt& NId, TAttrType AttrType, TAttrPrV& AttrV);
+  void GetSAttrVN(const TInt& NId, const TAttrType AttrType, TAttrPrV& AttrV) const;
 
-  int GetIdVSAttrN(const TStr& AttrName, TIntV& IdV);
-  int GetIdVSAttrN(const TInt& AttrId, TIntV& IdV);
+  int GetIdVSAttrN(const TStr& AttrName, TIntV& IdV) const;
+  int GetIdVSAttrN(const TInt& AttrId, TIntV& IdV) const;
 
   int AddSAttrN(const TStr& Name, const TAttrType& AttrType, TInt& AttrId);
 
@@ -2154,14 +2154,14 @@ public:
   int GetSAttrNameN(const TInt& AttrId, TStr& Name, TAttrType& AttrType) const;
 
   //Edge Sparse Attributes
-  int AddSAttrDatE(const TInt& EId, const TStr& AttrName, TInt& Val); 
-  int AddSAttrDatE(const TInt& EId, const TInt& AttrId, TInt& Val);
+  int AddSAttrDatE(const TInt& EId, const TStr& AttrName, const TInt& Val); 
+  int AddSAttrDatE(const TInt& EId, const TInt& AttrId, const TInt& Val);
 
-  int AddSAttrDatE(const TInt& EId, const TStr& AttrName, TFlt& Val); 
-  int AddSAttrDatE(const TInt& EId, const TInt& AttrId, TFlt& Val);
+  int AddSAttrDatE(const TInt& EId, const TStr& AttrName, const TFlt& Val); 
+  int AddSAttrDatE(const TInt& EId, const TInt& AttrId, const TFlt& Val);
 
-  int AddSAttrDatE(const TInt& EId, const TStr& AttrName, TStr& Val); 
-  int AddSAttrDatE(const TInt& EId, const TInt& AttrId, TStr& Val);
+  int AddSAttrDatE(const TInt& EId, const TStr& AttrName, const TStr& Val); 
+  int AddSAttrDatE(const TInt& EId, const TInt& AttrId, const TStr& Val);
 
   int GetSAttrDatE(const TInt& EId, const TStr& AttrName, TInt& Val) const; 
   int GetSAttrDatE(const TInt& EId, const TInt& AttrId, TInt& Val) const;
@@ -2175,10 +2175,10 @@ public:
   int DelSAttrDatE(const TInt& EId, const TStr& AttrName); 
   int DelSAttrDatE(const TInt& EId, const TInt& AttrId);
 
-  void GetSAttrVE(const TInt& EId, TAttrType AttrType, TAttrPrV& AttrV);
+  void GetSAttrVE(const TInt& EId, const TAttrType AttrType, TAttrPrV& AttrV) const;
 
-  int GetIdVSAttrE(const TStr& AttrName, TIntV& IdV);
-  int GetIdVSAttrE(const TInt& AttrId, TIntV& IdV);
+  int GetIdVSAttrE(const TStr& AttrName, TIntV& IdV) const;
+  int GetIdVSAttrE(const TInt& AttrId, TIntV& IdV) const;
 
   int AddSAttrE(const TStr& Name, const TAttrType& AttrType, TInt& AttrId);
 
