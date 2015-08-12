@@ -116,6 +116,7 @@ int TSparseAttrSingle::DelSAttrDat(const TInt& Id, const TInt& AttrId) {
 
 // GetNames
 void TSparseAttrSingle::GetSAttrV(const TInt& Id, const TAttrType AttrType, TAttrPrV& AttrV) const {
+  AttrV = TAttrPrV();
   for (TStrIntPrH::TIter it = AttrNameToId.BegI(); it < AttrNameToId.EndI(); it++) {
     TAttrType CurType = static_cast<TAttrType>(it.GetDat().GetVal1().Val);
     if (CurType == AttrType || AttrType == atAny) {
@@ -168,6 +169,7 @@ int TSparseAttrSingle::GetIdVSAttr(const TInt& AttrId, const TAttrType Type, TIn
 }
 
 int TSparseAttrSingle::GetIdVSAttr(const TInt& AttrId, TIntV& IdV) const {
+  IdV = TIntV();
   if (!AttrIdToName.IsKey(AttrId)) { return -1; }
   TIntStrPr TypeAndName = AttrIdToName.GetDat(AttrId);
   TAttrType Type = static_cast<TAttrType>(TypeAndName.GetVal1().Val);
@@ -175,6 +177,7 @@ int TSparseAttrSingle::GetIdVSAttr(const TInt& AttrId, TIntV& IdV) const {
 }
 
 int TSparseAttrSingle::GetIdVSAttr(const TStr& AttrName, TIntV& IdV) const {
+  IdV = TIntV();
   if (!AttrNameToId.IsKey(AttrName)) { return -1; }
   TIntPr TypeAndId = AttrNameToId.GetDat(AttrName);
   TAttrType Type = static_cast<TAttrType>(TypeAndId.GetVal1().Val);
@@ -336,6 +339,7 @@ int TSparseAttrPair::DelSAttrDat(const TIntPr& Id, const TInt& AttrId) {
 
 // GetNames
 void TSparseAttrPair::GetSAttrV(const TIntPr& Id, const TAttrType AttrType, TAttrPrV& AttrV) const {
+  AttrV = TAttrPrV();
   for (TStrIntPrH::TIter it = AttrNameToId.BegI(); it < AttrNameToId.EndI(); it++) {
     TAttrType CurType = static_cast<TAttrType>(it.GetDat().GetVal1().Val);
     if (CurType == AttrType || AttrType == atAny) {
@@ -388,6 +392,7 @@ int TSparseAttrPair::GetIdVSAttr(const TInt& AttrId, const TAttrType Type, TIntP
 }
 
 int TSparseAttrPair::GetIdVSAttr(const TStr& AttrName, TIntPrV& IdV) const {
+  IdV = TIntPrV();
   if (!AttrNameToId.IsKey(AttrName)) { return -1; }
   TIntPr TypeAndId = AttrNameToId.GetDat(AttrName);
   TAttrType Type = static_cast<TAttrType>(TypeAndId.GetVal1().Val);
@@ -396,6 +401,7 @@ int TSparseAttrPair::GetIdVSAttr(const TStr& AttrName, TIntPrV& IdV) const {
 }
 
 int TSparseAttrPair::GetIdVSAttr(const TInt& AttrId, TIntPrV& IdV) const {
+  IdV = TIntPrV();
   if (!AttrIdToName.IsKey(AttrId)) { return -1; }
   TIntStrPr TypeAndName = AttrIdToName.GetDat(AttrId);
   TAttrType Type = static_cast<TAttrType>(TypeAndName.GetVal1().Val);
