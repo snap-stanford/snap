@@ -99,8 +99,7 @@ int GetNodeEcc(const PGraph& Graph, const int& NId, const bool& IsDir) {
 // Page Rank -- there are two different implementations (uncomment the desired 2 lines):
 //   Berkhin -- (the correct way) see Algorithm 1 of P. Berkhin, A Survey on PageRank Computing, Internet Mathematics, 2005
 //   iGraph -- iGraph implementation(which treats leaked PageRank in a funny way)
-// This implementation is an unoptimized version, it accesses nodes via a
-// hash table. 
+// This implementation is an unoptimized version, it accesses nodes via a hash table.
 template<class PGraph>
 void GetPageRank_v1(const PGraph& Graph, TIntFltH& PRankH, const double& C, const double& Eps, const int& MaxIter) {
   const int NNodes = Graph->GetNodes();
@@ -140,8 +139,7 @@ void GetPageRank_v1(const PGraph& Graph, TIntFltH& PRankH, const double& C, cons
 // Page Rank -- there are two different implementations (uncomment the desired 2 lines):
 //   Berkhin -- (the correct way) see Algorithm 1 of P. Berkhin, A Survey on PageRank Computing, Internet Mathematics, 2005
 //   iGraph -- iGraph implementation(which treats leaked PageRank in a funny way)
-// This implementation is an optimized version, it builds a vector and
-// accesses nodes via the vector.
+// This implementation is an optimized version, it builds a vector and accesses nodes via the vector.
 template<class PGraph>
 void GetPageRank(const PGraph& Graph, TIntFltH& PRankH, const double& C, const double& Eps, const int& MaxIter) {
   const int NNodes = Graph->GetNodes();

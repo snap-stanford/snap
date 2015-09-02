@@ -146,6 +146,10 @@ public:
   static void Test();
 
   // plot value-count tables, and pair vectors
+  template <class TVal1>
+  static void PlotValV(const TVec<TVal1>& ValV, const TStr& OutFNmPref, const TStr& Desc="",
+    const TStr& XLabel="", const TStr& YLabel="", const TGpScaleTy& ScaleTy=gpsAuto, const bool& PowerFit=false,
+    const TGpSeriesTy& SeriesTy=gpwLinesPoints);
   template <class TVal1, class TVal2>
   static void PlotValV(const TVec<TPair<TVal1, TVal2> >& ValV, const TStr& OutFNmPref, const TStr& Desc="",
    const TStr& XLabel="", const TStr& YLabel="", const TGpScaleTy& ScaleTy=gpsAuto, const bool& PowerFit=false, 
@@ -159,10 +163,10 @@ public:
     const TVec<TPair<TVal1, TVal2> >& ValV2, const TStr& Name2, const TStr& OutFNmPref, const TStr& Desc="",
    const TStr& XLabel="", const TStr& YLabel="", const TGpScaleTy& ScaleTy=gpsAuto, const bool& PowerFit=false, 
    const TGpSeriesTy& SeriesTy=gpwLinesPoints);
-  template <class TVal1>
-  static void PlotValV(const TVec<TVal1>& ValV, const TStr& OutFNmPref, const TStr& Desc="",
-   const TStr& XLabel="", const TStr& YLabel="", const TGpScaleTy& ScaleTy=gpsAuto, const bool& PowerFit=false, 
-   const TGpSeriesTy& SeriesTy=gpwLinesPoints);
+  template <class TKey, class TVal, class THashFunc>
+  static void PlotValRank(const THash<TKey, TVal, THashFunc>& ValCntH, const TStr& OutFNmPref, const TStr& Desc="",
+    const TStr& XLabel="", const TStr& YLabel="", const TGpScaleTy& ScaleTy=gpsAuto, const bool& PowerFit=false,
+    const TGpSeriesTy& SeriesTy=gpwLinesPoints);
   template <class TKey, class TVal, class THashFunc>
   static void PlotValCntH(const THash<TKey, TVal, THashFunc>& ValCntH, const TStr& OutFNmPref, const TStr& Desc="",
    const TStr& XLabel="", const TStr& YLabel="", const TGpScaleTy& ScaleTy=gpsAuto, const bool& PowerFit=false, 
@@ -301,67 +305,10 @@ int TGnuPlot::AddPlot(const THash<TKey, TMom, THashFunc>& ValMomH, const TGpSeri
   return PlotId;
 }
 
-// plot value-count tables, and pair vectors
-template <class TKey, class TVal, class THashFunc>
-void TGnuPlot::PlotValCntH(const THash<TKey, TVal, THashFunc>& ValCntH, const TStr& OutFNmPref, const TStr& Desc,
- const TStr& XLabel, const TStr& YLabel, const TGpScaleTy& ScaleTy, const bool& PowerFit, const TGpSeriesTy& SeriesTy, 
- const bool& PlotNCDF, const bool& ExpBucket) {
-  TFltPrV IdCntV(ValCntH.Len(), 0), BucketV;
-  for (int i = ValCntH.FFirstKeyId(); ValCntH.FNextKeyId(i); ) {
-    IdCntV.Add(TFltPr(double(ValCntH.GetKey(i)), double(ValCntH[i]))); }
-  IdCntV.Sort();
-  if (ExpBucket) { 
-    TGnuPlot::MakeExpBins(IdCntV, BucketV);
-    BucketV.Swap(IdCntV);
-  }
-  if (PlotNCDF) { 
-    TFltPrV NCdfV = IdCntV;
-    for (int i = NCdfV.Len()-2; i >= 0; i--) {
-      NCdfV[i].Val2 = NCdfV[i].Val2 + NCdfV[i+1].Val2; 
-    }
-    PlotValV(NCdfV, OutFNmPref, Desc, "NCDF "+XLabel, "NCDF "+YLabel, ScaleTy, PowerFit, SeriesTy);
-  } else {
-    PlotValV(IdCntV, OutFNmPref, Desc, XLabel, YLabel, ScaleTy, PowerFit, SeriesTy); 
-  }
-}
-
-template <class TKey, class TVal, class THashFunc>
-void TGnuPlot::PlotValCntH(const THash<TKey, TVal, THashFunc>& ValCntH1, const TStr& Label1, 
-                           const THash<TKey, TVal, THashFunc>& ValCntH2, const TStr& Label2, 
-                           const TStr& OutFNmPref, const TStr& Desc, const TStr& XLabel, const TStr& YLabel, 
-                           const TGpScaleTy& ScaleTy, const TGpSeriesTy& SeriesTy) {
-  PlotValCntH(ValCntH1, Label1, ValCntH2, Label2, THash<TKey, TVal, THashFunc>(), "", OutFNmPref, Desc, XLabel, YLabel,
-    ScaleTy, SeriesTy);
-}
-
-template <class TKey, class TVal, class THashFunc>
-void TGnuPlot::PlotValCntH(const THash<TKey, TVal, THashFunc>& ValCntH1, const TStr& Label1, 
-                           const THash<TKey, TVal, THashFunc>& ValCntH2, const TStr& Label2, 
-                           const THash<TKey, TVal, THashFunc>& ValCntH3, const TStr& Label3, 
-                           const TStr& OutFNmPref, const TStr& Desc, const TStr& XLabel, const TStr& YLabel, 
-                           const TGpScaleTy& ScaleTy, const TGpSeriesTy& SeriesTy) {
-  TFltPrV IdCntV1(ValCntH1.Len(), 0), IdCntV2(ValCntH2.Len(), 0), IdCntV3(ValCntH3.Len(), 0);
-  for (int i = ValCntH1.FFirstKeyId(); ValCntH1.FNextKeyId(i); ) {
-    IdCntV1.Add(TFltPr(double(ValCntH1.GetKey(i)), double(ValCntH1[i]))); }
-  for (int i = ValCntH2.FFirstKeyId(); ValCntH2.FNextKeyId(i); ) {
-    IdCntV2.Add(TFltPr(double(ValCntH2.GetKey(i)), double(ValCntH2[i]))); }
-  for (int i = ValCntH3.FFirstKeyId(); ValCntH3.FNextKeyId(i); ) {
-    IdCntV3.Add(TFltPr(double(ValCntH3.GetKey(i)), double(ValCntH3[i]))); }
-  IdCntV1.Sort();
-  IdCntV2.Sort();
-  IdCntV3.Sort();
-  TGnuPlot GP(OutFNmPref, Desc);
-  GP.SetXYLabel(XLabel, YLabel);
-  GP.SetScale(ScaleTy);
-  if (! IdCntV1.Empty()) { GP.AddPlot(IdCntV1, SeriesTy, Label1); }
-  if (! IdCntV2.Empty()) { GP.AddPlot(IdCntV2, SeriesTy, Label2); }
-  if (! IdCntV3.Empty()) { GP.AddPlot(IdCntV3, SeriesTy, Label3); }
-  GP.SavePng();
-}
-
 template <class TVal1, class TVal2>
 void TGnuPlot::PlotValV(const TVec<TPair<TVal1, TVal2> >& ValV, const TStr& OutFNmPref, const TStr& Desc,
- const TStr& XLabel, const TStr& YLabel, const TGpScaleTy& ScaleTy, const bool& PowerFit, const TGpSeriesTy& SeriesTy) {
+                        const TStr& XLabel, const TStr& YLabel, const TGpScaleTy& ScaleTy, const bool& PowerFit,
+                        const TGpSeriesTy& SeriesTy) {
   TFltKdV IdCntV(ValV.Len(), 0);
   for (int i = 0; i < ValV.Len(); i++) {
     IdCntV.Add(TFltKd(double(ValV[i].Val1), double(ValV[i].Val2))); }
@@ -383,7 +330,8 @@ void TGnuPlot::PlotValV(const TVec<TPair<TVal1, TVal2> >& ValV, const TStr& OutF
 
 template <class TVal1, class TVal2, class TVal3>
 void TGnuPlot::PlotValV(const TVec<TTriple<TVal1, TVal2, TVal3> >& ValV, const TStr& OutFNmPref, const TStr& Desc,
- const TStr& XLabel, const TStr& YLabel, const TGpScaleTy& ScaleTy, const bool& PowerFit, const TGpSeriesTy& SeriesTy, const TStr& ErrBarStr) {
+                        const TStr& XLabel, const TStr& YLabel, const TGpScaleTy& ScaleTy, const bool& PowerFit,
+                        const TGpSeriesTy& SeriesTy, const TStr& ErrBarStr) {
   TFltKdV IdCntV(ValV.Len(), 0);
   TFltV DeltaYV(ValV.Len(), 0);
   for (int i = 0; i < ValV.Len(); i++) {
@@ -407,11 +355,10 @@ void TGnuPlot::PlotValV(const TVec<TTriple<TVal1, TVal2, TVal3> >& ValV, const T
   GP.SavePng();
 }
 
-
 template <class TVal1, class TVal2>
-void TGnuPlot::PlotValV(const TVec<TPair<TVal1, TVal2> >& ValV1, const TStr& Name1, 
- const TVec<TPair<TVal1, TVal2> >& ValV2, const TStr& Name2, const TStr& OutFNmPref, const TStr& Desc,
- const TStr& XLabel, const TStr& YLabel, const TGpScaleTy& ScaleTy, const bool& PowerFit, const TGpSeriesTy& SeriesTy) {
+void TGnuPlot::PlotValV(const TVec<TPair<TVal1, TVal2> >& ValV1, const TStr& Name1,
+                        const TVec<TPair<TVal1, TVal2> >& ValV2, const TStr& Name2, const TStr& OutFNmPref, const TStr& Desc,
+                        const TStr& XLabel, const TStr& YLabel, const TGpScaleTy& ScaleTy, const bool& PowerFit, const TGpSeriesTy& SeriesTy) {
   TFltKdV IdCntV1(ValV1.Len(), 0), IdCntV2(ValV2.Len(), 0);
   for (int i = 0; i < ValV1.Len(); i++) {
     IdCntV1.Add(TFltKd(double(ValV1[i].Val1), double(ValV1[i].Val2))); }
@@ -440,11 +387,9 @@ void TGnuPlot::PlotValV(const TVec<TPair<TVal1, TVal2> >& ValV1, const TStr& Nam
   GP.SavePng();
 }
 
-           
-
 template <class TVal1>
-void TGnuPlot::PlotValV(const TVec<TVal1>& ValV, const TStr& OutFNmPref, const TStr& Desc,
- const TStr& XLabel, const TStr& YLabel, const TGpScaleTy& ScaleTy, const bool& PowerFit, const TGpSeriesTy& SeriesTy) {
+void TGnuPlot::PlotValV(const TVec<TVal1>& ValV, const TStr& OutFNmPref, const TStr& Desc, const TStr& XLabel,
+                        const TStr& YLabel, const TGpScaleTy& ScaleTy, const bool& PowerFit, const TGpSeriesTy& SeriesTy) {
   TFltKdV IdCntV(ValV.Len(), 0);
   for (int i = 0; i < ValV.Len(); i++) {
     IdCntV.Add(TFltKd(double(i+1), double(ValV[i]))); }
@@ -464,10 +409,82 @@ void TGnuPlot::PlotValV(const TVec<TVal1>& ValV, const TStr& OutFNmPref, const T
   GP.SavePng();
 }
 
+template <class TKey, class TVal, class THashFunc>
+void TGnuPlot::PlotValRank(const THash<TKey, TVal, THashFunc>& ValCntH, const TStr& OutFNmPref, const TStr& Desc,
+                           const TStr& XLabel, const TStr& YLabel, const TGpScaleTy& ScaleTy, const bool& PowerFit, const TGpSeriesTy& SeriesTy) {
+  TFltPrV IdCntV(ValCntH.Len(), 0);
+  TFltV ValV(ValCntH.Len(), 0);
+  for (int i = ValCntH.FFirstKeyId(); ValCntH.FNextKeyId(i); ) {
+    ValV.Add(double(ValCntH[i])); }
+  ValV.Sort(false);
+  for (int i = 0; i < ValV.Len(); i++) {
+    IdCntV.Add(TFltPr(i+1, ValV[i]));
+  }
+  PlotValV(IdCntV, OutFNmPref, Desc, XLabel, YLabel, ScaleTy, PowerFit, SeriesTy);
+}
+
+template <class TKey, class TVal, class THashFunc>
+void TGnuPlot::PlotValCntH(const THash<TKey, TVal, THashFunc>& ValCntH, const TStr& OutFNmPref, const TStr& Desc,
+                           const TStr& XLabel, const TStr& YLabel, const TGpScaleTy& ScaleTy, const bool& PowerFit, const TGpSeriesTy& SeriesTy,
+                           const bool& PlotNCDF, const bool& ExpBucket) {
+  TFltPrV IdCntV(ValCntH.Len(), 0), BucketV;
+  for (int i = ValCntH.FFirstKeyId(); ValCntH.FNextKeyId(i); ) {
+    IdCntV.Add(TFltPr(double(ValCntH.GetKey(i)), double(ValCntH[i]))); }
+  IdCntV.Sort();
+  if (ExpBucket) {
+    TGnuPlot::MakeExpBins(IdCntV, BucketV);
+    BucketV.Swap(IdCntV);
+  }
+  if (PlotNCDF) {
+    TFltPrV NCdfV = IdCntV;
+    for (int i = NCdfV.Len()-2; i >= 0; i--) {
+      NCdfV[i].Val2 = NCdfV[i].Val2 + NCdfV[i+1].Val2;
+    }
+    PlotValV(NCdfV, OutFNmPref, Desc, "NCDF "+XLabel, "NCDF "+YLabel, ScaleTy, PowerFit, SeriesTy);
+  } else {
+    PlotValV(IdCntV, OutFNmPref, Desc, XLabel, YLabel, ScaleTy, PowerFit, SeriesTy);
+  }
+}
+
+template <class TKey, class TVal, class THashFunc>
+void TGnuPlot::PlotValCntH(const THash<TKey, TVal, THashFunc>& ValCntH1, const TStr& Label1,
+                           const THash<TKey, TVal, THashFunc>& ValCntH2, const TStr& Label2,
+                           const TStr& OutFNmPref, const TStr& Desc, const TStr& XLabel, const TStr& YLabel,
+                           const TGpScaleTy& ScaleTy, const TGpSeriesTy& SeriesTy) {
+  PlotValCntH(ValCntH1, Label1, ValCntH2, Label2, THash<TKey, TVal, THashFunc>(), "", OutFNmPref, Desc, XLabel, YLabel,
+              ScaleTy, SeriesTy);
+}
+
+template <class TKey, class TVal, class THashFunc>
+void TGnuPlot::PlotValCntH(const THash<TKey, TVal, THashFunc>& ValCntH1, const TStr& Label1,
+                           const THash<TKey, TVal, THashFunc>& ValCntH2, const TStr& Label2,
+                           const THash<TKey, TVal, THashFunc>& ValCntH3, const TStr& Label3,
+                           const TStr& OutFNmPref, const TStr& Desc, const TStr& XLabel, const TStr& YLabel,
+                           const TGpScaleTy& ScaleTy, const TGpSeriesTy& SeriesTy) {
+  TFltPrV IdCntV1(ValCntH1.Len(), 0), IdCntV2(ValCntH2.Len(), 0), IdCntV3(ValCntH3.Len(), 0);
+  for (int i = ValCntH1.FFirstKeyId(); ValCntH1.FNextKeyId(i); ) {
+    IdCntV1.Add(TFltPr(double(ValCntH1.GetKey(i)), double(ValCntH1[i]))); }
+  for (int i = ValCntH2.FFirstKeyId(); ValCntH2.FNextKeyId(i); ) {
+    IdCntV2.Add(TFltPr(double(ValCntH2.GetKey(i)), double(ValCntH2[i]))); }
+  for (int i = ValCntH3.FFirstKeyId(); ValCntH3.FNextKeyId(i); ) {
+    IdCntV3.Add(TFltPr(double(ValCntH3.GetKey(i)), double(ValCntH3[i]))); }
+  IdCntV1.Sort();
+  IdCntV2.Sort();
+  IdCntV3.Sort();
+  TGnuPlot GP(OutFNmPref, Desc);
+  GP.SetXYLabel(XLabel, YLabel);
+  GP.SetScale(ScaleTy);
+  if (! IdCntV1.Empty()) { GP.AddPlot(IdCntV1, SeriesTy, Label1); }
+  if (! IdCntV2.Empty()) { GP.AddPlot(IdCntV2, SeriesTy, Label2); }
+  if (! IdCntV3.Empty()) { GP.AddPlot(IdCntV3, SeriesTy, Label3); }
+  GP.SavePng();
+}
+
 template <class TVal1>
 void TGnuPlot::PlotValMomH(const THash<TVal1, TMom>& ValMomH, const TStr& OutFNmPref, const TStr& Desc,
- const TStr& XLabel, const TStr& YLabel, const TGpScaleTy& ScaleTy, const TGpSeriesTy& SeriesTy,
- bool PlotAvg, bool PlotMed, bool PlotMin, bool PlotMax, bool PlotSDev, bool PlotStdErr, bool PlotScatter) {
+                           const TStr& XLabel, const TStr& YLabel, const TGpScaleTy& ScaleTy, const TGpSeriesTy& SeriesTy,
+                           bool PlotAvg, bool PlotMed, bool PlotMin, bool PlotMax, bool PlotSDev, bool PlotStdErr,
+                           bool PlotScatter) {
   TFltTrV AvgV, StdErrV;
   TFltPrV AvgV2, MedV, MinV, MaxV;
   TFltPrV ScatterV;
@@ -514,9 +531,10 @@ void TGnuPlot::PlotValMomH(const THash<TVal1, TMom>& ValMomH, const TStr& OutFNm
 }
 
 template <class TVal1>
-void TGnuPlot::PlotValMomH(const THash<TVal1, TMom>& ValMomH1, const TStr& Label1, const THash<TVal1, TMom>& ValMomH2, const TStr& Label2,
- const TStr& OutFNmPref, const TStr& Desc, const TStr& XLabel, const TStr& YLabel, const TGpScaleTy& ScaleTy, const TGpSeriesTy& SeriesTy,
- bool PlotAvg, bool PlotMed, bool PlotMin, bool PlotMax, bool PlotSDev, bool PlotStdErr, bool PlotScatter) {
+void TGnuPlot::PlotValMomH(const THash<TVal1, TMom>& ValMomH1, const TStr& Label1, const THash<TVal1, TMom>& ValMomH2,
+                           const TStr& Label2, const TStr& OutFNmPref, const TStr& Desc, const TStr& XLabel,
+                           const TStr& YLabel, const TGpScaleTy& ScaleTy, const TGpSeriesTy& SeriesTy, bool PlotAvg,
+                           bool PlotMed, bool PlotMin, bool PlotMax, bool PlotSDev, bool PlotStdErr, bool PlotScatter) {
   TFltTrV AvgV1, AvgV2, StdErrV1, StdErrV2;
   TFltPrV AvgVM1, MedV1, MinV1, MaxV1;
   TFltPrV AvgVM2, MedV2, MinV2, MaxV2;
