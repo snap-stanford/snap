@@ -234,7 +234,7 @@ PBowDocPart TDMozBs::_GetBowDocPart(
   for (int SubCatIdN=0; SubCatIdN<SubCatIdV.Len(); SubCatIdN++){
     PBowDocPartClust DocPartClust=GetBowDocPartClust(
      SubCatIdV[SubCatIdN], TIntV(), TIntV(), BowDocBs, BowDocWgtBs, BowSim, MnCatDocs, Cats, CatN);
-    if (DocPartClust->GetDocs()>=max(1, MnCatDocs)){
+    if (DocPartClust->GetDocs()>=MAX(1, MnCatDocs)){
       DocPart->AddClust(DocPartClust);}
   }
   // return document partition
@@ -258,7 +258,7 @@ PBowDocPart TDMozBs::GetBowDocPart(
   // get main-cluster
   PBowDocPartClust DocPartClust=GetBowDocPartClust(
    RootCatId, PosCatIdV, NegCatIdV, BowDocBs, BowDocWgtBs, BowSim, MnCatDocs, Cats, CatN);
-  if (DocPartClust->GetDocs()>=max(1, MnCatDocs)){
+  if (DocPartClust->GetDocs()>=MAX(1, MnCatDocs)){
     DocPart->AddClust(DocPartClust);}
   // return document partition
   return DocPart;

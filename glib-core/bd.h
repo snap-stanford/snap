@@ -342,12 +342,12 @@ typedef enum {roUndef, roLs, roLEq, roEq, roNEq, roGEq, roGt} TRelOp;
 
 /////////////////////////////////////////////////
 // Comparation-Macros
-#ifndef min
-  #define min(a,b) ((a)<(b)?(a):(b))
+#ifndef MIN
+  #define MIN(a,b) ((a)<(b)?(a):(b))
 #endif
 
-#ifndef max
-  #define max(a,b) ((a)>(b)?(a):(b))
+#ifndef MAX
+  #define MAX(a,b) ((a)>(b)?(a):(b))
 #endif
 
 /////////////////////////////////////////////////
