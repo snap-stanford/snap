@@ -26,6 +26,7 @@
 #include "cmty.cpp"          // community detection algorithms
 #include "flow.cpp"          // network flow algorithms
 #include "coreper.cpp"       // core-periphery algorithms
+#include "triad.cpp"         // triad calculations
 
 // graph generators
 #include "ggen.cpp"          // graph generators (preferential attachment, small-world, ...)

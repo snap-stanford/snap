@@ -42,6 +42,12 @@ template<class PGraph> int GetLen2Paths(const PGraph& Graph, const int& NId1, co
 /// Returns the 2 directed paths between a pair of nodes NId1, NId2 (NId1 --> U --> NId2). ##TSnap::GetLen2Paths
 template<class PGraph> int GetLen2Paths(const PGraph& Graph, const int& NId1, const int& NId2, TIntV& NbrV);
 
+/// Returns sorted vector \c NbrV containing unique in or out neighbors of node \c NId in graph \c Graph
+template <class PGraph> void GetUniqueNbrV(const PGraph& Graph, const int& NId, TIntV& NbrV);
+
+/// Returns the number of common elements in two sorted TInt vectors
+int GetCommon(TIntV& A, TIntV& B);
+
 /////////////////////////////////////////////////
 // Implementation
 
@@ -156,8 +162,9 @@ int64 GetTriads(const PGraph& Graph, int64& ClosedTriads, int64& OpenTriads, int
 }
 
 // Function pretends that the graph is undirected (count unique connected triples of nodes)
+// This implementation is slower, it uses hash tables directly
 template <class PGraph>
-void GetTriads(const PGraph& Graph, TIntTrV& NIdCOTriadV, int SampleNodes) {
+void GetTriads_v0(const PGraph& Graph, TIntTrV& NIdCOTriadV, int SampleNodes) {
   const bool IsDir = Graph->HasFlag(gfDirected);
   TIntSet NbrH;
   TIntV NIdV;
@@ -199,6 +206,90 @@ void GetTriads(const PGraph& Graph, TIntTrV& NIdCOTriadV, int SampleNodes) {
     }
     IAssert(2*(OpenCnt+CloseCnt) == NbrH.Len()*(NbrH.Len()-1));
     NIdCOTriadV.Add(TIntTr(NI.GetId(), CloseCnt, OpenCnt));
+  }
+}
+
+// Function pretends that the graph is undirected (count unique connected triples of nodes)
+// This implementation is faster, it converts hash tables to vectors
+template <class PGraph>
+void GetTriads(const PGraph& Graph, TIntTrV& NIdCOTriadV, int SampleNodes) {
+  const bool IsDir = Graph->HasFlag(gfDirected);
+  TIntSet NbrH;
+  TIntV NIdV;
+  //TRnd Rnd(0);
+  TRnd Rnd(1);
+  int NNodes;
+  TIntV Nbrs;
+  int NId;
+
+  int64 hcount;
+  int64 bcount;
+
+  hcount = 0;
+  bcount = 0;
+
+  NNodes = Graph->GetNodes();
+  Graph->GetNIdV(NIdV);
+  NIdV.Shuffle(Rnd);
+  if (SampleNodes == -1) {
+    SampleNodes = NNodes;
+  }
+
+  int MxId = -1;
+  for (int i = 0; i < NNodes; i++) {
+    if (NIdV[i] > MxId) {
+      MxId = NIdV[i];
+    }
+  }
+
+  TVec<TIntV> NbrV(MxId + 1);
+
+  if (IsDir) {
+    // get in and out neighbors
+    for (int node = 0; node < NNodes; node++) {
+      int NId = NIdV[node];
+      NbrV[NId] = TIntV();
+      GetUniqueNbrV(Graph, NId, NbrV[NId]);
+    }
+  } else {
+    // get only out neighbors
+    for (int node = 0; node < NNodes; node++) {
+      int NId = NIdV[node];
+      typename PGraph::TObj::TNodeI NI = Graph->GetNI(NId);
+      NbrV[NId] = TIntV();
+      NbrV[NId].Reserve(NI.GetOutDeg());
+      NbrV[NId].Reduce(0);
+      for (int i = 0; i < NI.GetOutDeg(); i++) {
+        NbrV[NId].Add(NI.GetOutNId(i));
+      }
+    }
+  }
+
+  NIdCOTriadV.Clr(false);
+  NIdCOTriadV.Reserve(SampleNodes);
+  for (int node = 0; node < SampleNodes; node++) {
+    typename PGraph::TObj::TNodeI NI = Graph->GetNI(NIdV[node]);
+    int NLen;
+
+    NId = NI.GetId();
+    hcount++;
+    if (NI.GetDeg() < 2) {
+      NIdCOTriadV.Add(TIntTr(NId, 0, 0)); // zero triangles
+      continue;
+    }
+
+    Nbrs = NbrV[NId];
+    NLen = Nbrs.Len();
+
+    // count connected neighbors
+    int OpenCnt1 = 0, CloseCnt1 = 0;
+    for (int srcNbr = 0; srcNbr < NLen; srcNbr++) {
+      int Count = GetCommon(NbrV[NbrV[NId][srcNbr]],Nbrs);
+      CloseCnt1 += Count;
+    }
+    CloseCnt1 /= 2;
+    OpenCnt1 = (NLen*(NLen-1))/2 - CloseCnt1;
+    NIdCOTriadV.Add(TIntTr(NId, CloseCnt1, OpenCnt1));
   }
 }
 
@@ -400,6 +491,70 @@ int GetLen2Paths(const PGraph& Graph, const int& NId1, const int& NId2, TIntV& N
     }
   }
   return NbrV.Len();
+}
+
+template <class PGraph>
+void GetUniqueNbrV(const PGraph& Graph, const int& NId, TIntV& NbrV) {
+  typename PGraph::TObj::TNodeI NI = Graph->GetNI(NId);
+  NbrV.Reserve(NI.GetDeg());
+  NbrV.Reduce(0);
+
+  int j = 0;
+  int k = 0;
+  int Prev = -1;
+  int InDeg = NI.GetInDeg();
+  int OutDeg = NI.GetOutDeg();
+  if (InDeg > 0  &&  OutDeg > 0) {
+    int v1 = NI.GetInNId(j);
+    int v2 = NI.GetOutNId(k);
+    while (1) {
+      if (v1 <= v2) {
+        if (Prev != v1) {
+          if (v1 != NId) {
+            NbrV.Add(v1);
+            Prev = v1;
+          }
+        }
+        j += 1;
+        if (j >= InDeg) {
+          break;
+        }
+        v1 = NI.GetInNId(j);
+      } else {
+        if (Prev != v2) {
+          if (v2 != NId) {
+            NbrV.Add(v2);
+          }
+          Prev = v2;
+        }
+        k += 1;
+        if (k >= OutDeg) {
+          break;
+        }
+        v2 = NI.GetOutNId(k);
+      }
+    }
+  }
+  while (j < InDeg) {
+    int v = NI.GetInNId(j);
+    if (Prev != v) {
+      if (v != NId) {
+        NbrV.Add(v);
+      }
+      Prev = v;
+    }
+    j += 1;
+  }
+  while (k < OutDeg) {
+    int v = NI.GetOutNId(k);
+    if (Prev != v) {
+      if (v != NId) {
+        NbrV.Add(v);
+      }
+      Prev = v;
+    }
+    k += 1;
+  }
 }
 
 }; // mamespace TSnap
