@@ -1092,63 +1092,109 @@ void TNEANet::GetAttrENames(TStrV& IntAttrNames, TStrV& FltAttrNames, TStrV& Str
 }
 
 int TNEANet::AddSAttrDatN(const TInt& NId, const TStr& AttrName, const TInt& Val) {
+  if (!IsNode(NId)) {
+    return -1;
+  }
   return SAttrN.AddSAttrDat(NId, AttrName, Val);
 }
 
 int TNEANet::AddSAttrDatN(const TInt& NId, const TInt& AttrId, const TInt& Val) {
+  if (!IsNode(NId)) {
+    return -1;
+  }
   return SAttrN.AddSAttrDat(NId, AttrId, Val);
 }
 
 int TNEANet::AddSAttrDatN(const TInt& NId, const TStr& AttrName, const TFlt& Val) {
+  if (!IsNode(NId)) {
+    return -1;
+  }
   return SAttrN.AddSAttrDat(NId, AttrName, Val);
 }
 
 int TNEANet::AddSAttrDatN(const TInt& NId, const TInt& AttrId, const TFlt& Val) {
+  if (!IsNode(NId)) {
+    return -1;
+  }
   return SAttrN.AddSAttrDat(NId, AttrId, Val);
 }
 
 int TNEANet::AddSAttrDatN(const TInt& NId, const TStr& AttrName, const TStr& Val) {
+  if (!IsNode(NId)) {
+    return -1;
+  }
   return SAttrN.AddSAttrDat(NId, AttrName, Val);
 }
 
 int TNEANet::AddSAttrDatN(const TInt& NId, const TInt& AttrId, const TStr& Val) {
+  if (!IsNode(NId)) {
+    return -1;
+  }
   return SAttrN.AddSAttrDat(NId, AttrId, Val);
 }
 
 int TNEANet::GetSAttrDatN(const TInt& NId, const TStr& AttrName, TInt& Val) const {
+  if (!IsNode(NId)) {
+    return -1;
+  }
   return SAttrN.GetSAttrDat(NId, AttrName, Val);
 }
 
 int TNEANet::GetSAttrDatN(const TInt& NId, const TInt& AttrId, TInt& Val) const {
+  if (!IsNode(NId)) {
+    return -1;
+  }
   return SAttrN.GetSAttrDat(NId, AttrId, Val);
 }
 
 int TNEANet::GetSAttrDatN(const TInt& NId, const TStr& AttrName, TFlt& Val) const {
+  if (!IsNode(NId)) {
+    return -1;
+  }
   return SAttrN.GetSAttrDat(NId, AttrName, Val);
 }
 
 int TNEANet::GetSAttrDatN(const TInt& NId, const TInt& AttrId, TFlt& Val) const {
+  if (!IsNode(NId)) {
+    return -1;
+  }
   return SAttrN.GetSAttrDat(NId, AttrId, Val);
 }
 
 int TNEANet::GetSAttrDatN(const TInt& NId, const TStr& AttrName, TStr& Val) const {
+  if (!IsNode(NId)) {
+    return -1;
+  }
   return SAttrN.GetSAttrDat(NId, AttrName, Val);
 }
 
 int TNEANet::GetSAttrDatN(const TInt& NId, const TInt& AttrId, TStr& Val) const {
+  if (!IsNode(NId)) {
+    return -1;
+  }
   return SAttrN.GetSAttrDat(NId, AttrId, Val);
 }
 
 int TNEANet::DelSAttrDatN(const TInt& NId, const TStr& AttrName) {
+  if (!IsNode(NId)) {
+    return -1;
+  }
   return SAttrN.DelSAttrDat(NId, AttrName);
 }
 
 int TNEANet::DelSAttrDatN(const TInt& NId, const TInt& AttrId) {
+  if (!IsNode(NId)) {
+    return -1;
+  }
   return SAttrN.DelSAttrDat(NId, AttrId);
 }
 
-void TNEANet::GetSAttrVN(const TInt& NId, const TAttrType AttrType, TAttrPrV& AttrV) const {
+int TNEANet::GetSAttrVN(const TInt& NId, const TAttrType AttrType, TAttrPrV& AttrV) const {
+  if (!IsNode(NId)) {
+    return -1;
+  }
   SAttrN.GetSAttrV(NId, AttrType, AttrV);
+  return 0;
 }
 
 int TNEANet::GetIdVSAttrN(const TStr& AttrName, TIntV& IdV) const {
@@ -1172,63 +1218,109 @@ int TNEANet::GetSAttrNameN(const TInt& AttrId, TStr& Name, TAttrType& AttrType) 
 }
 
 int TNEANet::AddSAttrDatE(const TInt& EId, const TStr& AttrName, const TInt& Val) {
+  if (!IsEdge(EId)) {
+    return -1;
+  }
   return SAttrE.AddSAttrDat(EId, AttrName, Val);
 }
 
 int TNEANet::AddSAttrDatE(const TInt& EId, const TInt& AttrId, const TInt& Val) {
+  if (!IsEdge(EId)) {
+    return -1;
+  }
   return SAttrE.AddSAttrDat(EId, AttrId, Val);
 }
 
 int TNEANet::AddSAttrDatE(const TInt& EId, const TStr& AttrName, const TFlt& Val) {
+  if (!IsEdge(EId)) {
+    return -1;
+  }
   return SAttrE.AddSAttrDat(EId, AttrName, Val);
 }
 
 int TNEANet::AddSAttrDatE(const TInt& EId, const TInt& AttrId, const TFlt& Val) {
+  if (!IsEdge(EId)) {
+    return -1;
+  }
   return SAttrE.AddSAttrDat(EId, AttrId, Val);
 }
 
 int TNEANet::AddSAttrDatE(const TInt& EId, const TStr& AttrName, const TStr& Val) {
+  if (!IsEdge(EId)) {
+    return -1;
+  }
   return SAttrE.AddSAttrDat(EId, AttrName, Val);
 }
 
 int TNEANet::AddSAttrDatE(const TInt& EId, const TInt& AttrId, const TStr& Val) {
+  if (!IsEdge(EId)) {
+    return -1;
+  }
   return SAttrE.AddSAttrDat(EId, AttrId, Val);
 }
 
 int TNEANet::GetSAttrDatE(const TInt& EId, const TStr& AttrName, TInt& Val) const {
+  if (!IsEdge(EId)) {
+    return -1;
+  }
   return SAttrE.GetSAttrDat(EId, AttrName, Val);
 }
 
 int TNEANet::GetSAttrDatE(const TInt& EId, const TInt& AttrId, TInt& Val) const {
+  if (!IsEdge(EId)) {
+    return -1;
+  }
   return SAttrE.GetSAttrDat(EId, AttrId, Val);
 }
 
 int TNEANet::GetSAttrDatE(const TInt& EId, const TStr& AttrName, TFlt& Val) const {
+  if (!IsEdge(EId)) {
+    return -1;
+  }
   return SAttrE.GetSAttrDat(EId, AttrName, Val);
 }
 
 int TNEANet::GetSAttrDatE(const TInt& EId, const TInt& AttrId, TFlt& Val) const {
+  if (!IsEdge(EId)) {
+    return -1;
+  }
   return SAttrE.GetSAttrDat(EId, AttrId, Val);
 }
 
 int TNEANet::GetSAttrDatE(const TInt& EId, const TStr& AttrName, TStr& Val) const {
+  if (!IsEdge(EId)) {
+    return -1;
+  }
   return SAttrE.GetSAttrDat(EId, AttrName, Val);
 }
 
 int TNEANet::GetSAttrDatE(const TInt& EId, const TInt& AttrId, TStr& Val) const {
+  if (!IsEdge(EId)) {
+    return -1;
+  }
   return SAttrE.GetSAttrDat(EId, AttrId, Val);
 }
 
 int TNEANet::DelSAttrDatE(const TInt& EId, const TStr& AttrName) {
+  if (!IsEdge(EId)) {
+    return -1;
+  }
   return SAttrE.DelSAttrDat(EId, AttrName);
 }
 
 int TNEANet::DelSAttrDatE(const TInt& EId, const TInt& AttrId) {
+  if (!IsEdge(EId)) {
+    return -1;
+  }
   return SAttrE.DelSAttrDat(EId, AttrId);
 }
 
-void TNEANet::GetSAttrVE(const TInt& EId, const TAttrType AttrType, TAttrPrV& AttrV) const {
+int TNEANet::GetSAttrVE(const TInt& EId, const TAttrType AttrType, TAttrPrV& AttrV) const {
+  if (!IsEdge(EId)) {
+    return -1;
+  }
   SAttrE.GetSAttrV(EId, AttrType, AttrV);
+  return 0;
 }
 
 int TNEANet::GetIdVSAttrE(const TStr& AttrName, TIntV& IdV) const {

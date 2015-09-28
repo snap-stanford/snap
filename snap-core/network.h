@@ -2143,7 +2143,7 @@ public:
   int DelSAttrDatN(const TInt& NId, const TStr& AttrName); 
   int DelSAttrDatN(const TInt& NId, const TInt& AttrId);
 
-  void GetSAttrVN(const TInt& NId, const TAttrType AttrType, TAttrPrV& AttrV) const;
+  int GetSAttrVN(const TInt& NId, const TAttrType AttrType, TAttrPrV& AttrV) const;
 
   int GetIdVSAttrN(const TStr& AttrName, TIntV& IdV) const;
   int GetIdVSAttrN(const TInt& AttrId, TIntV& IdV) const;
@@ -2175,7 +2175,7 @@ public:
   int DelSAttrDatE(const TInt& EId, const TStr& AttrName); 
   int DelSAttrDatE(const TInt& EId, const TInt& AttrId);
 
-  void GetSAttrVE(const TInt& EId, const TAttrType AttrType, TAttrPrV& AttrV) const;
+  int GetSAttrVE(const TInt& EId, const TAttrType AttrType, TAttrPrV& AttrV) const;
 
   int GetIdVSAttrE(const TStr& AttrName, TIntV& IdV) const;
   int GetIdVSAttrE(const TInt& AttrId, TIntV& IdV) const;
