@@ -317,13 +317,13 @@ TEST(TSparseAttrPair, AddSAttr) {
   TInt AttrId;
   int status = Attrs.AddSAttr("TestInt", atInt, AttrId);
   EXPECT_EQ(0, status);
-  EXPECt_EQ(0, AttrId.Val);
+  EXPECT_EQ(0, AttrId.Val);
   status = Attrs.AddSAttr("TestFlt", atFlt, AttrId);
   EXPECT_EQ(0, status);
-  EXPECt_EQ(1, AttrId.Val);
+  EXPECT_EQ(1, AttrId.Val);
   status = Attrs.AddSAttr("TestStr", atStr, AttrId);
   EXPECT_EQ(0, status);
-  EXPECt_EQ(2, AttrId.Val);
+  EXPECT_EQ(2, AttrId.Val);
   status = Attrs.AddSAttr("TestAny", atAny, AttrId);
   EXPECT_EQ(-1, status);
 }
@@ -338,15 +338,15 @@ TEST(TSparseAttrPair, GetSAttrId) {
   int status = Attrs.GetSAttrId(TStr("TestInt"), AttrId, AttrType);
   EXPECT_EQ(0, status);
   EXPECT_EQ(atInt, AttrType);
-  EXPECt_EQ(0, AttrId.Val);
+  EXPECT_EQ(0, AttrId.Val);
   status = Attrs.GetSAttrId(TStr("TestFlt"), AttrId, AttrType);
   EXPECT_EQ(0, status);
   EXPECT_EQ(atFlt, AttrType);
-  EXPECt_EQ(1, AttrId.Val);
+  EXPECT_EQ(1, AttrId.Val);
   status = Attrs.GetSAttrId(TStr("TestStr"), AttrId, AttrType);
   EXPECT_EQ(0, status);
   EXPECT_EQ(atStr, AttrType);
-  EXPECt_EQ(2, AttrId.Val);
+  EXPECT_EQ(2, AttrId.Val);
   status = Attrs.GetSAttrId(TStr("TestError"), AttrId, AttrType);
   EXPECT_EQ(-1, status);
 }
