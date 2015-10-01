@@ -2,8 +2,8 @@
 
 #include "Snap.h"
 
-TEST(TSparseAttrSingle, AddSAttr) {
-  TSparseAttrSingle Attrs;
+TEST(TAttr, AddSAttr) {
+  TAttr Attrs;
   TInt AttrId;
   int status = Attrs.AddSAttr("TestInt", atInt, AttrId);
   EXPECT_EQ(0, status);
@@ -18,8 +18,8 @@ TEST(TSparseAttrSingle, AddSAttr) {
   EXPECT_EQ(-1, status);
 }
 
-TEST(TSparseAttrSingle, GetSAttrId) {
-  TSparseAttrSingle Attrs;
+TEST(TAttr, GetSAttrId) {
+  TAttr Attrs;
   TInt AttrId;
   Attrs.AddSAttr("TestInt", atInt, AttrId);
   Attrs.AddSAttr("TestFlt", atFlt, AttrId);
@@ -41,8 +41,8 @@ TEST(TSparseAttrSingle, GetSAttrId) {
   EXPECT_EQ(-1, status);
 }
 
-TEST(TSparseAttrSingle, GetSAttrName) {
-  TSparseAttrSingle Attrs;
+TEST(TAttr, GetSAttrName) {
+  TAttr Attrs;
   TInt AttrId;
   Attrs.AddSAttr("TestInt", atInt, AttrId);
   Attrs.AddSAttr("TestFlt", atFlt, AttrId);
@@ -65,8 +65,8 @@ TEST(TSparseAttrSingle, GetSAttrName) {
   EXPECT_EQ(-1, status);
 }
 
-TEST(TSparseAttrSingle, AddSAttrDat_int) {
-  TSparseAttrSingle Attrs;
+TEST(TAttr, AddSAttrDat_int) {
+  TAttr Attrs;
   TInt Val(5);
   TInt Id(0);
   int status = Attrs.AddSAttrDat(Id, 1, Val);
@@ -86,8 +86,8 @@ TEST(TSparseAttrSingle, AddSAttrDat_int) {
   EXPECT_EQ(0, status);
 }
 
-TEST(TSparseAttrSingle, AddSAttrDat_flt) {
-  TSparseAttrSingle Attrs;
+TEST(TAttr, AddSAttrDat_flt) {
+  TAttr Attrs;
   TFlt Val(5.0);
   TInt Id(0);
   int status = Attrs.AddSAttrDat(Id, 1, Val);
@@ -107,8 +107,8 @@ TEST(TSparseAttrSingle, AddSAttrDat_flt) {
   EXPECT_EQ(0, status);
 }
 
-TEST(TSparseAttrSingle, AddSAttrDat_str) {
-  TSparseAttrSingle Attrs;
+TEST(TAttr, AddSAttrDat_str) {
+  TAttr Attrs;
   TStr Val("5");
   TInt Id(0);
   int status = Attrs.AddSAttrDat(Id, 1, Val);
@@ -128,8 +128,8 @@ TEST(TSparseAttrSingle, AddSAttrDat_str) {
   EXPECT_EQ(0, status);
 }
 
-TEST(TSparseAttrSingle, GetSAttrDat_int) {
-  TSparseAttrSingle Attrs;
+TEST(TAttr, GetSAttrDat_int) {
+  TAttr Attrs;
   TInt Val;
   TInt AttrId(0);
   TStr AttrName("TestInt");
@@ -149,8 +149,8 @@ TEST(TSparseAttrSingle, GetSAttrDat_int) {
   EXPECT_EQ(TestVal.Val, Val.Val);
 }
 
-TEST(TSparseAttrSingle, GetSAttrDat_flt) {
-  TSparseAttrSingle Attrs;
+TEST(TAttr, GetSAttrDat_flt) {
+  TAttr Attrs;
   TFlt Val;
   TInt AttrId(0);
   TStr AttrName("TestInt");
@@ -170,8 +170,8 @@ TEST(TSparseAttrSingle, GetSAttrDat_flt) {
   EXPECT_EQ(TestVal.Val, Val.Val);
 }
 
-TEST(TSparseAttrSingle, GetSAttrDat_str) {
-  TSparseAttrSingle Attrs;
+TEST(TAttr, GetSAttrDat_str) {
+  TAttr Attrs;
   TStr Val;
   TInt AttrId(0);
   TStr AttrName("TestInt");
@@ -191,8 +191,8 @@ TEST(TSparseAttrSingle, GetSAttrDat_str) {
   EXPECT_STREQ(TestVal.CStr(), Val.CStr());
 }
 
-TEST(TSparseAttrSingle, DelSAttrDat) {
-  TSparseAttrSingle Attrs;
+TEST(TAttr, DelSAttrDat) {
+  TAttr Attrs;
   TStr IntAttr("TestInt");
   TInt IntId;
   Attrs.AddSAttr(IntAttr, atInt, IntId);
@@ -239,8 +239,8 @@ TEST(TSparseAttrSingle, DelSAttrDat) {
   EXPECT_EQ(-1, status);
 }
 
-TEST(TSparseAttrSingle, GetSAttrV) {
-  TSparseAttrSingle Attrs;
+TEST(TAttr, GetSAttrV) {
+  TAttr Attrs;
   TStr IntAttr("TestInt");
   TInt IntId;
   Attrs.AddSAttr(IntAttr, atInt, IntId);
@@ -271,8 +271,8 @@ TEST(TSparseAttrSingle, GetSAttrV) {
   Attrs.GetSAttrV(Id, atUndef, AttrV);
   EXPECT_EQ(0, AttrV.Len());
 }
-TEST(TSparseAttrSingle, GetIdVSAttr) {
-  TSparseAttrSingle Attrs;
+TEST(TAttr, GetIdVSAttr) {
+  TAttr Attrs;
   TStr IntAttr("TestInt");
   TInt IntId;
   Attrs.AddSAttr(IntAttr, atInt, IntId);
@@ -312,8 +312,8 @@ TEST(TSparseAttrSingle, GetIdVSAttr) {
   EXPECT_EQ(1, IdV.Len());
 }
 
-TEST(TSparseAttrPair, AddSAttr) {
-  TSparseAttrPair Attrs;
+TEST(TAttrPair, AddSAttr) {
+  TAttrPair Attrs;
   TInt AttrId;
   int status = Attrs.AddSAttr("TestInt", atInt, AttrId);
   EXPECT_EQ(0, status);
@@ -328,8 +328,8 @@ TEST(TSparseAttrPair, AddSAttr) {
   EXPECT_EQ(-1, status);
 }
 
-TEST(TSparseAttrPair, GetSAttrId) {
-  TSparseAttrPair Attrs;
+TEST(TAttrPair, GetSAttrId) {
+  TAttrPair Attrs;
   TInt AttrId;
   Attrs.AddSAttr("TestInt", atInt, AttrId);
   Attrs.AddSAttr("TestFlt", atFlt, AttrId);
@@ -351,8 +351,8 @@ TEST(TSparseAttrPair, GetSAttrId) {
   EXPECT_EQ(-1, status);
 }
 
-TEST(TSparseAttrPair, GetSAttrName) {
-  TSparseAttrPair Attrs;
+TEST(TAttrPair, GetSAttrName) {
+  TAttrPair Attrs;
   TInt AttrId;
   Attrs.AddSAttr("TestInt", atInt, AttrId);
   Attrs.AddSAttr("TestFlt", atFlt, AttrId);
@@ -375,8 +375,8 @@ TEST(TSparseAttrPair, GetSAttrName) {
   EXPECT_EQ(-1, status);
 }
 
-TEST(TSparseAttrPair, AddSAttrDat_int) {
-  TSparseAttrPair Attrs;
+TEST(TAttrPair, AddSAttrDat_int) {
+  TAttrPair Attrs;
   TInt Val(5);
   TIntPr Id(0, 1);
   int status = Attrs.AddSAttrDat(Id, 1, Val);
@@ -396,8 +396,8 @@ TEST(TSparseAttrPair, AddSAttrDat_int) {
   EXPECT_EQ(0, status);
 }
 
-TEST(TSparseAttrPair, AddSAttrDat_flt) {
-  TSparseAttrPair Attrs;
+TEST(TAttrPair, AddSAttrDat_flt) {
+  TAttrPair Attrs;
   TFlt Val(5.0);
   TIntPr Id(0, 1);
   int status = Attrs.AddSAttrDat(Id, 1, Val);
@@ -417,8 +417,8 @@ TEST(TSparseAttrPair, AddSAttrDat_flt) {
   EXPECT_EQ(0, status);
 }
 
-TEST(TSparseAttrPair, AddSAttrDat_str) {
-  TSparseAttrPair Attrs;
+TEST(TAttrPair, AddSAttrDat_str) {
+  TAttrPair Attrs;
   TStr Val("5");
   TIntPr Id(0, 1);
   int status = Attrs.AddSAttrDat(Id, 1, Val);
@@ -438,8 +438,8 @@ TEST(TSparseAttrPair, AddSAttrDat_str) {
   EXPECT_EQ(0, status);
 }
 
-TEST(TSparseAttrPair, GetSAttrDat_int) {
-  TSparseAttrPair Attrs;
+TEST(TAttrPair, GetSAttrDat_int) {
+  TAttrPair Attrs;
   TInt Val;
   TInt AttrId(0);
   TStr AttrName("TestInt");
@@ -459,8 +459,8 @@ TEST(TSparseAttrPair, GetSAttrDat_int) {
   EXPECT_EQ(TestVal.Val, Val.Val);
 }
 
-TEST(TSparseAttrPair, GetSAttrDat_flt) {
-  TSparseAttrPair Attrs;
+TEST(TAttrPair, GetSAttrDat_flt) {
+  TAttrPair Attrs;
   TFlt Val;
   TInt AttrId(0);
   TStr AttrName("TestInt");
@@ -480,8 +480,8 @@ TEST(TSparseAttrPair, GetSAttrDat_flt) {
   EXPECT_EQ(TestVal.Val, Val.Val);
 }
 
-TEST(TSparseAttrPair, GetSAttrDat_str) {
-  TSparseAttrPair Attrs;
+TEST(TAttrPair, GetSAttrDat_str) {
+  TAttrPair Attrs;
   TStr Val;
   TInt AttrId(0);
   TStr AttrName("TestInt");
@@ -501,8 +501,8 @@ TEST(TSparseAttrPair, GetSAttrDat_str) {
   EXPECT_STREQ(TestVal.CStr(), Val.CStr());
 }
 
-TEST(TSparseAttrPair, DelSAttrDat) {
-  TSparseAttrPair Attrs;
+TEST(TAttrPair, DelSAttrDat) {
+  TAttrPair Attrs;
   TStr IntAttr("TestInt");
   TInt IntId;
   Attrs.AddSAttr(IntAttr, atInt, IntId);
@@ -549,8 +549,8 @@ TEST(TSparseAttrPair, DelSAttrDat) {
   EXPECT_EQ(-1, status);
 }
 
-TEST(TSparseAttrPair, GetSAttrV) {
-  TSparseAttrPair Attrs;
+TEST(TAttrPair, GetSAttrV) {
+  TAttrPair Attrs;
   TStr IntAttr("TestInt");
   TInt IntId;
   Attrs.AddSAttr(IntAttr, atInt, IntId);
@@ -581,8 +581,8 @@ TEST(TSparseAttrPair, GetSAttrV) {
   Attrs.GetSAttrV(Id, atUndef, AttrV);
   EXPECT_EQ(0, AttrV.Len());
 }
-TEST(TSparseAttrPair, GetIdVSAttr) {
-  TSparseAttrPair Attrs;
+TEST(TAttrPair, GetIdVSAttr) {
+  TAttrPair Attrs;
   TStr IntAttr("TestInt");
   TInt IntId;
   Attrs.AddSAttr(IntAttr, atInt, IntId);

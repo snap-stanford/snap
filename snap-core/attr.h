@@ -2,7 +2,7 @@ enum TAttrType { atUndef, atInt, atFlt, atStr, atAny };
 typedef TPair<TStr, TAttrType> TAttrPr;
 typedef TVec<TAttrPr> TAttrPrV;
 
-class TSparseAttrSingle {
+class TAttr {
 private:
   // Sparse Attributes Name Mapping
   TStrIntPrH AttrNameToId;
@@ -14,41 +14,52 @@ private:
 private:
   int GetIdVSAttr(const TInt& AttrId, const TAttrType Type, TIntV& IdV) const;
 public:
-  TSparseAttrSingle() : AttrNameToId(), AttrIdToName(), IntAttrVals(),
+  TAttr() : AttrNameToId(), AttrIdToName(), IntAttrVals(),
     FltAttrVals(), StrAttrVals() { }
-  TSparseAttrSingle(const TSparseAttrSingle& Attrs) : AttrNameToId(Attrs.AttrNameToId),
+  TAttr(const TAttr& Attrs) : AttrNameToId(Attrs.AttrNameToId),
     AttrIdToName(Attrs.AttrIdToName), IntAttrVals(Attrs.IntAttrVals),
     FltAttrVals(Attrs.FltAttrVals), StrAttrVals(Attrs.StrAttrVals) { }
-  // Constructor for loading attributes from a (binary) stream SIn.
-  TSparseAttrSingle(TSIn& SIn) : AttrNameToId(SIn), AttrIdToName(SIn),
+  /// Constructor for loading attributes from a (binary) stream SIn.
+  TAttr(TSIn& SIn) : AttrNameToId(SIn), AttrIdToName(SIn),
     IntAttrVals(SIn), FltAttrVals(SIn), StrAttrVals(SIn) { }
-  // Saves the attributes to a (binary) stream SOut.
+  /// Saves the attributes to a (binary) stream SOut.
   void Save(TSOut& SOut) const {
     AttrNameToId.Save(SOut); AttrIdToName.Save(SOut);
     IntAttrVals.Save(SOut); FltAttrVals.Save(SOut); StrAttrVals.Save(SOut); }
 
-  // Add functions
-  int AddSAttrDat(const TInt& Id, const TStr& AttrName, const TInt& Val); 
+  /// Add Int attribute for the given id with name AttrName.
+  int AddSAttrDat(const TInt& Id, const TStr& AttrName, const TInt& Val);
+  /// Add Int attribute for the given id with attribute id AttrId.
   int AddSAttrDat(const TInt& Id, const TInt& AttrId, const TInt& Val);
 
-  int AddSAttrDat(const TInt& Id, const TStr& AttrName, const TFlt& Val); 
+  /// Add Flt attribute for the given id with name AttrName.
+  int AddSAttrDat(const TInt& Id, const TStr& AttrName, const TFlt& Val);
+  /// Add Flt attribute for the given id with attribute id AttrId.
   int AddSAttrDat(const TInt& Id, const TInt& AttrId, const TFlt& Val);
 
-  int AddSAttrDat(const TInt& Id, const TStr& AttrName, const TStr& Val); 
+  /// Add Str attribute for the given id with name AttrName.
+  int AddSAttrDat(const TInt& Id, const TStr& AttrName, const TStr& Val);
+  /// Add Str attribute for the given id with attribute id AttrId. 
   int AddSAttrDat(const TInt& Id, const TInt& AttrId, const TStr& Val);
 
-  // Get functions
-  int GetSAttrDat(const TInt& Id, const TStr& AttrName, TInt& Val) const; 
+  /// Get Int attribute for the given id with name AttrName.
+  int GetSAttrDat(const TInt& Id, const TStr& AttrName, TInt& Val) const;
+  /// Get Int attribute for the given id with attribute id AttrId.
   int GetSAttrDat(const TInt& Id, const TInt& AttrId, TInt& Val) const;
 
-  int GetSAttrDat(const TInt& Id, const TStr& AttrName, TFlt& Val) const; 
+  /// Get Flt attribute for the given id with name AttrName.
+  int GetSAttrDat(const TInt& Id, const TStr& AttrName, TFlt& Val) const;
+  /// Get Flt attribute for the given id with attribute id AttrId.
   int GetSAttrDat(const TInt& Id, const TInt& AttrId, TFlt& Val) const;
 
-  int GetSAttrDat(const TInt& Id, const TStr& AttrName, TStr& Val) const; 
+  /// Get Str attribute for the given id with name AttrName.
+  int GetSAttrDat(const TInt& Id, const TStr& AttrName, TStr& Val) const;
+  /// Get Str attribute for the given id with attribute id AttrId.
   int GetSAttrDat(const TInt& Id, const TInt& AttrId, TStr& Val) const;
 
-  // Del functions
+  /// Delete attribute for the give id with name AttrName.
   int DelSAttrDat(const TInt& Id, const TStr& AttrName); 
+  /// Delete attribute for the give id with attribute id AttrId.
   int DelSAttrDat(const TInt& Id, const TInt& AttrId);
 
   // GetNames
@@ -67,7 +78,7 @@ public:
 };
 
 
-class TSparseAttrPair {
+class TAttrPair {
 private:
   // Sparse Attributes Name Mapping
   TStrIntPrH AttrNameToId;
@@ -79,13 +90,13 @@ private:
 private:
   int GetIdVSAttr(const TInt& AttrId, const TAttrType Type, TIntPrV& IdV) const;
 public:
-  TSparseAttrPair() : AttrNameToId(), AttrIdToName(), IntAttrVals(),
+  TAttrPair() : AttrNameToId(), AttrIdToName(), IntAttrVals(),
     FltAttrVals(), StrAttrVals() { }
-  TSparseAttrPair(const TSparseAttrPair& Attrs) : AttrNameToId(Attrs.AttrNameToId),
+  TAttrPair(const TAttrPair& Attrs) : AttrNameToId(Attrs.AttrNameToId),
     AttrIdToName(Attrs.AttrIdToName), IntAttrVals(Attrs.IntAttrVals),
     FltAttrVals(Attrs.FltAttrVals), StrAttrVals(Attrs.StrAttrVals) { }
   // Constructor for loading attributes from a (binary) stream SIn.
-  TSparseAttrPair(TSIn& SIn) : AttrNameToId(SIn), AttrIdToName(SIn),
+  TAttrPair(TSIn& SIn) : AttrNameToId(SIn), AttrIdToName(SIn),
     IntAttrVals(SIn), FltAttrVals(SIn), StrAttrVals(SIn) { }
   // Saves the attributes to a (binary) stream SOut.
   void Save(TSOut& SOut) const {
