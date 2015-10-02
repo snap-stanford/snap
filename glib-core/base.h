@@ -192,6 +192,7 @@
 #include "html.h"
 #include "md5.h"
 #include "ss.h"
+#include "ssmp.h"
 #include "json.h"
 //#include "prolog.h"
 
