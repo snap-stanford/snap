@@ -7,8 +7,17 @@ include ../Makefile.config
 HEADER = Engine.h
 CPP = Engine.cpp
 
-TEST = RowBasedTableTest ExplicitStringTableTest1 ExplicitStringTableTest2 ExplicitStringTableTest3 ExplicitStringTableTest4 ExplicitStringTableTest5 ExplicitStringTableTest6 \
-PhysicalOrderSortTest1 PhysicalOrderSortTest2 ParallelGroupByTest TablePageRank LoadTest FilterTest AggrTest GroupTest IdTest ArithOpsTest SetOperationsTest TableTest
+TEST = \
+  ExplicitStringTableTest1 ExplicitStringTableTest3 ExplicitStringTableTest5 \
+  PhysicalOrderSortTest1 ParallelGroupByTest \
+  TablePageRank LoadTest FilterTest AggrTest GroupTest IdTest ArithOpsTest \
+  SetOperationsTest TableTest
+
+#TEST = RowBasedTableTest
+#TEST = ExplicitStringTableTest2
+#TEST = ExplicitStringTableTest4
+#TEST = ExplicitStringTableTest6
+#TEST = PhysicalOrderSortTest2
 #TEST = ThresholdJoinTest 
 
 all: $(TEST)
@@ -22,10 +31,7 @@ ParallelGroupByTest: ParallelGroupByTest.cpp $(CSNAP)/Snap.o
 	
 TablePageRank: TablePageRank.cpp $(CSNAP)/Snap.o
 	$(CC) $(CXXFLAGS) -o $@ $@.cpp $(CSNAP)/Snap.o -I$(CSNAP) -I$(CGLIB) $(LDFLAGS) $(LIBS)
-	
-LoadTest: LoadTest.cpp $(CSNAP)/Snap.o
-	$(CC) $(CXXFLAGS) -o $@ $@.cpp $(CSNAP)/Snap.o -I$(CSNAP) -I$(CGLIB) $(LDFLAGS) $(LIBS)
-	
+
 ExplicitStringTableTest%: ExplicitStringTableTest%.cpp $(CSNAP)/Snap.o
 	$(CC) $(CXXFLAGS) -o $@ $@.cpp $(CSNAP)/Snap.o -I$(CSNAP) -I$(CGLIB) $(LDFLAGS) $(LIBS)
 	
@@ -35,8 +41,8 @@ PhysicalOrderSortTest%: PhysicalOrderSortTest%.cpp $(CSNAP)/Snap.o
 GenerateMockTsv: GenerateMockTsv.cpp $(CSNAP)/Snap.o
 	$(CC) $(CXXFLAGS) -o $@ $@.cpp $(CSNAP)/Snap.o -I$(CSNAP) -I$(CGLIB) $(LDFLAGS) $(LIBS)
 	
-RowBasedTableTest: RowBasedTableTest.cpp $(CSNAP)/Snap.o
-	$(CC) $(CXXFLAGS) -o $@ $@.cpp $(CSNAP)/Snap.o -I$(CSNAP) -I$(CGLIB) $(LDFLAGS) $(LIBS)
+#RowBasedTableTest: RowBasedTableTest.cpp $(CSNAP)/Snap.o
+#	$(CC) $(CXXFLAGS) -o $@ $@.cpp $(CSNAP)/Snap.o -I$(CSNAP) -I$(CGLIB) $(LDFLAGS) $(LIBS)
 	
 LoadTest: LoadTest.cpp $(CSNAP)/Snap.o
 	$(CC) $(CXXFLAGS) -o $@ $@.cpp $(CSNAP)/Snap.o -I$(CSNAP) -I$(CGLIB) $(LDFLAGS) $(LIBS)
