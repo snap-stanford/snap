@@ -74,6 +74,7 @@ class TDir{
 public:
   static TStr GetCurDir();
   static TStr GetExeDir();
+  static bool Exists(const TStr& FPathFNm);
   static bool GenDir(const TStr& FPathFNm);
   static bool DelDir(const TStr& FPathFNm);
 };

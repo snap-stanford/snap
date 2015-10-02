@@ -6,6 +6,34 @@ namespace TSnap {
 /// Returns Degree centrality of a given node NId.
 /// Degree centrality if a node is defined as its degree/(N-1), where N is the number of nodes in the network.
 double GetDegreeCentr(const PUNGraph& Graph, const int& NId);
+/// Returns Group Degree centrality of a given group NId.
+/// Degree centrality if a node is defined as its degree/(N-1), where N is the number of nodes in the network.
+//double GetGroupDegreeCentr(const PUNGraph& Graph, const PUNGraph& Group);
+double GetGroupDegreeCentr(const PUNGraph& Graph, const TIntH& GroupNodes);
+/// Returns Group Degree centrality of a given group NId.
+/// Degree centrality if a node is defined as its degree/(N-1), where N is the number of nodes in the network.
+//double GetGroupDegreeCentr(const PUNGraph& Graph, const PUNGraph& Group);
+double GetGroupClosenessCentr(const PUNGraph& Graph, const TIntH& GroupNodes);
+/// Returns centrality Maximum k group.
+TIntH MaxCPGreedyBetter(const PUNGraph& Graph, const int k);
+/// Returns centrality Maximum k group.
+TIntH MaxCPGreedyBetter1(const PUNGraph& Graph, const int k);
+/// Returns centrality Maximum k group.
+TIntH MaxCPGreedyBetter2(const PUNGraph& Graph, const int k);
+/// Returns centrality Maximum k group.
+TIntH MaxCPGreedyBetter3(const PUNGraph& Graph, const int k);
+/// Event importance
+TIntFltH EventImportance(const PNGraph& Graph, const int k);
+/// Intersect
+int Intersect(TUNGraph::TNodeI Node, TIntH NNodes);
+/// Intersect
+int Intersect(TUNGraph::TNodeI Node, TStr NNodes);
+/// Intersect
+int Intersect(TUNGraph::TNodeI Node, int *NNodes, int NNodes_br);
+//Load nodes list
+int Intersect1(TUNGraph::TNodeI Node, TStr NNodes);
+//Load nodes list
+TIntH LoadNodeList(TStr InFNmNodes);
 /// Returns Farness centrality of a given node NId.
 /// Farness centrality of a node is the average shortest path length to all other nodes that reside is the same connected component as the given node.
 double GetFarnessCentr(const PUNGraph& Graph, const int& NId);
@@ -86,8 +114,9 @@ int GetNodeEcc(const PGraph& Graph, const int& NId, const bool& IsDir) {
 // Page Rank -- there are two different implementations (uncomment the desired 2 lines):
 //   Berkhin -- (the correct way) see Algorithm 1 of P. Berkhin, A Survey on PageRank Computing, Internet Mathematics, 2005
 //   iGraph -- iGraph implementation(which treats leaked PageRank in a funny way)
+// This implementation is an unoptimized version, it accesses nodes via a hash table.
 template<class PGraph>
-void GetPageRank(const PGraph& Graph, TIntFltH& PRankH, const double& C, const double& Eps, const int& MaxIter) {
+void GetPageRank_v1(const PGraph& Graph, TIntFltH& PRankH, const double& C, const double& Eps, const int& MaxIter) {
   const int NNodes = Graph->GetNodes();
   //const double OneOver = 1.0/double(NNodes);
   PRankH.Gen(NNodes);
@@ -119,6 +148,87 @@ void GetPageRank(const PGraph& Graph, TIntFltH& PRankH, const double& C, const d
       PRankH[i] = NewVal;
     }
     if (diff < Eps) { break; }
+  }
+}
+
+// Page Rank -- there are two different implementations (uncomment the desired 2 lines):
+//   Berkhin -- (the correct way) see Algorithm 1 of P. Berkhin, A Survey on PageRank Computing, Internet Mathematics, 2005
+//   iGraph -- iGraph implementation(which treats leaked PageRank in a funny way)
+// This implementation is an optimized version, it builds a vector and accesses nodes via the vector.
+template<class PGraph>
+void GetPageRank(const PGraph& Graph, TIntFltH& PRankH, const double& C, const double& Eps, const int& MaxIter) {
+  const int NNodes = Graph->GetNodes();
+  TVec<typename PGraph::TObj::TNodeI> NV;
+  PRankH.Gen(NNodes);
+  int MxId = -1;
+  //time_t t = time(0);
+  //printf("%s", ctime(&t));
+  for (typename PGraph::TObj::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
+    NV.Add(NI);
+    PRankH.AddDat(NI.GetId(), 1.0/NNodes);
+    int Id = NI.GetId();
+    if (Id > MxId) {
+      MxId = Id;
+    }
+  }
+  //t = time(0);
+  //printf("%s", ctime(&t));
+
+  TFltV PRankV(MxId+1);
+  TIntV OutDegV(MxId+1);
+
+  //#pragma omp parallel for schedule(dynamic,10000)
+  for (int j = 0; j < NNodes; j++) {
+    typename PGraph::TObj::TNodeI NI = NV[j];
+    int Id = NI.GetId();
+    PRankV[Id] = 1.0/NNodes;
+    OutDegV[Id] = NI.GetOutDeg();
+  }
+
+  TFltV TmpV(NNodes);
+
+  for (int iter = 0; iter < MaxIter; iter++) {
+    //time_t t = time(0);
+    //printf("%s%d\n", ctime(&t),iter);
+    //#pragma omp parallel for schedule(dynamic,10000)
+    for (int j = 0; j < NNodes; j++) {
+      typename PGraph::TObj::TNodeI NI = NV[j];
+      TFlt Tmp = 0;
+      for (int e = 0; e < NI.GetInDeg(); e++) {
+        const int InNId = NI.GetInNId(e);
+        const int OutDeg = OutDegV[InNId];
+        //if (OutDeg != OutDegV[InNId]) {
+          //printf("*** ERROR *** InNId %d, OutDeg %d, OutDegV %d\n",
+            //InNId, OutDeg, OutDegV[InNId].Val);
+        //}
+        if (OutDeg > 0) {
+          Tmp += PRankV[InNId] / OutDeg;
+        }
+      }
+      TmpV[j] =  C*Tmp; // Berkhin (the correct way of doing it)
+    }
+    double sum = 0;
+    //#pragma omp parallel for reduction(+:sum) schedule(dynamic,10000)
+    for (int i = 0; i < TmpV.Len(); i++) { sum += TmpV[i]; }
+    const double Leaked = (1.0-sum) / double(NNodes);
+
+    double diff = 0;
+    //#pragma omp parallel for reduction(+:diff) schedule(dynamic,10000)
+    for (int i = 0; i < NNodes; i++) {
+      typename PGraph::TObj::TNodeI NI = NV[i];
+      double NewVal = TmpV[i] + Leaked; // Berkhin
+      int Id = NI.GetId();
+      diff += fabs(NewVal-PRankV[Id]);
+      PRankV[Id] = NewVal;
+    }
+    //printf("counts %d %d\n", hcount1, hcount2);
+    if (diff < Eps) { break; }
+  }
+
+  //#pragma omp parallel for schedule(dynamic,10000)
+  for (int i = 0; i < NNodes; i++) {
+    typename PGraph::TObj::TNodeI NI = NV[i];
+    PRankH[i] = PRankV[NI.GetId()];
   }
 }
 

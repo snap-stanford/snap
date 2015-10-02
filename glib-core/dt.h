@@ -952,6 +952,7 @@ public:
   TCh(const char& _Val): Val(_Val){}
   operator char() const {return Val;}
   explicit TCh(TSIn& SIn){SIn.Load(Val);}
+  void Load(TSIn& SIn) {SIn.Load(Val);}
   void Save(TSOut& SOut) const {SOut.Save(Val);}
   void LoadXml(const PXmlTok& XmlTok, const TStr& Nm);
   void SaveXml(TSOut& SOut, const TStr& Nm) const;
@@ -1246,6 +1247,7 @@ public:
   TUInt64& operator=(const TUInt64& Int){Val=Int.Val; return *this;}
   TUInt64& operator+=(const TUInt64& Int){Val+=Int.Val; return *this;}
   TUInt64& operator-=(const TUInt64& Int){Val-=Int.Val; return *this;}
+  TUInt64& operator*=(const TUInt64& Int){Val*=Int.Val; return *this;}
   TUInt64 operator++(int){Val++; return *this;}
   TUInt64 operator--(int){Val--; return *this;}
   int GetMemUsed() const {return sizeof(TUInt64);}

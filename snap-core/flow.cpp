@@ -193,7 +193,7 @@ public:
     LabelsV[NId] = Label;
     LabelCounts[OldLabel]--;
     LabelCounts[Label]++;
-    if (Label != MaxLabel) { LabelLimit = max(LabelLimit, Label); }
+    if (Label != MaxLabel) { LabelLimit = MAX(LabelLimit, Label); }
     if (LabelCounts[OldLabel] == 0) { CheckGap (OldLabel); }
   }
 
@@ -267,7 +267,7 @@ private:
 
 /// Pushes flow from a node \c NId to a neighbor \c OutNId over edge \c EId.
 void PushToOutNbr (TPRManager &PRM, const int &NId, const int &OutNId, const int &EId) {
-  int MinPush = min(PRM.Capacity(EId) - PRM.Flow(EId), PRM.Excess(NId));
+  int MinPush = MIN(PRM.Capacity(EId) - PRM.Flow(EId), PRM.Excess(NId));
   PRM.Flow(EId) += MinPush;
   PRM.Excess(NId) -= MinPush;
   PRM.Excess(OutNId) += MinPush;
@@ -275,7 +275,7 @@ void PushToOutNbr (TPRManager &PRM, const int &NId, const int &OutNId, const int
 
 /// Returns flow from a node \c NId to a neighbor \c InNId over edge \c EId.
 void PushToInNbr (TPRManager &PRM, const int &NId, const int &InNId, const int &EId) {
-  int MinPush = min(PRM.Flow(EId), PRM.Excess(NId));
+  int MinPush = MIN(PRM.Flow(EId), PRM.Excess(NId));
   PRM.Flow(EId) -= MinPush;
   PRM.Excess(NId) -= MinPush;
   PRM.Excess(InNId) += MinPush;
@@ -288,13 +288,13 @@ void Relabel (TPRManager &PRM, const int &NId, const TNEANet::TNodeI &NI) {
   for (int EdgeN = 0; EdgeN < NI.GetInDeg(); EdgeN++) {
     if (PRM.Flow(NI.GetInEId(EdgeN)) > 0) {
       int InLabel = PRM.Label(NI.GetInNId(EdgeN));
-      MinLabel = min(MinLabel, InLabel);
+      MinLabel = MIN(MinLabel, InLabel);
     }
   }
   for (int EdgeN = 0; EdgeN < NI.GetOutDeg(); EdgeN++) {
     if (PRM.Capacity(NI.GetOutEId(EdgeN)) > PRM.Flow(NI.GetOutEId(EdgeN))) {
       int OutLabel = PRM.Label(NI.GetOutNId(EdgeN));
-      MinLabel = min(MinLabel, OutLabel);
+      MinLabel = MIN(MinLabel, OutLabel);
     }
   }
   if (MinLabel == MaxLabel) {

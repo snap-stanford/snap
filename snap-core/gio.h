@@ -2,10 +2,24 @@
 // Loading and saving graphs from/to various file formats.
 namespace TSnap {
 
+//const TStr EDGES_START("#EDGES");
+const TStr EDGES_START = ("#EDGES");
+const TStr NODES_START = ("#NODES");
+const TStr END_SENTINEL = ("#END");
+const TStr SRC_ID_NAME = ("SrcNId");
+const TStr DST_ID_NAME = ("DstNId");
+const TStr NID_NAME = ("NId");
+const TStr INT_TYPE_PREFIX = ("Int");
+const TStr FLT_TYPE_PREFIX = ("Flt");
+const TStr STR_TYPE_PREFIX = ("Str");
+const TStr NULL_VAL = ("__null__");
+
 /// Loads a (directed, undirected or multi) graph from a text file InFNm with 1 edge per line (whitespace separated columns, integer node ids).
 template <class PGraph> PGraph LoadEdgeList(const TStr& InFNm, const int& SrcColId=0, const int& DstColId=1);
 /// Loads a (directed, undirected or multi) graph from a text file InFNm with 1 edge per line ('Separator' separated columns, integer node ids).
 template <class PGraph> PGraph LoadEdgeList(const TStr& InFNm, const int& SrcColId, const int& DstColId, const char& Separator);
+/// Loads a network from the text file InFNm with 1 node/edge per line ('Separator' separated columns, integer node id(s) + node/edge attributes).
+PNEANet LoadEdgeListNet(const TStr& InFNm, const char& Separator);
 /// Loads a (directed, undirected or multi) graph from a text file InFNm with 1 edge per line (whitespace separated columns, arbitrary string node ids).
 template <class PGraph> PGraph LoadEdgeListStr(const TStr& InFNm, const int& SrcColId=0, const int& DstColId=1);
 /// Loads a (directed, undirected or multi) graph from a text file InFNm with 1 edge per line (whitespace separated columns, arbitrary string node ids).
@@ -30,6 +44,8 @@ TVec<PNGraph> LoadDyNetGraphV(const TStr& FNm);
 
 /// Saves a graph into a text file. Each line contains two columns and encodes a single edge: <source node id><tab><destination node id>
 template <class PGraph> void SaveEdgeList(const PGraph& Graph, const TStr& OutFNm, const TStr& Desc=TStr());
+/// Saves a network into a text file. Each line encodes either an edge or a node, along with its attributes.
+void SaveEdgeListNet(const PNEANet& Graph, const TStr& OutFNm, const TStr& Desc);
 /// Saves a graph in a Pajek .NET format.
 template <class PGraph> void SavePajek(const PGraph& Graph, const TStr& OutFNm);
 /// Saves a graph in a Pajek .NET format.

@@ -512,7 +512,7 @@ void TLinAlg::Gemm(const double& Alpha, const TFltVV& A, const TFltVV& B, const 
 	
 	// assertions for dimensions
   bool Cnd = a_i == c_j && b_i == c_i && a_i == b_j && c_i == d_i && c_j == d_j;
-  if (Cnd) {
+  if (!Cnd) {
 	  Assert(Cnd);
   }
 

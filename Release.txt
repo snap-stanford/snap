@@ -1,7 +1,58 @@
 Stanford Network Analysis Platform (SNAP) is a general purpose, high
-performance system for graph and network manipulation and analysis.
+performance system for graph and network manipulation and analysis
 
 This file contains a high-level description of changes in SNAP releases.
+
+Release 2.4, May 11, 2015
+
+- implemented TLSHash() class for locality sensitive hashing
+- implemented SaveEdgeListNet(), LoadEdgeListNet()
+- expanded Load/SaveEdgeListNet() with support for node attributes
+- implemented IsAttrDeletedN(), IsIntAttrDeletedN(), IsFltAttrDeletedN()
+- implemented IsStrAttrDeletedN(), IsAttrDeletedE(), IsIntAttrDeletedE()
+- implemented IsFltAttrDeletedE(), IsStrAttrDeletedE()
+- implemented GetIntAttrIndDatE(), GetFtlAttrIndDatE(), GetStrAttrIndDatE()
+- implemented GetIntAttrIndDatN(), GetStrAttrIndDatN(), GetFltAttrIndDatN()
+- implemented GetAttrIndN(), GetAttrIndE()
+- implemented IsEmpty() and IsEnd methods() for THashSetKeyI
+- implemented Next() method to THashSetKeyI
+- added Load() method to TCh
+- added functions to compare triples by 2nd and 3rd value
+- added functions for checking whether a directory exists
+- added *= operator to TUInt64 to support the type in vector indexes
+- added contrib directory and its readme
+- made sentinel line optional for LoadEdgeListNet()
+- fixed NodeId to NodeI for iterators
+- fixed an incorrect method reference in AttrValueEI()
+- fixed a problem in subgraph.cpp:GetEgonet() with bidirectional connections
+- updated GLib code with upstream code
+- added a comment on PNG support for GNUPlot on Mac
+- added comments for methods in gio.cpp
+- added an example on how to update values in a hash table
+- put back tutorials Xcode project files
+
+Release 2.3, Jun 16, 2014
+
+- implemented RolX algorithm for detecting node roles
+- implemented flow agorithms
+- added an example for the RolX algorithm
+- added an example for the flow algorithms
+- implemented a new function GetEgonet()
+- added tests and demo code for functions in alg.h
+- changed gnuplot version test, so that it runs only on demand, not at start
+- expanded cncom tests and the demo
+- expanded the code to work on non-OpenMP Mac OS X
+- renamed GetIntAttrDatN to GetIntAttrIndDatN so that it works in Snap.py
+- renamed GetIntAttrDatE to GetIntAttrIndDatE so that it works in Snap.py
+- updated the AGM related code to work with SWIG
+- added an error description when file open fails
+- fix a bug in loading attributes when the node ids are non-integers
+- fixed kronfit to use the right output file name given by arg "-o:"
+- fixed TUNGraph::AddNode() to add reciprocal edges when given vector
+- fixed a bug with GetMxSccSz
+- fixed GenCircle and GenGrid to add reciprocal edges properly
+- improved the fix for sorting the SCC sizes
+- improved the handling of getrusage()
 
 Release 2.2, Mar 12, 2014
 

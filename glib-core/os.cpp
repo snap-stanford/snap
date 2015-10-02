@@ -597,7 +597,7 @@ TTm TSysTm::GetCurUniTm(){
 
   time(&t);
   int ErrCd = gettimeofday(&tv, NULL);
-  if (ErrCd == 0) {
+  if (ErrCd != 0) {
     Assert((ErrCd==0)&&(t!=-1));
   }
   gmtime_r(&t, &tms);
@@ -613,7 +613,7 @@ TTm TSysTm::GetCurLocTm(){
 
   time(&t);
   int ErrCd = gettimeofday(&tv, NULL);
-  if (ErrCd == 0) {
+  if (ErrCd != 0) {
     Assert((ErrCd==0)&&(t!=-1));
   }
   localtime_r(&t, &tms);
@@ -696,7 +696,7 @@ uint TSysTm::GetMSecsFromOsStart(){
 #if defined(_POSIX_MONOTONIC_CLOCK) && (_POSIX_MONOTONIC_CLOCK != -1)
   struct timespec ts;
   int ErrCd=clock_gettime(CLOCK_MONOTONIC, &ts);
-  if (ErrCd == 0) {
+  if (ErrCd != 0) {
     Assert(ErrCd==0);
   }
   return (ts.tv_sec*1000) + (ts.tv_nsec/1000000);
@@ -715,7 +715,7 @@ uint64 TSysTm::GetProcessMSecs() {
 #if defined(_POSIX_CPUTIME) && (_POSIX_CPUTIME != -1)
   struct timespec ts;
   int ErrCd=clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &ts);
-  if (ErrCd == 0) {
+  if (ErrCd != 0) {
     Assert(ErrCd==0);
   }
   return (ts.tv_sec*1000) + (ts.tv_nsec / 1000000);
@@ -723,7 +723,7 @@ uint64 TSysTm::GetProcessMSecs() {
   //#warning "CLOCK_PROCESS_CPUTIME not available; using getrusage"
   struct rusage ru;
   int ErrCd = getrusage(RUSAGE_SELF, &ru);
-  if (ErrCd == 0) {
+  if (ErrCd != 0) {
     Assert(ErrCd == 0);
   }
   return ((ru.ru_utime.tv_usec + ru.ru_stime.tv_usec) / 1000) +
@@ -735,7 +735,7 @@ uint64 TSysTm::GetThreadMSecs() {
 #if defined(_POSIX_THREAD_CPUTIME) && (_POSIX_THREAD_CPUTIME != -1)
   struct timespec ts;
   int ErrCd=clock_gettime(CLOCK_THREAD_CPUTIME_ID, &ts);
-  if (ErrCd == 0) {
+  if (ErrCd != 0) {
     Assert(ErrCd==0);
   }
   return (ts.tv_sec*1000) + (ts.tv_nsec / 1000000);

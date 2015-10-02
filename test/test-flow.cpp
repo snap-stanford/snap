@@ -11,7 +11,7 @@ int BuildCapacityNetwork(const TStr& InFNm, PNEANet &Net, const int& SrcColId = 
   int MaxCap = 0;
   while (Ss.Next()) {
     if (! Ss.GetInt(SrcColId, SrcNId) || ! Ss.GetInt(DstColId, DstNId) || ! Ss.GetInt(CapColId, CapVal)) { continue; }
-    MaxCap = max(CapVal, MaxCap);
+    MaxCap = MAX(CapVal, MaxCap);
     if (! Net->IsNode(SrcNId)) {
       Net->AddNode(SrcNId);
     }
