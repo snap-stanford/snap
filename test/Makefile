@@ -56,6 +56,7 @@ test: $(MAIN)
 clean:
 	rm -f *.o $(MAIN) $(MAIN).exe
 	rm -rf Debug Release
-	rm -rf test*.dat *.Err
+	rm -rf demo*.dat test*.dat *.Err
 	rm -rf graphviz/test_*
+	rm -rf table/p1.txt
 
