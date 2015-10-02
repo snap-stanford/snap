@@ -12,4 +12,4 @@ namespace TSnap {
 	void NumpyToTFltV(TFltV& FltV, float* FltNumpyVecIn, int n);
 }
 
-#endif
+#endif //NUMPY_H

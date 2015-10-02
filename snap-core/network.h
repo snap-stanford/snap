@@ -1,5 +1,5 @@
-#ifndef NETWORK_H_
-#define NETWORK_H_
+#ifndef NETWORK_H
+#define NETWORK_H
 
 /////////////////////////////////////////////////
 // Node Data
@@ -2141,4 +2141,4 @@ namespace TSnap {
 template <> struct IsMultiGraph<TNEANet> { enum { Val = 1 }; };
 template <> struct IsDirected<TNEANet> { enum { Val = 1 }; };
 }
-#endif // NETWORK_H_
+#endif // NETWORK_H

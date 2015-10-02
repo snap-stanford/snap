@@ -1,3 +1,6 @@
+#ifndef TRIAD_H
+#define TRIAD_H
+
 namespace TSnap {
 
 /////////////////////////////////////////////////
@@ -463,7 +466,7 @@ int64 GetTriangleCnt(const PGraph& Graph) {
       //TInt NbrInd = H.GetDat(HigherDegNbrV[i][j]);
       TInt NbrInd = IndV[HigherDegNbrV[i][j]];
 
-      int64 num = GetCommon1(HigherDegNbrV[i], HigherDegNbrV[NbrInd]);
+      int64 num = GetCommon(HigherDegNbrV[i], HigherDegNbrV[NbrInd]);
       cnt += num;
     }
   }
@@ -945,4 +948,6 @@ void TNetConstraint<PGraph>::Test() {
   NetConstraint.Dump();
   printf("middle node network constraint: %f\n", NetConstraint.GetNodeC(0));
 }
+
+#endif // TRIAD_H
 

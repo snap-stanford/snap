@@ -92,3 +92,5 @@ int GetCommon(TIntV& A, TIntV& B) {
   }
   return ret;
 }
+
+} // namespace TSnap

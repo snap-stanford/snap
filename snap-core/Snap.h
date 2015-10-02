@@ -1,5 +1,5 @@
-#ifndef snap_main_h
-#define snap_main_h
+#ifndef SNAP_H
+#define SNAP_H
 
 /// ##mainpage
 #define _USE_MATH_DEFINES    // to use cmath's constants for VS
@@ -54,4 +54,4 @@
 // util
 #include "stopwatch.h"
 
-#endif
+#endif // SNAP_H

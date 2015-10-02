@@ -1,5 +1,5 @@
-#ifndef MGRAPH_H_
-#define MGRAPH_H_
+#ifndef MGRAPH_H
+#define MGRAPH_H
 
 #include "network.h"
 #include "networkmp.h"
@@ -1383,4 +1383,4 @@ typedef TMNet<TMVNode> TMVNet;
 typedef TPt<TMVNet> PMVNet;
 typedef TMNet<TCVNode> TCVNet;
 typedef TPt<TCVNet> PCVNet;
-#endif // MGRAPH_H_
+#endif // MGRAPH_H

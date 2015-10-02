@@ -1,5 +1,5 @@
-#ifndef NETWORKMP_H_
-#define NETWORKMP_H_
+#ifndef NETWORKMP_H
+#define NETWORKMP_H
 
 #if defined(GLib_UNIX) && defined(_OPENMP)
 
@@ -653,4 +653,4 @@ template <> struct IsDirected<TNEANetMP> { enum { Val = 1 }; };
 }
 #endif // Glib_UNIX && OPENMP
 
-#endif // NETWORKMP_H_
+#endif // NETWORKMP_H
