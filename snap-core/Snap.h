@@ -15,7 +15,8 @@
 
 // graph data structures
 #include "graph.h"           // graphs
-#include "mgraph.h"          // multimodal graphs
+#include "graphmp.h"         // graphs
+#include "mmgraph.h"         // multimodal graphs
 #include "network.h"         // networks
 #include "networkmp.h"       // networks OMP
 #include "bignet.h"          // large networks
