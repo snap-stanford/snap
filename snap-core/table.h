@@ -2,8 +2,7 @@
 #define TABLE_H
 #include "tmetric.h"
 //#include "snap.h"
-#ifdef _OPENMP
-#include <omp.h>
+#ifdef USE_OPENMP
 #define CHUNKS_PER_THREAD 10
 #endif
 
@@ -282,12 +281,12 @@ namespace TSnap{
 	/// Converts table to a network. Suitable for PNEANet - Assumes no node and edge attributes.
 	template<class PGraph> PGraph ToNetwork(PTable Table, const TStr& SrcCol, const TStr& DstCol, TAttrAggr AggrPolicy);
 
-  #if defined(GLib_UNIX) && defined(_OPENMP)
+#ifdef USE_OPENMP
   template<class PGraphMP> PGraphMP ToGraphMP(PTable Table, const TStr& SrcCol, const TStr& DstCol);
   template<class PGraphMP> PGraphMP ToGraphMP2(PTable Table, const TStr& SrcCol, const TStr& DstCol);
   PNEANetMP ToTNEANetMP(PTable Table, const TStr& SrcCol, const TStr& DstCol);
   PNEANetMP ToTNEANetMP2(PTable Table, const TStr& SrcCol, const TStr& DstCol);
-  #endif // _OPENMP
+#endif // USE_OPENMP
 }
 
 //#//////////////////////////////////////////////
@@ -303,12 +302,12 @@ public:
 	template<class PGraph> friend PGraph TSnap::ToNetwork(PTable Table, const TStr& SrcCol, const TStr& DstCol,
 			TStrV& SrcAttrs, TStrV& DstAttrs, TStrV& EdgeAttrs, TAttrAggr AggrPolicy);
 
-  #if defined(GLib_UNIX) && defined(_OPENMP)
+#ifdef USE_OPENMP
   template<class PGraphMP> friend PGraphMP TSnap::ToGraphMP(PTable Table, const TStr& SrcCol, const TStr& DstCol);
   template<class PGraphMP> friend PGraphMP TSnap::ToGraphMP2(PTable Table, const TStr& SrcCol, const TStr& DstCol);
   friend PNEANetMP TSnap::ToTNEANetMP(PTable Table, const TStr& SrcCol, const TStr& DstCol);
   friend PNEANetMP TSnap::ToTNEANetMP2(PTable Table, const TStr& SrcCol, const TStr& DstCol);
-  #endif // _OPENMP
+#endif // USE_OPENMP
 
   static void SetMP(TInt Value) { UseMP = Value; }
   static TInt GetMP() { return UseMP; }
@@ -488,11 +487,11 @@ protected:
   /// Groups/hashes by a single column with integer values. ##TTable::GroupByIntCol
   template <class T> void GroupByIntCol(const TStr& GroupBy, T& Grouping, 
     const TIntV& IndexSet, TBool All, TBool UsePhysicalIds = true) const;
-  #if defined(GLib_UNIX) && defined(_OPENMP)
+#ifdef USE_OPENMP
   public:	//Should be protected - this is for debug only
   /// Groups/hashes by a single column with integer values, using OpenMP multi-threading.
   void GroupByIntColMP(const TStr& GroupBy, THashMP<TInt, TIntV>& Grouping, TBool UsePhysicalIds = true) const;
-  #endif // GLib_UNIX && _OPENMP
+#endif // USE_OPENMP
   protected:
   /// Groups/hashes by a single column with float values. Returns hash table with grouping.
   template <class T> void GroupByFltCol(const TStr& GroupBy, T& Grouping, 
@@ -502,10 +501,10 @@ protected:
     const TIntV& IndexSet, TBool All, TBool UsePhysicalIds = true) const;
   /// Template for utility function to update a grouping hash map.
   template <class T> void UpdateGrouping(THash<T,TIntV>& Grouping, T Key, TInt Val) const;
-  #if defined(GLib_UNIX) && defined(_OPENMP)
+#ifdef USE_OPENMP
   /// Template for utility function to update a parallel grouping hash map.
   template <class T> void UpdateGrouping(THashMP<T,TIntV>& Grouping, T Key, TInt Val) const;
-  #endif // GLib_UNIX && _OPENMP
+#endif // USE_OPENMP
   void PrintGrouping(const THash<TGroupKey, TIntV>& Grouping) const;
 
   /***** Utility functions for sorting by columns *****/
@@ -530,11 +529,11 @@ protected:
   /// Helper function for parallel QSort.
   void Merge(TIntV& V, TInt Idx1, TInt Idx2, TInt Idx3, const TVec<TAttrType>& SortByTypes,
     const TIntV& SortByIndices, TBool Asc = true);
-  #ifdef _OPENMP
+#ifdef USE_OPENMP
   /// Performs QSort in parallel on given vector \c V.
   void QSortPar(TIntV& V, const TVec<TAttrType>& SortByTypes, const TIntV& SortByIndices,
     TBool Asc = true);
-  #endif // _OPENMP
+#endif // USE_OPENMP
 
 /***** Utility functions for removing rows (not through iterator) *****/
   /// Checks if \c RowIdx corresponds to a valid (i.e. not deleted) row.
@@ -581,17 +580,17 @@ protected:
   /// Adds \c NewRows rows from the given vectors for each column type.
   void AddNRows(int NewRows, const TVec<TIntV>& IntColsP, const TVec<TFltV>& FltColsP,
    const TVec<TIntV>& StrColMapsP);
-  #ifdef _OPENMP
+#ifdef USE_OPENMP
   /// Adds rows from T1 and T2 to this table in a parallel manner. Used by Join.
   void AddNJointRowsMP(const TTable& T1, const TTable& T2, const TVec<TIntPrV>& JointRowIDSet);
-  #endif // _OPENMP
+#endif // USE_OPENMP
   /// Updates table state after adding one or more rows.
   void UpdateTableForNewRow();
 
-  #if defined(GLib_LINUX) && defined(_OPENMP)
+#ifdef USE_OPENMP
   /// Parallelly loads data from input file at InFNm into NewTable. Only work when NewTable has no string columns.
   static void LoadSSPar(PTable& NewTable, const Schema& S, const TStr& InFNm, const TIntV& RelevantCols, const char& Separator, TBool HasTitleLine);
-  #endif
+#endif // USE_OPENMP
   /// Sequentially loads data from input file at InFNm into NewTable
   static void LoadSSSeq(PTable& NewTable, const Schema& S, const TStr& InFNm, const TIntV& RelevantCols, const char& Separator, TBool HasTitleLine);
 
@@ -599,11 +598,11 @@ protected:
   /// Helper function for grouping. ##TTable::GroupAux
   void GroupAux(const TStrV& GroupBy, THash<TGroupKey, TPair<TInt, TIntV> >& Grouping, 
    TBool Ordered, const TStr& GroupColName, TBool KeepUnique, TIntV& UniqueVec, TBool UsePhysicalIds = true);
-  #ifdef _OPENMP
+#ifdef USE_OPENMP
   /// Parallel helper function for grouping. - we currently don't support such parallel grouping by complex keys
   //void GroupAuxMP(const TStrV& GroupBy, THashGenericMP<TGroupKey, TPair<TInt, TIntV> >& Grouping, 
   // TBool Ordered, const TStr& GroupColName, TBool KeepUnique, TIntV& UniqueVec, TBool UsePhysicalIds = false);
-  #endif // _OPENMP
+#endif // USE_OPENMP
   /// Stores column for a group. Physical row ids have to be passed.
   void StoreGroupCol(const TStr& GroupColName, const TVec<TPair<TInt, TInt> >& GroupAndRowIds);
   /// Register (cache) result of a grouping statement by a single group-by attribute
@@ -825,10 +824,10 @@ public:
   /// Extracts edge TTable from PNEANet.
   static PTable GetEdgeTable(const PNEANet& Network, TTableContext& Context);
 
-  #ifdef _OPENMP
+#ifdef USE_OPENMP
   /// Extracts edge TTable from parallel graph PNGraphMP.
   static PTable GetEdgeTablePN(const PNGraphMP& Network, TTableContext& Context);
-  #endif // _OPENMP
+#endif // USE_OPENMP
 
   /// Extracts node and edge property TTables from THash.
   static PTable GetFltNodePropertyTable(const PNEANet& Network, const TIntFltH& Property,
@@ -994,12 +993,12 @@ public:
   // the argument table. Equivalent to SQL's: UPDATE this SET UpdateAttr = ReadAttr WHERE KeyAttr = FKeyAttr
   void UpdateFltFromTable(const TStr& KeyAttr, const TStr& UpdateAttr, const TTable& Table, 
   	const TStr& FKeyAttr, const TStr& ReadAttr, TFlt DefaultFltVal = 0.0);
- #if defined(GLib_UNIX) && defined(_OPENMP)
+#ifdef USE_OPENMP
   void UpdateFltFromTableMP(const TStr& KeyAttr, const TStr& UpdateAttr, const TTable& Table, 
   	const TStr& FKeyAttr, const TStr& ReadAttr, TFlt DefaultFltVal = 0.0);
   // TODO: this should be a generic vector operation (parallel equivalent to TVec::PutAll)
   void SetFltColToConstMP(TInt UpdateColIdx, TFlt DefaultFltVal);
-  #endif
+#endif // USE_OPENMP
 
   /// Returns union of this table with given \c Table.
   PTable Union(const TTable& Table);
@@ -1025,9 +1024,9 @@ public:
 
   /// Performs columnwise arithmetic operation ##TTable::ColGenericOp
   void ColGenericOp(const TStr& Attr1, const TStr& Attr2, const TStr& ResAttr, TArithOp op);
-  #ifdef _OPENMP
+#ifdef USE_OPENMP
   void ColGenericOpMP(TInt ArgColIdx1, TInt ArgColIdx2, TAttrType ArgType1, TAttrType ArgType2, TInt ResColIdx, TArithOp op);
-  #endif
+#endif // USE_OPENMP
   /// Performs columnwise addition. See TTable::ColGenericOp
   void ColAdd(const TStr& Attr1, const TStr& Attr2, const TStr& ResultAttrName="");
   /// Performs columnwise subtraction. See TTable::ColGenericOp
@@ -1066,9 +1065,9 @@ public:
 
   /// Performs arithmetic op of column values and given \c Num
   void ColGenericOp(const TStr& Attr1, const TFlt& Num, const TStr& ResAttr, TArithOp op, const TBool floatCast);
-  #ifdef _OPENMP
+#ifdef USE_OPENMP
   void ColGenericOpMP(TInt ColIdx1, TInt ColIdx2, TAttrType ArgType, TFlt Num, TArithOp op, TBool ShouldCast);
-  #endif
+#endif // USE_OPENMP
   /// Performs addition of column values and given \c Num
   void ColAdd(const TStr& Attr1, const TFlt& Num, const TStr& ResultAttrName="", const TBool floatCast=false);
   /// Performs subtraction of column values and given \c Num
@@ -1291,7 +1290,7 @@ void TTable::UpdateGrouping(THash<T,TIntV>& Grouping, T Key, TInt Val) const{
   }
 }
 
-#if defined(GLib_UNIX) && defined(_OPENMP)
+#ifdef USE_OPENMP
 template <class T>
 void TTable::UpdateGrouping(THashMP<T,TIntV>& Grouping, T Key, TInt Val) const{
   if (Grouping.IsKey(Key)) {
@@ -1304,7 +1303,7 @@ void TTable::UpdateGrouping(THashMP<T,TIntV>& Grouping, T Key, TInt Val) const{
     Grouping.AddDat(Key, NewGroup);
   }
 }
-#endif // GLib_UNIX && _OPENMP
+#endif // USE_OPENMP
 
 /*
 template<class T> 

@@ -8,7 +8,7 @@ class TNGraphMP;
 typedef TPt<TNGraphMP> PNGraphMP;
 
 //#//////////////////////////////////////////////
-#if defined(GLib_UNIX) && defined(_OPENMP)
+#ifdef USE_OPENMP
 // TNGraph for multi-threaded operations
 class TNGraphMP {
 public:
@@ -228,4 +228,4 @@ public:
 namespace TSnap {
 template <> struct IsDirected<TNGraphMP> { enum { Val = 1 }; };
 }
-#endif
+#endif // USE_OPENMP

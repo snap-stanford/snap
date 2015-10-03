@@ -46,7 +46,7 @@ int main(int argc, char* argv[])
   TIntFltH PageRankResults;
   for (int i = 0; i < nExps; i++) {
     PageRankResults = TIntFltH(ExpectedSz);
-//    #ifdef _OPENMP
+//    #ifdef USE_OPENMP
 //    TSnap::GetPageRankMP2(Graph, PageRankResults, 0.849999999999998, 0.0001, 10);
 //    #else
     TSnap::GetPageRank(Graph, PageRankResults, 0.849999999999998, 0.0001, 10);

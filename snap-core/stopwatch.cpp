@@ -1,11 +1,11 @@
 double TStopwatch::Tick() {
   //return clock() / ((double)CLOCKS_PER_SEC);
-  #ifdef _OPENMP
+#ifdef USE_OPENMP
   return omp_get_wtime();
-  #else
-  #ifdef GLib_WIN32
+#else
+#ifdef GLib_WIN32
   return GetTickCount() / 1000.0;
-  #else
+#else
   struct rusage rusage;
   getrusage(RUSAGE_SELF, &rusage);
 
@@ -13,8 +13,8 @@ double TStopwatch::Tick() {
   ((float) (rusage.ru_utime.tv_usec + rusage.ru_stime.tv_usec) / 1000000) +
   ((float) (rusage.ru_utime.tv_sec + rusage.ru_stime.tv_sec));
   return cputime;
-  #endif
-  #endif
+#endif
+#endif
 }
 
 void TStopwatch::Start(const TExperiment Exp) {

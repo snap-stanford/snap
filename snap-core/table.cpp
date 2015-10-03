@@ -310,7 +310,7 @@ TTable::TTable(const TTable& Table, const TIntV& RowIDs) : Context(Table.Context
   InitIds();
 }
 
-#if defined(GLib_LINUX) && defined(_OPENMP)
+#ifdef USE_OPENMP
 void TTable::LoadSSPar(PTable& T, const Schema& S, const TStr& InFNm, const TIntV& RelevantCols, 
                         const char& Separator, TBool HasTitleLine) {
   // preloaded necessary variables
@@ -587,11 +587,11 @@ PTable TTable::LoadSS(const Schema& S, const TStr& InFNm, TTableContext& Context
   if (GetMP() && NoStringCols) {
     // Right now, can load in parallel only in Linux (for mmap) and if
     // there are no string columns
-    #if defined(GLib_LINUX) && defined(_OPENMP)
+#ifdef USE_OPENMP
     LoadSSPar(T, S, InFNm, RelevantCols, Separator, HasTitleLine);
-    #else
+#else
     LoadSSSeq(T, S, InFNm, RelevantCols, Separator, HasTitleLine);
-    #endif
+#endif
   } else {
     LoadSSSeq(T, S, InFNm, RelevantCols, Separator, HasTitleLine);
   }
@@ -938,7 +938,7 @@ void TTable::GroupingSanityCheck(const TStr& GroupBy, const TAttrType& AttrType)
   }
 }
 
-#if defined(GLib_UNIX) && defined(_OPENMP)
+#ifdef USE_OPENMP
 void TTable::GroupByIntColMP(const TStr& GroupBy, THashMP<TInt, TIntV>& Grouping, TBool UsePhysicalIds) const {
   timeval timer0;
   gettimeofday(&timer0, NULL);
@@ -961,9 +961,7 @@ void TTable::GroupByIntColMP(const TStr& GroupBy, THashMP<TInt, TIntV>& Grouping
   //double endGen = omp_get_wtime();
   //printf("Gen time = %f\n", endGen-endPart);
   //printf("S\n");
-  #ifdef _OPENMP
   #pragma omp parallel for schedule(dynamic, CHUNKS_PER_THREAD) //num_threads(1)
-  #endif
   for (int i = 0; i < Partitions.Len(); i++){
     TRowIterator RowI(Partitions[i].GetVal1(), this);
     TRowIterator EndI(Partitions[i].GetVal2(), this);
@@ -980,7 +978,7 @@ void TTable::GroupByIntColMP(const TStr& GroupBy, THashMP<TInt, TIntV>& Grouping
   //double endAdd = omp_get_wtime();
   //printf("Add time = %f\n", endAdd-endGen);
 }
-#endif // Glib_UNIX && _OPENMP
+#endif // USE_OPENMP
 
 void TTable::Unique(const TStr& Col) {
   TIntV RemainingRows;
@@ -1155,8 +1153,8 @@ void TTable::GroupAux(const TStrV& GroupBy, THash<TGroupKey, TPair<TInt, TIntV> 
 }
 
 /*
-// Core crouping logic.
-#ifdef _OPENMP
+// Core grouping logic.
+#ifdef USE_OPENMP
 void TTable::GroupAuxMP(const TStrV& GroupBy, THashGenericMP<TGroupKey, TPair<TInt, TIntV> >& Grouping, 
  TBool Ordered, const TStr& GroupColName, TBool KeepUnique, TIntV& UniqueVec, TBool UsePhysicalIds) {
   //double startFn = omp_get_wtime();
@@ -1282,7 +1280,7 @@ void TTable::GroupAuxMP(const TStrV& GroupBy, THashGenericMP<TGroupKey, TPair<TI
   //double endStore = omp_get_wtime();
   //printf("Store time = %f\n", endStore-endMapping);
 }
-#endif // _OPENMP
+#endif // USE_OPENMP
 */
 
 void TTable::Group(const TStrV& GroupBy, const TStr& GroupColName, TBool Ordered, TBool UsePhysicalIds) {
@@ -1318,10 +1316,10 @@ void TTable::Aggregate(const TStrV& GroupByAttrs, TAttrAggr AggOp,
   THash<TFlt,TIntV> GroupByFltMapping;
   THash<TInt,TIntV> GroupByStrMapping;
   THash<TGroupKey,TIntV> Mapping;
-  #if defined(GLib_UNIX) && defined(_OPENMP)
+#ifdef USE_OPENMP
   THashMP<TInt,TIntV> GroupByIntMapping_MP(NumValidRows);
   TIntV GroupByIntMPKeys(NumValidRows);
-  #endif
+#endif
   TInt NumOfGroups = 0;
   TInt GroupingCase = 0;
 
@@ -1333,7 +1331,7 @@ void TTable::Aggregate(const TStrV& GroupByAttrs, TAttrAggr AggOp,
   	if(NGroupByAttrs.Len() == 1){
   		switch(GetColType(NGroupByAttrs[0])){
   			case atInt:
-  				#if defined(GLib_UNIX) && defined(_OPENMP)
+#ifdef USE_OPENMP
   				if(GetMP()){
   					GroupByIntColMP(NGroupByAttrs[0], GroupByIntMapping_MP, UsePhysicalIds);
   					int x = 0;
@@ -1354,7 +1352,7 @@ void TTable::Aggregate(const TStrV& GroupByAttrs, TAttrAggr AggOp,
   					//printf("Number of groups: %d\n", NumOfGroups.Val);
   					break;
   				}
-  				#endif // GLib_UNIX && _OPENMP
+#endif // USE_OPENMP
   				GroupByIntCol(NGroupByAttrs[0], GroupByIntMapping, TIntV(), true, UsePhysicalIds);
   				NumOfGroups = GroupByIntMapping.Len();
   				GroupingCase = 1;
@@ -1403,9 +1401,9 @@ void TTable::Aggregate(const TStrV& GroupByAttrs, TAttrAggr AggOp,
   // double endAdd = omp_get_wtime();
   // printf("AddCol time = %f\n", endAdd-endGroup);
 
-  #ifdef _OPENMP
+#ifdef USE_OPENMP
   #pragma omp parallel for schedule(dynamic)
-  #endif 
+#endif 
   for (int g = 0; g < NumOfGroups; g++) {
   	TIntV* GroupRows = NULL;
   	switch(GroupingCase){
@@ -1422,9 +1420,9 @@ void TTable::Aggregate(const TStrV& GroupByAttrs, TAttrAggr AggOp,
   			GroupRows = & GroupByStrMapping.GetDat(GroupByStrMapping.GetKey(g));
   			break;
   		case 4:
-  			#if defined(GLib_UNIX) && defined(_OPENMP)
+#ifdef USE_OPENMP
   			GroupRows = & GroupByIntMapping_MP.GetDat(GroupByIntMPKeys[g]);
-  			#endif
+#endif
   			break;
   	}
 
@@ -2018,7 +2016,7 @@ PTable TTable::Join(const TStr& Col1, const TTable& Table, const TStr& Col2) {
   // printf("Init time = %f\n", endInit-startFn);
   // iterate over the rows of the bigger table and check for "collisions" 
   // with the group keys for the small table.
-  #if defined(GLib_UNIX) && defined(_OPENMP)
+#ifdef USE_OPENMP
   if (GetMP()) {
     switch(ColType){
       case atInt:{
@@ -2131,7 +2129,7 @@ PTable TTable::Join(const TStr& Col1, const TTable& Table, const TStr& Col2) {
       break;
     }
   } else {
-  #endif
+#endif
     switch (ColType) {
       case atInt:{
         TIntIntVH T;
@@ -2188,9 +2186,9 @@ PTable TTable::Join(const TStr& Col1, const TTable& Table, const TStr& Col2) {
       }
       break;
     }
-  #if defined(GLib_UNIX) && defined(_OPENMP)
+#ifdef USE_OPENMP
   }
-  #endif
+#endif
   return JointTable; 
 }
 
@@ -2601,7 +2599,7 @@ void TTable::SelectAtomicConst(const TStr& Col, const TPrimitive& Val, TPredComp
   }
 
   if(Remove){
-    #ifdef _OPENMP
+#ifdef USE_OPENMP
     if (GetMP()) {
       //double endInit = omp_get_wtime();
       //printf("Init time = %f\n", endInit-startFn);
@@ -2677,7 +2675,7 @@ void TTable::SelectAtomicConst(const TStr& Col, const TPrimitive& Val, TPredComp
       //double endRepair = omp_get_wtime();
       //printf("Repair time = %f\n", endRepair-endIter);
     } else {
-    #endif
+#endif
       TRowIteratorWithRemove RowI = BegRIWR();
       while(RowI.GetNextRowIdx() != Last){
         if (!RowI.CompareAtomicConst(ColIdx, Val, Cmp)) {
@@ -2687,11 +2685,11 @@ void TTable::SelectAtomicConst(const TStr& Col, const TPrimitive& Val, TPredComp
         }
       }
       IsNextDirty = 1;
-    #ifdef _OPENMP
+#ifdef USE_OPENMP
     }
-    #endif
+#endif
   } else if (Table) {
-    #ifdef _OPENMP
+#ifdef USE_OPENMP
     if (GetMP()) {
       //double endInit = omp_get_wtime();
       //printf("Init time = %f\n", endInit-startFn);
@@ -2761,15 +2759,15 @@ void TTable::SelectAtomicConst(const TStr& Col, const TPrimitive& Val, TPredComp
       //printf("Resize2 time = %f\n", endResize2-endIter);      
       SelectedTable->SetFirstValidRow();
     } else {
-    #endif
+#endif
       for(TRowIterator RowI = BegRI(); RowI < EndRI(); RowI++){
         if (RowI.CompareAtomicConst(ColIdx, Val, Cmp)) { 
           SelectedTable->AddRow(RowI);
         }
       }
-    #ifdef _OPENMP
+#ifdef USE_OPENMP
     }
-    #endif
+#endif
   } else {
     for(TRowIterator RowI = BegRI(); RowI < EndRI(); RowI++){
       if (RowI.CompareAtomicConst(ColIdx, Val, Cmp)) { 
@@ -2920,7 +2918,7 @@ void TTable::Merge(TIntV& V, TInt Idx1, TInt Idx2, TInt Idx3, const TVec<TAttrTy
   }
 }
 
-#ifdef _OPENMP
+#ifdef USE_OPENMP
 void TTable::QSortPar(TIntV& V, const TVec<TAttrType>& SortByTypes, const TIntV& SortByIndices, TBool Asc) {
   TInt NumThreads = 8;
   TInt Sz = V.Len();
@@ -2953,7 +2951,7 @@ void TTable::QSortPar(TIntV& V, const TVec<TAttrType>& SortByTypes, const TIntV&
     NumThreads = NumThreads / 2;
   }
 }
-#endif // _OPENMP
+#endif // USE_OPENMP
 
 void TTable::Order(const TStrV& OrderBy, TStr OrderColName, TBool ResetRankByMSC, TBool Asc) {
   // get a vector of all valid row indices
@@ -2977,15 +2975,15 @@ void TTable::Order(const TStrV& OrderBy, TStr OrderColName, TBool ResetRankByMSC
   }
 
   // sort that vector according to the attributes given in "OrderBy" in lexicographic order
-  #ifdef _OPENMP
+#ifdef USE_OPENMP
   if (GetMP()) {
     QSortPar(ValidRows, OrderByTypes, OrderByIndices, Asc);
   } else {
-  #endif
+#endif
     QSort(ValidRows, 0, NumValidRows-1, OrderByTypes, OrderByIndices, Asc);
-  #ifdef _OPENMP
+#ifdef USE_OPENMP
   }
-  #endif
+#endif
 
   // rewire Next vector
   IsNextDirty = 1;
@@ -3511,7 +3509,7 @@ PTable TTable::GetEdgeTable(const PNEANet& Network, TTableContext& Context) {
   return T;
 }
 
-#if defined(GLib_UNIX) && defined(_OPENMP)
+#ifdef USE_OPENMP
 PTable TTable::GetEdgeTablePN(const PNGraphMP& Network, TTableContext& Context){
   Schema SR;
   SR.Add(TPair<TStr,TAttrType>("src_id",atInt));
@@ -3563,7 +3561,7 @@ PTable TTable::GetEdgeTablePN(const PNGraphMP& Network, TTableContext& Context){
   Assert(T->NumRows == NumEdges);
   return T;
 }
-#endif // GLib_UNIX && _OPENMP
+#endif // USE_OPENMP
 
 PTable TTable::GetFltNodePropertyTable(const PNEANet& Network, const TIntFltH& Property, 
  const TStr& NodeAttrName, const TAttrType& NodeAttrType, const TStr& PropertyAttrName, 
@@ -3863,7 +3861,7 @@ void TTable::UpdateTableForNewRow() {
   NumValidRows++;
 }
 
-#if defined(GLib_UNIX) && defined(_OPENMP)
+#ifdef GCC_ATOMIC
 void TTable::SetFltColToConstMP(TInt UpdateColIdx, TFlt DefaultFltVal){
     if(!GetMP()){ TExcept::Throw("Not Using MP!");}
 	TIntPrV Partitions;
@@ -3943,7 +3941,7 @@ void TTable::UpdateFltFromTableMP(const TStr& KeyAttr, const TStr& UpdateAttr,
       break;
   } // end of outer switch statement
 }
-#endif	//GLib_UNIX && _OPENMP
+#endif	// USE_OPENMP
 
 void TTable::UpdateFltFromTable(const TStr& KeyAttr, const TStr& UpdateAttr, const TTable& Table, 
   const TStr& FKeyAttr, const TStr& ReadAttr, TFlt DefaultFltVal){
@@ -3952,12 +3950,12 @@ void TTable::UpdateFltFromTable(const TStr& KeyAttr, const TStr& UpdateAttr, con
   if(!Table.IsColName(FKeyAttr)){ TExcept::Throw("Bad FKeyAttr parameter");}
   if(!Table.IsColName(ReadAttr)){ TExcept::Throw("Bad ReadAttr parameter");}
   
-#if defined(GLib_UNIX) && defined(_OPENMP)
+#ifdef USE_OPENMP
   if(GetMP()){
     UpdateFltFromTableMP(KeyAttr, UpdateAttr,Table, FKeyAttr, ReadAttr, DefaultFltVal);
     return;
   }
-#endif	//GLib_UNIX && _OPENMP
+#endif	// USE_OPENMP
   	
   TAttrType KeyType = GetColType(KeyAttr);
   TAttrType FKeyType = Table.GetColType(FKeyAttr);
@@ -4044,9 +4042,9 @@ void TTable::ResizeTable(int RowCount) {
     TInt FltOffset = IntCols.Len();
     TInt StrOffset = FltOffset + FltCols.Len();
     TInt TotalCols = StrOffset + StrColMaps.Len();
-    #ifdef _OPENMP
+#ifdef USE_OPENMP
     #pragma omp parallel for schedule(static)
-    #endif
+#endif
     for (int i = 0; i < TotalCols+1; i++) {
       if (i < FltOffset) {
         IntCols[i].Reserve(RowCount, RowCount); 
@@ -4062,9 +4060,9 @@ void TTable::ResizeTable(int RowCount) {
     TInt FltOffset = IntCols.Len();
     TInt StrOffset = FltOffset + FltCols.Len();
     TInt TotalCols = StrOffset + StrColMaps.Len();
-    #ifdef _OPENMP
+#ifdef USE_OPENMP
     #pragma omp parallel for schedule(static)
-    #endif
+#endif
     for (int i = 0; i < TotalCols+1; i++) {
       if (i < FltOffset) {
         IntCols[i].Trunc(RowCount); 
@@ -4081,10 +4079,10 @@ void TTable::ResizeTable(int RowCount) {
 
 int TTable::GetEmptyRowsStart(int NewRows) {
   int start = -1;
-  #ifdef _OPENMP
+#ifdef USE_OPENMP
   #pragma omp critical
   {
-  #endif
+#endif
     start = NumRows;
     NumRows += NewRows;
     NumValidRows += NewRows;
@@ -4095,9 +4093,9 @@ int TTable::GetEmptyRowsStart(int NewRows) {
     if (LastValidRow >= 0) {Next[LastValidRow] = start;}
     LastValidRow = start+NewRows-1;
     Next[LastValidRow] = Last;
-  #ifdef _OPENMP
+#ifdef USE_OPENMP
   }
-  #endif
+#endif
   Assert (start >= 0);
   return start;
 }
@@ -4144,7 +4142,7 @@ void TTable::AddNRows(int NewRows, const TVec<TIntV>& IntColsP, const TVec<TFltV
   }
 }
 
-#ifdef _OPENMP
+#ifdef USE_OPENMP
 void TTable::AddNJointRowsMP(const TTable& T1, const TTable& T2, const TVec<TIntPrV>& JointRowIDSet) {
   //double startFn = omp_get_wtime();
   int JointTableSize = 0;
@@ -4212,7 +4210,7 @@ void TTable::AddNJointRowsMP(const TTable& T1, const TTable& T2, const TVec<TInt
   //double endIterate = omp_get_wtime();
   //printf("Iterate time = %f\n",endIterate-endResize);
 }
-#endif // _OPENMP
+#endif // USE_OPENMP
 
 PTable TTable::UnionAll(const TTable& Table) {
   Schema NewSchema;
@@ -4410,7 +4408,7 @@ void TTable::ClassifyAux(const TIntV& SelectedRows, const TStr& LabelName, const
   }
 }
 
-#ifdef _OPENMP
+#ifdef USE_OPENMP
 void TTable::ColGenericOpMP(TInt ArgColIdx1, TInt ArgColIdx2, TAttrType ArgType1, TAttrType ArgType2, TInt ResColIdx, TArithOp op){
 	TAttrType ResType = atFlt;
 	if(ArgType1 == atInt && ArgType2 == atInt){ ResType = atInt;}
@@ -4447,7 +4445,7 @@ void TTable::ColGenericOpMP(TInt ArgColIdx1, TInt ArgColIdx2, TAttrType ArgType1
 		}
 	}
 }
-#endif	//_OPENMP
+#endif	// USE_OPENMP
 
 /* Performs generic operations on two numeric attributes
  * Operation can be +, -, *, /, %, min or max
@@ -4485,12 +4483,12 @@ void TTable::ColGenericOp(const TStr& Attr1, const TStr& Attr2, const TStr& ResA
       }
       ColIdx3 = GetColIdx(ResAttr);
   }
-  #ifdef _OPENMP
+#ifdef USE_OPENMP
   if(GetMP()){
   	ColGenericOpMP(ColIdx1, ColIdx2, Arg1Type, Arg2Type, ColIdx3, op);
   	return;
   }
-  #endif	//_OPENMP
+#endif	//USE_OPENMP
   TAttrType ResType = atFlt;
   if(Arg1Type == atInt && Arg2Type == atInt){ printf("hooray!\n"); ResType = atInt;}
   for (TRowIterator RowI = BegRI(); RowI < EndRI(); RowI++) {
@@ -4595,12 +4593,12 @@ void TTable::ColGenericOp(const TStr& Attr1, TTable& Table, const TStr& Attr2, c
   }
   
   /*
-  #ifdef _OPENMP
+  #ifdef USE_OPENMP
   if(GetMP()){
   	ColGenericOpMP(Table, AddToFirstTable, ColIdx1, ColIdx2, Arg1Type, Arg2Type, ColIdx3, op);
   	return;
   }
-  #endif	//_OPENMP
+  #endif	//USE_OPENMP
   */
 	
   TRowIterator RI1, RI2;
@@ -4706,12 +4704,12 @@ void TTable::ColGenericOp(const TStr& Attr1, const TFlt& Num, const TStr& ResAtt
     shouldCast = false;
   }
   
-  #ifdef _OPENMP
+  #ifdef USE_OPENMP
   if(GetMP()){
   	ColGenericOpMP(ColIdx1, ColIdx2, ArgType, Num, op, shouldCast);
   	return;
   }
-  #endif  //_OPENMP
+  #endif  //USE_OPENMP
 	
   for (TRowIterator RowI = BegRI(); RowI < EndRI(); RowI++) {
     if ((ArgType == atInt) && !shouldCast) {
@@ -4734,7 +4732,7 @@ void TTable::ColGenericOp(const TStr& Attr1, const TFlt& Num, const TStr& ResAtt
   }
 }
 
-#ifdef _OPENMP
+#ifdef USE_OPENMP
 void TTable::ColGenericOpMP(TInt ColIdx1, TInt ColIdx2, TAttrType ArgType, TFlt Num, TArithOp op, TBool ShouldCast){
 	TIntPrV Partitions;
 	GetPartitionRanges(Partitions, omp_get_max_threads()*CHUNKS_PER_THREAD);
@@ -5096,18 +5094,18 @@ void TTable::QSortKeyVal(TIntV& Key, TIntV& Val, TInt Start, TInt End) {
       QSortKeyVal(Key, Val, Start, Pivot-1);
       QSortKeyVal(Key, Val, Pivot+1, End);
     } else {
-      #ifdef _OPENMP
-      #ifndef GLib_WIN32
+#ifdef USE_OPENMP
+#ifndef GLib_WIN32
       #pragma omp task untied shared(Key, Val)
-      #endif
-      #endif
+#endif
+#endif
       { QSortKeyVal(Key, Val, Start, Pivot-1); }
         
-      #ifdef _OPENMP
-      #ifndef GLib_WIN32
+#ifdef USE_OPENMP
+#ifndef GLib_WIN32
       #pragma omp task untied shared(Key, Val)
-      #endif
-      #endif
+#endif
+#endif
       { QSortKeyVal(Key, Val, Pivot+1, End); }
     }
   }

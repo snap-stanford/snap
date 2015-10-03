@@ -5,9 +5,9 @@
 
 double Tick() {
   //return clock() / ((double)CLOCKS_PER_SEC);
-  #ifdef _OPENMP
+#ifdef USE_OPENMP
   return omp_get_wtime();
-  #else
+#else
   struct rusage rusage;
   getrusage(RUSAGE_SELF, &rusage);
 
@@ -15,7 +15,7 @@ double Tick() {
   ((float) (rusage.ru_utime.tv_usec + rusage.ru_stime.tv_usec) / 1000000) +
   ((float) (rusage.ru_utime.tv_sec + rusage.ru_stime.tv_sec));
   return cputime;
-  #endif
+#endif
 }
 
 double GetCPUTimeUsage(double tick1, double tick2) {
@@ -450,12 +450,12 @@ void BuildCombinedEdgeTable(const TVec<TPair<PTable,TStr> >& NodeTblV, const TVe
 template <class PGraph>
 void PageRankExp(const PGraph& Graph, const int nExps, TIntFltH& PageRankResults) {
   for (int i = 0; i < nExps; i++) {
-    #ifdef _OPENMP
+#ifdef USE_OPENMP
 //    TSnap::GetPageRankMP2(Graph, PageRankResults, 0.849999999999998, 0.0001, 10);
     TSnap::GetPageRankMNetMP(Graph, PageRankResults, 0.849999999999998, 0.0001, 10);
-    #else
+#else
     TSnap::GetPageRank(Graph, PageRankResults, 0.849999999999998, 0.0001, 10);
-    #endif
+#endif
   }
 }
 
@@ -465,10 +465,10 @@ void BFSExp(const PGraph& Graph, const TStrV& RandNStrs, const TStrIntH& NStrH,
   for (int i = 0; i < nExps; i++) {
     TStr NStr = RandNStrs[i];
     TInt NId = NStrH.GetDat(NStr);
-    #ifdef _OPENMP
+#ifdef USE_OPENMP
     TSnap::GetShortestDistancesMP2(Graph, NId.Val, true, false, BFSResults);
-    #else
+#else
     TSnap::GetShortestDistances(Graph, NId.Val, true, false, BFSResults);
-    #endif
+#endif
   }
 }

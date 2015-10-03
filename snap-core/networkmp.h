@@ -1,7 +1,7 @@
 #ifndef NETWORKMP_H
 #define NETWORKMP_H
 
-#if defined(GLib_UNIX) && defined(_OPENMP)
+#ifdef USE_OPENMP
 
 class TNEANetMP;
 /// Pointer to a directed attribute multigraph (TNEANetMP)
@@ -651,6 +651,6 @@ namespace TSnap {
 template <> struct IsMultiGraph<TNEANetMP> { enum { Val = 1 }; };
 template <> struct IsDirected<TNEANetMP> { enum { Val = 1 }; };
 }
-#endif // Glib_UNIX && OPENMP
+#endif // USE_OPENMP
 
 #endif // NETWORKMP_H

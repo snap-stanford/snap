@@ -572,7 +572,7 @@ int GetWeightedPageRank(const PNEANet Graph, TIntFltH& PRankH, const TStr& Attr,
   return 0;
 }
 
-#ifdef _OPENMP
+#ifdef USE_OPENMP
 
 int GetWeightedPageRankMP1(const PNEANet Graph, TIntFltH& PRankH, const TStr& Attr, const double& C, const double& Eps, const int& MaxIter) {
   if (!Graph->IsFltAttrE(Attr)) return -1;
@@ -715,7 +715,7 @@ int GetWeightedPageRankMP2(const PNEANet Graph, TIntFltH& PRankH, const TStr& At
   return 0;
 }
 
-#endif
+#endif // USE_OPENMP
 
 //Event importance
 TIntFltH EventImportance(const PNGraph& Graph, const int k) {

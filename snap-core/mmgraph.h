@@ -1183,7 +1183,7 @@ public:
     return PNewGraph;
   }
 
-  #if defined(GLib_UNIX) && defined(_OPENMP)
+#ifdef USE_OPENMP
   PNEANetMP GetSubGraphTNEANetMP2(const TIntV& NTypeIdV) {
     TStopwatch* Sw = TStopwatch::GetInstance();
     Sw->Start(TStopwatch::ComputeETypes);
@@ -1372,7 +1372,7 @@ public:
     PNewGraph->SetEdges(SubgraphEdgeSz);
     return PNewGraph;
   }
-  #endif // OPENMP
+#endif // USE_OPENMP
 
   friend class TPt<TMNet>;
 };

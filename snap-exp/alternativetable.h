@@ -390,11 +390,11 @@ protected:
   /// Helper function for parallel QSort.
   void Merge(TIntV& V, TInt Idx1, TInt Idx2, TInt Idx3, const TVec<TAttrType>& SortByTypes, 
     const TIntV& SortByIndices, TBool Asc = true);
-  #ifdef _OPENMP
+#ifdef USE_OPENMP
   /// Performs QSort in parallel on given vector \c V.
   void QSortPar(TIntV& V, const TVec<TAttrType>& SortByTypes, const TIntV& SortByIndices, 
     TBool Asc = true);
-  #endif // _OPENMP
+#endif // USE_OPENMP
 
   /// Adds a column of explicit integer identifiers to the rows.
   void AddIdColumn(const TStr& IdColName);

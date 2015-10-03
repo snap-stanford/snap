@@ -906,7 +906,7 @@ void PhysicalOrderTable::Merge(TIntV& V, TInt Idx1, TInt Idx2, TInt Idx3, const 
   }
 }
 
-#ifdef _OPENMP
+#ifdef USE_OPENMP
 void PhysicalOrderTable::QSortPar(TIntV& V, const TVec<TAttrType>& SortByTypes, const TIntV& SortByIndices, TBool Asc) {
   TInt NumThreads = 8;
   TInt Sz = V.Len();
@@ -939,7 +939,7 @@ void PhysicalOrderTable::QSortPar(TIntV& V, const TVec<TAttrType>& SortByTypes, 
     NumThreads = NumThreads / 2;
   }
 }
-#endif // _OPENMP
+#endif // USE_OPENMP
 
 void PhysicalOrderTable::SwapRows(TInt Idx1, TInt Idx2){
 	for(int c = 0; c < IntCols.Len(); c++){
@@ -968,15 +968,15 @@ void PhysicalOrderTable::Order(const TStrV& OrderBy, TStr OrderColName, TBool As
   }
 
   // sort that vector according to the attributes given in "OrderBy" in lexicographic order
-  #ifdef _OPENMP
+#ifdef USE_OPENMP
   if (GetMP()) {
     QSortPar(ValidRows, OrderByTypes, OrderByIndices, Asc);
   } else {
-  #endif
+#endif
     QSort(ValidRows, 0, NumRows-1, OrderByTypes, OrderByIndices, Asc);
-  #ifdef _OPENMP
+#ifdef USE_OPENMP
   }
-  #endif
+#endif
   // debug
   //for(int i = 0; i < ValidRows.Len(); i++){
   //	printf("%d ", ValidRows[i].Val);
@@ -1035,8 +1035,7 @@ PPhysicalOrderTable PhysicalOrderTable::LoadSS(const Schema& S, const TStr& InFN
     }
   }
 
-  #ifdef _OPENMP
-  #ifdef GLib_LINUX
+#ifdef USE_OPENMP
   // Right now, can load in parallel only in Linux (for mmap) and if
   // there are no string columns
   if (GetMP() && NoStringCols) {
@@ -1221,9 +1220,9 @@ PPhysicalOrderTable PhysicalOrderTable::LoadSS(const Schema& S, const TStr& InFN
 
   T->NumRows = Cnt;
   T->InitIds();
-  #ifdef _OPENMP
+#ifdef USE_OPENMP
   }
-  #endif
+#endif
   return T;
 }
 
@@ -1280,8 +1279,4 @@ void PhysicalOrderTable::InitIds() {
   IdColName = "_id";
   AddIdColumn(IdColName);
 }
-
-
-
-  
 

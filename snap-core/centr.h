@@ -71,14 +71,14 @@ void GetEigenVectorCentr(const PUNGraph& Graph, TIntFltH& NIdEigenH, const doubl
 /// PageRank
 /// For more info see: http://en.wikipedia.org/wiki/PageRank
 template<class PGraph> void GetPageRank(const PGraph& Graph, TIntFltH& PRankH, const double& C=0.85, const double& Eps=1e-4, const int& MaxIter=100);
-#ifdef _OPENMP
+#ifdef USE_OPENMP
 template<class PGraph> void GetPageRankMP1(const PGraph& Graph, TIntFltH& PRankH, const double& C=0.85, const double& Eps=1e-4, const int& MaxIter=100);
 template<class PGraph> void GetPageRankMP2(const PGraph& Graph, TIntFltH& PRankH, const double& C=0.85, const double& Eps=1e-4, const int& MaxIter=100);
 #endif
 
 /// Weighted PageRank (TODO: Use template)
 int GetWeightedPageRank(const PNEANet Graph, TIntFltH& PRankH, const TStr& Attr, const double& C=0.85, const double& Eps=1e-4, const int& MaxIter=100);
-#ifdef _OPENMP
+#ifdef USE_OPENMP
 int GetWeightedPageRankMP1(const PNEANet Graph, TIntFltH& PRankH, const TStr& Attr, const double& C=0.85, const double& Eps=1e-4, const int& MaxIter=100);
 int GetWeightedPageRankMP2(const PNEANet Graph, TIntFltH& PRankH, const TStr& Attr, const double& C=0.85, const double& Eps=1e-4, const int& MaxIter=100);
 #endif
@@ -86,7 +86,7 @@ int GetWeightedPageRankMP2(const PNEANet Graph, TIntFltH& PRankH, const TStr& At
 /// HITS: Hubs and Authorities
 /// For more info see: http://en.wikipedia.org/wiki/HITS_algorithm)
 template<class PGraph> void GetHits(const PGraph& Graph, TIntFltH& NIdHubH, TIntFltH& NIdAuthH, const int& MaxIter=20);
-#ifdef _OPENMP
+#ifdef USE_OPENMP
 template<class PGraph> void GetHitsMP(const PGraph& Graph, TIntFltH& NIdHubH, TIntFltH& NIdAuthH, const int& MaxIter=20);
 #endif
 
@@ -232,7 +232,7 @@ void GetPageRank(const PGraph& Graph, TIntFltH& PRankH, const double& C, const d
   }
 }
 
-#ifdef _OPENMP
+#ifdef USE_OPENMP
 // Page Rank -- there are two different implementations (uncomment the desired 2 lines):
 //   Berkhin -- (the correct way) see Algorithm 1 of P. Berkhin, A Survey on PageRank Computing, Internet Mathematics, 2005
 //   iGraph -- iGraph implementation(which treats leaked PageRank in a funny way)
@@ -580,7 +580,7 @@ void GetPageRankMNetMP(const PGraph& Graph, TIntFltH& PRankH, const double& C, c
   //double t4 = omp_get_wtime();
   //printf("Post-process %f\n", t4-t3);
 }
-#endif // _OPENMP
+#endif // USE_OPENMP
 
 template<class PGraph>
 void GetHits(const PGraph& Graph, TIntFltH& NIdHubH, TIntFltH& NIdAuthH, const int& MaxIter) {
@@ -626,7 +626,7 @@ void GetHits(const PGraph& Graph, TIntFltH& NIdHubH, TIntFltH& NIdAuthH, const i
   for (int i = 0; i < NIdAuthH.Len(); i++) { NIdAuthH[i] /= Norm; }
 }
 
-#ifdef _OPENMP
+#ifdef USE_OPENMP
 template<class PGraph>
 void GetHitsMP(const PGraph& Graph, TIntFltH& NIdHubH, TIntFltH& NIdAuthH, const int& MaxIter) {
   const int NNodes = Graph->GetNodes();

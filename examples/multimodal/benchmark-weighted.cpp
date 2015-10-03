@@ -47,11 +47,11 @@ int main(int argc, char* argv[])
   TIntFltH PageRankResults;
   for (int i = 0; i < nExps; i++) {
     PageRankResults = TIntFltH(ExpectedSz);
-    #ifdef _OPENMP
+#ifdef USE_OPENMP
     TSnap::GetWeightedPageRankMP2(Graph, PageRankResults, EdgeSchema.GetVal(2).GetVal1(), 0.849999999999998, 0.0001, 10);
-    #else
+#else
     TSnap::GetWeightedPageRank(Graph, PageRankResults, EdgeSchema.GetVal(2).GetVal1(), 0.849999999999998, 0.0001, 10);
-    #endif
+#endif
   }
   double ts5 = Tick();
 
@@ -62,9 +62,9 @@ int main(int argc, char* argv[])
   double ts6 = Tick();
 
   bool isPar = false;
-  #ifdef _OPENMP
+#ifdef USE_OPENMP
   isPar = true;
-  #endif
+#endif
 
 //  PSOut FeaturesOut = TFOut::New(PrefixPath + "features.txt");
 //  FeaturesOut->PutStrFmtLn("Photo %d", PPhotoTbl->GetNumRows().Val);

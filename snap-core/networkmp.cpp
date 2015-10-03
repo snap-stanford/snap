@@ -1,4 +1,4 @@
-#if defined(GLib_UNIX) && defined(_OPENMP)
+#ifdef USE_OPENMP
 
 /////////////////////////////////////////////////
 // Attribute Node Edge Network
@@ -1048,4 +1048,4 @@ bool TNEANetMP::IsStrAttrE(const TStr& attr) {
     KeyToIndexTypeE.GetDat(attr).Val1 == StrType);
 }
 
-#endif
+#endif // USE_OPENMP
