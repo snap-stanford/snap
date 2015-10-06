@@ -318,7 +318,9 @@ int64 CountTriangles(const PGraph& Graph) {
 
   TVec<TIntV> HigherDegNbrV(ind);
 
+#ifdef USE_OPENMP
 #pragma omp parallel for schedule(dynamic)
+#endif
   for (int i = 0; i < ind; i++) {
     TNGraph::TNodeI NI = Graph->GetNI(MapV[i]);
     TIntV NbrV;
@@ -340,7 +342,9 @@ int64 CountTriangles(const PGraph& Graph) {
   }
 
   int64 cnt = 0;
+#ifdef USE_OPENMP
 #pragma omp parallel for schedule(dynamic) reduction(+:cnt)
+#endif
   for (int i = 0; i < HigherDegNbrV.Len(); i++) {
     for (int j = 0; j < HigherDegNbrV[i].Len(); j++) {
       TInt NbrInd = H.GetDat(HigherDegNbrV[i][j]);
@@ -427,8 +431,10 @@ int64 GetTriangleCnt(const PGraph& Graph) {
   Profiler.StartTimer(TimerId);
   gettimeofday(&start, NULL);
 
+#ifdef USE_OPENMP
 #pragma omp parallel for schedule(dynamic)
-  for (TInt i = 0; i < ind; i++) {
+#endif
+  for (int i = 0; i < ind; i++) {
     typename PGraph::TObj::TNodeI NI = NV[i];
     //HigherDegNbrV[i] = TVec<TInt>();
     //HigherDegNbrV[i].Reserve(NI.GetDeg());
@@ -437,7 +443,7 @@ int64 GetTriangleCnt(const PGraph& Graph) {
     MergeNbrs<PGraph>(HigherDegNbrV[i], NI);
 
     int k = 0;
-    for (TInt j = 0; j < HigherDegNbrV[i].Len(); j++) {
+    for (int j = 0; j < HigherDegNbrV[i].Len(); j++) {
       TInt Vert = HigherDegNbrV[i][j];
       TInt Deg = NV[IndV[Vert]].GetDeg();
       if (Deg > NI.GetDeg() ||
@@ -460,9 +466,11 @@ int64 GetTriangleCnt(const PGraph& Graph) {
   gettimeofday(&start, NULL);
 
   int64 cnt = 0;
+#ifdef USE_OPENMP
 #pragma omp parallel for schedule(dynamic) reduction(+:cnt)
-  for (TInt i = 0; i < HigherDegNbrV.Len(); i++) {
-    for (TInt j = 0; j < HigherDegNbrV[i].Len(); j++) {
+#endif
+  for (int i = 0; i < HigherDegNbrV.Len(); i++) {
+    for (int j = 0; j < HigherDegNbrV[i].Len(); j++) {
       //TInt NbrInd = H.GetDat(HigherDegNbrV[i][j]);
       TInt NbrInd = IndV[HigherDegNbrV[i][j]];
 

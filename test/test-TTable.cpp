@@ -139,6 +139,7 @@ TEST(TTable, ToGraph) {
   EXPECT_EQ(1,Graph->IsOk());
 }
 
+#ifdef GCC_ATOMIC
 // Tests parallel table to graph function.
 TEST(TTable, ToGraphMP2) {
   TTableContext Context;
@@ -160,3 +161,4 @@ TEST(TTable, ToGraphMP2) {
   EXPECT_EQ(499,Graph->GetEdges());
   EXPECT_EQ(1,Graph->IsOk());
 }
+#endif // GCC_ATOMIC

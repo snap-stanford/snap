@@ -310,7 +310,7 @@ TTable::TTable(const TTable& Table, const TIntV& RowIDs) : Context(Table.Context
   InitIds();
 }
 
-#ifdef USE_OPENMP
+#ifdef GCC_ATOMIC
 void TTable::LoadSSPar(PTable& T, const Schema& S, const TStr& InFNm, const TIntV& RelevantCols, 
                         const char& Separator, TBool HasTitleLine) {
   // preloaded necessary variables
@@ -340,7 +340,7 @@ void TTable::LoadSSPar(PTable& T, const Schema& S, const TStr& InFNm, const TInt
 
   // Divide remaining part of stream into equal sized chunks
   // Find starting position in stream for each thread
-  uint64 Cnt = 0;
+  int64 Cnt = 0;
   uint64 Pos = Ss.GetStreamPos();
   uint64 Len = Ss.GetStreamLen();
   uint64 Rem = Len - Pos;
@@ -450,7 +450,7 @@ void TTable::LoadSSPar(PTable& T, const Schema& S, const TStr& InFNm, const TInt
 
   omp_set_num_threads(NumThreads);
   #pragma omp parallel for schedule(dynamic, 10000)
-  for (uint64 i = 0; i < Cnt-1; i++) {
+  for (int64 i = 0; i < Cnt-1; i++) {
     T->Next[i] = i+1;
   }
   T->IsNextDirty = 0;
@@ -464,14 +464,14 @@ void TTable::LoadSSPar(PTable& T, const Schema& S, const TStr& InFNm, const TInt
   // initialize ID column
   omp_set_num_threads(NumThreads);
   #pragma omp parallel for schedule(dynamic, 10000)
-  for (uint64 i = 0; i < Cnt; i++) {
+  for (int64 i = 0; i < Cnt; i++) {
     T->IntCols[IdCol][i] = i;
   }
 
   T->AddSchemaCol(T->IdColName, atInt);
   T->AddColType(T->IdColName, atInt, T->IntCols.Len()-1);
 }
-#endif // OpenMP && Linux
+#endif // GCC_ATOMIC
 
 void TTable::LoadSSSeq(PTable& T, const Schema& S, const TStr& InFNm, const TIntV& RelevantCols, 
                         const char& Separator, TBool HasTitleLine) {
@@ -587,7 +587,7 @@ PTable TTable::LoadSS(const Schema& S, const TStr& InFNm, TTableContext& Context
   if (GetMP() && NoStringCols) {
     // Right now, can load in parallel only in Linux (for mmap) and if
     // there are no string columns
-#ifdef USE_OPENMP
+#ifdef GCC_ATOMIC
     LoadSSPar(T, S, InFNm, RelevantCols, Separator, HasTitleLine);
 #else
     LoadSSSeq(T, S, InFNm, RelevantCols, Separator, HasTitleLine);
@@ -938,7 +938,7 @@ void TTable::GroupingSanityCheck(const TStr& GroupBy, const TAttrType& AttrType)
   }
 }
 
-#ifdef USE_OPENMP
+#ifdef GCC_ATOMIC
 void TTable::GroupByIntColMP(const TStr& GroupBy, THashMP<TInt, TIntV>& Grouping, TBool UsePhysicalIds) const {
   timeval timer0;
   gettimeofday(&timer0, NULL);
@@ -978,7 +978,7 @@ void TTable::GroupByIntColMP(const TStr& GroupBy, THashMP<TInt, TIntV>& Grouping
   //double endAdd = omp_get_wtime();
   //printf("Add time = %f\n", endAdd-endGen);
 }
-#endif // USE_OPENMP
+#endif // GCC_ATOMIC
 
 void TTable::Unique(const TStr& Col) {
   TIntV RemainingRows;
@@ -1316,7 +1316,7 @@ void TTable::Aggregate(const TStrV& GroupByAttrs, TAttrAggr AggOp,
   THash<TFlt,TIntV> GroupByFltMapping;
   THash<TInt,TIntV> GroupByStrMapping;
   THash<TGroupKey,TIntV> Mapping;
-#ifdef USE_OPENMP
+#ifdef GCC_ATOMIC
   THashMP<TInt,TIntV> GroupByIntMapping_MP(NumValidRows);
   TIntV GroupByIntMPKeys(NumValidRows);
 #endif
@@ -1331,7 +1331,7 @@ void TTable::Aggregate(const TStrV& GroupByAttrs, TAttrAggr AggOp,
   	if(NGroupByAttrs.Len() == 1){
   		switch(GetColType(NGroupByAttrs[0])){
   			case atInt:
-#ifdef USE_OPENMP
+#ifdef GCC_ATOMIC
   				if(GetMP()){
   					GroupByIntColMP(NGroupByAttrs[0], GroupByIntMapping_MP, UsePhysicalIds);
   					int x = 0;
@@ -1352,7 +1352,7 @@ void TTable::Aggregate(const TStrV& GroupByAttrs, TAttrAggr AggOp,
   					//printf("Number of groups: %d\n", NumOfGroups.Val);
   					break;
   				}
-#endif // USE_OPENMP
+#endif // GCC_ATOMIC
   				GroupByIntCol(NGroupByAttrs[0], GroupByIntMapping, TIntV(), true, UsePhysicalIds);
   				NumOfGroups = GroupByIntMapping.Len();
   				GroupingCase = 1;
@@ -1420,7 +1420,7 @@ void TTable::Aggregate(const TStrV& GroupByAttrs, TAttrAggr AggOp,
   			GroupRows = & GroupByStrMapping.GetDat(GroupByStrMapping.GetKey(g));
   			break;
   		case 4:
-#ifdef USE_OPENMP
+#ifdef GCC_ATOMIC
   			GroupRows = & GroupByIntMapping_MP.GetDat(GroupByIntMPKeys[g]);
 #endif
   			break;
@@ -2016,7 +2016,7 @@ PTable TTable::Join(const TStr& Col1, const TTable& Table, const TStr& Col2) {
   // printf("Init time = %f\n", endInit-startFn);
   // iterate over the rows of the bigger table and check for "collisions" 
   // with the group keys for the small table.
-#ifdef USE_OPENMP
+#ifdef GCC_ATOMIC
   if (GetMP()) {
     switch(ColType){
       case atInt:{
@@ -2129,7 +2129,7 @@ PTable TTable::Join(const TStr& Col1, const TTable& Table, const TStr& Col2) {
       break;
     }
   } else {
-#endif
+#endif // GCC_ATOMIC
     switch (ColType) {
       case atInt:{
         TIntIntVH T;
@@ -2186,7 +2186,7 @@ PTable TTable::Join(const TStr& Col1, const TTable& Table, const TStr& Col2) {
       }
       break;
     }
-#ifdef USE_OPENMP
+#ifdef GCC_ATOMIC
   }
 #endif
   return JointTable; 
@@ -2612,7 +2612,8 @@ void TTable::SelectAtomicConst(const TStr& Col, const TPrimitive& Val, TPredComp
 
       TIntPrV Bounds(Partitions.Len());
     
-      #pragma omp parallel for schedule(dynamic, CHUNKS_PER_THREAD) reduction(+:RemoveCount) shared(Val)
+      // #pragma omp parallel for schedule(dynamic, CHUNKS_PER_THREAD) reduction(+:RemoveCount) shared(Val)
+      #pragma omp parallel for schedule(dynamic, CHUNKS_PER_THREAD) reduction(+:RemoveCount)
       for (int i = 0; i < Partitions.Len(); i++){
         //TPrimitive ThreadLocalVal(Val);
         TRowIterator RowI(Partitions[i].GetVal1(), this);
@@ -3509,7 +3510,7 @@ PTable TTable::GetEdgeTable(const PNEANet& Network, TTableContext& Context) {
   return T;
 }
 
-#ifdef USE_OPENMP
+#ifdef GCC_ATOMIC
 PTable TTable::GetEdgeTablePN(const PNGraphMP& Network, TTableContext& Context){
   Schema SR;
   SR.Add(TPair<TStr,TAttrType>("src_id",atInt));
@@ -3561,7 +3562,7 @@ PTable TTable::GetEdgeTablePN(const PNGraphMP& Network, TTableContext& Context){
   Assert(T->NumRows == NumEdges);
   return T;
 }
-#endif // USE_OPENMP
+#endif // GCC_ATOMIC
 
 PTable TTable::GetFltNodePropertyTable(const PNEANet& Network, const TIntFltH& Property, 
  const TStr& NodeAttrName, const TAttrType& NodeAttrType, const TStr& PropertyAttrName, 
@@ -3941,7 +3942,7 @@ void TTable::UpdateFltFromTableMP(const TStr& KeyAttr, const TStr& UpdateAttr,
       break;
   } // end of outer switch statement
 }
-#endif	// USE_OPENMP
+#endif	// GCC_ATOMIC
 
 void TTable::UpdateFltFromTable(const TStr& KeyAttr, const TStr& UpdateAttr, const TTable& Table, 
   const TStr& FKeyAttr, const TStr& ReadAttr, TFlt DefaultFltVal){
@@ -3950,12 +3951,12 @@ void TTable::UpdateFltFromTable(const TStr& KeyAttr, const TStr& UpdateAttr, con
   if(!Table.IsColName(FKeyAttr)){ TExcept::Throw("Bad FKeyAttr parameter");}
   if(!Table.IsColName(ReadAttr)){ TExcept::Throw("Bad ReadAttr parameter");}
   
-#ifdef USE_OPENMP
+#ifdef GCC_ATOMIC
   if(GetMP()){
     UpdateFltFromTableMP(KeyAttr, UpdateAttr,Table, FKeyAttr, ReadAttr, DefaultFltVal);
     return;
   }
-#endif	// USE_OPENMP
+#endif	// GCC_ATOMIC
   	
   TAttrType KeyType = GetColType(KeyAttr);
   TAttrType FKeyType = Table.GetColType(FKeyAttr);

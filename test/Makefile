@@ -10,6 +10,7 @@
 #
 
 include ../Makefile.config
+CXXFLAGS += $(CXXOPENMP)
 LIBS += -lgtest
 
 ## Main application file

@@ -1,4 +1,4 @@
-#ifdef USE_OPENMP
+#ifdef GCC_ATOMIC
 
 /////////////////////////////////////////////////
 // Attribute Node Edge Network
@@ -1048,4 +1048,4 @@ bool TNEANetMP::IsStrAttrE(const TStr& attr) {
     KeyToIndexTypeE.GetDat(attr).Val1 == StrType);
 }
 
-#endif // USE_OPENMP
+#endif // GCC_ATOMIC

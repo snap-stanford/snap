@@ -148,8 +148,10 @@
   #define USE_OPENMP
   #include <omp.h>
   #if defined(GLib_GCC)
-    // use of __sync_... GCC atomic primitves
-    #define GCC_ATOMIC
+    #if !defined(GLib_MACOSX)
+      // use of __sync_... GCC atomic primitves
+      #define GCC_ATOMIC
+    #endif
   #endif
 #endif
 
