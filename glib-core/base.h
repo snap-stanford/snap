@@ -7,7 +7,7 @@
   #define GLib_WIN
   #define GLib_WIN32
 #elif defined (__WIN64)
-#define GLib_WIN
+  #define GLib_WIN
   #define GLib_WIN64
 #elif defined(__linux__)
   #define GLib_UNIX
@@ -143,7 +143,7 @@
 // OpenMP directives
 //
 
-#if defined(_OPENMP)
+#if defined(_OPENMP)  &&  !defined(GLib_WIN)
   // main OpenMP flag
   #define USE_OPENMP
   #include <omp.h>
