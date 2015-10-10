@@ -1280,3 +1280,39 @@ TEST(TNEANet, GetIdVSAttrE) {
   Graph->GetIdVSAttrE(StrId, IdV);
   EXPECT_EQ(1, IdV.Len());
 }
+
+
+// Test node, edge attribute functionality
+TEST(TNEANet, AddEdgeNodeAfterAttrAdded) {
+  PNEANet Graph;
+  Graph = TNEANet::New();
+
+  TStr StrAttr("name");
+  TStr EIntAttr("weight");
+  TStr NIntAttr("test");
+
+  Graph->AddStrAttrN(StrAttr);
+  Graph->AddIntAttrN(NIntAttr);
+  Graph->AddIntAttrE(EIntAttr);
+
+  Graph->AddNode(0);
+  Graph->AddNode(1);
+  Graph->AddNode(2);
+
+  Graph->AddStrAttrDatN(0, "zero", StrAttr);
+  Graph->AddStrAttrDatN(1, "one", StrAttr);
+  Graph->AddStrAttrDatN(2, "two", StrAttr);
+
+  Graph->AddEdge(0, 1);
+  Graph->AddEdge(1, 2);
+  Graph->AddEdge(2, 0);
+
+  for (TNEANet::TEdgeI EI = Graph->BegEI(); EI < Graph->EndEI(); EI++) {
+    Graph->AddIntAttrDatE(EI.GetId(), EI.GetId()*3+1, EIntAttr);
+  }
+
+  for (TNEANet::TEdgeI EI = Graph->BegEI(); EI < Graph->EndEI(); EI++) {
+    TInt AttrVal = Graph->GetIntAttrDatE(EI.GetId(), EIntAttr);
+    ASSERT_EQ(EI.GetId()*3+1, AttrVal);
+  }
+}
