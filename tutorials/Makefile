@@ -8,7 +8,7 @@ include ../Makefile.config
 DEMOS = \
 	demo-TUNGraph demo-TNGraph demo-TNEGraph \
 	demo-TNodeNet demo-TNodeEDatNet demo-TNodeEdgeNet \
-        demo-TNEANet \
+        demo-TNEANet  demo-TAttr\
 	demo-subgraph demo-ggen \
 	demo-gio demo-gviz \
 	demo-alg demo-cncom demo-cncom1 demo-bfsdfs \
