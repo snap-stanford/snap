@@ -444,7 +444,7 @@ void ManipulateEdgeSparseAttributes() {
   Graph->AddNode(1);
   Graph->AddEdge(0, 1, 0);
 
-  // Add mappings for three node attributes
+  // Add mappings for three edge attributes
   TStr IntAttr("TestInt");
   TInt IntId;
   Graph->AddSAttrE(IntAttr, atInt, IntId);
@@ -460,7 +460,7 @@ void ManipulateEdgeSparseAttributes() {
   Graph->AddSAttrE(StrAttr, atStr, StrId);
   printf("Added attribute %s with id %d\n", StrAttr.CStr(), StrId.Val);
 
-  // Add values for attributes to node with id NId.
+  // Add values for attributes to edge with id EId.
   TInt EId(0);
   TInt IntVal(5);
   Graph->AddSAttrDatE(EId, IntId, IntVal);
@@ -470,7 +470,7 @@ void ManipulateEdgeSparseAttributes() {
   Graph->AddSAttrDatE(EId, StrId, StrVal);
 
 
-  // Get values for the attributes for node with id NId.
+  // Get values for the attributes for edge with id EId.
   TInt IntVal2;
   Graph->GetSAttrDatE(EId, IntId, IntVal2);
   printf("Edge %d has attribute, with id %d, with value %d.\n", EId.Val, IntId.Val, IntVal2.Val);
@@ -482,7 +482,7 @@ void ManipulateEdgeSparseAttributes() {
   printf("Edge %d has attribute, with id %d, with value %s.\n", EId.Val, StrId.Val, StrVal2.CStr());
 
 
-  // Get list of attributes for node with id NId.
+  // Get list of attributes for edge with id EId.
   TAttrPrV AttrV;
   Graph->GetSAttrVE(EId, atInt, AttrV);
   printf("Edge with id %d has %d int attributes.\n", EId.Val, AttrV.Len());
@@ -493,12 +493,12 @@ void ManipulateEdgeSparseAttributes() {
   Graph->GetSAttrVE(EId, atAny, AttrV);
   printf("Edge with id %d has %d attributes.\n", EId.Val, AttrV.Len());
 
-  // Delete all attributes for node with id NId (use either name or id).
+  // Delete all attributes for edge with id EId (use either name or id).
   Graph->DelSAttrDatE(EId, IntAttr);
   Graph->DelSAttrDatE(EId, FltId);
   Graph->DelSAttrDatE(EId, StrAttr);
 
-  //Get all nodes with given attribute
+  //Get all edges with given attribute
   for (int i = 2; i < 12; i++) {
     Graph->AddNode(i);
     Graph->AddEdge(i-1, i);

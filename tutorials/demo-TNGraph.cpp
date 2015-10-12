@@ -201,7 +201,7 @@ void ManipulateEdgeSparseAttributes() {
   Graph->AddNode(DstNId);
   Graph->AddEdge(SrcNId, DstNId);
 
-  // Add mappings for three node attributes
+  // Add mappings for three edge attributes
   TStr IntAttr("TestInt");
   TInt IntId;
   Graph->AddSAttrE(IntAttr, atInt, IntId);
@@ -217,7 +217,7 @@ void ManipulateEdgeSparseAttributes() {
   Graph->AddSAttrE(StrAttr, atStr, StrId);
   printf("Added attribute %s with id %d\n", StrAttr.CStr(), StrId.Val);
 
-  // Add values for attributes to node with id NId.
+  // Add values for attributes to edge with id (SrcNId, DstNId).
   TInt IntVal(5);
   Graph->AddSAttrDatE(SrcNId, DstNId, IntId, IntVal);
   TFlt FltVal(5.0);
@@ -226,7 +226,7 @@ void ManipulateEdgeSparseAttributes() {
   Graph->AddSAttrDatE(SrcNId, DstNId, StrId, StrVal);
 
 
-  // Get values for the attributes for node with id NId.
+  // Get values for the attributes for edge with id (SrcNId, DstNId).
   TInt IntVal2;
   Graph->GetSAttrDatE(SrcNId, DstNId, IntId, IntVal2);
   printf("Edge %d->%d has attribute, with id %d, with value %d.\n", SrcNId, DstNId, IntId.Val, IntVal2.Val);
@@ -238,7 +238,7 @@ void ManipulateEdgeSparseAttributes() {
   printf("Edge %d->%d has attribute, with id %d, with value %s.\n", SrcNId, DstNId, StrId.Val, StrVal2.CStr());
 
 
-  // Get list of attributes for node with id NId.
+  // Get list of attributes for edge with id (SrcNId, DstNId).
   TAttrPrV AttrV;
   Graph->GetSAttrVE(SrcNId, DstNId, atInt, AttrV);
   printf("Edge %d->%d has %d int attributes.\n", SrcNId, DstNId, AttrV.Len());
@@ -249,12 +249,12 @@ void ManipulateEdgeSparseAttributes() {
   Graph->GetSAttrVE(SrcNId, DstNId, atAny, AttrV);
   printf("Edge %d->%d has %d attributes.\n", SrcNId, DstNId, AttrV.Len());
 
-  // Delete all attributes for node with id NId (use either name or id).
+  // Delete all attributes for edge with id (SrcNId, DstNId) (use either name or id).
   Graph->DelSAttrDatE(SrcNId, DstNId, IntAttr);
   Graph->DelSAttrDatE(SrcNId, DstNId, FltId);
   Graph->DelSAttrDatE(SrcNId, DstNId, StrAttr);
 
-  //Get all nodes with given attribute
+  //Get all edges with given attribute
   for (int i = 2; i < 12; i++) {
     Graph->AddNode(i);
     Graph->AddEdge(i-1, i);
