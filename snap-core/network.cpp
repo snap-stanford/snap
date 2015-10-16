@@ -322,7 +322,12 @@ int TNEANet::AddNode(int NId) {
   NodeH.AddDat(NId, TNode(NId));
   for (i = 0; i < VecOfIntVecsN.Len(); i++) {
     TVec<TInt>& IntVec = VecOfIntVecsN[i];
-    IntVec.Ins(NodeH.GetKeyId(NId), TInt::Mn);
+    int KeyId = NodeH.GetKeyId(NId);
+    if (IntVec.Len() > KeyId) {
+      IntVec[KeyId] = TInt::Mn;
+    } else {
+      IntVec.Ins(KeyId, TInt::Mn);
+    }
   }
   TVec<TStr> DefIntVec = TVec<TStr>();
   IntDefaultsN.GetKeyV(DefIntVec);
@@ -333,7 +338,12 @@ int TNEANet::AddNode(int NId) {
   } 
   for (i = 0; i < VecOfStrVecsN.Len(); i++) {
     TVec<TStr>& StrVec = VecOfStrVecsN[i];
-    StrVec.Ins(NodeH.GetKeyId(NId), TStr::GetNullStr());
+    int KeyId = NodeH.GetKeyId(NId);
+    if (StrVec.Len() > KeyId) {
+      StrVec[KeyId] = TStr::GetNullStr();
+    } else {
+      StrVec.Ins(KeyId, TStr::GetNullStr());
+    }
   }
   TVec<TStr> DefStrVec = TVec<TStr>();
   StrDefaultsN.GetKeyV(DefStrVec);
@@ -344,7 +354,12 @@ int TNEANet::AddNode(int NId) {
   }
   for (i = 0; i < VecOfFltVecsN.Len(); i++) {
     TVec<TFlt>& FltVec = VecOfFltVecsN[i];
-    FltVec.Ins(NodeH.GetKeyId(NId), TFlt::Mn);
+    int KeyId = NodeH.GetKeyId(NId);
+    if (FltVec.Len() > KeyId) {
+      FltVec[KeyId] = TFlt::Mn;
+    } else {
+      FltVec.Ins(KeyId, TFlt::Mn);
+    }
   }
   TVec<TStr> DefFltVec = TVec<TStr>();
   FltDefaultsN.GetKeyV(DefFltVec);
@@ -430,7 +445,12 @@ int TNEANet::AddEdge(const int& SrcNId, const int& DstNId, int EId) {
   // update attribute columns
   for (i = 0; i < VecOfIntVecsE.Len(); i++) {
     TVec<TInt>& IntVec = VecOfIntVecsE[i];
-    IntVec.Ins(EdgeH.GetKeyId(EId), TInt::Mn);
+    int KeyId = EdgeH.GetKeyId(EId);
+    if (IntVec.Len() > KeyId) {
+      IntVec[KeyId] = TInt::Mn;
+    } else {
+      IntVec.Ins(KeyId, TInt::Mn);
+    }
   }
   TVec<TStr> DefIntVec = TVec<TStr>();
   IntDefaultsE.GetKeyV(DefIntVec);
@@ -442,7 +462,12 @@ int TNEANet::AddEdge(const int& SrcNId, const int& DstNId, int EId) {
 
   for (i = 0; i < VecOfStrVecsE.Len(); i++) {
     TVec<TStr>& StrVec = VecOfStrVecsE[i];
-    StrVec.Ins(EdgeH.GetKeyId(EId), TStr::GetNullStr());
+    int KeyId = EdgeH.GetKeyId(EId);
+    if (StrVec.Len() > KeyId) {
+      StrVec[KeyId] = TStr::GetNullStr();
+    } else {
+      StrVec.Ins(KeyId, TStr::GetNullStr());
+    }
   }
   TVec<TStr> DefStrVec = TVec<TStr>();
   StrDefaultsE.GetKeyV(DefStrVec);
@@ -454,7 +479,12 @@ int TNEANet::AddEdge(const int& SrcNId, const int& DstNId, int EId) {
 
   for (i = 0; i < VecOfFltVecsE.Len(); i++) {
     TVec<TFlt>& FltVec = VecOfFltVecsE[i];
-    FltVec.Ins(EdgeH.GetKeyId(EId), TFlt::Mn);
+    int KeyId = EdgeH.GetKeyId(EId);
+    if (FltVec.Len() > KeyId) {
+      FltVec[KeyId] = TFlt::Mn;
+    } else {
+      FltVec.Ins(KeyId, TFlt::Mn);
+    }
   }
   TVec<TStr> DefFltVec = TVec<TStr>();
   FltDefaultsE.GetKeyV(DefFltVec);
@@ -932,7 +962,7 @@ int TNEANet::AddFltAttrN(const TStr& attr, TFlt defaultValue) {
   int i;
   TInt CurrLen;
   TVec<TFlt> NewVec;
-  CurrLen = VecOfStrVecsN.Len();
+  CurrLen = VecOfFltVecsN.Len();
   KeyToIndexTypeN.AddDat(attr, TIntPr(FltType, CurrLen));
   NewVec = TVec<TFlt>();
   for (i = 0; i < MxNId; i++) {
@@ -990,7 +1020,7 @@ int TNEANet::AddFltAttrE(const TStr& attr, TFlt defaultValue) {
   int i;
   TInt CurrLen;
   TVec<TFlt> NewVec;
-  CurrLen = VecOfStrVecsE.Len();
+  CurrLen = VecOfFltVecsE.Len();
   KeyToIndexTypeE.AddDat(attr, TIntPr(FltType, CurrLen));
   NewVec = TVec<TFlt>();
   for (i = 0; i < MxEId; i++) {

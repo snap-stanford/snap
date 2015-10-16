@@ -1316,3 +1316,62 @@ TEST(TNEANet, AddEdgeNodeAfterAttrAdded) {
     ASSERT_EQ(EI.GetId()*3+1, AttrVal);
   }
 }
+
+TEST(TNEANet, AddNodeAttributeError) {
+  PNEANet Graph;
+  Graph = TNEANet::New();
+
+  TStr StrAttr("name");
+  TStr FltAttr("weight");
+  TStr IntAttr("test");
+
+  Graph->AddStrAttrN(StrAttr);
+  Graph->AddFltAttrN(FltAttr);
+  Graph->AddIntAttrN(IntAttr);
+  int NumNodes = 5;
+  for (int i = 0; i < NumNodes; i++) {
+    Graph->AddNode(i);
+    Graph->AddIntAttrDatN(i, TInt(i), IntAttr);
+    Graph->AddFltAttrDatN(i, TFlt(i), FltAttr);
+    TInt Val(i);
+    Graph->AddStrAttrDatN(i, Val.GetStr(), StrAttr);
+  }
+  Graph->DelNode(0);
+  for (int j = 1; j < NumNodes; j++) {
+    ASSERT_EQ(Graph->GetIntAttrDatN(j, IntAttr), j);
+    ASSERT_EQ(Graph->GetFltAttrDatN(j, FltAttr), TFlt(j));
+    TInt Val(j);
+    ASSERT_EQ(Graph->GetStrAttrDatN(j, StrAttr), Val.GetStr());
+  }
+}
+
+TEST(TNEANet, AddEdgeAttributeError) {
+  PNEANet Graph;
+  Graph = TNEANet::New();
+
+  TStr StrAttr("name");
+  TStr FltAttr("weight");
+  TStr IntAttr("test");
+
+  Graph->AddStrAttrE(StrAttr);
+  Graph->AddFltAttrE(FltAttr);
+  Graph->AddIntAttrE(IntAttr);
+  int NumEdges = 5;
+  for (int i = 0; i < NumEdges + 1; i++) {
+    Graph->AddNode(i);
+  }
+  for (int i = 0; i < NumEdges; i++) {
+    Graph->AddEdge(i, i+1, i);
+    Graph->AddIntAttrDatE(i, TInt(i), IntAttr);
+    Graph->AddFltAttrDatE(i, TFlt(i), FltAttr);
+    TInt Val(i);
+    Graph->AddStrAttrDatE(i, Val.GetStr(), StrAttr);
+  }
+  Graph->DelNode(0);
+  for (int j = 1; j < NumEdges; j++) {
+    ASSERT_EQ(Graph->GetIntAttrDatE(j, IntAttr), TInt(j));
+    ASSERT_EQ(Graph->GetFltAttrDatE(j, FltAttr), TFlt(j));
+    TInt Val(j);
+    ASSERT_EQ(Graph->GetStrAttrDatE(j, StrAttr), Val.GetStr());
+  }
+}
