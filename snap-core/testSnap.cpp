@@ -39,5 +39,31 @@ int main(int argc, char* argv[]) {
   Net->AddNode(0, "zero");
   Net->AddNode(1, "one");
   Net->AddEdge(0, 1, "zero to one");
+
+  const PNGraph DirectedGraph = TNGraph::New();
+  for (int i = 0; i < 10; i++) {
+    DirectedGraph->AddNode(i);
+  }
+  for (int i = 0; i < 10; i++) {
+    int j = TInt::Rnd.GetUniDevInt(10);
+    printf("G.add_edge(%d, %d) \n", i, j);
+    DirectedGraph->AddEdge(i, j);
+  }
+  TIntFltH nodeBtwH;
+  TIntPrFltH edgeBtwH;
+  
+  TSnap::GetBetweennessCentr_v1<PNGraph> (DirectedGraph, nodeBtwH, edgeBtwH);
+  for (TIntFltH::TIter It = nodeBtwH.BegI(); It < nodeBtwH.EndI(); It++) {
+    int node_id = It.GetKey();
+    double centr = It.GetDat();
+    printf("NodeId: %d, Centr: %f \n", node_id, centr);
+  }
+
+  for (TNGraph::TNodeI NI = DirectedGraph->BegNI(); NI < DirectedGraph->EndNI(); NI++) {
+    int id = NI.GetId();
+    double centr = TSnap::GetClosenessCentr_v1<PNGraph>(DirectedGraph, id);
+    printf("NodeId: %d, Centr: %f \n", id, centr);
+  }
+
   return 0;
 }
