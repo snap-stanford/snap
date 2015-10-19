@@ -120,6 +120,21 @@ int TAttr::DelSAttrDat(const TInt& Id, const TInt& AttrId) {
   return -1;
 }
 
+// Delete all attributes for an id
+void TAttr::DelSAttrId(const TInt& Id) {
+  for (TStrIntPrH::TIter it = AttrNameToId.BegI(); it < AttrNameToId.EndI(); it++) {
+    TAttrType CurType = static_cast<TAttrType>(it.GetDat().GetVal1().Val);
+    TIntPr AttrKey(it.GetDat().GetVal2(), Id);
+    if (CurType == atInt) {
+      IntAttrVals.DelIfKey(AttrKey);
+    } else if (CurType == atFlt) {
+      FltAttrVals.DelIfKey(AttrKey);
+    } else if (CurType == atStr) {
+      StrAttrVals.DelIfKey(AttrKey);
+    }
+  }
+}
+
 // GetNames
 void TAttr::GetSAttrV(const TInt& Id, const TAttrType AttrType, TAttrPrV& AttrV) const {
   AttrV = TAttrPrV();
@@ -347,6 +362,21 @@ int TAttrPair::DelSAttrDat(const TIntPr& Id, const TInt& AttrId) {
     return 0;
   }
   return -1;
+}
+
+// Delete all attributes for an id
+void TAttrPair::DelSAttrId(const TIntPr& Id) {
+  for (TStrIntPrH::TIter it = AttrNameToId.BegI(); it < AttrNameToId.EndI(); it++) {
+    TAttrType CurType = static_cast<TAttrType>(it.GetDat().GetVal1().Val);
+    TIntIntPrPr AttrKey(it.GetDat().GetVal2(), Id);
+    if (CurType == atInt) {
+      IntAttrVals.DelIfKey(AttrKey);
+    } else if (CurType == atFlt) {
+      FltAttrVals.DelIfKey(AttrKey);
+    } else if (CurType == atStr) {
+      StrAttrVals.DelIfKey(AttrKey);
+    }
+  }
 }
 
 // GetNames

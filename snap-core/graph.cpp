@@ -58,6 +58,8 @@ int TUNGraph::AddNode(const int& NId, const TVecPool<TInt>& Pool, const int& NId
 // Delete node of ID NId from the graph.
 void TUNGraph::DelNode(const int& NId) {
   { AssertR(IsNode(NId), TStr::Fmt("NodeId %d does not exist", NId));
+  TInt Id(NId);
+  SAttrN.DelSAttrId(Id);
   TNode& Node = GetNode(NId);
   NEdges -= Node.GetDeg();
   for (int e = 0; e < Node.GetDeg(); e++) {
@@ -96,6 +98,8 @@ void TUNGraph::DelEdge(const int& SrcNId, const int& DstNId) {
   IAssertR(IsNode(SrcNId) && IsNode(DstNId), TStr::Fmt("%d or %d not a node.", SrcNId, DstNId).CStr());
   { TNode& N = GetNode(SrcNId);
   const int n = N.NIdV.SearchBin(DstNId);
+  TIntPr Id(SrcNId, DstNId);
+  SAttrE.DelSAttrId(Id);
   if (n!= -1) { N.NIdV.Del(n);  NEdges--; } }
   if (SrcNId != DstNId) { // not a self edge
     TNode& N = GetNode(DstNId);
@@ -532,6 +536,8 @@ int TNGraph::AddNode(const int& NId, const TVecPool<TInt>& Pool, const int& SrcV
 
 void TNGraph::DelNode(const int& NId) {
   { TNode& Node = GetNode(NId);
+  TInt Id(NId);
+  SAttrN.DelSAttrId(Id);
   for (int e = 0; e < Node.GetOutDeg(); e++) {
   const int nbr = Node.GetOutNId(e);
   if (nbr == NId) { continue; }
@@ -569,6 +575,8 @@ int TNGraph::AddEdge(const int& SrcNId, const int& DstNId) {
 void TNGraph::DelEdge(const int& SrcNId, const int& DstNId, const bool& IsDir) {
   IAssertR(IsNode(SrcNId) && IsNode(DstNId), TStr::Fmt("%d or %d not a node.", SrcNId, DstNId).CStr());
   { TNode& N = GetNode(SrcNId);
+  TIntPr Id(SrcNId, DstNId);
+  SAttrE.DelSAttrId(Id);
   const int n = N.OutNIdV.SearchBin(DstNId);
   if (n!= -1) { N.OutNIdV.Del(n); } }
   { TNode& N = GetNode(DstNId);

@@ -312,6 +312,35 @@ TEST(TAttr, GetIdVSAttr) {
   EXPECT_EQ(1, IdV.Len());
 }
 
+TEST(TAttr, DelSAttrId) {
+  TAttr Attrs;
+  TStr IntAttr("TestInt");
+  TInt IntId;
+  Attrs.AddSAttr(IntAttr, atInt, IntId);
+  TStr FltAttr("TestFlt");
+  TInt FltId;
+  Attrs.AddSAttr(FltAttr, atFlt, FltId);
+  TStr StrAttr("TestStr");
+  TInt StrId;
+  Attrs.AddSAttr(StrAttr, atStr, StrId);
+
+  TInt Id(0);
+  TInt IntVal(5);
+  Attrs.AddSAttrDat(Id, IntId, IntVal);
+  TFlt FltVal(5.0);
+  Attrs.AddSAttrDat(Id, FltId, FltVal);
+  TStr StrVal("5");
+  Attrs.AddSAttrDat(Id, StrId, StrVal);
+
+  TAttrPrV AttrV;
+  Attrs.GetSAttrV(Id, atAny, AttrV);
+  EXPECT_EQ(3, AttrV.Len());
+
+  Attrs.DelSAttrId(Id);
+  Attrs.GetSAttrV(Id, atAny, AttrV);
+  EXPECT_EQ(0, AttrV.Len());
+}
+
 TEST(TAttrPair, AddSAttr) {
   TAttrPair Attrs;
   TInt AttrId;
@@ -621,4 +650,33 @@ TEST(TAttrPair, GetIdVSAttr) {
   EXPECT_EQ(1, IdV.Len());
   Attrs.GetIdVSAttr(StrId, IdV);
   EXPECT_EQ(1, IdV.Len());
+}
+
+TEST(TAttrPair, DelSAttrId) {
+  TAttrPair Attrs;
+  TStr IntAttr("TestInt");
+  TInt IntId;
+  Attrs.AddSAttr(IntAttr, atInt, IntId);
+  TStr FltAttr("TestFlt");
+  TInt FltId;
+  Attrs.AddSAttr(FltAttr, atFlt, FltId);
+  TStr StrAttr("TestStr");
+  TInt StrId;
+  Attrs.AddSAttr(StrAttr, atStr, StrId);
+
+  TIntPr Id(0, 1);
+  TInt IntVal(5);
+  Attrs.AddSAttrDat(Id, IntId, IntVal);
+  TFlt FltVal(5.0);
+  Attrs.AddSAttrDat(Id, FltId, FltVal);
+  TStr StrVal("5");
+  Attrs.AddSAttrDat(Id, StrId, StrVal);
+
+  TAttrPrV AttrV;
+  Attrs.GetSAttrV(Id, atAny, AttrV);
+  EXPECT_EQ(3, AttrV.Len());
+
+  Attrs.DelSAttrId(Id);
+  Attrs.GetSAttrV(Id, atAny, AttrV);
+  EXPECT_EQ(0, AttrV.Len());
 }

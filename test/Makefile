@@ -32,7 +32,7 @@ TEST_SRCS = \
 	test-triad.cpp \
 	test-THash.cpp \
 	test-THashSet.cpp \
-	test-TSparseAttr.cpp \
+	test-TAttr.cpp \
 	test-flow.cpp
 
 TEST_OBJS = $(TEST_SRCS:.cpp=.o)

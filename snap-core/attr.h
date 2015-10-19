@@ -64,6 +64,9 @@ public:
   /// Delete attribute with attribute id \c AttrId for the given id \c Id.
   int DelSAttrDat(const TInt& Id, const TInt& AttrId);
 
+  /// Delete all attributes for the given id \c Id.
+  void DelSAttrId(const TInt& Id);
+
   /// Get a list of all attributes of type \c AttrType for the given id \c Id.
   void GetSAttrV(const TInt& Id, const TAttrType AttrType, TAttrPrV& AttrV) const;
 
@@ -142,6 +145,9 @@ public:
   int DelSAttrDat(const TIntPr& Id, const TStr& AttrName);
   /// Delete attribute with attribute id \c AttrId for the given id \c Id.
   int DelSAttrDat(const TIntPr& Id, const TInt& AttrId);
+
+  /// Delete all attributes for the given id \c Id.
+  void DelSAttrId(const TIntPr& Id);
 
   /// Get a list of all attributes of the given type \c AttrType for the given id \c Id.
   void GetSAttrV(const TIntPr& Id, const TAttrType AttrType, TAttrPrV& AttrV) const;

@@ -373,7 +373,8 @@ int TNEANet::AddNode(int NId) {
 
 void TNEANet::DelNode(const int& NId) {
   int i;
-  
+  TInt Id(NId);
+  SAttrN.DelSAttrId(Id);
   const TNode& Node = GetNode(NId);
   for (int out = 0; out < Node.GetOutDeg(); out++) {
     const int EId = Node.GetOutEId(out);
@@ -504,6 +505,8 @@ void TNEANet::DelEdge(const int& EId) {
   const int DstNId = GetEdge(EId).GetDstNId();
   GetNode(SrcNId).OutEIdV.DelIfIn(EId);
   GetNode(DstNId).InEIdV.DelIfIn(EId);
+  TInt Id(EId);
+  SAttrE.DelSAttrId(Id);
 
   for (i = 0; i < VecOfIntVecsE.Len(); i++) {
     TVec<TInt>& IntVec = VecOfIntVecsE[i];
