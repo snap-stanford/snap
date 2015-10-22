@@ -714,9 +714,10 @@ public:
 // String-Hash-Table
 template <class TDat, class TStringPool = TStrPool, class THashFunc = TDefaultHashFunc<TStr> >
 class TStrHash{
-private:
+public:
   //typedef typename PStringPool::TObj TStringPool;
   typedef TPt<TStringPool> PStringPool;
+private:
   typedef THashKeyDat<TInt, TDat> THKeyDat;
   typedef TPair<TInt, TDat> TKeyDatP;
   typedef TVec<THKeyDat> THKeyDatV;
