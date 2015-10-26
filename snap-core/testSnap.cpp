@@ -52,7 +52,7 @@ int main(int argc, char* argv[]) {
   TIntFltH nodeBtwH;
   TIntPrFltH edgeBtwH;
   
-  TSnap::GetBetweennessCentr_v1<PNGraph> (DirectedGraph, nodeBtwH, edgeBtwH);
+  TSnap::GetBetweennessCentr<PNGraph> (DirectedGraph, nodeBtwH, edgeBtwH);
   for (TIntFltH::TIter It = nodeBtwH.BegI(); It < nodeBtwH.EndI(); It++) {
     int node_id = It.GetKey();
     double centr = It.GetDat();
@@ -61,7 +61,7 @@ int main(int argc, char* argv[]) {
 
   for (TNGraph::TNodeI NI = DirectedGraph->BegNI(); NI < DirectedGraph->EndNI(); NI++) {
     int id = NI.GetId();
-    double centr = TSnap::GetClosenessCentr_v1<PNGraph>(DirectedGraph, id);
+    double centr = TSnap::GetClosenessCentr<PNGraph>(DirectedGraph, id);
     printf("NodeId: %d, Centr: %f \n", id, centr);
   }
 
