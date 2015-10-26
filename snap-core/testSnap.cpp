@@ -44,24 +44,30 @@ int main(int argc, char* argv[]) {
   for (int i = 0; i < 10; i++) {
     DirectedGraph->AddNode(i);
   }
-  for (int i = 0; i < 10; i++) {
-    int j = TInt::Rnd.GetUniDevInt(10);
-    printf("G.add_edge(%d, %d) \n", i, j);
-    DirectedGraph->AddEdge(i, j);
-  }
-  TIntFltH nodeBtwH;
-  TIntPrFltH edgeBtwH;
+
+  DirectedGraph->AddEdge(0, 1);
+  DirectedGraph->AddEdge(1, 2);
+  DirectedGraph->AddEdge(2, 3);
+  DirectedGraph->AddEdge(3, 4);
+  DirectedGraph->AddEdge(4, 5);
+  DirectedGraph->AddEdge(5, 6);
+  DirectedGraph->AddEdge(6, 7);
+  DirectedGraph->AddEdge(7, 2);
+  DirectedGraph->AddEdge(8, 9);
+
+  // TIntFltH nodeBtwH;
+  // TIntPrFltH edgeBtwH;
   
-  TSnap::GetBetweennessCentr<PNGraph> (DirectedGraph, nodeBtwH, edgeBtwH);
-  for (TIntFltH::TIter It = nodeBtwH.BegI(); It < nodeBtwH.EndI(); It++) {
-    int node_id = It.GetKey();
-    double centr = It.GetDat();
-    printf("NodeId: %d, Centr: %f \n", node_id, centr);
-  }
+  // TSnap::GetBetweennessCentr<PNGraph> (DirectedGraph, nodeBtwH, edgeBtwH);
+  // for (TIntFltH::TIter It = nodeBtwH.BegI(); It < nodeBtwH.EndI(); It++) {
+  //   int node_id = It.GetKey();
+  //   double centr = It.GetDat();
+  //   printf("NodeId: %d, Centr: %f \n", node_id, centr);
+  // }
 
   for (TNGraph::TNodeI NI = DirectedGraph->BegNI(); NI < DirectedGraph->EndNI(); NI++) {
     int id = NI.GetId();
-    double centr = TSnap::GetClosenessCentr<PNGraph>(DirectedGraph, id);
+    double centr = TSnap::GetClosenessCentr<PNGraph>(DirectedGraph, id, true);
     printf("NodeId: %d, Centr: %f \n", id, centr);
   }
 
