@@ -282,12 +282,12 @@ namespace TSnap{
 	/// Converts table to a network. Suitable for PNEANet - Assumes no node and edge attributes.
 	template<class PGraph> PGraph ToNetwork(PTable Table, const TStr& SrcCol, const TStr& DstCol, TAttrAggr AggrPolicy);
 
-  #if defined(GLib_UNIX) && defined(_OPENMP)
+#if defined(GLib_UNIX) && defined(_OPENMP)
   template<class PGraphMP> PGraphMP ToGraphMP(PTable Table, const TStr& SrcCol, const TStr& DstCol);
   template<class PGraphMP> PGraphMP ToGraphMP2(PTable Table, const TStr& SrcCol, const TStr& DstCol);
   PNEANetMP ToTNEANetMP(PTable Table, const TStr& SrcCol, const TStr& DstCol);
   PNEANetMP ToTNEANetMP2(PTable Table, const TStr& SrcCol, const TStr& DstCol);
-  #endif // _OPENMP
+#endif // _OPENMP
 }
 
 //#//////////////////////////////////////////////
