@@ -554,9 +554,11 @@ public:
   /// Adds element \c Val at the end of the vector. #TVec::Add2
   TSizeTy Add(const TVal& Val, const TSizeTy& ResizeLen){ AssertR(MxVals!=-1, "This vector was obtained from TVecPool. Such vectors cannot change its size!");
     if (Vals==MxVals){Resize(MxVals+ResizeLen);} ValT[Vals]=Val; return Vals++;}
+#ifdef USE_OPENMP
   /// Adds element \c Val at the end of the vector in a thread safe manner, returns the element index in the vector. #TVec::AddMP
   TSizeTy AddMP(const TVal& Val){ const int Idx = __sync_fetch_and_add(&Vals, 1);
      ValT[Idx]=Val; return Idx;}
+#endif
   /// Adds the elements of the vector \c ValV to the to end of the vector.
   TSizeTy AddV(const TVec<TVal, TSizeTy>& ValV);
   /// Adds element \c Val to a sorted vector. ##TVec::AddSorted

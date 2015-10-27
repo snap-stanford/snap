@@ -49,7 +49,7 @@ public:
     bool operator () (const PGStat& GS1, const PGStat& GS2) const;
   };
 private:
-  const static TFltPrV EmptyV;
+  static const TFltPrV EmptyV;
   TCRef CRef;
 public:
   TSecTm Time;
