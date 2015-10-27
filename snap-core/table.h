@@ -1025,9 +1025,9 @@ public:
 
   /// Performs columnwise arithmetic operation ##TTable::ColGenericOp
   void ColGenericOp(const TStr& Attr1, const TStr& Attr2, const TStr& ResAttr, TArithOp op);
-  #ifdef _OPENMP
+#ifdef _OPENMP
   void ColGenericOpMP(TInt ArgColIdx1, TInt ArgColIdx2, TAttrType ArgType1, TAttrType ArgType2, TInt ResColIdx, TArithOp op);
-  #endif
+#endif
   /// Performs columnwise addition. See TTable::ColGenericOp
   void ColAdd(const TStr& Attr1, const TStr& Attr2, const TStr& ResultAttrName="");
   /// Performs columnwise subtraction. See TTable::ColGenericOp
@@ -1066,9 +1066,9 @@ public:
 
   /// Performs arithmetic op of column values and given \c Num
   void ColGenericOp(const TStr& Attr1, const TFlt& Num, const TStr& ResAttr, TArithOp op, const TBool floatCast);
-  #ifdef _OPENMP
-  void ColGenericOpMP(TInt ColIdx1, TInt ColIdx2, TAttrType ArgType, TFlt Num, TArithOp op, TBool ShouldCast);
-  #endif
+#ifdef _OPENMP
+  void ColGenericOpMP(const TInt& ColIdx1, const TInt& ColIdx2, TAttrType ArgType, const TFlt& Num, TArithOp op, TBool ShouldCast);
+#endif
   /// Performs addition of column values and given \c Num
   void ColAdd(const TStr& Attr1, const TFlt& Num, const TStr& ResultAttrName="", const TBool floatCast=false);
   /// Performs subtraction of column values and given \c Num

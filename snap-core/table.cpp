@@ -4735,7 +4735,7 @@ void TTable::ColGenericOp(const TStr& Attr1, const TFlt& Num, const TStr& ResAtt
 }
 
 #ifdef _OPENMP
-void TTable::ColGenericOpMP(TInt ColIdx1, TInt ColIdx2, TAttrType ArgType, TFlt Num, TArithOp op, TBool ShouldCast){
+void TTable::ColGenericOpMP(const TInt& ColIdx1, const TInt& ColIdx2, TAttrType ArgType, const TFlt& Num, TArithOp op, TBool ShouldCast){
 	TIntPrV Partitions;
 	GetPartitionRanges(Partitions, omp_get_max_threads()*CHUNKS_PER_THREAD);
 	TInt PartitionSize = Partitions[0].GetVal2()-Partitions[0].GetVal1()+1;
