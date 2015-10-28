@@ -1,28 +1,37 @@
 #ifndef NETWORKMM_H
 #define NETWORKMM_H
+
+
+//NOTE: Removed inheritance from nodes and edges (for now)
+//TODO: Renaming
+//TODO: Change Type everywhere to Mode
+
+//A single mode in a multimodal directed attributed multigraph
 class TNEANetMM;
+
 /// Pointer to a directed attribute multigraph (TNEANet)
 typedef TPt<TNEANetMM> PNEANetMM;
 
 //#//////////////////////////////////////////////
 /// Directed multigraph with node edge attributes. ##TNEANet::Class
-class TNEANetMM : public TNEANet {
+class TNEANetMM : TNEANet {
 public:
+
   typedef TNEANetMM TNetMM;
   typedef TPt<TNEANetMM> PNetMM;
 public:
-  class TNodeMM : TNEANet::TNode {
+  class TNodeMM  {
   private:
     TInt Id;
     TIntV InEIdV, OutEIdV;
   public:
-    TNode() : Id(-1), InEIdV(), OutEIdV() { }
-    TNode(const int& NId) : Id(NId), InEIdV(), OutEIdV() { }
-    TNode(const TNode& Node) : Id(Node.Id), InEIdV(Node.InEIdV), OutEIdV(Node.OutEIdV) { }
-    TNode(TSIn& SIn) : Id(SIn), InEIdV(SIn), OutEIdV(SIn) { }
+    TNodeMM() : Id(-1), InEIdV(), OutEIdV() { }
+    TNodeMM(const int& NId) : Id(NId), InEIdV(), OutEIdV() { }
+    TNodeMM(const TNode& Node) : Id(Node.Id), InEIdV(Node.InEIdV), OutEIdV(Node.OutEIdV) { }
+    TNodeMM(TSIn& SIn) : Id(SIn), InEIdV(SIn), OutEIdV(SIn) { }
     void Save(TSOut& SOut) const { Id.Save(SOut); InEIdV.Save(SOut); OutEIdV.Save(SOut); }
     int GetId() const { return Id; }
-    int GetDeg() const { return GetInDeg() + GetOutDeg(); }
+    int GetDeg() const { return GetInDeg() + GetOutDeg(); } //TODO: Reimplement
     int GetInDeg() const { return InEIdV.Len(); }
     int GetOutDeg() const { return OutEIdV.Len(); }
     int GetInEId(const int& EdgeN) const { return InEIdV[EdgeN]; }
@@ -30,7 +39,7 @@ public:
     int GetNbrEId(const int& EdgeN) const { return EdgeN<GetOutDeg()?GetOutEId(EdgeN):GetInEId(EdgeN-GetOutDeg()); }
     bool IsInEId(const int& EId) const { return InEIdV.SearchBin(EId) != -1; }
     bool IsOutEId(const int& EId) const { return OutEIdV.SearchBin(EId) != -1; }
-    friend class TNEANet;
+    friend class TNEANetMM;
   };
   class TEdgeMM {
   private:
@@ -39,7 +48,7 @@ public:
     TEdgeMM() : Id(-1), SrcNId(-1), DstNId(-1), SrcNTypeId(-1), DstNTypeId(-1) { }
     TEdgeMM(const int& EId, const int& SourceNId, const int& DestNId, const int& SourceNTypeId, const int& DestNTypeId) : 
       Id(EId), SrcNId(SourceNId), DstNId(DestNId), SrcNTypeId(SourceNTypeId), DstNTypeId(DestNTypeId) { }
-    TEdgeMM(const TEdge& Edge) : Id(Edge.Id), SrcNId(Edge.SrcNId), DstNId(Edge.DstNId) { }
+    TEdgeMM(const TEdgeMM& EdgeMM) : Id(EdgeMM.Id), SrcNId(EdgeMM.SrcNId), DstNId(EdgeMM.DstNId), SrcNTypeId(EdgeMM.SrcNTypeId), DstNTypeId(EdgeMM.DstNTypeId) { }
     TEdgeMM(TSIn& SIn) : Id(SIn), SrcNId(SIn), DstNId(SIn), SrcNTypeId(SIn), DstNTypeId(SIn) { }
     void Save(TSOut& SOut) const { Id.Save(SOut); SrcNId.Save(SOut); DstNId.Save(SOut); SrcNTypeId(-1).Save(SOut); DstNTypeId.Save(SOut); }
     int GetId() const { return Id; }
@@ -84,12 +93,15 @@ private:
   TVec<TStrV> VecOfStrVecsN, VecOfStrVecsE;
   TVec<TFltV> VecOfFltVecsN, VecOfFltVecsE;
   enum { IntType, StrType, FltType };*/
-  THash<TPair<TInt, TInt>, TEdgeMM> TypeEdgeH; //(Src Type Id, EId) -> edge class
-  TVec<TVec<TIntV> > OutEdgeV;
-  TVec<TVec<TIntV> > InEdgeV;
+  THash<TInt, TNodeMM> NodeMMH; //The hash table for nodes TODO: Decide if this is necessary.
+//  THash<<TInt, TInt>, TEdgeMM> TypeEdgeH; //(Src Type Id, EId) -> edge class
+  THash<TInt, TVec<TVec<TEdgeMM>>> NbrVVH; //A Hash table from type id to the corresponding vector of vectors
+//  TVec<TVec<TIntV> > OutEdgeV;
+//  TVec<TVec<TIntV> > InEdgeV;
   TInt MxTypeEId;
   TInt NTypeId;
 public:
+  //TODO: Update constructors with information from fields above.
   TNEANetMM() : TNEANet(), TypeEdgeH(), OutEdgeV(), InEdgeV(), MxTypeEId(0), NTypeId(-1) { }
   TNEANetMM(const int& TypeId) : TNEANet(), TypeEdgeH(), OutEdgeV(), InEdgeV(), MxTypeEId(0), NTypeId(TypeId) { }
   /// Constructor that reserves enough memory for a graph of nodes and edges.
@@ -162,6 +174,7 @@ public:
   //TInt GetIntAttrDatN(const TNodeI& NodeI, const TStr& attr) { return GetIntAttrDatN(NodeI.GetId(), attr); }
   //TInt GetIntAttrDatN(const int& NId, const TStr& attr);
 
+  /*
   /// Gets the index of the node attr value vector specified by \c attr (same as GetAttrIndN for compatibility reasons).
   int GetIntAttrIndN(const TStr& attr);
   /// Gets the index of the node attr value vector specified by \c attr.
@@ -298,10 +311,40 @@ public:
   void GetAttrNNames(TStrV& IntAttrNames, TStrV& FltAttrNames, TStrV& StrAttrNames) const;
   /// Fills each of the vectors with the names of edge attributes of the given type.
   void GetAttrENames(TStrV& IntAttrNames, TStrV& FltAttrNames, TStrV& StrAttrNames) const;
-
+*/
   /// Returns a small multigraph on 5 nodes and 6 edges. ##TNEANet::GetSmallGraph
-  static PNEANet GetSmallGraph();
+  static PNEANetMM GetSmallGraph();
   friend class TPt<TNEANetMM>;
+};
+
+//The container class for a multimodal network
+class TMMNet;
+
+typedef TPt<TMMNet> PMMNet;
+
+class TMMNet {
+
+
+private:
+  TInt MxModeId; //The number of modes
+  TVec<TNEANetMM> TNEANetMMV; //The vector of TNEANetMM's this contains. TODO: Decide whether this is vec or hash
+
+  THash<TInt,TStr> ModeIdToNameH;
+  THash<TStr,TInt> ModeNameToIdH;
+
+public:
+  TMMNet() : MxModeId(0), TNEANetMMV() {}
+  TMMNet(const TMMNet& OtherTMMNet) : MxModeId(OtherTMMNet.MxModeId), TNEANetMMV(OtherTMMNet.TNEANetMMV) {}
+  int AddMode(const TStr& ModeName); //TODO: Implement. Decide return type.
+
+  //TODO: Decide if below methods should be accessed by ModeId or ModeName (or overloaded for both)
+  int AddNode(const TInt& ModeId, const TInt& NId); //TODO: Implement. Decide return type.
+  int AddEdge(const TInt& SrcNModeId, const TInt& DstNModeId, const TInt& SrcNId, const TInt& DstNId, TInt EId = -1); //TODO: Implement. Decide order of arguments.
+
+
+  //Interface
+  int GetModeId(const TStr& ModeName) const { return ModeNameToIdH.GetDat(ModeName);  }//TODO: Return type int or TInt?
+  TStr GetModeName(const TInt& ModeId) const { return ModeIdToNameH.GetDat(ModeId); }
 };
 
 // set flags
