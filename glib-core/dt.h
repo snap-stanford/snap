@@ -540,8 +540,7 @@ public:
   TStr Mid(const int& BChN) const {return GetSubStr(BChN, Len()-1); }
   //TStr Slice(const int& BChN, const int& EChNP1) const {return GetSubStr(BChN, EChNP1-1);}
   //TStr operator()(const int& BChN, const int& EChNP1) const {return Slice(BChN, EChNP1);}
-  //J: as in python or matlab: 1 is 1st character, -1 is last character
-  // TODO ROK, ask Jure about this comment
+  //J: as in python or matlab: position 1 is 1st character, -1 is last character
   TStr Left(const int& EChN) const { return EChN>0 ? GetSubStr(0, EChN-1) : GetSubStr(0, Len()+EChN-1);}
   TStr Right(const int& BChN) const {return BChN>=0 ? GetSubStr(BChN, Len()-1) : GetSubStr(Len()+BChN, Len()-1);}
   TStr Slice(int BChN, int EChNP1) const { if(BChN<0){BChN=Len()+BChN;} if(EChNP1<=0){EChNP1=Len()+EChNP1;} return GetSubStr(BChN, EChNP1-1); }

@@ -1066,7 +1066,7 @@ public:
   /// Performs arithmetic op of column values and given \c Num
   void ColGenericOp(const TStr& Attr1, const TFlt& Num, const TStr& ResAttr, TArithOp op, const TBool floatCast);
 #ifdef USE_OPENMP
-  void ColGenericOpMP(TInt ColIdx1, TInt ColIdx2, TAttrType ArgType, TFlt Num, TArithOp op, TBool ShouldCast);
+  void ColGenericOpMP(const TInt& ColIdx1, const TInt& ColIdx2, TAttrType ArgType, const TFlt& Num, TArithOp op, TBool ShouldCast);
 #endif // USE_OPENMP
   /// Performs addition of column values and given \c Num
   void ColAdd(const TStr& Attr1, const TFlt& Num, const TStr& ResultAttrName="", const TBool floatCast=false);
