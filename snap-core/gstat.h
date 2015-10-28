@@ -12,7 +12,7 @@ typedef TPt<TGStatVec> PGStatVec;
 /////////////////////////////////////////////////
 // Statistics of a Sigle Graph
 // Scalar statistics of the graph
-typedef enum {
+typedef enum TGStatVal_ {
   gsvNone, gsvIndex, gsvTime, gsvNodes, gsvZeroNodes, gsvNonZNodes, gsvSrcNodes, gsvDstNodes,
   gsvEdges, gsvUniqEdges, gsvBiDirEdges,
   gsvWccNodes, gsvWccSrcNodes, gsvWccDstNodes, gsvWccEdges, gsvWccUniqEdges, gsvWccBiDirEdges,
@@ -24,7 +24,7 @@ typedef enum {
 } TGStatVal;
 
 // Distribution statistics of the graph
-typedef enum {
+typedef enum TGStatDistr_ {
   gsdUndef=100, gsdInDeg, gsdOutDeg, gsdWcc, gsdScc,
   gsdHops, gsdWccHops, gsdSngVal, gsdSngVec, gsdClustCf,
   gsdTriadPart, // triad participation
@@ -126,7 +126,7 @@ public:
   void TakeSpectral(const PNGraph& Graph, TFSet StatFSet, int _TakeSngVals = -1);
 
   void Plot(const TGStatDistr& Distr, const TStr& FNmPref, TStr Desc=TStr(), bool PowerFit=false) const;
-  void Plot(const TFSet& FSet, const TStr& FNmPref, TStr Desc=TStr(), bool PowerFit=false) const;
+  void Plot(const TFSet& FSet, const TStr& FNmPref, const TStr& Desc=TStr(), bool PowerFit=false) const;
   void PlotAll(const TStr& FNmPref, TStr Desc=TStr(), bool PowerFit=false) const;
   void DumpValStat();
 
@@ -172,7 +172,7 @@ public:
   TGStatVec& operator = (const TGStatVec& GStat);
 
   PGStat Add();
-  PGStat Add(const TSecTm& Time, TStr GraphNm=TStr());
+  PGStat Add(const TSecTm& Time, const TStr& GraphNm=TStr());
   void Add(const PGStat& Growth) { GStatV.Add(Growth); }
   void Add(const PNGraph& Graph, const TSecTm& Time, const TStr& GraphNm=TStr());
   void Add(const PUNGraph& Graph, const TSecTm& Time, const TStr& GraphNm=TStr());
