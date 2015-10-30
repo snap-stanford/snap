@@ -55,16 +55,19 @@ int main(int argc, char* argv[]) {
   DirectedGraph->AddEdge(7, 2);
   DirectedGraph->AddEdge(8, 9);
 
-  // TIntFltH nodeBtwH;
-  // TIntPrFltH edgeBtwH;
-  
-  // TSnap::GetBetweennessCentr<PNGraph> (DirectedGraph, nodeBtwH, edgeBtwH);
-  // for (TIntFltH::TIter It = nodeBtwH.BegI(); It < nodeBtwH.EndI(); It++) {
-  //   int node_id = It.GetKey();
-  //   double centr = It.GetDat();
-  //   printf("NodeId: %d, Centr: %f \n", node_id, centr);
-  // }
+  TIntFltH nodeBtwH;
+  TIntPrFltH edgeBtwH;
 
+
+  printf("Testing Betweenness Centrality Calculation \n");
+  TSnap::GetBetweennessCentr<PNGraph> (DirectedGraph, nodeBtwH, edgeBtwH);
+  for (TIntFltH::TIter It = nodeBtwH.BegI(); It < nodeBtwH.EndI(); It++) {
+    int node_id = It.GetKey();
+    double centr = It.GetDat();
+    printf("NodeId: %d, Centr: %f \n", node_id, centr);
+  }
+
+  printf("Testing Closeness Centrality Calculation \n");
   for (TNGraph::TNodeI NI = DirectedGraph->BegNI(); NI < DirectedGraph->EndNI(); NI++) {
     int id = NI.GetId();
     double centr = TSnap::GetClosenessCentr<PNGraph>(DirectedGraph, id, true);

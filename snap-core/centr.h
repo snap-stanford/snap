@@ -41,7 +41,7 @@ template <class PGraph> double GetFarnessCentr(const PGraph& Graph, const int& N
 /// Returns Closeness centrality of a given node NId.
 /// Closeness centrality of a node is defined as 1/FarnessCentrality.
 /// General Routine to compute closeness centrality for both undirected and cirected graphs
-template <class PGraph> double GetClosenessCentr(const PGraph& Graph, const int& NId, const bool Normalized = false);
+template <class PGraph> double GetClosenessCentr(const PGraph& Graph, const int& NId, const bool Normalized = true);
 /// Returns node Eccentricity, the largest shortest-path distance from the node NId to any other node in the Graph.
 /// @param IsDir false: ignore edge directions and consider edges as undirected (in case they are directed).
 template <class PGraph> int GetNodeEcc(const PGraph& Graph, const int& NId, const bool& IsDir=false);
