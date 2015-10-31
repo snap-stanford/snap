@@ -20,6 +20,7 @@ TEST_SRCS = \
 	test-TUNGraph.cpp test-TNGraph.cpp \
 	test-TNEGraph.cpp test-TNEANet.cpp \
 	test-TNodeNet.cpp test-TNodeEDatNet.cpp test-TNodeEdgeNet.cpp \
+	test-TUndirNet.cpp test-TDirNet.cpp \
 	test-subgraph.cpp \
 	test-TStrPool.cpp \
 	test-TSysTm.cpp \
