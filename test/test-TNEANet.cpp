@@ -160,6 +160,52 @@ TEST(TNEANet, GetSmallGraph) {
   EXPECT_EQ(1,Graph->HasFlag(gfDirected));
 }
 
+TEST(TNEANet, IntVAttr) {
+  PNEANet Graph;
+  Graph = TNEANet::New();
+  int i;
+  TIntV test;
+  int numNodes = 10;
+  Graph->AddNode(0);
+  for (i = 1; i < numNodes; i++) {
+    Graph->AddNode(i);
+    Graph->AddEdge(i-1, i);
+  }
+  TStr TestAttr("Test1");
+  Graph->AddIntVAttrN(TestAttr);
+  for (i = 0; i < numNodes; i++) {
+    test = Graph->GetIntVAttrDatN(i, TestAttr);
+    EXPECT_EQ(0, test.Len());
+  }
+
+  TIntV testVB;
+  for (i = 0; i < numNodes; i++) {
+    testVB.Add(i);
+  }
+  const TIntV testV = testVB;
+  Graph->AddIntVAttrDatN(0, testV, TestAttr);
+  test = Graph->GetIntVAttrDatN(0, TestAttr);
+  EXPECT_EQ(numNodes, test.Len());
+
+  for (i = 0; i < numNodes; i++) {
+    EXPECT_EQ(test[i], i);
+  }
+
+  Graph->AppendIntVAttrDatN(0, numNodes, TestAttr);
+  test = Graph->GetIntVAttrDatN(0, TestAttr);
+  EXPECT_EQ(numNodes+1, test.Len());
+  for (i = 0; i < numNodes+1; i++) {
+    EXPECT_EQ(test[i], i);
+  }
+
+  Graph->DelAttrDatN(0, TestAttr);
+  for (i = 0; i < numNodes; i++) {
+    test = Graph->GetIntVAttrDatN(i, TestAttr);
+    EXPECT_EQ(0, test.Len());
+  }
+
+}
+
 // Test node, edge attribute functionality
 TEST(TNEANet, ManipulateNodesEdgeAttributes) {
   int NNodes = 1000;
