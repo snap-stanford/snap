@@ -63,6 +63,27 @@ void TNEANet::IntAttrValueNI(const TInt& NId, TStrIntPrH::TIter NodeHI, TIntV& V
   }  
 }
 
+void TNEANet::IntVAttrNameNI(const TInt& NId, TStrIntPrH::TIter NodeHI, TStrV& Names) const {
+  Names = TVec<TStr>();
+  while (!NodeHI.IsEnd()) {
+    if (NodeHI.GetDat().Val1 == IntVType) {
+      Names.Add(NodeHI.GetKey());
+    }
+    NodeHI++;
+  }  
+}
+
+void TNEANet::IntVAttrValueNI(const TInt& NId, TStrIntPrH::TIter NodeHI, TVec<TIntV>& Values) const {
+  Values = TVec<TIntV>();
+  while (!NodeHI.IsEnd()) {
+    if (NodeHI.GetDat().Val1 == IntVType) {
+      TIntV val = this->VecOfIntVecVecsN.GetVal(NodeHI.GetDat().Val2).GetVal(NodeH.GetKeyId(NId));
+      Values.Add(val);
+    }
+    NodeHI++;
+  }  
+}
+
 void TNEANet::StrAttrNameNI(const TInt& NId, TStrIntPrH::TIter NodeHI, TStrV& Names) const {
   Names = TVec<TStr>();
   while (!NodeHI.IsEnd()) {
@@ -204,6 +225,27 @@ void TNEANet::IntAttrValueEI(const TInt& EId, TStrIntPrH::TIter EdgeHI, TIntV& V
   while (!EdgeHI.IsEnd()) {
     if (EdgeHI.GetDat().Val1 == IntType && !EdgeAttrIsIntDeleted(EId, EdgeHI)) {
       TInt val = (this->VecOfIntVecsE.GetVal(EdgeHI.GetDat().Val2).GetVal(EId));
+      Values.Add(val);
+    }
+    EdgeHI++;
+  }  
+}
+
+void TNEANet::IntVAttrNameEI(const TInt& EId, TStrIntPrH::TIter EdgeHI, TStrV& Names) const {
+  Names = TVec<TStr>();
+  while (!EdgeHI.IsEnd()) {
+    if (EdgeHI.GetDat().Val1 == IntVType) {
+      Names.Add(EdgeHI.GetKey());
+    }
+    EdgeHI++;
+  }  
+}
+
+void TNEANet::IntVAttrValueEI(const TInt& EId, TStrIntPrH::TIter EdgeHI, TVec<TIntV>& Values) const {
+  Values = TVec<TIntV>();
+  while (!EdgeHI.IsEnd()) {
+    if (EdgeHI.GetDat().Val1 == IntVType) {
+      TIntV val = (this->VecOfIntVecVecsE.GetVal(EdgeHI.GetDat().Val2).GetVal(EId));
       Values.Add(val);
     }
     EdgeHI++;

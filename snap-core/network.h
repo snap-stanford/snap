@@ -1553,6 +1553,10 @@ public:
     void GetIntAttrNames(TStrV& Names) const { Graph->IntAttrNameNI(GetId(), Names); }
     /// Gets vector of int attribute values.
     void GetIntAttrVal(TIntV& Val) const { Graph->IntAttrValueNI(GetId(), Val); }
+    /// Gets vector of int attribute names.
+    void GetIntVAttrNames(TStrV& Names) const { Graph->IntVAttrNameNI(GetId(), Names); }
+    /// Gets vector of int attribute values.
+    void GetIntVAttrVal(TVec<TIntV>& Val) const { Graph->IntVAttrValueNI(GetId(), Val); }
     /// Gets vector of str attribute names.
     void GetStrAttrNames(TStrV& Names) const { Graph->StrAttrNameNI(GetId(), Names); }
     /// Gets vector of str attribute values.
@@ -1592,6 +1596,10 @@ public:
     void GetIntAttrNames(TStrV& Names) const { Graph->IntAttrNameEI(GetId(), Names); }
     /// Gets vector of int attribute values.
     void GetIntAttrVal(TIntV& Val) const { Graph->IntAttrValueEI(GetId(), Val); }
+    /// Gets vector of int attribute names.
+    void GetIntVAttrNames(TStrV& Names) const { Graph->IntVAttrNameEI(GetId(), Names); }
+    /// Gets vector of int attribute values.
+    void GetIntVAttrVal(TVec<TIntV>& Val) const { Graph->IntVAttrValueEI(GetId(), Val); }
     /// Gets vector of str attribute names.
     void GetStrAttrNames(TStrV& Names) const { Graph->StrAttrNameEI(GetId(), Names); }
     /// Gets vector of str attribute values.
@@ -1623,6 +1631,26 @@ public:
     /// Returns true if the attribute has been deleted.
     bool IsDeleted() const { return isNode ? GetDat() == Graph->GetIntAttrDefaultN(attr) : GetDat() == Graph->GetIntAttrDefaultE(attr); };
     TAIntI& operator++(int) { HI++; return *this; }
+    friend class TNEANet;
+  };
+
+  class TAIntVI {
+  private:
+    typedef TVec<TIntV>::TIter TIntVVecIter;
+    TIntVVecIter HI;
+    bool isNode;
+    TStr attr;
+    const TNEANet *Graph;
+  public:
+    TAIntVI() : HI(), attr(), Graph(NULL) { }
+    TAIntVI(const TIntVVecIter& HIter, TStr attribute, bool isEdgeIter, const TNEANet* GraphPt) : HI(HIter), attr(), Graph(GraphPt) { isNode = !isEdgeIter; attr = attribute; }
+    TAIntVI(const TAIntVI& I) : HI(I.HI), attr(I.attr), Graph(I.Graph) { isNode = I.isNode; }
+    TAIntVI& operator = (const TAIntVI& I) { HI = I.HI; Graph=I.Graph; isNode = I.isNode; attr = I.attr; return *this; }
+    bool operator < (const TAIntVI& I) const { return HI < I.HI; }
+    bool operator == (const TAIntVI& I) const { return HI == I.HI; }
+    /// Returns an attribute of the node.
+    TIntV GetDat() const { return HI[0]; }
+    TAIntVI& operator++(int) { HI++; return *this; }
     friend class TNEANet;
   };
 
@@ -1781,6 +1809,18 @@ public:
   /// Returns an iterator referring to the node of ID NId in the graph.
   TAIntI GetNAIntI(const TStr& attr, const int& NId) const {
     return TAIntI(VecOfIntVecsN[KeyToIndexTypeN.GetDat(attr).Val2].GetI(NodeH.GetKeyId(NId)), attr, false, this); }
+
+  /// Returns an iterator referring to the first node's int attribute.
+  TAIntVI BegNAIntVI(const TStr& attr) const {
+    return TAIntVI(VecOfIntVecVecsN[KeyToIndexTypeN.GetDat(attr).Val2].BegI(), attr, false, this); }
+  /// Returns an iterator referring to the past-the-end node's attribute.
+  TAIntVI EndNAIntVI(const TStr& attr) const {
+    return TAIntVI(VecOfIntVecVecsN[KeyToIndexTypeN.GetDat(attr).Val2].EndI(), attr, false, this); }
+  /// Returns an iterator referring to the node of ID NId in the graph.
+  TAIntVI GetNAIntVI(const TStr& attr, const int& NId) const {
+    return TAIntVI(VecOfIntVecVecsN[KeyToIndexTypeN.GetDat(attr).Val2].GetI(NodeH.GetKeyId(NId)), attr, false, this); }
+
+
   /// Returns an iterator referring to the first node's str attribute.
   TAStrI BegNAStrI(const TStr& attr) const {
 
@@ -1809,6 +1849,7 @@ public:
   void AttrValueNI(const TInt& NId, TStrV& Values) const {
     AttrValueNI(NId, KeyToIndexTypeN.BegI(), Values);}
   void AttrValueNI(const TInt& NId, TStrIntPrH::TIter NodeHI, TStrV& Values) const;
+
   /// Returns a vector of int attr names for node NId.
   void IntAttrNameNI(const TInt& NId, TStrV& Names) const {
     IntAttrNameNI(NId, KeyToIndexTypeN.BegI(), Names);}
@@ -1817,6 +1858,18 @@ public:
   void IntAttrValueNI(const TInt& NId, TIntV& Values) const {
     IntAttrValueNI(NId, KeyToIndexTypeN.BegI(), Values);}
   void IntAttrValueNI(const TInt& NId, TStrIntPrH::TIter NodeHI, TIntV& Values) const;
+
+
+  /// Returns a vector of int attr names for node NId.
+  void IntVAttrNameNI(const TInt& NId, TStrV& Names) const {
+    IntVAttrNameNI(NId, KeyToIndexTypeN.BegI(), Names);}
+  void IntVAttrNameNI(const TInt& NId, TStrIntPrH::TIter NodeHI, TStrV& Names) const;
+  /// Returns a vector of attr values for node NId.
+  void IntVAttrValueNI(const TInt& NId, TVec<TIntV>& Values) const {
+    IntVAttrValueNI(NId, KeyToIndexTypeN.BegI(), Values);}
+  void IntVAttrValueNI(const TInt& NId, TStrIntPrH::TIter NodeHI, TVec<TIntV>& Values) const;
+
+
   /// Returns a vector of str attr names for node NId.
   void StrAttrNameNI(const TInt& NId, TStrV& Names) const {
     StrAttrNameNI(NId, KeyToIndexTypeN.BegI(), Names);}
@@ -1850,6 +1903,18 @@ public:
   void IntAttrValueEI(const TInt& EId, TIntV& Values) const {
     IntAttrValueEI(EId, KeyToIndexTypeE.BegI(), Values);}
   void IntAttrValueEI(const TInt& EId, TStrIntPrH::TIter EdgeHI, TIntV& Values) const;
+
+
+  /// Returns a vector of int attr names for edge EId.
+  void IntVAttrNameEI(const TInt& EId, TStrV& Names) const {
+    IntVAttrNameEI(EId, KeyToIndexTypeE.BegI(), Names);}
+  void IntVAttrNameEI(const TInt& EId, TStrIntPrH::TIter EdgeHI, TStrV& Names) const;
+  /// Returns a vector of attr values for edge EId.
+  void IntVAttrValueEI(const TInt& EId, TVec<TIntV>& Values) const {
+    IntVAttrValueEI(EId, KeyToIndexTypeE.BegI(), Values);}
+  void IntVAttrValueEI(const TInt& EId, TStrIntPrH::TIter EdgeHI, TVec<TIntV>& Values) const;
+
+
   /// Returns a vector of str attr names for node NId.
   void StrAttrNameEI(const TInt& EId, TStrV& Names) const {
     StrAttrNameEI(EId, KeyToIndexTypeE.BegI(), Names);}
@@ -1879,6 +1944,20 @@ public:
   TAIntI GetEAIntI(const TStr& attr, const int& EId) const {
     return TAIntI(VecOfIntVecsE[KeyToIndexTypeE.GetDat(attr).Val2].GetI(EdgeH.GetKeyId(EId)), attr, true, this);
   }
+
+  /// Returns an iterator referring to the first edge's int attribute.
+  TAIntVI BegEAIntVI(const TStr& attr) const {
+    return TAIntVI(VecOfIntVecVecsE[KeyToIndexTypeE.GetDat(attr).Val2].BegI(), attr, true, this);
+  }
+  /// Returns an iterator referring to the past-the-end edge's attribute.
+  TAIntVI EndEAIntVI(const TStr& attr) const {
+    return TAIntVI(VecOfIntVecVecsE[KeyToIndexTypeE.GetDat(attr).Val2].EndI(), attr, true, this);
+  }
+  /// Returns an iterator referring to the edge of ID EId in the graph.
+  TAIntVI GetEAIntVI(const TStr& attr, const int& EId) const {
+    return TAIntVI(VecOfIntVecVecsE[KeyToIndexTypeE.GetDat(attr).Val2].GetI(EdgeH.GetKeyId(EId)), attr, true, this);
+  }
+
   /// Returns an iterator referring to the first edge's str attribute.
   TAStrI BegEAStrI(const TStr& attr) const {
     return TAStrI(VecOfStrVecsE[KeyToIndexTypeE.GetDat(attr).Val2].BegI(), attr, true, this);   }
