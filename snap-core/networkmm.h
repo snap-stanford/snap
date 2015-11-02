@@ -318,8 +318,52 @@ public:
   friend class TPt<TNEANetMM>;
 };
 
+class TMultiLink;
+
+typedef TPt<TMultiLink> PMultiLink;
+
+//A class for each link table
+//TODO: Attributes: how?
+//TODO: Name this as multi link table?
+class TMultiLink {
+
+public:
+  class TMultiEdge {
+  private:
+    TInt EId;
+    TInt SrcNModeId, DstNModeId;
+    TInt SrcNId, DstNId;
+  public:
+    TMultiEdge() : EId(-1), SrcNId(-1), DstNId(-1), SrcNModeId(-1), DstNModeId(-1) { }
+    TMultiEdge(const int& EId, const int& SourceNId, const int& DestNId, const int& SourceNModeId, const int& DestNModeId) :
+      Id(EId), SrcNId(SourceNId), DstNId(DestNId), SrcNModeId(SourceNModeId), DstNModeId(DestNModeId) { }
+    TMultiEdge(const TMultiEdge& MultiEdge) : EId(MultiEdge.EId), SrcNId(MultiEdge.SrcNId),
+        DstNId(MultiEdge.DstNId), SrcNModeId(MuliEdge.SrcNModeId), DstNModeId(MultiEdge.DstNModeId) { }
+    TMultiEdge(TSIn& SIn) : EId(SIn), SrcNId(SIn), DstNId(SIn), SrcNModeId(SIn), DstNModeId(SIn) { }
+    void Save(TSOut& SOut) const { EId.Save(SOut); SrcNId.Save(SOut); DstNId.Save(SOut); SrcNModeId.Save(SOut); DstNModeId.Save(SOut); }
+    int GetId() const { return EId; }
+    int GetSrcNId() const { return SrcNId; }
+    int GetDstNId() const { return DstNId; }
+    int GetSrcNModeId() const { return SrcNModeId; }
+    int GetDstNModeId() const { return DstNModeId; }
+    friend class TMultiLink;
+  };
+
+private:
+  THash<TInt,TMultiEdge> LinkH;
+  TInt MxEId;
+
+  //Constructors
+public:
+  TMultiLink() : MxEId(-1) {}
+public:
+  void AddLink (const int& sourceNId, const int& sourceNModeId, const int& destNId, const int& destNModeId, const int& Eid = -1);
+  TMultiEdge GetLink (const int& EId) const;
+};
+
 //The container class for a multimodal network
 class TMMNet;
+
 
 typedef TPt<TMMNet> PMMNet;
 
