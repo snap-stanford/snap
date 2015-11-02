@@ -5,6 +5,7 @@
 //NOTE: Removed inheritance from nodes and edges (for now)
 //TODO: Renaming
 //TODO: Change Type everywhere to Mode
+//TODO: TMultiLink with the entire hash table
 
 //A single mode in a multimodal directed attributed multigraph
 class TNEANetMM;
