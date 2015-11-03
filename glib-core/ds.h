@@ -1701,11 +1701,11 @@ TVecPool<TVal, TSizeTy>& TVecPool<TVal, TSizeTy>::operator = (const TVecPool& Po
 
 template <class TVal, class TSizeTy>
 int TVecPool<TVal, TSizeTy>::AddV(const TValV& ValV) {
-  const TSizeTy ValVLen = ValV.Len();
+  const TSize ValVLen = ValV.Len();
   if (ValVLen == 0) { return 0; }
   if (MxVals < Vals+ValVLen) { Resize(Vals+MAX(ValVLen, GrowBy)); }
   if (FastCopy) { memcpy(ValBf+Vals, ValV.BegI(), sizeof(TVal)*ValV.Len()); }
-  else { for (uint ValN=0; ValN < ValVLen; ValN++) { ValBf[Vals+ValN]=ValV[ValN]; } }
+  else { for (TSize ValN=0; ValN < ValVLen; ValN++) { ValBf[Vals+ValN]=ValV[ValN]; } }
   Vals+=ValVLen;  IdToOffV.Add(Vals);
   return IdToOffV.Len()-1;
 }
