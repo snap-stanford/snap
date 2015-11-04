@@ -24,7 +24,8 @@ namespace {
   // This variant is for the balanced variant of bidirectional ppr.  It does reverse pushes, decreasing maxResidual incrementally,
   // until the time spent equals the remaining time required for forward walks, as estimated using ForwardSecondsRMaxRatio
   // (which is the ratio between the expected forward random walk time and the current MaxResidual that hasn't been pushed back).
-  void ApproxContributionsBalanced(const PNGraph& Graph, const double& JumpProb, const int& TargetNId,
+  template <class PGraph>
+  void ApproxContributionsBalanced(const PGraph& Graph, const double& JumpProb, const int& TargetNId,
                                    const float& ForwardSecondsRMaxRatio, TIntFltH& ResultEstimates, TIntFltH& ResultResiduals, float& ResultMaxResidual) {
     double startTime = wallClockTime();
     MaxPriorityQueue nodesByResidual;
@@ -53,8 +54,8 @@ namespace {
 
 
 namespace TSnap {
-
-  int SamplePersonalizedPageRank(const PNGraph& Graph, const double& JumpProb, const TIntV& StartNIdV, TRnd& Rnd) {
+  template <class PGraph>
+  int SamplePersonalizedPageRank(const PGraph& Graph, const double& JumpProb, const TIntV& StartNIdV, TRnd& Rnd) {
     int locationId = StartNIdV.GetRndVal(Rnd);
     //printf("starting walk at %d\n", locationId);
     while (Rnd.GetUniDev() >= JumpProb) {
@@ -68,8 +69,8 @@ namespace TSnap {
     return locationId;
   }
 
-  
-  float GetPersonalizedPageRankBidirectional(const PNGraph& Graph, const double& JumpProb, const TIntV& StartNIdV,
+  template <class PGraph>
+  float GetPersonalizedPageRankBidirectional(const PGraph& Graph, const double& JumpProb, const TIntV& StartNIdV,
                                              const int& TargetNId, float MinProbability, const float& RelativeError,
                                              const bool provableRelativeError) {
     const bool PrintTimeForTuning = false;
