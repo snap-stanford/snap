@@ -751,5 +751,52 @@ TIntH LoadNodeList(TStr InFNmNodes){
   return Nodes;
 }
 
+int findMinimum(TIntV& Frontier, TIntFltH& NIdDistH) {
+  TFlt minimum = TFlt::Mx;
+  int min_index = 0;
+  for (int i = 0; i < Frontier.Len(); i++) {
+    int NId = Frontier->GetVal(i);
+    if (NIdDistH[NId] < minimum) {
+      minimum = NIdDistH[NId];
+      min_index = i;
+    }
+  }
+  Frontier.Del(min_index);
+  return Frontier.GetVal(min_index);
+}
+
+int GetWeightedShortestPath(const PNEANet Graph, const int& SrcNId, TIntFltH& NIdDistH, const TStr& Attr, const bool& IsDir=false) {
+  if (!Graph->IsFltAttrE(Attr)) return -1;
+
+  TIntV frontier;
+
+  // TODO: Figure out the way to load edge weights
+  TFltV Weights = Graph->GetFltAttrVecE(Attr);
+  int mxid = Graph->GetMxNId();
+  TFltV OutWeights(mxid);
+  Graph->GetWeightOutEdgesV(OutWeights, Weights);
+
+  const int NNodes = Graph->GetNodes();
+  NIdDistH.Clr(false); NIdDistH.AddDat(SrcNId, 0);
+  frontier.Add(SrcNId);
+
+  while (! frontier.Empty()) {
+    const int NId = findMinimum(frontier, NIdToDistH);
+    for (v = 0; v < NodeI.GetOutDeg(); v++) {
+      const int DstNId = NodeI.GetOutNId(v);
+      const typename PNEANet::TObj::TNodeI NodeI = Graph->GetNI(NId);
+      if (! NIdToDistH.IsKey(DstNId)) {
+        // TODO: figure out how to load in edge weight
+        NIdDistH.AddDat(DstNId, NIdDistH.GetDat(NId) + EdgeWeight[NId][DstNId]);
+      } else {
+        if (NIdDistH[DstNId] > NIdDistH.GetDat(NId) + EdgeWeight[NId][DstNId]) {
+          NIdToDistH[DstNId] = NIdDistH.GetDat(NId) + EdgeWeight[NId][DstNId]; 
+        }
+      }
+    }
+  }
+
+}
+
 
 }; // namespace TSnap

@@ -60,19 +60,19 @@ int main(int argc, char* argv[]) {
 
 
   printf("Testing Betweenness Centrality Calculation \n");
-  TSnap::GetBetweennessCentr<PNGraph> (DirectedGraph, nodeBtwH, edgeBtwH);
+  TSnap::GetBetweennessCentr<PNGraph> (DirectedGraph, nodeBtwH, edgeBtwH, true);
   for (TIntFltH::TIter It = nodeBtwH.BegI(); It < nodeBtwH.EndI(); It++) {
     int node_id = It.GetKey();
     double centr = It.GetDat();
     printf("NodeId: %d, Centr: %f \n", node_id, centr);
   }
 
-  printf("Testing Closeness Centrality Calculation \n");
-  for (TNGraph::TNodeI NI = DirectedGraph->BegNI(); NI < DirectedGraph->EndNI(); NI++) {
-    int id = NI.GetId();
-    double centr = TSnap::GetClosenessCentr<PNGraph>(DirectedGraph, id, true);
-    printf("NodeId: %d, Centr: %f \n", id, centr);
-  }
+  // printf("Testing Closeness Centrality Calculation \n");
+  // for (TNGraph::TNodeI NI = DirectedGraph->BegNI(); NI < DirectedGraph->EndNI(); NI++) {
+  //   int id = NI.GetId();
+  //   double centr = TSnap::GetClosenessCentr<PNGraph>(DirectedGraph, id, true);
+  //   printf("NodeId: %d, Centr: %f \n", id, centr);
+  // }
 
   return 0;
 }
