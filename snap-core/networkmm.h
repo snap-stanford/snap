@@ -13,17 +13,76 @@ typedef TPt<TMMNet> PMMNet;
 //TODO: TMultiLink with the entire hash table
 
 //A single mode in a multimodal directed attributed multigraph
-class TNEANetMM;
+class TMultiNet;
 
 /// Pointer to a directed attribute multigraph (TNEANet)
-typedef TPt<TNEANetMM> PNEANetMM;
+typedef TPt<TMultiNet> PMultiNet;
 
 //#//////////////////////////////////////////////
 /// Directed multigraph with node edge attributes. ##TNEANet::Class
-class TNEANetMM : TNEANet {
+class TMultiNet : TNEANet {
 public:
-  typedef TNEANetMM TNetMM;
-  typedef TPt<TNEANetMM> PNetMM;
+  typedef TMultiNet TNetMM;
+  typedef TPt<TMultiNet> PNetMM;
+public:
+  class TNodeMM  {
+  private:
+    TInt Id;
+    TIntV InEIdV, OutEIdV;
+  public:
+    TNodeMM() : Id(-1), InEIdV(), OutEIdV() { }
+    TNodeMM(const int& NId) : Id(NId), InEIdV(), OutEIdV() { }
+    TNodeMM(const TNode& Node) : Id(Node.Id), InEIdV(Node.InEIdV), OutEIdV(Node.OutEIdV) { }
+    TNodeMM(TSIn& SIn) : Id(SIn), InEIdV(SIn), OutEIdV(SIn) { }
+    void Save(TSOut& SOut) const { Id.Save(SOut); InEIdV.Save(SOut); OutEIdV.Save(SOut); }
+    int GetId() const { return Id; }
+    int GetDeg() const { return GetInDeg() + GetOutDeg(); } //TODO: Reimplement
+    int GetInDeg() const { return InEIdV.Len(); }
+    int GetOutDeg() const { return OutEIdV.Len(); }
+    int GetInEId(const int& EdgeN) const { return InEIdV[EdgeN]; }
+    int GetOutEId(const int& EdgeN) const { return OutEIdV[EdgeN]; }
+    int GetNbrEId(const int& EdgeN) const { return EdgeN<GetOutDeg()?GetOutEId(EdgeN):GetInEId(EdgeN-GetOutDeg()); }
+    bool IsInEId(const int& EId) const { return InEIdV.SearchBin(EId) != -1; }
+    bool IsOutEId(const int& EId) const { return OutEIdV.SearchBin(EId) != -1; }
+    friend class TMultiNet;
+  };
+  class TEdgeMM {
+  private:
+    TInt Id, SrcNId, DstNId, SrcNTypeId, DstNTypeId;
+  public:
+    TEdgeMM() : Id(-1), SrcNId(-1), DstNId(-1), SrcNTypeId(-1), DstNTypeId(-1) { }
+    TEdgeMM(const int& EId, const int& SourceNId, const int& DestNId, const int& SourceNTypeId, const int& DestNTypeId) : 
+      Id(EId), SrcNId(SourceNId), DstNId(DestNId), SrcNTypeId(SourceNTypeId), DstNTypeId(DestNTypeId) { }
+    TEdgeMM(const TEdgeMM& EdgeMM) : Id(EdgeMM.Id), SrcNId(EdgeMM.SrcNId), DstNId(EdgeMM.DstNId), SrcNTypeId(EdgeMM.SrcNTypeId), DstNTypeId(EdgeMM.DstNTypeId) { }
+    TEdgeMM(TSIn& SIn) : Id(SIn), SrcNId(SIn), DstNId(SIn), SrcNTypeId(SIn), DstNTypeId(SIn) { }
+    void Save(TSOut& SOut) const { Id.Save(SOut); SrcNId.Save(SOut); DstNId.Save(SOut); SrcNTypeId(-1).Save(SOut); DstNTypeId.Save(SOut); }
+    int GetId() const { return Id; }
+    int GetSrcNId() const { return SrcNId; }
+    int GetDstNId() const { return DstNId; }
+    int GetSrcNTypeId() const { return SrcNTypeId; }
+    int GetDstNTypeId() const { return DstNTypeId; }
+    friend class TMultiNet;
+  };
+
+/*private:
+  TNode& GetNode(const int& NId) { return NodeH.GetDat(NId); }
+  const TNode& GetNode(const int& NId) const { return NodeH.GetDat(NId); }
+  TEdge& GetEdge(const int& EId) { return EdgeH.GetDat(EId); }
+  const TEdge& GetEdge(const int& EId) const { return EdgeH.GetDat(EId); }
+
+  /// Get Int node attribute val.  If not a proper attr, return default.
+  TInt GetIntAttrDefaultN(const TStr& attribute) const { return IntDefaultsN.IsKey(attribute) ? IntDefaultsN.GetDat(attribute) : (TInt) TInt::Mn; }
+  /// Get Str node attribute val.  If not a proper attr, return default.
+  TStr GetStrAttrDefaultN(const TStr& attribute) const { return StrDefaultsN.IsKey(attribute) ? StrDefaultsN.GetDat(attribute) : (TStr) TStr::GetNullStr(); }
+  /// Get Flt node attribute val.  If not a proper attr, return default.
+  TFlt GetFltAttrDefaultN(const TStr& attribute) const { return FltDefaultsN.IsKey(attribute) ? FltDefaultsN.GetDat(attribute) : (TFlt) TFlt::Mn; }
+  /// Get Int edge attribute val.  If not a proper attr, return default.
+  TInt GetIntAttrDefaultE(const TStr& attribute) const { return IntDefaultsE.IsKey(attribute) ? IntDefaultsE.GetDat(attribute) : (TInt) TInt::Mn; }
+  /// Get Str edge attribute val.  If not a proper attr, return default.
+  TStr GetStrAttrDefaultE(const TStr& attribute) const { return StrDefaultsE.IsKey(attribute) ? StrDefaultsE.GetDat(attribute) : (TStr) TStr::GetNullStr(); }
+  /// Get Flt edge attribute val.  If not a proper attr, return default.
+  TFlt GetFltAttrDefaultE(const TStr& attribute) const { return FltDefaultsE.IsKey(attribute) ? FltDefaultsE.GetDat(attribute) : (TFlt) TFlt::Mn; }
+*/
 private:
 //  TVec<TVec<TIntV> > OutEdgeV;
 //  TVec<TVec<TIntV> > InEdgeV;
@@ -31,17 +90,17 @@ private:
   THash<TStr, TInt> EdgeTypeToId;
 public:
   //TODO: Update constructors with information from fields above.
-  TNEANetMM() : TNEANet(), TypeEdgeH(), OutEdgeV(), InEdgeV(), MxTypeEId(0), NTypeId(-1) { }
-  TNEANetMM(const int& TypeId) : TNEANet(), TypeEdgeH(), OutEdgeV(), InEdgeV(), MxTypeEId(0), NTypeId(TypeId) { }
+  TMultiNet() : TNEANet(), TypeEdgeH(), OutEdgeV(), InEdgeV(), MxTypeEId(0), NTypeId(-1) { }
+  TMultiNet(const int& TypeId) : TNEANet(), TypeEdgeH(), OutEdgeV(), InEdgeV(), MxTypeEId(0), NTypeId(TypeId) { }
   /// Constructor that reserves enough memory for a graph of nodes and edges.
-  explicit TNEANetMM(const int& Nodes, const int& Edges) : TNEANet(Nodes, Edges),
+  explicit TMultiNet(const int& Nodes, const int& Edges) : TNEANet(Nodes, Edges),
     TypeEdgeH(), OutEdgeV(), InEdgeV(), MxTypeEId(0), NTypeId(-1) { }
-  explicit TNEANetMM(const int& Nodes, const int& Edges, const int& TypeId) : TNEANet(Nodes, Edges),
+  explicit TMultiNet(const int& Nodes, const int& Edges, const int& TypeId) : TNEANet(Nodes, Edges),
     TypeEdgeH(), OutEdgeV(), InEdgeV(), MxTypeEId(0), NTypeId(TypeId) { }
-  TNEANetMM(const TNEANetMM& Graph) :  TNEANet(Graph), TypeEdgeH(Graph.TypeEdgeH),
+  TMultiNet(const TMultiNet& Graph) :  TNEANet(Graph), TypeEdgeH(Graph.TypeEdgeH),
     OutEdgeV(Graph.OutEdgeV), InEdgeV(Graph.InEdgeV), MxTypeEId(Graph.MxTypeEId), NTypeId(Graph.NTypeId) { }
   /// Constructor for loading the graph from a (binary) stream SIn.
-  TNEANetMM(TSIn& SIn) : TNEANet(SIn), TypeEdgeH(SIn), OutEdgeV(SIn), InEdgeV(SIn), MxTypeEId(SIn), NTypeId(SIn) { }
+  TMultiNet(TSIn& SIn) : TNEANet(SIn), TypeEdgeH(SIn), OutEdgeV(SIn), InEdgeV(SIn), MxTypeEId(SIn), NTypeId(SIn) { }
 
   //Make these functions virtual
 
@@ -49,12 +108,12 @@ public:
   void Save(TSOut& SOut) const {
     TNEANet::Save(SOut); TypeEdgeH.Save(SOut); OutEdgeV.Save(SOut);
     InEdgeV.Save(SOut); MxTypeEId.Save(SOut); NTypeId.Save(SOut); }
-  /// Static cons returns pointer to graph. Ex: PNEANet Graph=TNEANet::New().
-  static PNEANetMM New() { return PNEANetMM(new TNEANetMM()); }
+  /// Static cons returns pointer to graph. Ex: PMultiNet Graph=TMultiGraph::New().
+  static PMultiNet New() { return PMultiNet(new TMultiNet()); }
   /// Static constructor that returns a pointer to the graph and reserves enough memory for Nodes nodes and Edges edges. ##TNEANet::New
-  static PNEANetMM New(const int& Nodes, const int& Edges) { return PNEANetMM(new TNEANetMM(Nodes, Edges)); }
+  static PMultiNet New(const int& Nodes, const int& Edges) { return PMultiNet(new TMultiNet(Nodes, Edges)); }
   /// Static constructor that loads the graph from a stream SIn and returns a pointer to it.
-  static PNEANetMM Load(TSIn& SIn) { return PNEANetMM(new TNEANetMM(SIn)); }
+  static PMultiNet Load(TSIn& SIn) { return PMultiNet(new TMultiNet(SIn)); }
 
 
 
@@ -91,12 +150,8 @@ public:
   void Clr() { TNEANet::Clr(); TypeEdgeH.Clr(); OutEdgeV.Clr(); InEdgeV.Clr(); MxTypeEId = 0; NTypeId = -1;}
 
   /// Returns a small multigraph on 5 nodes and 6 edges. ##TNEANet::GetSmallGraph
-  static PNEANetMM GetSmallGraph();
-  friend class TPt<TNEANetMM>;
-private:
-  int AddNeighbor(const int& SrcNId, const int& EId, const TStr& EdgeType);
-  int DelNeighbor(const int& SrcNId, const int& EId, const TStr& EdgeType);
-
+  static PMultiNet GetSmallGraph();
+  friend class TPt<TMultiNet>;
 };
 
 class TMultiLink;
@@ -187,7 +242,7 @@ class TMMNet {
 private:
   TInt MxModeId; //The number of modes
   TInt MxLinkTypeId;
-  TVec<PNEANetMM> PNEANetMMV; //The vector of TNEANetMM's this contains. TODO: Decide whether this is vec or hash
+  TVec<PMultiNet> PMultiNetV; //The vector of TNEANetMM's this contains. TODO: Decide whether this is vec or hash
   TVec<TMultiLink> TMultiLinkV;
 
   THash<TInt,TStr> ModeIdToNameH;
@@ -200,7 +255,7 @@ private:
   THash<TStr, TIntPr> LinkNameToPrH;
 
 public:
-  TMMNet() : MxModeId(0), TNEANetMMV() {}
+  TMMNet() : MxModeId(0), TMultiNetV() {}
   TMMNet(const TMMNet& OtherTMMNet) : MxModeId(OtherTMMNet.MxModeId), TNEANetMMV(OtherTMMNet.TNEANetMMV) {}
   int AddMode(const TStr& ModeName, TInt& ModeId); //TODO: Implement. Decide return type.
   int DelMode(const TInt& ModeId);
@@ -223,7 +278,7 @@ private:
 
 // set flags
 namespace TSnap {
-template <> struct IsMultiGraph<TNEANetMM> { enum { Val = 1 }; };
-template <> struct IsDirected<TNEANetMM> { enum { Val = 1 }; };
+template <> struct IsMultiGraph<TMultiNet> { enum { Val = 1 }; };
+template <> struct IsDirected<TMultiNet> { enum { Val = 1 }; };
 }
 #endif // NETWORKMM_H

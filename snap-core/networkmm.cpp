@@ -9,11 +9,8 @@ int TMMNet::AddMode(const TStr& ModeName, TInt& ModeId) {
   ModeIdToNameH.AddDat(ModeId, ModeName);
   ModeNameToIdH.AddDat(ModeName, ModeId);
 
-  PNEANetMM NewGraph = TNEANetMM.New();
-  PNEANetMMV.Append(NewGraph);
-  //Create a new TNEANetMM object.
-
-  //Add the edge hash tables to every existing TNEANetMM object
+  PMultiNet NewGraph = TMultiNet.New();
+  PMultiNetV.Append(NewGraph);
 
   return ModeId;
 }
