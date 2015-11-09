@@ -128,6 +128,35 @@ public:
     bool GetDirection() const { return direction; }
     friend class TMultiLink;
   };
+    /// Edge iterator. Only forward iteration (operator++) is supported.
+  class TMultiEdgeI {
+  private:
+    typedef THash<TInt, TMultiEdge>::TIter THashIter;
+    THashIter EdgeHI;
+    const TMultiLink *Graph;
+  public:
+    TEdgeI() : EdgeHI(), Graph(NULL) { }
+    TEdgeI(const THashIter& EdgeHIter, const TMultiLink *GraphPt) : EdgeHI(EdgeHIter), Graph(GraphPt) { }
+    TEdgeI(const TMultiEdgeI& EdgeI) : EdgeHI(EdgeI.EdgeHI), Graph(EdgeI.Graph) { }
+    TEdgeI& operator = (const TMultiEdgeI& EdgeI) { if (this!=&EdgeI) { EdgeHI=EdgeI.EdgeHI; Graph=EdgeI.Graph; }  return *this; }
+    /// Increment iterator.
+    TEdgeI& operator++ (int) { EdgeHI++; return *this; }
+    bool operator < (const TMultiEdgeI& EdgeI) const { return EdgeHI < EdgeI.EdgeHI; }
+    bool operator == (const TMultiEdgeI& EdgeI) const { return EdgeHI == EdgeI.EdgeHI; }
+    /// Returns edge ID.
+    int GetId() const { return EdgeHI.GetDat().GetId(); }
+    /// Returns the source of the edge.
+    int GetSrcNId() const { return EdgeHI.GetDat().GetSrcNId(); }
+    /// Returns the destination of the edge.
+    int GetDstNId() const { return EdgeHI.GetDat().GetDstNId(); }
+
+    /// Returns the source of the edge.
+    int GetSrcModeId() const { if (EdgeHI.GetDat().GetDirection()) { return Graph->GetMode1(); } else { return Graph->GetMode2(); } }
+    /// Returns the destination of the edge.
+    int GetDstModeId() const { if (EdgeHI.GetDat().GetDirection()) { return Graph->GetMode2(); } else { return Graph->GetMode1(); } }
+
+    friend class TMultiLink;
+  };
 
 private:
   THash<TInt,TMultiEdge> LinkH;
@@ -139,8 +168,11 @@ private:
 public:
   TMultiLink() : MxEId(-1), LinkH() {}
 public:
-  void AddLink (const int& sourceNId, const int& sourceNModeId, const int& destNId, const int& destNModeId, const int& Eid=-1);
-  TMultiEdge GetLink (const int& EId) const;
+  int AddLink (const int& sourceNId, const int& sourceNModeId, const int& destNId, const int& destNModeId, const int& EId=-1);
+  int AddLink (const int& NIdType1, const int& NIdType2, const bool& direction, const int& EId=-1);
+  TMultiEdgeI GetLinkI(const int& EId) const { return TMultiEdgeI(LinkH.GetI(EId), this); }
+  TMultiEdgeI BegLinkI() const { return TMultiEdgeI(LinkH.BegI(), this); }
+  TMultiEdgeI EndLinkI() const { return TMultiEdgeI(LinkH.EndI(), this); }
   int DelLink(const int& EId) const;
   int GetMode1() const { return Mode1; }
   int GetMode2() const { return Mode2; }
@@ -164,6 +196,9 @@ private:
   THash<TInt,TStr> LinkIdToNameH;
   THash<TStr,TInt> LinkNameToIdH;
 
+  THash<TIntPr, TStr> LinkPrToNameH;
+  THash<TStr, TIntPr> LinkNameToPrH;
+
 public:
   TMMNet() : MxModeId(0), TNEANetMMV() {}
   TMMNet(const TMMNet& OtherTMMNet) : MxModeId(OtherTMMNet.MxModeId), TNEANetMMV(OtherTMMNet.TNEANetMMV) {}
@@ -172,7 +207,7 @@ public:
   int DelMode(const TStr& ModeName);
   int AddLinkType(const TStr& ModeName1, const TStr& ModeName2, const TStr& EdgeTypeName, TInt& EdgeTypeId);
   int AddLinkType(const TInt& ModeId1, const TInt& ModeId2, const TStr& EdgeTypeName, TInt& EdgeTypeId);
-
+  int DelLinkType(const TInt& EdgeTypeId);
 
 
 
@@ -182,6 +217,7 @@ public:
 
 private:
   int AddEdge(const TInt& SrcNModeId, const TInt& DstNModeId, const TInt& SrcNId, const TInt& DstNId, TInt EId=-1); //TODO: Implement. Decide order of arguments.
+  int AddEdge(int& NId, int& OtherTypeNId, bool& direction, TStr& LinkTypeName, TInt& EId=-1);
 
 };
 
