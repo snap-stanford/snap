@@ -96,11 +96,13 @@ private:
   enum { IntType, StrType, FltType };*/
   THash<TInt, TNodeMM> NodeMMH; //The hash table for nodes TODO: Decide if this is necessary.
 //  THash<<TInt, TInt>, TEdgeMM> TypeEdgeH; //(Src Type Id, EId) -> edge class
-  THash<TInt, TVec<TVec<TEdgeMM>>> NbrVVH; //A Hash table from type id to the corresponding vector of vectors
+//  THash<TInt, TVec<TVec<TEdgeMM>>> NbrVVH; //A Hash table from type id to the corresponding vector of vectors
 //  TVec<TVec<TIntV> > OutEdgeV;
 //  TVec<TVec<TIntV> > InEdgeV;
   TInt MxTypeEId;
   TInt NTypeId;
+  TMMNet MMNet; //the parent MMNet
+
 public:
   //TODO: Update constructors with information from fields above.
   TMultiNet() : TNEANet(), TypeEdgeH(), OutEdgeV(), InEdgeV(), MxTypeEId(0), NTypeId(-1) { }
@@ -130,19 +132,35 @@ public:
 
 
 
-  /// Returns an ID that is larger than any edge ID in the network.
+
+//these function would just be a wrapper, that calls the TMMNet method
+// private methods,
+ /// Returns an ID that is larger than any edge ID in the network.
   int GetMxTypeEId() const { return MxTypeEId; }
+
+
+  int DelNode ( const int& NId);
 
   // Returns the number of edges in the graph.
   //int GetEdges() const { return EdgeH.Len(); }
   /// Adds an edge with ID EId between node IDs SrcNId and DstNId to the graph. ##TNEANet::AddEdge
-  int AddEdge(const int& SrcNId, const int& SrcNTypeId, const int& DstNId, const int& DstNTypeId, int EId=-1);
+
+  int AddEdge(const int& SrcNId, const int& DstNId, const int& DstModeId, const TInt& EId=-1); //assume srcNId is of the current mode type
+  int AddEdge(const int& NId, const int& OtherTypeNId, bool direction, const int& DstModeId, const TInt& EId=-1);
+  int AddEdge(const int& NId, const int& OtherTypeNId, bool direction, const TStr& LinkTypeName, const TInt& EId=-1);
+  int DelEdge(const TStr& LinkTypeName, const TInt& EId);
+
+
+  //method to add neighbors; will be called by TMMNet AddEdge function; outEdge == true iff NId(which is of the type of the TMultiNet; i.e. it should refer to a node in this graph) is the source node.
+  int AddNeighbor(const int& NId, const int& EId, bool outEdge);
+  int DelNeighbor(const int& NId, const int& EId, bool outEdge);
+
   /// Adds an edge between EdgeI.GetSrcNId() and EdgeI.GetDstNId() to the graph.
   //int AddEdge(const TEdgeI& EdgeI) { return AddEdge(EdgeI.GetSrcNId(), EdgeI.GetDstNId(), EdgeI.GetId()); }
   /// Deletes an edge with edge ID EId from the graph.
-  void DelEdge(const int& EId);
+//  void DelEdge(const int& EId);
   /// Deletes all edges between node IDs SrcNId and DstNId from the graph. ##TNEANet::DelEdge
-  void DelEdge(const int& SrcNId, const int& SrcNTypeId, const int& DstNId, const int& DstNTypeId);
+//  void DelEdge(const int& SrcNId, const int& SrcNTypeId, const int& DstNId, const int& DstNTypeId);
   /// Tests whether an edge with edge ID EId exists in the graph.
   //bool IsEdge(const int& EId) const { return EdgeH.IsKey(EId); }
   /// Tests whether an edge between node IDs SrcNId and DstNId exists in the graph.
