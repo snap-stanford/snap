@@ -27,7 +27,6 @@
 #include "flow.cpp"          // network flow algorithms
 #include "coreper.cpp"       // core-periphery algorithms
 #include "triad.cpp"         // triad calculations
-#include "randwalk.cpp"      // Personalized PageRank
 
 // graph generators
 #include "ggen.cpp"          // graph generators (preferential attachment, small-world, ...)

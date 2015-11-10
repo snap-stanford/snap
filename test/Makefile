@@ -33,7 +33,8 @@ TEST_SRCS = \
 	test-THash.cpp \
 	test-THashSet.cpp \
 	test-flow.cpp \
-	test-randwalk.cpp
+	test-randwalk.cpp \
+	test-priority-queue.cpp
 
 TEST_OBJS = $(TEST_SRCS:.cpp=.o)
 

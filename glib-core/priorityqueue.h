@@ -1,6 +1,6 @@
 //
 //  priorityqueue.h
-//  snap-core
+//  glib-core
 //
 //  Created by Peter Lofgren on 8/5/15.
 //  Copyright (c) 2015 infolab. All rights reserved.
@@ -8,17 +8,17 @@
 
 #ifndef snap_core_priorityqueue_h
 #define snap_core_priorityqueue_h
-#include "../snap-core/Snap.h"
 
-//template <class TVal>
-typedef TInt TVal;
+
+//typedef TInt TVal;
 
 // A max priority queue which supports changing the priority of items.
 // Uses a binary heap, so operations run in O(log(n)) time, where n is
 // the number of items in the priority queue.
-class MaxPriorityQueue {
+template <class TVal>
+class TMaxPriorityQueue {
 public:
-  MaxPriorityQueue() {}
+  TMaxPriorityQueue() {}
   
   void Insert(const TVal& X, float Priority) {
     ValToIndex.AddDat(X, IndexToVal.Len());
