@@ -29,8 +29,13 @@ namespace {
   // until the time spent equals the remaining time required for forward walks, as estimated using ForwardSecondsRMaxRatio
   // (which is the ratio between the expected forward random walk time and the current MaxResidual that hasn't been pushed back).
   template <class PGraph>
-  void ApproxContributionsBalanced(const PGraph& Graph, const double& JumpProb, const int& TargetNId,
-                                   const float& ForwardSecondsRMaxRatio, TIntFltH& ResultEstimates, TIntFltH& ResultResiduals, float& ResultMaxResidual) {
+  void ApproxContributionsBalanced(const PGraph& Graph,
+                                   double JumpProb,
+                                   int TargetNId,
+                                   float ForwardSecondsRMaxRatio,
+                                   TIntFltH& ResultEstimates,
+                                   TIntFltH& ResultResiduals,
+                                   float& ResultMaxResidual) {
     double startTime = WallClockTime();
     TMaxPriorityQueue<TInt> nodesByResidual;
     nodesByResidual.Insert(TargetNId, 1.0f);
@@ -59,7 +64,7 @@ namespace {
 namespace TSnap {
 // Returns the endpoint of a random walk sampled from a random start node in StartNIdV.  The walk has expected length 1/JumpProb, and restarts if it reaches a dead-end node (one with no out-neighbors).
 template <class PGraph>
-int SamplePersonalizedPageRank(const PGraph& Graph, const double& JumpProb, const TIntV& StartNIdV, TRnd& Rnd) {
+int SamplePersonalizedPageRank(const PGraph& Graph, double JumpProb, const TIntV& StartNIdV, TRnd& Rnd) {
   int locationId = StartNIdV.GetRndVal(Rnd);
   //printf("starting walk at %d\n", locationId);
   while (Rnd.GetUniDev() >= JumpProb) {
@@ -80,15 +85,20 @@ int SamplePersonalizedPageRank(const PGraph& Graph, const double& JumpProb, cons
 // true, the result will provably (with high probability) have at most the given RelativeError, but this comes at the cost of significantly greater
 //  running time.  Uses the algorithm presented in "Personalized PageRank Estimation and Search: A Bidirectional Approach" by Lofgren, Banerjee, and Goel.
 template <class PGraph>
-float GetPersonalizedPageRankBidirectional(const PGraph& Graph, const double& JumpProb, const TIntV& StartNIdV,
-                                             const int& TargetNId, float MinProbability = -1.0f, const float& RelativeError = 0.1f,
-                                           const bool provableRelativeError = false, const bool PrintTimeForTuning = false) {
-  if (MinProbability <= 0.0f) { // Check if minProbability not set.
-    MinProbability = 1.0f / Graph->GetNodes();
+  double GetPersonalizedPageRankBidirectional(const PGraph& Graph,
+                                              double JumpProb,
+                                              const TIntV& StartNIdV,
+                                              int TargetNId,
+                                              double MinProbability = -1.0,
+                                              double RelativeError = 0.1,
+                                              bool provableRelativeError = false,
+                                              bool PrintTimeForTuning = false) {
+  if (MinProbability <= 0.0) { // Check if minProbability not set.
+    MinProbability = 1.0 / Graph->GetNodes();
   }
   // In experiments, when relativeError = 0.1, a chernoff constant of 0.07 gave mean relative error less than 0.1 on several realistic graphs.
   float kChernoffConstant = provableRelativeError ? 12 * exp(1) * log(2 / 1.0e-9) : 0.07;
-  float kSecondsPerWalk = 2.0e-7; // The time required to generate a random walk. Can be tuned so that forward and reverse running times are equal, to improve running time
+  float kSecondsPerWalk = 4.0e-7; // The time required to generate a random walk. Can be tuned so that forward and reverse running times are equal, to improve running time
   float WalkCountRMaxRatio = kChernoffConstant / (RelativeError * RelativeError) / MinProbability;
   float ForwardSecondsRMaxRatio = kSecondsPerWalk * WalkCountRMaxRatio;
   
@@ -99,10 +109,10 @@ float GetPersonalizedPageRankBidirectional(const PGraph& Graph, const double& Ju
   float MaxResidual;
   ApproxContributionsBalanced(Graph, JumpProb, TargetNId, ForwardSecondsRMaxRatio, Estimates, Residuals, MaxResidual);
   
-  double forwardTime = WallClockTime() - startTime;
+  double reverseTime = WallClockTime() - startTime;
   startTime = WallClockTime();
   
-  float Estimate = 0.0f;
+  double Estimate = 0.0;
   // First incorporate the average Estimates value for starting nodes
   for (int i = 0; i < StartNIdV.Len(); i++) {
     Estimate += Estimates.GetDatWithDefault(StartNIdV[i], 0.0) / StartNIdV.Len();
@@ -114,7 +124,7 @@ float GetPersonalizedPageRankBidirectional(const PGraph& Graph, const double& Ju
     int vId = SamplePersonalizedPageRank(Graph, JumpProb, StartNIdV, Rnd);
     Estimate += Residuals.GetDatWithDefault(vId, 0.0) / RandomWalkCount;
   }
-  double reverseTime = WallClockTime() - startTime;
+  double forwardTime = WallClockTime() - startTime;
   if (PrintTimeForTuning) printf("forwardTime reverseTime %g %g\n", forwardTime, reverseTime);
   
   return Estimate;
@@ -122,12 +132,18 @@ float GetPersonalizedPageRankBidirectional(const PGraph& Graph, const double& Ju
   
 // Convenience method that takes a single startNId and converts it to a vector of length 1 before calling GetPersonalizedPageRankBidirectional.
 template <class PGraph>
-inline float GetRndWalkRestartBidirectional(const PGraph& Graph, const double& JumpProb, const int& StartNId,
- const int& TargetNId, float minProbability = -1.0f, const float& relativeError = 0.1f,
- const bool proveRelativeError = false) {
-  return GetPersonalizedPageRankBidirectional(Graph, JumpProb, TIntV::GetV(StartNId), TargetNId,
-                                              minProbability, relativeError, proveRelativeError);
-}
+  double GetRndWalkRestartBidirectional(const PGraph& Graph,
+                                        double JumpProb,
+                                        int StartNId,
+                                        int TargetNId,
+                                        double minProbability = -1.0,
+                                        double relativeError = 0.1,
+                                        bool proveRelativeError = false,
+                                        bool PrintTimeForTuning = false) {
+    return GetPersonalizedPageRankBidirectional(Graph, JumpProb, TIntV::GetV(StartNId), TargetNId,
+                                                minProbability, relativeError, proveRelativeError, PrintTimeForTuning);
+  }
+
 }; // namespace TSnap
 
 #endif
