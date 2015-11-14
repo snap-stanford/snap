@@ -76,7 +76,7 @@ int TCrossNet::AddLink (const int& NIdType1, const int& NIdType2, const bool& di
     int newEId = EId;
     if (newEId > MxEId) MxEId = newEId; //TODO: Figure this out
   }
-  TMultiEdge newEdge(newEId, NIdType1, NIdType2, direction);
+  TCrossEdge newEdge(newEId, NIdType1, NIdType2, direction);
   LinkH.AddDat(newEid, newEdge);
   return 0;
 
@@ -87,7 +87,7 @@ int TCrossNet::DelLink(const int& EId) {
   return -1;
 }
 
-TMultiEdge TCrossNet::GetLink (const int& EId) const {
+TCrossEdge TCrossNet::GetLink (const int& EId) const {
   IAssertR(LinkH.IsKey(EId),TStr::Fmt("No link with id %d exists", EId));
   return LinkH.GetDat(EId);
 }

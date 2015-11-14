@@ -134,18 +134,18 @@ typedef TPt<TCrossNet> PCrossNet;
 class TCrossNet {
 
 public:
-  class TMultiEdge {
+  class TCrossEdge {
   private:
     TInt EId;
     TInt SrcNId, DstNId;
     TBool direction;
   public:
-    TMultiEdge() : EId(-1), SrcNId(-1), DstNId(-1), direction() { }
-    TMultiEdge(const int& EId, const int& SourceNId, const int& DestNId, const bool& direc) :
+    TCrossEdge() : EId(-1), SrcNId(-1), DstNId(-1), direction() { }
+    TCrossEdge(const int& EId, const int& SourceNId, const int& DestNId, const bool& direc) :
       Id(EId), SrcNId(SourceNId), DstNId(DestNId), direction(direc) { }
-    TMultiEdge(const TMultiEdge& MultiEdge) : EId(MultiEdge.EId), SrcNId(MultiEdge.SrcNId),
+    TCrossEdge(const TCrossEdge& MultiEdge) : EId(MultiEdge.EId), SrcNId(MultiEdge.SrcNId),
         DstNId(MultiEdge.DstNId), direction(MuliEdge.direction) { }
-    TMultiEdge(TSIn& SIn) : EId(SIn), SrcNId(SIn), DstNId(SIn), direction(SIn) { }
+    TCrossEdge(TSIn& SIn) : EId(SIn), SrcNId(SIn), DstNId(SIn), direction(SIn) { }
     void Save(TSOut& SOut) const { EId.Save(SOut); SrcNId.Save(SOut); DstNId.Save(SOut); direction.Save(SOut); }
     int GetId() const { return EId; }
     int GetSrcNId() const { if (direction) { return SrcNId; } else { return DstNId; } }
@@ -154,20 +154,20 @@ public:
     friend class TCrossNet;
   };
     /// Edge iterator. Only forward iteration (operator++) is supported.
-  class TMultiEdgeI {
+  class TCrossEdgeI {
   private:
-    typedef THash<TInt, TMultiEdge>::TIter THashIter;
+    typedef THash<TInt, TCrossEdge>::TIter THashIter;
     THashIter EdgeHI;
     const TCrossNet *Graph;
   public:
     TEdgeI() : EdgeHI(), Graph(NULL) { }
     TEdgeI(const THashIter& EdgeHIter, const TCrossNet *GraphPt) : EdgeHI(EdgeHIter), Graph(GraphPt) { }
-    TEdgeI(const TMultiEdgeI& EdgeI) : EdgeHI(EdgeI.EdgeHI), Graph(EdgeI.Graph) { }
-    TEdgeI& operator = (const TMultiEdgeI& EdgeI) { if (this!=&EdgeI) { EdgeHI=EdgeI.EdgeHI; Graph=EdgeI.Graph; }  return *this; }
+    TEdgeI(const TCrossEdgeI& EdgeI) : EdgeHI(EdgeI.EdgeHI), Graph(EdgeI.Graph) { }
+    TEdgeI& operator = (const TCrossEdgeI& EdgeI) { if (this!=&EdgeI) { EdgeHI=EdgeI.EdgeHI; Graph=EdgeI.Graph; }  return *this; }
     /// Increment iterator.
     TEdgeI& operator++ (int) { EdgeHI++; return *this; }
-    bool operator < (const TMultiEdgeI& EdgeI) const { return EdgeHI < EdgeI.EdgeHI; }
-    bool operator == (const TMultiEdgeI& EdgeI) const { return EdgeHI == EdgeI.EdgeHI; }
+    bool operator < (const TCrossEdgeI& EdgeI) const { return EdgeHI < EdgeI.EdgeHI; }
+    bool operator == (const TCrossEdgeI& EdgeI) const { return EdgeHI == EdgeI.EdgeHI; }
     /// Returns edge ID.
     int GetId() const { return EdgeHI.GetDat().GetId(); }
     /// Returns the source of the edge.
@@ -184,7 +184,7 @@ public:
   };
 
 private:
-  THash<TInt,TMultiEdge> LinkH;
+  THash<TInt,TCrossEdge> LinkH;
   TInt MxEId;
   TInt Mode1;
   TInt Mode2;
@@ -196,9 +196,9 @@ public:
 public:
   int AddLink (const int& sourceNId, const int& sourceNModeId, const int& destNId, const int& destNModeId, const int& EId=-1);
   int AddLink (const int& NIdType1, const int& NIdType2, const bool& direction, const int& EId=-1);
-  TMultiEdgeI GetLinkI(const int& EId) const { return TMultiEdgeI(LinkH.GetI(EId), this); }
-  TMultiEdgeI BegLinkI() const { return TMultiEdgeI(LinkH.BegI(), this); }
-  TMultiEdgeI EndLinkI() const { return TMultiEdgeI(LinkH.EndI(), this); }
+  TCrossEdgeI GetLinkI(const int& EId) const { return TCrossEdgeI(LinkH.GetI(EId), this); }
+  TCrossEdgeI BegLinkI() const { return TCrossEdgeI(LinkH.BegI(), this); }
+  TCrossEdgeI EndLinkI() const { return TCrossEdgeI(LinkH.EndI(), this); }
   int DelLink(const int& EId) const;
   int GetMode1() const { return Mode1; }
   int GetMode2() const { return Mode2; }
