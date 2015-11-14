@@ -21,6 +21,8 @@ int TMMNet::AddLinkType(const TStr& ModeName1, const TStr& ModeName2, const TStr
   TInt ModeId2 = GetModeId(ModeName2);
   return AddLinkType(ModeId1, ModeId2, EdgeTypeName, EdgeTypeId)
 }
+
+
 int TMMNet::AddLinkType(const TInt& ModeId1, const TInt& ModeId2, const TStr& EdgeTypeName, TInt& EdgeTypeId) {
   if (!ModeIdToNameH.IsKey(ModeId1) || !ModeIdToNameH.IsKey(ModeId2)) { return -1; }
   EdgeTypeId = TInt(MxLinkTypeId);
@@ -28,12 +30,25 @@ int TMMNet::AddLinkType(const TInt& ModeId1, const TInt& ModeId2, const TStr& Ed
   LinkIdToNameH.AddDat(EdgeTypeId, EdgeTypeName);
   LinkNameToIdH.AddDat(EdgeTypeName, EdgeTypeId);
   TIntPr Pairing(ModeId1, ModeId2);
-  LinkNameToPrH.AddDat(EdgeTypeName, Pairing);
-  LinkPrToNameH.AddDat(Pairing, EdgeTypeName);
+  LinkIdToPrH.AddDat(EdgeTypeId, Pairing);
+  LinkPrToIdH.AddDat(Pairing, EdgeTypeId);
 
   TMultiLink Link = TMultiLink();
   TMultiLinkV.Append(Link)
   return 0;
+}
+
+TIntPr TMMNet::GetOrderedLinkPair(const TStr& Mode1, const TStr& Mode2) {
+  TInt ModeId1 = GetModeId(Mode1);
+  TInt ModeId2 = GetModeId(Mode2);
+  return GetOrderedLinkPair(ModeId1, ModeId2);
+}
+
+TIntPr TMMNet::GetOrderedLinkPair(const TInt& Mode1, const TInt& Mode2) {
+  if (Mode1 < Mode2) {
+    return TIntPr(Mode1, Mode2);
+  }
+  return TIntPr(Mode2, Mode1);
 }
 
 
@@ -80,41 +95,70 @@ TMultiEdge TMultiLink::GetLink (const int& EId) const {
   return LinkH.GetDat(EId);
 }
 
-int TMultiNet::AddEdge(const int& SrcNId, const int& DstNId, const int& DstModeId, const TInt& EId=-1){
+int TMultiNet::AddEdge(const int& SrcNId, const int& DstNId, const int& OtherModeId, const bool& OtherIsSrc, const TInt& EId=-1){
+  if (OtherIsSrc) {
+    IAssertR(NodeH.IsKey(DstNId),TStr::Fmt("No node with id %d exists", DstNId));
+    return MMNet->AddEdge(OtherModeId, NTypeId, SrcNId, DstNId, EId);
+  }
   IAssertR(NodeH.IsKey(SrcNId),TStr::Fmt("No node with id %d exists", SrcNId));
-  return this.AddEdge(SrcNId, DstNId, true, DstModeId, EId);
+  return MMNet->AddEdge(NTypeId, OtherModeId, SrcNId, DstNId, EId);
 }
 
-int TMultiNet::AddEdge(const int& NId, const int& OtherTypeNId, bool direction, const int& DstModeId, const TInt& EId=-1){
-  return MMNet.AddEdge(NId, OtherTypeNId, direction,DstModeId,Eid);
+int TMultiNet::AddEdge(const int& SrcNId, const int& DstNId, const TStr& OtherMode, const bool& OtherIsSrc, const TInt& EId=-1){
+  TStr NMode = MMNet->GetModeName(NTypeId);
+  if (OtherIsSrc) {
+    IAssertR(NodeH.IsKey(DstNId),TStr::Fmt("No node with id %d exists", DstNId));
+    return MMNet->AddEdge(OtherMode, NMode, SrcNId, DstNId, EId);
+  }
+  IAssertR(NodeH.IsKey(SrcNId),TStr::Fmt("No node with id %d exists", SrcNId));
+  return MMNet->AddEdge(NMode, OtherMode, SrcNId, DstNId, EId);
 }
-int TMultiNet::AddEdge(const int& NId, const int& OtherTypeNId, bool direction, const TStr& LinkTypeName, const TInt& EId=-1){
-  return MMNet.AddEdge(NId, OtherTypeNId, direction,DstModeId,Eid);
 
+int TMultiNet::AddEdge(const int& CurrModeNId, const int& OtherModeNId, bool direction, const TStr& LinkTypeName, const TInt& EId=-1) {
+
+  return MMNet->AddEdge(CurrModeNId, OtherModeNId, direction, LinkTypeName, EId);
 }
+
+int TMultiNet::AddEdge(const int& CurrModeNId, const int& OtherModeNId, bool direction, const TInt& LinkTypeId, const TInt& EId=-1) {
+  return MMNet->AddEdge(CurrModeNId, OtherModeNId, direction, LinkTypeId, EId);
+}
+
+
 int TMultiNet::DelEdge(const TStr& LinkTypeName, const TInt& EId){
 }
 
 
+TStr TMultiNet::GetNeighborLinkName(TStr& LinkName, bool isOutEdge) {
+  TStr Cpy(LinkName);
+  if (isOutEdge) {
+    Cpy += ":OUT";
+  } else {
+    Cpy += ":IN";
+  }
+  return Cpy;
+}
+
 //TODO
 //method to add neighbors; will be called by TMMNet AddEdge function; outEdge == true iff NId(which is of the type of the TMultiNet; i.e. it should refer to a node in this graph) is the source node.
-int TMultiNet::AddNeighbor(const int& NId, const int& EId, bool outEdge){
-  if (outEdge) {
-    //IntVV attribute.AddDat()
-  }
-  else {
-
-  }
-
+int TMultiNet::AddNeighbor(const int& NId, const int& EId, bool outEdge, const int linkId){
+  TStr LinkName = MMNet->GetLinkName(linkId);
+  return AddNeighbor(NId, EId, outEdge, linkName);
 }
-int TMultiNet::DelNeighbor(const int& NId, const int& EId, bool outEdge){
-  if (outEdge ) {
 
+int TMultiNet::AddNeighbor(const int& NId, const int& EId, bool outEdge, const TStr& linkName){
+  TStr Name = GetNeighborLinkName(linkName, outEdge);
+  if (!NeighborTypes.IsKey(Name)) {
+    NeighborTypes.AddKey(name);
   }
-  else{
+  return AppendIntVAttrDatN(NId, EId, Name); 
+}
 
+int TMultiNet::DelNeighbor(const int& NId, const int& EId, bool outEdge, const TStr& linkName){
+  TStr Name = GetNeighborLinkName(linkName, outEdge);
+  if (!NeighborTypes.IsKey(Name)) {
+    return -1;
   }
-
+  DelFromIntVAttrDatN(NId, EId, Name);
 }
 
 //TODO: Does TMMNet implement any of the logic for this?

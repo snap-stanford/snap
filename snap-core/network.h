@@ -2059,6 +2059,9 @@ public:
 
   int AppendIntVAttrDatN(const TNodeI& NodeI, const TInt& value, const TStr& attr) { return AppendIntVAttrDatN(NodeI.GetId(), value, attr); }
   int AppendIntVAttrDatN(const int& NId, const TInt& value, const TStr& attr);
+
+  int DelFromIntVAttrDatN(const TNodeI& NodeI, const TInt& value, const TStr& attr) { return DelFromIntVAttrDatN(NodeI.GetId(), value, attr); }
+  int DelFromIntVAttrDatN(const int& NId, const TInt& value, const TStr& attr);
   //**************
   /// Attribute based add function for attr to Int value. ##TNEANet::AddIntAttrDatE
   int AddIntAttrDatE(const TEdgeI& EdgeI, const TInt& value, const TStr& attr) { return AddIntAttrDatE(EdgeI.GetId(), value, attr); }

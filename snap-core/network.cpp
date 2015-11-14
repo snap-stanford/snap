@@ -779,6 +779,25 @@ int TNEANet::AppendIntVAttrDatN(const int& NId, const TInt& value, const TStr& a
     TVec<TIntV>& NewVec = VecOfIntVecVecsN[KeyToIndexTypeN.GetDat(attr).Val2];
     NewVec[NodeH.GetKeyId(NId)].Add(value);
   } else {
+    TIntV AttrV;
+    AttrV.Add(value);
+    AddIntVAttrDatN(NId, AttrV, attr);
+  }
+  return 0;
+} 
+
+int TNEANet::DelFromIntVAttrDatN(const int& NId, const TInt& value, const TStr& attr) {
+  TInt CurrLen;
+  if (!IsNode(NId)) {
+    // AddNode(NId);
+    return -1;
+  }
+  if (KeyToIndexTypeN.IsKey(attr)) {
+    TVec<TIntV>& NewVec = VecOfIntVecVecsN[KeyToIndexTypeN.GetDat(attr).Val2];
+    if (!NewVec[NodeH.GetKeyId(NId)].DelIfIn(value)) {
+      return -1;
+    }
+  } else {
     return -1;
   }
   return 0;
