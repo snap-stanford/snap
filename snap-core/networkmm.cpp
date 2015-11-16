@@ -102,8 +102,20 @@ int TMMNet::AddEdge(int& NId, int& NId2, bool& direction, int& ModeId1, TInt& Li
 
 
 int TMMNet::DelEdge(const TInt& LinkTypeId, const TInt& EId) {
-	//TODO
-  return -1;
+  if (!TCrossNetH.IsKey(LinkTypeId)) {
+    return -1;
+  }
+  TCrossNet& CrossNet = TCrossNetH.GetDat(LinkTypeId);
+  TCrosNet::TCrossEdgeI EI = CrossNet.GetI(EId);
+  TInt SrcMId = EI.GetSrcModeId();
+  TInt SrcNId = EI.GetSrcNId();
+  TInt DstMId = EI.GetDstModeId();
+  TInt DstNId = EI.GetDstNId();
+  PModeNet Net1 = PModeNetV[SrcMId];
+  Net1->DelNeighbor(SrcNId, EId, true, LinkTypeId);
+  PModeNet Net2 = PModeNetV[DstMId];
+  Net2->DelNeighbor(DstNId2, EId, false, LinkTypeId);
+  return CrossNet.DelLink(EId);
 }
 
 
@@ -209,7 +221,7 @@ int TModeNet::DelNeighbor(const int& NId, const int& EId, bool outEdge, const TI
   return DelNeighbor(NId, EId, outEdge, LinkName);
 }
 
-//TODO: Does TMMNet implement any of the logic for this? 
+//TODO: Finish implementing
 int TModeNet::DelNode ( const int& NId){
   // loop through all neighbor vectors, call delete edge on each of these
   TNEANet::DelNode(NId);

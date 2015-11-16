@@ -251,7 +251,7 @@ private:
   TIntPr GetOrderedLinkPair(const TInt& Mode1, const TInt& Mode2);
   int AddEdge(int& NId, int& NId2, bool& direction, int& ModeId1, TStr& LinkTypeName, TInt& EId=-1);
   int AddEdge(int& NId, int& NId2, bool& direction, int& ModeId1, TInt& LinkTypeId, TInt& EId=-1);
-  int DelEdge(const TInt& LinkTypeId, const TInt& EId); // TODO(sramas15): finish implementing
+  int DelEdge(const TInt& LinkTypeId, const TInt& EId);
 };
 
 // set flags
