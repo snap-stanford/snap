@@ -8,11 +8,9 @@ class TMMNet;
 typedef TPt<TMMNet> PMMNet;
 
 //NOTE: Removed inheritance from nodes and edges (for now)
-//TODO: Renaming
-//TODO: Change Type everywhere to Mode
 //TODO: TCrossNet with the entire hash table
 
-//A single mode in a multimodal directed attributed multigraph
+///A single mode in a multimodal directed attributed multigraph
 class TModeNet;
 
 /// Pointer to a directed attribute multigraph (TNEANet)
@@ -32,7 +30,7 @@ public:
   public:
     TNodeMM() : Id(-1), InEIdV(), OutEIdV() { }
     TNodeMM(const int& NId) : Id(NId), InEIdV(), OutEIdV() { }
-    TNodeMM(const TNode& Node) : Id(Node.Id), InEIdV(Node.InEIdV), OutEIdV(Node.OutEIdV) { }
+    TNodeMM(const TNodeMM& Node) : Id(Node.Id), InEIdV(Node.InEIdV), OutEIdV(Node.OutEIdV) { }
     TNodeMM(TSIn& SIn) : Id(SIn), InEIdV(SIn), OutEIdV(SIn) { }
     void Save(TSOut& SOut) const { Id.Save(SOut); InEIdV.Save(SOut); OutEIdV.Save(SOut); }
     int GetId() const { return Id; }
@@ -132,7 +130,6 @@ typedef TPt<TCrossNet> PCrossNet;
 
 //A class for each link table
 //TODO: Attributes: how?
-//TODO: Name this as multi link table?
 class TCrossNet {
 
 public:
@@ -143,10 +140,10 @@ public:
     TBool direction;
   public:
     TCrossEdge() : EId(-1), Mode1NId(-1), Mode2NId(-1), direction() { }
-    TCrossEdge(const int& EId, const int& M1NId, const int& M2NId, const bool& direc) :
-      Id(EId), Mode1NId(M1NId), Mode2NId(M2NId), direction(direc) { }
+    TCrossEdge(const int& Id, const int& M1NId, const int& M2NId, const bool& direc) :
+      EId(Id), Mode1NId(M1NId), Mode2NId(M2NId), direction(direc) { }
     TCrossEdge(const TCrossEdge& MultiEdge) : EId(MultiEdge.EId), Mode1NId(MultiEdge.Mode1NId),
-        Mode2NId(MultiEdge.Mode2NId), direction(MuliEdge.direction) { }
+        Mode2NId(MultiEdge.Mode2NId), direction(MultiEdge.direction) { }
     TCrossEdge(TSIn& SIn) : EId(SIn), Mode1NId(SIn), Mode2NId(SIn), direction(SIn) { }
     void Save(TSOut& SOut) const { EId.Save(SOut); Mode1NId.Save(SOut); Mode2NId.Save(SOut); direction.Save(SOut); }
     int GetId() const { return EId; }
@@ -194,7 +191,7 @@ private:
   PMMnet Net;
   //Constructors
 public:
-  TCrossNet() : LinkH(), MxEId(-1), Mode1(), Mode2(), LinkId() ({}
+  TCrossNet() : LinkH(), MxEId(-1), Mode1(), Mode2(), LinkId() {}
   TCrossNet(TInt MId1, TInt MId2, TInt LId) : LinkH(), MxEId(-1), Mode1(MId1), Mode2(MId2), LinkId(LId) {}
 private:
   int AddLink (const int& sourceNId, const int& sourceNModeId, const int& destNId, const int& EId=-1);
@@ -218,6 +215,7 @@ class TMMNet {
 
 
 private:
+
   TInt MxModeId; //The number of modes
   TInt MxLinkTypeId;
   TVec<PModeNet> PModeNetV; //The vector of TNEANetMM's this contains. TODO: Decide whether this is vec or hash
@@ -230,8 +228,11 @@ private:
   THash<TStr,TInt> LinkNameToIdH;
 
 public:
-  TMMNet() : MxModeId(0), TModeNetV() {}
-  TMMNet(const TMMNet& OtherTMMNet) : MxModeId(OtherTMMNet.MxModeId), TNEANetMMV(OtherTMMNet.TNEANetMMV) {}
+  TCRef CRef; //Reference counter. Necessary for pointers.
+
+public:
+  TMMNet() : MxModeId(0), PModeNetV() {}
+  TMMNet(const TMMNet& OtherTMMNet) : MxModeId(OtherTMMNet.MxModeId), PModeNetV(OtherTMMNet.PModeNetV) {}
   int AddMode(const TStr& ModeName, TInt& ModeId);
   int DelMode(const TInt& ModeId); // TODO(sramas15): finish implementing
   int DelMode(const TStr& ModeName);
