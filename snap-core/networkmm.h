@@ -113,7 +113,7 @@ private:
   int AddNeighbor(const int& NId, const int& EId, const bool outEdge, const TStr& linkName);
   int DelNeighbor(const int& NId, const int& EId, bool outEdge, const TStr& LinkName);
   int DelNeighbor(const int& NId, const int& EId, bool outEdge, const TInt& linkId);
-  TStr GetNeighborLinkName(TStr& LinkName, bool isOutEdge);
+  TStr GetNeighborLinkName(const TStr& LinkName, bool isOutEdge);
 public:
 
   /// Deletes all nodes and edges from the graph.
@@ -188,7 +188,7 @@ private:
   TInt Mode1;
   TInt Mode2;
   TInt LinkId;
-  PMMnet Net;
+  PMMNet Net;
   //Constructors
 public:
   TCrossNet() : LinkH(), MxEId(-1), Mode1(), Mode2(), LinkId() {}

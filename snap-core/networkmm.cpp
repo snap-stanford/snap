@@ -12,7 +12,7 @@ int TMMNet::AddMode(const TStr& ModeName, TInt& ModeId) {
   ModeNameToIdH.AddDat(ModeName, ModeId);
 
   PModeNet NewGraph = TModeNet.New();
-  PModeNetV.Append(NewGraph);
+  PModeNetV.Append(NewGraph); //TODO: Where is Append?
 
   return ModeId;
 }
@@ -102,6 +102,7 @@ int TMMNet::AddEdge(int& NId, int& NId2, bool& direction, int& ModeId1, TInt& Li
 
 
 int TMMNet::DelEdge(const TInt& LinkTypeId, const TInt& EId) {
+	//TODO
   return -1;
 }
 
@@ -125,17 +126,18 @@ int TCrossNet::AddLink (const int& sourceNId, const int& sourceNModeId, const in
 }
 
 int TCrossNet::AddLink (const int& NIdType1, const int& NIdType2, const bool& direction, const int& EId) {
+  int newEId;
   if (EId == -1) {
     MxEId++;
-    int newEId = MxEId;
+    newEId = MxEId;
   }
   else {
     IAssertR(!LinkH.IsKey(EId), TStr::Fmt("The edge with id %d already exists", EId ));
-    int newEId = EId;
+    newEId = EId;
     if (newEId > MxEId) MxEId = newEId; //TODO: Figure this out
   }
   TCrossEdge newEdge(newEId, NIdType1, NIdType2, direction);
-  LinkH.AddDat(newEid, newEdge);
+  LinkH.AddDat(newEId, newEdge);
   return EId;
 
 }
@@ -161,11 +163,6 @@ int TCrossNet::DelEdge(const int& EId) {
 }
 
 
-
-
-
-
-
 int TModeNet::AddEdge(const int& CurrModeNId, const int& OtherModeNId, bool direction, const TStr& LinkTypeName, const TInt& EId=-1) {
 
   return MMNet->AddEdge(CurrModeNId, OtherModeNId, direction, LinkTypeName, EId);
@@ -188,13 +185,13 @@ TStr TModeNet::GetNeighborLinkName(TStr& LinkName, bool isOutEdge) {
 
 int TModeNet::AddNeighbor(const int& NId, const int& EId, bool outEdge, const int linkId){
   TStr LinkName = MMNet->GetLinkName(linkId);
-  return AddNeighbor(NId, EId, outEdge, linkName);
+  return AddNeighbor(NId, EId, outEdge, LinkName);
 }
 
 int TModeNet::AddNeighbor(const int& NId, const int& EId, bool outEdge, const TStr& LinkName){
   TStr Name = GetNeighborLinkName(LinkName, outEdge);
   if (!NeighborTypes.IsKey(Name)) {
-    NeighborTypes.AddKey(name);
+    NeighborTypes.AddKey(Name);
   }
   return AppendIntVAttrDatN(NId, EId, Name); 
 }
