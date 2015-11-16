@@ -159,7 +159,7 @@ public:
   /// Adds a node NodeI and its node data to the network.
   int AddNode(const TNodeI& NodeI) { return AddNode(NodeI.GetId(), NodeI.GetDat()); }
   /// Deletes node of ID NId from the network. ##TNodeNet::DelNode
-  void DelNode(const int& NId);
+  virtual void DelNode(const int& NId);
   /// Deletes node of ID NodeI.GetId() from the network.
   void DelNode(const TNode& NodeI) { DelNode(NodeI.GetId()); }
   /// Tests whether ID NId is a node.

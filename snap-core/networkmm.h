@@ -69,7 +69,6 @@ private:
   PMMNet MMNet; //the parent MMNet
   THashSet<TStr> NeighborTypes;
 
-  TStr GetNeighborLinkName(TStr& LinkName, bool isOutEdge);
 public:
   //TODO: Update constructors with information from fields above.
   TModeNet() : TNEANet(), TypeEdgeH(), OutEdgeV(), InEdgeV(), MxTypeEId(0), NTypeId(-1) { }
@@ -97,24 +96,27 @@ public:
   /// Static constructor that loads the graph from a stream SIn and returns a pointer to it.
   static PModeNet Load(TSIn& SIn) { return PModeNet(new TModeNet(SIn)); }
 
-  int DelNode ( const int& NId);
+  int DelNode (const int& NId); //TODO(sramas15): finish implementing
 
   // Returns the number of edges in the graph.
   //int GetEdges() const { return EdgeH.Len(); }
   /// Adds an edge with ID EId between node IDs SrcNId and DstNId to the graph. ##TNEANet::AddEdge
 
-  int AddEdge(const int& SrcNId, const int& DstNId, const int& OtherModeId, const bool& OtherIsSrc, const TInt& EId=-1);
-  int AddEdge(const int& SrcNId, const int& DstNId, const TStr& OtherMode, const bool& OtherIsSrc, const TInt& EId=-1);
   int AddEdge(const int& CurrModeNId, const int& OtherModeNId, bool direction, const TStr& LinkTypeName, const TInt& EId=-1);
   int AddEdge(const int& CurrModeNId, const int& OtherModeNId, bool direction, const TInt& LinkTypeId, const TInt& EId=-1);
 
   int DelEdge(const TStr& LinkTypeName, const TInt& EId);
+  int DelEdge(const TInt& LinkTypeId, const TInt& EId);
 
 
+private:
   //method to add neighbors; will be called by TMMNet AddEdge function; outEdge == true iff NId(which is of the type of the TModeNet; i.e. it should refer to a node in this graph) is the source node.
   int AddNeighbor(const int& NId, const int& EId, const bool outEdge, const int linkId);
   int AddNeighbor(const int& NId, const int& EId, const bool outEdge, const TStr& linkName);
-  int DelNeighbor(const int& NId, const int& EId, bool outEdge);
+  int DelNeighbor(const int& NId, const int& EId, bool outEdge, const TStr& LinkName);
+  int DelNeighbor(const int& NId, const int& EId, bool outEdge, const TInt& linkId);
+  TStr GetNeighborLinkName(TStr& LinkName, bool isOutEdge);
+public:
 
   /// Deletes all nodes and edges from the graph.
   void Clr() { TNEANet::Clr(); TypeEdgeH.Clr(); OutEdgeV.Clr(); InEdgeV.Clr(); MxTypeEId = 0; NTypeId = -1;}
@@ -137,19 +139,19 @@ public:
   class TCrossEdge {
   private:
     TInt EId;
-    TInt SrcNId, DstNId;
+    TInt Mode1NId, Mode2NId;
     TBool direction;
   public:
-    TCrossEdge() : EId(-1), SrcNId(-1), DstNId(-1), direction() { }
-    TCrossEdge(const int& EId, const int& SourceNId, const int& DestNId, const bool& direc) :
-      Id(EId), SrcNId(SourceNId), DstNId(DestNId), direction(direc) { }
-    TCrossEdge(const TCrossEdge& MultiEdge) : EId(MultiEdge.EId), SrcNId(MultiEdge.SrcNId),
-        DstNId(MultiEdge.DstNId), direction(MuliEdge.direction) { }
-    TCrossEdge(TSIn& SIn) : EId(SIn), SrcNId(SIn), DstNId(SIn), direction(SIn) { }
-    void Save(TSOut& SOut) const { EId.Save(SOut); SrcNId.Save(SOut); DstNId.Save(SOut); direction.Save(SOut); }
+    TCrossEdge() : EId(-1), Mode1NId(-1), Mode2NId(-1), direction() { }
+    TCrossEdge(const int& EId, const int& M1NId, const int& M2NId, const bool& direc) :
+      Id(EId), Mode1NId(M1NId), Mode2NId(M2NId), direction(direc) { }
+    TCrossEdge(const TCrossEdge& MultiEdge) : EId(MultiEdge.EId), Mode1NId(MultiEdge.Mode1NId),
+        Mode2NId(MultiEdge.Mode2NId), direction(MuliEdge.direction) { }
+    TCrossEdge(TSIn& SIn) : EId(SIn), Mode1NId(SIn), Mode2NId(SIn), direction(SIn) { }
+    void Save(TSOut& SOut) const { EId.Save(SOut); Mode1NId.Save(SOut); Mode2NId.Save(SOut); direction.Save(SOut); }
     int GetId() const { return EId; }
-    int GetSrcNId() const { if (direction) { return SrcNId; } else { return DstNId; } }
-    int GetDstNId() const { if (direction) { return DstNId; } else { return SrcNId; } }
+    int GetSrcNId() const { if (direction) { return Mode1NId; } else { return Mode2NId; } }
+    int GetDstNId() const { if (direction) { return Mode2NId; } else { return Mode1NId; } }
     bool GetDirection() const { return direction; }
     friend class TCrossNet;
   };
@@ -192,14 +194,19 @@ private:
   PMMnet Net;
   //Constructors
 public:
-  TCrossNet() : MxEId(-1), LinkH() {}
-public:
-  int AddLink (const int& sourceNId, const int& sourceNModeId, const int& destNId, const int& destNModeId, const int& EId=-1);
+  TCrossNet() : LinkH(), MxEId(-1), Mode1(), Mode2(), LinkId() ({}
+  TCrossNet(TInt MId1, TInt MId2, TInt LId) : LinkH(), MxEId(-1), Mode1(MId1), Mode2(MId2), LinkId(LId) {}
+private:
+  int AddLink (const int& sourceNId, const int& sourceNModeId, const int& destNId, const int& EId=-1);
   int AddLink (const int& NIdType1, const int& NIdType2, const bool& direction, const int& EId=-1);
+  int DelLink(const int& EId) const;
+public:
+  int AddEdge (const int& sourceNId, const int& sourceNModeId, const int& destNId, const int& destNModeId, const int& EId=-1);
+  int AddEdge (const int& NIdType1, const int& NIdType2, const bool& direction, const int& EId=-1);
   TCrossEdgeI GetLinkI(const int& EId) const { return TCrossEdgeI(LinkH.GetI(EId), this); }
   TCrossEdgeI BegLinkI() const { return TCrossEdgeI(LinkH.BegI(), this); }
   TCrossEdgeI EndLinkI() const { return TCrossEdgeI(LinkH.EndI(), this); }
-  int DelLink(const int& EId) const;
+  int DelEdge(const int& EId);
   int GetMode1() const { return Mode1; }
   int GetMode2() const { return Mode2; }
   friend class TMMNet;
@@ -225,19 +232,16 @@ private:
 public:
   TMMNet() : MxModeId(0), TModeNetV() {}
   TMMNet(const TMMNet& OtherTMMNet) : MxModeId(OtherTMMNet.MxModeId), TNEANetMMV(OtherTMMNet.TNEANetMMV) {}
-  int AddMode(const TStr& ModeName, TInt& ModeId); //TODO: Implement. Decide return type.
-  int DelMode(const TInt& ModeId);
+  int AddMode(const TStr& ModeName, TInt& ModeId);
+  int DelMode(const TInt& ModeId); // TODO(sramas15): finish implementing
   int DelMode(const TStr& ModeName);
   int AddLinkType(const TStr& ModeName1, const TStr& ModeName2, const TStr& EdgeTypeName, TInt& EdgeTypeId);
   int AddLinkType(const TInt& ModeId1, const TInt& ModeId2, const TStr& EdgeTypeName, TInt& EdgeTypeId);
-  int DelLinkType(const TInt& EdgeTypeId);
+  int DelLinkType(const TInt& EdgeTypeId); // TODO(sramas15): finish implementing
+  int DelLinkType(const TStr& EdgeType);
 
-
-
-  //Interface
   int GetModeId(const TStr& ModeName) const { return ModeNameToIdH.GetDat(ModeName);  }//TODO: Return type int or TInt?
   TStr GetModeName(const TInt& ModeId) const { return ModeIdToNameH.GetDat(ModeId); }
-
   int GetLinkId(const TStr& LinkName) const { return LinkNameToIdH.GetDat(LinkName);  }//TODO: Return type int or TInt?
   TStr GetLinkName(const TInt& LinkId) const { return LinkIdToNameH.GetDat(LinkId); }
 
@@ -246,6 +250,7 @@ private:
   TIntPr GetOrderedLinkPair(const TInt& Mode1, const TInt& Mode2);
   int AddEdge(int& NId, int& NId2, bool& direction, int& ModeId1, TStr& LinkTypeName, TInt& EId=-1);
   int AddEdge(int& NId, int& NId2, bool& direction, int& ModeId1, TInt& LinkTypeId, TInt& EId=-1);
+  int DelEdge(const TInt& LinkTypeId, const TInt& EId); // TODO(sramas15): finish implementing
 };
 
 // set flags
