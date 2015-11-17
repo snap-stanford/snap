@@ -990,7 +990,7 @@ int TNEANet::AddFltAttrE(const TStr& attr, TFlt defaultValue) {
   int i;
   TInt CurrLen;
   TVec<TFlt> NewVec;
-  CurrLen = VecOfStrVecsE.Len();
+  CurrLen = VecOfFltVecsE.Len();
   KeyToIndexTypeE.AddDat(attr, TIntPr(FltType, CurrLen));
   NewVec = TVec<TFlt>();
   for (i = 0; i < MxEId; i++) {
