@@ -175,15 +175,6 @@ int TCrossNet::DelEdge(const int& EId) {
 }
 
 
-int TModeNet::AddEdge(const int& CurrModeNId, const int& OtherModeNId, bool direction, const TStr& LinkTypeName, const TInt& EId=-1) {
-
-  return MMNet->AddEdge(CurrModeNId, OtherModeNId, direction, LinkTypeName, EId);
-}
-
-int TModeNet::AddEdge(const int& CurrModeNId, const int& OtherModeNId, bool direction, const TInt& LinkTypeId, const TInt& EId=-1) {
-  return MMNet->AddEdge(CurrModeNId, OtherModeNId, direction, LinkTypeId, EId);
-}
-
 
 TStr TModeNet::GetNeighborLinkName(TStr& LinkName, bool isOutEdge) {
   TStr Cpy(LinkName);
@@ -227,10 +218,7 @@ int TModeNet::DelNode ( const int& NId){
   TNEANet::DelNode(NId);
 }
 
-int TModeNet::DelEdge(const TStr& LinkTypeName, const TInt& EId) {
-  TInt LinkTypeId = MMNet->GetLinkId(LinkTypeName);
-  return DelEdge(LinkTypeId, EId);
+void TModeNet::SetParentPointer(PMMNet& parent) {
+  MMNet = parent;
 }
-int TModeNet::DelEdge(const TInt& LinkTypeId, const TInt& EId) {
-  return MMNet->DelEdge(LinkTypeId, EId);
-}
+

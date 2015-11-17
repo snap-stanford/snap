@@ -22,46 +22,6 @@ class TModeNet : TNEANet {
 public:
   typedef TModeNet TNetMM;
   typedef TPt<TModeNet> PNetMM;
-public:
-  class TNodeMM  {
-  private:
-    TInt Id;
-    TIntV InEIdV, OutEIdV;
-  public:
-    TNodeMM() : Id(-1), InEIdV(), OutEIdV() { }
-    TNodeMM(const int& NId) : Id(NId), InEIdV(), OutEIdV() { }
-    TNodeMM(const TNodeMM& Node) : Id(Node.Id), InEIdV(Node.InEIdV), OutEIdV(Node.OutEIdV) { }
-    TNodeMM(TSIn& SIn) : Id(SIn), InEIdV(SIn), OutEIdV(SIn) { }
-    void Save(TSOut& SOut) const { Id.Save(SOut); InEIdV.Save(SOut); OutEIdV.Save(SOut); }
-    int GetId() const { return Id; }
-    int GetDeg() const { return GetInDeg() + GetOutDeg(); } //TODO: Reimplement
-    int GetInDeg() const { return InEIdV.Len(); }
-    int GetOutDeg() const { return OutEIdV.Len(); }
-    int GetInEId(const int& EdgeN) const { return InEIdV[EdgeN]; }
-    int GetOutEId(const int& EdgeN) const { return OutEIdV[EdgeN]; }
-    int GetNbrEId(const int& EdgeN) const { return EdgeN<GetOutDeg()?GetOutEId(EdgeN):GetInEId(EdgeN-GetOutDeg()); }
-    bool IsInEId(const int& EId) const { return InEIdV.SearchBin(EId) != -1; }
-    bool IsOutEId(const int& EId) const { return OutEIdV.SearchBin(EId) != -1; }
-    friend class TModeNet;
-  };
-  class TEdgeMM {
-  private:
-    TInt Id, SrcNId, DstNId, SrcNTypeId, DstNTypeId;
-  public:
-    TEdgeMM() : Id(-1), SrcNId(-1), DstNId(-1), SrcNTypeId(-1), DstNTypeId(-1) { }
-    TEdgeMM(const int& EId, const int& SourceNId, const int& DestNId, const int& SourceNTypeId, const int& DestNTypeId) : 
-      Id(EId), SrcNId(SourceNId), DstNId(DestNId), SrcNTypeId(SourceNTypeId), DstNTypeId(DestNTypeId) { }
-    TEdgeMM(const TEdgeMM& EdgeMM) : Id(EdgeMM.Id), SrcNId(EdgeMM.SrcNId), DstNId(EdgeMM.DstNId), SrcNTypeId(EdgeMM.SrcNTypeId), DstNTypeId(EdgeMM.DstNTypeId) { }
-    TEdgeMM(TSIn& SIn) : Id(SIn), SrcNId(SIn), DstNId(SIn), SrcNTypeId(SIn), DstNTypeId(SIn) { }
-    void Save(TSOut& SOut) const { Id.Save(SOut); SrcNId.Save(SOut); DstNId.Save(SOut); SrcNTypeId(-1).Save(SOut); DstNTypeId.Save(SOut); }
-    int GetId() const { return Id; }
-    int GetSrcNId() const { return SrcNId; }
-    int GetDstNId() const { return DstNId; }
-    int GetSrcNTypeId() const { return SrcNTypeId; }
-    int GetDstNTypeId() const { return DstNTypeId; }
-    friend class TModeNet;
-  };
-
 private:
   TInt NTypeId;
   PMMNet MMNet; //the parent MMNet
@@ -69,24 +29,22 @@ private:
 
 public:
   //TODO: Update constructors with information from fields above.
-  TModeNet() : TNEANet(), TypeEdgeH(), OutEdgeV(), InEdgeV(), MxTypeEId(0), NTypeId(-1) { }
-  TModeNet(const int& TypeId) : TNEANet(), TypeEdgeH(), OutEdgeV(), InEdgeV(), MxTypeEId(0), NTypeId(TypeId) { }
+  TModeNet() : TNEANet(), NTypeId(-1), MMNet(), NeighborTypes() { }
+  TModeNet(const int& TypeId) : TNEANet(), NTypeId(TypeId), MMNet(), NeighborTypes() { }
   /// Constructor that reserves enough memory for a graph of nodes and edges.
   explicit TModeNet(const int& Nodes, const int& Edges) : TNEANet(Nodes, Edges),
-    TypeEdgeH(), OutEdgeV(), InEdgeV(), MxTypeEId(0), NTypeId(-1) { }
+    NTypeId(-1), MMNet(), NeighborTypes(){ }
   explicit TModeNet(const int& Nodes, const int& Edges, const int& TypeId) : TNEANet(Nodes, Edges),
-    TypeEdgeH(), OutEdgeV(), InEdgeV(), MxTypeEId(0), NTypeId(TypeId) { }
-  TModeNet(const TModeNet& Graph) :  TNEANet(Graph), TypeEdgeH(Graph.TypeEdgeH),
-    OutEdgeV(Graph.OutEdgeV), InEdgeV(Graph.InEdgeV), MxTypeEId(Graph.MxTypeEId), NTypeId(Graph.NTypeId) { }
+    NTypeId(-1), MMNet(), NeighborTypes() { }
+  TModeNet(const TModeNet& Graph) :  TNEANet(Graph), NTypeId(Graph.NTypeId), MMNet(Graph.MMNet), NeighborTypes(Graph.NeighborTypes) { }
   /// Constructor for loading the graph from a (binary) stream SIn.
-  TModeNet(TSIn& SIn) : TNEANet(SIn), TypeEdgeH(SIn), OutEdgeV(SIn), InEdgeV(SIn), MxTypeEId(SIn), NTypeId(SIn) { }
+  TModeNet(TSIn& SIn) : TNEANet(SIn), NTypeId(SIn), MMNet(SIn), NeighborTypes(SIn) { }
 
   //Make these functions virtual
 
   /// Saves the graph to a (binary) stream SOut.
   void Save(TSOut& SOut) const {
-    TNEANet::Save(SOut); TypeEdgeH.Save(SOut); OutEdgeV.Save(SOut);
-    InEdgeV.Save(SOut); MxTypeEId.Save(SOut); NTypeId.Save(SOut); }
+    TNEANet::Save(SOut); NTypeId.Save(SOut); MMNet.Save(SOut); NeighborTypes.Save(SOut); }
   /// Static cons returns pointer to graph. Ex: PModeNet Graph=TMultiGraph::New().
   static PModeNet New() { return PModeNet(new TModeNet()); }
   /// Static constructor that returns a pointer to the graph and reserves enough memory for Nodes nodes and Edges edges. ##TNEANet::New
@@ -96,16 +54,6 @@ public:
 
   int DelNode (const int& NId); //TODO(sramas15): finish implementing
 
-  // Returns the number of edges in the graph.
-  //int GetEdges() const { return EdgeH.Len(); }
-  /// Adds an edge with ID EId between node IDs SrcNId and DstNId to the graph. ##TNEANet::AddEdge
-
-  int AddEdge(const int& CurrModeNId, const int& OtherModeNId, bool direction, const TStr& LinkTypeName, const TInt& EId=-1);
-  int AddEdge(const int& CurrModeNId, const int& OtherModeNId, bool direction, const TInt& LinkTypeId, const TInt& EId=-1);
-
-  int DelEdge(const TStr& LinkTypeName, const TInt& EId);
-  int DelEdge(const TInt& LinkTypeId, const TInt& EId);
-
 
 private:
   //method to add neighbors; will be called by TMMNet AddEdge function; outEdge == true iff NId(which is of the type of the TModeNet; i.e. it should refer to a node in this graph) is the source node.
@@ -114,42 +62,37 @@ private:
   int DelNeighbor(const int& NId, const int& EId, bool outEdge, const TStr& LinkName);
   int DelNeighbor(const int& NId, const int& EId, bool outEdge, const TInt& linkId);
   TStr GetNeighborLinkName(const TStr& LinkName, bool isOutEdge);
+  void SetParentPointer(PMMNet& parent);
 public:
 
   /// Deletes all nodes and edges from the graph.
-  void Clr() { TNEANet::Clr(); TypeEdgeH.Clr(); OutEdgeV.Clr(); InEdgeV.Clr(); MxTypeEId = 0; NTypeId = -1;}
-
-  /// Returns a small multigraph on 5 nodes and 6 edges. ##TNEANet::GetSmallGraph
-  static PModeNet GetSmallGraph();
+  void Clr() { TNEANet::Clr(); NTypeId = -1; MMNet.Clr(); NeighborTypes.Clr(); }
   friend class TPt<TModeNet>;
+  friend class TMMNet;
 };
 
 class TCrossNet;
 
 typedef TPt<TCrossNet> PCrossNet;
 
-//A class for each link table
-//TODO: Attributes: how?
 class TCrossNet {
 
 public:
   class TCrossEdge {
   private:
     TInt EId;
-    TInt Mode1NId, Mode2NId;
-    TBool direction;
+    TInt SrcNId, DstNId;
   public:
-    TCrossEdge() : EId(-1), Mode1NId(-1), Mode2NId(-1), direction() { }
-    TCrossEdge(const int& Id, const int& M1NId, const int& M2NId, const bool& direc) :
-      EId(Id), Mode1NId(M1NId), Mode2NId(M2NId), direction(direc) { }
-    TCrossEdge(const TCrossEdge& MultiEdge) : EId(MultiEdge.EId), Mode1NId(MultiEdge.Mode1NId),
-        Mode2NId(MultiEdge.Mode2NId), direction(MultiEdge.direction) { }
-    TCrossEdge(TSIn& SIn) : EId(SIn), Mode1NId(SIn), Mode2NId(SIn), direction(SIn) { }
-    void Save(TSOut& SOut) const { EId.Save(SOut); Mode1NId.Save(SOut); Mode2NId.Save(SOut); direction.Save(SOut); }
+    TCrossEdge() : EId(-1), SrcNId(-1), DstNId(-1) { }
+    TCrossEdge(const int& Id, const int& SourceNId, const int& DestNId) :
+      EId(Id), SrcNId(SourceNId), DstNId(DestNId) { }
+    TCrossEdge(const TCrossEdge& MultiEdge) : EId(MultiEdge.EId), SrcNId(MultiEdge.SrcNId),
+        DstNId(MultiEdge.DstNId) { }
+    TCrossEdge(TSIn& SIn) : EId(SIn), SrcNId(SIn), DstNId(SIn) { }
+    void Save(TSOut& SOut) const { EId.Save(SOut); SrcNId.Save(SOut); DstNId.Save(SOut); }
     int GetId() const { return EId; }
-    int GetSrcNId() const { if (direction) { return Mode1NId; } else { return Mode2NId; } }
-    int GetDstNId() const { if (direction) { return Mode2NId; } else { return Mode1NId; } }
-    bool GetDirection() const { return direction; }
+    int GetSrcNId() const { return SrcNId; }
+    int GetDstNId() const { return DstNId; }
     friend class TCrossNet;
   };
     /// Edge iterator. Only forward iteration (operator++) is supported.
@@ -175,9 +118,11 @@ public:
     int GetDstNId() const { return EdgeHI.GetDat().GetDstNId(); }
 
     /// Returns the source of the edge.
-    int GetSrcModeId() const { if (EdgeHI.GetDat().GetDirection()) { return Graph->GetMode1(); } else { return Graph->GetMode2(); } }
+    int GetSrcModeId() const { return Graph->GetMode1(); }
     /// Returns the destination of the edge.
-    int GetDstModeId() const { if (EdgeHI.GetDat().GetDirection()) { return Graph->GetMode2(); } else { return Graph->GetMode1(); } }
+    int GetDstModeId() const { return Graph->GetMode2(); }
+    /// Returns whether the edge is directed.
+    int IsDirected() const { return Graph->IsDirected(); }
 
     friend class TCrossNet;
   };
@@ -194,15 +139,12 @@ public:
   TCrossNet() : LinkH(), MxEId(-1), Mode1(), Mode2(), LinkId() {}
   TCrossNet(TInt MId1, TInt MId2, TInt LId) : LinkH(), MxEId(-1), Mode1(MId1), Mode2(MId2), LinkId(LId) {}
 private:
-  int AddLink (const int& sourceNId, const int& sourceNModeId, const int& destNId, const int& EId=-1);
-  int AddLink (const int& NIdType1, const int& NIdType2, const bool& direction, const int& EId=-1);
-  int DelLink(const int& EId) const;
+  void SetParentPointer(PMMNet& parent);
 public:
-  int AddEdge (const int& sourceNId, const int& sourceNModeId, const int& destNId, const int& destNModeId, const int& EId=-1);
-  int AddEdge (const int& NIdType1, const int& NIdType2, const bool& direction, const int& EId=-1);
-  TCrossEdgeI GetLinkI(const int& EId) const { return TCrossEdgeI(LinkH.GetI(EId), this); }
-  TCrossEdgeI BegLinkI() const { return TCrossEdgeI(LinkH.BegI(), this); }
-  TCrossEdgeI EndLinkI() const { return TCrossEdgeI(LinkH.EndI(), this); }
+  int AddEdge(const int& sourceNId, const int& destNId, const int& EId=-1);
+  TCrossEdgeI GetEdgeI(const int& EId) const { return TCrossEdgeI(LinkH.GetI(EId), this); }
+  TCrossEdgeI BegEdgeI() const { return TCrossEdgeI(LinkH.BegI(), this); }
+  TCrossEdgeI EndEdgeI() const { return TCrossEdgeI(LinkH.EndI(), this); }
   int DelEdge(const int& EId);
   int GetMode1() const { return Mode1; }
   int GetMode2() const { return Mode2; }
@@ -218,7 +160,7 @@ private:
 
   TInt MxModeId; //The number of modes
   TInt MxLinkTypeId;
-  TVec<PModeNet> PModeNetV; //The vector of TNEANetMM's this contains. TODO: Decide whether this is vec or hash
+  TVec<TModeNet> TModeNetV;
   THash<TInt, TCrossNet> TCrossNetH;
 
   THash<TInt,TStr> ModeIdToNameH;
