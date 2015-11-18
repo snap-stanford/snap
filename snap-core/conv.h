@@ -59,8 +59,10 @@ PGraph ToGraph(PTable Table, const TStr& SrcCol, const TStr& DstCol, TAttrAggr A
 }
 
 template<class PGraph>
-PGraph ToNetwork(PTable Table, const TStr& SrcCol, const TStr& DstCol,
-	TStrV& SrcAttrV, TStrV& DstAttrV, TStrV& EdgeAttrV, TAttrAggr AggrPolicy)
+PGraph ToNetwork(PTable Table,
+  const TStr& SrcCol, const TStr& DstCol,
+  TStrV& SrcAttrV, TStrV& DstAttrV, TStrV& EdgeAttrV,
+  TAttrAggr AggrPolicy)
 {
 	PGraph Graph = PGraph::TObj::New();
 
@@ -84,7 +86,9 @@ PGraph ToNetwork(PTable Table, const TStr& SrcCol, const TStr& DstCol,
 
   // make single pass over all rows in the table
   for (int CurrRowIdx = 0; CurrRowIdx < (Table->Next).Len(); CurrRowIdx++) {
-    if ((Table->Next)[CurrRowIdx] == Table->Invalid) { continue; }
+    if ((Table->Next)[CurrRowIdx] == Table->Invalid) {
+      continue;
+    }
 
     // add src and dst nodes to graph if they are not seen earlier
    TInt SVal, DVal;
@@ -172,10 +176,11 @@ PGraph ToNetwork(PTable Table, const TStr& SrcCol, const TStr& DstCol,
 }
 
 template<class PGraph>
-PGraph ToNetwork(PTable Table, const TStr& SrcCol, const TStr& DstCol, TAttrAggr AggrPolicy)
+PGraph ToNetwork(PTable Table,
+  const TStr& SrcCol, const TStr& DstCol, TAttrAggr AggrPolicy)
 {
-	TStrV V;
-	return ToNetwork<PNEANet>(Table, SrcCol, DstCol, V, V, V, AggrPolicy);
+  TStrV V;
+  return ToNetwork<PNEANet>(Table, SrcCol, DstCol, V, V, V, AggrPolicy);
 }
 
 #ifdef GCC_ATOMIC

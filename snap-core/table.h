@@ -274,16 +274,22 @@ public:
 /// The name of the friend is not found by simple name lookup until a matching declaration is provided in that namespace scope (either before or after the class declaration granting friendship).
 namespace TSnap{
 	/// Converts table to a directed/undirected graph. Suitable for PUNGraph and PNGraph, but not for PNEANet where attributes are expected.
-	template<class PGraph> PGraph ToGraph(PTable Table, const TStr& SrcCol, const TStr& DstCol, TAttrAggr AggrPolicy);
+	template<class PGraph> PGraph ToGraph(PTable Table,
+    const TStr& SrcCol, const TStr& DstCol, TAttrAggr AggrPolicy);
 	/// Converts table to a network. Suitable for PNEANet - Requires node and edge attribute column names as vectors.
-	template<class PGraph> PGraph ToNetwork(PTable Table, const TStr& SrcCol, const TStr& DstCol,
-			TStrV& SrcAttrs, TStrV& DstAttrs, TStrV& EdgeAttrs, TAttrAggr AggrPolicy);
+	template<class PGraph> PGraph ToNetwork(PTable Table,
+    const TStr& SrcCol, const TStr& DstCol,
+    TStrV& SrcAttrs, TStrV& DstAttrs, TStrV& EdgeAttrs,
+    TAttrAggr AggrPolicy);
 	/// Converts table to a network. Suitable for PNEANet - Assumes no node and edge attributes.
-	template<class PGraph> PGraph ToNetwork(PTable Table, const TStr& SrcCol, const TStr& DstCol, TAttrAggr AggrPolicy);
+	template<class PGraph> PGraph ToNetwork(PTable Table,
+    const TStr& SrcCol, const TStr& DstCol, TAttrAggr AggrPolicy);
 
 #ifdef GCC_ATOMIC
-  template<class PGraphMP> PGraphMP ToGraphMP(PTable Table, const TStr& SrcCol, const TStr& DstCol);
-  template<class PGraphMP> PGraphMP ToGraphMP2(PTable Table, const TStr& SrcCol, const TStr& DstCol);
+  template<class PGraphMP> PGraphMP ToGraphMP(PTable Table,
+    const TStr& SrcCol, const TStr& DstCol);
+  template<class PGraphMP> PGraphMP ToGraphMP2(PTable Table,
+    const TStr& SrcCol, const TStr& DstCol);
   PNEANetMP ToTNEANetMP(PTable Table, const TStr& SrcCol, const TStr& DstCol);
   PNEANetMP ToTNEANetMP2(PTable Table, const TStr& SrcCol, const TStr& DstCol);
 #endif // GCC_ATOMIC
@@ -298,9 +304,12 @@ protected:
 
   static TInt UseMP; ///< Global switch for choosing multi-threaded versions of TTable functions.
 public:
-  template<class PGraph> friend PGraph TSnap::ToGraph(PTable Table, const TStr& SrcCol, const TStr& DstCol, TAttrAggr AggrPolicy);
-	template<class PGraph> friend PGraph TSnap::ToNetwork(PTable Table, const TStr& SrcCol, const TStr& DstCol,
-			TStrV& SrcAttrs, TStrV& DstAttrs, TStrV& EdgeAttrs, TAttrAggr AggrPolicy);
+  template<class PGraph> friend PGraph TSnap::ToGraph(PTable Table,
+    const TStr& SrcCol, const TStr& DstCol, TAttrAggr AggrPolicy);
+    template<class PGraph> friend PGraph TSnap::ToNetwork(PTable Table,
+    const TStr& SrcCol, const TStr& DstCol,
+    TStrV& SrcAttrs, TStrV& DstAttrs, TStrV& EdgeAttrs,
+    TAttrAggr AggrPolicy);
 
 #ifdef GCC_ATOMIC
   template<class PGraphMP> friend PGraphMP TSnap::ToGraphMP(PTable Table, const TStr& SrcCol, const TStr& DstCol);

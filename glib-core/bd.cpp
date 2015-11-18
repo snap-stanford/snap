@@ -75,8 +75,8 @@ void PrintBacktrace() {
 }
 
 void Crash() {
-  char *p;
-  p = (char *) 0;
+  int *p;
+  p = (int *) 0;
   *p = 1234;
 }
 #endif
