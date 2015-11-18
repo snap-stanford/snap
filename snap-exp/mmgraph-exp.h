@@ -4,8 +4,6 @@
 #include "network.h"
 #include "networkmp.h"
 
-#include "stopwatch.h"
-
 template<class TNode>
 class TMNet;
 

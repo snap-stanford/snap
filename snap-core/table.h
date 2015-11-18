@@ -6,6 +6,19 @@
 #endif
 
 //#//////////////////////////////////////////////
+/// Table class
+class TTable;
+class TTableContext;
+typedef TPt<TTable> PTable;
+
+/// Represents grouping key with IntV for integer and string attributes and FltV for float attributes.
+typedef TPair<TIntV, TFltV> TGroupKey;
+
+/// Distance metrics for similarity joins
+// Haversine distance is used to calculate distance between two points on a sphere based on latitude and longitude
+typedef enum {L1Norm, L2Norm, Jaccard, Haversine} TSimType;
+
+//#//////////////////////////////////////////////
 /// Metric class: base class for distance metrics
 class TMetric {
 protected:
@@ -28,19 +41,6 @@ public:
   /// Calculate the euclidean distance of two floats
   TFlt NumDist(TFlt x1,TFlt x2) { return fabs(x1-x2); }
 };
-
-/// Distance metrics for similarity joins
-// Haversine distance is used to calculate distance between two points on a sphere based on latitude and longitude
-typedef enum {L1Norm, L2Norm, Jaccard, Haversine} TSimType;
-
-//#//////////////////////////////////////////////
-/// Table class
-class TTable;
-class TTableContext;
-typedef TPt<TTable> PTable;
-
-/// Represents grouping key with IntV for integer and string attributes and FltV for float attributes.
-typedef TPair<TIntV, TFltV> TGroupKey;
 
 //TODO: move to separate file (map.h / file with PR and HITS)
 namespace TSnap {

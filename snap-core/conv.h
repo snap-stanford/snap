@@ -1,8 +1,6 @@
 #ifndef CONV_H
 #define CONV_H
 
-#include "stopwatch.h"
-
 namespace TSnap {
 
 template<class PGraph>

@@ -328,7 +328,6 @@ void GetPageRankMP2(const PGraph& Graph, TIntFltH& PRankH, const double& C, cons
   TIntV OutDegV(MxId+1);
   //printf("MxId %d\n", MxId);
 
-  //for (typename PGraph::TObj::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
   #pragma omp parallel for schedule(dynamic,10000)
   for (int j = 0; j < NNodes; j++) {
     typename PGraph::TObj::TNodeI NI = NV[j];
@@ -340,32 +339,21 @@ void GetPageRankMP2(const PGraph& Graph, TIntFltH& PRankH, const double& C, cons
   //printf("Collect degrees %f\n", t3-t2);
 
   TFltV TmpV(NNodes);
-  //int hcount1 = 0;
-  //int hcount2 = 0;
   //double i1 = 0;
   //double i2 = 0;
   //double i3 = 0;
   for (int iter = 0; iter < MaxIter; iter++) {
     //time_t t = time(0);
     //printf("%s%d\n", ctime(&t),iter);
-    //int j = 0;
-    //for (typename PGraph::TObj::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++, j++) {
     //double ti1 = omp_get_wtime();
     #pragma omp parallel for schedule(dynamic,10000)
     for (int j = 0; j < NNodes; j++) {
-      //typename PGraph::TObj::TNodeI NI = Graph->GetNI(NV[j]);
       typename PGraph::TObj::TNodeI NI = NV[j];
       TFlt Tmp = 0;
-      //TmpV[j] = 0;
       for (int e = 0; e < NI.GetInDeg(); e++) {
         const int InNId = NI.GetInNId(e);
-        //hcount1++;
-        //const int OutDeg = Graph->GetNI(InNId).GetOutDeg();
         const int OutDeg = OutDegV[InNId];
         if (OutDeg > 0) {
-          //hcount2++;
-          //TmpV[j] += PRankH.GetDat(InNId) / OutDeg;
-          //TmpV[j] += PRankV[InNId] / OutDeg;
           Tmp += PRankV[InNId] / OutDeg;
         }
       }
@@ -394,7 +382,6 @@ void GetPageRankMP2(const PGraph& Graph, TIntFltH& PRankH, const double& C, cons
     }
     //double ti4 = omp_get_wtime();
     //i3 += (ti4 - ti3);
-    //printf("counts %d %d\n", hcount1, hcount2);
     if (diff < Eps) { break; }
   }
   //double t4 = omp_get_wtime();
@@ -406,7 +393,6 @@ void GetPageRankMP2(const PGraph& Graph, TIntFltH& PRankH, const double& C, cons
   #pragma omp parallel for schedule(dynamic,10000)
   for (int i = 0; i < NNodes; i++) {
     typename PGraph::TObj::TNodeI NI = NV[i];
-    //PRankH.AddDat(NI.GetId(), PRankV[NI.GetId()]);
     PRankH[i] = PRankV[NI.GetId()];
   }
   //double t5 = omp_get_wtime();
@@ -642,7 +628,6 @@ void GetHitsMP(const PGraph& Graph, TIntFltH& NIdHubH, TIntFltH& NIdAuthH, const
   for (int iter = 0; iter < MaxIter; iter++) {
     // update authority scores
     Norm = 0;
-    //for (typename PGraph::TObj::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
     #pragma omp parallel for reduction(+:Norm) schedule(dynamic,1000)
     for (int i = 0; i < NNodes; i++) {
       typename PGraph::TObj::TNodeI NI = Graph->GetNI(NV[i]);
@@ -655,7 +640,6 @@ void GetHitsMP(const PGraph& Graph, TIntFltH& NIdHubH, TIntFltH& NIdAuthH, const
     Norm = sqrt(Norm);
     for (int i = 0; i < NIdAuthH.Len(); i++) { NIdAuthH[i] /= Norm; }
     // update hub scores
-    //for (typename PGraph::TObj::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
     #pragma omp parallel for reduction(+:Norm) schedule(dynamic,1000)
     for (int i = 0; i < NNodes; i++) {
       typename PGraph::TObj::TNodeI NI = Graph->GetNI(NV[i]);
