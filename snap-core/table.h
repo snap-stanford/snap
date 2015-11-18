@@ -971,13 +971,13 @@ public:
   /// Joins table with itself, on values of \c Col.
   PTable SelfJoin(const TStr& Col) { return Join(Col, *this, Col); }
   PTable SelfSimJoin(const TStrV& Cols, const TStr& DistanceColName, const TSimType& SimType, const TFlt& Threshold) { return SimJoin(Cols, *this, Cols, DistanceColName, SimType, Threshold); }
-	/// Performs join if the distance between two rows is less than the specified threshold. Returns table with schema (GroupId1, GroupId2, Similarity). ##TTable::SimJoinPerGroup
+	/// Performs join if the distance between two rows is less than the specified threshold. ##TTable::SimJoinPerGroup
 	PTable SelfSimJoinPerGroup(const TStr& GroupAttr, const TStr& SimCol, const TStr& DistanceColName, const TSimType& SimType, const TFlt& Threshold);
 
-	/// Performs join if the distance between two rows is less than the specified threshold.  ##TTable::SimJoinPerGroup
+	/// Performs join if the distance between two rows is less than the specified threshold.
 	PTable SelfSimJoinPerGroup(const TStrV& GroupBy, const TStr& SimCol, const TStr& DistanceColName, const TSimType& SimType, const TFlt& Threshold);
 
-	/// Performs join if the distance between two rows is less than the specified threshold.  ##TTable::SimJoin
+	/// Performs join if the distance between two rows is less than the specified threshold.
 	PTable SimJoin(const TStrV& Cols1, const TTable& Table, const TStrV& Cols2, const TStr& DistanceColName, const TSimType& SimType, const TFlt& Threshold);
   /// Selects first N rows from the table.
   void SelectFirstNRows(const TInt& N);

@@ -467,7 +467,7 @@ public:
 };
 
 //#//////////////////////////////////////////////
-/// Directed multigraph with node edge attributes. ##TNEANet::Class
+/// Directed multigraph with node edge attributes.
 template<class TNode>
 class TMNet {
 public:
@@ -570,11 +570,11 @@ public:
     int GetInDeg() const { return HashI.GetDat().GetInDeg(); }
     /// Returns out-degree of the current node.
     int GetOutDeg() const { return HashI.GetDat().GetOutDeg(); }
-    /// Returns ID of EdgeN-th in-node (the node pointing to the current node). ##TNEANet::TNodeI::GetInNId
+    /// Returns ID of EdgeN-th in-node (the node pointing to the current node).
     int GetInNId(const int& EdgeN) const { return Graph->GetEdge(HashI.GetDat().GetInEId(EdgeN)).GetSrcNId(); }
-    /// Returns ID of EdgeN-th out-node (the node the current node points to). ##TNEANet::TNodeI::GetOutNId
+    /// Returns ID of EdgeN-th out-node (the node the current node points to).
     int GetOutNId(const int& EdgeN) const { return Graph->GetEdge(HashI.GetDat().GetOutEId(EdgeN)).GetDstNId(); }
-    /// Returns ID of EdgeN-th neighboring node. ##TNEANet::TNodeI::GetNbrNId
+    /// Returns ID of EdgeN-th neighboring node.
     int GetNbrNId(const int& EdgeN) const { const TEdge& E = Graph->GetEdge(HashI.GetDat().GetNbrEId(EdgeN)); return GetId()==E.GetSrcNId() ? E.GetDstNId():E.GetSrcNId(); }
     /// Tests whether node with ID NId points to the current node.
     bool IsInNId(const int& NId) const {
@@ -785,7 +785,7 @@ public:
     AssertNTypeId(NTypeId);
     return TypeNodeV[NTypeId].MxNId;
   }
-  /// Adds a node of ID NId to the graph. ##TNEANet::AddNode
+  /// Adds a node of ID NId to the graph.
   int AddNode(const int& NTypeId, int NId = -1) {
     AssertNTypeId(NTypeId);
     TNodeType* NodeType = &TypeNodeV[NTypeId];
@@ -829,7 +829,7 @@ public:
     TypeNodeV[NTypeId].NodeH.DelKey(NId);
     Sz--;
   }
-  /// Deletes node of ID NId from the graph. ##TNEANet::DelNode
+  /// Deletes node of ID NId from the graph.
   void DelNode(const int& NId) { DelNode(GetNTypeId(NId), GetLocalNId(NId)); }
 
   /// Deletes node of ID NodeI.GetId() from the graph.
@@ -893,7 +893,7 @@ public:
   int GetEdges() const { return EdgeH.Len(); }
   /// Returns the number of edges of a specific type in the graph.
   int GetEdges(const int& ETypeId) const { return EdgeSzV[ETypeId].Val; }
-  /// Adds an edge with ID EId between node IDs SrcNId and DstNId to the graph. ##TNEANet::AddEdge
+  /// Adds an edge with ID EId between node IDs SrcNId and DstNId to the graph.
   int AddEdge(const int& SrcNId, const int& DstNId, const int& ETypeId, int EId  = -1) {
     if (EId == -1) { EId = MxEId;  MxEId++; }
     else { MxEId = TMath::Mx(EId+1, MxEId()); }
@@ -923,7 +923,7 @@ public:
     EdgeH.DelKey(EId);
     EdgeSzV[ETypeId] -= 1;
   }
-  /// Deletes all edges between node IDs SrcNId and DstNId from the graph. ##TNEANet::DelEdge
+  /// Deletes all edges between node IDs SrcNId and DstNId from the graph.
   void DelEdge(const int& SrcNId, const int& DstNId, const bool& IsDir = true) {
     int EId;
     IAssert(IsEdge(SrcNId, DstNId, EId, IsDir)); // there is at least one edge
@@ -1004,9 +1004,9 @@ public:
   /// Reserves memory for a graph of Nodes nodes and Edges edges.
   void Reserve(const int& Nodes, const int& Edges) {
     if (Nodes>0) { NodeH.Gen(Nodes/2); } if (Edges>0) { EdgeH.Gen(Edges/2); } }
-  /// Defragments the graph. ##TNEANet::Defrag
+  /// Defragments the graph.
   void Defrag(const bool& OnlyNodeLinks=false);
-  /// Checks the graph data structure for internal consistency. ##TNEANet::IsOk
+  /// Checks the graph data structure for internal consistency.
   bool IsOk(const bool& ThrowExcept=true) const;
   /// Print the graph in a human readable form to an output stream OutF.
   void Dump(FILE *OutF=stdout) const;
