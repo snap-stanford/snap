@@ -695,9 +695,12 @@ void TStrUtil::GetStdNameV(TStr AuthorNames, TStrV& StdNameV) {
   }
 }
 
+<<<<<<< Updated upstream
 ////////////////////////////////////////////////
 /// Routines to benchmark table operations
 
+=======
+>>>>>>> Stashed changes
 double TStopwatch::Tick() {
   //return clock() / ((double)CLOCKS_PER_SEC);
 #ifdef USE_OPENMP

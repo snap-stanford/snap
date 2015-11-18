@@ -1320,3 +1320,4 @@ inline PNEANetMP ToTNEANetMP2(PTable Table, const TStr& SrcCol, const TStr& DstC
 }; // TSnap namespace
 
 #endif // CONV_H
+
