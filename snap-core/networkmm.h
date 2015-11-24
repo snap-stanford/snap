@@ -173,16 +173,17 @@ public:
   TCRef CRef; //Reference counter. Necessary for pointers.
 
 public:
-  TMMNet() : MxModeId(0), PModeNetV() {}
-  TMMNet(const TMMNet& OtherTMMNet) : MxModeId(OtherTMMNet.MxModeId), PModeNetV(OtherTMMNet.PModeNetV) {}
-  int AddMode(const TStr& ModeName, TInt& ModeId);
+  TMMNet() : MxModeId(0), MxLinkTypeId(0), TModeNetV() {}
+  TMMNet(const TMMNet& OtherTMMNet) : MxModeId(OtherTMMNet.MxModeId), MxLinkTypeId(OtherTMMNet.MxLinkTypeId), TModeNetV(OtherTMMNet.TModeNetV) {}
+  int AddMode(const TStr& ModeName);
   int DelMode(const TInt& ModeId); // TODO(sramas15): finish implementing
   int DelMode(const TStr& ModeName);
-  int AddLinkType(const TStr& ModeName1, const TStr& ModeName2, const TStr& EdgeTypeName, TInt& EdgeTypeId);
-  int AddLinkType(const TInt& ModeId1, const TInt& ModeId2, const TStr& EdgeTypeName, TInt& EdgeTypeId);
+  int AddLinkType(const TStr& ModeName1, const TStr& ModeName2, const TStr& EdgeTypeName);
+  int AddLinkType(const TInt& ModeId1, const TInt& ModeId2, const TStr& EdgeTypeName);
   int DelLinkType(const TInt& EdgeTypeId); // TODO(sramas15): finish implementing
   int DelLinkType(const TStr& EdgeType);
 
+  //TODO: Add IAssertRs
   int GetModeId(const TStr& ModeName) const { return ModeNameToIdH.GetDat(ModeName);  }//TODO: Return type int or TInt?
   TStr GetModeName(const TInt& ModeId) const { return ModeIdToNameH.GetDat(ModeId); }
   int GetLinkId(const TStr& LinkName) const { return LinkNameToIdH.GetDat(LinkName);  }//TODO: Return type int or TInt?
@@ -191,8 +192,8 @@ public:
 private:
   TIntPr GetOrderedLinkPair(const TStr& Mode1, const TStr& Mode2);
   TIntPr GetOrderedLinkPair(const TInt& Mode1, const TInt& Mode2);
-  int AddEdge(int& NId, int& NId2, bool& direction, int& ModeId1, TStr& LinkTypeName, TInt& EId=-1);
-  int AddEdge(int& NId, int& NId2, bool& direction, int& ModeId1, TInt& LinkTypeId, TInt& EId=-1);
+  int AddEdge(int& NId, int& NId2, bool& direction, int& ModeId1, TStr& LinkTypeName, int EId=-1);
+  int AddEdge(int& NId, int& NId2, bool& direction, int& ModeId1, TInt& LinkTypeId, int EId=-1);
   int DelEdge(const TInt& LinkTypeId, const TInt& EId);
 };
 

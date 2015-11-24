@@ -1,33 +1,39 @@
 ////////////////////////////////////////////////
 // Mutimodal Network
 
-int TMMNet::AddMode(const TStr& ModeName, TInt& ModeId) {
-  if (PModeNetV.Len() != MxModeId) {
+//TODO Sheila-check: I've removed the ModeId argument here. Is it really necessary?
+int TMMNet::AddMode(const TStr& ModeName) {
+  //TODO: Add Assertions.
+  if (TModeNetV.Len() != MxModeId) {
     return -1;
   }
   //Book-keeping for new mode id and the hash lookups
-  ModeId = TInt(MxModeId);
+  TInt ModeId = TInt(MxModeId);
   MxModeId++;
   ModeIdToNameH.AddDat(ModeId, ModeName);
   ModeNameToIdH.AddDat(ModeName, ModeId);
 
-  PModeNet NewGraph = TModeNet.New();
-  PModeNetV.Append(NewGraph); //TODO: Where is Append?
-
+  PModeNet NewGraph = TModeNet::New();
+  TModeNetV.Add(*NewGraph);
   return ModeId;
 }
 
-int TMMNet::AddLinkType(const TStr& ModeName1, const TStr& ModeName2, const TStr& EdgeTypeName, TInt& EdgeTypeId) {
+//TODO Sheila-check: I've removed the EdgeTypeId argument here and in the next function.
+int TMMNet::AddLinkType(const TStr& ModeName1, const TStr& ModeName2, const TStr& EdgeTypeName) {
+
+  //TODO: Rewrite using IAssertR
   if (!ModeNameToIdH.IsKey(ModeName1) || !ModeNameToIdH.IsKey(ModeName2)) { return -1; }
   TInt ModeId1 = GetModeId(ModeName1);
   TInt ModeId2 = GetModeId(ModeName2);
-  return AddLinkType(ModeId1, ModeId2, EdgeTypeName, EdgeTypeId);
+  return AddLinkType(ModeId1, ModeId2, EdgeTypeName);
 }
 
 
-int TMMNet::AddLinkType(const TInt& ModeId1, const TInt& ModeId2, const TStr& EdgeTypeName, TInt& EdgeTypeId) {
+int TMMNet::AddLinkType(const TInt& ModeId1, const TInt& ModeId2, const TStr& EdgeTypeName) {
+
+  //TODO: Rewrite using IAssertR
   if (!ModeIdToNameH.IsKey(ModeId1) || !ModeIdToNameH.IsKey(ModeId2)) { return -1; }
-  EdgeTypeId = TInt(MxLinkTypeId);
+  TInt EdgeTypeId = TInt(MxLinkTypeId);
   MxLinkTypeId++;
   LinkIdToNameH.AddDat(EdgeTypeId, EdgeTypeName);
   LinkNameToIdH.AddDat(EdgeTypeName, EdgeTypeId);
@@ -42,6 +48,7 @@ int TMMNet::DelLinkType(const TInt& EdgeTypeId) {
 }
 
 int TMMNet::DelLinkType(const TStr& EdgeType) {
+  //TODO: Rewrite using IAssertR
   if (!LinkNameToIdH.IsKey(EdgeType)) {
     return -1;
   }
@@ -54,6 +61,7 @@ int TMMNet::DelMode(const TInt& ModeId) {
   return -1;
 }
 int TMMNet::DelMode(const TStr& ModeName) {
+  //TODO: Rewrite using IAssertR
   if (!ModeNameToIdH.IsKey(ModeName)) {
     return -1;
   }
@@ -75,15 +83,20 @@ TIntPr TMMNet::GetOrderedLinkPair(const TInt& Mode1, const TInt& Mode2) {
 }
 
 int TMMNet::AddEdge(int& NId, int& NId2, bool& direction, int& ModeId1, TStr& LinkTypeName, TInt& EId) {
+  //TODO: Rewrite using IAssertR
   if (!LinkNameToIdH.IsKey(LinkTypeName)) {
     return -1;
   }
   return AddEdge(NId, NId2, direction, ModeId1, LinkNameToIdH.GetDat(LinkTypeName), EId);
 }
+
 int TMMNet::AddEdge(int& NId, int& NId2, bool& direction, int& ModeId1, TInt& LinkTypeId, TInt& EId) {
+
+  //TODO: Rewrite using IAssertR
   if (!TCrossNetH.IsKey(LinkTypeId)) {
     return -1;
   }
+
   TCrossNet& CrossNet = TCrossNetH.GetDat(LinkTypeId);
   TInt ModeId2;
   if (ModeId1 == CrossNet.GetMode1()) {
@@ -106,7 +119,7 @@ int TMMNet::DelEdge(const TInt& LinkTypeId, const TInt& EId) {
     return -1;
   }
   TCrossNet& CrossNet = TCrossNetH.GetDat(LinkTypeId);
-  TCrosNet::TCrossEdgeI EI = CrossNet.GetI(EId);
+  TCrossNet::TCrossEdgeI EI = CrossNet.GetI(EId);
   TInt SrcMId = EI.GetSrcModeId();
   TInt SrcNId = EI.GetSrcNId();
   TInt DstMId = EI.GetDstModeId();
