@@ -41,7 +41,7 @@ void TZipIn::CreateZipProcess(const TStr& Cmd, const TStr& ZipFNm) {
   CloseHandle(piProcInfo.hThread);
   #else
   ZipStdoutRd = popen((TZipIn::SevenZipPath+"/"+CmdLine).CStr(), "r");
-  EAssertR(! ZipStdoutRd,  TStr::Fmt("Can not execute '%s' (Set the TZipIn::SevenZipPath)", CmdLine.CStr()).CStr());
+  EAssertR(ZipStdoutRd,  TStr::Fmt("Can not execute '%s' (Set the TZipIn::SevenZipPath)", CmdLine.CStr()).CStr());
   #endif
 }
 
@@ -258,7 +258,7 @@ uint64 TZipIn::GetFLen(const TStr& ZipFNm) {
   #else
   const TStr CmdLine = TStr::Fmt("7za l %s", ZipFNm.CStr());
   FILE* ZipStdoutRd = popen((TZipIn::SevenZipPath+"/"+CmdLine).CStr(), "r");
-  EAssertR(! ZipStdoutRd, TStr::Fmt("Can not execute '%s/%s' (Set the TZipIn::SevenZipPath)", TZipIn::SevenZipPath.CStr(), CmdLine.CStr()).CStr());
+  EAssertR(ZipStdoutRd, TStr::Fmt("Can not execute '%s/%s' (Set the TZipIn::SevenZipPath)", TZipIn::SevenZipPath.CStr(), CmdLine.CStr()).CStr());
   #endif
   // Read output from the child process
   const int BfSz = 32*1024;
@@ -330,7 +330,7 @@ void TZipOut::CreateZipProcess(const TStr& Cmd, const TStr& ZipFNm) {
   CloseHandle(piProcInfo.hThread);
   #else
   ZipStdinWr = popen((TZipIn::SevenZipPath+"/"+CmdLine).CStr(), "r");
-  EAssertR(! ZipStdinWr,  TStr::Fmt("Can not execute '%s' (Set the TZipIn::SevenZipPath)", CmdLine.CStr()).CStr());
+  EAssertR(ZipStdinWr,  TStr::Fmt("Can not execute '%s' (Set the TZipIn::SevenZipPath)", CmdLine.CStr()).CStr());
   #endif
 }
 
