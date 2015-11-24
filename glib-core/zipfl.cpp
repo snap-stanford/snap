@@ -36,21 +36,18 @@ void TZipIn::CreateZipProcess(const TStr& Cmd, const TStr& ZipFNm) {
     NULL,          // use parent's current directory
     &siStartInfo,  // STARTUPINFO pointer
     &piProcInfo);  // receives PROCESS_INFORMATION
-  EAssertR(FuncRetn!=0, TStr::Fmt("Can not execute '%s'", CmdLine.CStr()).CStr());
+  EAssertR(FuncRetn!=0, TStr::Fmt("Can not execute '%s' (Set the TZipIn::SevenZipPath)", CmdLine.CStr()).CStr());
   CloseHandle(piProcInfo.hProcess);
   CloseHandle(piProcInfo.hThread);
   #else
-  ZipStdoutRd = popen(CmdLine.CStr(), "r");
-  if (ZipStdoutRd == 0) { // try using SevenZipPath
-    ZipStdoutRd = popen((TZipIn::SevenZipPath+"/"+CmdLine).CStr(), "r");
-  }
-  EAssertR(ZipStdoutRd != NULL,  TStr::Fmt("Can not execute '%s'", CmdLine.CStr()).CStr());
+  ZipStdoutRd = popen((TZipIn::SevenZipPath+"/"+CmdLine).CStr(), "r");
+  EAssertR(ZipStdoutRd,  TStr::Fmt("Can not execute '%s' (Set the TZipIn::SevenZipPath)", CmdLine.CStr()).CStr());
   #endif
 }
 
 void TZipIn::FillBf(){
-  EAssertR(CurFPos < FLen, "End of file "+GetSNm()+" reached.");
-  EAssertR((BfC==BfL)/*&&((BfL==-1)||(BfL==MxBfL))*/, "Error reading file '"+GetSNm()+"'.");
+  EAssertR(CurFPos < FLen, TStr::Fmt("End of file '%s' reached (CurFPos=%s, FLen=%s).", GetSNm().CStr(), TUInt64(CurFPos).GetStr().CStr(), TUInt64(FLen).GetStr().CStr()));
+  EAssertR((BfC==BfL)/*&&((BfL==-1)||(BfL==MxBfL))*/, "Error reading file '"+GetSNm()+"' (Set the TZipIn::SevenZipPath).");
   #ifdef GLib_WIN
   // Read output from the child process
   DWORD BytesRead;
@@ -61,7 +58,7 @@ void TZipIn::FillBf(){
   #endif
   BfL = (int) BytesRead;
   CurFPos += BytesRead;
-  EAssertR((BfC!=0)||(BfL!=0), "Error reading file '"+GetSNm()+"'.");
+  EAssertR((BfC!=0)||(BfL!=0), "Error reading file '"+GetSNm()+"' (Set the TZipIn::SevenZipPath).");
   BfC = 0;
 }
 
@@ -71,7 +68,8 @@ TZipIn::TZipIn(const TStr& FNm) : TSBase(FNm.CStr()), TSIn(FNm), ZipStdoutRd(NUL
   EAssertR(TFile::Exists(FNm), TStr::Fmt("File %s does not exist", FNm.CStr()).CStr());
   FLen = 0;
   // non-zip files not supported, need uncompressed file length information
-  if (FNm.GetFExt() != ".zip") {
+  //if (FNm.GetFExt() != ".zip") {  //J: changed by Jure on Nov 23 2015
+  if (! IsZipFNm(FNm)) {
     printf("*** Error: file %s, compression format %s not supported\n", FNm.CStr(), FNm.GetFExt().CStr());
     EFailR(TStr::Fmt("File %s: compression format %s not supported", FNm.CStr(), FNm.GetFExt().CStr()).CStr());
   }
@@ -237,7 +235,7 @@ uint64 TZipIn::GetFLen(const TStr& ZipFNm) {
   saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
   saAttr.bInheritHandle = TRUE;
   saAttr.lpSecurityDescriptor = NULL;
-    // Create a pipe for the child process's STDOUT.
+  // Create a pipe for the child process's STDOUT.
   const int PipeBufferSz = 32*1024;
   EAssertR(CreatePipe(&ZipStdoutRd, &ZipStdoutWr, &saAttr, PipeBufferSz), "Stdout pipe creation failed");
   // Ensure the read handle to the pipe for STDOUT is not inherited.
@@ -254,16 +252,13 @@ uint64 TZipIn::GetFLen(const TStr& ZipFNm) {
   // Create the child process.
   const BOOL FuncRetn = CreateProcess(NULL, (LPSTR) CmdLine.CStr(),
     NULL, NULL, TRUE, 0, NULL, NULL, &siStartInfo, &piProcInfo);
-  EAssertR(FuncRetn!=0, TStr::Fmt("Can not execute '%s'", CmdLine.CStr()).CStr());
+  EAssertR(FuncRetn!=0, TStr::Fmt("Can not execute '%s' (Set the TZipIn::SevenZipPath)", CmdLine.CStr()).CStr());
   CloseHandle(piProcInfo.hProcess);
   CloseHandle(piProcInfo.hThread); }
   #else
   const TStr CmdLine = TStr::Fmt("7za l %s", ZipFNm.CStr());
-  FILE* ZipStdoutRd = popen(CmdLine.CStr(), "r");
-  if (ZipStdoutRd == NULL) { // try using SevenZipPath
-    ZipStdoutRd = popen((TZipIn::SevenZipPath+"/"+CmdLine).CStr(), "r");
-  }
-  EAssertR(ZipStdoutRd != NULL, TStr::Fmt("Can not execute '%s'", CmdLine.CStr()).CStr());
+  FILE* ZipStdoutRd = popen((TZipIn::SevenZipPath+"/"+CmdLine).CStr(), "r");
+  EAssertR(ZipStdoutRd, TStr::Fmt("Can not execute '%s/%s' (Set the TZipIn::SevenZipPath)", TZipIn::SevenZipPath.CStr(), CmdLine.CStr()).CStr());
   #endif
   // Read output from the child process
   const int BfSz = 32*1024;
@@ -330,15 +325,12 @@ void TZipOut::CreateZipProcess(const TStr& Cmd, const TStr& ZipFNm) {
     NULL,          // use parent's current directory
     &siStartInfo,  // STARTUPINFO pointer
     &piProcInfo);  // receives PROCESS_INFORMATION
-  EAssertR(FuncRetn!=0, TStr::Fmt("Can not execute '%s'", CmdLine.CStr()).CStr());
+  EAssertR(FuncRetn!=0, TStr::Fmt("Can not execute '%s' (Set the TZipIn::SevenZipPath)", CmdLine.CStr()).CStr());
   CloseHandle(piProcInfo.hProcess);
   CloseHandle(piProcInfo.hThread);
   #else
-  ZipStdinWr = popen(CmdLine.CStr(),"w");
-  if (ZipStdinWr == NULL) { // try using SevenZipPath
-    ZipStdinWr = popen((TZipIn::SevenZipPath+"/"+CmdLine).CStr(), "r");
-  }
-  EAssertR(ZipStdinWr != NULL,  TStr::Fmt("Can not execute '%s'", CmdLine.CStr()).CStr());
+  ZipStdinWr = popen((TZipIn::SevenZipPath+"/"+CmdLine).CStr(), "r");
+  EAssertR(ZipStdinWr,  TStr::Fmt("Can not execute '%s' (Set the TZipIn::SevenZipPath)", CmdLine.CStr()).CStr());
   #endif
 }
 

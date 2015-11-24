@@ -33,6 +33,7 @@
 #include "cmty.h"            // community detection algorithms
 #include "flow.h"            // network flow algorithms
 #include "coreper.h"         // core-periphery algorithms
+#include "randwalk.h"        // Personalized PageRank
 
 // graph generators
 #include "ggen.h"            // graph generators (preferential attachment, small-world, ...)
