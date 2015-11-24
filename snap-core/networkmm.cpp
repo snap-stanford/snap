@@ -100,7 +100,9 @@ int TCrossNet::AddEdge(const int& sourceNId, const int& destNId, const int& EId)
   MxEId++;
   TCrossNet::TCrossEdge newEdge (newEId, sourceNId, destNId);
   LinkH.AddDat(newEId, newEdge);
-
+  TStr ThisLinkName = Net->GetLinkName(this->LinkTypeId);
+  Net->TModeNetV[this->Mode1].AddNeighbor(sourceNId, EId,true, ThisLinkName);
+  Net->TModeNetV[this->Mode2].AddNeighbor(destNId, EId,false, ThisLinkName);
   return 0;
 }
 
