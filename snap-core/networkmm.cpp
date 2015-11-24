@@ -106,10 +106,10 @@ int TMMNet::AddEdge(int& NId, int& NId2, bool& direction, int& ModeId1, TInt& Li
     EId = CrossNet.AddLink(NId2, NId, !direction, EId);
     ModeId2 = CrossNet.GetMode1();
   }
-  PModeNet Net1 = PModeNetV[ModeId1];
-  Net1->AddNeighbor(NId, EId, direction, LinkTypeId);
-  PModeNet Net2 = PModeNetV[ModeId2];
-  Net2->AddNeighbor(NId2, EId, !direction, LinkTypeId);
+  TModeNet Net1 = TModeNetV[ModeId1];
+  Net1.AddNeighbor(NId, EId, direction, LinkTypeId);
+  TModeNet Net2 = TModeNetV[ModeId2];
+  Net2.AddNeighbor(NId2, EId, !direction, LinkTypeId);
   return EId;
 }
 
@@ -119,16 +119,16 @@ int TMMNet::DelEdge(const TInt& LinkTypeId, const TInt& EId) {
     return -1;
   }
   TCrossNet& CrossNet = TCrossNetH.GetDat(LinkTypeId);
-  TCrossNet::TCrossEdgeI EI = CrossNet.GetI(EId);
+  TCrossNet::TCrossEdgeI EI = CrossNet.GetEdgeI(EId);
   TInt SrcMId = EI.GetSrcModeId();
   TInt SrcNId = EI.GetSrcNId();
   TInt DstMId = EI.GetDstModeId();
   TInt DstNId = EI.GetDstNId();
-  PModeNet Net1 = PModeNetV[SrcMId];
-  Net1->DelNeighbor(SrcNId, EId, true, LinkTypeId);
-  PModeNet Net2 = PModeNetV[DstMId];
-  Net2->DelNeighbor(DstNId2, EId, false, LinkTypeId);
-  return CrossNet.DelLink(EId);
+  TModeNet Net1 = TModeNetV[SrcMId];
+  Net1.DelNeighbor(SrcNId, EId, true, LinkTypeId);
+  TModeNet Net2 = TModeNetV[DstMId];
+  Net2.DelNeighbor(DstNId, EId, false, LinkTypeId);
+  return CrossNet.DelEdge(EId);
 }
 
 
@@ -157,25 +157,28 @@ int TCrossNet::AddLink (const int& NIdType1, const int& NIdType2, const bool& di
     newEId = MxEId;
   }
   else {
-    IAssertR(!LinkH.IsKey(EId), TStr::Fmt("The edge with id %d already exists", EId ));
+//    IAssertR(!LinkH.IsKey(EId), TStr::Fmt("The edge with id %d already exists", EId ));
     newEId = EId;
     if (newEId > MxEId) MxEId = newEId; //TODO: Figure this out
   }
-  TCrossEdge newEdge(newEId, NIdType1, NIdType2, direction);
+  TCrossEdge newEdge(newEId, NIdType1, NIdType2);
   LinkH.AddDat(newEId, newEdge);
   return EId;
 
 }
 
 int TCrossNet::AddEdge (const int& sourceNId, const int& sourceNModeId, const int& destNId, const int& destNModeId, const int& EId) {
+  //TODO: Replace with IAssertR
   if (!(sourceNModeId == Mode1 && destNModeId == Mode2) && !(sourceNModeId == Mode2 && destNModeId == Mode1)) {
     return -1;
   }
-  return Net->AddEdge(NIdType1, NIdType2, true, sourceNModeId, LinkId, EId);
+//  return Net->AddEdge(NIdType1, NIdType2, true, sourceNModeId, LinkId, EId);
+  return 0; //TODO
 }
 
 int TCrossNet::AddEdge (const int& NIdType1, const int& NIdType2, const bool& direction, const int& EId) {
-  return Net->AddEdge(NIdType1, NIdType2, direction, Mode1, LinkId, EId);
+//  return Net->AddEdge(NIdType1, NIdType2, direction, Mode1, LinkId, EId);
+  return 0; //TODO
 }
 
 int TCrossNet::DelLink(const int& EId) {

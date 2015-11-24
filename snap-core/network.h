@@ -999,7 +999,7 @@ public:
     const TNodeData& GetDat() const { return NodeHI.GetDat().GetDat(); }
     TNodeData& GetDat() { return NodeHI.GetDat().GetDat(); }
     const TNodeData& GetInNDat(const int& EdgeN) const { return Net->GetNDat(GetInNId(EdgeN)); }
-    TNodeData& GetInNDat(const int& EdgeN) { return Net->GetNodeDat(GetInNId(EdgeN)); }
+    TNodeData& GetInNDat(const int& EdgeN) { return Net->GetNDat(GetInNId(EdgeN)); }
     const TNodeData& GetOutNDat(const int& EdgeN) const { return Net->GetNDat(GetOutNId(EdgeN)); }
     TNodeData& GetOutNDat(const int& EdgeN) { return Net->GetNDat(GetOutNId(EdgeN)); }
     const TNodeData& GetNbrNDat(const int& EdgeN) const { return Net->GetNDat(GetNbrNId(EdgeN)); }
@@ -1720,7 +1720,6 @@ private:
   TFlt GetFltAttrDefaultE(const TStr& attribute) const { return FltDefaultsE.IsKey(attribute) ? FltDefaultsE.GetDat(attribute) : (TFlt) TFlt::Mn; }
 
 private:
-  TCRef CRef;
   TInt MxNId, MxEId;
   THash<TInt, TNode> NodeH;
   THash<TInt, TEdge> EdgeH;
@@ -1735,6 +1734,9 @@ private:
   TVec<TFltV> VecOfFltVecsN, VecOfFltVecsE;
   TVec<TVec<TIntV> > VecOfIntVecVecsN, VecOfIntVecVecsE;
   enum { IntType, StrType, FltType, IntVType };
+public:
+
+  TCRef CRef;
 public:
   TNEANet() : CRef(), MxNId(0), MxEId(0), NodeH(), EdgeH(),
     KeyToIndexTypeN(), KeyToIndexTypeE(), IntDefaultsN(), IntDefaultsE(),

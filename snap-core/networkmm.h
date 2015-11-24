@@ -122,7 +122,7 @@ public:
     /// Returns the destination of the edge.
     int GetDstModeId() const { return Graph->GetMode2(); }
     /// Returns whether the edge is directed.
-    int IsDirected() const { return Graph->IsDirected(); }
+//    int IsDirected() const { return Graph->IsDirected(); } //TODO
 
     friend class TCrossNet;
   };
@@ -141,6 +141,7 @@ public:
 private:
   void SetParentPointer(PMMNet& parent);
 public:
+  //TODO: DelEdge or DelLink? Same with Add
   int AddEdge(const int& sourceNId, const int& destNId, const int& EId=-1);
   TCrossEdgeI GetEdgeI(const int& EId) const { return TCrossEdgeI(LinkH.GetI(EId), this); }
   TCrossEdgeI BegEdgeI() const { return TCrossEdgeI(LinkH.BegI(), this); }
@@ -175,6 +176,7 @@ public:
 public:
   TMMNet() : MxModeId(0), MxLinkTypeId(0), TModeNetV() {}
   TMMNet(const TMMNet& OtherTMMNet) : MxModeId(OtherTMMNet.MxModeId), MxLinkTypeId(OtherTMMNet.MxLinkTypeId), TModeNetV(OtherTMMNet.TModeNetV) {}
+  TMMNet(TSIn& SIn) : MxModeId(SIn), MxLinkTypeId(SIn) {} //TODO
   int AddMode(const TStr& ModeName);
   int DelMode(const TInt& ModeId); // TODO(sramas15): finish implementing
   int DelMode(const TStr& ModeName);
@@ -183,11 +185,16 @@ public:
   int DelLinkType(const TInt& EdgeTypeId); // TODO(sramas15): finish implementing
   int DelLinkType(const TStr& EdgeType);
 
+  void Save(TSOut& SOut) const {TModeNetV.Save(SOut);} //TODO
+  static PMMNet Load(TSIn& SIn) { return PMMNet(new TMMNet(SIn)); }
+
   //TODO: Add IAssertRs
   int GetModeId(const TStr& ModeName) const { return ModeNameToIdH.GetDat(ModeName);  }//TODO: Return type int or TInt?
   TStr GetModeName(const TInt& ModeId) const { return ModeIdToNameH.GetDat(ModeId); }
   int GetLinkId(const TStr& LinkName) const { return LinkNameToIdH.GetDat(LinkName);  }//TODO: Return type int or TInt?
   TStr GetLinkName(const TInt& LinkId) const { return LinkIdToNameH.GetDat(LinkId); }
+
+
 
 private:
   TIntPr GetOrderedLinkPair(const TStr& Mode1, const TStr& Mode2);
