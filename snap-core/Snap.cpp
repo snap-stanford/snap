@@ -11,6 +11,7 @@
 #include "util.cpp"
 
 // graph data structures
+#include "attr.cpp"			 // sparse attributes
 #include "graph.cpp"         // graphs
 #include "network.cpp"       // networks
 #include "timenet.cpp"       // time evolving networks

@@ -290,4 +290,3 @@ TEST(TUNGraph, GetSmallGraph) {
   EXPECT_EQ(0,Graph->Empty());
   EXPECT_EQ(0,Graph->HasFlag(gfDirected));
 }
-

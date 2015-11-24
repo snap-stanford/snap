@@ -20,6 +20,7 @@ TEST_SRCS = \
 	test-TUNGraph.cpp test-TNGraph.cpp \
 	test-TNEGraph.cpp test-TNEANet.cpp \
 	test-TNodeNet.cpp test-TNodeEDatNet.cpp test-TNodeEdgeNet.cpp \
+	test-TUndirNet.cpp test-TDirNet.cpp \
 	test-subgraph.cpp \
 	test-TStrPool.cpp \
 	test-TSysTm.cpp \
@@ -32,7 +33,10 @@ TEST_SRCS = \
 	test-triad.cpp \
 	test-THash.cpp \
 	test-THashSet.cpp \
-	test-flow.cpp
+	test-TAttr.cpp \
+	test-flow.cpp \
+	test-randwalk.cpp \
+	test-priority-queue.cpp
 
 TEST_OBJS = $(TEST_SRCS:.cpp=.o)
 
