@@ -219,6 +219,10 @@ public:
     return (0<=KeyId)&&(KeyId<KeyDatV.Len())&&(KeyDatV[KeyId].HashCd!=-1);}
   const TDat& GetDat(const TKey& Key) const {return KeyDatV[GetKeyId(Key)].Dat;}
   TDat& GetDat(const TKey& Key){return KeyDatV[GetKeyId(Key)].Dat;}
+  TDat GetDatWithDefault(const TKey& Key, TDat DefaultValue) {
+    int KeyId = GetKeyId(Key);
+    return KeyId >= 0 ? KeyDatV[KeyId].Dat : DefaultValue;
+  }
 //  TKeyDatP GetKeyDat(const int& KeyId) const {
 //    TKeyDat& KeyDat=GetHashKeyDat(KeyId);
 //    return TKeyDatP(KeyDat.Key, KeyDat.Dat);}

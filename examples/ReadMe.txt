@@ -103,6 +103,8 @@ Description of examples:
 	distribution, hop plot, clustering coefficient, distribution of sizes
 	of connected components, spectral properties of graph adjacency
 	matrix, etc.
+  randwalk :
+        Computes Personalized PageRank between pairs of nodes
   testgraph :
 	Demonstrates some of the basic SNAP functionality.
 
