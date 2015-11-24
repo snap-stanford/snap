@@ -130,6 +130,7 @@ public:
   TStr GetDtMdyStr() const;
   TStr GetDtYmdStr() const;
   TStr GetYmdTmStr() const; // returns "y-m-d h:m:s"
+  TStr GetYmdTmStr2() const; // returns "y-m-d-h:m:s"
   TStr GetTmStr() const;
   TStr GetTmMinStr() const;
   TStr GetDtTmSortStr() const;
