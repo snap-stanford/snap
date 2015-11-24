@@ -34,7 +34,7 @@ TEST_SRCS = \
 	test-THash.cpp \
 	test-THashSet.cpp \
 	test-TAttr.cpp \
-	test-flow.cpp
+	test-flow.cpp \
 	test-randwalk.cpp \
 	test-priority-queue.cpp
 
