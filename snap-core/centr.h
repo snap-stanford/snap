@@ -36,10 +36,10 @@ int Intersect1(TUNGraph::TNodeI Node, TStr NNodes);
 TIntH LoadNodeList(TStr InFNmNodes);
 /// Returns Farness centrality of a given node NId.
 /// Farness centrality of a node is the average shortest path length to all other nodes that reside is the same connected component as the given node.
-template <class PGraph> double GetFarnessCentr(const PGraph& Graph, const int& NId, const bool IsDir, const bool Normalized = true);
+template <class PGraph> double GetFarnessCentr(const PGraph& Graph, const int& NId, const bool& IsDir, const bool& Normalized = true);
 /// Returns Closeness centrality of a given node NId.
 /// Closeness centrality of a node is defined as 1/FarnessCentrality.
-template <class PGraph> double GetClosenessCentr(const PGraph& Graph, const int& NId, const bool IsDir, const bool Normalized = true);
+template <class PGraph> double GetClosenessCentr(const PGraph& Graph, const int& NId, const bool& IsDir, const bool& Normalized = true);
 /// Returns node Eccentricity, the largest shortest-path distance from the node NId to any other node in the Graph.
 /// @param IsDir false: ignore edge directions and consider edges as undirected (in case they are directed).
 template <class PGraph> int GetNodeEcc(const PGraph& Graph, const int& NId, const bool& IsDir=false);
@@ -47,22 +47,22 @@ template <class PGraph> int GetNodeEcc(const PGraph& Graph, const int& NId, cons
 /// Computes (approximate) Node Beetweenness Centrality based on a sample of NodeFrac nodes.
 /// @param NIdBtwH hash table mapping node ids to their corresponding betweenness centrality values.
 /// @param NodeFrac quality of approximation. NodeFrac=1.0 gives exact betweenness values.
-template<class PGraph> void GetBetweennessCentr(const PGraph& Graph, TIntFltH& NIdBtwH, const bool& isDirected=false, const double& NodeFrac=1.0);
+template<class PGraph> void GetBetweennessCentr(const PGraph& Graph, TIntFltH& NIdBtwH, const bool& IsDir=false, const double& NodeFrac=1.0);
 /// Computes (approximate) Edge Beetweenness Centrality based on a sample of NodeFrac nodes.
 /// @param EdgeBtwH hash table mapping edges (pairs of node ids) to their corresponding betweenness centrality values.
 /// @param NodeFrac quality of approximation. NodeFrac=1.0 gives exact betweenness values.
-template<class PGraph> void GetBetweennessCentr(const PGraph& Graph, TIntPrFltH& EdgeBtwH, const bool& isDirected=false, const double& NodeFrac=1.0);
+template<class PGraph> void GetBetweennessCentr(const PGraph& Graph, TIntPrFltH& EdgeBtwH, const bool& IsDir=false, const double& NodeFrac=1.0);
 /// Computes (approximate) Node and Edge Beetweenness Centrality based on a sample of NodeFrac nodes.
 /// @param NIdBtwH hash table mapping node ids to their corresponding betweenness centrality values.
 /// @param EdgeBtwH hash table mapping edges (pairs of node ids) to their corresponding betweenness centrality values.
 /// @param NodeFrac quality of approximation. NodeFrac=1.0 gives exact betweenness values.
-template<class PGraph> void GetBetweennessCentr(const PGraph& Graph, TIntFltH& NIdBtwH, TIntPrFltH& EdgeBtwH, const bool& isDirected=false, const double& NodeFrac=1.0);
+template<class PGraph> void GetBetweennessCentr(const PGraph& Graph, TIntFltH& NIdBtwH, TIntPrFltH& EdgeBtwH, const bool& IsDir=false, const double& NodeFrac=1.0);
 /// Computes (approximate) Beetweenness Centrality of all nodes and all edges of the network.
 /// To obtain exact betweenness values one needs to solve single-source shortest-path problem for every node.
 /// To speed up the algorithm we solve the shortest-path problem for the BtwNIdV subset of nodes. This gives centrality values that are about Graph->GetNodes()/BtwNIdV.Len() times lower than the exact betweenness centrality valus.
 /// See "A Faster Algorithm for Beetweenness Centrality", Ulrik Brandes, Journal of Mathematical Sociology, 2001, and
 /// "Centrality Estimation in Large Networks", Urlik Brandes and Christian Pich, 2006 for more details.
-template<class PGraph> void GetBetweennessCentr(const PGraph& Graph, const TIntV& BtwNIdV, TIntFltH& NodeBtwH, const bool& isDirected, const bool& DoNodeCent, TIntPrFltH& EdgeBtwH, const bool& DoEdgeCent);
+template<class PGraph> void GetBetweennessCentr(const PGraph& Graph, const TIntV& BtwNIdV, TIntFltH& NodeBtwH, const bool& IsDir, const bool& DoNodeCent, TIntPrFltH& EdgeBtwH, const bool& DoEdgeCent);
 
 /// Computes Eigenvector Centrality of all nodes in the network
 /// Eigenvector Centrality of a node N is defined recursively as the average of centrality values of N's neighbors in the network.
@@ -317,7 +317,7 @@ void GetPageRankMP(const PGraph& Graph, TIntFltH& PRankH, const double& C, const
 
 // Betweenness Centrality
 template<class PGraph>
-void GetBetweennessCentr(const PGraph& Graph, const TIntV& BtwNIdV, TIntFltH& NodeBtwH, const bool& isDirected, const bool& DoNodeCent, TIntPrFltH& EdgeBtwH, const bool& DoEdgeCent) {
+void GetBetweennessCentr(const PGraph& Graph, const TIntV& BtwNIdV, TIntFltH& NodeBtwH, const bool& IsDir, const bool& DoNodeCent, TIntPrFltH& EdgeBtwH, const bool& DoEdgeCent) {
   if (DoNodeCent) { NodeBtwH.Clr(); }
   if (DoEdgeCent) { EdgeBtwH.Clr(); }
   const int nodes = Graph->GetNodes();
@@ -385,7 +385,7 @@ void GetBetweennessCentr(const PGraph& Graph, const TIntV& BtwNIdV, TIntFltH& No
         if (DoEdgeCent) {
           EdgeBtwH.AddDat(TIntPr(TMath::Mn(nid, w), TMath::Mx(nid, w))) += c; }
       }
-      double factor = (isDirected) ? 1.0 : 2.0;
+      double factor = (IsDir) ? 1.0 : 2.0;
       if (DoNodeCent && w != NI.GetId()) {
         NodeBtwH.AddDat(w) += delta.GetDat(w)/factor; }
     }
@@ -393,7 +393,7 @@ void GetBetweennessCentr(const PGraph& Graph, const TIntV& BtwNIdV, TIntFltH& No
 }
 
 template<class PGraph>
-void GetBetweennessCentr(const PGraph& Graph, TIntFltH& NodeBtwH, const bool& isDirected, const double& NodeFrac) {
+void GetBetweennessCentr(const PGraph& Graph, TIntFltH& NodeBtwH, const bool& IsDir, const double& NodeFrac) {
   TIntPrFltH EdgeBtwH;
   TIntV NIdV;  Graph->GetNIdV(NIdV);
   if (NodeFrac < 1.0) { // calculate beetweenness centrality for a subset of nodes
@@ -401,11 +401,11 @@ void GetBetweennessCentr(const PGraph& Graph, TIntFltH& NodeBtwH, const bool& is
     for (int i = int((1.0-NodeFrac)*NIdV.Len()); i > 0; i--) {
       NIdV.DelLast(); }
   }
-  GetBetweennessCentr<PGraph> (Graph, NIdV, NodeBtwH, isDirected, true, EdgeBtwH, false);
+  GetBetweennessCentr<PGraph> (Graph, NIdV, NodeBtwH, IsDir, true, EdgeBtwH, false);
 }
 
 template<class PGraph>
-void GetBetweennessCentr(const PGraph& Graph, TIntPrFltH& EdgeBtwH, const bool& isDirected, const double& NodeFrac) {
+void GetBetweennessCentr(const PGraph& Graph, TIntPrFltH& EdgeBtwH, const bool& IsDir, const double& NodeFrac) {
   TIntFltH NodeBtwH;
   TIntV NIdV;  Graph->GetNIdV(NIdV);
   if (NodeFrac < 1.0) { // calculate beetweenness centrality for a subset of nodes
@@ -413,18 +413,18 @@ void GetBetweennessCentr(const PGraph& Graph, TIntPrFltH& EdgeBtwH, const bool& 
     for (int i = int((1.0-NodeFrac)*NIdV.Len()); i > 0; i--) {
       NIdV.DelLast(); }
   }
-  GetBetweennessCentr<PGraph> (Graph, NIdV, NodeBtwH, isDirected, false, EdgeBtwH, true);
+  GetBetweennessCentr<PGraph> (Graph, NIdV, NodeBtwH, IsDir, false, EdgeBtwH, true);
 }
 
 template<class PGraph>
-void GetBetweennessCentr(const PGraph& Graph, TIntFltH& NodeBtwH, TIntPrFltH& EdgeBtwH, const bool& isDirected, const double& NodeFrac) {
+void GetBetweennessCentr(const PGraph& Graph, TIntFltH& NodeBtwH, TIntPrFltH& EdgeBtwH, const bool& IsDir, const double& NodeFrac) {
   TIntV NIdV;  Graph->GetNIdV(NIdV);
   if (NodeFrac < 1.0) { // calculate beetweenness centrality for a subset of nodes
     NIdV.Shuffle(TInt::Rnd);
     for (int i = int((1.0-NodeFrac)*NIdV.Len()); i > 0; i--) {
       NIdV.DelLast(); }
   }
-  GetBetweennessCentr<PGraph> (Graph, NIdV, NodeBtwH, isDirected, true, EdgeBtwH, true);
+  GetBetweennessCentr<PGraph> (Graph, NIdV, NodeBtwH, IsDir, true, EdgeBtwH, true);
 }
 
 template<class PGraph>

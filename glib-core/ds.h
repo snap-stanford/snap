@@ -502,7 +502,7 @@ public:
   void Trunc(const TSizeTy& _Vals=-1);
   /// Reduces the vector's length to \c _Vals elements, which must be less than the current length.
   void Reduce(const TSizeTy& _Vals=-1) {Vals = _Vals;}
-  /// The vector reduces its capacity (frees memory) to match its size.
+  /// Reduces vector capacity (frees memory) to match its size.
   void Pack();
   /// Takes over the data and the capacity from \c Vec. ##TVec::MoveFrom
   void MoveFrom(TVec<TVal, TSizeTy>& Vec);
@@ -577,7 +577,7 @@ public:
   TVal& GetVal(const TSizeTy& ValN){return operator[](ValN);}
   /// Sets the value of element at position \c ValN to \c Val.
   void SetVal(const TSizeTy& ValN, const TVal& Val){AssertR((0<=ValN)&&(ValN<Vals), GetXOutOfBoundsErrMsg(ValN)); ValT[ValN] = Val;}
-  /// Returns a vector on elements at positions <tt>BValN...EValN</tt>.
+  /// Fills \c ValV with elements at positions <tt>BValN...EValN</tt>.
   void GetSubValV(const TSizeTy& BValN, const TSizeTy& EValN, TVec<TVal, TSizeTy>& ValV) const;
   /// Inserts new element \c Val before the element at position \c ValN.
   void Ins(const TSizeTy& ValN, const TVal& Val);
@@ -678,22 +678,21 @@ public:
     if (EndI() == BegI()) return true;
     for (TIter i = BegI(); i != EndI()-1; ++i) {
       if (Cmp(*(i+1), *i)){return false;} } return true; }
-
-  /// Result is the intersection of \c this vector with \c ValV. ##TVec::Intrs
+  /// Sets this vector to its intersection with \c ValV. Assumes the vectors are sorted!
   void Intrs(const TVec<TVal, TSizeTy>& ValV);
-  /// Result is the union of \c this vector with \c ValV. ##TVec::Union
+  /// Sets this vector to its union with \c ValV. Assumes the vectors are sorted!
   void Union(const TVec<TVal, TSizeTy>& ValV);
-  /// Subtracts \c ValV from \c this vector. ##TVec::Diff
+  /// Subtracts \c ValV from this vector. Assumes the vectors are sorted! ##TVec::Diff
   void Diff(const TVec<TVal, TSizeTy>& ValV);
-  /// \c DstValV is the intersection of vectors \c this and \c ValV. ##TVec::Intrs1
+  /// Sets \c DstValV to the intersection of this vector and \c ValV. Assumes the vectors are sorted!
   void Intrs(const TVec<TVal, TSizeTy>& ValV, TVec<TVal, TSizeTy>& DstValV) const;
-  /// \c DstValV is the union of vectors \c this and \c ValV. ##TVec::Union1
+  /// Sets \c DstValV to the union of this vector and \c ValV. Assumes the vectors are sorted!
   void Union(const TVec<TVal, TSizeTy>& ValV, TVec<TVal, TSizeTy>& DstValV) const;
-  /// \c DstValV is the difference of vectors \c this and \c ValV. ##TVec::Diff1
+  /// Sets \c DstValV to the difference between this vector and \c ValV. Assumes the vectors are sorted! ##TVec::Diff1
   void Diff(const TVec<TVal, TSizeTy>& ValV, TVec<TVal, TSizeTy>& DstValV) const;
-  /// Returns the size of the intersection of vectors \c this and \c ValV. ##TVec::IntrsLen
+  /// Returns the size of the intersection of vectors \c this and \c ValV. Assumes the vectors are sorted!
   TSizeTy IntrsLen(const TVec<TVal, TSizeTy>& ValV) const;
-  /// Returns the size of the union of vectors \c this and \c ValV. ##TVec::UnionLen
+  /// Returns the size of the union of vectors \c this and \c ValV. Assumes the vectors are sorted!
   TSizeTy UnionLen(const TVec<TVal, TSizeTy>& ValV) const;
 
   /// Counts the number of occurrences of \c Val in the vector.

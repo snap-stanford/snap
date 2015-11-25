@@ -511,6 +511,11 @@ TStr TSecTm::GetYmdTmStr() const {
   return TStr::Fmt("%04d-%02d-%02d %02d:%02d:%02d", Tm.tm_year+1900, Tm.tm_mon+1, Tm.tm_mday, Tm.tm_hour, Tm.tm_min, Tm.tm_sec);
 }
 
+TStr TSecTm::GetYmdTmStr2() const {
+  struct tm Tm;
+  IAssert(GetTmStruct(AbsSecs(), Tm));
+  return TStr::Fmt("%04d-%02d-%02d-%02d:%02d:%02d", Tm.tm_year+1900, Tm.tm_mon+1, Tm.tm_mday, Tm.tm_hour, Tm.tm_min, Tm.tm_sec);
+}
 
 TStr TSecTm::GetTmStr() const {
   if (IsDef()){

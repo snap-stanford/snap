@@ -681,6 +681,7 @@ TIntH LoadNodeList(TStr InFNmNodes){
   return Nodes;
 }
 
+#if 0
 int findMinimum(TIntV& Frontier, TIntFltH& NIdDistH) {
   TFlt minimum = TFlt::Mx;
   int min_index = 0;
@@ -727,6 +728,6 @@ int GetWeightedShortestPath(const PNEANet Graph, const int& SrcNId, TIntFltH& NI
   }
 
 }
-
+#endif
 
 }; // namespace TSnap

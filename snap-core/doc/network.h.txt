@@ -208,7 +208,7 @@ Range of NodeN: 0 <= NodeN < GetNbrDeg().
 ///
 
 /// TNEANet::New
-Call: PNEANet Graph = TNEANet::New(Nodes, Edges).
+Call: PNEANet Net = TNEANet::New(Nodes, Edges).
 ///
     
 /// TNEANet::AddNode (int NId = -1)
@@ -276,4 +276,203 @@ Edges:  0 -> 1, 0 -> 2, 0 -> 3, 0 -> 4, 1 -> 2, 1 -> 2
 \endverbatim
 ///
 
+/// TUndirNet::Class
+Node IDs can be arbitrary non-negative integers. Nodes and edges can have
+sparse attributes/data associated with them.
+There is at most one undirected edge between a pair of nodes.
+Self loops (one per node) are allowed but multiple (parallel) edges are not.
+The undirected graph data structure is implemented using sorted adjacency
+lists.
+This means adding a node takes constant time, while adding an edge takes
+linear time (since adjacency list is kept sorted) in the node degree.
+Accessing arbitrary node takes constant time and accessing any edge takes
+logarithmic time in the node degree.
+///
+
+/// TUndirNet::TNodeI::GetInNId
+Range of NodeN: 0 <= NodeN < GetInDeg(). Since the graph is undirected
+GetInNId(), GetOutNId() and GetNbrNId() all give the same output.
+///
+
+/// TUndirNet::TNodeI::GetOutNId
+Range of NodeN: 0 <= NodeN < GetOutDeg(). Since the graph is undirected
+GetInNId(), GetOutNId() and GetNbrNId() all give the same output.
+///
+
+/// TUndirNet::TNodeI::GetNbrNId
+Range of NodeN: 0 <= NodeN < GetNbrDeg(). Since the graph is undirected
+GetInNId(), GetOutNId() and GetNbrNId() all give the same output.
+///
+
+/// TUndirNet::New
+Call: PUndirNet Net = TUndirNet::New(Nodes, Edges).
+///
+
+/// TUndirNet::AddNode (int NId = -1)
+Returns the ID of the node being added.
+If NId is -1, node ID is automatically assigned.
+Aborts, if a node with ID NId already exists.
+///
+
+/// TUndirNet::AddNode-1 (const int& NId, const TIntV& NbrNIdV)
+Returns the ID of the node being added.
+If NId is -1, node ID is automatically assigned.
+Aborts, if a node with ID NId already exists.
+
+The operation can create inconsistent graphs when the neighboring nodes
+in NbrNIdV vector do not exist.
+Use TUndirNet::IsOk to check that the resulting graph is consistent
+after the operation.
+///
+
+/// TUndirNet::AddNode-2 (const int& NId, const TVecPool<TInt>& Pool, const
+//int& NIdVId)
+Returns the ID of the node being added.
+If NId is -1, node ID is automatically assigned.
+Aborts, if a node with ID NId already exists.
+
+The operation can create inconsistent graphs when the neighboring nodes
+stored in the Pool vector are not explicitly added to the graph.
+Use TUndirNet::IsOk to check that the resulting graph is consistent.
+///
+
+/// TUndirNet::DelNode
+If the node of ID NId does not exist the function aborts.
+///
+
+/// TUndirNet::AddEdge
+If the edge already exists return -2. If the edge was successfully added
+return -1.
+Normally the function should return an ID of the edge added but since edges in
+TUndirNet have no IDs we return -1.
+The function aborts if SrcNId or DstNId are not nodes in the graph.
+///
+
+/// TUndirNet::DelEdge
+If the edge (SrcNId, DstNId) does not exist in the graph function still
+completes.
+But the function aborts if SrcNId or DstNId are not nodes in the graph.
+///
+
+/// TUndirNet::GetEI
+Note that since this is an undirected graph GetEI(SrcNId, DstNId) has the same
+effect as GetEI(DstNId, SrcNId).
+///
+
+/// TUndirNet::Defrag
+After performing many node and edge insertions and deletions to a graph,
+the graph data structure will be fragmented in memory.
+This function compacts down the graph data structure and frees unneeded
+memory.
+///
+
+/// TUndirNet::IsOk
+For each node in the graph check that its neighbors are also nodes in the
+graph.
+///
+
+/// TUndirNet::GetSmallGraph
+\verbatim
+Graph:   3--0--4
+           /|
+          1-2
+\endverbatim
+///
+
+/// TDirNet::Class
+Node IDs can be arbitrary non-negative integers. Nodes and edges can have
+sparse attributes/data associated with them.
+There is at most one directed edge from one source node to a destination
+node.
+There can be an edge between the same pair of nodes in the opposite direction.
+Self loops (one per node) are allowed
+but multiple (parallel) edges are not.
+The directed graph data structure is implemented using sorted adjacency
+lists.
+This means adding a node takes constant time, while adding an edge takes
+linear time (since adjacency list is kept sorted) in the node degree.
+Accessing arbitrary node takes constant time and accessing any edge takes
+logarithmic time in the node degree.
+///
+
+/// TDirNet::TNodeI::GetInNId
+Range of NodeN: 0 <= NodeN < GetInDeg().
+///
+
+/// TDirNet::TNodeI::GetOutNId
+Range of NodeN: 0 <= NodeN < GetOutDeg().
+///
+
+/// TDirNet::TNodeI::GetNbrNId
+Range of NodeN: 0 <= NodeN < GetNbrDeg().
+///
+
+/// TDirNet::New
+Call: PDirNet Net = TDirNet::New(Nodes, Edges).
+///
+
+/// TDirNet::AddNode (int NId = -1)
+Returns the ID of the node being added.
+If NId is -1, node ID is automatically assigned.
+Aborts, if a node with ID NId already exists.
+///
+
+/// TDirNet::AddNode-1 (const int& NId, const TIntV& InNIdV, const TIntV&
+//OutNIdV)
+Returns the ID of the node being added.
+If NId is -1, node ID is automatically assigned.
+Aborts, if a node with ID NId already exists.
+
+The operation can create inconsistent graphs when the neighboring nodes
+in vectors InNIdV and OutNIdV do not exist.
+Use TDirNet::IsOk to check that the resulting graph is consistent
+after the operation.
+///
+
+/// TDirNet::AddNode-2 (const int& NId, const TVecPool<TInt>& Pool, const int&
+//NIdVId)
+Returns the ID of the node being added.
+If NId is -1, node ID is automatically assigned.
+Aborts, if a node with ID NId already exists.
+
+The operation can create inconsistent graphs when the neighboring nodes
+stored in the Pool vector are not explicitly added to the graph.
+Use TDirNet::IsOk to check that the resulting graph is consistent.
+///
+
+/// TDirNet::DelNode
+If the node of ID NId does not exist the function aborts.
+///
+
+/// TDirNet::AddEdge
+If the edge already exists return -2. If the edge was successfully added
+return -1.
+Normally the function should return an ID of the edge added but since edges in
+TDirNet have no IDs we return -1.
+Function aborts if SrcNId or DstNId are not nodes in the graph.
+///
+
+/// TDirNet::DelEdge
+If the edge (SrcNId, DstNId) does not exist in the graph function still
+completes.
+But the function aborts if SrcNId or DstNId are not nodes in the graph.
+///
+
+/// TDirNet::Defrag
+After performing many node and edge insertions and deletions to a graph,
+the graph data structure will be fragmented in memory.
+This function compacts down the graph data structure and frees unneeded
+memory.
+///
+
+/// TDirNet::IsOk
+For each node in the graph check that its neighbors are also nodes in the
+graph.
+///
+
+/// TDirNet::GetSmallGraph
+\verbatim
+Edges:  0 -> 1, 1 -> 2, 0 -> 2, 1 -> 3, 3 -> 4, 2 -> 3
+\endverbatim
+///
 
