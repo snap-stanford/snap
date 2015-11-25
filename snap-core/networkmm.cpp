@@ -211,7 +211,7 @@ TModeNet TMMNet::GetTModeNet(const TStr& ModeName) const {
   return GetTModeNet(ModeNameToIdH.GetDat(ModeName));
 }
 TModeNet TMMNet::GetTModeNet(const TInt& ModeId) const {
-  IAssertR(ModeId < TModeNetV.Len(), TStr::Fmt("Mode with id %d does not exist", ModeId));
+//  IAssertR(ModeId < TModeNetV.Len(), TStr::Fmt("Mode with id %d does not exist", ModeId));
   return TModeNetV.GetVal(ModeId);
 }
 

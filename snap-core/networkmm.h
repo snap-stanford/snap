@@ -76,6 +76,7 @@ public:
   void Clr() { TNEANet::Clr(); NModeId = -1; MMNet.Clr(); NeighborTypes.Clr(); }
   friend class TPt<TModeNet>;
   friend class TMMNet;
+  friend class TCrossNet;
 };
 
 class TCrossNet {
@@ -175,6 +176,7 @@ private:
 
 public:
   TCRef CRef; //Reference counter. Necessary for pointers.
+  friend class TCrossNet;
 
 public:
   TMMNet() : MxModeId(0), MxLinkTypeId(0), TModeNetV() {}

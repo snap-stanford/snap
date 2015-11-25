@@ -1096,6 +1096,7 @@ public:
   /// Adds node data to node with ID NId. ##TNodeEdgeNet::AddNode-1
   int AddNode(int NId, const TNodeData& NodeDat);
   /// Adds a node NodeI and its node data to the network.
+  friend class TCrossNet;
   int AddNode(const TNodeI& NodeI) { return AddNode(NodeI.GetId(), NodeI.GetDat()); }
   /// Deletes node of ID NId from the network. ##TNodeEdgeNet::DelNode
   void DelNode(const int& NId);
