@@ -203,7 +203,7 @@ public:
 class TMMNet {
 
 public:
-  /// Node iterator. Only forward iteration (operator++) is supported.
+  /// TModeNet iterator. Only forward iteration (operator++) is supported.
   class TModeNetI {
   protected:
     typedef THash<TInt, TModeNet>::TIter THashIter;
@@ -218,7 +218,28 @@ public:
     TModeNetI& operator++ (int) { ModeNetHI++; return *this; }
     bool operator < (const TModeNetI& ModeNetI) const { return ModeNetHI < ModeNetI.ModeNetHI; }
     bool operator == (const TModeNetI& ModeNetI) const { return ModeNetHI == ModeNetI.ModeNetHI; }
-    //PModeNet GetModeNet() {}
+    int GetMId() { ModeNetHI.GetKey(); }
+    PModeNet GetModeNet() { return Graph->GetModeNet(GetMId()); }
+    friend class TMMNet;
+  };
+
+  /// TCrossNet iterator. Only forward iteration (operator++) is supported.
+  class TCrossNetI {
+  protected:
+    typedef THash<TInt, TCrossNet>::TIter THashIter;
+    THashIter CrossNetHI;
+    const TMMNet *Graph;
+  public:
+    TCrossNetI() : CrossNetHI(), Graph(NULL) { }
+    TCrossNetI(const THashIter& CrossNetHIter, const TMMNet* GraphPt) : CrossNetHI(CrossNetHIter), Graph(GraphPt) { }
+    TCrossNetI(const TCrossNetI& CrossNetI) : CrossNetHI(CrossNetI.CrossNetHI), Graph(CrossNetI.Graph) { }
+    TCrossNetI& operator = (const TCrossNetI& CrossNetI) { CrossNetHI = CrossNetI.CrossNetHI; Graph=CrossNetI.Graph; return *this; }
+    /// Increment iterator.
+    TCrossNetI& operator++ (int) { CrossNetHI++; return *this; }
+    bool operator < (const TCrossNetI& CrossNetI) const { return CrossNetHI < CrossNetI.CrossNetHI; }
+    bool operator == (const TCrossNetI& CrossNetI) const { return CrossNetHI == CrossNetI.CrossNetHI; }
+    int GetMId() { CrossNetHI.GetKey(); }
+    PCrossNet GetCrossNet() { return Graph->GetCrossNet(GetMId()); }
     friend class TMMNet;
   };
 
@@ -269,6 +290,14 @@ public:
 
   PCrossNet GetCrossNet(const TStr& LinkName) const;
   PCrossNet GetCrossNet(const TInt& LinkId) const;
+
+  TCrossNetI GetCrossNetI(const int& Id) const { return TCrossNetI(TCrossNetH.GetI(Id), this); }
+  TCrossNetI BegCrossNetI() const { return TCrossNetI(TCrossNetH.BegI(), this); }
+  TCrossNetI EndCrossNetI() const { return TCrossNetI(TCrossNetH.EndI(), this); }
+
+  TModeNetI GetModeNetI(const int& Id) const { return TModeNetI(TModeNetH.GetI(Id), this); }
+  TModeNetI BegModeNetI() const { return TModeNetI(TModeNetH.BegI(), this); }
+  TModeNetI EndModeNetI() const { return TModeNetI(TModeNetH.EndI(), this); }
 
 private:
   TIntPr GetOrderedLinkPair(const TStr& Mode1, const TStr& Mode2);
