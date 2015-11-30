@@ -164,10 +164,25 @@ private:
   TInt LinkTypeId;
   PMMNet Net;
   //Constructors
+
 public:
-  TCrossNet() : LinkH(), MxEId(0), Mode1(), Mode2(), LinkTypeId(), Net() {}
+
+  TCRef CRef; //Reference counter. Necessary for pointers.
+
+  TCrossNet() : CRef(),LinkH(), MxEId(0), Mode1(), Mode2(), LinkTypeId(), Net() {}
   TCrossNet(TInt MId1, TInt MId2, TInt LId) : LinkH(), MxEId(0), Mode1(MId1), Mode2(MId2), LinkTypeId(LId), Net() {}
   TCrossNet(TSIn& SIn) : LinkH(SIn), MxEId(SIn), Mode1(SIn), Mode2(SIn), LinkTypeId(SIn), Net() {}
+  TCrossNet(const TCrossNet& OtherTCrossNet) :LinkH(OtherTCrossNet.LinkH), MxEId(OtherTCrossNet.MxEId), Mode1(OtherTCrossNet.Mode1),
+    Mode2(OtherTCrossNet.Mode2),LinkTypeId(OtherTCrossNet.LinkTypeId),Net(OtherTCrossNet.Net){}
+  TCrossNet& operator=(const TCrossNet& OtherTCrossNet) {
+    LinkH = OtherTCrossNet.LinkH;
+    MxEId = OtherTCrossNet.MxEId;
+    Mode1 = OtherTCrossNet.Mode1;
+    Mode2 = OtherTCrossNet.Mode2;
+    LinkTypeId = OtherTCrossNet.LinkTypeId;
+    Net = OtherTCrossNet.Net;
+    return *this;
+  }
 private:
   void SetParentPointer(PMMNet parent);
 public:
@@ -249,8 +264,11 @@ public:
   int GetLinkId(const TStr& LinkName) const { return LinkNameToIdH.GetDat(LinkName);  }
   TStr GetLinkName(const TInt& LinkId) const { return LinkIdToNameH.GetDat(LinkId); }
 
-  PModeNet GetTModeNet(const TStr& ModeName) const;
-  PModeNet GetTModeNet(const TInt& ModeId) const;
+  PModeNet GetModeNet(const TStr& ModeName) const;
+  PModeNet GetModeNet(const TInt& ModeId) const;
+
+  PCrossNet GetCrossNet(const TStr& LinkName) const;
+  PCrossNet GetCrossNet(const TInt& LinkId) const;
 
 private:
   TIntPr GetOrderedLinkPair(const TStr& Mode1, const TStr& Mode2);

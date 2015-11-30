@@ -6,7 +6,6 @@
 // and made the real return values (i.e. the mode id, etc) pass by reference variables. I was just following
 // that standard.
 int TMMNet::AddMode(const TStr& ModeName) {
-
   //Book-keeping for new mode id and the hash lookups
   TInt ModeId = TInt(MxModeId);
   MxModeId++;
@@ -21,9 +20,8 @@ int TMMNet::AddMode(const TStr& ModeName) {
 //TODO Sheila-check: I've removed the EdgeTypeId argument here and in the next function.
 //Sheila-response: ok, then we should return the edge type id instead of just 0.
 int TMMNet::AddLinkType(const TStr& ModeName1, const TStr& ModeName2, const TStr& LinkTypeName) {
-
-//  IAssertR(ModeNameToIdH.IsKey(ModeName1), TStr::Fmt("No such mode name: %s", ModeName1));
-//  IAssertR(ModeNameToIdH.IsKey(ModeName2), TStr::Fmt("No such mode name: %s", ModeName2));
+  //IAssertR(ModeNameToIdH.IsKey(ModeName1), TStr::Fmt("No such mode name: %s", ModeName1.CStr()));
+  //IAssertR(ModeNameToIdH.IsKey(ModeName2), TStr::Fmt("No such mode name: %s", ModeName2.CStr()));
 
   TInt ModeId1 = GetModeId(ModeName1);
   TInt ModeId2 = GetModeId(ModeName2);
@@ -32,9 +30,8 @@ int TMMNet::AddLinkType(const TStr& ModeName1, const TStr& ModeName2, const TStr
 
 
 int TMMNet::AddLinkType(const TInt& ModeId1, const TInt& ModeId2, const TStr& LinkTypeName) {
-
-//  IAssertR(ModeIdToNameH.IsKey(ModeId1), TStr::Fmt("No mode with id %d exists", ModeId1));
-//  IAssertR(ModeIdToNameH.IsKey(ModeId2), TStr::Fmt("No mode with id %d exists", ModeId2));
+  //IAssertR(ModeIdToNameH.IsKey(ModeId1), TStr::Fmt("No mode with id %d exists", ModeId1));
+  //IAssertR(ModeIdToNameH.IsKey(ModeId2), TStr::Fmt("No mode with id %d exists", ModeId2));
 
 
   TInt LinkTypeId = TInt(MxLinkTypeId);
@@ -56,7 +53,7 @@ int TMMNet::DelLinkType(const TInt& LinkTypeId) {
 }
 
 int TMMNet::DelLinkType(const TStr& LinkType) {
-//  IAssertR(LinkNameToIdH.IsKey(LinkType),TStr::Fmt("No such link type: %s", LinkType));
+  IAssertR(LinkNameToIdH.IsKey(LinkType),TStr::Fmt("No such link type: %s", LinkType.CStr()));
   return DelLinkType(LinkNameToIdH.GetDat(LinkType));
 }
 
@@ -66,7 +63,7 @@ int TMMNet::DelMode(const TInt& ModeId) {
   return -1;
 }
 int TMMNet::DelMode(const TStr& ModeName) {
-  // IAssertR(ModeNameToIdH.IsKey(ModeName), TStr::Fmt("No such mode with name: %s", ModeName))
+  IAssertR(ModeNameToIdH.IsKey(ModeName), TStr::Fmt("No such mode with name: %s", ModeName.CStr()));
   return DelMode(ModeNameToIdH.GetDat(ModeName));
 }
 
@@ -85,23 +82,35 @@ TIntPr TMMNet::GetOrderedLinkPair(const TInt& Mode1, const TInt& Mode2) {
 }
 
 int TMMNet::AddEdge(const TStr& LinkTypeName, int& NId1, int& NId2, int EId){
-//  IAssertR(LinkNameToIdH.IsKey(LinkTypeName),TStr::Fmt("No such link name: %s",LinkTypeName));
+  //IAssertR(LinkNameToIdH.IsKey(LinkTypeName),TStr::Fmt("No such link name: %s",LinkTypeName.CStr()));
   return AddEdge(LinkNameToIdH.GetDat(LinkTypeName), NId1, NId2, EId);
 }
 int TMMNet::AddEdge(const TInt& LinkTypeId, int& NId1, int& NId2, int EId){
-//   IAssertR(LinkIdToNameH.IsKey(LinkTypeId),TStr::Fmt("No link with id %d exists",LinkTypeId));
+  //IAssertR(LinkIdToNameH.IsKey(LinkTypeId),TStr::Fmt("No link with id %d exists",LinkTypeId));
   return TCrossNetH.GetDat(LinkTypeId).AddEdge(NId1, NId2, EId);
 }
 
-PModeNet TMMNet::GetTModeNet(const TStr& ModeName) const {
-//  IAssertR(ModeNameToIdH.IsKey(ModeName),TStr::Fmt("No such mode name: %s", ModeName));
-  return PModeNet(GetTModeNet(ModeNameToIdH.GetDat(ModeName)));
+PModeNet TMMNet::GetModeNet(const TStr& ModeName) const {
+  //IAssertR(ModeNameToIdH.IsKey(ModeName),TStr::Fmt("No such mode name: %s", ModeName.CStr()));
+  return GetModeNet(ModeNameToIdH.GetDat(ModeName));
 }
-PModeNet TMMNet::GetTModeNet(const TInt& ModeId) const {
+
+PModeNet TMMNet::GetModeNet(const TInt& ModeId) const {
 //  IAssertR(ModeId < TModeNetH.Len(), TStr::Fmt("Mode with id %d does not exist", ModeId));
   TModeNet Net = TModeNetH.GetDat(ModeId);
   return PModeNet(&Net);
 }
+PCrossNet TMMNet::GetCrossNet(const TStr& LinkName) const{
+  //IAssertR(LinkNameToIdH.IsKey(LinkName),TStr::Fmt("No such link name: %s", LinkName.CStr()));
+  return GetCrossNet(LinkNameToIdH.GetDat(LinkName));
+}
+PCrossNet TMMNet::GetCrossNet(const TInt& LinkId) const{
+  //IAssertR(LinkIdToNameH.IsKey(LinkId),TStr::Fmt("No link with id %d exists", LinkId));
+  TCrossNet CrossNet = TCrossNetH.GetDat(LinkId);
+  return PCrossNet(&CrossNet);
+}
+
+
 
 
 int TCrossNet::AddEdge(const int& sourceNId, const int& destNId, int EId){
@@ -232,7 +241,7 @@ void TModeNet::SetParentPointer(PMMNet parent) {
 }
 
 int TModeNet::AddNbrType(const TStr& LinkName, const bool sameMode, bool isDir) {
-//  IAssertR(!NeighborTypes.IsKey(LinkName),TStr::Fmt("Neighbor Link Types already exists: %s", LinkName));
+  //IAssertR(!NeighborTypes.IsKey(LinkName),TStr::Fmt("Neighbor Link Types already exists: %s", LinkName.CStr()));
   if (NeighborTypes.IsKey(LinkName)) { return -1; } //Don't want to add nbr type multiple times
   bool hasSingleVector = (!isDir || !sameMode);
   NeighborTypes.AddDat(LinkName, hasSingleVector);
