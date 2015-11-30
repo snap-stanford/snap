@@ -2,23 +2,25 @@
 // Mutimodal Network
 
 //TODO Sheila-check: I've removed the ModeId argument here. Is it really necessary?
+// Sheila-response: with the attribute code, we used the return value as a way to signal if there are errors
+// and made the real return values (i.e. the mode id, etc) pass by reference variables. I was just following
+// that standard.
 int TMMNet::AddMode(const TStr& ModeName) {
-  //TODO: Add Assertions.
-  if (TModeNetV.Len() != MxModeId) {
-    return -1;
-  }
+  // IAssertR(TModeNetV.Len() == MxModeId, TStr::Fmt("Error with mode vector."));
+
   //Book-keeping for new mode id and the hash lookups
   TInt ModeId = TInt(MxModeId);
   MxModeId++;
   ModeIdToNameH.AddDat(ModeId, ModeName);
   ModeNameToIdH.AddDat(ModeName, ModeId);
 
-  PModeNet NewGraph = TModeNet::New();
-  TModeNetV.Add(*NewGraph);
+  TModeNet NewGraph(ModeId);
+  TModeNetV.Add(NewGraph);
   return ModeId;
 }
 
 //TODO Sheila-check: I've removed the EdgeTypeId argument here and in the next function.
+//Sheila-response: ok, then we should return the edge type id instead of just 0.
 int TMMNet::AddLinkType(const TStr& ModeName1, const TStr& ModeName2, const TStr& LinkTypeName) {
 
 //  IAssertR(ModeNameToIdH.IsKey(ModeName1), TStr::Fmt("No such mode name: %s", ModeName1));
@@ -41,12 +43,13 @@ int TMMNet::AddLinkType(const TInt& ModeId1, const TInt& ModeId2, const TStr& Li
   LinkIdToNameH.AddDat(LinkTypeId, LinkTypeName);
   LinkNameToIdH.AddDat(LinkTypeName, LinkTypeId);
   TCrossNet Link = TCrossNet(ModeId1, ModeId2, LinkTypeId);
-//  Link.SetParentPointer(PMMNet(this)); //TODO
+  PMMNet Parent(this);
+  Link.SetParentPointer(Parent); //TODO
   TCrossNetH.AddDat(LinkTypeId, Link);
 
   TModeNetV[ModeId1].AddNbrType(LinkTypeName);
   TModeNetV[ModeId2].AddNbrType(LinkTypeName);
-  return 0;
+  return LinkTypeId;
 }
 
 int TMMNet::DelLinkType(const TInt& LinkTypeId) {
@@ -60,15 +63,12 @@ int TMMNet::DelLinkType(const TStr& LinkType) {
 }
 
 int TMMNet::DelMode(const TInt& ModeId) {
-  //TODO: figure out what to put in the vector when the mode is deleted
+  //TODO: figure out what to put in the vector TModeNetV when the mode is deleted
   //TODO: delete all edges in the mode
   return -1;
 }
 int TMMNet::DelMode(const TStr& ModeName) {
-  //TODO: Rewrite using IAssertR
-  if (!ModeNameToIdH.IsKey(ModeName)) {
-    return -1;
-  }
+  // IAssertR(ModeNameToIdH.IsKey(ModeName), TStr::Fmt("No such mode with name: %s", ModeName))
   return DelMode(ModeNameToIdH.GetDat(ModeName));
 }
 
@@ -88,21 +88,42 @@ TIntPr TMMNet::GetOrderedLinkPair(const TInt& Mode1, const TInt& Mode2) {
 
 int TMMNet::AddEdge(const TStr& LinkTypeName, int& NId1, int& NId2, int EId){
 //  IAssertR(LinkNameToIdH.IsKey(LinkTypeName),TStr::Fmt("No such link name: %s",LinkTypeName));
-  return AddEdge(LinkNameToIdH.GetDat(LinkTypeName),NId1,NId2,EId);
+  return AddEdge(LinkNameToIdH.GetDat(LinkTypeName), NId1, NId2, EId);
 }
 int TMMNet::AddEdge(const TInt& LinkTypeId, int& NId1, int& NId2, int EId){
 //   IAssertR(LinkIdToNameH.IsKey(LinkTypeId),TStr::Fmt("No link with id %d exists",LinkTypeId));
-  return TCrossNetH.GetDat(LinkTypeId).AddEdge(NId1,NId2, EId);
+  return TCrossNetH.GetDat(LinkTypeId).AddEdge(NId1, NId2, EId);
 }
-int TCrossNet::AddEdge(const int& sourceNId, const int& destNId, const int& EId){
 
-  TInt newEId = TInt(MxEId); //TODO: Make this a function of the argument EId
-  MxEId++;
-  TCrossNet::TCrossEdge newEdge (newEId, sourceNId, destNId);
-  LinkH.AddDat(newEId, newEdge);
+PModeNet TMMNet::GetTModeNet(const TStr& ModeName) const {
+//  IAssertR(ModeNameToIdH.IsKey(ModeName),TStr::Fmt("No such mode name: %s", ModeName));
+  return PModeNet(GetTModeNet(ModeNameToIdH.GetDat(ModeName)));
+}
+PModeNet TMMNet::GetTModeNet(const TInt& ModeId) const {
+//  IAssertR(ModeId < TModeNetV.Len(), TStr::Fmt("Mode with id %d does not exist", ModeId));
+  TModeNet Net = TModeNetV.GetVal(ModeId);
+  return PModeNet(&Net);
+}
+
+
+int TCrossNet::AddEdge(const int& sourceNId, const int& destNId, int EId){
+  if (EId == -1) { EId = MxEId;  MxEId++; }
+  else { MxEId = TMath::Mx(EId+1, MxEId()); }
+  TCrossNet::TCrossEdge newEdge (EId, sourceNId, destNId);
+  LinkH.AddDat(EId, newEdge);
   TStr ThisLinkName = Net->GetLinkName(this->LinkTypeId);
-  Net->TModeNetV[this->Mode1].AddNeighbor(sourceNId, EId,true, ThisLinkName);
-  Net->TModeNetV[this->Mode2].AddNeighbor(destNId, EId,false, ThisLinkName);
+  Net->TModeNetV[this->Mode1].AddNeighbor(sourceNId, EId, true, ThisLinkName);
+  Net->TModeNetV[this->Mode2].AddNeighbor(destNId, EId, false, ThisLinkName);
+  return EId;
+}
+
+int TCrossNet::DelEdge(const int& EId) {
+  TCrossEdge& Edge = LinkH.GetDat(EId);
+  int srcNode = Edge.SrcNId;
+  int dstNode = Edge.DstNId;
+  TStr ThisLinkName = Net->GetLinkName(this->LinkTypeId);
+  Net->TModeNetV[this->Mode1].DelNeighbor(srcNode, EId, true, ThisLinkName);
+  Net->TModeNetV[this->Mode2].DelNeighbor(dstNode, EId, false, ThisLinkName);
   return 0;
 }
 
@@ -163,9 +184,9 @@ int TCrossNet::AddEdge(const int& sourceNId, const int& destNId, const int& EId)
 TStr TModeNet::GetNeighborLinkName(const TStr& LinkName, bool isOutEdge) {
   TStr Cpy(LinkName);
   if (isOutEdge) {
-    Cpy += ":OUT";
+    Cpy += ":SRC";
   } else {
-    Cpy += ":IN";
+    Cpy += ":DST";
   }
   return Cpy;
 }
@@ -200,19 +221,11 @@ int TModeNet::DelNeighbor(const int& NId, const int& EId, bool outEdge, const TI
 int TModeNet::DelNode ( const int& NId){
   // loop through all neighbor vectors, call delete edge on each of these
   TNEANet::DelNode(NId);
+  return -1;
 }
 
 void TModeNet::SetParentPointer(PMMNet parent) {
   MMNet = parent;
-}
-
-TModeNet TMMNet::GetTModeNet(const TStr& ModeName) const {
-//  IAssertR(ModeNameToIdH.IsKey(ModeName),TStr::Fmt("No such mode name: %s", ModeName));
-  return GetTModeNet(ModeNameToIdH.GetDat(ModeName));
-}
-TModeNet TMMNet::GetTModeNet(const TInt& ModeId) const {
-//  IAssertR(ModeId < TModeNetV.Len(), TStr::Fmt("Mode with id %d does not exist", ModeId));
-  return TModeNetV.GetVal(ModeId);
 }
 
 int TModeNet::AddNbrType(const TStr& LinkName) {
