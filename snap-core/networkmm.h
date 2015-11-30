@@ -27,75 +27,18 @@ public:
   typedef TPt<TModeNet> PNetMM;
 public:
     /// Node iterator. Only forward iteration (operator++) is supported.
-  class TModeNetI {
-  private:
-    typedef THash<TInt, TNode>::TIter THashIter;
-    THashIter NodeHI;
-    const TModeNet *Graph;
+  class TNodeI : TNEANet::TNodeI {
   public:
-    TModeNetI() : NodeHI(), Graph(NULL) { }
-    TModeNetI(const THashIter& NodeHIter, const TModeNet* GraphPt) : NodeHI(NodeHIter), Graph(GraphPt) { }
-    TModeNetI(const TModeNetI& NodeI) : NodeHI(NodeI.NodeHI), Graph(NodeI.Graph) { }
-    TModeNetI& operator = (const TModeNetI& NodeI) { NodeHI = NodeI.NodeHI; Graph=NodeI.Graph; return *this; }
+    TNodeI() : TNEANet::TNodeI() { }
+    TNodeI(const THashIter& NodeHIter, const TModeNet* GraphPt) : TNEANet::TNodeI(NodeHIter, GraphPt) { }
+    TNodeI(const TNodeI& NodeI) : TNEANet::TNodeI(NodeI) { }
+    TNodeI& operator = (const TNodeI& NodeI) { NodeHI = NodeI.NodeHI; Graph=NodeI.Graph; return *this; }
     /// Increment iterator.
-    TModeNetI& operator++ (int) { NodeHI++; return *this; }
-    bool operator < (const TModeNetI& NodeI) const { return NodeHI < NodeI.NodeHI; }
-    bool operator == (const TModeNetI& NodeI) const { return NodeHI == NodeI.NodeHI; }
-    /// Returns ID of the current node.
-    int GetId() const { return NodeHI.GetDat().GetId(); }
-    /// Returns degree of the current node, the sum of in-degree and out-degree.
-    int GetDeg() const { return NodeHI.GetDat().GetDeg(); }
-    /// Returns in-degree of the current node.
-    int GetInDeg() const { return NodeHI.GetDat().GetInDeg(); }
-    /// Returns out-degree of the current node.
-    int GetOutDeg() const { return NodeHI.GetDat().GetOutDeg(); }
-    /// Returns ID of EdgeN-th in-node (the node pointing to the current node). ##TNEANet::TModeNetI::GetInNId
-    int GetInNId(const int& EdgeN) const { return Graph->GetEdge(NodeHI.GetDat().GetInEId(EdgeN)).GetSrcNId(); }
-    /// Returns ID of EdgeN-th out-node (the node the current node points to). ##TNEANet::TModeNetI::GetOutNId
-    int GetOutNId(const int& EdgeN) const { return Graph->GetEdge(NodeHI.GetDat().GetOutEId(EdgeN)).GetDstNId(); }
-    /// Returns ID of EdgeN-th neighboring node. ##TNEANet::TModeNetI::GetNbrNId
-    int GetNbrNId(const int& EdgeN) const { const TEdge& E = Graph->GetEdge(NodeHI.GetDat().GetNbrEId(EdgeN)); return GetId()==E.GetSrcNId() ? E.GetDstNId():E.GetSrcNId(); }
-    /// Tests whether node with ID NId points to the current node.
-    bool IsInNId(const int& NId) const;
-    /// Tests whether the current node points to node with ID NId.
-    bool IsOutNId(const int& NId) const;
-    /// Tests whether node with ID NId is a neighbor of the current node.
-    bool IsNbrNId(const int& NId) const { return IsOutNId(NId) || IsInNId(NId); }
-    /// Returns ID of EdgeN-th in-edge.
-    int GetInEId(const int& EdgeN) const { return NodeHI.GetDat().GetInEId(EdgeN); }
-    /// Returns ID of EdgeN-th out-edge.
-    int GetOutEId(const int& EdgeN) const { return NodeHI.GetDat().GetOutEId(EdgeN); }
-    /// Returns ID of EdgeN-th in or out-edge.
-    int GetNbrEId(const int& EdgeN) const { return NodeHI.GetDat().GetNbrEId(EdgeN); }
-    /// Tests whether the edge with ID EId is an in-edge of current node.
-    bool IsInEId(const int& EId) const { return NodeHI.GetDat().IsInEId(EId); }
-    /// Tests whether the edge with ID EId is an out-edge of current node.
-    bool IsOutEId(const int& EId) const { return NodeHI.GetDat().IsOutEId(EId); }
-    /// Tests whether the edge with ID EId is an in or out-edge of current node.
-    bool IsNbrEId(const int& EId) const { return IsInEId(EId) || IsOutEId(EId); }
-    /// Gets vector of attribute names.
-    void GetAttrNames(TStrV& Names) const { Graph->AttrNameNI(GetId(), Names); }
-    /// Gets vector of attribute values.
-    void GetAttrVal(TStrV& Val) const { Graph->AttrValueNI(GetId(), Val); }
-    /// Gets vector of int attribute names.
-    void GetIntAttrNames(TStrV& Names) const { Graph->IntAttrNameNI(GetId(), Names); }
-    /// Gets vector of int attribute values.
-    void GetIntAttrVal(TIntV& Val) const { Graph->IntAttrValueNI(GetId(), Val); }
-    /// Gets vector of int attribute names.
-    void GetIntVAttrNames(TStrV& Names) const { Graph->IntVAttrNameNI(GetId(), Names); }
-    /// Gets vector of int attribute values.
-    void GetIntVAttrVal(TVec<TIntV>& Val) const { Graph->IntVAttrValueNI(GetId(), Val); }
-    /// Gets vector of str attribute names.
-    void GetStrAttrNames(TStrV& Names) const { Graph->StrAttrNameNI(GetId(), Names); }
-    /// Gets vector of str attribute values.
-    void GetStrAttrVal(TStrV& Val) const { Graph->StrAttrValueNI(GetId(), Val); }
-    /// Gets vector of flt attribute names.
-    void GetFltAttrNames(TStrV& Names) const { Graph->FltAttrNameNI(GetId(), Names); }
-    /// Gets vector of flt attribute values.
-    void GetFltAttrVal(TFltV& Val) const { Graph->FltAttrValueNI(GetId(), Val); }
-    // TODO: FINISH this function
-    void GetNeighborsByLinkType(TStr& Name, TIntV& Neighbors) { Graph->GetNeighborsByLinkType(GetId(), Name, Neighbors); }
-    void GetLinkTypeNames(TStrV& Names) { Graph->GetLinkTypeNames(Names); }
+    TNodeI& operator++ (int) { NodeHI++; return *this; }
+    bool operator < (const TNodeI& NodeI) const { return NodeHI < NodeI.NodeHI; }
+    bool operator == (const TNodeI& NodeI) const { return NodeHI == NodeI.NodeHI; }
+    void GetNeighborsByLinkType(TStr& Name, TIntV& Neighbors, const bool isOutEId=false) { const TModeNet *TMGraph = static_cast<const TModeNet *>(Graph); TMGraph->GetNeighborsByLinkType(GetId(), Name, Neighbors); }
+    void GetLinkTypeNames(TStrV& Names) { const TModeNet *TMGraph = static_cast<const TModeNet *>(Graph); TMGraph->GetLinkTypeNames(Names); }
     friend class TModeNet;
   };
 private:
@@ -130,7 +73,14 @@ public:
 
   int DelNode (const int& NId); //TODO(sramas15): finish implementing
   void GetLinkTypeNames(TStrV& Names) const { NeighborTypes.GetKeyV(Names); }
-  void GetNeighborsByLinkType(const int& NId, TStr& Name, TIntV& Neighbors) const;
+  void GetNeighborsByLinkType(const int& NId, TStr& Name, TIntV& Neighbors, const bool isOutEId=false) const;
+
+  /// Returns an iterator referring to the first node in the graph.
+  TNodeI BegMMNI() const { return TNodeI(NodeH.BegI(), this); }
+  /// Returns an iterator referring to the past-the-end node in the graph.
+  TNodeI EndMMNI() const { return TNodeI(NodeH.EndI(), this); }
+  /// Returns an iterator referring to the node of ID NId in the graph.
+  TNodeI GetMMNI(const int& NId) const { return TNodeI(NodeH.GetI(NId), this); }
 
 
 private:
@@ -139,7 +89,7 @@ private:
   int AddNeighbor(const int& NId, const int& EId, const bool outEdge, const TStr& linkName, const bool sameMode, bool isDir);
   int DelNeighbor(const int& NId, const int& EId, bool outEdge, const TStr& LinkName, const bool sameMode, bool isDir);
   int DelNeighbor(const int& NId, const int& EId, bool outEdge, const TInt& linkId, const bool sameMode, bool isDir);
-  TStr GetNeighborLinkName(const TStr& LinkName, bool isOutEdge, const bool sameMode, bool isDir);
+  TStr GetNeighborLinkName(const TStr& LinkName, bool isOutEdge, const bool sameMode, bool isDir) const;
   void SetParentPointer(PMMNet parent);
   int AddNbrType(const TStr& LinkName, const bool sameMode, bool isDir);
 public:

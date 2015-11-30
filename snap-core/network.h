@@ -1501,7 +1501,7 @@ public:
   };
   /// Node iterator. Only forward iteration (operator++) is supported.
   class TNodeI {
-  private:
+  protected:
     typedef THash<TInt, TNode>::TIter THashIter;
     THashIter NodeHI;
     const TNEANet *Graph;
@@ -1721,7 +1721,7 @@ private:
   /// Get Flt edge attribute val.  If not a proper attr, return default.
   TFlt GetFltAttrDefaultE(const TStr& attribute) const { return FltDefaultsE.IsKey(attribute) ? FltDefaultsE.GetDat(attribute) : (TFlt) TFlt::Mn; }
 
-private:
+protected:
   TInt MxNId, MxEId;
   THash<TInt, TNode> NodeH;
   THash<TInt, TEdge> EdgeH;

@@ -195,7 +195,7 @@ void TCrossNet::SetParentPointer(PMMNet parent) {
 //}
 
 
-TStr TModeNet::GetNeighborLinkName(const TStr& LinkName, bool isOutEdge, const bool sameMode, bool isDir) {
+TStr TModeNet::GetNeighborLinkName(const TStr& LinkName, bool isOutEdge, const bool sameMode, bool isDir) const {
   TStr Cpy(LinkName);
   if (!isDir || !sameMode) { return Cpy; }
   if (isOutEdge) {
@@ -251,7 +251,14 @@ int TModeNet::AddNbrType(const TStr& LinkName, const bool sameMode, bool isDir) 
   return 0;
 }
 
-void TModeNet::GetNeighborsByLinkType(const int& NId, TStr& Name, TIntV& Neighbors) const{
+void TModeNet::GetNeighborsByLinkType(const int& NId, TStr& Name, TIntV& Neighbors, const bool isOutEId) const{
   // TODO: check if need the suffix
-  Neighbors = GetIntVAttrDatN(NId, Name);
+  //IAssertR(NeighborTypes.IsKey(Name), TStr::Fmt("Link Type does not exist: %s", Name));
+  TBool hasSingleVector = NeighborTypes.GetDat(Name);
+  if (hasSingleVector) {
+    Neighbors = GetIntVAttrDatN(NId, Name);
+  } else {
+    TStr DirectionalName = GetNeighborLinkName(Name, isOutEId, true, true);
+    Neighbors = GetIntVAttrDatN(NId, DirectionalName);
+  }
 }
