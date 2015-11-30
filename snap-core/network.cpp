@@ -970,7 +970,7 @@ TInt TNEANet::GetIntAttrDatN(const int& NId, const TStr& attr) {
   return VecOfIntVecsN[KeyToIndexTypeN.GetDat(attr).Val2][NodeH.GetKeyId(NId)];
 }
 
-TIntV TNEANet::GetIntVAttrDatN(const int& NId, const TStr& attr) {
+TIntV TNEANet::GetIntVAttrDatN(const int& NId, const TStr& attr) const {
   return VecOfIntVecVecsN[KeyToIndexTypeN.GetDat(attr).Val2][NodeH.GetKeyId(NId)];
 }
 

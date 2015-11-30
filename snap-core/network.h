@@ -2094,8 +2094,8 @@ public:
   TFlt GetFltAttrDatN(const TNodeI& NodeI, const TStr& attr) { return GetFltAttrDatN(NodeI.GetId(), attr); }
   TFlt GetFltAttrDatN(const int& NId, const TStr& attr);
 
-  TIntV GetIntVAttrDatN(const TNodeI& NodeI, const TStr& attr) { return GetIntVAttrDatN(NodeI.GetId(), attr); }
-  TIntV GetIntVAttrDatN(const int& NId, const TStr& attr);
+  TIntV GetIntVAttrDatN(const TNodeI& NodeI, const TStr& attr) const { return GetIntVAttrDatN(NodeI.GetId(), attr); }
+  TIntV GetIntVAttrDatN(const int& NId, const TStr& attr) const;
 
   /// Gets the index of the node attr value vector specified by \c attr (same as GetAttrIndN for compatibility reasons).
   int GetIntAttrIndN(const TStr& attr);

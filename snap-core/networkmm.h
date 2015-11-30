@@ -28,20 +28,20 @@ public:
   typedef TPt<TModeNet> PNetMM;
 public:
     /// Node iterator. Only forward iteration (operator++) is supported.
-  class TNodeI {
+  class TModeNetI {
   private:
     typedef THash<TInt, TNode>::TIter THashIter;
     THashIter NodeHI;
     const TModeNet *Graph;
   public:
-    TNodeI() : NodeHI(), Graph(NULL) { }
-    TNodeI(const THashIter& NodeHIter, const TModeNet* GraphPt) : NodeHI(NodeHIter), Graph(GraphPt) { }
-    TNodeI(const TNodeI& NodeI) : NodeHI(NodeI.NodeHI), Graph(NodeI.Graph) { }
-    TNodeI& operator = (const TNodeI& NodeI) { NodeHI = NodeI.NodeHI; Graph=NodeI.Graph; return *this; }
+    TModeNetI() : NodeHI(), Graph(NULL) { }
+    TModeNetI(const THashIter& NodeHIter, const TModeNet* GraphPt) : NodeHI(NodeHIter), Graph(GraphPt) { }
+    TModeNetI(const TModeNetI& NodeI) : NodeHI(NodeI.NodeHI), Graph(NodeI.Graph) { }
+    TModeNetI& operator = (const TModeNetI& NodeI) { NodeHI = NodeI.NodeHI; Graph=NodeI.Graph; return *this; }
     /// Increment iterator.
-    TNodeI& operator++ (int) { NodeHI++; return *this; }
-    bool operator < (const TNodeI& NodeI) const { return NodeHI < NodeI.NodeHI; }
-    bool operator == (const TNodeI& NodeI) const { return NodeHI == NodeI.NodeHI; }
+    TModeNetI& operator++ (int) { NodeHI++; return *this; }
+    bool operator < (const TModeNetI& NodeI) const { return NodeHI < NodeI.NodeHI; }
+    bool operator == (const TModeNetI& NodeI) const { return NodeHI == NodeI.NodeHI; }
     /// Returns ID of the current node.
     int GetId() const { return NodeHI.GetDat().GetId(); }
     /// Returns degree of the current node, the sum of in-degree and out-degree.
@@ -50,11 +50,11 @@ public:
     int GetInDeg() const { return NodeHI.GetDat().GetInDeg(); }
     /// Returns out-degree of the current node.
     int GetOutDeg() const { return NodeHI.GetDat().GetOutDeg(); }
-    /// Returns ID of EdgeN-th in-node (the node pointing to the current node). ##TNEANet::TNodeI::GetInNId
+    /// Returns ID of EdgeN-th in-node (the node pointing to the current node). ##TNEANet::TModeNetI::GetInNId
     int GetInNId(const int& EdgeN) const { return Graph->GetEdge(NodeHI.GetDat().GetInEId(EdgeN)).GetSrcNId(); }
-    /// Returns ID of EdgeN-th out-node (the node the current node points to). ##TNEANet::TNodeI::GetOutNId
+    /// Returns ID of EdgeN-th out-node (the node the current node points to). ##TNEANet::TModeNetI::GetOutNId
     int GetOutNId(const int& EdgeN) const { return Graph->GetEdge(NodeHI.GetDat().GetOutEId(EdgeN)).GetDstNId(); }
-    /// Returns ID of EdgeN-th neighboring node. ##TNEANet::TNodeI::GetNbrNId
+    /// Returns ID of EdgeN-th neighboring node. ##TNEANet::TModeNetI::GetNbrNId
     int GetNbrNId(const int& EdgeN) const { const TEdge& E = Graph->GetEdge(NodeHI.GetDat().GetNbrEId(EdgeN)); return GetId()==E.GetSrcNId() ? E.GetDstNId():E.GetSrcNId(); }
     /// Tests whether node with ID NId points to the current node.
     bool IsInNId(const int& NId) const;
@@ -95,13 +95,14 @@ public:
     /// Gets vector of flt attribute values.
     void GetFltAttrVal(TFltV& Val) const { Graph->FltAttrValueNI(GetId(), Val); }
     // TODO: FINISH this function
-    void GetNeighborsByLinkType(TStrV& Names) { }
+    void GetNeighborsByLinkType(TStr& Name, TIntV& Neighbors) { Graph->GetNeighborsByLinkType(GetId(), Name, Neighbors); }
+    void GetLinkTypeNames(TStrV& Names) { Graph->GetLinkTypeNames(Names); }
     friend class TModeNet;
   };
 private:
   TInt NModeId;
   PMMNet MMNet; //the parent MMNet
-  THashSet<TStr> NeighborTypes; //TODO: Is this necessary?
+  THash<TStr, TBool> NeighborTypes;
 
 public:
   //TODO: Update constructors with information from fields above.
@@ -129,20 +130,22 @@ public:
   static PModeNet Load(TSIn& SIn) { return PModeNet(new TModeNet(SIn)); }
 
   int DelNode (const int& NId); //TODO(sramas15): finish implementing
+  void GetLinkTypeNames(TStrV& Names) const { NeighborTypes.GetKeyV(Names); }
+  void GetNeighborsByLinkType(const int& NId, TStr& Name, TIntV& Neighbors) const;
 
 
 private:
   //method to add neighbors; will be called by TMMNet AddEdge function; outEdge == true iff NId(which is of the type of the TModeNet; i.e. it should refer to a node in this graph) is the source node.
-  int AddNeighbor(const int& NId, const int& EId, const bool outEdge, const int linkId);
-  int AddNeighbor(const int& NId, const int& EId, const bool outEdge, const TStr& linkName);
-  int DelNeighbor(const int& NId, const int& EId, bool outEdge, const TStr& LinkName);
-  int DelNeighbor(const int& NId, const int& EId, bool outEdge, const TInt& linkId);
-  TStr GetNeighborLinkName(const TStr& LinkName, bool isOutEdge);
+  int AddNeighbor(const int& NId, const int& EId, const bool outEdge, const int linkId, const bool sameMode, bool isDir);
+  int AddNeighbor(const int& NId, const int& EId, const bool outEdge, const TStr& linkName, const bool sameMode, bool isDir);
+  int DelNeighbor(const int& NId, const int& EId, bool outEdge, const TStr& LinkName, const bool sameMode, bool isDir);
+  int DelNeighbor(const int& NId, const int& EId, bool outEdge, const TInt& linkId, const bool sameMode, bool isDir);
+  TStr GetNeighborLinkName(const TStr& LinkName, bool isOutEdge, const bool sameMode, bool isDir);
   void SetParentPointer(PMMNet parent);
+  int AddNbrType(const TStr& LinkName, const bool sameMode, bool isDir);
 public:
 
   ///When we create a new link type, we need to add a new neighbor type here.
-  int AddNbrType(const TStr& LinkName);
 
   /// Deletes all nodes and edges from the graph.
   void Clr() { TNEANet::Clr(); NModeId = -1; MMNet.Clr(); NeighborTypes.Clr(); }
@@ -217,7 +220,7 @@ public:
   TCrossNet(TInt MId1, TInt MId2, TInt LId) : LinkH(), MxEId(0), Mode1(MId1), Mode2(MId2), LinkTypeId(LId), Net() {}
   TCrossNet(TSIn& SIn) : LinkH(SIn), MxEId(SIn), Mode1(SIn), Mode2(SIn), LinkTypeId(SIn), Net() {}
 private:
-  void SetParentPointer(PMMNet& parent);
+  void SetParentPointer(PMMNet parent);
 public:
   //TODO: DelEdge or DelLink? Same with Add
   int AddEdge(const int& sourceNId, const int& destNId, int EId=-1);
@@ -252,6 +255,7 @@ private:
 public:
   TCRef CRef; //Reference counter. Necessary for pointers.
   friend class TCrossNet;
+  friend class TModeNet;
 
 public:
   TMMNet() : CRef(), MxModeId(0), MxLinkTypeId(0), TModeNetV(), TCrossNetH(), ModeIdToNameH(), ModeNameToIdH(), LinkIdToNameH(), LinkNameToIdH() {}
