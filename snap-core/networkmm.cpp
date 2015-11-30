@@ -43,7 +43,7 @@ int TMMNet::AddLinkType(const TInt& ModeId1, const TInt& ModeId2, const TStr& Li
   LinkIdToNameH.AddDat(LinkTypeId, LinkTypeName);
   LinkNameToIdH.AddDat(LinkTypeName, LinkTypeId);
   TCrossNet Link = TCrossNet(ModeId1, ModeId2, LinkTypeId);
-  Link.SetParentPointer(this); //TODO
+  Link.SetParentPointer(this);
   TCrossNetH.AddDat(LinkTypeId, Link);
 
   TModeNetV[ModeId1].AddNbrType(LinkTypeName, ModeId1==ModeId2, true); //can't assume it is directed

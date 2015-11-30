@@ -7,7 +7,6 @@ class TMMNet;
 
 typedef TPt<TMMNet> PMMNet;
 
-//NOTE: Removed inheritance from nodes and edges (for now)
 //TODO: TCrossNet with the entire hash table
 
 ///A single mode in a multimodal directed attributed multigraph
