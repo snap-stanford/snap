@@ -183,16 +183,35 @@ public:
   friend class TMMNet;
 };
 
-//The container class for a multimodal network
 
+//The container class for a multimodal network
 class TMMNet {
 
+public:
+  /// Node iterator. Only forward iteration (operator++) is supported.
+  class TModeNetI {
+  protected:
+    typedef THash<TInt, TModeNet>::TIter THashIter;
+    THashIter ModeNetHI;
+    const TMMNet *Graph;
+  public:
+    TModeNetI() : ModeNetHI(), Graph(NULL) { }
+    TModeNetI(const THashIter& ModeNetHIter, const TMMNet* GraphPt) : ModeNetHI(ModeNetHIter), Graph(GraphPt) { }
+    TModeNetI(const TModeNetI& ModeNetI) : ModeNetHI(ModeNetI.ModeNetHI), Graph(ModeNetI.Graph) { }
+    TModeNetI& operator = (const TModeNetI& ModeNetI) { ModeNetHI = ModeNetI.ModeNetHI; Graph=ModeNetI.Graph; return *this; }
+    /// Increment iterator.
+    TModeNetI& operator++ (int) { ModeNetHI++; return *this; }
+    bool operator < (const TModeNetI& ModeNetI) const { return ModeNetHI < ModeNetI.ModeNetHI; }
+    bool operator == (const TModeNetI& ModeNetI) const { return ModeNetHI == ModeNetI.ModeNetHI; }
+    //PModeNet GetModeNet() {}
+    friend class TMMNet;
+  };
 
 private:
 
   TInt MxModeId; //The number of modes
   TInt MxLinkTypeId;
-  TVec<TModeNet> TModeNetV;
+  THash<TInt, TModeNet> TModeNetH;
   THash<TInt, TCrossNet> TCrossNetH;
 
   THash<TInt,TStr> ModeIdToNameH;
@@ -207,10 +226,10 @@ public:
   friend class TModeNet;
 
 public:
-  TMMNet() : CRef(), MxModeId(0), MxLinkTypeId(0), TModeNetV(), TCrossNetH(), ModeIdToNameH(), ModeNameToIdH(), LinkIdToNameH(), LinkNameToIdH() {}
-  TMMNet(const TMMNet& OtherTMMNet) : MxModeId(OtherTMMNet.MxModeId), MxLinkTypeId(OtherTMMNet.MxLinkTypeId), TModeNetV(OtherTMMNet.TModeNetV), 
+  TMMNet() : CRef(), MxModeId(0), MxLinkTypeId(0), TModeNetH(), TCrossNetH(), ModeIdToNameH(), ModeNameToIdH(), LinkIdToNameH(), LinkNameToIdH() {}
+  TMMNet(const TMMNet& OtherTMMNet) : MxModeId(OtherTMMNet.MxModeId), MxLinkTypeId(OtherTMMNet.MxLinkTypeId), TModeNetH(OtherTMMNet.TModeNetH), 
     TCrossNetH(OtherTMMNet.TCrossNetH), ModeIdToNameH(OtherTMMNet.ModeIdToNameH), ModeNameToIdH(OtherTMMNet.ModeNameToIdH), LinkIdToNameH(OtherTMMNet.LinkIdToNameH), LinkNameToIdH(OtherTMMNet.LinkNameToIdH) {}
-  TMMNet(TSIn& SIn) : MxModeId(SIn), MxLinkTypeId(SIn), TModeNetV(SIn), TCrossNetH(SIn), ModeIdToNameH(SIn), ModeNameToIdH(SIn), LinkIdToNameH(SIn), LinkNameToIdH(SIn) {}
+  TMMNet(TSIn& SIn) : MxModeId(SIn), MxLinkTypeId(SIn), TModeNetH(SIn), TCrossNetH(SIn), ModeIdToNameH(SIn), ModeNameToIdH(SIn), LinkIdToNameH(SIn), LinkNameToIdH(SIn) {}
   int AddMode(const TStr& ModeName);
   int DelMode(const TInt& ModeId); // TODO(sramas15): finish implementing
   int DelMode(const TStr& ModeName);
@@ -219,10 +238,11 @@ public:
   int DelLinkType(const TInt& LinkTypeId); // TODO(sramas15): finish implementing
   int DelLinkType(const TStr& LinkType);
 
-  void Save(TSOut& SOut) const {MxModeId.Save(SOut); MxLinkTypeId.Save(SOut); TModeNetV.Save(SOut); 
+  void Save(TSOut& SOut) const {MxModeId.Save(SOut); MxLinkTypeId.Save(SOut); TModeNetH.Save(SOut); 
     TCrossNetH.Save(SOut); ModeIdToNameH.Save(SOut); ModeNameToIdH.Save(SOut); LinkIdToNameH.Save(SOut);
     LinkNameToIdH.Save(SOut); } //TODO
   static PMMNet Load(TSIn& SIn) { return PMMNet(new TMMNet(SIn)); }
+  static PMMNet New() { return PMMNet(new TMMNet()); }
 
   int GetModeId(const TStr& ModeName) const { return ModeNameToIdH.GetDat(ModeName);  }
   TStr GetModeName(const TInt& ModeId) const { return ModeIdToNameH.GetDat(ModeId); }

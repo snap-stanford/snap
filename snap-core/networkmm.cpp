@@ -6,7 +6,6 @@
 // and made the real return values (i.e. the mode id, etc) pass by reference variables. I was just following
 // that standard.
 int TMMNet::AddMode(const TStr& ModeName) {
-  // IAssertR(TModeNetV.Len() == MxModeId, TStr::Fmt("Error with mode vector."));
 
   //Book-keeping for new mode id and the hash lookups
   TInt ModeId = TInt(MxModeId);
@@ -15,7 +14,7 @@ int TMMNet::AddMode(const TStr& ModeName) {
   ModeNameToIdH.AddDat(ModeName, ModeId);
 
   TModeNet NewGraph(ModeId);
-  TModeNetV.Add(NewGraph);
+  TModeNetH.AddDat(ModeId, NewGraph);
   return ModeId;
 }
 
@@ -46,8 +45,8 @@ int TMMNet::AddLinkType(const TInt& ModeId1, const TInt& ModeId2, const TStr& Li
   Link.SetParentPointer(this);
   TCrossNetH.AddDat(LinkTypeId, Link);
 
-  TModeNetV[ModeId1].AddNbrType(LinkTypeName, ModeId1==ModeId2, true); //can't assume it is directed
-  TModeNetV[ModeId2].AddNbrType(LinkTypeName, ModeId1==ModeId2, true);
+  TModeNetH.GetDat(ModeId1).AddNbrType(LinkTypeName, ModeId1==ModeId2, true); //can't assume it is directed
+  TModeNetH.GetDat(ModeId2).AddNbrType(LinkTypeName, ModeId1==ModeId2, true);
   return LinkTypeId;
 }
 
@@ -62,7 +61,7 @@ int TMMNet::DelLinkType(const TStr& LinkType) {
 }
 
 int TMMNet::DelMode(const TInt& ModeId) {
-  //TODO: figure out what to put in the vector TModeNetV when the mode is deleted
+  //TODO: figure out what to put in the vector TModeNetH when the mode is deleted
   //TODO: delete all edges in the mode
   return -1;
 }
@@ -99,8 +98,8 @@ PModeNet TMMNet::GetTModeNet(const TStr& ModeName) const {
   return PModeNet(GetTModeNet(ModeNameToIdH.GetDat(ModeName)));
 }
 PModeNet TMMNet::GetTModeNet(const TInt& ModeId) const {
-//  IAssertR(ModeId < TModeNetV.Len(), TStr::Fmt("Mode with id %d does not exist", ModeId));
-  TModeNet Net = TModeNetV.GetVal(ModeId);
+//  IAssertR(ModeId < TModeNetH.Len(), TStr::Fmt("Mode with id %d does not exist", ModeId));
+  TModeNet Net = TModeNetH.GetDat(ModeId);
   return PModeNet(&Net);
 }
 
@@ -111,8 +110,8 @@ int TCrossNet::AddEdge(const int& sourceNId, const int& destNId, int EId){
   TCrossNet::TCrossEdge newEdge (EId, sourceNId, destNId);
   LinkH.AddDat(EId, newEdge);
   TStr ThisLinkName = Net->GetLinkName(this->LinkTypeId);
-  Net->TModeNetV[this->Mode1].AddNeighbor(sourceNId, EId, true, ThisLinkName, Mode1==Mode2, true); // TODO: can't assume it is directed
-  Net->TModeNetV[this->Mode2].AddNeighbor(destNId, EId, false, ThisLinkName, Mode1==Mode2, true);
+  Net->TModeNetH.GetDat(this->Mode1).AddNeighbor(sourceNId, EId, true, ThisLinkName, Mode1==Mode2, true); // TODO: can't assume it is directed
+  Net->TModeNetH.GetDat(this->Mode2).AddNeighbor(destNId, EId, false, ThisLinkName, Mode1==Mode2, true);
   return EId;
 }
 
@@ -121,8 +120,8 @@ int TCrossNet::DelEdge(const int& EId) {
   int srcNode = Edge.SrcNId;
   int dstNode = Edge.DstNId;
   TStr ThisLinkName = Net->GetLinkName(this->LinkTypeId);
-  Net->TModeNetV[this->Mode1].DelNeighbor(srcNode, EId, true, ThisLinkName, Mode1==Mode2, true); // TODO: can't assume it is directed
-  Net->TModeNetV[this->Mode2].DelNeighbor(dstNode, EId, false, ThisLinkName, Mode1==Mode2, true);
+  Net->TModeNetH.GetDat(this->Mode1).DelNeighbor(srcNode, EId, true, ThisLinkName, Mode1==Mode2, true); // TODO: can't assume it is directed
+  Net->TModeNetH.GetDat(this->Mode2).DelNeighbor(dstNode, EId, false, ThisLinkName, Mode1==Mode2, true);
   return 0;
 }
 
