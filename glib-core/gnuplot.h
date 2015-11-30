@@ -634,7 +634,7 @@ void TGnuPlot::PlotValOverTm(const TVec<TPair<TSecTm, TVal2> >& ValV, const TStr
   GP.SetXYLabel(XLabel, YLabel);
   GP.SetScale(ScaleTy);
   GP.AddCmd("set xdata time");
-  GP.AddCmd("set timefmt \"%Y-%m-%d %H:%M:%S\"");
+  GP.AddCmd("set timefmt \"%Y-%m-%d-%H:%M:%S\"");
   GP.AddCmd("set format x \"%Y-%m-%d\\n%H:%M:%S\"");
 
   // save file
