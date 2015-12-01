@@ -110,9 +110,6 @@ PCrossNet TMMNet::GetCrossNet(const TInt& LinkId) const{
   return PCrossNet(&CrossNet);
 }
 
-
-
-
 int TCrossNet::AddEdge(const int& sourceNId, const int& destNId, int EId){
   if (EId == -1) { EId = MxEId;  MxEId++; }
   else { MxEId = TMath::Mx(EId+1, MxEId()); }
