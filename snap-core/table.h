@@ -18,6 +18,8 @@ typedef TPair<TIntV, TFltV> TGroupKey;
 // Haversine distance is used to calculate distance between two points on a sphere based on latitude and longitude
 typedef enum {L1Norm, L2Norm, Jaccard, Haversine} TSimType;
 
+#if 0
+// TMetric and TEuclideanMetric are currently not used, kept for future use
 //#//////////////////////////////////////////////
 /// Metric class: base class for distance metrics
 class TMetric {
@@ -41,6 +43,7 @@ public:
   /// Calculate the euclidean distance of two floats
   TFlt NumDist(TFlt x1,TFlt x2) { return fabs(x1-x2); }
 };
+#endif
 
 //TODO: move to separate file (map.h / file with PR and HITS)
 namespace TSnap {

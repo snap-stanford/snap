@@ -89,7 +89,7 @@ template<class PGraph> void GetHits(const PGraph& Graph, TIntFltH& NIdHubH, TInt
 template<class PGraph> void GetHitsMP(const PGraph& Graph, TIntFltH& NIdHubH, TIntFltH& NIdAuthH, const int& MaxIter=20);
 #endif
 
-int GetWeightedShortestPath(const PNEANet Graph, const int& SrcNId, TIntH& NIdToDistH, const TStr& Attr, const bool& IsDir=false, const int& MaxDist=TInt::Mx);
+// int GetWeightedShortestPath(const PNEANet Graph, const int& SrcNId, TIntH& NIdToDistH, const TStr& Attr, const bool& IsDir=false, const int& MaxDist=TInt::Mx);
 
 /////////////////////////////////////////////////
 // Implementation
