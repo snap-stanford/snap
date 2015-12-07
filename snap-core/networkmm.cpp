@@ -17,8 +17,6 @@ int TMMNet::AddMode(const TStr& ModeName) {
   return ModeId;
 }
 
-//TODO Sheila-check: I've removed the EdgeTypeId argument here and in the next function.
-//Sheila-response: ok, then we should return the edge type id instead of just 0.
 int TMMNet::AddLinkType(const TStr& ModeName1, const TStr& ModeName2, const TStr& LinkTypeName) {
   //IAssertR(ModeNameToIdH.IsKey(ModeName1), TStr::Fmt("No such mode name: %s", ModeName1.CStr()));
   //IAssertR(ModeNameToIdH.IsKey(ModeName2), TStr::Fmt("No such mode name: %s", ModeName2.CStr()));
@@ -118,6 +116,42 @@ int TCrossNet::AddEdge(const int& sourceNId, const int& destNId, int EId){
   TStr ThisLinkName = Net->GetLinkName(this->LinkTypeId);
   Net->TModeNetH.GetDat(this->Mode1).AddNeighbor(sourceNId, EId, true, ThisLinkName, Mode1==Mode2, true); // TODO: can't assume it is directed
   Net->TModeNetH.GetDat(this->Mode2).AddNeighbor(destNId, EId, false, ThisLinkName, Mode1==Mode2, true);
+  int i;
+  // update attribute columns
+  for (i = 0; i < VecOfIntVecsE.Len(); i++) {
+    TVec<TInt>& IntVec = VecOfIntVecsE[i];
+    IntVec.Ins(LinkH.GetKeyId(EId), TInt::Mn);
+  }
+  TVec<TStr> DefIntVec = TVec<TStr>();
+  IntDefaultsE.GetKeyV(DefIntVec);
+  for (i = 0; i < DefIntVec.Len(); i++) {
+    TStr attr = DefIntVec[i];
+    TVec<TInt>& IntVec = VecOfIntVecsE[KeyToIndexTypeE.GetDat(DefIntVec[i]).Val2];
+    IntVec[LinkH.GetKeyId(EId)] = GetIntAttrDefaultE(attr);
+  }
+  for (i = 0; i < VecOfStrVecsE.Len(); i++) {
+    TVec<TStr>& StrVec = VecOfStrVecsE[i];
+    StrVec.Ins(LinkH.GetKeyId(EId), TStr::GetNullStr());
+  }
+  TVec<TStr> DefStrVec = TVec<TStr>();
+  StrDefaultsE.GetKeyV(DefStrVec);
+  for (i = 0; i < DefStrVec.Len(); i++) {
+    TStr attr = DefStrVec[i];
+    TVec<TStr>& StrVec = VecOfStrVecsE[KeyToIndexTypeE.GetDat(DefStrVec[i]).Val2];
+    StrVec[LinkH.GetKeyId(EId)] = GetStrAttrDefaultE(attr);
+  }
+
+  for (i = 0; i < VecOfFltVecsE.Len(); i++) {
+    TVec<TFlt>& FltVec = VecOfFltVecsE[i];
+    FltVec.Ins(LinkH.GetKeyId(EId), TFlt::Mn);
+  }
+  TVec<TStr> DefFltVec = TVec<TStr>();
+  FltDefaultsE.GetKeyV(DefFltVec);
+  for (i = 0; i < DefFltVec.Len(); i++) {
+    TStr attr = DefFltVec[i];
+    TVec<TFlt>& FltVec = VecOfFltVecsE[KeyToIndexTypeE.GetDat(DefFltVec[i]).Val2];
+    FltVec[LinkH.GetKeyId(EId)] = GetFltAttrDefaultE(attr);
+  }
   return EId;
 }
 
@@ -128,6 +162,19 @@ int TCrossNet::DelEdge(const int& EId) {
   TStr ThisLinkName = Net->GetLinkName(this->LinkTypeId);
   Net->TModeNetH.GetDat(this->Mode1).DelNeighbor(srcNode, EId, true, ThisLinkName, Mode1==Mode2, true); // TODO: can't assume it is directed
   Net->TModeNetH.GetDat(this->Mode2).DelNeighbor(dstNode, EId, false, ThisLinkName, Mode1==Mode2, true);
+  int i;
+  for (i = 0; i < VecOfIntVecsE.Len(); i++) {
+    TVec<TInt>& IntVec = VecOfIntVecsE[i];
+    IntVec[LinkH.GetKeyId(EId)] =  TInt::Mn;
+  }
+  for (i = 0; i < VecOfStrVecsE.Len(); i++) {
+    TVec<TStr>& StrVec = VecOfStrVecsE[i];
+    StrVec[LinkH.GetKeyId(EId)] =  TStr::GetNullStr();
+  }
+  for (i = 0; i < VecOfFltVecsE.Len(); i++) {
+    TVec<TFlt>& FltVec = VecOfFltVecsE[i];
+    FltVec[LinkH.GetKeyId(EId)] = TFlt::Mn;
+  }
   return 0;
 }
 
@@ -256,3 +303,324 @@ void TModeNet::GetNeighborsByLinkType(const int& NId, TStr& Name, TIntV& Neighbo
     Neighbors = GetIntVAttrDatN(NId, DirectionalName);
   }
 }
+
+void TCrossNet::AttrNameEI(const TInt& EId, TStrIntPrH::TIter LinkHI, TStrV& Names) const {
+  Names = TVec<TStr>();
+  while (!LinkHI.IsEnd()) {
+    if (!EdgeAttrIsDeleted(EId, LinkHI)) {
+      Names.Add(LinkHI.GetKey());
+    }
+    LinkHI++;
+  }  
+}
+
+void TCrossNet::AttrValueEI(const TInt& EId, TStrIntPrH::TIter LinkHI, TStrV& Values) const {
+  Values = TVec<TStr>();
+  while (!LinkHI.IsEnd()) {
+    if (!EdgeAttrIsDeleted(EId, LinkHI)) {
+      Values.Add(GetEdgeAttrValue(EId, LinkHI));
+    }
+    LinkHI++;
+  }  
+}
+
+void TCrossNet::IntAttrNameEI(const TInt& EId, TStrIntPrH::TIter LinkHI, TStrV& Names) const {
+  Names = TVec<TStr>();
+  while (!LinkHI.IsEnd()) {
+    if (LinkHI.GetDat().Val1 == IntType && !EdgeAttrIsIntDeleted(EId, LinkHI)) {
+      Names.Add(LinkHI.GetKey());
+    }
+    LinkHI++;
+  }  
+}
+
+void TCrossNet::IntAttrValueEI(const TInt& EId, TStrIntPrH::TIter LinkHI, TIntV& Values) const {
+  Values = TVec<TInt>();
+  while (!LinkHI.IsEnd()) {
+    if (LinkHI.GetDat().Val1 == IntType && !EdgeAttrIsIntDeleted(EId, LinkHI)) {
+      TInt val = (this->VecOfIntVecsE.GetVal(LinkHI.GetDat().Val2).GetVal(EId));
+      Values.Add(val);
+    }
+    LinkHI++;
+  }  
+}
+
+void TCrossNet::StrAttrNameEI(const TInt& EId, TStrIntPrH::TIter LinkHI, TStrV& Names) const {
+  Names = TVec<TStr>();
+  while (!LinkHI.IsEnd()) {
+    if (LinkHI.GetDat().Val1 == StrType && !EdgeAttrIsStrDeleted(EId, LinkHI)) {
+      Names.Add(LinkHI.GetKey());
+    }
+    LinkHI++;
+  }  
+}
+
+void TCrossNet::StrAttrValueEI(const TInt& EId, TStrIntPrH::TIter LinkHI, TStrV& Values) const {
+  Values = TVec<TStr>();
+  while (!LinkHI.IsEnd()) {
+    if (LinkHI.GetDat().Val1 == StrType && !EdgeAttrIsStrDeleted(EId, LinkHI)) {
+      TStr val = this->VecOfStrVecsE.GetVal(LinkHI.GetDat().Val2).GetVal(EId);
+      Values.Add(val);
+    }
+    LinkHI++;
+  }  
+}
+
+void TCrossNet::FltAttrNameEI(const TInt& EId, TStrIntPrH::TIter LinkHI, TStrV& Names) const {
+  Names = TVec<TStr>();
+  while (!LinkHI.IsEnd()) {
+    if (LinkHI.GetDat().Val1 == FltType && !EdgeAttrIsFltDeleted(EId, LinkHI)) {
+      Names.Add(LinkHI.GetKey());
+    }
+    LinkHI++;
+  }  
+}
+
+void TCrossNet::FltAttrValueEI(const TInt& EId, TStrIntPrH::TIter LinkHI, TFltV& Values) const {
+  Values = TVec<TFlt>();
+  while (!LinkHI.IsEnd()) {
+    if (LinkHI.GetDat().Val1 == FltType && !EdgeAttrIsFltDeleted(EId, LinkHI)) {
+      TFlt val = (this->VecOfFltVecsE.GetVal(LinkHI.GetDat().Val2).GetVal(EId));
+      Values.Add(val);
+    }
+    LinkHI++;
+  }  
+}
+
+bool TCrossNet::IsAttrDeletedE(const int& EId, const TStr& attr) const {
+  bool IntDel = IsIntAttrDeletedE(EId, attr);
+  bool StrDel = IsStrAttrDeletedE(EId, attr);
+  bool FltDel = IsFltAttrDeletedE(EId, attr);
+  return IntDel || StrDel || FltDel;
+}
+
+bool TCrossNet::IsIntAttrDeletedE(const int& EId, const TStr& attr) const {
+  return EdgeAttrIsIntDeleted(EId, KeyToIndexTypeE.GetI(attr));
+}
+
+bool TCrossNet::IsStrAttrDeletedE(const int& EId, const TStr& attr) const {
+  return EdgeAttrIsStrDeleted(EId, KeyToIndexTypeE.GetI(attr));
+}
+
+bool TCrossNet::IsFltAttrDeletedE(const int& EId, const TStr& attr) const {
+  return EdgeAttrIsFltDeleted(EId, KeyToIndexTypeE.GetI(attr));
+}
+
+bool TCrossNet::EdgeAttrIsDeleted(const int& EId, const TStrIntPrH::TIter& LinkHI) const {
+  bool IntDel = EdgeAttrIsIntDeleted(EId, LinkHI);
+  bool StrDel = EdgeAttrIsStrDeleted(EId, LinkHI);
+  bool FltDel = EdgeAttrIsFltDeleted(EId, LinkHI);
+  return IntDel || StrDel || FltDel;
+}
+
+bool TCrossNet::EdgeAttrIsIntDeleted(const int& EId, const TStrIntPrH::TIter& LinkHI) const {
+  return (LinkHI.GetDat().Val1 == IntType &&
+    GetIntAttrDefaultE(LinkHI.GetKey()) == this->VecOfIntVecsE.GetVal(
+    this->KeyToIndexTypeE.GetDat(LinkHI.GetKey()).Val2).GetVal(LinkH.GetKeyId(EId)));
+}
+
+bool TCrossNet::EdgeAttrIsStrDeleted(const int& EId, const TStrIntPrH::TIter& LinkHI) const {
+  return (LinkHI.GetDat().Val1 == StrType &&
+    GetStrAttrDefaultE(LinkHI.GetKey()) == this->VecOfStrVecsE.GetVal(
+    this->KeyToIndexTypeE.GetDat(LinkHI.GetKey()).Val2).GetVal(LinkH.GetKeyId(EId)));
+}
+
+bool TCrossNet::EdgeAttrIsFltDeleted(const int& EId, const TStrIntPrH::TIter& LinkHI) const {
+  return (LinkHI.GetDat().Val1 == FltType &&
+    GetFltAttrDefaultE(LinkHI.GetKey()) == this->VecOfFltVecsE.GetVal(
+    this->KeyToIndexTypeE.GetDat(LinkHI.GetKey()).Val2).GetVal(LinkH.GetKeyId(EId)));
+}
+
+TStr TCrossNet::GetEdgeAttrValue(const int& EId, const TStrIntPrH::TIter& LinkHI) const {
+  if (LinkHI.GetDat().Val1 == IntType) {
+    return (this->VecOfIntVecsE.GetVal(
+      this->KeyToIndexTypeE.GetDat(LinkHI.GetKey()).Val2).GetVal(LinkH.GetKeyId(EId))).GetStr();
+  } else if(LinkHI.GetDat().Val1 == StrType) {
+    return this->VecOfStrVecsE.GetVal(
+    this->KeyToIndexTypeE.GetDat(LinkHI.GetKey()).Val2).GetVal(LinkH.GetKeyId(EId));
+  } else if (LinkHI.GetDat().Val1 == FltType) {
+    return (this->VecOfFltVecsE.GetVal(
+      this->KeyToIndexTypeE.GetDat(LinkHI.GetKey()).Val2).GetVal(LinkH.GetKeyId(EId))).GetStr();
+  }
+  return TStr::GetNullStr();
+}
+
+int TCrossNet::AddIntAttrDatE(const int& EId, const TInt& value, const TStr& attr) {
+  int i;
+  TInt CurrLen;
+  if (!IsEdge(EId)) {
+    //AddEdge(EId);
+     return -1;
+  }
+  if (KeyToIndexTypeE.IsKey(attr)) {
+    TVec<TInt>& NewVec = VecOfIntVecsE[KeyToIndexTypeE.GetDat(attr).Val2];
+    NewVec[LinkH.GetKeyId(EId)] = value;
+  } else {
+    CurrLen = VecOfIntVecsE.Len();
+    KeyToIndexTypeE.AddDat(attr, TIntPr(IntType, CurrLen));
+    TVec<TInt> NewVec = TVec<TInt>();
+    for (i = 0; i < MxEId; i++) {
+      NewVec.Ins(i, GetIntAttrDefaultE(attr));
+    }
+    NewVec[LinkH.GetKeyId(EId)] = value;
+    VecOfIntVecsE.Add(NewVec);
+  }
+  return 0;
+}
+
+int TCrossNet::AddStrAttrDatE(const int& EId, const TStr& value, const TStr& attr) {
+  int i;
+  TInt CurrLen;
+  if (!IsEdge(EId)) {
+    //AddEdge(EId);
+     return -1;
+  }
+  if (KeyToIndexTypeE.IsKey(attr)) {
+    TVec<TStr>& NewVec = VecOfStrVecsE[KeyToIndexTypeE.GetDat(attr).Val2];
+    NewVec[LinkH.GetKeyId(EId)] = value;
+  } else {
+    CurrLen = VecOfStrVecsE.Len();
+    KeyToIndexTypeE.AddDat(attr, TIntPr(StrType, CurrLen));
+    TVec<TStr> NewVec = TVec<TStr>();
+    for (i = 0; i < MxEId; i++) {
+      NewVec.Ins(i, GetStrAttrDefaultE(attr));
+    }
+    NewVec[LinkH.GetKeyId(EId)] = value;
+    VecOfStrVecsE.Add(NewVec);
+  }
+  return 0;
+} 
+
+int TCrossNet::AddFltAttrDatE(const int& EId, const TFlt& value, const TStr& attr) {
+  int i;
+  TInt CurrLen;
+
+  if (!IsEdge(EId)) {
+    //AddEdge(EId);
+     return -1;
+  }
+  if (KeyToIndexTypeE.IsKey(attr)) {
+    TVec<TFlt>& NewVec = VecOfFltVecsE[KeyToIndexTypeE.GetDat(attr).Val2];
+    NewVec[LinkH.GetKeyId(EId)] = value;
+  } else {
+    CurrLen = VecOfFltVecsE.Len();
+    KeyToIndexTypeE.AddDat(attr, TIntPr(FltType, CurrLen));
+    TVec<TFlt> NewVec = TVec<TFlt>();
+    for (i = 0; i < MxEId; i++) {
+      NewVec.Ins(i, GetFltAttrDefaultE(attr));
+    }
+    NewVec[LinkH.GetKeyId(EId)] = value;
+    VecOfFltVecsE.Add(NewVec);
+  }
+  return 0;
+}
+
+TInt TCrossNet::GetIntAttrDatE(const int& EId, const TStr& attr) {
+  return VecOfIntVecsE[KeyToIndexTypeE.GetDat(attr).Val2][LinkH.GetKeyId(EId)];
+}
+
+TStr TCrossNet::GetStrAttrDatE(const int& EId, const TStr& attr) {
+  return VecOfStrVecsE[KeyToIndexTypeE.GetDat(attr).Val2][LinkH.GetKeyId(EId)];
+}
+
+TFlt TCrossNet::GetFltAttrDatE(const int& EId, const TStr& attr) {
+  return VecOfFltVecsE[KeyToIndexTypeE.GetDat(attr).Val2][LinkH.GetKeyId(EId)];
+}
+
+int TCrossNet::DelAttrDatE(const int& EId, const TStr& attr) {
+  // TODO(nkhadke): add error checking
+  TInt vecType = KeyToIndexTypeE(attr).Val1;
+  if (vecType == IntType) {
+    VecOfIntVecsE[KeyToIndexTypeE.GetDat(attr).Val2][LinkH.GetKeyId(EId)] = GetIntAttrDefaultE(attr);
+  } else if (vecType == StrType) {
+    VecOfStrVecsE[KeyToIndexTypeE.GetDat(attr).Val2][LinkH.GetKeyId(EId)] = GetStrAttrDefaultE(attr);
+  } else if (vecType == FltType) {
+    VecOfFltVecsE[KeyToIndexTypeE.GetDat(attr).Val2][LinkH.GetKeyId(EId)] = GetFltAttrDefaultE(attr);
+  } else {
+    return -1;
+  }
+  return 0;
+}
+
+int TCrossNet::AddIntAttrE(const TStr& attr, TInt defaultValue){
+  // TODO(nkhadke): add error checking
+  int i;
+  TInt CurrLen;
+  TVec<TInt> NewVec;
+  CurrLen = VecOfIntVecsE.Len();
+  KeyToIndexTypeE.AddDat(attr, TIntPr(IntType, CurrLen));
+  NewVec = TVec<TInt>();
+  for (i = 0; i < MxEId; i++) {
+    NewVec.Ins(i, defaultValue);
+  }
+  VecOfIntVecsE.Add(NewVec);
+  if (!IntDefaultsE.IsKey(attr)) {
+    IntDefaultsE.AddDat(attr, defaultValue);
+  } else {
+    return -1;
+  }
+  return 0;
+}
+
+int TCrossNet::AddStrAttrE(const TStr& attr, TStr defaultValue) {
+  int i;
+  TInt CurrLen;
+  TVec<TStr> NewVec;
+  CurrLen = VecOfStrVecsE.Len();
+  KeyToIndexTypeE.AddDat(attr, TIntPr(StrType, CurrLen));
+  NewVec = TVec<TStr>();
+  for (i = 0; i < MxEId; i++) {
+    NewVec.Ins(i, defaultValue);
+  }
+  VecOfStrVecsE.Add(NewVec);
+  if (!StrDefaultsE.IsKey(attr)) {
+    StrDefaultsE.AddDat(attr, defaultValue);
+  } else {
+    return -1;
+  }
+  return 0;
+}
+
+int TCrossNet::AddFltAttrE(const TStr& attr, TFlt defaultValue) {
+  int i;
+  TInt CurrLen;
+  TVec<TFlt> NewVec;
+  CurrLen = VecOfFltVecsE.Len();
+  KeyToIndexTypeE.AddDat(attr, TIntPr(FltType, CurrLen));
+  NewVec = TVec<TFlt>();
+  for (i = 0; i < MxEId; i++) {
+    NewVec.Ins(i, defaultValue);
+  }
+  VecOfFltVecsE.Add(NewVec);
+  if (!FltDefaultsE.IsKey(attr)) {
+    FltDefaultsE.AddDat(attr, defaultValue);
+  } else {
+    return -1;
+  }
+  return 0;
+}
+
+int TCrossNet::DelAttrE(const TStr& attr) {
+  TInt vecType = KeyToIndexTypeE(attr).Val1;
+  if (vecType == IntType) {
+    VecOfIntVecsE[KeyToIndexTypeE.GetDat(attr).Val2] = TVec<TInt>();
+    if (IntDefaultsE.IsKey(attr)) {
+      IntDefaultsE.DelKey(attr);
+    }
+  } else if (vecType == StrType) {
+    VecOfStrVecsE[KeyToIndexTypeE.GetDat(attr).Val2] = TVec<TStr>();
+    if (StrDefaultsE.IsKey(attr)) {
+      StrDefaultsE.DelKey(attr);
+    }  
+  } else if (vecType == FltType) {
+    VecOfFltVecsE[KeyToIndexTypeE.GetDat(attr).Val2] = TVec<TFlt>();
+    if (FltDefaultsE.IsKey(attr)) {
+      FltDefaultsE.DelKey(attr);
+    }
+  } else {
+    return -1;
+  }
+  KeyToIndexTypeE.DelKey(attr);
+  return 0;
+}
+
