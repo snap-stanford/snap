@@ -492,7 +492,7 @@ int TNEANet::AddEdge(const int& SrcNId, const int& DstNId, int EId) {
   for (i = 0; i < DefFltVec.Len(); i++) {
     TStr attr = DefFltVec[i];
     TVec<TFlt>& FltVec = VecOfFltVecsE[KeyToIndexTypeE.GetDat(DefFltVec[i]).Val2];
-    FltVec[NodeH.GetKeyId(EId)] = GetFltAttrDefaultE(attr);
+    FltVec[EdgeH.GetKeyId(EId)] = GetFltAttrDefaultE(attr);
   }
   return EId;
 }
@@ -510,15 +510,15 @@ void TNEANet::DelEdge(const int& EId) {
 
   for (i = 0; i < VecOfIntVecsE.Len(); i++) {
     TVec<TInt>& IntVec = VecOfIntVecsE[i];
-    IntVec.Ins(EdgeH.GetKeyId(EId), TInt::Mn);
+    IntVec[EdgeH.GetKeyId(EId)] = TInt::Mn;
   }
   for (i = 0; i < VecOfStrVecsE.Len(); i++) {
     TVec<TStr>& StrVec = VecOfStrVecsE[i];
-    StrVec.Ins(EdgeH.GetKeyId(EId), TStr::GetNullStr());
+    StrVec[EdgeH.GetKeyId(EId)] = TStr::GetNullStr();
   }
   for (i = 0; i < VecOfFltVecsE.Len(); i++) {
     TVec<TFlt>& FltVec = VecOfFltVecsE[i];
-    FltVec.Ins(EdgeH.GetKeyId(EId), TFlt::Mn);
+    FltVec[EdgeH.GetKeyId(EId)] = TFlt::Mn;
   }
 
   EdgeH.DelKey(EId);
