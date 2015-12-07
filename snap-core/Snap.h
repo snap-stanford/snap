@@ -23,7 +23,7 @@
 #include "networkmp.h"       // networks OMP
 #include "bignet.h"          // large networks
 #include "timenet.h"         // time evolving networks
-#include "networkmm.h"       //TEMP TODO
+#include "mmnet.h"           // multimodal networks
 
 // algorithms
 #include "subgraph.h"        // subgraph manipulations
