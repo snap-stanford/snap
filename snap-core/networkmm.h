@@ -84,6 +84,7 @@ public:
 
 
 private:
+  TModeNet(const TModeNet& Graph, bool copy) : TNEANet(Graph, copy), NModeId(Graph.NModeId), MMNet(), NeighborTypes() {}
   //method to add neighbors; will be called by TMMNet AddEdge function; outEdge == true iff NId(which is of the type of the TModeNet; i.e. it should refer to a node in this graph) is the source node.
   int AddNeighbor(const int& NId, const int& EId, const bool outEdge, const int linkId, const bool sameMode, bool isDir);
   int AddNeighbor(const int& NId, const int& EId, const bool outEdge, const TStr& linkName, const bool sameMode, bool isDir);
@@ -92,6 +93,17 @@ private:
   TStr GetNeighborLinkName(const TStr& LinkName, bool isOutEdge, const bool sameMode, bool isDir) const;
   void SetParentPointer(PMMNet parent);
   int AddNbrType(const TStr& LinkName, const bool sameMode, bool isDir);
+  int AddNbrType(const TStr& LinkName, const bool sameMode, bool isDir, TVec<TIntV>& Neighbors);
+  /// Adds a new Int node attribute to the hashmap.
+  int AddIntAttrN(const TStr& attr, TIntV& Attrs, TInt defaultValue=TInt::Mn);
+  /// Adds a new Str node attribute to the hashmap.
+  int AddStrAttrN(const TStr& attr, TStrV& Attrs, TStr defaultValue=TStr::GetNullStr());
+  /// Adds a new Flt node attribute to the hashmap.
+  int AddFltAttrN(const TStr& attr, TFltV& Attrs, TFlt defaultValue=TFlt::Mn);
+  /// Adds a new Flt node attribute to the hashmap.
+  int AddIntVAttrN(const TStr& attr, TVec<TIntV>& Attrs);
+
+  PModeNet RemoveLinkTypes(TStrV& LinkTypes);
 public:
 
   ///When we create a new link type, we need to add a new neighbor type here.
@@ -103,6 +115,10 @@ public:
   friend class TMMNet;
   friend class TCrossNet;
 };
+
+
+
+
 
 class TCrossNet {
 
@@ -423,6 +439,9 @@ public:
   TModeNetI GetModeNetI(const int& Id) const { return TModeNetI(TModeNetH.GetI(Id), this); }
   TModeNetI BegModeNetI() const { return TModeNetI(TModeNetH.BegI(), this); }
   TModeNetI EndModeNetI() const { return TModeNetI(TModeNetH.EndI(), this); }
+
+  PMMNet GetSubgraphByCrossNet(TStrV& CrossNetTypes);
+  PMMNet GetSubgraphByModeNet(TStrV& ModeNetTypes);
 
 private:
   TIntPr GetOrderedLinkPair(const TStr& Mode1, const TStr& Mode2);

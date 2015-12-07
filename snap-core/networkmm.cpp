@@ -108,6 +108,27 @@ PCrossNet TMMNet::GetCrossNet(const TInt& LinkId) const{
   return PCrossNet(&CrossNet);
 }
 
+
+
+PMMNet TMMNet::GetSubgraphByCrossNet(TStrV& CrossNetTypes) {
+  PMMNet NewGraph = TMMNet::New();
+  // Get a set of modes
+  THashSet<TInt> Modes;
+  // go through, only add cross nets specified in CrossNetTypes; add modes in types to Modes
+  // go through, only add modes specified in Modes; call RemoveLinkTypes function
+  return NewGraph;
+}
+
+PMMNet TMMNet::GetSubgraphByModeNet(TStrV& ModeNetTypes) {
+  PMMNet NewGraph = TMMNet::New();
+  //for each mode in ModeNetTypes, get a list of it's crossnet types; check if both modes are in ModeNetTypes; if is, add to list of crossnets
+    //then, call RemoveLinkTypes with working list of crossnet types, add new mode to NewGraph
+  //for each CrossNet in list generated in above step, add to NewGraph.
+  return NewGraph;
+}
+
+
+
 int TCrossNet::AddEdge(const int& sourceNId, const int& destNId, int EId){
   if (EId == -1) { EId = MxEId;  MxEId++; }
   else { MxEId = TMath::Mx(EId+1, MxEId()); }
@@ -180,128 +201,6 @@ int TCrossNet::DelEdge(const int& EId) {
 
 void TCrossNet::SetParentPointer(PMMNet parent) {
   Net = parent;
-}
-
-//int TMMNet::DelEdge(const TInt& LinkTypeId, const TInt& EId) {
-//  if (!TCrossNetH.IsKey(LinkTypeId)) {
-//    return -1;
-//  }
-//  TCrossNet& CrossNet = TCrossNetH.GetDat(LinkTypeId);
-//  TCrossNet::TCrossEdgeI EI = CrossNet.GetEdgeI(EId);
-//  TInt SrcMId = EI.GetSrcModeId();
-//  TInt SrcNId = EI.GetSrcNId();
-//  TInt DstMId = EI.GetDstModeId();
-//  TInt DstNId = EI.GetDstNId();
-//  TModeNet Net1 = TModeNetV[SrcMId];
-//  Net1.DelNeighbor(SrcNId, EId, true, LinkTypeId);
-//  TModeNet Net2 = TModeNetV[DstMId];
-//  Net2.DelNeighbor(DstNId, EId, false, LinkTypeId);
-//  return CrossNet.DelEdge(EId);
-//}
-
-
-//
-//int TCrossNet::AddLink (const int& sourceNId, const int& sourceNModeId, const int& destNId, const int& EId) {
-//  int type1NId;
-//  int type2NId;
-//  bool direction = true;
-//  if (Mode1 == sourceNModeId) {
-//    type1NId = sourceNId;
-//    type2NId = destNId;
-//  } else if (Mode2 == sourceNModeId) {
-//    type1NId = destNId;
-//    type2NId = sourceNId;
-//    direction = false;
-//  } else {
-//    return -1;
-//  }
-//  return AddLink(type1NId, type2NId, direction, EId);
-//}
-//
-//int TCrossNet::AddLink (const int& NIdType1, const int& NIdType2, const bool& direction, const int& EId) {
-//  int newEId;
-//  if (EId == -1) {
-//    MxEId++;
-//    newEId = MxEId;
-//  }
-//  else {
-////    IAssertR(!LinkH.IsKey(EId), TStr::Fmt("The edge with id %d already exists", EId ));
-//    newEId = EId;
-//    if (newEId > MxEId) MxEId = newEId; //TODO: Figure this out
-//  }
-//  TCrossEdge newEdge(newEId, NIdType1, NIdType2);
-//  LinkH.AddDat(newEId, newEdge);
-//  return EId;
-//
-//}
-
-
-TStr TModeNet::GetNeighborLinkName(const TStr& LinkName, bool isOutEdge, const bool sameMode, bool isDir) const {
-  TStr Cpy(LinkName);
-  if (!isDir || !sameMode) { return Cpy; }
-  if (isOutEdge) {
-    Cpy += ":SRC";
-  } else {
-    Cpy += ":DST";
-  }
-  return Cpy;
-}
-
-int TModeNet::AddNeighbor(const int& NId, const int& EId, bool outEdge, const int linkId, const bool sameMode, bool isDir){
-  TStr LinkName = MMNet->GetLinkName(linkId);
-  return AddNeighbor(NId, EId, outEdge, LinkName, sameMode, isDir);
-}
-
-int TModeNet::AddNeighbor(const int& NId, const int& EId, bool outEdge, const TStr& LinkName, const bool sameMode, bool isDir){
-  TStr Name = GetNeighborLinkName(LinkName, outEdge, sameMode, isDir);
-  if (!NeighborTypes.IsKey(Name)) {
-    NeighborTypes.AddKey(Name);
-  }
-  return AppendIntVAttrDatN(NId, EId, Name); 
-}
-
-int TModeNet::DelNeighbor(const int& NId, const int& EId, bool outEdge, const TStr& LinkName, const bool sameMode, bool isDir){
-  TStr Name = GetNeighborLinkName(LinkName, outEdge, sameMode, isDir);
-  if (!NeighborTypes.IsKey(Name)) {
-    return -1;
-  }
-  return DelFromIntVAttrDatN(NId, EId, Name);
-}
-
-int TModeNet::DelNeighbor(const int& NId, const int& EId, bool outEdge, const TInt& linkId, const bool sameMode, bool isDir){
-  TStr LinkName = MMNet->GetLinkName(linkId);
-  return DelNeighbor(NId, EId, outEdge, LinkName, sameMode, isDir);
-}
-
-//TODO: Finish implementing
-int TModeNet::DelNode ( const int& NId){
-  // loop through all neighbor vectors, call delete edge on each of these
-  TNEANet::DelNode(NId);
-  return -1;
-}
-
-void TModeNet::SetParentPointer(PMMNet parent) {
-  MMNet = parent;
-}
-
-int TModeNet::AddNbrType(const TStr& LinkName, const bool sameMode, bool isDir) {
-  //IAssertR(!NeighborTypes.IsKey(LinkName),TStr::Fmt("Neighbor Link Types already exists: %s", LinkName.CStr()));
-  if (NeighborTypes.IsKey(LinkName)) { return -1; } //Don't want to add nbr type multiple times
-  bool hasSingleVector = (!isDir || !sameMode);
-  NeighborTypes.AddDat(LinkName, hasSingleVector);
-  return 0;
-}
-
-void TModeNet::GetNeighborsByLinkType(const int& NId, TStr& Name, TIntV& Neighbors, const bool isOutEId) const{
-  // TODO: check if need the suffix
-  //IAssertR(NeighborTypes.IsKey(Name), TStr::Fmt("Link Type does not exist: %s", Name));
-  TBool hasSingleVector = NeighborTypes.GetDat(Name);
-  if (hasSingleVector) {
-    Neighbors = GetIntVAttrDatN(NId, Name);
-  } else {
-    TStr DirectionalName = GetNeighborLinkName(Name, isOutEId, true, true);
-    Neighbors = GetIntVAttrDatN(NId, DirectionalName);
-  }
 }
 
 void TCrossNet::AttrNameEI(const TInt& EId, TStrIntPrH::TIter LinkHI, TStrV& Names) const {
@@ -624,3 +523,243 @@ int TCrossNet::DelAttrE(const TStr& attr) {
   return 0;
 }
 
+//int TMMNet::DelEdge(const TInt& LinkTypeId, const TInt& EId) {
+//  if (!TCrossNetH.IsKey(LinkTypeId)) {
+//    return -1;
+//  }
+//  TCrossNet& CrossNet = TCrossNetH.GetDat(LinkTypeId);
+//  TCrossNet::TCrossEdgeI EI = CrossNet.GetEdgeI(EId);
+//  TInt SrcMId = EI.GetSrcModeId();
+//  TInt SrcNId = EI.GetSrcNId();
+//  TInt DstMId = EI.GetDstModeId();
+//  TInt DstNId = EI.GetDstNId();
+//  TModeNet Net1 = TModeNetV[SrcMId];
+//  Net1.DelNeighbor(SrcNId, EId, true, LinkTypeId);
+//  TModeNet Net2 = TModeNetV[DstMId];
+//  Net2.DelNeighbor(DstNId, EId, false, LinkTypeId);
+//  return CrossNet.DelEdge(EId);
+//}
+
+
+//
+//int TCrossNet::AddLink (const int& sourceNId, const int& sourceNModeId, const int& destNId, const int& EId) {
+//  int type1NId;
+//  int type2NId;
+//  bool direction = true;
+//  if (Mode1 == sourceNModeId) {
+//    type1NId = sourceNId;
+//    type2NId = destNId;
+//  } else if (Mode2 == sourceNModeId) {
+//    type1NId = destNId;
+//    type2NId = sourceNId;
+//    direction = false;
+//  } else {
+//    return -1;
+//  }
+//  return AddLink(type1NId, type2NId, direction, EId);
+//}
+//
+//int TCrossNet::AddLink (const int& NIdType1, const int& NIdType2, const bool& direction, const int& EId) {
+//  int newEId;
+//  if (EId == -1) {
+//    MxEId++;
+//    newEId = MxEId;
+//  }
+//  else {
+////    IAssertR(!LinkH.IsKey(EId), TStr::Fmt("The edge with id %d already exists", EId ));
+//    newEId = EId;
+//    if (newEId > MxEId) MxEId = newEId; //TODO: Figure this out
+//  }
+//  TCrossEdge newEdge(newEId, NIdType1, NIdType2);
+//  LinkH.AddDat(newEId, newEdge);
+//  return EId;
+//
+//}
+
+
+TStr TModeNet::GetNeighborLinkName(const TStr& LinkName, bool isOutEdge, const bool sameMode, bool isDir) const {
+  TStr Cpy(LinkName);
+  if (!isDir || !sameMode) { return Cpy; }
+  if (isOutEdge) {
+    Cpy += ":SRC";
+  } else {
+    Cpy += ":DST";
+  }
+  return Cpy;
+}
+
+int TModeNet::AddNeighbor(const int& NId, const int& EId, bool outEdge, const int linkId, const bool sameMode, bool isDir){
+  TStr LinkName = MMNet->GetLinkName(linkId);
+  return AddNeighbor(NId, EId, outEdge, LinkName, sameMode, isDir);
+}
+
+int TModeNet::AddNeighbor(const int& NId, const int& EId, bool outEdge, const TStr& LinkName, const bool sameMode, bool isDir){
+  if (!NeighborTypes.IsKey(LinkName)) {
+    AddNbrType(LinkName, sameMode, isDir);
+  }
+  TStr Name = GetNeighborLinkName(LinkName, outEdge, sameMode, isDir);
+  return AppendIntVAttrDatN(NId, EId, Name); 
+}
+
+int TModeNet::DelNeighbor(const int& NId, const int& EId, bool outEdge, const TStr& LinkName, const bool sameMode, bool isDir){
+  if (!NeighborTypes.IsKey(LinkName)) {
+    return -1;
+  }
+  TStr Name = GetNeighborLinkName(LinkName, outEdge, sameMode, isDir);
+  return DelFromIntVAttrDatN(NId, EId, Name);
+}
+
+int TModeNet::DelNeighbor(const int& NId, const int& EId, bool outEdge, const TInt& linkId, const bool sameMode, bool isDir){
+  TStr LinkName = MMNet->GetLinkName(linkId);
+  return DelNeighbor(NId, EId, outEdge, LinkName, sameMode, isDir);
+}
+
+//TODO: Finish implementing
+int TModeNet::DelNode ( const int& NId){
+  // loop through all neighbor vectors, call delete edge on each of these
+  TNEANet::DelNode(NId);
+  return -1;
+}
+
+void TModeNet::SetParentPointer(PMMNet parent) {
+  MMNet = parent;
+}
+
+int TModeNet::AddNbrType(const TStr& LinkName, const bool sameMode, bool isDir) {
+  //IAssertR(!NeighborTypes.IsKey(LinkName),TStr::Fmt("Neighbor Link Types already exists: %s", LinkName.CStr()));
+  if (NeighborTypes.IsKey(LinkName)) { return -1; } //Don't want to add nbr type multiple times
+  bool hasSingleVector = (!isDir || !sameMode);
+  NeighborTypes.AddDat(LinkName, hasSingleVector);
+  return 0;
+}
+
+/*int TModeNet::AddNbrType(const TStr& LinkName, bool hasSingleVector, TVec<TIntV>& Neighbors) {
+  //IAssertR(!NeighborTypes.IsKey(LinkName),TStr::Fmt("Neighbor Link Types already exists: %s", LinkName.CStr()));
+  if (NeighborTypes.IsKey(LinkName)) { return -1; } //Don't want to add nbr type multiple times
+  NeighborTypes.AddDat(LinkName, hasSingleVector);
+  if (hasSingleVector) {
+    AddIntVAttrN(LinkName);
+  } else {
+    TStr Name = GetNeighborLinkName(LinkName, true, sameMode, isDir);
+    AddIntVAttrN(Name);
+    Name = GetNeighborLinkName(LinkName, false, sameMode, isDir);
+    AddIntVAttrN(Name);
+  }
+  return 0;
+}*/
+
+void TModeNet::GetNeighborsByLinkType(const int& NId, TStr& Name, TIntV& Neighbors, const bool isOutEId) const{
+  // TODO: check if need the suffix
+  //IAssertR(NeighborTypes.IsKey(Name), TStr::Fmt("Link Type does not exist: %s", Name));
+  TBool hasSingleVector = NeighborTypes.GetDat(Name);
+  if (hasSingleVector) {
+    Neighbors = GetIntVAttrDatN(NId, Name);
+  } else {
+    TStr DirectionalName = GetNeighborLinkName(Name, isOutEId, true, true);
+    Neighbors = GetIntVAttrDatN(NId, DirectionalName);
+  }
+}
+
+int TModeNet::AddIntAttrN(const TStr& attr, TIntV& Attrs, TInt defaultValue){
+  TInt CurrLen;
+  TVec<TInt> NewVec;
+  CurrLen = VecOfIntVecsN.Len();
+  KeyToIndexTypeN.AddDat(attr, TIntPr(IntType, CurrLen));
+  NewVec = TVec<TInt>(Attrs);
+  VecOfIntVecsN.Add(NewVec);
+  if (!IntDefaultsN.IsKey(attr)) {
+    IntDefaultsN.AddDat(attr, defaultValue);
+  } else {
+    return -1;
+  }
+  return 0;
+}
+
+int TModeNet::AddStrAttrN(const TStr& attr, TStrV& Attrs, TStr defaultValue) {
+  TInt CurrLen;
+  TVec<TStr> NewVec;
+  CurrLen = VecOfStrVecsN.Len();
+  KeyToIndexTypeN.AddDat(attr, TIntPr(StrType, CurrLen));
+  NewVec = TVec<TStr>(Attrs);
+  VecOfStrVecsN.Add(NewVec);
+  if (!StrDefaultsN.IsKey(attr)) {
+    StrDefaultsN.AddDat(attr, defaultValue);
+  } else {
+    return -1;
+  }
+  return 0;
+}
+
+int TModeNet::AddFltAttrN(const TStr& attr, TFltV& Attrs, TFlt defaultValue) {
+  TInt CurrLen;
+  TVec<TFlt> NewVec;
+  CurrLen = VecOfFltVecsN.Len();
+  KeyToIndexTypeN.AddDat(attr, TIntPr(FltType, CurrLen));
+  NewVec = TVec<TFlt>(Attrs);
+  VecOfFltVecsN.Add(NewVec);
+  if (!FltDefaultsN.IsKey(attr)) {
+    FltDefaultsN.AddDat(attr, defaultValue);
+  } else {
+    return -1;
+  }
+  return 0;
+}
+
+int TModeNet::AddIntVAttrN(const TStr& attr, TVec<TIntV>& Attrs){
+  TInt CurrLen;
+  TVec<TIntV> NewVec;
+  CurrLen = VecOfIntVecVecsN.Len();
+  KeyToIndexTypeN.AddDat(attr, TIntPr(IntVType, CurrLen));
+  NewVec = TVec<TIntV>(Attrs);
+  VecOfIntVecVecsN.Add(NewVec);
+  return 0;
+}
+
+PModeNet TModeNet::RemoveLinkTypes(TStrV& LinkTypes) {
+  // construct a set of link types that need to be removed
+  const TModeNet& self = *this;
+  PModeNet NewNet(new TModeNet(self, false)); //everything copied but node attributes
+  for (TStrIntPrH::TIter it = KeyToIndexTypeN.BegI(); it < KeyToIndexTypeN.EndI(); it++) {
+    TStr Name = it.GetKey();
+    if (it.GetDat().GetVal1() == IntType) {
+      //name -> (type, index in vector)
+      //defaults (name) -> value
+      TInt Default = IntDefaultsN.GetDat(Name);
+      TIntV& Attrs = VecOfIntVecsN[it.GetDat().GetVal2()];
+      NewNet->AddIntAttrN(Name, Attrs, Default);
+    } else if (it.GetDat().GetVal1() == FltType) {
+      TFlt Default = FltDefaultsN.GetDat(Name);
+      TFltV& Attrs = VecOfFltVecsN[it.GetDat().GetVal2()];
+      NewNet->AddFltAttrN(Name, Attrs, Default);
+    } else if (it.GetDat().GetVal1() == StrType) {
+      TStr Default = StrDefaultsN.GetDat(Name);
+      TStrV& Attrs = VecOfStrVecsN[it.GetDat().GetVal2()];
+      NewNet->AddStrAttrN(Name, Attrs, Default);
+    } else if (it.GetDat().GetVal1() == IntVType) {
+      TStr WithoutSuffix = Name;
+      bool removeSuffix = false;
+      if (Name.IsSuffix(":SRC") || Name.IsSuffix(":DST")) {
+        WithoutSuffix = Name.GetSubStr(0, Name.Len()-5);
+        removeSuffix = true;
+      }
+      if (NeighborTypes.IsKey(WithoutSuffix)) {
+        if (LinkTypes.IsIn(WithoutSuffix)) {
+          AddNbrType(WithoutSuffix, removeSuffix, removeSuffix);
+          TVec<TIntV>& Attrs = VecOfIntVecVecsN[it.GetDat().GetVal2()];
+          NewNet->AddIntVAttrN(Name, Attrs);
+        }
+      } else {
+        TVec<TIntV>& Attrs = VecOfIntVecVecsN[it.GetDat().GetVal2()];
+        NewNet->AddIntVAttrN(Name, Attrs);
+      }
+    }
+  }
+  return NewNet;
+}
+
+
+//copy everything but node attributes
+// iterate over all node attribute types
+// if not intv, just add it back
+// if is intv; check if it is a intv type in list of attributes
+//

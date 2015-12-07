@@ -1763,6 +1763,14 @@ public:
     StrDefaultsN(SIn), StrDefaultsE(SIn), FltDefaultsN(SIn), FltDefaultsE(SIn),
     VecOfIntVecsN(SIn), VecOfIntVecsE(SIn), VecOfStrVecsN(SIn),VecOfStrVecsE(SIn),
     VecOfFltVecsN(SIn), VecOfFltVecsE(SIn), VecOfIntVecVecsN(SIn), VecOfIntVecVecsE(SIn) { }
+  protected:
+    TNEANet(const TNEANet& Graph, bool modeSubGraph) : MxNId(Graph.MxNId), MxEId(Graph.MxEId),
+    NodeH(Graph.NodeH), EdgeH(Graph.EdgeH), KeyToIndexTypeN(), KeyToIndexTypeE(Graph.KeyToIndexTypeE),
+    IntDefaultsN(), IntDefaultsE(Graph.IntDefaultsE), StrDefaultsN(), StrDefaultsE(Graph.StrDefaultsE),
+    FltDefaultsN(), FltDefaultsE(Graph.FltDefaultsE), VecOfIntVecsN(), VecOfIntVecsE(Graph.VecOfIntVecsE),
+    VecOfStrVecsN(), VecOfStrVecsE(Graph.VecOfStrVecsE), VecOfFltVecsN(), VecOfFltVecsE(Graph.VecOfFltVecsE),
+    VecOfIntVecVecsN(), VecOfIntVecVecsE(Graph.VecOfIntVecVecsE) { }
+  public:
   /// Saves the graph to a (binary) stream SOut.
   void Save(TSOut& SOut) const {
     MxNId.Save(SOut); MxEId.Save(SOut); NodeH.Save(SOut); EdgeH.Save(SOut);
