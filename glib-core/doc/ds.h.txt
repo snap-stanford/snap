@@ -118,38 +118,12 @@ Use a combination if quicksort and insertion sort.
 @param Asc Sorts the elements in ascending (if \c true) or descending (if \c false) order.
 ///
 
-/// TVec::Intrs
-Assumes the vectors are sorted!
-///
-
-/// TVec::Union
-Assumes the vectors are sorted!
-///
-
 /// TVec::Diff
-This means \c this vector keeps only the elements that do not appear in \c
-ValV. Assumes the vectors are sorted!
-///
-
-/// TVec::Intrs1
-Assumes the vectors are sorted!
-///
-
-/// TVec::Union1
-Assumes the vectors are sorted!
+This vector keeps only elements that do not appear in \c ValV.
 ///
 
 /// TVec::Diff1
-This means \c DstValV has all the elements of \c this that do not appear in \c
-ValV. Assumes the vectors are sorted!
-///
-
-/// TVec::IntrsLen
-Assumes both vectors are sorted in ascending order!
-///
-
-/// TVec::UnionLen
-Assumes both vectors are sorted in ascending order!
+\c DstValV has all the elements of this vector that do not appear in \c ValV.
 ///
 
 /// TVec::SearchBin

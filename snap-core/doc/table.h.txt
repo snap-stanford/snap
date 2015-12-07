@@ -43,7 +43,7 @@ Fill RowIdBuckets with sets of row ids partitioned on the value of the column Sp
 Called by ToGraphSequence and ToGraphSequenceIterator.
 ///
 
-///
+/// TTable::FillBucketsByInterval
 Fill RowIdBuckets with sets of row ids, partitioned on the value of the column SplitAttr, according to the intervals specified by SplitIntervals.
 Called by ToVarGraphSequence and ToVarGraphSequenceIterator.
 ///
@@ -125,6 +125,10 @@ Record results in column CountCol
 /// TTable::Join
 Perform equi-join with given columns - i.e. keep tuple pairs where this->Col1 == Table->Col2 
 Implementation: Hash-Join - build a hash out of the smaller table hash the larger table and check for collisions
+///
+
+/// TTable::SimJoinPerGroup
+Returns table with schema (GroupId1, GroupId2, Similarity).
 ///
 
 /// TTable::Defrag

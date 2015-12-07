@@ -12,11 +12,13 @@
 
 #include "gbase.h"
 #include "util.h"
+#include "predicate.h" 		 // predicate
+#include "attr.h"			 // sparse attributes
 
 // graph data structures
 #include "graph.h"           // graphs
 #include "graphmp.h"         // graphs
-#include "mmgraph.h"         // multimodal graphs
+//#include "mmgraph.h"         // multimodal graphs
 #include "network.h"         // networks
 #include "networkmp.h"       // networks OMP
 #include "bignet.h"          // large networks
@@ -37,6 +39,7 @@
 #include "cmty.h"            // community detection algorithms
 #include "flow.h"            // network flow algorithms
 #include "coreper.h"         // core-periphery algorithms
+#include "randwalk.h"        // Personalized PageRank
 
 // graph generators
 #include "ggen.h"            // graph generators (preferential attachment, small-world, ...)
@@ -48,12 +51,8 @@
 #include "statplot.h"
 
 // table data structures and algorithms
-#include "predicate.h" 		 // predicate
 #include "table.h"         // table
 #include "conv.h" 				 // conversion functions - table to graph
 #include "numpy.h" 				 // numpy conversion
-
-// util
-#include "stopwatch.h"
 
 #endif // SNAP_H

@@ -354,6 +354,173 @@ void ManipulateNodeEdgeAttributes() {
   Graph1->Clr();
 }
 
+// Test node sparse attribute functionality
+void ManipulateNodeSparseAttributes() {
+  PNEANet Graph;
+  Graph = TNEANet::New();
+  Graph->AddNode(0);
+
+  // Add mappings for three node attributes
+  TStr IntAttr("TestInt");
+  TInt IntId;
+  Graph->AddSAttrN(IntAttr, atInt, IntId);
+  printf("Added attribute %s with id %d\n", IntAttr.CStr(), IntId.Val);
+
+  TStr FltAttr("TestFlt");
+  TInt FltId;
+  Graph->AddSAttrN(FltAttr, atFlt, FltId);
+  printf("Added attribute %s with id %d\n", FltAttr.CStr(), FltId.Val);
+
+  TStr StrAttr("TestStr");
+  TInt StrId;
+  Graph->AddSAttrN(StrAttr, atStr, StrId);
+  printf("Added attribute %s with id %d\n", StrAttr.CStr(), StrId.Val);
+
+  // Add values for attributes to node with id NId.
+  TInt NId(0);
+  TInt IntVal(5);
+  Graph->AddSAttrDatN(NId, IntId, IntVal);
+  TFlt FltVal(5.0);
+  Graph->AddSAttrDatN(NId, FltId, FltVal);
+  TStr StrVal("5");
+  Graph->AddSAttrDatN(NId, StrId, StrVal);
+
+
+  // Get values for the attributes for node with id NId.
+  TInt IntVal2;
+  Graph->GetSAttrDatN(NId, IntId, IntVal2);
+  printf("Node %d has attribute, with id %d, with value %d.\n", NId.Val, IntId.Val, IntVal2.Val);
+  TFlt FltVal2;
+  Graph->GetSAttrDatN(NId, FltAttr, FltVal2);
+  printf("Node %d has attribute, with id %d, with value %f.\n", NId.Val, FltId.Val, FltVal2.Val);
+  TStr StrVal2;
+  Graph->GetSAttrDatN(NId, StrId, StrVal2);
+  printf("Node %d has attribute, with id %d, with value %s.\n", NId.Val, StrId.Val, StrVal2.CStr());
+
+
+  // Get list of attributes for node with id NId.
+  TAttrPrV AttrV;
+  Graph->GetSAttrVN(NId, atInt, AttrV);
+  printf("Node with id %d has %d int attributes.\n", NId.Val, AttrV.Len());
+  Graph->GetSAttrVN(NId, atFlt, AttrV);
+  printf("Node with id %d has %d flt attributes.\n", NId.Val, AttrV.Len());
+  Graph->GetSAttrVN(NId, atStr, AttrV);
+  printf("Node with id %d has %d str attributes.\n", NId.Val, AttrV.Len());
+  //Graph->GetSAttrVN(NId, atAny, AttrV);
+  //printf("Node with id %d has %d attributes.\n", NId.Val, AttrV.Len());
+
+  // Delete all attributes for node with id NId (use either name or id).
+  Graph->DelSAttrDatN(NId, IntAttr);
+  Graph->DelSAttrDatN(NId, FltId);
+  Graph->DelSAttrDatN(NId, StrAttr);
+
+  //Get all nodes with given attribute
+  for (int i = 1; i <= 10; i++) {
+    Graph->AddNode(i);
+    TInt Id(i);
+    Graph->AddSAttrDatN(Id, IntId, IntVal);
+    if (i%2 == 0) {
+      Graph->AddSAttrDatN(Id, FltId, FltVal);
+    }
+  }
+  Graph->AddSAttrDatN(NId, StrId, StrVal);
+
+  TIntV IdV;
+  Graph->GetIdVSAttrN(IntAttr, IdV);
+  printf("%d nodes have attribute with name %s\n", IdV.Len(), IntAttr.CStr());
+
+  Graph->GetIdVSAttrN(FltAttr, IdV);
+  printf("%d nodes have attribute with name %s\n", IdV.Len(), FltAttr.CStr());
+
+  Graph->GetIdVSAttrN(StrAttr, IdV);
+  printf("%d nodes have attribute with name %s\n", IdV.Len(), StrAttr.CStr());
+}
+
+// Test edge sparse attribute functionality
+void ManipulateEdgeSparseAttributes() {
+  PNEANet Graph;
+  Graph = TNEANet::New();
+  Graph->AddNode(0);
+  Graph->AddNode(1);
+  Graph->AddEdge(0, 1, 0);
+
+  // Add mappings for three edge attributes
+  TStr IntAttr("TestInt");
+  TInt IntId;
+  Graph->AddSAttrE(IntAttr, atInt, IntId);
+  printf("Added attribute %s with id %d\n", IntAttr.CStr(), IntId.Val);
+
+  TStr FltAttr("TestFlt");
+  TInt FltId;
+  Graph->AddSAttrE(FltAttr, atFlt, FltId);
+  printf("Added attribute %s with id %d\n", FltAttr.CStr(), FltId.Val);
+
+  TStr StrAttr("TestStr");
+  TInt StrId;
+  Graph->AddSAttrE(StrAttr, atStr, StrId);
+  printf("Added attribute %s with id %d\n", StrAttr.CStr(), StrId.Val);
+
+  // Add values for attributes to edge with id EId.
+  TInt EId(0);
+  TInt IntVal(5);
+  Graph->AddSAttrDatE(EId, IntId, IntVal);
+  TFlt FltVal(5.0);
+  Graph->AddSAttrDatE(EId, FltId, FltVal);
+  TStr StrVal("5");
+  Graph->AddSAttrDatE(EId, StrId, StrVal);
+
+
+  // Get values for the attributes for edge with id EId.
+  TInt IntVal2;
+  Graph->GetSAttrDatE(EId, IntId, IntVal2);
+  printf("Edge %d has attribute, with id %d, with value %d.\n", EId.Val, IntId.Val, IntVal2.Val);
+  TFlt FltVal2;
+  Graph->GetSAttrDatE(EId, FltAttr, FltVal2);
+  printf("Edge %d has attribute, with id %d, with value %f.\n", EId.Val, FltId.Val, FltVal2.Val);
+  TStr StrVal2;
+  Graph->GetSAttrDatE(EId, StrId, StrVal2);
+  printf("Edge %d has attribute, with id %d, with value %s.\n", EId.Val, StrId.Val, StrVal2.CStr());
+
+
+  // Get list of attributes for edge with id EId.
+  TAttrPrV AttrV;
+  Graph->GetSAttrVE(EId, atInt, AttrV);
+  printf("Edge with id %d has %d int attributes.\n", EId.Val, AttrV.Len());
+  Graph->GetSAttrVE(EId, atFlt, AttrV);
+  printf("Edge with id %d has %d flt attributes.\n", EId.Val, AttrV.Len());
+  Graph->GetSAttrVE(EId, atStr, AttrV);
+  printf("Edge with id %d has %d str attributes.\n", EId.Val, AttrV.Len());
+  //Graph->GetSAttrVE(EId, atAny, AttrV);
+  //printf("Edge with id %d has %d attributes.\n", EId.Val, AttrV.Len());
+
+  // Delete all attributes for edge with id EId (use either name or id).
+  Graph->DelSAttrDatE(EId, IntAttr);
+  Graph->DelSAttrDatE(EId, FltId);
+  Graph->DelSAttrDatE(EId, StrAttr);
+
+  //Get all edges with given attribute
+  for (int i = 2; i < 12; i++) {
+    Graph->AddNode(i);
+    Graph->AddEdge(i-1, i);
+    TInt Id(i-1);
+    Graph->AddSAttrDatE(Id, IntId, IntVal);
+    if (i%2 == 0) {
+      Graph->AddSAttrDatE(Id, FltId, FltVal);
+    }
+  }
+  Graph->AddSAttrDatE(EId, StrId, StrVal);
+
+  TIntV IdV;
+  Graph->GetIdVSAttrE(IntAttr, IdV);
+  printf("%d edges have attribute with name %s\n", IdV.Len(), IntAttr.CStr());
+
+  Graph->GetIdVSAttrE(FltAttr, IdV);
+  printf("%d edges have attribute with name %s\n", IdV.Len(), FltAttr.CStr());
+
+  Graph->GetIdVSAttrE(StrAttr, IdV);
+  printf("%d edges have attribute with name %s\n", IdV.Len(), StrAttr.CStr());
+}
+
 // Test small graph
 void GetSmallGraph() {
   PNEANet Graph;
@@ -368,6 +535,8 @@ int main(int argc, char* argv[]) {
   DefaultConstructor();
   ManipulateNodesEdges();
   ManipulateNodeEdgeAttributes();
+  ManipulateNodeSparseAttributes();
+  ManipulateEdgeSparseAttributes();
   GetSmallGraph();
 }
 

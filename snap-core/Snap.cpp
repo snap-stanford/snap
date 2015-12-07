@@ -9,11 +9,13 @@
 
 #include "gbase.cpp"
 #include "util.cpp"
+#include "predicate.cpp"     // predicates
+#include "attr.cpp"			 // sparse attributes
 
 // graph data structures
 #include "graph.cpp"         // graphs
 #include "graphmp.cpp"       // graphs
-#include "mmgraph.cpp"       // multimodal graphs
+//#include "mmgraph.cpp"       // multimodal graphs
 #include "network.cpp"       // networks
 #include "networkmp.cpp"     // networks OMP
 #include "timenet.cpp"       // time evolving networks
@@ -43,8 +45,5 @@
 
 // table data structures and algorithms
 #include "table.cpp"         // table
-#include "predicate.cpp"     // predicates
 #include "numpy.cpp" 				 // numpy conversion
 
-// util
-#include "stopwatch.cpp"

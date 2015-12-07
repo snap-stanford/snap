@@ -584,7 +584,7 @@ void TGnuPlot::SavePng(const TStr& FNm, const int& SizeX, const int& SizeY, cons
     //#ifdef GLib_WIN
     //#ifndef GLib_MACOSX  // The standard GNUPlot for MacOS does not support PNG (Jure: actually version 4.6 DOES!)
     // RS 2014/06/17 standard GNUPlot is tricky to configure for PNG on MacOS
-    AddCmd(TStr::Fmt("set terminal png size %d,%d", SizeX, SizeY));
+    AddCmd(TStr::Fmt("set terminal png font arial 10 size %d,%d", SizeX, SizeY));
     AddCmd(TStr::Fmt("set output '%s'", FNm.CStr()));
     //#else // EPS
     //AddCmd("set terminal postscript eps 10 enhanced color");

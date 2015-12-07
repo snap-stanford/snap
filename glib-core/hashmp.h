@@ -75,10 +75,10 @@ public:
   TDat& GetDat() {Assert((KeyDatI!=NULL)&&(KeyDatI->HashCd!=-1)); return KeyDatI->Dat;}
 };
 
-/////////////////////////////////////////////////
-// PHash-Table
+//#//////////////////////////////////////////////
+/// Hash-Table with multiprocessing support.
 template<class TKey, class TDat, class THashFunc = TDefaultHashFunc<TKey> >
-class THashMP{
+class THashMP {
 public:
   enum {HashPrimes=32};
   static const unsigned int HashPrimeT[HashPrimes];

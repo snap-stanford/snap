@@ -219,6 +219,10 @@ public:
     return (0<=KeyId)&&(KeyId<KeyDatV.Len())&&(KeyDatV[KeyId].HashCd!=-1);}
   const TDat& GetDat(const TKey& Key) const {return KeyDatV[GetKeyId(Key)].Dat;}
   TDat& GetDat(const TKey& Key){return KeyDatV[GetKeyId(Key)].Dat;}
+  TDat GetDatWithDefault(const TKey& Key, TDat DefaultValue) {
+    int KeyId = GetKeyId(Key);
+    return KeyId >= 0 ? KeyDatV[KeyId].Dat : DefaultValue;
+  }
 //  TKeyDatP GetKeyDat(const int& KeyId) const {
 //    TKeyDat& KeyDat=GetHashKeyDat(KeyId);
 //    return TKeyDatP(KeyDat.Key, KeyDat.Dat);}
@@ -574,6 +578,7 @@ typedef THash<TInt, TStr> TIntStrH;
 typedef THash<TInt, TStrV> TIntStrVH;
 typedef THash<TInt, TIntPr> TIntIntPrH;
 typedef THash<TInt, TIntPrV> TIntIntPrVH;
+typedef THash<TInt, TIntStrPr> TIntIntStrPrH;
 typedef THash<TUInt64, TStrV> TUInt64StrVH;
 typedef THash<TIntPr, TInt> TIntPrIntH;
 typedef THash<TIntPr, TIntV> TIntPrIntVH;
@@ -588,6 +593,9 @@ typedef THash<TIntTr, TFlt> TIntTrFltH;
 typedef THash<TIntPr, TStr> TIntPrStrH;
 typedef THash<TIntPr, TStrV> TIntPrStrVH;
 typedef THash<TIntStrPr, TInt> TIntStrPrIntH;
+typedef THash<TIntIntPrPr, TInt> TIntIntPrPrIntH;
+typedef THash<TIntIntPrPr, TFlt> TIntIntPrPrFltH;
+typedef THash<TIntIntPrPr, TStr> TIntIntPrPrStrH;
 typedef THash<TFlt, TFlt> TFltFltH;
 typedef THash<TStr, TInt> TStrH;
 typedef THash<TStr, TBool> TStrBoolH;
@@ -717,9 +725,10 @@ public:
 // String-Hash-Table
 template <class TDat, class TStringPool = TStrPool, class THashFunc = TDefaultHashFunc<TStr> >
 class TStrHash{
-private:
+public:
   //typedef typename PStringPool::TObj TStringPool;
   typedef TPt<TStringPool> PStringPool;
+private:
   typedef THashKeyDat<TInt, TDat> THKeyDat;
   typedef TPair<TInt, TDat> TKeyDatP;
   typedef TVec<THKeyDat> THKeyDatV;

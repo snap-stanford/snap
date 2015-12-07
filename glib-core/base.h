@@ -178,7 +178,6 @@
 #include "bits.h"
 #include "hash.h"
 #include "hashmp.h"
-#include "hashgenericmp.h"
 #include "xml.h"
 
 #include "xmath.h"

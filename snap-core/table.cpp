@@ -473,12 +473,13 @@ void TTable::LoadSSPar(PTable& T, const Schema& S, const TStr& InFNm, const TInt
 }
 #endif // GCC_ATOMIC
 
-void TTable::LoadSSSeq(PTable& T, const Schema& S, const TStr& InFNm, const TIntV& RelevantCols, 
-                        const char& Separator, TBool HasTitleLine) {
+void TTable::LoadSSSeq(
+ PTable& T, const Schema& S, const TStr& InFNm, const TIntV& RelevantCols,
+ const char& Separator, TBool HasTitleLine) {
   // preloaded necessary variables
-  TInt RowLen = T->Sch.Len();
+  int RowLen = T->Sch.Len();
   TVec<TAttrType> ColTypes = TVec<TAttrType>(RowLen);
-  for (TInt i = 0; i < RowLen; i++) {
+  for (int i = 0; i < RowLen; i++) {
     ColTypes[i] = T->GetSchemaColType(i);
   }
 
@@ -491,9 +492,9 @@ void TTable::LoadSSSeq(PTable& T, const Schema& S, const TStr& InFNm, const TInt
     if (S.Len() != Ss.GetFlds()) {
       printf("%s\n", Ss[0]); TExcept::Throw("Table Schema Mismatch!");
     }
-    for (TInt i = 0; i < Ss.GetFlds(); i++) {
+    for (int i = 0; i < Ss.GetFlds(); i++) {
       // remove carriage return char
-      TInt L = strlen(Ss[i]);
+      int L = strlen(Ss[i]);
       if (Ss[i][L-1] < ' ') { Ss[i][L-1] = 0; }
       if (NormalizeColName(S[i].Val1) != NormalizeColName(Ss[i])) { TExcept::Throw("Table Schema Mismatch!"); }
     }
@@ -503,14 +504,14 @@ void TTable::LoadSSSeq(PTable& T, const Schema& S, const TStr& InFNm, const TInt
   //printf("starting to populate table\n");
   uint64 Cnt = 0;
   while (Ss.Next()) {
-    TInt IntColIdx = 0;
-    TInt FltColIdx = 0;
-    TInt StrColIdx = 0;
+    int IntColIdx = 0;
+    int FltColIdx = 0;
+    int StrColIdx = 0;
     Assert(Ss.GetFlds() == S.Len()); // compiled only in debug
     if (Ss.GetFlds() != S.Len()) {
       printf("%s\n", Ss[S.Len()]); TExcept::Throw("Error reading tsv file");
     }
-    for (TInt i = 0; i < RowLen; i++) {
+    for (int i = 0; i < RowLen; i++) {
       switch (ColTypes[i]) {
         case atInt:
           if (RelevantCols.Len() == 0) {
@@ -529,7 +530,7 @@ void TTable::LoadSSSeq(PTable& T, const Schema& S, const TStr& InFNm, const TInt
           FltColIdx++;
           break;
         case atStr:
-          TInt ColIdx;
+          int ColIdx;
           if (RelevantCols.Len() == 0) {
             ColIdx = i;
           } else {
@@ -570,14 +571,14 @@ PTable TTable::LoadSS(const Schema& S, const TStr& InFNm, TTableContext& Context
   if (RelevantCols.Len() == 0) {
     SR = S;
   } else {
-    for (TInt i = 0; i < RelevantCols.Len(); i++) {
+    for (int i = 0; i < RelevantCols.Len(); i++) {
       SR.Add(S[RelevantCols[i]]);
     }
   }
   PTable T = New(SR, Context);
 
   // find col types and check for string cols
-  for (TInt i = 0; i < SR.Len(); i++) {
+  for (int i = 0; i < SR.Len(); i++) {
     if (T->GetSchemaColType(i) == atStr) {
       NoStringCols = false;
       break;
@@ -4734,7 +4735,7 @@ void TTable::ColGenericOp(const TStr& Attr1, const TFlt& Num, const TStr& ResAtt
 }
 
 #ifdef USE_OPENMP
-void TTable::ColGenericOpMP(TInt ColIdx1, TInt ColIdx2, TAttrType ArgType, TFlt Num, TArithOp op, TBool ShouldCast){
+void TTable::ColGenericOpMP(const TInt& ColIdx1, const TInt& ColIdx2, TAttrType ArgType, const TFlt& Num, TArithOp op, TBool ShouldCast){
 	TIntPrV Partitions;
 	GetPartitionRanges(Partitions, omp_get_max_threads()*CHUNKS_PER_THREAD);
 	TInt PartitionSize = Partitions[0].GetVal2()-Partitions[0].GetVal1()+1;

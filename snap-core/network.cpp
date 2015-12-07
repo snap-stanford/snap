@@ -364,7 +364,12 @@ int TNEANet::AddNode(int NId) {
   NodeH.AddDat(NId, TNode(NId));
   for (i = 0; i < VecOfIntVecsN.Len(); i++) {
     TVec<TInt>& IntVec = VecOfIntVecsN[i];
-    IntVec.Ins(NodeH.GetKeyId(NId), TInt::Mn);
+    int KeyId = NodeH.GetKeyId(NId);
+    if (IntVec.Len() > KeyId) {
+      IntVec[KeyId] = TInt::Mn;
+    } else {
+      IntVec.Ins(KeyId, TInt::Mn);
+    }
   }
   TVec<TStr> DefIntVec = TVec<TStr>();
   IntDefaultsN.GetKeyV(DefIntVec);
@@ -372,10 +377,15 @@ int TNEANet::AddNode(int NId) {
     TStr attr = DefIntVec[i];
     TVec<TInt>& IntVec = VecOfIntVecsN[KeyToIndexTypeN.GetDat(DefIntVec[i]).Val2];
     IntVec[NodeH.GetKeyId(NId)] = GetIntAttrDefaultN(attr);
-  }
+  } 
   for (i = 0; i < VecOfStrVecsN.Len(); i++) {
     TVec<TStr>& StrVec = VecOfStrVecsN[i];
-    StrVec.Ins(NodeH.GetKeyId(NId), TStr::GetNullStr());
+    int KeyId = NodeH.GetKeyId(NId);
+    if (StrVec.Len() > KeyId) {
+      StrVec[KeyId] = TStr::GetNullStr();
+    } else {
+      StrVec.Ins(KeyId, TStr::GetNullStr());
+    }
   }
   TVec<TStr> DefStrVec = TVec<TStr>();
   StrDefaultsN.GetKeyV(DefStrVec);
@@ -386,7 +396,12 @@ int TNEANet::AddNode(int NId) {
   }
   for (i = 0; i < VecOfFltVecsN.Len(); i++) {
     TVec<TFlt>& FltVec = VecOfFltVecsN[i];
-    FltVec.Ins(NodeH.GetKeyId(NId), TFlt::Mn);
+    int KeyId = NodeH.GetKeyId(NId);
+    if (FltVec.Len() > KeyId) {
+      FltVec[KeyId] = TFlt::Mn;
+    } else {
+      FltVec.Ins(KeyId, TFlt::Mn);
+    }
   }
   TVec<TStr> DefFltVec = TVec<TStr>();
   FltDefaultsN.GetKeyV(DefFltVec);
@@ -404,7 +419,8 @@ int TNEANet::AddNode(int NId) {
 
 void TNEANet::DelNode(const int& NId) {
   int i;
-  
+  TInt Id(NId);
+  SAttrN.DelSAttrId(Id);
   const TNode& Node = GetNode(NId);
   for (int out = 0; out < Node.GetOutDeg(); out++) {
     const int EId = Node.GetOutEId(out);
@@ -488,7 +504,12 @@ int TNEANet::AddEdge(const int& SrcNId, const int& DstNId, int EId) {
   // update attribute columns
   for (i = 0; i < VecOfIntVecsE.Len(); i++) {
     TVec<TInt>& IntVec = VecOfIntVecsE[i];
-    IntVec.Ins(EdgeH.GetKeyId(EId), TInt::Mn);
+    int KeyId = EdgeH.GetKeyId(EId);
+    if (IntVec.Len() > KeyId) {
+      IntVec[KeyId] = TInt::Mn;
+    } else {
+      IntVec.Ins(KeyId, TInt::Mn);
+    }
   }
   TVec<TStr> DefIntVec = TVec<TStr>();
   IntDefaultsE.GetKeyV(DefIntVec);
@@ -505,7 +526,12 @@ int TNEANet::AddEdge(const int& SrcNId, const int& DstNId, int EId) {
 
   for (i = 0; i < VecOfStrVecsE.Len(); i++) {
     TVec<TStr>& StrVec = VecOfStrVecsE[i];
-    StrVec.Ins(EdgeH.GetKeyId(EId), TStr::GetNullStr());
+    int KeyId = EdgeH.GetKeyId(EId);
+    if (StrVec.Len() > KeyId) {
+      StrVec[KeyId] = TStr::GetNullStr();
+    } else {
+      StrVec.Ins(KeyId, TStr::GetNullStr());
+    }
   }
   TVec<TStr> DefStrVec = TVec<TStr>();
   StrDefaultsE.GetKeyV(DefStrVec);
@@ -517,7 +543,12 @@ int TNEANet::AddEdge(const int& SrcNId, const int& DstNId, int EId) {
 
   for (i = 0; i < VecOfFltVecsE.Len(); i++) {
     TVec<TFlt>& FltVec = VecOfFltVecsE[i];
-    FltVec.Ins(EdgeH.GetKeyId(EId), TFlt::Mn);
+    int KeyId = EdgeH.GetKeyId(EId);
+    if (FltVec.Len() > KeyId) {
+      FltVec[KeyId] = TFlt::Mn;
+    } else {
+      FltVec.Ins(KeyId, TFlt::Mn);
+    }
   }
   TVec<TStr> DefFltVec = TVec<TStr>();
   FltDefaultsE.GetKeyV(DefFltVec);
@@ -537,6 +568,8 @@ void TNEANet::DelEdge(const int& EId) {
   const int DstNId = GetEdge(EId).GetDstNId();
   GetNode(SrcNId).OutEIdV.DelIfIn(EId);
   GetNode(DstNId).InEIdV.DelIfIn(EId);
+  TInt Id(EId);
+  SAttrE.DelSAttrId(Id);
 
   for (i = 0; i < VecOfIntVecsE.Len(); i++) {
     TVec<TInt>& IntVec = VecOfIntVecsE[i];
@@ -1333,5 +1366,1217 @@ bool TNEANet::IsIntAttrE(const TStr& attr) {
 bool TNEANet::IsStrAttrE(const TStr& attr) {
   return (KeyToIndexTypeE.IsKey(attr) &&
     KeyToIndexTypeE.GetDat(attr).Val1 == StrType);
+}
+
+int TNEANet::AddSAttrDatN(const TInt& NId, const TStr& AttrName, const TInt& Val) {
+  if (!IsNode(NId)) {
+    return -1;
+  }
+  return SAttrN.AddSAttrDat(NId, AttrName, Val);
+}
+
+int TNEANet::AddSAttrDatN(const TInt& NId, const TInt& AttrId, const TInt& Val) {
+  if (!IsNode(NId)) {
+    return -1;
+  }
+  return SAttrN.AddSAttrDat(NId, AttrId, Val);
+}
+
+int TNEANet::AddSAttrDatN(const TInt& NId, const TStr& AttrName, const TFlt& Val) {
+  if (!IsNode(NId)) {
+    return -1;
+  }
+  return SAttrN.AddSAttrDat(NId, AttrName, Val);
+}
+
+int TNEANet::AddSAttrDatN(const TInt& NId, const TInt& AttrId, const TFlt& Val) {
+  if (!IsNode(NId)) {
+    return -1;
+  }
+  return SAttrN.AddSAttrDat(NId, AttrId, Val);
+}
+
+int TNEANet::AddSAttrDatN(const TInt& NId, const TStr& AttrName, const TStr& Val) {
+  if (!IsNode(NId)) {
+    return -1;
+  }
+  return SAttrN.AddSAttrDat(NId, AttrName, Val);
+}
+
+int TNEANet::AddSAttrDatN(const TInt& NId, const TInt& AttrId, const TStr& Val) {
+  if (!IsNode(NId)) {
+    return -1;
+  }
+  return SAttrN.AddSAttrDat(NId, AttrId, Val);
+}
+
+int TNEANet::GetSAttrDatN(const TInt& NId, const TStr& AttrName, TInt& Val) const {
+  if (!IsNode(NId)) {
+    return -1;
+  }
+  return SAttrN.GetSAttrDat(NId, AttrName, Val);
+}
+
+int TNEANet::GetSAttrDatN(const TInt& NId, const TInt& AttrId, TInt& Val) const {
+  if (!IsNode(NId)) {
+    return -1;
+  }
+  return SAttrN.GetSAttrDat(NId, AttrId, Val);
+}
+
+int TNEANet::GetSAttrDatN(const TInt& NId, const TStr& AttrName, TFlt& Val) const {
+  if (!IsNode(NId)) {
+    return -1;
+  }
+  return SAttrN.GetSAttrDat(NId, AttrName, Val);
+}
+
+int TNEANet::GetSAttrDatN(const TInt& NId, const TInt& AttrId, TFlt& Val) const {
+  if (!IsNode(NId)) {
+    return -1;
+  }
+  return SAttrN.GetSAttrDat(NId, AttrId, Val);
+}
+
+int TNEANet::GetSAttrDatN(const TInt& NId, const TStr& AttrName, TStr& Val) const {
+  if (!IsNode(NId)) {
+    return -1;
+  }
+  return SAttrN.GetSAttrDat(NId, AttrName, Val);
+}
+
+int TNEANet::GetSAttrDatN(const TInt& NId, const TInt& AttrId, TStr& Val) const {
+  if (!IsNode(NId)) {
+    return -1;
+  }
+  return SAttrN.GetSAttrDat(NId, AttrId, Val);
+}
+
+int TNEANet::DelSAttrDatN(const TInt& NId, const TStr& AttrName) {
+  if (!IsNode(NId)) {
+    return -1;
+  }
+  return SAttrN.DelSAttrDat(NId, AttrName);
+}
+
+int TNEANet::DelSAttrDatN(const TInt& NId, const TInt& AttrId) {
+  if (!IsNode(NId)) {
+    return -1;
+  }
+  return SAttrN.DelSAttrDat(NId, AttrId);
+}
+
+int TNEANet::GetSAttrVN(const TInt& NId, const TAttrType AttrType, TAttrPrV& AttrV) const {
+  if (!IsNode(NId)) {
+    return -1;
+  }
+  SAttrN.GetSAttrV(NId, AttrType, AttrV);
+  return 0;
+}
+
+int TNEANet::GetIdVSAttrN(const TStr& AttrName, TIntV& IdV) const {
+  return SAttrN.GetIdVSAttr(AttrName, IdV);
+}
+
+int TNEANet::GetIdVSAttrN(const TInt& AttrId, TIntV& IdV) const {
+  return SAttrN.GetIdVSAttr(AttrId, IdV);
+}
+
+int TNEANet::AddSAttrN(const TStr& Name, const TAttrType& AttrType, TInt& AttrId) {
+  return SAttrN.AddSAttr(Name, AttrType, AttrId);
+}
+
+int TNEANet::GetSAttrIdN(const TStr& Name, TInt& AttrId, TAttrType& AttrType) const {
+  return SAttrN.GetSAttrId(Name, AttrId, AttrType);
+}
+
+int TNEANet::GetSAttrNameN(const TInt& AttrId, TStr& Name, TAttrType& AttrType) const {
+  return SAttrN.GetSAttrName(AttrId, Name, AttrType);
+}
+
+int TNEANet::AddSAttrDatE(const TInt& EId, const TStr& AttrName, const TInt& Val) {
+  if (!IsEdge(EId)) {
+    return -1;
+  }
+  return SAttrE.AddSAttrDat(EId, AttrName, Val);
+}
+
+int TNEANet::AddSAttrDatE(const TInt& EId, const TInt& AttrId, const TInt& Val) {
+  if (!IsEdge(EId)) {
+    return -1;
+  }
+  return SAttrE.AddSAttrDat(EId, AttrId, Val);
+}
+
+int TNEANet::AddSAttrDatE(const TInt& EId, const TStr& AttrName, const TFlt& Val) {
+  if (!IsEdge(EId)) {
+    return -1;
+  }
+  return SAttrE.AddSAttrDat(EId, AttrName, Val);
+}
+
+int TNEANet::AddSAttrDatE(const TInt& EId, const TInt& AttrId, const TFlt& Val) {
+  if (!IsEdge(EId)) {
+    return -1;
+  }
+  return SAttrE.AddSAttrDat(EId, AttrId, Val);
+}
+
+int TNEANet::AddSAttrDatE(const TInt& EId, const TStr& AttrName, const TStr& Val) {
+  if (!IsEdge(EId)) {
+    return -1;
+  }
+  return SAttrE.AddSAttrDat(EId, AttrName, Val);
+}
+
+int TNEANet::AddSAttrDatE(const TInt& EId, const TInt& AttrId, const TStr& Val) {
+  if (!IsEdge(EId)) {
+    return -1;
+  }
+  return SAttrE.AddSAttrDat(EId, AttrId, Val);
+}
+
+int TNEANet::GetSAttrDatE(const TInt& EId, const TStr& AttrName, TInt& Val) const {
+  if (!IsEdge(EId)) {
+    return -1;
+  }
+  return SAttrE.GetSAttrDat(EId, AttrName, Val);
+}
+
+int TNEANet::GetSAttrDatE(const TInt& EId, const TInt& AttrId, TInt& Val) const {
+  if (!IsEdge(EId)) {
+    return -1;
+  }
+  return SAttrE.GetSAttrDat(EId, AttrId, Val);
+}
+
+int TNEANet::GetSAttrDatE(const TInt& EId, const TStr& AttrName, TFlt& Val) const {
+  if (!IsEdge(EId)) {
+    return -1;
+  }
+  return SAttrE.GetSAttrDat(EId, AttrName, Val);
+}
+
+int TNEANet::GetSAttrDatE(const TInt& EId, const TInt& AttrId, TFlt& Val) const {
+  if (!IsEdge(EId)) {
+    return -1;
+  }
+  return SAttrE.GetSAttrDat(EId, AttrId, Val);
+}
+
+int TNEANet::GetSAttrDatE(const TInt& EId, const TStr& AttrName, TStr& Val) const {
+  if (!IsEdge(EId)) {
+    return -1;
+  }
+  return SAttrE.GetSAttrDat(EId, AttrName, Val);
+}
+
+int TNEANet::GetSAttrDatE(const TInt& EId, const TInt& AttrId, TStr& Val) const {
+  if (!IsEdge(EId)) {
+    return -1;
+  }
+  return SAttrE.GetSAttrDat(EId, AttrId, Val);
+}
+
+int TNEANet::DelSAttrDatE(const TInt& EId, const TStr& AttrName) {
+  if (!IsEdge(EId)) {
+    return -1;
+  }
+  return SAttrE.DelSAttrDat(EId, AttrName);
+}
+
+int TNEANet::DelSAttrDatE(const TInt& EId, const TInt& AttrId) {
+  if (!IsEdge(EId)) {
+    return -1;
+  }
+  return SAttrE.DelSAttrDat(EId, AttrId);
+}
+
+int TNEANet::GetSAttrVE(const TInt& EId, const TAttrType AttrType, TAttrPrV& AttrV) const {
+  if (!IsEdge(EId)) {
+    return -1;
+  }
+  SAttrE.GetSAttrV(EId, AttrType, AttrV);
+  return 0;
+}
+
+int TNEANet::GetIdVSAttrE(const TStr& AttrName, TIntV& IdV) const {
+  return SAttrE.GetIdVSAttr(AttrName, IdV);
+}
+
+int TNEANet::GetIdVSAttrE(const TInt& AttrId, TIntV& IdV) const {
+  return SAttrE.GetIdVSAttr(AttrId, IdV);
+}
+
+int TNEANet::AddSAttrE(const TStr& Name, const TAttrType& AttrType, TInt& AttrId) {
+  return SAttrE.AddSAttr(Name, AttrType, AttrId);
+}
+
+int TNEANet::GetSAttrIdE(const TStr& Name, TInt& AttrId, TAttrType& AttrType) const {
+  return SAttrE.GetSAttrId(Name, AttrId, AttrType);
+}
+
+int TNEANet::GetSAttrNameE(const TInt& AttrId, TStr& Name, TAttrType& AttrType) const {
+  return SAttrE.GetSAttrName(AttrId, Name, AttrType);
+}
+
+/////////////////////////////////////////////////
+// Undirected Graph
+bool TUndirNet::HasFlag(const TGraphFlag& Flag) const {
+  return HasGraphFlag(TUndirNet::TNet, Flag);
+}
+
+// Add a node of ID NId to the graph.
+int TUndirNet::AddNode(int NId) {
+  if (NId == -1) {
+    NId = MxNId;  MxNId++;
+  } else {
+    IAssertR(!IsNode(NId), TStr::Fmt("NodeId %d already exists", NId));
+    MxNId = TMath::Mx(NId+1, MxNId());
+  }
+  NodeH.AddDat(NId, TNode(NId));
+  return NId;
+}
+
+// Add a node of ID NId to the graph and create edges to all nodes in vector NbrNIdV.
+int TUndirNet::AddNode(const int& NId, const TIntV& NbrNIdV) {
+  int NewNId;
+  if (NId == -1) {
+    NewNId = MxNId;  MxNId++;
+  } else {
+    IAssertR(! IsNode(NId), TStr::Fmt("NodeId %d already exists", NId));
+    NewNId = NId;
+    MxNId = TMath::Mx(NewNId+1, MxNId());
+  }
+  TNode& Node = NodeH.AddDat(NewNId);
+  Node.Id = NewNId;
+  Node.NIdV = NbrNIdV;
+  Node.NIdV.Sort();
+  NEdges += Node.GetDeg();
+  for (int i = 0; i < NbrNIdV.Len(); i++) {
+    GetNode(NbrNIdV[i]).NIdV.AddSorted(NewNId);
+  }
+  return NewNId;
+}
+
+// Add a node of ID NId to the graph and create edges to all nodes in the vector NIdVId in the vector pool Pool).
+int TUndirNet::AddNode(const int& NId, const TVecPool<TInt>& Pool, const int& NIdVId) {
+  int NewNId;
+  if (NId == -1) {
+    NewNId = MxNId;  MxNId++;
+  } else {
+    IAssertR(!IsNode(NId), TStr::Fmt("NodeId %d already exists", NId));
+    NewNId = NId;
+    MxNId = TMath::Mx(NewNId+1, MxNId()); 
+  }
+  TNode& Node = NodeH.AddDat(NewNId);
+  Node.Id = NewNId;
+  Node.NIdV.GenExt(Pool.GetValVPt(NIdVId), Pool.GetVLen(NIdVId));
+  Node.NIdV.Sort();
+  NEdges += Node.GetDeg();
+  return NewNId;
+}
+
+// Delete node of ID NId from the graph.
+void TUndirNet::DelNode(const int& NId) {
+  { AssertR(IsNode(NId), TStr::Fmt("NodeId %d does not exist", NId));
+  TInt Id(NId);
+  SAttrN.DelSAttrId(Id);
+  TNode& Node = GetNode(NId);
+  NEdges -= Node.GetDeg();
+  for (int e = 0; e < Node.GetDeg(); e++) {
+    const int nbr = Node.GetNbrNId(e);
+    if (nbr == NId) { continue; }
+    TNode& N = GetNode(nbr);
+    const int n = N.NIdV.SearchBin(NId);
+    IAssert(n != -1); // if NId points to N, then N also should point back
+    if (n!= -1) { N.NIdV.Del(n); }
+  } }
+  NodeH.DelKey(NId);
+}
+
+int TUndirNet::GetEdges() const {
+  //int Edges = 0;
+  //for (int N=NodeH.FFirstKeyId(); NodeH.FNextKeyId(N); ) {
+  //  Edges += NodeH[N].GetDeg();
+  //}
+  //return Edges/2;
+  return NEdges;
+}
+
+// Add an edge between SrcNId and DstNId to the graph.
+int TUndirNet::AddEdge(const int& SrcNId, const int& DstNId) {
+  IAssertR(IsNode(SrcNId) && IsNode(DstNId), TStr::Fmt("%d or %d not a node.", SrcNId, DstNId).CStr());
+  if (IsEdge(SrcNId, DstNId)) { return -2; } // edge already exists
+  GetNode(SrcNId).NIdV.AddSorted(DstNId);
+  if (SrcNId!=DstNId) { // not a self edge
+    GetNode(DstNId).NIdV.AddSorted(SrcNId); }
+  NEdges++;
+  return -1; // edge id
+}
+
+// Delete an edge between node IDs SrcNId and DstNId from the graph.
+void TUndirNet::DelEdge(const int& SrcNId, const int& DstNId) {
+  IAssertR(IsNode(SrcNId) && IsNode(DstNId), TStr::Fmt("%d or %d not a node.", SrcNId, DstNId).CStr());
+  { TNode& N = GetNode(SrcNId);
+  const int n = N.NIdV.SearchBin(DstNId);
+  TIntPr Id(SrcNId, DstNId);
+  SAttrE.DelSAttrId(Id);
+  if (n!= -1) { N.NIdV.Del(n);  NEdges--; } }
+  if (SrcNId != DstNId) { // not a self edge
+    TNode& N = GetNode(DstNId);
+    const int n = N.NIdV.SearchBin(SrcNId);
+    if (n!= -1) { N.NIdV.Del(n); }
+  }
+}
+
+// Test whether an edge between node IDs SrcNId and DstNId exists the graph.
+bool TUndirNet::IsEdge(const int& SrcNId, const int& DstNId) const {
+  if (! IsNode(SrcNId) || ! IsNode(DstNId)) return false;
+  return GetNode(SrcNId).IsNbrNId(DstNId);
+}
+
+// Return an iterator referring to edge (SrcNId, DstNId) in the graph.
+TUndirNet::TEdgeI TUndirNet::GetEI(const int& SrcNId, const int& DstNId) const {
+  const int MnNId = TMath::Mn(SrcNId, DstNId);
+  const int MxNId = TMath::Mx(SrcNId, DstNId);
+  const TNodeI SrcNI = GetNI(MnNId);
+  const int NodeN = SrcNI.NodeHI.GetDat().NIdV.SearchBin(MxNId);
+  IAssert(NodeN != -1);
+  return TEdgeI(SrcNI, EndNI(), NodeN);
+}
+
+
+// Get a vector IDs of all nodes in the graph.
+void TUndirNet::GetNIdV(TIntV& NIdV) const {
+  NIdV.Gen(GetNodes(), 0);
+  for (int N=NodeH.FFirstKeyId(); NodeH.FNextKeyId(N); ) {
+    NIdV.Add(NodeH.GetKey(N)); }
+}
+
+// Defragment the graph.
+void TUndirNet::Defrag(const bool& OnlyNodeLinks) {
+  for (int n = NodeH.FFirstKeyId(); NodeH.FNextKeyId(n); ) {
+    NodeH[n].NIdV.Pack();
+  }
+  if (! OnlyNodeLinks && ! NodeH.IsKeyIdEqKeyN()) {
+    NodeH.Defrag();
+  }
+}
+
+// Check the graph data structure for internal consistency.
+bool TUndirNet::IsOk(const bool& ThrowExcept) const {
+  bool RetVal = true;
+  for (int N = NodeH.FFirstKeyId(); NodeH.FNextKeyId(N); ) {
+    const TNode& Node = NodeH[N];
+    if (! Node.NIdV.IsSorted()) {
+      const TStr Msg = TStr::Fmt("Neighbor list of node %d is not sorted.", Node.GetId());
+      if (ThrowExcept) { EAssertR(false, Msg); } else { ErrNotify(Msg.CStr()); }
+      RetVal=false;
+    }
+    int prevNId = -1;
+    for (int e = 0; e < Node.GetDeg(); e++) {
+      if (! IsNode(Node.GetNbrNId(e))) {
+        const TStr Msg = TStr::Fmt("Edge %d --> %d: node %d does not exist.",
+          Node.GetId(), Node.GetNbrNId(e), Node.GetNbrNId(e));
+        if (ThrowExcept) { EAssertR(false, Msg); } else { ErrNotify(Msg.CStr()); }
+        RetVal=false;
+      }
+      if (e > 0 && prevNId == Node.GetNbrNId(e)) {
+        const TStr Msg = TStr::Fmt("Node %d has duplicate edge %d --> %d.",
+          Node.GetId(), Node.GetId(), Node.GetNbrNId(e));
+        if (ThrowExcept) { EAssertR(false, Msg); } else { ErrNotify(Msg.CStr()); }
+        RetVal=false;
+      }
+      prevNId = Node.GetNbrNId(e);
+    }
+  }
+  int EdgeCnt = 0;
+  for (TEdgeI EI = BegEI(); EI < EndEI(); EI++) { EdgeCnt++; }
+  if (EdgeCnt != GetEdges()) {
+    const TStr Msg = TStr::Fmt("Number of edges counter is corrupted: GetEdges():%d, EdgeCount:%d.", GetEdges(), EdgeCnt);
+    if (ThrowExcept) { EAssertR(false, Msg); } else { ErrNotify(Msg.CStr()); }
+    RetVal=false;
+  }
+  return RetVal;
+}
+
+// Print the graph in a human readable form to an output stream OutF.
+void TUndirNet::Dump(FILE *OutF) const {
+  const int NodePlaces = (int) ceil(log10((double) GetNodes()));
+  fprintf(OutF, "-------------------------------------------------\nUndirected Node Graph: nodes: %d, edges: %d\n", GetNodes(), GetEdges());
+  for (int N = NodeH.FFirstKeyId(); NodeH.FNextKeyId(N); ) {
+    const TNode& Node = NodeH[N];
+    fprintf(OutF, "  %*d [%d] ", NodePlaces, Node.GetId(), Node.GetDeg());
+    for (int edge = 0; edge < Node.GetDeg(); edge++) {
+      fprintf(OutF, " %*d", NodePlaces, Node.GetNbrNId(edge)); }
+    fprintf(OutF, "\n");
+  }
+  fprintf(OutF, "\n");
+}
+
+// Return a small graph on 5 nodes and 5 edges.
+PUndirNet TUndirNet::GetSmallGraph() {
+  PUndirNet Graph = TUndirNet::New();
+  for (int i = 0; i < 5; i++) { Graph->AddNode(i); }
+  Graph->AddEdge(0,1);  Graph->AddEdge(0,2);
+  Graph->AddEdge(0,3);  Graph->AddEdge(0,4);
+  Graph->AddEdge(1,2);
+  return Graph;
+}
+
+int TUndirNet::AddSAttrDatN(const TInt& NId, const TStr& AttrName, const TInt& Val) {
+  if (!IsNode(NId)) {
+    return -1;
+  }
+  return SAttrN.AddSAttrDat(NId, AttrName, Val);
+}
+
+int TUndirNet::AddSAttrDatN(const TInt& NId, const TInt& AttrId, const TInt& Val) {
+  if (!IsNode(NId)) {
+    return -1;
+  }
+  return SAttrN.AddSAttrDat(NId, AttrId, Val);
+}
+
+int TUndirNet::AddSAttrDatN(const TInt& NId, const TStr& AttrName, const TFlt& Val) {
+  if (!IsNode(NId)) {
+    return -1;
+  }
+  return SAttrN.AddSAttrDat(NId, AttrName, Val);
+}
+
+int TUndirNet::AddSAttrDatN(const TInt& NId, const TInt& AttrId, const TFlt& Val) {
+  if (!IsNode(NId)) {
+    return -1;
+  }
+  return SAttrN.AddSAttrDat(NId, AttrId, Val);
+}
+
+int TUndirNet::AddSAttrDatN(const TInt& NId, const TStr& AttrName, const TStr& Val) {
+  if (!IsNode(NId)) {
+    return -1;
+  }
+  return SAttrN.AddSAttrDat(NId, AttrName, Val);
+}
+
+int TUndirNet::AddSAttrDatN(const TInt& NId, const TInt& AttrId, const TStr& Val) {
+  if (!IsNode(NId)) {
+    return -1;
+  }
+  return SAttrN.AddSAttrDat(NId, AttrId, Val);
+}
+
+int TUndirNet::GetSAttrDatN(const TInt& NId, const TStr& AttrName, TInt& Val) const {
+  if (!IsNode(NId)) {
+    return -1;
+  }
+  return SAttrN.GetSAttrDat(NId, AttrName, Val);
+}
+
+int TUndirNet::GetSAttrDatN(const TInt& NId, const TInt& AttrId, TInt& Val) const {
+  if (!IsNode(NId)) {
+    return -1;
+  }
+  return SAttrN.GetSAttrDat(NId, AttrId, Val);
+}
+
+int TUndirNet::GetSAttrDatN(const TInt& NId, const TStr& AttrName, TFlt& Val) const {
+  if (!IsNode(NId)) {
+    return -1;
+  }
+  return SAttrN.GetSAttrDat(NId, AttrName, Val);
+}
+
+int TUndirNet::GetSAttrDatN(const TInt& NId, const TInt& AttrId, TFlt& Val) const {
+  if (!IsNode(NId)) {
+    return -1;
+  }
+  return SAttrN.GetSAttrDat(NId, AttrId, Val);
+}
+
+int TUndirNet::GetSAttrDatN(const TInt& NId, const TStr& AttrName, TStr& Val) const {
+  if (!IsNode(NId)) {
+    return -1;
+  }
+  return SAttrN.GetSAttrDat(NId, AttrName, Val);
+}
+
+int TUndirNet::GetSAttrDatN(const TInt& NId, const TInt& AttrId, TStr& Val) const {
+  if (!IsNode(NId)) {
+    return -1;
+  }
+  return SAttrN.GetSAttrDat(NId, AttrId, Val);
+}
+
+int TUndirNet::DelSAttrDatN(const TInt& NId, const TStr& AttrName) {
+  if (!IsNode(NId)) {
+    return -1;
+  }
+  return SAttrN.DelSAttrDat(NId, AttrName);
+}
+
+int TUndirNet::DelSAttrDatN(const TInt& NId, const TInt& AttrId) {
+  if (!IsNode(NId)) {
+    return -1;
+  }
+  return SAttrN.DelSAttrDat(NId, AttrId);
+}
+
+int TUndirNet::GetSAttrVN(const TInt& NId, const TAttrType AttrType, TAttrPrV& AttrV) const {
+  if (!IsNode(NId)) {
+    return -1;
+  }
+  SAttrN.GetSAttrV(NId, AttrType, AttrV);
+  return 0;
+}
+
+int TUndirNet::GetIdVSAttrN(const TStr& AttrName, TIntV& IdV) const {
+  return SAttrN.GetIdVSAttr(AttrName, IdV);
+}
+
+int TUndirNet::GetIdVSAttrN(const TInt& AttrId, TIntV& IdV) const {
+  return SAttrN.GetIdVSAttr(AttrId, IdV);
+}
+
+int TUndirNet::AddSAttrN(const TStr& Name, const TAttrType& AttrType, TInt& AttrId) {
+  return SAttrN.AddSAttr(Name, AttrType, AttrId);
+}
+
+int TUndirNet::GetSAttrIdN(const TStr& Name, TInt& AttrId, TAttrType& AttrType) const {
+  return SAttrN.GetSAttrId(Name, AttrId, AttrType);
+}
+
+int TUndirNet::GetSAttrNameN(const TInt& AttrId, TStr& Name, TAttrType& AttrType) const {
+  return SAttrN.GetSAttrName(AttrId, Name, AttrType);
+}
+
+TIntPr TUndirNet::OrderEdgeNodes(const int& SrcNId, const int& DstNId) const{
+  if (SrcNId < DstNId) {
+    return TIntPr(SrcNId, DstNId);
+  }
+  return TIntPr(DstNId, SrcNId);
+}
+
+int TUndirNet::AddSAttrDatE(const int& SrcNId, const int& DstNId, const TStr& AttrName, const TInt& Val) {
+  if (!IsEdge(SrcNId, DstNId)) {
+    return -1;
+  }
+  TIntPr EId = OrderEdgeNodes(SrcNId, DstNId);
+  return SAttrE.AddSAttrDat(EId, AttrName, Val);
+}
+
+int TUndirNet::AddSAttrDatE(const int& SrcNId, const int& DstNId, const TInt& AttrId, const TInt& Val) {
+  if (!IsEdge(SrcNId, DstNId)) {
+    return -1;
+  }
+  TIntPr EId = OrderEdgeNodes(SrcNId, DstNId);
+  return SAttrE.AddSAttrDat(EId, AttrId, Val);
+}
+
+int TUndirNet::AddSAttrDatE(const int& SrcNId, const int& DstNId, const TStr& AttrName, const TFlt& Val) {
+  if (!IsEdge(SrcNId, DstNId)) {
+    return -1;
+  }
+  TIntPr EId = OrderEdgeNodes(SrcNId, DstNId);
+  return SAttrE.AddSAttrDat(EId, AttrName, Val);
+}
+
+int TUndirNet::AddSAttrDatE(const int& SrcNId, const int& DstNId, const TInt& AttrId, const TFlt& Val) {
+  if (!IsEdge(SrcNId, DstNId)) {
+    return -1;
+  }
+  TIntPr EId = OrderEdgeNodes(SrcNId, DstNId);
+  return SAttrE.AddSAttrDat(EId, AttrId, Val);
+}
+
+int TUndirNet::AddSAttrDatE(const int& SrcNId, const int& DstNId, const TStr& AttrName, const TStr& Val) {
+  if (!IsEdge(SrcNId, DstNId)) {
+    return -1;
+  }
+  TIntPr EId = OrderEdgeNodes(SrcNId, DstNId);
+  return SAttrE.AddSAttrDat(EId, AttrName, Val);
+}
+
+int TUndirNet::AddSAttrDatE(const int& SrcNId, const int& DstNId, const TInt& AttrId, const TStr& Val) {
+  if (!IsEdge(SrcNId, DstNId)) {
+    return -1;
+  }
+  TIntPr EId = OrderEdgeNodes(SrcNId, DstNId);
+  return SAttrE.AddSAttrDat(EId, AttrId, Val);
+}
+
+int TUndirNet::GetSAttrDatE(const int& SrcNId, const int& DstNId, const TStr& AttrName, TInt& Val) const {
+  if (!IsEdge(SrcNId, DstNId)) {
+    return -1;
+  }
+  TIntPr EId = OrderEdgeNodes(SrcNId, DstNId);
+  return SAttrE.GetSAttrDat(EId, AttrName, Val);
+}
+
+int TUndirNet::GetSAttrDatE(const int& SrcNId, const int& DstNId, const TInt& AttrId, TInt& Val) const {
+  if (!IsEdge(SrcNId, DstNId)) {
+    return -1;
+  }
+  TIntPr EId = OrderEdgeNodes(SrcNId, DstNId);
+  return SAttrE.GetSAttrDat(EId, AttrId, Val);
+}
+
+int TUndirNet::GetSAttrDatE(const int& SrcNId, const int& DstNId, const TStr& AttrName, TFlt& Val) const {
+  if (!IsEdge(SrcNId, DstNId)) {
+    return -1;
+  }
+  TIntPr EId = OrderEdgeNodes(SrcNId, DstNId);
+  return SAttrE.GetSAttrDat(EId, AttrName, Val);
+}
+
+int TUndirNet::GetSAttrDatE(const int& SrcNId, const int& DstNId, const TInt& AttrId, TFlt& Val) const {
+  if (!IsEdge(SrcNId, DstNId)) {
+    return -1;
+  }
+  TIntPr EId = OrderEdgeNodes(SrcNId, DstNId);
+  return SAttrE.GetSAttrDat(EId, AttrId, Val);
+}
+
+int TUndirNet::GetSAttrDatE(const int& SrcNId, const int& DstNId, const TStr& AttrName, TStr& Val) const {
+  if (!IsEdge(SrcNId, DstNId)) {
+    return -1;
+  }
+  TIntPr EId = OrderEdgeNodes(SrcNId, DstNId);
+  return SAttrE.GetSAttrDat(EId, AttrName, Val);
+}
+
+int TUndirNet::GetSAttrDatE(const int& SrcNId, const int& DstNId, const TInt& AttrId, TStr& Val) const {
+  if (!IsEdge(SrcNId, DstNId)) {
+    return -1;
+  }
+  TIntPr EId = OrderEdgeNodes(SrcNId, DstNId);
+  return SAttrE.GetSAttrDat(EId, AttrId, Val);
+}
+
+int TUndirNet::DelSAttrDatE(const int& SrcNId, const int& DstNId, const TStr& AttrName) {
+  if (!IsEdge(SrcNId, DstNId)) {
+    return -1;
+  }
+  TIntPr EId = OrderEdgeNodes(SrcNId, DstNId);
+  return SAttrE.DelSAttrDat(EId, AttrName);
+}
+
+int TUndirNet::DelSAttrDatE(const int& SrcNId, const int& DstNId, const TInt& AttrId) {
+  if (!IsEdge(SrcNId, DstNId)) {
+    return -1;
+  }
+  TIntPr EId = OrderEdgeNodes(SrcNId, DstNId);
+  return SAttrE.DelSAttrDat(EId, AttrId);
+}
+
+int TUndirNet::GetSAttrVE(const int& SrcNId, const int& DstNId, const TAttrType AttrType, TAttrPrV& AttrV) const {
+  if (!IsEdge(SrcNId, DstNId)) {
+    return -1;
+  }
+  TIntPr EId = OrderEdgeNodes(SrcNId, DstNId);
+  SAttrE.GetSAttrV(EId, AttrType, AttrV);
+  return 0;
+}
+
+int TUndirNet::GetIdVSAttrE(const TStr& AttrName, TIntPrV& IdV) const {
+  return SAttrE.GetIdVSAttr(AttrName, IdV);
+}
+
+int TUndirNet::GetIdVSAttrE(const TInt& AttrId, TIntPrV& IdV) const {
+  return SAttrE.GetIdVSAttr(AttrId, IdV);
+}
+
+int TUndirNet::AddSAttrE(const TStr& Name, const TAttrType& AttrType, TInt& AttrId) {
+  return SAttrE.AddSAttr(Name, AttrType, AttrId);
+}
+
+int TUndirNet::GetSAttrIdE(const TStr& Name, TInt& AttrId, TAttrType& AttrType) const {
+  return SAttrE.GetSAttrId(Name, AttrId, AttrType);
+}
+
+int TUndirNet::GetSAttrNameE(const TInt& AttrId, TStr& Name, TAttrType& AttrType) const {
+  return SAttrE.GetSAttrName(AttrId, Name, AttrType);
+}
+
+/////////////////////////////////////////////////
+// Directed Node Graph
+bool TDirNet::HasFlag(const TGraphFlag& Flag) const {
+  return HasGraphFlag(TDirNet::TNet, Flag);
+}
+
+int TDirNet::AddNode(int NId) {
+  if (NId == -1) {
+    NId = MxNId;  MxNId++;
+  } else {
+    IAssertR(!IsNode(NId), TStr::Fmt("NodeId %d already exists", NId));
+    MxNId = TMath::Mx(NId+1, MxNId());
+  }
+  NodeH.AddDat(NId, TNode(NId));
+  return NId;
+}
+
+// add a node with a list of neighbors
+// (use TDirNet::IsOk to check whether the graph is consistent)
+int TDirNet::AddNode(const int& NId, const TIntV& InNIdV, const TIntV& OutNIdV) {
+  int NewNId;
+  if (NId == -1) {
+    NewNId = MxNId;  MxNId++;
+  } else {
+    IAssertR(!IsNode(NId), TStr::Fmt("NodeId %d already exists", NId));
+    NewNId = NId;
+    MxNId = TMath::Mx(NewNId+1, MxNId());
+  }
+  TNode& Node = NodeH.AddDat(NewNId);
+  Node.Id = NewNId;
+  Node.InNIdV = InNIdV;
+  Node.OutNIdV = OutNIdV;
+  Node.InNIdV.Sort();
+  Node.OutNIdV.Sort();
+  return NewNId;
+}
+
+// add a node from a vector pool
+// (use TDirNet::IsOk to check whether the graph is consistent)
+int TDirNet::AddNode(const int& NId, const TVecPool<TInt>& Pool, const int& SrcVId, const int& DstVId) {
+  int NewNId;
+  if (NId == -1) {
+    NewNId = MxNId;  MxNId++;
+  } else {
+    IAssertR(!IsNode(NId), TStr::Fmt("NodeId %d already exists", NId));
+    NewNId = NId;
+    MxNId = TMath::Mx(NewNId+1, MxNId());
+  }
+  TNode& Node = NodeH.AddDat(NewNId);
+  Node.Id = NewNId;
+  Node.InNIdV.GenExt(Pool.GetValVPt(SrcVId), Pool.GetVLen(SrcVId));
+  Node.OutNIdV.GenExt(Pool.GetValVPt(DstVId), Pool.GetVLen(DstVId));
+  Node.InNIdV.Sort();
+  Node.OutNIdV.Sort();
+  return NewNId;
+}
+
+void TDirNet::DelNode(const int& NId) {
+  { TNode& Node = GetNode(NId);
+  TInt Id(NId);
+  SAttrN.DelSAttrId(Id);
+  for (int e = 0; e < Node.GetOutDeg(); e++) {
+  const int nbr = Node.GetOutNId(e);
+  if (nbr == NId) { continue; }
+    TNode& N = GetNode(nbr);
+    const int n = N.InNIdV.SearchBin(NId);
+    if (n!= -1) { N.InNIdV.Del(n); }
+  }
+  for (int e = 0; e < Node.GetInDeg(); e++) {
+  const int nbr = Node.GetInNId(e);
+  if (nbr == NId) { continue; }
+    TNode& N = GetNode(nbr);
+    const int n = N.OutNIdV.SearchBin(NId);
+    if (n!= -1) { N.OutNIdV.Del(n); }
+  } }
+  NodeH.DelKey(NId);
+}
+
+int TDirNet::GetEdges() const {
+  int edges=0;
+  for (int N=NodeH.FFirstKeyId(); NodeH.FNextKeyId(N); ) {
+    edges+=NodeH[N].GetOutDeg();
+  }
+  return edges;
+}
+
+int TDirNet::AddEdge(const int& SrcNId, const int& DstNId) {
+  IAssertR(IsNode(SrcNId) && IsNode(DstNId), TStr::Fmt("%d or %d not a node.", SrcNId, DstNId).CStr());
+  //IAssert(! IsEdge(SrcNId, DstNId));
+  if (IsEdge(SrcNId, DstNId)) { return -2; }
+  GetNode(SrcNId).OutNIdV.AddSorted(DstNId);
+  GetNode(DstNId).InNIdV.AddSorted(SrcNId);
+  return -1; // edge id
+}
+
+void TDirNet::DelEdge(const int& SrcNId, const int& DstNId, const bool& IsDir) {
+  IAssertR(IsNode(SrcNId) && IsNode(DstNId), TStr::Fmt("%d or %d not a node.", SrcNId, DstNId).CStr());
+  { TNode& N = GetNode(SrcNId);
+  TIntPr Id(SrcNId, DstNId);
+  SAttrE.DelSAttrId(Id);
+  const int n = N.OutNIdV.SearchBin(DstNId);
+  if (n!= -1) { N.OutNIdV.Del(n); } }
+  { TNode& N = GetNode(DstNId);
+  const int n = N.InNIdV.SearchBin(SrcNId);
+  if (n!= -1) { N.InNIdV.Del(n); } }
+  if (! IsDir) {
+    { TNode& N = GetNode(SrcNId);
+    const int n = N.InNIdV.SearchBin(DstNId);
+    if (n!= -1) { N.InNIdV.Del(n); } }
+    { TNode& N = GetNode(DstNId);
+    const int n = N.OutNIdV.SearchBin(SrcNId);
+    if (n!= -1) { N.OutNIdV.Del(n); } }
+  }
+}
+
+bool TDirNet::IsEdge(const int& SrcNId, const int& DstNId, const bool& IsDir) const {
+  if (! IsNode(SrcNId) || ! IsNode(DstNId)) { return false; }
+  if (IsDir) { return GetNode(SrcNId).IsOutNId(DstNId); }
+  else { return GetNode(SrcNId).IsOutNId(DstNId) || GetNode(DstNId).IsOutNId(SrcNId); }
+}
+
+TDirNet::TEdgeI TDirNet::GetEI(const int& SrcNId, const int& DstNId) const {
+  const TNodeI SrcNI = GetNI(SrcNId);
+  const int NodeN = SrcNI.NodeHI.GetDat().OutNIdV.SearchBin(DstNId);
+  IAssert(NodeN != -1);
+  return TEdgeI(SrcNI, EndNI(), NodeN);
+}
+
+void TDirNet::GetNIdV(TIntV& NIdV) const {
+  NIdV.Gen(GetNodes(), 0);
+  for (int N=NodeH.FFirstKeyId(); NodeH.FNextKeyId(N); ) {
+    NIdV.Add(NodeH.GetKey(N)); }
+}
+
+void TDirNet::Defrag(const bool& OnlyNodeLinks) {
+  for (int n = NodeH.FFirstKeyId(); NodeH.FNextKeyId(n); ) {
+    TNode& Node = NodeH[n];
+    Node.InNIdV.Pack();  Node.OutNIdV.Pack();
+  }
+  if (! OnlyNodeLinks && ! NodeH.IsKeyIdEqKeyN()) { NodeH.Defrag(); }
+}
+
+// for each node check that their neighbors are also nodes
+bool TDirNet::IsOk(const bool& ThrowExcept) const {
+  bool RetVal = true;
+  for (int N = NodeH.FFirstKeyId(); NodeH.FNextKeyId(N); ) {
+    const TNode& Node = NodeH[N];
+    if (! Node.OutNIdV.IsSorted()) {
+      const TStr Msg = TStr::Fmt("Out-neighbor list of node %d is not sorted.", Node.GetId());
+      if (ThrowExcept) { EAssertR(false, Msg); } else { ErrNotify(Msg.CStr()); } RetVal=false;
+    }
+    if (! Node.InNIdV.IsSorted()) {
+      const TStr Msg = TStr::Fmt("In-neighbor list of node %d is not sorted.", Node.GetId());
+      if (ThrowExcept) { EAssertR(false, Msg); } else { ErrNotify(Msg.CStr()); } RetVal=false;
+    }
+    // check out-edges
+    int prevNId = -1;
+    for (int e = 0; e < Node.GetOutDeg(); e++) {
+      if (! IsNode(Node.GetOutNId(e))) {
+        const TStr Msg = TStr::Fmt("Out-edge %d --> %d: node %d does not exist.",
+          Node.GetId(), Node.GetOutNId(e), Node.GetOutNId(e));
+        if (ThrowExcept) { EAssertR(false, Msg); } else { ErrNotify(Msg.CStr()); } RetVal=false;
+      }
+      if (e > 0 && prevNId == Node.GetOutNId(e)) {
+        const TStr Msg = TStr::Fmt("Node %d has duplidate out-edge %d --> %d.",
+          Node.GetId(), Node.GetId(), Node.GetOutNId(e));
+        if (ThrowExcept) { EAssertR(false, Msg); } else { ErrNotify(Msg.CStr()); } RetVal=false;
+      }
+      prevNId = Node.GetOutNId(e);
+    }
+    // check in-edges
+    prevNId = -1;
+    for (int e = 0; e < Node.GetInDeg(); e++) {
+      if (! IsNode(Node.GetInNId(e))) {
+        const TStr Msg = TStr::Fmt("In-edge %d <-- %d: node %d does not exist.",
+          Node.GetId(), Node.GetInNId(e), Node.GetInNId(e));
+        if (ThrowExcept) { EAssertR(false, Msg); } else { ErrNotify(Msg.CStr()); } RetVal=false;
+      }
+      if (e > 0 && prevNId == Node.GetInNId(e)) {
+        const TStr Msg = TStr::Fmt("Node %d has duplidate in-edge %d <-- %d.",
+          Node.GetId(), Node.GetId(), Node.GetInNId(e));
+        if (ThrowExcept) { EAssertR(false, Msg); } else { ErrNotify(Msg.CStr()); } RetVal=false;
+      }
+      prevNId = Node.GetInNId(e);
+    }
+  }
+  return RetVal;
+}
+
+void TDirNet::Dump(FILE *OutF) const {
+  const int NodePlaces = (int) ceil(log10((double) GetNodes()));
+  fprintf(OutF, "-------------------------------------------------\nDirected Node Graph: nodes: %d, edges: %d\n", GetNodes(), GetEdges());
+  for (int N = NodeH.FFirstKeyId(); NodeH.FNextKeyId(N); ) {
+    const TNode& Node = NodeH[N];
+    fprintf(OutF, "  %*d]\n", NodePlaces, Node.GetId());
+    fprintf(OutF, "    in [%d]", Node.GetInDeg());
+    for (int edge = 0; edge < Node.GetInDeg(); edge++) {
+      fprintf(OutF, " %*d", NodePlaces, Node.GetInNId(edge)); }
+    fprintf(OutF, "\n    out[%d]", Node.GetOutDeg());
+    for (int edge = 0; edge < Node.GetOutDeg(); edge++) {
+      fprintf(OutF, " %*d", NodePlaces, Node.GetOutNId(edge)); }
+    fprintf(OutF, "\n");
+  }
+  fprintf(OutF, "\n");
+}
+
+PDirNet TDirNet::GetSmallGraph() {
+  PDirNet G = TDirNet::New();
+  for (int i = 0; i < 5; i++) { G->AddNode(i); }
+  G->AddEdge(0,1); G->AddEdge(1,2); G->AddEdge(0,2);
+  G->AddEdge(1,3); G->AddEdge(3,4); G->AddEdge(2,3);
+  return G;
+}
+
+int TDirNet::AddSAttrDatN(const TInt& NId, const TStr& AttrName, const TInt& Val) {
+  if (!IsNode(NId)) {
+    return -1;
+  }
+  return SAttrN.AddSAttrDat(NId, AttrName, Val);
+}
+
+int TDirNet::AddSAttrDatN(const TInt& NId, const TInt& AttrId, const TInt& Val) {
+  if (!IsNode(NId)) {
+    return -1;
+  }
+  return SAttrN.AddSAttrDat(NId, AttrId, Val);
+}
+
+int TDirNet::AddSAttrDatN(const TInt& NId, const TStr& AttrName, const TFlt& Val) {
+  if (!IsNode(NId)) {
+    return -1;
+  }
+  return SAttrN.AddSAttrDat(NId, AttrName, Val);
+}
+
+int TDirNet::AddSAttrDatN(const TInt& NId, const TInt& AttrId, const TFlt& Val) {
+  if (!IsNode(NId)) {
+    return -1;
+  }
+  return SAttrN.AddSAttrDat(NId, AttrId, Val);
+}
+
+int TDirNet::AddSAttrDatN(const TInt& NId, const TStr& AttrName, const TStr& Val) {
+  if (!IsNode(NId)) {
+    return -1;
+  }
+  return SAttrN.AddSAttrDat(NId, AttrName, Val);
+}
+
+int TDirNet::AddSAttrDatN(const TInt& NId, const TInt& AttrId, const TStr& Val) {
+  if (!IsNode(NId)) {
+    return -1;
+  }
+  return SAttrN.AddSAttrDat(NId, AttrId, Val);
+}
+
+int TDirNet::GetSAttrDatN(const TInt& NId, const TStr& AttrName, TInt& Val) const {
+  if (!IsNode(NId)) {
+    return -1;
+  }
+  return SAttrN.GetSAttrDat(NId, AttrName, Val);
+}
+
+int TDirNet::GetSAttrDatN(const TInt& NId, const TInt& AttrId, TInt& Val) const {
+  if (!IsNode(NId)) {
+    return -1;
+  }
+  return SAttrN.GetSAttrDat(NId, AttrId, Val);
+}
+
+int TDirNet::GetSAttrDatN(const TInt& NId, const TStr& AttrName, TFlt& Val) const {
+  if (!IsNode(NId)) {
+    return -1;
+  }
+  return SAttrN.GetSAttrDat(NId, AttrName, Val);
+}
+
+int TDirNet::GetSAttrDatN(const TInt& NId, const TInt& AttrId, TFlt& Val) const {
+  if (!IsNode(NId)) {
+    return -1;
+  }
+  return SAttrN.GetSAttrDat(NId, AttrId, Val);
+}
+
+int TDirNet::GetSAttrDatN(const TInt& NId, const TStr& AttrName, TStr& Val) const {
+  if (!IsNode(NId)) {
+    return -1;
+  }
+  return SAttrN.GetSAttrDat(NId, AttrName, Val);
+}
+
+int TDirNet::GetSAttrDatN(const TInt& NId, const TInt& AttrId, TStr& Val) const {
+  if (!IsNode(NId)) {
+    return -1;
+  }
+  return SAttrN.GetSAttrDat(NId, AttrId, Val);
+}
+
+int TDirNet::DelSAttrDatN(const TInt& NId, const TStr& AttrName) {
+  if (!IsNode(NId)) {
+    return -1;
+  }
+  return SAttrN.DelSAttrDat(NId, AttrName);
+}
+
+int TDirNet::DelSAttrDatN(const TInt& NId, const TInt& AttrId) {
+  if (!IsNode(NId)) {
+    return -1;
+  }
+  return SAttrN.DelSAttrDat(NId, AttrId);
+}
+
+int TDirNet::GetSAttrVN(const TInt& NId, const TAttrType AttrType, TAttrPrV& AttrV) const {
+  if (!IsNode(NId)) {
+    return -1;
+  }
+  SAttrN.GetSAttrV(NId, AttrType, AttrV);
+  return 0;
+}
+
+int TDirNet::GetIdVSAttrN(const TStr& AttrName, TIntV& IdV) const {
+  return SAttrN.GetIdVSAttr(AttrName, IdV);
+}
+
+int TDirNet::GetIdVSAttrN(const TInt& AttrId, TIntV& IdV) const {
+  return SAttrN.GetIdVSAttr(AttrId, IdV);
+}
+
+int TDirNet::AddSAttrN(const TStr& Name, const TAttrType& AttrType, TInt& AttrId) {
+  return SAttrN.AddSAttr(Name, AttrType, AttrId);
+}
+
+int TDirNet::GetSAttrIdN(const TStr& Name, TInt& AttrId, TAttrType& AttrType) const {
+  return SAttrN.GetSAttrId(Name, AttrId, AttrType);
+}
+
+int TDirNet::GetSAttrNameN(const TInt& AttrId, TStr& Name, TAttrType& AttrType) const {
+  return SAttrN.GetSAttrName(AttrId, Name, AttrType);
+}
+
+int TDirNet::AddSAttrDatE(const int& SrcNId, const int& DstNId, const TStr& AttrName, const TInt& Val) {
+  if (!IsEdge(SrcNId, DstNId)) {
+    return -1;
+  }
+  TIntPr EId(SrcNId, DstNId);
+  return SAttrE.AddSAttrDat(EId, AttrName, Val);
+}
+
+int TDirNet::AddSAttrDatE(const int& SrcNId, const int& DstNId, const TInt& AttrId, const TInt& Val) {
+  if (!IsEdge(SrcNId, DstNId)) {
+    return -1;
+  }
+  TIntPr EId(SrcNId, DstNId);
+  return SAttrE.AddSAttrDat(EId, AttrId, Val);
+}
+
+int TDirNet::AddSAttrDatE(const int& SrcNId, const int& DstNId, const TStr& AttrName, const TFlt& Val) {
+  if (!IsEdge(SrcNId, DstNId)) {
+    return -1;
+  }
+  TIntPr EId(SrcNId, DstNId);
+  return SAttrE.AddSAttrDat(EId, AttrName, Val);
+}
+
+int TDirNet::AddSAttrDatE(const int& SrcNId, const int& DstNId, const TInt& AttrId, const TFlt& Val) {
+  if (!IsEdge(SrcNId, DstNId)) {
+    return -1;
+  }
+  TIntPr EId(SrcNId, DstNId);
+  return SAttrE.AddSAttrDat(EId, AttrId, Val);
+}
+
+int TDirNet::AddSAttrDatE(const int& SrcNId, const int& DstNId, const TStr& AttrName, const TStr& Val) {
+  if (!IsEdge(SrcNId, DstNId)) {
+    return -1;
+  }
+  TIntPr EId(SrcNId, DstNId);
+  return SAttrE.AddSAttrDat(EId, AttrName, Val);
+}
+
+int TDirNet::AddSAttrDatE(const int& SrcNId, const int& DstNId, const TInt& AttrId, const TStr& Val) {
+  if (!IsEdge(SrcNId, DstNId)) {
+    return -1;
+  }
+  TIntPr EId(SrcNId, DstNId);
+  return SAttrE.AddSAttrDat(EId, AttrId, Val);
+}
+
+int TDirNet::GetSAttrDatE(const int& SrcNId, const int& DstNId, const TStr& AttrName, TInt& Val) const {
+  if (!IsEdge(SrcNId, DstNId)) {
+    return -1;
+  }
+  TIntPr EId(SrcNId, DstNId);
+  return SAttrE.GetSAttrDat(EId, AttrName, Val);
+}
+
+int TDirNet::GetSAttrDatE(const int& SrcNId, const int& DstNId, const TInt& AttrId, TInt& Val) const {
+  if (!IsEdge(SrcNId, DstNId)) {
+    return -1;
+  }
+  TIntPr EId(SrcNId, DstNId);
+  return SAttrE.GetSAttrDat(EId, AttrId, Val);
+}
+
+int TDirNet::GetSAttrDatE(const int& SrcNId, const int& DstNId, const TStr& AttrName, TFlt& Val) const {
+  if (!IsEdge(SrcNId, DstNId)) {
+    return -1;
+  }
+  TIntPr EId(SrcNId, DstNId);
+  return SAttrE.GetSAttrDat(EId, AttrName, Val);
+}
+
+int TDirNet::GetSAttrDatE(const int& SrcNId, const int& DstNId, const TInt& AttrId, TFlt& Val) const {
+  if (!IsEdge(SrcNId, DstNId)) {
+    return -1;
+  }
+  TIntPr EId(SrcNId, DstNId);
+  return SAttrE.GetSAttrDat(EId, AttrId, Val);
+}
+
+int TDirNet::GetSAttrDatE(const int& SrcNId, const int& DstNId, const TStr& AttrName, TStr& Val) const {
+  if (!IsEdge(SrcNId, DstNId)) {
+    return -1;
+  }
+  TIntPr EId(SrcNId, DstNId);
+  return SAttrE.GetSAttrDat(EId, AttrName, Val);
+}
+
+int TDirNet::GetSAttrDatE(const int& SrcNId, const int& DstNId, const TInt& AttrId, TStr& Val) const {
+  if (!IsEdge(SrcNId, DstNId)) {
+    return -1;
+  }
+  TIntPr EId(SrcNId, DstNId);
+  return SAttrE.GetSAttrDat(EId, AttrId, Val);
+}
+
+int TDirNet::DelSAttrDatE(const int& SrcNId, const int& DstNId, const TStr& AttrName) {
+  if (!IsEdge(SrcNId, DstNId)) {
+    return -1;
+  }
+  TIntPr EId(SrcNId, DstNId);
+  return SAttrE.DelSAttrDat(EId, AttrName);
+}
+
+int TDirNet::DelSAttrDatE(const int& SrcNId, const int& DstNId, const TInt& AttrId) {
+  if (!IsEdge(SrcNId, DstNId)) {
+    return -1;
+  }
+  TIntPr EId(SrcNId, DstNId);
+  return SAttrE.DelSAttrDat(EId, AttrId);
+}
+
+int TDirNet::GetSAttrVE(const int& SrcNId, const int& DstNId, const TAttrType AttrType, TAttrPrV& AttrV) const {
+  if (!IsEdge(SrcNId, DstNId)) {
+    return -1;
+  }
+  TIntPr EId(SrcNId, DstNId);
+  SAttrE.GetSAttrV(EId, AttrType, AttrV);
+  return 0;
+}
+
+int TDirNet::GetIdVSAttrE(const TStr& AttrName, TIntPrV& IdV) const {
+  return SAttrE.GetIdVSAttr(AttrName, IdV);
+}
+
+int TDirNet::GetIdVSAttrE(const TInt& AttrId, TIntPrV& IdV) const {
+  return SAttrE.GetIdVSAttr(AttrId, IdV);
+}
+
+int TDirNet::AddSAttrE(const TStr& Name, const TAttrType& AttrType, TInt& AttrId) {
+  return SAttrE.AddSAttr(Name, AttrType, AttrId);
+}
+
+int TDirNet::GetSAttrIdE(const TStr& Name, TInt& AttrId, TAttrType& AttrType) const {
+  return SAttrE.GetSAttrId(Name, AttrId, AttrType);
+}
+
+int TDirNet::GetSAttrNameE(const TInt& AttrId, TStr& Name, TAttrType& AttrType) const {
+  return SAttrE.GetSAttrName(AttrId, Name, AttrType);
 }
 

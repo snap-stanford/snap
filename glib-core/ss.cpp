@@ -400,8 +400,11 @@ bool TSsParser::NextSlow() { // split on SplitCh
     FldV.Add(last);  last = cur;
     if (SkipEmptyFld && strlen(FldV.Last())==0) { FldV.DelLast(); } // skip empty fields
   }
+  if (SkipEmptyFld && FldV.Empty() && *last == 0) {
+    // skip empty lines
+    return NextSlow();
+  }
   FldV.Add(last);  // add last field
-  if (SkipEmptyFld && FldV.Empty()) { return NextSlow(); } // skip empty lines
   return true; 
 }
 
@@ -428,8 +431,11 @@ bool TSsParser::Next() { // split on SplitCh
     FldV.Add(last);  last = cur;
     if (SkipEmptyFld && strlen(FldV.Last())==0) { FldV.DelLast(); } // skip empty fields
   }
-  if (*last != 0) { FldV.Add(last); }  // add last field
-  if (SkipEmptyFld && FldV.Empty()) { return Next(); } // skip empty lines
+  if (SkipEmptyFld && FldV.Empty() && *last == 0) {
+    // skip empty lines
+    return Next();
+  }
+  FldV.Add(last);  // add last field
   return true; 
 }
 

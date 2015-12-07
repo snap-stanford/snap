@@ -217,7 +217,7 @@ void TGStat::Plot(const TGStatDistr& Distr, const TStr& FNmPref, TStr Desc, bool
   #endif
 }
 
-void TGStat::Plot(const TFSet& FSet, const TStr& FNmPref, TStr Desc, bool PowerFit) const {
+void TGStat::Plot(const TFSet& FSet, const TStr& FNmPref, const TStr& Desc, bool PowerFit) const {
   for (int d = gsdUndef; d < gsdMx; d++) {
     const TGStatDistr Distr = TGStatDistr(d);
     if (! FSet.In(Distr)) { continue; }
@@ -451,7 +451,7 @@ PGStat TGStatVec::Add() {
   return GStatV.Last();
 }
 
-PGStat TGStatVec::Add(const TSecTm& Time, TStr GraphNm) {
+PGStat TGStatVec::Add(const TSecTm& Time, const TStr& GraphNm) {
   GStatV.Add(TGStat::New(Time, GraphNm));
   return GStatV.Last();
 }

@@ -1,14 +1,9 @@
 #ifndef TABLE_H
 #define TABLE_H
-#include "tmetric.h"
-//#include "snap.h"
+
 #ifdef USE_OPENMP
 #define CHUNKS_PER_THREAD 10
 #endif
-
-/// Distance metrics for similarity joins
-// Haversine distance is used to calculate distance between two points on a sphere based on latitude and longitude
-typedef enum {L1Norm, L2Norm, Jaccard, Haversine} TSimType;
 
 //#//////////////////////////////////////////////
 /// Table class
@@ -18,6 +13,37 @@ typedef TPt<TTable> PTable;
 
 /// Represents grouping key with IntV for integer and string attributes and FltV for float attributes.
 typedef TPair<TIntV, TFltV> TGroupKey;
+
+/// Distance metrics for similarity joins
+// Haversine distance is used to calculate distance between two points on a sphere based on latitude and longitude
+typedef enum {L1Norm, L2Norm, Jaccard, Haversine} TSimType;
+
+#if 0
+// TMetric and TEuclideanMetric are currently not used, kept for future use
+//#//////////////////////////////////////////////
+/// Metric class: base class for distance metrics
+class TMetric {
+protected:
+  TStr MetricName; ///< Name of the metric defined by this class
+public:
+  TMetric(TStr Name) : MetricName(Name) {}
+  /// Get the name of this metric
+  TStr GetName();
+  /// Virtual base function for defining metric on floats
+  virtual TFlt NumDist(TFlt,TFlt) { return -1; }
+  /// Virtual base function for defining metric on strings
+  virtual TFlt StrDist(TStr,TStr) { return -1; }
+};
+
+//#//////////////////////////////////////////////
+/// Euclidean metric class: compute distance between two floats
+class TEuclideanMetric: public TMetric {
+public:
+  TEuclideanMetric(TStr Name) : TMetric(Name) {}
+  /// Calculate the euclidean distance of two floats
+  TFlt NumDist(TFlt x1,TFlt x2) { return fabs(x1-x2); }
+};
+#endif
 
 //TODO: move to separate file (map.h / file with PR and HITS)
 namespace TSnap {
@@ -274,16 +300,22 @@ public:
 /// The name of the friend is not found by simple name lookup until a matching declaration is provided in that namespace scope (either before or after the class declaration granting friendship).
 namespace TSnap{
 	/// Converts table to a directed/undirected graph. Suitable for PUNGraph and PNGraph, but not for PNEANet where attributes are expected.
-	template<class PGraph> PGraph ToGraph(PTable Table, const TStr& SrcCol, const TStr& DstCol, TAttrAggr AggrPolicy);
+	template<class PGraph> PGraph ToGraph(PTable Table,
+    const TStr& SrcCol, const TStr& DstCol, TAttrAggr AggrPolicy);
 	/// Converts table to a network. Suitable for PNEANet - Requires node and edge attribute column names as vectors.
-	template<class PGraph> PGraph ToNetwork(PTable Table, const TStr& SrcCol, const TStr& DstCol,
-			TStrV& SrcAttrs, TStrV& DstAttrs, TStrV& EdgeAttrs, TAttrAggr AggrPolicy);
+	template<class PGraph> PGraph ToNetwork(PTable Table,
+    const TStr& SrcCol, const TStr& DstCol,
+    TStrV& SrcAttrs, TStrV& DstAttrs, TStrV& EdgeAttrs,
+    TAttrAggr AggrPolicy);
 	/// Converts table to a network. Suitable for PNEANet - Assumes no node and edge attributes.
-	template<class PGraph> PGraph ToNetwork(PTable Table, const TStr& SrcCol, const TStr& DstCol, TAttrAggr AggrPolicy);
+	template<class PGraph> PGraph ToNetwork(PTable Table,
+    const TStr& SrcCol, const TStr& DstCol, TAttrAggr AggrPolicy);
 
 #ifdef GCC_ATOMIC
-  template<class PGraphMP> PGraphMP ToGraphMP(PTable Table, const TStr& SrcCol, const TStr& DstCol);
-  template<class PGraphMP> PGraphMP ToGraphMP2(PTable Table, const TStr& SrcCol, const TStr& DstCol);
+  template<class PGraphMP> PGraphMP ToGraphMP(PTable Table,
+    const TStr& SrcCol, const TStr& DstCol);
+  template<class PGraphMP> PGraphMP ToGraphMP2(PTable Table,
+    const TStr& SrcCol, const TStr& DstCol);
   PNEANetMP ToTNEANetMP(PTable Table, const TStr& SrcCol, const TStr& DstCol);
   PNEANetMP ToTNEANetMP2(PTable Table, const TStr& SrcCol, const TStr& DstCol);
 #endif // GCC_ATOMIC
@@ -298,9 +330,12 @@ protected:
 
   static TInt UseMP; ///< Global switch for choosing multi-threaded versions of TTable functions.
 public:
-  template<class PGraph> friend PGraph TSnap::ToGraph(PTable Table, const TStr& SrcCol, const TStr& DstCol, TAttrAggr AggrPolicy);
-	template<class PGraph> friend PGraph TSnap::ToNetwork(PTable Table, const TStr& SrcCol, const TStr& DstCol,
-			TStrV& SrcAttrs, TStrV& DstAttrs, TStrV& EdgeAttrs, TAttrAggr AggrPolicy);
+  template<class PGraph> friend PGraph TSnap::ToGraph(PTable Table,
+    const TStr& SrcCol, const TStr& DstCol, TAttrAggr AggrPolicy);
+    template<class PGraph> friend PGraph TSnap::ToNetwork(PTable Table,
+    const TStr& SrcCol, const TStr& DstCol,
+    TStrV& SrcAttrs, TStrV& DstAttrs, TStrV& EdgeAttrs,
+    TAttrAggr AggrPolicy);
 
 #ifdef GCC_ATOMIC
   template<class PGraphMP> friend PGraphMP TSnap::ToGraphMP(PTable Table, const TStr& SrcCol, const TStr& DstCol);
@@ -962,13 +997,13 @@ public:
   /// Joins table with itself, on values of \c Col.
   PTable SelfJoin(const TStr& Col) { return Join(Col, *this, Col); }
   PTable SelfSimJoin(const TStrV& Cols, const TStr& DistanceColName, const TSimType& SimType, const TFlt& Threshold) { return SimJoin(Cols, *this, Cols, DistanceColName, SimType, Threshold); }
-	/// Performs join if the distance between two rows is less than the specified threshold. Returns table with schema (GroupId1, GroupId2, Similarity). ##TTable::SimJoinPerGroup
+	/// Performs join if the distance between two rows is less than the specified threshold. ##TTable::SimJoinPerGroup
 	PTable SelfSimJoinPerGroup(const TStr& GroupAttr, const TStr& SimCol, const TStr& DistanceColName, const TSimType& SimType, const TFlt& Threshold);
 
-	/// Performs join if the distance between two rows is less than the specified threshold.  ##TTable::SimJoinPerGroup
+	/// Performs join if the distance between two rows is less than the specified threshold.
 	PTable SelfSimJoinPerGroup(const TStrV& GroupBy, const TStr& SimCol, const TStr& DistanceColName, const TSimType& SimType, const TFlt& Threshold);
 
-	/// Performs join if the distance between two rows is less than the specified threshold.  ##TTable::SimJoin
+	/// Performs join if the distance between two rows is less than the specified threshold.
 	PTable SimJoin(const TStrV& Cols1, const TTable& Table, const TStrV& Cols2, const TStr& DistanceColName, const TSimType& SimType, const TFlt& Threshold);
   /// Selects first N rows from the table.
   void SelectFirstNRows(const TInt& N);
@@ -1066,7 +1101,7 @@ public:
   /// Performs arithmetic op of column values and given \c Num
   void ColGenericOp(const TStr& Attr1, const TFlt& Num, const TStr& ResAttr, TArithOp op, const TBool floatCast);
 #ifdef USE_OPENMP
-  void ColGenericOpMP(TInt ColIdx1, TInt ColIdx2, TAttrType ArgType, TFlt Num, TArithOp op, TBool ShouldCast);
+  void ColGenericOpMP(const TInt& ColIdx1, const TInt& ColIdx2, TAttrType ArgType, const TFlt& Num, TArithOp op, TBool ShouldCast);
 #endif // USE_OPENMP
   /// Performs addition of column values and given \c Num
   void ColAdd(const TStr& Attr1, const TFlt& Num, const TStr& ResultAttrName="", const TBool floatCast=false);
