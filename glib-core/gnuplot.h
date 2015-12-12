@@ -170,7 +170,7 @@ public:
   template <class TKey, class TVal, class THashFunc>
   static void PlotValCntH(const THash<TKey, TVal, THashFunc>& ValCntH, const TStr& OutFNmPref, const TStr& Desc="",
    const TStr& XLabel="", const TStr& YLabel="", const TGpScaleTy& ScaleTy=gpsAuto, const bool& PowerFit=false, 
-   const TGpSeriesTy& SeriesTy=gpwLinesPoints, const bool& PlotNCDF=false, const bool& ExpBucket=false);
+   const TGpSeriesTy& SeriesTy=gpwLinesPoints, const bool& PlotCCDF=false, const bool& ExpBucket=false);
   template <class TKey, class TVal, class THashFunc>
   static void PlotValCntH(const THash<TKey, TVal, THashFunc>& ValCntH1, const TStr& Label1, 
     const THash<TKey, TVal, THashFunc>& ValCntH2, const TStr& Label2, 
@@ -433,7 +433,7 @@ void TGnuPlot::PlotValRank(const THash<TKey, TVal, THashFunc>& ValCntH, const TS
 template <class TKey, class TVal, class THashFunc>
 void TGnuPlot::PlotValCntH(const THash<TKey, TVal, THashFunc>& ValCntH, const TStr& OutFNmPref, const TStr& Desc,
                            const TStr& XLabel, const TStr& YLabel, const TGpScaleTy& ScaleTy, const bool& PowerFit,
-                           const TGpSeriesTy& SeriesTy, const bool& PlotNCDF, const bool& ExpBucket) {
+                           const TGpSeriesTy& SeriesTy, const bool& PlotCCDF, const bool& ExpBucket) {
   TFltPrV IdCntV(ValCntH.Len(), 0), BucketV;
   for (int i = ValCntH.FFirstKeyId(); ValCntH.FNextKeyId(i); ) {
     IdCntV.Add(TFltPr(double(ValCntH.GetKey(i)), double(ValCntH[i]))); }
@@ -442,7 +442,7 @@ void TGnuPlot::PlotValCntH(const THash<TKey, TVal, THashFunc>& ValCntH, const TS
     TGnuPlot::MakeExpBins(IdCntV, BucketV);
     BucketV.Swap(IdCntV);
   }
-  if (PlotNCDF) {
+  if (PlotCCDF) {
     TFltPrV NCdfV = IdCntV;
     for (int i = NCdfV.Len()-2; i >= 0; i--) {
       NCdfV[i].Val2 = NCdfV[i].Val2 + NCdfV[i+1].Val2;
