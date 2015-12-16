@@ -604,7 +604,6 @@ PTable TTable::LoadSS(const Schema& S, const TStr& InFNm, TTableContext& Context
   return LoadSS(S, InFNm, Context, TIntV(), Separator, HasTitleLine);
 }
 
-
 void TTable::SaveSS(const TStr& OutFNm) {
   if (NumValidRows == 0) {
     printf("Table is empty");
@@ -618,6 +617,9 @@ void TTable::SaveSS(const TStr& OutFNm) {
     return;
   }
 
+  Dump(F);
+
+#if 0
   Schema DSch = DenormalizeSchema();
 
   TInt L = Sch.Len();
@@ -647,6 +649,7 @@ void TTable::SaveSS(const TStr& OutFNm) {
       }
     }
   }
+#endif
   fclose(F);
 }
 
@@ -656,6 +659,11 @@ void TTable::SaveBin(const TStr& OutFNm) {
 }
 
 void TTable::Save(TSOut& SOut) {
+  if (!Context.StringVals.Empty()) {
+    printf("TTable::Save() not implemented for tables with string context\n");
+    return;
+  }
+
   NumRows.Save(SOut);
   NumValidRows.Save(SOut);
   FirstValidRow.Save(SOut);
@@ -688,16 +696,52 @@ void TTable::Save(TSOut& SOut) {
   SOut.Flush();
 }
 
-void TTable::AddStrVal(const TInt& ColIdx, const TStr& Val) {
-  TInt Key = TInt(Context.StringVals.AddKey(Val));
-  StrColMaps[ColIdx].Add(Key);
+void TTable::Dump(FILE *OutF) const {
+  TInt L = Sch.Len();
+  Schema DSch = DenormalizeSchema();
+
+  // LoadSS() will not throw away lines with #
+  //fprintf(OutF, "# Table: rows: %d, columns: %d\n", GetNumValidRows(), GetNodes());
+  // print title (schema), LoadSS() will take first line as (optional) schema
+  fprintf(OutF, "# ");
+  for (TInt i = 0; i < L-1; i++) {
+    fprintf(OutF, "%s\t", DSch[i].Val1.CStr());
+  }  
+  fprintf(OutF, "%s\n", DSch[L-1].Val1.CStr());
+  // print table contents
+  for (TRowIterator RowI = BegRI(); RowI < EndRI(); RowI++) {
+    for (TInt i = 0; i < L; i++) {
+      char C = (i == L-1) ? '\n' : '\t';
+      switch (GetSchemaColType(i)) {
+        case atInt: {
+          fprintf(OutF, "%d%c", RowI.GetIntAttr(GetSchemaColName(i)).Val, C);
+          break;
+        }
+        case atFlt: {
+          fprintf(OutF, "%f%c", RowI.GetFltAttr(GetSchemaColName(i)).Val, C);
+          break;
+        }
+        case atStr: {
+          fprintf(OutF, "%s%c", RowI.GetStrAttr(GetSchemaColName(i)).CStr(), C);
+          break;
+        }
+      }
+    }
+  }
 }
 
-void TTable::AddStrVal(const TStr& Col, const TStr& Val) {
+void TTable::AddStrVal(const TInt& ColIdx, const TStr& Key) {
+  TInt KeyId = TInt(Context.StringVals.AddKey(Key));
+  //printf("TTable::AddStrVal2  %d  .%s.  %d\n", ColIdx.Val, Key.CStr(), KeyId.Val);
+  StrColMaps[ColIdx].Add(KeyId);
+}
+
+void TTable::AddStrVal(const TStr& Col, const TStr& Key) {
   if (GetColType(Col) != atStr) {
     TExcept::Throw(Col + " is not a string valued column");
   }
-  AddStrVal(GetColIdx(Col), Val);
+  //printf("TTable::AddStrVal1  .%s.  .%s.\n", Col.CStr(), Key.CStr());
+  AddStrVal(GetColIdx(Col), Key);
 }
 
 void TTable::AddGraphAttribute(const TStr& Attr, TBool IsEdge, TBool IsSrc, TBool IsDst) {

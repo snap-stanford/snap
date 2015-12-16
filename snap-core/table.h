@@ -724,9 +724,13 @@ public:
   /// Saves table schema + content into a binary.
   void SaveBin(const TStr& OutFNm);
   /// Loads table from binary. ##TTable::Load
+  // TODO RS 2015/12/02: Load() does not handle StringVals,
+  //    binary format for tables with strings will not work
   static PTable Load(TSIn& SIn, TTableContext& Context){ return new TTable(SIn, Context);}
   /// Saves table schema + content into binary. ##TTable::Save
   void Save(TSOut& SOut);
+  /// Prints table contents to a text file.
+  void Dump(FILE *OutF=stdout) const;
 
   /// Builds table from hash table of int->int.
   static PTable TableFromHashMap(const THash<TInt,TInt>& H, const TStr& Col1, const TStr& Col2,
@@ -764,6 +768,10 @@ public:
   /// Gets the value of string attribute \c ColName at row \c RowIdx.
   TStr GetStrVal(const TStr& ColName, const TInt& RowIdx) const {
     return GetStrVal(GetColIdx(ColName), RowIdx);
+  }
+  /// Gets the string with \c StrId.
+  TStr GetStr(const TInt& StrId) const {
+    return Context.StringVals.GetKey(StrId);
   }
 
 /***** Value Getters - getValue(col idx, row Idx) *****/
