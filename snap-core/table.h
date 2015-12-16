@@ -70,8 +70,19 @@ public:
   TTableContext() {}
   /// Loads TTableContext in binary from \c SIn.
   TTableContext(TSIn& SIn): StringVals(SIn) {}
+  /// Loads TTableContext in binary from \c SIn.
+  void Load(TSIn& SIn) { StringVals.Load(SIn); }
   /// Saves TTableContext in binary to \c SOut.
   void Save(TSOut& SOut) { StringVals.Save(SOut); }
+  /// Adds string \c Key to the context, returns its KeyId.
+  TInt AddStr(const TStr& Key) {
+    TInt KeyId = TInt(StringVals.AddKey(Key));
+    return(KeyId);
+  }
+  /// Returns a string with \c KeyId.
+  TStr GetStr(const TInt& KeyId) const {
+    return StringVals.GetKey(KeyId);
+  }
 };
 
 //#//////////////////////////////////////////////
@@ -769,9 +780,9 @@ public:
   TStr GetStrVal(const TStr& ColName, const TInt& RowIdx) const {
     return GetStrVal(GetColIdx(ColName), RowIdx);
   }
-  /// Gets the string with \c StrId.
-  TStr GetStr(const TInt& StrId) const {
-    return Context.StringVals.GetKey(StrId);
+  /// Gets the string with \c KeyId.
+  TStr GetStr(const TInt& KeyId) const {
+    return Context.StringVals.GetKey(KeyId);
   }
 
 /***** Value Getters - getValue(col idx, row Idx) *****/
