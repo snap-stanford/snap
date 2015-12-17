@@ -74,12 +74,12 @@ Note that the IndexSet option is currently not used anywhere.
 ///
 
 /// TTable::Load
-Load table from binary. 
-The TTableContext must be provided separately as it shared among multiple TTables and should be saved in a separate binary.
+TTableContext \c Context must be provided as a parameter and loaded separately from a table load as it can be shared among multiple tables.
+\c Context can be loaded either before and after the table load, but must be available for operations that require string values (as opposed to string references).
 ///
 
 /// TTable::Save
-Save table schema + content into binary. Note that TTableContext must be saved in a separate binary (as it is shared among multiple TTables).
+Note that TTableContext must be saved separately as it can be shared among multiple tables.
 ///
 
 /// TTable::ToGraphSequenceIterator

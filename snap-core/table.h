@@ -730,15 +730,13 @@ public:
   /// Loads table from spread sheet - but only load the columns specified by RelevantCols.
   static PTable LoadSS(const Schema& S, const TStr& InFNm, TTableContext* Context,
    const TIntV& RelevantCols, const char& Separator = '\t', TBool HasTitleLine = false);
-  /// Saves table schema + content into a TSV file.
+  /// Saves table schema and content to a TSV file.
   void SaveSS(const TStr& OutFNm);
-  /// Saves table schema + content into a binary.
+  /// Saves table schema and content to a binary file.
   void SaveBin(const TStr& OutFNm);
-  /// Loads table from binary. ##TTable::Load
-  // TODO RS 2015/12/02: Load() does not handle StringVals,
-  //    binary format for tables with strings will not work
+  /// Loads table from a binary format. ##TTable::Load
   static PTable Load(TSIn& SIn, TTableContext* Context){ return new TTable(SIn, Context);}
-  /// Saves table schema + content into binary. ##TTable::Save
+  /// Saves table schema and content to a binary format. ##TTable::Save
   void Save(TSOut& SOut);
   /// Prints table contents to a text file.
   void Dump(FILE *OutF=stdout) const;
