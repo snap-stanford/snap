@@ -177,13 +177,13 @@ TBool TRowIteratorWithRemove::CompareAtomicConst(TInt ColIdx, const TPrimitive& 
 
 // Better not use default constructor as it leads to a memory leak.
 // - OR - implement a destructor.
-TTable::TTable(): Context(*(new TTableContext)), NumRows(0), NumValidRows(0),
+TTable::TTable(): Context(new TTableContext), NumRows(0), NumValidRows(0),
   FirstValidRow(0), LastValidRow(-1) {}
 
-TTable::TTable(TTableContext& Context): Context(Context), NumRows(0),
+TTable::TTable(TTableContext* Context): Context(Context), NumRows(0),
   NumValidRows(0), FirstValidRow(0), LastValidRow(-1) {}
 
-TTable::TTable(const Schema& TableSchema, TTableContext& Context): Context(Context), 
+TTable::TTable(const Schema& TableSchema, TTableContext* Context): Context(Context), 
   NumRows(0), NumValidRows(0), FirstValidRow(0), LastValidRow(-1), IsNextDirty(0) {
   TInt IntColCnt = 0;
   TInt FltColCnt = 0;
@@ -212,7 +212,7 @@ TTable::TTable(const Schema& TableSchema, TTableContext& Context): Context(Conte
   StrColMaps = TVec<TIntV>(StrColCnt);
 }
 
-TTable::TTable(TSIn& SIn, TTableContext& Context): Context(Context), NumRows(SIn),
+TTable::TTable(TSIn& SIn, TTableContext* Context): Context(Context), NumRows(SIn),
   NumValidRows(SIn), FirstValidRow(SIn), LastValidRow(SIn), Next(SIn), IntCols(SIn),
   FltCols(SIn), StrColMaps(SIn) {
   THash<TStr,TPair<TInt,TInt> > ColTypeIntMap(SIn);
@@ -241,7 +241,7 @@ TTable::TTable(TSIn& SIn, TTableContext& Context): Context(Context), NumRows(SIn
 }
 
 TTable::TTable(const TIntIntH& H, const TStr& Col1, const TStr& Col2,
- TTableContext& Context, const TBool IsStrKeys) : Context(Context), NumRows(H.Len()),
+ TTableContext* Context, const TBool IsStrKeys) : Context(Context), NumRows(H.Len()),
   NumValidRows(H.Len()), FirstValidRow(0), LastValidRow(H.Len()-1) {
     TAttrType KeyType = IsStrKeys ? atStr : atInt;
     AddSchemaCol(Col1, KeyType);
@@ -268,7 +268,7 @@ TTable::TTable(const TIntIntH& H, const TStr& Col1, const TStr& Col2,
 }
 
 TTable::TTable(const TIntFltH& H, const TStr& Col1, const TStr& Col2,
- TTableContext& Context, const TBool IsStrKeys) : Context(Context),
+ TTableContext* Context, const TBool IsStrKeys) : Context(Context),
   NumRows(H.Len()), NumValidRows(H.Len()), FirstValidRow(0), LastValidRow(H.Len()-1) {
   TAttrType KeyType = IsStrKeys ? atStr : atInt;
   AddSchemaCol(Col1, KeyType);
@@ -561,7 +561,7 @@ void TTable::LoadSSSeq(
   T->InitIds();
 }
 
-PTable TTable::LoadSS(const Schema& S, const TStr& InFNm, TTableContext& Context,
+PTable TTable::LoadSS(const Schema& S, const TStr& InFNm, TTableContext* Context,
  const TIntV& RelevantCols, const char& Separator, TBool HasTitleLine) {
   TVec<uint64> IntGroupByCols;
   bool NoStringCols = true;
@@ -599,7 +599,7 @@ PTable TTable::LoadSS(const Schema& S, const TStr& InFNm, TTableContext& Context
   return T;
 }
 
-PTable TTable::LoadSS(const Schema& S, const TStr& InFNm, TTableContext& Context,
+PTable TTable::LoadSS(const Schema& S, const TStr& InFNm, TTableContext* Context,
  const char& Separator, TBool HasTitleLine) {
   return LoadSS(S, InFNm, Context, TIntV(), Separator, HasTitleLine);
 }
@@ -659,11 +659,6 @@ void TTable::SaveBin(const TStr& OutFNm) {
 }
 
 void TTable::Save(TSOut& SOut) {
-  if (!Context.StringVals.Empty()) {
-    printf("TTable::Save() not implemented for tables with string context\n");
-    return;
-  }
-
   NumRows.Save(SOut);
   NumValidRows.Save(SOut);
   FirstValidRow.Save(SOut);
@@ -730,8 +725,58 @@ void TTable::Dump(FILE *OutF) const {
   }
 }
 
+TTableContext* TTable::ChangeContext(TTableContext* NewContext) {
+  TInt L = Sch.Len();
+
+#if 0
+  // print table on the input, iterate over all columns
+  for (TInt i = 0; i < L; i++) {
+    // skip non-string columns
+    if (GetSchemaColType(i) != atStr) {
+      continue;
+    }
+
+    TInt ColIdx = GetColIdx(GetSchemaColName(i));
+
+    // iterate over all rows
+    for (TRowIterator RowI = BegRI(); RowI < EndRI(); RowI++) {
+      TInt RowIdx = RowI.GetRowIdx();
+      TInt KeyId = StrColMaps[ColIdx][RowIdx];
+      printf("ChangeContext in  %d  %d  %d  .%s.\n",
+          ColIdx.Val, RowIdx.Val, KeyId.Val, GetStrVal(ColIdx, RowIdx).CStr());
+    }
+  }
+#endif
+
+  // add strings to the new context, change values
+  // iterate over all columns
+  for (TInt i = 0; i < L; i++) {
+    // skip non-string columns
+    if (GetSchemaColType(i) != atStr) {
+      continue;
+    }
+
+    TInt ColIdx = GetColIdx(GetSchemaColName(i));
+
+    // iterate over all rows
+    for (TRowIterator RowI = BegRI(); RowI < EndRI(); RowI++) {
+      TInt RowIdx = RowI.GetRowIdx();
+      // get the string
+      TStr Key = GetStrVal(ColIdx, RowIdx);
+      // add the string to the new context
+      TInt KeyId = TInt(NewContext->StringVals.AddKey(Key));
+      // change the value in the table
+      StrColMaps[ColIdx][RowIdx] = KeyId;
+    }
+  }
+
+  // set the new context
+  Context = NewContext;
+  return Context;
+}
+
 void TTable::AddStrVal(const TInt& ColIdx, const TStr& Key) {
-  TInt KeyId = TInt(Context.StringVals.AddKey(Key));
+  TInt KeyId = TInt(Context->StringVals.AddKey(Key));
   //printf("TTable::AddStrVal2  %d  .%s.  %d\n", ColIdx.Val, Key.CStr(), KeyId.Val);
   StrColMaps[ColIdx].Add(KeyId);
 }
@@ -2480,7 +2525,7 @@ PTable TTable::ThresholdJoin(const TStr& KeyCol1, const TStr& JoinCol1, const TT
       const TIntTr& K = it.GetKey();
       const TIntTr& V = it.GetDat();
       if(KeyType == atStr){
-        printf("%s %s --> %d %d %d\n", Context.StringVals.GetKey(K.Val1), Context.StringVals.GetKey(K.Val2), V.Val1.Val, V.Val2.Val, V.Val3.Val);
+        printf("%s %s --> %d %d %d\n", Context->StringVals.GetKey(K.Val1), Context->StringVals.GetKey(K.Val2), V.Val1.Val, V.Val2.Val, V.Val3.Val);
       } else{
         printf("%d %d --> %d %d %d\n", K.Val1.Val, K.Val2.Val, V.Val1.Val, V.Val2.Val, V.Val3.Val); 
       }
@@ -2497,7 +2542,7 @@ PTable TTable::ThresholdJoin(const TStr& KeyCol1, const TStr& JoinCol1, const TT
       const TIntPr& K = it.GetKey();
       const TIntTr& V = it.GetDat();
       if(KeyType == atStr){
-        printf("%s %s --> %d %d %d\n", Context.StringVals.GetKey(K.Val1), Context.StringVals.GetKey(K.Val2), V.Val1.Val, V.Val2.Val, V.Val3.Val);
+        printf("%s %s --> %d %d %d\n", Context->StringVals.GetKey(K.Val1), Context->StringVals.GetKey(K.Val2), V.Val1.Val, V.Val2.Val, V.Val3.Val);
       } else{
         printf("%d %d --> %d %d %d\n", K.Val1.Val, K.Val2.Val, V.Val1.Val, V.Val2.Val, V.Val3.Val); 
       }
@@ -3238,9 +3283,9 @@ PNEANet TTable::BuildGraph(const TIntV& RowIds, TAttrAggr AggrPolicy) {
         DVal = IntCols[DstColIdx][CurrRowIdx];
       } else {
         SVal = StrColMaps[SrcColIdx][CurrRowIdx];
-        if (strlen(Context.StringVals.GetKey(SVal)) == 0) { continue; }  //illegal value
+        if (strlen(Context->StringVals.GetKey(SVal)) == 0) { continue; }  //illegal value
         DVal = StrColMaps[DstColIdx][CurrRowIdx];
-        if (strlen(Context.StringVals.GetKey(DVal)) == 0) { continue; }  //illegal value
+        if (strlen(Context->StringVals.GetKey(DVal)) == 0) { continue; }  //illegal value
       }
       if (!Graph->IsNode(SVal)) { Graph->AddNode(SVal); }
       if (!Graph->IsNode(DVal)) { Graph->AddNode(DVal); }
@@ -3446,7 +3491,7 @@ TBool TTable::IsLastGraphOfSequence() {
   return CurrBucket >= RowIdBuckets.Len() - 1;
 }
 
-PTable TTable::GetNodeTable(const PNEANet& Network, TTableContext& Context) {
+PTable TTable::GetNodeTable(const PNEANet& Network, TTableContext* Context) {
   Schema SR;
   SR.Add(TPair<TStr,TAttrType>("node_id",atInt));
 
@@ -3498,7 +3543,7 @@ PTable TTable::GetNodeTable(const PNEANet& Network, TTableContext& Context) {
   return T;
 }
 
-PTable TTable::GetEdgeTable(const PNEANet& Network, TTableContext& Context) {
+PTable TTable::GetEdgeTable(const PNEANet& Network, TTableContext* Context) {
   Schema SR;
   SR.Add(TPair<TStr,TAttrType>("edg_id",atInt));
   SR.Add(TPair<TStr,TAttrType>("src_id",atInt));
@@ -3556,7 +3601,7 @@ PTable TTable::GetEdgeTable(const PNEANet& Network, TTableContext& Context) {
 }
 
 #ifdef GCC_ATOMIC
-PTable TTable::GetEdgeTablePN(const PNGraphMP& Network, TTableContext& Context){
+PTable TTable::GetEdgeTablePN(const PNGraphMP& Network, TTableContext* Context){
   Schema SR;
   SR.Add(TPair<TStr,TAttrType>("src_id",atInt));
   SR.Add(TPair<TStr,TAttrType>("dst_id",atInt));
@@ -3611,7 +3656,7 @@ PTable TTable::GetEdgeTablePN(const PNGraphMP& Network, TTableContext& Context){
 
 PTable TTable::GetFltNodePropertyTable(const PNEANet& Network, const TIntFltH& Property, 
  const TStr& NodeAttrName, const TAttrType& NodeAttrType, const TStr& PropertyAttrName, 
- TTableContext& Context) {
+ TTableContext* Context) {
   Schema SR;
   // Determine type of node id
   SR.Add(TPair<TStr,TAttrType>(NodeAttrName,NodeAttrType));
@@ -3718,16 +3763,16 @@ TSize TTable::GetMemUsedKB() {
 
 void TTable::PrintContextSize(){
 	printf("Number of strings in pool: ");
-	printf("%d\n", Context.StringVals.Len());
+	printf("%d\n", Context->StringVals.Len());
 	printf("Number of entries in hash table: ");
-	printf("%d\n", Context.StringVals.Reserved());
+	printf("%d\n", Context->StringVals.Reserved());
 	TSize MemUsed = GetContextMemUsedKB();
 	printf("Approximate memory used for Context: %lu KB\n", MemUsed);
 }
 
 TSize TTable::GetContextMemUsedKB(){
 	TSize ApproxSize = 0;
-	ApproxSize += Context.StringVals.GetMemUsed();
+	ApproxSize += Context->StringVals.GetMemUsed();
 	return ApproxSize;
 }
 
@@ -3887,8 +3932,8 @@ void TTable::StoreStrCol(const TStr& ColName, const TStrV& ColVals) {
   TInt ColIdx = FltCols.Len()-1;
   TInt i = 0;
   for (TRowIterator RI = BegRI(); RI < EndRI(); RI++) {
-    TInt Key = Context.StringVals.GetKeyId(ColVals[i]);
-    if (Key == -1) { Context.StringVals.AddKey(ColVals[i]); }
+    TInt Key = Context->StringVals.GetKeyId(ColVals[i]);
+    if (Key == -1) { Context->StringVals.AddKey(ColVals[i]); }
     StrColMaps[ColIdx][RI.GetRowIdx()] = Key;
     i++;
   }
@@ -4859,7 +4904,7 @@ void TTable::ColConcat(const TStr& Attr1, const TStr& Attr2, const TStr& Sep, co
     TStr CurVal1 = RowI.GetStrAttr(ColIdx1);
     TStr CurVal2 = RowI.GetStrAttr(ColIdx2);
     TStr NewVal = CurVal1 + Sep + CurVal2;
-    TInt Key = TInt(Context.StringVals.AddKey(NewVal));
+    TInt Key = TInt(Context->StringVals.AddKey(NewVal));
     StrColMaps[ColIdx3][RowI.GetRowIdx()] = Key;
   }
 }
@@ -4913,7 +4958,7 @@ void TTable::ColConcat(const TStr& Attr1, TTable& Table, const TStr& Attr2, cons
     TStr CurVal1 = RI1.GetStrAttr(ColIdx1);
     TStr CurVal2 = RI2.GetStrAttr(ColIdx2);
     TStr NewVal = CurVal1 + Sep + CurVal2;
-    TInt Key = TInt(Context.StringVals.AddKey(NewVal));
+    TInt Key = TInt(Context->StringVals.AddKey(NewVal));
     if (AddToFirstTable) {
       StrColMaps[ColIdx3][RI1.GetRowIdx()] = Key;
     }
@@ -4954,7 +4999,7 @@ void TTable::ColConcatConst(const TStr& Attr1, const TStr& Val, const TStr& Sep,
   for (TRowIterator RowI = BegRI(); RowI < EndRI(); RowI++) {
     TStr CurVal = RowI.GetStrAttr(ColIdx1);
     TStr NewVal = CurVal + Sep + Val;
-    TInt Key = TInt(Context.StringVals.AddKey(NewVal));
+    TInt Key = TInt(Context->StringVals.AddKey(NewVal));
     StrColMaps[ColIdx2][RowI.GetRowIdx()] = Key;
   }  
 }
