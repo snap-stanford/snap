@@ -108,6 +108,7 @@ void IOEdgeListStr() {
   // Print out a mapping of node IDs to node name strings
   for (TNEGraph::TNodeI NI = GIn->BegNI(); NI < GIn->EndNI(); NI++) {
     int NId = NI.GetId();
+    // Map a node ID to its string name
     TStr NameStr = InStrToNIdH.GetKey(NId);
     printf("node ID %d is string %s\n", NId, NameStr.CStr());
   }
@@ -115,6 +116,7 @@ void IOEdgeListStr() {
   // Print out a mapping of name strings to node IDs
   for (TNEGraph::TNodeI NI = GIn->BegNI(); NI < GIn->EndNI(); NI++) {
     TStr NameStr = InStrToNIdH.GetKey(NI.GetId());
+    // Map a node string name to its ID
     int NId = InStrToNIdH.GetKeyId(NameStr);
     printf("string %s has node ID %d\n", NameStr.CStr(), NId);
   }
