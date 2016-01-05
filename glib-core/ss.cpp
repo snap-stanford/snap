@@ -442,6 +442,7 @@ void TSsParser::ToLc() {
 
 bool TSsParser::GetInt(const int& FldN, int& Val) const {
   // parsing format {ws} [+/-] +{ddd}
+  if (FldN >= Len()) { return false; }
   int _Val = -1;
   bool Minus=false;
   const char *c = GetFld(FldN);
@@ -461,6 +462,7 @@ bool TSsParser::GetInt(const int& FldN, int& Val) const {
 
 bool TSsParser::GetUInt64(const int& FldN, uint64& Val) const {
   // parsing format {ws} [+]{ddd}
+  if (FldN >= Len()) { return false; }
   uint64 _Val=0;
   const char *c = GetFld(FldN);
   while (TCh::IsWs(*c)){ c++; }
@@ -478,6 +480,7 @@ bool TSsParser::GetUInt64(const int& FldN, uint64& Val) const {
 
 bool TSsParser::GetFlt(const int& FldN, double& Val) const {
   // parsing format {ws} [+/-] +{d} ([.]{d}) ([E|e] [+/-] +{d})
+  if (FldN >= Len()) { return false; }
   const char *c = GetFld(FldN);
   while (TCh::IsWs(*c)) { c++; }
   if (*c=='+' || *c=='-') { c++; }
