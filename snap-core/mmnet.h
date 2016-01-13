@@ -346,8 +346,8 @@ public:
     TModeNetI& operator++ (int) { ModeNetHI++; return *this; }
     bool operator < (const TModeNetI& ModeNetI) const { return ModeNetHI < ModeNetI.ModeNetHI; }
     bool operator == (const TModeNetI& ModeNetI) const { return ModeNetHI == ModeNetI.ModeNetHI; }
-    int GetMId() { return ModeNetHI.GetKey(); }
-    TModeNet& GetModeNet() { return Graph->GetModeNet(GetMId()); }
+    int GetModeId() { return ModeNetHI.GetKey(); }
+    TModeNet& GetModeNet() { return Graph->GetModeNet(GetModeId()); }
     //TODO: add method to get edge types
     friend class TMMNet;
   };
@@ -367,8 +367,8 @@ public:
     TCrossNetI& operator++ (int) { CrossNetHI++; return *this; }
     bool operator < (const TCrossNetI& CrossNetI) const { return CrossNetHI < CrossNetI.CrossNetHI; }
     bool operator == (const TCrossNetI& CrossNetI) const { return CrossNetHI == CrossNetI.CrossNetHI; }
-    int GetMId() { return CrossNetHI.GetKey(); }
-    TCrossNet& GetCrossNet() { return Graph->GetCrossNet(GetMId()); }
+    int GetCrossId() { return CrossNetHI.GetKey(); }
+    TCrossNet& GetCrossNet() { return Graph->GetCrossNet(GetCrossId()); }
     friend class TMMNet;
   };
 
