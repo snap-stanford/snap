@@ -96,7 +96,8 @@ TModeNet& TMMNet::GetModeNet(const TStr& ModeName) const {
 
 TModeNet& TMMNet::GetModeNet(const TInt& ModeId) const {
 //  IAssertR(ModeId < TModeNetH.Len(), TStr::Fmt("Mode with id %d does not exist", ModeId));
-  TModeNet &Net = TModeNetH.GetDat(ModeId);
+  //TODO: figure out if there is a better way to ensure the non-const version of GetDat called.
+  TModeNet &Net = (const_cast<TMMNet *>(this))->TModeNetH.GetDat(ModeId);
   return Net;
 }
 TCrossNet& TMMNet::GetCrossNet(const TStr& LinkName) const{
@@ -105,7 +106,8 @@ TCrossNet& TMMNet::GetCrossNet(const TStr& LinkName) const{
 }
 TCrossNet& TMMNet::GetCrossNet(const TInt& LinkId) const{
   //IAssertR(LinkIdToNameH.IsKey(LinkId),TStr::Fmt("No link with id %d exists", LinkId));
-  TCrossNet& CrossNet = TCrossNetH.GetDat(LinkId);
+  //TODO: figure out if there is a better way to ensure the non-const version of GetDat called.
+  TCrossNet& CrossNet = (const_cast<TMMNet *>(this))->TCrossNetH.GetDat(LinkId);
   return CrossNet;
 }
 
