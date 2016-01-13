@@ -66,20 +66,6 @@ int TMMNet::DelMode(const TStr& ModeName) {
   return DelMode(ModeNameToIdH.GetDat(ModeName));
 }
 
-
-TIntPr TMMNet::GetOrderedLinkPair(const TStr& Mode1, const TStr& Mode2) {
-  TInt ModeId1 = GetModeId(Mode1);
-  TInt ModeId2 = GetModeId(Mode2);
-  return GetOrderedLinkPair(ModeId1, ModeId2);
-}
-
-TIntPr TMMNet::GetOrderedLinkPair(const TInt& Mode1, const TInt& Mode2) {
-  if (Mode1 < Mode2) {
-    return TIntPr(Mode1, Mode2);
-  }
-  return TIntPr(Mode2, Mode1);
-}
-
 int TMMNet::AddEdge(const TStr& LinkTypeName, int& NId1, int& NId2, int EId){
   //IAssertR(LinkNameToIdH.IsKey(LinkTypeName),TStr::Fmt("No such link name: %s",LinkTypeName.CStr()));
   return AddEdge(LinkNameToIdH.GetDat(LinkTypeName), NId1, NId2, EId);

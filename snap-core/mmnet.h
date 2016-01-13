@@ -17,7 +17,7 @@ class TCrossNet;
 
 //#//////////////////////////////////////////////
 /// The nodes of one particular mode in a TMMNet, and their neighbor vectors as TIntV attributes ##TModeNet::Class
-class TModeNet : TNEANet {
+class TModeNet : public TNEANet {
 public:
   typedef TModeNet TNetMM;
 public:
@@ -436,12 +436,6 @@ public:
 private:
   int AddMode(const TStr& ModeName, const TInt& ModeId, const TModeNet& ModeNet);
   int AddLinkType(const TStr& LinkTypeName, const TInt& LinkTypeId, const TCrossNet& CrossNet);
-  TIntPr GetOrderedLinkPair(const TStr& Mode1, const TStr& Mode2);
-  TIntPr GetOrderedLinkPair(const TInt& Mode1, const TInt& Mode2);
-  int AddEdge(const TStr& LinkTypeName, int& NId1, int& NId2, int EId=-1);
-  int AddEdge(const TInt& LinkTypeId, int& NId1, int& NId2, int EId=-1);
-  int DelEdge(const TStr& LinkTypeName, const TInt& EId);
-  int DelEdge(const TInt& LinkTypeId, const TInt& EId);
 };
 
 // set flags

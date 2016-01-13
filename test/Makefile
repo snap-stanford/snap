@@ -23,6 +23,7 @@ TEST_SRCS = \
 	test-TNodeNet.cpp test-TNodeEDatNet.cpp test-TNodeEdgeNet.cpp \
 	test-TTable.cpp \
 	test-TUndirNet.cpp test-TDirNet.cpp \
+	test-TMMNet.cpp \
 	test-subgraph.cpp \
 	test-TStrPool.cpp \
 	test-TSysTm.cpp \
