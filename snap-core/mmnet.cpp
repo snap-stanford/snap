@@ -13,6 +13,7 @@ int TMMNet::AddMode(const TStr& ModeName) {
   ModeNameToIdH.AddDat(ModeName, ModeId);
 
   TModeNet NewGraph(ModeId);
+  NewGraph.SetParentPointer(this);
   TModeNetH.AddDat(ModeId, NewGraph);
   return ModeId;
 }
@@ -88,43 +89,24 @@ int TMMNet::AddEdge(const TInt& LinkTypeId, int& NId1, int& NId2, int EId){
   return TCrossNetH.GetDat(LinkTypeId).AddEdge(NId1, NId2, EId);
 }
 
-PModeNet TMMNet::GetModeNet(const TStr& ModeName) const {
+TModeNet& TMMNet::GetModeNet(const TStr& ModeName) const {
   //IAssertR(ModeNameToIdH.IsKey(ModeName),TStr::Fmt("No such mode name: %s", ModeName.CStr()));
   return GetModeNet(ModeNameToIdH.GetDat(ModeName));
 }
 
-PModeNet TMMNet::GetModeNet(const TInt& ModeId) const {
+TModeNet& TMMNet::GetModeNet(const TInt& ModeId) const {
 //  IAssertR(ModeId < TModeNetH.Len(), TStr::Fmt("Mode with id %d does not exist", ModeId));
-  TModeNet Net = TModeNetH.GetDat(ModeId);
-  return PModeNet(&Net);
+  TModeNet &Net = TModeNetH.GetDat(ModeId);
+  return Net;
 }
-PCrossNet TMMNet::GetCrossNet(const TStr& LinkName) const{
+TCrossNet& TMMNet::GetCrossNet(const TStr& LinkName) const{
   //IAssertR(LinkNameToIdH.IsKey(LinkName),TStr::Fmt("No such link name: %s", LinkName.CStr()));
   return GetCrossNet(LinkNameToIdH.GetDat(LinkName));
 }
-PCrossNet TMMNet::GetCrossNet(const TInt& LinkId) const{
+TCrossNet& TMMNet::GetCrossNet(const TInt& LinkId) const{
   //IAssertR(LinkIdToNameH.IsKey(LinkId),TStr::Fmt("No link with id %d exists", LinkId));
-  TCrossNet CrossNet = TCrossNetH.GetDat(LinkId);
-  return PCrossNet(&CrossNet);
-}
-
-
-
-PMMNet TMMNet::GetSubgraphByCrossNet(TStrV& CrossNetTypes) {
-  PMMNet NewGraph = TMMNet::New();
-  // Get a set of modes
-  THashSet<TInt> Modes;
-  // go through, only add cross nets specified in CrossNetTypes; add modes in types to Modes
-  // go through, only add modes specified in Modes; call RemoveLinkTypes function
-  return NewGraph;
-}
-
-PMMNet TMMNet::GetSubgraphByModeNet(TStrV& ModeNetTypes) {
-  PMMNet NewGraph = TMMNet::New();
-  //for each mode in ModeNetTypes, get a list of it's crossnet types; check if both modes are in ModeNetTypes; if is, add to list of crossnets
-    //then, call RemoveLinkTypes with working list of crossnet types, add new mode to NewGraph
-  //for each CrossNet in list generated in above step, add to NewGraph.
-  return NewGraph;
+  TCrossNet& CrossNet = TCrossNetH.GetDat(LinkId);
+  return CrossNet;
 }
 
 
@@ -199,7 +181,7 @@ int TCrossNet::DelEdge(const int& EId) {
   return 0;
 }
 
-void TCrossNet::SetParentPointer(PMMNet parent) {
+void TCrossNet::SetParentPointer(TMMNet* parent) {
   Net = parent;
 }
 
@@ -621,7 +603,7 @@ int TModeNet::DelNode ( const int& NId){
   return -1;
 }
 
-void TModeNet::SetParentPointer(PMMNet parent) {
+void TModeNet::SetParentPointer(TMMNet* parent) {
   MMNet = parent;
 }
 
@@ -715,51 +697,133 @@ int TModeNet::AddIntVAttrN(const TStr& attr, TVec<TIntV>& Attrs){
   return 0;
 }
 
-PModeNet TModeNet::RemoveLinkTypes(TStrV& LinkTypes) {
-  // construct a set of link types that need to be removed
-  const TModeNet& self = *this;
-  PModeNet NewNet(new TModeNet(self, false)); //everything copied but node attributes
-  for (TStrIntPrH::TIter it = KeyToIndexTypeN.BegI(); it < KeyToIndexTypeN.EndI(); it++) {
-    TStr Name = it.GetKey();
-    if (it.GetDat().GetVal1() == IntType) {
-      //name -> (type, index in vector)
-      //defaults (name) -> value
-      TInt Default = IntDefaultsN.GetDat(Name);
-      TIntV& Attrs = VecOfIntVecsN[it.GetDat().GetVal2()];
-      NewNet->AddIntAttrN(Name, Attrs, Default);
-    } else if (it.GetDat().GetVal1() == FltType) {
-      TFlt Default = FltDefaultsN.GetDat(Name);
-      TFltV& Attrs = VecOfFltVecsN[it.GetDat().GetVal2()];
-      NewNet->AddFltAttrN(Name, Attrs, Default);
-    } else if (it.GetDat().GetVal1() == StrType) {
-      TStr Default = StrDefaultsN.GetDat(Name);
-      TStrV& Attrs = VecOfStrVecsN[it.GetDat().GetVal2()];
-      NewNet->AddStrAttrN(Name, Attrs, Default);
-    } else if (it.GetDat().GetVal1() == IntVType) {
-      TStr WithoutSuffix = Name;
-      bool removeSuffix = false;
-      if (Name.IsSuffix(":SRC") || Name.IsSuffix(":DST")) {
-        WithoutSuffix = Name.GetSubStr(0, Name.Len()-5);
-        removeSuffix = true;
-      }
-      if (NeighborTypes.IsKey(WithoutSuffix)) {
-        if (LinkTypes.IsIn(WithoutSuffix)) {
-          AddNbrType(WithoutSuffix, removeSuffix, removeSuffix);
-          TVec<TIntV>& Attrs = VecOfIntVecVecsN[it.GetDat().GetVal2()];
-          NewNet->AddIntVAttrN(Name, Attrs);
-        }
-      } else {
-        TVec<TIntV>& Attrs = VecOfIntVecVecsN[it.GetDat().GetVal2()];
-        NewNet->AddIntVAttrN(Name, Attrs);
-      }
-    }
-  }
-  return NewNet;
-}
-
-
 //copy everything but node attributes
 // iterate over all node attribute types
 // if not intv, just add it back
 // if is intv; check if it is a intv type in list of attributes
 //
+void TModeNet::RemoveLinkTypes(TModeNet& Result, TStrV& LinkTypes) {
+  const TModeNet& self = *this;
+  Result = TModeNet(self, false);
+  for (TStrIntPrH::TIter it = KeyToIndexTypeN.BegI(); it < KeyToIndexTypeN.EndI(); it++) {
+    TStr AttrName = it.GetKey();
+    TInt AttrType = it.GetDat().GetVal1();
+    TInt AttrIndex = it.GetDat().GetVal2();
+    if (AttrType != IntVType) {
+      Result.KeyToIndexTypeN.AddDat(AttrName, it.GetDat());
+    } else {
+      TStr WithoutSuffix = AttrName;
+      bool removeSuffix = false;
+      if (AttrName.IsSuffix(":SRC") || AttrName.IsSuffix(":DST")) {
+        WithoutSuffix = AttrName.GetSubStr(0, AttrName.Len()-5);
+        removeSuffix = true;
+      }
+      if (!NeighborTypes.IsKey(AttrName) && (!removeSuffix || !NeighborTypes.IsKey(WithoutSuffix))) {
+        TVec<TIntV>& Attrs = VecOfIntVecVecsN[AttrIndex];
+        Result.AddIntVAttrN(AttrName, Attrs);
+      } else {
+        TStr NbrName = AttrName;
+        if (removeSuffix) {
+          NbrName = WithoutSuffix;
+        }
+        if (LinkTypes.IsIn(NbrName)) {
+          Result.AddNbrType(NbrName, removeSuffix, removeSuffix);
+          TVec<TIntV>& Attrs = VecOfIntVecVecsN[AttrIndex];
+          Result.AddIntVAttrN(AttrName, Attrs);
+        }
+      }
+    }
+  }
+}
+
+int TMMNet::AddMode(const TStr& ModeName, const TInt& ModeId, const TModeNet& ModeNet) {
+  ModeIdToNameH.AddDat(ModeId, ModeName);
+  ModeNameToIdH.AddDat(ModeName, ModeId);
+
+  TModeNetH.AddDat(ModeId, ModeNet);
+  return ModeId;
+
+}
+int TMMNet::AddLinkType(const TStr& LinkTypeName, const TInt& LinkTypeId, const TCrossNet& CrossNet) {
+  LinkIdToNameH.AddDat(LinkTypeId, LinkTypeName);
+  LinkNameToIdH.AddDat(LinkTypeName, LinkTypeId);
+
+  TCrossNetH.AddDat(LinkTypeId, CrossNet);
+  return LinkTypeId;
+}
+
+
+/*PMMNet TMMNet::GetSubgraphByCrossNet(TStrV& CrossNetTypes) {
+  PMMNet NewGraph = TMMNet::New();
+  // Get a set of modes
+  THashSet<TInt> Modes;
+  // go through, only add cross nets specified in CrossNetTypes; add modes in types to Modes
+  // go through, only add modes specified in Modes; call RemoveLinkTypes function
+  return NewGraph;
+}*/
+
+PMMNet TMMNet::GetSubgraphByCrossNet(TStrV& CrossNetTypes) {
+  PMMNet Result = New();
+  //iterate over crossnet types, get list of mode ints
+  //THash<TStr,TInt> LinkNameToIdH;
+  TInt MxMode = 0;
+  TInt MxCross = 0;
+  TIntH ModeH;
+  for(int i = 0; i < CrossNetTypes.Len(); i++) {
+    TStr CrossName = CrossNetTypes[i];
+    TInt OldId = LinkNameToIdH.GetDat(CrossName);
+    TInt NewId = MxCross++;
+    TCrossNet NewCrossNet(TCrossNetH.GetDat(OldId));
+    TInt OldModeId1 = NewCrossNet.Mode1;
+    TInt OldModeId2 = NewCrossNet.Mode2;
+    TInt NewModeId1, NewModeId2;
+    if (ModeH.IsKey(OldModeId1)) {
+      NewModeId1 = ModeH.GetDat(OldModeId1);
+    } else {
+      NewModeId1 = MxMode++;
+      ModeH.AddDat(OldModeId1, NewModeId1);
+    }
+    if (ModeH.IsKey(OldModeId2)) {
+      NewModeId1 = ModeH.GetDat(OldModeId2);
+    } else {
+      NewModeId2 = MxMode++;
+      ModeH.AddDat(OldModeId2, NewModeId2);
+    }
+    NewCrossNet.SetParentPointer(this);
+    NewCrossNet.Mode1 = NewModeId1;
+    NewCrossNet.Mode2 = NewModeId2;
+    NewCrossNet.LinkTypeId = NewId;
+    Result->AddLinkType(CrossName, NewId, NewCrossNet);
+  }
+  for(TIntH::TIter it = ModeH.BegI(); it < ModeH.EndI(); it++) {
+    TStr ModeName = ModeIdToNameH.GetDat(it.GetKey());
+    TInt NewModeId = it.GetDat();
+    TModeNet NewModeNet;
+    TModeNetH.GetDat(it.GetKey()).RemoveLinkTypes(NewModeNet, CrossNetTypes);
+    NewModeNet.SetParentPointer(this);
+    NewModeNet.NModeId = NewModeId;
+    Result->AddMode(ModeName, NewModeId, NewModeNet);
+  }
+  Result->MxModeId = MxMode;
+  Result->MxLinkTypeId = MxCross;
+  return Result;
+}
+
+PMMNet TMMNet::GetSubgraphByModeNet(TStrV& ModeNetTypes) {
+  THashSet<TInt> ModeTypeIds;
+  for (int i = 0; i < ModeNetTypes.Len(); i++) {
+    ModeTypeIds.AddKey(ModeNameToIdH.GetDat(ModeNetTypes[i]));
+  }
+  TStrV CrossNetTypes;
+  for (THash<TInt, TCrossNet>::TIter it = TCrossNetH.BegI(); it < TCrossNetH.EndI(); it++) {
+    TCrossNet& CrossNet = it.GetDat();
+    if (ModeTypeIds.IsKey(CrossNet.Mode1) && ModeTypeIds.IsKey(CrossNet.Mode2)) {
+      CrossNetTypes.Add(LinkIdToNameH.GetDat(it.GetKey()));
+    }
+  }
+  return GetSubgraphByCrossNet(CrossNetTypes);
+  //for each mode in ModeNetTypes, get a list of it's crossnet types; check if both modes are in ModeNetTypes; if is, add to list of crossnets
+    //then, call RemoveLinkTypes with working list of crossnet types, add new mode to NewGraph
+  //for each CrossNet in list generated in above step, add to NewGraph.
+  //return NewGraph;
+}

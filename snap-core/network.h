@@ -1720,7 +1720,8 @@ private:
   TStr GetStrAttrDefaultE(const TStr& attribute) const { return StrDefaultsE.IsKey(attribute) ? StrDefaultsE.GetDat(attribute) : (TStr) TStr::GetNullStr(); }
   /// Gets Flt edge attribute val.  If not a proper attr, return default.
   TFlt GetFltAttrDefaultE(const TStr& attribute) const { return FltDefaultsE.IsKey(attribute) ? FltDefaultsE.GetDat(attribute) : (TFlt) TFlt::Mn; }
-
+public:
+  TCRef CRef;
 protected:
   TInt MxNId, MxEId;
   THash<TInt, TNode> NodeH;
@@ -1739,11 +1740,6 @@ protected:
 
   TAttr SAttrN;
   TAttr SAttrE;
-public:
-
-  TCRef CRef;
-
-
 public:
   TNEANet() : CRef(), MxNId(0), MxEId(0), NodeH(), EdgeH(),
     KeyToIndexTypeN(), KeyToIndexTypeE(), IntDefaultsN(), IntDefaultsE(),
@@ -1771,9 +1767,9 @@ public:
   protected:
     TNEANet(const TNEANet& Graph, bool modeSubGraph) : MxNId(Graph.MxNId), MxEId(Graph.MxEId),
     NodeH(Graph.NodeH), EdgeH(Graph.EdgeH), KeyToIndexTypeN(), KeyToIndexTypeE(Graph.KeyToIndexTypeE),
-    IntDefaultsN(), IntDefaultsE(Graph.IntDefaultsE), StrDefaultsN(), StrDefaultsE(Graph.StrDefaultsE),
-    FltDefaultsN(), FltDefaultsE(Graph.FltDefaultsE), VecOfIntVecsN(), VecOfIntVecsE(Graph.VecOfIntVecsE),
-    VecOfStrVecsN(), VecOfStrVecsE(Graph.VecOfStrVecsE), VecOfFltVecsN(), VecOfFltVecsE(Graph.VecOfFltVecsE),
+    IntDefaultsN(Graph.IntDefaultsN), IntDefaultsE(Graph.IntDefaultsE), StrDefaultsN(Graph.StrDefaultsN), StrDefaultsE(Graph.StrDefaultsE),
+    FltDefaultsN(Graph.FltDefaultsN), FltDefaultsE(Graph.FltDefaultsE), VecOfIntVecsN(Graph.VecOfIntVecsN), VecOfIntVecsE(Graph.VecOfIntVecsE),
+    VecOfStrVecsN(Graph.VecOfStrVecsN), VecOfStrVecsE(Graph.VecOfStrVecsE), VecOfFltVecsN(Graph.VecOfFltVecsN), VecOfFltVecsE(Graph.VecOfFltVecsE),
     VecOfIntVecVecsN(), VecOfIntVecVecsE(Graph.VecOfIntVecVecsE) { }
   public:
   /// Saves the graph to a (binary) stream SOut. Expects data structures for sparse attributes.
