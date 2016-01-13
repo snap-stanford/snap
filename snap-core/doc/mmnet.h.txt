@@ -1,0 +1,15 @@
+/// TModeNet::Class
+The class corresponding to one particular mode in a TMMNet.
+This class contains only the set of nodes in that mode, and does not explicitly model edges.
+For easy access to neighbors, there is a dense TIntV attribute for each CrossNet, which is a vector of edge ids of neighbors of our mode in that CrossNet.
+///
+
+/// TCrossNet::Class
+The class corresponding to one particular CrossNet in a TMMNet.
+Has a CrossNet name, and two modes. Can be either undirected or directed. If it is directed, it is directed in one direction only: from mode 1 to mode  2.
+///
+
+/// TMMNet::Class
+Represents a multimodal network. A mutimodal network is represented by composing TModeNets (disjoint sets of nodes) and TCrossNets (disjoint sets of edges that connect nodes in two TModeNets).
+TMMNet contains methods to create TModeNets and TCrossNets by name, and returns pointers to them. All operations more granular than this, like adding nodes and edges, are run directly using methods provided in the ModeNets and CrossNets.
+///
