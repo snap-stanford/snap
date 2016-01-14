@@ -7,11 +7,11 @@ class TMMNet;
 
 typedef TPt<TMMNet> PMMNet;
 
-//TODO: TCrossNet with the entire hash table
 
 ///A single mode in a multimodal directed attributed multigraph
 class TModeNet;
 
+///A single cross net in a multimodal directed attributed multigraph
 class TCrossNet;
 
 
@@ -153,17 +153,17 @@ public:
     /// Returns the destination of the edge.
     int GetDstNId() const { return LinkHI.GetDat().GetDstNId(); }
 
-    /// Returns the source of the edge.
+    /// Returns the source mode of the crossnet
     int GetSrcModeId() const { return Graph->GetMode1(); }
-    /// Returns the destination of the edge.
+    /// Returns the destination mode of the crossnet
     int GetDstModeId() const { return Graph->GetMode2(); }
     /// Returns whether the edge is directed.
 //    int IsDirected() const { return Graph->IsDirected(); } //TODO
 
     friend class TCrossNet;
   };
-public:
-  TCRef CRef; //Reference counter. Necessary for pointers.
+//public:
+//  TCRef CRef; //Reference counter. Necessary for pointers. //TODO: This is not necessary, right?
 private:
   THash<TInt,TCrossEdge> LinkH; ///< The HashTable from Edge id to the corresponding Edge
   TInt MxEId;
@@ -181,7 +181,7 @@ private:
   enum { IntType, StrType, FltType };
   //Constructors
 public:
-  TCrossNet() : CRef(), LinkH(), MxEId(0), Mode1(), Mode2(), LinkTypeId(), Net(), KeyToIndexTypeE(), IntDefaultsE(), StrDefaultsE(),
+  TCrossNet() : LinkH(), MxEId(0), Mode1(), Mode2(), LinkTypeId(), Net(), KeyToIndexTypeE(), IntDefaultsE(), StrDefaultsE(),
     FltDefaultsE(), VecOfIntVecsE(), VecOfStrVecsE(), VecOfFltVecsE() {}
   TCrossNet(TInt MId1, TInt MId2, TInt LId) : LinkH(), MxEId(0), Mode1(MId1), Mode2(MId2), LinkTypeId(LId), Net(), 
     KeyToIndexTypeE(), IntDefaultsE(), StrDefaultsE(), FltDefaultsE(), VecOfIntVecsE(), VecOfStrVecsE(), VecOfFltVecsE() {}
@@ -363,7 +363,7 @@ public:
     TCrossNetI(const THashIter& CrossNetHIter, const TMMNet* GraphPt) : CrossNetHI(CrossNetHIter), Graph(GraphPt) { }
     TCrossNetI(const TCrossNetI& CrossNetI) : CrossNetHI(CrossNetI.CrossNetHI), Graph(CrossNetI.Graph) { }
     TCrossNetI& operator = (const TCrossNetI& CrossNetI) { CrossNetHI = CrossNetI.CrossNetHI; Graph=CrossNetI.Graph; return *this; }
-    /// Increment iterator.
+    /// Increments iterator.
     TCrossNetI& operator++ (int) { CrossNetHI++; return *this; }
     bool operator < (const TCrossNetI& CrossNetI) const { return CrossNetHI < CrossNetI.CrossNetHI; }
     bool operator == (const TCrossNetI& CrossNetI) const { return CrossNetHI == CrossNetI.CrossNetHI; }
@@ -398,6 +398,7 @@ public:
   int AddMode(const TStr& ModeName);
   int DelMode(const TInt& ModeId); // TODO(sramas15): finish implementing
   int DelMode(const TStr& ModeName);
+  //TODO: Rename below methods to say CrossNet instead of LinkType
   int AddLinkType(const TStr& ModeName1, const TStr& ModeName2, const TStr& LinkTypeName);
   int AddLinkType(const TInt& ModeId1, const TInt& ModeId2, const TStr& LinkTypeName);
   int DelLinkType(const TInt& LinkTypeId); // TODO(sramas15): finish implementing
