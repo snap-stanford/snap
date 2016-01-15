@@ -22,7 +22,7 @@ public:
   typedef TModeNet TNetMM;
 public:
   /// Node iterator. Only forward iteration (operator++) is supported.
-  class TNodeI : TNEANet::TNodeI {
+  class TNodeI : public TNEANet::TNodeI {
   public:
     TNodeI() : TNEANet::TNodeI() { }
     TNodeI(const THashIter& NodeHIter, const TModeNet* GraphPt) : TNEANet::TNodeI(NodeHIter, GraphPt) { }
@@ -83,14 +83,8 @@ private:
   void SetParentPointer(TMMNet* parent);
   int AddNbrType(const TStr& LinkName, const bool sameMode, bool isDir);
   int AddNbrType(const TStr& LinkName, const bool sameMode, bool isDir, TVec<TIntV>& Neighbors);
-  /// Adds a new Int node attribute to the hashmap.
-  int AddIntAttrN(const TStr& attr, TIntV& Attrs, TInt defaultValue=TInt::Mn);
-  /// Adds a new Str node attribute to the hashmap.
-  int AddStrAttrN(const TStr& attr, TStrV& Attrs, TStr defaultValue=TStr::GetNullStr());
-  /// Adds a new Flt node attribute to the hashmap.
-  int AddFltAttrN(const TStr& attr, TFltV& Attrs, TFlt defaultValue=TFlt::Mn);
   /// Adds a new IntV node attribute to the hashmap.
-  int AddIntVAttrN(const TStr& attr, TVec<TIntV>& Attrs);
+  int AddIntVAttrByVecN(const TStr& attr, TVec<TIntV>& Attrs);
 
   void RemoveLinkTypes(TModeNet& Result, TStrV& LinkTypes);
 public:

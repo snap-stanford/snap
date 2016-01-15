@@ -24,6 +24,7 @@ TEST_SRCS = \
 	test-TTable.cpp \
 	test-TUndirNet.cpp test-TDirNet.cpp \
 	test-TMMNet.cpp \
+	test-TModeNet.cpp \
 	test-subgraph.cpp \
 	test-TStrPool.cpp \
 	test-TSysTm.cpp \

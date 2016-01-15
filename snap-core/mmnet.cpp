@@ -630,52 +630,7 @@ void TModeNet::GetNeighborsByLinkType(const int& NId, TStr& Name, TIntV& Neighbo
   }
 }
 
-int TModeNet::AddIntAttrN(const TStr& attr, TIntV& Attrs, TInt defaultValue){
-  TInt CurrLen;
-  TVec<TInt> NewVec;
-  CurrLen = VecOfIntVecsN.Len();
-  KeyToIndexTypeN.AddDat(attr, TIntPr(IntType, CurrLen));
-  NewVec = TVec<TInt>(Attrs);
-  VecOfIntVecsN.Add(NewVec);
-  if (!IntDefaultsN.IsKey(attr)) {
-    IntDefaultsN.AddDat(attr, defaultValue);
-  } else {
-    return -1;
-  }
-  return 0;
-}
-
-int TModeNet::AddStrAttrN(const TStr& attr, TStrV& Attrs, TStr defaultValue) {
-  TInt CurrLen;
-  TVec<TStr> NewVec;
-  CurrLen = VecOfStrVecsN.Len();
-  KeyToIndexTypeN.AddDat(attr, TIntPr(StrType, CurrLen));
-  NewVec = TVec<TStr>(Attrs);
-  VecOfStrVecsN.Add(NewVec);
-  if (!StrDefaultsN.IsKey(attr)) {
-    StrDefaultsN.AddDat(attr, defaultValue);
-  } else {
-    return -1;
-  }
-  return 0;
-}
-
-int TModeNet::AddFltAttrN(const TStr& attr, TFltV& Attrs, TFlt defaultValue) {
-  TInt CurrLen;
-  TVec<TFlt> NewVec;
-  CurrLen = VecOfFltVecsN.Len();
-  KeyToIndexTypeN.AddDat(attr, TIntPr(FltType, CurrLen));
-  NewVec = TVec<TFlt>(Attrs);
-  VecOfFltVecsN.Add(NewVec);
-  if (!FltDefaultsN.IsKey(attr)) {
-    FltDefaultsN.AddDat(attr, defaultValue);
-  } else {
-    return -1;
-  }
-  return 0;
-}
-
-int TModeNet::AddIntVAttrN(const TStr& attr, TVec<TIntV>& Attrs){
+int TModeNet::AddIntVAttrByVecN(const TStr& attr, TVec<TIntV>& Attrs){
   TInt CurrLen;
   TVec<TIntV> NewVec;
   CurrLen = VecOfIntVecVecsN.Len();
@@ -708,7 +663,7 @@ void TModeNet::RemoveLinkTypes(TModeNet& Result, TStrV& LinkTypes) {
       }
       if (!NeighborTypes.IsKey(AttrName) && (!removeSuffix || !NeighborTypes.IsKey(WithoutSuffix))) {
         TVec<TIntV>& Attrs = VecOfIntVecVecsN[AttrIndex];
-        Result.AddIntVAttrN(AttrName, Attrs);
+        Result.AddIntVAttrByVecN(AttrName, Attrs);
       } else {
         TStr NbrName = AttrName;
         if (removeSuffix) {
@@ -717,7 +672,7 @@ void TModeNet::RemoveLinkTypes(TModeNet& Result, TStrV& LinkTypes) {
         if (LinkTypes.IsIn(NbrName)) {
           Result.AddNbrType(NbrName, removeSuffix, removeSuffix);
           TVec<TIntV>& Attrs = VecOfIntVecVecsN[AttrIndex];
-          Result.AddIntVAttrN(AttrName, Attrs);
+          Result.AddIntVAttrByVecN(AttrName, Attrs);
         }
       }
     }
