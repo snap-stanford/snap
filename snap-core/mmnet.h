@@ -100,6 +100,7 @@ public:
 };
 
 
+//TODO: Rename source and destination so as to make it clear that it can be directed or undirected
 
 //#///////////////////////////////////////////////
 ///Implements a single CrossNet consisting of edges between two TModeNets (could be the same TModeNet) ##TCrossNet::Class
@@ -399,6 +400,8 @@ public:
   //TODO: Rename below methods to say CrossNet instead of LinkType
   int AddLinkType(const TStr& ModeName1, const TStr& ModeName2, const TStr& LinkTypeName);
   int AddLinkType(const TInt& ModeId1, const TInt& ModeId2, const TStr& LinkTypeName);
+  int AddLinkType(const TStr& ModeName1, const TStr& ModeName2, bool isDir, const TStr& LinkTypeName);
+  int AddLinkType(const TInt& ModeId1, const TInt& ModeId2, bool isDir, const TStr& LinkTypeName);
   int DelLinkType(const TInt& LinkTypeId); // TODO(sramas15): finish implementing
   int DelLinkType(const TStr& LinkType);
 
