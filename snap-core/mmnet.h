@@ -156,8 +156,8 @@ public:
 
     friend class TCrossNet;
   };
-//public:
-//  TCRef CRef; //Reference counter. Necessary for pointers. //TODO: This is not necessary, right?
+public:
+  TCRef CRef; //Reference counter. Necessary for pointers. //TODO: This is not necessary, right?
 private:
   THash<TInt,TCrossEdge> LinkH; ///< The HashTable from Edge id to the corresponding Edge
   TInt MxEId;
@@ -175,7 +175,7 @@ private:
   enum { IntType, StrType, FltType };
   //Constructors
 public:
-  TCrossNet() : LinkH(), MxEId(0), Mode1(), Mode2(), LinkTypeId(), Net(), KeyToIndexTypeE(), IntDefaultsE(), StrDefaultsE(),
+  TCrossNet() : CRef(), LinkH(), MxEId(0), Mode1(), Mode2(), LinkTypeId(), Net(), KeyToIndexTypeE(), IntDefaultsE(), StrDefaultsE(),
     FltDefaultsE(), VecOfIntVecsE(), VecOfStrVecsE(), VecOfFltVecsE() {}
   TCrossNet(TInt MId1, TInt MId2, TInt LId) : LinkH(), MxEId(0), Mode1(MId1), Mode2(MId2), LinkTypeId(LId), Net(), 
     KeyToIndexTypeE(), IntDefaultsE(), StrDefaultsE(), FltDefaultsE(), VecOfIntVecsE(), VecOfStrVecsE(), VecOfFltVecsE() {}
