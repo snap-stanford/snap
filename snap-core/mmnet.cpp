@@ -66,6 +66,18 @@ int TMMNet::DelMode(const TStr& ModeName) {
   return DelMode(ModeNameToIdH.GetDat(ModeName));
 }
 
+<<<<<<< HEAD
+=======
+/*int TMMNet::AddEdge(const TStr& LinkTypeName, int& NId1, int& NId2, int EId){
+  //IAssertR(LinkNameToIdH.IsKey(LinkTypeName),TStr::Fmt("No such link name: %s",LinkTypeName.CStr()));
+  return AddEdge(LinkNameToIdH.GetDat(LinkTypeName), NId1, NId2, EId);
+}
+int TMMNet::AddEdge(const TInt& LinkTypeId, int& NId1, int& NId2, int EId){
+  //IAssertR(LinkIdToNameH.IsKey(LinkTypeId),TStr::Fmt("No link with id %d exists",LinkTypeId));
+  return TCrossNetH.GetDat(LinkTypeId).AddEdge(NId1, NId2, EId);
+}*/
+
+>>>>>>> 078668d06723a7bb58618403030663ede5905143
 TModeNet& TMMNet::GetModeNet(const TStr& ModeName) const {
   //IAssertR(ModeNameToIdH.IsKey(ModeName),TStr::Fmt("No such mode name: %s", ModeName.CStr()));
   return GetModeNet(ModeNameToIdH.GetDat(ModeName));
@@ -621,52 +633,7 @@ void TModeNet::GetNeighborsByLinkType(const int& NId, TStr& Name, TIntV& Neighbo
   }
 }
 
-int TModeNet::AddIntAttrN(const TStr& attr, TIntV& Attrs, TInt defaultValue){
-  TInt CurrLen;
-  TVec<TInt> NewVec;
-  CurrLen = VecOfIntVecsN.Len();
-  KeyToIndexTypeN.AddDat(attr, TIntPr(IntType, CurrLen));
-  NewVec = TVec<TInt>(Attrs);
-  VecOfIntVecsN.Add(NewVec);
-  if (!IntDefaultsN.IsKey(attr)) {
-    IntDefaultsN.AddDat(attr, defaultValue);
-  } else {
-    return -1;
-  }
-  return 0;
-}
-
-int TModeNet::AddStrAttrN(const TStr& attr, TStrV& Attrs, TStr defaultValue) {
-  TInt CurrLen;
-  TVec<TStr> NewVec;
-  CurrLen = VecOfStrVecsN.Len();
-  KeyToIndexTypeN.AddDat(attr, TIntPr(StrType, CurrLen));
-  NewVec = TVec<TStr>(Attrs);
-  VecOfStrVecsN.Add(NewVec);
-  if (!StrDefaultsN.IsKey(attr)) {
-    StrDefaultsN.AddDat(attr, defaultValue);
-  } else {
-    return -1;
-  }
-  return 0;
-}
-
-int TModeNet::AddFltAttrN(const TStr& attr, TFltV& Attrs, TFlt defaultValue) {
-  TInt CurrLen;
-  TVec<TFlt> NewVec;
-  CurrLen = VecOfFltVecsN.Len();
-  KeyToIndexTypeN.AddDat(attr, TIntPr(FltType, CurrLen));
-  NewVec = TVec<TFlt>(Attrs);
-  VecOfFltVecsN.Add(NewVec);
-  if (!FltDefaultsN.IsKey(attr)) {
-    FltDefaultsN.AddDat(attr, defaultValue);
-  } else {
-    return -1;
-  }
-  return 0;
-}
-
-int TModeNet::AddIntVAttrN(const TStr& attr, TVec<TIntV>& Attrs){
+int TModeNet::AddIntVAttrByVecN(const TStr& attr, TVec<TIntV>& Attrs){
   TInt CurrLen;
   TVec<TIntV> NewVec;
   CurrLen = VecOfIntVecVecsN.Len();
@@ -699,7 +666,7 @@ void TModeNet::RemoveLinkTypes(TModeNet& Result, TStrV& LinkTypes) {
       }
       if (!NeighborTypes.IsKey(AttrName) && (!removeSuffix || !NeighborTypes.IsKey(WithoutSuffix))) {
         TVec<TIntV>& Attrs = VecOfIntVecVecsN[AttrIndex];
-        Result.AddIntVAttrN(AttrName, Attrs);
+        Result.AddIntVAttrByVecN(AttrName, Attrs);
       } else {
         TStr NbrName = AttrName;
         if (removeSuffix) {
@@ -708,7 +675,7 @@ void TModeNet::RemoveLinkTypes(TModeNet& Result, TStrV& LinkTypes) {
         if (LinkTypes.IsIn(NbrName)) {
           Result.AddNbrType(NbrName, removeSuffix, removeSuffix);
           TVec<TIntV>& Attrs = VecOfIntVecVecsN[AttrIndex];
-          Result.AddIntVAttrN(AttrName, Attrs);
+          Result.AddIntVAttrByVecN(AttrName, Attrs);
         }
       }
     }
