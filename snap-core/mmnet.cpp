@@ -66,15 +66,6 @@ int TMMNet::DelMode(const TStr& ModeName) {
   return DelMode(ModeNameToIdH.GetDat(ModeName));
 }
 
-int TMMNet::AddEdge(const TStr& LinkTypeName, int& NId1, int& NId2, int EId){
-  //IAssertR(LinkNameToIdH.IsKey(LinkTypeName),TStr::Fmt("No such link name: %s",LinkTypeName.CStr()));
-  return AddEdge(LinkNameToIdH.GetDat(LinkTypeName), NId1, NId2, EId);
-}
-int TMMNet::AddEdge(const TInt& LinkTypeId, int& NId1, int& NId2, int EId){
-  //IAssertR(LinkIdToNameH.IsKey(LinkTypeId),TStr::Fmt("No link with id %d exists",LinkTypeId));
-  return TCrossNetH.GetDat(LinkTypeId).AddEdge(NId1, NId2, EId);
-}
-
 TModeNet& TMMNet::GetModeNet(const TStr& ModeName) const {
   //IAssertR(ModeNameToIdH.IsKey(ModeName),TStr::Fmt("No such mode name: %s", ModeName.CStr()));
   return GetModeNet(ModeNameToIdH.GetDat(ModeName));
