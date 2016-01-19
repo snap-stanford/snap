@@ -49,24 +49,12 @@ int TMMNet::AddLinkType(const TInt& ModeId1, const TInt& ModeId2, bool isDir, co
   LinkIdToNameH.AddDat(LinkTypeId, LinkTypeName);
   LinkNameToIdH.AddDat(LinkTypeName, LinkTypeId);
 
-  if (isDir) {
-    TCrossNet Link = TCrossNet(ModeId1, ModeId2, LinkTypeId);
-    Link.SetParentPointer(this);
-    TCrossNetH.AddDat(LinkTypeId, Link);
+  TCrossNet Link = TCrossNet(ModeId1, ModeId2, isDir, LinkTypeId);
+  Link.SetParentPointer(this);
+  TCrossNetH.AddDat(LinkTypeId, Link);
 
-    TModeNetH.GetDat(ModeId1).AddNbrType(LinkTypeName, ModeId1==ModeId2, true);
-    TModeNetH.GetDat(ModeId2).AddNbrType(LinkTypeName, ModeId1==ModeId2, true);
-
-  }
-  else {
-
-    TCrossNet Link = TCrossNet(ModeId1, ModeId2, false, LinkTypeId);
-    Link.SetParentPointer(this);
-    TCrossNetH.AddDat(LinkTypeId, Link);
-
-    TModeNetH.GetDat(ModeId1).AddNbrType(LinkTypeName, ModeId1==ModeId2, false);
-    TModeNetH.GetDat(ModeId2).AddNbrType(LinkTypeName, ModeId1==ModeId2, false);
-  }
+  TModeNetH.GetDat(ModeId1).AddNbrType(LinkTypeName, ModeId1==ModeId2, isDir);
+  TModeNetH.GetDat(ModeId2).AddNbrType(LinkTypeName, ModeId1==ModeId2, isDir);
 
   return LinkTypeId;
 }
@@ -132,8 +120,8 @@ int TCrossNet::AddEdge(const int& sourceNId, const int& destNId, int EId){
   TCrossNet::TCrossEdge newEdge (EId, sourceNId, destNId);
   LinkH.AddDat(EId, newEdge);
   TStr ThisLinkName = Net->GetLinkName(this->LinkTypeId);
-  Net->TModeNetH.GetDat(this->Mode1).AddNeighbor(sourceNId, EId, true, ThisLinkName, Mode1==Mode2, true); // TODO: can't assume it is directed
-  Net->TModeNetH.GetDat(this->Mode2).AddNeighbor(destNId, EId, false, ThisLinkName, Mode1==Mode2, true);
+  Net->TModeNetH.GetDat(this->Mode1).AddNeighbor(sourceNId, EId, true, ThisLinkName, Mode1==Mode2, IsDirected); // TODO: can't assume it is directed
+  Net->TModeNetH.GetDat(this->Mode2).AddNeighbor(destNId, EId, false, ThisLinkName, Mode1==Mode2, IsDirected);
   int i;
   // update attribute columns
   for (i = 0; i < VecOfIntVecsE.Len(); i++) {

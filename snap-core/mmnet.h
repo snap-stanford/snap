@@ -177,17 +177,17 @@ private:
   enum { IntType, StrType, FltType };
   //Constructors
 public:
-  TCrossNet() : CRef(), LinkH(), MxEId(0), Mode1(), Mode2(), LinkTypeId(), Net(), KeyToIndexTypeE(), IntDefaultsE(), StrDefaultsE(),
+  TCrossNet() : CRef(), LinkH(), MxEId(0), Mode1(), Mode2(), IsDirected(), LinkTypeId(), Net(), KeyToIndexTypeE(), IntDefaultsE(), StrDefaultsE(),
     FltDefaultsE(), VecOfIntVecsE(), VecOfStrVecsE(), VecOfFltVecsE() {}
   TCrossNet(TInt MId1, TInt MId2, TInt LId) : LinkH(), MxEId(0), Mode1(MId1), Mode2(MId2), IsDirected(true),LinkTypeId(LId), Net(),
     KeyToIndexTypeE(), IntDefaultsE(), StrDefaultsE(), FltDefaultsE(), VecOfIntVecsE(), VecOfStrVecsE(), VecOfFltVecsE() {}
   TCrossNet(TInt MId1, TInt MId2, TBool IsDir, TInt LId) : LinkH(), MxEId(0), Mode1(MId1), Mode2(MId2), IsDirected(IsDir),LinkTypeId(LId), Net(),
     KeyToIndexTypeE(), IntDefaultsE(), StrDefaultsE(), FltDefaultsE(), VecOfIntVecsE(), VecOfStrVecsE(), VecOfFltVecsE() {}
 
-  TCrossNet(TSIn& SIn) : LinkH(SIn), MxEId(SIn), Mode1(SIn), Mode2(SIn), LinkTypeId(SIn), Net(),
+  TCrossNet(TSIn& SIn) : LinkH(SIn), MxEId(SIn), Mode1(SIn), Mode2(SIn), IsDirected(SIn) LinkTypeId(SIn), Net(),
     KeyToIndexTypeE(SIn), IntDefaultsE(SIn), StrDefaultsE(SIn), FltDefaultsE(SIn), VecOfIntVecsE(SIn), VecOfStrVecsE(SIn), VecOfFltVecsE(SIn) {}
   TCrossNet(const TCrossNet& OtherTCrossNet) : LinkH(OtherTCrossNet.LinkH), MxEId(OtherTCrossNet.MxEId), Mode1(OtherTCrossNet.Mode1),
-    Mode2(OtherTCrossNet.Mode2),LinkTypeId(OtherTCrossNet.LinkTypeId),Net(OtherTCrossNet.Net), KeyToIndexTypeE(OtherTCrossNet.KeyToIndexTypeE), 
+    Mode2(OtherTCrossNet.Mode2), IsDirected(OtherTCrossNet.IsDirected), LinkTypeId(OtherTCrossNet.LinkTypeId),Net(OtherTCrossNet.Net), KeyToIndexTypeE(OtherTCrossNet.KeyToIndexTypeE), 
     IntDefaultsE(OtherTCrossNet.IntDefaultsE), StrDefaultsE(OtherTCrossNet.StrDefaultsE), FltDefaultsE(OtherTCrossNet.FltDefaultsE), VecOfIntVecsE(OtherTCrossNet.VecOfIntVecsE),
     VecOfStrVecsE(OtherTCrossNet.VecOfStrVecsE), VecOfFltVecsE(OtherTCrossNet.VecOfFltVecsE) {}
 
@@ -197,6 +197,7 @@ public:
     Mode1 = OtherTCrossNet.Mode1;
     Mode2 = OtherTCrossNet.Mode2;
     LinkTypeId = OtherTCrossNet.LinkTypeId;
+    IsDirected = OtherTCrossNet.IsDirected;
     Net = OtherTCrossNet.Net;
     return *this;
   }
