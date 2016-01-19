@@ -153,7 +153,7 @@ public:
     /// Returns the destination mode of the crossnet
     int GetDstModeId() const { return Graph->GetMode2(); }
     /// Returns whether the edge is directed.
-//    int IsDirected() const { return Graph->IsDirected(); } //TODO
+    int IsDirected() const { return Graph->IsDirected(); } //TODO
 
     friend class TCrossNet;
   };
@@ -164,7 +164,7 @@ private:
   TInt MxEId;
   TInt Mode1; ///<The first mode. In the case of directed crossnets, this is implicitly understood to be the source mode.
   TInt Mode2; ///<The second mode. In the case of directed crossnets, this is implicitly understood to be the destination mode.
-  TBool IsDirected;
+  TBool IsDirect;
   TInt LinkTypeId;
   TMMNet* Net;
   TStrIntPrH KeyToIndexTypeE;
@@ -177,16 +177,16 @@ private:
   enum { IntType, StrType, FltType };
   //Constructors
 public:
-  TCrossNet() : CRef(), LinkH(), MxEId(0), Mode1(), Mode2(), IsDirected(), LinkTypeId(), Net(), KeyToIndexTypeE(), IntDefaultsE(), StrDefaultsE(),
+  TCrossNet() : CRef(), LinkH(), MxEId(0), Mode1(), Mode2(), IsDirect(), LinkTypeId(), Net(), KeyToIndexTypeE(), IntDefaultsE(), StrDefaultsE(),
     FltDefaultsE(), VecOfIntVecsE(), VecOfStrVecsE(), VecOfFltVecsE() {}
-  TCrossNet(TInt MId1, TInt MId2, TInt LId) : LinkH(), MxEId(0), Mode1(MId1), Mode2(MId2), IsDirected(true),LinkTypeId(LId), Net(),
+  TCrossNet(TInt MId1, TInt MId2, TInt LId) : LinkH(), MxEId(0), Mode1(MId1), Mode2(MId2), IsDirect(true),LinkTypeId(LId), Net(),
     KeyToIndexTypeE(), IntDefaultsE(), StrDefaultsE(), FltDefaultsE(), VecOfIntVecsE(), VecOfStrVecsE(), VecOfFltVecsE() {}
-  TCrossNet(TInt MId1, TInt MId2, TBool IsDir, TInt LId) : LinkH(), MxEId(0), Mode1(MId1), Mode2(MId2), IsDirected(IsDir),LinkTypeId(LId), Net(),
+  TCrossNet(TInt MId1, TInt MId2, TBool IsDir, TInt LId) : LinkH(), MxEId(0), Mode1(MId1), Mode2(MId2), IsDirect(IsDir),LinkTypeId(LId), Net(),
     KeyToIndexTypeE(), IntDefaultsE(), StrDefaultsE(), FltDefaultsE(), VecOfIntVecsE(), VecOfStrVecsE(), VecOfFltVecsE() {}
-  TCrossNet(TSIn& SIn) : LinkH(SIn), MxEId(SIn), Mode1(SIn), Mode2(SIn), IsDirected(SIn), LinkTypeId(SIn), Net(),
+  TCrossNet(TSIn& SIn) : LinkH(SIn), MxEId(SIn), Mode1(SIn), Mode2(SIn), IsDirect(SIn), LinkTypeId(SIn), Net(),
     KeyToIndexTypeE(SIn), IntDefaultsE(SIn), StrDefaultsE(SIn), FltDefaultsE(SIn), VecOfIntVecsE(SIn), VecOfStrVecsE(SIn), VecOfFltVecsE(SIn) {}
   TCrossNet(const TCrossNet& OtherTCrossNet) : LinkH(OtherTCrossNet.LinkH), MxEId(OtherTCrossNet.MxEId), Mode1(OtherTCrossNet.Mode1),
-    Mode2(OtherTCrossNet.Mode2), IsDirected(OtherTCrossNet.IsDirected), LinkTypeId(OtherTCrossNet.LinkTypeId),Net(OtherTCrossNet.Net), KeyToIndexTypeE(OtherTCrossNet.KeyToIndexTypeE), 
+    Mode2(OtherTCrossNet.Mode2), IsDirect(OtherTCrossNet.IsDirect), LinkTypeId(OtherTCrossNet.LinkTypeId),Net(OtherTCrossNet.Net), KeyToIndexTypeE(OtherTCrossNet.KeyToIndexTypeE), 
     IntDefaultsE(OtherTCrossNet.IntDefaultsE), StrDefaultsE(OtherTCrossNet.StrDefaultsE), FltDefaultsE(OtherTCrossNet.FltDefaultsE), VecOfIntVecsE(OtherTCrossNet.VecOfIntVecsE),
     VecOfStrVecsE(OtherTCrossNet.VecOfStrVecsE), VecOfFltVecsE(OtherTCrossNet.VecOfFltVecsE) {}
 
@@ -196,7 +196,7 @@ public:
     Mode1 = OtherTCrossNet.Mode1;
     Mode2 = OtherTCrossNet.Mode2;
     LinkTypeId = OtherTCrossNet.LinkTypeId;
-    IsDirected = OtherTCrossNet.IsDirected;
+    IsDirect = OtherTCrossNet.IsDirect;
     Net = OtherTCrossNet.Net;
     return *this;
   }
@@ -211,7 +211,8 @@ private:
   /// Get Flt edge attribute val.  If not a proper attr, return default.
   TFlt GetFltAttrDefaultE(const TStr& attribute) const { return FltDefaultsE.IsKey(attribute) ? FltDefaultsE.GetDat(attribute) : (TFlt) TFlt::Mn; }
 public:
-  //TODO: DelEdge or DelLink? Same with Add
+  /// Returns the number of edges in the graph.
+  int GetEdges() const { return LinkH.Len(); }
   int AddEdge(const int& sourceNId, const int& destNId, int EId=-1);
   TCrossEdgeI GetEdgeI(const int& EId) const { return TCrossEdgeI(LinkH.GetI(EId), this); }
   TCrossEdgeI BegEdgeI() const { return TCrossEdgeI(LinkH.BegI(), this); }
@@ -219,10 +220,11 @@ public:
   int DelEdge(const int& EId);
   int GetMode1() const { return Mode1; }
   int GetMode2() const {return Mode2; }
-  void Save(TSOut& SOut) const { LinkH.Save(SOut); MxEId.Save(SOut); Mode1.Save(SOut); Mode2.Save(SOut); IsDirected.Save(SOut); LinkTypeId.Save(SOut); 
+  void Save(TSOut& SOut) const { LinkH.Save(SOut); MxEId.Save(SOut); Mode1.Save(SOut); Mode2.Save(SOut); IsDirect.Save(SOut); LinkTypeId.Save(SOut); 
     KeyToIndexTypeE.Save(SOut); IntDefaultsE.Save(SOut); StrDefaultsE.Save(SOut); FltDefaultsE.Save(SOut); VecOfIntVecsE.Save(SOut);
-    VecOfStrVecsE.Save(SOut); VecOfFltVecsE.Save(SOut); } //TODO
+    VecOfStrVecsE.Save(SOut); VecOfFltVecsE.Save(SOut); }
 
+  bool IsDirected() const { return IsDirect;}
   /// Returns a vector of attr names for edge EId.
   void AttrNameEI(const TInt& EId, TStrV& Names) const {
     AttrNameEI(EId, KeyToIndexTypeE.BegI(), Names);}

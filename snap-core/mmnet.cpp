@@ -120,8 +120,8 @@ int TCrossNet::AddEdge(const int& sourceNId, const int& destNId, int EId){
   TCrossNet::TCrossEdge newEdge (EId, sourceNId, destNId);
   LinkH.AddDat(EId, newEdge);
   TStr ThisLinkName = Net->GetLinkName(this->LinkTypeId);
-  Net->TModeNetH.GetDat(this->Mode1).AddNeighbor(sourceNId, EId, true, ThisLinkName, Mode1==Mode2, IsDirected); // TODO: can't assume it is directed
-  Net->TModeNetH.GetDat(this->Mode2).AddNeighbor(destNId, EId, false, ThisLinkName, Mode1==Mode2, IsDirected);
+  Net->TModeNetH.GetDat(this->Mode1).AddNeighbor(sourceNId, EId, true, ThisLinkName, Mode1==Mode2, IsDirect); // TODO: can't assume it is directed
+  Net->TModeNetH.GetDat(this->Mode2).AddNeighbor(destNId, EId, false, ThisLinkName, Mode1==Mode2, IsDirect);
   int i;
   // update attribute columns
   for (i = 0; i < VecOfIntVecsE.Len(); i++) {
