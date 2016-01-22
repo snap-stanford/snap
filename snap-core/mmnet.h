@@ -157,6 +157,72 @@ public:
 
     friend class TCrossNet;
   };
+
+  /// Node/edge integer attribute iterator. Iterates through all nodes/edges for one integer attribute.
+  class TAIntI {
+  private:
+    typedef TIntV::TIter TIntVecIter;
+    TIntVecIter HI;
+    TStr attr;
+    const TCrossNet *Graph;
+  public:
+    TAIntI() : HI(), attr(), Graph(NULL) { }
+    TAIntI(const TIntVecIter& HIter, TStr attribute, const TCrossNet* GraphPt) : HI(HIter), attr(), Graph(GraphPt) { attr = attribute; }
+    TAIntI(const TAIntI& I) : HI(I.HI), attr(I.attr), Graph(I.Graph) { }
+    TAIntI& operator = (const TAIntI& I) { HI = I.HI; Graph=I.Graph; attr = I.attr; return *this; }
+    bool operator < (const TAIntI& I) const { return HI < I.HI; }
+    bool operator == (const TAIntI& I) const { return HI == I.HI; }
+    /// Returns an attribute of the node.
+    TInt GetDat() const { return HI[0]; }
+    /// Returns true if the attribute has been deleted.
+    bool IsDeleted() const { return GetDat() == Graph->GetIntAttrDefaultE(attr); };
+    TAIntI& operator++(int) { HI++; return *this; }
+    friend class TCrossNet;
+  };
+
+  /// Node/edge string attribute iterator. Iterates through all nodes/edges for one string attribute.
+  class TAStrI {
+  private:
+    typedef TStrV::TIter TStrVecIter;
+    TStrVecIter HI;
+    TStr attr;
+    const TCrossNet *Graph;
+  public:
+    TAStrI() : HI(), attr(), Graph(NULL) { }
+    TAStrI(const TStrVecIter& HIter, TStr attribute, const TCrossNet* GraphPt) : HI(HIter), attr(), Graph(GraphPt) { attr = attribute; }
+    TAStrI(const TAStrI& I) : HI(I.HI), attr(I.attr), Graph(I.Graph) { }
+    TAStrI& operator = (const TAStrI& I) { HI = I.HI; Graph=I.Graph; attr = I.attr; return *this; }
+    bool operator < (const TAStrI& I) const { return HI < I.HI; }
+    bool operator == (const TAStrI& I) const { return HI == I.HI; }
+    /// Returns an attribute of the node.
+    TStr GetDat() const { return HI[0]; }
+    /// Returns true if the attribute has been deleted.
+    bool IsDeleted() const { return GetDat() == Graph->GetStrAttrDefaultE(attr); };
+    TAStrI& operator++(int) { HI++; return *this; }
+    friend class TCrossNet;
+  };
+
+  /// Node/edge float attribute iterator. Iterates through all nodes/edges for one float attribute.
+  class TAFltI {
+  private:
+    typedef TFltV::TIter TFltVecIter;
+    TFltVecIter HI;
+    TStr attr;
+    const TCrossNet *Graph;
+  public:
+    TAFltI() : HI(), attr(), Graph(NULL) { }
+    TAFltI(const TFltVecIter& HIter, TStr attribute, const TCrossNet* GraphPt) : HI(HIter), attr(), Graph(GraphPt) { attr = attribute; }
+    TAFltI(const TAFltI& I) : HI(I.HI), attr(I.attr), Graph(I.Graph) { }
+    TAFltI& operator = (const TAFltI& I) { HI = I.HI; Graph=I.Graph; attr = I.attr; return *this; }
+    bool operator < (const TAFltI& I) const { return HI < I.HI; }
+    bool operator == (const TAFltI& I) const { return HI == I.HI; }
+    /// Returns an attribute of the node.
+    TFlt GetDat() const { return HI[0]; }
+    /// Returns true if the attribute has been deleted.
+    bool IsDeleted() const { return GetDat() == Graph->GetFltAttrDefaultE(attr); };
+    TAFltI& operator++(int) { HI++; return *this; }
+    friend class TCrossNet;
+  };
 public:
   TCRef CRef; //Reference counter. Necessary for pointers. //TODO: This is not necessary, right?
 private:
@@ -177,7 +243,7 @@ private:
   enum { IntType, StrType, FltType };
   //Constructors
 public:
-  TCrossNet() : CRef(), LinkH(), MxEId(0), Mode1(), Mode2(), IsDirect(), LinkTypeId(), Net(), KeyToIndexTypeE(), IntDefaultsE(), StrDefaultsE(),
+  TCrossNet() : CRef(), LinkH(), MxEId(0), Mode1(-1), Mode2(-1), IsDirect(), LinkTypeId(), Net(), KeyToIndexTypeE(), IntDefaultsE(), StrDefaultsE(),
     FltDefaultsE(), VecOfIntVecsE(), VecOfStrVecsE(), VecOfFltVecsE() {}
   TCrossNet(TInt MId1, TInt MId2, TInt LId) : LinkH(), MxEId(0), Mode1(MId1), Mode2(MId2), IsDirect(true),LinkTypeId(LId), Net(),
     KeyToIndexTypeE(), IntDefaultsE(), StrDefaultsE(), FltDefaultsE(), VecOfIntVecsE(), VecOfStrVecsE(), VecOfFltVecsE() {}
@@ -289,6 +355,43 @@ public:
   /// Gets the value of flt attr from the edge attr value vector.
   TFlt GetFltAttrDatE(const TCrossEdgeI& EdgeI, const TStr& attr) { return GetFltAttrDatE(EdgeI.GetId(), attr); }
   TFlt GetFltAttrDatE(const int& EId, const TStr& attr);
+
+  /// Returns an iterator referring to the first edge's int attribute.
+  TAIntI BegEAIntI(const TStr& attr) const {
+    return TAIntI(VecOfIntVecsE[KeyToIndexTypeE.GetDat(attr).Val2].BegI(), attr, this);
+  }
+  /// Returns an iterator referring to the past-the-end edge's attribute.
+  TAIntI EndEAIntI(const TStr& attr) const {
+    return TAIntI(VecOfIntVecsE[KeyToIndexTypeE.GetDat(attr).Val2].EndI(), attr, this);
+  }
+  /// Returns an iterator referring to the edge of ID EId in the graph.
+  TAIntI GetEAIntI(const TStr& attr, const int& EId) const {
+    return TAIntI(VecOfIntVecsE[KeyToIndexTypeE.GetDat(attr).Val2].GetI(LinkH.GetKeyId(EId)), attr, this);
+  }
+
+  /// Returns an iterator referring to the first edge's str attribute.
+  TAStrI BegEAStrI(const TStr& attr) const {
+    return TAStrI(VecOfStrVecsE[KeyToIndexTypeE.GetDat(attr).Val2].BegI(), attr, this);   }
+  /// Returns an iterator referring to the past-the-end edge's attribute.
+  TAStrI EndEAStrI(const TStr& attr) const {
+    return TAStrI(VecOfStrVecsE[KeyToIndexTypeE.GetDat(attr).Val2].EndI(), attr, this);
+  }
+  /// Returns an iterator referring to the edge of ID EId in the graph.
+  TAStrI GetEAStrI(const TStr& attr, const int& EId) const {
+    return TAStrI(VecOfStrVecsE[KeyToIndexTypeE.GetDat(attr).Val2].GetI(LinkH.GetKeyId(EId)), attr, this);
+  }
+  /// Returns an iterator referring to the first edge's flt attribute.
+  TAFltI BegEAFltI(const TStr& attr) const {
+    return TAFltI(VecOfFltVecsE[KeyToIndexTypeE.GetDat(attr).Val2].BegI(), attr, this);
+  }
+  /// Returns an iterator referring to the past-the-end edge's attribute.
+  TAFltI EndEAFltI(const TStr& attr) const {
+    return TAFltI(VecOfFltVecsE[KeyToIndexTypeE.GetDat(attr).Val2].EndI(), attr, this);
+  }
+  /// Returns an iterator referring to the edge of ID EId in the graph.
+  TAFltI GetEAFltI(const TStr& attr, const int& EId) const {
+    return TAFltI(VecOfFltVecsE[KeyToIndexTypeE.GetDat(attr).Val2].GetI(LinkH.GetKeyId(EId)), attr, this);
+  }
 
   /// Deletes the edge attribute for NodeI.
   int DelAttrDatE(const TCrossEdgeI& EdgeI, const TStr& attr) { return DelAttrDatE(EdgeI.GetId(), attr); } 

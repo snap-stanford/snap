@@ -117,11 +117,13 @@ TCrossNet& TMMNet::GetCrossNet(const TInt& LinkId) const{
 int TCrossNet::AddEdge(const int& sourceNId, const int& destNId, int EId){
   if (EId == -1) { EId = MxEId;  MxEId++; }
   else { MxEId = TMath::Mx(EId+1, MxEId()); }
-  TCrossNet::TCrossEdge newEdge (EId, sourceNId, destNId);
+  TCrossNet::TCrossEdge newEdge(EId, sourceNId, destNId);
   LinkH.AddDat(EId, newEdge);
-  TStr ThisLinkName = Net->GetLinkName(this->LinkTypeId);
-  Net->TModeNetH.GetDat(this->Mode1).AddNeighbor(sourceNId, EId, true, ThisLinkName, Mode1==Mode2, IsDirect); // TODO: can't assume it is directed
-  Net->TModeNetH.GetDat(this->Mode2).AddNeighbor(destNId, EId, false, ThisLinkName, Mode1==Mode2, IsDirect);
+  if (Net != NULL) {
+    TStr ThisLinkName = Net->GetLinkName(this->LinkTypeId);
+    Net->TModeNetH.GetDat(this->Mode1).AddNeighbor(sourceNId, EId, true, ThisLinkName, Mode1==Mode2, IsDirect); // TODO: can't assume it is directed
+    Net->TModeNetH.GetDat(this->Mode2).AddNeighbor(destNId, EId, false, ThisLinkName, Mode1==Mode2, IsDirect);
+  }
   int i;
   // update attribute columns
   for (i = 0; i < VecOfIntVecsE.Len(); i++) {
@@ -135,6 +137,7 @@ int TCrossNet::AddEdge(const int& sourceNId, const int& destNId, int EId){
     TVec<TInt>& IntVec = VecOfIntVecsE[KeyToIndexTypeE.GetDat(DefIntVec[i]).Val2];
     IntVec[LinkH.GetKeyId(EId)] = GetIntAttrDefaultE(attr);
   }
+
   for (i = 0; i < VecOfStrVecsE.Len(); i++) {
     TVec<TStr>& StrVec = VecOfStrVecsE[i];
     StrVec.Ins(LinkH.GetKeyId(EId), TStr::GetNullStr());
