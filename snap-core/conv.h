@@ -20,6 +20,7 @@ PGraph ToGraph(PTable Table, const TStr& SrcCol, const TStr& DstCol, TAttrAggr A
       // add src and dst nodes to graph if they are not seen earlier
       TInt SVal = (Table->IntCols)[SrcColIdx][CurrRowIdx];
       TInt DVal = (Table->IntCols)[DstColIdx][CurrRowIdx];
+      //Using AddNodeUnchecked ensures that no error is thrown when the same node is seen twice
       Graph->AddNodeUnchecked(SVal);
       Graph->AddNodeUnchecked(DVal);
       Graph->AddEdgeUnchecked(SVal, DVal);
@@ -46,9 +47,10 @@ PGraph ToGraph(PTable Table, const TStr& SrcCol, const TStr& DstCol, TAttrAggr A
       if (strlen(Table->GetContextKey(SVal)) == 0) { continue; }  //illegal value
       TInt DVal = (Table->StrColMaps)[DstColIdx][CurrRowIdx];
       if (strlen(Table->GetContextKey(DVal)) == 0) { continue; }  //illegal value
-      Graph->AddNode(SVal);
-      Graph->AddNode(DVal);
-      Graph->AddEdge(SVal, DVal);
+      //Using AddNodeUnchecked ensures that no error is thrown when the same node is seen twice
+      Graph->AddNodeUnchecked(SVal);
+      Graph->AddNodeUnchecked(DVal);
+      Graph->AddEdgeUnchecked(SVal, DVal);
     }
   }
 
