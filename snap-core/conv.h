@@ -223,6 +223,7 @@ PGraphMP ToGraphMP(PTable Table, const TStr& SrcCol, const TStr& DstCol) {
         buckets[vert % sz] = 1;
       }
   }
+  int cnt = 0;
   #pragma omp parallel for reduction(+:cnt)
     for (int i = 0; i < sz; i++) {
       if (buckets[i] == 0)
@@ -255,13 +256,14 @@ PGraphMP ToGraphMP(PTable Table, const TStr& SrcCol, const TStr& DstCol) {
           continue;
         }
 
+        TInt SVal, DVal;
         if (NodeType == atInt) {
-          TInt SVal = Table->IntCols[SrcColIdx][CurrRowIdx];
-          TInt DVal = Table->IntCols[DstColIdx][CurrRowIdx];
+          SVal = Table->IntCols[SrcColIdx][CurrRowIdx];
+          DVal = Table->IntCols[DstColIdx][CurrRowIdx];
         }
         else if (NodeType == atStr ) {
-          TInt SVal = (Table->StrColMaps)[SrcColIdx][CurrRowIdx];
-          TInt DVal = (Table->StrColMaps)[DstColIdx][CurrRowIdx];
+          SVal = (Table->StrColMaps)[SrcColIdx][CurrRowIdx];
+          DVal = (Table->StrColMaps)[DstColIdx][CurrRowIdx];
         }
         int SrcIdx = abs((SVal.GetPrimHashCd()) % Length);
         if (!Graph->AddOutEdge1(SrcIdx, SVal, DVal)) {
@@ -315,13 +317,14 @@ PGraphMP ToGraphMP(PTable Table, const TStr& SrcCol, const TStr& DstCol) {
   omp_set_num_threads(Threads);
   #pragma omp parallel for schedule(static,Delta)
   for (int CurrRowIdx = 0; CurrRowIdx < Last; CurrRowIdx++) {
+	TInt SVal, DVal;
 	if (NodeType == atInt) {
-      TInt SVal = Table->IntCols[SrcColIdx][CurrRowIdx];
-      TInt DVal = Table->IntCols[DstColIdx][CurrRowIdx];
+      SVal = Table->IntCols[SrcColIdx][CurrRowIdx];
+      DVal = Table->IntCols[DstColIdx][CurrRowIdx];
 	}
 	else if (NodeType == atStr) {
-      TInt SVal = (Table->StrColMaps)[SrcColIdx][CurrRowIdx];
-      TInt DVal = (Table->StrCopMaps)[DstColIdx][CurrRowIdx];
+      SVal = (Table->StrColMaps)[SrcColIdx][CurrRowIdx];
+      DVal = (Table->StrColMaps)[DstColIdx][CurrRowIdx];
 	}
 
     Graph->AddOutEdge2(SVal, DVal);
