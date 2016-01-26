@@ -352,6 +352,9 @@ PGraphMP ToGraphMP2(PTable Table, const TStr& SrcCol, const TStr& DstCol) {
   // double start = omp_get_wtime();
   const TInt SrcColIdx = Table->GetColIdx(SrcCol);
   const TInt DstColIdx = Table->GetColIdx(DstCol);
+  const TAttrType NodeType = Table->GetColType(SrcCol);
+  Assert(NodeType == Table->GetColType(DstCol));
+
   const TInt NumRows = Table->NumValidRows;
 
   TIntV SrcCol1, DstCol1, SrcCol2, DstCol2;
@@ -379,17 +382,34 @@ PGraphMP ToGraphMP2(PTable Table, const TStr& SrcCol, const TStr& DstCol) {
   // printf("Partition time = %f\n", endPartition-endResize);
 
   omp_set_num_threads(omp_get_max_threads());
-  #pragma omp parallel for schedule(static)
-  for (int i = 0; i < Partitions.Len(); i++) {
-    TRowIterator RowI(Partitions[i].GetVal1(), Table());
-    TRowIterator EndI(Partitions[i].GetVal2(), Table());
-    while (RowI < EndI) {
-      TInt RowId = RowI.GetRowIdx();
-      SrcCol1[RowId] = RowI.GetIntAttr(SrcColIdx);
-      SrcCol2[RowId] = RowI.GetIntAttr(SrcColIdx);
-      DstCol1[RowId] = RowI.GetIntAttr(DstColIdx);
-      DstCol2[RowId] = RowI.GetIntAttr(DstColIdx);
-      RowI++;
+  if (NodeType == atInt) {
+    #pragma omp parallel for schedule(static)
+    for (int i = 0; i < Partitions.Len(); i++) {
+      TRowIterator RowI(Partitions[i].GetVal1(), Table());
+      TRowIterator EndI(Partitions[i].GetVal2(), Table());
+      while (RowI < EndI) {
+        TInt RowId = RowI.GetRowIdx();
+        SrcCol1[RowId] = RowI.GetIntAttr(SrcColIdx);
+        SrcCol2[RowId] = RowI.GetIntAttr(SrcColIdx);
+        DstCol1[RowId] = RowI.GetIntAttr(DstColIdx);
+        DstCol2[RowId] = RowI.GetIntAttr(DstColIdx);
+        RowI++;
+      }
+    }
+  }
+  else if (NodeType == atStr) {
+    #pragma omp parallel for schedule(static)
+    for (int i = 0; i < Partitions.Len(); i++) {
+      TRowIterator RowI(Partitions[i].GetVal1(), Table());
+      TRowIterator EndI(Partitions[i].GetVal2(), Table());
+      while (RowI < EndI) {
+        TInt RowId = RowI.GetRowIdx();
+        SrcCol1[RowId] = RowI.GetStrMapById(SrcColIdx);
+        SrcCol2[RowId] = RowI.GetStrMapById(SrcColIdx);
+        DstCol1[RowId] = RowI.GetStrMapById(DstColIdx);
+        DstCol2[RowId] = RowI.GetStrMapById(DstColIdx);
+        RowI++;
+      }
     }
   }
 
