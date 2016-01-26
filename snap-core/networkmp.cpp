@@ -510,14 +510,16 @@ void TNEANetMP::GetEIdV(TIntV& EIdV) const {
   }
 }
 
-//void TNEANetMP::Defrag(const bool& OnlyNodeLinks) {
-//  for (int kid = NodeH.FFirstKeyId(); NodeH.FNextKeyId(kid); ) {
-//    TNode& Node = NodeH[kid];
-//    Node.InEIdV.Pack();  Node.OutEIdV.Pack();
-//  }
-//  if (! OnlyNodeLinks && ! NodeH.IsKeyIdEqKeyN()) { NodeH.Defrag(); }
-//  if (! OnlyNodeLinks && ! EdgeH.IsKeyIdEqKeyN()) { EdgeH.Defrag(); }
-//}
+void TNEANetMP::Defrag(const bool& OnlyNodeLinks) {
+  #if 0
+  for (int kid = NodeH.FFirstKeyId(); NodeH.FNextKeyId(kid); ) {
+    TNode& Node = NodeH[kid];
+    Node.InEIdV.Pack();  Node.OutEIdV.Pack();
+  }
+  if (! OnlyNodeLinks && ! NodeH.IsKeyIdEqKeyN()) { NodeH.Defrag(); }
+  if (! OnlyNodeLinks && ! EdgeH.IsKeyIdEqKeyN()) { EdgeH.Defrag(); }
+  #endif
+}
 
 bool TNEANetMP::IsOk(const bool& ThrowExcept) const {
   bool RetVal = true;
