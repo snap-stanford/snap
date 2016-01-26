@@ -195,6 +195,9 @@ PGraphMP ToGraphMP(PTable Table, const TStr& SrcCol, const TStr& DstCol) {
 
   SrcColIdx = Table->GetColIdx(SrcCol);
   DstColIdx = Table->GetColIdx(DstCol);
+  const TAttrType NodeType = Table->GetColType(SrcCol);
+  Assert(NodeType == Table->GetColType(DstCol));
+
 
   /* Estimate number of nodes in the graph */
   int NumRows = Table->Next.Len();
@@ -202,21 +205,28 @@ PGraphMP ToGraphMP(PTable Table, const TStr& SrcCol, const TStr& DstCol) {
   int sz = NumRows / Load;
   int *buckets = (int *)malloc(sz * sizeof(int));
 
-#pragma omp parallel for
-  for (int i = 0; i < sz; i++)
-    buckets[i] = 0;
+  #pragma omp parallel for
+    for (int i = 0; i < sz; i++)
+      buckets[i] = 0;
 
-#pragma omp parallel for
-  for (int i = 0; i < NumRows; i++) {
-    int vert = Table->IntCols[DstColIdx][i];
-    buckets[vert % sz] = 1;
+  if (NodeType == atInt) {
+    #pragma omp parallel for
+      for (int i = 0; i < NumRows; i++) {
+        int vert = Table->IntCols[DstColIdx][i];
+        buckets[vert % sz] = 1;
+      }
   }
-
-  int cnt = 0;
-#pragma omp parallel for reduction(+:cnt)
-  for (int i = 0; i < sz; i++) {
-    if (buckets[i] == 0)
-      cnt += 1;
+  else if (NodeType == atStr ) {
+    #pragma omp parallel for
+      for (int i = 0; i < NumRows; i++) {
+        int vert = (Table->StrColMaps)[DstColIdx][i];
+        buckets[vert % sz] = 1;
+      }
+  }
+  #pragma omp parallel for reduction(+:cnt)
+    for (int i = 0; i < sz; i++) {
+      if (buckets[i] == 0)
+        cnt += 1;
   }
 
   NumNodesEst = sz * log ((double)sz / cnt);
@@ -238,35 +248,40 @@ PGraphMP ToGraphMP(PTable Table, const TStr& SrcCol, const TStr& DstCol) {
     Last = NumRows;
     Nodes = 0;
     omp_set_num_threads(Threads);
-#pragma omp parallel for schedule(static, Delta)
-    for (int CurrRowIdx = 0; CurrRowIdx < Last; CurrRowIdx++) {
-      if ((uint64_t) Nodes + 1000 >= NumNodesEst) {
-        /* need bigger hash table */
-        continue;
+    #pragma omp parallel for schedule(static, Delta)
+      for (int CurrRowIdx = 0; CurrRowIdx < Last; CurrRowIdx++) {
+        if ((uint64_t) Nodes + 1000 >= NumNodesEst) {
+          /* need bigger hash table */
+          continue;
+        }
+
+        if (NodeType == atInt) {
+          TInt SVal = Table->IntCols[SrcColIdx][CurrRowIdx];
+          TInt DVal = Table->IntCols[DstColIdx][CurrRowIdx];
+        }
+        else if (NodeType == atStr ) {
+          TInt SVal = (Table->StrColMaps)[SrcColIdx][CurrRowIdx];
+          TInt DVal = (Table->StrColMaps)[DstColIdx][CurrRowIdx];
+        }
+        int SrcIdx = abs((SVal.GetPrimHashCd()) % Length);
+        if (!Graph->AddOutEdge1(SrcIdx, SVal, DVal)) {
+          #pragma omp critical
+          {
+                  Nodes++;
+          }
+        }
+        __sync_fetch_and_add(&OutVec[SrcIdx].Val, 1);
+
+        int DstIdx = abs((DVal.GetPrimHashCd()) % Length);
+        if (!Graph->AddInEdge1(DstIdx, SVal, DVal)) {
+          #pragma omp critical
+          {
+            Nodes++;
+          }
+        }
+        __sync_fetch_and_add(&InVec[DstIdx].Val, 1);
+
       }
-
-      TInt SVal = Table->IntCols[SrcColIdx][CurrRowIdx];
-      TInt DVal = Table->IntCols[DstColIdx][CurrRowIdx];
-
-      int SrcIdx = abs((SVal.GetPrimHashCd()) % Length);
-      if (!Graph->AddOutEdge1(SrcIdx, SVal, DVal)) {
-#pragma omp critical
-{
-        Nodes++;
-}
-      }
-      __sync_fetch_and_add(&OutVec[SrcIdx].Val, 1);
-
-      int DstIdx = abs((DVal.GetPrimHashCd()) % Length);
-      if (!Graph->AddInEdge1(DstIdx, SVal, DVal)) {
-#pragma omp critical
-{
-        Nodes++;
-}
-      }
-      __sync_fetch_and_add(&InVec[DstIdx].Val, 1);
-
-    }
     if ((uint64_t) Nodes + 1000 >= NumNodesEst) {
       /* We need to double our num nodes estimate */
       Graph.Clr();
@@ -300,8 +315,14 @@ PGraphMP ToGraphMP(PTable Table, const TStr& SrcCol, const TStr& DstCol) {
   omp_set_num_threads(Threads);
   #pragma omp parallel for schedule(static,Delta)
   for (int CurrRowIdx = 0; CurrRowIdx < Last; CurrRowIdx++) {
-    TInt SVal = Table->IntCols[SrcColIdx][CurrRowIdx];
-    TInt DVal = Table->IntCols[DstColIdx][CurrRowIdx];
+	if (NodeType == atInt) {
+      TInt SVal = Table->IntCols[SrcColIdx][CurrRowIdx];
+      TInt DVal = Table->IntCols[DstColIdx][CurrRowIdx];
+	}
+	else if (NodeType == atStr) {
+      TInt SVal = (Table->StrColMaps)[SrcColIdx][CurrRowIdx];
+      TInt DVal = (Table->StrCopMaps)[DstColIdx][CurrRowIdx];
+	}
 
     Graph->AddOutEdge2(SVal, DVal);
     Graph->AddInEdge2(SVal, DVal);
@@ -951,7 +972,7 @@ inline PNEANetMP ToTNEANetMP2(PTable Table, const TStr& SrcCol, const TStr& DstC
     { EdgeCol2.Reserve(NumRows, NumRows); }
   }
   Sw->Stop(TStopwatch::AllocateColumnCopies);
-
+  printf("Columns allocated\n");
   Sw->Start(TStopwatch::CopyColumns);
   TIntPrV Partitions;
 //  int NThreads = omp_get_max_threads();
@@ -992,6 +1013,7 @@ inline PNEANetMP ToTNEANetMP2(PTable Table, const TStr& SrcCol, const TStr& DstC
 //  }
   Sw->Stop(TStopwatch::CopyColumns);
 
+  printf("Copied columns.\n");
   Sw->Start(TStopwatch::Sort);
   TInt ExtremePoints[4][NThreads];
   omp_set_num_threads(omp_get_max_threads());
