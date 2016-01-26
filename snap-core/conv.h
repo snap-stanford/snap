@@ -694,6 +694,10 @@ inline PNEANetMP ToTNEANetMP(PTable Table, const TStr& SrcCol, const TStr& DstCo
   const TInt DstColIdx = Table->GetColIdx(DstCol);
   const TInt NumRows = Table->GetNumValidRows();
 
+  const TAttrType NodeType = Table->GetColType(SrcCol);
+  Assert(NodeType == Table->GetColType(DstCol));
+
+
   TIntV SrcCol1, EdgeCol1, EdgeCol2, DstCol2;
 
   #pragma omp parallel sections num_threads(4)
@@ -718,17 +722,34 @@ inline PNEANetMP ToTNEANetMP(PTable Table, const TStr& SrcCol, const TStr& DstCo
   // printf("Partition time = %f\n", endPartition-endResize);
 
   omp_set_num_threads(omp_get_max_threads());
-  #pragma omp parallel for schedule(static)
-  for (int i = 0; i < Partitions.Len(); i++) {
-    TRowIterator RowI(Partitions[i].GetVal1(), Table());
-    TRowIterator EndI(Partitions[i].GetVal2(), Table());
-    while (RowI < EndI) {
-      TInt RowId = RowI.GetRowIdx();
-      SrcCol1[RowId] = RowI.GetIntAttr(SrcColIdx);
-      EdgeCol1[RowId] = RowId;
-      DstCol2[RowId] = RowI.GetIntAttr(DstColIdx);
-      EdgeCol2[RowId] = RowId;
-      RowI++;
+  if (NodeType == atInt) {
+    #pragma omp parallel for schedule(static)
+    for (int i = 0; i < Partitions.Len(); i++) {
+      TRowIterator RowI(Partitions[i].GetVal1(), Table());
+      TRowIterator EndI(Partitions[i].GetVal2(), Table());
+      while (RowI < EndI) {
+        TInt RowId = RowI.GetRowIdx();
+        SrcCol1[RowId] = RowI.GetIntAttr(SrcColIdx);
+        EdgeCol1[RowId] = RowId;
+        DstCol2[RowId] = RowI.GetIntAttr(DstColIdx);
+        EdgeCol2[RowId] = RowId;
+        RowI++;
+      }
+    }
+  }
+  else if (NodeType == atStr) {
+    #pragma omp parallel for schedule(static)
+    for (int i = 0; i < Partitions.Len(); i++) {
+      TRowIterator RowI(Partitions[i].GetVal1(), Table());
+      TRowIterator EndI(Partitions[i].GetVal2(), Table());
+      while (RowI < EndI) {
+        TInt RowId = RowI.GetRowIdx();
+        SrcCol1[RowId] = RowI.GetStrMapById(SrcColIdx);
+        EdgeCol1[RowId] = RowId;
+        DstCol2[RowId] = RowI.GetStrMapById(DstColIdx);
+        EdgeCol2[RowId] = RowId;
+        RowI++;
+      }
     }
   }
   Sw->Stop(TStopwatch::CopyColumns);
@@ -952,17 +973,34 @@ inline PNEANetMP ToTNEANetMP(PTable Table, const TStr& SrcCol, const TStr& DstCo
 
   Sw->Start(TStopwatch::AddEdges);
   omp_set_num_threads(omp_get_max_threads());
-  #pragma omp parallel for schedule(static)
-  for (int i = 0; i < Partitions.Len(); i++) {
-    TRowIterator RowI(Partitions[i].GetVal1(), Table());
-    TRowIterator EndI(Partitions[i].GetVal2(), Table());
-    while (RowI < EndI) {
-      TInt RowId = RowI.GetRowIdx(); // EdgeId
-      TInt SrcId = RowI.GetIntAttr(SrcColIdx);
-      TInt DstId = RowI.GetIntAttr(DstColIdx);
-      Graph->AddEdgeUnchecked(RowId, SrcId, DstId);
-      RowI++;
+  if (NodeType == atInt) {
+    #pragma omp parallel for schedule(static)
+    for (int i = 0; i < Partitions.Len(); i++) {
+      TRowIterator RowI(Partitions[i].GetVal1(), Table());
+      TRowIterator EndI(Partitions[i].GetVal2(), Table());
+      while (RowI < EndI) {
+        TInt RowId = RowI.GetRowIdx(); // EdgeId
+        TInt SrcId = RowI.GetIntAttr(SrcColIdx);
+        TInt DstId = RowI.GetIntAttr(DstColIdx);
+        Graph->AddEdgeUnchecked(RowId, SrcId, DstId);
+        RowI++;
+      }
     }
+  }
+  else if (NodeType == atFlt) {
+    #pragma omp parallel for schedule(static)
+    for (int i = 0; i < Partitions.Len(); i++) {
+      TRowIterator RowI(Partitions[i].GetVal1(), Table());
+      TRowIterator EndI(Partitions[i].GetVal2(), Table());
+      while (RowI < EndI) {
+        TInt RowId = RowI.GetRowIdx(); // EdgeId
+        TInt SrcId = RowI.GetIntAttr(SrcColIdx);
+        TInt DstId = RowI.GetIntAttr(DstColIdx);
+        Graph->AddEdgeUnchecked(RowId, SrcId, DstId);
+        RowI++;
+      }
+    }
+
   }
   Graph->SetEdges(NumRows);
   Sw->Stop(TStopwatch::AddEdges);
