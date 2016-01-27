@@ -78,7 +78,7 @@ void test_strs(){
 int main(int argc, char* argv[]) {
   TEnv Env(argc, argv);
   TStr PrefixPath = Env.GetArgs() > 1 ? Env.GetArg(1) : TStr("");
-  test_ints();
+//  test_ints();
   test_strs();
 
  return 0;
