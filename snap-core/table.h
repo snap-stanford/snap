@@ -325,13 +325,12 @@ namespace TSnap{
 #ifdef GCC_ATOMIC
   template<class PGraphMP> PGraphMP ToGraphMP(PTable Table,
     const TStr& SrcCol, const TStr& DstCol);
-  template<class PGraphMP> PGraphMP ToGraphMP2(PTable Table,
+  template<class PGraphMP> PGraphMP ToGraphMP3(PTable Table,
     const TStr& SrcCol, const TStr& DstCol);
-
-  template<class PGraphMP> friend PGraphMP TSnap::ToNetworkMP(PTable Table, const TStr& SrcCol, const TStr& DstCol,
+  template<class PGraphMP> PGraphMP ToNetworkMP(PTable Table, const TStr& SrcCol, const TStr& DstCol,
 		  TStrV& SrcAttrs, TStrV& DstAttrs, TStrV& EdgeAttrs, TAttrAggr AggrPolicy);
-  template<class PGraphMP> friend PGraphMP TSnap::ToNetworkMP2(PTable Table, const TStr& SrcCol, const TStr& DstCol,
-		  TStrV& SrcAttrs, TStrV& DstAttrs, TStrV& EdgeAttrs, TAttrAggr AggrPolicy););
+  template<class PGraphMP> PGraphMP ToNetworkMP2(PTable Table, const TStr& SrcCol, const TStr& DstCol,
+		  TStrV& SrcAttrs, TStrV& DstAttrs, TStrV& EdgeAttrs, TAttrAggr AggrPolicy);
 
 #endif // GCC_ATOMIC
 }
@@ -356,7 +355,7 @@ public:
   template<class PGraphMP> friend PGraphMP TSnap::ToGraphMP(PTable Table, const TStr& SrcCol, const TStr& DstCol);
   template<class PGraphMP> friend PGraphMP TSnap::ToGraphMP3(PTable Table, const TStr& SrcCol, const TStr& DstCol);
   template<class PGraphMP> friend PGraphMP TSnap::ToNetworkMP(PTable Table, const TStr& SrcCol, const TStr& DstCol, TStrV& SrcAttrs, TStrV& DstAttrs, TStrV& EdgeAttrs, TAttrAggr AggrPolicy);
-  template<class PGraphMP> friend PGraphMP TSnap::ToNetworkMP2(PTable Table, const TStr& SrcCol, const TStr& DstCol,  TStrV& SrcAttrs, TStrV& DstAttrs, TStrV& EdgeAttrs, TAttrAggr AggrPolicy););
+  template<class PGraphMP> friend PGraphMP TSnap::ToNetworkMP2(PTable Table, const TStr& SrcCol, const TStr& DstCol,  TStrV& SrcAttrs, TStrV& DstAttrs, TStrV& EdgeAttrs, TAttrAggr AggrPolicy);
 #endif // GCC_ATOMIC
 
   static void SetMP(TInt Value) { UseMP = Value; }
