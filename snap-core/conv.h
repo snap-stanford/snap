@@ -1059,7 +1059,6 @@ inline PGraphMP ToNetworkMP2(PTable Table,
     { EdgeCol2.Reserve(NumRows, NumRows); }
   }
   Sw->Stop(TStopwatch::AllocateColumnCopies);
-  printf("Columns allocated\n");
   Sw->Start(TStopwatch::CopyColumns);
   TIntPrV Partitions;
 //  int NThreads = omp_get_max_threads();
@@ -1117,7 +1116,6 @@ inline PGraphMP ToNetworkMP2(PTable Table,
 //  }
   Sw->Stop(TStopwatch::CopyColumns);
 
-  printf("Copied columns.\n");
   Sw->Start(TStopwatch::Sort);
   TInt ExtremePoints[4][NThreads];
   omp_set_num_threads(omp_get_max_threads());
