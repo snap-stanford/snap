@@ -520,7 +520,7 @@ public:
   void Reserve(const int& Nodes, const int& Edges) {
     if (Nodes>0) { NodeH.Gen(Nodes); } if (Edges>0) { EdgeH.Gen(Edges); } }
 //  /// Defragments the graph. ##TNEANetMP::Defrag
-//  void Defrag(const bool& OnlyNodeLinks=false);
+  void Defrag(const bool& OnlyNodeLinks=false);
   /// Checks the graph data structure for internal consistency. ##TNEANetMP::IsOk
   bool IsOk(const bool& ThrowExcept=true) const;
   /// Print the graph in a human readable form to an output stream OutF.
