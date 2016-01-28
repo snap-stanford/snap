@@ -325,10 +325,13 @@ namespace TSnap{
 #ifdef GCC_ATOMIC
   template<class PGraphMP> PGraphMP ToGraphMP(PTable Table,
     const TStr& SrcCol, const TStr& DstCol);
-  template<class PGraphMP> PGraphMP ToGraphMP2(PTable Table,
+  template<class PGraphMP> PGraphMP ToGraphMP3(PTable Table,
     const TStr& SrcCol, const TStr& DstCol);
-  PNEANetMP ToTNEANetMP(PTable Table, const TStr& SrcCol, const TStr& DstCol);
-  PNEANetMP ToTNEANetMP2(PTable Table, const TStr& SrcCol, const TStr& DstCol);
+  template<class PGraphMP> PGraphMP ToNetworkMP(PTable Table, const TStr& SrcCol, const TStr& DstCol,
+		  TStrV& SrcAttrs, TStrV& DstAttrs, TStrV& EdgeAttrs, TAttrAggr AggrPolicy);
+  template<class PGraphMP> PGraphMP ToNetworkMP2(PTable Table, const TStr& SrcCol, const TStr& DstCol,
+		  TStrV& SrcAttrs, TStrV& DstAttrs, TStrV& EdgeAttrs, TAttrAggr AggrPolicy);
+
 #endif // GCC_ATOMIC
 }
 
@@ -350,9 +353,9 @@ public:
 
 #ifdef GCC_ATOMIC
   template<class PGraphMP> friend PGraphMP TSnap::ToGraphMP(PTable Table, const TStr& SrcCol, const TStr& DstCol);
-  template<class PGraphMP> friend PGraphMP TSnap::ToGraphMP2(PTable Table, const TStr& SrcCol, const TStr& DstCol);
-  friend PNEANetMP TSnap::ToTNEANetMP(PTable Table, const TStr& SrcCol, const TStr& DstCol);
-  friend PNEANetMP TSnap::ToTNEANetMP2(PTable Table, const TStr& SrcCol, const TStr& DstCol);
+  template<class PGraphMP> friend PGraphMP TSnap::ToGraphMP3(PTable Table, const TStr& SrcCol, const TStr& DstCol);
+  template<class PGraphMP> friend PGraphMP TSnap::ToNetworkMP(PTable Table, const TStr& SrcCol, const TStr& DstCol, TStrV& SrcAttrs, TStrV& DstAttrs, TStrV& EdgeAttrs, TAttrAggr AggrPolicy);
+  template<class PGraphMP> friend PGraphMP TSnap::ToNetworkMP2(PTable Table, const TStr& SrcCol, const TStr& DstCol,  TStrV& SrcAttrs, TStrV& DstAttrs, TStrV& EdgeAttrs, TAttrAggr AggrPolicy);
 #endif // GCC_ATOMIC
 
   static void SetMP(TInt Value) { UseMP = Value; }
@@ -724,10 +727,10 @@ public:
   // }
 
 /***** Save / Load functions *****/
-  /// Loads table from spread sheet (TSV, CSV, etc).
+  /// Loads table from spread sheet (TSV, CSV, etc). Note: HasTitleLine = true is not supported. Please comment title lines instead
   static PTable LoadSS(const Schema& S, const TStr& InFNm, TTableContext* Context,
    const char& Separator = '\t', TBool HasTitleLine = false);
-  /// Loads table from spread sheet - but only load the columns specified by RelevantCols.
+  /// Loads table from spread sheet - but only load the columns specified by RelevantCols. Note: HasTitleLine = true is not supported. Please comment title lines instead
   static PTable LoadSS(const Schema& S, const TStr& InFNm, TTableContext* Context,
    const TIntV& RelevantCols, const char& Separator = '\t', TBool HasTitleLine = false);
   /// Saves table schema and content to a TSV file.
