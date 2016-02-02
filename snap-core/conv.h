@@ -1017,6 +1017,16 @@ inline PGraphMP ToNetworkMP(PTable Table,
   return Graph;
 }
 
+template<class PGraphMP>
+PGraphMP ToNetworkMP(PTable Table,
+  const TStr& SrcCol, const TStr& DstCol, TAttrAggr AggrPolicy)
+{
+  TStrV V;
+  return ToNetworkMP<PGraphMP>(Table, SrcCol, DstCol, V, V, V, AggrPolicy);
+}
+
+
+
 ///Implements table to network conversion in parallel. Not the recommended algorithm.
 template<class PGraphMP>
 inline PGraphMP ToNetworkMP2(PTable Table,
@@ -1049,7 +1059,6 @@ inline PGraphMP ToNetworkMP2(PTable Table,
     { EdgeCol2.Reserve(NumRows, NumRows); }
   }
   Sw->Stop(TStopwatch::AllocateColumnCopies);
-  printf("Columns allocated\n");
   Sw->Start(TStopwatch::CopyColumns);
   TIntPrV Partitions;
 //  int NThreads = omp_get_max_threads();
@@ -1107,7 +1116,6 @@ inline PGraphMP ToNetworkMP2(PTable Table,
 //  }
   Sw->Stop(TStopwatch::CopyColumns);
 
-  printf("Copied columns.\n");
   Sw->Start(TStopwatch::Sort);
   TInt ExtremePoints[4][NThreads];
   omp_set_num_threads(omp_get_max_threads());
@@ -1448,6 +1456,15 @@ inline PGraphMP ToNetworkMP2(PTable Table,
 
   return Graph;
 }
+template<class PGraphMP>
+PGraphMP ToNetworkMP2(PTable Table,
+  const TStr& SrcCol, const TStr& DstCol, TAttrAggr AggrPolicy)
+{
+  TStrV V;
+  return ToNetworkMP2<PGraphMP>(Table, SrcCol, DstCol, V, V, V, AggrPolicy);
+}
+
+
 
 #endif // GCC_ATOMIC
 
