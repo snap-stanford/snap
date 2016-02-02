@@ -993,15 +993,15 @@ inline PGraphMP ToNetworkMP(PTable Table,
       }
     }
   }
-  else if (NodeType == atFlt) {
+  else if (NodeType == atStr) {
     #pragma omp parallel for schedule(static)
     for (int i = 0; i < Partitions.Len(); i++) {
       TRowIterator RowI(Partitions[i].GetVal1(), Table());
       TRowIterator EndI(Partitions[i].GetVal2(), Table());
       while (RowI < EndI) {
         TInt RowId = RowI.GetRowIdx(); // EdgeId
-        TInt SrcId = RowI.GetIntAttr(SrcColIdx);
-        TInt DstId = RowI.GetIntAttr(DstColIdx);
+        TInt SrcId = RowI.GetStrMapById(SrcColIdx);
+        TInt DstId = RowI.GetStrMapById(DstColIdx);
         Graph->AddEdgeUnchecked(RowId, SrcId, DstId);
         RowI++;
       }
