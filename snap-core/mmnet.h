@@ -549,6 +549,9 @@ public:
   ///Gets the induced subgraph given a vector of mode type names
   PMMNet GetSubgraphByModeNet(TStrV& ModeNetTypes);
 
+  PNEANet ToNetwork(TStrV& CrossNetTypes);
+  PNEANet ToNetwork(TIntV& CrossNetTypes);
+
 private:
   int AddMode(const TStr& ModeName, const TInt& ModeId, const TModeNet& ModeNet);
   int AddLinkType(const TStr& LinkTypeName, const TInt& LinkTypeId, const TCrossNet& CrossNet);
