@@ -1707,7 +1707,7 @@ protected:
   TEdge& GetEdge(const int& EId) { return EdgeH.GetDat(EId); }
   const TEdge& GetEdge(const int& EId) const { return EdgeH.GetDat(EId); }
 
-private:
+protected:
   /// Gets Int node attribute val.  If not a proper attr, return default.
   TInt GetIntAttrDefaultN(const TStr& attribute) const { return IntDefaultsN.IsKey(attribute) ? IntDefaultsN.GetDat(attribute) : (TInt) TInt::Mn; }
   /// Gets Str node attribute val.  If not a proper attr, return default.
@@ -1765,7 +1765,7 @@ public:
     VecOfIntVecsN(SIn), VecOfIntVecsE(SIn), VecOfStrVecsN(SIn),VecOfStrVecsE(SIn),
     VecOfFltVecsN(SIn), VecOfFltVecsE(SIn), VecOfIntVecVecsN(SIn), VecOfIntVecVecsE(SIn), SAttrN(SIn), SAttrE(SIn) { }
   protected:
-    TNEANet(const TNEANet& Graph, bool modeSubGraph) : MxNId(Graph.MxNId), MxEId(Graph.MxEId),
+  TNEANet(const TNEANet& Graph, bool modeSubGraph) : MxNId(Graph.MxNId), MxEId(Graph.MxEId),
     NodeH(Graph.NodeH), EdgeH(Graph.EdgeH), KeyToIndexTypeN(), KeyToIndexTypeE(Graph.KeyToIndexTypeE),
     IntDefaultsN(Graph.IntDefaultsN), IntDefaultsE(Graph.IntDefaultsE), StrDefaultsN(Graph.StrDefaultsN), StrDefaultsE(Graph.StrDefaultsE),
     FltDefaultsN(Graph.FltDefaultsN), FltDefaultsE(Graph.FltDefaultsE), VecOfIntVecsN(Graph.VecOfIntVecsN), VecOfIntVecsE(Graph.VecOfIntVecsE),

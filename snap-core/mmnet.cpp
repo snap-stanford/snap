@@ -789,9 +789,9 @@ PMMNet TMMNet::GetSubgraphByModeNet(TStrV& ModeNetTypes) {
   //return NewGraph;
 }
 
-PNEANet TMMNet::ToNetwork(TIntV& CrossNetTypes, TVec<TTriple<TInt, TInt, TInt> >& NodeAttrMap, TVec<TTriple<TInt, TInt, TInt> >& EdgeAttrMap) {
+PNEANet TMMNet::ToNetwork(TIntV& CrossNetTypes, TVec<TTriple<TInt, TStr, TStr> >& NodeAttrMap, TVec<TTriple<TInt, TStr, TStr> >& EdgeAttrMap) {
   TIntPrIntH NodeMap;
-  TIntIntPrH EdgeMap;
+  TIntPrH EdgeMap;
   THashSet<TInt> Modes;
   PNEANet NewNet = TNEANet::New();
   //Add nodes and edges
@@ -824,11 +824,11 @@ PNEANet TMMNet::ToNetwork(TIntV& CrossNetTypes, TVec<TTriple<TInt, TInt, TInt> >
       int edgeId = EdgeI.GetId();
       TIntPr EdgeMapping(CrossNetTypes[i], edgeId);
       int newEId = NewNet->AddEdge(srcId, dstId);
-      EdgeMap.AddDat(newEId, EdgeMapping);
+      int otherEId = -1;
       if (!isDirected) {
-        newEId = NewNet->AddEdge(dstId, srcId);
-        EdgeMap.AddDat(newEId, EdgeMapping);
+        otherEId = NewNet->AddEdge(dstId, srcId);
       }
+      EdgeMap.AddDat(EdgeMapping, TIntPr(newEId, otherEId));
     }
   }
 
@@ -853,10 +853,72 @@ PNEANet TMMNet::ToNetwork(TIntV& CrossNetTypes, TVec<TTriple<TInt, TInt, TInt> >
     NewNet->AddIntAttrDatN(it.GetDat(), it.GetKey().GetVal1(), TStr("Mode"));
     NewNet->AddIntAttrDatN(it.GetDat(), it.GetKey().GetVal2(), TStr("Id"));
   }
-  for(TIntIntPrH::TIter it = EdgeMap.BegI(); it != EdgeMap.EndI(); it++) {
-    NewNet->AddIntAttrDatN(it.GetKey(), it.GetDat().GetVal1(), TStr("CrossNet"));
-    NewNet->AddIntAttrDatN(it.GetKey(), it.GetDat().GetVal2(), TStr("Id"));
+  for(TIntPrH::TIter it = EdgeMap.BegI(); it != EdgeMap.EndI(); it++) {
+    NewNet->AddIntAttrDatN(it.GetDat().GetVal1(), it.GetKey().GetVal1(), TStr("CrossNet"));
+    NewNet->AddIntAttrDatN(it.GetDat().GetVal1(), it.GetKey().GetVal2(), TStr("Id"));
+    if (it.GetDat().GetVal2() != -1) {
+      NewNet->AddIntAttrDatN(it.GetDat().GetVal2(), it.GetKey().GetVal1(), TStr("CrossNet"));
+      NewNet->AddIntAttrDatN(it.GetDat().GetVal2(), it.GetKey().GetVal2(), TStr("Id"));
+    }
   }
 
+  for (int i = 0; i < NodeAttrMap.Len(); i++) {
+    //mode, orig attr, new attr
+    TInt ModeId = NodeAttrMap[i].Val1;
+    TStr OrigAttr = NodeAttrMap[i].Val2;
+    TStr NewAttr = NodeAttrMap[i].Val3;
+    TModeNet& Net = GetModeNet(ModeId);
+    int type = Net.GetAttrTypeN(OrigAttr);
+    if (type == TModeNet::IntType) {
+      NewNet->AddIntAttrN(NewAttr, Net.GetIntAttrDefaultN(OrigAttr));
+      for(TModeNet::TNodeI it = Net.BegMMNI(); it != Net.EndMMNI(); it++) {
+        TIntPr OldNId(ModeId, it.GetId());
+        int NewId = NodeMap.GetDat(OldNId);
+        int Val = Net.GetIntAttrDatN(it.GetId(), OrigAttr);
+        NewNet->AddIntAttrDatN(NewId, Val, NewAttr);
+      }
+    } else if (type == TModeNet::FltType) {
+      NewNet->AddFltAttrN(NewAttr, Net.GetFltAttrDefaultN(OrigAttr));
+      for(TModeNet::TNodeI it = Net.BegMMNI(); it != Net.EndMMNI(); it++) {
+        TIntPr OldNId(ModeId, it.GetId());
+        int NewId = NodeMap.GetDat(OldNId);
+        TFlt Val = Net.GetFltAttrDatN(it.GetId(), OrigAttr);
+        NewNet->AddFltAttrDatN(NewId, Val, NewAttr);
+      }
+
+    } else if (type == TModeNet::StrType) {
+      NewNet->AddStrAttrN(NewAttr, Net.GetStrAttrDefaultN(OrigAttr));
+      for(TModeNet::TNodeI it = Net.BegMMNI(); it != Net.EndMMNI(); it++) {
+        TIntPr OldNId(ModeId, it.GetId());
+        int NewId = NodeMap.GetDat(OldNId);
+        TStr Val = Net.GetStrAttrDatN(it.GetId(), OrigAttr);
+        NewNet->AddStrAttrDatN(NewId, Val, NewAttr);
+      }
+    } else if (type == TModeNet::IntVType) {
+      NewNet->AddIntVAttrN(NewAttr);
+      for(TModeNet::TNodeI it = Net.BegMMNI(); it != Net.EndMMNI(); it++) {
+        TIntPr OldNId(ModeId, it.GetId());
+        int NewId = NodeMap.GetDat(OldNId);
+        TIntV Val = Net.GetIntVAttrDatN(it.GetId(), OrigAttr);
+        NewNet->AddIntVAttrDatN(NewId, Val, NewAttr);
+      }
+    }
+  }
+
+
   return NewNet;
+}
+
+int TModeNet::GetAttrTypeN(const TStr& attr) const {
+  if (KeyToIndexTypeN.IsKey(attr)) {
+    return KeyToIndexTypeN.GetDat(attr).Val1;
+  }
+  return -1;
+}
+
+int TCrossNet::GetAttrTypeE(const TStr& attr) const {
+  if (KeyToIndexTypeE.IsKey(attr)) {
+    return KeyToIndexTypeE.GetDat(attr).Val1;
+  }
+  return -1;
 }

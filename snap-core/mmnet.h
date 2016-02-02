@@ -85,8 +85,8 @@ private:
   int AddNbrType(const TStr& LinkName, const bool sameMode, bool isDir, TVec<TIntV>& Neighbors);
   /// Adds a new IntV node attribute to the hashmap.
   int AddIntVAttrByVecN(const TStr& attr, TVec<TIntV>& Attrs);
-
   void RemoveLinkTypes(TModeNet& Result, TStrV& LinkTypes);
+  int GetAttrTypeN(const TStr& attr) const;
 public:
 
   ///When we create a new link type, we need to add a new neighbor type here.
@@ -94,7 +94,6 @@ public:
   /// Deletes all nodes and edges from the graph.
   void Clr() { TNEANet::Clr(); NModeId = -1; MMNet = NULL; NeighborTypes.Clr(); }
 
-  friend class TPt<TModeNet>;
   friend class TMMNet;
   friend class TCrossNet;
 };
@@ -276,6 +275,7 @@ private:
   TStr GetStrAttrDefaultE(const TStr& attribute) const { return StrDefaultsE.IsKey(attribute) ? StrDefaultsE.GetDat(attribute) : (TStr) TStr::GetNullStr(); }
   /// Get Flt edge attribute val.  If not a proper attr, return default.
   TFlt GetFltAttrDefaultE(const TStr& attribute) const { return FltDefaultsE.IsKey(attribute) ? FltDefaultsE.GetDat(attribute) : (TFlt) TFlt::Mn; }
+  int GetAttrTypeE(const TStr& attr) const;
 public:
   /// Returns the number of edges in the graph.
   int GetEdges() const { return LinkH.Len(); }
@@ -550,7 +550,7 @@ public:
   PMMNet GetSubgraphByModeNet(TStrV& ModeNetTypes);
 
   PNEANet ToNetwork(TStrV& CrossNetTypes);
-  PNEANet ToNetwork(TIntV& CrossNetTypes, TVec<TTriple<TInt, TInt, TInt> >& NodeAttrMap, TVec<TTriple<TInt, TInt, TInt> >& EdgeAttrMap);
+  PNEANet ToNetwork(TIntV& CrossNetTypes, TVec<TTriple<TInt, TStr, TStr> >& NodeAttrMap, TVec<TTriple<TInt, TStr, TStr> >& EdgeAttrMap);
 
 private:
   int AddMode(const TStr& ModeName, const TInt& ModeId, const TModeNet& ModeNet);
