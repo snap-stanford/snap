@@ -905,6 +905,50 @@ PNEANet TMMNet::ToNetwork(TIntV& CrossNetTypes, TVec<TTriple<TInt, TStr, TStr> >
     }
   }
 
+  for (int i = 0; i < EdgeAttrMap.Len(); i++) {
+    //mode, orig attr, new attr
+    TInt CrossId = EdgeAttrMap[i].Val1;
+    TStr OrigAttr = EdgeAttrMap[i].Val2;
+    TStr NewAttr = EdgeAttrMap[i].Val3;
+    TCrossNet& Net = GetCrossNet(CrossId);
+    int type = Net.GetAttrTypeE(OrigAttr);
+    if (type == TCrossNet::IntType) {
+      NewNet->AddIntAttrE(NewAttr, Net.GetIntAttrDefaultE(OrigAttr));
+      for(TCrossNet::TCrossEdgeI it = Net.BegEdgeI(); it != Net.EndEdgeI(); it++) {
+        TIntPr OldNId(CrossId, it.GetId());
+        TIntPr NewId = EdgeMap.GetDat(OldNId);
+        int Val = Net.GetIntAttrDatE(it.GetId(), OrigAttr);
+        NewNet->AddIntAttrDatE(NewId.Val1, Val, NewAttr);
+        if (NewId.Val2 != -1) {
+          NewNet->AddIntAttrDatE(NewId.Val2, Val, NewAttr);
+        }
+      }
+    } else if (type == TCrossNet::FltType) {
+      NewNet->AddFltAttrE(NewAttr, Net.GetFltAttrDefaultE(OrigAttr));
+      for(TCrossNet::TCrossEdgeI it = Net.BegEdgeI(); it != Net.EndEdgeI(); it++) {
+        TIntPr OldNId(CrossId, it.GetId());
+        TIntPr NewId = EdgeMap.GetDat(OldNId);
+        TFlt Val = Net.GetFltAttrDatE(it.GetId(), OrigAttr);
+        NewNet->AddFltAttrDatE(NewId.Val1, Val, NewAttr);
+        if (NewId.Val2 != -1) {
+          NewNet->AddFltAttrDatE(NewId.Val2, Val, NewAttr);
+        }
+      }
+
+    } else if (type == TCrossNet::StrType) {
+      NewNet->AddStrAttrE(NewAttr, Net.GetStrAttrDefaultE(OrigAttr));
+      for(TCrossNet::TCrossEdgeI it = Net.BegEdgeI(); it != Net.EndEdgeI(); it++){
+        TIntPr OldNId(CrossId, it.GetId());
+        TIntPr NewId = EdgeMap.GetDat(OldNId);
+        TStr Val = Net.GetStrAttrDatE(it.GetId(), OrigAttr);
+        NewNet->AddStrAttrDatE(NewId.Val1, Val, NewAttr);
+        if (NewId.Val2 != -1) {
+          NewNet->AddStrAttrDatE(NewId.Val2, Val, NewAttr);
+        }
+      }
+    }
+  }
+
 
   return NewNet;
 }
