@@ -550,7 +550,7 @@ public:
   PMMNet GetSubgraphByModeNet(TStrV& ModeNetTypes);
 
   PNEANet ToNetwork(TStrV& CrossNetTypes);
-  PNEANet ToNetwork(TIntV& CrossNetTypes);
+  PNEANet ToNetwork(TIntV& CrossNetTypes, TVec<TTriple<TInt, TInt, TInt> >& NodeAttrMap, TVec<TTriple<TInt, TInt, TInt> >& EdgeAttrMap);
 
 private:
   int AddMode(const TStr& ModeName, const TInt& ModeId, const TModeNet& ModeNet);

@@ -789,21 +789,19 @@ PMMNet TMMNet::GetSubgraphByModeNet(TStrV& ModeNetTypes) {
   //return NewGraph;
 }
 
-PNEANet TMMNet::ToNetwork(TIntV& CrossNetTypes) {
-  THash<TIntPr, TInt> NodeMap;
+PNEANet TMMNet::ToNetwork(TIntV& CrossNetTypes, TVec<TTriple<TInt, TInt, TInt> >& NodeAttrMap, TVec<TTriple<TInt, TInt, TInt> >& EdgeAttrMap) {
+  TIntPrIntH NodeMap;
+  TIntIntPrH EdgeMap;
   THashSet<TInt> Modes;
   PNEANet NewNet = TNEANet::New();
-  NewNet->AddIntAttrN(TStr("Mode"));
-  NewNet->AddIntAttrN(TStr("Id"));
-  NewNet->AddIntAttrE(TStr("CrossNet"));
-  NewNet->AddIntAttrE(TStr("Id"));
+  //Add nodes and edges
   for (int i = 0; i < CrossNetTypes.Len(); i++) {
     TCrossNet& CrossNet = GetCrossNet(CrossNetTypes[i]);
     TInt Mode1 = CrossNet.GetMode1();
     TInt Mode2 = CrossNet.GetMode2();
     Modes.AddKey(Mode1);
     Modes.AddKey(Mode2);
-    bool isDirected = CrossNet.isDirected();
+    bool isDirected = CrossNet.IsDirected();
     for(TCrossNet::TCrossEdgeI EdgeI = CrossNet.BegEdgeI(); EdgeI != CrossNet.EndEdgeI(); EdgeI++) {
       int srcNode = EdgeI.GetSrcNId();
       int dstNode = EdgeI.GetDstNId();
@@ -814,8 +812,6 @@ PNEANet TMMNet::ToNetwork(TIntV& CrossNetTypes) {
       } else {
         srcId = NewNet->AddNode();
         NodeMap.AddDat(SrcNodeMapping, srcId);
-        NewNet->AddIntAttrDatN(srcId, Mode1, TStr("Mode"));
-        NewNet->AddIntAttrDatN(srcId, srcNode, TStr("Id"));
       }
       TIntPr DstNodeMapping(Mode2, dstNode);
       int dstId = 0;
@@ -824,18 +820,14 @@ PNEANet TMMNet::ToNetwork(TIntV& CrossNetTypes) {
       } else {
         dstId = NewNet->AddNode();
         NodeMap.AddDat(DstNodeMapping, dstId);
-        NewNet->AddIntAttrDatN(dstId, Mode2, TStr("Mode"));
-        NewNet->AddIntAttrDatN(dstId, dstNode, TStr("Id"));
       }
       int edgeId = EdgeI.GetId();
-      //TIntPr EdgeMapping(CrossNetTypes[i], edgeId);
+      TIntPr EdgeMapping(CrossNetTypes[i], edgeId);
       int newEId = NewNet->AddEdge(srcId, dstId);
-      NewNet->AddIntAttrDatE(newEId, CrossNetTypes[i], TStr("CrossNet"));
-      NewNet->AddIntAttrDatN(newEId, edgeId, TStr("Id"));
+      EdgeMap.AddDat(newEId, EdgeMapping);
       if (!isDirected) {
-        int newEId = NewNet->AddEdge(dstId, srcId);
-        NewNet->AddIntAttrDatE(newEId, CrossNetTypes[i], TStr("CrossNet"));
-        NewNet->AddIntAttrDatN(newEId, edgeId, TStr("Id"));
+        newEId = NewNet->AddEdge(dstId, srcId);
+        EdgeMap.AddDat(newEId, EdgeMapping);
       }
     }
   }
@@ -846,11 +838,25 @@ PNEANet TMMNet::ToNetwork(TIntV& CrossNetTypes) {
     for(TModeNet::TNodeI NodeIt = ModeNet.BegMMNI(); NodeIt != ModeNet.EndMMNI(); NodeIt++) {
       TIntPr NodeKey(ModeId, NodeIt.GetId());
       if (!NodeMap.IsKey(NodeKey)) {
-        int newId = NewNet.AddNode();
-        NewNet->AddIntAttrDatN(newId, ModeId, TStr("Mode"));
-        NewNet->AddIntAttrDatN(newId, NodeIt.GetId(), TStr("Id"));
+        int newId = NewNet->AddNode();
+        NodeMap.AddDat(NodeKey, newId);
       }
     }
   }
+
+  //Add attributes
+  NewNet->AddIntAttrN(TStr("Mode"));
+  NewNet->AddIntAttrN(TStr("Id"));
+  NewNet->AddIntAttrE(TStr("CrossNet"));
+  NewNet->AddIntAttrE(TStr("Id"));
+  for(TIntPrIntH::TIter it = NodeMap.BegI(); it != NodeMap.EndI(); it++) {
+    NewNet->AddIntAttrDatN(it.GetDat(), it.GetKey().GetVal1(), TStr("Mode"));
+    NewNet->AddIntAttrDatN(it.GetDat(), it.GetKey().GetVal2(), TStr("Id"));
+  }
+  for(TIntIntPrH::TIter it = EdgeMap.BegI(); it != EdgeMap.EndI(); it++) {
+    NewNet->AddIntAttrDatN(it.GetKey(), it.GetDat().GetVal1(), TStr("CrossNet"));
+    NewNet->AddIntAttrDatN(it.GetKey(), it.GetDat().GetVal2(), TStr("Id"));
+  }
+
   return NewNet;
 }
