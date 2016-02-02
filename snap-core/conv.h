@@ -706,6 +706,10 @@ inline PGraphMP ToNetworkMP(PTable Table,
 
   TIntV SrcCol1, EdgeCol1, EdgeCol2, DstCol2;
 
+  THash<TInt, TStrIntVH> NodeIntAttrs;
+  THash<TInt, TStrFltVH> NodeFltAttrs;
+  THash<TInt, TStrStrVH> NodeStrAttrs;
+
   #pragma omp parallel sections num_threads(4)
   {
     #pragma omp section
@@ -990,6 +994,29 @@ inline PGraphMP ToNetworkMP(PTable Table,
         TInt DstId = RowI.GetIntAttr(DstColIdx);
         Graph->AddEdgeUnchecked(RowId, SrcId, DstId);
         RowI++;
+		for (TInt ea_i = 0; ea_i < EdgeAttrV.Len(); ea_i++) {
+          TStr ColName = EdgeAttrV[ea_i];
+          TAttrType T = Table->GetColType(ColName);
+          TInt Index = Table->GetColIdx(ColName);
+          switch (T) {
+            case atInt:
+              Graph->AddIntAttrDatE(RowId, Table->IntCols[Index][RowId], ColName);
+              break;
+            case atFlt:
+              Graph->AddFltAttrDatE(RowId, Table->FltCols[Index][RowId], ColName);
+              break;
+            case atStr:
+              Graph->AddStrAttrDatE(RowId, Table->GetStrVal(Index, RowId), ColName);
+              break;
+          }
+        }
+        if ((Table->SrcNodeAttrV).Len() > 0) {
+          Table->AddNodeAttributes(SrcId, Table->SrcNodeAttrV, RowId, NodeIntAttrs, NodeFltAttrs, NodeStrAttrs);
+       	}
+
+        if ((Table->DstNodeAttrV).Len() > 0) {
+         Table->AddNodeAttributes(SrcId, Table->DstNodeAttrV, RowId, NodeIntAttrs, NodeFltAttrs, NodeStrAttrs);
+        }
       }
     }
   }
@@ -1004,10 +1031,64 @@ inline PGraphMP ToNetworkMP(PTable Table,
         TInt DstId = RowI.GetStrMapById(DstColIdx);
         Graph->AddEdgeUnchecked(RowId, SrcId, DstId);
         RowI++;
+		for (TInt ea_i = 0; ea_i < EdgeAttrV.Len(); ea_i++) {
+          TStr ColName = EdgeAttrV[ea_i];
+          TAttrType T = Table->GetColType(ColName);
+          TInt Index = Table->GetColIdx(ColName);
+          switch (T) {
+            case atInt:
+              Graph->AddIntAttrDatE(RowId, Table->IntCols[Index][RowId], ColName);
+              break;
+            case atFlt:
+              Graph->AddFltAttrDatE(RowId, Table->FltCols[Index][RowId], ColName);
+              break;
+            case atStr:
+              Graph->AddStrAttrDatE(RowId, Table->GetStrVal(Index, RowId), ColName);
+              break;
+          }
+        }
+        if ((Table->SrcNodeAttrV).Len() > 0) {
+          Table->AddNodeAttributes(SrcId, Table->SrcNodeAttrV, RowId, NodeIntAttrs, NodeFltAttrs, NodeStrAttrs);
+       	}
+
+        if ((Table->DstNodeAttrV).Len() > 0) {
+         Table->AddNodeAttributes(SrcId, Table->DstNodeAttrV, RowId, NodeIntAttrs, NodeFltAttrs, NodeStrAttrs);
+        }
+
       }
     }
 
   }
+
+  // aggregate node attributes and add to graph
+  if ((Table->SrcNodeAttrV).Len() > 0 || (Table->DstNodeAttrV).Len() > 0) {
+    for (typename PGraphMP::TObj::TNodeI NodeI = Graph->BegNI(); NodeI < Graph->EndNI(); NodeI++) {
+      TInt NId = NodeI.GetId();
+      if (NodeIntAttrs.IsKey(NId)) {
+        TStrIntVH IntAttrVals = NodeIntAttrs.GetDat(NId);
+        for (TStrIntVH::TIter it = IntAttrVals.BegI(); it < IntAttrVals.EndI(); it++) {
+          TInt AttrVal = Table->AggregateVector<TInt>(it.GetDat(), AggrPolicy);
+          Graph->AddIntAttrDatN(NId, AttrVal, it.GetKey());
+        }
+      }
+      if (NodeFltAttrs.IsKey(NId)) {
+        TStrFltVH FltAttrVals = NodeFltAttrs.GetDat(NId);
+        for (TStrFltVH::TIter it = FltAttrVals.BegI(); it < FltAttrVals.EndI(); it++) {
+          TFlt AttrVal = Table->AggregateVector<TFlt>(it.GetDat(), AggrPolicy);
+          Graph->AddFltAttrDatN(NId, AttrVal, it.GetKey());
+        }
+      }
+      if (NodeStrAttrs.IsKey(NId)) {
+        TStrStrVH StrAttrVals = NodeStrAttrs.GetDat(NId);
+        for (TStrStrVH::TIter it = StrAttrVals.BegI(); it < StrAttrVals.EndI(); it++) {
+          TStr AttrVal = Table->AggregateVector<TStr>(it.GetDat(), AggrPolicy);
+          Graph->AddStrAttrDatN(NId, AttrVal, it.GetKey());
+        }
+      }
+    }
+  }
+
+
   Graph->SetEdges(NumRows);
   Sw->Stop(TStopwatch::AddEdges);
 
