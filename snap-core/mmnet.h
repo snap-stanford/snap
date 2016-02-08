@@ -44,7 +44,7 @@ private:
 
 public:
   //TODO: Update constructors with information from fields above.
-  TModeNet() : TNEANet(), NModeId(-1), MMNet(),NeighborTypes() { }
+  TModeNet() : TNEANet(), NModeId(-1), MMNet(), NeighborTypes() { }
   TModeNet(const int& TypeId) : TNEANet(), NModeId(TypeId), MMNet(), NeighborTypes() { }
   /// Constructor that reserves enough memory for a graph of nodes and edges.
   explicit TModeNet(const int& Nodes, const int& Edges) : TNEANet(Nodes, Edges),
