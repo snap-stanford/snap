@@ -115,12 +115,15 @@ TCrossNet& TMMNet::GetCrossNet(const TInt& LinkId) const{
 int TCrossNet::AddEdge(const int& sourceNId, const int& destNId, int EId){
   if (EId == -1) { EId = MxEId;  MxEId++; }
   else { MxEId = TMath::Mx(EId+1, MxEId()); }
+  TModeNet& M1 = Net->TModeNetH.GetDat(this->Mode1);
+  TModeNet& M2 = Net->TModeNetH.GetDat(this->Mode2);
+  if (!M1.IsNode(sourceNId) || !M2.IsNode(destNId)) { return -1; }
   TCrossNet::TCrossEdge newEdge(EId, sourceNId, destNId);
   LinkH.AddDat(EId, newEdge);
   if (Net != NULL) {
     TStr ThisLinkName = Net->GetLinkName(this->LinkTypeId);
-    Net->TModeNetH.GetDat(this->Mode1).AddNeighbor(sourceNId, EId, true, ThisLinkName, Mode1==Mode2, IsDirect); // TODO: can't assume it is directed
-    Net->TModeNetH.GetDat(this->Mode2).AddNeighbor(destNId, EId, false, ThisLinkName, Mode1==Mode2, IsDirect);
+    M1.AddNeighbor(sourceNId, EId, true, ThisLinkName, Mode1==Mode2, IsDirect); // TODO: can't assume it is directed
+    M2.AddNeighbor(destNId, EId, false, ThisLinkName, Mode1==Mode2, IsDirect);
   }
   int i;
   // update attribute columns

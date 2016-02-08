@@ -525,10 +525,10 @@ public:
   static PMMNet Load(TSIn& SIn) { return PMMNet(new TMMNet(SIn)); }
   static PMMNet New() { return PMMNet(new TMMNet()); }
 
-  int GetModeId(const TStr& ModeName) const { return ModeNameToIdH.GetDat(ModeName);  }
-  TStr GetModeName(const TInt& ModeId) const { return ModeIdToNameH.GetDat(ModeId); }
-  int GetLinkId(const TStr& LinkName) const { return LinkNameToIdH.GetDat(LinkName);  }
-  TStr GetLinkName(const TInt& LinkId) const { return LinkIdToNameH.GetDat(LinkId); }
+  int GetModeId(const TStr& ModeName) const { if (ModeNameToIdH.IsKey(ModeName)) { return ModeNameToIdH.GetDat(ModeName); } else { return -1; }  }
+  TStr GetModeName(const TInt& ModeId) const { if (ModeIdToNameH.IsKey(ModeId)) { return ModeIdToNameH.GetDat(ModeId); } else {return TStr::GetNullStr();} }
+  int GetLinkId(const TStr& LinkName) const { if (LinkNameToIdH.IsKey(LinkName)) { return LinkNameToIdH.GetDat(LinkName); } else { return -1; }   }
+  TStr GetLinkName(const TInt& LinkId) const { if (LinkIdToNameH.IsKey(LinkId)) { return LinkIdToNameH.GetDat(LinkId); } else { return TStr::GetNullStr(); }  }
 
   TModeNet& GetModeNet(const TStr& ModeName) const;
   TModeNet& GetModeNet(const TInt& ModeId) const;

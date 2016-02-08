@@ -1316,7 +1316,7 @@ inline PNEANetMP ToTNEANetMP2(PTable Table, const TStr& SrcCol, const TStr& DstC
 }
 
 template<class PGraph>
-int LoadMode(PGraph& Graph, const TStr& ModeName, PTable Table, const TStr& NCol,
+int LoadMode(PGraph& Graph, PTable Table, const TStr& NCol,
   TStrV& NodeAttrV) {
   const TInt NColIdx = Table->GetColIdx(NCol);
 
@@ -1358,6 +1358,75 @@ int LoadMode(PGraph& Graph, const TStr& ModeName, PTable Table, const TStr& NCol
     }
   }
   return 1;
+}
+
+template<class PGraph>
+int LoadCrossNet(PGraph& Graph, PTable Table, const TStr& SrcCol, const TStr& DstCol,
+  TStrV& EdgeAttrV)
+{
+  PGraph Graph = PGraph::TObj::New();
+
+  const TAttrType NodeType = Table->GetColType(SrcCol);
+  Assert(NodeType == Table->GetColType(DstCol));
+  const TInt SrcColIdx = Table->GetColIdx(SrcCol);
+  const TInt DstColIdx = Table->GetColIdx(DstCol);
+
+  // node values - i.e. the unique values of src/dst col
+  //THashSet<TInt> IntNodeVals; // for both int and string node attr types.
+  THash<TFlt, TInt> FltNodeVals;
+
+  // node attributes
+  THash<TInt, TStrIntVH> NodeIntAttrs;
+  THash<TInt, TStrFltVH> NodeFltAttrs;
+  THash<TInt, TStrStrVH> NodeStrAttrs;
+
+  // make single pass over all rows in the table
+  for (int CurrRowIdx = 0; CurrRowIdx < (Table->Next).Len(); CurrRowIdx++) {
+    if ((Table->Next)[CurrRowIdx] == Table->Invalid) {
+      continue;
+    }
+
+    // add src and dst nodes to graph if they are not seen earlier
+   TInt SVal, DVal;
+    if (NodeType == atFlt) {
+      TFlt FSVal = (Table->FltCols)[SrcColIdx][CurrRowIdx];
+      SVal = Table->CheckAndAddFltNode(Graph, FltNodeVals, FSVal);
+      TFlt FDVal = (Table->FltCols)[SrcColIdx][CurrRowIdx];
+      DVal = Table->CheckAndAddFltNode(Graph, FltNodeVals, FDVal);
+    } else if (NodeType == atInt || NodeType == atStr) {
+      if (NodeType == atInt) {
+        SVal = (Table->IntCols)[SrcColIdx][CurrRowIdx];
+        DVal = (Table->IntCols)[DstColIdx][CurrRowIdx];
+      } else {
+        SVal = (Table->StrColMaps)[SrcColIdx][CurrRowIdx];
+        if (strlen(Table->GetContextKey(SVal)) == 0) { continue; }  //illegal value
+        DVal = (Table->StrColMaps)[DstColIdx][CurrRowIdx];
+        if (strlen(Table->GetContextKey(DVal)) == 0) { continue; }  //illegal value
+      }
+    }
+
+    // add edge and edge attributes
+    if (Graph.AddEdge(SVal, DVal, CurrRowIdx) == -1) { return -1; }
+
+    // Aggregate edge attributes and add to graph
+    for (TInt i = 0; i < EdgeAttrV.Len(); i++) {
+      TStr ColName = EdgeAttrV[i];
+      TAttrType T = Table->GetColType(ColName);
+      TInt Index = Table->GetColIdx(ColName);
+      switch (T) {
+        case atInt:
+          Graph.AddIntAttrDatE(CurrRowIdx, Table->IntCols[Index][CurrRowIdx], ColName);
+          break;
+        case atFlt:
+          Graph.AddFltAttrDatE(CurrRowIdx, Table->FltCols[Index][CurrRowIdx], ColName);
+          break;
+        case atStr:
+          Graph.AddStrAttrDatE(CurrRowIdx, Table->GetStrVal(Index, CurrRowIdx), ColName);
+          break;
+      }
+    }
+  }
+  return Graph;
 }
 
 
