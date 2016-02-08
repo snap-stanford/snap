@@ -1318,6 +1318,8 @@ inline PNEANetMP ToTNEANetMP2(PTable Table, const TStr& SrcCol, const TStr& DstC
 template<class PGraph>
 int LoadMode(PGraph& Graph, PTable Table, const TStr& NCol,
   TStrV& NodeAttrV) {
+
+  const TAttrType NodeType = Table->GetColType(NCol);
   const TInt NColIdx = Table->GetColIdx(NCol);
 
   for (int CurrRowIdx = 0; CurrRowIdx < (Table->Next).Len(); CurrRowIdx++) {
@@ -1364,7 +1366,6 @@ template<class PGraph>
 int LoadCrossNet(PGraph& Graph, PTable Table, const TStr& SrcCol, const TStr& DstCol,
   TStrV& EdgeAttrV)
 {
-  PGraph Graph = PGraph::TObj::New();
 
   const TAttrType NodeType = Table->GetColType(SrcCol);
   Assert(NodeType == Table->GetColType(DstCol));
