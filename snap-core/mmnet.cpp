@@ -964,7 +964,7 @@ PNEANet TMMNet::ToNetwork2(TIntV& CrossNetTypes, THash<TInt, TVec<TPair<TStr, TS
   for (int i = 0; i < CrossNetTypes.Len(); i++) {
     TCrossNet& CrossNet = GetCrossNet(CrossNetTypes[i]);
     TStrPrV CNetAttrs;
-    if (EdgeAttrMap.IsKey(CrossNetTypes[i]) {
+    if (EdgeAttrMap.IsKey(CrossNetTypes[i])) {
       CNetAttrs = EdgeAttrMap.GetDat(CrossNetTypes[i]);
     }
     TInt Mode1 = CrossNet.GetMode1();
