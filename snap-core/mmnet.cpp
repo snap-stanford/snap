@@ -1,10 +1,6 @@
 ////////////////////////////////////////////////
 // Mutimodal Network
 
-//TODO Sheila-check: I've removed the ModeId argument here. Is it really necessary?
-// Sheila-response: with the attribute code, we used the return value as a way to signal if there are errors
-// and made the real return values (i.e. the mode id, etc) pass by reference variables. I was just following
-// that standard.
 int TMMNet::AddMode(const TStr& ModeName) {
   //Book-keeping for new mode id and the hash lookups
   TInt ModeId = TInt(MxModeId);
@@ -17,6 +13,8 @@ int TMMNet::AddMode(const TStr& ModeName) {
   TModeNetH.AddDat(ModeId, NewGraph);
   return ModeId;
 }
+
+
 
 int TMMNet::AddLinkType(const TStr& ModeName1, const TStr& ModeName2, const TStr& LinkTypeName) {
   //IAssertR(ModeNameToIdH.IsKey(ModeName1), TStr::Fmt("No such mode name: %s", ModeName1.CStr()));

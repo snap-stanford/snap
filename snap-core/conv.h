@@ -1315,6 +1315,52 @@ inline PNEANetMP ToTNEANetMP2(PTable Table, const TStr& SrcCol, const TStr& DstC
   return Graph;
 }
 
+template<class PGraph>
+int LoadMode(PGraph& Graph, const TStr& ModeName, PTable Table, const TStr& NCol,
+  TStrV& NodeAttrV) {
+  const TInt NColIdx = Table->GetColIdx(NCol);
+
+  for (int CurrRowIdx = 0; CurrRowIdx < (Table->Next).Len(); CurrRowIdx++) {
+    if ((Table->Next)[CurrRowIdx] == Table->Invalid) {
+      continue;
+    }
+
+    // add src and dst nodes to graph if they are not seen earlier
+   TInt NVal;
+    if (NodeType == atFlt) {
+      return -1;
+    } else if (NodeType == atInt || NodeType == atStr) {
+      if (NodeType == atInt) {
+        NVal = (Table->IntCols)[NColIdx][CurrRowIdx];
+      } else {
+        NVal = (Table->StrColMaps)[NColIdx][CurrRowIdx];
+        if (strlen(Table->GetContextKey(NVal)) == 0) { continue; }  //illegal value
+      }
+      if (!Graph.IsNode(NVal)) {Graph.AddNode(NVal); }
+    }
+
+    // Aggregate edge attributes and add to graph
+    for (TInt i = 0; i < NodeAttrV.Len(); i++) {
+      TStr ColName = NodeAttrV[i];
+      TAttrType T = Table->GetColType(ColName);
+      TInt Index = Table->GetColIdx(ColName);
+      switch (T) {
+        case atInt:
+          Graph.AddIntAttrDatN(NVal, Table->IntCols[Index][CurrRowIdx], ColName);
+          break;
+        case atFlt:
+          Graph.AddFltAttrDatN(NVal, Table->FltCols[Index][CurrRowIdx], ColName);
+          break;
+        case atStr:
+          Graph.AddStrAttrDatN(NVal, Table->GetStrVal(Index, CurrRowIdx), ColName);
+          break;
+      }
+    }
+  }
+  return 1;
+}
+
+
 #endif // GCC_ATOMIC
 
 }; // TSnap namespace
