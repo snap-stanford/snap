@@ -2006,6 +2006,123 @@ PGraph ToNetworkMPNew(PTable Table,
   return ToNetworkMPNew<PGraph>(Table, SrcCol, DstCol, V, AggrPolicy);
 }
 
+template<class PGraph>
+PGraph ToNetworkNew(PTable Table,
+  const TStr& SrcCol, const TStr& DstCol,
+  TStrV& EdgeAttrV, PTable NodeTable, const TStr& NodeCol, const TStrV& NodeAttrV,
+  TAttrAggr AggrPolicy) {
+  PGraph Graph = PGraph::TObj::New();
+
+  const TAttrType NodeType = Table->GetColType(SrcCol);
+  Assert(NodeType == Table->GetColType(DstCol));
+  const TInt SrcColIdx = Table->GetColIdx(SrcCol);
+  const TInt DstColIdx = Table->GetColIdx(DstCol);
+
+
+  const TAttrType NodeTypeN = NodeTable->GetColType(NodeCol);
+  const TInt NodeColIdx = NodeTable->GetColIdx(NodeCol);
+  THash<TInt, TStrIntVH> NodeIntAttrs;
+  THash<TInt, TStrFltVH> NodeFltAttrs;
+  THash<TInt, TStrStrVH> NodeStrAttrs;
+
+
+	//Table->AddGraphAttributeV(SrcAttrV, false, true, false);
+	//Table->AddGraphAttributeV(DstAttrV, false, false, true);
+	//Table->AddGraphAttributeV(EdgeAttrV, true, false, true);
+
+  // node values - i.e. the unique values of src/dst col
+  //THashSet<TInt> IntNodeVals; // for both int and string node attr types.
+  THash<TFlt, TInt> FltNodeVals;
+
+  // make single pass over all rows in the table
+  for (int CurrRowIdx = 0; CurrRowIdx < (Table->Next).Len(); CurrRowIdx++) {
+    if ((Table->Next)[CurrRowIdx] == Table->Invalid) {
+      continue;
+    }
+
+    // add src and dst nodes to graph if they are not seen earlier
+    TInt SVal, DVal;
+    if (NodeType == atFlt) {
+      TFlt FSVal = (Table->FltCols)[SrcColIdx][CurrRowIdx];
+      SVal = Table->CheckAndAddFltNode(Graph, FltNodeVals, FSVal);
+      TFlt FDVal = (Table->FltCols)[SrcColIdx][CurrRowIdx];
+      DVal = Table->CheckAndAddFltNode(Graph, FltNodeVals, FDVal);
+    }
+    else if (NodeType == atInt || NodeType == atStr) {
+      if (NodeType == atInt) {
+        SVal = (Table->IntCols)[SrcColIdx][CurrRowIdx];
+        DVal = (Table->IntCols)[DstColIdx][CurrRowIdx];
+      }
+      else {
+        SVal = (Table->StrColMaps)[SrcColIdx][CurrRowIdx];
+  //        if (strlen(Table->GetContextKey(SVal)) == 0) { continue; }  //illegal value
+        DVal = (Table->StrColMaps)[DstColIdx][CurrRowIdx];
+  //        if (strlen(Table->GetContextKey(DVal)) == 0) { continue; }  //illegal value
+      }
+      if (!Graph->IsNode(SVal)) {Graph->AddNode(SVal); }
+      if (!Graph->IsNode(DVal)) {Graph->AddNode(DVal); }
+        //CheckAndAddIntNode(Graph, IntNodeVals, SVal);
+        //CheckAndAddIntNode(Graph, IntNodeVals, DVal);
+    }
+
+      // add edge and edge attributes
+    Graph->AddEdge(SVal, DVal, CurrRowIdx);
+
+  		// Aggregate edge attributes and add to graph
+    for (TInt i = 0; i < EdgeAttrV.Len(); i++) {
+      TStr ColName = EdgeAttrV[i];
+      TAttrType T = Table->GetColType(ColName);
+      TInt Index = Table->GetColIdx(ColName);
+      switch (T) {
+        case atInt:
+          Graph->AddIntAttrDatE(CurrRowIdx, Table->IntCols[Index][CurrRowIdx], ColName);
+          break;
+        case atFlt:
+          Graph->AddFltAttrDatE(CurrRowIdx, Table->FltCols[Index][CurrRowIdx], ColName);
+          break;
+        case atStr:
+          Graph->AddStrAttrDatE(CurrRowIdx, Table->GetStrVal(Index, CurrRowIdx), ColName);
+          break;
+      }
+    }
+  }
+
+
+  //Add node attribtes
+  if (NodeAttrV.Len() > 0) {
+    for (int CurrRowIdx = 0; CurrRowIdx < (NodeTable->Next).Len(); CurrRowIdx++) {
+      if ((NodeTable->Next)[CurrRowIdx] == NodeTable->Invalid) {
+      	continue;
+      }
+      TInt NId;
+      if (NodeTypeN == atInt) {
+        NId = (NodeTable->IntCols)[NodeColIdx][CurrRowIdx];
+      }
+      else if (NodeTypeN == atStr){
+        NId = (NodeTable->StrColMaps)[NodeColIdx][CurrRowIdx];
+      }
+      for (TInt i = 0; i < NodeAttrV.Len(); i++) {
+        TStr ColName = NodeAttrV[i];
+        TAttrType T = NodeTable->GetColType(ColName);
+        TInt Index = NodeTable->GetColIdx(ColName);
+        switch (T) {
+          case atInt:
+            Graph->AddIntAttrDatN(NId, NodeTable->IntCols[Index][CurrRowIdx], ColName);
+            break;
+          case atFlt:
+            Graph->AddFltAttrDatN(NId, NodeTable->FltCols[Index][CurrRowIdx], ColName);
+            break;
+          case atStr:
+            Graph->AddStrAttrDatN(NId, NodeTable->GetStrVal(Index, CurrRowIdx), ColName);
+            break;
+        }
+      }
+    }
+  }
+
+  return Graph;
+
+}
 
 
 
