@@ -326,6 +326,12 @@ namespace TSnap{
     const TStr& SrcCol, const TStr& DstCol,
     TStrV& EdgeAttrs,
     TAttrAggr AggrPolicy);
+
+    template<class PGraph> PGraph ToNetworkNewN(PTable Table,
+    const TStr& SrcCol, const TStr& DstCol,
+    TStrV& EdgeAttrs, PTable NodeTable, const TStr& NodeCol, TStrV& NodeAttrs,
+    TAttrAggr AggrPolicy);
+ 
     template<class PGraph> PGraph ToNetworkNew(PTable Table,
     const TStr& SrcCol, const TStr& DstCol,
     TAttrAggr AggrPolicy);
@@ -371,6 +377,11 @@ public:
     template<class PGraph> friend PGraph TSnap::ToNetworkNew(PTable Table,
     const TStr& SrcCol, const TStr& DstCol,
     TAttrAggr AggrPolicy);
+    template<class PGraph> friend PGraph TSnap::ToNetworkNewN(PTable Table,
+    const TStr& SrcCol, const TStr& DstCol,
+    TStrV& EdgeAttrs, PTable NodeTable, const TStr& NodeCol, TStrV& NodeAttrs,
+    TAttrAggr AggrPolicy);
+ 
 
 
 #ifdef GCC_ATOMIC

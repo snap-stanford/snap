@@ -2007,7 +2007,7 @@ PGraph ToNetworkMPNew(PTable Table,
 }
 
 template<class PGraph>
-PGraph ToNetworkNew(PTable Table,
+PGraph ToNetworkNewN(PTable Table,
   const TStr& SrcCol, const TStr& DstCol,
   TStrV& EdgeAttrV, PTable NodeTable, const TStr& NodeCol, const TStrV& NodeAttrV,
   TAttrAggr AggrPolicy) {
