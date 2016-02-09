@@ -1625,6 +1625,16 @@ PGraph ToNetworkNew(PTable Table,
 
 }
 
+template<class PGraph>
+PGraph ToNetworkNew(PTable Table,
+  const TStr& SrcCol, const TStr& DstCol, TAttrAggr AggrPolicy)
+{
+  TStrV V;
+  return ToNetworkNew<PGraph>(Table, SrcCol, DstCol, V, AggrPolicy);
+}
+
+
+
 template<class PGraphMP>
 inline PGraphMP ToNetworkMPNew(PTable Table,
   const TStr& SrcCol, const TStr& DstCol,
@@ -1991,6 +2001,15 @@ inline PGraphMP ToNetworkMPNew(PTable Table,
 
   return Graph;
 }
+
+template<class PGraph>
+PGraph ToNetworkMPNew(PTable Table,
+  const TStr& SrcCol, const TStr& DstCol, TAttrAggr AggrPolicy)
+{
+  TStrV V;
+  return ToNetworkMPNew<PGraph>(Table, SrcCol, DstCol, V, AggrPolicy);
+}
+
 
 
 
