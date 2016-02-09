@@ -345,7 +345,7 @@ public:
     template<class PGraph> friend int LoadCrossNet(PGraph& Graph, PTable Table, const TStr& SrcCol, const TStr& DstCol,
       TStrV& EdgeAttrV);
     template<class PGraph> friend int LoadMode(PGraph& Graph, PTable Table, const TStr& NCol,
-  TStrV& NodeAttrV) 
+  TStrV& NodeAttrV); 
 
 #ifdef GCC_ATOMIC
   template<class PGraphMP> friend PGraphMP TSnap::ToGraphMP(PTable Table, const TStr& SrcCol, const TStr& DstCol);
