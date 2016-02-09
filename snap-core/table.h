@@ -342,9 +342,9 @@ public:
     const TStr& SrcCol, const TStr& DstCol,
     TStrV& SrcAttrs, TStrV& DstAttrs, TStrV& EdgeAttrs,
     TAttrAggr AggrPolicy);
-    template<class PGraph> friend int LoadCrossNet(PGraph& Graph, PTable Table, const TStr& SrcCol, const TStr& DstCol,
+    template<class PGraph> friend int TSnap::LoadCrossNet(PGraph& Graph, PTable Table, const TStr& SrcCol, const TStr& DstCol,
       TStrV& EdgeAttrV);
-    template<class PGraph> friend int LoadMode(PGraph& Graph, PTable Table, const TStr& NCol,
+    template<class PGraph> friend int TSnap::LoadMode(PGraph& Graph, PTable Table, const TStr& NCol,
   TStrV& NodeAttrV); 
 
 #ifdef GCC_ATOMIC
