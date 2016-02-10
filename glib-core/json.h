@@ -29,9 +29,9 @@ public:
 
   // putting value
   void PutNull(){JsonValType=jvtNull;}
-  void PutBool(const bool& _Bool){JsonValType=jvtBool; Bool=_Bool;}
-  void PutNum(const double& _Num){JsonValType=jvtNum; Num=_Num;}
-  void PutStr(const TStr& _Str){JsonValType=jvtStr; Str=_Str;}
+  void PutBool(const bool& BoolVal){JsonValType=jvtBool; Bool=BoolVal;}
+  void PutNum(const double& NumVal){JsonValType=jvtNum; Num=NumVal;}
+  void PutStr(const TStr& StrVal){JsonValType=jvtStr; Str=StrVal;}
   void PutArr(){JsonValType=jvtArr;}
   void AddToArr(const PJsonVal& Val){
     EAssert(JsonValType==jvtArr); ValV.Add(Val);}
