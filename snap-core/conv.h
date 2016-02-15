@@ -1941,23 +1941,7 @@ inline PGraphMP ToNetworkMPNew(PTable Table,
         TInt DstId = RowI.GetIntAttr(DstColIdx);
         Graph->AddEdgeUnchecked(RowId, SrcId, DstId);
         RowI++;
-		for (TInt ea_i = 0; ea_i < EdgeAttrV.Len(); ea_i++) {
-          TStr ColName = EdgeAttrV[ea_i];
-          TAttrType T = Table->GetColType(ColName);
-          TInt Index = Table->GetColIdx(ColName);
-          switch (T) {
-            case atInt:
-              Graph->AddIntAttrDatE(RowId, Table->IntCols[Index][RowId], ColName);
-              break;
-            case atFlt:
-              Graph->AddFltAttrDatE(RowId, Table->FltCols[Index][RowId], ColName);
-              break;
-            case atStr:
-              Graph->AddStrAttrDatE(RowId, Table->GetStrVal(Index, RowId), ColName);
-              break;
-          }
-        }
-     }
+      }
     }
   }
   else if (NodeType == atStr) {
@@ -1971,22 +1955,6 @@ inline PGraphMP ToNetworkMPNew(PTable Table,
         TInt DstId = RowI.GetStrMapById(DstColIdx);
         Graph->AddEdgeUnchecked(RowId, SrcId, DstId);
         RowI++;
-		for (TInt ea_i = 0; ea_i < EdgeAttrV.Len(); ea_i++) {
-          TStr ColName = EdgeAttrV[ea_i];
-          TAttrType T = Table->GetColType(ColName);
-          TInt Index = Table->GetColIdx(ColName);
-          switch (T) {
-            case atInt:
-              Graph->AddIntAttrDatE(RowId, Table->IntCols[Index][RowId], ColName);
-              break;
-            case atFlt:
-              Graph->AddFltAttrDatE(RowId, Table->FltCols[Index][RowId], ColName);
-              break;
-            case atStr:
-              Graph->AddStrAttrDatE(RowId, Table->GetStrVal(Index, RowId), ColName);
-              break;
-          }
-        }
       }
     }
 
@@ -1995,6 +1963,34 @@ inline PGraphMP ToNetworkMPNew(PTable Table,
 
   Graph->SetEdges(NumRows);
   Sw->Stop(TStopwatch::AddEdges);
+
+
+  // make single pass over all rows in the table to add attributes
+  for (int CurrRowIdx = 0; CurrRowIdx < (Table->Next).Len(); CurrRowIdx++) {
+    printf("%d\n", CurrRowIdx);
+    if ((Table->Next)[CurrRowIdx] == Table->Invalid) {
+      continue;
+    }
+    for (TInt ea_i = 0; ea_i < EdgeAttrV.Len(); ea_i++) {
+      printf("%d\n", ea_i);
+      TStr ColName = EdgeAttrV[ea_i];
+      TAttrType T = Table->GetColType(ColName);
+      TInt Index = Table->GetColIdx(ColName);
+      switch (T) {
+        case atInt:
+          Graph->AddIntAttrDatE(CurrRowIdx, Table->IntCols[Index][CurrRowIdx], ColName);
+          break;
+        case atFlt:
+          Graph->AddFltAttrDatE(CurrRowIdx, Table->FltCols[Index][CurrRowIdx], ColName);
+          break;
+        case atStr:
+          Graph->AddStrAttrDatE(CurrRowIdx, Table->GetStrVal(Index, CurrRowIdx), ColName);
+          break;
+      }
+    }
+  }
+
+
 
   // double endAdd = omp_get_wtime();
   // printf("Add time = %f\n", endAdd-endAlloc);
@@ -2013,7 +2009,7 @@ PGraph ToNetworkMPNew(PTable Table,
 template<class PGraph>
 PGraph ToNetworkNew(PTable Table,
   const TStr& SrcCol, const TStr& DstCol,
-  TStrV& EdgeAttrV, PTable NodeTable, const TStr& NodeCol, const TStrV& NodeAttrV,
+  TStrV& EdgeAttrV, PTable NodeTable, const TStr& NodeCol, TStrV& NodeAttrV,
   TAttrAggr AggrPolicy) {
   PGraph Graph = PGraph::TObj::New();
 

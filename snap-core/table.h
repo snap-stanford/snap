@@ -326,6 +326,12 @@ namespace TSnap{
     const TStr& SrcCol, const TStr& DstCol,
     TStrV& EdgeAttrs,
     TAttrAggr AggrPolicy);
+
+    template<class PGraph> PGraph ToNetworkNew(PTable Table,
+    const TStr& SrcCol, const TStr& DstCol,
+    TStrV& EdgeAttrs, PTable NodeTable, const TStr& NodeCol, TStrV& NodeAttrs,
+    TAttrAggr AggrPolicy);
+ 
     template<class PGraph> PGraph ToNetworkNew(PTable Table,
     const TStr& SrcCol, const TStr& DstCol,
     TAttrAggr AggrPolicy);
@@ -371,6 +377,11 @@ public:
     template<class PGraph> friend PGraph TSnap::ToNetworkNew(PTable Table,
     const TStr& SrcCol, const TStr& DstCol,
     TAttrAggr AggrPolicy);
+    template<class PGraph> friend PGraph TSnap::ToNetworkNew(PTable Table,
+    const TStr& SrcCol, const TStr& DstCol,
+    TStrV& EdgeAttrs, PTable NodeTable, const TStr& NodeCol, TStrV& NodeAttrs,
+    TAttrAggr AggrPolicy);
+ 
 
 
 #ifdef GCC_ATOMIC
@@ -437,16 +448,17 @@ protected:
   TInt IsNextDirty; ///< Flag to signify whether the rows are stored in logical sequence or reordered. Used for optimizing GetPartitionRanges.
 
 /***** Utility functions *****/
-protected:
-  /// Increments the next vector and set last, NumRows and NumValidRows.
-  void IncrementNext();
+public:
   /// Adds an integer column with name \c ColName.
   void AddIntCol(const TStr& ColName);
   /// Adds a float column with name \c ColName.
   void AddFltCol(const TStr& ColName);
   /// Adds a string column with name \c ColName.
   void AddStrCol(const TStr& ColName);
-  /// Adds a label attribute with positive labels on selected rows and negative labels on the rest.
+protected:
+  /// Increments the next vector and set last, NumRows and NumValidRows.
+  void IncrementNext();
+ /// Adds a label attribute with positive labels on selected rows and negative labels on the rest.
   void ClassifyAux(const TIntV& SelectedRows, const TStr& LabelName,
    const TInt& PositiveLabel = 1, const TInt& NegativeLabel=  0);
 

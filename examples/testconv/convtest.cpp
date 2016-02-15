@@ -13,6 +13,12 @@ void test_ints(){
   TStr wikifilename = "/dfs/scratch0/viswa/wiki_Vote.txt";
 
   PTable wikitable = TTable::LoadSS(schema, wikifilename, &context, '\t', TBool(false));
+  TStr newcolname("newcol");
+  wikitable->AddIntCol(newcolname);
+  printf("%d\n", wikitable->GetColIdx(newcolname));
+  for (int i = 0; i < 1000; i++)
+	  printf("%d\n", wikitable->GetIntVal(newcolname, i));
+ 
   printf("Loaded the table!\n");
   PUNGraph pungraph = TSnap::ToGraph<PUNGraph>(wikitable,schema[0].GetVal1(),schema[1].GetVal1(),aaFirst);
   printf("Made the TUNGraph of %d nodes and %d edges.\n",(*pungraph).GetNodes(),(*pungraph).GetEdges());
@@ -26,14 +32,13 @@ void test_ints(){
 
   printf("Tested graph conversion with ints.\n");
 
-  TVec<TStr> emptyattrv;
-  PNEANet pneanet = TSnap::ToNetworkNew<PNEANet>(wikitable,schema[0].GetVal1(),schema[1].GetVal1(),aaFirst);
+  TVec<TStr> attrv;
+  attrv.Add(schema[1].GetVal1());
+  PNEANet pneanet = TSnap::ToNetworkNew<PNEANet>(wikitable,schema[0].GetVal1(),schema[1].GetVal1(), attrv, aaFirst);
   printf("Made the PNEANet of %d nodes and %d edges.\n", (*pneanet).GetNodes(),(*pneanet).GetEdges());
-
-  PNEANetMP pneanetmp = TSnap::ToNetworkMPNew<PNEANetMP>(wikitable,schema[0].GetVal1(),schema[1].GetVal1(),aaFirst);
-  printf("Made the PNEANetMP of %d nodes and %d edges.\n", (*pneanetmp).GetNodes(),(*pneanet).GetEdges());
-
-//  PNEANetMP pneanetmp2 = TSnap::ToNetworkMP2<PNEANetMP>(wikitable,schema[0].GetVal1(),schema[1].GetVal1(),aaFirst);
+  PNEANetMP pneanetmp = TSnap::ToNetworkMPNew<PNEANetMP>(wikitable,schema[0].GetVal1(),schema[1].GetVal1(), attrv, aaFirst);
+  printf("Made the PNEANetMP of %d nodes and %d edges.\n", (*pneanetmp).GetNodes(),(*pneanetmp).GetEdges());
+  //  PNEANetMP pneanetmp2 = TSnap::ToNetworkMP2<PNEANetMP>(wikitable,schema[0].GetVal1(),schema[1].GetVal1(),aaFirst);
 //  printf("Made the PNEANetMP of %d nodes and %d edges with MP2.\n", (*pneanetmp2).GetNodes(),(*pneanetmp).GetEdges());
 
   printf("Tested network conversions with ints.\n");
@@ -49,7 +54,11 @@ void test_strs(){
   TStr wikifilename = "/dfs/scratch0/viswa/wiki_Vote.txt";
 
   PTable wikitable = TTable::LoadSS(schema, wikifilename, &context, '\t', TBool(false));
+  TStr newcolname("newcol");
+  wikitable->AddFltCol(newcolname);
+  printf("%d\n", wikitable->GetColIdx(newcolname));
   printf("Loaded the table!\n");
+  /*
   PUNGraph pungraph = TSnap::ToGraph<PUNGraph>(wikitable,schema[0].GetVal1(),schema[1].GetVal1(),aaFirst);
   printf("Made the TUNGraph of %d nodes and %d edges.\n",(*pungraph).GetNodes(),(*pungraph).GetEdges());
   PNGraph pngraph = TSnap::ToGraph<PNGraph>(wikitable,schema[0].GetVal1(),schema[1].GetVal1(),aaFirst);
@@ -61,16 +70,17 @@ void test_strs(){
 
   printf("Tested graph conversion with strings.\n");
 
-  TVec<TStr> emptyattrv;
-  PNEANet pneanet = TSnap::ToNetworkNew<PNEANet>(wikitable,schema[0].GetVal1(),schema[1].GetVal1(),aaFirst);
+  TVec<TStr> attrv;
+  attrv.Add(schema[1].GetVal1());
+  PNEANet pneanet = TSnap::ToNetworkNew<PNEANet>(wikitable,schema[0].GetVal1(),schema[1].GetVal1(), attrv, aaFirst);
   printf("Made the PNEANet of %d nodes and %d edges.\n", (*pneanet).GetNodes(),(*pneanet).GetEdges());
-  PNEANetMP pneanetmp = TSnap::ToNetworkMPNew<PNEANetMP>(wikitable,schema[0].GetVal1(),schema[1].GetVal1(),aaFirst);
+  PNEANetMP pneanetmp = TSnap::ToNetworkMPNew<PNEANetMP>(wikitable,schema[0].GetVal1(),schema[1].GetVal1(), attrv, aaFirst);
   printf("Made the PNEANetMP of %d nodes and %d edges.\n", (*pneanetmp).GetNodes(),(*pneanet).GetEdges());
 //  PNEANetMP pneanetmp2 = TSnap::ToNetworkMP2<PNEANetMP>(wikitable,schema[0].GetVal1(),schema[1].GetVal1(),aaFirst);
 //  printf("Made the PNEANetMP of %d nodes and %d edges with MP2.\n", (*pneanetmp2).GetNodes(),(*pneanetmp).GetEdges());
 
   printf("Tested network conversions with strings.\n");
- 
+*/ 
 }
 
 
@@ -79,7 +89,7 @@ int main(int argc, char* argv[]) {
   TEnv Env(argc, argv);
   TStr PrefixPath = Env.GetArgs() > 1 ? Env.GetArg(1) : TStr("");
   test_ints();
-  test_strs();
+//  test_strs();
 
  return 0;
 }
