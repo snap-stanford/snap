@@ -752,7 +752,7 @@ public:
 
 /***** Save / Load functions *****/
   /// Loads table from spread sheet (TSV, CSV, etc). Note: HasTitleLine = true is not supported. Please comment title lines instead
-  static PTable LoadSS(const Schema& S, const TStr& InFNm, TTableContext* Context,
+  static PTable LoadSS(const Schema& S, const TStr& InFNm, TTableContext& Context,
    const char& Separator = '\t', TBool HasTitleLine = false);
   /// Loads table from spread sheet - but only load the columns specified by RelevantCols. Note: HasTitleLine = true is not supported. Please comment title lines instead
   static PTable LoadSS(const Schema& S, const TStr& InFNm, TTableContext* Context,
