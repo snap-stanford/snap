@@ -705,6 +705,7 @@ int TNEANetMP::AddFltAttrDatN(const int& NId, const TFlt& value, const TStr& att
   return 0;
 }
 
+
 int TNEANetMP::AddIntAttrDatE(const int& EId, const TInt& value, const TStr& attr) {
   int i;
   TInt CurrLen;
@@ -720,13 +721,14 @@ int TNEANetMP::AddIntAttrDatE(const int& EId, const TInt& value, const TStr& att
     KeyToIndexTypeE.AddDat(attr, TIntPr(IntType, CurrLen));
     TVec<TInt> NewVec = TVec<TInt>();
     for (i = 0; i < MxEId; i++) {
-      NewVec.Ins(i, GetIntAttrDefaultE(attr));
+      NewVec.Ins(i, (TInt) TInt::Mn);
     }
     NewVec[EdgeH.GetKeyId(EId)] = value;
     VecOfIntVecsE.Add(NewVec);
   }
   return 0;
 }
+
 
 int TNEANetMP::AddStrAttrDatE(const int& EId, const TStr& value, const TStr& attr) {
   int i;
@@ -743,7 +745,7 @@ int TNEANetMP::AddStrAttrDatE(const int& EId, const TStr& value, const TStr& att
     KeyToIndexTypeE.AddDat(attr, TIntPr(StrType, CurrLen));
     TVec<TStr> NewVec = TVec<TStr>();
     for (i = 0; i < MxEId; i++) {
-      NewVec.Ins(i, GetStrAttrDefaultE(attr));
+      NewVec.Ins(i, (TStr) TStr::GetNullStr());
     }
     NewVec[EdgeH.GetKeyId(EId)] = value;
     VecOfStrVecsE.Add(NewVec);

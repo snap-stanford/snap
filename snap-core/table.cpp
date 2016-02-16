@@ -561,7 +561,7 @@ void TTable::LoadSSSeq(
   T->InitIds();
 }
 
-PTable TTable::LoadSS(const Schema& S, const TStr& InFNm, TTableContext& Context,
+PTable TTable::LoadSS(const Schema& S, const TStr& InFNm, TTableContext* Context,
  const TIntV& RelevantCols, const char& Separator, TBool HasTitleLine) {
   TVec<uint64> IntGroupByCols;
   bool NoStringCols = true;

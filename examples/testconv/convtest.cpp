@@ -13,13 +13,9 @@ void test_ints(){
   TStr wikifilename = "/dfs/scratch0/viswa/wiki_Vote.txt";
 
   PTable wikitable = TTable::LoadSS(schema, wikifilename, &context, '\t', TBool(false));
-  TStr newcolname("newcol");
-  wikitable->AddIntCol(newcolname);
-  printf("%d\n", wikitable->GetColIdx(newcolname));
-  for (int i = 0; i < 1000; i++)
-	  printf("%d\n", wikitable->GetIntVal(newcolname, i));
  
   printf("Loaded the table!\n");
+#if 0
   PUNGraph pungraph = TSnap::ToGraph<PUNGraph>(wikitable,schema[0].GetVal1(),schema[1].GetVal1(),aaFirst);
   printf("Made the TUNGraph of %d nodes and %d edges.\n",(*pungraph).GetNodes(),(*pungraph).GetEdges());
   PNGraph pngraph = TSnap::ToGraph<PNGraph>(wikitable,schema[0].GetVal1(),schema[1].GetVal1(),aaFirst);
@@ -31,11 +27,12 @@ void test_ints(){
 //  printf("Made the TNGraphMP of %d nodes and %d edges with MP2.\n",(*pngraphmp_2).GetNodes(),(*pngraphmp_2).GetEdges());
 
   printf("Tested graph conversion with ints.\n");
+#endif
 
   TVec<TStr> attrv;
   attrv.Add(schema[1].GetVal1());
-  PNEANet pneanet = TSnap::ToNetworkNew<PNEANet>(wikitable,schema[0].GetVal1(),schema[1].GetVal1(), attrv, aaFirst);
-  printf("Made the PNEANet of %d nodes and %d edges.\n", (*pneanet).GetNodes(),(*pneanet).GetEdges());
+//  PNEANet pneanet = TSnap::ToNetworkNew<PNEANet>(wikitable,schema[0].GetVal1(),schema[1].GetVal1(), attrv, aaFirst);
+//  printf("Made the PNEANet of %d nodes and %d edges.\n", (*pneanet).GetNodes(),(*pneanet).GetEdges());
   PNEANetMP pneanetmp = TSnap::ToNetworkMPNew<PNEANetMP>(wikitable,schema[0].GetVal1(),schema[1].GetVal1(), attrv, aaFirst);
   printf("Made the PNEANetMP of %d nodes and %d edges.\n", (*pneanetmp).GetNodes(),(*pneanetmp).GetEdges());
   //  PNEANetMP pneanetmp2 = TSnap::ToNetworkMP2<PNEANetMP>(wikitable,schema[0].GetVal1(),schema[1].GetVal1(),aaFirst);
@@ -54,9 +51,6 @@ void test_strs(){
   TStr wikifilename = "/dfs/scratch0/viswa/wiki_Vote.txt";
 
   PTable wikitable = TTable::LoadSS(schema, wikifilename, &context, '\t', TBool(false));
-  TStr newcolname("newcol");
-  wikitable->AddFltCol(newcolname);
-  printf("%d\n", wikitable->GetColIdx(newcolname));
   printf("Loaded the table!\n");
   /*
   PUNGraph pungraph = TSnap::ToGraph<PUNGraph>(wikitable,schema[0].GetVal1(),schema[1].GetVal1(),aaFirst);

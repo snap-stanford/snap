@@ -468,6 +468,8 @@ public:
   int GetEdges() const { return EdgeH.Len(); }
   /// Sets the number of edges in the graph.
   void SetEdges(const int& Length) { EdgeH.SetLen(Length); }
+  /// Sets the MaxEId. Used since AddEdgeUnchecked doesn't affect EId for efficiency.
+  void SetMxEId(const TInt& Id) { MxEId = Id; }
   /// Adds an edge with ID EId between node IDs SrcNId and DstNId to the graph. ##TNEANetMP::AddEdge
   int AddEdge(const int& SrcNId, const int& DstNId, int EId  = -1);
   /// Adds an edge between EdgeI.GetSrcNId() and EdgeI.GetDstNId() to the graph.
