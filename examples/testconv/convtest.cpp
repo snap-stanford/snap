@@ -13,11 +13,24 @@ void test_ints(){
   TStr wikifilename = "/dfs/scratch0/viswa/wiki_Vote.txt";
 
   PTable wikitable = TTable::LoadSS(schema, wikifilename, &context, '\t', TBool(false));
+
+  TTableContext nodecontext;
+  Schema nodeschema;
+  nodeschema.Add(TPair<TStr,TAttrType>("nid",atInt));
+  nodeschema.Add(TPair<TStr,TAttrType>("nattr",atInt));
+  TStr nodefilename("/dfs/scratch0/viswa/fromlfs/snap-dev1/examples/testconv/nodelist");
+  PTable nodetable = TTable::LoadSS(nodeschema, nodefilename, &nodecontext, '\t', TBool(false));
+ 
  
   printf("Loaded the table!\n");
-#if 0
+#if 1
   PUNGraph pungraph = TSnap::ToGraph<PUNGraph>(wikitable,schema[0].GetVal1(),schema[1].GetVal1(),aaFirst);
   printf("Made the TUNGraph of %d nodes and %d edges.\n",(*pungraph).GetNodes(),(*pungraph).GetEdges());
+/*
+  for (TUNGraph::TNodeI node_i = pungraph->BegNI(); node_i < pungraph->EndNI(); node_i++) {
+    printf("%d\t1\n", node_i.GetId());
+  }
+*/
   PNGraph pngraph = TSnap::ToGraph<PNGraph>(wikitable,schema[0].GetVal1(),schema[1].GetVal1(),aaFirst);
   printf("Made the TNGraph of %d nodes and %d edges.\n",(*pngraph).GetNodes(),(*pngraph).GetEdges());
   PNGraphMP pngraphmp = TSnap::ToGraphMP<PNGraphMP>(wikitable,schema[0].GetVal1(),schema[1].GetVal1());
@@ -31,13 +44,22 @@ void test_ints(){
 
   TVec<TStr> attrv;
   attrv.Add(schema[1].GetVal1());
-//  PNEANet pneanet = TSnap::ToNetworkNew<PNEANet>(wikitable,schema[0].GetVal1(),schema[1].GetVal1(), attrv, aaFirst);
+//  PNEANet pneanet = TSnap::ToNetwork<PNEANet>(wikitable,schema[0].GetVal1(),schema[1].GetVal1(), attrv, aaFirst);
 //  printf("Made the PNEANet of %d nodes and %d edges.\n", (*pneanet).GetNodes(),(*pneanet).GetEdges());
-  PNEANetMP pneanetmp = TSnap::ToNetworkMPNew<PNEANetMP>(wikitable,schema[0].GetVal1(),schema[1].GetVal1(), attrv, aaFirst);
+  PNEANetMP pneanetmp = TSnap::ToNetworkMP<PNEANetMP>(wikitable,schema[0].GetVal1(),schema[1].GetVal1(), attrv, aaFirst);
   printf("Made the PNEANetMP of %d nodes and %d edges.\n", (*pneanetmp).GetNodes(),(*pneanetmp).GetEdges());
   //  PNEANetMP pneanetmp2 = TSnap::ToNetworkMP2<PNEANetMP>(wikitable,schema[0].GetVal1(),schema[1].GetVal1(),aaFirst);
 //  printf("Made the PNEANetMP of %d nodes and %d edges with MP2.\n", (*pneanetmp2).GetNodes(),(*pneanetmp).GetEdges());
 
+  TVec<TStr> eattrv;
+  eattrv.Add(schema[1].GetVal1());
+  TVec<TStr> nattrv;
+  nattrv.Add(nodeschema[1].GetVal1());
+  PNEANet pneanet_attrs = TSnap::ToNetwork<PNEANet>(wikitable, schema[0].GetVal1(), schema[1].GetVal1(), eattrv, nodetable, nodeschema[0].GetVal1(), nattrv, aaFirst);
+  printf("Made the PNEANet of %d nodes and %d edges with one edge and one node attr.\n", (*pneanet_attrs).GetNodes(),(*pneanet_attrs).GetEdges());
+
+  PNEANetMP pneanetmp_attrs = TSnap::ToNetworkMP<PNEANetMP>(wikitable, schema[0].GetVal1(), schema[1].GetVal1(), eattrv, nodetable, nodeschema[0].GetVal1(), nattrv, aaFirst);
+  printf("Made the PNEANetMP of %d nodes and %d edges with one edge and one node attr.\n", (*pneanetmp_attrs).GetNodes(),(*pneanetmp_attrs).GetEdges());
   printf("Tested network conversions with ints.\n");
 
   
@@ -66,9 +88,9 @@ void test_strs(){
 
   TVec<TStr> attrv;
   attrv.Add(schema[1].GetVal1());
-  PNEANet pneanet = TSnap::ToNetworkNew<PNEANet>(wikitable,schema[0].GetVal1(),schema[1].GetVal1(), attrv, aaFirst);
+  PNEANet pneanet = TSnap::ToNetwork<PNEANet>(wikitable,schema[0].GetVal1(),schema[1].GetVal1(), attrv, aaFirst);
   printf("Made the PNEANet of %d nodes and %d edges.\n", (*pneanet).GetNodes(),(*pneanet).GetEdges());
-  PNEANetMP pneanetmp = TSnap::ToNetworkMPNew<PNEANetMP>(wikitable,schema[0].GetVal1(),schema[1].GetVal1(), attrv, aaFirst);
+  PNEANetMP pneanetmp = TSnap::ToNetworkMP<PNEANetMP>(wikitable,schema[0].GetVal1(),schema[1].GetVal1(), attrv, aaFirst);
   printf("Made the PNEANetMP of %d nodes and %d edges.\n", (*pneanetmp).GetNodes(),(*pneanet).GetEdges());
 //  PNEANetMP pneanetmp2 = TSnap::ToNetworkMP2<PNEANetMP>(wikitable,schema[0].GetVal1(),schema[1].GetVal1(),aaFirst);
 //  printf("Made the PNEANetMP of %d nodes and %d edges with MP2.\n", (*pneanetmp2).GetNodes(),(*pneanetmp).GetEdges());
@@ -83,7 +105,7 @@ int main(int argc, char* argv[]) {
   TEnv Env(argc, argv);
   TStr PrefixPath = Env.GetArgs() > 1 ? Env.GetArg(1) : TStr("");
   test_ints();
-//  test_strs();
+  test_strs();
 
  return 0;
 }

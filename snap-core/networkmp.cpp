@@ -319,6 +319,7 @@ int TNEANetMP::AddNode(int NId) {
 void TNEANetMP::AddNodeWithEdges(const TInt& NId, TIntV& InEIdV, TIntV& OutEIdV) {
   int NodeIdx = abs((NId.GetPrimHashCd()) % Reserved());
   int NodeKeyId = NodeH.AddKey13(NodeIdx, NId);
+  MxNId = TMath::Mx(NId+1, MxNId());
   NodeH[NodeKeyId] = TNode(NId);
   NodeH[NodeKeyId].InEIdV.MoveFrom(InEIdV);
   NodeH[NodeKeyId].OutEIdV.MoveFrom(OutEIdV);
@@ -650,7 +651,7 @@ int TNEANetMP::AddIntAttrDatN(const int& NId, const TInt& value, const TStr& att
     KeyToIndexTypeN.AddDat(attr, TIntPr(IntType, CurrLen));
     TVec<TInt> NewVec = TVec<TInt>();
     for (i = 0; i < MxNId; i++) {
-      NewVec.Ins(i, GetIntAttrDefaultN(attr));
+      NewVec.Ins(i, (TInt) TInt::Mn);
     }
     NewVec[NodeH.GetKeyId(NId)] = value;
     VecOfIntVecsN.Add(NewVec);
@@ -673,7 +674,7 @@ int TNEANetMP::AddStrAttrDatN(const int& NId, const TStr& value, const TStr& att
     KeyToIndexTypeN.AddDat(attr, TIntPr(StrType, CurrLen));
     TVec<TStr> NewVec = TVec<TStr>();
     for (i = 0; i < MxNId; i++) {
-        NewVec.Ins(i, GetStrAttrDefaultN(attr));
+        NewVec.Ins(i, (TStr) TStr::GetNullStr() );
     }
     NewVec[NodeH.GetKeyId(NId)] = value;
     VecOfStrVecsN.Add(NewVec);

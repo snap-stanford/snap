@@ -165,7 +165,7 @@ int main(int argc, char* argv[]) {
   Profiler.ResetTimer(TimerId);
   Profiler.StartTimer(TimerId);
   gettimeofday(&start, NULL);
-  PNEANet pneanet= TSnap::ToNetworkNew<PNEANet>(refs,schema[0].GetVal1(),schema[1].GetVal1(), aaFirst);
+  PNEANet pneanet= TSnap::ToNetwork<PNEANet>(refs,schema[0].GetVal1(),schema[1].GetVal1(), aaFirst);
   printf("Made the PNEANet of %d nodes and %d edges with no attributes.\n", (*pneanet).GetNodes(),(*pneanet).GetEdges());
   Profiler.StopTimer(TimerId);
   gettimeofday(&end, NULL);
@@ -186,7 +186,7 @@ int main(int argc, char* argv[]) {
 //  eattrv.Add(schema[1].GetVal1());
   TVec<TStr> nattrv_0;
   nattrv_0.Add(nodeschema[1].GetVal1());
-  PNEANet pneanet_nattr = TSnap::ToNetworkNew<PNEANet>(refs,schema[0].GetVal1(),schema[1].GetVal1(),eattrv_0, nodetable, nodeschema[0].GetVal1(), nattrv_0, aaFirst);
+  PNEANet pneanet_nattr = TSnap::ToNetwork<PNEANet>(refs,schema[0].GetVal1(),schema[1].GetVal1(),eattrv_0, nodetable, nodeschema[0].GetVal1(), nattrv_0, aaFirst);
   printf("Made the PNEANet of %d nodes and %d edges with one node attribute.\n", (*pneanet_nattr).GetNodes(),(*pneanet_nattr).GetEdges());
   Profiler.StopTimer(TimerId);
   gettimeofday(&end, NULL);
@@ -204,7 +204,7 @@ int main(int argc, char* argv[]) {
   gettimeofday(&start, NULL);
   TVec<TStr> attrv;
   attrv.Add(newintcolname);
-  PNEANet pneanet_attr = TSnap::ToNetworkNew<PNEANet>(refs,schema[0].GetVal1(),schema[1].GetVal1(), attrv, aaFirst);
+  PNEANet pneanet_attr = TSnap::ToNetwork<PNEANet>(refs,schema[0].GetVal1(),schema[1].GetVal1(), attrv, aaFirst);
   printf("Made the PNEANet of %d nodes and %d edges with one edge attribute.\n", (*pneanet_attr).GetNodes(),(*pneanet_attr).GetEdges());
   Profiler.StopTimer(TimerId);
   gettimeofday(&end, NULL);
@@ -223,7 +223,7 @@ int main(int argc, char* argv[]) {
   eattrv.Add(newintcolname);
   TVec<TStr> nattrv;
   nattrv.Add(nodeschema[1].GetVal1());
-  PNEANet pneanet_neattr = TSnap::ToNetworkNew<PNEANet>(refs,schema[0].GetVal1(),schema[1].GetVal1(),eattrv, nodetable, nodeschema[0].GetVal1(), nattrv, aaFirst);
+  PNEANet pneanet_neattr = TSnap::ToNetwork<PNEANet>(refs,schema[0].GetVal1(),schema[1].GetVal1(),eattrv, nodetable, nodeschema[0].GetVal1(), nattrv, aaFirst);
   printf("Made the PNEANet of %d nodes and %d edges with one node and one edge attribute.\n", (*pneanet_neattr).GetNodes(),(*pneanet_neattr).GetEdges());
   Profiler.StopTimer(TimerId);
   gettimeofday(&end, NULL);
@@ -245,7 +245,7 @@ int main(int argc, char* argv[]) {
   TVec<TStr> nattrv_21;
   nattrv_21.Add(nodeschema[1].GetVal1());
   nattrv_21.Add(newintcolnamen);
-  PNEANet pneanet_n2eattr = TSnap::ToNetworkNew<PNEANet>(refs,schema[0].GetVal1(),schema[1].GetVal1(),eattrv_21, nodetable, nodeschema[0].GetVal1(), nattrv_21, aaFirst);
+  PNEANet pneanet_n2eattr = TSnap::ToNetwork<PNEANet>(refs,schema[0].GetVal1(),schema[1].GetVal1(),eattrv_21, nodetable, nodeschema[0].GetVal1(), nattrv_21, aaFirst);
   printf("Made the PNEANet of %d nodes and %d edges with two node and one edge attribute.\n", (*pneanet_n2eattr).GetNodes(),(*pneanet_n2eattr).GetEdges());
   Profiler.StopTimer(TimerId);
   gettimeofday(&end, NULL);
@@ -268,7 +268,7 @@ int main(int argc, char* argv[]) {
   TVec<TStr> nattrv_12;
   nattrv_12.Add(nodeschema[1].GetVal1());
 //  nattrv.Add(newintcolnamen);
-  PNEANet pneanet_ne2attr = TSnap::ToNetworkNew<PNEANet>(refs,schema[0].GetVal1(),schema[1].GetVal1(),eattrv_12, nodetable, nodeschema[0].GetVal1(), nattrv_12, aaFirst);
+  PNEANet pneanet_ne2attr = TSnap::ToNetwork<PNEANet>(refs,schema[0].GetVal1(),schema[1].GetVal1(),eattrv_12, nodetable, nodeschema[0].GetVal1(), nattrv_12, aaFirst);
   printf("Made the PNEANet of %d nodes and %d edges one node and two edge attribute.\n", (*pneanet_ne2attr).GetNodes(),(*pneanet_ne2attr).GetEdges());
   Profiler.StopTimer(TimerId);
   gettimeofday(&end, NULL);
@@ -291,7 +291,7 @@ int main(int argc, char* argv[]) {
   TVec<TStr> nattrv_22;
   nattrv_22.Add(nodeschema[1].GetVal1());
   nattrv_22.Add(newintcolnamen);
-  PNEANet pneanet_n2e2attr = TSnap::ToNetworkNew<PNEANet>(refs,schema[0].GetVal1(),schema[1].GetVal1(),eattrv_22, nodetable, nodeschema[0].GetVal1(), nattrv_22, aaFirst);
+  PNEANet pneanet_n2e2attr = TSnap::ToNetwork<PNEANet>(refs,schema[0].GetVal1(),schema[1].GetVal1(),eattrv_22, nodetable, nodeschema[0].GetVal1(), nattrv_22, aaFirst);
   printf("Made the PNEANet of %d nodes and %d edges two node and two edge attribute.\n", (*pneanet_n2e2attr).GetNodes(),(*pneanet_n2e2attr).GetEdges());
   Profiler.StopTimer(TimerId);
   gettimeofday(&end, NULL);

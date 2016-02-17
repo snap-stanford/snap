@@ -180,7 +180,7 @@ PGraph ToNetwork(PTable Table,
   const TStr& SrcCol, const TStr& DstCol, TAttrAggr AggrPolicy)
 {
   TStrV V;
-  return ToNetwork<PGraph>(Table, SrcCol, DstCol, V, V, V, AggrPolicy);
+  return ToNetwork<PGraph>(Table, SrcCol, DstCol, V, AggrPolicy);
 }
 
 //Performs table to graph conversion in parallel using the sort-first algorithm. This is the recommended method to use.
@@ -1103,7 +1103,7 @@ PGraphMP ToNetworkMP(PTable Table,
   const TStr& SrcCol, const TStr& DstCol, TAttrAggr AggrPolicy)
 {
   TStrV V;
-  return ToNetworkMP<PGraphMP>(Table, SrcCol, DstCol, V, V, V, AggrPolicy);
+  return ToNetworkMP<PGraphMP>(Table, SrcCol, DstCol, V,AggrPolicy);
 }
 
 
@@ -1550,7 +1550,7 @@ PGraphMP ToNetworkMP2(PTable Table,
 #endif // GCC_ATOMIC
 
 template<class PGraph>
-PGraph ToNetworkNew(PTable Table,
+PGraph ToNetwork(PTable Table,
   const TStr& SrcCol, const TStr& DstCol,
   TStrV& EdgeAttrV,
   TAttrAggr AggrPolicy) {
@@ -1625,18 +1625,10 @@ PGraph ToNetworkNew(PTable Table,
 
 }
 
-template<class PGraph>
-PGraph ToNetworkNew(PTable Table,
-  const TStr& SrcCol, const TStr& DstCol, TAttrAggr AggrPolicy)
-{
-  TStrV V;
-  return ToNetworkNew<PGraph>(Table, SrcCol, DstCol, V, AggrPolicy);
-}
-
 
 
 template<class PGraphMP>
-inline PGraphMP ToNetworkMPNew(PTable Table,
+inline PGraphMP ToNetworkMP(PTable Table,
   const TStr& SrcCol, const TStr& DstCol,
   TStrV& EdgeAttrV,
   TAttrAggr AggrPolicy) {
@@ -1997,16 +1989,9 @@ inline PGraphMP ToNetworkMPNew(PTable Table,
   return Graph;
 }
 
-template<class PGraph>
-PGraph ToNetworkMPNew(PTable Table,
-  const TStr& SrcCol, const TStr& DstCol, TAttrAggr AggrPolicy)
-{
-  TStrV V;
-  return ToNetworkMPNew<PGraph>(Table, SrcCol, DstCol, V, AggrPolicy);
-}
 
 template<class PGraph>
-PGraph ToNetworkNew(PTable Table,
+PGraph ToNetwork(PTable Table,
   const TStr& SrcCol, const TStr& DstCol,
   TStrV& EdgeAttrV, PTable NodeTable, const TStr& NodeCol, TStrV& NodeAttrV,
   TAttrAggr AggrPolicy) {
@@ -2125,7 +2110,7 @@ PGraph ToNetworkNew(PTable Table,
 
 
 template<class PGraphMP>
-inline PGraphMP ToNetworkMPNew(PTable Table,
+inline PGraphMP ToNetworkMP(PTable Table,
   const TStr& SrcCol, const TStr& DstCol,
   TStrV& EdgeAttrV, PTable NodeTable, const TStr& NodeCol, TStrV& NodeAttrV,
   TAttrAggr AggrPolicy) {
