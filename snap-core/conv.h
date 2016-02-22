@@ -1389,6 +1389,7 @@ int LoadCrossNet(PGraph& Graph, PTable Table, const TStr& SrcCol, const TStr& Ds
       SVal = Table->CheckAndAddFltNode(Graph, FltNodeVals, FSVal);
       TFlt FDVal = (Table->FltCols)[SrcColIdx][CurrRowIdx];
       DVal = Table->CheckAndAddFltNode(Graph, FltNodeVals, FDVal);*/
+      return -1;
     } else if (NodeType == atInt || NodeType == atStr) {
       if (NodeType == atInt) {
         SVal = (Table->IntCols)[SrcColIdx][CurrRowIdx];
