@@ -58,6 +58,9 @@ private:
   TModeNet(const TModeNet& Graph, bool isSubModeGraph) : TNEANet(Graph, isSubModeGraph), NModeId(Graph.NModeId), MMNet(), NeighborTypes() {}
 public:
 
+
+  void GetPartitionRanges(TIntPrV& Partitions, TInt NumPartitions) const ;
+
   size_t GetMemUsed() const {return sizeof(TMMNet *) + NeighborTypes.GetMemUsed() + NModeId.GetMemUsed() + TNEANet::GetMemUsed(); }
   /// Saves the graph to a (binary) stream SOut.
   void Save(TSOut& SOut) const {
@@ -272,9 +275,7 @@ public:
 
 private:
   void SetParentPointer(TMMNet* parent);
-  /// Tests whether an edge with edge ID EId exists in the graph.
-  bool IsEdge(const int& EId) const { return LinkH.IsKey(EId); }
-  /// Get Int edge attribute val.  If not a proper attr, return default.
+ /// Get Int edge attribute val.  If not a proper attr, return default.
   TInt GetIntAttrDefaultE(const TStr& attribute) const { return IntDefaultsE.IsKey(attribute) ? IntDefaultsE.GetDat(attribute) : (TInt) TInt::Mn; }
   /// Get Str edge attribute val.  If not a proper attr, return default.
   TStr GetStrAttrDefaultE(const TStr& attribute) const { return StrDefaultsE.IsKey(attribute) ? StrDefaultsE.GetDat(attribute) : (TStr) TStr::GetNullStr(); }
@@ -282,8 +283,16 @@ private:
   TFlt GetFltAttrDefaultE(const TStr& attribute) const { return FltDefaultsE.IsKey(attribute) ? FltDefaultsE.GetDat(attribute) : (TFlt) TFlt::Mn; }
   int GetAttrTypeE(const TStr& attr) const;
 public:
+  /// Tests whether an edge with edge ID EId exists in the graph.
+  bool IsEdge(const int& EId) const { return LinkH.IsKey(EId); }
+
+  void GetPartitionRanges(TIntPrV& Partitions, TInt NumPartitions) const ;
+  int GetMxEId() const { return MxEId; }
   /// Returns the number of edges in the graph.
   int GetEdges() const { return LinkH.Len(); }
+
+  /// Returns the TCrossEdge object corresponding to edge id EId
+  TCrossEdge GetCrossEdge(const int& EId) { return LinkH.GetDat(EId);}
   int AddEdge(const int& sourceNId, const int& destNId, int EId=-1);
   TCrossEdgeI GetEdgeI(const int& EId) const { return TCrossEdgeI(LinkH.GetI(EId), this); }
   TCrossEdgeI BegEdgeI() const { return TCrossEdgeI(LinkH.BegI(), this); }
