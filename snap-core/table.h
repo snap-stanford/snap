@@ -722,6 +722,16 @@ public:
   //   return T;
   // }
 
+  size_t GetMemUsed() const {
+    return IsNextDirty.GetMemUsed() + sizeof(AggrPolicy) + CurrBucket.GetMemUsed() + RowIdBuckets.GetMemUsed() +
+    CommonNodeAttrs.GetMemUsed() + DstNodeAttrV.GetMemUsed() + SrcNodeAttrV.GetMemUsed() + EdgeAttrV.GetMemUsed() +
+    DstCol.GetMemUsed() + SrcCol.GetMemUsed() + GroupMapping.GetMemUsed() + GroupIDMapping.GetMemUsed() +
+    GroupStmtNames.GetMemUsed() + RowIdMap.GetMemUsed() + IdColName.GetMemUsed() + ColTypeMap.GetMemUsed() +
+    StrColMaps.GetMemUsed() + FltCols.GetMemUsed() + IntCols.GetMemUsed() + Next.GetMemUsed() + LastValidRow.GetMemUsed() +
+    FirstValidRow.GetMemUsed() + NumValidRows.GetMemUsed() + NumRows.GetMemUsed() + Sch.GetMemUsed();
+
+  }
+
 /***** Save / Load functions *****/
   /// Loads table from spread sheet (TSV, CSV, etc).
   static PTable LoadSS(const Schema& S, const TStr& InFNm, TTableContext& Context,
