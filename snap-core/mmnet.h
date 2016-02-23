@@ -123,6 +123,7 @@ public:
     int GetId() const { return EId; }
     int GetSrcNId() const { return SrcNId; }
     int GetDstNId() const { return DstNId; }
+    int GetMemUsed() const { return EId.GetMemUsed() + SrcNId.GetMemUsed() + DstNId.GetMemUsed(); }
     friend class TCrossNet;
   };
    /// Edge iterator. Only forward iteration (operator++) is supported.
@@ -153,6 +154,7 @@ public:
     int GetDstModeId() const { return Graph->GetMode2(); }
     /// Returns whether the edge is directed.
     int IsDirected() const { return Graph->IsDirected(); } //TODO
+
 
     friend class TCrossNet;
   };
@@ -265,6 +267,7 @@ public:
     Net = OtherTCrossNet.Net;
     return *this;
   }
+
 private:
   void SetParentPointer(TMMNet* parent);
   /// Tests whether an edge with edge ID EId exists in the graph.
@@ -427,6 +430,10 @@ public:
 
   // Returns edge attribute value, converted to Str type.
   TStr GetEdgeAttrValue(const int& EId, const TStrIntPrH::TIter& LinkHI) const;
+
+  int GetMemUsed() const { return LinkH.GetMemUsed() + MxEId.GetMemUsed() + Mode1.GetMemUsed() + Mode2.GetMemUsed() + IsDirect.GetMemUsed() +
+    LinkTypeId.GetMemUsed() + sizeof(TMMNet*) + KeyToIndexTypeE.GetMemUsed() + IntDefaultsE.GetMemUsed() + FltDefaultsE.GetMemUsed() +
+    StrDefaultsE.GetMemUsed() + VecOfIntVecsE.GetMemUsed() + VecOfStrVecsE.GetMemUsed() + VecOfFltVecsE.GetMemUsed(); }
 
   friend class TMMNet;
   friend class TPt<TCrossNet>;

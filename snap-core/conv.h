@@ -1429,7 +1429,7 @@ int LoadCrossNet(PGraph& Graph, PTable Table, const TStr& SrcCol, const TStr& Ds
 
 #endif // GCC_ATOMIC
 
-template<class PGraphMP>
+/*template<class PGraphMP>
 inline void ToNetworkCrossMP(PGraphMP Curr, TCrossNet& Cross,
   TVec<TPair<TStr, TStr> & EdgeAttrV) {
   TStopwatch* Sw = TStopwatch::GetInstance();
@@ -1768,7 +1768,7 @@ inline void ToNetworkCrossMP(PGraphMP Curr, TCrossNet& Cross,
   // printf("Add time = %f\n", endAdd-endAlloc);
 
   return Graph;
-}
+}*/
 
 }; // TSnap namespace
 
