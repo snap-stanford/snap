@@ -58,7 +58,7 @@ private:
   TModeNet(const TModeNet& Graph, bool isSubModeGraph) : TNEANet(Graph, isSubModeGraph), NModeId(Graph.NModeId), MMNet(), NeighborTypes() {}
 public:
 
-  int GetMemUsed() const {return sizeof(TMMNet *) + NeighborTypes.GetMemUsed() + NModeId.GetMemUsed() + TNEANet::GetMemUsed(); }
+  size_t GetMemUsed() const {return sizeof(TMMNet *) + NeighborTypes.GetMemUsed() + NModeId.GetMemUsed() + TNEANet::GetMemUsed(); }
   /// Saves the graph to a (binary) stream SOut.
   void Save(TSOut& SOut) const {
     TNEANet::Save(SOut); NModeId.Save(SOut); NeighborTypes.Save(SOut); }
@@ -125,7 +125,7 @@ public:
     int GetId() const { return EId; }
     int GetSrcNId() const { return SrcNId; }
     int GetDstNId() const { return DstNId; }
-    int GetMemUsed() const { return EId.GetMemUsed() + SrcNId.GetMemUsed() + DstNId.GetMemUsed(); }
+    size_t GetMemUsed() const { return EId.GetMemUsed() + SrcNId.GetMemUsed() + DstNId.GetMemUsed(); }
     friend class TCrossNet;
   };
    /// Edge iterator. Only forward iteration (operator++) is supported.
@@ -433,7 +433,7 @@ public:
   // Returns edge attribute value, converted to Str type.
   TStr GetEdgeAttrValue(const int& EId, const TStrIntPrH::TIter& LinkHI) const;
 
-  int GetMemUsed() const { return LinkH.GetMemUsed() + MxEId.GetMemUsed() + Mode1.GetMemUsed() + Mode2.GetMemUsed() + IsDirect.GetMemUsed() +
+  size_t GetMemUsed() const { return LinkH.GetMemUsed() + MxEId.GetMemUsed() + Mode1.GetMemUsed() + Mode2.GetMemUsed() + IsDirect.GetMemUsed() +
     LinkTypeId.GetMemUsed() + sizeof(TMMNet*) + KeyToIndexTypeE.GetMemUsed() + IntDefaultsE.GetMemUsed() + FltDefaultsE.GetMemUsed() +
     StrDefaultsE.GetMemUsed() + VecOfIntVecsE.GetMemUsed() + VecOfStrVecsE.GetMemUsed() + VecOfFltVecsE.GetMemUsed(); }
 
@@ -517,7 +517,7 @@ public:
       it.GetDat().SetParentPointer(this);
     }
   }
-  int GetMemUsed() const { return MxModeId.GetMemUsed() + MxLinkTypeId.GetMemUsed() + TModeNetH.GetMemUsed() +
+  size_t GetMemUsed() const { return MxModeId.GetMemUsed() + MxLinkTypeId.GetMemUsed() + TModeNetH.GetMemUsed() +
     TCrossNetH.GetMemUsed() + ModeIdToNameH.GetMemUsed() + ModeNameToIdH.GetMemUsed() + LinkIdToNameH.GetMemUsed() +
     LinkNameToIdH.GetMemUsed(); }
   int AddMode(const TStr& ModeName);
