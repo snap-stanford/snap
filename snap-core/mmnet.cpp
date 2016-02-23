@@ -1102,3 +1102,34 @@ int TMMNet::AddEdgeAttributes(PNEANet& NewNet, TCrossNet& Net, TVec<TPair<TStr, 
   }
   return 0;
 }
+void TModeNet::GetPartitionRanges(TIntPrV& Partitions, TInt NumPartitions) const {
+
+  TInt PartitionSize = MxNId/NumPartitions;
+  TInt CurrStart = 0;
+  bool done = false;
+  while (!done) {
+    TInt CurrEnd = CurrStart + PartitionSize;
+    if (MxNId - CurrEnd < PartitionSize) {
+    	CurrEnd = MxNId;
+    	done = true;
+    }
+    Partitions.Add(TIntPr(CurrStart, CurrEnd));
+    CurrStart = CurrEnd;
+  }
+}
+
+void TCrossNet::GetPartitionRanges(TIntPrV& Partitions, TInt NumPartitions) const {
+
+  TInt PartitionSize = MxEId/NumPartitions;
+  TInt CurrStart = 0;
+  bool done = false;
+  while (!done) {
+    TInt CurrEnd = CurrStart + PartitionSize;
+    if (MxEId - CurrEnd < PartitionSize) {
+    	CurrEnd = MxEId;
+    	done = true;
+    }
+    Partitions.Add(TIntPr(CurrStart, CurrEnd));
+    CurrStart = CurrEnd;
+  }
+}
