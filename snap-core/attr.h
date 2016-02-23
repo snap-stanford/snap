@@ -28,6 +28,9 @@ public:
   /// Clears the contents of the attribute map.
   void Clr() { AttrNameToId.Clr(); AttrIdToName.Clr(); IntAttrVals.Clr(); FltAttrVals.Clr(); StrAttrVals.Clr(); }
 
+
+  size_t GetMemUsed() const { return AttrNameToId.GetMemUsed() + AttrIdToName.GetMemUsed() + IntAttrVals.GetMemUsed() + FltAttrVals.GetMemUsed() + StrAttrVals.GetMemUsed(); }
+
   /// Add Int attribute with name \c AttrName for the given id \c Id.
   int AddSAttrDat(const TInt& Id, const TStr& AttrName, const TInt& Val);
   /// Add Int attribute with attribute id \c AttrId for the given id \c Id.

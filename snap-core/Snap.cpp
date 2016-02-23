@@ -19,6 +19,7 @@
 #include "network.cpp"       // networks
 #include "networkmp.cpp"     // networks OMP
 #include "timenet.cpp"       // time evolving networks
+#include "mmnet.cpp"         // multimodal networks
 
 // algorithms
 #include "subgraph.cpp"      // subgraph manipulations

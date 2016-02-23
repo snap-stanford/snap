@@ -331,7 +331,11 @@ namespace TSnap{
     const TStr& SrcCol, const TStr& DstCol,
     TStrV& EdgeAttrV, PTable NodeTable, const TStr& NodeCol, TStrV& NodeAttrV,
     TAttrAggr AggrPolicy);
- 
+  template<class PGraph> int LoadCrossNet(PGraph& Graph, PTable Table, const TStr& SrcCol, const TStr& DstCol,
+  TStrV& EdgeAttrV);
+
+  template<class PGraph> int LoadMode(PGraph& Graph, PTable Table, const TStr& NCol,
+  TStrV& NodeAttrV);
 
 #ifdef GCC_ATOMIC
   template<class PGraphMP> PGraphMP ToGraphMP(PTable Table,
@@ -379,8 +383,10 @@ public:
     const TStr& SrcCol, const TStr& DstCol,
     TStrV& EdgeAttrV, PTable NodeTable, const TStr& NodeCol, TStrV& NodeAttrV,
     TAttrAggr AggrPolicy);
- 
-
+    template<class PGraph> friend int TSnap::LoadCrossNet(PGraph& Graph, PTable Table, const TStr& SrcCol, const TStr& DstCol,
+      TStrV& EdgeAttrV);
+    template<class PGraph> friend int TSnap::LoadMode(PGraph& Graph, PTable Table, const TStr& NCol,
+  TStrV& NodeAttrV); 
 
 #ifdef GCC_ATOMIC
   template<class PGraphMP> friend PGraphMP TSnap::ToGraphMP(PTable Table, const TStr& SrcCol, const TStr& DstCol);
@@ -762,6 +768,16 @@ public:
   //   PTable T = New(Table); T->Name = TableName;
   //   return T;
   // }
+
+  size_t GetMemUsed() const {
+    return IsNextDirty.GetMemUsed() + sizeof(AggrPolicy) + CurrBucket.GetMemUsed() + RowIdBuckets.GetMemUsed() +
+    CommonNodeAttrs.GetMemUsed() + DstNodeAttrV.GetMemUsed() + SrcNodeAttrV.GetMemUsed() + EdgeAttrV.GetMemUsed() +
+    DstCol.GetMemUsed() + SrcCol.GetMemUsed() + GroupMapping.GetMemUsed() + GroupIDMapping.GetMemUsed() +
+    GroupStmtNames.GetMemUsed() + RowIdMap.GetMemUsed() + IdColName.GetMemUsed() + ColTypeMap.GetMemUsed() +
+    StrColMaps.GetMemUsed() + FltCols.GetMemUsed() + IntCols.GetMemUsed() + Next.GetMemUsed() + LastValidRow.GetMemUsed() +
+    FirstValidRow.GetMemUsed() + NumValidRows.GetMemUsed() + NumRows.GetMemUsed() + Sch.GetMemUsed();
+
+  }
 
 /***** Save / Load functions *****/
   /// Loads table from spread sheet (TSV, CSV, etc). Note: HasTitleLine = true is not supported. Please comment title lines instead

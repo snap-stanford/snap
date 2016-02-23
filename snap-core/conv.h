@@ -1547,6 +1547,118 @@ PGraphMP ToNetworkMP2(PTable Table,
 
 
 
+template<class PGraph>
+int LoadMode(PGraph& Graph, PTable Table, const TStr& NCol,
+  TStrV& NodeAttrV) {
+
+  const TAttrType NodeType = Table->GetColType(NCol);
+  const TInt NColIdx = Table->GetColIdx(NCol);
+
+  for (int CurrRowIdx = 0; CurrRowIdx < (Table->Next).Len(); CurrRowIdx++) {
+    if ((Table->Next)[CurrRowIdx] == Table->Invalid) {
+      continue;
+    }
+
+    // add src and dst nodes to graph if they are not seen earlier
+   TInt NVal;
+    if (NodeType == atFlt) {
+      return -1;
+    } else if (NodeType == atInt || NodeType == atStr) {
+      if (NodeType == atInt) {
+        NVal = (Table->IntCols)[NColIdx][CurrRowIdx];
+      } else {
+        NVal = (Table->StrColMaps)[NColIdx][CurrRowIdx];
+        if (strlen(Table->GetContextKey(NVal)) == 0) { continue; }  //illegal value
+      }
+      if (!Graph.IsNode(NVal)) {Graph.AddNode(NVal); }
+    }
+
+    // Aggregate edge attributes and add to graph
+    for (TInt i = 0; i < NodeAttrV.Len(); i++) {
+      TStr ColName = NodeAttrV[i];
+      TAttrType T = Table->GetColType(ColName);
+      TInt Index = Table->GetColIdx(ColName);
+      switch (T) {
+        case atInt:
+          Graph.AddIntAttrDatN(NVal, Table->IntCols[Index][CurrRowIdx], ColName);
+          break;
+        case atFlt:
+          Graph.AddFltAttrDatN(NVal, Table->FltCols[Index][CurrRowIdx], ColName);
+          break;
+        case atStr:
+          Graph.AddStrAttrDatN(NVal, Table->GetStrVal(Index, CurrRowIdx), ColName);
+          break;
+      }
+    }
+  }
+  return 1;
+}
+
+template<class PGraph>
+int LoadCrossNet(PGraph& Graph, PTable Table, const TStr& SrcCol, const TStr& DstCol,
+  TStrV& EdgeAttrV)
+{
+
+  const TAttrType NodeType = Table->GetColType(SrcCol);
+  Assert(NodeType == Table->GetColType(DstCol));
+  const TInt SrcColIdx = Table->GetColIdx(SrcCol);
+  const TInt DstColIdx = Table->GetColIdx(DstCol);
+
+  // node values - i.e. the unique values of src/dst col
+  //THashSet<TInt> IntNodeVals; // for both int and string node attr types.
+  THash<TFlt, TInt> FltNodeVals;
+
+  // make single pass over all rows in the table
+  for (int CurrRowIdx = 0; CurrRowIdx < (Table->Next).Len(); CurrRowIdx++) {
+    if ((Table->Next)[CurrRowIdx] == Table->Invalid) {
+      continue;
+    }
+
+    // add src and dst nodes to graph if they are not seen earlier
+   TInt SVal, DVal;
+    if (NodeType == atFlt) {
+      /*TFlt FSVal = (Table->FltCols)[SrcColIdx][CurrRowIdx];
+      SVal = Table->CheckAndAddFltNode(Graph, FltNodeVals, FSVal);
+      TFlt FDVal = (Table->FltCols)[SrcColIdx][CurrRowIdx];
+      DVal = Table->CheckAndAddFltNode(Graph, FltNodeVals, FDVal);*/
+      return -1;
+    } else if (NodeType == atInt || NodeType == atStr) {
+      if (NodeType == atInt) {
+        SVal = (Table->IntCols)[SrcColIdx][CurrRowIdx];
+        DVal = (Table->IntCols)[DstColIdx][CurrRowIdx];
+      } else {
+        SVal = (Table->StrColMaps)[SrcColIdx][CurrRowIdx];
+        if (strlen(Table->GetContextKey(SVal)) == 0) { continue; }  //illegal value
+        DVal = (Table->StrColMaps)[DstColIdx][CurrRowIdx];
+        if (strlen(Table->GetContextKey(DVal)) == 0) { continue; }  //illegal value
+      }
+    }
+
+    // add edge and edge attributes
+    if (Graph.AddEdge(SVal, DVal, CurrRowIdx) == -1) { return -1; }
+
+    // Aggregate edge attributes and add to graph
+    for (TInt i = 0; i < EdgeAttrV.Len(); i++) {
+      TStr ColName = EdgeAttrV[i];
+      TAttrType T = Table->GetColType(ColName);
+      TInt Index = Table->GetColIdx(ColName);
+      switch (T) {
+        case atInt:
+          Graph.AddIntAttrDatE(CurrRowIdx, Table->IntCols[Index][CurrRowIdx], ColName);
+          break;
+        case atFlt:
+          Graph.AddFltAttrDatE(CurrRowIdx, Table->FltCols[Index][CurrRowIdx], ColName);
+          break;
+        case atStr:
+          Graph.AddStrAttrDatE(CurrRowIdx, Table->GetStrVal(Index, CurrRowIdx), ColName);
+          break;
+      }
+    }
+  }
+  return 1;
+}
+
+
 #endif // GCC_ATOMIC
 
 template<class PGraph>
@@ -1642,7 +1754,6 @@ inline PGraphMP ToNetworkMP(PTable Table,
   const TAttrType NodeType = Table->GetColType(SrcCol);
   Assert(NodeType == Table->GetColType(DstCol));
 
-
   TIntV SrcCol1, EdgeCol1, EdgeCol2, DstCol2;
 
   THash<TInt, TStrIntVH> NodeIntAttrs;
@@ -1666,6 +1777,7 @@ inline PGraphMP ToNetworkMP(PTable Table,
   TIntPrV Partitions;
   Table->GetPartitionRanges(Partitions, omp_get_max_threads());
   TInt PartitionSize = Partitions[0].GetVal2()-Partitions[0].GetVal1()+1;
+
 
   // double endPartition = omp_get_wtime();
   // printf("Partition time = %f\n", endPartition-endResize);
@@ -1698,7 +1810,7 @@ inline PGraphMP ToNetworkMP(PTable Table,
         DstCol2[RowId] = RowI.GetStrMapById(DstColIdx);
         EdgeCol2[RowId] = RowId;
         RowI++;
-      }
+     }
     }
   }
   Sw->Stop(TStopwatch::CopyColumns);
@@ -1980,9 +2092,6 @@ inline PGraphMP ToNetworkMP(PTable Table,
       }
     }
   }
-
-
-
   // double endAdd = omp_get_wtime();
   // printf("Add time = %f\n", endAdd-endAlloc);
 
@@ -2504,6 +2613,170 @@ inline PGraphMP ToNetworkMP(PTable Table,
 }
 
 
+
+PNEANetMP CrossNetToNetworkMP(TMMNet& MMNet, TStr& CrossNetName) {
+
+  TIntPrIntH NodeMap;
+  TIntPrH EdgeMap;
+  THashSet<TInt> Modes;
+  PNEANetMP NewNet = TNEANetMP::New();
+
+  TCrossNet& CrossNet = MMNet.GetCrossNet(CrossNetName);
+  TInt CrossNetId = MMNet.GetLinkId(CrossNetName);
+  TInt Mode1 = CrossNet.GetMode1();
+  TInt Mode2 = CrossNet.GetMode2();
+  bool isDirected = CrossNet.IsDirected();
+
+  //Map nodes
+  TModeNet& ModeNet1 = MMNet.GetModeNet(Mode1);
+  TModeNet& ModeNet2 = MMNet.GetModeNet(Mode2);
+
+  int num_threads = omp_get_max_threads();
+
+  TIntPrV NodePartitions1;
+  TIntPrV NodePartitions2;
+  ModeNet1.GetPartitionRanges(NodePartitions1, num_threads);
+  ModeNet2.GetPartitionRanges(NodePartitions2, num_threads);
+
+  // Count the number of nodes in each partition.
+  TIntV counts_in_partition1;
+  counts_in_partition1.Reserve(num_threads, num_threads);
+  #pragma omp parallel for schedule(static)
+  for (int i = 0; i < NodePartitions1.Len(); i++) {
+    TInt CurrStart = NodePartitions1[i].GetVal1();
+	TInt CurrEnd = NodePartitions1[i].GetVal2();
+	for (int n_i = CurrStart; n_i < CurrEnd ; n_i++) {
+	  if (ModeNet1.IsNode(n_i)) {
+		  counts_in_partition1[i] += 1;
+	  }
+	}
+  }
+  TIntV counts_in_partition2;
+  counts_in_partition2.Reserve(num_threads, num_threads);
+  #pragma omp parallel for schedule(static)
+  for (int i = 0; i < NodePartitions2.Len(); i++) {
+    TInt CurrStart = NodePartitions2[i].GetVal1();
+	TInt CurrEnd = NodePartitions2[i].GetVal2();
+	for (int n_i = CurrStart; n_i < CurrEnd ; n_i++) {
+	  if (ModeNet2.IsNode(n_i)) {
+		  counts_in_partition2[i] += 1;
+	  }
+	}
+  }
+  TIntV cum_counts_in_partition1;
+  TIntV cum_counts_in_partition2;
+  cum_counts_in_partition1.Reserve(num_threads, num_threads);
+  cum_counts_in_partition2.Reserve(num_threads, num_threads);
+  cum_counts_in_partition1[0] = counts_in_partition1[0];
+  cum_counts_in_partition2[0] = counts_in_partition2[0];
+  for (int i = 1 ; i < num_threads; i++) {
+    cum_counts_in_partition1[i] = cum_counts_in_partition1[i-1] + counts_in_partition1[i];
+    cum_counts_in_partition2[i] = cum_counts_in_partition2[i-1] + counts_in_partition2[i];
+  }
+
+  // Add nodes, add to node map.
+  int curr_nid;
+  #pragma omp parallel for schedule(static) private(curr_nid)
+  for (int i = 0; i < NodePartitions1.Len(); i++) {
+    TInt CurrStart = NodePartitions1[i].GetVal1();
+	TInt CurrEnd = NodePartitions1[i].GetVal2();
+	curr_nid = (i > 0 ) ? cum_counts_in_partition1[i-1] : TInt(0);
+	for (int n_i = CurrStart; n_i < CurrEnd ; n_i++) {
+	  if (ModeNet1.IsNode(n_i)) {
+		  NewNet->AddNode(curr_nid);
+		  TIntPr NodeKey(Mode1, n_i);
+		  NodeMap.AddDat(NodeKey, curr_nid);
+		  curr_nid++;
+	  }
+	}
+  }
+
+  #pragma omp parallel for schedule(static) private(curr_nid)
+  for (int i = 0; i < NodePartitions2.Len(); i++) {
+    TInt CurrStart = NodePartitions2[i].GetVal1();
+	TInt CurrEnd = NodePartitions2[i].GetVal2();
+	curr_nid = (i > 0 ) ? cum_counts_in_partition2[i-1] : TInt(0);
+	for (int n_i = CurrStart; n_i < CurrEnd ; n_i++) {
+	  if (ModeNet2.IsNode(n_i)) {
+		  NewNet->AddNode(curr_nid);
+		  TIntPr NodeKey(Mode2, n_i);
+		  NodeMap.AddDat(NodeKey, curr_nid);
+		  curr_nid++;
+	  }
+	}
+  }
+
+  TIntPrV EdgePartitions;
+  CrossNet.GetPartitionRanges(EdgePartitions, num_threads);
+
+  // Count the number of edges in each partition.
+  TIntV counts_in_partition_e;
+  counts_in_partition_e.Reserve(num_threads, num_threads);
+  #pragma omp parallel for schedule(static)
+  for (int i = 0; i < EdgePartitions.Len(); i++) {
+    TInt CurrStart = EdgePartitions[i].GetVal1();
+	TInt CurrEnd = EdgePartitions[i].GetVal2();
+	for (int e_i = CurrStart; e_i < CurrEnd ; e_i++) {
+	  if (CrossNet.IsEdge(e_i)) {
+		  counts_in_partition_e[i] += 1;
+	  }
+	}
+  }
+
+  TIntV cum_counts_in_partition_e;
+  cum_counts_in_partition_e.Reserve(num_threads, num_threads);
+  cum_counts_in_partition_e[0] = counts_in_partition_e[0];
+  for (int i = 1 ; i < num_threads; i++) {
+    cum_counts_in_partition_e[i] = cum_counts_in_partition_e[i-1] + counts_in_partition_e[i];
+  }
+
+  // Add edges, add edges to edge map.
+  int curr_eid;
+  #pragma omp parallel for schedule(static) private(curr_eid)
+  for (int i = 0; i < EdgePartitions.Len(); i++) {
+    TInt CurrStart = EdgePartitions[i].GetVal1();
+	TInt CurrEnd = EdgePartitions[i].GetVal2();
+	curr_eid = (i > 0 ) ? cum_counts_in_partition_e[i-1] : TInt(0);
+	for (int e_i = CurrStart; e_i < CurrEnd ; e_i++) {
+	  if (CrossNet.IsEdge(e_i)) {
+		TIntPr EdgeKey(CrossNetId, e_i);
+		TCrossNet::TCrossEdge edge = CrossNet.GetCrossEdge(e_i);
+		int srcNode = edge.GetSrcNId();
+		int dstNode = edge.GetDstNId();
+		NewNet->AddEdge(srcNode, dstNode, curr_eid);
+		//TODO: Make this work for directed
+        int otherEId = -1;
+        /*
+        if (!isDirected) {
+         otherEId = NewNet->AddEdge(dstId, srcId);
+        }
+        */
+        EdgeMap.AddDat(EdgeKey, TIntPr(curr_eid, otherEId));
+		curr_eid++;
+	  }
+	}
+  }
+
+
+  //Add attributes
+  NewNet->AddIntAttrN(TStr("Mode"));
+  NewNet->AddIntAttrN(TStr("Id"));
+  NewNet->AddIntAttrE(TStr("CrossNet"));
+  NewNet->AddIntAttrE(TStr("Id"));
+  for(TIntPrIntH::TIter it = NodeMap.BegI(); it != NodeMap.EndI(); it++) {
+    NewNet->AddIntAttrDatN(it.GetDat(), it.GetKey().GetVal1(), TStr("Mode"));
+    NewNet->AddIntAttrDatN(it.GetDat(), it.GetKey().GetVal2(), TStr("Id"));
+  }
+  for(TIntPrH::TIter it = EdgeMap.BegI(); it != EdgeMap.EndI(); it++) {
+    NewNet->AddIntAttrDatE(it.GetDat().GetVal1(), it.GetKey().GetVal1(), TStr("CrossNet"));
+    NewNet->AddIntAttrDatE(it.GetDat().GetVal1(), it.GetKey().GetVal2(), TStr("Id"));
+    if (it.GetDat().GetVal2() != -1) {
+      NewNet->AddIntAttrDatE(it.GetDat().GetVal2(), it.GetKey().GetVal1(), TStr("CrossNet"));
+      NewNet->AddIntAttrDatE(it.GetDat().GetVal2(), it.GetKey().GetVal2(), TStr("Id"));
+    }
+  }
+   return NewNet;
+}
 
 
 }; // TSnap namespace
