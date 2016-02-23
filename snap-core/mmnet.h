@@ -57,6 +57,8 @@ public:
 private:
   TModeNet(const TModeNet& Graph, bool isSubModeGraph) : TNEANet(Graph, isSubModeGraph), NModeId(Graph.NModeId), MMNet(), NeighborTypes() {}
 public:
+
+  int GetMemUsed() const {return sizeof(TMMNet *) + NeighborTypes.GetMemUsed() + NModeId.GetMemUsed() + TNEANet::GetMemUsed(); }
   /// Saves the graph to a (binary) stream SOut.
   void Save(TSOut& SOut) const {
     TNEANet::Save(SOut); NModeId.Save(SOut); NeighborTypes.Save(SOut); }
@@ -515,6 +517,9 @@ public:
       it.GetDat().SetParentPointer(this);
     }
   }
+  int GetMemUsed() const { return MxModeId.GetMemUsed() + MxLinkTypeId.GetMemUsed() + TModeNetH.GetMemUsed() +
+    TCrossNetH.GetMemUsed() + ModeIdToNameH.GetMemUsed() + ModeNameToIdH.GetMemUsed() + LinkIdToNameH.GetMemUsed() +
+    LinkNameToIdH.GetMemUsed(); }
   int AddMode(const TStr& ModeName);
   int DelMode(const TInt& ModeId); // TODO(sramas15): finish implementing
   int DelMode(const TStr& ModeName);

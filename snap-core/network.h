@@ -1483,6 +1483,7 @@ public:
     int GetNbrEId(const int& EdgeN) const { return EdgeN<GetOutDeg()?GetOutEId(EdgeN):GetInEId(EdgeN-GetOutDeg()); }
     bool IsInEId(const int& EId) const { return InEIdV.SearchBin(EId) != -1; }
     bool IsOutEId(const int& EId) const { return OutEIdV.SearchBin(EId) != -1; }
+    int GetMemUsed() const { return Id.GetMemUsed() + InEIdV.GetMemUsed() + OutEIdV.GetMemUsed(); }
     friend class TNEANet;
   };
   class TEdge {
@@ -1497,6 +1498,7 @@ public:
     int GetId() const { return Id; }
     int GetSrcNId() const { return SrcNId; }
     int GetDstNId() const { return DstNId; }
+    int GetMemUsed() const { return Id.GetMemUsed() + SrcNId.GetMemUsed() + DstNId.GetMemUsed(); }
     friend class TNEANet;
   };
   /// Node iterator. Only forward iteration (operator++) is supported.
@@ -1740,6 +1742,7 @@ protected:
 
   TAttr SAttrN;
   TAttr SAttrE;
+
 public:
   TNEANet() : CRef(), MxNId(0), MxEId(0), NodeH(), EdgeH(),
     KeyToIndexTypeN(), KeyToIndexTypeE(), IntDefaultsN(), IntDefaultsE(),
@@ -1819,6 +1822,12 @@ public:
   TNEANet& operator = (const TNEANet& Graph) { if (this!=&Graph) {
     MxNId=Graph.MxNId; MxEId=Graph.MxEId; NodeH=Graph.NodeH; EdgeH=Graph.EdgeH; }
     return *this; }
+
+  int GetMemUsed() const { return MxNId.GetMemUsed() + MxEId.GetMemUsed() + NodeH.GetMemUsed() + EdgeH.GetMemUsed() +
+KeyToIndexTypeN.GetMemUsed() + KeyToIndexTypeE.GetMemUsed() + IntDefaultsN.GetMemUsed() + IntDefaultsE.GetMemUsed() +
+StrDefaultsN.GetMemUsed() + StrDefaultsE.GetMemUsed() + FltDefaultsN.GetMemUsed() + FltDefaultsE.GetMemUsed() + 
+VecOfIntVecsN.GetMemUsed() + VecOfIntVecsE.GetMemUsed() + VecOfStrVecsN.GetMemUsed() + VecOfStrVecsE.GetMemUsed() +
+VecOfFltVecsN.GetMemUsed() + VecOfFltVecsE.GetMemUsed() + VecOfIntVecVecsN.GetMemUsed() + VecOfIntVecVecsE.GetMemUsed(); }
 
   /// Returns the number of nodes in the graph.
   int GetNodes() const { return NodeH.Len(); }
