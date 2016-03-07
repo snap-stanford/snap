@@ -322,6 +322,7 @@ public:
     IntAttrValueEI(EId, KeyToIndexTypeE.BegI(), Values);}
   void IntAttrValueEI(const TInt& EId, TStrIntPrH::TIter LinkHI, TIntV& Values) const;
 
+
   /// Returns a vector of str attr names for node NId.
   void StrAttrNameEI(const TInt& EId, TStrV& Names) const {
     StrAttrNameEI(EId, KeyToIndexTypeE.BegI(), Names);}
