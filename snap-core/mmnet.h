@@ -560,7 +560,6 @@ public:
   ///Gets the induced subgraph given a vector of mode type names
   PMMNet GetSubgraphByModeNet(TStrV& ModeNetTypes);
 
-  PNEANet ToNetwork(TStrV& CrossNetTypes);
   PNEANet ToNetwork(TIntV& CrossNetTypes, TVec<TTriple<TInt, TStr, TStr> >& NodeAttrMap, TVec<TTriple<TInt, TStr, TStr> >& EdgeAttrMap);
   PNEANet ToNetwork2(TIntV& CrossNetTypes, THash<TInt, TVec<TPair<TStr, TStr> > >& NodeAttrMap, THash<TInt, TVec<TPair<TStr, TStr> > >& EdgeAttrMap);
 
