@@ -323,16 +323,6 @@ public:
   void IntAttrValueEI(const TInt& EId, TStrIntPrH::TIter LinkHI, TIntV& Values) const;
 
 
-  /// Returns a vector of int attr names for edge EId.
-  void IntVAttrNameEI(const TInt& EId, TStrV& Names) const {
-    IntVAttrNameEI(EId, KeyToIndexTypeE.BegI(), Names);}
-  void IntVAttrNameEI(const TInt& EId, TStrIntPrH::TIter LinkHI, TStrV& Names) const;
-  /// Returns a vector of attr values for edge EId.
-  void IntVAttrValueEI(const TInt& EId, TVec<TIntV>& Values) const {
-    IntVAttrValueEI(EId, KeyToIndexTypeE.BegI(), Values);}
-  void IntVAttrValueEI(const TInt& EId, TStrIntPrH::TIter LinkHI, TVec<TIntV>& Values) const;
-
-
   /// Returns a vector of str attr names for node NId.
   void StrAttrNameEI(const TInt& EId, TStrV& Names) const {
     StrAttrNameEI(EId, KeyToIndexTypeE.BegI(), Names);}
