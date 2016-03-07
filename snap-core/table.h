@@ -773,7 +773,7 @@ public:
     return IsNextDirty.GetMemUsed() + sizeof(AggrPolicy) + CurrBucket.GetMemUsed() + RowIdBuckets.GetMemUsed() +
     CommonNodeAttrs.GetMemUsed() + DstNodeAttrV.GetMemUsed() + SrcNodeAttrV.GetMemUsed() + EdgeAttrV.GetMemUsed() +
     DstCol.GetMemUsed() + SrcCol.GetMemUsed() + GroupMapping.GetMemUsed() + GroupIDMapping.GetMemUsed() +
-    GroupStmtNames.GetMemUsed() + RowIdMap.GetMemUsed() + IdColName.GetMemUsed() +
+    GroupStmtNames.GetMemUsed() + RowIdMap.GetMemUsed() + IdColName.GetMemUsed() + ColTypeMap.GetMemUsed() +
     StrColMaps.GetMemUsed() + FltCols.GetMemUsed() + IntCols.GetMemUsed() + Next.GetMemUsed() + LastValidRow.GetMemUsed() +
     FirstValidRow.GetMemUsed() + NumValidRows.GetMemUsed() + NumRows.GetMemUsed() + Sch.GetMemUsed();
 
