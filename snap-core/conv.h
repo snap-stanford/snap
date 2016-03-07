@@ -2614,7 +2614,7 @@ inline PGraphMP ToNetworkMP(PTable Table,
 
 
 
-PNEANetMP CrossNetToNetworkMP(TMMNet& MMNet, TStr& CrossNetName) {
+/*PNEANetMP CrossNetToNetworkMP(TMMNet& MMNet, TStr& CrossNetName) {
 
   TIntPrIntH NodeMap;
   TIntPrH EdgeMap;
@@ -2746,11 +2746,11 @@ PNEANetMP CrossNetToNetworkMP(TMMNet& MMNet, TStr& CrossNetName) {
 		NewNet->AddEdge(srcNode, dstNode, curr_eid);
 		//TODO: Make this work for directed
         int otherEId = -1;
-        /*
+        
         if (!isDirected) {
          otherEId = NewNet->AddEdge(dstId, srcId);
         }
-        */
+        
         EdgeMap.AddDat(EdgeKey, TIntPr(curr_eid, otherEId));
 		curr_eid++;
 	  }
@@ -2777,7 +2777,7 @@ PNEANetMP CrossNetToNetworkMP(TMMNet& MMNet, TStr& CrossNetName) {
   }
    return NewNet;
 }
-
+*/
 
 }; // TSnap namespace
 
