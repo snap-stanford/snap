@@ -797,7 +797,7 @@ PNEANet TMMNet::ToNetwork(TIntV& CrossNetTypes, TVec<TTriple<TInt, TStr, TStr> >
   PNEANet NewNet = TNEANet::New();
   //Add nodes and edges
   for (int i = 0; i < CrossNetTypes.Len(); i++) {
-    TCrossNet& CrossNet = GetCrossNet(CrossNetTypes[i]);
+    TCrossNet& CrossNet = GetCrossNetbyId(CrossNetTypes[i]);
     TInt Mode1 = CrossNet.GetMode1();
     TInt Mode2 = CrossNet.GetMode2();
     Modes.AddKey(Mode1);
@@ -834,7 +834,7 @@ PNEANet TMMNet::ToNetwork(TIntV& CrossNetTypes, TVec<TTriple<TInt, TStr, TStr> >
   }
 
   for (THashSet<TInt>::TIter it = Modes.BegI(); it != Modes.EndI(); it++) {
-    TModeNet &ModeNet = GetModeNet(it.GetKey());
+    TModeNet &ModeNet = GetModeNetbyId(it.GetKey());
     TInt ModeId = it.GetKey();
     for(TModeNet::TNodeI NodeIt = ModeNet.BegMMNI(); NodeIt != ModeNet.EndMMNI(); NodeIt++) {
       TIntPr NodeKey(ModeId, NodeIt.GetId());
@@ -868,7 +868,7 @@ PNEANet TMMNet::ToNetwork(TIntV& CrossNetTypes, TVec<TTriple<TInt, TStr, TStr> >
     TInt ModeId = NodeAttrMap[i].Val1;
     TStr OrigAttr = NodeAttrMap[i].Val2;
     TStr NewAttr = NodeAttrMap[i].Val3;
-    TModeNet& Net = GetModeNet(ModeId);
+    TModeNet& Net = GetModeNetbyId(ModeId);
     int type = Net.GetAttrTypeN(OrigAttr);
     if (type == TModeNet::IntType) {
       NewNet->AddIntAttrN(NewAttr, Net.GetIntAttrDefaultN(OrigAttr));
@@ -911,7 +911,7 @@ PNEANet TMMNet::ToNetwork(TIntV& CrossNetTypes, TVec<TTriple<TInt, TStr, TStr> >
     TInt CrossId = EdgeAttrMap[i].Val1;
     TStr OrigAttr = EdgeAttrMap[i].Val2;
     TStr NewAttr = EdgeAttrMap[i].Val3;
-    TCrossNet& Net = GetCrossNet(CrossId);
+    TCrossNet& Net = GetCrossNetbyId(CrossId);
     int type = Net.GetAttrTypeE(OrigAttr);
     if (type == TCrossNet::IntType) {
       NewNet->AddIntAttrE(NewAttr, Net.GetIntAttrDefaultE(OrigAttr));
@@ -963,15 +963,15 @@ PNEANet TMMNet::ToNetwork2(TIntV& CrossNetTypes, THash<TInt, TVec<TPair<TStr, TS
   
   //Add nodes and edges
   for (int i = 0; i < CrossNetTypes.Len(); i++) {
-    TCrossNet& CrossNet = GetCrossNet(CrossNetTypes[i]);
+    TCrossNet& CrossNet = GetCrossNetbyId(CrossNetTypes[i]);
     TStrPrV CNetAttrs;
     if (EdgeAttrMap.IsKey(CrossNetTypes[i])) {
       CNetAttrs = EdgeAttrMap.GetDat(CrossNetTypes[i]);
     }
     TInt Mode1 = CrossNet.GetMode1();
     TInt Mode2 = CrossNet.GetMode2();
-    TModeNet& Mode1Net = GetModeNet(Mode1);
-    TModeNet& Mode2Net = GetModeNet(Mode2);
+    TModeNet& Mode1Net = GetModeNetbyId(Mode1);
+    TModeNet& Mode2Net = GetModeNetbyId(Mode2);
     TStrPrV Mode1Attrs;
     if (NodeAttrMap.IsKey(Mode1)) {
       Mode1Attrs = NodeAttrMap.GetDat(Mode1);
@@ -1024,7 +1024,7 @@ PNEANet TMMNet::ToNetwork2(TIntV& CrossNetTypes, THash<TInt, TVec<TPair<TStr, TS
 
   for (THashSet<TInt>::TIter it = Modes.BegI(); it != Modes.EndI(); it++) {
     TInt ModeId = it.GetKey();
-    TModeNet &ModeNet = GetModeNet(ModeId);
+    TModeNet &ModeNet = GetModeNetbyId(ModeId);
     TStrPrV ModeAttrs = NodeAttrMap.GetDat(ModeId);
     for(TModeNet::TNodeI NodeIt = ModeNet.BegMMNI(); NodeIt != ModeNet.EndMMNI(); NodeIt++) {
       TIntPr NodeKey(ModeId, NodeIt.GetId());
