@@ -542,10 +542,10 @@ public:
   TStr GetLinkName(const TInt& LinkId) const { if (LinkIdToNameH.IsKey(LinkId)) { return LinkIdToNameH.GetDat(LinkId); } else { return TStr::GetNullStr(); }  }
 
   TModeNet& GetModeNet(const TStr& ModeName) const;
-  TModeNet& GetModeNet(const TInt& ModeId) const;
+  TModeNet& GetModeNetbyId(const TInt& ModeId) const;
 
   TCrossNet& GetCrossNet(const TStr& LinkName) const;
-  TCrossNet& GetCrossNet(const TInt& LinkId) const;
+  TCrossNet& GetCrossNetbyId(const TInt& LinkId) const;
 
   TCrossNetI GetCrossNetI(const int& Id) const { return TCrossNetI(TCrossNetH.GetI(Id), this); }
   TCrossNetI BegCrossNetI() const { return TCrossNetI(TCrossNetH.BegI(), this); }
