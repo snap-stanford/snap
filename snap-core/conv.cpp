@@ -3,7 +3,7 @@
 namespace TSnap {
 
 
-int LoadMode(PMMNet& Graph, const TStr& Name, PTable Table, const TStr& NCol,
+int LoadModeToNet(PMMNet Graph, const TStr& Name, PTable Table, const TStr& NCol,
   TStrV& NodeAttrV) {
   Graph->AddMode(Name);
   TModeNet& Net = Graph->GetModeNet(Name);
@@ -57,7 +57,7 @@ int LoadMode(TModeNet& Graph, PTable Table, const TStr& NCol,
   return 1;
 }
 
-int LoadCrossNet(PMMNet& Graph, const TStr& Mode1, const TStr& Mode2, const TStr& CrossName,
+int LoadCrossNetToNet(PMMNet Graph, const TStr& Mode1, const TStr& Mode2, const TStr& CrossName,
  PTable Table, const TStr& SrcCol, const TStr& DstCol, TStrV& EdgeAttrV)
 {
   Graph->AddLinkType(Mode1, Mode2, CrossName);
