@@ -1551,7 +1551,7 @@ int LoadMode(PGraph& Graph, const TStr& Name, PTable Table, const TStr& NCol,
   TStrV& NodeAttrV) {
   Graph->AddMode(Name);
   TModeNet& Net = Graph->GetModeNet(Name);
-  return LoadMode(Net, Table, NCol, NodeAttrV);
+  return LoadMode<TModeNet>(Net, Table, NCol, NodeAttrV);
 }
 
 
@@ -1608,7 +1608,7 @@ int LoadCrossNet(PGraph& Graph, const TStr& Mode1, const TStr& Mode2, const TStr
 {
   Graph->AddLinkType(Mode1, Mode2, CrossName);
   TCrossNet& Net = Graph->AddCrossNet(CrossName);
-  return LoadCrossNet(Net, Table, SrcCol, DstCol, EdgeAttrV);
+  return LoadCrossNet<TCrossNet>(Net, Table, SrcCol, DstCol, EdgeAttrV);
 }
 
 
