@@ -1551,12 +1551,11 @@ int LoadMode(PGraph& Graph, const TStr& Name, PTable Table, const TStr& NCol,
   TStrV& NodeAttrV) {
   Graph->AddMode(Name);
   TModeNet& Net = Graph->GetModeNet(Name);
-  return LoadMode<TModeNet>(Net, Table, NCol, NodeAttrV);
+  return LoadMode(Net, Table, NCol, NodeAttrV);
 }
 
 
-template<class PGraph>
-int LoadMode(PGraph& Graph, PTable Table, const TStr& NCol,
+int LoadMode(TModeNet& Graph, PTable Table, const TStr& NCol,
   TStrV& NodeAttrV) {
 
   const TAttrType NodeType = Table->GetColType(NCol);
@@ -1608,12 +1607,11 @@ int LoadCrossNet(PGraph& Graph, const TStr& Mode1, const TStr& Mode2, const TStr
 {
   Graph->AddLinkType(Mode1, Mode2, CrossName);
   TCrossNet& Net = Graph->AddCrossNet(CrossName);
-  return LoadCrossNet<TCrossNet>(Net, Table, SrcCol, DstCol, EdgeAttrV);
+  return LoadCrossNet(Net, Table, SrcCol, DstCol, EdgeAttrV);
 }
 
 
-template<class PGraph>
-int LoadCrossNet(PGraph& Graph, PTable Table, const TStr& SrcCol, const TStr& DstCol,
+int LoadCrossNet(TCrossNet& Graph, PTable Table, const TStr& SrcCol, const TStr& DstCol,
   TStrV& EdgeAttrV)
 {
 
