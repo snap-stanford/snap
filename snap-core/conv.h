@@ -1547,11 +1547,11 @@ PGraphMP ToNetworkMP2(PTable Table,
 #endif // GCC_ATOMIC
 
 
-int LoadMode(PMMNet& Graph, const TStr& Name, PTable Table, const TStr& NCol,
+int LoadModeToNet(PMMNet Graph, const TStr& Name, PTable Table, const TStr& NCol,
   TStrV& NodeAttrV);
 int LoadMode(TModeNet& Graph, PTable Table, const TStr& NCol,
   TStrV& NodeAttrV);
-int LoadCrossNet(PMMNet& Graph, const TStr& Mode1, const TStr& Mode2, const TStr& CrossName,
+int LoadCrossNetToNet(PMMNet Graph, const TStr& Mode1, const TStr& Mode2, const TStr& CrossName,
  PTable Table, const TStr& SrcCol, const TStr& DstCol, TStrV& EdgeAttrV);
 int LoadCrossNet(TCrossNet& Graph, PTable Table, const TStr& SrcCol, const TStr& DstCol,
   TStrV& EdgeAttrV);
