@@ -100,7 +100,7 @@ TModeNet& TMMNet::GetModeNetById(const TInt& ModeId) const {
   TModeNet &Net = (const_cast<TMMNet *>(this))->TModeNetH.GetDat(ModeId);
   return Net;
 }
-TCrossNet& TMMNet::GetCrossNet(const TStr& LinkName) const{
+TCrossNet& TMMNet::GetCrossNetByName(const TStr& LinkName) const{
   //IAssertR(LinkNameToIdH.IsKey(LinkName),TStr::Fmt("No such link name: %s", LinkName.CStr()));
   return GetCrossNetById(LinkNameToIdH.GetDat(LinkName));
 }

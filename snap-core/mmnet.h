@@ -544,7 +544,7 @@ public:
   TModeNet& GetModeNetByName(const TStr& ModeName) const;
   TModeNet& GetModeNetById(const TInt& ModeId) const;
 
-  TCrossNet& GetCrossNet(const TStr& LinkName) const;
+  TCrossNet& GetCrossNetByName(const TStr& LinkName) const;
   TCrossNet& GetCrossNetById(const TInt& LinkId) const;
 
   TCrossNetI GetCrossNetI(const int& Id) const { return TCrossNetI(TCrossNetH.GetI(Id), this); }
