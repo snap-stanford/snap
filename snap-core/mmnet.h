@@ -461,7 +461,7 @@ public:
     bool operator < (const TModeNetI& ModeNetI) const { return ModeNetHI < ModeNetI.ModeNetHI; }
     bool operator == (const TModeNetI& ModeNetI) const { return ModeNetHI == ModeNetI.ModeNetHI; }
     int GetModeId() { return ModeNetHI.GetKey(); }
-    TModeNet& GetModeNet() { return Graph->GetModeNetbyId(GetModeId()); }
+    TModeNet& GetModeNet() { return Graph->GetModeNetById(GetModeId()); }
     //TODO: add method to get edge types
     friend class TMMNet;
   };
@@ -482,7 +482,7 @@ public:
     bool operator < (const TCrossNetI& CrossNetI) const { return CrossNetHI < CrossNetI.CrossNetHI; }
     bool operator == (const TCrossNetI& CrossNetI) const { return CrossNetHI == CrossNetI.CrossNetHI; }
     int GetCrossId() { return CrossNetHI.GetKey(); }
-    TCrossNet& GetCrossNet() { return Graph->GetCrossNetbyId(GetCrossId()); }
+    TCrossNet& GetCrossNet() { return Graph->GetCrossNetById(GetCrossId()); }
     friend class TMMNet;
   };
 
@@ -541,11 +541,11 @@ public:
   int GetLinkId(const TStr& LinkName) const { if (LinkNameToIdH.IsKey(LinkName)) { return LinkNameToIdH.GetDat(LinkName); } else { return -1; }   }
   TStr GetLinkName(const TInt& LinkId) const { if (LinkIdToNameH.IsKey(LinkId)) { return LinkIdToNameH.GetDat(LinkId); } else { return TStr::GetNullStr(); }  }
 
-  TModeNet& GetModeNet(const TStr& ModeName) const;
-  TModeNet& GetModeNetbyId(const TInt& ModeId) const;
+  TModeNet& GetModeNetByName(const TStr& ModeName) const;
+  TModeNet& GetModeNetById(const TInt& ModeId) const;
 
   TCrossNet& GetCrossNet(const TStr& LinkName) const;
-  TCrossNet& GetCrossNetbyId(const TInt& LinkId) const;
+  TCrossNet& GetCrossNetById(const TInt& LinkId) const;
 
   TCrossNetI GetCrossNetI(const int& Id) const { return TCrossNetI(TCrossNetH.GetI(Id), this); }
   TCrossNetI BegCrossNetI() const { return TCrossNetI(TCrossNetH.BegI(), this); }
