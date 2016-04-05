@@ -412,10 +412,11 @@ int TNEANet::AddNode(int NId) {
   }
   for (i = 0; i < VecOfIntVecVecsN.Len(); i++) {
     TVec<TIntV>& IntVecV = VecOfIntVecVecsN[i];
+    int KeyId = NodeH.GetKeyId(NId);
     if (IntVecV.Len() > KeyId) {
-      IntVecV[NodeH.GetKeyId(NId)] = TIntV();
+      IntVecV[KeyId] = TIntV();
     } else {
-      IntVecV.Ins(NodeH.GetKeyId(NId), TIntV());
+      IntVecV.Ins(KeyId, TIntV());
     }
   }
   return NId;
