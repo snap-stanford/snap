@@ -823,9 +823,19 @@ int TNEANet::AppendIntVAttrDatN(const int& NId, const TInt& value, const TStr& a
     TVec<TIntV>& NewVec = VecOfIntVecVecsN[KeyToIndexTypeN.GetDat(attr).Val2];
     NewVec[NodeH.GetKeyId(NId)].Add(value);
   } else {
-    TIntV AttrV;
+    /*TIntV AttrV;
     AttrV.Add(value);
-    AddIntVAttrDatN(NId, AttrV, attr);
+    AddIntVAttrDatN(NId, AttrV, attr); */
+    CurrLen = VecOfIntVecVecsN.Len();
+    KeyToIndexTypeN.AddDat(attr, TIntPr(IntVType, CurrLen));
+    TVec<TIntV> NewVec;
+    VecOfIntVecVecsN.Add(NewVec);
+    VecOfIntVecVecsN[CurrLen].Gen(MxNId);
+   // for (int i=0; i < MxNId; i++) { VecOfIntVecVecsN[CurrLen].Add(); }
+    VecOfIntVecVecsN[CurrLen][NodeH.GetKeyId(NId)].Add(value);
+    //TVec<TIntV> NewVec = TVec<TIntV>(MxNId);
+    //NewVec[NodeH.GetKeyId(NId)].Add(value);
+    //VecOfIntVecVecsN.Add(NewVec);
   }
   return 0;
 } 
