@@ -841,6 +841,15 @@ public:
   TStr GetStrVal(const TStr& ColName, const TInt& RowIdx) const {
     return GetStrVal(GetColIdx(ColName), RowIdx);
   }
+
+  TStr GetStrValById(TInt ColIdx, TInt RowIdx) const {
+    return GetStrVal(ColIdx, RowIdx);
+  }
+
+  TStr GetStrValByName(const TStr& ColName, const TInt& RowIdx) const {
+    return GetStrVal(ColName, RowIdx);
+  }
+
   /// Gets the string with \c KeyId.
   TStr GetStr(const TInt& KeyId) const {
     return Context->StringVals.GetKey(KeyId);
