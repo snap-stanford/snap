@@ -60,7 +60,7 @@ int LoadMode(TModeNet& Graph, PTable Table, const TStr& NCol,
 int LoadCrossNetToNet(PMMNet Graph, const TStr& Mode1, const TStr& Mode2, const TStr& CrossName,
  PTable Table, const TStr& SrcCol, const TStr& DstCol, TStrV& EdgeAttrV)
 {
-  Graph->AddLinkType(Mode1, Mode2, CrossName);
+  Graph->AddCrossNet(Mode1, Mode2, CrossName);
   TCrossNet& Net = Graph->GetCrossNetByName(CrossName);
   return LoadCrossNet(Net, Table, SrcCol, DstCol, EdgeAttrV);
 }

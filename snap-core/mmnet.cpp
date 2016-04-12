@@ -637,10 +637,12 @@ int TMMNet::DelCrossNet(const TInt& CrossNetId) {
 
 int TMMNet::DelCrossNet(const TStr& CrossNet) {
   IAssertR(CrossNameToIdH.IsKey(CrossNet),TStr::Fmt("No such link type: %s", CrossNet.CStr()));
+  TInt CrossNetId = CrossNameToIdH.GetDat(CrossNet);
+  TInt Mode1 = GetCrossNetById(CrossNetId).Mode1;
+  TInt Mode2 = GetCrossNetById(CrossNetId).Mode2;
   if (GetModeNetById(Mode1).DelNbrType(CrossNet) == -1 || GetModeNetById(Mode2).DelNbrType(CrossNet) == -1) {
     return -1;
   }
-  TInt CrossNetId = CrossNameToIdH.GetDat(CrossNet);
   CrossNameToIdH.DelKey(CrossNet);
   CrossIdToNameH.DelKey(CrossNetId);
   TCrossNetH.DelKey(CrossNetId);
