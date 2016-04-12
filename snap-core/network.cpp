@@ -1286,6 +1286,8 @@ int TNEANet::DelAttrN(const TStr& attr) {
     if (FltDefaultsN.IsKey(attr)) {
       FltDefaultsN.DelKey(attr);
     }
+  } else if (vecType == IntVType) {
+    VecOfIntVecVecsN[KeyToIndexTypeN.GetDat(attr).Val2] = TVec<TIntV>();
   } else {
     return -1;
   }
