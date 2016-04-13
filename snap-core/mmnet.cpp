@@ -708,6 +708,7 @@ TCrossNet& TMMNet::GetCrossNetById(const TInt& CrossId) const{
 int TMMNet::AddMode(const TStr& ModeName, const TInt& ModeId, const TModeNet& ModeNet) {
   ModeIdToNameH.AddDat(ModeId, ModeName);
   ModeNameToIdH.AddDat(ModeName, ModeId);
+  ModeNet.SetParentPointer(this);
 
   TModeNetH.AddDat(ModeId, ModeNet);
   return ModeId;
@@ -716,6 +717,7 @@ int TMMNet::AddMode(const TStr& ModeName, const TInt& ModeId, const TModeNet& Mo
 int TMMNet::AddCrossNet(const TStr& CrossNetName, const TInt& CrossNetId, const TCrossNet& CrossNet) {
   CrossIdToNameH.AddDat(CrossNetId, CrossNetName);
   CrossNameToIdH.AddDat(CrossNetName, CrossNetId);
+  CrossNet.SetParentPointer(this);
 
   TCrossNetH.AddDat(CrossNetId, CrossNet);
   return CrossNetId;
@@ -746,7 +748,6 @@ PMMNet TMMNet::GetSubgraphByCrossNet(TStrV& CrossNetTypes) {
       NewModeId2 = MxMode++;
       ModeH.AddDat(OldModeId2, NewModeId2);
     }
-    NewCrossNet.SetParentPointer(Result);
     NewCrossNet.Mode1 = NewModeId1;
     NewCrossNet.Mode2 = NewModeId2;
     NewCrossNet.CrossNetId = NewId;
@@ -757,7 +758,6 @@ PMMNet TMMNet::GetSubgraphByCrossNet(TStrV& CrossNetTypes) {
     TInt NewModeId = it.GetDat();
     TModeNet NewModeNet;
     TModeNetH.GetDat(it.GetKey()).RemoveCrossNets(NewModeNet, CrossNetTypes);
-    NewModeNet.SetParentPointer(Result);
     NewModeNet.ModeId = NewModeId;
     Result->AddMode(ModeName, NewModeId, NewModeNet);
   }
