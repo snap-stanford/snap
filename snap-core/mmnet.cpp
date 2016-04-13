@@ -97,16 +97,10 @@ int TModeNet::AddIntVAttrByVecN(const TStr& attr, TVec<TIntV>& Attrs){
   TVec<TIntV> NewVec;
   CurrLen = VecOfIntVecVecsN.Len();
   KeyToIndexTypeN.AddDat(attr, TIntPr(IntVType, CurrLen));
-  NewVec = TVec<TIntV>(Attrs);
-  VecOfIntVecVecsN.Add(NewVec);
+  VecOfIntVecVecsN.Add(Attrs);
   return 0;
 }
 
-//copy everything but node attributes
-// iterate over all node attribute types
-// if not intv, just add it back
-// if is intv; check if it is a intv type in list of attributes
-//
 void TModeNet::RemoveCrossNets(TModeNet& Result, TStrV& CrossNets) {
   const TModeNet& self = *this;
   Result = TModeNet(self, false);
@@ -123,19 +117,18 @@ void TModeNet::RemoveCrossNets(TModeNet& Result, TStrV& CrossNets) {
         WithoutSuffix = AttrName.GetSubStr(0, AttrName.Len()-5);
         removeSuffix = true;
       }
-      if (!NeighborTypes.IsKey(AttrName) && (!removeSuffix || !NeighborTypes.IsKey(WithoutSuffix))) {
-        TVec<TIntV>& Attrs = VecOfIntVecVecsN[AttrIndex];
-        Result.AddIntVAttrByVecN(AttrName, Attrs);
-      } else {
-        TStr NbrName = AttrName;
-        if (removeSuffix) {
-          NbrName = WithoutSuffix;
-        }
+      bool isSingleVNbrAttr = (NeighborTypes.IsKey(AttrName) && NeighborTypes.GetDat(AttrName));
+      bool isMultiVNbrAttr = (removeSuffix && NeighborTypes.IsKey(WithoutSuffix) && !NeighborTypes.GetDat(WithoutSuffix));
+      if (isSingleVNbrAttr || isMultiVNbrAttr) {
+        TStr NbrName = isSingleVNbrAttr ? AttrName : WithoutSuffix;
         if (CrossNets.IsIn(NbrName)) {
           Result.AddNbrType(NbrName, removeSuffix, removeSuffix);
           TVec<TIntV>& Attrs = VecOfIntVecVecsN[AttrIndex];
           Result.AddIntVAttrByVecN(AttrName, Attrs);
         }
+      } else {
+        TVec<TIntV>& Attrs = VecOfIntVecVecsN[AttrIndex];
+        Result.AddIntVAttrByVecN(AttrName, Attrs);
       }
     }
   }
@@ -197,14 +190,19 @@ int TCrossNet::AddEdge(const int& sourceNId, const int& destNId, int EId){
   CrossH.AddDat(EId, newEdge);
   if (Net != NULL) {
     TStr ThisCrossName = Net->GetCrossName(this->CrossNetId);
-    M1.AddNeighbor(sourceNId, EId, true, ThisCrossName, Mode1==Mode2, IsDirect); // TODO: can't assume it is directed
+    M1.AddNeighbor(sourceNId, EId, true, ThisCrossName, Mode1==Mode2, IsDirect);
     M2.AddNeighbor(destNId, EId, false, ThisCrossName, Mode1==Mode2, IsDirect);
   }
   int i;
   // update attribute columns
   for (i = 0; i < VecOfIntVecsE.Len(); i++) {
     TVec<TInt>& IntVec = VecOfIntVecsE[i];
-    IntVec.Ins(CrossH.GetKeyId(EId), TInt::Mn);
+    int KeyId = CrossH.GetKeyId(EId);
+    if (IntVec.Len() > KeyId) {
+      IntVec[KeyId] = TInt::Mn;
+    } else {
+      IntVec.Ins(KeyId, TInt::Mn);
+    }
   }
   TVec<TStr> DefIntVec = TVec<TStr>();
   IntDefaultsE.GetKeyV(DefIntVec);
@@ -216,7 +214,12 @@ int TCrossNet::AddEdge(const int& sourceNId, const int& destNId, int EId){
 
   for (i = 0; i < VecOfStrVecsE.Len(); i++) {
     TVec<TStr>& StrVec = VecOfStrVecsE[i];
-    StrVec.Ins(CrossH.GetKeyId(EId), TStr::GetNullStr());
+    int KeyId = CrossH.GetKeyId(EId);
+    if (StrVec.Len() > KeyId) {
+      StrVec[KeyId] = TStr::GetNullStr();
+    } else {
+      StrVec.Ins(KeyId, TStr::GetNullStr());
+    }
   }
   TVec<TStr> DefStrVec = TVec<TStr>();
   StrDefaultsE.GetKeyV(DefStrVec);
@@ -228,7 +231,12 @@ int TCrossNet::AddEdge(const int& sourceNId, const int& destNId, int EId){
 
   for (i = 0; i < VecOfFltVecsE.Len(); i++) {
     TVec<TFlt>& FltVec = VecOfFltVecsE[i];
-    FltVec.Ins(CrossH.GetKeyId(EId), TFlt::Mn);
+    int KeyId = CrossH.GetKeyId(EId);
+    if (FltVec.Len() > KeyId) {
+      FltVec[KeyId] = TFlt::Mn;
+    } else {
+      FltVec.Ins(KeyId, TFlt::Mn);
+    }
   }
   TVec<TStr> DefFltVec = TVec<TStr>();
   FltDefaultsE.GetKeyV(DefFltVec);
@@ -245,8 +253,8 @@ int TCrossNet::DelEdge(const int& EId) {
   int srcNode = Edge.SrcNId;
   int dstNode = Edge.DstNId;
   TStr ThisCrossName = Net->GetCrossName(this->CrossNetId);
-  Net->TModeNetH.GetDat(this->Mode1).DelNeighbor(srcNode, EId, true, ThisCrossName, Mode1==Mode2, true); // TODO: can't assume it is directed
-  Net->TModeNetH.GetDat(this->Mode2).DelNeighbor(dstNode, EId, false, ThisCrossName, Mode1==Mode2, true);
+  Net->GetModeNetById(this->Mode1).DelNeighbor(srcNode, EId, true, ThisCrossName, Mode1==Mode2, IsDirect);
+  Net->GetModeNetById(this->Mode2).DelNeighbor(dstNode, EId, false, ThisCrossName, Mode1==Mode2, IsDirect);
   int i;
   for (i = 0; i < VecOfIntVecsE.Len(); i++) {
     TVec<TInt>& IntVec = VecOfIntVecsE[i];
@@ -589,7 +597,6 @@ int TCrossNet::DelAttrE(const TStr& attr) {
 
 
 int TMMNet::AddMode(const TStr& ModeName) {
-  //Book-keeping for new mode id and the hash lookups
   TInt ModeId = TInt(MxModeId);
   MxModeId++;
   ModeIdToNameH.AddDat(ModeId, ModeName);
@@ -734,12 +741,12 @@ PMMNet TMMNet::GetSubgraphByCrossNet(TStrV& CrossNetTypes) {
       ModeH.AddDat(OldModeId1, NewModeId1);
     }
     if (ModeH.IsKey(OldModeId2)) {
-      NewModeId1 = ModeH.GetDat(OldModeId2);
+      NewModeId2 = ModeH.GetDat(OldModeId2);
     } else {
       NewModeId2 = MxMode++;
       ModeH.AddDat(OldModeId2, NewModeId2);
     }
-    NewCrossNet.SetParentPointer(this);
+    NewCrossNet.SetParentPointer(Result);
     NewCrossNet.Mode1 = NewModeId1;
     NewCrossNet.Mode2 = NewModeId2;
     NewCrossNet.CrossNetId = NewId;
@@ -750,7 +757,7 @@ PMMNet TMMNet::GetSubgraphByCrossNet(TStrV& CrossNetTypes) {
     TInt NewModeId = it.GetDat();
     TModeNet NewModeNet;
     TModeNetH.GetDat(it.GetKey()).RemoveCrossNets(NewModeNet, CrossNetTypes);
-    NewModeNet.SetParentPointer(this);
+    NewModeNet.SetParentPointer(Result);
     NewModeNet.ModeId = NewModeId;
     Result->AddMode(ModeName, NewModeId, NewModeNet);
   }

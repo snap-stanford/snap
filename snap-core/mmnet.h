@@ -56,7 +56,6 @@ private:
   TModeNet(const TModeNet& Graph, bool isSubModeGraph) : TNEANet(Graph, isSubModeGraph), ModeId(Graph.ModeId), MMNet(), NeighborTypes() {}
 public:
 
-
   void GetPartitionRanges(TIntPrV& Partitions, TInt NumPartitions) const ;
 
   size_t GetMemUsed() const {return sizeof(TMMNet *) + NeighborTypes.GetMemUsed() + ModeId.GetMemUsed() + TNEANet::GetMemUsed(); }
@@ -460,7 +459,6 @@ public:
     bool operator == (const TModeNetI& ModeNetI) const { return ModeNetHI == ModeNetI.ModeNetHI; }
     int GetModeId() { return ModeNetHI.GetKey(); }
     TModeNet& GetModeNet() { return Graph->GetModeNetById(GetModeId()); }
-    //TODO: add method to get edge types
     friend class TMMNet;
   };
 
