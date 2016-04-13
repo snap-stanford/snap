@@ -708,18 +708,18 @@ TCrossNet& TMMNet::GetCrossNetById(const TInt& CrossId) const{
 int TMMNet::AddMode(const TStr& ModeName, const TInt& ModeId, const TModeNet& ModeNet) {
   ModeIdToNameH.AddDat(ModeId, ModeName);
   ModeNameToIdH.AddDat(ModeName, ModeId);
-  ModeNet.SetParentPointer(this);
 
   TModeNetH.AddDat(ModeId, ModeNet);
+  TModeNetH[ModeId].SetParentPointer(this);
   return ModeId;
 
 }
 int TMMNet::AddCrossNet(const TStr& CrossNetName, const TInt& CrossNetId, const TCrossNet& CrossNet) {
   CrossIdToNameH.AddDat(CrossNetId, CrossNetName);
   CrossNameToIdH.AddDat(CrossNetName, CrossNetId);
-  CrossNet.SetParentPointer(this);
 
   TCrossNetH.AddDat(CrossNetId, CrossNet);
+  TCrossNetH[CrossNetId].SetParentPointer(this);
   return CrossNetId;
 }
 
