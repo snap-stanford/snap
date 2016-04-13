@@ -38,11 +38,18 @@ int TModeNet::DelNeighbor(const int& NId, const int& EId, bool outEdge, const TI
   return DelNeighbor(NId, EId, outEdge, CrossName, sameMode, isDir);
 }
 
-//TODO: Finish implementing
-int TModeNet::DelNode ( const int& NId){
-  // loop through all neighbor vectors, call delete edge on each of these
+void TModeNet::DelNode(const int& NId) {
+  TStrV Names;
+  GetCrossNetNames(Names);
+  for (int i=0; i < Names.Len(); i++) {
+    TIntV EIds;
+    GetNeighborsByCrossNet(NId, Names[i], EIds);
+    TCrossNet& Cross = MMNet->GetCrossNetByName(Names[i]);
+    for (int j=0; j < EIds.Len(); j++) {
+      Cross.DelEdge(EIds[j].Val);
+    }
+  }
   TNEANet::DelNode(NId);
-  return -1;
 }
 
 void TModeNet::SetParentPointer(TMMNet* parent) {
@@ -663,6 +670,7 @@ int TMMNet::DelMode(const TInt& ModeId) {
   TModeNetH.DelKey(ModeId);
   return 0;
 }
+
 int TMMNet::DelMode(const TStr& ModeName) {
   IAssertR(ModeNameToIdH.IsKey(ModeName), TStr::Fmt("No such mode with name: %s", ModeName.CStr()));
   return DelMode(ModeNameToIdH.GetDat(ModeName));

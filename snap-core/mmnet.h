@@ -64,7 +64,7 @@ public:
   void Save(TSOut& SOut) const {
     TNEANet::Save(SOut); ModeId.Save(SOut); NeighborTypes.Save(SOut); }
 
-  int DelNode (const int& NId); //TODO(sramas15): finish implementing
+  void DelNode(const int& NId);
   void GetCrossNetNames(TStrV& Names) const { NeighborTypes.GetKeyV(Names); }
   void GetNeighborsByCrossNet(const int& NId, TStr& Name, TIntV& Neighbors, const bool isOutEId=false) const;
 
