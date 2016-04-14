@@ -32,7 +32,7 @@ public:
     bool operator < (const TNodeI& NodeI) const { return NodeHI < NodeI.NodeHI; }
     bool operator == (const TNodeI& NodeI) const { return NodeHI == NodeI.NodeHI; }
     void GetNeighborsByCrossNet(TStr& Name, TIntV& Neighbors, const bool isOutEId=false) {
-    		const TModeNet *TMGraph = static_cast<const TModeNet *>(Graph); TMGraph->GetNeighborsByCrossNet(GetId(), Name, Neighbors); }
+        const TModeNet *TMGraph = static_cast<const TModeNet *>(Graph); TMGraph->GetNeighborsByCrossNet(GetId(), Name, Neighbors); }
     void GetCrossNetNames(TStrV& Names) { const TModeNet *TMGraph = static_cast<const TModeNet *>(Graph); TMGraph->GetCrossNetNames(Names); }
     friend class TModeNet;
   };
@@ -58,7 +58,6 @@ public:
 
   void GetPartitionRanges(TIntPrV& Partitions, TInt NumPartitions) const ;
 
-  size_t GetMemUsed() const {return sizeof(TMMNet *) + NeighborTypes.GetMemUsed() + ModeId.GetMemUsed() + TNEANet::GetMemUsed(); }
   /// Saves the graph to a (binary) stream SOut.
   void Save(TSOut& SOut) const {
     TNEANet::Save(SOut); ModeId.Save(SOut); NeighborTypes.Save(SOut); }
@@ -89,6 +88,7 @@ private:
   void RemoveCrossNets(TModeNet& Result, TStrV& CrossNets);
   int DelNbrType(const TStr& CrossName);
   int GetAttrTypeN(const TStr& attr) const;
+  void ClrNbr(const TStr& CrossNetName, const bool& outEdge, const bool& sameMode, bool& isDir);
 public:
 
   ///When we create a new link type, we need to add a new neighbor type here.
@@ -287,6 +287,8 @@ public:
   int GetMxEId() const { return MxEId; }
   /// Returns the number of edges in the graph.
   int GetEdges() const { return CrossH.Len(); }
+  /// Deletes all nodes and edges from the graph.
+  void Clr();
 
   /// Returns the TCrossEdge object corresponding to edge id EId
   TCrossEdge GetCrossEdge(const int& EId) { return CrossH.GetDat(EId);}
@@ -429,10 +431,6 @@ public:
   // Returns edge attribute value, converted to Str type.
   TStr GetEdgeAttrValue(const int& EId, const TStrIntPrH::TIter& CrossHI) const;
 
-  size_t GetMemUsed() const { return CrossH.GetMemUsed() + MxEId.GetMemUsed() + Mode1.GetMemUsed() + Mode2.GetMemUsed() + IsDirect.GetMemUsed() +
-    CrossNetId.GetMemUsed() + sizeof(TMMNet*) + KeyToIndexTypeE.GetMemUsed() + IntDefaultsE.GetMemUsed() + FltDefaultsE.GetMemUsed() +
-    StrDefaultsE.GetMemUsed() + VecOfIntVecsE.GetMemUsed() + VecOfStrVecsE.GetMemUsed() + VecOfFltVecsE.GetMemUsed(); }
-
   friend class TMMNet;
   friend class TPt<TCrossNet>;
 };
@@ -512,9 +510,6 @@ public:
       it.GetDat().SetParentPointer(this);
     }
   }
-  size_t GetMemUsed() const { return MxModeId.GetMemUsed() + MxCrossNetId.GetMemUsed() + TModeNetH.GetMemUsed() +
-    TCrossNetH.GetMemUsed() + ModeIdToNameH.GetMemUsed() + ModeNameToIdH.GetMemUsed() + CrossIdToNameH.GetMemUsed() +
-    CrossNameToIdH.GetMemUsed(); }
   int AddMode(const TStr& ModeName);
   int DelMode(const TInt& ModeId); // TODO(sramas15): finish implementing
   int DelMode(const TStr& ModeName);
@@ -560,6 +555,7 @@ public:
   PNEANet ToNetwork2(TIntV& CrossNetTypes, THash<TInt, TVec<TPair<TStr, TStr> > >& NodeAttrMap, THash<TInt, TVec<TPair<TStr, TStr> > >& EdgeAttrMap);
 
 private:
+  void ClrNbr(const TInt& ModeId, const TInt& CrossNetId, const bool& outEdge, const bool& sameMode, bool& isDir);
   int AddMode(const TStr& ModeName, const TInt& ModeId, const TModeNet& ModeNet);
   int AddCrossNet(const TStr& CrossNetName, const TInt& CrossNetId, const TCrossNet& CrossNet);
   int AddNodeAttributes(PNEANet& NewNet, TModeNet& Net, TVec<TPair<TStr, TStr> >& Attrs, int ModeId, int oldId, int NId);

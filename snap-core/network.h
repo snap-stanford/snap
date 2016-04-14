@@ -1823,13 +1823,6 @@ public:
     MxNId=Graph.MxNId; MxEId=Graph.MxEId; NodeH=Graph.NodeH; EdgeH=Graph.EdgeH; }
     return *this; }
 
-  size_t GetMemUsed() const { return MxNId.GetMemUsed() + MxEId.GetMemUsed() + NodeH.GetMemUsed() + EdgeH.GetMemUsed() +
-KeyToIndexTypeN.GetMemUsed() + KeyToIndexTypeE.GetMemUsed() + IntDefaultsN.GetMemUsed() + IntDefaultsE.GetMemUsed() +
-StrDefaultsN.GetMemUsed() + StrDefaultsE.GetMemUsed() + FltDefaultsN.GetMemUsed() + FltDefaultsE.GetMemUsed() + 
-VecOfIntVecsN.GetMemUsed() + VecOfIntVecsE.GetMemUsed() + VecOfStrVecsN.GetMemUsed() + VecOfStrVecsE.GetMemUsed() +
-VecOfFltVecsN.GetMemUsed() + VecOfFltVecsE.GetMemUsed() + VecOfIntVecVecsN.GetMemUsed() + VecOfIntVecVecsE.GetMemUsed() +
-SAttrN.GetMemUsed() + SAttrE.GetMemUsed(); }
-
   /// Returns the number of nodes in the graph.
   int GetNodes() const { return NodeH.Len(); }
   /// Adds a node of ID NId to the graph. ##TNEANet::AddNode

@@ -12,6 +12,13 @@ TStr TModeNet::GetNeighborCrossName(const TStr& CrossName, bool isOutEdge, const
   return Cpy;
 }
 
+void TModeNet::ClrNbr(const TStr& CrossNetName, const bool& outEdge, const bool& sameMode, bool& isDir) {
+  TStr Name = GetNeighborCrossName(CrossNetName, outEdge, sameMode, isDir);
+  TVec<TIntV> Attrs(MxNId);
+  int index = KeyToIndexTypeN.GetDat(Name).Val2;
+  VecOfIntVecVecsN[index] = Attrs;
+}
+
 int TModeNet::AddNeighbor(const int& NId, const int& EId, bool outEdge, const int linkId, const bool sameMode, bool isDir){
   TStr CrossName = MMNet->GetCrossName(linkId);
   return AddNeighbor(NId, EId, outEdge, CrossName, sameMode, isDir);
@@ -180,19 +187,33 @@ int TCrossNet::GetAttrTypeE(const TStr& attr) const {
   return -1;
 }
 
+void TCrossNet::Clr() {
+  CrossH.Clr();
+  MxEId=0;
+  KeyToIndexTypeE.Clr();
+  IntDefaultsE.Clr();
+  StrDefaultsE.Clr();
+  FltDefaultsE.Clr();
+  VecOfIntVecsE.Clr();
+  VecOfStrVecsE.Clr();
+  VecOfFltVecsE.Clr(); 
+  Net->ClrNbr(Mode1, CrossNetId, true, Mode1==Mode2, IsDirect.Val);
+  Net->ClrNbr(Mode2, CrossNetId, false, Mode1==Mode2, IsDirect.Val); 
+}
+
 int TCrossNet::AddEdge(const int& sourceNId, const int& destNId, int EId){
   if (EId == -1) { EId = MxEId;  MxEId++; }
   else { MxEId = TMath::Mx(EId+1, MxEId()); }
-  TModeNet& M1 = Net->TModeNetH.GetDat(this->Mode1);
-  TModeNet& M2 = Net->TModeNetH.GetDat(this->Mode2);
-  if (!M1.IsNode(sourceNId) || !M2.IsNode(destNId)) { return -1; }
-  TCrossNet::TCrossEdge newEdge(EId, sourceNId, destNId);
-  CrossH.AddDat(EId, newEdge);
   if (Net != NULL) {
+    TModeNet& M1 = Net->TModeNetH.GetDat(this->Mode1);
+    TModeNet& M2 = Net->TModeNetH.GetDat(this->Mode2);
+    if (!M1.IsNode(sourceNId) || !M2.IsNode(destNId)) { return -1; }
     TStr ThisCrossName = Net->GetCrossName(this->CrossNetId);
     M1.AddNeighbor(sourceNId, EId, true, ThisCrossName, Mode1==Mode2, IsDirect);
     M2.AddNeighbor(destNId, EId, false, ThisCrossName, Mode1==Mode2, IsDirect);
   }
+  TCrossNet::TCrossEdge newEdge(EId, sourceNId, destNId);
+  CrossH.AddDat(EId, newEdge);
   int i;
   // update attribute columns
   for (i = 0; i < VecOfIntVecsE.Len(); i++) {
@@ -723,6 +744,11 @@ int TMMNet::AddCrossNet(const TStr& CrossNetName, const TInt& CrossNetId, const 
   return CrossNetId;
 }
 
+void TMMNet::ClrNbr(const TInt& ModeId, const TInt& CrossNetId, const bool& outEdge, const bool& sameMode, bool& isDir) {
+  TStr CrossNetName = CrossIdToNameH[CrossNetId];
+  TModeNetH[ModeId].ClrNbr(CrossNetName, outEdge, sameMode, isDir);
+}
+
 PMMNet TMMNet::GetSubgraphByCrossNet(TStrV& CrossNetTypes) {
   PMMNet Result = New();
   TInt MxMode = 0;
@@ -783,7 +809,7 @@ PMMNet TMMNet::GetSubgraphByModeNet(TStrV& ModeNetTypes) {
 
 PNEANet TMMNet::ToNetwork(TIntV& CrossNetTypes, TVec<TTriple<TInt, TStr, TStr> >& NodeAttrMap, TVec<TTriple<TInt, TStr, TStr> >& EdgeAttrMap) {
   TIntPrIntH NodeMap;
-  TIntPrH EdgeMap;
+  THash<TIntPr, TIntPr> EdgeMap;
   THashSet<TInt> Modes;
   PNEANet NewNet = TNEANet::New();
   //Add nodes and edges
@@ -845,7 +871,7 @@ PNEANet TMMNet::ToNetwork(TIntV& CrossNetTypes, TVec<TTriple<TInt, TStr, TStr> >
     NewNet->AddIntAttrDatN(it.GetDat(), it.GetKey().GetVal1(), TStr("Mode"));
     NewNet->AddIntAttrDatN(it.GetDat(), it.GetKey().GetVal2(), TStr("Id"));
   }
-  for(TIntPrH::TIter it = EdgeMap.BegI(); it != EdgeMap.EndI(); it++) {
+  for(THash<TIntPr, TIntPr>::TIter it = EdgeMap.BegI(); it != EdgeMap.EndI(); it++) {
     NewNet->AddIntAttrDatE(it.GetDat().GetVal1(), it.GetKey().GetVal1(), TStr("CrossNet"));
     NewNet->AddIntAttrDatE(it.GetDat().GetVal1(), it.GetKey().GetVal2(), TStr("Id"));
     if (it.GetDat().GetVal2() != -1) {
