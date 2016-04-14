@@ -434,6 +434,10 @@ protected:
   TStr IdColName; ///< Name of column associated with (optional) permanent row identifiers.
   TIntIntH RowIdMap; ///< Mapping of permanent row ids to physical id.
 
+  THash<TStr, THash<TInt, TInt> > IntColIndexes;
+  THash<TStr, THash<TInt, TInt> > StrMapColIndexes;
+  THash<TStr, THash<TFlt, TInt> > FltColIndexes;
+
   // Group mapping data structures.
   THash<TStr, GroupStmt > GroupStmtNames; ///< Maps user-given grouping statement names to their group-by attributes. ##TTable::GroupStmtNames
   THash<GroupStmt, THash<TInt, TGroupKey> >GroupIDMapping; ///< Maps grouping statements to their (group id --> group-by key) mapping. ##TTable::GroupIDMapping
@@ -832,6 +836,14 @@ public:
     return GetStrVal(GetColIdx(ColName), RowIdx);
   }
 
+  TInt GetStrMapById(TInt ColIdx, TInt RowIdx) const {
+    return StrColMaps[ColIdx][RowIdx];
+  }
+
+  TInt GetStrMapByName(const TStr& ColName, TInt RowIdx) const {
+    return StrColMaps[GetColIdx(ColName)][RowIdx];
+  }
+
   TStr GetStrValById(TInt ColIdx, TInt RowIdx) const {
     return GetStrVal(ColIdx, RowIdx);
   }
@@ -839,6 +851,14 @@ public:
   TStr GetStrValByName(const TStr& ColName, const TInt& RowIdx) const {
     return GetStrVal(ColName, RowIdx);
   }
+
+  TInt GetIntRowIdxByVal(const TStr& ColName, const TInt& Val) const;
+  TInt GetStrRowIdxByMap(const TStr& ColName, const TInt& Map) const;
+  TInt GetFltRowIdxByVal(const TStr& ColName, const TFlt& Val) const;
+
+  TInt RequestIndexInt(const TStr& ColName);
+  TInt RequestIndexFlt(const TStr& ColName);
+  TInt RequestIndexStrMap(const TStr& ColName);
 
   /// Gets the string with \c KeyId.
   TStr GetStr(const TInt& KeyId) const {
