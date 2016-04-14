@@ -5201,3 +5201,96 @@ void TTable::QSortKeyVal(TIntV& Key, TIntV& Val, TInt Start, TInt End) {
     }
   }
 }
+
+TInt TTable::GetIntRowIdxByVal(const TStr& ColName, const TInt& Val) const {
+
+  if (IntColIndexes.IsKey(ColName)) {
+    THash<TInt, TInt> ColIndex = IntColIndexes.GetDat(ColName);
+    if (ColIndex.IsKey(Val)) {
+      return ColIndex.GetDat(Val);
+    }
+    else {
+      return -1;
+    }
+  }
+  for (TRowIterator RowI = BegRI(); RowI < EndRI(); RowI++) {
+    TInt ValAtRow = RowI.GetIntAttr(ColName);
+    if ( Val == ValAtRow) {
+      return RowI.GetRowIdx();
+    }
+  }
+  return -1;
+}
+TInt TTable::GetStrRowIdxByMap(const TStr& ColName, const TInt& Map) const {
+
+  if (StrMapColIndexes.IsKey(ColName)) {
+    THash<TInt, TInt> ColIndex = StrMapColIndexes.GetDat(ColName);
+    if (ColIndex.IsKey(Map)) {
+      return ColIndex.GetDat(Map);
+    }
+    else {
+      return -1;
+    }
+  }
+  for (TRowIterator RowI = BegRI(); RowI < EndRI(); RowI++) {
+    TInt MapAtRow = RowI.GetStrMapByName(ColName);
+    if ( Map == MapAtRow) {
+      return RowI.GetRowIdx();
+    }
+  }
+  return -1;
+}
+
+TInt TTable::GetFltRowIdxByVal(const TStr& ColName, const TFlt& Val) const {
+
+  if (FltColIndexes.IsKey(ColName)) {
+    THash<TFlt, TInt> ColIndex = FltColIndexes.GetDat(ColName);
+    if (ColIndex.IsKey(Val)) {
+      return ColIndex.GetDat(Val);
+    }
+    else {
+      return -1;
+    }
+  }
+
+  for (TRowIterator RowI = BegRI(); RowI < EndRI(); RowI++) {
+    TFlt ValAtRow = RowI.GetFltAttr(ColName);
+    if ( Val == ValAtRow) {
+      return RowI.GetRowIdx();
+    }
+  }
+  return -1;
+}
+
+TInt TTable::RequestIndexInt(const TStr& ColName) {
+
+  THash<TInt, TInt> NewIndex;
+  for (TRowIterator RowI = BegRI(); RowI < EndRI(); RowI++) {
+    TInt ValAtRow = RowI.GetIntAttr(ColName);
+    TInt RowIdx = RowI.GetRowIdx();
+    NewIndex.AddDat(ValAtRow, RowIdx);
+  }
+  IntColIndexes.AddDat(ColName, NewIndex); 
+  return 0;
+}
+TInt TTable::RequestIndexFlt(const TStr& ColName) {
+
+  THash<TFlt, TInt> NewIndex;
+  for (TRowIterator RowI = BegRI(); RowI < EndRI(); RowI++) {
+    TFlt ValAtRow = RowI.GetFltAttr(ColName);
+    TInt RowIdx = RowI.GetRowIdx();
+    NewIndex.AddDat(ValAtRow, RowIdx);
+  }
+  FltColIndexes.AddDat(ColName, NewIndex); 
+  return 0;
+}
+TInt TTable::RequestIndexStrMap(const TStr& ColName) {
+  THash<TInt, TInt> NewIndex;
+  for (TRowIterator RowI = BegRI(); RowI < EndRI(); RowI++) {
+    TInt MapAtRow = RowI.GetStrMapByName(ColName);
+    TInt RowIdx = RowI.GetRowIdx();
+    NewIndex.AddDat(MapAtRow, RowIdx);
+  }
+  StrMapColIndexes.AddDat(ColName, NewIndex); 
+  return 0;
+}
