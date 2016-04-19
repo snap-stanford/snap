@@ -179,6 +179,8 @@ public:
   int AddEdge(const int& SrcNId, const int& DstNId);
   /// Adds an edge from node IDs SrcNId to node DstNId to the graph without performing checks.
   int AddEdgeUnchecked(const int& SrcNId, const int& DstNId);
+  /// Adds an edge between node IDs SrcNId and DstNId to the graph. If nodes do not exists, create them.
+  int AddEdge2(const int& SrcNId, const int& DstNId);
   /// Adds an edge between EdgeI.GetSrcNId() and EdgeI.GetDstNId() to the graph.
   int AddEdge(const TEdgeI& EdgeI) { return AddEdge(EdgeI.GetSrcNId(), EdgeI.GetDstNId()); }
   /// Deletes an edge between node IDs SrcNId and DstNId from the graph. ##TUNGraph::DelEdge
@@ -383,6 +385,8 @@ public:
   int AddEdge(const int& SrcNId, const int& DstNId);
   /// Adds an edge from node IDs SrcNId to node DstNId to the graph without performing checks.
   int AddEdgeUnchecked(const int& SrcNId, const int& DstNId);
+  /// Adds an edge from node IDs SrcNId to node DstNId to the graph. If nodes do not exist, create them.
+  int AddEdge2(const int& SrcNId, const int& DstNId);
   /// Adds an edge from EdgeI.GetSrcNId() to EdgeI.GetDstNId() to the graph.
   int AddEdge(const TEdgeI& EdgeI) { return AddEdge(EdgeI.GetSrcNId(), EdgeI.GetDstNId()); }
   /// Deletes an edge from node IDs SrcNId to DstNId from the graph. ##TNGraph::DelEdge

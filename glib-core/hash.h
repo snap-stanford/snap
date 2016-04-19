@@ -1182,8 +1182,14 @@ public:
   inline static int GetSecHashCd(const char *p) {
     const char *r = p;  while (*r) { r++; }
     return (int) DJBHash((const char *) p, r - p) & 0x7fffffff; }
-  inline static int GetPrimHashCd(const TStr& s) { return GetPrimHashCd(s.CStr()); }
-  inline static int GetSecHashCd(const TStr& s) { return GetSecHashCd(s.CStr()); }
+  inline static int GetPrimHashCd(const TStr& s) { 
+    return GetPrimHashCd(s.CStr()); }
+  inline static int GetSecHashCd(const TStr& s) { 
+    return GetSecHashCd(s.CStr()); }
+  inline static int GetPrimHashCd(const char *p, const ::TSize& Len) {
+    return (int) DJBHash((const char *) p, Len) & 0x7fffffff; }
+  inline static int GetSecHashCd(const char *p, const ::TSize& Len) {
+    return (int) DJBHash((const char *) p, Len) & 0x7fffffff; }
 };
 
 // Old-Vector-Hash-Function
