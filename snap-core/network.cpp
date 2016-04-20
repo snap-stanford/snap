@@ -2602,4 +2602,3 @@ int TDirNet::GetSAttrIdE(const TStr& Name, TInt& AttrId, TAttrType& AttrType) co
 int TDirNet::GetSAttrNameE(const TInt& AttrId, TStr& Name, TAttrType& AttrType) const {
   return SAttrE.GetSAttrName(AttrId, Name, AttrType);
 }
-

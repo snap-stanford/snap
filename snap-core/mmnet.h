@@ -32,7 +32,7 @@ public:
     bool operator < (const TNodeI& NodeI) const { return NodeHI < NodeI.NodeHI; }
     bool operator == (const TNodeI& NodeI) const { return NodeHI == NodeI.NodeHI; }
     void GetNeighborsByCrossNet(TStr& Name, TIntV& Neighbors, const bool isOutEId=false) {
-        const TModeNet *TMGraph = static_cast<const TModeNet *>(Graph); TMGraph->GetNeighborsByCrossNet(GetId(), Name, Neighbors); }
+        const TModeNet *TMGraph = static_cast<const TModeNet *>(Graph); TMGraph->GetNeighborsByCrossNet(GetId(), Name, Neighbors, isOutEId); }
     void GetCrossNetNames(TStrV& Names) { const TModeNet *TMGraph = static_cast<const TModeNet *>(Graph); TMGraph->GetCrossNetNames(Names); }
     friend class TModeNet;
   };
@@ -72,6 +72,8 @@ public:
   TNodeI EndMMNI() const { return TNodeI(NodeH.EndI(), this); }
   /// Returns an iterator referring to the node of ID NId in the graph.
   TNodeI GetMMNI(const int& NId) const { return TNodeI(NodeH.GetI(NId), this); }
+  /// Deletes all nodes from this mode and edges from associated crossnets.
+  void Clr();
 
 
 private:
@@ -92,9 +94,6 @@ private:
 public:
 
   ///When we create a new link type, we need to add a new neighbor type here.
-
-  /// Deletes all nodes and edges from the graph.
-  void Clr() { TNEANet::Clr(); ModeId = -1; MMNet = NULL; NeighborTypes.Clr(); }
 
   friend class TMMNet;
   friend class TCrossNet;
@@ -432,7 +431,7 @@ public:
   TStr GetEdgeAttrValue(const int& EId, const TStrIntPrH::TIter& CrossHI) const;
 
   friend class TMMNet;
-  friend class TPt<TCrossNet>;
+  friend class TModeNet;
 };
 
 //#///////////////////////////////////////////////

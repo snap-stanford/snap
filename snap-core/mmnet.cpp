@@ -19,6 +19,15 @@ void TModeNet::ClrNbr(const TStr& CrossNetName, const bool& outEdge, const bool&
   VecOfIntVecVecsN[index] = Attrs;
 }
 
+void TModeNet::Clr() {
+  TStrV CNets;
+  NeighborTypes.GetKeyV(CNets);
+  for (int i=0; i < CNets.Len(); i++) {
+    MMNet->GetCrossNetByName(CNets[i]).Clr();
+  }
+  TNEANet::Clr();
+}
+
 int TModeNet::AddNeighbor(const int& NId, const int& EId, bool outEdge, const int linkId, const bool sameMode, bool isDir){
   TStr CrossName = MMNet->GetCrossName(linkId);
   return AddNeighbor(NId, EId, outEdge, CrossName, sameMode, isDir);
@@ -49,11 +58,18 @@ void TModeNet::DelNode(const int& NId) {
   TStrV Names;
   GetCrossNetNames(Names);
   for (int i=0; i < Names.Len(); i++) {
-    TIntV EIds;
-    GetNeighborsByCrossNet(NId, Names[i], EIds);
     TCrossNet& Cross = MMNet->GetCrossNetByName(Names[i]);
-    for (int j=0; j < EIds.Len(); j++) {
-      Cross.DelEdge(EIds[j].Val);
+    TIntV OutEIds;
+    GetNeighborsByCrossNet(NId, Names[i], OutEIds, true);
+    for (int j=0; j < OutEIds.Len(); j++) {
+      Cross.DelEdge(OutEIds[j].Val);
+    }
+    if (Cross.IsDirect && Cross.Mode1 == Cross.Mode2) {
+      TIntV InEIds;
+      GetNeighborsByCrossNet(NId, Names[i], InEIds, false);
+      for (int j=0; j < InEIds.Len(); j++) {
+        Cross.DelEdge(InEIds[j].Val);
+      }
     }
   }
   TNEANet::DelNode(NId);
@@ -289,6 +305,7 @@ int TCrossNet::DelEdge(const int& EId) {
     TVec<TFlt>& FltVec = VecOfFltVecsE[i];
     FltVec[CrossH.GetKeyId(EId)] = TFlt::Mn;
   }
+  CrossH.DelKey(EId);
   return 0;
 }
 
@@ -675,11 +692,12 @@ int TMMNet::DelCrossNet(const TStr& CrossNet) {
   TInt CrossNetId = CrossNameToIdH.GetDat(CrossNet);
   TInt Mode1 = GetCrossNetById(CrossNetId).Mode1;
   TInt Mode2 = GetCrossNetById(CrossNetId).Mode2;
-  if (GetModeNetById(Mode1).DelNbrType(CrossNet) == -1 || GetModeNetById(Mode2).DelNbrType(CrossNet) == -1) {
+  if (GetModeNetById(Mode1).DelNbrType(CrossNet) == -1 || (Mode1 != Mode2 && GetModeNetById(Mode2).DelNbrType(CrossNet) == -1)) {
     return -1;
   }
   CrossNameToIdH.DelKey(CrossNet);
   CrossIdToNameH.DelKey(CrossNetId);
+  GetCrossNetById(CrossNetId).SetParentPointer(NULL);
   TCrossNetH.DelKey(CrossNetId);
   return 0;
 }
@@ -695,6 +713,7 @@ int TMMNet::DelMode(const TInt& ModeId) {
   TStr ModeName = ModeIdToNameH.GetDat(ModeId);
   ModeNameToIdH.DelKey(ModeName);
   ModeIdToNameH.DelKey(ModeId);
+  GetModeNetById(ModeId).SetParentPointer(NULL);
   TModeNetH.DelKey(ModeId);
   return 0;
 }
