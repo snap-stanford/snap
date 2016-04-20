@@ -183,6 +183,7 @@ PGraph ToNetwork(PTable Table,
   return ToNetwork<PGraph>(Table, SrcCol, DstCol, V, V, V, AggrPolicy);
 }
 
+#ifdef GCC_ATOMIC
 //Performs table to graph conversion in parallel using the sort-first algorithm. This is the recommended method to use.
 template<class PGraphMP>
 PGraphMP ToGraphMP(PTable Table, const TStr& SrcCol, const TStr& DstCol) {
@@ -1466,6 +1467,7 @@ PGraphMP ToNetworkMP2(PTable Table,
 
 
 
+#endif // GCC_ATOMIC
 #endif // GCC_ATOMIC
 
 }; // TSnap namespace

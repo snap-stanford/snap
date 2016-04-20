@@ -59,11 +59,11 @@ public:
     int GetOutDeg() const { return NodeHI.GetDat().GetOutDeg(); }
     /// Sorts the adjacency lists of the current node.
     void SortNIdV() { NodeHI.GetDat().SortNIdV(); }
-    /// Returns ID of NodeN-th in-node (the node pointing to the current node). ##TNGraphMP::TNodeI::GetInNId
+    /// Returns ID of NodeN-th in-node (the node pointing to the current node). ##TUNGraphMP::TNodeI::GetInNId
     int GetInNId(const int& NodeN) const { return NodeHI.GetDat().GetInNId(NodeN); }
-    /// Returns ID of NodeN-th out-node (the node the current node points to). ##TNGraphMP::TNodeI::GetOutNId
+    /// Returns ID of NodeN-th out-node (the node the current node points to). ##TUNGraphMP::TNodeI::GetOutNId
     int GetOutNId(const int& NodeN) const { return NodeHI.GetDat().GetOutNId(NodeN); }
-    /// Returns ID of NodeN-th neighboring node. ##TNGraphMP::TNodeI::GetNbrNId
+    /// Returns ID of NodeN-th neighboring node. ##TUNGraphMP::TNodeI::GetNbrNId
     int GetNbrNId(const int& NodeN) const { return NodeHI.GetDat().GetNbrNId(NodeN); }
     /// Tests whether node with ID NId points to the current node.
     bool IsInNId(const int& NId) const { return NodeHI.GetDat().IsInNId(NId); }
@@ -114,7 +114,7 @@ public:
   void Save(TSOut& SOut) const { MxNId.Save(SOut); NEdges.Save(SOut); NodeH.Save(SOut); }
   /// Static constructor that returns a pointer to the graph. Call: PNGraphMP Graph = TNGraphMP::New().
   static PUNGraphMP New() { return new TUNGraphMP(); }
-  /// Static constructor that returns a pointer to the graph and reserves enough memory for Nodes nodes and Edges edges. ##TNGraphMP::New
+  /// Static constructor that returns a pointer to the graph and reserves enough memory for Nodes nodes and Edges edges. ##TUNGraphMP::New
   static PUNGraphMP New(const int& Nodes, const int& Edges) { return new TUNGraphMP(Nodes, Edges); }
   /// Static constructor that loads the graph from a stream SIn and returns a pointer to it.
   static PUNGraphMP Load(TSIn& SIn) { return PUNGraphMP(new TUNGraphMP(SIn)); }
@@ -127,17 +127,17 @@ public:
   int GetNodes() const { return NodeH.Len(); }
   /// Sets the number of nodes in the graph.
   void SetNodes(const int& Length) { NodeH.SetLen(Length); }
-  /// Adds a node of ID NId to the graph. ##TNGraphMP::AddNode
+  /// Adds a node of ID NId to the graph. ##TUNGraphMP::AddNode
   int AddNode(int NId = -1);
   /// Adds a node of ID NId to the graph without performing checks.
   int AddNodeUnchecked(int NId = -1);
   /// Adds a node of ID NodeI.GetId() to the graph.
   int AddNode(const TNodeI& NodeId) { return AddNode(NodeId.GetId()); }
-  /// Adds a node of ID NId to the graph, creates edges to the node from all nodes in vector InNIdV, creates edges from the node to all nodes in vector OutNIdV. ##TNGraphMP::AddNode-1
+  /// Adds a node of ID NId to the graph, creates edges to the node from all nodes in vector InNIdV, creates edges from the node to all nodes in vector OutNIdV. ##TUNGraphMP::AddNode-1
   int AddNode(const int& NId, const TIntV& InNIdV, const TIntV& OutNIdV);
-  /// Adds a node of ID NId to the graph, creates edges to the node from all nodes in vector InNIdV in the vector pool Pool, creates edges from the node to all nodes in vector OutNIdVin the vector pool Pool . ##TNGraphMP::AddNode-2
+  /// Adds a node of ID NId to the graph, creates edges to the node from all nodes in vector InNIdV in the vector pool Pool, creates edges from the node to all nodes in vector OutNIdVin the vector pool Pool . ##TUNGraphMP::AddNode-2
   int AddNode(const int& NId, const TVecPool<TInt>& Pool, const int& SrcVId, const int& DstVId);
-  /// Deletes node of ID NId from the graph. ##TNGraphMP::DelNode
+  /// Deletes node of ID NId from the graph. ##TUNGraphMP::DelNode
   void DelNode(const int& NId);
   /// Deletes node of ID NodeI.GetId() from the graph.
   void DelNode(const TNode& NodeI) { DelNode(NodeI.GetId()); }
@@ -157,7 +157,7 @@ public:
 
   /// Returns the number of edges in the graph.
   int GetEdges() const;
-  /// Adds an edge from node IDs SrcNId to node DstNId to the graph. ##TNGraphMP::AddEdge
+  /// Adds an edge from node IDs SrcNId to node DstNId to the graph. ##TUNGraphMP::AddEdge
   int AddEdge(const int& SrcNId, const int& DstNId);
   /// Adds an edge from node IDs SrcNId to node DstNId to the graph without performing checks.
   int AddEdgeUnchecked(const int& SrcNId, const int& DstNId);
@@ -171,7 +171,7 @@ public:
   /// Adds a node of ID NId to the graph, creates edges to the node from all nodes in vector InNIdV, creates edges from the node to all nodes in vector OutNIdV.
   void AddNodeWithEdges(const TInt& NId, TIntV& InNIdV, TIntV& OutNIdV);
 
-  /// Deletes an edge from node IDs SrcNId to DstNId from the graph. ##TNGraphMP::DelEdge
+  /// Deletes an edge from node IDs SrcNId to DstNId from the graph. ##TUNGraphMP::DelEdge
   void DelEdge(const int& SrcNId, const int& DstNId, const bool& IsDir = true);
   /// Tests whether an edge from node IDs SrcNId to DstNId exists in the graph.
   bool IsEdge(const int& SrcNId, const int& DstNId, const bool& IsDir = true) const;
@@ -207,13 +207,13 @@ public:
   void SortEdges(const int& Idx, const int& InDeg, const int& OutDeg) { if (InDeg > 0) NodeH[Idx].InNIdV.Sort(); if (OutDeg > 0) NodeH[Idx].OutNIdV.Sort(); }
   /// Sorts the adjacency lists of each node
   void SortNodeAdjV() { for (TNodeI NI = BegNI(); NI < EndNI(); NI++) { NI.SortNIdV();} }
-  /// Defragments the graph. ##TNGraphMP::Defrag
+  /// Defragments the graph. ##TUNGraphMP::Defrag
   void Defrag(const bool& OnlyNodeLinks=false);
-  /// Checks the graph data structure for internal consistency. ##TNGraphMP::IsOk
+  /// Checks the graph data structure for internal consistency. ##TUNGraphMP::IsOk
   bool IsOk(const bool& ThrowExcept=true) const;
   /// Print the graph in a human readable form to an output stream OutF.
   void Dump(FILE *OutF=stdout) const;
-  /// Returns a small graph on 5 nodes and 6 edges. ##TNGraphMP::GetSmallGraph
+  /// Returns a small graph on 5 nodes and 6 edges. ##TUNGraphMP::GetSmallGraph
   static PNGraphMP GetSmallGraph();
   friend class TPt<TNGraphMP>;
   friend class TNGraphMPMtx;
