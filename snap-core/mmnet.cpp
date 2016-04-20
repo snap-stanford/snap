@@ -812,18 +812,34 @@ PMMNet TMMNet::GetSubgraphByCrossNet(TStrV& CrossNetTypes) {
 }
 
 PMMNet TMMNet::GetSubgraphByModeNet(TStrV& ModeNetTypes) {
-  THashSet<TInt> ModeTypeIds;
+  THash<TInt, TBool> ModeTypeIds;
   for (int i = 0; i < ModeNetTypes.Len(); i++) {
-    ModeTypeIds.AddKey(ModeNameToIdH.GetDat(ModeNetTypes[i]));
+    ModeTypeIds.AddDat(ModeNameToIdH.GetDat(ModeNetTypes[i]), true);
   }
   TStrV CrossNetTypes;
   for (THash<TInt, TCrossNet>::TIter it = TCrossNetH.BegI(); it < TCrossNetH.EndI(); it++) {
     TCrossNet& CrossNet = it.GetDat();
     if (ModeTypeIds.IsKey(CrossNet.Mode1) && ModeTypeIds.IsKey(CrossNet.Mode2)) {
       CrossNetTypes.Add(CrossIdToNameH.GetDat(it.GetKey()));
+      ModeTypeIds[CrossNet.Mode1] = false;
+      ModeTypeIds[CrossNet.Mode2] = false;
     }
   }
-  return GetSubgraphByCrossNet(CrossNetTypes);
+
+  PMMNet Result = GetSubgraphByCrossNet(CrossNetTypes);
+  TInt MxMode = Result->MxModeId;
+  TStrV EmptyCrossNetTypes;
+  for (THash<TInt, TBool>::TIter it = ModeTypeIds.BegI(); it < ModeTypeIds.EndI(); it++) {
+    if (it.GetDat() == true) {
+      TStr ModeName = ModeIdToNameH.GetDat(it.GetKey());
+      TInt NewModeId = MxMode++;
+      TModeNet NewModeNet;
+      TModeNetH.GetDat(it.GetKey()).RemoveCrossNets(NewModeNet, EmptyCrossNetTypes);
+      NewModeNet.ModeId = NewModeId;
+      Result->AddMode(ModeName, NewModeId, NewModeNet);
+    }
+  }
+  Result->MxModeId = MxMode;
 }
 
 PNEANet TMMNet::ToNetwork(TIntV& CrossNetTypes, TVec<TTriple<TInt, TStr, TStr> >& NodeAttrMap, TVec<TTriple<TInt, TStr, TStr> >& EdgeAttrMap) {
