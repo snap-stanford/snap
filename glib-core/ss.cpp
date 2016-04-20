@@ -400,11 +400,10 @@ bool TSsParser::NextSlow() { // split on SplitCh
     FldV.Add(last);  last = cur;
     if (SkipEmptyFld && strlen(FldV.Last())==0) { FldV.DelLast(); } // skip empty fields
   }
-  if (SkipEmptyFld && FldV.Empty() && *last == 0) {
-    // skip empty lines
-    return NextSlow();
-  }
-  FldV.Add(last);  // add last field
+
+  if (*last != 0) { FldV.Add(last); }  // add last field
+  if (SkipEmptyFld && FldV.Empty()) { return NextSlow(); } // skip empty lines
+
   return true; 
 }
 
@@ -431,11 +430,10 @@ bool TSsParser::Next() { // split on SplitCh
     FldV.Add(last);  last = cur;
     if (SkipEmptyFld && strlen(FldV.Last())==0) { FldV.DelLast(); } // skip empty fields
   }
-  if (SkipEmptyFld && FldV.Empty() && *last == 0) {
-    // skip empty lines
-    return Next();
-  }
-  FldV.Add(last);  // add last field
+
+  if (*last != 0) { FldV.Add(last); }  // add last field
+  if (SkipEmptyFld && FldV.Empty()) { return Next(); } // skip empty lines
+
   return true; 
 }
 
@@ -448,6 +446,7 @@ void TSsParser::ToLc() {
 
 bool TSsParser::GetInt(const int& FldN, int& Val) const {
   // parsing format {ws} [+/-] +{ddd}
+  if (FldN >= Len()) { return false; }
   int _Val = -1;
   bool Minus=false;
   const char *c = GetFld(FldN);
@@ -465,8 +464,27 @@ bool TSsParser::GetInt(const int& FldN, int& Val) const {
   return true;
 }
 
+bool TSsParser::GetUInt64(const int& FldN, uint64& Val) const {
+  // parsing format {ws} [+]{ddd}
+  if (FldN >= Len()) { return false; }
+  uint64 _Val=0;
+  const char *c = GetFld(FldN);
+  while (TCh::IsWs(*c)){ c++; }
+  if (*c == '+'){ c++; }
+  if (! TCh::IsNum(*c)) { return false; }
+  _Val = TCh::GetNum(*c); c++;
+  while (TCh::IsNum(*c)) {
+    _Val = 10*_Val + TCh::GetNum(*c);
+    c++;
+  }
+  if (*c != 0) { return false; }
+  Val = _Val;
+  return true;
+}
+
 bool TSsParser::GetFlt(const int& FldN, double& Val) const {
   // parsing format {ws} [+/-] +{d} ([.]{d}) ([E|e] [+/-] +{d})
+  if (FldN >= Len()) { return false; }
   const char *c = GetFld(FldN);
   while (TCh::IsWs(*c)) { c++; }
   if (*c=='+' || *c=='-') { c++; }

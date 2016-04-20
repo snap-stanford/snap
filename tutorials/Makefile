@@ -17,6 +17,7 @@ DEMOS = \
 	demo-THash \
 	demo-topology-benchmark \
 	demo-hashvec-benchmark \
+	demo-TSsParser \
 	\
 
 all: $(DEMOS)

@@ -56,14 +56,17 @@ int main(int argc, char* argv[]) {
   printf("Filename: %s\n", InFNm.CStr());
   printf("Building Network...\n");
   TFIn InFile(InFNm);
+  // uncomment the following lines for the binary input file
   // If the input file is a binary, use the following line to load the network
-  PNEANet Net = TNEANet::Load(InFile);
+  // PNEANet Net = TNEANet::Load(InFile);
+  // uncomment the following lines for the text input file
   // If the input file is a text file, use the following to load the network and save as binary
-  // PNEANet Net;
-  // int MaxEdgeCap = BuildCapacityNetwork(InFNm, Net);
+  PNEANet Net;
+  int MaxEdgeCap = BuildCapacityNetwork(InFNm, Net);
   // const TStr OutFNm = Env.GetIfArgPrefixStr("-o:", "", "Output file");
   // TFOut OutFile(OutFNm);
   // Net->Save(OutFile);
+  // --- calculate flows
   printf("PNEANet Nodes: %d, Edges: %d\n\n", Net->GetNodes(), Net->GetEdges());
   #pragma omp parallel for reduction(+:NetEKTimeSum,NetPRTimeSum,NumWins) schedule(static, 1)
   for (int t = 0; t < Threads; t++) {
