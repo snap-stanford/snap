@@ -1,0 +1,84 @@
+Creating graph for Live Journal
+Graph (3828682, 65825429)
+Start nodes:  1764342 992131 718128 3207795 845520 1209467 3313469 989170 2688611 3274544 3425199 2871675 3435734 4529257 166362 3665593 4324650 2214835 440867 3331434
+
+Start node: 166362
+Max Dist (Returned by DoBfs): 13
+Time spent: 9895.227799
+
+Start node: 3313469
+Max Dist (Returned by DoBfs): 15
+Time spent: 10118.308116
+
+Start node: 3425199
+Max Dist (Returned by DoBfs): 14
+Time spent: 10136.207063
+
+Start node: 989170
+Max Dist (Returned by DoBfs): 13
+Time spent: 10537.438234
+
+Start node: 3665593
+Max Dist (Returned by DoBfs): 14
+Time spent: 10588.997749
+
+Start node: 440867
+Max Dist (Returned by DoBfs): 14
+Time spent: 10626.190067
+
+Start node: 3435734
+Max Dist (Returned by DoBfs): 15
+Time spent: 10761.857292
+
+Start node: 4324650
+Max Dist (Returned by DoBfs): 15
+Time spent: 10815.458884
+
+Start node: 3207795
+Max Dist (Returned by DoBfs): 15
+Time spent: 10846.764393
+
+Start node: 1764342
+Max Dist (Returned by DoBfs): 14
+Time spent: 10899.095576
+
+Start node: 718128
+Max Dist (Returned by DoBfs): 13
+Time spent: 10901.618518
+
+Start node: 3274544
+Max Dist (Returned by DoBfs): 15
+Time spent: 10906.445738
+
+Start node: 2871675
+Max Dist (Returned by DoBfs): 14
+Time spent: 10962.783569
+
+Start node: 2214835
+Max Dist (Returned by DoBfs): 14
+Time spent: 10966.883566
+
+Start node: 845520
+Max Dist (Returned by DoBfs): 14
+Time spent: 10983.222489
+
+Start node: 2688611
+Max Dist (Returned by DoBfs): 15
+Time spent: 10995.033508
+
+Start node: 992131
+Max Dist (Returned by DoBfs): 13
+Time spent: 11240.170368
+
+Start node: 1209467
+Max Dist (Returned by DoBfs): 14
+Time spent: 11257.013740
+
+Start node: 4529257
+Max Dist (Returned by DoBfs): 15
+Time spent: 11360.854350
+
+Start node: 3331434
+Max Dist (Returned by DoBfs): 15
+Time spent: 12324.023849
+

@@ -1,0 +1,114 @@
+Flat profile:
+
+Each sample counts as 0.01 seconds.
+  %   cumulative   self              self     total           
+ time   seconds   seconds    calls  Ks/call  Ks/call  name    
+ 82.77   1151.10  1151.10        1     1.15     1.37  TBreathFS<TPt<TNGraph> >::DoBfs(int const&, bool const&, bool const&, int const&, int const&)
+ 15.89   1372.10   221.00  3828682     0.00     0.00  THash<TInt, TInt, TDefaultHashFunc<TInt> >::AddKey(TInt const&)
+  0.96   1385.45    13.35                             TNGraph::IsOk(bool const&) const
+  0.18   1387.95     2.50                             TFIn::GetBf(void const*, unsigned long const&)
+  0.12   1389.59     1.64  7657365     0.00     0.00  TVec<TInt, int>::Load(TSIn&)
+  0.06   1390.46     0.87        1     0.00     0.00  TVec<THashKeyDat<TInt, TNGraph::TNode>, int>::Load(TSIn&)
+  0.01   1390.60     0.14       12     0.00     0.00  TVec<THashKeyDat<TInt, TInt>, int>::Resize(int const&)
+  0.01   1390.69     0.09                             TNGraph::GetEdges() const
+  0.00   1390.74     0.05                             TFIn::FillBf()
+  0.00   1390.77     0.03                             main
+  0.00   1390.78     0.01       11     0.00     0.00  TVec<int, int>::Resize(int const&)
+  0.00   1390.78     0.01                             TNGraph::TNode::~TNode()
+  0.00   1390.78     0.00      416     0.00     0.00  TStr::TStr(char const*)
+  0.00   1390.78     0.00        5     0.00     0.00  TVec<TInt, int>::~TVec()
+  0.00   1390.78     0.00        3     0.00     0.00  TVec<int, int>::Clr(bool const&, int const&)
+  0.00   1390.78     0.00        1     0.00     0.00  global constructors keyed to _Z13timeInSecondsR7timevalS0_
+  0.00   1390.78     0.00        1     0.00     0.00  TVec<THashKeyDat<TInt, TInt>, int>::Clr(bool const&, int const&)
+  0.00   1390.78     0.00        1     0.00     0.00  THash<TInt, TInt, TDefaultHashFunc<TInt> >::THash(int const&, bool const&)
+
+			Call graph
+
+
+granularity: each sample hit covers 2 byte(s) for 0.00% of 1390.78 seconds
+
+index % time    self  children    called     name
+                                                 <spontaneous>
+[1]     98.8    0.03 1374.76                 main [1]
+             1151.10  221.15       1/1           TBreathFS<TPt<TNGraph> >::DoBfs(int const&, bool const&, bool const&, int const&, int const&) [2]
+                0.87    1.64       1/1           TVec<THashKeyDat<TInt, TNGraph::TNode>, int>::Load(TSIn&) [5]
+                0.00    0.00       1/7657365     TVec<TInt, int>::Load(TSIn&) [7]
+                0.00    0.00       1/1           THash<TInt, TInt, TDefaultHashFunc<TInt> >::THash(int const&, bool const&) [22]
+-----------------------------------------------
+             1151.10  221.15       1/1           main [1]
+[2]     98.7 1151.10  221.15       1         TBreathFS<TPt<TNGraph> >::DoBfs(int const&, bool const&, bool const&, int const&, int const&) [2]
+              221.00    0.14 3828682/3828682     THash<TInt, TInt, TDefaultHashFunc<TInt> >::AddKey(TInt const&) [3]
+                0.01    0.00      11/11          TVec<int, int>::Resize(int const&) [11]
+                0.00    0.00       3/3           TVec<int, int>::Clr(bool const&, int const&) [19]
+                0.00    0.00       1/1           TVec<THashKeyDat<TInt, TInt>, int>::Clr(bool const&, int const&) [21]
+-----------------------------------------------
+              221.00    0.14 3828682/3828682     TBreathFS<TPt<TNGraph> >::DoBfs(int const&, bool const&, bool const&, int const&, int const&) [2]
+[3]     15.9  221.00    0.14 3828682         THash<TInt, TInt, TDefaultHashFunc<TInt> >::AddKey(TInt const&) [3]
+                0.14    0.00      12/12          TVec<THashKeyDat<TInt, TInt>, int>::Resize(int const&) [8]
+-----------------------------------------------
+                                                 <spontaneous>
+[4]      1.0   13.35    0.00                 TNGraph::IsOk(bool const&) const [4]
+-----------------------------------------------
+                0.87    1.64       1/1           main [1]
+[5]      0.2    0.87    1.64       1         TVec<THashKeyDat<TInt, TNGraph::TNode>, int>::Load(TSIn&) [5]
+                1.64    0.00 7657364/7657365     TVec<TInt, int>::Load(TSIn&) [7]
+-----------------------------------------------
+                                                 <spontaneous>
+[6]      0.2    2.50    0.00                 TFIn::GetBf(void const*, unsigned long const&) [6]
+-----------------------------------------------
+                0.00    0.00       1/7657365     main [1]
+                1.64    0.00 7657364/7657365     TVec<THashKeyDat<TInt, TNGraph::TNode>, int>::Load(TSIn&) [5]
+[7]      0.1    1.64    0.00 7657365         TVec<TInt, int>::Load(TSIn&) [7]
+-----------------------------------------------
+                0.14    0.00      12/12          THash<TInt, TInt, TDefaultHashFunc<TInt> >::AddKey(TInt const&) [3]
+[8]      0.0    0.14    0.00      12         TVec<THashKeyDat<TInt, TInt>, int>::Resize(int const&) [8]
+-----------------------------------------------
+                                                 <spontaneous>
+[9]      0.0    0.09    0.00                 TNGraph::GetEdges() const [9]
+-----------------------------------------------
+                                                 <spontaneous>
+[10]     0.0    0.05    0.00                 TFIn::FillBf() [10]
+-----------------------------------------------
+                0.01    0.00      11/11          TBreathFS<TPt<TNGraph> >::DoBfs(int const&, bool const&, bool const&, int const&, int const&) [2]
+[11]     0.0    0.01    0.00      11         TVec<int, int>::Resize(int const&) [11]
+-----------------------------------------------
+                                                 <spontaneous>
+[12]     0.0    0.01    0.00                 TNGraph::TNode::~TNode() [12]
+-----------------------------------------------
+                0.00    0.00       1/416         TStdOut::TStdOut() [2003]
+                0.00    0.00       1/416         TStdIn::TStdIn() [1589]
+                0.00    0.00      11/416         global constructors keyed to _Z13timeInSecondsR7timevalS0_ [20]
+                0.00    0.00      11/416         TXmlChDef::TXmlChDef() [2423]
+                0.00    0.00      13/416         TUrlLxChDef::TUrlLxChDef() [248]
+                0.00    0.00      30/416         THttpChDef::THttpChDef() [138]
+                0.00    0.00     129/416         global constructors keyed to _Z11BaseTralalav [23]
+                0.00    0.00     220/416         THtmlLxChDef::THtmlLxChDef() [263]
+[17]     0.0    0.00    0.00     416         TStr::TStr(char const*) [17]
+-----------------------------------------------
+                0.00    0.00       1/5           TXmlChDef::~TXmlChDef() [2424]
+                0.00    0.00       2/5           THtmlLxChDef::~THtmlLxChDef() [264]
+                0.00    0.00       2/5           TPt<THtmlLxChDef>::~TPt() [345]
+[18]     0.0    0.00    0.00       5         TVec<TInt, int>::~TVec() [18]
+-----------------------------------------------
+                0.00    0.00       3/3           TBreathFS<TPt<TNGraph> >::DoBfs(int const&, bool const&, bool const&, int const&, int const&) [2]
+[19]     0.0    0.00    0.00       3         TVec<int, int>::Clr(bool const&, int const&) [19]
+-----------------------------------------------
+                0.00    0.00       1/1           __do_global_ctors_aux [3164]
+[20]     0.0    0.00    0.00       1         global constructors keyed to _Z13timeInSecondsR7timevalS0_ [20]
+                0.00    0.00      11/416         TStr::TStr(char const*) [17]
+-----------------------------------------------
+                0.00    0.00       1/1           TBreathFS<TPt<TNGraph> >::DoBfs(int const&, bool const&, bool const&, int const&, int const&) [2]
+[21]     0.0    0.00    0.00       1         TVec<THashKeyDat<TInt, TInt>, int>::Clr(bool const&, int const&) [21]
+-----------------------------------------------
+                0.00    0.00       1/1           main [1]
+[22]     0.0    0.00    0.00       1         THash<TInt, TInt, TDefaultHashFunc<TInt> >::THash(int const&, bool const&) [22]
+-----------------------------------------------
+
+Index by function name
+
+  [20] global constructors keyed to _Z13timeInSecondsR7timevalS0_ [8] TVec<THashKeyDat<TInt, TInt>, int>::Resize(int const&) [22] THash<TInt, TInt, TDefaultHashFunc<TInt> >::THash(int const&, bool const&)
+   [6] TFIn::GetBf(void const*, unsigned long const&) [7] TVec<TInt, int>::Load(TSIn&) [12] TNGraph::TNode::~TNode()
+  [10] TFIn::FillBf()         [18] TVec<TInt, int>::~TVec() [2] TBreathFS<TPt<TNGraph> >::DoBfs(int const&, bool const&, bool const&, int const&, int const&)
+  [17] TStr::TStr(char const*) [19] TVec<int, int>::Clr(bool const&, int const&) [4] TNGraph::IsOk(bool const&) const
+   [5] TVec<THashKeyDat<TInt, TNGraph::TNode>, int>::Load(TSIn&) [11] TVec<int, int>::Resize(int const&) [9] TNGraph::GetEdges() const
+  [21] TVec<THashKeyDat<TInt, TInt>, int>::Clr(bool const&, int const&) [3] THash<TInt, TInt, TDefaultHashFunc<TInt> >::AddKey(TInt const&) [1] main
