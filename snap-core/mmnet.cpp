@@ -830,7 +830,7 @@ PMMNet TMMNet::GetSubgraphByModeNet(TStrV& ModeNetTypes) {
   TInt MxMode = Result->MxModeId;
   TStrV EmptyCrossNetTypes;
   for (THash<TInt, TBool>::TIter it = ModeTypeIds.BegI(); it < ModeTypeIds.EndI(); it++) {
-    if (it.GetDat() == true) {
+    if (it.GetDat().Val) {
       TStr ModeName = ModeIdToNameH.GetDat(it.GetKey());
       TInt NewModeId = MxMode++;
       TModeNet NewModeNet;
@@ -840,6 +840,7 @@ PMMNet TMMNet::GetSubgraphByModeNet(TStrV& ModeNetTypes) {
     }
   }
   Result->MxModeId = MxMode;
+  return Result;
 }
 
 PNEANet TMMNet::ToNetwork(TIntV& CrossNetTypes, TVec<TTriple<TInt, TStr, TStr> >& NodeAttrMap, TVec<TTriple<TInt, TStr, TStr> >& EdgeAttrMap) {
