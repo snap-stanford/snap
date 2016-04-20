@@ -2095,16 +2095,15 @@ public:
   /// Attribute based add function for attr to Flt value. ##TNEANet::AddFltAttrDatN
   int AddFltAttrDatN(const TNodeI& NodeI, const TFlt& value, const TStr& attr) { return AddFltAttrDatN(NodeI.GetId(), value, attr); }
   int AddFltAttrDatN(const int& NId, const TFlt& value, const TStr& attr);
-  //**************
+  /// Attribute based add function for attr to IntV value.
   int AddIntVAttrDatN(const TNodeI& NodeI, const TIntV& value, const TStr& attr) { return AddIntVAttrDatN(NodeI.GetId(), value, attr); }
   int AddIntVAttrDatN(const int& NId, const TIntV& value, const TStr& attr);
-
+  /// Append to the IntV attribute.
   int AppendIntVAttrDatN(const TNodeI& NodeI, const TInt& value, const TStr& attr) { return AppendIntVAttrDatN(NodeI.GetId(), value, attr); }
   int AppendIntVAttrDatN(const int& NId, const TInt& value, const TStr& attr);
-
+  /// Delete a value for the IntV attribute.
   int DelFromIntVAttrDatN(const TNodeI& NodeI, const TInt& value, const TStr& attr) { return DelFromIntVAttrDatN(NodeI.GetId(), value, attr); }
   int DelFromIntVAttrDatN(const int& NId, const TInt& value, const TStr& attr);
-  //**************
   /// Attribute based add function for attr to Int value. ##TNEANet::AddIntAttrDatE
   int AddIntAttrDatE(const TEdgeI& EdgeI, const TInt& value, const TStr& attr) { return AddIntAttrDatE(EdgeI.GetId(), value, attr); }
   int AddIntAttrDatE(const int& EId, const TInt& value, const TStr& attr);
@@ -2114,13 +2113,13 @@ public:
   /// Attribute based add function for attr to Flt value. ##TNEANet::AddFltAttrDatE
   int AddFltAttrDatE(const TEdgeI& EdgeI, const TFlt& value, const TStr& attr) { return AddFltAttrDatE(EdgeI.GetId(), value, attr); }
   int AddFltAttrDatE(const int& EId, const TFlt& value, const TStr& attr);
-  //**************
+  /// Attribute based add functino for attr to IntV value.
   int AddIntVAttrDatE(const TEdgeI& EdgeI, const TIntV& value, const TStr& attr) { return AddIntVAttrDatE(EdgeI.GetId(), value, attr); }
   int AddIntVAttrDatE(const int& EId, const TIntV& value, const TStr& attr);
-
+  /// Append to the IntV attribute.
   int AppendIntVAttrDatE(const TEdgeI& EdgeI, const TInt& value, const TStr& attr) { return AppendIntVAttrDatE(EdgeI.GetId(), value, attr); }
   int AppendIntVAttrDatE(const int& EId, const TInt& value, const TStr& attr);
-  //**************
+
   /// Gets the value of int attr from the node attr value vector.
   TInt GetIntAttrDatN(const TNodeI& NodeI, const TStr& attr) { return GetIntAttrDatN(NodeI.GetId(), attr); }
   TInt GetIntAttrDatN(const int& NId, const TStr& attr);
@@ -2131,7 +2130,7 @@ public:
   /// Gets the value of flt attr from the node attr value vector.
   TFlt GetFltAttrDatN(const TNodeI& NodeI, const TStr& attr) { return GetFltAttrDatN(NodeI.GetId(), attr); }
   TFlt GetFltAttrDatN(const int& NId, const TStr& attr);
-
+  /// Gets the value of the int vector attr from the node attr value vector.
   TIntV GetIntVAttrDatN(const TNodeI& NodeI, const TStr& attr) const { return GetIntVAttrDatN(NodeI.GetId(), attr); }
   TIntV GetIntVAttrDatN(const int& NId, const TStr& attr) const;
 
@@ -2165,6 +2164,7 @@ public:
   TFlt GetFltAttrDatE(const TEdgeI& EdgeI, const TStr& attr) { return GetFltAttrDatE(EdgeI.GetId(), attr); }
   TFlt GetFltAttrDatE(const int& EId, const TStr& attr);
 
+  /// Gets the value of the int vector attr from the edge attr value vector.
   TIntV GetIntVAttrDatE(const TEdgeI& EdgeI, const TStr& attr) { return GetIntVAttrDatE(EdgeI.GetId(), attr); }
   TIntV GetIntVAttrDatE(const int& EId, const TStr& attr);
 
@@ -2222,6 +2222,8 @@ public:
   bool IsAttrDeletedN(const int& NId, const TStr& attr) const;
   // Returns true if Int \c attr exists for node \c NId and has default value.
   bool IsIntAttrDeletedN(const int& NId, const TStr& attr) const;
+  // Returns true if IntV \c attr exists for node \c NId and is an empty vector.
+  bool IsIntVAttrDeletedN(const int& NId, const TStr& attr) const;
   // Returns true if Str \c attr exists for node \c NId and has default value.
   bool IsStrAttrDeletedN(const int& NId, const TStr& attr) const;
   // Returns true if Flt \c attr exists for node \c NId and has default value.
@@ -2231,6 +2233,8 @@ public:
   bool NodeAttrIsDeleted(const int& NId, const TStrIntPrH::TIter& NodeHI) const;
   // Returns true if NId attr deleted value for current node int attr iterator.
   bool NodeAttrIsIntDeleted(const int& NId, const TStrIntPrH::TIter& NodeHI) const;
+  // Returns true if NId attr deleted value for current node int vector attr iterator.
+  bool NodeAttrIsIntVDeleted(const int& NId, const TStrIntPrH::TIter& NodeHI) const;
   // Returns true if NId attr deleted value for current node str attr iterator.
   bool NodeAttrIsStrDeleted(const int& NId, const TStrIntPrH::TIter& NodeHI) const;
   // Returns true if NId attr deleted value for current node flt attr iterator.
@@ -2240,6 +2244,8 @@ public:
   bool IsAttrDeletedE(const int& EId, const TStr& attr) const;
   // Returns true if Int \c attr exists for edge \c EId and has default value.
   bool IsIntAttrDeletedE(const int& EId, const TStr& attr) const;
+  // Returns true if IntV \c attr exists for edge \c EId and is an empty vector.
+  bool IsIntVAttrDeletedE(const int& EId, const TStr& attr) const;
   // Returns true if Str \c attr exists for edge \c NId and has default value.
   bool IsStrAttrDeletedE(const int& EId, const TStr& attr) const;
   // Returns true if Flt \c attr exists for edge \c NId and has default value.
@@ -2249,6 +2255,8 @@ public:
   bool EdgeAttrIsDeleted(const int& EId, const TStrIntPrH::TIter& EdgeHI) const;
   // Returns true if EId attr deleted for current edge int attr iterator.
   bool EdgeAttrIsIntDeleted(const int& EId, const TStrIntPrH::TIter& EdgeHI) const;
+  // Returns true if EId attr deleted for current edge int vector attr iterator.
+  bool EdgeAttrIsIntVDeleted(const int& EId, const TStrIntPrH::TIter& EdgeHI) const;
   // Returns true if EId attr deleted for current edge str attr iterator.
   bool EdgeAttrIsStrDeleted(const int& EId, const TStrIntPrH::TIter& EdgeHI) const;
   // Returns true if EId attr deleted for current edge flt attr iterator.
