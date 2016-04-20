@@ -1,0 +1,16 @@
+#
+# Makefile for non-Microsoft compilers
+#
+
+all: $(MAIN)
+
+# COMPILE
+$(MAIN): $(MAIN).cpp $(DEPH) $(DEPCPP) $(EXEXSNAP)/Snap.o 
+	$(CC) $(CXXFLAGS) -o $(MAIN) $(MAIN).cpp $(DEPCPP) $(EXEXSNAP)/Snap.o -I$(EXEXSNAP) -I$(EXEXSNAPADV) -I$(EXEXGLIB) -I$(EXEXSNAPEXP) $(LDFLAGS) $(LIBS)
+
+$(EXEXSNAP)/Snap.o: 
+	make -C $(EXEXSNAP)
+
+clean:
+	rm -f *.o  $(MAIN)  $(MAIN).exe
+	rm -rf Debug Release

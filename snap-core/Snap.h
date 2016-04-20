@@ -39,6 +39,7 @@
 #include "flow.h"            // network flow algorithms
 #include "coreper.h"         // core-periphery algorithms
 #include "randwalk.h"        // Personalized PageRank
+//#include "casc.h"            // Cascade Detection^M
 
 // graph generators
 #include "ggen.h"            // graph generators (preferential attachment, small-world, ...)
@@ -53,5 +54,6 @@
 #include "table.h"         // table
 #include "conv.h" 				 // conversion functions - table to graph
 #include "numpy.h" 				 // numpy conversion
+#include "casc.h"            // Cascade Detection^M
 
 #endif // SNAP_H
