@@ -165,7 +165,7 @@ namespace TSnap {
 
 template <class PGraph>
 PNGraph GetBfsTree(const PGraph& Graph, const int& StartNId, const bool& FollowOut, const bool& FollowIn) {
-  TBreathFS<PGraph> BFS(Graph, false);
+  TBreathFS<PGraph> BFS(Graph);
   BFS.DoBfs(StartNId, FollowOut, FollowIn, -1, TInt::Mx);
   PNGraph Tree = TNGraph::New();
   BFS.NIdDistH.SortByDat();
