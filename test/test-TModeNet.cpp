@@ -142,23 +142,6 @@ TEST(TModeNet, ManipulateNodesEdges) {
   EXPECT_EQ(1,Graph1.Empty());
 }
 
-// Test small graph
-TEST(TModeNet, GetSmallGraph) {
-  TModeNet Graph;
-
-  return;
-
-  // not implemented
-  //Graph = TModeNet::GetSmallGraph();
-
-  EXPECT_EQ(5,Graph.GetNodes());
-  EXPECT_EQ(6,Graph.GetEdges());
-
-  EXPECT_EQ(1,Graph.IsOk());
-  EXPECT_EQ(0,Graph.Empty());
-  EXPECT_EQ(1,Graph.HasFlag(gfDirected));
-}
-
 TEST(TModeNet, IntVAttr) {
   TModeNet Graph;
   Graph = TModeNet();
