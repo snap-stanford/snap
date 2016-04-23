@@ -1,10 +1,9 @@
 #include "stdafx.h"
-#include <omp.h>
 #include <stdio.h>
 #include <sys/time.h>
 #include <vector>
 
-#define NUM_START_NODES 20
+#define NUM_START_NODES 50
 
 using namespace std;
 
@@ -36,7 +35,6 @@ int main(int argc, char* argv[]) {
   }
   printf("\n\n");
 
-  #pragma omp parallel for
   for (int i = 0; i < NUM_START_NODES; i++) {
     int start = startNodes[i];
     // Get current time
@@ -44,7 +42,7 @@ int main(int argc, char* argv[]) {
     gettimeofday(&tv1, NULL);
 
     // BFS
-    TBreathFS<PGraph> bfs(graph, false);
+    TBreathFS<PGraph> bfs(graph, true);
     int maxDist = bfs.DoBfs(start, true, false);
 
     gettimeofday(&tv2, NULL);

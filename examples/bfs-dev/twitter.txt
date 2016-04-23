@@ -1,0 +1,5 @@
+Creating graph for Twitter
+Graph (33479734, 1394440906)
+Start node: 59102400
+Max Distance: 15
+Time spent: 264.580113

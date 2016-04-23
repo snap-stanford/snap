@@ -25,13 +25,18 @@ int main(int argc, char* argv[]) {
   struct timeval tv1, tv2;
   gettimeofday(&tv1, NULL);
 
-  TBreathFS_Test<PGraph> bfs(graph, false);
+  TBreathFS_Test<PGraph> bfs(graph, true);
   int maxDist = bfs.DoBfs_test(start, true, false);
 
   gettimeofday(&tv2, NULL);
   double timeDiff = timeInSeconds(tv1, tv2);
   
-  printf("Start node: %d\nMax Distance: %d\nTime spent: %f\n", start, maxDist, timeDiff);
+  printf("Start node: %d\nMax Distance: %d\nTime spent: %f\n\n", start, maxDist, timeDiff);
+
+  for (unsigned int i = 0; i < bfs.childCounts.size(); i++) {
+    struct ChildTypeCount c = bfs.childCounts[i];
+    printf("%d %d %d %d\n", c.claimedChildren, c.failedChildren, c.peers, c.validParents);
+  }
 
   return 0;
 }

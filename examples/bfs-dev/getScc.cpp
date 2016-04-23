@@ -12,16 +12,16 @@ double timeInSeconds(struct timeval &tv1, struct timeval &tv2) {
 int main(int argc, char* argv[]) {
   typedef PNGraph PGraph; // directed graph
 
-  printf("Creating graph for Live Journal\n");
+  printf("Creating graph for Twitter\n");
 
-  PGraph graph = TSnap::LoadEdgeList<PGraph>("../../../soc-LiveJournal1.txt", 0, 1);
+  PGraph graph = TSnap::LoadEdgeList<PGraph>("/dfs/ilfs2/0/ringo/benchmarks/twitter_rv.txt", 0, 1);
   IAssert(graph->IsOk());
   printf("Graph (%d, %d)\n", graph->GetNodes(), graph->GetEdges());
 
   printf("Getting max scc\n");
   PGraph maxScc = TSnap::GetMxScc(graph);
   printf("Scc (%d, %d)\n", maxScc->GetNodes(), maxScc->GetEdges());
-  TFOut FOut("livejournal_scc.graph");
+  TFOut FOut("twitter_scc.graph");
   maxScc->Save(FOut);
 
   return 0;

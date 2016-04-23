@@ -1,0 +1,13 @@
+Using std::map
+BFS using std::map
+Map size: 3828682
+Start node: 4529257
+Max Distance: 15
+Time spent: 45.792238
+
+Using original TIntH
+Start node: 4529257
+Max Distance: 15
+Time spent: 5914.137544
+
+The two BFS are the same!!
