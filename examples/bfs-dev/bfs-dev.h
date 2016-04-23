@@ -64,5 +64,3 @@ int TBreathFS_Test<PGraph>::DoBfs_test(const int& StartNode, const bool& FollowO
   }
   return MaxDist;
 }
-
-class TNode_Test
