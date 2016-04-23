@@ -9,7 +9,7 @@ DEMOS = \
 	demo-TUNGraph demo-TNGraph demo-TNEGraph \
 	demo-TNodeNet demo-TNodeEDatNet demo-TNodeEdgeNet \
         demo-TNEANet demo-TAttr \
-        demo-TDirNet demo-TUndirNet \
+        demo-TDirNet demo-TUndirNet  demo-multimodal \
 	demo-subgraph demo-ggen \
 	demo-gio demo-gviz \
 	demo-alg demo-cncom demo-cncom1 demo-bfsdfs \

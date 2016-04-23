@@ -5,7 +5,7 @@ namespace TSnap {
 
 int LoadModeToNet(PMMNet Graph, const TStr& Name, PTable Table, const TStr& NCol,
   TStrV& NodeAttrV) {
-  Graph->AddMode(Name);
+  Graph->AddModeNet(Name);
   TModeNet& Net = Graph->GetModeNetByName(Name);
   return LoadMode(Net, Table, NCol, NodeAttrV);
 }
@@ -23,7 +23,7 @@ int LoadMode(TModeNet& Graph, PTable Table, const TStr& NCol,
     }
 
     // add src and dst nodes to graph if they are not seen earlier
-   TInt NVal;
+    TInt NVal;
     if (NodeType == atFlt) {
       return -1;
     } else if (NodeType == atInt || NodeType == atStr) {
@@ -86,12 +86,8 @@ int LoadCrossNet(TCrossNet& Graph, PTable Table, const TStr& SrcCol, const TStr&
     }
 
     // add src and dst nodes to graph if they are not seen earlier
-   TInt SVal, DVal;
+    TInt SVal, DVal;
     if (NodeType == atFlt) {
-      /*TFlt FSVal = (Table->FltCols)[SrcColIdx][CurrRowIdx];
-      SVal = Table->CheckAndAddFltNode(Graph, FltNodeVals, FSVal);
-      TFlt FDVal = (Table->FltCols)[SrcColIdx][CurrRowIdx];
-      DVal = Table->CheckAndAddFltNode(Graph, FltNodeVals, FDVal);*/
       return -1;
     } else if (NodeType == atInt || NodeType == atStr) {
       if (NodeType == atInt) {

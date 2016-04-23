@@ -51,7 +51,7 @@ public:
     ModeId(-1), MMNet(), NeighborTypes(){ }
   explicit TModeNet(const int& Nodes, const int& Edges, const int& TypeId) : TNEANet(Nodes, Edges),
     ModeId(TypeId), MMNet(), NeighborTypes() { }
-  TModeNet(const TModeNet& Graph) :  TNEANet(Graph), ModeId(Graph.ModeId), MMNet(Graph.MMNet), NeighborTypes(Graph.NeighborTypes) { }
+  TModeNet(const TModeNet& Graph) :  TNEANet(true, Graph), ModeId(Graph.ModeId), MMNet(Graph.MMNet), NeighborTypes(Graph.NeighborTypes) { }
   /// Constructor for loading the graph from a (binary) stream SIn.
   TModeNet(TSIn& SIn) : TNEANet(SIn), ModeId(SIn), MMNet(), NeighborTypes(SIn) { }
 private:
@@ -80,6 +80,19 @@ public:
   void Clr();
 
 
+  TModeNet& operator = (const TModeNet& Graph) { 
+    if (this!=&Graph) {
+      MxNId=Graph.MxNId; MxEId=Graph.MxEId; NodeH=Graph.NodeH; EdgeH=Graph.EdgeH;
+      KeyToIndexTypeN=Graph.KeyToIndexTypeN; KeyToIndexTypeE=Graph.KeyToIndexTypeE;
+      IntDefaultsN=Graph.IntDefaultsN; IntDefaultsE=Graph.IntDefaultsE; StrDefaultsN=Graph.StrDefaultsN; StrDefaultsE=Graph.StrDefaultsE;
+      FltDefaultsN=Graph.FltDefaultsN; FltDefaultsE=Graph.FltDefaultsE; VecOfIntVecsN=Graph.VecOfIntVecsN; VecOfIntVecsE=Graph.VecOfIntVecsE;
+      VecOfStrVecsN=Graph.VecOfStrVecsN; VecOfStrVecsE=Graph.VecOfStrVecsE; VecOfFltVecsN=Graph.VecOfFltVecsN; VecOfFltVecsE=Graph.VecOfFltVecsE;
+      VecOfIntVecVecsN=Graph.VecOfIntVecVecsN; VecOfIntVecVecsE=Graph.VecOfIntVecVecsE; SAttrN=Graph.SAttrN; SAttrE=Graph.SAttrE;
+      ModeId=Graph.ModeId; MMNet=Graph.MMNet; NeighborTypes=Graph.NeighborTypes;
+    }
+    return *this; 
+  }
+
 private:
   ///method to add neighbors; will be called by TMMNet AddEdge function; outEdge == true iff NId(which is of the type of the TModeNet; i.e. it should refer to a node in this graph) is the source node.
   int AddNeighbor(const int& NId, const int& EId, const bool outEdge, const int linkId, const bool sameMode, bool isDir);
@@ -100,8 +113,6 @@ public:
   friend class TCrossNet;
 };
 
-
-//TODO: Rename source and destination so as to make it clear that it can be directed or undirected
 
 //#///////////////////////////////////////////////
 ///Implements a single CrossNet consisting of edges between two TModeNets (could be the same TModeNet) ##TCrossNet::Class
@@ -155,7 +166,7 @@ public:
     /// Returns the destination mode of the crossnet
     int GetDstModeId() const { return Graph->GetMode2(); }
     /// Returns whether the edge is directed.
-    int IsDirected() const { return Graph->IsDirected(); } //TODO
+    int IsDirected() const { return Graph->IsDirected(); }
 
 
     friend class TCrossNet;
@@ -226,8 +237,6 @@ public:
     TAFltI& operator++(int) { HI++; return *this; }
     friend class TCrossNet;
   };
-public:
-  TCRef CRef; //Reference counter. Necessary for pointers. //TODO: This is not necessary, right?
 private:
   THash<TInt,TCrossEdge> CrossH; ///< The HashTable from Edge id to the corresponding Edge
   TInt MxEId;
@@ -246,7 +255,7 @@ private:
   enum { IntType, StrType, FltType };
   //Constructors
 public:
-  TCrossNet() : CRef(), CrossH(), MxEId(0), Mode1(-1), Mode2(-1), IsDirect(), CrossNetId(), Net(), KeyToIndexTypeE(), IntDefaultsE(), StrDefaultsE(),
+  TCrossNet() : CrossH(), MxEId(0), Mode1(-1), Mode2(-1), IsDirect(), CrossNetId(), Net(), KeyToIndexTypeE(), IntDefaultsE(), StrDefaultsE(),
     FltDefaultsE(), VecOfIntVecsE(), VecOfStrVecsE(), VecOfFltVecsE() {}
   TCrossNet(TInt MId1, TInt MId2, TInt LId) : CrossH(), MxEId(0), Mode1(MId1), Mode2(MId2), IsDirect(true),CrossNetId(LId), Net(),
     KeyToIndexTypeE(), IntDefaultsE(), StrDefaultsE(), FltDefaultsE(), VecOfIntVecsE(), VecOfStrVecsE(), VecOfFltVecsE() {}
@@ -267,6 +276,13 @@ public:
     CrossNetId = OtherTCrossNet.CrossNetId;
     IsDirect = OtherTCrossNet.IsDirect;
     Net = OtherTCrossNet.Net;
+    KeyToIndexTypeE = OtherTCrossNet.KeyToIndexTypeE;
+    IntDefaultsE = OtherTCrossNet.IntDefaultsE;
+    StrDefaultsE = OtherTCrossNet.StrDefaultsE;
+    FltDefaultsE = OtherTCrossNet.FltDefaultsE;
+    VecOfIntVecsE = OtherTCrossNet.VecOfIntVecsE;
+    VecOfStrVecsE = OtherTCrossNet.VecOfStrVecsE;
+    VecOfFltVecsE = OtherTCrossNet.VecOfFltVecsE;
     return *this;
   }
 
@@ -290,19 +306,23 @@ public:
   /// Deletes all nodes and edges from the graph.
   void Clr();
 
-  /// Returns the TCrossEdge object corresponding to edge id EId
-  TCrossEdge GetCrossEdge(const int& EId) { return CrossH.GetDat(EId);}
+  /// Add an edge to the CrossNet; Mode1 NId should be the sourceNId always, regardless of whether edge is directed.
   int AddEdge(const int& sourceNId, const int& destNId, int EId=-1);
+  /// Edge iterators.
   TCrossEdgeI GetEdgeI(const int& EId) const { return TCrossEdgeI(CrossH.GetI(EId), this); }
   TCrossEdgeI BegEdgeI() const { return TCrossEdgeI(CrossH.BegI(), this); }
   TCrossEdgeI EndEdgeI() const { return TCrossEdgeI(CrossH.EndI(), this); }
+  /// Delete an edge by its id.
   int DelEdge(const int& EId);
+  /// Get the id of the src mode.
   int GetMode1() const { return Mode1; }
+  /// Get the id of the dst mode.
   int GetMode2() const {return Mode2; }
   void Save(TSOut& SOut) const { CrossH.Save(SOut); MxEId.Save(SOut); Mode1.Save(SOut); Mode2.Save(SOut); IsDirect.Save(SOut); CrossNetId.Save(SOut); 
     KeyToIndexTypeE.Save(SOut); IntDefaultsE.Save(SOut); StrDefaultsE.Save(SOut); FltDefaultsE.Save(SOut); VecOfIntVecsE.Save(SOut);
     VecOfStrVecsE.Save(SOut); VecOfFltVecsE.Save(SOut); }
 
+  /// Whether edges in the crossnet are directed.
   bool IsDirected() const { return IsDirect;}
   /// Returns a vector of attr names for edge EId.
   void AttrNameEI(const TInt& EId, TStrV& Names) const {
@@ -455,7 +475,11 @@ public:
     TModeNetI& operator++ (int) { ModeNetHI++; return *this; }
     bool operator < (const TModeNetI& ModeNetI) const { return ModeNetHI < ModeNetI.ModeNetHI; }
     bool operator == (const TModeNetI& ModeNetI) const { return ModeNetHI == ModeNetI.ModeNetHI; }
+    /// Get the mode id.
     int GetModeId() { return ModeNetHI.GetKey(); }
+    /// Get the name of the mode.
+    TStr GetModeName() { return Graph->GetModeName(ModeNetHI.GetKey()); }
+    /// Get a reference to the modenet.
     TModeNet& GetModeNet() { return Graph->GetModeNetById(GetModeId()); }
     friend class TMMNet;
   };
@@ -475,7 +499,11 @@ public:
     TCrossNetI& operator++ (int) { CrossNetHI++; return *this; }
     bool operator < (const TCrossNetI& CrossNetI) const { return CrossNetHI < CrossNetI.CrossNetHI; }
     bool operator == (const TCrossNetI& CrossNetI) const { return CrossNetHI == CrossNetI.CrossNetHI; }
+    /// Get the crossnet id.
     int GetCrossId() { return CrossNetHI.GetKey(); }
+    /// Get the name of the crossnet.
+    TStr GetCrossName() { return Graph->GetCrossName(CrossNetHI.GetKey()); }
+    /// Get a reference to the crossnet.
     TCrossNet& GetCrossNet() { return Graph->GetCrossNetById(GetCrossId()); }
     friend class TMMNet;
   };
@@ -510,48 +538,66 @@ public:
       it.GetDat().SetParentPointer(this);
     }
   }
-  int AddMode(const TStr& ModeName);
-  int DelMode(const TInt& ModeId); // TODO(sramas15): finish implementing
-  int DelMode(const TStr& ModeName);
-  //TODO: Rename below methods to say CrossNet instead of CrossNet
-  int AddCrossNet(const TStr& ModeName1, const TStr& ModeName2, const TStr& CrossNetName);
-  int AddCrossNet(const TInt& ModeId1, const TInt& ModeId2, const TStr& CrossNetName);
-  int AddCrossNet(const TStr& ModeName1, const TStr& ModeName2, bool isDir, const TStr& CrossNetName);
-  int AddCrossNet(const TInt& ModeId1, const TInt& ModeId2, bool isDir, const TStr& CrossNetName);
-  int DelCrossNet(const TInt& CrossNetId); // TODO(sramas15): finish implementing
+  /// Add a mode to the multimodal network.
+  int AddModeNet(const TStr& ModeName);
+  /// Delete a mode from the multimodal network.
+  int DelModeNet(const TInt& ModeId); 
+  int DelModeNet(const TStr& ModeName);
+  /// Add a crossnet to the multimodal network. Specify modes by id or names; by default, crossnet is directed
+  int AddCrossNet(const TStr& ModeName1, const TStr& ModeName2, const TStr& CrossNetName, bool isDir=true);
+  int AddCrossNet(const TInt& ModeId1, const TInt& ModeId2, const TStr& CrossNetName, bool isDir=true);
+  /// Delete a crossnet from the multimodal network.
+  int DelCrossNet(const TInt& CrossNetId);
   int DelCrossNet(const TStr& CrossNet);
 
+  /// Save TMMNet to binary stream.
   void Save(TSOut& SOut) const {MxModeId.Save(SOut); MxCrossNetId.Save(SOut); TModeNetH.Save(SOut); 
     TCrossNetH.Save(SOut); ModeIdToNameH.Save(SOut); ModeNameToIdH.Save(SOut); CrossIdToNameH.Save(SOut);
     CrossNameToIdH.Save(SOut); }
+  /// Load TMMNet from binary stream.
   static PMMNet Load(TSIn& SIn) { return PMMNet(new TMMNet(SIn)); }
   static PMMNet New() { return PMMNet(new TMMNet()); }
 
+  /// Get the mode id from the mode name.
   int GetModeId(const TStr& ModeName) const { if (ModeNameToIdH.IsKey(ModeName)) { return ModeNameToIdH.GetDat(ModeName); } else { return -1; }  }
+  /// Get the mode name from the mode id.
   TStr GetModeName(const TInt& ModeId) const { if (ModeIdToNameH.IsKey(ModeId)) { return ModeIdToNameH.GetDat(ModeId); } else {return TStr::GetNullStr();} }
+  /// Get the crossnet id from the crossnet name.
   int GetCrossId(const TStr& CrossName) const { if (CrossNameToIdH.IsKey(CrossName)) { return CrossNameToIdH.GetDat(CrossName); } else { return -1; }   }
+  /// Get the crossnet name from the crossnet id.
   TStr GetCrossName(const TInt& CrossId) const { if (CrossIdToNameH.IsKey(CrossId)) { return CrossIdToNameH.GetDat(CrossId); } else { return TStr::GetNullStr(); }  }
 
+  /// Get a reference to the modenet.
   TModeNet& GetModeNetByName(const TStr& ModeName) const;
   TModeNet& GetModeNetById(const TInt& ModeId) const;
 
+  /// Get a reference to the crossnet.
   TCrossNet& GetCrossNetByName(const TStr& CrossName) const;
   TCrossNet& GetCrossNetById(const TInt& CrossId) const;
 
+  /// Iterator over all crossnets.
   TCrossNetI GetCrossNetI(const int& Id) const { return TCrossNetI(TCrossNetH.GetI(Id), this); }
   TCrossNetI BegCrossNetI() const { return TCrossNetI(TCrossNetH.BegI(), this); }
   TCrossNetI EndCrossNetI() const { return TCrossNetI(TCrossNetH.EndI(), this); }
  
+  /// Iterator over all modenets.
   TModeNetI GetModeNetI(const int& Id) const { return TModeNetI(TModeNetH.GetI(Id), this); }
   TModeNetI BegModeNetI() const { return TModeNetI(TModeNetH.BegI(), this); }
   TModeNetI EndModeNetI() const { return TModeNetI(TModeNetH.EndI(), this); }
+
+  /// Return the number of modes in the multimodal network.
+  int GetModeNets() { return TModeNetH.Len(); }
+  /// Return the number of crossnets in the multimodal network.
+  int GetCrossNets() { return TCrossNetH.Len(); }
 
   ///Gets the induced subgraph given a vector of crossnet type names.
   PMMNet GetSubgraphByCrossNet(TStrV& CrossNetTypes);
   ///Gets the induced subgraph given a vector of mode type names
   PMMNet GetSubgraphByModeNet(TStrV& ModeNetTypes);
 
+  /// Convert multimodal network to TNEANet; as attr names can collide, AttrMap specifies the (Mode/Cross Id, old att name, new attr name)
   PNEANet ToNetwork(TIntV& CrossNetTypes, TVec<TTriple<TInt, TStr, TStr> >& NodeAttrMap, TVec<TTriple<TInt, TStr, TStr> >& EdgeAttrMap);
+  /// Convert multimodal network to TNEANet; as attr names can collide, AttrMap specifies the Mode/Cross Id -> vec of pairs (old att name, new attr name)
   PNEANet ToNetwork2(TIntV& CrossNetTypes, THash<TInt, TVec<TPair<TStr, TStr> > >& NodeAttrMap, THash<TInt, TVec<TPair<TStr, TStr> > >& EdgeAttrMap);
 
 private:

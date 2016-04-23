@@ -104,7 +104,6 @@ int TModeNet::DelNbrType(const TStr& CrossName) {
 }
 
 void TModeNet::GetNeighborsByCrossNet(const int& NId, TStr& Name, TIntV& Neighbors, const bool isOutEId) const{
-  // TODO: check if need the suffix
   //IAssertR(NeighborTypes.IsKey(Name), TStr::Fmt("Cross Type does not exist: %s", Name));
   TBool hasSingleVector = NeighborTypes.GetDat(Name);
   if (hasSingleVector) {
@@ -634,7 +633,7 @@ int TCrossNet::DelAttrE(const TStr& attr) {
 }
 
 
-int TMMNet::AddMode(const TStr& ModeName) {
+int TMMNet::AddModeNet(const TStr& ModeName) {
   TInt ModeId = TInt(MxModeId);
   MxModeId++;
   ModeIdToNameH.AddDat(ModeId, ModeName);
@@ -646,28 +645,13 @@ int TMMNet::AddMode(const TStr& ModeName) {
   return ModeId;
 }
 
-int TMMNet::AddCrossNet(const TStr& ModeName1, const TStr& ModeName2, const TStr& CrossNetName) {
-  //IAssertR(ModeNameToIdH.IsKey(ModeName1), TStr::Fmt("No such mode name: %s", ModeName1.CStr()));
-  //IAssertR(ModeNameToIdH.IsKey(ModeName2), TStr::Fmt("No such mode name: %s", ModeName2.CStr()));
-
-  return AddCrossNet(ModeName1, ModeName2, true, CrossNetName); //Directed by default
-}
-
-int TMMNet::AddCrossNet(const TInt& ModeId1, const TInt& ModeId2, const TStr& CrossNetName) {
-  //IAssertR(ModeIdToNameH.IsKey(ModeId1), TStr::Fmt("No mode with id %d exists", ModeId1));
-  //IAssertR(ModeIdToNameH.IsKey(ModeId2), TStr::Fmt("No mode with id %d exists", ModeId2));
-
-  return AddCrossNet(ModeId1, ModeId2, true, CrossNetName); //Directed by default
-
-}
-
-int TMMNet::AddCrossNet(const TStr& ModeName1, const TStr& ModeName2, bool isDir, const TStr& CrossNetName) {
+int TMMNet::AddCrossNet(const TStr& ModeName1, const TStr& ModeName2, const TStr& CrossNetName, bool isDir) {
   TInt ModeId1 = GetModeId(ModeName1);
   TInt ModeId2 = GetModeId(ModeName2);
-  return AddCrossNet(ModeId1, ModeId2, isDir, CrossNetName);
+  return AddCrossNet(ModeId1, ModeId2, CrossNetName, isDir);
 }
 
-int TMMNet::AddCrossNet(const TInt& ModeId1, const TInt& ModeId2, bool isDir, const TStr& CrossNetName) {
+int TMMNet::AddCrossNet(const TInt& ModeId1, const TInt& ModeId2, const TStr& CrossNetName, bool isDir) {
   TInt CrossNetId = TInt(MxCrossNetId);
   MxCrossNetId++;
   CrossIdToNameH.AddDat(CrossNetId, CrossNetName);
@@ -702,7 +686,7 @@ int TMMNet::DelCrossNet(const TStr& CrossNet) {
   return 0;
 }
 
-int TMMNet::DelMode(const TInt& ModeId) {
+int TMMNet::DelModeNet(const TInt& ModeId) {
   TStrV CrossNets;
   GetModeNetById(ModeId).GetCrossNetNames(CrossNets);
   for (int i = 0; i < CrossNets.Len(); i++) {
@@ -718,9 +702,9 @@ int TMMNet::DelMode(const TInt& ModeId) {
   return 0;
 }
 
-int TMMNet::DelMode(const TStr& ModeName) {
+int TMMNet::DelModeNet(const TStr& ModeName) {
   IAssertR(ModeNameToIdH.IsKey(ModeName), TStr::Fmt("No such mode with name: %s", ModeName.CStr()));
-  return DelMode(ModeNameToIdH.GetDat(ModeName));
+  return DelModeNet(ModeNameToIdH.GetDat(ModeName));
 }
 
 TModeNet& TMMNet::GetModeNetByName(const TStr& ModeName) const {
@@ -730,7 +714,6 @@ TModeNet& TMMNet::GetModeNetByName(const TStr& ModeName) const {
 
 TModeNet& TMMNet::GetModeNetById(const TInt& ModeId) const {
 //  IAssertR(ModeId < TModeNetH.Len(), TStr::Fmt("Mode with id %d does not exist", ModeId));
-  //TODO: figure out if there is a better way to ensure the non-const version of GetDat called.
   TModeNet &Net = (const_cast<TMMNet *>(this))->TModeNetH.GetDat(ModeId);
   return Net;
 }
@@ -740,7 +723,6 @@ TCrossNet& TMMNet::GetCrossNetByName(const TStr& CrossName) const{
 }
 TCrossNet& TMMNet::GetCrossNetById(const TInt& CrossId) const{
   //IAssertR(CrossIdToNameH.IsKey(CrossId),TStr::Fmt("No link with id %d exists", CrossId));
-  //TODO: figure out if there is a better way to ensure the non-const version of GetDat called.
   TCrossNet& CrossNet = (const_cast<TMMNet *>(this))->TCrossNetH.GetDat(CrossId);
   return CrossNet;
 }
