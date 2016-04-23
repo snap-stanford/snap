@@ -13,14 +13,14 @@ double timeInSeconds(struct timeval &tv1, struct timeval &tv2) {
 int main(int argc, char* argv[]) {
   typedef PNGraph PGraph;  //   directed graph
 
-  printf("Creating graph for Live Journal\n");
+  printf("Creating graph for Twitter\n");
 
-  TFIn FIn("livejournal_scc.graph");
+  TFIn FIn("twitter_scc.graph");
   PGraph graph = TNGraph::Load(FIn);
   IAssert(graph->IsOk());
   printf("Graph (%d, %d)\n", graph->GetNodes(), graph->GetEdges());
 
-  int start = 4529257;
+  int start = graph->GetRndNId();
 
   struct timeval tv1, tv2;
   gettimeofday(&tv1, NULL);

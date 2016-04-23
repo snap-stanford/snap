@@ -1,4 +1,12 @@
+#include <vector>
 #include <stdio.h>
+
+struct ChildTypeCount {
+  int claimedChildren;
+  int failedChildren;
+  int peers;
+  int validParents;
+};
 
 //#//////////////////////////////////////////////
 /// Breath-First-Search class.
@@ -10,6 +18,7 @@ public:
   TSnapQueue<int> Queue;
   TInt StartNId;
   TIntH NIdDistH;
+  std::vector<ChildTypeCount> childCounts;
 public:
   TBreathFS_Test(const PGraph& GraphPt, const bool& InitBigQ=true) :
     Graph(GraphPt), Queue(InitBigQ?Graph->GetNodes():1024), NIdDistH(InitBigQ?Graph->GetNodes():1024) { }
@@ -24,29 +33,44 @@ int TBreathFS_Test<PGraph>::DoBfs_test(const int& StartNode, const bool& FollowO
 //  const typename PGraph::TObj::TNodeI StartNodeI = Graph->GetNI(StartNode);
 //  IAssertR(StartNodeI.GetOutDeg() > 0, TStr::Fmt("No neighbors from start node %d.", StartNode));
   NIdDistH.Clr(false);  NIdDistH.AddDat(StartNId, 0);
-  printf("__AddDat__ %d %d\n", StartNId.Val, 0);
   Queue.Clr(false);  Queue.Push(StartNId);
-  printf("__QueuePush__ %d\n", StartNId.Val);
   int v, MaxDist = 0;
   while (! Queue.Empty()) {
     const int NId = Queue.Top();  Queue.Pop();
-    printf("__QueuePop__\n");
     const int Dist = NIdDistH.GetDat(NId);
-    printf("__GetDat__ %d\n", NId);
     if (Dist == MxDist) { break; } // max distance limit reached
+
+    // for analyzing edges
+    if (Dist >= (int)childCounts.size()) {
+      struct ChildTypeCount c = {0, 0, 0, 0};
+      childCounts.push_back(c);
+      if (Dist != (int)childCounts.size() - 1) {
+        printf("Error.....\n");
+        exit(1); // sanity check
+      }
+    }
+
     const typename PGraph::TObj::TNodeI NodeI = Graph->GetNI(NId);
-    printf("__GraphGetNI__ %d\n", NId);
     if (FollowOut) { // out-links
       for (v = 0; v < NodeI.GetOutDeg(); v++) {  // out-links
         const int DstNId = NodeI.GetOutNId(v);
-        printf("__IsKey__ %d\n", DstNId);
         if (! NIdDistH.IsKey(DstNId)) {
           NIdDistH.AddDat(DstNId, Dist+1);
-          printf("__AddDat__ %d %d\n", DstNId, Dist+1);
           MaxDist = TMath::Mx(MaxDist, Dist+1);
           if (DstNId == TargetNId) { return MaxDist; }
           Queue.Push(DstNId);
-          printf("__QueuePush__ %d\n", DstNId);
+          // Claimed child
+          childCounts[Dist].claimedChildren += 1;
+        } else {
+          // Node visited before
+          const int nextDist = NIdDistH.GetDat(DstNId);
+          if (nextDist < Dist) {
+            childCounts[Dist].validParents += 1;
+          } else if (nextDist == Dist) {
+            childCounts[Dist].peers += 1;
+          } else {
+            childCounts[Dist].failedChildren += 1;
+          }
         }
       }
     }
@@ -64,5 +88,3 @@ int TBreathFS_Test<PGraph>::DoBfs_test(const int& StartNode, const bool& FollowO
   }
   return MaxDist;
 }
-
-class TNode_Test
