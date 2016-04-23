@@ -16,8 +16,8 @@ void test_ints() {
   PTable wikitable = TTable::LoadSS(schema, wikifilename, &context, '\t', TBool(false));
   printf("Int: Before indexing ...\n");
 
-  TInt rowidx1, rowidx2;
-  double delta1, delta2;
+  TIntV rowidx1, rowidx2, rowidx3;
+  double delta1, delta2, delta3;
   struct timeval start, end;
   gettimeofday(&start, NULL);
   for (int i = 0 ; i < 100; i++) rowidx1 = wikitable->GetIntRowIdxByVal("src", 8229);
@@ -29,10 +29,26 @@ void test_ints() {
   gettimeofday(&end, NULL);
   delta2 = ((end.tv_sec - start.tv_sec)* 1000000u + end.tv_usec - start.tv_usec)/1.e6;
 
-  printf("Time 1: %f\tTime 2: %f\n", delta1, delta2);
-  printf("%d %d\n", rowidx1, rowidx2);
+  gettimeofday(&start, NULL);
+  for (int i = 0 ; i < 100; i++) rowidx3 = wikitable->GetIntRowIdxByVal("src", 30);
+  gettimeofday(&end, NULL);
+  delta3 = ((end.tv_sec - start.tv_sec)* 1000000u + end.tv_usec - start.tv_usec)/1.e6;
 
+  printf("Time 1: %f\tTime 2: %f\t Time 3: %f\n", delta1, delta2, delta3);
+  printf("%d %d\n", rowidx1[0], rowidx2[0]);
+
+  printf("Row Idx3:");
+  for (int i = 0 ; i < rowidx3.Len() ; i++ ) {
+    printf("%d ", rowidx3[i]);
+  }
+  printf("\n");
+
+  gettimeofday(&start, NULL);
   wikitable->RequestIndexInt("src");
+  gettimeofday(&end, NULL);
+  delta1 = ((end.tv_sec - start.tv_sec)* 1000000u + end.tv_usec - start.tv_usec)/1.e6;
+  printf("Int: Time to index: %f\n", delta1);
+
   printf("Int: After indexing ...\n");
   gettimeofday(&start, NULL);
   for (int i = 0 ; i < 100; i++) rowidx1 = wikitable->GetIntRowIdxByVal("src", 8229);
@@ -44,8 +60,23 @@ void test_ints() {
   gettimeofday(&end, NULL);
   delta2 = ((end.tv_sec - start.tv_sec)* 1000000u + end.tv_usec - start.tv_usec)/1.e6;
 
+  gettimeofday(&start, NULL);
+  for (int i = 0 ; i < 100; i++) rowidx3 = wikitable->GetIntRowIdxByVal("src", 30);
+  gettimeofday(&end, NULL);
+  delta3 = ((end.tv_sec - start.tv_sec)* 1000000u + end.tv_usec - start.tv_usec)/1.e6;
+
+  printf("Time 1: %f\tTime 2: %f\t Time 3: %f\n", delta1, delta2, delta3);
+  printf("%d %d\n", rowidx1[0], rowidx2[0]);
+
+  printf("Row Idx3:");
+  for (int i = 0 ; i < rowidx3.Len() ; i++ ) {
+    printf("%d ", rowidx3[i]);
+  }
+  printf("\n");
+
+
   printf("Time 1: %f\tTime 2: %f\n", delta1, delta2);
-  printf("%d %d\n", rowidx1, rowidx2);
+  printf("%d %d\n", rowidx1[0], rowidx2[0]);
 
 
   /*
@@ -70,8 +101,8 @@ void test_strs() {
 
   PTable wikitable = TTable::LoadSS(schema, wikifilename, &context, '\t', TBool(false));
 
-  TInt rowidx1, rowidx2;
-  double delta1, delta2;
+  TIntV rowidx1, rowidx2, rowidx3;
+  double delta1, delta2, delta3;
   struct timeval start, end;
   printf("Str: Before indexing ...\n");
   gettimeofday(&start, NULL);
@@ -84,10 +115,28 @@ void test_strs() {
   gettimeofday(&end, NULL);
   delta2 = ((end.tv_sec - start.tv_sec)* 1000000u + end.tv_usec - start.tv_usec)/1.e6;
 
-  printf("Time 1: %f\tTime 2: %f\n", delta1, delta2);
-  printf("%d %d\n", rowidx1, rowidx2);
+  gettimeofday(&start, NULL);
+  for (int i = 0 ; i < 100; i++) rowidx3 = wikitable->GetStrRowIdxByMap("src", 0);
+  gettimeofday(&end, NULL);
+  delta3 = ((end.tv_sec - start.tv_sec)* 1000000u + end.tv_usec - start.tv_usec)/1.e6;
 
+
+  printf("Time 1: %f\tTime 2: %f\t Time 3: %f\n", delta1, delta2, delta3);
+  printf("%d %d\n", rowidx1[0], rowidx2[0]);
+
+  printf("Row Idx3: ");
+  for (int i = 0 ; i < rowidx3.Len() ; i++ ) {
+    printf("%d ", rowidx3[i]);
+  }
+  printf("\n");
+
+  gettimeofday(&start, NULL);
   wikitable->RequestIndexStrMap("src");
+  gettimeofday(&end, NULL);
+  delta1 = ((end.tv_sec - start.tv_sec)* 1000000u + end.tv_usec - start.tv_usec)/1.e6;
+  printf("Str: Time to index: %f\n", delta1);
+
+
   printf("Str: After indexing ...\n");
   gettimeofday(&start, NULL);
   for (int i = 0 ; i < 100; i++) rowidx1 = wikitable->GetStrRowIdxByMap("src", 7096);
@@ -99,8 +148,19 @@ void test_strs() {
   gettimeofday(&end, NULL);
   delta2 = ((end.tv_sec - start.tv_sec)* 1000000u + end.tv_usec - start.tv_usec)/1.e6;
 
-  printf("Time 1: %f\tTime 2: %f\n", delta1, delta2);
-  printf("%d %d\n", rowidx1, rowidx2);
+  gettimeofday(&start, NULL);
+  for (int i = 0 ; i < 100; i++) rowidx3 = wikitable->GetStrRowIdxByMap("src", 0);
+  gettimeofday(&end, NULL);
+  delta3 = ((end.tv_sec - start.tv_sec)* 1000000u + end.tv_usec - start.tv_usec)/1.e6;
+
+  printf("Time 1: %f\tTime 2: %f\t Time 3: %f\n", delta1, delta2, delta3);
+  printf("%d %d\n", rowidx1[0], rowidx2[0]);
+
+  printf("Row Idx3: ");
+  for (int i = 0 ; i < rowidx3.Len() ; i++ ) {
+    printf("%d ", rowidx3[i]);
+  }
+  printf("\n");
 
   /*
   int i = 0;
