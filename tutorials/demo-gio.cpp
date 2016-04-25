@@ -26,7 +26,7 @@ void SaveLoadEdgeList() {
   const int NNodes = 500;
   const int NEdges = 2000;
   
-  const char *FName = "demo.graph.dat";
+  const char *FName = "demo.pngraph.dat";
   const char *Desc = "Randomly generated graph for input/output.";
   
   PNGraph GOut, GIn;
@@ -62,7 +62,7 @@ void IOEdgeListStr() {
   const int NNodes = 1000;
   const int NEdges = 5000;
   
-  const char *FName = "demo.graph.dat";
+  const char *FName = "demo1.pnegraph.dat";
   
   PNEGraph GOut, GIn;      // Can also be PUNGraph or PNGraph
   GOut = GenRndGnm<PNEGraph>(NNodes, NEdges);
@@ -76,9 +76,11 @@ void IOEdgeListStr() {
   for (TNEGraph::TNodeI NI = GOut->BegNI(); NI < GOut->EndNI(); NI++) {
     do {
       RandStr.Clr();
-      TInt RandLen = TInt::Rnd.GetUniDevInt(5, 30);
+      RandStr += "node-";
+      TInt RandLen = TInt::Rnd.GetUniDevInt(3, 6);
       for (int i = 0; i < RandLen; i++) {
-        TStr RandChar(TInt::Rnd.GetUniDevInt(33, 126));
+        //TStr RandChar(TInt::Rnd.GetUniDevInt(33, 126));
+        TStr RandChar(TInt::Rnd.GetUniDevInt(48, 57));
         RandStr += RandChar;
       }
     }
@@ -99,10 +101,25 @@ void IOEdgeListStr() {
   // Load edge list of strings
   TStrHash<TInt> InStrToNIdH;
   GIn = LoadEdgeListStr<PNEGraph>(FName, 0, 1, InStrToNIdH);
-  
+
   PrintGStats<PNEGraph>("EdgeListStr - Out", GOut);
   PrintGStats<PNEGraph>("EdgeListStr - In", GIn);
 
+  // Print out a mapping of node IDs to node name strings
+  for (TNEGraph::TNodeI NI = GIn->BegNI(); NI < GIn->EndNI(); NI++) {
+    int NId = NI.GetId();
+    // Map a node ID to its string name
+    TStr NameStr = InStrToNIdH.GetKey(NId);
+    printf("node ID %d is string %s\n", NId, NameStr.CStr());
+  }
+
+  // Print out a mapping of name strings to node IDs
+  for (TNEGraph::TNodeI NI = GIn->BegNI(); NI < GIn->EndNI(); NI++) {
+    TStr NameStr = InStrToNIdH.GetKey(NI.GetId());
+    // Map a node string name to its ID
+    int NId = InStrToNIdH.GetKeyId(NameStr);
+    printf("string %s has node ID %d\n", NameStr.CStr(), NId);
+  }
 }
 
 // Loads a (directed, undirected or multi) graph from a text file InFNm with 1 node and all its edges in a single line.
@@ -111,7 +128,7 @@ void IOConnList() {
   const int NNodes = 500;
   const int NEdges = 2000;
   
-  const char *FName = "demo.graph.dat";
+  const char *FName = "demo2.pnegraph.dat";
   
   PNEGraph GOut, GIn;
   GOut = GenRndGnm<PNEGraph>(NNodes, NEdges);
@@ -140,7 +157,7 @@ void IOConnListStr() {
   const int NNodes = 500;
   const int NEdges = 2000;
   
-  const char *FName = "demo.graph.dat";
+  const char *FName = "demo.pungraph.dat";
   
   PUNGraph GOut, GIn;
   GOut = GenRndGnm<PUNGraph>(NNodes, NEdges);

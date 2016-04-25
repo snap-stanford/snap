@@ -25,7 +25,7 @@ TEST(TTable, LoadSave) {
   RelevantCols.Add(0); RelevantCols.Add(1); RelevantCols.Add(2);
   RelevantCols.Add(3); RelevantCols.Add(4); RelevantCols.Add(5);
 
-  PTable P = TTable::LoadSS(GradeS, "table/grades.txt", Context, RelevantCols);
+  PTable P = TTable::LoadSS(GradeS, "table/grades.txt", &Context, RelevantCols);
 
   EXPECT_EQ(5, P->GetNumRows().Val);
   EXPECT_EQ(5, P->GetNumValidRows().Val); 
@@ -38,7 +38,7 @@ TEST(TTable, LoadSave) {
 
   // Test SaveSS by loading the saved table and testing values again.
   GradeS.Add(TPair<TStr,TAttrType>("_id", atInt));
-  P = TTable::LoadSS(GradeS, "table/p1.txt", Context, RelevantCols);
+  P = TTable::LoadSS(GradeS, "table/p1.txt", &Context, RelevantCols);
 
   EXPECT_EQ(5, P->GetNumRows().Val);
   EXPECT_EQ(5, P->GetNumValidRows().Val); 
@@ -60,12 +60,12 @@ TEST(TTable, ParallelSelect) {
   LJS.Add(TPair<TStr,TAttrType>("Dst", atInt));
   TIntV RelevantCols; RelevantCols.Add(0); RelevantCols.Add(1);
 
-  PTable T1 = TTable::LoadSS(LJS, "table/soc-LiveJournal1_small.txt", Context, RelevantCols);
+  PTable T1 = TTable::LoadSS(LJS, "table/soc-LiveJournal1_small.txt", &Context, RelevantCols);
 
   EXPECT_EQ(499, T1->GetNumRows().Val);
   EXPECT_EQ(499, T1->GetNumValidRows().Val); 
 
-  PTable T2 = TTable::New(T1->GetSchema(), Context);
+  PTable T2 = TTable::New(T1->GetSchema(), &Context);
   T1->SelectAtomicIntConst("Src", 88, LT, T2);
 
   EXPECT_EQ(196, T2->GetNumRows().Val);
@@ -81,7 +81,7 @@ TEST(TTable, ParallelSelectInPlace) {
   LJS.Add(TPair<TStr,TAttrType>("Dst", atInt));
   TIntV RelevantCols; RelevantCols.Add(0); RelevantCols.Add(1);
 
-  PTable T1 = TTable::LoadSS(LJS, "table/soc-LiveJournal1_small.txt", Context, RelevantCols);
+  PTable T1 = TTable::LoadSS(LJS, "table/soc-LiveJournal1_small.txt", &Context, RelevantCols);
 
   EXPECT_EQ(499, T1->GetNumRows().Val);
   EXPECT_EQ(499, T1->GetNumValidRows().Val); 
@@ -101,12 +101,12 @@ TEST(TTable, ParallelJoin) {
   LJS.Add(TPair<TStr,TAttrType>("Dst", atInt));
   TIntV RelevantCols; RelevantCols.Add(0); RelevantCols.Add(1);
 
-  PTable T1 = TTable::LoadSS(LJS, "table/soc-LiveJournal1_small.txt", Context, RelevantCols);
+  PTable T1 = TTable::LoadSS(LJS, "table/soc-LiveJournal1_small.txt", &Context, RelevantCols);
 
   EXPECT_EQ(499, T1->GetNumRows().Val);
   EXPECT_EQ(499, T1->GetNumValidRows().Val); 
   
-  PTable T2 = TTable::LoadSS(LJS, "table/soc-LiveJournal1_small.txt", Context, RelevantCols);
+  PTable T2 = TTable::LoadSS(LJS, "table/soc-LiveJournal1_small.txt", &Context, RelevantCols);
 
   EXPECT_EQ(499, T2->GetNumRows().Val);
   EXPECT_EQ(499, T2->GetNumValidRows().Val); 
@@ -126,7 +126,7 @@ TEST(TTable, ToGraph) {
   LJS.Add(TPair<TStr,TAttrType>("Dst", atInt));
   TIntV RelevantCols; RelevantCols.Add(0); RelevantCols.Add(1);
 
-  PTable T1 = TTable::LoadSS(LJS, "table/soc-LiveJournal1_small.txt", Context, RelevantCols);
+  PTable T1 = TTable::LoadSS(LJS, "table/soc-LiveJournal1_small.txt", &Context, RelevantCols);
 
   EXPECT_EQ(499, T1->GetNumRows().Val);
   EXPECT_EQ(499, T1->GetNumValidRows().Val); 
@@ -141,7 +141,7 @@ TEST(TTable, ToGraph) {
 
 #ifdef GCC_ATOMIC
 // Tests parallel table to graph function.
-TEST(TTable, ToGraphMP2) {
+TEST(TTable, ToGraphMP) {
   TTableContext Context;
 
   Schema LJS;
@@ -149,13 +149,13 @@ TEST(TTable, ToGraphMP2) {
   LJS.Add(TPair<TStr,TAttrType>("Dst", atInt));
   TIntV RelevantCols; RelevantCols.Add(0); RelevantCols.Add(1);
 
-  PTable T1 = TTable::LoadSS(LJS, "table/soc-LiveJournal1_small.txt", Context, RelevantCols);
+  PTable T1 = TTable::LoadSS(LJS, "table/soc-LiveJournal1_small.txt", &Context, RelevantCols);
 
   EXPECT_EQ(499, T1->GetNumRows().Val);
   EXPECT_EQ(499, T1->GetNumValidRows().Val); 
 
   TVec<TPair<TStr, TAttrType> > S = T1->GetSchema();
-  PNGraphMP Graph = TSnap::ToGraphMP2<PNGraphMP>(T1, S[0].GetVal1(), S[1].GetVal1());
+  PNGraphMP Graph = TSnap::ToGraphMP<PNGraphMP>(T1, S[0].GetVal1(), S[1].GetVal1());
 
   EXPECT_EQ(689,Graph->GetNodes());
   EXPECT_EQ(499,Graph->GetEdges());

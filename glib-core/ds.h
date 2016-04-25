@@ -767,10 +767,7 @@ void TVec<TVal, TSizeTy>::Resize(const TSizeTy& _MxVals){
   }
   if (ValT==NULL){
     try {
-      //double start = omp_get_wtime();
       ValT=new TVal[MxVals];
-      //double end = omp_get_wtime();
-      //printf("Malloc time = %f\n",end-start);
     }
     catch (std::exception Ex){
       FailR(TStr::Fmt("TVec::Resize: %s, Length:%s, Capacity:%s, New capacity:%s, Type:%s [Program failed to allocate more memory. Solution: Get a bigger machine and a 64-bit compiler.]",
@@ -778,10 +775,7 @@ void TVec<TVal, TSizeTy>::Resize(const TSizeTy& _MxVals){
   } else {
     TVal* NewValT = NULL;
     try {
-      //double start = omp_get_wtime();
       NewValT=new TVal[MxVals];
-      //double end = omp_get_wtime();
-      //printf("Malloc2 time = %f\n",end-start);
     }
     catch (std::exception Ex){
       FailR(TStr::Fmt("TVec::Resize: %s, Length:%s, Capacity:%s, New capacity:%s, Type:%s [Program failed to allocate more memory. Solution: Get a bigger machine and a 64-bit compiler.]",

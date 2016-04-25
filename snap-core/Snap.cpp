@@ -9,8 +9,7 @@
 
 #include "gbase.cpp"
 #include "util.cpp"
-#include "predicate.cpp"     // predicates
-#include "attr.cpp"			 // sparse attributes
+#include "attr.cpp"     		 // sparse attributes
 
 // graph data structures
 #include "graph.cpp"         // graphs
@@ -47,4 +46,3 @@
 #include "table.cpp"         // table
 #include "conv.cpp"
 #include "numpy.cpp" 				 // numpy conversion
-

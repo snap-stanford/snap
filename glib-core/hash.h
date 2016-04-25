@@ -798,7 +798,7 @@ public:
           MemUsed += int64(KeyDatV[KeyDatN].Key.GetMemUsed());
           MemUsed += int64(KeyDatV[KeyDatN].Dat.GetMemUsed());
       }
-      printf("TStrHash: Memory used for hash table: %s\n", TUInt64::GetStr(MemUsed).CStr());
+      // printf("TStrHash: Memory used for hash table: %s\n", TUInt64::GetStr(MemUsed).CStr());
       MemUsed += 8 + Pool->GetMemUsed();
       return ::TSize(MemUsed/1000);
   }
@@ -1183,8 +1183,14 @@ public:
   inline static int GetSecHashCd(const char *p) {
     const char *r = p;  while (*r) { r++; }
     return (int) DJBHash((const char *) p, r - p) & 0x7fffffff; }
-  inline static int GetPrimHashCd(const TStr& s) { return GetPrimHashCd(s.CStr()); }
-  inline static int GetSecHashCd(const TStr& s) { return GetSecHashCd(s.CStr()); }
+  inline static int GetPrimHashCd(const TStr& s) { 
+    return GetPrimHashCd(s.CStr()); }
+  inline static int GetSecHashCd(const TStr& s) { 
+    return GetSecHashCd(s.CStr()); }
+  inline static int GetPrimHashCd(const char *p, const ::TSize& Len) {
+    return (int) DJBHash((const char *) p, Len) & 0x7fffffff; }
+  inline static int GetSecHashCd(const char *p, const ::TSize& Len) {
+    return (int) DJBHash((const char *) p, Len) & 0x7fffffff; }
 };
 
 // Old-Vector-Hash-Function

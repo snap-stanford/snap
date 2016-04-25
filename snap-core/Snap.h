@@ -12,13 +12,11 @@
 
 #include "gbase.h"
 #include "util.h"
-#include "predicate.h" 		 // predicate
-#include "attr.h"			 // sparse attributes
+#include "attr.h"            // sparse attributes
 
 // graph data structures
 #include "graph.h"           // graphs
 #include "graphmp.h"         // graphs
-//#include "mmgraph.h"         // multimodal graphs
 #include "network.h"         // networks
 #include "networkmp.h"       // networks OMP
 #include "bignet.h"          // large networks
@@ -51,8 +49,8 @@
 #include "statplot.h"
 
 // table data structures and algorithms
-#include "table.h"         // table
-#include "conv.h" 				 // conversion functions - table to graph
-#include "numpy.h" 				 // numpy conversion
+#include "table.h"          // table
+#include "conv.h"           // conversion functions - table to graph
+#include "numpy.h"          // numpy conversion
 
 #endif // SNAP_H

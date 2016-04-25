@@ -38,6 +38,7 @@ MakeAll:
 	$(MAKE) -C convbenchmark
 	$(MAKE) -C convbenchmarkmp
 	$(MAKE) -C tableindex
+	$(MAKE) -C testconv
 
 clean:
 	$(MAKE) clean -C agmgen

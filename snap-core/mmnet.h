@@ -508,6 +508,9 @@ public:
     friend class TMMNet;
   };
 
+public:
+  TCRef CRef; //Reference counter. Necessary for pointers.
+
 private:
 
   TInt MxModeId; ///< Keeps track of the max mode id.
@@ -522,7 +525,6 @@ private:
   THash<TStr,TInt> CrossNameToIdH;
 
 public:
-  TCRef CRef; //Reference counter. Necessary for pointers.
   friend class TCrossNet;
   friend class TModeNet;
 

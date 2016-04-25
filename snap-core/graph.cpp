@@ -108,6 +108,18 @@ int TUNGraph::AddEdgeUnchecked(const int& SrcNId, const int& DstNId) {
   return -1; // edge id
 }
 
+// Add an edge between SrcNId and DstNId to the graph and create the nodes if they don't yet exist.
+int TUNGraph::AddEdge2(const int& SrcNId, const int& DstNId) {
+  if (! IsNode(SrcNId)) { AddNode(SrcNId); }
+  if (! IsNode(DstNId)) { AddNode(DstNId); }
+  if (GetNode(SrcNId).IsNbrNId(DstNId)) { return -2; } // edge already exists
+  GetNode(SrcNId).NIdV.AddSorted(DstNId);
+  if (SrcNId!=DstNId) { // not a self edge
+    GetNode(DstNId).NIdV.AddSorted(SrcNId); }
+  NEdges++;
+  return -1; // edge id
+}
+
 // Delete an edge between node IDs SrcNId and DstNId from the graph.
 void TUNGraph::DelEdge(const int& SrcNId, const int& DstNId) {
   IAssertR(IsNode(SrcNId) && IsNode(DstNId), TStr::Fmt("%d or %d not a node.", SrcNId, DstNId).CStr());
@@ -318,6 +330,15 @@ int TNGraph::AddEdge(const int& SrcNId, const int& DstNId) {
 int TNGraph::AddEdgeUnchecked(const int& SrcNId, const int& DstNId) {
   GetNode(SrcNId).OutNIdV.Add(DstNId);
   GetNode(DstNId).InNIdV.Add(SrcNId);
+  return -1; // edge id
+}
+
+int TNGraph::AddEdge2(const int& SrcNId, const int& DstNId) {
+  if (! IsNode(SrcNId)) { AddNode(SrcNId); }
+  if (! IsNode(DstNId)) { AddNode(DstNId); }
+  if (GetNode(SrcNId).IsOutNId(DstNId)) { return -2; } // edge already exists
+  GetNode(SrcNId).OutNIdV.AddSorted(DstNId);
+  GetNode(DstNId).InNIdV.AddSorted(SrcNId);
   return -1; // edge id
 }
 
