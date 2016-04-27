@@ -539,9 +539,9 @@ TIntFltH EventImportance(const PNGraph& Graph, const int k) {
     if (outdeg>1 && indeg>0){
       double val = (1-(1/(double)outdeg))/(double)indeg;
       for(int i=0; i<(outdeg+indeg);i++){
-        int nid = Graph->GetNI(NI.GetKey()).GetNbrNId(i);
-        if (Graph->GetNI(NI.GetKey()).IsInNId(nid) == true){
-        NodeList.AddDat(nid,NodeList.GetDat(nid)+val);
+        int NId = Graph->GetNI(NI.GetKey()).GetNbrNId(i);
+        if (Graph->GetNI(NI.GetKey()).IsInNId(NId) == true){
+        NodeList.AddDat(NId,NodeList.GetDat(NId)+val);
         }
         
       }
@@ -568,9 +568,9 @@ TIntFltH EventImportance1 (const PNGraph& Graph, const int k) {
     if (outdeg>1 && indeg>0){
       double val = (1-(1/(double)outdeg))/(double)indeg;
       for(int i=0; i<(outdeg+indeg);i++){
-        int nid = Graph->GetNI(NI.GetKey()).GetNbrNId(i);
-        if (Graph->GetNI(NI.GetKey()).IsInNId(nid) == true){
-        NodeList.AddDat(nid,NodeList.GetDat(nid)+val);
+        int NId = Graph->GetNI(NI.GetKey()).GetNbrNId(i);
+        if (Graph->GetNI(NI.GetKey()).IsInNId(NId) == true){
+        NodeList.AddDat(NId,NodeList.GetDat(NId)+val);
         }
         
       }
@@ -681,53 +681,183 @@ TIntH LoadNodeList(TStr InFNmNodes){
   return Nodes;
 }
 
-#if 0
+
 int findMinimum(TIntV& Frontier, TIntFltH& NIdDistH) {
-  TFlt minimum = TFlt::Mx;
+  TInt minimum = TInt::Mx;
   int min_index = 0;
   for (int i = 0; i < Frontier.Len(); i++) {
-    int NId = Frontier->GetVal(i);
+    int NId = Frontier.GetVal(i);
     if (NIdDistH[NId] < minimum) {
       minimum = NIdDistH[NId];
       min_index = i;
     }
   }
+  const int NId = Frontier.GetVal(min_index);
   Frontier.Del(min_index);
-  return Frontier.GetVal(min_index);
+  return NId;
 }
 
-int GetWeightedShortestPath(const PNEANet Graph, const int& SrcNId, TIntFltH& NIdDistH, const TStr& Attr, const bool& IsDir=false) {
-  if (!Graph->IsFltAttrE(Attr)) return -1;
-
+int GetWeightedShortestPath(
+const PNEANet Graph, const int& SrcNId, TIntFltH& NIdDistH, const TFltV& Attr) {
   TIntV frontier;
 
-  // TODO: Figure out the way to load edge weights
-  TFltV Weights = Graph->GetFltAttrVecE(Attr);
-  int mxid = Graph->GetMxNId();
-  TFltV OutWeights(mxid);
-  Graph->GetWeightOutEdgesV(OutWeights, Weights);
-
-  const int NNodes = Graph->GetNodes();
   NIdDistH.Clr(false); NIdDistH.AddDat(SrcNId, 0);
   frontier.Add(SrcNId);
-
   while (! frontier.Empty()) {
-    const int NId = findMinimum(frontier, NIdToDistH);
-    for (v = 0; v < NodeI.GetOutDeg(); v++) {
-      const int DstNId = NodeI.GetOutNId(v);
-      const typename PNEANet::TObj::TNodeI NodeI = Graph->GetNI(NId);
-      if (! NIdToDistH.IsKey(DstNId)) {
-        // TODO: figure out how to load in edge weight
-        NIdDistH.AddDat(DstNId, NIdDistH.GetDat(NId) + EdgeWeight[NId][DstNId]);
+    const int NId = findMinimum(frontier, NIdDistH);
+    const PNEANet::TObj::TNodeI NodeI = Graph->GetNI(NId);
+    for (int v = 0; v < NodeI.GetOutDeg(); v++) {
+      int DstNId = NodeI.GetOutNId(v);
+      int EId = NodeI.GetOutEId(v);
+
+      if (! NIdDistH.IsKey(DstNId)) {
+        NIdDistH.AddDat(DstNId, NIdDistH.GetDat(NId) + Attr[EId]);
+        frontier.Add(DstNId);
       } else {
-        if (NIdDistH[DstNId] > NIdDistH.GetDat(NId) + EdgeWeight[NId][DstNId]) {
-          NIdToDistH[DstNId] = NIdDistH.GetDat(NId) + EdgeWeight[NId][DstNId]; 
+        if (NIdDistH[DstNId] > NIdDistH.GetDat(NId) + Attr[EId]) {
+          NIdDistH[DstNId] = NIdDistH.GetDat(NId) + Attr[EId]; 
         }
       }
     }
   }
-
+  return 0;
 }
-#endif
+
+double GetWeightedFarnessCentr(const PNEANet Graph, const int& NId, const bool& IsDir, const TFltV& Attr, const bool& Normalized) {
+  TIntFltH NDistH(Graph->GetNodes());
+  
+  GetWeightedShortestPath(Graph, NId, NDistH, Attr);
+  
+  double sum = 0;
+  for (TIntFltH::TIter I = NDistH.BegI(); I < NDistH.EndI(); I++) {
+    sum += I->Dat();
+  }
+  if (NDistH.Len() > 1) { 
+    double centr = sum/double(NDistH.Len()-1); 
+    if (Normalized) {
+      centr *= (Graph->GetNodes() - 1)/double(NDistH.Len()-1);
+    }
+    return centr;
+  }
+  else { return 0.0; }
+}
+
+double GetWeightedClosenessCentr(const PNEANet Graph, const int& NId, const bool& IsDir, const TFltV& Attr, const bool& Normalized) {
+  const double Farness = GetWeightedFarnessCentr(Graph, NId, IsDir, Attr, Normalized);
+  if (Farness != 0.0) { return 1.0/Farness; }
+  else { return 0.0; }
+  return 0.0;
+}
+
+void GetWeightedBetweennessCentr(const PNEANet Graph, const TIntV& BtwNIdV, TIntFltH& NodeBtwH, const bool& IsDir, const bool& DoNodeCent, TIntPrFltH& EdgeBtwH, const bool& DoEdgeCent, const TFltV& Attr) {
+  if (DoNodeCent) { NodeBtwH.Clr(); }
+  if (DoEdgeCent) { EdgeBtwH.Clr(); }
+  const int nodes = Graph->GetNodes();
+  TIntS S(nodes);
+  TIntQ Q(nodes);
+  TIntIntVH P(nodes); // one vector for every node
+  TIntFltH delta(nodes);
+  TIntFltH sigma(nodes), d(nodes);
+  // init
+  for (PNEANet::TObj::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
+    if (DoNodeCent) {
+      NodeBtwH.AddDat(NI.GetId(), 0); }
+    if (DoEdgeCent) {
+      for (int e = 0; e < NI.GetOutDeg(); e++) {
+        if (NI.GetId() < NI.GetOutNId(e)) {
+          EdgeBtwH.AddDat(TIntPr(NI.GetId(), NI.GetOutNId(e)), 0); 
+        }
+      }
+    }
+    sigma.AddDat(NI.GetId(), 0);
+    d.AddDat(NI.GetId(), -1);
+    P.AddDat(NI.GetId(), TIntV());
+    delta.AddDat(NI.GetId(), 0);
+  }
+  // calc betweeness
+  for (int k=0; k < BtwNIdV.Len(); k++) {
+    const PNEANet::TObj::TNodeI NI = Graph->GetNI(BtwNIdV[k]);
+    // reset
+    for (int i = 0; i < sigma.Len(); i++) {
+      sigma[i]=0;  d[i]=-1;  delta[i]=0;  P[i].Clr(false);
+    }
+    S.Clr(false);
+    Q.Clr(false);
+    sigma.AddDat(NI.GetId(), 1);
+    d.AddDat(NI.GetId(), 0);
+    Q.Push(NI.GetId());
+    while (! Q.Empty()) {
+      const int v = Q.Top();  Q.Pop();
+      const PNEANet::TObj::TNodeI NI2 = Graph->GetNI(v);
+      S.Push(v);
+      const double VDat = d.GetDat(v);
+      for (int e = 0; e < NI2.GetOutDeg(); e++) {
+        const int w = NI2.GetOutNId(e);
+        const int eid = NI2.GetOutEId(e);
+
+        if (d.GetDat(w) < 0) { // find w for the first time
+          Q.Push(w);
+          d.AddDat(w, VDat+Attr[eid]);
+        }
+        //shortest path to w via v ?
+        if (d.GetDat(w) == VDat+Attr[eid]) {
+          sigma.AddDat(w) += sigma.GetDat(v);
+          P.GetDat(w).Add(v);
+        }
+      }
+    }
+    
+    while (! S.Empty()) {
+      const int w = S.Top();
+      const double SigmaW = sigma.GetDat(w);
+      const double DeltaW = delta.GetDat(w);
+      const TIntV NIdV = P.GetDat(w);
+      S.Pop();
+      for (int i = 0; i < NIdV.Len(); i++) {
+        const int NId = NIdV[i];
+        const double c = (sigma.GetDat(NId)*1.0/SigmaW) * (1+DeltaW);
+        delta.AddDat(NId) += c;
+        if (DoEdgeCent) {
+          EdgeBtwH.AddDat(TIntPr(TMath::Mn(NId, w), TMath::Mx(NId, w))) += c; }
+      }
+      double factor = (IsDir) ? 1.0 : 2.0;
+      if (DoNodeCent && w != NI.GetId()) {
+        NodeBtwH.AddDat(w) += delta.GetDat(w)/factor; }
+    }
+  }
+}
+
+void GetWeightedBetweennessCentr(const PNEANet Graph, TIntFltH& NodeBtwH, TIntPrFltH& EdgeBtwH, const TFltV& Attr, const bool& IsDir, const double& NodeFrac) {
+  TIntV NIdV;  Graph->GetNIdV(NIdV);
+  if (NodeFrac < 1.0) { // calculate beetweenness centrality for a subset of nodes
+    NIdV.Shuffle(TInt::Rnd);
+    for (int i = int((1.0-NodeFrac)*NIdV.Len()); i > 0; i--) {
+      NIdV.DelLast(); }
+  }
+  GetWeightedBetweennessCentr(Graph, NIdV, NodeBtwH, IsDir, true, EdgeBtwH, true, Attr
+    );
+}
+
+void GetWeightedBetweennessCentr(const PNEANet Graph, TIntFltH& NodeBtwH, const TFltV& Attr, const bool& IsDir, const double& NodeFrac) {
+  TIntPrFltH EdgeBtwH;
+  TIntV NIdV;  Graph->GetNIdV(NIdV);
+  if (NodeFrac < 1.0) { // calculate beetweenness centrality for a subset of nodes
+    NIdV.Shuffle(TInt::Rnd);
+    for (int i = int((1.0-NodeFrac)*NIdV.Len()); i > 0; i--) {
+      NIdV.DelLast(); }
+  }
+  GetWeightedBetweennessCentr(Graph, NIdV, NodeBtwH, IsDir, true, EdgeBtwH, false, Attr);
+}
+
+void GetWeightedBetweennessCentr(const PNEANet Graph, TIntPrFltH& EdgeBtwH, const TFltV& Attr, const bool& IsDir, const double& NodeFrac) {
+  TIntFltH NodeBtwH;
+  TIntV NIdV;  Graph->GetNIdV(NIdV);
+  if (NodeFrac < 1.0) { // calculate beetweenness centrality for a subset of nodes
+    NIdV.Shuffle(TInt::Rnd);
+    for (int i = int((1.0-NodeFrac)*NIdV.Len()); i > 0; i--) {
+      NIdV.DelLast(); }
+  }
+  GetWeightedBetweennessCentr(Graph, NIdV, NodeBtwH, IsDir, false, EdgeBtwH, true, Attr);
+}
 
 }; // namespace TSnap
