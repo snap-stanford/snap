@@ -634,6 +634,9 @@ int TCrossNet::DelAttrE(const TStr& attr) {
 
 
 int TMMNet::AddModeNet(const TStr& ModeName) {
+  if (ModeNameToIdH.IsKey(ModeName)) {
+    return -1;
+  }
   TInt ModeId = TInt(MxModeId);
   MxModeId++;
   ModeIdToNameH.AddDat(ModeId, ModeName);
@@ -652,6 +655,9 @@ int TMMNet::AddCrossNet(const TStr& ModeName1, const TStr& ModeName2, const TStr
 }
 
 int TMMNet::AddCrossNet(const TInt& ModeId1, const TInt& ModeId2, const TStr& CrossNetName, bool isDir) {
+  if (CrossNameToIdH.IsKey(CrossNetName)) {
+    return -1;
+  }
   TInt CrossNetId = TInt(MxCrossNetId);
   MxCrossNetId++;
   CrossIdToNameH.AddDat(CrossNetId, CrossNetName);
