@@ -566,9 +566,9 @@ protected:
   TStr IdColName; ///< Name of column associated with (optional) permanent row identifiers.
   TIntIntH RowIdMap; ///< Mapping of permanent row ids to physical id.
 
-  THash<TStr, THash<TInt, TIntV> > IntColIndexes;
-  THash<TStr, THash<TInt, TIntV> > StrMapColIndexes;
-  THash<TStr, THash<TFlt, TIntV> > FltColIndexes;
+  THash<TStr, THash<TInt, TIntV> > IntColIndexes; ///< Indexes for Int Columns.
+  THash<TStr, THash<TInt, TIntV> > StrMapColIndexes; ///< Indexes for String Columns.
+  THash<TStr, THash<TFlt, TIntV> > FltColIndexes; ///< Indexes for Float  Columns.
 
   // Group mapping data structures.
   THash<TStr, GroupStmt > GroupStmtNames; ///< Maps user-given grouping statement names to their group-by attributes. ##TTable::GroupStmtNames
@@ -968,28 +968,38 @@ public:
     return GetStrVal(GetColIdx(ColName), RowIdx);
   }
 
+  /// Gets the integer mapping of the string at column \c ColIdx at row \c RowIdx.
   TInt GetStrMapById(TInt ColIdx, TInt RowIdx) const {
     return StrColMaps[ColIdx][RowIdx];
   }
 
+  /// Gets the integer mapping of the string at column \c ColName at row \c RowIdx.
   TInt GetStrMapByName(const TStr& ColName, TInt RowIdx) const {
     return StrColMaps[GetColIdx(ColName)][RowIdx];
   }
 
+  /// Gets the value of the string attribute at column \c ColIdx at row \c RowIdx.
   TStr GetStrValById(TInt ColIdx, TInt RowIdx) const {
     return GetStrVal(ColIdx, RowIdx);
   }
 
+  /// Gets the value of the string attribute at column \c ColName at row \c RowIdx.
   TStr GetStrValByName(const TStr& ColName, const TInt& RowIdx) const {
     return GetStrVal(ColName, RowIdx);
   }
 
+  /// Gets the rows containing Val in int column \c ColName. ##TTable::GetIntRowIdxByVal
   TIntV GetIntRowIdxByVal(const TStr& ColName, const TInt& Val) const;
+  /// Gets the rows containing int mapping Map in str column \c ColName. ##TTable::GetStrRowIdxByMap
   TIntV GetStrRowIdxByMap(const TStr& ColName, const TInt& Map) const;
+  /// Gets the rows containing Val in flt column \c ColName. ##TTable::GetFltRowIdxByVal
   TIntV GetFltRowIdxByVal(const TStr& ColName, const TFlt& Val) const;
 
+  /// Creates Index for Int Column \c ColName ##TTable::RequestIndexInt
   TInt RequestIndexInt(const TStr& ColName);
+  /// Creates Index for Flt Column \c ColName. ##TTable::RequestIndexFlt
   TInt RequestIndexFlt(const TStr& ColName);
+  /// Creates Index for Str Column \c ColName. ##TTable::RequestIndexStr
   TInt RequestIndexStrMap(const TStr& ColName);
 
   /// Gets the string with \c KeyId.

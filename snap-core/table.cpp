@@ -3134,7 +3134,7 @@ void TTable::Merge(TIntV& V, TInt Idx1, TInt Idx2, TInt Idx3, const TVec<TAttrTy
 
 #ifdef USE_OPENMP
 void TTable::QSortPar(TIntV& V, const TVec<TAttrType>& SortByTypes, const TIntV& SortByIndices, TBool Asc) {
-  TInt NumThreads = 8;
+  TInt NumThreads = 8; ///< Setting this to 8 because that results in the fastest sorting on Madmax.
   TInt Sz = V.Len();
   TIntV IndV, NextV;
   for (TInt i = 0; i < NumThreads; i++) {

@@ -3,6 +3,7 @@
 
 namespace TSnap {
 
+/// Sequentially converts the table into a graph with links from nodes in \c SrcCol to those in \c DstCol.
 template<class PGraph>
 PGraph ToGraph(PTable Table, const TStr& SrcCol, const TStr& DstCol, TAttrAggr AggrPolicy)
 {
@@ -58,6 +59,8 @@ PGraph ToGraph(PTable Table, const TStr& SrcCol, const TStr& DstCol, TAttrAggr A
   return Graph;
 }
 
+///  Converts the Table into a graph with edges from \c SrcCol to \c DstCol, and attribute vector
+/// defined by the arguments.
 template<class PGraph>
 PGraph ToNetwork(PTable Table,
   const TStr& SrcCol, const TStr& DstCol,
@@ -175,6 +178,7 @@ PGraph ToNetwork(PTable Table,
   return Graph;
 }
 
+/// Calls ToNetwork with an empty attribute vector. Convenience wrapper.
 template<class PGraph>
 PGraph ToNetwork(PTable Table,
   const TStr& SrcCol, const TStr& DstCol, TAttrAggr AggrPolicy)
@@ -184,7 +188,7 @@ PGraph ToNetwork(PTable Table,
 }
 
 #ifdef GCC_ATOMIC
-//Performs table to graph conversion in parallel using the sort-first algorithm. This is the recommended method to use.
+/// Performs table to graph conversion in parallel using the sort-first algorithm. This is the recommended method to use.
 template<class PGraphMP>
 PGraphMP ToGraphMP(PTable Table, const TStr& SrcCol, const TStr& DstCol) {
   // double start = omp_get_wtime();
@@ -524,7 +528,7 @@ PGraphMP ToGraphMP(PTable Table, const TStr& SrcCol, const TStr& DstCol) {
   return Graph;
 }
 
-///Table to graph conversion in parallel. Uses a less optimal method, use ToGraphMP instead.
+/// Performs table to graph conversion in parallel. Uses the hash-first method, which is less optimal, use ToGraphMP instead.
 #ifdef GCC_ATOMIC
 template<class PGraphMP>
 PGraphMP ToGraphMP3(PTable Table, const TStr& SrcCol, const TStr& DstCol) {
@@ -689,6 +693,7 @@ PGraphMP ToGraphMP3(PTable Table, const TStr& SrcCol, const TStr& DstCol) {
   return Graph;
 }
 
+/// Does Table to Network conversion in parallel using the sort-first algorithm. This is the recommended method to use.
 template<class PGraphMP>
 inline PGraphMP ToNetworkMP(PTable Table,
   const TStr& SrcCol, const TStr& DstCol,
@@ -1099,6 +1104,7 @@ inline PGraphMP ToNetworkMP(PTable Table,
   return Graph;
 }
 
+/// Calls ToNetworkMP with empty attribute vector. Convenience wrapper.
 template<class PGraphMP>
 PGraphMP ToNetworkMP(PTable Table,
   const TStr& SrcCol, const TStr& DstCol, TAttrAggr AggrPolicy)
@@ -1109,7 +1115,7 @@ PGraphMP ToNetworkMP(PTable Table,
 
 
 
-///Implements table to network conversion in parallel. Not the recommended algorithm.
+///Implements table to network conversion in parallel. Not the recommended algorithm, using ToNetworkMP instead.
 template<class PGraphMP>
 inline PGraphMP ToNetworkMP2(PTable Table,
   const TStr& SrcCol, const TStr& DstCol,
@@ -1538,6 +1544,7 @@ inline PGraphMP ToNetworkMP2(PTable Table,
 
   return Graph;
 }
+/// Calls ToNetworkMP2 with an empty attribute vector. Convenience wrapper.
 template<class PGraphMP>
 PGraphMP ToNetworkMP2(PTable Table,
   const TStr& SrcCol, const TStr& DstCol, TAttrAggr AggrPolicy)
@@ -1558,6 +1565,7 @@ int LoadCrossNet(TCrossNet& Graph, PTable Table, const TStr& SrcCol, const TStr&
   TStrV& EdgeAttrV);
 
 
+/// Converts table to a network sequentially. Use if network has only edge attributes.
 template<class PGraph>
 PGraph ToNetwork(PTable Table,
   const TStr& SrcCol, const TStr& DstCol,
@@ -1636,6 +1644,7 @@ PGraph ToNetwork(PTable Table,
 
 
 
+/// Converts table to network in parallel. Use if network has only edge attributes.
 template<class PGraphMP>
 inline PGraphMP ToNetworkMP(PTable Table,
   const TStr& SrcCol, const TStr& DstCol,
@@ -1996,6 +2005,7 @@ inline PGraphMP ToNetworkMP(PTable Table,
 }
 
 
+/// Converts table to network sequentially. Takes edges from \c Table and nodes explicitly from \c NodeCol in \c NodeTable, with attribute vectors passed as columns in corresponding tables.
 template<class PGraph>
 PGraph ToNetwork(PTable Table,
   const TStr& SrcCol, const TStr& DstCol,
@@ -2115,6 +2125,7 @@ PGraph ToNetwork(PTable Table,
 }
 
 
+/// Converts table to network in parallel. Takes edges from \c Table and nodes explicitly from \c NodeCol in \c NodeTable, with attribute vectors passed as columns in corresponding tables.
 template<class PGraphMP>
 inline PGraphMP ToNetworkMP(PTable Table,
   const TStr& SrcCol, const TStr& DstCol,
