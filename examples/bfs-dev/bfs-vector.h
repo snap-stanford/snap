@@ -12,7 +12,7 @@ public:
   TIntV NIdDistV;
 public:
   TBreathFS_Test(const PGraph& GraphPt, const bool& InitBigQ=true) :
-    Graph(GraphPt), Queue(InitBigQ?Graph->GetNodes():1024), NIdDistV(InitBigQ?Graph->GetMxNId()+1:1024) {
+    Graph(GraphPt), Queue(InitBigQ?Graph->GetNodes():1024), NIdDistV(Graph->GetMxNId()+1) {
     for (int i = 0; i < NIdDistV.Len(); i++) {
       NIdDistV.SetVal(i, -1);
     }

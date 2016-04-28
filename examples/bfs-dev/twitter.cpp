@@ -1,7 +1,8 @@
 #include "stdafx.h"
 #include <stdio.h>
 #include <sys/time.h>
-#include "bfs-vector.h"
+#include "bfs-hybrid.h"
+#include <vector>
 
 double timeInSeconds(struct timeval &tv1, struct timeval &tv2) {
   double diff = 0;
@@ -25,12 +26,18 @@ int main(int argc, char* argv[]) {
   struct timeval tv1, tv2;
   gettimeofday(&tv1, NULL);
 
-  TBreathFS_Test<PGraph> bfs(graph, true);
-  int maxDist = bfs.DoBfs_test(start, true, false);
+  TBreathFS_Hybrid<PGraph> bfs(graph, true);
+  int maxDist = bfs.DoBfs_Hybrid(start, true, false);
 
   gettimeofday(&tv2, NULL);
   double timeDiff = timeInSeconds(tv1, tv2);
   printf("Start node: %d\nMax Distance: %d\nTime spent: %f\n", start, maxDist, timeDiff);
+
+  printf("Time spent per steps:\n");
+  for (unsigned int i = 0; i < bfs.timePerStep.size(); i++) {
+    printf("%f ", bfs.timePerStep[i]);
+  }
+  printf("\n");
 
   return 0;
 }
