@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include <stdio.h>
 #include <sys/time.h>
-#include "bfs-vector.h"
+#include "bfs-hybrid.h"
 
 double timeInSeconds(struct timeval &tv1, struct timeval &tv2) {
   double diff = 0;
