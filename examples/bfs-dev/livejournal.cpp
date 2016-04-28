@@ -25,8 +25,8 @@ int main(int argc, char* argv[]) {
   struct timeval tv1, tv2;
   gettimeofday(&tv1, NULL);
 
-  TBreathFS_Test<PGraph> bfs(graph, true);
-  int maxDist = bfs.DoBfs_test(start, true, false);
+  TBreathFS_Hybrid<PGraph> bfs(graph, true);
+  int maxDist = bfs.DoBfs_Hybrid(start, true, false);
 
   gettimeofday(&tv2, NULL);
   double timeDiff = timeInSeconds(tv1, tv2);

@@ -27,7 +27,6 @@ int TBreathFS_Test<PGraph>::DoBfs_test(const int& StartNode, const bool& FollowO
   IAssert(Graph->IsNode(StartNId));
 //  const typename PGraph::TObj::TNodeI StartNodeI = Graph->GetNI(StartNode);
 //  IAssertR(StartNodeI.GetOutDeg() > 0, TStr::Fmt("No neighbors from start node %d.", StartNode));
-  printf("Using vector...\n");
   NIdDistV.SetVal(StartNId, 0);
   Queue.Clr(false);  Queue.Push(StartNId);
   int v, MaxDist = 0;
