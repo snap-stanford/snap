@@ -1082,7 +1082,7 @@ PNEANet TMMNet::ToNetwork2(TIntV& CrossNetTypes, THash<TInt, TVec<TPair<TStr, TS
 
 #ifdef GCC_ATOMIC
 
-PNEANetMP ToNetworkMP(TStr& CrossNetName) {
+PNEANetMP TMMNet::ToNetworkMP(TStr& CrossNetName) {
  
   THashMP<TIntPr, TInt> NodeMap;
   THashMP<TIntPr, TIntPr> EdgeMap;
