@@ -602,6 +602,8 @@ public:
   /// Convert multimodal network to TNEANet; as attr names can collide, AttrMap specifies the Mode/Cross Id -> vec of pairs (old att name, new attr name)
   PNEANet ToNetwork2(TIntV& CrossNetTypes, THash<TInt, TVec<TPair<TStr, TStr> > >& NodeAttrMap, THash<TInt, TVec<TPair<TStr, TStr> > >& EdgeAttrMap);
 
+  PNEANet ToNetworkMP(TStr& CrossNetName);
+
 private:
   void ClrNbr(const TInt& ModeId, const TInt& CrossNetId, const bool& outEdge, const bool& sameMode, bool& isDir);
   int AddMode(const TStr& ModeName, const TInt& ModeId, const TModeNet& ModeNet);

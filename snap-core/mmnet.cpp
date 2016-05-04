@@ -1080,6 +1080,119 @@ PNEANet TMMNet::ToNetwork2(TIntV& CrossNetTypes, THash<TInt, TVec<TPair<TStr, TS
   return NewNet;
 }
 
+PNEANetMP ToNetworkMP(TStr& CrossNetName) {
+ 
+  THashMP<TIntPr, TInt> NodeMap;
+  THashMP<TIntPr, TIntPr> EdgeMap;
+  PNEANetMP NewNet = TNEANetMP::New();
+ 
+  TCrossNet& CrossNet = GetCrossNet(CrossNetName);
+  TInt CrossNetId = CrossNet.CrossNetId;
+  TInt Mode1 = CrossNet.GetMode1();
+  TInt Mode2 = CrossNet.GetMode2();
+  bool isDirected = CrossNet.IsDirected();
+ 
+  //Mode nets
+  TModeNet& ModeNet1 = GetModeNet(Mode1);
+  TModeNet& ModeNet2 = GetModeNet(Mode2);
+ 
+  int num_threads = omp_get_max_threads();
+ 
+  TIntPrV NodePartitions1;
+  TIntPrV NodePartitions2;
+  ModeNet1.GetPartitionRanges(NodePartitions1, num_threads);
+  ModeNet2.GetPartitionRanges(NodePartitions2, num_threads);
+
+  // Add nodes, add to node map.
+  int offset = 0;
+  int curr_nid;
+  #pragma omp parallel for schedule(static) private(curr_nid)
+  for (int i = 0; i < NodePartitions1.Len(); i++) {
+    TInt CurrStart = NodePartitions1[i].GetVal1();
+    TInt CurrEnd = NodePartitions1[i].GetVal2();
+    curr_nid = offset + CurrStart;
+    for (int n_i = CurrStart; n_i < CurrEnd ; n_i++) {
+      if (ModeNet1.IsNode(n_i)) {
+        NewNet->AddNode(curr_nid);
+        TIntPr NodeKey(Mode1, n_i);
+        NodeMap.AddDat(NodeKey, curr_nid);
+        curr_nid++;
+      }
+    }
+  }
+  offset = ModeNet1.GetMxNId();
+  #pragma omp parallel for schedule(static) private(curr_nid)
+  for (int i = 0; i < NodePartitions2.Len(); i++) {
+    TInt CurrStart = NodePartitions2[i].GetVal1();
+    TInt CurrEnd = NodePartitions2[i].GetVal2();
+    curr_nid = offset + CurrStart;
+    for (int n_i = CurrStart; n_i < CurrEnd ; n_i++) {
+      if (ModeNet2.IsNode(n_i)) {
+        NewNet->AddNode(curr_nid);
+        TIntPr NodeKey(Mode2, n_i);
+        NodeMap.AddDat(NodeKey, curr_nid);
+        curr_nid++;
+      }
+    }
+  }
+ 
+  TIntPrV EdgePartitions;
+  CrossNet.GetPartitionRanges(EdgePartitions, num_threads);
+ 
+  // Add edges, add edges to edge map.
+  int curr_eid;
+  int offset = 0;
+  int factor = isDirected ? 1 : 2;
+  #pragma omp parallel for schedule(static) private(curr_eid)
+  for (int i = 0; i < EdgePartitions.Len(); i++) {
+    TInt CurrStart = EdgePartitions[i].GetVal1();
+    TInt CurrEnd = EdgePartitions[i].GetVal2();
+    curr_eid = offset + factor*CurrStart;
+    for (int e_i = CurrStart; e_i < CurrEnd ; e_i++) {
+      if (CrossNet.IsEdge(e_i)) {
+        int new_eid = curr_eid;
+        TIntPr EdgeKey(CrossNetId, e_i);
+        TCrossNet::TCrossEdge edge = CrossNet.CrossH.GetDat(e_i);
+        int srcNode = edge.GetSrcNId();
+        int dstNode = edge.GetDstNId();
+        TIntPr NodeKeySrc(Mode1, srcNode);
+        TIntPr NodeKeyDst(Mode1, dstNode);
+        int newSrc = NodeMap.GetDat(NodeKeySrc);
+        int newDst = NodeMap.GetDat(NodeKeyDst);
+        NewNet->AddEdge(newSrc, newDst, curr_eid);
+        curr_eid++;
+        int otherEId = -1;
+        if (!isDirected) {
+          otherEId = curr_eid;
+          curr_eid++;
+          NewNet->AddEdge(newDst, newSrc, otherEId);
+        }
+        EdgeMap.AddDat(EdgeKey, TIntPr(bew_eid, otherEId));
+      }
+    }
+  }
+ 
+ 
+  //Add attributes
+  NewNet->AddIntAttrN(TStr("Mode"));
+  NewNet->AddIntAttrN(TStr("Id"));
+  NewNet->AddIntAttrE(TStr("CrossNet"));
+  NewNet->AddIntAttrE(TStr("Id"));
+  for(TIntPrIntH::TIter it = NodeMap.BegI(); it != NodeMap.EndI(); it++) {
+    NewNet->AddIntAttrDatN(it.GetDat(), it.GetKey().GetVal1(), TStr("Mode"));
+    NewNet->AddIntAttrDatN(it.GetDat(), it.GetKey().GetVal2(), TStr("Id"));
+  }
+  for(TIntPrH::TIter it = EdgeMap.BegI(); it != EdgeMap.EndI(); it++) {
+    NewNet->AddIntAttrDatE(it.GetDat().GetVal1(), it.GetKey().GetVal1(), TStr("CrossNet"));
+    NewNet->AddIntAttrDatE(it.GetDat().GetVal1(), it.GetKey().GetVal2(), TStr("Id"));
+    if (it.GetDat().GetVal2() != -1) {
+      NewNet->AddIntAttrDatE(it.GetDat().GetVal2(), it.GetKey().GetVal1(), TStr("CrossNet"));
+      NewNet->AddIntAttrDatE(it.GetDat().GetVal2(), it.GetKey().GetVal2(), TStr("Id"));
+    }
+  }
+  return NewNet;
+}
+
 int TMMNet::AddNodeAttributes(PNEANet& NewNet, TModeNet& Net, TVec<TPair<TStr, TStr> >& Attrs, int ModeId, int oldId, int NId) {
   for (int i = 0; i < Attrs.Len(); i++) {
     //mode, orig attr, new attr
