@@ -1080,21 +1080,23 @@ PNEANet TMMNet::ToNetwork2(TIntV& CrossNetTypes, THash<TInt, TVec<TPair<TStr, TS
   return NewNet;
 }
 
+#ifdef GCC_ATOMIC
+
 PNEANetMP ToNetworkMP(TStr& CrossNetName) {
  
   THashMP<TIntPr, TInt> NodeMap;
   THashMP<TIntPr, TIntPr> EdgeMap;
   PNEANetMP NewNet = TNEANetMP::New();
  
-  TCrossNet& CrossNet = GetCrossNet(CrossNetName);
-  TInt CrossNetId = CrossNet.CrossNetId;
+  TCrossNet& CrossNet = GetCrossNetByName(CrossNetName);
+  TInt CrossNetId = GetCrossId(CrossNetName);
   TInt Mode1 = CrossNet.GetMode1();
   TInt Mode2 = CrossNet.GetMode2();
   bool isDirected = CrossNet.IsDirected();
  
   //Mode nets
-  TModeNet& ModeNet1 = GetModeNet(Mode1);
-  TModeNet& ModeNet2 = GetModeNet(Mode2);
+  TModeNet& ModeNet1 = GetModeNetById(Mode1);
+  TModeNet& ModeNet2 = GetModeNetById(Mode2);
  
   int num_threads = omp_get_max_threads();
  
@@ -1141,7 +1143,7 @@ PNEANetMP ToNetworkMP(TStr& CrossNetName) {
  
   // Add edges, add edges to edge map.
   int curr_eid;
-  int offset = 0;
+  offset = 0;
   int factor = isDirected ? 1 : 2;
   #pragma omp parallel for schedule(static) private(curr_eid)
   for (int i = 0; i < EdgePartitions.Len(); i++) {
@@ -1152,7 +1154,7 @@ PNEANetMP ToNetworkMP(TStr& CrossNetName) {
       if (CrossNet.IsEdge(e_i)) {
         int new_eid = curr_eid;
         TIntPr EdgeKey(CrossNetId, e_i);
-        TCrossNet::TCrossEdge edge = CrossNet.CrossH.GetDat(e_i);
+        TCrossNet::TCrossEdgeI edge = CrossNet.GetEdgeI(e_i);
         int srcNode = edge.GetSrcNId();
         int dstNode = edge.GetDstNId();
         TIntPr NodeKeySrc(Mode1, srcNode);
@@ -1167,7 +1169,7 @@ PNEANetMP ToNetworkMP(TStr& CrossNetName) {
           curr_eid++;
           NewNet->AddEdge(newDst, newSrc, otherEId);
         }
-        EdgeMap.AddDat(EdgeKey, TIntPr(bew_eid, otherEId));
+        EdgeMap.AddDat(EdgeKey, TIntPr(new_eid, otherEId));
       }
     }
   }
@@ -1178,11 +1180,11 @@ PNEANetMP ToNetworkMP(TStr& CrossNetName) {
   NewNet->AddIntAttrN(TStr("Id"));
   NewNet->AddIntAttrE(TStr("CrossNet"));
   NewNet->AddIntAttrE(TStr("Id"));
-  for(TIntPrIntH::TIter it = NodeMap.BegI(); it != NodeMap.EndI(); it++) {
+  for(THashMP<TIntPr, TInt>::TIter it = NodeMap.BegI(); it != NodeMap.EndI(); it++) {
     NewNet->AddIntAttrDatN(it.GetDat(), it.GetKey().GetVal1(), TStr("Mode"));
     NewNet->AddIntAttrDatN(it.GetDat(), it.GetKey().GetVal2(), TStr("Id"));
   }
-  for(TIntPrH::TIter it = EdgeMap.BegI(); it != EdgeMap.EndI(); it++) {
+  for(THashMP<TIntPr, TIntPr>::TIter it = EdgeMap.BegI(); it != EdgeMap.EndI(); it++) {
     NewNet->AddIntAttrDatE(it.GetDat().GetVal1(), it.GetKey().GetVal1(), TStr("CrossNet"));
     NewNet->AddIntAttrDatE(it.GetDat().GetVal1(), it.GetKey().GetVal2(), TStr("Id"));
     if (it.GetDat().GetVal2() != -1) {
@@ -1192,6 +1194,8 @@ PNEANetMP ToNetworkMP(TStr& CrossNetName) {
   }
   return NewNet;
 }
+
+#endif // GCC_ATOMIC
 
 int TMMNet::AddNodeAttributes(PNEANet& NewNet, TModeNet& Net, TVec<TPair<TStr, TStr> >& Attrs, int ModeId, int oldId, int NId) {
   for (int i = 0; i < Attrs.Len(); i++) {
