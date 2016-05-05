@@ -21,23 +21,25 @@ int main(int argc, char* argv[]) {
   IAssert(graph->IsOk());
   printf("Graph (%d, %d)\n", graph->GetNodes(), graph->GetEdges());
 
-  int start = graph->GetRndNId();
+  int start = 59102400;
 
   struct timeval tv1, tv2;
   gettimeofday(&tv1, NULL);
 
   TBreathFS_Hybrid<PGraph> bfs(graph, true);
   int maxDist = bfs.DoBfs_Hybrid(start, true, false);
+  IAssert(maxDist == 15);
+  
+  for (int i = 0; i < maxDist; i++) {
+    int frontier = bfs.nodeCounts[i].frontier;
+    int unvisited = bfs.nodeCounts[i].unvisited;
+    printf("Frontier: %d, Unvisited: %d, Unvisied/Frontier = %f, Total/Frontier = %f\n", frontier, unvisited, (float)unvisited / frontier, (float)graph->GetNodes() / frontier);
+  }
 
   gettimeofday(&tv2, NULL);
   double timeDiff = timeInSeconds(tv1, tv2);
-  printf("Start node: %d\nMax Distance: %d\nTime spent: %f\n", start, maxDist, timeDiff);
 
-  printf("Time spent per steps:\n");
-  for (unsigned int i = 0; i < bfs.timePerStep.size(); i++) {
-    printf("%f ", bfs.timePerStep[i]);
-  }
-  printf("\n");
+  printf("Start node: %d\nMax Distance: %d\nTime spent: %f\n", start, maxDist, timeDiff);
 
   return 0;
 }
