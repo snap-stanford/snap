@@ -1483,7 +1483,6 @@ public:
     int GetNbrEId(const int& EdgeN) const { return EdgeN<GetOutDeg()?GetOutEId(EdgeN):GetInEId(EdgeN-GetOutDeg()); }
     bool IsInEId(const int& EId) const { return InEIdV.SearchBin(EId) != -1; }
     bool IsOutEId(const int& EId) const { return OutEIdV.SearchBin(EId) != -1; }
-    size_t GetMemUsed() const { return Id.GetMemUsed() + InEIdV.GetMemUsed() + OutEIdV.GetMemUsed(); }
     friend class TNEANet;
   };
   class TEdge {
@@ -1498,7 +1497,6 @@ public:
     int GetId() const { return Id; }
     int GetSrcNId() const { return SrcNId; }
     int GetDstNId() const { return DstNId; }
-    size_t GetMemUsed() const { return Id.GetMemUsed() + SrcNId.GetMemUsed() + DstNId.GetMemUsed(); }
     friend class TNEANet;
   };
   /// Node iterator. Only forward iteration (operator++) is supported.
@@ -2102,16 +2100,15 @@ public:
   /// Attribute based add function for attr to Flt value. ##TNEANet::AddFltAttrDatN
   int AddFltAttrDatN(const TNodeI& NodeI, const TFlt& value, const TStr& attr) { return AddFltAttrDatN(NodeI.GetId(), value, attr); }
   int AddFltAttrDatN(const int& NId, const TFlt& value, const TStr& attr);
-  //**************
+  /// Attribute based add function for attr to IntV value. ##TNEANet::AddIntVAttrDatN
   int AddIntVAttrDatN(const TNodeI& NodeI, const TIntV& value, const TStr& attr) { return AddIntVAttrDatN(NodeI.GetId(), value, attr); }
   int AddIntVAttrDatN(const int& NId, const TIntV& value, const TStr& attr);
-
+  /// Appends value onto the TIntV attribute for the given node.
   int AppendIntVAttrDatN(const TNodeI& NodeI, const TInt& value, const TStr& attr) { return AppendIntVAttrDatN(NodeI.GetId(), value, attr); }
   int AppendIntVAttrDatN(const int& NId, const TInt& value, const TStr& attr);
-
+  /// Deletes value from the TIntV attribute for the given node.
   int DelFromIntVAttrDatN(const TNodeI& NodeI, const TInt& value, const TStr& attr) { return DelFromIntVAttrDatN(NodeI.GetId(), value, attr); }
   int DelFromIntVAttrDatN(const int& NId, const TInt& value, const TStr& attr);
-  //**************
   /// Attribute based add function for attr to Int value. ##TNEANet::AddIntAttrDatE
   int AddIntAttrDatE(const TEdgeI& EdgeI, const TInt& value, const TStr& attr) { return AddIntAttrDatE(EdgeI.GetId(), value, attr); }
   int AddIntAttrDatE(const int& EId, const TInt& value, const TStr& attr);
@@ -2121,13 +2118,12 @@ public:
   /// Attribute based add function for attr to Flt value. ##TNEANet::AddFltAttrDatE
   int AddFltAttrDatE(const TEdgeI& EdgeI, const TFlt& value, const TStr& attr) { return AddFltAttrDatE(EdgeI.GetId(), value, attr); }
   int AddFltAttrDatE(const int& EId, const TFlt& value, const TStr& attr);
-  //**************
+  /// Attribute based add function for attr to IntV value. ##TNEANet::AddIntVAttrDatE
   int AddIntVAttrDatE(const TEdgeI& EdgeI, const TIntV& value, const TStr& attr) { return AddIntVAttrDatE(EdgeI.GetId(), value, attr); }
   int AddIntVAttrDatE(const int& EId, const TIntV& value, const TStr& attr);
-
+  /// Appends value onto the TIntV attribute for the given node.
   int AppendIntVAttrDatE(const TEdgeI& EdgeI, const TInt& value, const TStr& attr) { return AppendIntVAttrDatE(EdgeI.GetId(), value, attr); }
   int AppendIntVAttrDatE(const int& EId, const TInt& value, const TStr& attr);
-  //**************
   /// Gets the value of int attr from the node attr value vector.
   TInt GetIntAttrDatN(const TNodeI& NodeI, const TStr& attr) { return GetIntAttrDatN(NodeI.GetId(), attr); }
   TInt GetIntAttrDatN(const int& NId, const TStr& attr);
@@ -2138,7 +2134,7 @@ public:
   /// Gets the value of flt attr from the node attr value vector.
   TFlt GetFltAttrDatN(const TNodeI& NodeI, const TStr& attr) { return GetFltAttrDatN(NodeI.GetId(), attr); }
   TFlt GetFltAttrDatN(const int& NId, const TStr& attr);
-
+  /// Gets the value of the intv attr from the node attr value vector.
   TIntV GetIntVAttrDatN(const TNodeI& NodeI, const TStr& attr) const { return GetIntVAttrDatN(NodeI.GetId(), attr); }
   TIntV GetIntVAttrDatN(const int& NId, const TStr& attr) const;
 
@@ -2171,7 +2167,7 @@ public:
   /// Gets the value of flt attr from the edge attr value vector.
   TFlt GetFltAttrDatE(const TEdgeI& EdgeI, const TStr& attr) { return GetFltAttrDatE(EdgeI.GetId(), attr); }
   TFlt GetFltAttrDatE(const int& EId, const TStr& attr);
-
+  /// Gets the value of the intv attr from the edge attr value vector.
   TIntV GetIntVAttrDatE(const TEdgeI& EdgeI, const TStr& attr) { return GetIntVAttrDatE(EdgeI.GetId(), attr); }
   TIntV GetIntVAttrDatE(const int& EId, const TStr& attr);
 
@@ -2208,7 +2204,7 @@ public:
   int AddStrAttrN(const TStr& attr, TStr defaultValue=TStr::GetNullStr());
   /// Adds a new Flt node attribute to the hashmap.
   int AddFltAttrN(const TStr& attr, TFlt defaultValue=TFlt::Mn);
-
+  /// Adds a new IntV node attribute to the hashmap.
   int AddIntVAttrN(const TStr& attr);
 
   /// Adds a new Int edge attribute to the hashmap.
@@ -2217,7 +2213,7 @@ public:
   int AddStrAttrE(const TStr& attr, TStr defaultValue=TStr::GetNullStr());
   /// Adds a new Flt edge attribute to the hashmap.
   int AddFltAttrE(const TStr& attr, TFlt defaultValue=TFlt::Mn);
-
+  /// Adds a new IntV edge attribute to the hashmap.
   int AddIntVAttrE(const TStr& attr);
 
   /// Removes all the values for node attr.
@@ -2225,69 +2221,69 @@ public:
   /// Removes all the values for edge  attr.
   int DelAttrE(const TStr& attr);
 
-  // Returns true if \c attr exists for node \c NId and has default value.
+  /// Returns true if \c attr exists for node \c NId and has default value.
   bool IsAttrDeletedN(const int& NId, const TStr& attr) const;
-  // Returns true if Int \c attr exists for node \c NId and has default value.
+  /// Returns true if Int \c attr exists for node \c NId and has default value.
   bool IsIntAttrDeletedN(const int& NId, const TStr& attr) const;
-  // Returns true if IntV \c attr exists for node \c NId and is an empty vector.
+  /// Returns true if IntV \c attr exists for node \c NId and is an empty vector.
   bool IsIntVAttrDeletedN(const int& NId, const TStr& attr) const;
-  // Returns true if Str \c attr exists for node \c NId and has default value.
+  /// Returns true if Str \c attr exists for node \c NId and has default value.
   bool IsStrAttrDeletedN(const int& NId, const TStr& attr) const;
-  // Returns true if Flt \c attr exists for node \c NId and has default value.
+  /// Returns true if Flt \c attr exists for node \c NId and has default value.
   bool IsFltAttrDeletedN(const int& NId, const TStr& attr) const;
 
-  // Returns true if NId attr deleted for current node attr iterator.
+  /// Returns true if NId attr deleted for current node attr iterator.
   bool NodeAttrIsDeleted(const int& NId, const TStrIntPrH::TIter& NodeHI) const;
-  // Returns true if NId attr deleted value for current node int attr iterator.
+  /// Returns true if NId attr deleted value for current node int attr iterator.
   bool NodeAttrIsIntDeleted(const int& NId, const TStrIntPrH::TIter& NodeHI) const;
-  // Returns true if NId attr deleted value for current node int vector attr iterator.
+  /// Returns true if NId attr deleted value for current node int vector attr iterator.
   bool NodeAttrIsIntVDeleted(const int& NId, const TStrIntPrH::TIter& NodeHI) const;
-  // Returns true if NId attr deleted value for current node str attr iterator.
+  /// Returns true if NId attr deleted value for current node str attr iterator.
   bool NodeAttrIsStrDeleted(const int& NId, const TStrIntPrH::TIter& NodeHI) const;
-  // Returns true if NId attr deleted value for current node flt attr iterator.
+  /// Returns true if NId attr deleted value for current node flt attr iterator.
   bool NodeAttrIsFltDeleted(const int& NId, const TStrIntPrH::TIter& NodeHI) const;
 
-  // Returns true if \c attr exists for edge \c EId and has default value.
+  /// Returns true if \c attr exists for edge \c EId and has default value.
   bool IsAttrDeletedE(const int& EId, const TStr& attr) const;
-  // Returns true if Int \c attr exists for edge \c EId and has default value.
+  /// Returns true if Int \c attr exists for edge \c EId and has default value.
   bool IsIntAttrDeletedE(const int& EId, const TStr& attr) const;
-  // Returns true if IntV \c attr exists for edge \c EId and is an empty vector.
+  /// Returns true if IntV \c attr exists for edge \c EId and is an empty vector.
   bool IsIntVAttrDeletedE(const int& EId, const TStr& attr) const;
-  // Returns true if Str \c attr exists for edge \c NId and has default value.
+  /// Returns true if Str \c attr exists for edge \c NId and has default value.
   bool IsStrAttrDeletedE(const int& EId, const TStr& attr) const;
-  // Returns true if Flt \c attr exists for edge \c NId and has default value.
+  /// Returns true if Flt \c attr exists for edge \c NId and has default value.
   bool IsFltAttrDeletedE(const int& EId, const TStr& attr) const;
 
-  // Returns true if EId attr deleted for current edge attr iterator.
+  /// Returns true if EId attr deleted for current edge attr iterator.
   bool EdgeAttrIsDeleted(const int& EId, const TStrIntPrH::TIter& EdgeHI) const;
-  // Returns true if EId attr deleted for current edge int attr iterator.
+  /// Returns true if EId attr deleted for current edge int attr iterator.
   bool EdgeAttrIsIntDeleted(const int& EId, const TStrIntPrH::TIter& EdgeHI) const;
-  // Returns true if EId attr deleted for current edge int vector attr iterator.
+  /// Returns true if EId attr deleted for current edge int vector attr iterator.
   bool EdgeAttrIsIntVDeleted(const int& EId, const TStrIntPrH::TIter& EdgeHI) const;
-  // Returns true if EId attr deleted for current edge str attr iterator.
+  /// Returns true if EId attr deleted for current edge str attr iterator.
   bool EdgeAttrIsStrDeleted(const int& EId, const TStrIntPrH::TIter& EdgeHI) const;
-  // Returns true if EId attr deleted for current edge flt attr iterator.
+  /// Returns true if EId attr deleted for current edge flt attr iterator.
   bool EdgeAttrIsFltDeleted(const int& EId, const TStrIntPrH::TIter& EdgeHI) const;
 
-  // Returns node attribute value, converted to Str type.
+  /// Returns node attribute value, converted to Str type.
   TStr GetNodeAttrValue(const int& NId, const TStrIntPrH::TIter& NodeHI) const;
-  // Returns edge attribute value, converted to Str type.
+  /// Returns edge attribute value, converted to Str type.
   TStr GetEdgeAttrValue(const int& EId, const TStrIntPrH::TIter& EdgeHI) const;
 
-  // Get the sum of the weights of all the outgoing edges of the node.
+  /// Gets the sum of the weights of all the outgoing edges of the node.
   TFlt GetWeightOutEdges(const TNodeI& NI, const TStr& attr);
-  // Check if there is an edge attribute with name attr.
+  /// Checks if there is an edge attribute with name attr.
   bool IsFltAttrE(const TStr& attr);
-  // Check if there is an edge attribute with name attr.
+  /// Checks if there is an edge attribute with name attr.
   bool IsIntAttrE(const TStr& attr);
-  // Check if there is an edge attribute with name attr.
+  /// Checks if there is an edge attribute with name attr.
   bool IsStrAttrE(const TStr& attr);
-  // Get Vector for the Flt Attribute attr.
+  /// Gets Vector for the Flt Attribute attr.
   TVec<TFlt>& GetFltAttrVecE(const TStr& attr);
-  // Get keyid for edge with id EId.
+  /// Gets keyid for edge with id EId.
   int GetFltKeyIdE(const int& EId);
 
-  //Fills OutWeights with the outgoing weight from each node.
+  /// Fills OutWeights with the outgoing weight from each node.
   void GetWeightOutEdgesV(TFltV& OutWeights, const TFltV& AttrVal) ;
   /// Fills each of the vectors with the names of node attributes of the given type.
   void GetAttrNNames(TStrV& IntAttrNames, TStrV& FltAttrNames, TStrV& StrAttrNames) const;

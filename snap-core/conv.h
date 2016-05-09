@@ -1000,7 +1000,7 @@ inline PGraphMP ToNetworkMP(PTable Table,
         TInt DstId = RowI.GetIntAttr(DstColIdx);
         Graph->AddEdgeUnchecked(RowId, SrcId, DstId);
         RowI++;
-		for (TInt ea_i = 0; ea_i < EdgeAttrV.Len(); ea_i++) {
+		    for (TInt ea_i = 0; ea_i < EdgeAttrV.Len(); ea_i++) {
           TStr ColName = EdgeAttrV[ea_i];
           TAttrType T = Table->GetColType(ColName);
           TInt Index = Table->GetColIdx(ColName);
@@ -1555,12 +1555,16 @@ PGraphMP ToNetworkMP2(PTable Table,
 #endif // GCC_ATOMIC
 
 
-int LoadModeToNet(PMMNet Graph, const TStr& Name, PTable Table, const TStr& NCol,
+/// Loads a mode, with name Name, into the PMMNet from the TTable. NCol specifies the node id column and NodeAttrV the node attributes.
+int LoadModeNetToNet(PMMNet Graph, const TStr& Name, PTable Table, const TStr& NCol,
   TStrV& NodeAttrV);
+/// Loads the nodes specified in column NCol from the TTable with the attributes specified in NodeAttrV.
 int LoadMode(TModeNet& Graph, PTable Table, const TStr& NCol,
   TStrV& NodeAttrV);
+/// Loads a crossnet from Mode1 to Mode2, with name CrossName, from the provided TTable. EdgeAttrV specifies edge attributes.
 int LoadCrossNetToNet(PMMNet Graph, const TStr& Mode1, const TStr& Mode2, const TStr& CrossName,
  PTable Table, const TStr& SrcCol, const TStr& DstCol, TStrV& EdgeAttrV);
+/// Loads the edges from the TTable and EdgeAttrV specifies columns containing edge attributes.
 int LoadCrossNet(TCrossNet& Graph, PTable Table, const TStr& SrcCol, const TStr& DstCol,
   TStrV& EdgeAttrV);
 
