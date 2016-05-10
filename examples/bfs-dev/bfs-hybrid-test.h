@@ -1,6 +1,20 @@
 #include <vector>
 #include <stdio.h>
 
+/* Remove */
+#define NUM_ITERS 100
+
+/* Remove this */
+struct ChildTypeCount {
+  int claimed;
+  int failed;
+};
+
+struct NodeCount {
+  int frontier;
+  int unvisited;
+};
+
 
 //#//////////////////////////////////////////////
 /// Breath-First-Search class.
@@ -11,6 +25,10 @@ public:
   PGraph Graph;
   TInt StartNId;
   TIntV NIdDistV;
+/* Remove this */ // std::vector<ChildTypeCount> childCounts;
+/* Remove this */  std::vector<NodeCount> nodeCounts;
+/* Remove this */  std::vector<NodeCount> edgeCounts;
+/* Remove */ // std::vector<double> timePerStep;
 public:
   TBreathFS_Hybrid(const PGraph& GraphPt, const bool& InitBigV=true) :
     Graph(GraphPt), NIdDistV(Graph->GetMxNId()+1), InitBigV(InitBigV) {
@@ -19,7 +37,7 @@ public:
     }
   }
   /// Performs BFS from node id StartNode for at maps MxDist steps by only following in-links (parameter FollowIn = true) and/or out-links (parameter FollowOut = true).
-  int DoBfs_Hybrid(const int& StartNode, const bool& FollowOut, const bool& FollowIn, const int& TargetNId=-1, const int& MxDist=TInt::Mx);
+  int DoBfs_Hybrid(const int& StartNode, const bool& FollowOut, const bool& FollowIn, const int switch1=-1, const int switch2=0, const int& TargetNId=-1, const int& MxDist=TInt::Mx);
 private:
   bool InitBigV;
   /* Private functions */
@@ -30,44 +48,54 @@ private:
 };
 
 template<class PGraph>
-int TBreathFS_Hybrid<PGraph>::DoBfs_Hybrid(const int& StartNode, const bool& FollowOut, const bool& FollowIn, const int& TargetNId, const int& MxDist) {
+int TBreathFS_Hybrid<PGraph>::DoBfs_Hybrid(const int& StartNode, const bool& FollowOut, const bool& FollowIn, const int switch1, const int switch2, const int& TargetNId, const int& MxDist) {
   StartNId = StartNode;
   IAssert(Graph->IsNode(StartNId));
   const typename PGraph::TObj::TNodeI StartNodeI = Graph->GetNI(StartNode);
   IAssertR(StartNodeI.GetOutDeg() > 0, TStr::Fmt("No neighbors from start node %d.", StartNode));
+  /* Remove */
+  IAssertR(switch1 < switch2, TStr::Fmt("Invalid switches: %d, %d.", switch1, switch2));
 
   TIntV *Frontier = new TIntV(InitBigV ? Graph->GetNodes() : 1024, 0);
   TIntV *NextFrontier = new TIntV(InitBigV ? Graph->GetNodes() : 1024, 0);
 
   NIdDistV.SetVal(StartNId, 0);
   Frontier->Add(StartNId);
+  int totalNodes = Graph->GetNodes();
   int MaxDist = -1;
-  int TotalNodes = Graph->GetNodes();
-  int Visited = 0;
-  int Stage = 0; // 0, 2: top down, 1: bottom up
+//  int totalNodes = Graph->GetNodes();
+  int visited = 0;
   while (! Frontier->Empty()) {
+    visited += Frontier->Len();
+    int unvisited = totalNodes - visited;
+    /* Remove */
+    //struct NodeCount nc = {Frontier->Len(), totalNodes - visited};
+    //nodeCounts.push_back(nc);
+//    struct NodeCount nc = {frontierEdges(Frontier), unvisitedEdges()};
+//    edgeCounts.push_back(nc);
+    /* Remove */
+    //struct ChildTypeCount c = {0, 0};
+    //childCounts.push_back(c);
     MaxDist += 1;
-    Visited += Frontier->Len();
-//    int Unvisited = TotalNodes - Visited;
+    /* Remove */
+//    struct timeval tv1, tv2;
+//    gettimeofday(&tv1, NULL);
 
     NextFrontier->Clr(false);
     if (MaxDist == MxDist) { break; } // max distance limit reached
 
-    if (Stage == 0 && (float)unvisitedEdges() / frontierEdges(Frontier) < 10) {
-      printf("Changed to bottom up at step %d\n", MaxDist);
-      Stage = 1;
-    } else if (Stage == 1 && (float)TotalNodes / Frontier->Len() > 20) {
-      printf("Changed back to top down at step %d\n", MaxDist);
-      Stage = 2;
-    }
-    // Top down or bottom up depending on stage
     bool targetFound = false;
-    if (Stage == 0 || Stage == 2) {
+    if (MaxDist < switch1 || MaxDist >= switch2) {
       targetFound = TopDownStep(Frontier, NextFrontier, MaxDist, TargetNId);
     } else {
       targetFound = BottomUpStep(Frontier, NextFrontier, MaxDist, TargetNId);
     }
     if (targetFound) break;
+
+    /* Remove */
+//    gettimeofday(&tv2, NULL);
+//    double timeDiff = (tv2.tv_sec - tv1.tv_sec) + (double)(tv2.tv_usec - tv1.tv_usec) / 1000000;
+//    timePerStep.push_back(timeDiff);
 
     // swap Frontier and NextFrontier
     TIntV *temp = Frontier;

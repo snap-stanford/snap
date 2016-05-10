@@ -30,11 +30,11 @@ int main(int argc, char* argv[]) {
   int maxDist = bfs.DoBfs_Hybrid(start, true, false);
   IAssert(maxDist == 15);
   
-  for (int i = 0; i < maxDist; i++) {
-    int frontier = bfs.nodeCounts[i].frontier;
-    int unvisited = bfs.nodeCounts[i].unvisited;
-    printf("Frontier: %d, Unvisited: %d, Unvisied/Frontier = %f, Total/Frontier = %f\n", frontier, unvisited, (float)unvisited / frontier, (float)graph->GetNodes() / frontier);
-  }
+//  for (int i = 0; i <= maxDist; i++) {
+//    int frontier = bfs.edgeCounts[i].frontier;
+//    int unvisited = bfs.edgeCounts[i].unvisited;
+//    printf("Step %d: Frontier edges: %d, Unvisited edges: %d, Unvisied/Frontier = %f\n", i, frontier, unvisited, (float)unvisited / frontier);
+//  }
 
   gettimeofday(&tv2, NULL);
   double timeDiff = timeInSeconds(tv1, tv2);
