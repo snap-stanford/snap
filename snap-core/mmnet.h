@@ -166,7 +166,7 @@ public:
     /// Returns the destination mode of the crossnet
     int GetDstModeId() const { return Graph->GetMode2(); }
     /// Returns whether the edge is directed.
-    int IsDirected() const { return Graph->IsDirected(); }
+    bool IsDirected() const { return Graph->IsDirected(); }
 
 
     friend class TCrossNet;
