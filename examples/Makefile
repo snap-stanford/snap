@@ -34,11 +34,7 @@ MakeAll:
 	$(MAKE) -C netinf
 	$(MAKE) -C netstat
 	$(MAKE) -C rolx
-	$(MAKE) -C testconv
-	$(MAKE) -C convbenchmark
-	$(MAKE) -C convbenchmarkmp
-	$(MAKE) -C tableindex
-	$(MAKE) -C testconv
+	$(MAKE) -C testgraph
 
 clean:
 	$(MAKE) clean -C agmgen

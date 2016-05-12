@@ -28,7 +28,7 @@ public:
   /// Clears the contents of the attribute map.
   void Clr() { AttrNameToId.Clr(); AttrIdToName.Clr(); IntAttrVals.Clr(); FltAttrVals.Clr(); StrAttrVals.Clr(); }
 
-  /// Returns memory used by sparse attributes.
+  /// Returns the amount of memory used by sparse attributes.
   size_t GetMemUsed() const { return AttrNameToId.GetMemUsed() + AttrIdToName.GetMemUsed() + IntAttrVals.GetMemUsed() + FltAttrVals.GetMemUsed() + StrAttrVals.GetMemUsed(); }
 
   /// Add Int attribute with name \c AttrName for the given id \c Id.
