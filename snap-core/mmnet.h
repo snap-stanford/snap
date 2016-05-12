@@ -164,7 +164,7 @@ public:
     /// Returns the destination mode of the crossnet
     int GetDstModeId() const { return Graph->GetMode2(); }
     /// Returns whether the edge is directed.
-    int IsDirected() const { return Graph->IsDirected(); }
+    bool IsDirected() const { return Graph->IsDirected(); }
 
 
     friend class TCrossNet;
@@ -601,7 +601,7 @@ public:
   PNEANet ToNetwork2(TIntV& CrossNetTypes, THash<TInt, TVec<TPair<TStr, TStr> > >& NodeAttrMap, THash<TInt, TVec<TPair<TStr, TStr> > >& EdgeAttrMap);
 
   #ifdef GCC_ATOMIC
-  PNEANetMP ToNetworkMP(TStr& CrossNetName);
+  PNEANetMP ToNetworkMP(TStrV& CrossNetNames);
   #endif // GCC_ATOMIC
 
 private:
