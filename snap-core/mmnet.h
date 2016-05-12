@@ -57,8 +57,6 @@ public:
 private:
   TModeNet(const TModeNet& Graph, bool isSubModeGraph) : TNEANet(Graph, isSubModeGraph), ModeId(Graph.ModeId), MMNet(), NeighborTypes() {}
 public:
-  void GetPartitionRanges(TIntPrV& Partitions, TInt NumPartitions) const ;
-
   /// Saves the graph to a (binary) stream SOut.
   void Save(TSOut& SOut) const {
     TNEANet::Save(SOut); ModeId.Save(SOut); NeighborTypes.Save(SOut); }
@@ -295,11 +293,11 @@ private:
   /// Get Flt edge attribute val.  If not a proper attr, return default.
   TFlt GetFltAttrDefaultE(const TStr& attribute) const { return FltDefaultsE.IsKey(attribute) ? FltDefaultsE.GetDat(attribute) : (TFlt) TFlt::Mn; }
   int GetAttrTypeE(const TStr& attr) const;
+  TCrossEdge& GetEdge(int eid) { return CrossH[eid]; }
 public:
   /// Tests whether an edge with edge ID EId exists in the graph.
   bool IsEdge(const int& EId) const { return CrossH.IsKey(EId); }
 
-  void GetPartitionRanges(TIntPrV& Partitions, TInt NumPartitions) const ;
   int GetMxEId() const { return MxEId; }
   /// Returns the number of edges in the graph.
   int GetEdges() const { return CrossH.Len(); }
@@ -603,7 +601,7 @@ public:
   PNEANet ToNetwork2(TIntV& CrossNetTypes, THash<TInt, TVec<TPair<TStr, TStr> > >& NodeAttrMap, THash<TInt, TVec<TPair<TStr, TStr> > >& EdgeAttrMap);
 
   #ifdef GCC_ATOMIC
-  PNEANet ToNetworkMP(TStr& CrossNetName);
+  PNEANetMP ToNetworkMP(TStr& CrossNetName);
   #endif // GCC_ATOMIC
 
 private:
@@ -612,6 +610,7 @@ private:
   int AddCrossNet(const TStr& CrossNetName, const TInt& CrossNetId, const TCrossNet& CrossNet);
   int AddNodeAttributes(PNEANet& NewNet, TModeNet& Net, TVec<TPair<TStr, TStr> >& Attrs, int ModeId, int oldId, int NId);
   int AddEdgeAttributes(PNEANet& NewNet, TCrossNet& Net, TVec<TPair<TStr, TStr> >& Attrs, int CrossId, int oldId, int EId);
+  void GetPartitionRanges(TIntPrV& Partitions, const TInt& NumPartitions, const TInt& MxVal) const;
 };
 
 // set flags

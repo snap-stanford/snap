@@ -1080,116 +1080,194 @@ PNEANet TMMNet::ToNetwork2(TIntV& CrossNetTypes, THash<TInt, TVec<TPair<TStr, TS
   return NewNet;
 }
 
+void TMMNet::GetPartitionRanges(TIntPrV& Partitions, const TInt& NumPartitions, const TInt& MxLen) const {
+
+  TInt PartitionSize = MxLen/NumPartitions;
+  TInt CurrStart = 0;
+  bool done = false;
+  while (!done) {
+    TInt CurrEnd = CurrStart + PartitionSize;
+    if (MxNId - CurrEnd < PartitionSize) {
+      CurrEnd = MxNId;
+      done = true;
+    }
+    Partitions.Add(TIntPr(CurrStart, CurrEnd));
+    CurrStart = CurrEnd;
+  }
+}
+
 #ifdef GCC_ATOMIC
 
-PNEANetMP TMMNet::ToNetworkMP(TStr& CrossNetName) {
+PNEANetMP TMMNet::ToNetworkMP(TStrV& CrossNetNames) {
  
-  THashMP<TIntPr, TInt> NodeMap;
-  THashMP<TIntPr, TIntPr> EdgeMap;
-  PNEANetMP NewNet = TNEANetMP::New();
- 
-  TCrossNet& CrossNet = GetCrossNetByName(CrossNetName);
-  TInt CrossNetId = GetCrossId(CrossNetName);
-  TInt Mode1 = CrossNet.GetMode1();
-  TInt Mode2 = CrossNet.GetMode2();
-  bool isDirected = CrossNet.IsDirected();
- 
-  //Mode nets
-  TModeNet& ModeNet1 = GetModeNetById(Mode1);
-  TModeNet& ModeNet2 = GetModeNetById(Mode2);
- 
-  int num_threads = omp_get_max_threads();
- 
-  TIntPrV NodePartitions1;
-  TIntPrV NodePartitions2;
-  ModeNet1.GetPartitionRanges(NodePartitions1, num_threads);
-  ModeNet2.GetPartitionRanges(NodePartitions2, num_threads);
-
-  // Add nodes, add to node map.
+  TStrIntH CrossNetStart;
+  THashSet<TInt> ModeSet;
   int offset = 0;
-  int curr_nid;
-  #pragma omp parallel for schedule(static) private(curr_nid)
-  for (int i = 0; i < NodePartitions1.Len(); i++) {
-    TInt CurrStart = NodePartitions1[i].GetVal1();
-    TInt CurrEnd = NodePartitions1[i].GetVal2();
-    curr_nid = offset + CurrStart;
-    for (int n_i = CurrStart; n_i < CurrEnd ; n_i++) {
-      if (ModeNet1.IsNode(n_i)) {
-        NewNet->AddNode(curr_nid);
-        TIntPr NodeKey(Mode1, n_i);
-        NodeMap.AddDat(NodeKey, curr_nid);
-        curr_nid++;
-      }
-    }
+  int NumEdges = 0;
+  for (int i=0; i < CrossNetNames.Len(); i++) {
+    CrossNetStart.AddDat(CrossNetNames[i], offset);
+    TCrossNet& CrossNet = GetCrossNetByName(CrossNetNames[i]);
+    int factor = CrossNet.IsDirected() ? 1 : 2;
+    offset += (CrossNet.GetMxEId() * factor);
+    NumEdges += (CrossNet.GetEdges() * factor);
+    ModeSet.Add(CrossNet.GetMode1());
+    ModeSet.Add(CrossNet.GetMode2());
   }
-  offset = ModeNet1.GetMxNId();
-  #pragma omp parallel for schedule(static) private(curr_nid)
-  for (int i = 0; i < NodePartitions2.Len(); i++) {
-    TInt CurrStart = NodePartitions2[i].GetVal1();
-    TInt CurrEnd = NodePartitions2[i].GetVal2();
-    curr_nid = offset + CurrStart;
-    for (int n_i = CurrStart; n_i < CurrEnd ; n_i++) {
-      if (ModeNet2.IsNode(n_i)) {
-        NewNet->AddNode(curr_nid);
-        TIntPr NodeKey(Mode2, n_i);
-        NodeMap.AddDat(NodeKey, curr_nid);
-        curr_nid++;
-      }
-    }
+  int MxEId = offset;
+
+  int NumNodes = 0;
+  for (THashSet<TInt>::TIter MI = ModeSet.BegI(); MI < ModeSet.EndI(); MI++) {
+    TModeNet& ModeNet = GetModeNetById(MI.GetDat());
+    NumNodes += ModeNet.GetNodes();
   }
- 
-  TIntPrV EdgePartitions;
-  CrossNet.GetPartitionRanges(EdgePartitions, num_threads);
- 
-  // Add edges, add edges to edge map.
-  int curr_eid;
+
+  THashMP<TIntPr, TInt> NodeMap(NumNodes);
+  THashMP<TIntPr, TIntPr> EdgeMap(NumEdges);
+  PNEANetMP NewNet = TNEANetMP::New();
+
+  int num_threads = omp_get_max_threads();
   offset = 0;
-  int factor = isDirected ? 1 : 2;
-  #pragma omp parallel for schedule(static) private(curr_eid)
-  for (int i = 0; i < EdgePartitions.Len(); i++) {
-    TInt CurrStart = EdgePartitions[i].GetVal1();
-    TInt CurrEnd = EdgePartitions[i].GetVal2();
-    curr_eid = offset + factor*CurrStart;
-    for (int e_i = CurrStart; e_i < CurrEnd ; e_i++) {
-      if (CrossNet.IsEdge(e_i)) {
-        int new_eid = curr_eid;
-        TIntPr EdgeKey(CrossNetId, e_i);
-        TCrossNet::TCrossEdgeI edge = CrossNet.GetEdgeI(e_i);
-        int srcNode = edge.GetSrcNId();
-        int dstNode = edge.GetDstNId();
-        TIntPr NodeKeySrc(Mode1, srcNode);
-        TIntPr NodeKeyDst(Mode1, dstNode);
-        int newSrc = NodeMap.GetDat(NodeKeySrc);
-        int newDst = NodeMap.GetDat(NodeKeyDst);
-        NewNet->AddEdge(newSrc, newDst, curr_eid);
-        curr_eid++;
-        int otherEId = -1;
-        if (!isDirected) {
-          otherEId = curr_eid;
-          curr_eid++;
-          NewNet->AddEdge(newDst, newSrc, otherEId);
+  for (THashSet<TInt>::TIter MI = ModeSet.BegI(); MI < ModeSet.EndI(); MI++) {
+    TInt ModeId = MI.GetDat();
+    TModeNet& ModeNet = GetModeNetById(ModeId);
+    TIntV KeyIds;
+    ModeNet.NodeH.GetKeyV(KeyIds);
+
+    TIntPrV NodePartitions;
+    GetPartitionRanges(NodePartitions, num_threads, KeyIds.Len());
+
+    int curr_nid;
+    #pragma omp parallel for schedule(static) private(curr_nid)
+    for (int i = 0; i < NodePartitions.Len(); i++) {
+      TInt CurrStart = NodePartitions[i].GetVal1();
+      TInt CurrEnd = NodePartitions[i].GetVal2();
+      curr_nid = offset + CurrStart;
+      for (int idx = CurrStart; idx < CurrEnd ; idx++) {
+        int n_i = KeyIds[idx];
+        if (ModeNet.IsNode(n_i)) {
+          //Collect neighbors
+          TIntV InNbrs;
+          TIntV OutNbrs;
+          for (int j=0; j < CrossNetNames.Len(); j++) {
+            if (ModeNet.NeighborTypes.IsKey(CrossNetNames[j])) {
+              if (ModeNetNeighborTypes[CrossNetNames[j]] == true) {
+                
+                TIntV Neighbors;
+                GetNeighborsByCrossNet(n_i, CrossNetNames[j], Neighbors);
+                int edge_offset = CrossNetStart[CrossNetNames[j]];
+                TCrossNet CrossNet = GetCrossNetByName(CrossNetNames[j]);
+                boolean isDir = CrossNet.IsDirected();
+                boolean isOutNbr = CrossNet.GetMode1() == ModeId;
+                int factor = isDir ? 1 : 2;
+
+                int id_offset = isDir || isOutNbr ? 0 : 1;
+                if (!isDir && CrossNet.GetMode1() == CrossNet.GetMode2()) {
+                  id_offset = n_i == CrossNet.GetEdge(n_i).GetSrcNId() ? 0 : 1;
+                }
+
+                for (int k = 0; k < Neighbors.Len(); k++) {
+                  if (isOutNbr && id_offset == 0) {
+                    OutNbrs.Add(edge_offset + Neighbors[k]*factor + id_offset);
+                  } else {
+                    InBrs.Add(edge_offset + Neighbors[k]*factor + id_offset);
+                  }
+                  if (!isDir) {
+                    int opp_offset = id_offset == 1 ? 0 : 1;
+                    if (isOutNbr && id_offset == 0) {
+                      InNbrs.Add(edge_offset + Neighbors[k]*factor + opp_offset);
+                    } else {
+                      OutBrs.Add(edge_offset + Neighbors[k]*factor + opp_offset);
+                    }
+                  }
+                }
+              } else {
+                TIntV TempOut;
+                GetNeighborsByCrossNet(n_i, CrossNetNames[j], TempOut, true);
+                OutNbrs.AddV(TempOut);
+                TIntV TempIn;
+                GetNeighborsByCrossNet(n_i, CrossNetNames[j], TempIn, false);
+                InNbrs.AddV(TempIn);
+              }
+            }
+          }
+
+          NewNet->AddNodeWithEdges(curr_nid, InNbrs, OutNbrs);
+          TIntPr NodeKey(MI.GetDat(), n_i);
+          NodeMap.AddDat(NodeKey, curr_nid);
+          curr_nid++;
         }
-        EdgeMap.AddDat(EdgeKey, TIntPr(new_eid, otherEId));
+      }
+    }
+    offset += KeyIds.Len();
+  }
+  Graph->SetNodes(offset);
+
+  for (int j=0; j < CrossNetNames.Len(); j++) {
+    TCrossNet& CrossNet = GetCrossNetByName(CrossNetName);
+    TInt CrossNetId = GetCrossId(CrossNetName);
+    TInt Mode1 = CrossNet.GetMode1();
+    TInt Mode2 = CrossNet.GetMode2();
+
+    TIntPrV EdgePartitions;
+    GetPartitionRanges(EdgePartitions, num_threads, CrossNet.MxEId);
+    int curr_eid;
+    offset = CrossNetStart[CrossNetNames[j]];
+    int factor = isDirected ? 1 : 2;
+    #pragma omp parallel for schedule(static) private(curr_eid)
+    for (int i = 0; i < EdgePartitions.Len(); i++) {
+      TInt CurrStart = EdgePartitions[i].GetVal1();
+      TInt CurrEnd = EdgePartitions[i].GetVal2();
+      for (int e_i = CurrStart; e_i < CurrEnd ; e_i++) {
+        curr_eid = offset + factor*CurrStart;
+        if (CrossNet.IsEdge(e_i)) {
+          int new_eid = curr_eid;
+          TIntPr EdgeKey(CrossNetId, e_i);
+          TCrossNet::TCrossEdgeI edge = CrossNet.GetEdgeI(e_i);
+          int srcNode = edge.GetSrcNId();
+          int dstNode = edge.GetDstNId();
+          TIntPr NodeKeySrc(Mode1, srcNode);
+          TIntPr NodeKeyDst(Mode1, dstNode);
+          int newSrc = NodeMap.GetDat(NodeKeySrc);
+          int newDst = NodeMap.GetDat(NodeKeyDst);
+          NewNet->AddEdge(newSrc, newDst, curr_eid);
+          curr_eid++;
+          int otherEId = -1;
+          if (!isDirected) {
+            otherEId = curr_eid;
+            NewNet->AddEdge(newDst, newSrc, otherEId);
+          }
+          EdgeMap.AddDat(EdgeKey, TIntPr(new_eid, otherEId));
+        }
       }
     }
   }
- 
- 
+  Graph->SetEdges(MxEId);
+
   //Add attributes
   NewNet->AddIntAttrN(TStr("Mode"));
   NewNet->AddIntAttrN(TStr("Id"));
   NewNet->AddIntAttrE(TStr("CrossNet"));
   NewNet->AddIntAttrE(TStr("Id"));
-  for(THashMP<TIntPr, TInt>::TIter it = NodeMap.BegI(); it != NodeMap.EndI(); it++) {
-    NewNet->AddIntAttrDatN(it.GetDat(), it.GetKey().GetVal1(), TStr("Mode"));
-    NewNet->AddIntAttrDatN(it.GetDat(), it.GetKey().GetVal2(), TStr("Id"));
+
+  TIntPrV NewNodeIds;
+  NodeMap.GetKeyV(NewNodeIds);
+
+  #pragma omp parallel for schedule(static)
+  for(int i = 0; i < NewNodeIds.Len(); i++) {
+    NewNet->AddIntAttrDatN(NodeMap.GetDat(NewNodeIds[i]), NewNodeIds[i].GetVal1(), TStr("Mode"));
+    NewNet->AddIntAttrDatN(NodeMap.GetDat(NewNodeIds[i]), NewNodeIds[i].GetVal2(), TStr("Id"));
   }
-  for(THashMP<TIntPr, TIntPr>::TIter it = EdgeMap.BegI(); it != EdgeMap.EndI(); it++) {
-    NewNet->AddIntAttrDatE(it.GetDat().GetVal1(), it.GetKey().GetVal1(), TStr("CrossNet"));
-    NewNet->AddIntAttrDatE(it.GetDat().GetVal1(), it.GetKey().GetVal2(), TStr("Id"));
+
+
+  TIntPrV NewEdgeIds;
+  EdgeMap.GetKeyV(NewEdgeIds);
+  #pragma omp parallel for schedule(static)
+  for(int i = 0; i < NewEdgeIds.Len(); i++) {
+    NewNet->AddIntAttrDatE(EdgeMap.GetDat(NewEdgeIds[i]).GetVal1(), NewEdgeIds[i].GetVal1(), TStr("CrossNet"));
+    NewNet->AddIntAttrDatE(EdgeMap.GetDat(NewEdgeIds[i]).GetVal1(), NewEdgeIds[i].GetVal2(), TStr("Id"));
     if (it.GetDat().GetVal2() != -1) {
-      NewNet->AddIntAttrDatE(it.GetDat().GetVal2(), it.GetKey().GetVal1(), TStr("CrossNet"));
-      NewNet->AddIntAttrDatE(it.GetDat().GetVal2(), it.GetKey().GetVal2(), TStr("Id"));
+      NewNet->AddIntAttrDatE(EdgeMap.GetDat(NewEdgeIds[i]).GetVal2(), NewEdgeIds[i].GetVal1(), TStr("CrossNet"));
+      NewNet->AddIntAttrDatE(EdgeMap.GetDat(NewEdgeIds[i]).GetVal2(), NewEdgeIds[i].GetVal2(), TStr("Id"));
     }
   }
   return NewNet;
