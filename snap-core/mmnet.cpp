@@ -1188,7 +1188,7 @@ PNEANetMP TMMNet::ToNetworkMP(TStrV& CrossNetNames) {
       TInt CurrStart = EdgePartitions[i].GetVal1();
       TInt CurrEnd = EdgePartitions[i].GetVal2();
       for (int e_i = CurrStart; e_i < CurrEnd ; e_i++) {
-        curr_eid = offset + factor*CurrStart;
+        curr_eid = offset + factor*e_i;
         if (CrossNet.IsEdge(e_i)) {
           int new_eid = curr_eid;
           TIntPr EdgeKey(CrossNetId, e_i);
@@ -1196,7 +1196,7 @@ PNEANetMP TMMNet::ToNetworkMP(TStrV& CrossNetNames) {
           int srcNode = edge.GetSrcNId();
           int dstNode = edge.GetDstNId();
           TIntPr NodeKeySrc(Mode1, srcNode);
-          TIntPr NodeKeyDst(Mode1, dstNode);
+          TIntPr NodeKeyDst(Mode2, dstNode);
           int newSrc = NodeMap.GetDat(NodeKeySrc);
           int newDst = NodeMap.GetDat(NodeKeyDst);
           NewNet->AddEdgeUnchecked(curr_eid, newSrc, newDst);
@@ -1212,8 +1212,10 @@ PNEANetMP TMMNet::ToNetworkMP(TStrV& CrossNetNames) {
     }
   }
   NewNet->SetEdges(MxEId);
+  NewNet->ReserveAttr(2, 0, 0, 2, 0, 0);
+
   //Add attributes
-  /*NewNet->AddIntAttrN(TStr("Mode"));
+  NewNet->AddIntAttrN(TStr("Mode"));
   NewNet->AddIntAttrN(TStr("Id"));
   NewNet->AddIntAttrE(TStr("CrossNet"));
   NewNet->AddIntAttrE(TStr("Id"));
@@ -1232,13 +1234,13 @@ PNEANetMP TMMNet::ToNetworkMP(TStrV& CrossNetNames) {
   EdgeMap.GetKeyV(NewEdgeIds);
   #pragma omp parallel for schedule(static)
   for(int i = 0; i < NewEdgeIds.Len(); i++) {
-    NewNet->AddIntAttrDatE(EdgeMap.GetDat(NewEdgeIds[i]).GetVal1(), NewEdgeIds[i].GetVal1(), TStr("CrossNet"));
     NewNet->AddIntAttrDatE(EdgeMap.GetDat(NewEdgeIds[i]).GetVal1(), NewEdgeIds[i].GetVal2(), TStr("Id"));
+    NewNet->AddIntAttrDatE(EdgeMap.GetDat(NewEdgeIds[i]).GetVal1(), NewEdgeIds[i].GetVal1(), TStr("CrossNet"));
     if (EdgeMap.GetDat(NewEdgeIds[i]).GetVal2() != -1) {
       NewNet->AddIntAttrDatE(EdgeMap.GetDat(NewEdgeIds[i]).GetVal2(), NewEdgeIds[i].GetVal1(), TStr("CrossNet"));
       NewNet->AddIntAttrDatE(EdgeMap.GetDat(NewEdgeIds[i]).GetVal2(), NewEdgeIds[i].GetVal2(), TStr("Id"));
     }
-  }*/
+  }
   return NewNet;
 }
 
