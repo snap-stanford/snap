@@ -37,7 +37,7 @@ public:
     }
   }
   /// Performs BFS from node id StartNode for at maps MxDist steps by only following in-links (parameter FollowIn = true) and/or out-links (parameter FollowOut = true).
-  int DoBfs_Hybrid(const int& StartNode, const bool& FollowOut, const bool& FollowIn, const int switch1=-1, const int switch2=0, const int& TargetNId=-1, const int& MxDist=TInt::Mx);
+  int DoBfs_Hybrid_Test(const int& StartNode, const bool& FollowOut, const bool& FollowIn, int switch1=-1, int switch2=0, const int& TargetNId=-1, const int& MxDist=TInt::Mx);
 private:
   bool InitBigV;
   /* Private functions */
@@ -48,7 +48,7 @@ private:
 };
 
 template<class PGraph>
-int TBreathFS_Hybrid<PGraph>::DoBfs_Hybrid(const int& StartNode, const bool& FollowOut, const bool& FollowIn, const int switch1, const int switch2, const int& TargetNId, const int& MxDist) {
+int TBreathFS_Hybrid<PGraph>::DoBfs_Hybrid_Test(const int& StartNode, const bool& FollowOut, const bool& FollowIn, int switch1, int switch2, const int& TargetNId, const int& MxDist) {
   StartNId = StartNode;
   IAssert(Graph->IsNode(StartNId));
   const typename PGraph::TObj::TNodeI StartNodeI = Graph->GetNI(StartNode);
@@ -69,8 +69,8 @@ int TBreathFS_Hybrid<PGraph>::DoBfs_Hybrid(const int& StartNode, const bool& Fol
     visited += Frontier->Len();
     int unvisited = totalNodes - visited;
     /* Remove */
-    //struct NodeCount nc = {Frontier->Len(), totalNodes - visited};
-    //nodeCounts.push_back(nc);
+//    struct NodeCount nc = {Frontier->Len(), unvisited};
+//    nodeCounts.push_back(nc);
 //    struct NodeCount nc = {frontierEdges(Frontier), unvisitedEdges()};
 //    edgeCounts.push_back(nc);
     /* Remove */

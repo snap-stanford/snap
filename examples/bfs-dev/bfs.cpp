@@ -15,7 +15,7 @@ int main(int argc, char* argv[]) {
 
   printf("Creating graph for Live Journal\n");
 
-  TFIn FIn("livejournal_scc.graph");
+  TFIn FIn("data/livejournal_scc.graph");
   PGraph graph = TNGraph::Load(FIn);
   IAssert(graph->IsOk());
   printf("Graph (%d, %d)\n", graph->GetNodes(), graph->GetEdges());

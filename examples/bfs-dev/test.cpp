@@ -11,45 +11,66 @@ double timeInSeconds(struct timeval &tv1, struct timeval &tv2) {
   return diff;
 }
 
+template <class PGraph>
+bool checkResults(TBreathFS_Hybrid<PGraph> &bfs_hybrid, TBreathFS<PGraph> &bfs) {
+  for (TIntH::TIter it = bfs.NIdDistH.BegI(); it < bfs.NIdDistH.EndI(); it++) {
+    int key = it.GetKey();
+    if (bfs.NIdDistH[key]() != bfs_hybrid.NIdDistV[key]()) {
+      printf("Key: %d, BFS: %d, Hybrid: %d\n", key, bfs.NIdDistH[key](), bfs_hybrid.NIdDistV[key]());
+      return false;
+    }
+  }
+  return true;
+}
+
 int main(int argc, char* argv[]) {
   typedef PNGraph PGraph;  //   directed graph
 
-  printf("Creating graph for Twitter\n");
+  printf("Creating graph for Livejournal\n");
 
-  TFIn FIn("twitter_scc.graph");
+  TFIn FIn("data/livejournal_scc.graph");
   PGraph graph = TNGraph::Load(FIn);
   IAssert(graph->IsOk());
-  printf("Graph (%d, %d)\n", graph->GetNodes(), graph->GetEdges());
 
-  int start = 59102400;
+  int iters = 1;
+  for (int k = 0; k < iters; k++) {
+    int start = graph->GetRndNId();
+    printf("Start node: %d\n", start);
 
-  for (int i = 0; i < 16; i++) {
-    for (int j = i + 1; j < 17; j++) {
-//      struct timeval tv1, tv2;
-//      gettimeofday(&tv1, NULL);
+    /* Hybrid */
+    struct timeval tv1, tv2;
+    gettimeofday(&tv1, NULL);
 
-      TBreathFS_Hybrid<PGraph> bfs(graph, true);
-      int maxDist = bfs.DoBfs_Hybrid(start, true, false, i, j);
-      IAssert(maxDist == 15);
+    TBreathFS_Hybrid<PGraph> bfs_hybrid(graph, true);
+    int maxDist_hybrid = bfs_hybrid.DoBfs_Hybrid(start, true, false);
 
-      printf("Switch points: %d, %d\n", i, j);
-      int totalClaimed = 0;
-      int totalFailed = 0;
-      for (int step = 0; step <= maxDist; step++) {
-        int claimed = bfs.childCounts[step].claimed;
-        int failed = bfs.childCounts[step].failed;
-        printf("Step %d: Claimed: %f%% (%d, %d)\n", step, (double)claimed / (claimed + failed) * 100, claimed, failed);
-        totalClaimed += claimed;
-        totalFailed += failed;
-      }
-      printf("Total: Claimed: %f%% (%d, %d)\n\n", (double)totalClaimed / (totalClaimed + totalFailed) * 100, totalClaimed, totalFailed);
+    gettimeofday(&tv2, NULL);
+    double time_hybrid = timeInSeconds(tv1, tv2);
 
-//      gettimeofday(&tv2, NULL);
-//      double timeDiff = timeInSeconds(tv1, tv2);
+    /* Original */
+    gettimeofday(&tv1, NULL);
+
+    TBreathFS<PGraph> bfs(graph, true);
+    int maxDist = bfs.DoBfs(start, true, false);
+    int d = bfs.NIdDistH[start]();
+    printf("Start distance: %d\n", d);
+
+    gettimeofday(&tv2, NULL);
+    double time = timeInSeconds(tv1, tv2);
+
+    /* Check results */
+    if (maxDist_hybrid != maxDist) {
+      printf("No!!! MaxDist incorrect!\n");
+      break;
     }
-  }
+    if (!checkResults<PGraph>(bfs_hybrid, bfs)) {
+      printf("No!!! Results incorrect!\n");
+      break;
+    }
 
-//  printf("Start node: %d\nMax Distance: %d\nTime spent: %f\n", start, maxDist, timeDiff);
+    printf("Original: %.4f, Hybrid: %.4f\n", time, time_hybrid);
+
+  }
 
   return 0;
 }

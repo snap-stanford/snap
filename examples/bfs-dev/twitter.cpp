@@ -16,7 +16,7 @@ int main(int argc, char* argv[]) {
 
   printf("Creating graph for Twitter\n");
 
-  TFIn FIn("twitter_scc.graph");
+  TFIn FIn("data/twitter_scc.graph");
   PGraph graph = TNGraph::Load(FIn);
   IAssert(graph->IsOk());
   printf("Graph (%d, %d)\n", graph->GetNodes(), graph->GetEdges());
@@ -29,7 +29,7 @@ int main(int argc, char* argv[]) {
   TBreathFS_Hybrid<PGraph> bfs(graph, true);
   int maxDist = bfs.DoBfs_Hybrid(start, true, false);
   IAssert(maxDist == 15);
-  
+
 //  for (int i = 0; i <= maxDist; i++) {
 //    int frontier = bfs.edgeCounts[i].frontier;
 //    int unvisited = bfs.edgeCounts[i].unvisited;
