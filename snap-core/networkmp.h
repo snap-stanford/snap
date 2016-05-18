@@ -521,6 +521,16 @@ public:
   /// Reserves memory for a graph of Nodes nodes and Edges edges.
   void Reserve(const int& Nodes, const int& Edges) {
     if (Nodes>0) { NodeH.Gen(Nodes); } if (Edges>0) { EdgeH.Gen(Edges); } }
+  /// Reserves memory for dense attributes.
+  void ReserveAttr(const int& NIntAttr, const int& NFltAttr, const int& NStrAttr, const int& EIntAttr,
+       const int& EFltAttr, const int& EStrAttr) {
+    if (NIntAttr > 0) { IntDefaultsN.Gen(NIntAttr); }
+    if (NFltAttr > 0) { FltDefaultsN.Gen(NFltAttr); }
+    if (NStrAttr > 0) { StrDefaultsN.Gen(NStrAttr); }
+    if (EIntAttr > 0) { IntDefaultsE.Gen(EIntAttr); }
+    if (EFltAttr > 0) { FltDefaultsE.Gen(EFltAttr); }
+    if (EStrAttr > 0) { StrDefaultsE.Gen(EStrAttr); }
+  }
 //  /// Defragments the graph. ##TNEANetMP::Defrag
   void Defrag(const bool& OnlyNodeLinks=false);
   /// Checks the graph data structure for internal consistency. ##TNEANetMP::IsOk

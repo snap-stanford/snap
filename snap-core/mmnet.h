@@ -57,8 +57,6 @@ public:
 private:
   TModeNet(const TModeNet& Graph, bool isSubModeGraph) : TNEANet(Graph, isSubModeGraph), ModeId(Graph.ModeId), MMNet(), NeighborTypes() {}
 public:
-  void GetPartitionRanges(TIntPrV& Partitions, TInt NumPartitions) const ;
-
   /// Saves the graph to a (binary) stream SOut.
   void Save(TSOut& SOut) const {
     TNEANet::Save(SOut); ModeId.Save(SOut); NeighborTypes.Save(SOut); }
@@ -294,11 +292,11 @@ private:
   /// Gets Flt edge attribute val.  If not a proper attr, return default.
   TFlt GetFltAttrDefaultE(const TStr& attribute) const { return FltDefaultsE.IsKey(attribute) ? FltDefaultsE.GetDat(attribute) : (TFlt) TFlt::Mn; }
   int GetAttrTypeE(const TStr& attr) const;
+  TCrossEdge& GetEdge(int eid) { return CrossH[eid]; }
 public:
   /// Tests whether an edge with edge ID EId exists in the graph.
   bool IsEdge(const int& EId) const { return CrossH.IsKey(EId); }
 
-  void GetPartitionRanges(TIntPrV& Partitions, TInt NumPartitions) const ;
   int GetMxEId() const { return MxEId; }
   /// Returns the number of edges in the graph.
   int GetEdges() const { return CrossH.Len(); }
@@ -602,12 +600,17 @@ public:
   /// Converts multimodal network to TNEANet; as attr names can collide, AttrMap specifies the Mode/Cross Id -> vec of pairs (old att name, new attr name)
   PNEANet ToNetwork2(TIntV& CrossNetTypes, THash<TInt, TVec<TPair<TStr, TStr> > >& NodeAttrMap, THash<TInt, TVec<TPair<TStr, TStr> > >& EdgeAttrMap);
 
+  #ifdef GCC_ATOMIC
+  PNEANetMP ToNetworkMP(TStrV& CrossNetNames);
+  #endif // GCC_ATOMIC
+
 private:
   void ClrNbr(const TInt& ModeId, const TInt& CrossNetId, const bool& outEdge, const bool& sameMode, bool& isDir);
   int AddMode(const TStr& ModeName, const TInt& ModeId, const TModeNet& ModeNet);
   int AddCrossNet(const TStr& CrossNetName, const TInt& CrossNetId, const TCrossNet& CrossNet);
   int AddNodeAttributes(PNEANet& NewNet, TModeNet& Net, TVec<TPair<TStr, TStr> >& Attrs, int ModeId, int oldId, int NId);
   int AddEdgeAttributes(PNEANet& NewNet, TCrossNet& Net, TVec<TPair<TStr, TStr> >& Attrs, int CrossId, int oldId, int EId);
+  void GetPartitionRanges(TIntPrV& Partitions, const TInt& NumPartitions, const TInt& MxVal) const;
 };
 
 // set flags

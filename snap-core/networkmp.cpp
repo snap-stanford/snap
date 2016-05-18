@@ -438,6 +438,7 @@ int TNEANetMP::AddEdge(const int& SrcNId, const int& DstNId, int EId) {
 void TNEANetMP::AddEdgeUnchecked(const TInt& EId, const int SrcNId, const int DstNId) {
   int Idx = abs((EId.GetPrimHashCd()) % ReservedE());
   int KeyId = EdgeH.AddKey13(Idx, EId);
+  MxEId = TMath::Mx(EId+1, MxEId());
   EdgeH[KeyId] = TEdge(EId, SrcNId, DstNId);
 }
 
