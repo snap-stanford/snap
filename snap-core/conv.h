@@ -1000,7 +1000,7 @@ inline PGraphMP ToNetworkMP(PTable Table,
         TInt DstId = RowI.GetIntAttr(DstColIdx);
         Graph->AddEdgeUnchecked(RowId, SrcId, DstId);
         RowI++;
-		    for (TInt ea_i = 0; ea_i < EdgeAttrV.Len(); ea_i++) {
+		for (TInt ea_i = 0; ea_i < EdgeAttrV.Len(); ea_i++) {
           TStr ColName = EdgeAttrV[ea_i];
           TAttrType T = Table->GetColType(ColName);
           TInt Index = Table->GetColIdx(ColName);
