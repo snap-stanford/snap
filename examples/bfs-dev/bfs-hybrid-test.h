@@ -1,101 +1,83 @@
-#include <vector>
-#include <stdio.h>
-
-/* Remove */
-#define NUM_ITERS 100
-
-/* Remove this */
-struct ChildTypeCount {
-  int claimed;
-  int failed;
-};
-
-struct NodeCount {
-  int frontier;
-  int unvisited;
-};
-
-
 //#//////////////////////////////////////////////
 /// Breath-First-Search class.
 /// The class is meant for executing many BFSs over a fixed graph. This means that the class can keep the hash tables and queues initialized between different calls of the DoBfs() function.
 template<class PGraph>
-class TBreathFS_Hybrid {
+class TBreathFS_Hybrid_Test {
 public:
   PGraph Graph;
   TInt StartNId;
   TIntV NIdDistV;
-/* Remove this */ // std::vector<ChildTypeCount> childCounts;
-/* Remove this */  std::vector<NodeCount> nodeCounts;
-/* Remove this */  std::vector<NodeCount> edgeCounts;
-/* Remove */ // std::vector<double> timePerStep;
 public:
-  TBreathFS_Hybrid(const PGraph& GraphPt, const bool& InitBigV=true) :
+  TBreathFS_Hybrid_Test(const PGraph& GraphPt, const bool& InitBigV=true) :
     Graph(GraphPt), NIdDistV(Graph->GetMxNId()+1), InitBigV(InitBigV) {
     for (int i = 0; i < NIdDistV.Len(); i++) {
       NIdDistV.SetVal(i, -1);
     }
   }
   /// Performs BFS from node id StartNode for at maps MxDist steps by only following in-links (parameter FollowIn = true) and/or out-links (parameter FollowOut = true).
-  int DoBfs_Hybrid_Test(const int& StartNode, const bool& FollowOut, const bool& FollowIn, int switch1=-1, int switch2=0, const int& TargetNId=-1, const int& MxDist=TInt::Mx);
+  int DoBfs_Hybrid_Test(const int& StartNode, const bool& FollowOut, const bool& FollowIn, const int& TargetNId=-1, const int& MxDist=TInt::Mx);
 private:
   bool InitBigV;
+  int Stage; // 0, 2: top down, 1: bottom up
+  unsigned int FrontierOutDegrees;
+  unsigned int UnvisitedInDegrees;
+  static const unsigned int alpha = 10;
+  static const unsigned int beta = 20;
+
   /* Private functions */
-  bool TopDownStep(TIntV *Frontier, TIntV *NextFrontier, int& MaxDist, const int& TargetNId);
-  bool BottomUpStep(TIntV *Frontier, TIntV *NextFrontier, int& MaxDist, const int& TargetNId);
-  int frontierEdges(TIntV *Frontier);
-  int unvisitedEdges();
+  bool TopDownStep(TIntV *Frontier, TIntV *NextFrontier, int& MaxDist, const int& TargetNId, const bool& FollowOut, const bool& FollowIn);
+  bool BottomUpStep(TIntV *Frontier, TIntV *NextFrontier, int& MaxDist, const int& TargetNId, const bool& FollowOut, const bool& FollowIn);
 };
 
 template<class PGraph>
-int TBreathFS_Hybrid<PGraph>::DoBfs_Hybrid_Test(const int& StartNode, const bool& FollowOut, const bool& FollowIn, int switch1, int switch2, const int& TargetNId, const int& MxDist) {
+int TBreathFS_Hybrid_Test<PGraph>::DoBfs_Hybrid_Test(const int& StartNode, const bool& FollowOut, const bool& FollowIn, const int& TargetNId, const int& MxDist) {
   StartNId = StartNode;
   IAssert(Graph->IsNode(StartNId));
+  if (TargetNId == StartNode) return 0;
   const typename PGraph::TObj::TNodeI StartNodeI = Graph->GetNI(StartNode);
-  IAssertR(StartNodeI.GetOutDeg() > 0, TStr::Fmt("No neighbors from start node %d.", StartNode));
-  /* Remove */
-  IAssertR(switch1 < switch2, TStr::Fmt("Invalid switches: %d, %d.", switch1, switch2));
 
   TIntV *Frontier = new TIntV(InitBigV ? Graph->GetNodes() : 1024, 0);
   TIntV *NextFrontier = new TIntV(InitBigV ? Graph->GetNodes() : 1024, 0);
 
+  FrontierOutDegrees = 0;
+  UnvisitedInDegrees = 0;
+  if (FollowOut) {
+    FrontierOutDegrees += StartNodeI.GetOutDeg();
+    UnvisitedInDegrees += Graph->GetEdges() - StartNodeI.GetInDeg();
+  }
+  if (FollowIn) {
+    FrontierOutDegrees += StartNodeI.GetInDeg();
+    UnvisitedInDegrees += Graph->GetEdges() - StartNodeI.GetOutDeg();
+  }
+
   NIdDistV.SetVal(StartNId, 0);
   Frontier->Add(StartNId);
-  int totalNodes = Graph->GetNodes();
+  Stage = 0;
   int MaxDist = -1;
-//  int totalNodes = Graph->GetNodes();
-  int visited = 0;
+  const unsigned int TotalNodes = Graph->GetNodes();
   while (! Frontier->Empty()) {
-    visited += Frontier->Len();
-    int unvisited = totalNodes - visited;
-    /* Remove */
-//    struct NodeCount nc = {Frontier->Len(), unvisited};
-//    nodeCounts.push_back(nc);
-//    struct NodeCount nc = {frontierEdges(Frontier), unvisitedEdges()};
-//    edgeCounts.push_back(nc);
-    /* Remove */
-    //struct ChildTypeCount c = {0, 0};
-    //childCounts.push_back(c);
     MaxDist += 1;
-    /* Remove */
-//    struct timeval tv1, tv2;
-//    gettimeofday(&tv1, NULL);
-
     NextFrontier->Clr(false);
     if (MaxDist == MxDist) { break; } // max distance limit reached
 
-    bool targetFound = false;
-    if (MaxDist < switch1 || MaxDist >= switch2) {
-      targetFound = TopDownStep(Frontier, NextFrontier, MaxDist, TargetNId);
-    } else {
-      targetFound = BottomUpStep(Frontier, NextFrontier, MaxDist, TargetNId);
+    if (Stage == 0 && UnvisitedInDegrees / FrontierOutDegrees < alpha) {
+      Stage = 1;
+    } else if (Stage == 1 && TotalNodes / Frontier->Len() > beta) {
+      Stage = 2;
     }
-    if (targetFound) break;
 
-    /* Remove */
-//    gettimeofday(&tv2, NULL);
-//    double timeDiff = (tv2.tv_sec - tv1.tv_sec) + (double)(tv2.tv_usec - tv1.tv_usec) / 1000000;
-//    timePerStep.push_back(timeDiff);
+    // Top down or bottom up depending on stage
+    FrontierOutDegrees = 0;
+    bool targetFound = false;
+    if (Stage == 0 || Stage == 2) {
+      targetFound = TopDownStep(Frontier, NextFrontier, MaxDist, TargetNId, FollowOut, FollowIn);
+    } else {
+      targetFound = BottomUpStep(Frontier, NextFrontier, MaxDist, TargetNId, FollowOut, FollowIn);
+    }
+    if (targetFound) {
+      MaxDist = NIdDistV[TargetNId];
+      break;
+    }
 
     // swap Frontier and NextFrontier
     TIntV *temp = Frontier;
@@ -105,45 +87,45 @@ int TBreathFS_Hybrid<PGraph>::DoBfs_Hybrid_Test(const int& StartNode, const bool
   
   delete Frontier;
   delete NextFrontier;
-
   return MaxDist;
 }
 
 template<class PGraph>
-bool TBreathFS_Hybrid<PGraph>::TopDownStep(TIntV *Frontier, TIntV *NextFrontier, int& MaxDist, const int& TargetNId) {
+bool TBreathFS_Hybrid_Test<PGraph>::TopDownStep(TIntV *Frontier, TIntV *NextFrontier, int& MaxDist, const int& TargetNId, const bool& FollowOut, const bool& FollowIn) {
   for (TIntV::TIter it = Frontier->BegI(); it != Frontier->EndI(); ++it) { // loop over frontier
     const int NId = *it;
     const int Dist = NIdDistV[NId];
     IAssert(Dist == MaxDist); // Must equal to MaxDist
     const typename PGraph::TObj::TNodeI NodeI = Graph->GetNI(NId);
-    for (int v = 0; v < NodeI.GetOutDeg(); v++) {
-      const int NeighborNId = NodeI.GetOutNId(v);
-      if (NIdDistV[NeighborNId] == -1) {
-        NIdDistV.SetVal(NeighborNId, Dist+1);
-        if (NeighborNId == TargetNId) return true;
-        NextFrontier->Add(NeighborNId);
-        /* Remove */
-        //childCounts[MaxDist].claimed += 1;
+    if (FollowOut) {
+      for (int v = 0; v < NodeI.GetOutDeg(); v++) {
+        const int NeighborNId = NodeI.GetOutNId(v);
+        if (NIdDistV[NeighborNId] == -1) {
+          NIdDistV.SetVal(NeighborNId, Dist+1);
+          if (NeighborNId == TargetNId) return true;
+          NextFrontier->Add(NeighborNId);
+          // update FrontierOutDegrees, UnvisitedInDegrees
+          if (Stage == 0) {
+            typename PGraph::TObj::TNodeI NeighborNodeI = Graph->GetNI(NeighborNId);
+            FrontierOutDegrees += NeighborNodeI.GetOutDeg();
+            UnvisitedInDegrees -= NeighborNodeI.GetInDeg();
+          }
+        }
       }
     }
-  }
-  return false;
-}
-
-template<class PGraph>
-bool TBreathFS_Hybrid<PGraph>::BottomUpStep(TIntV *Frontier, TIntV *NextFrontier, int& MaxDist, const int& TargetNId) {
-  for (TNGraph::TNodeI NodeI = Graph->BegNI(); NodeI < Graph->EndNI(); NodeI++) {
-    const int NId = NodeI.GetId();
-    if (NIdDistV[NId] == -1) {
+    if (FollowIn) {
       for (int v = 0; v < NodeI.GetInDeg(); v++) {
-        const int ParentNId = NodeI.GetInNId(v);
-        if (NIdDistV[ParentNId] == MaxDist) {
-          NIdDistV[NId] = MaxDist + 1;
-          if (NId == TargetNId) return true;
-          NextFrontier->Add(NId);
-          /* Remove */
-          //childCounts[MaxDist].claimed += 1;
-          break;
+        const int NeighborNId = NodeI.GetInNId(v);
+        if (NIdDistV[NeighborNId] == -1) {
+          NIdDistV.SetVal(NeighborNId, Dist+1);
+          if (NeighborNId == TargetNId) return true;
+          NextFrontier->Add(NeighborNId);
+          // update FrontierOutDegrees, UnvisitedInDegrees
+          if (Stage == 0) {
+            typename PGraph::TObj::TNodeI NeighborNodeI = Graph->GetNI(NeighborNId);
+            FrontierOutDegrees += NeighborNodeI.GetInDeg();
+            UnvisitedInDegrees -= NeighborNodeI.GetOutDeg();
+          }
         }
       }
     }
@@ -152,25 +134,44 @@ bool TBreathFS_Hybrid<PGraph>::BottomUpStep(TIntV *Frontier, TIntV *NextFrontier
 }
 
 template<class PGraph>
-int TBreathFS_Hybrid<PGraph>::frontierEdges(TIntV *Frontier) {
-  int edges = 0;
-  for (TIntV::TIter it = Frontier->BegI(); it != Frontier->EndI(); ++it) {
-    const int NId = *it;
-    const typename PGraph::TObj::TNodeI NodeI = Graph->GetNI(NId);
-    edges += NodeI.GetOutDeg();
-  }
-  return edges;
-}
-
-template<class PGraph>
-int TBreathFS_Hybrid<PGraph>::unvisitedEdges() {
-  int edges = 0;
-  for (TNGraph::TNodeI NodeI = Graph->BegNI(); NodeI < Graph->EndNI(); NodeI++) {
+bool TBreathFS_Hybrid_Test<PGraph>::BottomUpStep(TIntV *Frontier, TIntV *NextFrontier, int& MaxDist, const int& TargetNId, const bool& FollowOut, const bool& FollowIn) {
+  for (typename PGraph::TObj::TNodeI NodeI = Graph->BegNI(); NodeI < Graph->EndNI(); NodeI++) {
     const int NId = NodeI.GetId();
     if (NIdDistV[NId] == -1) {
-      edges += NodeI.GetInDeg();
+      if (FollowOut) {
+        for (int v = 0; v < NodeI.GetInDeg(); v++) {
+          const int ParentNId = NodeI.GetInNId(v);
+          if (NIdDistV[ParentNId] == MaxDist) {
+            NIdDistV[NId] = MaxDist + 1;
+            if (NId == TargetNId) return true;
+            NextFrontier->Add(NId);
+            // update FrontierOutDegrees, UnvisitedInDegrees
+            if (Stage == 0) {
+              FrontierOutDegrees += NodeI.GetOutDeg();
+              UnvisitedInDegrees -= NodeI.GetInDeg();
+            }
+            break;
+          }
+        }
+      }
+      if (FollowIn && NIdDistV[NId] == -1) {
+        for (int v = 0; v < NodeI.GetOutDeg(); v++) {
+          const int ParentNId = NodeI.GetOutNId(v);
+          if (NIdDistV[ParentNId] == MaxDist) {
+            NIdDistV[NId] = MaxDist + 1;
+            if (NId == TargetNId) return true;
+            NextFrontier->Add(NId);
+            // update FrontierOutDegrees, UnvisitedInDegrees
+            if (Stage == 0) {
+              FrontierOutDegrees += NodeI.GetInDeg();
+              UnvisitedInDegrees -= NodeI.GetOutDeg();
+            }
+            break;
+          }
+        }
+      }
     }
   }
-  return edges;
+  return false;
 }
 

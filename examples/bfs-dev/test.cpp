@@ -1,8 +1,8 @@
 #include "stdafx.h"
 #include <stdio.h>
 #include <sys/time.h>
+#include <ctime> // for random generator
 #include "bfs-hybrid.h"
-#include <vector>
 
 double timeInSeconds(struct timeval &tv1, struct timeval &tv2) {
   double diff = 0;
@@ -13,28 +13,30 @@ double timeInSeconds(struct timeval &tv1, struct timeval &tv2) {
 
 template <class PGraph>
 bool checkResults(TBreathFS_Hybrid<PGraph> &bfs_hybrid, TBreathFS<PGraph> &bfs) {
+  int num = 0;
   for (TIntH::TIter it = bfs.NIdDistH.BegI(); it < bfs.NIdDistH.EndI(); it++) {
+    num++;
     int key = it.GetKey();
-    if (bfs.NIdDistH[key]() != bfs_hybrid.NIdDistV[key]()) {
-      printf("Key: %d, BFS: %d, Hybrid: %d\n", key, bfs.NIdDistH[key](), bfs_hybrid.NIdDistV[key]());
+    if (bfs.NIdDistH.GetDat(key) != bfs_hybrid.NIdDistH.GetDat(key)) {
+      printf("Incorrect! NId: %d, BFS: %d, Hybrid: %d\n", key, bfs.NIdDistH.GetDat(key)(), bfs_hybrid.NIdDistH.GetDat(key)());
       return false;
     }
   }
+  IAssert(num == bfs.Graph->GetNodes());
   return true;
 }
 
-int main(int argc, char* argv[]) {
-  typedef PNGraph PGraph;  //   directed graph
-
-  printf("Creating graph for Livejournal\n");
-
-  TFIn FIn("data/livejournal_scc.graph");
-  PGraph graph = TNGraph::Load(FIn);
-  IAssert(graph->IsOk());
-
-  int iters = 1;
+template <class PGraph>
+bool test(PGraph &graph, bool followOut, bool followIn) {
+  printf("\n================================\nFollowOut: %d, FollowIn: %d\n", followOut, followIn);
+  int iters = 5;
   for (int k = 0; k < iters; k++) {
-    int start = graph->GetRndNId();
+    TRnd rnd = TRnd((int)time(0));
+    int start = graph->GetRndNId(rnd);
+    rnd.PutSeed(0);
+//    int target = graph->GetRndNId(rnd);
+//    printf("Start node: %d, target node: %d\n", start, target);
+    int target = -1;
     printf("Start node: %d\n", start);
 
     /* Hybrid */
@@ -42,7 +44,7 @@ int main(int argc, char* argv[]) {
     gettimeofday(&tv1, NULL);
 
     TBreathFS_Hybrid<PGraph> bfs_hybrid(graph, true);
-    int maxDist_hybrid = bfs_hybrid.DoBfs_Hybrid(start, true, false);
+    int maxDist_hybrid = bfs_hybrid.DoBfs_Hybrid(start, followOut, followIn, target);
 
     gettimeofday(&tv2, NULL);
     double time_hybrid = timeInSeconds(tv1, tv2);
@@ -51,9 +53,7 @@ int main(int argc, char* argv[]) {
     gettimeofday(&tv1, NULL);
 
     TBreathFS<PGraph> bfs(graph, true);
-    int maxDist = bfs.DoBfs(start, true, false);
-    int d = bfs.NIdDistH[start]();
-    printf("Start distance: %d\n", d);
+    int maxDist = bfs.DoBfs(start, followOut, followIn, target);
 
     gettimeofday(&tv2, NULL);
     double time = timeInSeconds(tv1, tv2);
@@ -61,16 +61,34 @@ int main(int argc, char* argv[]) {
     /* Check results */
     if (maxDist_hybrid != maxDist) {
       printf("No!!! MaxDist incorrect!\n");
-      break;
+      return false;
     }
-    if (!checkResults<PGraph>(bfs_hybrid, bfs)) {
-      printf("No!!! Results incorrect!\n");
-      break;
+    if (target == -1) {
+      if (!checkResults<PGraph>(bfs_hybrid, bfs)) {
+        printf("No!!! Results incorrect!\n");
+        return false;
+      }
     }
 
-    printf("Original: %.4f, Hybrid: %.4f\n", time, time_hybrid);
-
+    printf("Original: %.2f, Hybrid: %.2f\n", time, time_hybrid);
   }
+  return true;
+}
+
+int main(int argc, char* argv[]) {
+  typedef PNGraph PGraph;  //   directed graph
+
+  printf("Creating graph for Twitter\n");
+
+  TFIn FIn("data/twitter_scc.graph");
+  PGraph graph = TNGraph::Load(FIn);
+  IAssert(graph->IsOk());
+  printf("Nodes: %d\n", graph->GetNodes());
+
+  test<PGraph>(graph, true, false);
+  test<PGraph>(graph, false, true);
+  test<PGraph>(graph, true, true);
+
 
   return 0;
 }
