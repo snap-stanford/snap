@@ -2,9 +2,8 @@
 #include <stdio.h>
 #include <sys/time.h>
 #include <ctime> // for random generator
-#include "bfs-hybrid.h"
-#include "bfs-hybrid-test.h"
 #include <vector>
+#include "bfs-hybrid.h"
 
 double timeInSeconds(struct timeval &tv1, struct timeval &tv2) {
   double diff = 0;
@@ -13,7 +12,6 @@ double timeInSeconds(struct timeval &tv1, struct timeval &tv2) {
   return diff;
 }
 
-/*
 template <class PGraph>
 bool checkResults(TBreathFS_Hybrid<PGraph> &bfs_hybrid, TBreathFS_Test<PGraph> &bfs) {
   for (int i = 0; i < bfs.NIdDistV.Len(); i++) {
@@ -24,7 +22,6 @@ bool checkResults(TBreathFS_Hybrid<PGraph> &bfs_hybrid, TBreathFS_Test<PGraph> &
   }
   return true;
 }
-*/
 
 template <class PGraph>
 bool test(PGraph &graph, bool followOut, bool followIn) {
@@ -73,14 +70,12 @@ bool test(PGraph &graph, bool followOut, bool followIn) {
       printf("No!!! MaxDist incorrect!\n");
       return false;
     }
-    /*
     if (target == -1) {
       if (!checkResults<PGraph>(bfs_hybrid, bfs)) {
         printf("No!!! Results incorrect!\n");
         return false;
       }
     }
-    */
 
     printf("Hybrid (nodes): %.2f, Hybrid (edges): %.2f, Transform: %.3f\n", time_hybrid, time_test, time_transform);
   }
@@ -90,9 +85,9 @@ bool test(PGraph &graph, bool followOut, bool followIn) {
 int main(int argc, char* argv[]) {
   typedef PNGraph PGraph;  //   directed graph
 
-  printf("Creating graph for Twitter\n");
+  printf("Creating graph for Livejournal\n");
 
-  TFIn FIn("data/twitter_scc.graph");
+  TFIn FIn("data/livejournal_scc.graph");
   PGraph graph = TNGraph::Load(FIn);
   IAssert(graph->IsOk());
 

@@ -148,8 +148,8 @@ int TBreathFS<PGraph>::DoBfsHybrid(const int& StartNode, const bool& FollowOut, 
   for (int i = 0; i < NIdDistV.Len(); i++) {
     NIdDistV.SetVal(i, -1);
   }
-  TIntV *Frontier = new TIntV(Graph->GetNodes());
-  TIntV *NextFrontier = new TIntV(Graph->GetNodes());
+  TIntV *Frontier = new TIntV(Graph->GetNodes(), 0);
+  TIntV *NextFrontier = new TIntV(Graph->GetNodes(), 0);
 
   NIdDistV.SetVal(StartNId, 0);
   Frontier->Add(StartNId);
