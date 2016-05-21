@@ -4,22 +4,22 @@ AM_LDFLAGS=
 
 # public headers
 # it will be moved to include/Makefile.am
-include_HEADERS = \
-    agmattr.h \
-    agmdirected.h \
-    agmfast.h \
-    agmfit.h \
-    agm.h \
-    cascdynetinf.h \
-    cascnetinf.h \
-    circles.h \
-    cliques.h \
-    graphcounter.h \
-    kronecker.h \
-    mag.h \
-    ncp.h \
-    rolx.h \
-    subgraphenum.h \
+nobase_include_HEADERS = \
+    $(top_srcdir)/snap-adv/agmattr.h \
+    $(top_srcdir)/snap-adv/agmdirected.h \
+    $(top_srcdir)/snap-adv/agmfast.h \
+    $(top_srcdir)/snap-adv/agmfit.h \
+    $(top_srcdir)/snap-adv/agm.h \
+    $(top_srcdir)/snap-adv/cascdynetinf.h \
+    $(top_srcdir)/snap-adv/cascnetinf.h \
+    $(top_srcdir)/snap-adv/circles.h \
+    $(top_srcdir)/snap-adv/cliques.h \
+    $(top_srcdir)/snap-adv/graphcounter.h \
+    $(top_srcdir)/snap-adv/kronecker.h \
+    $(top_srcdir)/snap-adv/mag.h \
+    $(top_srcdir)/snap-adv/ncp.h \
+    $(top_srcdir)/snap-adv/rolx.h \
+    $(top_srcdir)/snap-adv/subgraphenum.h \
     $(NULL)
 
 # libsnap:
