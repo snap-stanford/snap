@@ -110,7 +110,7 @@ else
 AM_CPPFLAGS+=-O3
 endif
 
-bin_PROGRAMS=testsnap
+noinst_PROGRAMS=testsnap
 
 testsnap_SOURCES= \
     testSnap.cpp \

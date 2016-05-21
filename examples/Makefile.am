@@ -75,11 +75,11 @@ DEFS+=$(EXT_FLAGS)
 
 
 
-#noinst_PROGRAMS=
+bin_PROGRAMS=snapagmgen snapgraphgen snapkrongen
 
 OTHER_BIN=snaplshtest snapmultimodal snaptestconv snapzygote
 
-bin_PROGRAMS=snapagmfit snapagmgen snapbigclam snapcascades snapcentrality snapcesna snapcircles snapcliques snapcoda snapcommunity snapconcomp snapflows snapforestfire snapgraphgen snapgraphhash snapinfopath snapkcores snapkronem snapkronfit snapkrongen snapmagfit snapmaggen snapmkdatasets snapmotifs snapncpplot snapnetevol snapnetinf snapnetstat snaprandwalk snaprolx snaptestgraph
+noinst_PROGRAMS=snapagmfit snapbigclam snapcascades snapcentrality snapcesna snapcircles snapcliques snapcoda snapcommunity snapconcomp snapflows snapforestfire snapgraphhash snapinfopath snapkcores snapkronem snapkronfit snapmagfit snapmaggen snapmkdatasets snapmotifs snapncpplot snapnetevol snapnetinf snapnetstat snaprandwalk snaprolx snaptestgraph
 
 snapagmfit_SOURCES= \
     agmfit/agmfitmain.cpp \
