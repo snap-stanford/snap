@@ -30,7 +30,7 @@ autoreconf -f -i -Wall,no-obsolete
 autoreconf -f -i -Wall,no-obsolete
 
 #./configure --enable-debug
-#./configure
+#./configure --prefix=/usr --includedir=/usr/include/libsnap/blank/
 
 #make clean
 #make
