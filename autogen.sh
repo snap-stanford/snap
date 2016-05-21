@@ -29,10 +29,10 @@ autoconf
 autoreconf -f -i -Wall,no-obsolete
 autoreconf -f -i -Wall,no-obsolete
 
-./configure --enable-debug
+#./configure --enable-debug
 #./configure
 
-make clean
-make
+#make clean
+#make
 
 fi
