@@ -2334,45 +2334,45 @@ public:
   }
 
   /// Gets Int sparse attribute with name \c AttrName from node with id \c NId.
-  int GetSAttrDatN(const TInt& NId, const TStr& AttrName, TInt& Val) const;
+  int GetSAttrDatN(const TInt& NId, const TStr& AttrName, TInt& ValX) const;
   /// Gets Int sparse attribute with id \c AttrId from node with id \c NId. 
-  int GetSAttrDatN(const TInt& NId, const TInt& AttrId, TInt& Val) const;
+  int GetSAttrDatN(const TInt& NId, const TInt& AttrId, TInt& ValX) const;
 
   /// Gets Int sparse attribute with name \c AttrName from \c NodeI.
-  int GetSAttrDatN(const TNodeI& NodeI, const TStr& AttrName, TInt& Val) const {
-    return GetSAttrDatN(NodeI.GetId(), AttrName, Val);
+  int GetSAttrDatN(const TNodeI& NodeI, const TStr& AttrName, TInt& ValX) const {
+    return GetSAttrDatN(NodeI.GetId(), AttrName, ValX);
   }
   /// Gets Int sparse attribute with id \c AttrId from \c NodeI.
-  int GetSAttrDatN(const TNodeI& NodeI, const TInt& AttrId, TInt& Val) const {
-    return GetSAttrDatN(NodeI.GetId(), AttrId, Val);
+  int GetSAttrDatN(const TNodeI& NodeI, const TInt& AttrId, TInt& ValX) const {
+    return GetSAttrDatN(NodeI.GetId(), AttrId, ValX);
   }
 
   /// Gets Flt sparse attribute with name \c AttrName from node with id \c NId.
-  int GetSAttrDatN(const TInt& NId, const TStr& AttrName, TFlt& Val) const;
+  int GetSAttrDatN(const TInt& NId, const TStr& AttrName, TFlt& ValX) const;
   /// Gets Flt sparse attribute with id \c AttrId from node with id \c NId.
-  int GetSAttrDatN(const TInt& NId, const TInt& AttrId, TFlt& Val) const;
+  int GetSAttrDatN(const TInt& NId, const TInt& AttrId, TFlt& ValX) const;
 
   /// Gets Flt sparse attribute with name \c AttrName from \c NodeI.
-  int GetSAttrDatN(const TNodeI& NodeI, const TStr& AttrName, TFlt& Val) const {
-    return GetSAttrDatN(NodeI.GetId(), AttrName, Val);
+  int GetSAttrDatN(const TNodeI& NodeI, const TStr& AttrName, TFlt& ValX) const {
+    return GetSAttrDatN(NodeI.GetId(), AttrName, ValX);
   } 
   /// Gets Flt sparse attribute with id \c AttrId from \c NodeI.
-  int GetSAttrDatN(const TNodeI& NodeI, const TInt& AttrId, TFlt& Val) const {
-    return GetSAttrDatN(NodeI.GetId(), AttrId, Val);
+  int GetSAttrDatN(const TNodeI& NodeI, const TInt& AttrId, TFlt& ValX) const {
+    return GetSAttrDatN(NodeI.GetId(), AttrId, ValX);
   }
 
   /// Gets Str sparse attribute with name \c AttrName from node with id \c NId.
-  int GetSAttrDatN(const TInt& NId, const TStr& AttrName, TStr& Val) const;
+  int GetSAttrDatN(const TInt& NId, const TStr& AttrName, TStr& ValX) const;
   /// Gets Str sparse attribute with id \c AttrId from node with id \c NId.
-  int GetSAttrDatN(const TInt& NId, const TInt& AttrId, TStr& Val) const;
+  int GetSAttrDatN(const TInt& NId, const TInt& AttrId, TStr& ValX) const;
 
   /// Gets Str sparse attribute with name \c AttrName from \c NodeI.
-  int GetSAttrDatN(const TNodeI& NodeI, const TStr& AttrName, TStr& Val) const {
-    return GetSAttrDatN(NodeI.GetId(), AttrName, Val);
+  int GetSAttrDatN(const TNodeI& NodeI, const TStr& AttrName, TStr& ValX) const {
+    return GetSAttrDatN(NodeI.GetId(), AttrName, ValX);
   }
   /// Gets Str sparse attribute with id \c AttrId from \c NodeI.
-  int GetSAttrDatN(const TNodeI& NodeI, const TInt& AttrId, TStr& Val) const {
-    return GetSAttrDatN(NodeI.GetId(), AttrId, Val);
+  int GetSAttrDatN(const TNodeI& NodeI, const TInt& AttrId, TStr& ValX) const {
+    return GetSAttrDatN(NodeI.GetId(), AttrId, ValX);
   }
 
   /// Deletes sparse attribute with name \c AttrName from node with id \c NId.
@@ -2405,9 +2405,9 @@ public:
   int AddSAttrN(const TStr& Name, const TAttrType& AttrType, TInt& AttrId);
 
   /// Gets id and type for attribute with name \c Name.
-  int GetSAttrIdN(const TStr& Name, TInt& AttrId, TAttrType& AttrType) const;
+  int GetSAttrIdN(const TStr& Name, TInt& AttrIdX, TAttrType& AttrTypeX) const;
   /// Gets name and type for attribute with id \c AttrId.
-  int GetSAttrNameN(const TInt& AttrId, TStr& Name, TAttrType& AttrType) const;
+  int GetSAttrNameN(const TInt& AttrId, TStr& NameX, TAttrType& AttrTypeX) const;
 
   /// Adds Int sparse attribute with name \c AttrName to the given edge with id \c EId.
   int AddSAttrDatE(const TInt& EId, const TStr& AttrName, const TInt& Val);
@@ -2452,45 +2452,45 @@ public:
   }
 
   /// Gets Int sparse attribute with name \c AttrName from edge with id \c EId.
-  int GetSAttrDatE(const TInt& EId, const TStr& AttrName, TInt& Val) const;
+  int GetSAttrDatE(const TInt& EId, const TStr& AttrName, TInt& ValX) const;
   /// Gets Int sparse attribute with id \c AttrId from edge with id \c EId.
-  int GetSAttrDatE(const TInt& EId, const TInt& AttrId, TInt& Val) const;
+  int GetSAttrDatE(const TInt& EId, const TInt& AttrId, TInt& ValX) const;
 
   /// Gets Int sparse attribute with name \c AttrName from \c EdgeI.
-  int GetSAttrDatE(const TEdgeI& EdgeI, const TStr& AttrName, TInt& Val) const {
-    return GetSAttrDatE(EdgeI.GetId(), AttrName, Val);
+  int GetSAttrDatE(const TEdgeI& EdgeI, const TStr& AttrName, TInt& ValX) const {
+    return GetSAttrDatE(EdgeI.GetId(), AttrName, ValX);
   }
   /// Gets Int sparse attribute with id \c AttrId from \c EdgeI.
-  int GetSAttrDatE(const TEdgeI& EdgeI, const TInt& AttrId, TInt& Val) const {
-    return GetSAttrDatE(EdgeI.GetId(), AttrId, Val);
+  int GetSAttrDatE(const TEdgeI& EdgeI, const TInt& AttrId, TInt& ValX) const {
+    return GetSAttrDatE(EdgeI.GetId(), AttrId, ValX);
   } 
 
   /// Gets Flt sparse attribute with name \c AttrName from edge with id \c EId.
-  int GetSAttrDatE(const TInt& EId, const TStr& AttrName, TFlt& Val) const; 
+  int GetSAttrDatE(const TInt& EId, const TStr& AttrName, TFlt& ValX) const; 
   /// Gets Flt sparse attribute with id \c AttrId from edge with id \c EId.
-  int GetSAttrDatE(const TInt& EId, const TInt& AttrId, TFlt& Val) const;
+  int GetSAttrDatE(const TInt& EId, const TInt& AttrId, TFlt& ValX) const;
 
   /// Gets Flt sparse attribute with name \c AttrName from \c EdgeI.
-  int GetSAttrDatE(const TEdgeI& EdgeI, const TStr& AttrName, TFlt& Val) const {
-    return GetSAttrDatE(EdgeI.GetId(), AttrName, Val);
+  int GetSAttrDatE(const TEdgeI& EdgeI, const TStr& AttrName, TFlt& ValX) const {
+    return GetSAttrDatE(EdgeI.GetId(), AttrName, ValX);
   }
   /// Gets Flt sparse attribute with id \c AttrId from \c EdgeI.
-  int GetSAttrDatE(const TEdgeI& EdgeI, const TInt& AttrId, TFlt& Val) const {
-    return GetSAttrDatE(EdgeI.GetId(), AttrId, Val);
+  int GetSAttrDatE(const TEdgeI& EdgeI, const TInt& AttrId, TFlt& ValX) const {
+    return GetSAttrDatE(EdgeI.GetId(), AttrId, ValX);
   } 
 
   /// Gets Str sparse attribute with name \c AttrName from edge with id \c EId.
-  int GetSAttrDatE(const TInt& EId, const TStr& AttrName, TStr& Val) const;
+  int GetSAttrDatE(const TInt& EId, const TStr& AttrName, TStr& ValX) const;
   /// Gets Str sparse attribute with id \c AttrId from edge with id \c EId.
-  int GetSAttrDatE(const TInt& EId, const TInt& AttrId, TStr& Val) const;
+  int GetSAttrDatE(const TInt& EId, const TInt& AttrId, TStr& ValX) const;
 
   /// Gets Str sparse attribute with name \c AttrName from \c EdgeI.
-  int GetSAttrDatE(const TEdgeI& EdgeI, const TStr& AttrName, TStr& Val) const {
-    return GetSAttrDatE(EdgeI.GetId(), AttrName, Val);
+  int GetSAttrDatE(const TEdgeI& EdgeI, const TStr& AttrName, TStr& ValX) const {
+    return GetSAttrDatE(EdgeI.GetId(), AttrName, ValX);
   }
   /// Gets Str sparse attribute with id \c AttrId from \c EdgeI.
-  int GetSAttrDatE(const TEdgeI& EdgeI, const TInt& AttrId, TStr& Val) const {
-    return GetSAttrDatE(EdgeI.GetId(), AttrId, Val);
+  int GetSAttrDatE(const TEdgeI& EdgeI, const TInt& AttrId, TStr& ValX) const {
+    return GetSAttrDatE(EdgeI.GetId(), AttrId, ValX);
   }
 
   /// Deletes sparse attribute with name \c AttrName from edge with id \c EId.
@@ -2522,9 +2522,9 @@ public:
   int AddSAttrE(const TStr& Name, const TAttrType& AttrType, TInt& AttrId);
 
   /// Gets id and type for attribute with name \c Name.
-  int GetSAttrIdE(const TStr& Name, TInt& AttrId, TAttrType& AttrType) const;
+  int GetSAttrIdE(const TStr& Name, TInt& AttrIdX, TAttrType& AttrTypeX) const;
   /// Gets name and type for attribute with id \c AttrId.
-  int GetSAttrNameE(const TInt& AttrId, TStr& Name, TAttrType& AttrType) const;
+  int GetSAttrNameE(const TInt& AttrId, TStr& NameX, TAttrType& AttrTypeX) const;
 
   /// Returns a small multigraph on 5 nodes and 6 edges. ##TNEANet::GetSmallGraph
   static PNEANet GetSmallGraph();
@@ -2799,45 +2799,45 @@ public:
   }
 
   /// Gets Int sparse attribute with name \c AttrName from node with id \c NId.
-  int GetSAttrDatN(const TInt& NId, const TStr& AttrName, TInt& Val) const;
+  int GetSAttrDatN(const TInt& NId, const TStr& AttrName, TInt& ValX) const;
   /// Gets Int sparse attribute with id \c AttrId from node with id \c NId. 
-  int GetSAttrDatN(const TInt& NId, const TInt& AttrId, TInt& Val) const;
+  int GetSAttrDatN(const TInt& NId, const TInt& AttrId, TInt& ValX) const;
 
   /// Gets Int sparse attribute with name \c AttrName from \c NodeI.
-  int GetSAttrDatN(const TNodeI& NodeI, const TStr& AttrName, TInt& Val) const {
-    return GetSAttrDatN(NodeI.GetId(), AttrName, Val);
+  int GetSAttrDatN(const TNodeI& NodeI, const TStr& AttrName, TInt& ValX) const {
+    return GetSAttrDatN(NodeI.GetId(), AttrName, ValX);
   }
   /// Gets Int sparse attribute with id \c AttrId from \c NodeI.
-  int GetSAttrDatN(const TNodeI& NodeI, const TInt& AttrId, TInt& Val) const {
-    return GetSAttrDatN(NodeI.GetId(), AttrId, Val);
+  int GetSAttrDatN(const TNodeI& NodeI, const TInt& AttrId, TInt& ValX) const {
+    return GetSAttrDatN(NodeI.GetId(), AttrId, ValX);
   }
 
   /// Gets Flt sparse attribute with name \c AttrName from node with id \c NId.
-  int GetSAttrDatN(const TInt& NId, const TStr& AttrName, TFlt& Val) const;
+  int GetSAttrDatN(const TInt& NId, const TStr& AttrName, TFlt& ValX) const;
   /// Gets Flt sparse attribute with id \c AttrId from node with id \c NId.
-  int GetSAttrDatN(const TInt& NId, const TInt& AttrId, TFlt& Val) const;
+  int GetSAttrDatN(const TInt& NId, const TInt& AttrId, TFlt& ValX) const;
 
   /// Gets Flt sparse attribute with name \c AttrName from \c NodeI.
-  int GetSAttrDatN(const TNodeI& NodeI, const TStr& AttrName, TFlt& Val) const {
-    return GetSAttrDatN(NodeI.GetId(), AttrName, Val);
+  int GetSAttrDatN(const TNodeI& NodeI, const TStr& AttrName, TFlt& ValX) const {
+    return GetSAttrDatN(NodeI.GetId(), AttrName, ValX);
   } 
   /// Gets Flt sparse attribute with id \c AttrId from \c NodeI.
-  int GetSAttrDatN(const TNodeI& NodeI, const TInt& AttrId, TFlt& Val) const {
-    return GetSAttrDatN(NodeI.GetId(), AttrId, Val);
+  int GetSAttrDatN(const TNodeI& NodeI, const TInt& AttrId, TFlt& ValX) const {
+    return GetSAttrDatN(NodeI.GetId(), AttrId, ValX);
   }
 
   /// Gets Str sparse attribute with name \c AttrName from node with id \c NId.
-  int GetSAttrDatN(const TInt& NId, const TStr& AttrName, TStr& Val) const;
+  int GetSAttrDatN(const TInt& NId, const TStr& AttrName, TStr& ValX) const;
   /// Gets Str sparse attribute with id \c AttrId from node with id \c NId.
-  int GetSAttrDatN(const TInt& NId, const TInt& AttrId, TStr& Val) const;
+  int GetSAttrDatN(const TInt& NId, const TInt& AttrId, TStr& ValX) const;
 
   /// Gets Str sparse attribute with name \c AttrName from \c NodeI.
-  int GetSAttrDatN(const TNodeI& NodeI, const TStr& AttrName, TStr& Val) const {
-    return GetSAttrDatN(NodeI.GetId(), AttrName, Val);
+  int GetSAttrDatN(const TNodeI& NodeI, const TStr& AttrName, TStr& ValX) const {
+    return GetSAttrDatN(NodeI.GetId(), AttrName, ValX);
   }
   /// Gets Str sparse attribute with id \c AttrId from \c NodeI.
-  int GetSAttrDatN(const TNodeI& NodeI, const TInt& AttrId, TStr& Val) const {
-    return GetSAttrDatN(NodeI.GetId(), AttrId, Val);
+  int GetSAttrDatN(const TNodeI& NodeI, const TInt& AttrId, TStr& ValX) const {
+    return GetSAttrDatN(NodeI.GetId(), AttrId, ValX);
   }
 
   /// Deletes sparse attribute with name \c AttrName from node with id \c NId.
@@ -2870,9 +2870,9 @@ public:
   int AddSAttrN(const TStr& Name, const TAttrType& AttrType, TInt& AttrId);
 
   /// Gets id and type for attribute with name \c Name.
-  int GetSAttrIdN(const TStr& Name, TInt& AttrId, TAttrType& AttrType) const;
+  int GetSAttrIdN(const TStr& Name, TInt& AttrIdX, TAttrType& AttrTypeX) const;
   /// Gets name and type for attribute with id \c AttrId.
-  int GetSAttrNameN(const TInt& AttrId, TStr& Name, TAttrType& AttrType) const;
+  int GetSAttrNameN(const TInt& AttrId, TStr& NameX, TAttrType& AttrTypeX) const;
 
   /// Adds Int sparse attribute with name \c AttrName to the given edge with ids \c SrcId and \c DstId.
   int AddSAttrDatE(const int& SrcNId, const int& DstNId, const TStr& AttrName, const TInt& Val);
@@ -2917,45 +2917,45 @@ public:
   }
 
   /// Gets Int sparse attribute with name \c AttrName from edge with ids \c SrcId and \c DstId.
-  int GetSAttrDatE(const int& SrcNId, const int& DstNId, const TStr& AttrName, TInt& Val) const;
+  int GetSAttrDatE(const int& SrcNId, const int& DstNId, const TStr& AttrName, TInt& ValX) const;
   /// Gets Int sparse attribute with id \c AttrId from edge with ids \c SrcId and \c DstId.
-  int GetSAttrDatE(const int& SrcNId, const int& DstNId, const TInt& AttrId, TInt& Val) const;
+  int GetSAttrDatE(const int& SrcNId, const int& DstNId, const TInt& AttrId, TInt& ValX) const;
 
   /// Gets Int sparse attribute with name \c AttrName from \c EdgeI.
-  int GetSAttrDatE(const TEdgeI& EdgeI, const TStr& AttrName, TInt& Val) const {
-    return GetSAttrDatE(EdgeI.GetSrcNId(), EdgeI.GetDstNId(), AttrName, Val);
+  int GetSAttrDatE(const TEdgeI& EdgeI, const TStr& AttrName, TInt& ValX) const {
+    return GetSAttrDatE(EdgeI.GetSrcNId(), EdgeI.GetDstNId(), AttrName, ValX);
   }
   /// Gets Int sparse attribute with id \c AttrId from \c EdgeI.
-  int GetSAttrDatE(const TEdgeI& EdgeI, const TInt& AttrId, TInt& Val) const {
-    return GetSAttrDatE(EdgeI.GetSrcNId(), EdgeI.GetDstNId(), AttrId, Val);
+  int GetSAttrDatE(const TEdgeI& EdgeI, const TInt& AttrId, TInt& ValX) const {
+    return GetSAttrDatE(EdgeI.GetSrcNId(), EdgeI.GetDstNId(), AttrId, ValX);
   } 
 
   /// Gets Flt sparse attribute with name \c AttrName from edge with ids \c SrcId and \c DstId.
-  int GetSAttrDatE(const int& SrcNId, const int& DstNId, const TStr& AttrName, TFlt& Val) const; 
+  int GetSAttrDatE(const int& SrcNId, const int& DstNId, const TStr& AttrName, TFlt& ValX) const; 
   /// Gets Flt sparse attribute with id \c AttrId from edge with ids \c SrcId and \c DstId.
-  int GetSAttrDatE(const int& SrcNId, const int& DstNId, const TInt& AttrId, TFlt& Val) const;
+  int GetSAttrDatE(const int& SrcNId, const int& DstNId, const TInt& AttrId, TFlt& ValX) const;
 
   /// Gets Flt sparse attribute with name \c AttrName from \c EdgeI.
-  int GetSAttrDatE(const TEdgeI& EdgeI, const TStr& AttrName, TFlt& Val) const {
-    return GetSAttrDatE(EdgeI.GetSrcNId(), EdgeI.GetDstNId(), AttrName, Val);
+  int GetSAttrDatE(const TEdgeI& EdgeI, const TStr& AttrName, TFlt& ValX) const {
+    return GetSAttrDatE(EdgeI.GetSrcNId(), EdgeI.GetDstNId(), AttrName, ValX);
   }
   /// Gets Flt sparse attribute with id \c AttrId from \c EdgeI.
-  int GetSAttrDatE(const TEdgeI& EdgeI, const TInt& AttrId, TFlt& Val) const {
-    return GetSAttrDatE(EdgeI.GetSrcNId(), EdgeI.GetDstNId(), AttrId, Val);
+  int GetSAttrDatE(const TEdgeI& EdgeI, const TInt& AttrId, TFlt& ValX) const {
+    return GetSAttrDatE(EdgeI.GetSrcNId(), EdgeI.GetDstNId(), AttrId, ValX);
   } 
 
   /// Gets Str sparse attribute with name \c AttrName from edge with ids \c SrcId and \c DstId.
-  int GetSAttrDatE(const int& SrcNId, const int& DstNId, const TStr& AttrName, TStr& Val) const;
+  int GetSAttrDatE(const int& SrcNId, const int& DstNId, const TStr& AttrName, TStr& ValX) const;
   /// Gets Str sparse attribute with id \c AttrId from edge with ids \c SrcId and \c DstId.
-  int GetSAttrDatE(const int& SrcNId, const int& DstNId, const TInt& AttrId, TStr& Val) const;
+  int GetSAttrDatE(const int& SrcNId, const int& DstNId, const TInt& AttrId, TStr& ValX) const;
 
   /// Gets Str sparse attribute with name \c AttrName from \c EdgeI.
-  int GetSAttrDatE(const TEdgeI& EdgeI, const TStr& AttrName, TStr& Val) const {
-    return GetSAttrDatE(EdgeI.GetSrcNId(), EdgeI.GetDstNId(), AttrName, Val);
+  int GetSAttrDatE(const TEdgeI& EdgeI, const TStr& AttrName, TStr& ValX) const {
+    return GetSAttrDatE(EdgeI.GetSrcNId(), EdgeI.GetDstNId(), AttrName, ValX);
   }
   /// Gets Str sparse attribute with id \c AttrId from \c EdgeI.
-  int GetSAttrDatE(const TEdgeI& EdgeI, const TInt& AttrId, TStr& Val) const {
-    return GetSAttrDatE(EdgeI.GetSrcNId(), EdgeI.GetDstNId(), AttrId, Val);
+  int GetSAttrDatE(const TEdgeI& EdgeI, const TInt& AttrId, TStr& ValX) const {
+    return GetSAttrDatE(EdgeI.GetSrcNId(), EdgeI.GetDstNId(), AttrId, ValX);
   }
 
   /// Deletes sparse attribute with name \c AttrName from edge with ids \c SrcId and \c DstId.
@@ -2987,9 +2987,9 @@ public:
   int AddSAttrE(const TStr& Name, const TAttrType& AttrType, TInt& AttrId);
 
   /// Gets id and type for attribute with name \c Name.
-  int GetSAttrIdE(const TStr& Name, TInt& AttrId, TAttrType& AttrType) const;
+  int GetSAttrIdE(const TStr& Name, TInt& AttrIdX, TAttrType& AttrTypeX) const;
   /// Gets name and type for attribute with id \c AttrId.
-  int GetSAttrNameE(const TInt& AttrId, TStr& Name, TAttrType& AttrType) const;
+  int GetSAttrNameE(const TInt& AttrId, TStr& NameX, TAttrType& AttrTypeX) const;
 
   friend class TUndirNetMtx;
   friend class TPt<TUndirNet>;
@@ -3239,45 +3239,45 @@ public:
   }
 
   /// Gets Int sparse attribute with name \c AttrName from node with id \c NId.
-  int GetSAttrDatN(const TInt& NId, const TStr& AttrName, TInt& Val) const;
+  int GetSAttrDatN(const TInt& NId, const TStr& AttrName, TInt& ValX) const;
   /// Gets Int sparse attribute with id \c AttrId from node with id \c NId. 
-  int GetSAttrDatN(const TInt& NId, const TInt& AttrId, TInt& Val) const;
+  int GetSAttrDatN(const TInt& NId, const TInt& AttrId, TInt& ValX) const;
 
   /// Gets Int sparse attribute with name \c AttrName from \c NodeI.
-  int GetSAttrDatN(const TNodeI& NodeI, const TStr& AttrName, TInt& Val) const {
-    return GetSAttrDatN(NodeI.GetId(), AttrName, Val);
+  int GetSAttrDatN(const TNodeI& NodeI, const TStr& AttrName, TInt& ValX) const {
+    return GetSAttrDatN(NodeI.GetId(), AttrName, ValX);
   }
   /// Gets Int sparse attribute with id \c AttrId from \c NodeI.
-  int GetSAttrDatN(const TNodeI& NodeI, const TInt& AttrId, TInt& Val) const {
-    return GetSAttrDatN(NodeI.GetId(), AttrId, Val);
+  int GetSAttrDatN(const TNodeI& NodeI, const TInt& AttrId, TInt& ValX) const {
+    return GetSAttrDatN(NodeI.GetId(), AttrId, ValX);
   }
 
   /// Gets Flt sparse attribute with name \c AttrName from node with id \c NId.
-  int GetSAttrDatN(const TInt& NId, const TStr& AttrName, TFlt& Val) const;
+  int GetSAttrDatN(const TInt& NId, const TStr& AttrName, TFlt& ValX) const;
   /// Gets Flt sparse attribute with id \c AttrId from node with id \c NId.
-  int GetSAttrDatN(const TInt& NId, const TInt& AttrId, TFlt& Val) const;
+  int GetSAttrDatN(const TInt& NId, const TInt& AttrId, TFlt& ValX) const;
 
   /// Gets Flt sparse attribute with name \c AttrName from \c NodeI.
-  int GetSAttrDatN(const TNodeI& NodeI, const TStr& AttrName, TFlt& Val) const {
-    return GetSAttrDatN(NodeI.GetId(), AttrName, Val);
+  int GetSAttrDatN(const TNodeI& NodeI, const TStr& AttrName, TFlt& ValX) const {
+    return GetSAttrDatN(NodeI.GetId(), AttrName, ValX);
   } 
   /// Gets Flt sparse attribute with id \c AttrId from \c NodeI.
-  int GetSAttrDatN(const TNodeI& NodeI, const TInt& AttrId, TFlt& Val) const {
-    return GetSAttrDatN(NodeI.GetId(), AttrId, Val);
+  int GetSAttrDatN(const TNodeI& NodeI, const TInt& AttrId, TFlt& ValX) const {
+    return GetSAttrDatN(NodeI.GetId(), AttrId, ValX);
   }
 
   /// Gets Str sparse attribute with name \c AttrName from node with id \c NId.
-  int GetSAttrDatN(const TInt& NId, const TStr& AttrName, TStr& Val) const;
+  int GetSAttrDatN(const TInt& NId, const TStr& AttrName, TStr& ValX) const;
   /// Gets Str sparse attribute with id \c AttrId from node with id \c NId.
-  int GetSAttrDatN(const TInt& NId, const TInt& AttrId, TStr& Val) const;
+  int GetSAttrDatN(const TInt& NId, const TInt& AttrId, TStr& ValX) const;
 
   /// Gets Str sparse attribute with name \c AttrName from \c NodeI.
-  int GetSAttrDatN(const TNodeI& NodeI, const TStr& AttrName, TStr& Val) const {
-    return GetSAttrDatN(NodeI.GetId(), AttrName, Val);
+  int GetSAttrDatN(const TNodeI& NodeI, const TStr& AttrName, TStr& ValX) const {
+    return GetSAttrDatN(NodeI.GetId(), AttrName, ValX);
   }
   /// Gets Str sparse attribute with id \c AttrId from \c NodeI.
-  int GetSAttrDatN(const TNodeI& NodeI, const TInt& AttrId, TStr& Val) const {
-    return GetSAttrDatN(NodeI.GetId(), AttrId, Val);
+  int GetSAttrDatN(const TNodeI& NodeI, const TInt& AttrId, TStr& ValX) const {
+    return GetSAttrDatN(NodeI.GetId(), AttrId, ValX);
   }
 
   /// Deletes sparse attribute with name \c AttrName from node with id \c NId.
@@ -3310,9 +3310,9 @@ public:
   int AddSAttrN(const TStr& Name, const TAttrType& AttrType, TInt& AttrId);
 
   /// Gets id and type for attribute with name \c Name.
-  int GetSAttrIdN(const TStr& Name, TInt& AttrId, TAttrType& AttrType) const;
+  int GetSAttrIdN(const TStr& Name, TInt& AttrIdX, TAttrType& AttrTypeX) const;
   /// Gets name and type for attribute with id \c AttrId.
-  int GetSAttrNameN(const TInt& AttrId, TStr& Name, TAttrType& AttrType) const;
+  int GetSAttrNameN(const TInt& AttrId, TStr& NameX, TAttrType& AttrTypeX) const;
 
   /// Adds Int sparse attribute with name \c AttrName to the given edge with ids \c SrcId and \c DstId.
   int AddSAttrDatE(const int& SrcNId, const int& DstNId, const TStr& AttrName, const TInt& Val);
@@ -3357,45 +3357,45 @@ public:
   }
 
   /// Gets Int sparse attribute with name \c AttrName from edge with ids \c SrcId and \c DstId.
-  int GetSAttrDatE(const int& SrcNId, const int& DstNId, const TStr& AttrName, TInt& Val) const;
+  int GetSAttrDatE(const int& SrcNId, const int& DstNId, const TStr& AttrName, TInt& ValX) const;
   /// Gets Int sparse attribute with id \c AttrId from edge with ids \c SrcId and \c DstId.
-  int GetSAttrDatE(const int& SrcNId, const int& DstNId, const TInt& AttrId, TInt& Val) const;
+  int GetSAttrDatE(const int& SrcNId, const int& DstNId, const TInt& AttrId, TInt& ValX) const;
 
   /// Gets Int sparse attribute with name \c AttrName from \c EdgeI.
-  int GetSAttrDatE(const TEdgeI& EdgeI, const TStr& AttrName, TInt& Val) const {
-    return GetSAttrDatE(EdgeI.GetSrcNId(), EdgeI.GetDstNId(), AttrName, Val);
+  int GetSAttrDatE(const TEdgeI& EdgeI, const TStr& AttrName, TInt& ValX) const {
+    return GetSAttrDatE(EdgeI.GetSrcNId(), EdgeI.GetDstNId(), AttrName, ValX);
   }
   /// Gets Int sparse attribute with id \c AttrId from \c EdgeI.
-  int GetSAttrDatE(const TEdgeI& EdgeI, const TInt& AttrId, TInt& Val) const {
-    return GetSAttrDatE(EdgeI.GetSrcNId(), EdgeI.GetDstNId(), AttrId, Val);
+  int GetSAttrDatE(const TEdgeI& EdgeI, const TInt& AttrId, TInt& ValX) const {
+    return GetSAttrDatE(EdgeI.GetSrcNId(), EdgeI.GetDstNId(), AttrId, ValX);
   } 
 
   /// Gets Flt sparse attribute with name \c AttrName from edge with ids \c SrcId and \c DstId.
-  int GetSAttrDatE(const int& SrcNId, const int& DstNId, const TStr& AttrName, TFlt& Val) const; 
+  int GetSAttrDatE(const int& SrcNId, const int& DstNId, const TStr& AttrName, TFlt& ValX) const; 
   /// Gets Flt sparse attribute with id \c AttrId from edge with ids \c SrcId and \c DstId.
-  int GetSAttrDatE(const int& SrcNId, const int& DstNId, const TInt& AttrId, TFlt& Val) const;
+  int GetSAttrDatE(const int& SrcNId, const int& DstNId, const TInt& AttrId, TFlt& ValX) const;
 
   /// Gets Flt sparse attribute with name \c AttrName from \c EdgeI.
-  int GetSAttrDatE(const TEdgeI& EdgeI, const TStr& AttrName, TFlt& Val) const {
-    return GetSAttrDatE(EdgeI.GetSrcNId(), EdgeI.GetDstNId(), AttrName, Val);
+  int GetSAttrDatE(const TEdgeI& EdgeI, const TStr& AttrName, TFlt& ValX) const {
+    return GetSAttrDatE(EdgeI.GetSrcNId(), EdgeI.GetDstNId(), AttrName, ValX);
   }
   /// Gets Flt sparse attribute with id \c AttrId from \c EdgeI.
-  int GetSAttrDatE(const TEdgeI& EdgeI, const TInt& AttrId, TFlt& Val) const {
-    return GetSAttrDatE(EdgeI.GetSrcNId(), EdgeI.GetDstNId(), AttrId, Val);
+  int GetSAttrDatE(const TEdgeI& EdgeI, const TInt& AttrId, TFlt& ValX) const {
+    return GetSAttrDatE(EdgeI.GetSrcNId(), EdgeI.GetDstNId(), AttrId, ValX);
   } 
 
   /// Gets Str sparse attribute with name \c AttrName from edge with ids \c SrcId and \c DstId.
-  int GetSAttrDatE(const int& SrcNId, const int& DstNId, const TStr& AttrName, TStr& Val) const;
+  int GetSAttrDatE(const int& SrcNId, const int& DstNId, const TStr& AttrName, TStr& ValX) const;
   /// Gets Str sparse attribute with id \c AttrId from edge with ids \c SrcId and \c DstId.
-  int GetSAttrDatE(const int& SrcNId, const int& DstNId, const TInt& AttrId, TStr& Val) const;
+  int GetSAttrDatE(const int& SrcNId, const int& DstNId, const TInt& AttrId, TStr& ValX) const;
 
   /// Gets Str sparse attribute with name \c AttrName from \c EdgeI.
-  int GetSAttrDatE(const TEdgeI& EdgeI, const TStr& AttrName, TStr& Val) const {
-    return GetSAttrDatE(EdgeI.GetSrcNId(), EdgeI.GetDstNId(), AttrName, Val);
+  int GetSAttrDatE(const TEdgeI& EdgeI, const TStr& AttrName, TStr& ValX) const {
+    return GetSAttrDatE(EdgeI.GetSrcNId(), EdgeI.GetDstNId(), AttrName, ValX);
   }
   /// Gets Str sparse attribute with id \c AttrId from \c EdgeI.
-  int GetSAttrDatE(const TEdgeI& EdgeI, const TInt& AttrId, TStr& Val) const {
-    return GetSAttrDatE(EdgeI.GetSrcNId(), EdgeI.GetDstNId(), AttrId, Val);
+  int GetSAttrDatE(const TEdgeI& EdgeI, const TInt& AttrId, TStr& ValX) const {
+    return GetSAttrDatE(EdgeI.GetSrcNId(), EdgeI.GetDstNId(), AttrId, ValX);
   }
 
   /// Deletes sparse attribute with name \c AttrName from edge with ids \c SrcId and \c DstId.
@@ -3427,9 +3427,9 @@ public:
   int AddSAttrE(const TStr& Name, const TAttrType& AttrType, TInt& AttrId);
 
   /// Gets id and type for attribute with name \c Name.
-  int GetSAttrIdE(const TStr& Name, TInt& AttrId, TAttrType& AttrType) const;
+  int GetSAttrIdE(const TStr& Name, TInt& AttrIdX, TAttrType& AttrTypeX) const;
   /// Gets name and type for attribute with id \c AttrId.
-  int GetSAttrNameE(const TInt& AttrId, TStr& Name, TAttrType& AttrType) const;
+  int GetSAttrNameE(const TInt& AttrId, TStr& NameX, TAttrType& AttrTypeX) const;
 
   friend class TPt<TDirNet>;
   friend class TDirNetMtx;
