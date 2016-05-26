@@ -1,4 +1,3 @@
-enum TAttrType { atUndef, atInt, atFlt, atStr, atAny };
 typedef TPair<TStr, TAttrType> TAttrPr;
 typedef TVec<TAttrPr> TAttrPrV;
 

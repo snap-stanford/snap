@@ -1,0 +1,11 @@
+UserId	ProductId
+First	P1
+First	P2
+First	P3
+Second	P1
+Second	P2
+Third	P1
+Third	P4
+Fourth	P1
+Fourth	P2
+Fourth	P4

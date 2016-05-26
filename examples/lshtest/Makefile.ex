@@ -5,3 +5,5 @@
 MAIN = lshtest
 DEPH = $(EXSNAPEXP)/lsh.h
 DEPCPP = $(EXSNAPEXP)/lsh.cpp
+CXXFLAGS += $(CXXOPENMP)
+

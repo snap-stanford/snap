@@ -173,8 +173,8 @@ TEST(TDirNet, AddSAttrN) {
   status = Graph->AddSAttrN("TestStr", atStr, AttrId);
   EXPECT_EQ(0, status);
   EXPECT_EQ(2, AttrId.Val);
-  status = Graph->AddSAttrN("TestAny", atAny, AttrId);
-  EXPECT_EQ(-1, status);
+  //status = Graph->AddSAttrN("TestAny", atAny, AttrId);
+  //EXPECT_EQ(-1, status);
 }
 
 TEST(TDirNet, GetSAttrIdN) {
@@ -471,15 +471,15 @@ TEST(TDirNet, GetSAttrVN) {
   status = Graph->GetSAttrVN(Id, atStr, AttrV);
   EXPECT_EQ(0, status);
   EXPECT_EQ(1, AttrV.Len());
-  status = Graph->GetSAttrVN(Id, atAny, AttrV);
-  EXPECT_EQ(0, status);
-  EXPECT_EQ(3, AttrV.Len());
-  status = Graph->GetSAttrVN(Id, atUndef, AttrV);
-  EXPECT_EQ(0, status);
-  EXPECT_EQ(0, AttrV.Len());
-  TInt ErrorId(1);
-  status = Graph->GetSAttrVN(ErrorId, atUndef, AttrV);
-  EXPECT_EQ(-1, status);
+  //status = Graph->GetSAttrVN(Id, atAny, AttrV);
+  //EXPECT_EQ(0, status);
+  //EXPECT_EQ(3, AttrV.Len());
+  //status = Graph->GetSAttrVN(Id, atUndef, AttrV);
+  //EXPECT_EQ(0, status);
+  //EXPECT_EQ(0, AttrV.Len());
+  //TInt ErrorId(1);
+  //status = Graph->GetSAttrVN(ErrorId, atUndef, AttrV);
+  //EXPECT_EQ(-1, status);
 }
 
 TEST(TDirNet, GetIdVSAttrN) {
@@ -538,8 +538,8 @@ TEST(TDirNet, AddSAttrE) {
   status = Graph->AddSAttrE("TestStr", atStr, AttrId);
   EXPECT_EQ(0, status);
   EXPECT_EQ(2, AttrId.Val);
-  status = Graph->AddSAttrE("TestAny", atAny, AttrId);
-  EXPECT_EQ(-1, status);
+  //status = Graph->AddSAttrE("TestAny", atAny, AttrId);
+  //EXPECT_EQ(-1, status);
 }
 
 TEST(TDirNet, GetSAttrIdE) {
@@ -860,15 +860,15 @@ TEST(TDirNet, GetSAttrVE) {
   status = Graph->GetSAttrVE(SrcId, DstId, atStr, AttrV);
   EXPECT_EQ(0, status);
   EXPECT_EQ(1, AttrV.Len());
-  status = Graph->GetSAttrVE(SrcId, DstId, atAny, AttrV);
-  EXPECT_EQ(0, status);
-  EXPECT_EQ(3, AttrV.Len());
-  status = Graph->GetSAttrVE(SrcId, DstId, atUndef, AttrV);
-  EXPECT_EQ(0, status);
-  EXPECT_EQ(0, AttrV.Len());
-  int ErrorId = 5;
-  status = Graph->GetSAttrVE(SrcId, ErrorId, atUndef, AttrV);
-  EXPECT_EQ(-1, status);
+  //status = Graph->GetSAttrVE(SrcId, DstId, atAny, AttrV);
+  //EXPECT_EQ(0, status);
+  //EXPECT_EQ(3, AttrV.Len());
+  //status = Graph->GetSAttrVE(SrcId, DstId, atUndef, AttrV);
+  //EXPECT_EQ(0, status);
+  //EXPECT_EQ(0, AttrV.Len());
+  //int ErrorId = 5;
+  //status = Graph->GetSAttrVE(SrcId, ErrorId, atUndef, AttrV);
+  //EXPECT_EQ(-1, status);
 }
 
 TEST(TDirNet, GetIdVSAttrE) {

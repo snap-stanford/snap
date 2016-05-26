@@ -67,7 +67,7 @@ public:
   bool IsEmpty() const { return KeyDatI == NULL; }
   /// Tests whether the iterator is pointing to the past-end element.
   bool IsEnd() const { return EndI == KeyDatI; }
-  
+
   const TKey& GetKey() const {Assert((KeyDatI!=NULL)&&(KeyDatI->HashCd!=-1)); return KeyDatI->Key;}
   const TDat& GetDat() const {Assert((KeyDatI!=NULL)&&(KeyDatI->HashCd!=-1)); return KeyDatI->Dat;}
   TDat& GetDat() {Assert((KeyDatI!=NULL)&&(KeyDatI->HashCd!=-1)); return KeyDatI->Dat;}
@@ -404,7 +404,7 @@ int THash<TKey, TDat, THashFunc>::GetRndKeyId(TRnd& Rnd) const  {
   int KeyId = abs(Rnd.GetUniDevInt(KeyDatV.Len()));
   while (KeyDatV[KeyId].HashCd == -1) { // if the index is empty, just try again
     KeyId = abs(Rnd.GetUniDevInt(KeyDatV.Len())); }
-  return KeyId; 
+  return KeyId;
 }
 
 // return random KeyId even if the hash table contains deleted keys
@@ -691,6 +691,9 @@ public:
   bool Empty() const { return ! Len(); }
   char* operator () () const { return Bf; }
   TBigStrPool& operator = (const TBigStrPool& Pool);
+  ::TSize GetMemUsed(){
+  	return 4 * sizeof(int) + IdOffV.GetMemUsed() + MxBfL;
+  }
 
   int AddStr(const char *Str, uint Len);
   int AddStr(const char *Str) { return AddStr(Str, uint(strlen(Str)) + 1); }
@@ -700,7 +703,7 @@ public:
     if (StrId == 0) return TStr::GetNullStr(); else return TStr(Bf + (TSize)IdOffV[StrId]); }
   const char *GetCStr(const int& StrId) const { Assert(StrId < GetStrs());
     if (StrId == 0) return TStr::GetNullStr().CStr(); else return (Bf + (TSize)IdOffV[StrId]); }
-  
+
   TStr GetStrFromOffset(const TSize& Offset) const { Assert(Offset < BfL);
     if (Offset == 0) return TStr::GetNullStr(); else return TStr(Bf + Offset); }
   const char *GetCStrFromOffset(const TSize& Offset) const { Assert(Offset < BfL);
@@ -786,6 +789,18 @@ public:
   TDat& operator[](const int& KeyId){return GetHashKeyDat(KeyId).Dat;}
   const TDat& operator () (const char *Key) const { return GetDat(Key);}
   //TDat& operator ()(const char *Key){return AddDat(Key);} // add if not found
+  ::TSize GetMemUsed() const {
+      int64 MemUsed = sizeof(bool)+2*sizeof(int);
+      MemUsed += int64(PortV.Reserved()) * int64(sizeof(TInt));
+      for (int KeyDatN = 0; KeyDatN < KeyDatV.Len(); KeyDatN++) {
+          MemUsed += int64(2 * sizeof(TInt));
+          MemUsed += int64(KeyDatV[KeyDatN].Key.GetMemUsed());
+          MemUsed += int64(KeyDatV[KeyDatN].Dat.GetMemUsed());
+      }
+      // printf("TStrHash: Memory used for hash table: %s\n", TUInt64::GetStr(MemUsed).CStr());
+      MemUsed += 8 + Pool->GetMemUsed();
+      return ::TSize(MemUsed/1000);
+  }
 
   const TDat& GetDat(const char *Key) const { return KeyDatV[GetKeyId(Key)].Dat; }
   const TDat& GetDat(const TStr& Key) const { return GetDat(Key.CStr()); }

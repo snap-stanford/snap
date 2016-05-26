@@ -9,11 +9,14 @@
 
 #include "gbase.cpp"
 #include "util.cpp"
+#include "attr.cpp"     		 // sparse attributes
 
 // graph data structures
-#include "attr.cpp"			 // sparse attributes
 #include "graph.cpp"         // graphs
+#include "graphmp.cpp"       // graphs
+//#include "mmgraph.cpp"       // multimodal graphs
 #include "network.cpp"       // networks
+#include "networkmp.cpp"     // networks OMP
 #include "timenet.cpp"       // time evolving networks
 
 // algorithms
@@ -27,7 +30,7 @@
 #include "cmty.cpp"          // community detection algorithms
 #include "flow.cpp"          // network flow algorithms
 #include "coreper.cpp"       // core-periphery algorithms
-#include "triad.cpp"         // triad calculations
+#include "triad.cpp"         // clustering coefficient and triads
 
 // graph generators
 #include "ggen.cpp"          // graph generators (preferential attachment, small-world, ...)
@@ -37,3 +40,8 @@
 #include "ghash.cpp"
 #include "statplot.cpp"
 #include "gio.cpp"
+
+// table data structures and algorithms
+#include "table.cpp"         // table
+#include "numpy.cpp"         // numpy conversion
+

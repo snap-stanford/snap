@@ -14,6 +14,7 @@ TEST(TNEANet, DefaultConstructor) {
   EXPECT_EQ(1,Graph->IsOk());
   EXPECT_EQ(1,Graph->Empty());
   EXPECT_EQ(1,Graph->HasFlag(gfDirected));
+  EXPECT_EQ(1,Graph->HasFlag(gfMultiGraph));
 }
 
 // Test node, edge creation
@@ -546,8 +547,8 @@ TEST(TNEANet, AddSAttrN) {
   status = Graph->AddSAttrN("TestStr", atStr, AttrId);
   EXPECT_EQ(0, status);
   EXPECT_EQ(2, AttrId.Val);
-  status = Graph->AddSAttrN("TestAny", atAny, AttrId);
-  EXPECT_EQ(-1, status);
+  //status = Graph->AddSAttrN("TestAny", atAny, AttrId);
+  //EXPECT_EQ(-1, status);
 }
 
 TEST(TNEANet, GetSAttrIdN) {
@@ -844,15 +845,15 @@ TEST(TNEANet, GetSAttrVN) {
   status = Graph->GetSAttrVN(Id, atStr, AttrV);
   EXPECT_EQ(0, status);
   EXPECT_EQ(1, AttrV.Len());
-  status = Graph->GetSAttrVN(Id, atAny, AttrV);
-  EXPECT_EQ(0, status);
-  EXPECT_EQ(3, AttrV.Len());
-  status = Graph->GetSAttrVN(Id, atUndef, AttrV);
-  EXPECT_EQ(0, status);
-  EXPECT_EQ(0, AttrV.Len());
-  TInt ErrorId(1);
-  status = Graph->GetSAttrVN(ErrorId, atUndef, AttrV);
-  EXPECT_EQ(-1, status);
+  //status = Graph->GetSAttrVN(Id, atAny, AttrV);
+  //EXPECT_EQ(0, status);
+  //EXPECT_EQ(3, AttrV.Len());
+  //status = Graph->GetSAttrVN(Id, atUndef, AttrV);
+  //EXPECT_EQ(0, status);
+  //EXPECT_EQ(0, AttrV.Len());
+  //TInt ErrorId(1);
+  //status = Graph->GetSAttrVN(ErrorId, atUndef, AttrV);
+  //EXPECT_EQ(-1, status);
 }
 
 TEST(TNEANet, GetIdVSAttrN) {
@@ -911,8 +912,8 @@ TEST(TNEANet, AddSAttrE) {
   status = Graph->AddSAttrE("TestStr", atStr, AttrId);
   EXPECT_EQ(0, status);
   EXPECT_EQ(2, AttrId.Val);
-  status = Graph->AddSAttrE("TestAny", atAny, AttrId);
-  EXPECT_EQ(-1, status);
+  //status = Graph->AddSAttrE("TestAny", atAny, AttrId);
+  //EXPECT_EQ(-1, status);
 }
 
 TEST(TNEANet, GetSAttrIdE) {
@@ -1225,15 +1226,15 @@ TEST(TNEANet, GetSAttrVE) {
   status = Graph->GetSAttrVE(Id, atStr, AttrV);
   EXPECT_EQ(0, status);
   EXPECT_EQ(1, AttrV.Len());
-  status = Graph->GetSAttrVE(Id, atAny, AttrV);
-  EXPECT_EQ(0, status);
-  EXPECT_EQ(3, AttrV.Len());
-  status = Graph->GetSAttrVE(Id, atUndef, AttrV);
-  EXPECT_EQ(0, status);
-  EXPECT_EQ(0, AttrV.Len());
-  TInt ErrorId(1);
-  status = Graph->GetSAttrVE(ErrorId, atUndef, AttrV);
-  EXPECT_EQ(-1, status);
+  //status = Graph->GetSAttrVE(Id, atAny, AttrV);
+  //EXPECT_EQ(0, status);
+  //EXPECT_EQ(3, AttrV.Len());
+  //status = Graph->GetSAttrVE(Id, atUndef, AttrV);
+  //EXPECT_EQ(0, status);
+  //EXPECT_EQ(0, AttrV.Len());
+  //TInt ErrorId(1);
+  //status = Graph->GetSAttrVE(ErrorId, atUndef, AttrV);
+  //EXPECT_EQ(-1, status);
 }
 
 TEST(TNEANet, GetIdVSAttrE) {

@@ -60,6 +60,10 @@ The content of \c Val is copied to the new element.
 If vector's capacity needs to be increased, it is increased by \c ResizeLen elements.
 ///
 
+/// TVec::AddMP
+The method assumes that the space has been preallocated. It does not perform any checks and it does not resize the vector space. The method is thread-safe.
+///
+
 /// TVec::AddSorted
 @param Asc Adds the element so that ascending (if \c true) or descending (if \c false) order is maintained.
 ///
@@ -128,6 +132,10 @@ assumes the vector is sorted.
 ///
 
 /// TVec::SearchBin1
+If the element is not found return value is -1. Uses binary search and thus assumes the vector is sorted.
+///
+
+/// TVec::SearchBinLeft
 If the element is not found return value is -1. Uses binary search and thus assumes the vector is sorted.
 ///
 

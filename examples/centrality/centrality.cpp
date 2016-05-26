@@ -26,7 +26,7 @@ int main(int argc, char* argv[]) {
   printf(" Closeness (SLOW!)...");
   for (TUNGraph::TNodeI NI = UGraph->BegNI(); NI < UGraph->EndNI(); NI++) {
     const int NId = NI.GetId();
-    CloseH.AddDat(NId, TSnap::GetClosenessCentr(UGraph, NId));
+    CloseH.AddDat(NId, TSnap::GetClosenessCentr<PUNGraph>(UGraph, NId, false));
   }
   printf("\nDONE! saving...");
   FILE *F = fopen(OutFNm.CStr(), "wt");

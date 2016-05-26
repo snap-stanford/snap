@@ -16,6 +16,14 @@ int TUNGraph::AddNode(int NId) {
   return NId;
 }
 
+// Add a node of ID NId to the graph.
+int TUNGraph::AddNodeUnchecked(int NId) {
+  if (IsNode(NId)) { return -1;}
+  MxNId = TMath::Mx(NId+1, MxNId());
+  NodeH.AddDat(NId, TNode(NId));
+  return NId;
+}
+
 // Add a node of ID NId to the graph and create edges to all nodes in vector NbrNIdV.
 int TUNGraph::AddNode(const int& NId, const TIntV& NbrNIdV) {
   int NewNId;
@@ -87,6 +95,15 @@ int TUNGraph::AddEdge(const int& SrcNId, const int& DstNId) {
   GetNode(SrcNId).NIdV.AddSorted(DstNId);
   if (SrcNId!=DstNId) { // not a self edge
     GetNode(DstNId).NIdV.AddSorted(SrcNId); }
+  NEdges++;
+  return -1; // edge id
+}
+
+// Add an edge between SrcNId and DstNId to the graph.
+int TUNGraph::AddEdgeUnchecked(const int& SrcNId, const int& DstNId) {
+  GetNode(SrcNId).NIdV.Add(DstNId);
+  if (SrcNId!=DstNId) { // not a self edge
+    GetNode(DstNId).NIdV.Add(SrcNId); }
   NEdges++;
   return -1; // edge id
 }
@@ -227,6 +244,13 @@ int TNGraph::AddNode(int NId) {
   return NId;
 }
 
+int TNGraph::AddNodeUnchecked(int NId) {
+  if (IsNode(NId)) { return NId;}
+  MxNId = TMath::Mx(NId+1, MxNId());
+  NodeH.AddDat(NId, TNode(NId));
+  return NId;
+}
+
 // add a node with a list of neighbors
 // (use TNGraph::IsOk to check whether the graph is consistent)
 int TNGraph::AddNode(const int& NId, const TIntV& InNIdV, const TIntV& OutNIdV) {
@@ -300,6 +324,12 @@ int TNGraph::AddEdge(const int& SrcNId, const int& DstNId) {
   if (IsEdge(SrcNId, DstNId)) { return -2; }
   GetNode(SrcNId).OutNIdV.AddSorted(DstNId);
   GetNode(DstNId).InNIdV.AddSorted(SrcNId);
+  return -1; // edge id
+}
+
+int TNGraph::AddEdgeUnchecked(const int& SrcNId, const int& DstNId) {
+  GetNode(SrcNId).OutNIdV.Add(DstNId);
+  GetNode(DstNId).InNIdV.Add(SrcNId);
   return -1; // edge id
 }
 
@@ -849,3 +879,4 @@ PBPGraph TBPGraph::GetSmallGraph() {
   BP->AddEdge(1, 4);
   return BP;
 }
+

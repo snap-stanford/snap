@@ -635,56 +635,66 @@ bool TNEANet::IsOk(const bool& ThrowExcept) const {
 void TNEANet::Dump(FILE *OutF) const {
   const int NodePlaces = (int) ceil(log10((double) GetNodes()));
   const int EdgePlaces = (int) ceil(log10((double) GetEdges()));
-  fprintf(OutF, "-------------------------------------------------\nDirected Node-Edge Network: nodes: %d, edges: %d\n", GetNodes(), GetEdges());
+  fprintf(OutF, "-------------------------------------------------\nDirected Node-Edge Network with Attributes: nodes: %d, edges: %d\n", GetNodes(), GetEdges());
   for (TNodeI NodeI = BegNI(); NodeI < EndNI(); NodeI++) {
-    fprintf(OutF, "  %*d]\n", NodePlaces, NodeI.GetId());
+    fprintf(OutF, "  %*d:", NodePlaces, NodeI.GetId());
+    fprintf(OutF, "    in[%d]", NodeI.GetInDeg());
+    for (int edge = 0; edge < NodeI.GetInDeg(); edge++) {
+      fprintf(OutF, " %*d", EdgePlaces, NodeI.GetInEId(edge)); }
+    //fprintf(OutF, "\n");
+    fprintf(OutF, "    out[%d]", NodeI.GetOutDeg());
+    for (int edge = 0; edge < NodeI.GetOutDeg(); edge++) {
+      fprintf(OutF, " %*d", EdgePlaces, NodeI.GetOutEId(edge)); }
+    //fprintf(OutF, "\n");
+
     // load node attributes
     TIntV IntAttrN;
     IntAttrValueNI(NodeI.GetId(), IntAttrN);
     fprintf(OutF, "    nai[%d]", IntAttrN.Len());
     for (int i = 0; i < IntAttrN.Len(); i++) {
       fprintf(OutF, " %*i", NodePlaces, IntAttrN[i]()); }
+    //fprintf(OutF, "\n");
+
     TStrV StrAttrN;
     StrAttrValueNI(NodeI.GetId(), StrAttrN);
     fprintf(OutF, "    nas[%d]", StrAttrN.Len());
     for (int i = 0; i < StrAttrN.Len(); i++) {
       fprintf(OutF, " %*s", NodePlaces, StrAttrN[i]()); }
+    //fprintf(OutF, "\n");
+
     TFltV FltAttrN;
     FltAttrValueNI(NodeI.GetId(), FltAttrN);
     fprintf(OutF, "    naf[%d]", FltAttrN.Len());
     for (int i = 0; i < FltAttrN.Len(); i++) {
       fprintf(OutF, " %*f", NodePlaces, FltAttrN[i]()); }
-
-    fprintf(OutF, "    in[%d]", NodeI.GetInDeg());
-    for (int edge = 0; edge < NodeI.GetInDeg(); edge++) {
-      fprintf(OutF, " %*d", EdgePlaces, NodeI.GetInEId(edge)); }
-    fprintf(OutF, "\n");
-    fprintf(OutF, "    out[%d]", NodeI.GetOutDeg());
-    for (int edge = 0; edge < NodeI.GetOutDeg(); edge++) {
-      fprintf(OutF, " %*d", EdgePlaces, NodeI.GetOutEId(edge)); }
+    //fprintf(OutF, "\n");
     fprintf(OutF, "\n");
   }
   for (TEdgeI EdgeI = BegEI(); EdgeI < EndEI(); EdgeI++) {
-    fprintf(OutF, "  %*d]  %*d  ->  %*d\n", EdgePlaces, EdgeI.GetId(), NodePlaces, EdgeI.GetSrcNId(), NodePlaces, EdgeI.GetDstNId());
+    fprintf(OutF, "  %*d:  %*d  ->  %*d", EdgePlaces, EdgeI.GetId(), NodePlaces, EdgeI.GetSrcNId(), NodePlaces, EdgeI.GetDstNId());
 
     // load edge attributes
     TIntV IntAttrE;
     IntAttrValueEI(EdgeI.GetId(), IntAttrE);
     fprintf(OutF, "    eai[%d]", IntAttrE.Len());
     for (int i = 0; i < IntAttrE.Len(); i++) {
-      fprintf(OutF, " %*i", EdgePlaces, IntAttrE[i]()); }
+      fprintf(OutF, " %*i", EdgePlaces, IntAttrE[i]()); 
+    }
     TStrV StrAttrE;
     StrAttrValueEI(EdgeI.GetId(), StrAttrE);
     fprintf(OutF, "    eas[%d]", StrAttrE.Len());
     for (int i = 0; i < StrAttrE.Len(); i++) {
-      fprintf(OutF, " %*s", EdgePlaces, StrAttrE[i]()); }
+      fprintf(OutF, " %*s", EdgePlaces, StrAttrE[i]()); 
+    }
     TFltV FltAttrE;
     FltAttrValueEI(EdgeI.GetId(), FltAttrE);
     fprintf(OutF, "    eaf[%d]", FltAttrE.Len());
     for (int i = 0; i < FltAttrE.Len(); i++) {
-      fprintf(OutF, " %*f", EdgePlaces, FltAttrE[i]()); }
+      fprintf(OutF, " %*f", EdgePlaces, FltAttrE[i]()); 
+    }
+    fprintf(OutF, "\n");
   }
-  fprintf(OutF, "\n");
+  //fprintf(OutF, "\n");
 }
 
 // Attribute related function
@@ -827,7 +837,15 @@ int TNEANet::AddFltAttrDatE(const int& EId, const TFlt& value, const TStr& attr)
     VecOfFltVecsE.Add(NewVec);
   }
   return 0;
-} 
+}
+
+TVec<TFlt>& TNEANet::GetFltAttrVecE(const TStr& attr) {
+  return VecOfFltVecsE[KeyToIndexTypeE.GetDat(attr).Val2];
+}
+
+int TNEANet::GetFltKeyIdE(const int& EId) {
+  return EdgeH.GetKeyId(EId);
+}
 
 TInt TNEANet::GetIntAttrDatN(const int& NId, const TStr& attr) {
   return VecOfIntVecsN[KeyToIndexTypeN.GetDat(attr).Val2][NodeH.GetKeyId(NId)];
@@ -1122,6 +1140,40 @@ void TNEANet::GetAttrENames(TStrV& IntAttrNames, TStrV& FltAttrNames, TStrV& Str
       StrAttrNames.Add(it.GetKey());
     }
   }
+}
+
+TFlt TNEANet::GetWeightOutEdges(const TNodeI& NI, const TStr& attr) {
+  TNode Node = GetNode(NI.GetId());
+  TIntV OutEIdV = Node.OutEIdV;
+  TFlt total = 0;
+  int len = Node.OutEIdV.Len();
+  for (int i = 0; i < len; i++) {
+    total += GetFltAttrDatE(Node.OutEIdV[i], attr);
+  }
+  return total;
+}
+
+void TNEANet::GetWeightOutEdgesV(TFltV& OutWeights, const TFltV& AttrVal) {
+  for (TEdgeI it = BegEI(); it < EndEI(); it++) {
+    int EId = it.GetId();
+    int SrcId = it.GetSrcNId();
+    OutWeights[SrcId] +=AttrVal[GetFltKeyIdE(EId)];
+  }
+}
+
+bool TNEANet::IsFltAttrE(const TStr& attr) {
+  return (KeyToIndexTypeE.IsKey(attr) &&
+    KeyToIndexTypeE.GetDat(attr).Val1 == FltType);
+}
+
+bool TNEANet::IsIntAttrE(const TStr& attr) {
+  return (KeyToIndexTypeE.IsKey(attr) &&
+    KeyToIndexTypeE.GetDat(attr).Val1 == IntType);
+}
+
+bool TNEANet::IsStrAttrE(const TStr& attr) {
+  return (KeyToIndexTypeE.IsKey(attr) &&
+    KeyToIndexTypeE.GetDat(attr).Val1 == StrType);
 }
 
 int TNEANet::AddSAttrDatN(const TInt& NId, const TStr& AttrName, const TInt& Val) {
@@ -2335,3 +2387,4 @@ int TDirNet::GetSAttrIdE(const TStr& Name, TInt& AttrId, TAttrType& AttrType) co
 int TDirNet::GetSAttrNameE(const TInt& AttrId, TStr& Name, TAttrType& AttrType) const {
   return SAttrE.GetSAttrName(AttrId, Name, AttrType);
 }
+

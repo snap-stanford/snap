@@ -406,8 +406,8 @@ void ManipulateNodeSparseAttributes() {
   printf("Node with id %d has %d flt attributes.\n", NId.Val, AttrV.Len());
   Graph->GetSAttrVN(NId, atStr, AttrV);
   printf("Node with id %d has %d str attributes.\n", NId.Val, AttrV.Len());
-  Graph->GetSAttrVN(NId, atAny, AttrV);
-  printf("Node with id %d has %d attributes.\n", NId.Val, AttrV.Len());
+  //Graph->GetSAttrVN(NId, atAny, AttrV);
+  //printf("Node with id %d has %d attributes.\n", NId.Val, AttrV.Len());
 
   // Delete all attributes for node with id NId (use either name or id).
   Graph->DelSAttrDatN(NId, IntAttr);
@@ -490,8 +490,8 @@ void ManipulateEdgeSparseAttributes() {
   printf("Edge with id %d has %d flt attributes.\n", EId.Val, AttrV.Len());
   Graph->GetSAttrVE(EId, atStr, AttrV);
   printf("Edge with id %d has %d str attributes.\n", EId.Val, AttrV.Len());
-  Graph->GetSAttrVE(EId, atAny, AttrV);
-  printf("Edge with id %d has %d attributes.\n", EId.Val, AttrV.Len());
+  //Graph->GetSAttrVE(EId, atAny, AttrV);
+  //printf("Edge with id %d has %d attributes.\n", EId.Val, AttrV.Len());
 
   // Delete all attributes for edge with id EId (use either name or id).
   Graph->DelSAttrDatE(EId, IntAttr);

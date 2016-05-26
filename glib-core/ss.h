@@ -137,3 +137,4 @@ public:
 
   const char* DumpStr() const;
 };
+

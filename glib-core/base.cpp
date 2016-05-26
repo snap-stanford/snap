@@ -80,6 +80,7 @@ int _daylight = 0;
 #include "html.cpp"
 #include "md5.cpp"
 #include "ss.cpp"
+#include "ssmp.cpp"
 #include "xml.cpp"
 #include "json.cpp"
 //#include "prolog.cpp"

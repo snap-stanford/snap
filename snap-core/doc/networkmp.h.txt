@@ -1,0 +1,99 @@
+/// TNEANetMP::Class
+Node IDs can be arbitrary non-negative integers. Edges have IDs.
+There can be more than one directed edge from one source node to a destination
+node.
+Self loops (one per node) are allowed as well as multiple (parallel) edges.
+Nodes and edges can have attributes/data associated with them.
+The attributes can be added dynamically at runtime.
+The directed multigraph data structure is implemented using sorted adjacency
+lists.
+This means adding a node takes constant time, while adding an edge takes
+linear time (since adjacency list is kept sorted) in the node degree.
+Accessing arbitrary node takes constant time and accessing any edge takes
+logarithmic time in the node degree.
+The attributes are organized in a columnar store, where each attribute column
+is defined for all the nodes or edges in the network.
+///
+
+/// TNEANetMP::TNodeI::GetInNId
+Range of NodeN: 0 <= NodeN < GetInDeg().
+///
+
+/// TNEANetMP::TNodeI::GetOutNId 
+Range of NodeN: 0 <= NodeN < GetOutDeg().
+/// 
+    
+/// TNEANetMP::TNodeI::GetNbrNId 
+Range of NodeN: 0 <= NodeN < GetNbrDeg().
+///
+
+/// TNEANetMP::New
+Call: PNEANetMP Graph = TNEANetMP::New(Nodes, Edges).
+///
+    
+/// TNEANetMP::AddNode (int NId = -1)
+Returns the ID of the node being added.
+If NId is -1, node ID is automatically assigned.
+Aborts, if a node with ID NId already exists.
+/// 
+
+/// TNEANetMP::DelNode
+If the node of ID NId does not exist the function aborts.
+///
+
+/// TNEANetMP::AddEdge
+Returns the ID of the edge being added.
+If EId is -1, edge ID is automatically assigned.
+Aborts, if an edge with ID EId already exists.
+Aborts, if SrcNId or DstNId are not nodes in the graph.
+///
+
+/// TNEANetMP::DelEdge
+If the edge (SrcNId, DstNId) does not exist in the graph function still
+completes.
+But the function aborts if SrcNId or DstNId are not nodes in the graph.
+///
+
+/// TNEANetMP::Defrag
+After performing many node and edge insertions and deletions to a graph,
+the graph data structure will be fragmented in memory.
+This function compacts down the graph data structure and frees unneeded
+memory.
+///
+
+/// TNEANetMP::IsOk
+For each node in the graph check that its neighbors are also nodes in the
+graph.
+///
+
+/// TNEANetMP::AddIntAttrDatN
+Adds the key int value pair to the corresponding node attribute value vector.
+///
+
+/// TNEANetMP::AddStrAttrDatN
+Adds the key str value pair to the corresponding node attribute value vector.
+///
+
+/// TNEANetMP::AddFltAttrDatN
+Adds the key flt value pair to the corresponding node attribute value vector.
+///
+
+/// TNEANetMP::AddIntAttrDatE
+Adds the key int value pair to the corresponding edge attribute value vector.
+///
+
+/// TNEANetMP::AddStrAttrDatE
+Adds the key str value pair to the corresponding edge attribute value vector.
+///
+
+/// TNEANetMP::AddFltAttrDatE
+Adds the key flt value pair to the corresponding edge attribute value vector.
+///
+
+/// TNEANetMP::GetSmallGraph
+\verbatim
+Edges:  0 -> 1, 0 -> 2, 0 -> 3, 0 -> 4, 1 -> 2, 1 -> 2
+\endverbatim
+///
+
+

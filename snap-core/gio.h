@@ -73,6 +73,7 @@ PGraph LoadEdgeList(const TStr& InFNm, const int& SrcColId, const int& DstColId)
   TSsParser Ss(InFNm, ssfWhiteSep, true, true, true);
   PGraph Graph = PGraph::TObj::New();
   int SrcNId, DstNId;
+
   while (Ss.Next()) {
     if (! Ss.GetInt(SrcColId, SrcNId) || ! Ss.GetInt(DstColId, DstNId)) { continue; }
     if (! Graph->IsNode(SrcNId)) { Graph->AddNode(SrcNId); }

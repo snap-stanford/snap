@@ -279,11 +279,13 @@ void TTimeNet::PlotCCfOverTm(const TStr& FNmPref, TStr Desc, const TTmUnit& TmUn
     if (TmUnit == tmuNodes) { XVal = Graph->GetNodes(); }
     else { XVal = TmBucketV[t].BegTm.GetInUnits(TmUnit); }
     CcfV.Add(TFltPr(XVal, CCf));
-    OpClV.Add(TFltPr(XVal, Open+Close==0?0:(double)Close/(Open+Close)));
-    OpV.Add(TFltPr(XVal, Open==0?0:(double)Close/Open));
+    double FltOpen = static_cast<double>(Open);
+    double FltClose = static_cast<double>(Close);
+    OpClV.Add(TFltPr(XVal, (Open+Close==0 ? 0.0 : FltClose/(FltOpen+FltClose))));
+    OpV.Add(TFltPr(XVal, (Open==0 ? 0.0 : FltClose/FltOpen)));
     Tuple[0]=Graph->GetNodes();
     Tuple[1]=Graph->GetEdges();
-    Tuple[2]=(double)Close;  Tuple[3]=(double)Open;
+    Tuple[2]=FltClose;  Tuple[3]=FltOpen;
     OpenClsV.Add(Tuple);
     printf(" %s", ExeTm.GetStr());
     TGnuPlot::PlotValV(DegToCCfV, TStr::Fmt("ccfAt%02dtm.%s", t+1, FNmPref.CStr()),

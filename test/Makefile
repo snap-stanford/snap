@@ -10,6 +10,7 @@
 #
 
 include ../Makefile.config
+CXXFLAGS += $(CXXOPENMP)
 LIBS += -lgtest
 
 ## Main application file
@@ -20,6 +21,7 @@ TEST_SRCS = \
 	test-TUNGraph.cpp test-TNGraph.cpp \
 	test-TNEGraph.cpp test-TNEANet.cpp \
 	test-TNodeNet.cpp test-TNodeEDatNet.cpp test-TNodeEdgeNet.cpp \
+	test-TTable.cpp \
 	test-TUndirNet.cpp test-TDirNet.cpp \
 	test-subgraph.cpp \
 	test-TStrPool.cpp \
@@ -59,6 +61,7 @@ test: $(MAIN)
 clean:
 	rm -f *.o $(MAIN) $(MAIN).exe
 	rm -rf Debug Release
-	rm -rf test*.dat *.Err
+	rm -rf demo*.dat test*.dat *.Err
 	rm -rf graphviz/test_*
+	rm -rf table/p1.txt
 

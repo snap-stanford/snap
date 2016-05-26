@@ -65,5 +65,6 @@ clean:
 	$(MAKE) clean -C netevol
 	$(MAKE) clean -C netinf
 	$(MAKE) clean -C netstat
+	$(MAKE) clean -C rolx
 	$(MAKE) clean -C testgraph
 	rm -rf Debug Release ipch
