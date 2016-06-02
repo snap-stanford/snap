@@ -800,7 +800,7 @@ PMMNet TMMNet::GetSubgraphByModeNet(TStrV& ModeNetTypes) {
   return Result;
 }
 
-PNEANet TMMNet::ToNetwork(TIntV& CrossNetTypes, TVec<TTriple<TInt, TStr, TStr> >& NodeAttrMap, TVec<TTriple<TInt, TStr, TStr> >& EdgeAttrMap) {
+PNEANet TMMNet::ToNetwork(TIntV& CrossNetTypes, TIntStrStrTrV& NodeAttrMap, TVec<TTriple<TInt, TStr, TStr> >& EdgeAttrMap) {
   TIntPrIntH NodeMap;
   THash<TIntPr, TIntPr> EdgeMap;
   THashSet<TInt> Modes;
@@ -962,7 +962,7 @@ PNEANet TMMNet::ToNetwork(TIntV& CrossNetTypes, TVec<TTriple<TInt, TStr, TStr> >
   return NewNet;
 }
 
-PNEANet TMMNet::ToNetwork2(TIntV& CrossNetTypes, THash<TInt, TVec<TPair<TStr, TStr> > >& NodeAttrMap, THash<TInt, TVec<TPair<TStr, TStr> > >& EdgeAttrMap) {
+PNEANet TMMNet::ToNetwork2(TIntV& CrossNetTypes, TIntStrPrVH& NodeAttrMap, THash<TInt, TVec<TPair<TStr, TStr> > >& EdgeAttrMap) {
   TIntPrIntH NodeMap;
   THashSet<TInt> Modes;
   PNEANet NewNet = TNEANet::New();

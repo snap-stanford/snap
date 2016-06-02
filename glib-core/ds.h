@@ -1465,6 +1465,7 @@ typedef TVec<TIntIntStrTr> TIntIntStrTrV;
 typedef TVec<TIntIntFltTr> TIntIntFltTrV;
 typedef TVec<TIntFltIntTr> TIntFltIntTrV;
 typedef TVec<TIntStrIntTr> TIntStrIntTrV;
+typedef TVec<TIntStrStrTr> TIntStrStrTrV;
 typedef TVec<TIntKd> TIntKdV;
 typedef TVec<TUIntIntKd> TUIntIntKdV;
 typedef TVec<TIntFltKd> TIntFltKdV;

@@ -65,7 +65,7 @@ public:
   void DelNode(const int& NId);
   /// Gets a list of CrossNets that have this Mode as either a source or destination type.
   void GetCrossNetNames(TStrV& Names) const { NeighborTypes.GetKeyV(Names); }
-  /// For the given node, gets all the neighbors for crossnet types. If both this mode is both the source and dest type, use isOutEId to specify direction.
+  /// For the given node, gets all the neighbors for the crossnet type. If this mode is both the source and dest type, use isOutEId to specify direction.
   void GetNeighborsByCrossNet(const int& NId, TStr& Name, TIntV& Neighbors, const bool isOutEId=false) const;
 
   /// Returns an iterator referring to the first node in the graph.
@@ -592,13 +592,13 @@ public:
 
   ///Gets the induced subgraph given a vector of crossnet type names.
   PMMNet GetSubgraphByCrossNet(TStrV& CrossNetTypes);
-  ///Gets the induced subgraph given a vector of mode type names
+  ///Gets the induced subgraph given a vector of mode type names.
   PMMNet GetSubgraphByModeNet(TStrV& ModeNetTypes);
 
   /// Converts multimodal network to TNEANet; as attr names can collide, AttrMap specifies the (Mode/Cross Id, old att name, new attr name)
-  PNEANet ToNetwork(TIntV& CrossNetTypes, TVec<TTriple<TInt, TStr, TStr> >& NodeAttrMap, TVec<TTriple<TInt, TStr, TStr> >& EdgeAttrMap);
+  PNEANet ToNetwork(TIntV& CrossNetTypes, TIntStrStrTrV& NodeAttrMap, TVec<TTriple<TInt, TStr, TStr> >& EdgeAttrMap);
   /// Converts multimodal network to TNEANet; as attr names can collide, AttrMap specifies the Mode/Cross Id -> vec of pairs (old att name, new attr name)
-  PNEANet ToNetwork2(TIntV& CrossNetTypes, THash<TInt, TVec<TPair<TStr, TStr> > >& NodeAttrMap, THash<TInt, TVec<TPair<TStr, TStr> > >& EdgeAttrMap);
+  PNEANet ToNetwork2(TIntV& CrossNetTypes, TIntStrPrVH& NodeAttrMap, THash<TInt, TVec<TPair<TStr, TStr> > >& EdgeAttrMap);
 
   #ifdef GCC_ATOMIC
   PNEANetMP ToNetworkMP(TStrV& CrossNetNames);

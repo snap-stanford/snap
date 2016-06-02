@@ -576,6 +576,7 @@ typedef THash<TInt, TFltTr> TIntFltTrH;
 typedef THash<TInt, TFltV> TIntFltVH;
 typedef THash<TInt, TStr> TIntStrH;
 typedef THash<TInt, TStrV> TIntStrVH;
+typedef THash<TInt, TStrPrV> TIntStrPrVH;
 typedef THash<TInt, TIntPr> TIntIntPrH;
 typedef THash<TInt, TIntPrV> TIntIntPrVH;
 typedef THash<TInt, TIntStrPr> TIntIntStrPrH;
