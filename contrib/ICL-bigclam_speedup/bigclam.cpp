@@ -6,6 +6,7 @@
 #ifndef NOMP
 #include <omp.h>
 #endif
+#include <inttypes.h>
 
 int main(int argc, char* argv[]) {
   Env = TEnv(argc, argv, TNotify::StdNotify);
@@ -62,30 +63,27 @@ int main(int argc, char* argv[]) {
   // Community initialisation - conductance test stage
   uint64 stime = TSecTm::GetCurTm().GetAbsSecs();
   RAGM.NeighborComInit(OptComs);
-  double conductanceTestRunTime =
-    (double) (TSecTm::GetCurTm().GetAbsSecs() - stime);
+  uint64 conductanceTestRunTime = TSecTm::GetCurTm().GetAbsSecs() - stime;
   
   // Gradient ascent stage
   stime = TSecTm::GetCurTm().GetAbsSecs();
   RAGM.MLEGradAscentParallel(0.0001, 1000, 
                              NumThreads, "", 
                              StepAlpha, StepBeta);
-  double gradientAscentRunTime =
-    (double) (TSecTm::GetCurTm().GetAbsSecs() - stime);
+  uint64 gradientAscentRunTime = TSecTm::GetCurTm().GetAbsSecs() - stime;
  
   // Community association stage
   stime = TSecTm::GetCurTm().GetAbsSecs();
   RAGM.GetCmtyVV(EstCmtyVV);
-  double communityAssociationRunTime =
-    (double) (TSecTm::GetCurTm().GetAbsSecs() - stime);
+  uint64 communityAssociationRunTime = TSecTm::GetCurTm().GetAbsSecs() - stime;
   
   // Dump list of community memmberships
   TAGMUtil::DumpCmtyVV(OutFPrx + "cmtyvv.txt", EstCmtyVV, NIDNameH);
   
-  printf("\nRuntime breakdown (in seconds):\n"
-         "Conductance test stage: %f seconds\n"
-         "Gradient ascent stage: %f seconds\n"
-         "Community association stage: %f seconds\n",
+  printf("\nRuntime breakdown (in full seconds elapsed):\n"
+         "Conductance test stage: %" PRIu64 " second(s)\n"
+         "Gradient ascent stage: %" PRIu64 " second(s)\n"
+         "Community association stage: %" PRIu64 " second(s)\n",
          conductanceTestRunTime, gradientAscentRunTime, 
          communityAssociationRunTime
         );
