@@ -2,3 +2,63 @@ Imperial College London - BigClam speedup
 
 C.H.B. Liu, B.P. Chamberlain, M.P. Deisenroth
 ----------------------------------------------------------
+
+We notice the community association stage dominates the runtime for BigClam 
+community detection algorithm for networks with large number of communities. 
+Networks with fairly large number of communities is common, as real network 
+often demonstrate rich overlapping community structure. To illustrate, every 
+single ground-truth community networks featured in Leskovec and Krevl [1] 
+have large number of communities recorded, ranging from 8,385 communities 
+in Youtube online social network to over six million communities in Orkut 
+online social network.
+
+However, unlike the gradient ascent stage, which computation is parallelised
+over multiple CPU threads, the community association stage is not parallelised.
+This means the majority of CPU resources and man-time is wasted in idle.
+Parallelised computation in the community association stage will better 
+utilise available resources, and hence improve the scalability of BigClam
+community detection algorithm.
+
+
+1. To build the executables, run:
+
+```
+> make all
+```
+
+...which builds two executables: ./bigclam (without CA stage parallelised)
+and ./bigclam_parallelised (with CA stage parallelised). The final executables
+link with different object files, compiled 
+
+2. To compare the runtime difference between the unparallelised and 
+parallelised versions, run:
+
+```
+# Amazon product co-purchase network
+> ./bigclam -i:./data/com-amazon.ungraph.txt -c:75149
+> ./bigclam_parallelised -o:parallelised -i:./data/com-amazon.ungraph.txt -c:75149
+
+# DBLP collaboration network
+> ./bigclam -i:./data/com-dblp.ungraph.txt -c:13477
+> ./bigclam_parallelised -o:parallelised -i:./data/com-dblp.ungraph.txt -c:13477
+```
+
+...where the seemingly hard-coded number of communities are that specified
+by Leskovec and Krevl [1].
+
+3. To show the parallelised version produced the same community memberships
+(not necessarily in the same community order), run:
+
+```
+bash -c 'diff -b -w -B -y <(sort cmtyvv.txt) <(sort parallelisedcmtyvv.txt); echo $?'
+```
+
+
+
+[1] Leskovec, J., Krevl, A. (2014) 
+    SNAP Datasets: Stanford Large Network Dataset Collection
+    [Data file]
+    Stanford University, CA, United States of America.
+    Available from: http://snap.stanford.edu/data
+    [Accessed 7th June 2016]
+  
