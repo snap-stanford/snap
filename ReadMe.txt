@@ -265,6 +265,7 @@ snap-adv:
   kronecker.h : Kronecker Graph generator and KronFit algorithm for
         estimating parameters of Kronecker graphs.
   mag.h : Implements the Multiplicative Attribute Graph (MAG).
+  motifcluster.h : Implements motif-based clustering algorithms.
   ncp.h : Network community profile plot. Implements local spectral graph
         partitioning method to efficiently find communities in networks.
   rolx.h : Node role detection.
@@ -275,7 +276,6 @@ snap-exp:
   arxiv.h : Functions for parsing Arxiv data and standardizing author names.
   dblp.h : Parser for XML dump of DBLP data.
   imdbnet.h : Actors-to-movies bipartite network of IMDB.
-  motifcluster.h : Motif-based clustering algorithms
   mxdag.h  Finds the maximum directed-acyclic subgraph of a given
         directed graph.
   signnet.h : Networks with signed (+1, -1) edges that can denote
