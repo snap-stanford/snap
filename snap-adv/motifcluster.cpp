@@ -681,12 +681,13 @@ void MotifCluster::SpectralCut(const TVec< THash<TInt, TInt> >& weights, TSweepC
 // Clique weighting
 void ChibaNishizekiWeighter::Initialize(int k) {
   k_ = k;
-  C_ = TIntV();
+  C_.Clr();
 
   // Process the k - 1 core
   PUNGraph kcore = TSnap::GetKCore(orig_graph_, k - 1);
   TSnap::DelSelfEdges(kcore);
-  for (int i = 0; i <= kcore->GetMxNId(); i++) {
+  int max_nodes = kcore->GetMxNId();
+  for (int i = 0; i <= max_nodes; i++) {
     if (!kcore->IsNode(i)) {
       kcore->AddNode(i);
     }
@@ -702,7 +703,7 @@ void ChibaNishizekiWeighter::Initialize(int k) {
   labels_.PutAll(k);
   
   auto& graph_k = graph_[k];
-  for (int src = 0; src < N; ++src) {
+  for (int src = 0; src < N; src++) {
     auto src_it = kcore->GetNI(src);
     int deg = src_it.GetDeg();
     graph_k[src] = TIntV(deg);
