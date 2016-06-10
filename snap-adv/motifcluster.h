@@ -2,9 +2,6 @@
 #define snap_motifcluster_h
 #include "Snap.h"
 
-// TODO: Implement algorithm for motif adjacency matrix for
-//       1. semi-clique
-//       2. undirected triangles
 enum MotifType {
   M1,         // u  --> v, v  --> w, w  --> u
   M2,         // u <--> v, v  --> w, w  --> u
@@ -21,11 +18,19 @@ enum MotifType {
   M13,        // u <--> v, u <--> w
   bifan,      // u  --> w, u  --> x, v  --> w, v  --> x
   semiclique, // u  --  v, u  --  w, u  --  x, v  --  w, v  --  x
+  triangle,   // undirected cliques
+  clique3,    //       |
+  clique4,    //       |
+  clique5,    //       |
+  clique6,    //       |
+  clique7,    //       |
+  clique8,    //       |
+  clique9,    //       |
 };
 
 // Container for sweep cut data.
 class TSweepCut {
-public:
+ public:
   TIntV cluster;        // Set of indices forming cluster
   double cond;          // conductance of the cluster
   double eig;           // Eigenvalue of Fiedler vector
@@ -40,14 +45,19 @@ class MotifCluster {
   // i and j co-occurr in an instance of the motif for any i < j (only stores
   // the lower triangular part of the matrix).
   void MotifAdjacency(PNGraph graph, MotifType motif,
-		      TVec< THash<TInt, TInt> >& weights);
+                      TVec< THash<TInt, TInt> >& weights);
 
+  // Same as MotifAdjacency() but for an undirected graph and an undirected
+  // motif.
+  void MotifAdjacency(PUNGraph graph, MotifType motif,
+                      TVec< THash<TInt, TInt> >& weights);
+  
   // Given a weighted network, compute a cut of the graph using the Fiedler vector
   // and a sweep cut.  Results are stored in the sweepcut data structure.  The
   // variables tol and maxiter control the stopping tolerance and maximum number
   // of iterations used by the eigensolver.
   void SpectralCut(const TVec< THash<TInt, TInt> >& weights, TSweepCut& sweepcut,
-		   double tol=1e-14, int maxiter=300);
+                   double tol=1e-14, int maxiter=300);
 
 
   // Compute the Fiedler vector for the nonnegative matrix W and store the result
@@ -55,7 +65,7 @@ class MotifCluster {
   // residual || Ax^{k} - \lambda^{(k)} x^{(k)} || < tol or when maxiter
   // iterations of the power method have completed.
   double FiedlerVector(const TSparseColMatrix& W, TFltV& fvec,
-		       double tol=1e-14, int maxiter=300);
+                       double tol=1e-14, int maxiter=300);
 
   // Check if three nodes form an instance of a directed triangle motif.
   bool IsMotifM1(PNGraph graph, int u, int v, int w);
@@ -80,31 +90,74 @@ class MotifCluster {
   bool IsBidirEdge(PNGraph graph, int u, int v);
 
   // Check if there is no edge between u and v
-  bool IsNoEdge(PNGraph graph, int u, int v);  
+  bool IsNoEdge(PNGraph graph, int u, int v);
 
- private:
   // Fills order vector so that order[i] < order[j] implies that
   //    degree(i) <= degree(j),
   // where degree is the number of unique incoming and outgoing
   // neighbors (reciprocated edge neighbors are only counted once).
   void DegreeOrdering(PNGraph graph, TIntV& order);
 
+ private:
   // Handles MotifAdjacency() functionality for directed triangle motifs.
   void TriangleMotifAdjacency(PNGraph graph, MotifType motif,
                               TVec< THash<TInt, TInt> >& weights);
 
   // Handles MotifAdjacency() functionality for directed wedges.
   void WedgeMotifAdjacency(PNGraph graph, MotifType motif,
-			   TVec< THash<TInt, TInt> >& weights);  
+                           TVec< THash<TInt, TInt> >& weights);  
 
   // Handles MotifAdjacency() functionality for the bifan motif.
   void BifanMotifAdjacency(PNGraph graph, TVec< THash<TInt, TInt> >& weights);
 
   // Handles MotifAdjacency() functionality for the semi-clique.  
-  void SemicliqueAdjacency(PUNGraph graph, TVec< THash<TInt, TInt> >& weights);
+  void SemicliqueMotifAdjacency(PUNGraph graph,
+				TVec< THash<TInt, TInt> >& weights);
 
-  // Increments weight on (i, j) by one
-  void IncrementWeight(int i, int j, TVec< THash<TInt, TInt> >& weights);
+  // Handles MotifAdjacency() functionality for undirected cliques.
+  void CliqueMotifAdjacency(PUNGraph graph, int clique_size,
+                            TVec< THash<TInt, TInt> >& weights);
 };
 
-#endif
+// Class for doing undirected clique adjacency matrix weighting.  Uses the Chiba
+// & Nishizeki algorithm with (k-1)-core preprocessing.  See:
+//
+// Chiba, Norishige, and Takao Nishizeki. "Arboricity and subgraph listing
+// algorithms." SIAM Journal on Computing 14.1 (1985): 210-223.
+class ChibaNishizekiWeighter {
+ public:
+ ChibaNishizekiWeighter(PUNGraph graph) : orig_graph_(graph) {}
+  
+  // Form motif adjacency matrix for cliques of size k
+  void Run(int k);
+  
+  // Get the weight vector
+  TVec< THash<TInt, TInt> >& weights() { return weights_; }
+  
+ private:
+  // Get the order of nodes given by the subgraph induced by U
+  void SubgraphDegreeOrder(int k, const TIntV& U, TIntV& order);
+  
+  // Update the weights for all nodes participating in the clique
+  void UpdateWeights(const TIntV& clique);
+
+  // Write out all of the cliques (nodes in U + the stack)
+  void FlushCliques(const TIntV& U);
+  
+  // Main recursive function
+  void CliqueEnum(int k, const TIntV& U);
+
+  // Adjust neighbors with label k
+  void AdjustLabels(int kcurr, int klast, const TIntV& U);
+
+  void Initialize(int k);
+
+  TVec < TVec<TIntV> > graph_;
+  TIntV labels_;
+  TIntV C_;
+  int k_;  // size of clique
+  PUNGraph orig_graph_;
+  TVec< THash<TInt, TInt> > weights_;  // motif adjacency weights
+};
+
+#endif  // snap_motifcluster_h
