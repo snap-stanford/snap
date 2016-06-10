@@ -80,7 +80,7 @@ bool MotifCluster::IsMotifM8(PNGraph graph, int center, int v, int w) {
 
 bool MotifCluster::IsMotifM9(PNGraph graph, int center, int v, int w) {
   return IsNoEdge(graph, v, w) && ((IsUnidirEdge(graph, center, v) && IsUnidirEdge(graph, w, center)) ||
-                                   (IsUnidirEdge(graph, center, w) && IsUnidirEdge(graph, center, v)));
+                                   (IsUnidirEdge(graph, center, w) && IsUnidirEdge(graph, v, center)));
 }
 
 bool MotifCluster::IsMotifM10(PNGraph graph, int center, int v, int w) {
@@ -342,6 +342,11 @@ void MotifCluster::SemicliqueMotifAdjacency(PUNGraph graph,
           int nbr1 = common[k];
           int nbr2 = common[l];
           if (!graph->IsEdge(nbr1, nbr2)) {
+            IncrementWeight(src, dst, weights);
+            IncrementWeight(src, nbr1, weights);
+            IncrementWeight(src, nbr2, weights);	    
+            IncrementWeight(dst, nbr1, weights);
+            IncrementWeight(dst, nbr2, weights);
             IncrementWeight(nbr1, nbr2, weights);
           }
         }
