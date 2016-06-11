@@ -356,6 +356,41 @@ void MotifCluster::SemicliqueMotifAdjacency(PUNGraph graph,
 }
 
 
+
+/////////////////////////////////////////////////
+// Simple edge weighting
+void MotifCluster::EdgeMotifAdjacency(PNGraph graph,
+				      TVec< THash<TInt, TInt> >& weights) {
+  for (auto it = graph->BegEI(); it < graph->EndEI(); it++) {
+    int src = it.GetSrcNId();    
+    int dst = it.GetDstNId();
+    if (src == dst) {
+      continue;
+    }
+    // Only count reciprocated edges if src < dst
+    if (!graph->IsEdge(dst, src) || src < dst) {
+      IncrementWeight(src, dst);
+    }
+  }
+}
+
+
+/////////////////////////////////////////////////
+// Simple edge weighting
+void MotifCluster::EdgeMotifAdjacency(PUNGraph graph,
+				      TVec< THash<TInt, TInt> >& weights) {
+  for (auto it = graph->BegEI(); it < graph->EndEI(); it++) {
+    int src = it.GetSrcNId();    
+    int dst = it.GetDstNId();
+    if (src == dst) {
+      continue;
+    }
+    IncrementWeight(src, dst);
+  }
+}
+
+
+
 /////////////////////////////////////////////////
 // Motif adjacency formation
 void MotifCluster::MotifAdjacency(PNGraph graph, MotifType motif,
@@ -382,6 +417,8 @@ void MotifCluster::MotifAdjacency(PNGraph graph, MotifType motif,
   case bifan:
     BifanMotifAdjacency(graph, weights);
     break;
+  case edge:
+    EdgeMotifAdjacency(graph, weights);    
   default:
     TExcept::Throw("Unknown directed motif type");
   }
@@ -423,263 +460,13 @@ void MotifCluster::MotifAdjacency(PUNGraph graph, MotifType motif,
   case semiclique:
     SemicliqueMotifAdjacency(graph, weights);
     break;
+  case edge:
+    EdgeMotifAdjacency(graph, weights);
   default:
     TExcept::Throw("Unknown undirected motif type");
   }
 }
 
-
-/////////////////////////////////////////////////
-// Spectral stuff
-
-// Scale a vector by another vector, entrywise: y = y .* x
-void EntrywiseScale(const TFltV& x, TFltV& y) {
-  if (x.Len() != y.Len()) {
-    TExcept::Throw("Vectors not the same length.");
-  }
-  for (int i = 0; i < y.Len(); i++) {
-    y[i] *= x[i];
-  }
-}
-
-double MotifCluster::FiedlerVector(const TSparseColMatrix& W, TFltV& fvec,
-                                   double tol, int maxiter) {
-  if (W.GetRows() != W.GetCols()) {
-    TExcept::Throw("Matrix must be square.");
-  }
-
-  int N = W.GetCols();
-  
-  // all ones vector
-  TFltV e(N);
-  e.PutAll(1.0);
-  // degree vector
-  TFltV d(N);
-  d.PutAll(0.0);
-  W.Multiply(e, d);
-
-  // Unit first eigenvector and d^{-1/2}
-  TFltV first(N);
-  TFltV dnorm(N);
-  for (int i = 0; i < d.Len(); i++) {
-    if (d[i] <= 0.0) {
-      TExcept::Throw("Node with zero degree.");
-    }
-    first[i] = TMath::Sqrt(d[i]);
-    dnorm[i] = 1.0 / TMath::Sqrt(d[i]);
-  }
-  TLinAlg::Normalize(first);
-
-  TFltV qk(N);
-  TRnd Rnd;
-  TFltV zk(N);
-  for (int i = 0; i < N; i++) {
-    zk[i] = Rnd.GetNrmDev(0, 1, -10, 10);
-  }
-  TLinAlg::Normalize(zk);
-
-  double eig = -1;
-
-  // Power method for the fiedler vector
-  for (int iter = 0; iter < maxiter; iter++) {
-    // Orthogonalize and normalize
-    TLinAlg::AddVec(-TLinAlg::DotProduct(first, zk), first, zk, qk);
-    TLinAlg::Normalize(qk);
-
-    // Apply operator zk = (2I + D^{-1/2} * W * D^{-1/2}) * qk
-    TFltV tmp = qk;
-    EntrywiseScale(dnorm, tmp);
-    W.Multiply(tmp, zk);
-    EntrywiseScale(dnorm, zk);
-    TLinAlg::AddVec(2, qk, zk, zk);
-
-    // Eigenvalue estimation
-    eig = TLinAlg::DotProduct(qk, zk);
-    
-    // Stopping criterion ||zk - eig * qk||_2 < epsilon
-    TFltV residual(N);
-    TLinAlg::AddVec(-eig, qk, zk, residual);
-    if (TLinAlg::Norm(residual) < tol) {
-      break;
-    }
-  }
-
-  fvec = qk;
-  return -eig + 3;  // eigenvalue for normalized Laplacian
-}
-
-// Given a vector of hashmaps representing weights in a graph, construct the
-// undirected, unweighted. graph with the same network structure.
-PUNGraph UnweightedGraphRepresentation(const TVec< THash<TInt, TInt> >& weights) {
-  int num_edges = 0;
-  for (int i = 0; i < weights.Len(); i++) {
-    num_edges += weights[i].Len();
-  }
-  PUNGraph graph = TUNGraph::New(weights.Len(), num_edges);
-  for (int i = 0; i < weights.Len(); i++) {
-    graph->AddNode(i);
-  }
-  for (int i = 0; i < weights.Len(); i++) {
-    const THash<TInt, TInt>& edge_list = weights[i];
-    for (auto it = edge_list.BegI(); it < edge_list.EndI(); it++) {    
-      graph->AddEdge(i, it->Key);
-    }
-  }
-
-  return graph;
-}
-
-
-// Maps a vector of unique ids to 0, 1, ..., num_ids - 1.  Sets up data
-// structures id_map and rev_id_map so that
-//     id_map[original_id] = new_id
-//     rev_id_map[new_id]  = original_id
-void MapIdsToFirstN(const TIntV& ids, THash<TInt, TInt>& id_map, TIntV& rev_id_map) {
-  id_map = THash<TInt, TInt>();
-  rev_id_map = TIntV(ids.Len());
-  for (int i = 0; i < ids.Len(); i++) {
-    int id = ids[i];
-    if (id_map.IsKey(id)) {
-      TExcept::Throw("List of ids is not unique.");
-    }
-    id_map(id) = i;
-    rev_id_map[i] = id;
-  }
-}
-
-
-// Run a sweep cut on the network represented by W and Fiedler vector fvec,
-// storing the conductances from the sweep in conds and the order of the nodes
-// in order.
-void Sweep(const TSparseColMatrix& W, const TFltV& fvec, TFltV& conds,
-           TIntV& order) {
-  // Get ordering of nodes
-  TVec< TKeyDat<TFlt, TInt> > fvec_inds(fvec.Len());
-  for (int i = 0; i < fvec.Len(); i++) {
-    fvec_inds[i] = TKeyDat<TFlt, TInt>(fvec[i], i);
-  }
-  fvec_inds.Sort();
-  order = TIntV(fvec.Len());
-  TIntV rank(fvec.Len());
-  for (int i = 0; i < fvec.Len(); i++) {
-    order[i] = fvec_inds[i].Dat;
-    rank[order[i]] = i;
-  }
-
-  // Sweep by adjusting cut and volume
-  conds = TFltV(order.Len() - 1);
-  double cut = 0;
-  double vol = 0;
-  double total_vol = 0;
-  for (int ind = 0; ind < order.Len(); ind++) {
-    const TIntFltKdV& nbr_weights = W.ColSpVV[ind];
-    for (auto it = nbr_weights.BegI(); it < nbr_weights.EndI(); it++) {
-      total_vol += it->Dat;
-    }
-  }
-  double vol_comp = total_vol;
-  
-  for (int ind = 0; ind < order.Len() - 1; ind++) {
-    int node = order[ind];
-    const TIntFltKdV& nbr_weights = W.ColSpVV[node];
-    for (auto it = nbr_weights.BegI(); it < nbr_weights.EndI(); it++) {
-      int nbr = it->Key;
-      if (node == nbr) { continue; }
-      double val = it->Dat;
-      // Adjust the cut amount
-      if (rank[nbr] > ind) {
-        // nbr is on the other side: add to the cut
-        cut += val;
-      } else {
-        // now on the same side as nbr: subtract from the cut
-        cut -= val;
-      }
-      vol += val;
-      vol_comp -= val;
-    }
-
-    double mvol = MIN(vol, vol_comp);
-    if (mvol <= 0.0) {
-      TExcept::Throw("Nonpositive set volume.");
-    }
-    conds[ind] = cut / mvol;
-  }
-}
-
-void MotifCluster::SpectralCut(const TVec< THash<TInt, TInt> >& weights, TSweepCut& sweepcut,
-                               double tol, int maxiter) {
-  // Form graph and get maximum component
-  PUNGraph graph = UnweightedGraphRepresentation(weights);
-  TCnComV components;
-  TSnap::GetWccs(graph, components);
-  int max_wcc_size = 0;
-  int max_wcc_ind = -1;
-  for (int i = 0; i < components.Len(); i++) {
-    int size = components[i].Len();
-    if (size > max_wcc_size) {
-      max_wcc_size = size;
-      max_wcc_ind = i;
-    }
-  }
-  TCnCom comp = components[max_wcc_ind];
-  sweepcut.component = comp;
-
-  // Map largest connected component to a matrix, keeping track of ids.
-  THash<TInt, TInt> id_map;
-  TIntV rev_id_map;
-  MapIdsToFirstN(comp.NIdV, id_map, rev_id_map);
-
-  TVec<TIntFltKdV> matrix_entries(comp.Len());
-  for (int ind1 = 0; ind1 < comp.Len(); ++ind1) {
-    int c_ind = comp[ind1];
-    const THash<TInt, TInt>& edge_list = weights[c_ind];
-    int i_ind = id_map(c_ind);
-    TIntFltKdV& col = matrix_entries[i_ind];
-    for (auto it = edge_list.BegI(); it < edge_list.EndI(); it++) {
-      int ind2 = it->Key;
-      int val = it->Dat;
-      if (comp.IsNIdIn(ind2)) {
-        int j_ind = id_map(ind2);
-        col.Add(TIntFltKd(j_ind, val));
-        // Add symmetric part
-        matrix_entries[j_ind].Add(TIntFltKd(i_ind, val));
-      }
-    }
-  }
-
-  // Get Fiedler vector and run the sweep
-  TSparseColMatrix W(matrix_entries, comp.Len(), comp.Len());
-  TFltV fvec;
-  sweepcut.eig = FiedlerVector(W, fvec, tol, maxiter);
-
-  TFltV conds;
-  TIntV order;
-  Sweep(W, fvec, conds, order);
-  sweepcut.sweep_profile = conds;
-
-  // Extract the cluster
-  double min_cond = 2.0;
-  int min_ind = -1;
-  for (int i = 0; i < conds.Len(); i++) {
-    double cond = conds[i];
-    if (cond < min_cond) {
-      min_cond = cond;
-      min_ind = i;
-    }
-  }
-  sweepcut.cond = min_cond;
-  TIntV cluster;
-  int start = 0;
-  int end = min_ind + 1;
-  if (end >= conds.Len() / 2) {
-    start = min_ind + 1;
-    end = conds.Len() + 1;
-  }
-  for (int i = start; i < end; i++) {
-    cluster.Add(rev_id_map[order[i]]);    
-  }
-  sweepcut.cluster = cluster;
-}
 
 
 /////////////////////////////////////////////////
@@ -831,4 +618,358 @@ void ChibaNishizekiWeighter::CliqueEnum(int k, const TIntV& U) {
     labels_[vi] = k + 1;
     AdjustLabels(k + 1, k, U_prime);
   }
+}
+
+
+/////////////////////////////////////////////////
+// Spectral stuff
+double MotifCluster::FiedlerVector(const TSparseColMatrix& W, TFltV& fvec,
+                                   double tol, int maxiter) {
+  if (W.GetRows() != W.GetCols()) {
+    TExcept::Throw("Matrix must be square.");
+  }
+
+  int N = W.GetCols();
+  
+  // all ones vector
+  TFltV e(N);
+  e.PutAll(1.0);
+  // degree vector
+  TFltV d(N);
+  d.PutAll(0.0);
+  W.Multiply(e, d);
+
+  // Unit first eigenvector and d^{-1/2}
+  TFltV v0(N);
+  TFltV dnorm(N);
+  for (int i = 0; i < d.Len(); i++) {
+    if (d[i] <= 0.0) {
+      TExcept::Throw("Node with zero degree.");
+    }
+    v0[i] = TMath::Sqrt(d[i]);
+    dnorm[i] = 1.0 / TMath::Sqrt(d[i]);
+  }
+  TLinAlg::Normalize(first);
+
+  // Form I + Ln, where Ln is normalized Laplacian
+  TVec< TIntFltKdV > L(N);
+  for (int j = 0; j < N; j++) {
+    const TIntFltKdV W_col& = W.ColSpVV[j];
+    const TIntFltKdV L_col& = L.ColSpVV[j];    
+    for (int ind = 0; ind < col.Len(); ind++) {
+      int i = W_col[i].Key;
+      double val = W_col[j].Val;
+      L_col.Add(TIntFltK(i, -val * dnorm[i] * dnorm[j]));
+    }
+    L_col.Add(TIntFltK(j, 2.0));
+  }
+
+  TFltV evals;
+  TFullColMatrix evecs;
+  SymeigsSmallestAlgebraic(L, 2, v0, evals, evecs, tol, maxiter);
+  evec = evecs.ColSpVV[1];
+  return evals[1];
+}
+
+// Given a vector of hashmaps representing weights in a graph, construct the
+// undirected, unweighted. graph with the same network structure.
+PUNGraph UnweightedGraphRepresentation(const TVec< THash<TInt, TInt> >& weights) {
+  int num_edges = 0;
+  for (int i = 0; i < weights.Len(); i++) {
+    num_edges += weights[i].Len();
+  }
+  PUNGraph graph = TUNGraph::New(weights.Len(), num_edges);
+  for (int i = 0; i < weights.Len(); i++) {
+    graph->AddNode(i);
+  }
+  for (int i = 0; i < weights.Len(); i++) {
+    const THash<TInt, TInt>& edge_list = weights[i];
+    for (auto it = edge_list.BegI(); it < edge_list.EndI(); it++) {    
+      graph->AddEdge(i, it->Key);
+    }
+  }
+
+  return graph;
+}
+
+// Maps a vector of unique ids to 0, 1, ..., num_ids - 1.  Sets up data
+// structures id_map and rev_id_map so that
+//     id_map[original_id] = new_id
+//     rev_id_map[new_id]  = original_id
+void MapIdsToFirstN(const TIntV& ids, THash<TInt, TInt>& id_map, TIntV& rev_id_map) {
+  id_map = THash<TInt, TInt>();
+  rev_id_map = TIntV(ids.Len());
+  for (int i = 0; i < ids.Len(); i++) {
+    int id = ids[i];
+    if (id_map.IsKey(id)) {
+      TExcept::Throw("List of ids is not unique.");
+    }
+    id_map(id) = i;
+    rev_id_map[i] = id;
+  }
+}
+
+
+// Run a sweep cut on the network represented by W and Fiedler vector fvec,
+// storing the conductances from the sweep in conds and the order of the nodes
+// in order.
+void Sweep(const TSparseColMatrix& W, const TFltV& fvec, TFltV& conds,
+           TIntV& order) {
+  // Get ordering of nodes
+  TVec< TKeyDat<TFlt, TInt> > fvec_inds(fvec.Len());
+  for (int i = 0; i < fvec.Len(); i++) {
+    fvec_inds[i] = TKeyDat<TFlt, TInt>(fvec[i], i);
+  }
+  fvec_inds.Sort();
+  order = TIntV(fvec.Len());
+  TIntV rank(fvec.Len());
+  for (int i = 0; i < fvec.Len(); i++) {
+    order[i] = fvec_inds[i].Dat;
+    rank[order[i]] = i;
+  }
+
+  // Sweep by adjusting cut and volume
+  conds = TFltV(order.Len() - 1);
+  double cut = 0;
+  double vol = 0;
+  double total_vol = 0;
+  for (int ind = 0; ind < order.Len(); ind++) {
+    const TIntFltKdV& nbr_weights = W.ColSpVV[ind];
+    for (auto it = nbr_weights.BegI(); it < nbr_weights.EndI(); it++) {
+      total_vol += it->Dat;
+    }
+  }
+  double vol_comp = total_vol;
+  
+  for (int ind = 0; ind < order.Len() - 1; ind++) {
+    int node = order[ind];
+    const TIntFltKdV& nbr_weights = W.ColSpVV[node];
+    for (auto it = nbr_weights.BegI(); it < nbr_weights.EndI(); it++) {
+      int nbr = it->Key;
+      if (node == nbr) { continue; }
+      double val = it->Dat;
+      // Adjust the cut amount
+      if (rank[nbr] > ind) {
+        // nbr is on the other side: add to the cut
+        cut += val;
+      } else {
+        // now on the same side as nbr: subtract from the cut
+        cut -= val;
+      }
+      vol += val;
+      vol_comp -= val;
+    }
+
+    double mvol = MIN(vol, vol_comp);
+    if (mvol <= 0.0) {
+      TExcept::Throw("Nonpositive set volume.");
+    }
+    conds[ind] = cut / mvol;
+  }
+}
+
+void MotifCluster::SpectralCut(const TVec< THash<TInt, TInt> >& weights,
+			       TSweepCut& sweepcut, double tol, int maxiter) {
+  // Form graph and get maximum component
+  PUNGraph graph = UnweightedGraphRepresentation(weights);
+  TCnComV components;
+  TSnap::GetWccs(graph, components);
+  int max_wcc_size = 0;
+  int max_wcc_ind = -1;
+  for (int i = 0; i < components.Len(); i++) {
+    int size = components[i].Len();
+    if (size > max_wcc_size) {
+      max_wcc_size = size;
+      max_wcc_ind = i;
+    }
+  }
+  TCnCom comp = components[max_wcc_ind];
+  sweepcut.component = comp;
+
+  // Map largest connected component to a matrix, keeping track of ids.
+  THash<TInt, TInt> id_map;
+  TIntV rev_id_map;
+  MapIdsToFirstN(comp.NIdV, id_map, rev_id_map);
+
+  TVec<TIntFltKdV> matrix_entries(comp.Len());
+  for (int ind1 = 0; ind1 < comp.Len(); ++ind1) {
+    int c_ind = comp[ind1];
+    const THash<TInt, TInt>& edge_list = weights[c_ind];
+    int i_ind = id_map(c_ind);
+    TIntFltKdV& col = matrix_entries[i_ind];
+    for (auto it = edge_list.BegI(); it < edge_list.EndI(); it++) {
+      int ind2 = it->Key;
+      int val = it->Dat;
+      if (comp.IsNIdIn(ind2)) {
+        int j_ind = id_map(ind2);
+        col.Add(TIntFltKd(j_ind, val));
+        // Add symmetric part
+        matrix_entries[j_ind].Add(TIntFltKd(i_ind, val));
+      }
+    }
+  }
+
+  // Get Fiedler vector and run the sweep
+  TSparseColMatrix W(matrix_entries, comp.Len(), comp.Len());
+  TFltV fvec;
+  sweepcut.eig = FiedlerVector(W, fvec, tol, maxiter);
+
+  TFltV conds;
+  TIntV order;
+  Sweep(W, fvec, conds, order);
+  sweepcut.sweep_profile = conds;
+
+  // Extract the cluster
+  double min_cond = 2.0;
+  int min_ind = -1;
+  for (int i = 0; i < conds.Len(); i++) {
+    double cond = conds[i];
+    if (cond < min_cond) {
+      min_cond = cond;
+      min_ind = i;
+    }
+  }
+  sweepcut.cond = min_cond;
+  TIntV cluster;
+  int start = 0;
+  int end = min_ind + 1;
+  if (end >= conds.Len() / 2) {
+    start = min_ind + 1;
+    end = conds.Len() + 1;
+  }
+  for (int i = start; i < end; i++) {
+    cluster.Add(rev_id_map[order[i]]);    
+  }
+  sweepcut.cluster = cluster;
+}
+
+// ARPACK routines for symmetric eigenvalue problem
+extern "C" {
+  void F77_SUFFIX(dsaupd)(int *ido, char *bmat, int *n, char *which, int *nev,
+			  double *tol, double *resid, int *ncv, double *V,
+			  int *ldv, int *iparam, int *ipntr, double *workd,
+			  double *workl, int *lworkl, int *info);
+
+  void F77_SUFFIX(dseupd)(bool *rvec, char *HowMny, bool *select, double *d,
+			  double *Z, int *ldz, double *sigma, char *bmat, int *n,
+			  char *which, int *nev, double *tol, double *resid,
+			  int *ncv, double *V, int *ldv, int *iparam, int *ipntr,
+			  double *workd, double *workl, int *lworkl, int *info);
+}
+
+void SymeigsSmallest(const TSparseColMatrix& A, int nev, const TFltV& v0,
+		     TFltV& evecs, TFltV& evals, double tol=1e-14,
+		     int maxiter=300) {
+  // type of problem
+  int mode = 1;
+  // communication variable
+  int ido = 0;
+  // standard eigenvalue problem
+  char bmat[] = "I";
+  // dimension of problem
+  int n = W.Len();
+  // type of eigenvector (smallest algebraic)  
+  char which[] = "SA";
+  // residual set to v0
+  TFltV resid = v0;
+  if (resid.Len() != n) {
+    TExcept::Throw("v0 is not equal to the matrix dimension");
+  }
+  // Number of lanczos vectors  
+  int ncv = MIN(MAX(2 * nev, 20), n - 1);
+  // Space for Lanczos basis vectors
+  TFltV V(ncv * n);
+  
+  // dimension of basis vectors
+  int ldv = n;
+  // Various input / output data
+  TIntV iparam(11);
+  iparam.PutAll(0);
+  // exact shifts  
+  iparam[0] = 1;
+  // maximum number of iterations
+  iparam[2] = maxiter;
+  // blocksize (needs to be 1)
+  iparam[3] = 1;
+  // mode
+  iparam[6] = mode;
+  // Output data
+  TIntV ipntr(11);
+  ipntr.PutAll(0);
+  // work array
+  TFltV workd(3 * n);
+  // output workspace
+  int lworkl = ncv * (ncv + 8);
+  TFltV workl(lworkl);
+  // Communication information
+  int info = 1;
+
+  TFltV Ax(n);
+  // Communication loop.  We keep applying A * x until ARPACK tells us to stop.
+  while (true) {
+    F77_SUFFIX(saupd)(&ido, &bmat[0], &n, &which[0], &nev, &tol, &resid[0],
+		      &ncv, &V[0], &ldv, &iparam[0], &ipntr[0], &workd[0],
+		      &workl[0], &lworkl, &info);
+    
+    TFltV result(n);
+    int load_start = ipntr[0];
+    for (i = 0; i < n; i++) {
+      result[i] = workd[load_start + i];
+    }
+
+    if (ido == 1) {
+      // Need another matrix-vector product.
+      A.Multiply(result, Ax);
+      int store_start = ipntr[1];
+      for (int i = 0; i < n; i++) {
+	workd[store_start + i] = Ax[i];
+      }
+    } else if (ido == 99) {
+      // We have finished.
+      break;
+    } else {
+      // There was an error.
+      TExcept::Throw("ARPACK error");
+    }
+  }
+
+  // Extract the eigenvectors and eigenvalues
+  
+  // compute Ritz vectors
+  bool rvec = true;
+  // Form of Ritz vectors
+  char howmny[] = "A";
+  // Store Ritz values
+  TFltV d(nev);
+  // select doesn't matter with howmny set to A
+  TBoolV select(ncv);
+  // Shift
+  double sigmar = 0;
+
+  F77_SUFFIX(seupd)(&rvec, &howmny[0], &select[0], &d[0], &V[0], &ldv, &sigmar,
+		    &bmat[0], &n, &which[0], &nev, &tol, &resid[0], &ncv[0],
+		    &V[0], &ldv, &iparam[0], &ipntr[0], &workd[0], &workl[0],
+		    &lworkl, &info);
+
+  // Get eigenvalues and eigenvalues in sorted order
+  TVec< TKeyDat<TFlt, TInt> > d_inds(nev);
+  for (int i = 0; i < nev; i++) {
+    d_inds[i] = TKeyDat<TFlt, TInt>(d[i], i);
+  }
+  d_inds.Sort();
+
+  evals = TFltV(nev);
+  evecs = TFullColMatrix();
+  evecs.ColV = TVec<TFltV>(nev);
+  for (int i = 0; i < nev; i++) {
+    double eval = d_inds[i]->Key;
+    int ind = d_inds[i]->Dat;
+    evals[ind] = eval;
+    TFltV& col = evecs.ColV[ind];
+    for (int j = ind * n; j < ind * n + n; j++) {
+      col.Add(V[j]);
+    }
+  }
+  evecs.RowN = n;
+  evecs.ColN = nev;
 }

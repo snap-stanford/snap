@@ -26,6 +26,7 @@ enum MotifType {
   clique7,    //       |
   clique8,    //       |
   clique9,    //       |
+  edge,
 };
 
 // Container for sweep cut data.
@@ -37,6 +38,12 @@ class TSweepCut {
   TFltV sweep_profile;  // Sweep profile: kth entry is conductance(Sk)
   TCnCom component;     // connected component that the cut runs on
 };
+
+// Wrapper around ARPACK for computing the smallest algebraic eigenvalues of a
+// matrix A.
+void SymeigsSmallest(const TSparseColMatrix& A, int nev, const TFltV& v0,
+		     TFltV& evals, TFullColMatrix& evecs, double tol=1e-14,
+		     int maxiter=300);
 
 class MotifCluster {
  public:
