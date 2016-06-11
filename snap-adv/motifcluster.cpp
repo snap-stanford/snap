@@ -955,13 +955,10 @@ void SymeigsSmallest(const TSparseColMatrix& A, int nev, TFltV& evals,
   bool rvec = true;
   // Form of Ritz vectors
   char howmny[] = "A";
-  // Store Ritz values
-  double *d = new double[nev];
   // select doesn't matter with howmny set to A
   bool *select = new bool[ncv];
-  for (int i = 0; i < ncv; i++) {
-    select[i] = true;
-  }
+  // Store Ritz values
+  double *d = new double[nev];
   // Shift
   double sigmar = 0;
 
@@ -982,7 +979,6 @@ void SymeigsSmallest(const TSparseColMatrix& A, int nev, TFltV& evals,
     double eval = d_inds[i].Key;
     int ind = d_inds[i].Dat;
     evals[ind] = eval;
-    std::cout << i << ": " << eval << std::endl;
     TFltV& col = evecs.ColV[ind];
     for (int j = ind * n; j < ind * n + n; j++) {
       col.Add(V[j]);
@@ -990,13 +986,12 @@ void SymeigsSmallest(const TSparseColMatrix& A, int nev, TFltV& evals,
   }
   evecs.RowN = n;
   evecs.ColN = nev;
-  // TODO(arbenson): fix
-#if 0  
+
+  // Clean up
   delete[] resid;
   delete[] V;
   delete[] iparam;
   delete[] ipntr;
   delete[] workd;
   delete[] workl;
-#endif
 }
