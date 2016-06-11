@@ -26,7 +26,7 @@ enum MotifType {
   clique7,    //       |
   clique8,    //       |
   clique9,    //       |
-  edge,
+  edge,       // (undirected) edges
 };
 
 // Container for sweep cut data.
@@ -40,10 +40,12 @@ class TSweepCut {
 };
 
 // Wrapper around ARPACK for computing the smallest algebraic eigenvalues of a
-// matrix A.
-void SymeigsSmallest(const TSparseColMatrix& A, int nev, const TFltV& v0,
-		     TFltV& evals, TFullColMatrix& evecs, double tol=1e-14,
-		     int maxiter=300);
+// matrix A.  A is the matrix, nev is the number of eigenvectors to compute, tol
+// is the stopping tolerance, and maxiter is the maximum number of iterations.
+// This routine stores the eigenvalues in evals and the eigenvectors in evecs,
+// sorted from smallest to largest eigenvalue.
+void SymeigsSmallest(const TSparseColMatrix& A, int nev, TFltV& evals,
+		     TFullColMatrix& evecs, double tol=1e-12, int maxiter=300);
 
 class MotifCluster {
  public:
@@ -64,15 +66,15 @@ class MotifCluster {
   // variables tol and maxiter control the stopping tolerance and maximum number
   // of iterations used by the eigensolver.
   void SpectralCut(const TVec< THash<TInt, TInt> >& weights, TSweepCut& sweepcut,
-                   double tol=1e-14, int maxiter=300);
+                   double tol=1e-12, int maxiter=300);
 
-
-  // Compute the Fiedler vector for the nonnegative matrix W and store the result
-  // in fvec using a power method.  The algorithm terminates when the current
-  // residual || Ax^{k} - \lambda^{(k)} x^{(k)} || < tol or when maxiter
-  // iterations of the power method have completed.
-  double FiedlerVector(const TSparseColMatrix& W, TFltV& fvec,
-                       double tol=1e-14, int maxiter=300);
+  // Compute the normalized Fiedler vector for the normalized Laplacian of the
+  // graph corresponding to the nonnegative matrix W and store the result in
+  // fvec.  The normalized Fiedler vector is the eigenvector corresponding to
+  // the second smallest eigenvalue of the normalized Laplacian, scaled by the
+  // inverse square root of the node degrees.
+  double NFiedlerVector(const TSparseColMatrix& W, TFltV& fvec,
+			double tol=1e-12, int maxiter=300);
 
   // Check if three nodes form an instance of a directed triangle motif.
   bool IsMotifM1(PNGraph graph, int u, int v, int w);
@@ -106,6 +108,11 @@ class MotifCluster {
   void DegreeOrdering(PNGraph graph, TIntV& order);
 
  private:
+  // Handles MotifAdjacency() functionality for simple edges..
+  void EdgeMotifAdjacency(PNGraph graph, TVec< THash<TInt, TInt> >& weights);
+  void EdgeMotifAdjacency(PUNGraph graph, TVec< THash<TInt, TInt> >& weights);  
+
+  
   // Handles MotifAdjacency() functionality for directed triangle motifs.
   void TriangleMotifAdjacency(PNGraph graph, MotifType motif,
                               TVec< THash<TInt, TInt> >& weights);
