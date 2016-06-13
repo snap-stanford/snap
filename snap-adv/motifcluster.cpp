@@ -1,9 +1,6 @@
 #include "stdafx.h"
 #include "motifcluster.h"
 
-// TODO(arbenson): remove
-#include <iostream>
-
 #if defined(F77_POST)
 # define F77_NAME(name) name ## _
 #else
@@ -14,15 +11,15 @@
 // ARPACK routines for symmetric eigenvalue problem
 extern "C" {
   void F77_NAME(dsaupd)(int *ido, char *bmat, int *n, char *which, int *nev,
-			double *tol, double *resid, int *ncv, double *V,
-			int *ldv, int *iparam, int *ipntr, double *workd,
-			double *workl, int *lworkl, int *info);
+                        double *tol, double *resid, int *ncv, double *V,
+                        int *ldv, int *iparam, int *ipntr, double *workd,
+                        double *workl, int *lworkl, int *info);
   
-  void F77_NAME(dseupd)(bool *rvec, char *HowMny, bool *select, double *d,
-			double *Z, int *ldz, double *sigma, char *bmat, int *n,
-			char *which, int *nev, double *tol, double *resid,
-			int *ncv, double *V, int *ldv, int *iparam, int *ipntr,
-			double *workd, double *workl, int *lworkl, int *info);
+  void F77_NAME(dseupd)(int *rvec, char *HowMny, int *select, double *d,
+                        double *Z, int *ldz, double *sigma, char *bmat, int *n,
+                        char *which, int *nev, double *tol, double *resid,
+                        int *ncv, double *V, int *ldv, int *iparam, int *ipntr,
+                        double *workd, double *workl, int *lworkl, int *info);
 }
 
 /////////////////////////////////////////////////
@@ -375,7 +372,7 @@ void MotifCluster::SemicliqueMotifAdjacency(PUNGraph graph,
           if (!graph->IsEdge(nbr1, nbr2)) {
             IncrementWeight(src, dst, weights);
             IncrementWeight(src, nbr1, weights);
-            IncrementWeight(src, nbr2, weights);	    
+            IncrementWeight(src, nbr2, weights);            
             IncrementWeight(dst, nbr1, weights);
             IncrementWeight(dst, nbr2, weights);
             IncrementWeight(nbr1, nbr2, weights);
@@ -390,7 +387,7 @@ void MotifCluster::SemicliqueMotifAdjacency(PUNGraph graph,
 /////////////////////////////////////////////////
 // Simple edge weighting
 void MotifCluster::EdgeMotifAdjacency(PNGraph graph,
-				      TVec< THash<TInt, TInt> >& weights) {
+                                      TVec< THash<TInt, TInt> >& weights) {
   for (auto it = graph->BegEI(); it < graph->EndEI(); it++) {
     int src = it.GetSrcNId();    
     int dst = it.GetDstNId();
@@ -405,7 +402,7 @@ void MotifCluster::EdgeMotifAdjacency(PNGraph graph,
 }
 
 void MotifCluster::EdgeMotifAdjacency(PUNGraph graph,
-				      TVec< THash<TInt, TInt> >& weights) {
+                                      TVec< THash<TInt, TInt> >& weights) {
   for (auto it = graph->BegEI(); it < graph->EndEI(); it++) {
     int src = it.GetSrcNId();    
     int dst = it.GetDstNId();
@@ -541,7 +538,7 @@ void ChibaNishizekiWeighter::Run(int k) {
 }
 
 void ChibaNishizekiWeighter::SubgraphDegreeOrder(int k, const TIntV& U,
-						 TIntV& order) {
+                                                 TIntV& order) {
   TVec< TKeyDat<TInt, TInt> > degs(U.Len());
   int end_size = 0;
   for (int i = 0; i < U.Len(); i++) {
@@ -649,7 +646,7 @@ void ChibaNishizekiWeighter::CliqueEnum(int k, const TIntV& U) {
 /////////////////////////////////////////////////
 // Spectral stuff
 double MotifCluster::NFiedlerVector(const TSparseColMatrix& W, TFltV& fvec,
-				    double tol, int maxiter) {
+                                    double tol, int maxiter) {
   if (W.GetRows() != W.GetCols()) {
     TExcept::Throw("Matrix must be square.");
   }
@@ -686,7 +683,7 @@ double MotifCluster::NFiedlerVector(const TSparseColMatrix& W, TFltV& fvec,
       double val = W_col[ind].Dat;
       L_col.Add(TIntFltKd(i, -val * dnorm[i] * dnorm[j]));
     }
-    L_col.Add(TIntFltKd(j, 2.0));
+    L_col.Add(TIntFltKd(j, 2.0));    
   }
 
   TSparseColMatrix L(L_weights, N, N);
@@ -727,7 +724,7 @@ static PUNGraph UnweightedGraphRepresentation(const TVec< THash<TInt, TInt> >& w
 //     id_map[original_id] = new_id
 //     rev_id_map[new_id]  = original_id
 static void MapIdsToFirstN(const TIntV& ids, THash<TInt, TInt>& id_map,
-			   TIntV& rev_id_map) {
+                           TIntV& rev_id_map) {
   id_map = THash<TInt, TInt>();
   rev_id_map = TIntV(ids.Len());
   for (int i = 0; i < ids.Len(); i++) {
@@ -744,7 +741,7 @@ static void MapIdsToFirstN(const TIntV& ids, THash<TInt, TInt>& id_map,
 // storing the conductances from the sweep in conds and the order of the nodes
 // in order.
 static void Sweep(const TSparseColMatrix& W, const TFltV& fvec, TFltV& conds,
-		  TIntV& order) {
+                  TIntV& order) {
   // Get ordering of nodes
   
   TVec< TKeyDat<TFlt, TInt> > fvec_inds(fvec.Len());
@@ -800,7 +797,7 @@ static void Sweep(const TSparseColMatrix& W, const TFltV& fvec, TFltV& conds,
 }
 
 void MotifCluster::SpectralCut(const TVec< THash<TInt, TInt> >& weights,
-			       TSweepCut& sweepcut, double tol, int maxiter) {
+                               TSweepCut& sweepcut, double tol, int maxiter) {
   // Form graph and get maximum component
   PUNGraph graph = UnweightedGraphRepresentation(weights);
   TCnComV components;
@@ -875,13 +872,13 @@ void MotifCluster::SpectralCut(const TVec< THash<TInt, TInt> >& weights,
 }
 
 void SymeigsSmallest(const TSparseColMatrix& A, int nev, TFltV& evals,
-		     TFullColMatrix& evecs, double tol, int maxiter) {
+                     TFullColMatrix& evecs, double tol, int maxiter) {
   // type of problem
   int mode = 1;
   // communication variable
   int ido = 0;
   // standard eigenvalue problem
-  char bmat[] = "I";
+  char bmat = 'I';
   // dimension of problem
   int n = A.GetCols();
   // type of eigenvector (smallest algebraic)  
@@ -897,22 +894,14 @@ void SymeigsSmallest(const TSparseColMatrix& A, int nev, TFltV& evals,
   int ldv = n;
   // Various input / output data
   int *iparam = new int[11];
-  for (int i = 0; i < 11; i++) {
-    iparam[i] = 0;
-  }
   // exact shifts  
   iparam[0] = 1;
   // maximum number of iterations
   iparam[2] = maxiter;
-  // blocksize (needs to be 1)
-  iparam[3] = 1;
   // mode
   iparam[6] = mode;
   // Output data
   int *ipntr = new int[11];
-  for (int i = 0; i < 11; i++) {
-    ipntr[i] = 0;
-  }
   // work array
   double *workd = new double[3 * n];
   // output workspace
@@ -924,21 +913,22 @@ void SymeigsSmallest(const TSparseColMatrix& A, int nev, TFltV& evals,
   TFltV Ax(n);
   // Communication loop.  We keep applying A * x until ARPACK tells us to stop.
   while (true) {
-    F77_NAME(dsaupd)(&ido, &bmat[0], &n, &which[0], &nev, &tol, resid, &ncv, V,
-		     &ldv, iparam, ipntr, workd, workl, &lworkl, &info);
-    
+    F77_NAME(dsaupd)(&ido, &bmat, &n, &which[0], &nev, &tol, &resid[0], &ncv,
+                     &V[0], &ldv, &iparam[0], &ipntr[0], &workd[0], &workl[0],
+                     &lworkl, &info);
     TFltV result(n);
-    int load_start = ipntr[0];
+    result.PutAll(0.0);
+    double *load = &workd[ipntr[0] - 1];
     for (int i = 0; i < n; i++) {
-      result[i] = workd[load_start + i];
+      result[i] = load[i];
     }
 
     if (ido == 1) {
       // Need another matrix-vector product.
       A.Multiply(result, Ax);
-      int store_start = ipntr[1];
+      double *store = &workd[ipntr[1] - 1];
       for (int i = 0; i < n; i++) {
-	workd[store_start + i] = Ax[i];
+        store[i] = Ax[i];
       }
     } else if (ido == 99) {
       // We have finished.
@@ -948,23 +938,26 @@ void SymeigsSmallest(const TSparseColMatrix& A, int nev, TFltV& evals,
       TExcept::Throw("ARPACK error");
     }
   }
-
+  
   // Extract the eigenvectors and eigenvalues
   
   // compute Ritz vectors
-  bool rvec = true;
+  int rvec(true);
   // Form of Ritz vectors
-  char howmny[] = "A";
+  char howmny = 'A';
   // select doesn't matter with howmny set to A
-  bool *select = new bool[ncv];
+  int *select = new int[ncv];
   // Store Ritz values
   double *d = new double[nev];
   // Shift
   double sigmar = 0;
 
-  F77_NAME(dseupd)(&rvec, &howmny[0], select, d, V, &ldv, &sigmar, &bmat[0], &n,
-		   &which[0], &nev, &tol, resid, &ncv, V, &ldv, iparam, ipntr,
-		   workd, workl, &lworkl, &info);
+  F77_NAME(dseupd)(&rvec, &howmny, select, &d[0], &V[0], &ldv, &sigmar, &bmat,
+                   &n, &which[0], &nev, &tol, &resid[0], &ncv, &V[0], &ldv,
+                   &iparam[0], &ipntr[0], &workd[0], &workl[0], &lworkl, &info);
+  if (info != 0) {
+    TExcept::Throw("ARPACK error");
+  }
 
   // Get eigenvalues and eigenvalues in sorted order
   TVec< TKeyDat<TFlt, TInt> > d_inds(nev);
