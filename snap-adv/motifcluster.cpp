@@ -26,13 +26,45 @@ extern "C" {
 // Utility functions
 
 // Increments weight on (i, j) by one
-static void IncrementWeight(int i, int j, TVec< THash<TInt, TInt> >& weights) {
+static void IncrementWeight(int i, int j, WeightVH& weights) {
   int minval = MIN(i, j);
   int maxval = MAX(i, j);
   THash<TInt, TInt>& edge_weights = weights[minval];
   edge_weights(maxval) += 1;
 }
 
+MotifType MotifCluster::ParseMotifType(const TStr& motif) {
+  TStr motif_lc = motif.GetLc();
+  if      (motif_lc == "m1")          { return M1; }
+  else if (motif_lc == "m2")          { return M2; }
+  else if (motif_lc == "m3")          { return M3; }
+  else if (motif_lc == "m4")          { return M4; }
+  else if (motif_lc == "m5")          { return M5; }
+  else if (motif_lc == "m6")          { return M6; }
+  else if (motif_lc == "m7")          { return M7; }
+  else if (motif_lc == "m8")          { return M8; }
+  else if (motif_lc == "m9")          { return M9; }
+  else if (motif_lc == "m10")         { return M10; }
+  else if (motif_lc == "m11")         { return M11; }
+  else if (motif_lc == "m12")         { return M12; }
+  else if (motif_lc == "m13")         { return M13; }
+  else if (motif_lc == "bifan")       { return bifan; }
+  else if (motif_lc == "triangle")    { return triangle; }
+  else if (motif_lc == "clique3")     { return clique3; }
+  else if (motif_lc == "clique4")     { return clique4; }
+  else if (motif_lc == "clique5")     { return clique5; }
+  else if (motif_lc == "clique6")     { return clique6; }
+  else if (motif_lc == "clique7")     { return clique7; }
+  else if (motif_lc == "clique8")     { return clique8; }
+  else if (motif_lc == "clique9")     { return clique9; }
+  else if (motif_lc == "semiclique")  { return semiclique; }
+  else if (motif_lc == "semi-clique") { return semiclique; }    
+  else if (motif_lc == "edge")        { return edge; }
+  else if (motif_lc == "undir")       { return edge; }
+  else if (motif_lc == "undirected")  { return edge; }
+  else { TExcept::Throw("Unknown motif"); }
+  return edge;
+}
 
 /////////////////////////////////////////////////
 // Subgraph type checking
@@ -49,17 +81,25 @@ bool MotifCluster::IsBidirEdge(PNGraph graph, int u, int v) {
 }
 
 bool MotifCluster::IsMotifM1(PNGraph graph, int u, int v, int w) {
-  return ((IsUnidirEdge(graph, u, v) && IsUnidirEdge(graph, v, w) && IsUnidirEdge(graph, w, u)) ||
-          (IsUnidirEdge(graph, u, w) && IsUnidirEdge(graph, w, v) && IsUnidirEdge(graph, v, u)));
+  return ((IsUnidirEdge(graph, u, v) && IsUnidirEdge(graph, v, w) &&
+	   IsUnidirEdge(graph, w, u)) ||
+          (IsUnidirEdge(graph, u, w) && IsUnidirEdge(graph, w, v) &&
+	   IsUnidirEdge(graph, v, u)));
 }
 
 bool MotifCluster::IsMotifM2(PNGraph graph, int u, int v, int w) {
-  return ((IsBidirEdge(graph, u, v) && IsUnidirEdge(graph, u, w) && IsUnidirEdge(graph, w, v)) ||
-          (IsBidirEdge(graph, u, v) && IsUnidirEdge(graph, w, u) && IsUnidirEdge(graph, v, w)) ||
-          (IsBidirEdge(graph, u, w) && IsUnidirEdge(graph, u, v) && IsUnidirEdge(graph, v, w)) ||
-          (IsBidirEdge(graph, u, w) && IsUnidirEdge(graph, v, u) && IsUnidirEdge(graph, w, v)) ||
-          (IsBidirEdge(graph, v, w) && IsUnidirEdge(graph, v, u) && IsUnidirEdge(graph, u, w)) ||
-          (IsBidirEdge(graph, v, w) && IsUnidirEdge(graph, u, v) && IsUnidirEdge(graph, w, u)));
+  return ((IsBidirEdge(graph, u, v) && IsUnidirEdge(graph, u, w) &&
+	   IsUnidirEdge(graph, w, v)) ||
+          (IsBidirEdge(graph, u, v) && IsUnidirEdge(graph, w, u) &&
+	   IsUnidirEdge(graph, v, w)) ||
+          (IsBidirEdge(graph, u, w) && IsUnidirEdge(graph, u, v) &&
+	   IsUnidirEdge(graph, v, w)) ||
+          (IsBidirEdge(graph, u, w) && IsUnidirEdge(graph, v, u) &&
+	   IsUnidirEdge(graph, w, v)) ||
+          (IsBidirEdge(graph, v, w) && IsUnidirEdge(graph, v, u) &&
+	   IsUnidirEdge(graph, u, w)) ||
+          (IsBidirEdge(graph, v, w) && IsUnidirEdge(graph, u, v) &&
+	   IsUnidirEdge(graph, w, u)));
 }
 
 bool MotifCluster::IsMotifM3(PNGraph graph, int u, int v, int w) {
@@ -73,7 +113,8 @@ bool MotifCluster::IsMotifM3(PNGraph graph, int u, int v, int w) {
 }
 
 bool MotifCluster::IsMotifM4(PNGraph graph, int u, int v, int w) {
-  return IsBidirEdge(graph, u, v) && IsBidirEdge(graph, u, w) && IsBidirEdge(graph, v, w);
+  return IsBidirEdge(graph, u, v) && IsBidirEdge(graph, u, w) &&
+    IsBidirEdge(graph, v, w);
 }
 
 bool MotifCluster::IsMotifM5(PNGraph graph, int u, int v, int w) {
@@ -87,49 +128,62 @@ bool MotifCluster::IsMotifM5(PNGraph graph, int u, int v, int w) {
 }
 
 bool MotifCluster::IsMotifM6(PNGraph graph, int u, int v, int w) {
-  return ((IsUnidirEdge(graph, u, v) && IsUnidirEdge(graph, u, w) && IsBidirEdge(graph, v, w)) ||
-          (IsUnidirEdge(graph, v, u) && IsUnidirEdge(graph, v, w) && IsBidirEdge(graph, u, w)) ||
-          (IsUnidirEdge(graph, w, u) && IsUnidirEdge(graph, w, v) && IsBidirEdge(graph, u, v)));
+  return ((IsUnidirEdge(graph, u, v) && IsUnidirEdge(graph, u, w) &&
+	   IsBidirEdge(graph, v, w)) ||
+          (IsUnidirEdge(graph, v, u) && IsUnidirEdge(graph, v, w) &&
+	   IsBidirEdge(graph, u, w)) ||
+          (IsUnidirEdge(graph, w, u) && IsUnidirEdge(graph, w, v) &&
+	   IsBidirEdge(graph, u, v)));
 }
 
 bool MotifCluster::IsMotifM7(PNGraph graph, int u, int v, int w) {
-  return ((IsUnidirEdge(graph, v, u) && IsUnidirEdge(graph, w, u) && IsBidirEdge(graph, v, w)) ||
-          (IsUnidirEdge(graph, u, v) && IsUnidirEdge(graph, w, v) && IsBidirEdge(graph, u, w)) ||
-          (IsUnidirEdge(graph, u, w) && IsUnidirEdge(graph, v, w) && IsBidirEdge(graph, u, v)));
+  return ((IsUnidirEdge(graph, v, u) && IsUnidirEdge(graph, w, u) &&
+	   IsBidirEdge(graph, v, w)) ||
+          (IsUnidirEdge(graph, u, v) && IsUnidirEdge(graph, w, v) &&
+	   IsBidirEdge(graph, u, w)) ||
+          (IsUnidirEdge(graph, u, w) && IsUnidirEdge(graph, v, w) &&
+	   IsBidirEdge(graph, u, v)));
 }
 
 bool MotifCluster::IsMotifM8(PNGraph graph, int center, int v, int w) {
-  return IsNoEdge(graph, v, w) && IsUnidirEdge(graph, center, v) && IsUnidirEdge(graph, center, w);
+  return IsNoEdge(graph, v, w) && IsUnidirEdge(graph, center, v) &&
+    IsUnidirEdge(graph, center, w);
 }
 
 bool MotifCluster::IsMotifM9(PNGraph graph, int center, int v, int w) {
-  return IsNoEdge(graph, v, w) && ((IsUnidirEdge(graph, center, v) && IsUnidirEdge(graph, w, center)) ||
-                                   (IsUnidirEdge(graph, center, w) && IsUnidirEdge(graph, v, center)));
+  return IsNoEdge(graph, v, w) &&
+    ((IsUnidirEdge(graph, center, v) && IsUnidirEdge(graph, w, center)) ||
+     (IsUnidirEdge(graph, center, w) && IsUnidirEdge(graph, v, center)));
 }
 
 bool MotifCluster::IsMotifM10(PNGraph graph, int center, int v, int w) {
-  return IsNoEdge(graph, v, w) && IsUnidirEdge(graph, v, center) && IsUnidirEdge(graph, w, center);
+  return IsNoEdge(graph, v, w) && IsUnidirEdge(graph, v, center) &&
+    IsUnidirEdge(graph, w, center);
 }
 
 bool MotifCluster::IsMotifM11(PNGraph graph, int center, int v, int w) {
-  return IsNoEdge(graph, v, w) && ((IsBidirEdge(graph, center, v) && IsUnidirEdge(graph, center, w)) ||
-                                   (IsBidirEdge(graph, center, w) && IsUnidirEdge(graph, center, v)));
+  return IsNoEdge(graph, v, w) &&
+    ((IsBidirEdge(graph, center, v) && IsUnidirEdge(graph, center, w)) ||
+     (IsBidirEdge(graph, center, w) && IsUnidirEdge(graph, center, v)));
 }
 
 bool MotifCluster::IsMotifM12(PNGraph graph, int center, int v, int w) {
-  return IsNoEdge(graph, v, w) && ((IsBidirEdge(graph, center, v) && IsUnidirEdge(graph, w, center)) ||
-                                   (IsBidirEdge(graph, center, w) && IsUnidirEdge(graph, v, center)));
+  return IsNoEdge(graph, v, w) &&
+    ((IsBidirEdge(graph, center, v) && IsUnidirEdge(graph, w, center)) ||
+     (IsBidirEdge(graph, center, w) && IsUnidirEdge(graph, v, center)));
 }
 
 bool MotifCluster::IsMotifM13(PNGraph graph, int center, int v, int w) {
-  return IsNoEdge(graph, v, w) && IsBidirEdge(graph, center, v) && IsBidirEdge(graph, center, w);
+  return IsNoEdge(graph, v, w) && IsBidirEdge(graph, center, v)
+    && IsBidirEdge(graph, center, w);
 }
 
 
 /////////////////////////////////////////////////
 // Triangle weighting
 void MotifCluster::DegreeOrdering(PNGraph graph, TIntV& order) {
-  // Note: this works the best when the nodes are numbered 0, 1, ..., num_nodes - 1.
+  // Note: This is the most efficient when the nodes are numbered
+  // 0, 1, ..., num_nodes - 1.
   int max_nodes = graph->GetMxNId() + 1;
   TVec< TKeyDat<TInt, TInt> > degrees(max_nodes);
   degrees.PutAll(TKeyDat<TInt, TInt>(0, 0));
@@ -156,7 +210,7 @@ void MotifCluster::DegreeOrdering(PNGraph graph, TIntV& order) {
 }
 
 void MotifCluster::TriangleMotifAdjacency(PNGraph graph, MotifType motif,
-                                          TVec< THash<TInt, TInt> >& weights) {
+                                          WeightVH& weights) {
   TIntV order;
   DegreeOrdering(graph, order);
   for (TNGraph::TNodeI NI = graph->BegNI(); NI < graph->EndNI(); NI++) {
@@ -225,7 +279,7 @@ void MotifCluster::TriangleMotifAdjacency(PNGraph graph, MotifType motif,
 /////////////////////////////////////////////////
 // Wedge weighting
 void MotifCluster::WedgeMotifAdjacency(PNGraph graph, MotifType motif,
-                                       TVec< THash<TInt, TInt> >& weights) {
+                                       WeightVH& weights) {
   for (TNGraph::TNodeI NI = graph->BegNI(); NI < graph->EndNI(); NI++) {
     int center = NI.GetId();
     
@@ -283,8 +337,7 @@ void MotifCluster::WedgeMotifAdjacency(PNGraph graph, MotifType motif,
 
 /////////////////////////////////////////////////
 // Bifan weighting
-void MotifCluster::BifanMotifAdjacency(PNGraph graph,
-                                       TVec< THash<TInt, TInt> >& weights) {
+void MotifCluster::BifanMotifAdjacency(PNGraph graph, WeightVH& weights) {
   // Find all pairs of nodes that are not adjacent
   // Note: does not scale to large sparse networks but will work for smaller
   // networks such as common neuronal connectivity datasets.
@@ -347,8 +400,7 @@ void MotifCluster::BifanMotifAdjacency(PNGraph graph,
 
 /////////////////////////////////////////////////
 // Semiclique weighting
-void MotifCluster::SemicliqueMotifAdjacency(PUNGraph graph,
-                                            TVec< THash<TInt, TInt> >& weights) {
+void MotifCluster::SemicliqueMotifAdjacency(PUNGraph graph, WeightVH& weights) {
   for (TUNGraph::TNodeI NI = graph->BegNI(); NI < graph->EndNI(); NI++) {  
     int src = NI.GetId();
     for (int j = 0; j < NI.GetDeg(); j++) {
@@ -386,8 +438,7 @@ void MotifCluster::SemicliqueMotifAdjacency(PUNGraph graph,
 
 /////////////////////////////////////////////////
 // Simple edge weighting
-void MotifCluster::EdgeMotifAdjacency(PNGraph graph,
-                                      TVec< THash<TInt, TInt> >& weights) {
+void MotifCluster::EdgeMotifAdjacency(PNGraph graph, WeightVH& weights) {
   for (auto it = graph->BegEI(); it < graph->EndEI(); it++) {
     int src = it.GetSrcNId();    
     int dst = it.GetDstNId();
@@ -401,8 +452,7 @@ void MotifCluster::EdgeMotifAdjacency(PNGraph graph,
   }
 }
 
-void MotifCluster::EdgeMotifAdjacency(PUNGraph graph,
-                                      TVec< THash<TInt, TInt> >& weights) {
+void MotifCluster::EdgeMotifAdjacency(PUNGraph graph, WeightVH& weights) {
   for (auto it = graph->BegEI(); it < graph->EndEI(); it++) {
     int src = it.GetSrcNId();    
     int dst = it.GetDstNId();
@@ -417,8 +467,8 @@ void MotifCluster::EdgeMotifAdjacency(PUNGraph graph,
 /////////////////////////////////////////////////
 // Motif adjacency formation
 void MotifCluster::MotifAdjacency(PNGraph graph, MotifType motif,
-                                  TVec< THash<TInt, TInt> >& weights) {
-  weights = TVec< THash<TInt, TInt> >(graph->GetMxNId() + 1);
+				  WeightVH& weights) {
+  weights = WeightVH(graph->GetMxNId() + 1);
   switch (motif) {
   case M1:
   case M2:
@@ -448,15 +498,15 @@ void MotifCluster::MotifAdjacency(PNGraph graph, MotifType motif,
 }
 
 void MotifCluster::CliqueMotifAdjacency(PUNGraph graph, int clique_size,
-                                        TVec< THash<TInt, TInt> >& weights) {
+                                        WeightVH& weights) {
   ChibaNishizekiWeighter cnw(graph);
   cnw.Run(clique_size);
   weights = cnw.weights();
 }
 
 void MotifCluster::MotifAdjacency(PUNGraph graph, MotifType motif,
-                                  TVec< THash<TInt, TInt> >& weights) {
-  weights = TVec< THash<TInt, TInt> >(graph->GetMxNId() + 1);
+                                  WeightVH& weights) {
+  weights = WeightVH(graph->GetMxNId() + 1);
   switch (motif) {
   case triangle:
   case clique3:
@@ -508,7 +558,7 @@ void ChibaNishizekiWeighter::Initialize(int k) {
   }
 
   int N = kcore->GetNodes();
-  weights_ = TVec< THash<TInt, TInt> >(N);
+  weights_ = WeightVH(N);
   graph_ = TVec < TVec<TIntV> >(k + 2);
   for (int i = 0; i < k + 2; ++i) {
     graph_[i] = TVec<TIntV>(N);
@@ -645,6 +695,22 @@ void ChibaNishizekiWeighter::CliqueEnum(int k, const TIntV& U) {
 
 /////////////////////////////////////////////////
 // Spectral stuff
+void MotifCluster::GetMotifCluster(PNGraph graph, MotifType motif,
+				   TSweepCut& sweepcut, double tol,
+				   int maxiter) {
+  WeightVH weights;
+  MotifAdjacency(graph, motif, weights);
+  SpectralCut(weights, sweepcut, tol, maxiter);
+}
+
+void MotifCluster::GetMotifCluster(PUNGraph graph, MotifType motif,
+				   TSweepCut& sweepcut, double tol,
+				   int maxiter) {
+  WeightVH weights;
+  MotifAdjacency(graph, motif, weights);
+  SpectralCut(weights, sweepcut, tol, maxiter);
+}
+
 double MotifCluster::NFiedlerVector(const TSparseColMatrix& W, TFltV& fvec,
                                     double tol, int maxiter) {
   if (W.GetRows() != W.GetCols()) {
@@ -700,7 +766,7 @@ double MotifCluster::NFiedlerVector(const TSparseColMatrix& W, TFltV& fvec,
 
 // Given a vector of hashmaps representing weights in a graph, construct the
 // undirected, unweighted. graph with the same network structure.
-static PUNGraph UnweightedGraphRepresentation(const TVec< THash<TInt, TInt> >& weights) {
+static PUNGraph UnweightedGraphRepresentation(const WeightVH& weights) {
   int num_edges = 0;
   for (int i = 0; i < weights.Len(); i++) {
     num_edges += weights[i].Len();
@@ -796,8 +862,8 @@ static void Sweep(const TSparseColMatrix& W, const TFltV& fvec, TFltV& conds,
   }
 }
 
-void MotifCluster::SpectralCut(const TVec< THash<TInt, TInt> >& weights,
-                               TSweepCut& sweepcut, double tol, int maxiter) {
+void MotifCluster::SpectralCut(const WeightVH& weights, TSweepCut& sweepcut,
+			       double tol, int maxiter) {
   // Form graph and get maximum component
   PUNGraph graph = UnweightedGraphRepresentation(weights);
   TCnComV components;
@@ -987,4 +1053,6 @@ void SymeigsSmallest(const TSparseColMatrix& A, int nev, TFltV& evals,
   delete[] ipntr;
   delete[] workd;
   delete[] workl;
+  delete[] select;
+  delete[] d;
 }

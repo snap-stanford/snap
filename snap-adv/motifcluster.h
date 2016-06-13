@@ -2,6 +2,11 @@
 #define snap_motifcluster_h
 #include "Snap.h"
 
+const double kDefaultTol = 1e-12;
+const int kMaxIter = 300;
+
+typedef TVec< THash<TInt, TInt> > WeightVH;
+
 enum MotifType {
   M1,         // u  --> v, v  --> w, w  --> u
   M2,         // u <--> v, v  --> w, w  --> u
@@ -45,96 +50,105 @@ class TSweepCut {
 // This routine stores the eigenvalues in evals and the eigenvectors in evecs,
 // sorted from smallest to largest eigenvalue.
 void SymeigsSmallest(const TSparseColMatrix& A, int nev, TFltV& evals,
-		     TFullColMatrix& evecs, double tol=1e-12, int maxiter=300);
+		     TFullColMatrix& evecs, double tol=kDefaultTol,
+		     int maxiter=kMaxIter);
 
 class MotifCluster {
  public:
-  // For a directed graph, fills the weights vector with the weights in the
-  // motif adjacency matrix.  Specifically, weights[i][j] is the number of times
-  // i and j co-occurr in an instance of the motif for any i < j (only stores
-  // the lower triangular part of the matrix).
-  void MotifAdjacency(PNGraph graph, MotifType motif,
-                      TVec< THash<TInt, TInt> >& weights);
+  // Given a graph and a motif type, uses the motif spectral clustering to find
+  // a motif-based cluster in the graph.  The result of the method is stored in
+  // the sweepcut data structure.  Optional parameters include the tolerance and
+  // maximum number of iterations for the underlying eigenvector routine.
+  static void GetMotifCluster(PNGraph graph, MotifType motif,
+			      TSweepCut& sweepcut, double tol=kDefaultTol,
+			      int maxiter=kMaxIter);
+  static void GetMotifCluster(PUNGraph graph, MotifType motif,
+			      TSweepCut& sweepcut, double tol=kDefaultTol,
+			      int maxiter=kMaxIter);  
 
-  // Same as MotifAdjacency() but for an undirected graph and an undirected
-  // motif.
-  void MotifAdjacency(PUNGraph graph, MotifType motif,
-                      TVec< THash<TInt, TInt> >& weights);
+  // For a given graph, fill the weights vector with the weights in the motif
+  // adjacency matrix.  Specifically, weights[i][j] is the number of times i and
+  // j co-occurr in an instance of the motif for any i < j (only stores the
+  // lower triangular part of the matrix).
+  static void MotifAdjacency(PNGraph graph, MotifType motif, WeightVH& weights);
+  static void MotifAdjacency(PUNGraph graph, MotifType motif, WeightVH& weights);
   
-  // Given a weighted network, compute a cut of the graph using the Fiedler vector
-  // and a sweep cut.  Results are stored in the sweepcut data structure.  The
-  // variables tol and maxiter control the stopping tolerance and maximum number
-  // of iterations used by the eigensolver.
-  void SpectralCut(const TVec< THash<TInt, TInt> >& weights, TSweepCut& sweepcut,
-                   double tol=1e-12, int maxiter=300);
+  // Given a weighted network, compute a cut of the graph using the Fiedler
+  // vector and a sweep cut.  Results are stored in the sweepcut data structure.
+  // The variables tol and maxiter control the stopping tolerance and maximum
+  // number of iterations used by the eigensolver.
+  static void SpectralCut(const WeightVH& weights, TSweepCut& sweepcut,
+			  double tol=kDefaultTol, int maxiter=kMaxIter);
 
   // Compute the normalized Fiedler vector for the normalized Laplacian of the
   // graph corresponding to the nonnegative matrix W and store the result in
   // fvec.  The normalized Fiedler vector is the eigenvector corresponding to
   // the second smallest eigenvalue of the normalized Laplacian, scaled by the
   // inverse square root of the node degrees.
-  double NFiedlerVector(const TSparseColMatrix& W, TFltV& fvec,
-			double tol=1e-12, int maxiter=300);
+  static double NFiedlerVector(const TSparseColMatrix& W, TFltV& fvec,
+			       double tol=kDefaultTol, int maxiter=kMaxIter);
+
+  // Given a string representation of a motif name, parse it to a MotifType.
+  static MotifType ParseMotifType(const TStr& motif);
 
   // Check if three nodes form an instance of a directed triangle motif.
-  bool IsMotifM1(PNGraph graph, int u, int v, int w);
-  bool IsMotifM2(PNGraph graph, int u, int v, int w);
-  bool IsMotifM3(PNGraph graph, int u, int v, int w);
-  bool IsMotifM4(PNGraph graph, int u, int v, int w);
-  bool IsMotifM5(PNGraph graph, int u, int v, int w);
-  bool IsMotifM6(PNGraph graph, int u, int v, int w);
-  bool IsMotifM7(PNGraph graph, int u, int v, int w);
+  static bool IsMotifM1(PNGraph graph, int u, int v, int w);
+  static bool IsMotifM2(PNGraph graph, int u, int v, int w);
+  static bool IsMotifM3(PNGraph graph, int u, int v, int w);
+  static bool IsMotifM4(PNGraph graph, int u, int v, int w);
+  static bool IsMotifM5(PNGraph graph, int u, int v, int w);
+  static bool IsMotifM6(PNGraph graph, int u, int v, int w);
+  static bool IsMotifM7(PNGraph graph, int u, int v, int w);
   // Check if three nodes form a directed wedge motif with a specified center.
-  bool IsMotifM8(PNGraph graph, int center, int v, int w);
-  bool IsMotifM9(PNGraph graph, int center, int v, int w);
-  bool IsMotifM10(PNGraph graph, int center, int v, int w);
-  bool IsMotifM11(PNGraph graph, int center, int v, int w);
-  bool IsMotifM12(PNGraph graph, int center, int v, int w);
-  bool IsMotifM13(PNGraph graph, int center, int v, int w);  
+  static bool IsMotifM8(PNGraph graph, int center, int v, int w);
+  static bool IsMotifM9(PNGraph graph, int center, int v, int w);
+  static bool IsMotifM10(PNGraph graph, int center, int v, int w);
+  static bool IsMotifM11(PNGraph graph, int center, int v, int w);
+  static bool IsMotifM12(PNGraph graph, int center, int v, int w);
+  static bool IsMotifM13(PNGraph graph, int center, int v, int w);  
 
   // Check if u --> v is a unidirectional edge (u --> v but no v --> u).
-  bool IsUnidirEdge(PNGraph graph, int u, int v);
+  static bool IsUnidirEdge(PNGraph graph, int u, int v);
 
   // Check if u and v form a bidirectional edge (u <--> v).
-  bool IsBidirEdge(PNGraph graph, int u, int v);
+  static bool IsBidirEdge(PNGraph graph, int u, int v);
 
   // Check if there is no edge between u and v
-  bool IsNoEdge(PNGraph graph, int u, int v);
+  static bool IsNoEdge(PNGraph graph, int u, int v);
 
   // Fills order vector so that order[i] < order[j] implies that
   //    degree(i) <= degree(j),
-  // where degree is the number of unique incoming and outgoing
-  // neighbors (reciprocated edge neighbors are only counted once).
-  void DegreeOrdering(PNGraph graph, TIntV& order);
+  // where degree is the number of unique incoming and outgoing neighbors
+  // (reciprocated edge neighbors are only counted once).
+  static void DegreeOrdering(PNGraph graph, TIntV& order);
 
  private:
   // Handles MotifAdjacency() functionality for simple edges..
-  void EdgeMotifAdjacency(PNGraph graph, TVec< THash<TInt, TInt> >& weights);
-  void EdgeMotifAdjacency(PUNGraph graph, TVec< THash<TInt, TInt> >& weights);  
+  static void EdgeMotifAdjacency(PNGraph graph, WeightVH& weights);
+  static void EdgeMotifAdjacency(PUNGraph graph, WeightVH& weights);  
 
   
   // Handles MotifAdjacency() functionality for directed triangle motifs.
-  void TriangleMotifAdjacency(PNGraph graph, MotifType motif,
-                              TVec< THash<TInt, TInt> >& weights);
+  static void TriangleMotifAdjacency(PNGraph graph, MotifType motif,
+                              WeightVH& weights);
 
   // Handles MotifAdjacency() functionality for directed wedges.
-  void WedgeMotifAdjacency(PNGraph graph, MotifType motif,
-                           TVec< THash<TInt, TInt> >& weights);  
+  static void WedgeMotifAdjacency(PNGraph graph, MotifType motif,
+				  WeightVH& weights);  
 
   // Handles MotifAdjacency() functionality for the bifan motif.
-  void BifanMotifAdjacency(PNGraph graph, TVec< THash<TInt, TInt> >& weights);
+  static void BifanMotifAdjacency(PNGraph graph, WeightVH& weights);
 
   // Handles MotifAdjacency() functionality for the semi-clique.  
-  void SemicliqueMotifAdjacency(PUNGraph graph,
-				TVec< THash<TInt, TInt> >& weights);
+  static void SemicliqueMotifAdjacency(PUNGraph graph, WeightVH& weights);
 
   // Handles MotifAdjacency() functionality for undirected cliques.
-  void CliqueMotifAdjacency(PUNGraph graph, int clique_size,
-                            TVec< THash<TInt, TInt> >& weights);
+  static void CliqueMotifAdjacency(PUNGraph graph, int clique_size,
+				   WeightVH& weights);
 };
 
-// Class for doing undirected clique adjacency matrix weighting.  Uses the Chiba
-// & Nishizeki algorithm with (k-1)-core preprocessing.  See:
+// Helper Class for doing undirected clique adjacency matrix weighting.  Uses
+// the Chiba & Nishizeki algorithm with (k-1)-core preprocessing.  See:
 //
 // Chiba, Norishige, and Takao Nishizeki. "Arboricity and subgraph listing
 // algorithms." SIAM Journal on Computing 14.1 (1985): 210-223.
@@ -146,7 +160,7 @@ class ChibaNishizekiWeighter {
   void Run(int k);
   
   // Get the weight vector
-  TVec< THash<TInt, TInt> >& weights() { return weights_; }
+  WeightVH& weights() { return weights_; }
   
  private:
   // Get the order of nodes given by the subgraph induced by U
@@ -171,7 +185,7 @@ class ChibaNishizekiWeighter {
   TIntV C_;
   int k_;  // size of clique
   PUNGraph orig_graph_;
-  TVec< THash<TInt, TInt> > weights_;  // motif adjacency weights
+  WeightVH weights_;  // motif adjacency weights
 };
 
 #endif  // snap_motifcluster_h
