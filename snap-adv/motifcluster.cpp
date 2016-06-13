@@ -493,7 +493,8 @@ void MotifCluster::MotifAdjacency(PNGraph graph, MotifType motif,
     BifanMotifAdjacency(graph, weights);
     break;
   case edge:
-    EdgeMotifAdjacency(graph, weights);    
+    EdgeMotifAdjacency(graph, weights);
+    break;
   default:
     TExcept::Throw("Unknown directed motif type");
   }
@@ -884,6 +885,14 @@ void MotifCluster::SpectralCut(const WeightVH& weights, TSweepCut& sweepcut,
   }
   TCnCom comp = components[max_wcc_ind];
   sweepcut.component = comp;
+  if (comp.Len() == 1) {
+    printf("WARNING: No non-trivial connected components "
+	   "(likely due to no instances of the motif)\n");
+    sweepcut.cond = 0;
+    sweepcut.eig = 0;
+    return;
+  }
+  
 
   // Map largest connected component to a matrix, keeping track of ids.
   THash<TInt, TInt> id_map;
