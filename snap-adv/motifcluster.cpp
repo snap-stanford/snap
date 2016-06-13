@@ -49,6 +49,7 @@ MotifType MotifCluster::ParseMotifType(const TStr& motif) {
   else if (motif_lc == "m12")         { return M12; }
   else if (motif_lc == "m13")         { return M13; }
   else if (motif_lc == "bifan")       { return bifan; }
+  else if (motif_lc == "bi-fan")      { return bifan; }  
   else if (motif_lc == "triangle")    { return triangle; }
   else if (motif_lc == "clique3")     { return clique3; }
   else if (motif_lc == "clique4")     { return clique4; }
@@ -352,7 +353,7 @@ void MotifCluster::BifanMotifAdjacency(PNGraph graph, WeightVH& weights) {
       if (IsNoEdge(graph, src1, src2)) {
         // All unidirectional out-neighbors of src1
         THash<TInt, TInt> nbr_counts;
-        auto NI1 = graph->GetNI(src1);
+	TNGraph::TNodeI NI1 = graph->GetNI(src1);
         for (int k = 0; k < NI1.GetOutDeg(); k++) {
           int nbr = NI1.GetOutNId(k);
           if (IsUnidirEdge(graph, src1, nbr)) {
@@ -361,7 +362,7 @@ void MotifCluster::BifanMotifAdjacency(PNGraph graph, WeightVH& weights) {
         }
 
         // All unidirectional out-neighbors of src2
-        auto NI2 = graph->GetNI(src2);
+	TNGraph::TNodeI NI2 = graph->GetNI(src2);
         for (int k = 0; k < NI2.GetOutDeg(); k++) {
           int nbr = NI2.GetOutNId(k);
           if (IsUnidirEdge(graph, src2, nbr)) {
@@ -371,7 +372,8 @@ void MotifCluster::BifanMotifAdjacency(PNGraph graph, WeightVH& weights) {
 
         // Get all common outgoing neighbors
         TIntV common;
-        for (auto it = nbr_counts.BegI(); it < nbr_counts.EndI(); it++) {
+        for (THash<TInt, TInt>::TIter it = nbr_counts.BegI();
+	     it < nbr_counts.EndI(); it++) {
           if (it->Dat == 2) {
             common.Add(it->Key);
           }
@@ -409,7 +411,7 @@ void MotifCluster::SemicliqueMotifAdjacency(PUNGraph graph, WeightVH& weights) {
 
       // Common neighbors of dst that are neighbors of src
       TIntV common;
-      auto dst_NI = graph->GetNI(dst);
+      TUNGraph::TNodeI dst_NI = graph->GetNI(dst);
       for (int k = 0; k < dst_NI.GetOutDeg(); k++) {
         int nbr = dst_NI.GetNbrNId(k);
         if (nbr != src && nbr != dst && NI.IsNbrNId(nbr)) {
@@ -439,7 +441,7 @@ void MotifCluster::SemicliqueMotifAdjacency(PUNGraph graph, WeightVH& weights) {
 /////////////////////////////////////////////////
 // Simple edge weighting
 void MotifCluster::EdgeMotifAdjacency(PNGraph graph, WeightVH& weights) {
-  for (auto it = graph->BegEI(); it < graph->EndEI(); it++) {
+  for (TNGraph::TEdgeI it = graph->BegEI(); it < graph->EndEI(); it++) {
     int src = it.GetSrcNId();    
     int dst = it.GetDstNId();
     if (src == dst) {
@@ -453,7 +455,7 @@ void MotifCluster::EdgeMotifAdjacency(PNGraph graph, WeightVH& weights) {
 }
 
 void MotifCluster::EdgeMotifAdjacency(PUNGraph graph, WeightVH& weights) {
-  for (auto it = graph->BegEI(); it < graph->EndEI(); it++) {
+  for (TUNGraph::TEdgeI it = graph->BegEI(); it < graph->EndEI(); it++) {
     int src = it.GetSrcNId();    
     int dst = it.GetDstNId();
     if (src == dst) {
@@ -566,9 +568,9 @@ void ChibaNishizekiWeighter::Initialize(int k) {
   labels_ = TIntV(N);
   labels_.PutAll(k);
   
-  auto& graph_k = graph_[k];
+  TVec<TIntV>& graph_k = graph_[k];
   for (int src = 0; src < N; src++) {
-    auto src_it = kcore->GetNI(src);
+    TUNGraph::TNodeI src_it = kcore->GetNI(src);
     int deg = src_it.GetDeg();
     graph_k[src] = TIntV(deg);
     for (int edge = 0; edge < deg; edge++) {
@@ -777,7 +779,8 @@ static PUNGraph UnweightedGraphRepresentation(const WeightVH& weights) {
   }
   for (int i = 0; i < weights.Len(); i++) {
     const THash<TInt, TInt>& edge_list = weights[i];
-    for (auto it = edge_list.BegI(); it < edge_list.EndI(); it++) {    
+    for (THash<TInt, TInt>::TIter it = edge_list.BegI(); it < edge_list.EndI();
+	 it++) {    
       graph->AddEdge(i, it->Key);
     }
   }
@@ -829,7 +832,8 @@ static void Sweep(const TSparseColMatrix& W, const TFltV& fvec, TFltV& conds,
   double total_vol = 0;
   for (int ind = 0; ind < order.Len(); ind++) {
     const TIntFltKdV& nbr_weights = W.ColSpVV[ind];
-    for (auto it = nbr_weights.BegI(); it < nbr_weights.EndI(); it++) {
+    for (TIntFltKdV::TIter it = nbr_weights.BegI(); it < nbr_weights.EndI();
+	 it++) {
       total_vol += it->Dat;
     }
   }
@@ -838,7 +842,8 @@ static void Sweep(const TSparseColMatrix& W, const TFltV& fvec, TFltV& conds,
   for (int ind = 0; ind < order.Len() - 1; ind++) {
     int node = order[ind];
     const TIntFltKdV& nbr_weights = W.ColSpVV[node];
-    for (auto it = nbr_weights.BegI(); it < nbr_weights.EndI(); it++) {
+    for (TIntFltKdV::TIter it = nbr_weights.BegI(); it < nbr_weights.EndI();
+	 it++) {
       int nbr = it->Key;
       if (node == nbr) { continue; }
       double val = it->Dat;
@@ -891,7 +896,8 @@ void MotifCluster::SpectralCut(const WeightVH& weights, TSweepCut& sweepcut,
     const THash<TInt, TInt>& edge_list = weights[c_ind];
     int i_ind = id_map(c_ind);
     TIntFltKdV& col = matrix_entries[i_ind];
-    for (auto it = edge_list.BegI(); it < edge_list.EndI(); it++) {
+    for (THash<TInt, TInt>::TIter it = edge_list.BegI(); it < edge_list.EndI();
+	 it++) {
       int ind2 = it->Key;
       int val = it->Dat;
       if (comp.IsNIdIn(ind2)) {
