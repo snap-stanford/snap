@@ -28,6 +28,7 @@ MakeAll:
 	$(MAKE) -C magfit
 	$(MAKE) -C maggen
 	$(MAKE) -C mkdatasets
+	$(MAKE) -C motifcluster
 	$(MAKE) -C motifs
 	$(MAKE) -C ncpplot
 	$(MAKE) -C netevol
@@ -60,6 +61,7 @@ clean:
 	$(MAKE) clean -C magfit
 	$(MAKE) clean -C maggen
 	$(MAKE) clean -C mkdatasets
+	$(MAKE) clean -C motifcluster
 	$(MAKE) clean -C motifs
 	$(MAKE) clean -C ncpplot
 	$(MAKE) clean -C netevol
