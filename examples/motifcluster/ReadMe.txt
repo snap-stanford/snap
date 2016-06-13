@@ -28,6 +28,6 @@ Parameters:
 /////////////////////////////////////////////////////////////////////////////
 Usage:
 
-Detect a M6-based cluster from an autonomous systems network.
+Detect a M4-based cluster from an autonomous systems network.
 
-motifcluster -m:M6
+motifcluster -m:M4

@@ -126,6 +126,8 @@ Description of examples:
   motifs : 
   	Counts the number of occurrence of every possible subgraph on K nodes 
   	in the network.
+  motifcluster : 
+  	Implements a spectral method for motif-based clustering.	
   ncpplot : 
 	Plots the Network Community Profile (NCP).
   netevol :

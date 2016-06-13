@@ -8,6 +8,7 @@ in 1996.
 The following people also contributed to the development of SNAP
 (in alphabetical order).
 
+Austin Benson
 Justin Cheng
 Royce Cheng-Yue
 Blaz Fortuna
