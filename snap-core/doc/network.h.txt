@@ -250,6 +250,10 @@ graph.
 Adds the key int value pair to the corresponding node attribute value vector.
 ///
 
+/// TNEANet::AddIntVAttrDatN
+Adds the key intv value pair to the corresponding node attribute value vector.
+///
+
 /// TNEANet::AddStrAttrDatN
 Adds the key str value pair to the corresponding node attribute value vector.
 ///
@@ -260,6 +264,10 @@ Adds the key flt value pair to the corresponding node attribute value vector.
 
 /// TNEANet::AddIntAttrDatE
 Adds the key int value pair to the corresponding edge attribute value vector.
+///
+
+/// TNEANet::AddIntVAttrDatE
+Adds the key intv value pair to the corresponding edge attribute value vector.
 ///
 
 /// TNEANet::AddStrAttrDatE

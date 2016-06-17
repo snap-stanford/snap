@@ -3134,7 +3134,7 @@ void TTable::Merge(TIntV& V, TInt Idx1, TInt Idx2, TInt Idx3, const TVec<TAttrTy
 
 #ifdef USE_OPENMP
 void TTable::QSortPar(TIntV& V, const TVec<TAttrType>& SortByTypes, const TIntV& SortByIndices, TBool Asc) {
-  TInt NumThreads = 8;
+  TInt NumThreads = 8; // Setting this to 8 because that results in the fastest sorting on Madmax.
   TInt Sz = V.Len();
   TIntV IndV, NextV;
   for (TInt i = 0; i < NumThreads; i++) {
@@ -5323,4 +5323,127 @@ void TTable::QSortKeyVal(TIntV& Key, TIntV& Val, TInt Start, TInt End) {
       { QSortKeyVal(Key, Val, Pivot+1, End); }
     }
   }
+}
+
+TIntV TTable::GetIntRowIdxByVal(const TStr& ColName, const TInt& Val) const {
+
+  if (IntColIndexes.IsKey(ColName)) {
+    THash<TInt, TIntV> ColIndex = IntColIndexes.GetDat(ColName);
+    if (ColIndex.IsKey(Val)) {
+      return ColIndex.GetDat(Val);
+    }
+    else {
+      TIntV Empty;
+      return Empty;
+    }
+  }
+  TIntV ToReturn;
+  for (TRowIterator RowI = BegRI(); RowI < EndRI(); RowI++) {
+    TInt ValAtRow = RowI.GetIntAttr(ColName);
+    if ( Val == ValAtRow) {
+      ToReturn.Add(RowI.GetRowIdx());
+    }
+  }
+  return ToReturn;
+}
+TIntV TTable::GetStrRowIdxByMap(const TStr& ColName, const TInt& Map) const {
+
+  if (StrMapColIndexes.IsKey(ColName)) {
+    THash<TInt, TIntV> ColIndex = StrMapColIndexes.GetDat(ColName);
+    if (ColIndex.IsKey(Map)) {
+      return ColIndex.GetDat(Map);
+    }
+    else {
+      TIntV Empty;
+      return Empty;
+    }
+  }
+  TIntV ToReturn;
+  for (TRowIterator RowI = BegRI(); RowI < EndRI(); RowI++) {
+    TInt MapAtRow = RowI.GetStrMapByName(ColName);
+    if ( Map == MapAtRow) {
+      ToReturn.Add(RowI.GetRowIdx());
+    }
+  }
+  return ToReturn;
+}
+
+TIntV TTable::GetFltRowIdxByVal(const TStr& ColName, const TFlt& Val) const {
+
+  if (FltColIndexes.IsKey(ColName)) {
+    THash<TFlt, TIntV> ColIndex = FltColIndexes.GetDat(ColName);
+    if (ColIndex.IsKey(Val)) {
+      return ColIndex.GetDat(Val);
+    }
+    else {
+      TIntV Empty;
+      return Empty;
+    }
+  }
+
+  TIntV ToReturn;
+  for (TRowIterator RowI = BegRI(); RowI < EndRI(); RowI++) {
+    TFlt ValAtRow = RowI.GetFltAttr(ColName);
+    if ( Val == ValAtRow) {
+      ToReturn.Add(RowI.GetRowIdx());
+    }
+  }
+  return ToReturn;
+}
+
+TInt TTable::RequestIndexInt(const TStr& ColName) {
+
+  THash<TInt, TIntV> NewIndex;
+  for (TRowIterator RowI = BegRI(); RowI < EndRI(); RowI++) {
+    TInt ValAtRow = RowI.GetIntAttr(ColName);
+    TInt RowIdx = RowI.GetRowIdx();
+    if (NewIndex.IsKey(ValAtRow)) {
+       TIntV Curr_V = NewIndex.GetDat(ValAtRow);
+       Curr_V.Add(RowIdx);
+    }
+    else {
+      TIntV New_V;
+      New_V.Add(RowIdx);
+      NewIndex.AddDat(ValAtRow, New_V);
+    }
+  }
+  IntColIndexes.AddDat(ColName, NewIndex); 
+  return 0;
+}
+TInt TTable::RequestIndexFlt(const TStr& ColName) {
+
+  THash<TFlt, TIntV> NewIndex;
+  for (TRowIterator RowI = BegRI(); RowI < EndRI(); RowI++) {
+    TFlt ValAtRow = RowI.GetFltAttr(ColName);
+    TInt RowIdx = RowI.GetRowIdx();
+    if (NewIndex.IsKey(ValAtRow)) {
+       TIntV Curr_V = NewIndex.GetDat(ValAtRow);
+       Curr_V.Add(RowIdx);
+    }
+    else {
+      TIntV New_V;
+      New_V.Add(RowIdx);
+      NewIndex.AddDat(ValAtRow, New_V);
+    }
+  }
+  FltColIndexes.AddDat(ColName, NewIndex); 
+  return 0;
+}
+TInt TTable::RequestIndexStrMap(const TStr& ColName) {
+  THash<TInt, TIntV> NewIndex;
+  for (TRowIterator RowI = BegRI(); RowI < EndRI(); RowI++) {
+    TInt MapAtRow = RowI.GetStrMapByName(ColName);
+    TInt RowIdx = RowI.GetRowIdx();
+    if (NewIndex.IsKey(MapAtRow)) {
+       TIntV Curr_V = NewIndex.GetDat(MapAtRow);
+       Curr_V.Add(RowIdx);
+    }
+    else {
+      TIntV New_V;
+      New_V.Add(RowIdx);
+      NewIndex.AddDat(MapAtRow, New_V);
+    }
+  }
+  StrMapColIndexes.AddDat(ColName, NewIndex); 
+  return 0;
 }
