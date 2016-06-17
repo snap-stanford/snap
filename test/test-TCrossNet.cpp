@@ -112,7 +112,7 @@ TEST(TModeNet, GetSmallGraph) {
 TEST(TCrossNet, ManipulateNodesEdgeAttributes) {
   int NNodes = 1000;
   int NEdges = 1000;
-  const char *FName = "demo.graph.dat";
+//  const char *FName = "demo.graph.dat";
 
   TCrossNet Graph;
   TCrossNet Graph1;
@@ -281,12 +281,12 @@ TEST(TCrossNet, ManipulateNodesEdgeAttributes) {
     expectedTotal += NEdges+i;
   }
 
-  /*{
-    TFOut FOut(FName);
-    Graph.Save(FOut);
-    FOut.Flush();
-    Graph.Clr();
-  }*/
+//  {
+//    TFOut FOut(FName);
+//    Graph.Save(FOut);
+//    FOut.Flush();
+//    Graph.Clr();
+//  }
 }
 
 
