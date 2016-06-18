@@ -904,7 +904,8 @@ public:
   //   PTable T = New(Table); T->Name = TableName;
   //   return T;
   // }
-
+  /// Automatically detects the Schema of a input file (data is assumed to be in tsv format)
+  static void GetSchema(const TStr& InFNm, Schema& S, const char& Separator = '\t');
 /***** Save / Load functions *****/
   /// Loads table from spread sheet (TSV, CSV, etc). Note: HasTitleLine = true is not supported. Please comment title lines instead
   static PTable LoadSS(const Schema& S, const TStr& InFNm, TTableContext* Context,
