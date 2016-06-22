@@ -28,7 +28,8 @@ MakeAll:
 	$(MAKE) -C magfit
 	$(MAKE) -C maggen
 	$(MAKE) -C mkdatasets
-	$(MAKE) -C motifcluster
+	# 'motifcluster' compilation skipped by default, it requires ARPACK
+	#$(MAKE) -C motifcluster
 	$(MAKE) -C motifs
 	$(MAKE) -C ncpplot
 	$(MAKE) -C netevol

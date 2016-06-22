@@ -18,8 +18,8 @@ C++ compiler is installed on the system. Visual Studio project files
 and makefiles are provided. For makefiles, compile the code with
 "make all".
 
-This code requires that ARPACK is installed on your machine.  If you are using
-homebrew, you can run "brew install arpack" to install this library.
+NOTE: This code requires that ARPACK is installed on your machine. If you
+are using homebrew, you can run "brew install arpack" to install this library.
 
 /////////////////////////////////////////////////////////////////////////////
 Parameters:
