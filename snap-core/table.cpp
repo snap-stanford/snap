@@ -433,6 +433,57 @@ TTable::TTable(const TTable& Table, const TIntV& RowIDs) : Context(Table.Context
   InitIds();
 }
 
+void TTable::GetSchema(const TStr& InFNm, Schema& S, const char& Separator) {
+  // Determine Attr Type
+  // Assume that the data is tab separated
+  TSsParser Ss(InFNm, '\t', false, false, false);
+  TInt rowsToPeek = 1000;
+  TInt currRow = 0;
+  TInt lastComment = 0;
+  while (Ss.Next()) {
+    if (Ss.IsCmt()) {
+      lastComment += 1;
+    }
+    else break;
+  }
+  if (Ss.Eof()) {TExcept::Throw("No Data to determine attribute types!");}
+  TInt numCols = Ss.GetFlds();
+  TVec<TAttrType> colAttrV(numCols);
+  colAttrV.PutAll(atInt);
+  while (true) {
+    for (TInt i = 0; i < numCols; i++) {
+      if (Ss.IsInt(i)) {
+      }
+      else if (Ss.IsFlt(i)) {
+        colAttrV[i] = atFlt;
+      }
+      else {
+        colAttrV[i] = atStr;
+      }
+    }
+    currRow++;
+    if (currRow > rowsToPeek || Ss.Eof()) break;
+    Ss.Next();
+  }
+  // Default Separator is tab
+  TSsParser SsNames(InFNm, Separator, false, false, false);
+  for (int i = 0; i < lastComment; i++) { SsNames.Next();}
+  TVec<TStr> attrV;
+  TStr first(SsNames[0]);
+  int begin = 0;
+  TStr comment('#');
+  if (first != comment) {
+    for (int i = 1; i < first.Len(); i++){
+      if (first[i] != ' ') { begin = i; break;}
+    }
+    attrV.Add(first.GetSubStr(begin));
+  }
+  for (int i = 1; i < SsNames.GetFlds(); i++) {attrV.Add(SsNames[i]);}
+  for (TInt i = 0; i < numCols; i++) {
+    S.Add(TPair<TStr,TAttrType>(attrV[i],colAttrV[i]));
+  } 
+}
+
 #ifdef GCC_ATOMIC
 void TTable::LoadSSPar(PTable& T, const Schema& S, const TStr& InFNm, const TIntV& RelevantCols, 
                         const char& Separator, TBool HasTitleLine) {
