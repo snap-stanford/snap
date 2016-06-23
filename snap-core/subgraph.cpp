@@ -130,7 +130,9 @@ PNGraph GetEgonet(const PNGraph& Graph, const int CtrNId, int& InEdges, int& Out
     }
     for (int j = 0; j < NbrNode.GetOutDeg(); ++j) {
       int NbrNbrNId = NbrNode.GetOutNId(j);
-      if (!NewGraph.IsNode(NbrNbrNId)) {
+      if (NewGraph.IsNode(NbrNbrNId)) {
+        NewGraph.AddEdge(NbrNId, NbrNbrNId);
+      } else {
         OutEdges++;
       }
     }
