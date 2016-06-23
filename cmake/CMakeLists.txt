@@ -13,12 +13,12 @@ if(CMAKE_HOST_UNIX)
 endif()
 
 ## lib
-add_library(snap ./snap-core/Snap.cpp)
-target_include_directories(snap PUBLIC glib-core snap-core)
+add_library(snap ../snap-core/Snap.cpp)
+target_include_directories(snap PUBLIC ../glib-core ../snap-core)
 
 ## tutorials
 if(TUTORIALS)
-    file(GLOB TUTORIAL_CPP tutorials/*cpp)
+    file(GLOB TUTORIAL_CPP ../tutorials/*cpp)
     foreach(tutorial_src ${TUTORIAL_CPP})
         get_filename_component(tutorial ${tutorial_src} NAME_WE)
         add_executable(${tutorial} ${tutorial_src})
@@ -28,12 +28,12 @@ endif()
 
 ## tests
 if(TESTS)
-    file(GLOB TEST_SRC test/*cpp)
+    file(GLOB TEST_SRC ../test/*cpp)
     find_package(GTest)
     if(GTEST_FOUND)
         enable_testing()
         add_executable(run-all-tests EXCLUDE_FROM_ALL ${TEST_SRC})
-        target_include_directories(run-all-test PRIVATE ${GTEST_INCLUDE_DIRS})
+        target_include_directories(run-all-tests PRIVATE ${GTEST_INCLUDE_DIRS})
         target_link_libraries(run-all-tests snap ${GTEST_BOTH_LIBRARIES})
         add_test(test run-all-tests)
     else()

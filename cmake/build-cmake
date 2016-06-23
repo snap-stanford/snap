@@ -1,8 +1,9 @@
 #!/bin/bash
 # Copyright - 2015 - Jan Christoph Uhde <Jan@UhdeJC.com>
 
+cwd=`pwd`
+build_dir="${cwd}/build"
 project_root="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
-build_dir="${project_root}-build"
 
 args=()
 cm_flags=()
