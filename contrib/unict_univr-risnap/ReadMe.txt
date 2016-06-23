@@ -88,6 +88,18 @@ risnap.cpp, risnapds.cpp for further references).
 If you have to use other annotation types for nodes and edges, please make sure
 they have already defined the '==' operator.
 
+===============================================================================
+    Acknowledgments
+===============================================================================
+This software is based on the algorithm presented in Bonnici et al.
+
+We also thank Dott. Andrea Fornaia for all his work on this project.
+
+
+If you have used any of the RI project software, please cite the following paper:
+
+[1] Vincenzo Bonnici, Rosalba Giugno, Alfredo Pulvirenti, Dennis Shasha and Alfredo Ferro. A subgraph isomorphism algorithm and its application to biochemical data. BMC Bioinformatics 2013, 14(Suppl 7):S13 doi:10.1186/1471-2105-14-S7-S13.
+
 
 ===============================================================================
     Contacts
