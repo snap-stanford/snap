@@ -2,8 +2,16 @@
     Cascadegen: Cascade Detection
 ========================================================================
 
-The example detects top cascades from a list of events. The user can specify
-a paramter W to detect W-adjacent events.
+The example detects cascades from a list of events. Parameter W specifies
+W-adjacent events in a cascade. The program builds a graph of W-adjacent
+events, each connected component in the graph is a cascade.
+
+Event format in the input file name is as follows:
+ <src> <dst> <start_time> <duration>
+<src> is the event source node, <dst> is the event destination node,
+<start_time> is event start, <duration> is event duration. Events A and B
+are W-adjacent, if A_<dst> is equal to B_<src> and the time difference
+between the end of A and the start of B is less than W.
 
 The code works under Windows with Visual Studio or Cygwin with GCC,
 Mac OS X, Linux and other Unix variants with GCC. Make sure that a
@@ -18,4 +26,8 @@ Parameters:
 Usage: ./cascadegen <filename> <W>
 
 /////////////////////////////////////////////////////////////////////////////
-Output: A directed graph of W-adjacent events.
+Output: A directed graph of W-adjacent events in cascades.txt
+
+Example:
+  cascadegen reality.txt 10000
+

@@ -9,6 +9,7 @@ MakeAll:
 	$(MAKE) -C agmgen
 	$(MAKE) -C bigclam
 	$(MAKE) -C cascades
+	$(MAKE) -C cascadegen
 	$(MAKE) -C centrality
 	$(MAKE) -C cesna
 	$(MAKE) -C circles
@@ -41,6 +42,7 @@ clean:
 	$(MAKE) clean -C agmfit
 	$(MAKE) clean -C bigclam
 	$(MAKE) clean -C cascades
+	$(MAKE) clean -C cascadegen
 	$(MAKE) clean -C centrality
 	$(MAKE) clean -C cesna
 	$(MAKE) clean -C circles

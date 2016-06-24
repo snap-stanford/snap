@@ -73,6 +73,8 @@ Description of examples:
   cascades :
   	Simulates a SI (susceptible-infected) model on a network and computes
 	structural properties of cascades.
+  cascadegen :
+        Identifies cascades in a list of events.
   centrality :
 	Computes node centrality measures for a graph: closeness, eigen,
 	degree, betweenness, page rank, hubs and authorities.

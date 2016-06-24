@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "Snap.h"
+
 int main(int argc,char* argv[]) {
   //Read input from file and store in table.
   TTableContext Context;
@@ -14,9 +15,17 @@ int main(int argc,char* argv[]) {
   TInt W = atoi(argv[2]);
   // Sort by Source
   PNGraph Graph = TSnap::CascGraph(P,"Source","Dest","Start","Duration",W);
-  // Save the graph 
-  TFOut FOut("cascade.graph");
-  Graph->Save(FOut);
+
+  // Save the edge list in a text format
+  TSnap::SaveEdgeList(Graph, "cascades.txt");
+
+  // Save the cascade graph in a binary format
+  //TFOut FOut("cascade.graph");
+  //Graph->Save(FOut);
+
+  // Print the graph in a human readable format
+  //Graph->Dump();
+
   // Sequential
   TVec<TIntV> TopCascVV;
   TSnap::CascFind(Graph,P,"Source","Dest","Start","Duration",TopCascVV,false);
@@ -30,3 +39,4 @@ int main(int argc,char* argv[]) {
   printf("TotalCasc %d, TotalEvents %d, max %d\n",TopCascVV.Len(),totalEvents,max);
   return 0;
 }
+
