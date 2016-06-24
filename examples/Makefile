@@ -29,11 +29,14 @@ MakeAll:
 	$(MAKE) -C magfit
 	$(MAKE) -C maggen
 	$(MAKE) -C mkdatasets
+	# 'motifcluster' compilation skipped by default, it requires ARPACK
+	#$(MAKE) -C motifcluster
 	$(MAKE) -C motifs
 	$(MAKE) -C ncpplot
 	$(MAKE) -C netevol
 	$(MAKE) -C netinf
 	$(MAKE) -C netstat
+	$(MAKE) -C randwalk
 	$(MAKE) -C rolx
 	$(MAKE) -C testgraph
 
@@ -62,11 +65,13 @@ clean:
 	$(MAKE) clean -C magfit
 	$(MAKE) clean -C maggen
 	$(MAKE) clean -C mkdatasets
+	$(MAKE) clean -C motifcluster
 	$(MAKE) clean -C motifs
 	$(MAKE) clean -C ncpplot
 	$(MAKE) clean -C netevol
 	$(MAKE) clean -C netinf
 	$(MAKE) clean -C netstat
+	$(MAKE) clean -C randwalk
 	$(MAKE) clean -C rolx
 	$(MAKE) clean -C testgraph
 	rm -rf Debug Release ipch

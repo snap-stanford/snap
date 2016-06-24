@@ -128,6 +128,8 @@ Description of examples:
   motifs : 
   	Counts the number of occurrence of every possible subgraph on K nodes 
   	in the network.
+  motifcluster : 
+  	Implements a spectral method for motif-based clustering.	
   ncpplot : 
 	Plots the Network Community Profile (NCP).
   netevol :
@@ -267,6 +269,7 @@ snap-adv:
   kronecker.h : Kronecker Graph generator and KronFit algorithm for
         estimating parameters of Kronecker graphs.
   mag.h : Implements the Multiplicative Attribute Graph (MAG).
+  motifcluster.h : Implements motif-based clustering algorithms.
   ncp.h : Network community profile plot. Implements local spectral graph
         partitioning method to efficiently find communities in networks.
   rolx.h : Node role detection.

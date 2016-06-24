@@ -40,7 +40,7 @@ Parameters:
    
    The following two parameters are for backracking line search described in Convex Optimization, Boyd and Vandenberghe, 2004.
    Refer to the book for the backtracking line search algorithm.
-   -sa:Alpha for backtracking line search (default:0.3)
+   -sa:Alpha for backtracking line search (default:0.05)
    -sb:Beta for backtracking line search (default:0.3)
 
 /////////////////////////////////////////////////////////////////////////////
