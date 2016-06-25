@@ -191,10 +191,11 @@ over the entire table (which can be slow, so it is recommended to request an
 index if multiple queries must be made).
 ///
 
-/// TTable::GetIntRowIdxByVal
+/// TTable::GetFltRowIdxByVal
 Returns the RowIdxs in the float column given by ColName which have value
 Val, as a Vector. (If no such value is found, returns an empty vector.)
 Uses an index created by RequestIndex method if it exists, else loops 
 over the entire table (which can be slow, so it is recommended to request an
 index if multiple queries must be made).
 ///
+

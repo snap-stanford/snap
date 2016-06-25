@@ -1000,7 +1000,7 @@ public:
   TInt RequestIndexInt(const TStr& ColName);
   /// Creates Index for Flt Column \c ColName. ##TTable::RequestIndexFlt
   TInt RequestIndexFlt(const TStr& ColName);
-  /// Creates Index for Str Column \c ColName. ##TTable::RequestIndexStr
+  /// Creates Index for Str Column \c ColName. ##TTable::RequestIndexStrMap
   TInt RequestIndexStrMap(const TStr& ColName);
 
   /// Gets the string with \c KeyId.
