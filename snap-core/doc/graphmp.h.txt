@@ -1,3 +1,100 @@
+/// TUNGraphMP::Class
+Node IDs can be arbitrary non-negative integers. Nodes and edges have no
+attributes/data associated with them.
+There is at most one undirected edge between a pair of nodes.
+Self loops (one per node) are allowed but multiple (parallel) edges are not.
+The undirected graph data structure is implemented using sorted adjacency
+lists.
+This means adding a node takes constant time, while adding an edge takes
+linear time (since adjacency list is kept sorted) in the node degree.
+Accessing arbitrary node takes constant time and accessing any edge takes
+logarithmic time in the node degree.
+///
+
+/// TUNGraphMP::TNodeI::GetInNId
+Range of NodeN: 0 <= NodeN < GetInDeg(). Since the graph is undirected
+GetInNId(), GetOutNId() and GetNbrNId() all give the same output.
+///
+
+/// TUNGraphMP::TNodeI::GetOutNId
+Range of NodeN: 0 <= NodeN < GetOutDeg(). Since the graph is undirected
+GetInNId(), GetOutNId() and GetNbrNId() all give the same output.
+///
+
+/// TUNGraphMP::TNodeI::GetNbrNId
+Range of NodeN: 0 <= NodeN < GetNbrDeg(). Since the graph is undirected
+GetInNId(), GetOutNId() and GetNbrNId() all give the same output.
+///
+
+/// TUNGraphMP::New
+Call: PUNGraphMP Graph = TUNGraphMP::New(Nodes, Edges).
+///
+
+/// TUNGraphMP::AddNode (int NId = -1)
+Returns the ID of the node being added.
+If NId is -1, node ID is automatically assigned.
+Aborts, if a node with ID NId already exists.
+///
+
+/// TUNGraphMP::AddNode-1 (const int& NId, const TIntV& NbrNIdV)
+Returns the ID of the node being added.
+If NId is -1, node ID is automatically assigned.
+Aborts, if a node with ID NId already exists.
+
+The operation can create inconsistent graphs when the neighboring nodes
+in NbrNIdV vector do not exist.
+Use TUNGraphMP::IsOk to check that the resulting graph is consistent
+after the operation.
+///
+
+/// TUNGraphMP::AddNode-2 (const int& NId, const TVecPool<TInt>& Pool, const int& NIdVId)
+Returns the ID of the node being added.
+If NId is -1, node ID is automatically assigned.
+Aborts, if a node with ID NId already exists.
+
+The operation can create inconsistent graphs when the neighboring nodes
+stored in the Pool vector are not explicitly added to the graph.
+Use TUNGraphMP::IsOk to check that the resulting graph is consistent.
+///
+
+/// TUNGraphMP::DelNode
+If the node of ID NId does not exist the function aborts.
+///
+
+/// TUNGraphMP::AddEdge
+If the edge already exists return -2. If the edge was successfully added
+return -1.
+Normally the function should return an ID of the edge added but since edges in
+TUNGraphMP have no IDs we return -1.
+The function aborts if SrcNId or DstNId are not nodes in the graph.
+///
+
+/// TUNGraphMP::DelEdge
+If the edge (SrcNId, DstNId) does not exist in the graph function still
+completes.
+But the function aborts if SrcNId or DstNId are not nodes in the graph.
+///
+
+/// TUNGraphMP::Defrag
+After performing many node and edge insertions and deletions to a graph,
+the graph data structure will be fragmented in memory.
+This function compacts down the graph data structure and frees unneeded
+memory.
+///
+
+/// TUNGraphMP::IsOk
+For each node in the graph check that its neighbors are also nodes in the
+graph.
+///
+
+/// TUNGraphMP::GetSmallGraph
+\verbatim
+Graph:   3--0--4
+           /|
+          1-2
+\endverbatim
+///
+
 /// TNGraphMP::Class
 Node IDs can be arbitrary non-negative integers. Nodes and edges have no
 attributes/data associated with them.

@@ -7,7 +7,7 @@ typedef TPt<TUNGraphMP> PUNGraphMP;
 
 //#//////////////////////////////////////////////
 #ifdef GCC_ATOMIC
-// TUNGraph for multi-threaded operations
+/// Undirected graph for multi-threaded operations. ##TUNGraphMP::Class
 class TUNGraphMP {
 public:
   class TNode {
@@ -226,15 +226,15 @@ template <> struct IsDirected<TNGraphMP> { enum { Val = 1 }; };
 #endif // GCC_ATOMIC
 
 */
+
 //#//////////////////////////////////////////////
-/// Directed graphs
 class TNGraphMP;
 
 typedef TPt<TNGraphMP> PNGraphMP;
 
 //#//////////////////////////////////////////////
 #ifdef GCC_ATOMIC
-// TNGraph for multi-threaded operations
+/// Directed graph for multi-threaded operations. ##TNGraphMP::Class
 class TNGraphMP {
 public:
   typedef TNGraphMP TNet;
