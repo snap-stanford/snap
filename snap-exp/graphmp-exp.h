@@ -1,41 +1,45 @@
 #ifdef GCC_ATOMIC
-//#//////////////////////////////////////////////
-/// Directed graphs
-class TNGraphMP;
 
-typedef TPt<TNGraphMP> PNGraphMP;
+//
+// NOTE:
+// TUNGraphMP is only partially implemented. The code below still needs
+// to be finalized and functionally tested before it can be used.
+//
 
 //#//////////////////////////////////////////////
-/// Directed graph for multi-threaded operations. ##TNGraphMP::Class
-class TNGraphMP {
-public:
-  typedef TNGraphMP TNet;
-  typedef TPt<TNGraphMP> PNet;
+/// Undirected graphs
+class TUNGraphMP;
+
+typedef TPt<TUNGraphMP> PUNGraphMP;
+
+//#//////////////////////////////////////////////
+/// Undirected graph for multi-threaded operations. ##TUNGraphMP::Class
+class TUNGraphMP {
 public:
   class TNode {
   private:
     TInt Id;
-    TIntV InNIdV, OutNIdV;
+    TIntV NIdV;
   public:
-    TNode() : Id(-1), InNIdV(), OutNIdV() { }
-    TNode(const int& NId) : Id(NId), InNIdV(), OutNIdV() { }
-    TNode(const TNode& Node) : Id(Node.Id), InNIdV(Node.InNIdV), OutNIdV(Node.OutNIdV) { }
-    TNode(TSIn& SIn) : Id(SIn), InNIdV(SIn), OutNIdV(SIn) { }
-    void Save(TSOut& SOut) const { Id.Save(SOut); InNIdV.Save(SOut); OutNIdV.Save(SOut); }
+    TNode() : Id(-1), NIdV() {}
+    TNode(const int& NId) : Id(NId), NIdV() { }
+    TNode(const TNode& Node) : Id(Node.Id), NIdV(Node.NIdV) { }
+    TNode(TSIn& SIn) : Id(SIn), NIdV(SIn) { }
+    void Save(TSOut& SOut) const { Id.Save(SOut); NIdV.Save(SOut); }
     int GetId() const { return Id; }
-    int GetDeg() const { return GetInDeg() + GetOutDeg(); }
-    int GetInDeg() const { return InNIdV.Len(); }
-    int GetOutDeg() const { return OutNIdV.Len(); }
-    int GetInNId(const int& NodeN) const { return InNIdV[NodeN]; }
-    int GetOutNId(const int& NodeN) const { return OutNIdV[NodeN]; }
-    int GetNbrNId(const int& NodeN) const { return NodeN<GetOutDeg()?GetOutNId(NodeN):GetInNId(NodeN-GetOutDeg()); }
-    bool IsInNId(const int& NId) const { return InNIdV.SearchBin(NId) != -1; }
-    bool IsOutNId(const int& NId) const { return OutNIdV.SearchBin(NId) != -1; }
-    bool IsNbrNId(const int& NId) const { return IsOutNId(NId) || IsInNId(NId); }
-    void PackOutNIdV() { OutNIdV.Pack(); }
-    void PackNIdV() { InNIdV.Pack(); }
-    void SortNIdV() { InNIdV.Sort(); OutNIdV.Sort();}
-    friend class TNGraphMP;
+    int GetDeg() const { return NIdV.Len(); }
+    int GetInDeg() const { return GetDeg();}
+    int GetOutDeg() const { return GetDeg(); }
+    int GetInNId(const int& NodeN) const { return GetNbrNId(NodeN); }
+    int GetOutNId(const int& NodeN) const { return GetNbrNId(NodeN); }
+    int GetNbrNId(const int& NodeN) const { return NIdV[NodeN]; }
+    bool IsInNId(const int& NId) const { return IsNbrNId(NId);}
+    bool IsOutNId(const int& NId) const { return IsNbrNId(NId); }
+    bool IsNbrNId(const int& NId) const { return NIdV.SearchBin(NId) != -1;}
+    void PackOutNIdV() { NIdV.Pack(); }
+    void PackNIdV() { NIdV.Pack(); }
+    void SortNIdV() { NIdV.Sort(); }
+    friend class TUNGraphMP;
   };
   /// Node iterator. Only forward iteration (operator++) is supported.
   class TNodeI {
@@ -61,19 +65,19 @@ public:
     int GetOutDeg() const { return NodeHI.GetDat().GetOutDeg(); }
     /// Sorts the adjacency lists of the current node.
     void SortNIdV() { NodeHI.GetDat().SortNIdV(); }
-    /// Returns ID of NodeN-th in-node (the node pointing to the current node). ##TNGraphMP::TNodeI::GetInNId
+    /// Returns ID of NodeN-th in-node (the node pointing to the current node). ##TUNGraphMP::TNodeI::GetInNId
     int GetInNId(const int& NodeN) const { return NodeHI.GetDat().GetInNId(NodeN); }
-    /// Returns ID of NodeN-th out-node (the node the current node points to). ##TNGraphMP::TNodeI::GetOutNId
+    /// Returns ID of NodeN-th out-node (the node the current node points to). ##TUNGraphMP::TNodeI::GetOutNId
     int GetOutNId(const int& NodeN) const { return NodeHI.GetDat().GetOutNId(NodeN); }
-    /// Returns ID of NodeN-th neighboring node. ##TNGraphMP::TNodeI::GetNbrNId
+    /// Returns ID of NodeN-th neighboring node. ##TUNGraphMP::TNodeI::GetNbrNId
     int GetNbrNId(const int& NodeN) const { return NodeHI.GetDat().GetNbrNId(NodeN); }
     /// Tests whether node with ID NId points to the current node.
     bool IsInNId(const int& NId) const { return NodeHI.GetDat().IsInNId(NId); }
     /// Tests whether the current node points to node with ID NId.
     bool IsOutNId(const int& NId) const { return NodeHI.GetDat().IsOutNId(NId); }
     /// Tests whether node with ID NId is a neighbor of the current node.
-    bool IsNbrNId(const int& NId) const { return IsOutNId(NId) || IsInNId(NId); }
-    friend class TNGraphMP;
+    bool IsNbrNId(const int& NId) const { return NodeHI.GetDat().IsNbrNId(NId); }
+    friend class TUNGraphMP;
   };
   /// Edge iterator. Only forward iteration (operator++) is supported.
   class TEdgeI {
@@ -92,54 +96,54 @@ public:
     bool operator == (const TEdgeI& EdgeI) const { return CurNode == EdgeI.CurNode && CurEdge == EdgeI.CurEdge; }
     /// Gets edge ID. Always returns -1 since only edges in multigraphs have explicit IDs.
     int GetId() const { return -1; }
-    /// Gets the source node of an edge.
+    /// Returns the source of the edge. Since the graph is undirected, this is the node with a smaller ID of the edge endpoints.
     int GetSrcNId() const { return CurNode.GetId(); }
-    /// Gets destination node of an edge.
+    /// Returns the destination of the edge. Since the graph is undirected, this is the node with a greater ID of the edge endpoints.
     int GetDstNId() const { return CurNode.GetOutNId(CurEdge); }
-    friend class TNGraphMP;
+    friend class TUNGraphMP;
   };
 private:
   TCRef CRef;
-  TInt MxNId;
+  TInt MxNId, NEdges;
   THashMP<TInt, TNode> NodeH;
 private:
   TNode& GetNode(const int& NId) { return NodeH.GetDat(NId); }
   const TNode& GetNode(const int& NId) const { return NodeH.GetDat(NId); }
 public:
-  TNGraphMP() : CRef(), MxNId(0), NodeH() { }
+  TUNGraphMP() : CRef(), MxNId(0), NEdges(0), NodeH() { }
   /// Constructor that reserves enough memory for a graph of Nodes nodes and Edges edges.
-  explicit TNGraphMP(const int& Nodes, const int& Edges) : MxNId(0) { Reserve(Nodes, Edges); }
-  TNGraphMP(const TNGraphMP& Graph) : MxNId(Graph.MxNId), NodeH(Graph.NodeH) { }
+  explicit TUNGraphMP(const int& Nodes, const int& Edges) : MxNId(0), NEdges(0) { Reserve(Nodes, Edges); }
+  TUNGraphMP(const TUNGraphMP& Graph) : MxNId(Graph.MxNId), NEdges(Graph.NEdges), NodeH(Graph.NodeH) { }
   /// Constructor that loads the graph from a (binary) stream SIn.
-  TNGraphMP(TSIn& SIn) : MxNId(SIn), NodeH(SIn) { }
+  TUNGraphMP(TSIn& SIn) : MxNId(SIn), NEdges(SIn), NodeH(SIn) { }
   /// Saves the graph to a (binary) stream SOut.
-  void Save(TSOut& SOut) const { MxNId.Save(SOut); NodeH.Save(SOut); }
-  /// Static constructor that returns a pointer to the graph. Call: PNGraphMP Graph = TNGraphMP::New().
-  static PNGraphMP New() { return new TNGraphMP(); }
-  /// Static constructor that returns a pointer to the graph and reserves enough memory for Nodes nodes and Edges edges. ##TNGraphMP::New
-  static PNGraphMP New(const int& Nodes, const int& Edges) { return new TNGraphMP(Nodes, Edges); }
+  void Save(TSOut& SOut) const { MxNId.Save(SOut); NEdges.Save(SOut); NodeH.Save(SOut); }
+  /// Static constructor that returns a pointer to the graph. Call: PUNGraphMP Graph = TUNGraphMP::New().
+  static PUNGraphMP New() { return new TUNGraphMP(); }
+  /// Static constructor that returns a pointer to the graph and reserves enough memory for Nodes nodes and Edges edges. ##TUNGraphMP::New
+  static PUNGraphMP New(const int& Nodes, const int& Edges) { return new TUNGraphMP(Nodes, Edges); }
   /// Static constructor that loads the graph from a stream SIn and returns a pointer to it.
-  static PNGraphMP Load(TSIn& SIn) { return PNGraphMP(new TNGraphMP(SIn)); }
+  static PUNGraphMP Load(TSIn& SIn) { return PUNGraphMP(new TUNGraphMP(SIn)); }
   /// Allows for run-time checking the type of the graph (see the TGraphFlag for flags).
   bool HasFlag(const TGraphFlag& Flag) const;
-  TNGraphMP& operator = (const TNGraphMP& Graph) {
-    if (this!=&Graph) { MxNId=Graph.MxNId; NodeH=Graph.NodeH; }  return *this; }
-  
+  TUNGraphMP& operator = (const TUNGraphMP& Graph) {
+    if (this!=&Graph) { MxNId=Graph.MxNId; NEdges=Graph.NEdges; NodeH=Graph.NodeH; }  return *this; }
+
   /// Returns the number of nodes in the graph.
   int GetNodes() const { return NodeH.Len(); }
   /// Sets the number of nodes in the graph.
   void SetNodes(const int& Length) { NodeH.SetLen(Length); }
-  /// Adds a node of ID NId to the graph. ##TNGraphMP::AddNode
+  /// Adds a node of ID NId to the graph. ##TUNGraphMP::AddNode
   int AddNode(int NId = -1);
   /// Adds a node of ID NId to the graph without performing checks.
   int AddNodeUnchecked(int NId = -1);
   /// Adds a node of ID NodeI.GetId() to the graph.
   int AddNode(const TNodeI& NodeId) { return AddNode(NodeId.GetId()); }
-  /// Adds a node of ID NId to the graph, creates edges to the node from all nodes in vector InNIdV, creates edges from the node to all nodes in vector OutNIdV. ##TNGraphMP::AddNode-1
+  /// Adds a node of ID NId to the graph, creates edges to the node from all nodes in vector InNIdV, creates edges from the node to all nodes in vector OutNIdV. ##TUNGraphMP::AddNode-1
   int AddNode(const int& NId, const TIntV& InNIdV, const TIntV& OutNIdV);
-  /// Adds a node of ID NId to the graph, creates edges to the node from all nodes in vector InNIdV in the vector pool Pool, creates edges from the node to all nodes in vector OutNIdVin the vector pool Pool . ##TNGraphMP::AddNode-2
+  /// Adds a node of ID NId to the graph, creates edges to the node from all nodes in vector InNIdV in the vector pool Pool, creates edges from the node to all nodes in vector OutNIdVin the vector pool Pool . ##TUNGraphMP::AddNode-2
   int AddNode(const int& NId, const TVecPool<TInt>& Pool, const int& SrcVId, const int& DstVId);
-  /// Deletes node of ID NId from the graph. ##TNGraphMP::DelNode
+  /// Deletes node of ID NId from the graph. ##TUNGraphMP::DelNode
   void DelNode(const int& NId);
   /// Deletes node of ID NodeI.GetId() from the graph.
   void DelNode(const TNode& NodeI) { DelNode(NodeI.GetId()); }
@@ -159,7 +163,7 @@ public:
 
   /// Returns the number of edges in the graph.
   int GetEdges() const;
-  /// Adds an edge from node IDs SrcNId to node DstNId to the graph. ##TNGraphMP::AddEdge
+  /// Adds an edge from node IDs SrcNId to node DstNId to the graph. ##TUNGraphMP::AddEdge
   int AddEdge(const int& SrcNId, const int& DstNId);
   /// Adds an edge from node IDs SrcNId to node DstNId to the graph without performing checks.
   int AddEdgeUnchecked(const int& SrcNId, const int& DstNId);
@@ -173,7 +177,7 @@ public:
   /// Adds a node of ID NId to the graph, creates edges to the node from all nodes in vector InNIdV, creates edges from the node to all nodes in vector OutNIdV.
   void AddNodeWithEdges(const TInt& NId, TIntV& InNIdV, TIntV& OutNIdV);
 
-  /// Deletes an edge from node IDs SrcNId to DstNId from the graph. ##TNGraphMP::DelEdge
+  /// Deletes an edge from node IDs SrcNId to DstNId from the graph. ##TUNGraphMP::DelEdge
   void DelEdge(const int& SrcNId, const int& DstNId, const bool& IsDir = true);
   /// Tests whether an edge from node IDs SrcNId to DstNId exists in the graph.
   bool IsEdge(const int& SrcNId, const int& DstNId, const bool& IsDir = true) const;
@@ -199,30 +203,28 @@ public:
   void Clr() { MxNId=0; NodeH.Clr(); }
   /// Reserves memory for a graph of Nodes nodes and Edges edges.
   void Reserve(const int& Nodes, const int& Edges) { if (Nodes>0) { NodeH.Gen(Nodes); } }
- /// Reserves memory for node Idx having InDeg in-edges and OutDeg out-edges.
-  void ReserveNodeDegs(const int& Idx, const int& InDeg, const int& OutDeg) { if (InDeg > 0) NodeH[Idx].InNIdV.Reserve(InDeg); if (OutDeg > 0) NodeH[Idx].OutNIdV.Reserve(OutDeg); }
-  /// Reserves memory for node ID NId having InDeg in-edges.
-  void ReserveNIdInDeg(const int& NId, const int& InDeg) { GetNode(NId).InNIdV.Reserve(InDeg); }
-  /// Reserves memory for node ID NId having OutDeg out-edges.
-  void ReserveNIdOutDeg(const int& NId, const int& OutDeg) { GetNode(NId).OutNIdV.Reserve(OutDeg); }
-  /// Sorts in-edges and out-edges.
-  void SortEdges(const int& Idx, const int& InDeg, const int& OutDeg) { if (InDeg > 0) NodeH[Idx].InNIdV.Sort(); if (OutDeg > 0) NodeH[Idx].OutNIdV.Sort(); }
+  /// Reserves memory for node ID NId having Deg edges.
+  void ReserveNIdDeg(const int& NId, const int& Deg) { GetNode(NId).NIdV.Reserve(Deg); }
+  /// Sorts edges.
+  void SortEdges(const int& Idx, const int& Deg) { if (Deg > 0) NodeH[Idx].NIdV.Sort(); }
   /// Sorts the adjacency lists of each node
   void SortNodeAdjV() { for (TNodeI NI = BegNI(); NI < EndNI(); NI++) { NI.SortNIdV();} }
-  /// Defragments the graph. ##TNGraphMP::Defrag
+  /// Defragments the graph. ##TUNGraphMP::Defrag
   void Defrag(const bool& OnlyNodeLinks=false);
-  /// Checks the graph data structure for internal consistency. ##TNGraphMP::IsOk
+  /// Checks the graph data structure for internal consistency. ##TUNGraphMP::IsOk
   bool IsOk(const bool& ThrowExcept=true) const;
   /// Print the graph in a human readable form to an output stream OutF.
   void Dump(FILE *OutF=stdout) const;
-  /// Returns a small graph on 5 nodes and 6 edges. ##TNGraphMP::GetSmallGraph
-  static PNGraphMP GetSmallGraph();
-  friend class TPt<TNGraphMP>;
-  friend class TNGraphMPMtx;
+  /// Returns a small graph on 5 nodes and 6 edges. ##TUNGraphMP::GetSmallGraph
+  static PUNGraphMP GetSmallGraph();
+  friend class TPt<TUNGraphMP>;
+  friend class TUNGraphMPMtx;
 };
 
 // set flags
 namespace TSnap {
-template <> struct IsDirected<TNGraphMP> { enum { Val = 1 }; };
+template <> struct IsDirected<TUNGraphMP> { enum { Val = 1 }; };
 }
+
 #endif // GCC_ATOMIC
+
