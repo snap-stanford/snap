@@ -28,7 +28,7 @@ int main(int argc, char* argv[]) {
 #endif
   PUNGraph G;
   TIntStrH NIDNameH;
-  if (InFNm.IsStrIn(".ungraph")) {
+  if (InFNm.IsSuffix(".ungraph")) {
     TFIn GFIn(InFNm);
     G = TUNGraph::Load(GFIn);
   } else if (LabelFNm.Len() > 0) {
