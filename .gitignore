@@ -55,6 +55,7 @@ tutorials/*
 !tutorials/Makefile
 !tutorials/cncom
 !tutorials/graphviz
+!tutorials/parser
 tutorials/.DS_Store
 tutorials/*.dSYM
 benchmarking/*.dat
