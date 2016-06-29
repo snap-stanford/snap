@@ -56,24 +56,36 @@ void ManipulateNodesEdges() {
   }
   PrintGStats("ManipulateNodesEdges:Graph",Graph);
 
-  // get all the nodes
+  // traverse the nodes, count them
   NCount = 0;
   for (TNGraph::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
     NCount++;
+    // get the node ID and its in- and out-degree
+    printf("node id %d has in-degree %d and out-degree %d\n",
+          NI.GetId(), NI.GetInDeg(), NI.GetOutDeg());
   }
 
-  // get all the edges for all the nodes
+  // traverse all the in-edges of all the nodes, count them
   ECount1 = 0;
   for (TNGraph::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
-    for (int e = 0; e < NI.GetOutDeg(); e++) {
+    for (int e = 0; e < NI.GetInDeg(); e++) {
       ECount1++;
+      // get the node ID and its in-neighbour
+      printf("node id %d has in-neighbor %d\n", NI.GetId(), NI.GetInNId(e));
+    }
+    for (int e = 0; e < NI.GetOutDeg(); e++) {
+      // get the node ID and its out-neighbour
+      printf("node id %d has out-neighbor %d\n", NI.GetId(), NI.GetOutNId(e));
     }
   }
 
-  // get all the edges directly
+  // traverse all the edges directly, count them
   ECount2 = 0;
   for (TNGraph::TEdgeI EI = Graph->BegEI(); EI < Graph->EndEI(); EI++) {
     ECount2++;
+    // get the source and the destination nodes of the edge
+    printf("edge from source node %d to destination node %d\n",
+          EI.GetSrcNId(), EI.GetDstNId());
   }
   printf("ManipulateNodesEdges:Graph, nodes %d, edges1 %d, edges2 %d\n",
       NCount, ECount1, ECount2);

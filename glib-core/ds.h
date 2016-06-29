@@ -544,6 +544,9 @@ public:
 #ifdef USE_OPENMP
   TSizeTy AddAtm(const TVal& Val){ const int Idx = __sync_fetch_and_add(&Vals, 1);
   ValT[Idx]=Val; return Idx;}
+
+  TSizeTy MoveLastMP(const TVal& Val, int Inc){ const int Idx = __sync_fetch_and_add(&Vals, Inc);
+  return Idx;}
 #endif
 
   /// Adds a new element at the end of the vector, after its current last element. ##TVec::Add1

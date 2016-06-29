@@ -56,25 +56,32 @@ void ManipulateNodesEdges() {
   }
   PrintGStats("ManipulateNodesEdges:Graph",Graph);
 
-  // get all the nodes
+  // traverse the nodes, count them
   NCount = 0;
   for (TUNGraph::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
     NCount++;
+    // get the node ID and its degree
+    printf("node id %d has degree %d\n", NI.GetId(), NI.GetDeg());
   }
 
-  // get all the edges for all the nodes
+  // traverse all the in-edges of all the nodes, count them
   ECount1 = 0;
   for (TUNGraph::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
     for (int e = 0; e < NI.GetOutDeg(); e++) {
       ECount1++;
+      // get the node ID and its neighbour
+      printf("node id %d has neighbor %d\n", NI.GetId(), NI.GetInNId(e));
     }
   }
   ECount1 /= 2;
 
-  // get all the edges directly
+  // traverse all the edges directly, count them
   ECount2 = 0;
   for (TUNGraph::TEdgeI EI = Graph->BegEI(); EI < Graph->EndEI(); EI++) {
     ECount2++;
+    // get the nodes of the edge
+    printf("edge between node %d and node %d\n",
+           EI.GetSrcNId(), EI.GetDstNId());
   }
   printf("graph ManipulateNodesEdges:Graph, nodes %d, edges1 %d, edges2 %d\n",
       NCount, ECount1, ECount2);
