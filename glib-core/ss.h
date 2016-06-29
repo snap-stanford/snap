@@ -100,7 +100,7 @@ public:
   /// Checks for end of file.
   bool Eof() const { return FInPt->Eof(); }
   /// Returns the current line
-  TChA GetLnStr() const { TChA LnOut;  for (int i = 0; i < Len(); i++) { LnOut+=GetFld(i); LnOut+=' '; }  return LnOut; }
+  TChA GetLnStr() const { TChA LnOut;  for (int i = 0; i < Len(); i++) { LnOut+=GetFld(i); LnOut+=' '; }  if (LnOut.Len() > 0) LnOut.DelLastCh();  return LnOut; }
   /// Transforms the current line to lower case.
   void ToLc();
 
