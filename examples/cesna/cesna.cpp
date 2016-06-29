@@ -35,7 +35,7 @@ int main(int argc, char* argv[]) {
   TStrHash<TInt> NodeNameH;
   TVec<TFltV> Wck;
   TVec<TIntV> EstCmtyVV;
-  if (InFNm.IsStrIn(".ungraph")) {
+  if (InFNm.IsSuffix(".ungraph")) {
     TFIn GFIn(InFNm);
     G = TUNGraph::Load(GFIn);
   } else {
