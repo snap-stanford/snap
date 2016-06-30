@@ -23,7 +23,8 @@ public:
   void Insert(const TVal& X, float Priority) {
     ValToIndex.AddDat(X, IndexToVal.Len());
     IndexToVal.Add(X);
-    Priorities.Add(-INFINITY);
+    // Priorities.Add(-INFINITY);
+    Priorities.Add(INT_MIN);
     SetPriority(X, Priority);
   }
   

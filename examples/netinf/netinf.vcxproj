@@ -11,7 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{345EFCD5-A5BA-4C41-928C-AE5BD9A5FE08}</ProjectGuid>
+    <ProjectGuid>{B45DF0B7-664F-4D53-AB00-10A3B7BE915F}</ProjectGuid>
     <RootNamespace>netinf</RootNamespace>
     <Keyword>Win32Proj</Keyword>
   </PropertyGroup>
@@ -43,7 +43,7 @@
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)$(Configuration)\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Configuration)\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
-    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">W:\snap-git\snap-adv;$(IncludePath)</IncludePath>
+    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\glib-core;..\..\snap-core;..\..\snap-adv;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
