@@ -1,4 +1,3 @@
-
 void TPredicateNode::GetVariables(TStrV& Variables) {
   if (Left != NULL) { Left->GetVariables(Variables); }
   if (Right != NULL) { Right->GetVariables(Variables); }
@@ -762,7 +761,7 @@ PTable TTable::LoadSS(const Schema& S, const TStr& InFNm, TTableContext* Context
   if (GetMP() && NoStringCols) {
     // Right now, can load in parallel only in Linux (for mmap) and if
     // there are no string columns
-#ifdef GCC_ATOMIC
+#ifdef GLib_LINUX
     LoadSSPar(T, S, InFNm, RelevantCols, Separator, HasTitleLine);
 #else
     LoadSSSeq(T, S, InFNm, RelevantCols, Separator, HasTitleLine);
@@ -4143,6 +4142,12 @@ void TTable::SetFltColToConstMP(TInt UpdateColIdx, TFlt DefaultFltVal){
 	}
 }
 
+// OP RS 2016/06/30: this wrapper function is required
+//   for the code to compile on Mac OS X gcc 4.2.1
+int sync_bool_compare_and_swap(int *lock) {
+  return(__sync_bool_compare_and_swap(lock, 0, 1));
+}
+
 void TTable::UpdateFltFromTableMP(const TStr& KeyAttr, const TStr& UpdateAttr,
     const TTable& Table, const TStr& FKeyAttr, const TStr& ReadAttr,
     TFlt DefaultFltVal) {
@@ -4189,7 +4194,10 @@ void TTable::UpdateFltFromTableMP(const TStr& KeyAttr, const TStr& UpdateAttr,
               TIntV& UpdateRows = Grouping.GetDat(K);
               for (int j = 0; j < UpdateRows.Len(); j++) {
                 int* lock = &Locks[UpdateRows[j]].Val;
-                if (!__sync_bool_compare_and_swap(lock, 0, 1)) {
+                // OP RS 2016/06/30: needed to define a wrapper function
+                //   for the code to compile on Mac OS X gcc 4.2.1
+                //if (!__sync_bool_compare_and_swap(lock, 0, 1)) {
+                if (!sync_bool_compare_and_swap(lock)) {
                   continue;
                 }
                 //printf("key = %d, row = %d, old_score = %f\n", K.Val, j, UpdateRows[j].Val, FltCols[UpdateColIdx][UpdateRows[j]].Val);
