@@ -78,6 +78,12 @@
   #include <netinet/in.h>
 #endif
 
+#if defined(WIN32_LEAN_AND_MEAN)
+  #include <stdint.h>
+
+  int gettimeofday(struct timeval * tp, struct timezone * tzp);
+#endif
+
 // word size
 #if __WORDSIZE == 32 || defined(GLib_WIN32) || defined(__CYGWIN32__)
   #define GLib_32Bit

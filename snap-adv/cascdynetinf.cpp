@@ -843,13 +843,13 @@ void TNIBs::find_C( int t, TFltV &x, TFltVV &C, const int& k, const double& s, c
       double term_1 = -log(alpha) + alpha * x[t];
       double term_2 = 0;
       if ( t == 1 ){
-        term_2 = j * log(n) * gamma;
+        term_2 = j * log((double) n) * gamma;
       }
       else{
         bool first = false;
         for (int l = 0; l < k; l++){
           double my_val = C(t-1, l);
-          if ( j > l ) my_val += (j - l) * log(n) * gamma;
+          if ( j > l ) my_val += (j - l) * log((double) n) * gamma;
           if ( !first || my_val < term_2 ){
             term_2 = my_val;
             first = true;
@@ -872,7 +872,7 @@ void TNIBs::find_min_state( TFltVV &C, TIntV &states, const int& k, const double
     for (int j = 0; j < C.GetCols(); j++){
       double c_state = C( t, j );
       if ( t < C.GetRows() - 2 && states[t+1] > j ){
-        c_state += ( states[t+1] - j ) * gamma * log(n);
+        c_state += ( states[t+1] - j ) * gamma * log((double) n);
       }
       if ( best_state == -1 || best_val > c_state ){
         best_state = j;

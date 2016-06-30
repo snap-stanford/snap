@@ -86,11 +86,15 @@ PNGraph CascGraphTime(PTable P,const TStr C1,const TStr C2,const TStr C3,const T
     while (hi >= lo) {
       int mid = lo + (hi - lo)/2;
       if (Start.GetVal(mid) > val) {
-        if (mid - 1 >= lo and Start.GetVal(mid - 1) < val) { index = mid - 1;break;}
+        if ((mid-1) >= lo  &&  Start.GetVal(mid - 1) < val) {
+          index = mid - 1;break;
+        }
         hi = mid - 1;
       }
       else if (Start.GetVal(mid) < val) {
-        if (mid + 1 <= hi and Start.GetVal(mid + 1) > val) { index = mid;break;}
+        if (mid + 1 <= hi  &&  Start.GetVal(mid + 1) > val) {
+          index = mid;break;
+        }
         lo = mid + 1;
       }
       else { index = mid; hi = mid - 1;}

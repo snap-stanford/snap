@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#ifndef NOMP
+#ifdef USE_OPENMP
 #include <omp.h>
 #endif
 
@@ -29,6 +29,9 @@ int BuildCapacityNetwork(const TStr& InFNm, PNEANet &Net, const int& SrcColId = 
 }
 
 double getcputime() {
+#ifdef GLib_WIN
+  return 0.0;
+#else
   double result;
   struct rusage rusage;
 #ifdef RUSAGE_THREAD
@@ -40,6 +43,7 @@ double getcputime() {
     ((double) (rusage.ru_utime.tv_usec + rusage.ru_stime.tv_usec) / 1000000) +
     ((double) (rusage.ru_utime.tv_sec + rusage.ru_stime.tv_sec));
   return result;
+#endif
 }
 
 int main(int argc, char* argv[]) {
@@ -94,7 +98,7 @@ int main(int argc, char* argv[]) {
       
       #pragma omp critical
       {
-#ifndef NOMP
+#ifdef USE_OPENMP
         printf("Thread: %d\n", omp_get_thread_num());
 #endif
         printf("Source: %d, Sink %d\n", SrcNId, SnkNId);

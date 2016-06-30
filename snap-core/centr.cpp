@@ -683,7 +683,7 @@ TIntH LoadNodeList(TStr InFNmNodes){
 
 
 int findMinimum(TIntV& Frontier, TIntFltH& NIdDistH) {
-  TInt minimum = TInt::Mx;
+  TFlt minimum = TInt::Mx;
   int min_index = 0;
   for (int i = 0; i < Frontier.Len(); i++) {
     int NId = Frontier.GetVal(i);
