@@ -3,6 +3,142 @@ performance system for graph and network manipulation and analysis
 
 This file contains a high-level description of changes in SNAP releases.
 
+Release 3.0, Jul 18, 2016
+
+This is a mega large release. It brings major new functionality: relational
+tables, multimodal graphs, multi-threaded operations, personalized pagerank,
+motif-based network clustering, and hundreds of other additional features and
+capabilities.
+
+- implemented a new class TTable for relational tables
+  - implemented new supporting classes for TTable: TPredicate, TAtomicPredicate,
+    TPredicateNode, TTableContext, TPrimitive, TTableRow, GroupStmt,
+    TRowIterator, TRowIteratorWithRemove, TTableIterator
+  - implemented a wide range of standard relational operations on TTable
+  - implemented fast parallel select and join operations on TTable
+  - implemented IsNextK, SimJoin and SimJoinPerGroup methods
+  - implemented MapPageRank function to compute pagerank of a graph sequence
+- implemented a new class TMMNet for multimodal networks
+  - implemented new subclasses of TMMNet: TModeNet for modes and TCrossNet
+    for cross nets
+- added new methods and examples: randwalk, motifcluster, cascadegen
+  - randwalk computes random walk scores and personalized pagerank
+    between pairs of nodes
+  - motifcluster implements a spectral method for motif-based network clustering
+  - cascadegen computes cascades from a list of events
+- created a new contrib directory for contributions to SNAP
+- added a new contribution from University of Catania: RI algorithm for
+  one-to-one exact subgraph isomorphism problem maintaining topological
+  constraints
+- implemented new methods for motif-based network clustering (motifcluster)
+- implemented new methods for personalized pagerank (randwalk)
+- implemented fast pagerank and hits, sequential and parallel
+- implemented new methods for weighted pagerank, sequential and parallel
+- implemented a new method for shortest paths
+- implemented new methods for weighted farness centrality,
+  closeness centrality, and betweennesscentrality
+- extended routines for calculating betweenness and closeness centrality
+  to both directed and undirected graphs, and TNEANet
+- implemented fast methods for triangle counting, sequential and parallel, and
+  supporting methods
+- implemented new methods that build cascades from a list of events (cascadegen)
+- implemented a fast top-down BFS algorithm, TBreathFS::DoBfsHybrid()
+- turned on OpenMP functionality on supported platforms: Linux and Mac with GCC
+  - introduced GCC_ATOMIC flag for __sync_... GCC functions
+  - unified all OpenMP flags to USE_OPENMP
+  - implemented many parallel operations
+- implemented a new class TUndirNet for undirected networks
+- implemented a new class TDirNet for directed networks
+- implemented a new class TNGraphMP for directed graphs, supporting
+  multi-threaded operations
+- implemented a new class TNEANetMP for directed multigraphs with
+  attributes, supporting multi-threaded operations
+- implemented new class THashMP, hash table with multiprocessing support
+- implemented a new experimental class in glib-adv, THashGenericMP,
+  a hash table which supports multithreading and non-integer value types
+- implemented a new class TSsParserMP, a multithreaded parser for parallel
+  text load
+- implemented a new class TAttr, a hash-based implementation of sparse
+  attributes
+- implemented a new class TMaxPriorityQueue, max priority queue
+- implemented a new class TStopwatch to benchmark operations
+- implemented new methods for converting tables to graphs and networks,
+  sequential and parallel
+- implemented new methods for loading tables into multimodal networks
+- implemented new attribute type for TNEANet: integer vectors
+- implemented sparse attributes for TNEANet nodes and edges
+- implemented new methods in TNEANet to return integer attribute names, values
+- implemented a new method in TNEANet for summing the weights of all the
+  outgoing edges of a node
+- implemented new functions for converting numpy arrays to SNAP and vice versa
+- added a method to sort the adjacency list of a node in a graph
+- added methods to add nodes and edges without performing consistency checks
+- implemented gettimeofday() on Windows
+- implemented new methods to access individual components in TTriple
+- implemented new methods to access individual components in TQuad
+- implemented new TVec methods Reduce(), CopyUniqueFrom(), GetRndVal(),
+  AddMP(), MoveLastMP(), SearchBinLeft()
+- implemented new THash method GetDatWithDefault()
+- implemented new TStrPool method GetMemUsed()
+- implemented new TCh method IsHashCh()
+- implemented new TBigStrPool method GetMemUsed()
+- implemented new TStrHash methods GetMemUsed(), GetStr()
+- implemented new TStrHashF_DJB methods GetPrimHashCd(), GetSecHashCd()
+- implemented new TGnuPlot methods PlotValRank(), PlotValOverTm(),
+  PlotCntOverTm()
+- implemented new TSsParser methods GetUInt64(), IsUInt64() to support int64
+- implemented a new TSecTm method GetYmdTmStr2()
+- defined new TTriple type TIntStrStrTr
+- defined new TVec type TIntStrStrTrV
+- defined new THash types TIntStrPrVH, TIntIntStrPrH, TIntPrH,
+  TIntIntPrPrIntH, TIntIntPrPrFltH, TIntIntPrPr
+- added new tests TTable, TUndirNet, TDirNet, TMMNet, TModeNet, TCrossNet,
+  TAttr, multimodal, priority-queue, randwalk
+- added new tutorials for TAttr, TDirNet, TUndirNet, multimodal, TSsParser
+- implemented Visual Studio 2010 project files for all the examples
+- expanded the test for TTNEANet
+- expanded the tutorials for TNGraph, TUNGraph, demo-gio
+- improved the code for recognition of input file type in bigclam, cesna, coda
+- implemented non-consecutive node numbering for bigclam input graphs
+- changed the flows sample input from binary to text
+- updated documentation for cesna
+- extended testSnap.cpp with a betweenness calculation
+- renamed min and max macros in glib-core/bd.h to MIN and MAX to avoid conflicts
+- changed class TMIn to use uint64 size rather than int
+- expanded TMin with methods for reading of memory mapped files on Linux
+- added time support to gnuplot
+- updated TVec::Resize() code to support 2B elements for TInt
+- changed TVecPool::AddV() to use TSize rather than TSizeTy and uint 
+  for length type
+- changed the local path for gnuplot on Mac
+- added range checking to TSsParser GetInt(), GetFloat(), GetUInt64()
+- made minor updates for gnuplot output format
+- made minor updates in json.h
+- improved handling of TZipIn::SevenZipPath
+- updated TZipIn TZipOut to properly handle paths
+- commented out TDir::Exists() on Windows
+- fixed the return type of IsDirected
+- fixed a bug in TNodeEdgeNet::TNodeI::GetInNDat
+- fixed TNEANet::DelEdge(), which crashed if any attributes were detected
+- fixed a bug in GetEgonet, so in and out-edges to center node are included
+- fixed the initialization of TBreathFS
+- fixed a minor warning in Crash()
+- fixed reading of empty lines in TSsParser::Next()
+- fixed redundant space at the end of TSsParser::GetLnStr()
+- fixed syntax errors in circles.h
+- added a new experimental directory snap-exp/bfs-dev for BFS code
+- added a new experimental directory snap-exp/cascades-dev for code that
+  creates cascades
+- added a new experimental directory snap-exp/cascades-benchmark for code
+  that benchmarks cascade operations
+- added a new experimental directory snap-exp/multimodal-dev for code
+  for multimodal networks
+- implemented an experimental TUNGraphMP for undirected graphs, supporting
+  multi-threaded operations
+- implemented an experimental class TMNet for multimodal networks with
+  three different subvariants TSVNode, TMVNode, TCVNode
+- added a new experimental directory snap-exp/test-dev for various test programs
+
 Release 2.4, May 11, 2015
 
 - implemented TLSHash() class for locality sensitive hashing
