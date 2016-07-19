@@ -66,7 +66,10 @@ int main(int argc, char* argv[]) {
   // uncomment the following lines for the text input file
   // If the input file is a text file, use the following to load the network and save as binary
   PNEANet Net;
+#if 0
   int MaxEdgeCap = BuildCapacityNetwork(InFNm, Net);
+#endif
+  BuildCapacityNetwork(InFNm, Net);
   // const TStr OutFNm = Env.GetIfArgPrefixStr("-o:", "", "Output file");
   // TFOut OutFile(OutFNm);
   // Net->Save(OutFile);

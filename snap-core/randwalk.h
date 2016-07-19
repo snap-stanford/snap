@@ -9,8 +9,8 @@
 #define snap_core_randwalk_h
 
 #include <stdio.h>
+#include "priorityqueue.h"
 #include "Snap.h"
-#include "../glib-core/priorityqueue.h"
 
 // use anonymous namespace to limit name to this file.
 namespace {
