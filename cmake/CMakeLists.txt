@@ -51,7 +51,7 @@ endif()
 
 ## examples
 # adding the examples is unfortunatly not easy :(
-#add_subdirectory(examples)
+#add_subdirectory(../examples)
 
 # building this as lib is impossible as the files depend on the examples
 #file(GLOB SNAP_ADV_CPP snap-adv/*cpp)

@@ -1,8 +1,6 @@
-#
-#
 
 all:
-	build-cmake
+	./build-cmake
 	# skipping test and tutorials, not working yet
 	#build-cmake-test-tutorials
 
