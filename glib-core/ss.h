@@ -112,6 +112,7 @@ public:
   const char* operator [] (const int& FldN) const { return FldV[FldN]; }
   /// Returns the contents of the field at index \c FldN.
   char* operator [] (const int& FldN) { return FldV[FldN]; }
+
   /// If the field \c FldN is an integer its value is returned in \c Val and the function returns \c true.
   bool GetInt(const int& FldN, int& Val) const;
   /// Assumes \c FldN is an integer its value is returned. If \c FldN is not an integer an exception is thrown.
@@ -119,13 +120,21 @@ public:
     int Val=0; IAssertR(GetInt(FldN, Val), TStr::Fmt("Field %d not INT.\n%s", FldN, DumpStr()).CStr()); return Val; }
   /// Checks whether fields \c FldN is an integer.  
   bool IsInt(const int& FldN) const { int v; return GetInt(FldN, v); }
+
   /// If the field \c FldN is a float its value is returned in \c Val and the function returns \c true.
   bool GetFlt(const int& FldN, double& Val) const;
   /// Checks whether fields \c FldN is a float. 
   bool IsFlt(const int& FldN) const { double v; return GetFlt(FldN, v); }
-  /// Assumes \c FldN is a floating  point number its value is returned. If \c FldN is not an integer an exception is thrown.
-  double GetFlt(const int& FldN) const {
-    double Val=0.0; IAssert(GetFlt(FldN, Val)); return Val; }
+  /// Assumes \c FldN is a floating point number its value is returned. If \c FldN is not an integer an exception is thrown.
+  double GetFlt(const int& FldN) const { double Val=0.0; IAssert(GetFlt(FldN, Val)); return Val; }
+
+  /// If the field \c FldN is a 64-bit unsigned integer its value is returned in \c Val and the function returns \c true.
+  bool GetUInt64(const int& FldN, uint64& Val) const;
+  /// Checks whether fields \c FldN is unsigned 64-bit integer number.
+  bool IsUInt64(const int& FldN) const { uint64 v; return GetUInt64(FldN, v); }
+  /// Assumes \c FldN is a 64-bit unsigned integer point number its value is returned. If \c FldN is not a 64-bit unsigned integer an exception is thrown.
+  uint64 GetUInt64(const int& FldN) const { uint64 Val=0; IAssert(GetUInt64(FldN, Val)); return Val; }
 
   const char* DumpStr() const;
 };
+

@@ -36,7 +36,7 @@ This means there is one edge per line and node IDs are assumed to be integers.
   Whitespace separated file of several columns: ... <source node id> ... <destination node id> ...
   SrcColId and DstColId are column indexes of source/destination (string) node ids.
   This means there is one edge per line and node IDs can be arbitrary STRINGs.
-  The mapping of strings to node ids in stored in StrToNIdH.
+  The mapping of strings to node ids is stored in StrToNIdH.
   To map between node names and ids use: NId = StrToNIdH.GetKeyId(NodeName) and TStr NodeName = StrToNIdH.GetKey(NId);
 ///
 

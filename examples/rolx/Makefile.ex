@@ -5,4 +5,5 @@
 MAIN = testrolx
 DEPH = $(EXSNAPADV)/rolx.h
 DEPCPP = $(EXSNAPADV)/rolx.cpp
-CXXFLAGS = -fopenmp
+CXXFLAGS += $(CXXOPENMP)
+

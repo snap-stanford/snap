@@ -1,0 +1,8 @@
+Lion	big	Africa	3
+Polar Bear	big	Arctic	3
+Koala	medium	Australia	3
+Bat	small	Global	4
+Lemming	small	Arctic	4
+Koala	medium	Australia	9
+Meerkat	small	Africa	5
+Camel	big	Africa	2

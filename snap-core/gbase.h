@@ -17,6 +17,9 @@ typedef enum TGraphFlag_ {
   gfMx          ///< sentinel, last value for iteration
 } TGraphFlag;
 
+/// Types for tables, sparse and dense attributes.
+typedef enum TAttrType_ {atInt, atFlt, atStr} TAttrType;
+
 namespace TSnap {
 
 /// Tests (at compile time) if the graph is directed.

@@ -90,6 +90,8 @@ Description of examples:
   motifs : 
   	Counts the number of occurrence of every possible subgraph on K nodes 
   	in the network.
+  motifcluster : 
+  	Implements a spectral method for motif-based clustering.
   ncpplot : 
 	Plots the Network Community Profile (NCP).
   netevol :
@@ -103,6 +105,8 @@ Description of examples:
 	distribution, hop plot, clustering coefficient, distribution of sizes
 	of connected components, spectral properties of graph adjacency
 	matrix, etc.
+  randwalk :
+        Computes Personalized PageRank between pairs of nodes
   testgraph :
 	Demonstrates some of the basic SNAP functionality.
 

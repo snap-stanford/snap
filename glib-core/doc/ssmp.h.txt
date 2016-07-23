@@ -1,0 +1,32 @@
+/// TSs
+Useful for parsing small spreadsheets that represent tables of X columns and Y rows. The whole spreadsheet is read directly into memory.
+///
+
+/// TSsParserMP
+Useful for fast parsing large files that contain variable number of fields separated by a particular character. See \v TSsFmt for the definitions of separators (space, tab, comma, etc.) supported by the class. The class reads the input file one line at a time. Each line is parsed and a vector of fields is returned. The class can process raw text files as well as compressed files (<tt>.gz, .7z, .zip, .7z</tt>). This means there is no need to first uncompress a file and load it. Refer to \v TZipIn for documentation on how to directly load compressed files. Lines starting with '#' can be considered as comments and the parser can skip them.
+///
+
+/// TSsParserMP::TSsParserMP1
+@param FNm Input filename. Can be a text file or a compressed file. 
+@param _SsFmt Spread-sheet separator format. Each line will be broken in a set of fields, where the boundary between the fields is defined by the \c _SsFmt.
+@param _SkipLeadBlanks If \c true leading/trailing white-spaces of the line will be ignored.
+@param _SkipCmt If \c true lines starting with '#' will be considered as comments and will be skipped.
+@param _SkipEmptyFld If \c true then empty fields (consecutive occurrences of the separator) will be ignored.
+///
+
+/// TSsParserMP::TSsParserMP2
+@param FNm Input filename. Can be a text file or a compressed file. 
+@param Separator Spread-sheet separator character. Each line will be broken in a set of fields, where the boundary between the fields is the \c Separator character.
+@param _SkipLeadBlanks If \c true leading/trailing white-spaces of the line will be ignored.
+@param _SkipCmt If \c true lines starting with '#' will be considered as comments and will be skipped.
+@param _SkipEmptyFld If \c true then empty fields (consecutive occurrences of the separator) will be ignored.
+///
+
+/// TSsParserMP::Next
+If end of file is reached, return value is \c false.
+///
+
+/// TSsParserMP::NextSlow
+If end of file is reached, return value is \c false.
+This function is deprecated, use Next instead.
+///

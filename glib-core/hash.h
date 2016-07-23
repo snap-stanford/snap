@@ -67,7 +67,7 @@ public:
   bool IsEmpty() const { return KeyDatI == NULL; }
   /// Tests whether the iterator is pointing to the past-end element.
   bool IsEnd() const { return EndI == KeyDatI; }
-  
+
   const TKey& GetKey() const {Assert((KeyDatI!=NULL)&&(KeyDatI->HashCd!=-1)); return KeyDatI->Key;}
   const TDat& GetDat() const {Assert((KeyDatI!=NULL)&&(KeyDatI->HashCd!=-1)); return KeyDatI->Dat;}
   TDat& GetDat() {Assert((KeyDatI!=NULL)&&(KeyDatI->HashCd!=-1)); return KeyDatI->Dat;}
@@ -219,6 +219,10 @@ public:
     return (0<=KeyId)&&(KeyId<KeyDatV.Len())&&(KeyDatV[KeyId].HashCd!=-1);}
   const TDat& GetDat(const TKey& Key) const {return KeyDatV[GetKeyId(Key)].Dat;}
   TDat& GetDat(const TKey& Key){return KeyDatV[GetKeyId(Key)].Dat;}
+  TDat GetDatWithDefault(const TKey& Key, TDat DefaultValue) {
+    int KeyId = GetKeyId(Key);
+    return KeyId >= 0 ? KeyDatV[KeyId].Dat : DefaultValue;
+  }
 //  TKeyDatP GetKeyDat(const int& KeyId) const {
 //    TKeyDat& KeyDat=GetHashKeyDat(KeyId);
 //    return TKeyDatP(KeyDat.Key, KeyDat.Dat);}
@@ -400,7 +404,7 @@ int THash<TKey, TDat, THashFunc>::GetRndKeyId(TRnd& Rnd) const  {
   int KeyId = abs(Rnd.GetUniDevInt(KeyDatV.Len()));
   while (KeyDatV[KeyId].HashCd == -1) { // if the index is empty, just try again
     KeyId = abs(Rnd.GetUniDevInt(KeyDatV.Len())); }
-  return KeyId; 
+  return KeyId;
 }
 
 // return random KeyId even if the hash table contains deleted keys
@@ -574,6 +578,7 @@ typedef THash<TInt, TStr> TIntStrH;
 typedef THash<TInt, TStrV> TIntStrVH;
 typedef THash<TInt, TIntPr> TIntIntPrH;
 typedef THash<TInt, TIntPrV> TIntIntPrVH;
+typedef THash<TInt, TIntStrPr> TIntIntStrPrH;
 typedef THash<TUInt64, TStrV> TUInt64StrVH;
 typedef THash<TIntPr, TInt> TIntPrIntH;
 typedef THash<TIntPr, TIntV> TIntPrIntVH;
@@ -588,6 +593,9 @@ typedef THash<TIntTr, TFlt> TIntTrFltH;
 typedef THash<TIntPr, TStr> TIntPrStrH;
 typedef THash<TIntPr, TStrV> TIntPrStrVH;
 typedef THash<TIntStrPr, TInt> TIntStrPrIntH;
+typedef THash<TIntIntPrPr, TInt> TIntIntPrPrIntH;
+typedef THash<TIntIntPrPr, TFlt> TIntIntPrPrFltH;
+typedef THash<TIntIntPrPr, TStr> TIntIntPrPrStrH;
 typedef THash<TFlt, TFlt> TFltFltH;
 typedef THash<TStr, TInt> TStrH;
 typedef THash<TStr, TBool> TStrBoolH;
@@ -683,6 +691,9 @@ public:
   bool Empty() const { return ! Len(); }
   char* operator () () const { return Bf; }
   TBigStrPool& operator = (const TBigStrPool& Pool);
+  ::TSize GetMemUsed(){
+  	return 4 * sizeof(int) + IdOffV.GetMemUsed() + MxBfL;
+  }
 
   int AddStr(const char *Str, uint Len);
   int AddStr(const char *Str) { return AddStr(Str, uint(strlen(Str)) + 1); }
@@ -692,7 +703,7 @@ public:
     if (StrId == 0) return TStr::GetNullStr(); else return TStr(Bf + (TSize)IdOffV[StrId]); }
   const char *GetCStr(const int& StrId) const { Assert(StrId < GetStrs());
     if (StrId == 0) return TStr::GetNullStr().CStr(); else return (Bf + (TSize)IdOffV[StrId]); }
-  
+
   TStr GetStrFromOffset(const TSize& Offset) const { Assert(Offset < BfL);
     if (Offset == 0) return TStr::GetNullStr(); else return TStr(Bf + Offset); }
   const char *GetCStrFromOffset(const TSize& Offset) const { Assert(Offset < BfL);
@@ -714,9 +725,10 @@ public:
 // String-Hash-Table
 template <class TDat, class TStringPool = TStrPool, class THashFunc = TDefaultHashFunc<TStr> >
 class TStrHash{
-private:
+public:
   //typedef typename PStringPool::TObj TStringPool;
   typedef TPt<TStringPool> PStringPool;
+private:
   typedef THashKeyDat<TInt, TDat> THKeyDat;
   typedef TPair<TInt, TDat> TKeyDatP;
   typedef TVec<THKeyDat> THKeyDatV;
@@ -777,6 +789,18 @@ public:
   TDat& operator[](const int& KeyId){return GetHashKeyDat(KeyId).Dat;}
   const TDat& operator () (const char *Key) const { return GetDat(Key);}
   //TDat& operator ()(const char *Key){return AddDat(Key);} // add if not found
+  ::TSize GetMemUsed() const {
+      int64 MemUsed = sizeof(bool)+2*sizeof(int);
+      MemUsed += int64(PortV.Reserved()) * int64(sizeof(TInt));
+      for (int KeyDatN = 0; KeyDatN < KeyDatV.Len(); KeyDatN++) {
+          MemUsed += int64(2 * sizeof(TInt));
+          MemUsed += int64(KeyDatV[KeyDatN].Key.GetMemUsed());
+          MemUsed += int64(KeyDatV[KeyDatN].Dat.GetMemUsed());
+      }
+      // printf("TStrHash: Memory used for hash table: %s\n", TUInt64::GetStr(MemUsed).CStr());
+      MemUsed += 8 + Pool->GetMemUsed();
+      return ::TSize(MemUsed/1000);
+  }
 
   const TDat& GetDat(const char *Key) const { return KeyDatV[GetKeyId(Key)].Dat; }
   const TDat& GetDat(const TStr& Key) const { return GetDat(Key.CStr()); }
@@ -1158,8 +1182,14 @@ public:
   inline static int GetSecHashCd(const char *p) {
     const char *r = p;  while (*r) { r++; }
     return (int) DJBHash((const char *) p, r - p) & 0x7fffffff; }
-  inline static int GetPrimHashCd(const TStr& s) { return GetPrimHashCd(s.CStr()); }
-  inline static int GetSecHashCd(const TStr& s) { return GetSecHashCd(s.CStr()); }
+  inline static int GetPrimHashCd(const TStr& s) { 
+    return GetPrimHashCd(s.CStr()); }
+  inline static int GetSecHashCd(const TStr& s) { 
+    return GetSecHashCd(s.CStr()); }
+  inline static int GetPrimHashCd(const char *p, const ::TSize& Len) {
+    return (int) DJBHash((const char *) p, Len) & 0x7fffffff; }
+  inline static int GetSecHashCd(const char *p, const ::TSize& Len) {
+    return (int) DJBHash((const char *) p, Len) & 0x7fffffff; }
 };
 
 // Old-Vector-Hash-Function

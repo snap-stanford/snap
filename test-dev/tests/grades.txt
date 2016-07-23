@@ -1,0 +1,5 @@
+Machine Learning	AI	Aut	7	8	8
+Network Analysis	AI	Aut	8	9	7
+Operating Systems	Systems	Aut	6	8	7
+Compilers	Systems	Spr	6	9	10
+Databases	Systems	Aut	10	8	9

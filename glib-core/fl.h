@@ -384,33 +384,58 @@ public:
 class TMIn: public TSIn{
 private:
   char* Bf;
-  int BfC, BfL;
+  uint64 BfC, BfL;
+  bool IsMemoryMapped;
 private:
   TMIn();
   TMIn(const TMIn&);
   TMIn& operator=(const TMIn&);
+private:
+  int FindEol(uint64& BfN, bool& CrEnd);
 public:
-  TMIn(const void* _Bf, const int& _BfL, const bool& TakeBf=false);
+  TMIn(const void* _Bf, const uint64& _BfL, const bool& TakeBf=false);
   TMIn(TSIn& SIn);
   TMIn(const char* CStr);
-  TMIn(const TStr& Str);
+  /// first parameter is either used as character array or file name
+  TMIn(const TStr& Str, bool FromFile);
   TMIn(const TChA& ChA);
-  static PSIn New(const void* _Bf, const int& _BfL, const bool& TakeBf=false);
+  static PSIn New(const void* _Bf, const uint64& _BfL, const bool& TakeBf=false);
   static PSIn New(const char* CStr);
   static PSIn New(const TStr& Str);
   static PSIn New(const TChA& ChA);
-  ~TMIn(){if (Bf!=NULL){delete[] Bf;}}
+  static TPt<TMIn> New(const TStr& Str, bool FromFile);
+  //static TPt<TMIn> New(const TStr& Str, uint64);
+
+  ~TMIn();
 
   bool Eof(){return BfC==BfL;}
-  int Len() const {return BfL-BfC;}
+  int Len() const {return static_cast<int>(BfL-BfC);}
   char GetCh();
   char PeekCh();
   int GetBf(const void* LBf, const TSize& LBfL);
   void Reset(){Cs=TCs(); BfC=0;}
   bool GetNextLnBf(TChA& LnChA);
 
+  uint64 GetBfC();
+  uint64 GetBfL();
+  void SetBfC(uint64 Pos);
+
+  /// Finds number of new line chars in interval [Lb, Ub)
+  uint64 CountNewLinesInRange(uint64 Lb, uint64 Ub);
+  /// Finds beginning of line in which Ind is present
+  uint64 GetLineStartPos(uint64 Ind);
+  /// Finds end of line in which Ind is present
+  uint64 GetLineEndPos(uint64 Ind);
+  char* GetLine(uint64 Ind);
+  /// Move stream pointer along until a non commented line is found
+  void SkipCommentLines();
+
   char* GetBfAddr(){return Bf;}
+
+  friend class TPt<TMIn>;
 };
+
+typedef TPt<TMIn> PMIn;
 
 /////////////////////////////////////////////////
 // Output-Memory

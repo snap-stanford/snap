@@ -126,6 +126,8 @@ Description of examples:
   motifs : 
   	Counts the number of occurrence of every possible subgraph on K nodes 
   	in the network.
+  motifcluster : 
+  	Implements a spectral method for motif-based clustering.	
   ncpplot : 
 	Plots the Network Community Profile (NCP).
   netevol :
@@ -253,6 +255,7 @@ snap-core:
   timenet.h : Temporally evolving networks.
   triad.h : Functions for counting triads (triples of connected nodes in the
         network) and computing clustering coefficient.
+  randwalk.h : Computing random walk scores and personalized PageRank between pairs of nodes
   util.h : Utilities to manipulate PDFs, CDFs and CCDFs. Quick and dirty
         string manipulation, URL and domain manipulation routines.
 
@@ -264,6 +267,7 @@ snap-adv:
   kronecker.h : Kronecker Graph generator and KronFit algorithm for
         estimating parameters of Kronecker graphs.
   mag.h : Implements the Multiplicative Attribute Graph (MAG).
+  motifcluster.h : Implements motif-based clustering algorithms.
   ncp.h : Network community profile plot. Implements local spectral graph
         partitioning method to efficiently find communities in networks.
   rolx.h : Node role detection.
@@ -283,4 +287,6 @@ snap-exp:
   trawling.h : Algorithm of extracting bipartite cliques from the network.
   wgtnet.h : Weighted networks.
   wikinet.h : Networks based on Wikipedia.
+
+
 

@@ -7,7 +7,7 @@
   #define GLib_WIN
   #define GLib_WIN32
 #elif defined (__WIN64)
-#define GLib_WIN
+  #define GLib_WIN
   #define GLib_WIN64
 #elif defined(__linux__)
   #define GLib_UNIX
@@ -139,6 +139,23 @@
 //  #undef _POSIX_MONOTONIC_CLOCK
 //#endif
 
+//
+// OpenMP directives
+//
+
+#if defined(_OPENMP)  &&  !defined(GLib_WIN)
+  // main OpenMP flag
+  #define USE_OPENMP
+  #define CHUNKS_PER_THREAD 10
+  #include <omp.h>
+  #if defined(GLib_GCC)
+    #if !defined(GLib_MACOSX)
+      // use of __sync_... GCC atomic primitves
+      #define GCC_ATOMIC
+    #endif
+  #endif
+#endif
+
 // for Snapworld, switch is defined to include util.h:WriteN()
 //#if (defined(GLib_UNIX) && !defined(SWIG)) || (defined(SWIG_SW))
 #if defined(SWIG_SW)
@@ -161,6 +178,7 @@
 #include "ds.h"
 #include "bits.h"
 #include "hash.h"
+#include "hashmp.h"
 #include "xml.h"
 
 #include "xmath.h"
@@ -184,6 +202,7 @@
 #include "html.h"
 #include "md5.h"
 #include "ss.h"
+#include "ssmp.h"
 #include "json.h"
 //#include "prolog.h"
 
