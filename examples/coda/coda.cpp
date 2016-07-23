@@ -30,7 +30,7 @@ int main(int argc, char* argv[]) {
   TIntStrH NIDNameH;
   if (IsUndirected == 1) {
     PUNGraph UG;
-    if (InFNm.IsStrIn(".ungraph")) {
+    if (InFNm.IsSuffix(".ungraph")) {
       TFIn GFIn(InFNm);
       UG = TUNGraph::Load(GFIn);
       
@@ -39,7 +39,7 @@ int main(int argc, char* argv[]) {
     }
     G = TSnap::ConvertGraph<PNGraph, PUNGraph>(UG);
   } else {
-    if (InFNm.IsStrIn(".ngraph")) {
+    if (InFNm.IsSuffix(".ngraph")) {
       TFIn GFIn(InFNm);
       G = TNGraph::Load(GFIn);
       

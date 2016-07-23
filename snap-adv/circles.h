@@ -121,7 +121,7 @@ TFlt Loss(TIntSet& l, TIntSet lHat, int N, int Which)
   TFlt LabelLoss = 0;
   for (THashSetKeyI<TInt> it = l.BegI(); it != l.EndI(); it ++) {
     int c = it.GetKey();
-    if (not lHat.IsKey(c)) {
+    if (!lHat.IsKey(c)) {
       // false negative
       FalseNegatives ++;
       if (Which == zeroOne) {
@@ -135,7 +135,7 @@ TFlt Loss(TIntSet& l, TIntSet lHat, int N, int Which)
 
   for (THashSetKeyI<TInt> it = lHat.BegI(); it != lHat.EndI(); it ++) {
     int c = it.GetKey();
-    if (not l.IsKey(c)) {
+    if (!l.IsKey(c)) {
       // false positive
       FalsePositives ++;
       if (Which == zeroOne) {
@@ -150,7 +150,7 @@ TFlt Loss(TIntSet& l, TIntSet lHat, int N, int Which)
     }
   }
 
-  if ((lHat.Len() == 0 or TruePositives == 0) and Which == fScore) {
+  if ((lHat.Len() == 0 || TruePositives == 0) && Which == fScore) {
     return 1.0;
   }
   TFlt precision = (1.0*TruePositives)/lHat.Len();
@@ -205,7 +205,7 @@ TGraphAttributes::TGraphAttributes(PUNGraph G, const char* NodeFeaturePath,
     int nid;
     fscanf(f, "%d", &nid);
 
-    if (not G->IsNode(nid)) {
+    if (!G->IsNode(nid)) {
       printf("Warning: %d is not a node in G.\n", nid);
     }
     TInt kv = NodeFeatures.AddKey(nid);
@@ -239,7 +239,7 @@ TGraphAttributes::TGraphAttributes(PUNGraph G, const char* NodeFeaturePath,
         while (true) {          
           c = fgetc(f);
           if (c == '\n') break;
-          if (c >= '0' and c <= '9') {
+          if (c >= '0' && c <= '9') {
             fseek(f, -1, SEEK_CUR);
             break;
           }
@@ -259,7 +259,7 @@ TGraphAttributes::TGraphAttributes(PUNGraph G, const char* NodeFeaturePath,
       TInt nj = NodeIDs[j];
       TInt kv = EdgeFeatures.AddKey(TIntPr(ni, nj));
       for (THashKeyDatI<TInt, TInt> it = NodeFeatures.GetDat(ni).BegI();
-           not it.IsEnd(); it++) {
+           !it.IsEnd(); it++) {
         TInt k = it.GetKey();
         TInt diff = 0;
         if (NodeFeatures.GetDat(nj).IsKey(k)) {
@@ -272,7 +272,7 @@ TGraphAttributes::TGraphAttributes(PUNGraph G, const char* NodeFeaturePath,
         }
       }
       for (THashKeyDatI<TInt, TInt> it = NodeFeatures.GetDat(nj).BegI();
-           not it.IsEnd(); it++) {
+           !it.IsEnd(); it++) {
         TInt k = it.GetKey();
         TInt diff = 0;
         if (NodeFeatures.GetDat(ni).IsKey(k)) {
@@ -298,7 +298,7 @@ void TCluster::Train(TInt OuterReps, TInt GradientReps, TInt MCMCReps) {
     // If it's the first iteration or the solution is degenerate,
     // randomly initialize the weights and Clusters
     for (int k = 0; k < K; k++) {
-      if (OuterRep == 0 or CHat[k].Empty() or CHat[k].Len()
+      if (OuterRep == 0 || CHat[k].Empty() || CHat[k].Len()
           == GraphAttributes->NodeIDs.Len()) {
         CHat[k].Clr();
         for (int i = 0; i < GraphAttributes->NodeIDs.Len(); i++) {
@@ -348,7 +348,7 @@ void TCluster::Train(TInt OuterReps, TInt GradientReps, TInt MCMCReps) {
 /// Inner product for sparse features
 TFlt Inner(TIntIntH& Feature, TFlt* Parameter) {
   TFlt res = 0;
-  for (THashKeyDatI<TInt, TInt> it = Feature.BegI(); not it.IsEnd(); it++) {
+  for (THashKeyDatI<TInt, TInt> it = Feature.BegI(); !it.IsEnd(); it++) {
     res += it.GetDat() * Parameter[it.GetKey()];
   }
   return res;
@@ -375,7 +375,7 @@ TIntSet TCluster::MCMC(TInt k, TInt MCMCReps) {
   }
   // Compute edge log-probabilities.
   for (THashKeyDatI<TIntPr, TIntIntH> it = GraphAttributes->EdgeFeatures.BegI();
-       not it.IsEnd(); it++) {
+       !it.IsEnd(); it++) {
     TIntPr e = it.GetKey();
     TInt kv = GraphAttributes->EdgeFeatures.GetKeyId(e);
     TInt Src = e.Val1;
@@ -388,7 +388,7 @@ TIntSet TCluster::MCMC(TInt k, TInt MCMCReps) {
       if (l == k) {
         continue;
       }
-      TFlt d = (CHat[l].IsKey(Src) and CHat[l].IsKey(Dst)) ? 1 : -1;
+      TFlt d = (CHat[l].IsKey(Src) && CHat[l].IsKey(Dst)) ? 1 : -1;
       Other += d * Inner(it.GetDat(), Theta + l * GraphAttributes->NFeatures);
     }
 
@@ -410,7 +410,7 @@ TIntSet TCluster::MCMC(TInt k, TInt MCMCReps) {
   // Run MCMC using precomputed probabilities
   TFlt InitialTemperature = 1.0; // Initial temperature
   for (int r = 2; r < MCMCReps + 2; r++) {
-    TFlt Temperature = InitialTemperature / log(r);
+    TFlt Temperature = InitialTemperature / log((double) r);
     for (int n = 0; n < GraphAttributes->NodeIDs.Len(); n++) {
       TFlt l0 = 0;
       TFlt l1 = 0;
@@ -463,14 +463,14 @@ void TCluster::Gradient(void) {
   }
 
   for (THashKeyDatI<TIntPr, TIntIntH> it = GraphAttributes->EdgeFeatures.BegI();
-       not it.IsEnd(); it++) {
+       !it.IsEnd(); it++) {
     TFlt InnerProduct = 0;
     TIntPr Edge = it.GetKey();
     TInt Src = Edge.Val1;
     TInt Dst = Edge.Val2;
     TBool Exists = GraphAttributes->G->IsEdge(Src, Dst);
     for (int k = 0; k < K; k++) {
-      TFlt d = CHat[k].IsKey(Src) and CHat[k].IsKey(Dst) ? 1 : -1;
+      TFlt d = CHat[k].IsKey(Src) && CHat[k].IsKey(Dst) ? 1 : -1;
       InnerProduct += d * Inner(it.GetDat(), Theta + k * GraphAttributes->NFeatures);
     }
     TFlt expinp = exp(InnerProduct);
@@ -480,10 +480,10 @@ void TCluster::Gradient(void) {
     }
 
     for (int k = 0; k < K; k++) {
-      TBool d_ = CHat[k].IsKey(Src) and CHat[k].IsKey(Dst);
+      TBool d_ = CHat[k].IsKey(Src) && CHat[k].IsKey(Dst);
       TFlt d = d_ ? 1 : -1;
       for (THashKeyDatI<TInt, TInt> itf = it.GetDat().BegI();
-           not itf.IsEnd(); itf++) {
+           !itf.IsEnd(); itf++) {
         TInt i = itf.GetKey();
         TInt f = itf.GetDat();
         if (Exists) {
@@ -499,7 +499,7 @@ void TCluster::Gradient(void) {
 TFlt TCluster::LogLikelihood(void) {
   TFlt ll = 0;
   for (THashKeyDatI<TIntPr, TIntIntH> it = GraphAttributes->EdgeFeatures.BegI();
-       not it.IsEnd(); it++) {
+       !it.IsEnd(); it++) {
     TFlt InnerProduct = 0;
     TIntPr Edge = it.GetKey();
     TInt Src = Edge.Val1;
@@ -507,7 +507,7 @@ TFlt TCluster::LogLikelihood(void) {
     TBool Exists = GraphAttributes->G->IsEdge(Src, Dst);
 
     for (int k = 0; k < K; k++) {
-      TFlt d = CHat[k].IsKey(Src) and CHat[k].IsKey(Dst) ? 1 : -1;
+      TFlt d = CHat[k].IsKey(Src) && CHat[k].IsKey(Dst) ? 1 : -1;
       InnerProduct += d * Inner(it.GetDat(), Theta + k * GraphAttributes->NFeatures);
     }
     if (Exists) {

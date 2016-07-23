@@ -21,6 +21,7 @@
 #include "networkmp.h"       // networks OMP
 #include "bignet.h"          // large networks
 #include "timenet.h"         // time evolving networks
+#include "mmnet.h"           // multimodal networks
 
 // algorithms
 #include "subgraph.h"        // subgraph manipulations
@@ -48,8 +49,9 @@
 #include "statplot.h"
 
 // table data structures and algorithms
-#include "table.h"          // table
-#include "conv.h"           // conversion functions - table to graph
-#include "numpy.h"          // numpy conversion
+#include "table.h"         // table
+#include "conv.h" 	   // conversion functions - table to graph
+#include "numpy.h" 	   // numpy conversion
+#include "casc.h"          // cascade detection^M
 
 #endif // SNAP_H

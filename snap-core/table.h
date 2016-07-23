@@ -6,12 +6,12 @@ typedef enum {NOT, AND, OR, NOP} TPredOp;
 /// Comparison operators for selection predicates
 typedef enum {LT = 0, LTE, EQ, NEQ, GTE, GT, SUBSTR, SUPERSTR} TPredComp; 
 
-class TPredicate;
 class TAtomicPredicate;
 class TPredicateNode;
+class TPredicate;
 
 //#//////////////////////////////////////////////
-/// TAtomicPredicate class - for encapsulating comparison operations
+/// Atomic predicate - encapsulates comparison operations
 class TAtomicPredicate {
   private:
     TAttrType Type; ///< Type of the predicate variables
@@ -47,8 +47,6 @@ class TAtomicPredicate {
 };
 
 //#//////////////////////////////////////////////
-/// Atomic predicate node - represents a binary predicate operation on two variables
-//#//////////////////////////////////////////////
 /// Predicate node - represents a binary predicate operation on two predicate nodes
 class TPredicateNode {
 	public:
@@ -80,7 +78,7 @@ class TPredicateNode {
 };
 
 //#//////////////////////////////////////////////
-/// TPredicate class - for encapsulating comparison operations
+/// Predicate - encapsulates comparison operations
 class TPredicate {
 	protected:
 		THash<TStr, TInt> IntVars; ///< Int variables in the current predicate tree
@@ -454,6 +452,21 @@ namespace TSnap{
 	template<class PGraph> PGraph ToNetwork(PTable Table,
     const TStr& SrcCol, const TStr& DstCol, TAttrAggr AggrPolicy);
 
+    template<class PGraph> PGraph ToNetwork(PTable Table,
+    const TStr& SrcCol, const TStr& DstCol,
+    TStrV& EdgeAttrV,
+    TAttrAggr AggrPolicy);
+
+    template<class PGraph> PGraph ToNetwork(PTable Table,
+    const TStr& SrcCol, const TStr& DstCol,
+    TStrV& EdgeAttrV, PTable NodeTable, const TStr& NodeCol, TStrV& NodeAttrV,
+    TAttrAggr AggrPolicy);
+  int LoadCrossNet(TCrossNet& Graph, PTable Table, const TStr& SrcCol, const TStr& DstCol,
+  TStrV& EdgeAttrV);
+
+  int LoadMode(TModeNet& Graph, PTable Table, const TStr& NCol,
+  TStrV& NodeAttrV);
+
 #ifdef GCC_ATOMIC
   template<class PGraphMP> PGraphMP ToGraphMP(PTable Table,
     const TStr& SrcCol, const TStr& DstCol);
@@ -463,6 +476,13 @@ namespace TSnap{
 		  TStrV& SrcAttrs, TStrV& DstAttrs, TStrV& EdgeAttrs, TAttrAggr AggrPolicy);
   template<class PGraphMP> PGraphMP ToNetworkMP2(PTable Table, const TStr& SrcCol, const TStr& DstCol,
 		  TStrV& SrcAttrs, TStrV& DstAttrs, TStrV& EdgeAttrs, TAttrAggr AggrPolicy);
+  template<class PGraphMP> PGraphMP ToNetworkMP(PTable Table, const TStr& SrcCol, const TStr& DstCol,
+		  TStrV& EdgeAttrV, TAttrAggr AggrPolicy);
+  template<class PGraphMP> PGraphMP ToNetworkMP(PTable Table, const TStr& SrcCol, const TStr& DstCol,
+		  TAttrAggr AggrPolicy);
+  template<class PGraphMP> PGraphMP ToNetworkMP(PTable Table, const TStr& SrcCol, const TStr& DstCol,
+		  TStrV& EdgeAttrV, PTable NodeTable, const TStr& NodeCol, TStrV& NodeAttrV, TAttrAggr AggrPolicy);
+ 
 
 #endif // GCC_ATOMIC
 }
@@ -482,12 +502,32 @@ public:
     const TStr& SrcCol, const TStr& DstCol,
     TStrV& SrcAttrs, TStrV& DstAttrs, TStrV& EdgeAttrs,
     TAttrAggr AggrPolicy);
+    template<class PGraph> friend PGraph TSnap::ToNetwork(PTable Table,
+    const TStr& SrcCol, const TStr& DstCol,
+    TStrV& EdgeAttrV,
+    TAttrAggr AggrPolicy);
+    template<class PGraph> friend PGraph TSnap::ToNetwork(PTable Table,
+    const TStr& SrcCol, const TStr& DstCol,
+    TAttrAggr AggrPolicy);
+    template<class PGraph> friend PGraph TSnap::ToNetwork(PTable Table,
+    const TStr& SrcCol, const TStr& DstCol,
+    TStrV& EdgeAttrV, PTable NodeTable, const TStr& NodeCol, TStrV& NodeAttrV,
+    TAttrAggr AggrPolicy);
+    friend int TSnap::LoadCrossNet(TCrossNet& Graph, PTable Table, const TStr& SrcCol, const TStr& DstCol,
+      TStrV& EdgeAttrV);
+    friend int TSnap::LoadMode(TModeNet& Graph, PTable Table, const TStr& NCol,
+  TStrV& NodeAttrV); 
 
 #ifdef GCC_ATOMIC
   template<class PGraphMP> friend PGraphMP TSnap::ToGraphMP(PTable Table, const TStr& SrcCol, const TStr& DstCol);
   template<class PGraphMP> friend PGraphMP TSnap::ToGraphMP3(PTable Table, const TStr& SrcCol, const TStr& DstCol);
   template<class PGraphMP> friend PGraphMP TSnap::ToNetworkMP(PTable Table, const TStr& SrcCol, const TStr& DstCol, TStrV& SrcAttrs, TStrV& DstAttrs, TStrV& EdgeAttrs, TAttrAggr AggrPolicy);
   template<class PGraphMP> friend PGraphMP TSnap::ToNetworkMP2(PTable Table, const TStr& SrcCol, const TStr& DstCol,  TStrV& SrcAttrs, TStrV& DstAttrs, TStrV& EdgeAttrs, TAttrAggr AggrPolicy);
+  template<class PGraphMP> friend PGraphMP TSnap::ToNetworkMP(PTable Table, const TStr& SrcCol, const TStr& DstCol, TStrV& EdgeAttrV, TAttrAggr AggrPolicy);
+  template<class PGraphMP> friend PGraphMP TSnap::ToNetworkMP(PTable Table, const TStr& SrcCol, const TStr& DstCol, TAttrAggr AggrPolicy);
+  template<class PGraphMP> friend PGraphMP TSnap::ToNetworkMP(PTable Table, const TStr& SrcCol, const TStr& DstCol,
+		  TStrV& EdgeAttrV, PTable NodeTable, const TStr& NodeCol, TStrV& NodeAttrV, TAttrAggr AggrPolicy);
+ 
 #endif // GCC_ATOMIC
 
   static void SetMP(TInt Value) { UseMP = Value; }
@@ -524,6 +564,10 @@ protected:
   TStr IdColName; ///< Name of column associated with (optional) permanent row identifiers.
   TIntIntH RowIdMap; ///< Mapping of permanent row ids to physical id.
 
+  THash<TStr, THash<TInt, TIntV> > IntColIndexes; ///< Indexes for Int Columns.
+  THash<TStr, THash<TInt, TIntV> > StrMapColIndexes; ///< Indexes for String Columns.
+  THash<TStr, THash<TFlt, TIntV> > FltColIndexes; ///< Indexes for Float  Columns.
+
   // Group mapping data structures.
   THash<TStr, GroupStmt > GroupStmtNames; ///< Maps user-given grouping statement names to their group-by attributes. ##TTable::GroupStmtNames
   THash<GroupStmt, THash<TInt, TGroupKey> >GroupIDMapping; ///< Maps grouping statements to their (group id --> group-by key) mapping. ##TTable::GroupIDMapping
@@ -545,16 +589,17 @@ protected:
   TInt IsNextDirty; ///< Flag to signify whether the rows are stored in logical sequence or reordered. Used for optimizing GetPartitionRanges.
 
 /***** Utility functions *****/
-protected:
-  /// Increments the next vector and set last, NumRows and NumValidRows.
-  void IncrementNext();
+public:
   /// Adds an integer column with name \c ColName.
   void AddIntCol(const TStr& ColName);
   /// Adds a float column with name \c ColName.
   void AddFltCol(const TStr& ColName);
   /// Adds a string column with name \c ColName.
   void AddStrCol(const TStr& ColName);
-  /// Adds a label attribute with positive labels on selected rows and negative labels on the rest.
+protected:
+  /// Increments the next vector and set last, NumRows and NumValidRows.
+  void IncrementNext();
+ /// Adds a label attribute with positive labels on selected rows and negative labels on the rest.
   void ClassifyAux(const TIntV& SelectedRows, const TStr& LabelName,
    const TInt& PositiveLabel = 1, const TInt& NegativeLabel=  0);
 
@@ -857,7 +902,8 @@ public:
   //   PTable T = New(Table); T->Name = TableName;
   //   return T;
   // }
-
+  /// Automatically detects the Schema of a input file (data is assumed to be in tsv format)
+  static void GetSchema(const TStr& InFNm, Schema& S, const char& Separator = '\t');
 /***** Save / Load functions *****/
   /// Loads table from spread sheet (TSV, CSV, etc). Note: HasTitleLine = true is not supported. Please comment title lines instead
   static PTable LoadSS(const Schema& S, const TStr& InFNm, TTableContext* Context,
@@ -920,6 +966,41 @@ public:
   TStr GetStrVal(const TStr& ColName, const TInt& RowIdx) const {
     return GetStrVal(GetColIdx(ColName), RowIdx);
   }
+
+  /// Gets the integer mapping of the string at column \c ColIdx at row \c RowIdx.
+  TInt GetStrMapById(TInt ColIdx, TInt RowIdx) const {
+    return StrColMaps[ColIdx][RowIdx];
+  }
+
+  /// Gets the integer mapping of the string at column \c ColName at row \c RowIdx.
+  TInt GetStrMapByName(const TStr& ColName, TInt RowIdx) const {
+    return StrColMaps[GetColIdx(ColName)][RowIdx];
+  }
+
+  /// Gets the value of the string attribute at column \c ColIdx at row \c RowIdx.
+  TStr GetStrValById(TInt ColIdx, TInt RowIdx) const {
+    return GetStrVal(ColIdx, RowIdx);
+  }
+
+  /// Gets the value of the string attribute at column \c ColName at row \c RowIdx.
+  TStr GetStrValByName(const TStr& ColName, const TInt& RowIdx) const {
+    return GetStrVal(ColName, RowIdx);
+  }
+
+  /// Gets the rows containing Val in int column \c ColName. ##TTable::GetIntRowIdxByVal
+  TIntV GetIntRowIdxByVal(const TStr& ColName, const TInt& Val) const;
+  /// Gets the rows containing int mapping Map in str column \c ColName. ##TTable::GetStrRowIdxByMap
+  TIntV GetStrRowIdxByMap(const TStr& ColName, const TInt& Map) const;
+  /// Gets the rows containing Val in flt column \c ColName. ##TTable::GetFltRowIdxByVal
+  TIntV GetFltRowIdxByVal(const TStr& ColName, const TFlt& Val) const;
+
+  /// Creates Index for Int Column \c ColName ##TTable::RequestIndexInt
+  TInt RequestIndexInt(const TStr& ColName);
+  /// Creates Index for Flt Column \c ColName. ##TTable::RequestIndexFlt
+  TInt RequestIndexFlt(const TStr& ColName);
+  /// Creates Index for Str Column \c ColName. ##TTable::RequestIndexStrMap
+  TInt RequestIndexStrMap(const TStr& ColName);
+
   /// Gets the string with \c KeyId.
   TStr GetStr(const TInt& KeyId) const {
     return Context->StringVals.GetKey(KeyId);

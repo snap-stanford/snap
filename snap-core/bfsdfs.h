@@ -538,7 +538,7 @@ int GetShortestDistancesMP2(const PGraph& Graph, const int& StartNId, const bool
       for (int e = 0; e < NI.GetOutDeg(); e++) {
         const int OutNId = NI.GetOutNId(e);
         if (__sync_bool_compare_and_swap(&(ShortestDists[OutNId].Val), InfDepth, Depth)) {
-          PNextV->AddAtm(OutNId);
+          PNextV->AddMP(OutNId);
         }
       }
     }
@@ -550,7 +550,7 @@ int GetShortestDistancesMP2(const PGraph& Graph, const int& StartNId, const bool
 //            const int InNId = NI.GetInNId(e);
 //            if (ShortestDists[InNId] < Depth) {
 //              ShortestDists[NId] = Depth;
-//              PNextV->AddAtm(NId);
+//              PNextV->AddMP(NId);
 //              break;
 //            }
 //          }

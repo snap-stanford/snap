@@ -144,3 +144,58 @@ If ResAttr != "", result is stored in a new column ResAttr
 /// TTable::IsNextK
 Creates a table T' where the rows are joint rows (T[r1],T[r2]) such that r2 is one of the successive rows to r1 when this table is ordered by OrderCol, and both r1 and r2 have the same value of GroupBy column
 ///
+
+/// TTable::RequestIndexInt
+Creates an Index on integer column ColName. The index is hash-based, going  from the
+column value to a vector of RowIdxs in the table that correspond to the value.
+If it exists, the index is used by the Get*RowIdxByVal functions; else, those
+functions will loop over the entire table.
+The index is NOT updated automatically when the table is modified; it is the
+user's responsibility to call RequestIndex after modifying the table if the
+index is necessary.
+///
+
+/// TTable::RequestIndexFlt
+Creates an Index on float column ColName. The index is hash-based, going  from the
+column value to a vector of RowIdxs in the table that correspond to the value.
+If it exists, the index is used by the Get*RowIdxByVal functions; else, those
+functions will loop over the entire table.
+The index is NOT updated automatically when the table is modified; it is the
+user's responsibility to call RequestIndex after modifying the table if the
+index is necessary.
+///
+
+/// TTable::RequestIndexStrMap
+Creates an Index on string column given by ColName. The index is hash-based, going  from the
+column value (that is, the integer mapping of the string value) to a vector of RowIdxs in the table that correspond to the value.
+If it exists, the index is used by the Get*RowIdxByVal functions; else, those
+functions will loop over the entire table.
+The index is NOT updated automatically when the table is modified; it is the
+user's responsibility to call RequestIndex after modifying the table if the
+index is necessary.
+///
+
+/// TTable::GetIntRowIdxByVal
+Returns the RowIdxs in the integer column given by ColName which have value
+Val, as a Vector. (If no such value is found, returns an empty vector.)
+Uses an index created by RequestIndex method if it exists, else loops 
+over the entire table (which can be slow, so it is recommended to request an
+index if multiple queries must be made).
+///
+
+/// TTable::GetStrRowIdxByMap
+Returns the RowIdxs in the string column given by ColName which have the
+string with integer mapping Map, as a Vector. (If no such value is found, returns an empty vector.)
+Uses an index created by RequestIndex method if it exists, else loops 
+over the entire table (which can be slow, so it is recommended to request an
+index if multiple queries must be made).
+///
+
+/// TTable::GetFltRowIdxByVal
+Returns the RowIdxs in the float column given by ColName which have value
+Val, as a Vector. (If no such value is found, returns an empty vector.)
+Uses an index created by RequestIndex method if it exists, else loops 
+over the entire table (which can be slow, so it is recommended to request an
+index if multiple queries must be made).
+///
+

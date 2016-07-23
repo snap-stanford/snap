@@ -468,6 +468,8 @@ public:
   int GetEdges() const { return EdgeH.Len(); }
   /// Sets the number of edges in the graph.
   void SetEdges(const int& Length) { EdgeH.SetLen(Length); }
+  /// Sets the MaxEId. Used since AddEdgeUnchecked doesn't affect EId for efficiency.
+  void SetMxEId(const TInt& Id) { MxEId = Id; }
   /// Adds an edge with ID EId between node IDs SrcNId and DstNId to the graph. ##TNEANetMP::AddEdge
   int AddEdge(const int& SrcNId, const int& DstNId, int EId  = -1);
   /// Adds an edge between EdgeI.GetSrcNId() and EdgeI.GetDstNId() to the graph.
@@ -519,6 +521,16 @@ public:
   /// Reserves memory for a graph of Nodes nodes and Edges edges.
   void Reserve(const int& Nodes, const int& Edges) {
     if (Nodes>0) { NodeH.Gen(Nodes); } if (Edges>0) { EdgeH.Gen(Edges); } }
+  /// Reserves memory for dense attributes.
+  void ReserveAttr(const int& NIntAttr, const int& NFltAttr, const int& NStrAttr, const int& EIntAttr,
+       const int& EFltAttr, const int& EStrAttr) {
+    if (NIntAttr > 0) { IntDefaultsN.Gen(NIntAttr); }
+    if (NFltAttr > 0) { FltDefaultsN.Gen(NFltAttr); }
+    if (NStrAttr > 0) { StrDefaultsN.Gen(NStrAttr); }
+    if (EIntAttr > 0) { IntDefaultsE.Gen(EIntAttr); }
+    if (EFltAttr > 0) { FltDefaultsE.Gen(EFltAttr); }
+    if (EStrAttr > 0) { StrDefaultsE.Gen(EStrAttr); }
+  }
 //  /// Defragments the graph. ##TNEANetMP::Defrag
   void Defrag(const bool& OnlyNodeLinks=false);
   /// Checks the graph data structure for internal consistency. ##TNEANetMP::IsOk

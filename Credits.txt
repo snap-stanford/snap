@@ -2,25 +2,33 @@ Stanford Network Analysis Platform (SNAP) is a general purpose, high
 performance system for graph and network manipulation and analysis.
 
 Jure Leskovec started developing SNAP during his PhD studies in 2005.
-GLib, which is used extensively by SNAP, was started by Marko Grobelnik
-in 1996.
+Rok Sosic has been maintaining the code since 2012. GLib, which is used
+extensively by SNAP, was started by Marko Grobelnik in 1996.
 
 The following people also contributed to the development of SNAP
 (in alphabetical order).
 
+Arijit Banerjee
 Austin Benson
 Justin Cheng
 Royce Cheng-Yue
 Blaz Fortuna
 Florian Geigl
 Stephen Dean Guo
+Agrim Gupta
+Shubham Gupta
+Tim Hsieh
 Richard Hsu
 Chentai Kao
 Mario Karlovcec
 Nikhil Khadke
+Vikesh Khanna
+Emmanouil Kiagias
 Myunghwan Kim
 Jason Jong
+Peter Lofgren
 Stephen Macke
+Carolina Mattsson
 Julian McAuley
 Morteza Milani
 Riyad Parvez
@@ -30,11 +38,16 @@ Martin Raison
 Sheila Ramaswamy
 Manuel Gomez Rodriguez
 Kenny Root
+Davide Sardina
 Christoph Schaefer
+Pararth Shah
 Nicholas Shelly
-Rok Sosic
 Guo Tai
 Ming Han Teh
+Ba-Quan Truong
+Utkarsh Upadhyay
+Theodore Vasiloudis
+Viswajith Venugopal
 Jaewon Yang
 David Zeng
 Chenguang Zhu

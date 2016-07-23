@@ -116,7 +116,7 @@ bool TBreathFS_Parallel<PGraph>::TopDownStep(TIntV &NIdDistV, TIntV *Frontier, T
             if (NeighborNId == TargetNId) {
               targetFound = true;
             }
-            NextFrontier->AddAtm(NeighborNId);
+            NextFrontier->AddMP(NeighborNId);
           }
           omp_unset_lock(&locks[NeighborNId]);
         }

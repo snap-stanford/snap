@@ -1,5 +1,6 @@
 /////////////////////////////////////////////////
 #ifdef GCC_ATOMIC
+
 /////////////////////////////////////////////////
 // Directed Node Graph MP
 bool TNGraphMP::HasFlag(const TGraphFlag& Flag) const {
@@ -269,11 +270,11 @@ int TNGraphMP::AddInEdge1(int& DstIdx, const int& SrcNId, const int& DstNId) {
 }
 
 void TNGraphMP::AddOutEdge2(const int& SrcNId, const int& DstNId) {
-  NodeH[NodeH.GetKeyId(SrcNId)].OutNIdV.AddAtm(DstNId);
+  NodeH[NodeH.GetKeyId(SrcNId)].OutNIdV.AddMP(DstNId);
 }
 
 void TNGraphMP::AddInEdge2(const int& SrcNId, const int& DstNId) {
-  NodeH[NodeH.GetKeyId(DstNId)].InNIdV.AddAtm(SrcNId);
+  NodeH[NodeH.GetKeyId(DstNId)].InNIdV.AddMP(SrcNId);
 }
 
 // add a node with a list of neighbors

@@ -30,4 +30,4 @@ Usage:
 
 Detect a M4-based cluster from an autonomous systems network.
 
-motifcluster -m:M4
+motifclustermain -m:M4

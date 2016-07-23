@@ -174,6 +174,7 @@ typedef TTriple<TInt, TInt, TStr> TIntIntStrTr;
 typedef TTriple<TInt, TInt, TFlt> TIntIntFltTr;
 typedef TTriple<TInt, TFlt, TInt> TIntFltIntTr;
 typedef TTriple<TInt, TFlt, TFlt> TIntFltFltTr;
+typedef TTriple<TInt, TStr, TStr> TIntStrStrTr;
 typedef TTriple<TInt, TVec<TInt, int>, TInt> TIntIntVIntTr;
 typedef TTriple<TInt, TInt, TVec<TInt, int> > TIntIntIntVTr;
 typedef TTriple<TFlt, TFlt, TFlt> TFltTr;
@@ -541,11 +542,6 @@ public:
   TSizeTy Add(){ AssertR(MxVals!=-1, "This vector was obtained from TVecPool. Such vectors cannot change its size!");
     if (Vals==MxVals){Resize();} return Vals++;}
 
-#ifdef USE_OPENMP
-  TSizeTy AddAtm(const TVal& Val){ const int Idx = __sync_fetch_and_add(&Vals, 1);
-  ValT[Idx]=Val; return Idx;}
-#endif
-
   /// Adds a new element at the end of the vector, after its current last element. ##TVec::Add1
   TSizeTy Add(const TVal& Val){ AssertR(MxVals!=-1, "This vector was obtained from TVecPool. Such vectors cannot change its size!");
     if (Vals==MxVals){Resize();} ValT[Vals]=Val; return Vals++;}
@@ -558,6 +554,9 @@ public:
   /// Adds element \c Val at the end of the vector in a thread safe manner, returns the element index in the vector. #TVec::AddMP
   TSizeTy AddMP(const TVal& Val){ const int Idx = __sync_fetch_and_add(&Vals, 1);
      ValT[Idx]=Val; return Idx;}
+  /// Reserves space after the current last element in a thread safe manner, returning the old vector size. ##TVec::MoveLastMP
+  TSizeTy MoveLastMP(const TVal& Val, int Inc){ const int Idx = __sync_fetch_and_add(&Vals, Inc);
+  return Idx;}
 #endif
   /// Adds the elements of the vector \c ValV to the to end of the vector.
   TSizeTy AddV(const TVec<TVal, TSizeTy>& ValV);
@@ -1465,6 +1464,7 @@ typedef TVec<TIntIntStrTr> TIntIntStrTrV;
 typedef TVec<TIntIntFltTr> TIntIntFltTrV;
 typedef TVec<TIntFltIntTr> TIntFltIntTrV;
 typedef TVec<TIntStrIntTr> TIntStrIntTrV;
+typedef TVec<TIntStrStrTr> TIntStrStrTrV;
 typedef TVec<TIntKd> TIntKdV;
 typedef TVec<TUIntIntKd> TUIntIntKdV;
 typedef TVec<TIntFltKd> TIntFltKdV;

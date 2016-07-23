@@ -58,7 +58,9 @@ TEST(TTable, ParallelSelect) {
   Schema LJS;
   LJS.Add(TPair<TStr,TAttrType>("Src", atInt));
   LJS.Add(TPair<TStr,TAttrType>("Dst", atInt));
-  TIntV RelevantCols; RelevantCols.Add(0); RelevantCols.Add(1);
+  TIntV RelevantCols;
+  RelevantCols.Add(0);
+  RelevantCols.Add(1);
 
   PTable T1 = TTable::LoadSS(LJS, "table/soc-LiveJournal1_small.txt", &Context, RelevantCols);
 

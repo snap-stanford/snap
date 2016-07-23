@@ -2,7 +2,7 @@
 #	configuration variables for the example
 
 ## Main application file
-MAIN = motifcluster
+MAIN = motifclustermain
 DEPH = $(EXSNAPADV)/motifcluster.h
 DEPCPP = $(EXSNAPADV)/motifcluster.cpp
 LDFLAGS += -larpack
