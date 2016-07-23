@@ -1,4 +1,4 @@
-# Copyright - 2015 - Jan Christoph Uhde <Jan@UhdeJC.com>
+# Author - Jan Christoph Uhde <Jan@UhdeJC.com> 2015
 
 cmake_minimum_required(VERSION 3.0.0)
 project(libsnap VERSION 2.4)
