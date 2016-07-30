@@ -1,0 +1,405 @@
+--------
+/home/koci/node2vec/node2vec.Err
+Thu Jul 14 15:28:20 2016
+Execution stopped: (0<=ValN)&&(ValN<Vals) [Reason:'Index:2 Vals:0 MxVals:0 Type:4TVecI11THashKeyDatI4TInt5TBoolEiE'], file ./glib/ds.h, line 468
+--------
+--------
+/home/koci/node2vec/node2vec.Err
+Thu Jul 14 15:35:11 2016
+Execution stopped: (0<=ValN)&&(ValN<Vals) [Reason:'Index:2 Vals:0 MxVals:0 Type:4TVecI11THashKeyDatI4TInt5TBoolEiE'], file ./glib/ds.h, line 468
+--------
+--------
+/home/koci/node2vec/node2vec.Err
+Thu Jul 14 15:41:18 2016
+Execution stopped: (0<=ValN)&&(ValN<Vals) [Reason:'Index:2 Vals:0 MxVals:0 Type:4TVecI11THashKeyDatI4TInt5TBoolEiE'], file ./glib/ds.h, line 468
+--------
+--------
+/home/koci/node2vec/node2vec.Err
+Thu Jul 14 17:27:08 2016
+Execution stopped: (0<=ValN)&&(ValN<Vals) [Reason:'Index:-1 Vals:1 MxVals:16 Type:4TVecI11THashKeyDatI5TPairI4TIntS2_E4TFltEiE'], file ./glib/ds.h, line 468
+--------
+--------
+/home/koci/node2vec/node2vec.Err
+Fri Jul 15 14:07:50 2016
+Execution stopped: (0<=ValN)&&(ValN<Vals) [Reason:'Index:-1 Vals:0 MxVals:0 Type:4TVecI11THashKeyDatI4TInt5TPairIS_IS1_iES_I4TFltiEEEiE'], file ./glib/ds.h, line 468
+--------
+--------
+/home/koci/node2vec/node2vec.Err
+Fri Jul 15 14:08:50 2016
+Execution stopped: (0<=ValN)&&(ValN<Vals) [Reason:'Index:-1 Vals:0 MxVals:0 Type:4TVecI11THashKeyDatI4TInt5TPairIS_IS1_iES_I4TFltiEEEiE'], file ./glib/ds.h, line 468
+--------
+--------
+/home/koci/node2vec/node2vec.Err
+Fri Jul 15 14:09:11 2016
+Execution stopped: (0<=ValN)&&(ValN<Vals) [Reason:'Index:-1 Vals:0 MxVals:0 Type:4TVecI11THashKeyDatI4TInt5TPairIS_IS1_iES_I4TFltiEEEiE'], file ./glib/ds.h, line 468
+--------
+--------
+/home/koci/node2vec/node2vec.Err
+Fri Jul 15 14:10:37 2016
+Execution stopped: (0<=ValN)&&(ValN<Vals) [Reason:'Index:-1 Vals:0 MxVals:0 Type:4TVecI11THashKeyDatI4TInt5TPairIS_IS1_iES_I4TFltiEEEiE'], file ./glib/ds.h, line 468
+--------
+--------
+/home/koci/node2vec/node2vec.Err
+Fri Jul 15 15:18:37 2016
+Execution stopped: (0<=ValN)&&(ValN<Vals) [Reason:'Index:-1 Vals:0 MxVals:0 Type:4TVecI11THashKeyDatI4TInt5TPairIS_IS1_iES_I4TFltiEEEiE'], file ./glib/ds.h, line 468
+--------
+--------
+/home/koci/node2vec/node2vec.Err
+Fri Jul 15 15:19:47 2016
+Execution stopped: (0<=ValN)&&(ValN<Vals) [Reason:'Index:-1 Vals:0 MxVals:0 Type:4TVecI11THashKeyDatI4TInt5TPairIS_IS1_iES_I4TFltiEEEiE'], file ./glib/ds.h, line 468
+--------
+--------
+/home/koci/node2vec/node2vec.Err
+Fri Jul 15 15:28:17 2016
+Execution stopped: (0<=ValN)&&(ValN<Vals) [Reason:'Index:-1 Vals:0 MxVals:0 Type:4TVecI11THashKeyDatI4TInt5TPairIS_IS1_iES_I4TFltiEEEiE'], file ./glib/ds.h, line 468
+--------
+--------
+/home/koci/node2vec/node2vec.Err
+Fri Jul 15 15:30:43 2016
+Execution stopped: (0<=ValN)&&(ValN<Vals) [Reason:'Index:-1 Vals:0 MxVals:0 Type:4TVecI11THashKeyDatI4TInt5TPairIS_IS1_iES_I4TFltiEEEiE'], file ./glib/ds.h, line 468
+--------
+--------
+/home/koci/node2vec/node2vec.Err
+Fri Jul 15 15:40:37 2016
+Execution stopped: (0<=ValN)&&(ValN<Vals) [Reason:'Index:-1 Vals:0 MxVals:0 Type:4TVecI11THashKeyDatI4TInt5TPairIS_IS1_iES_I4TFltiEEEiE'], file ./glib/ds.h, line 468
+--------
+--------
+/home/koci/node2vec/node2vec.Err
+Fri Jul 15 15:43:46 2016
+Execution stopped: (0<=ValN)&&(ValN<Vals) [Reason:'Index:1 Vals:0 MxVals:2 Type:4TVecI4TIntiE'], file ./glib/ds.h, line 468
+--------
+--------
+/home/koci/node2vec/node2vec.Err
+Fri Jul 15 15:54:20 2016
+Execution stopped: (0<=ValN)&&(ValN<Vals) [Reason:'Index:1 Vals:0 MxVals:2 Type:4TVecI4TIntiE'], file ./glib/ds.h, line 468
+--------
+--------
+/home/koci/node2vec/node2vec.Err
+Fri Jul 15 15:56:01 2016
+Execution stopped: (0<=ValN)&&(ValN<Vals) [Reason:'Index:1 Vals:0 MxVals:2 Type:4TVecI4TIntiE'], file ./glib/ds.h, line 468
+--------
+--------
+/home/koci/node2vec/node2vec.Err
+Fri Jul 15 15:56:52 2016
+Execution stopped: (0<=ValN)&&(ValN<Vals) [Reason:'Index:1 Vals:0 MxVals:2 Type:4TVecI4TIntiE'], file ./glib/ds.h, line 468
+--------
+--------
+/home/koci/node2vec/node2vec.Err
+Sat Jul 16 16:51:40 2016
+Execution stopped: (0<=ValN)&&(ValN<Vals) [Reason:'Index:-1 Vals:0 MxVals:0 Type:4TVecI11THashKeyDatI4TInt5TPairIS_IS1_iES_I4TFltiEEEiE'], file ./glib/ds.h, line 468
+--------
+--------
+/home/koci/node2vec/node2vec.Err
+Sat Jul 16 16:59:17 2016
+Execution stopped: (0<=ValN)&&(ValN<Vals) [Reason:'Index:0 Vals:0 MxVals:1 Type:4TVecI4TIntiE'], file ./glib/ds.h, line 468
+--------
+--------
+/home/koci/node2vec/node2vec.Err
+Sat Jul 16 17:00:18 2016
+Execution stopped: (0<=ValN)&&(ValN<Vals) [Reason:'Index:0 Vals:0 MxVals:1 Type:4TVecI4TIntiE'], file ./glib/ds.h, line 468
+--------
+--------
+/home/koci/node2vec/node2vec.Err
+Thu Jul 21 17:13:56 2016
+Execution stopped: (0<=ValN)&&(ValN<Vals) [Reason:'Index:34 Vals:4 MxVals:16 Type:4TVecI11THashKeyDatI4TIntS1_EiE'], file ./glib/ds.h, line 468
+--------
+--------
+/home/koci/node2vec/node2vec.Err
+Thu Jul 21 17:29:30 2016
+Execution stopped: (0<=ValN)&&(ValN<Vals) [Reason:'Index:34 Vals:8 MxVals:16 Type:4TVecI11THashKeyDatI4TIntS1_EiE'], file ./glib/ds.h, line 468
+--------
+--------
+/home/koci/node2vec/node2vec.Err
+Thu Jul 21 17:30:41 2016
+Execution stopped: (0<=ValN)&&(ValN<Vals) [Reason:'Index:12 Vals:5 MxVals:16 Type:4TVecI11THashKeyDatI4TIntS1_EiE'], file ./glib/ds.h, line 468
+--------
+--------
+/home/koci/node2vec/node2vec.Err
+Thu Jul 21 17:31:35 2016
+Execution stopped: (0<=ValN)&&(ValN<Vals) [Reason:'Index:34 Vals:10 MxVals:16 Type:4TVecI11THashKeyDatI4TIntS1_EiE'], file ./glib/ds.h, line 468
+--------
+--------
+/home/koci/node2vec/node2vec.Err
+Thu Jul 21 17:31:42 2016
+Execution stopped: (0<=ValN)&&(ValN<Vals) [Reason:'Index:34 Vals:4 MxVals:16 Type:4TVecI11THashKeyDatI4TIntS1_EiE'], file ./glib/ds.h, line 468
+--------
+--------
+/home/koci/node2vec/node2vec.Err
+Thu Jul 21 17:33:28 2016
+Execution stopped: (0<=ValN)&&(ValN<Vals) [Reason:'Index:-1 Vals:34 MxVals:64 Type:4TVecI11THashKeyDatI4TIntS1_EiE'], file ./glib/ds.h, line 468
+--------
+--------
+/home/koci/node2vec/node2vec.Err
+Thu Jul 21 17:36:27 2016
+Execution stopped: (0<=ValN)&&(ValN<Vals) [Reason:'Index:-1 Vals:34 MxVals:64 Type:4TVecI11THashKeyDatI4TIntS1_EiE'], file ./glib/ds.h, line 468
+--------
+--------
+/home/koci/node2vec/node2vec.Err
+Thu Jul 21 17:40:02 2016
+Execution stopped: (0<=ValN)&&(ValN<Vals) [Reason:'Index:-1 Vals:34 MxVals:64 Type:4TVecI11THashKeyDatI4TIntS1_EiE'], file ./glib/ds.h, line 468
+--------
+--------
+/home/koci/node2vec/node2vec.Err
+Thu Jul 21 17:40:43 2016
+Execution stopped: (0<=ValN)&&(ValN<Vals) [Reason:'Index:-1 Vals:34 MxVals:64 Type:4TVecI11THashKeyDatI4TIntS1_EiE'], file ./glib/ds.h, line 468
+--------
+--------
+/home/koci/node2vec/node2vec.Err
+Thu Jul 21 17:41:21 2016
+Execution stopped: (0<=ValN)&&(ValN<Vals) [Reason:'Index:-1 Vals:34 MxVals:64 Type:4TVecI11THashKeyDatI4TIntS1_EiE'], file ./glib/ds.h, line 468
+--------
+--------
+/home/koci/node2vec/node2vec.Err
+Thu Jul 21 17:42:36 2016
+Execution stopped: (0<=ValN)&&(ValN<Vals) [Reason:'Index:-1 Vals:34 MxVals:64 Type:4TVecI11THashKeyDatI4TIntS1_EiE'], file ./glib/ds.h, line 468
+--------
+--------
+/home/koci/node2vec/node2vec.Err
+Thu Jul 21 17:44:17 2016
+Execution stopped: (0<=ValN)&&(ValN<Vals) [Reason:'Index:-1 Vals:34 MxVals:64 Type:4TVecI11THashKeyDatI4TIntS1_EiE'], file ./glib/ds.h, line 468
+--------
+--------
+/home/koci/node2vec/node2vec.Err
+Thu Jul 21 17:45:22 2016
+Execution stopped: (0<=ValN)&&(ValN<Vals) [Reason:'Index:-1 Vals:34 MxVals:64 Type:4TVecI11THashKeyDatI4TIntS1_EiE'], file ./glib/ds.h, line 468
+--------
+--------
+/home/koci/node2vec/node2vec.Err
+Thu Jul 21 17:46:07 2016
+Execution stopped: (0<=ValN)&&(ValN<Vals) [Reason:'Index:-1 Vals:5 MxVals:16 Type:4TVecI11THashKeyDatI4TIntS1_EiE'], file ./glib/ds.h, line 468
+--------
+--------
+/home/koci/node2vec/node2vec.Err
+Thu Jul 21 17:50:55 2016
+Execution stopped: (0<=ValN)&&(ValN<Vals) [Reason:'Index:-1 Vals:5 MxVals:16 Type:4TVecI11THashKeyDatI4TIntS1_EiE'], file ./glib/ds.h, line 468
+--------
+--------
+/home/koci/node2vec/node2vec.Err
+Thu Jul 21 17:53:29 2016
+Execution stopped: (0<=ValN)&&(ValN<Vals) [Reason:'Index:-1 Vals:5 MxVals:16 Type:4TVecI11THashKeyDatI4TIntS1_EiE'], file ./glib/ds.h, line 468
+--------
+--------
+/home/koci/node2vec/node2vec.Err
+Thu Jul 21 17:59:18 2016
+Execution stopped: (0<=ValN)&&(ValN<Vals) [Reason:'Index:-1 Vals:5 MxVals:16 Type:4TVecI11THashKeyDatI4TIntS1_EiE'], file ./glib/ds.h, line 468
+--------
+--------
+/home/koci/node2vec/node2vec.Err
+Thu Jul 21 18:00:03 2016
+Execution stopped: (0<=ValN)&&(ValN<Vals) [Reason:'Index:-1 Vals:5 MxVals:16 Type:4TVecI11THashKeyDatI4TIntS1_EiE'], file ./glib/ds.h, line 464
+--------
+--------
+/home/koci/node2vec/node2vec.Err
+Mon Jul 25 14:25:27 2016
+Execution stopped: (0<=ValN)&&(ValN<Vals) [Reason:'Index:34 Vals:34 MxVals:64 Type:4TVecI11THashKeyDatI4TInt4TFltEiE'], file ./glib/ds.h, line 468
+--------
+--------
+/home/koci/node2vec/node2vec.Err
+Mon Jul 25 14:25:27 2016
+Execution stopped: ((this!=GetNullRStr())&&(Refs==0))||((this==GetNullRStr())&&(Refs==1)), file ./glib/dt.h, line 366
+--------
+--------
+/home/koci/node2vec/node2vec.Err
+Mon Jul 25 14:27:57 2016
+Execution stopped: (0<=ValN)&&(ValN<Vals) [Reason:'Index:-1 Vals:34 MxVals:64 Type:4TVecI11THashKeyDatI4TIntS_I4TFltiEEiE'], file ./glib/ds.h, line 468
+--------
+--------
+/home/koci/node2vec/node2vec.Err
+Mon Jul 25 14:27:57 2016
+Execution stopped: ((this!=GetNullRStr())&&(Refs==0))||((this==GetNullRStr())&&(Refs==1)), file ./glib/dt.h, line 366
+--------
+--------
+/home/koci/node2vec/node2vec.Err
+Mon Jul 25 14:28:57 2016
+Execution stopped: (0<=ValN)&&(ValN<Vals) [Reason:'Index:-1 Vals:34 MxVals:64 Type:4TVecI11THashKeyDatI4TIntS_I4TFltiEEiE'], file ./glib/ds.h, line 468
+--------
+--------
+/home/koci/node2vec/node2vec.Err
+Mon Jul 25 14:28:57 2016
+Execution stopped: ((this!=GetNullRStr())&&(Refs==0))||((this==GetNullRStr())&&(Refs==1)), file ./glib/dt.h, line 366
+--------
+--------
+/home/koci/node2vec/node2vec.Err
+Mon Jul 25 14:30:59 2016
+Execution stopped: (0<=ValN)&&(ValN<Vals) [Reason:'Index:-1 Vals:34 MxVals:64 Type:4TVecI11THashKeyDatI4TIntS_I4TFltiEEiE'], file ./glib/ds.h, line 468
+--------
+--------
+/home/koci/node2vec/node2vec.Err
+Mon Jul 25 14:30:59 2016
+Execution stopped: ((this!=GetNullRStr())&&(Refs==0))||((this==GetNullRStr())&&(Refs==1)), file ./glib/dt.h, line 366
+--------
+--------
+/home/koci/node2vec/node2vec.Err
+Mon Jul 25 14:32:09 2016
+Execution stopped: (0<=ValN)&&(ValN<Vals) [Reason:'Index:-1 Vals:34 MxVals:64 Type:4TVecI11THashKeyDatI4TIntS_I4TFltiEEiE'], file ./glib/ds.h, line 468
+--------
+--------
+/home/koci/node2vec/node2vec.Err
+Mon Jul 25 14:32:09 2016
+Execution stopped: ((this!=GetNullRStr())&&(Refs==0))||((this==GetNullRStr())&&(Refs==1)), file ./glib/dt.h, line 366
+--------
+--------
+/home/koci/node2vec/node2vec.Err
+Mon Jul 25 14:32:15 2016
+Execution stopped: (0<=ValN)&&(ValN<Vals) [Reason:'Index:-1 Vals:34 MxVals:64 Type:4TVecI11THashKeyDatI4TIntS_I4TFltiEEiE'], file ./glib/ds.h, line 468
+--------
+--------
+/home/koci/node2vec/node2vec.Err
+Mon Jul 25 14:32:15 2016
+Execution stopped: ((this!=GetNullRStr())&&(Refs==0))||((this==GetNullRStr())&&(Refs==1)), file ./glib/dt.h, line 366
+--------
+--------
+/home/koci/node2vec/node2vec.Err
+Mon Jul 25 14:33:18 2016
+Execution stopped: (0<=ValN)&&(ValN<Vals) [Reason:'Index:-1 Vals:34 MxVals:64 Type:4TVecI11THashKeyDatI4TIntS_I4TFltiEEiE'], file ./glib/ds.h, line 468
+--------
+--------
+/home/koci/node2vec/node2vec.Err
+Mon Jul 25 14:33:18 2016
+Execution stopped: ((this!=GetNullRStr())&&(Refs==0))||((this==GetNullRStr())&&(Refs==1)), file ./glib/dt.h, line 366
+--------
+--------
+/home/koci/node2vec/node2vec.Err
+Mon Jul 25 14:36:44 2016
+Execution stopped: (0<=ValN)&&(ValN<Vals) [Reason:'Index:-1 Vals:34 MxVals:64 Type:4TVecI11THashKeyDatI4TIntS_I4TFltiEEiE'], file ./glib/ds.h, line 468
+--------
+--------
+/home/koci/node2vec/node2vec.Err
+Mon Jul 25 14:36:44 2016
+Execution stopped: ((this!=GetNullRStr())&&(Refs==0))||((this==GetNullRStr())&&(Refs==1)), file ./glib/dt.h, line 366
+--------
+--------
+/home/koci/node2vec/node2vec.Err
+Mon Jul 25 14:37:11 2016
+Execution stopped: (0<=ValN)&&(ValN<Vals) [Reason:'Index:-1 Vals:34 MxVals:64 Type:4TVecI11THashKeyDatI4TIntS_I4TFltiEEiE'], file ./glib/ds.h, line 468
+--------
+--------
+/home/koci/node2vec/node2vec.Err
+Mon Jul 25 14:37:11 2016
+Execution stopped: ((this!=GetNullRStr())&&(Refs==0))||((this==GetNullRStr())&&(Refs==1)), file ./glib/dt.h, line 366
+--------
+--------
+/home/koci/node2vec/node2vec.Err
+Mon Jul 25 14:45:45 2016
+Execution stopped: (0<=ValN)&&(ValN<Vals) [Reason:'Index:-1 Vals:34 MxVals:64 Type:4TVecI11THashKeyDatI4TIntS_I4TFltiEEiE'], file ./glib/ds.h, line 468
+--------
+--------
+/home/koci/node2vec/node2vec.Err
+Mon Jul 25 14:45:45 2016
+Execution stopped: ((this!=GetNullRStr())&&(Refs==0))||((this==GetNullRStr())&&(Refs==1)), file ./glib/dt.h, line 366
+--------
+--------
+/home/koci/node2vec/node2vec.Err
+Mon Jul 25 14:47:07 2016
+Execution stopped: (0<=ValN)&&(ValN<Vals) [Reason:'Index:-1 Vals:34 MxVals:64 Type:4TVecI11THashKeyDatI4TIntS_I4TFltiEEiE'], file ./glib/ds.h, line 468
+--------
+--------
+/home/koci/node2vec/node2vec.Err
+Mon Jul 25 14:47:07 2016
+Execution stopped: ((this!=GetNullRStr())&&(Refs==0))||((this==GetNullRStr())&&(Refs==1)), file ./glib/dt.h, line 366
+--------
+--------
+/home/koci/node2vec/node2vec.Err
+Tue Jul 26 12:22:49 2016
+Execution stopped: (0<=ValN)&&(ValN<Vals) [Reason:'Index:0 Vals:0 MxVals:0 Type:4TVecI4TFltiE'], file ./glib/ds.h, line 468
+--------
+--------
+/home/koci/node2vec/node2vec.Err
+Tue Jul 26 12:23:59 2016
+Execution stopped: (0<=ValN)&&(ValN<Vals) [Reason:'Index:0 Vals:0 MxVals:0 Type:4TVecI4TFltiE'], file ./glib/ds.h, line 468
+--------
+--------
+/home/koci/node2vec/node2vec.Err
+Tue Jul 26 12:25:37 2016
+Execution stopped: (0<=ValN)&&(ValN<Vals) [Reason:'Index:0 Vals:0 MxVals:0 Type:4TVecI4TFltiE'], file ./glib/ds.h, line 468
+--------
+--------
+/home/koci/node2vec/node2vec.Err
+Tue Jul 26 12:26:51 2016
+Execution stopped: (0<=ValN)&&(ValN<Vals) [Reason:'Index:0 Vals:0 MxVals:0 Type:4TVecI4TFltiE'], file ./glib/ds.h, line 468
+--------
+--------
+/home/koci/node2vec/node2vec.Err
+Tue Jul 26 12:27:50 2016
+Execution stopped: (0<=ValN)&&(ValN<Vals) [Reason:'Index:0 Vals:0 MxVals:0 Type:4TVecI4TFltiE'], file ./glib/ds.h, line 468
+--------
+--------
+/home/koci/node2vec/node2vec.Err
+Tue Jul 26 13:20:41 2016
+Execution stopped: (0<=ValN)&&(ValN<Vals) [Reason:'Index:0 Vals:0 MxVals:0 Type:4TVecI4TFltiE'], file ./glib/ds.h, line 468
+--------
+--------
+/home/koci/node2vec/node2vec.Err
+Tue Jul 26 13:22:35 2016
+Execution stopped: (0<=ValN)&&(ValN<Vals) [Reason:'Index:0 Vals:0 MxVals:0 Type:4TVecI4TFltiE'], file ./glib/ds.h, line 468
+--------
+--------
+/home/koci/node2vec/node2vec.Err
+Tue Jul 26 13:23:00 2016
+Execution stopped: (0<=ValN)&&(ValN<Vals) [Reason:'Index:0 Vals:0 MxVals:0 Type:4TVecI4TFltiE'], file ./glib/ds.h, line 468
+--------
+--------
+/home/koci/node2vec/node2vec.Err
+Tue Jul 26 13:23:33 2016
+Execution stopped: (0<=X)&&(X<int(XDim))&&(0<=Y)&&(Y<int(YDim)), file ./glib/ds.h, line 2088
+--------
+--------
+/home/koci/node2vec/node2vec.Err
+Tue Jul 26 13:25:05 2016
+Execution stopped: (0<=X)&&(X<int(XDim))&&(0<=Y)&&(Y<int(YDim)), file ./glib/ds.h, line 2088
+--------
+--------
+/home/koci/node2vec/node2vec.Err
+Tue Jul 26 13:32:45 2016
+Execution stopped: (0<=X)&&(X<int(XDim))&&(0<=Y)&&(Y<int(YDim)), file ./glib/ds.h, line 2088
+--------
+--------
+/home/koci/node2vec/node2vec.Err
+Tue Jul 26 13:41:40 2016
+Execution stopped: (0<=X)&&(X<int(XDim))&&(0<=Y)&&(Y<int(YDim)), file ./glib/ds.h, line 2088
+--------
+--------
+/home/koci/node2vec/node2vec.Err
+Tue Jul 26 13:43:32 2016
+Execution stopped: (0<=X)&&(X<int(XDim))&&(0<=Y)&&(Y<int(YDim)), file ./glib/ds.h, line 2088
+--------
+--------
+/home/koci/node2vec/node2vec.Err
+Tue Jul 26 13:45:57 2016
+Execution stopped: (0<=X)&&(X<int(XDim))&&(0<=Y)&&(Y<int(YDim)), file ./glib/ds.h, line 2088
+--------
+--------
+/home/koci/node2vec/node2vec.Err
+Tue Jul 26 13:55:07 2016
+Execution stopped: (0<=X)&&(X<int(XDim))&&(0<=Y)&&(Y<int(YDim)), file ./glib/ds.h, line 2088
+--------
+--------
+/home/koci/node2vec/node2vec.Err
+Tue Jul 26 13:56:05 2016
+Execution stopped: (0<=X)&&(X<int(XDim))&&(0<=Y)&&(Y<int(YDim)), file ./glib/ds.h, line 2088
+--------
+--------
+/home/koci/node2vec/node2vec.Err
+Tue Jul 26 14:37:11 2016
+Execution stopped: (0<=X)&&(X<int(XDim))&&(0<=Y)&&(Y<int(YDim)), file ./glib/ds.h, line 2091
+--------
+--------
+/home/koci/node2vec/node2vec.Err
+Tue Jul 26 14:37:40 2016
+Execution stopped: (0<=X)&&(X<int(XDim))&&(0<=Y)&&(Y<int(YDim)), file ./glib/ds.h, line 2091
+--------
+--------
+/home/koci/node2vec/node2vec.Err
+Tue Jul 26 14:39:01 2016
+Execution stopped: (0<=X)&&(X<int(XDim))&&(0<=Y)&&(Y<int(YDim)), file ./glib/ds.h, line 2091
+--------
+--------
+/home/koci/node2vec/node2vec.Err
+Tue Jul 26 14:40:45 2016
+Execution stopped: (0<=X)&&(X<int(XDim))&&(0<=Y)&&(Y<int(YDim)), file ./glib/ds.h, line 2091
+--------
+--------
+/home/koci/node2vec/node2vec.Err
+Tue Jul 26 14:43:07 2016
+Execution stopped: (0<=X)&&(X<int(XDim))&&(0<=Y)&&(Y<int(YDim)), file ./glib/ds.h, line 2091
+--------
