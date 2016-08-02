@@ -55,9 +55,17 @@ void ReadGraph(TStr& InFile, bool& Directed, bool& Weighted, PWNet& InNet) {
 
 void WriteOutput(TStr& OutFile, TIntFltVH& EmbeddingsHV) {
   TFOut FOut(OutFile);
+  bool First = 1;
   for (int i = EmbeddingsHV.FFirstKeyId(); EmbeddingsHV.FNextKeyId(i);) {
+    if (First) {
+      FOut.PutInt(EmbeddingsHV.Len());
+      FOut.PutCh(' ');
+      FOut.PutInt(EmbeddingsHV[i].Len());
+      FOut.PutLn();
+      First = 0;
+    }
     FOut.PutInt(EmbeddingsHV.GetKey(i));
-    FOut.PutCh(':');
+    //FOut.PutCh(':');
     for (int j = 0; j < EmbeddingsHV[i].Len(); j++) {
       FOut.PutCh(' ');
       FOut.PutFlt(EmbeddingsHV[i][j]);
@@ -98,7 +106,7 @@ int main(int argc, char* argv[]) {
   FILE* inter = fopen("tmp.txt","w+");
   for(int i=0;i<NumWalks*NIdsV.Len(); i++){
     for(int j=0; j<WalkLen;j++){
-      fprintf(inter,"%d ",WalksVV(i,j));
+      fprintf(inter,"%d ",WalksVV(i,j)());
     }
     fprintf(inter,"\n");
   }

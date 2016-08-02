@@ -352,7 +352,6 @@ void *TrainModelThread(void *id) {
   long long word_count = 0, last_word_count = 0, sen[MAX_SENTENCE_LENGTH + 1];
   long long l1, l2, c, target, label, local_iter = iter;
   unsigned long long next_random = (long long)id;
-  long long Cnt = 0;
   real f, g;
   clock_t now;
   real *neu1 = (real *)calloc(layer1_size, sizeof(real));
@@ -495,7 +494,6 @@ void *TrainModelThread(void *id) {
         }
         // NEGATIVE SAMPLING
         if (negative > 0) for (d = 0; d < negative + 1; d++) {
-          Cnt++;
           if (d == 0) {
             target = word;
             label = 1;
@@ -528,7 +526,6 @@ void *TrainModelThread(void *id) {
   fclose(fi);
   free(neu1);
   free(neu1e);
-  printf("Cnt: %lld\n",Cnt);
   pthread_exit(NULL);
 }
 
