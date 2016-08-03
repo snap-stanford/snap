@@ -65,7 +65,6 @@ void WriteOutput(TStr& OutFile, TIntFltVH& EmbeddingsHV) {
       First = 0;
     }
     FOut.PutInt(EmbeddingsHV.GetKey(i));
-    //FOut.PutCh(':');
     for (int j = 0; j < EmbeddingsHV[i].Len(); j++) {
       FOut.PutCh(' ');
       FOut.PutFlt(EmbeddingsHV[i][j]);
@@ -73,6 +72,37 @@ void WriteOutput(TStr& OutFile, TIntFltVH& EmbeddingsHV) {
     FOut.PutLn();
   }
 }
+
+struct TWalkDat {//For multithreading purposes
+  PWNet& InNet;
+  TIntV& FirstNIdsV;
+  int& WalkLen;
+  TRnd& Rnd;
+  int WalkId;
+  int& NWalks;
+  int& WalksDone;
+  TIntVV& WalksVV;
+  TWalkDat (PWNet& InNet, TIntV& FirstNIdsV, int& WalkLen, TRnd& Rnd, int WalkId,
+   int& NWalks, int& WalksDone, TIntVV& WalksVV) : InNet(InNet), FirstNIdsV(FirstNIdsV),
+   WalkLen(WalkLen), Rnd(Rnd), WalkId(WalkId), NWalks(NWalks), WalksDone(WalksDone),
+   WalksVV(WalksVV) {}
+};
+
+void* WalkGen (void* ThrDat) {
+  TWalkDat* Dat = (TWalkDat*) ThrDat;
+  for (int i = 0; i < Dat->FirstNIdsV.Len(); i++) {
+    if ( Dat->WalksDone%10000 == 0 ) {
+      printf("%cProgress: %.2lf%%",13,(double)Dat->WalksDone*100/(double)Dat->NWalks);fflush(stdout);
+    }
+    TIntV WalkV;
+    SimulateWalk(Dat->InNet, Dat->FirstNIdsV[i], Dat->WalkLen, Dat->Rnd, WalkV);
+    for (int k = 0; k < WalkV.Len(); k++) { 
+      Dat->WalksVV.PutXY(Dat->WalkId+i,k,WalkV[k]);
+    }
+    Dat->WalksDone++;
+  }
+  pthread_exit(NULL);
+} 
 
 int main(int argc, char* argv[]) {
   TStr InFile,OutFile;
@@ -90,18 +120,27 @@ int main(int argc, char* argv[]) {
     NIdsV.Add(NI.GetId());
   }
   //Generate random walks
-  TIntVV WalksVV(NumWalks*NIdsV.Len(),WalkLen);
+  int AllWalks = NumWalks*NIdsV.Len();
+  TIntVV WalksVV(AllWalks,WalkLen);
   TRnd Rnd(time(NULL));
+  pthread_t Threads[Workers];
+  TWalkDat* WalkDat[Workers];
+  int CurrWalk = -1, WalksDone = 0;
   for (int i = 0; i < NumWalks; i++) {
     NIdsV.Shuffle(Rnd);
     for (int j = 0; j < NIdsV.Len(); j++){
-      TIntV WalkV;
-      SimulateWalk(InNet, NIdsV[j], WalkLen, Rnd, WalkV);
-      for (int k = 0; k < WalkV.Len(); k++) { 
-        WalksVV.PutXY(j+i*NIdsV.Len(),k,WalkV[k]);
+      if ((CurrWalk+1)*AllWalks/Workers <= i*NIdsV.Len()+j) {
+        CurrWalk++;
+        WalkDat[CurrWalk] = new TWalkDat(InNet, *(new TIntV), WalkLen, Rnd, i*NIdsV.Len()+j,
+         AllWalks, WalksDone, WalksVV);
       }
+      WalkDat[CurrWalk]->FirstNIdsV.Add(NIdsV[j]);
     }
   }
+  for (int i = 0; i < Workers; i++) {
+    pthread_create(&Threads[i], NULL, WalkGen, (void *)WalkDat[i]);
+  }
+  for (int i = 0; i < Workers; i++) { pthread_join(Threads[i], NULL); }
   printf("walks done\n");fflush(stdout);
   FILE* inter = fopen("tmp.txt","w+");
   for(int i=0;i<NumWalks*NIdsV.Len(); i++){

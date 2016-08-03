@@ -105,7 +105,7 @@ struct TThreadDat {
     FirstWalk(FirstWalk), LastWalk(LastWalk), SynNeg(SynNeg), SynPos(SynPos) {}
 };
 
-void* TrainModel(void* ThrDat) {
+void* TrainModel (void* ThrDat) {
   TThreadDat* Dat = (TThreadDat*) ThrDat;
   TIntVV& WalksVV = Dat->WalksVV;
   TRnd& Rnd = Dat->Rnd;
@@ -128,7 +128,7 @@ void* TrainModel(void* ThrDat) {
     int LocalIter = Dat->Iter, WordI = 0, NegSamN = 5;//15;
     TIntV WalkV(WalksVV.GetYDim());
     for (int j = 0; j < WalksVV.GetYDim(); j++) { WalkV[j] = WalksVV(CurrWalk,j); }
-    while(1) {
+    while (1) {
       if ( WordCntAll%10000 == 0 ) {
         printf("%cAlpha: %lf  Progress: %.2lf%% ",13,Alpha,(double)WordCntAll*100/(double)(Dat->Iter*AllWords));fflush(stdout);
         Alpha = StartAlpha * (1 - WordCntAll / static_cast<double>(Dat->Iter * AllWords + 1));
@@ -228,8 +228,8 @@ void LearnEmbeddings(TIntVV& WalksVV, int& Dimensions, int& WinSize,
     ExpTable[i] = TMath::Power(TMath::E, Value);
   }
   int WordCntAll = 0;
-  pthread_t* Threads =(pthread_t*) malloc(Workers*sizeof(pthread_t));//[Workers];
-  TThreadDat** ThreadDat =(TThreadDat**) malloc(Workers*sizeof(TThreadDat*));//[Workers];
+  pthread_t Threads[Workers];
+  TThreadDat* ThreadDat[Workers];
   for (int i = 0; i < Workers; i++) {
     ThreadDat[i] = new TThreadDat(WalksVV, Dimensions, WinSize, Iter, Rnd, KTable, UTable,
      WordCntAll, ExpTable, Alpha, StartAlpha, MAX_EXP, EXP_TABLE_PRECISION,
