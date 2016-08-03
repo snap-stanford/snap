@@ -130,7 +130,7 @@ void* TrainModel (void* ThrDat) {
     for (int j = 0; j < WalksVV.GetYDim(); j++) { WalkV[j] = WalksVV(CurrWalk,j); }
     while (1) {
       if ( WordCntAll%10000 == 0 ) {
-        printf("%cAlpha: %lf  Progress: %.2lf%% ",13,Alpha,(double)WordCntAll*100/(double)(Dat->Iter*AllWords));fflush(stdout);
+        printf("%cLearning Progress: %.2lf%% ",13,(double)WordCntAll*100/(double)(Dat->Iter*AllWords));fflush(stdout);
         Alpha = StartAlpha * (1 - WordCntAll / static_cast<double>(Dat->Iter * AllWords + 1));
         if ( Alpha < StartAlpha * 0.0001 ) { Alpha = StartAlpha * 0.0001; }
       }

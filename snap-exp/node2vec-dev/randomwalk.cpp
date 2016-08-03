@@ -1,8 +1,8 @@
 //Preprocess alias sampling method
 void GetNodeAlias(TFltV& PTblV, TIntVFltVPr& NTTable) {
   int N = PTblV.Len();
-  TIntV KTbl(N);
-  TFltV UTbl(N);
+  TIntV& KTbl = NTTable.Val1;//.GetVal1();//(N);
+  TFltV& UTbl = NTTable.Val2;//.GetVal2();//(N);
   for (int i = 0; i < N; i++) {
     KTbl[i]=0;
     UTbl[i]=0;
@@ -30,7 +30,7 @@ void GetNodeAlias(TFltV& PTblV, TIntVFltVPr& NTTable) {
       OverV.Add(Large);
     }
   }
-  NTTable = TIntVFltVPr(KTbl,UTbl);
+  //NTTable = TIntVFltVPr(KTbl,UTbl);
 }
 //Get random element using alias sampling method
 int AliasDrawInt(TIntVFltVPr& NTTable, TRnd& Rnd) {
@@ -39,12 +39,28 @@ int AliasDrawInt(TIntVFltVPr& NTTable, TRnd& Rnd) {
   double Y = Rnd.GetUniDev();
   return Y < NTTable.GetVal2()[X] ? X : NTTable.GetVal1()[X];
 }
-//Preprocess transition probabilities for each path t->v->x
-void PreprocessTransitionProbs(PWNet& InNet, double& ParamP, double& ParamQ) {
-  for (TWNet::TNodeI NI = InNet->BegNI(); NI < InNet->EndNI(); NI++) {
-    InNet->SetNDat(NI.GetId(),TIntIntVFltVPrH());
-  }
-  for (TWNet::TNodeI NI = InNet->BegNI(); NI < InNet->EndNI(); NI++) {
+
+struct TTransPDat {//for multithreading purposes
+  PWNet& InNet;
+  double& ParamP;
+  double& ParamQ;
+  TWNet::TNodeI FirstNI;
+  TWNet::TNodeI LastNI;
+  int& NCnt;
+  TTransPDat (PWNet& InNet, double& ParamP, double& ParamQ, TWNet::TNodeI FirstNI,
+   TWNet::TNodeI LastNI, int& NCnt) : InNet(InNet), ParamP(ParamP), ParamQ(ParamQ),
+   FirstNI(FirstNI), LastNI(LastNI), NCnt(NCnt) {}
+};
+
+void* PreprocessThread (void* ThrDat) {
+  TTransPDat* Dat = (TTransPDat*) ThrDat;
+  PWNet& InNet = Dat->InNet;
+  double& ParamP = Dat->ParamP;
+  double& ParamQ = Dat->ParamQ;
+  for (TWNet::TNodeI NI = Dat->FirstNI; NI < Dat->LastNI; NI++) {
+    if (Dat->NCnt%100 == 0) {
+      printf("%cPreprocessing progress: %.2lf%% ",13,(double)Dat->NCnt*100/(double)(InNet->GetNodes()));fflush(stdout);
+    }
     //for each node t
     THash <TInt, TBool> NbrH;//Neighbors of t
     for (int i = 0; i < NI.GetOutDeg(); i++) {
@@ -73,11 +89,42 @@ void PreprocessTransitionProbs(PWNet& InNet, double& ParamP, double& ParamQ) {
       for (int j = 0; j < CurrI.GetOutDeg(); j++) {
         PTable[j] /= Psum;
       }
-      TIntVFltVPr NTTable;
-      GetNodeAlias(PTable,NTTable);
-      CurrI.GetDat().AddDat(NI.GetId(),NTTable);
+      GetNodeAlias(PTable,CurrI.GetDat().GetDat(NI.GetId()));
+      //CurrI.GetDat().AddDat(NI.GetId(),NTTable);
+    }
+    Dat->NCnt++;
+  }
+  pthread_exit(NULL);
+}
+
+//Preprocess transition probabilities for each path t->v->x
+void PreprocessTransitionProbs(PWNet& InNet, double& ParamP, double& ParamQ, int& Workers) {
+  for (TWNet::TNodeI NI = InNet->BegNI(); NI < InNet->EndNI(); NI++) {
+    InNet->SetNDat(NI.GetId(),TIntIntVFltVPrH());
+  }
+  for (TWNet::TNodeI NI = InNet->BegNI(); NI < InNet->EndNI(); NI++) {
+    for (int i = 0; i < NI.GetOutDeg(); i++) {//allocating space in advance to avoid issues with multithreading
+      TWNet::TNodeI CurrI = InNet->GetNI(NI.GetNbrNId(i));
+      CurrI.GetDat().AddDat(NI.GetId(),TPair<TIntV,TFltV>(TIntV(CurrI.GetOutDeg()),TFltV(CurrI.GetOutDeg())));
     }
   }
+  pthread_t Threads[Workers];
+  TTransPDat* ThreadDat[Workers];
+  TWNet::TNodeI Last = InNet->BegNI();
+  int NCnt = 0, NScheduled = 0, CurrWorker = 0;
+  for (TWNet::TNodeI NI = InNet->BegNI(); NI <= InNet->EndNI(); NI++) {
+    NScheduled++;
+    if((CurrWorker+1)*InNet->GetNodes()/Workers<=NScheduled){
+      ThreadDat[CurrWorker] = new TTransPDat(InNet, ParamP, ParamQ, Last, NI, NCnt);
+      Last = NI;
+      CurrWorker++;
+    }
+  }
+  for (int i = 0; i < Workers; i++) {
+    pthread_create(&Threads[i], NULL, PreprocessThread, (void *)ThreadDat[i]);
+  }
+  for (int i = 0; i < Workers; i++) { pthread_join(Threads[i],NULL); }
+  printf("\n");
 }
 //Simulates a random walk
 void SimulateWalk(PWNet& InNet, int StartNId, int& WalkLen, TRnd& Rnd, TIntV& WalkV) {

@@ -92,7 +92,7 @@ void* WalkGen (void* ThrDat) {
   TWalkDat* Dat = (TWalkDat*) ThrDat;
   for (int i = 0; i < Dat->FirstNIdsV.Len(); i++) {
     if ( Dat->WalksDone%10000 == 0 ) {
-      printf("%cProgress: %.2lf%%",13,(double)Dat->WalksDone*100/(double)Dat->NWalks);fflush(stdout);
+      printf("%cWalking Progress: %.2lf%%",13,(double)Dat->WalksDone*100/(double)Dat->NWalks);fflush(stdout);
     }
     TIntV WalkV;
     SimulateWalk(Dat->InNet, Dat->FirstNIdsV[i], Dat->WalkLen, Dat->Rnd, WalkV);
@@ -114,7 +114,7 @@ int main(int argc, char* argv[]) {
   PWNet InNet = PWNet::New();
   ReadGraph(InFile, Directed, Weighted, InNet);
   //Preprocess transition probabilities
-  PreprocessTransitionProbs(InNet, ParamP, ParamQ);
+  PreprocessTransitionProbs(InNet, ParamP, ParamQ, Workers);
   TIntV NIdsV;
   for (TWNet::TNodeI NI = InNet->BegNI(); NI < InNet->EndNI(); NI++) {
     NIdsV.Add(NI.GetId());
@@ -141,15 +141,15 @@ int main(int argc, char* argv[]) {
     pthread_create(&Threads[i], NULL, WalkGen, (void *)WalkDat[i]);
   }
   for (int i = 0; i < Workers; i++) { pthread_join(Threads[i], NULL); }
-  printf("walks done\n");fflush(stdout);
-  FILE* inter = fopen("tmp.txt","w+");
+  printf("\n");fflush(stdout);
+  /*FILE* inter = fopen("tmp.txt","w+");
   for(int i=0;i<NumWalks*NIdsV.Len(); i++){
     for(int j=0; j<WalkLen;j++){
       fprintf(inter,"%d ",WalksVV(i,j)());
     }
     fprintf(inter,"\n");
   }
-  fclose(inter);
+  fclose(inter);*/
   //Learning embeddings
   TIntFltVH EmbeddingsHV;
   LearnEmbeddings(WalksVV, Dimensions, WinSize, Iter, Workers, EmbeddingsHV);
