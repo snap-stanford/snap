@@ -199,17 +199,17 @@ void LearnEmbeddings(TIntVV& WalksVV, int& Dimensions, int& WinSize,
   //renaming nodes into consecutive numbers
   for (int i = 0; i < WalksVV.GetXDim(); i++) {
     for (int j = 0; j < WalksVV.GetYDim(); j++) {
-      if ( RnmH.IsKey(WalksVV(i,j)) ) {
-        WalksVV(i,j) = RnmH.GetDat(WalksVV(i,j));
+      if ( RnmH.IsKey(WalksVV(i, j)) ) {
+        WalksVV(i, j) = RnmH.GetDat(WalksVV(i, j));
       } else {
         RnmH.AddDat(WalksVV(i,j),NNodes);
-        RnmBackH.AddDat(NNodes,WalksVV(i,j));
-        WalksVV(i,j) = NNodes++;
+        RnmBackH.AddDat(NNodes,WalksVV(i, j));
+        WalksVV(i, j) = NNodes++;
       }
     }
   }
   TIntV Vocab(NNodes);
-  LearnVocab(WalksVV,Vocab);
+  LearnVocab(WalksVV, Vocab);
   TRnd Rnd(time(NULL));
   TIntV KTable(NNodes);
   TFltV UTable(NNodes);
@@ -241,6 +241,6 @@ void LearnEmbeddings(TIntVV& WalksVV, int& Dimensions, int& WinSize,
   for (int i = 0; i < SynPos.GetXDim(); i++) {
     TFltV CurrV(SynPos.GetYDim());
     for (int j = 0; j < SynPos.GetYDim(); j++) { CurrV[j] = SynPos(i, j); }
-    EmbeddingsHV.AddDat(RnmBackH.GetDat(i),CurrV);
+    EmbeddingsHV.AddDat(RnmBackH.GetDat(i), CurrV);
   }
 }

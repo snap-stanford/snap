@@ -6,9 +6,9 @@ typedef TNodeEDatNet<TIntIntVFltVPrH, TFlt> TWNet;
 typedef TPt<TWNet> PWNet;
 typedef TPair<TVec<TInt>, TVec<TFlt> > TIntVFltVPr;
 
-void GetNodeAlias(TVec<TFlt>& PTbl, TIntVFltVPr& NTTable);
-int AliasDrawInt(TIntVFltVPr& NTTable, TRnd& Rnd);
-void PreprocessTransitionProbs(PWNet& InNet, double& ParamP, double& ParamQ);
+///Preprocesses transition probabilities for random walks. Has to be called once before SimulateWalk calls
+void PreprocessTransitionProbs(PWNet& InNet, double& ParamP, double& ParamQ, int& Workers);
+///Simulates one walk and writes it into Walk vector
 void SimulateWalk(PWNet& InNet, int StartNId, int& WalkLen, TRnd& Rnd, TIntV& Walk);
 
 #endif //RAND_WALK_H

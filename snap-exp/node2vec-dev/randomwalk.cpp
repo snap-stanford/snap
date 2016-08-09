@@ -1,8 +1,8 @@
 //Preprocess alias sampling method
 void GetNodeAlias(TFltV& PTblV, TIntVFltVPr& NTTable) {
   int N = PTblV.Len();
-  TIntV& KTbl = NTTable.Val1;//.GetVal1();//(N);
-  TFltV& UTbl = NTTable.Val2;//.GetVal2();//(N);
+  TIntV& KTbl = NTTable.Val1;
+  TFltV& UTbl = NTTable.Val2;
   for (int i = 0; i < N; i++) {
     KTbl[i]=0;
     UTbl[i]=0;
@@ -30,7 +30,6 @@ void GetNodeAlias(TFltV& PTblV, TIntVFltVPr& NTTable) {
       OverV.Add(Large);
     }
   }
-  //NTTable = TIntVFltVPr(KTbl,UTbl);
 }
 //Get random element using alias sampling method
 int AliasDrawInt(TIntVFltVPr& NTTable, TRnd& Rnd) {
@@ -73,7 +72,7 @@ void* PreprocessThread (void* ThrDat) {
       for (int j = 0; j < CurrI.GetOutDeg(); j++) {//for each node x
         int FId = CurrI.GetNbrNId(j);
         TFlt Weight;
-        if (!(InNet->GetEDat(CurrI.GetId(),FId,Weight))){ continue; }
+        if (!(InNet->GetEDat(CurrI.GetId(), FId, Weight))){ continue; }
         if (FId==NI.GetId()) {
           PTable.Add(Weight / ParamP);
           Psum += Weight / ParamP;
@@ -90,7 +89,6 @@ void* PreprocessThread (void* ThrDat) {
         PTable[j] /= Psum;
       }
       GetNodeAlias(PTable,CurrI.GetDat().GetDat(NI.GetId()));
-      //CurrI.GetDat().AddDat(NI.GetId(),NTTable);
     }
     Dat->NCnt++;
   }

@@ -97,7 +97,7 @@ void* WalkGen (void* ThrDat) {
     TIntV WalkV;
     SimulateWalk(Dat->InNet, Dat->FirstNIdsV[i], Dat->WalkLen, Dat->Rnd, WalkV);
     for (int k = 0; k < WalkV.Len(); k++) { 
-      Dat->WalksVV.PutXY(Dat->WalkId+i,k,WalkV[k]);
+      Dat->WalksVV.PutXY(Dat->WalkId+i, k, WalkV[k]);
     }
     Dat->WalksDone++;
   }
@@ -142,14 +142,6 @@ int main(int argc, char* argv[]) {
   }
   for (int i = 0; i < Workers; i++) { pthread_join(Threads[i], NULL); }
   printf("\n");fflush(stdout);
-  /*FILE* inter = fopen("tmp.txt","w+");
-  for(int i=0;i<NumWalks*NIdsV.Len(); i++){
-    for(int j=0; j<WalkLen;j++){
-      fprintf(inter,"%d ",WalksVV(i,j)());
-    }
-    fprintf(inter,"\n");
-  }
-  fclose(inter);*/
   //Learning embeddings
   TIntFltVH EmbeddingsHV;
   LearnEmbeddings(WalksVV, Dimensions, WinSize, Iter, Workers, EmbeddingsHV);
