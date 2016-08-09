@@ -4,9 +4,6 @@
 #include <stdio.h>
 #include "Snap.h"
 
-/*#include "./glib/base.h"
-#include "./snap/Snap.h"*/
-
 #include "randomwalk.h"
 #include "randomwalk.cpp"
 #include "word2vec.h"
