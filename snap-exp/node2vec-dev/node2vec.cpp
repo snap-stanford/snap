@@ -115,9 +115,6 @@ int main(int argc, char* argv[]) {
     printf("\n");
     fflush(stdout);
   }
-  /*for(int i = 0; i < WalksVV.GetXDim(); i++)
-    for(int j = 0; j < WalksVV.GetYDim(); j++)
-      printf("%d%c",WalksVV(i,j)(),j+1==WalksVV.GetYDim()?'\n':' ');*/
   //Learning embeddings
   TIntFltVH EmbeddingsHV;
   LearnEmbeddings(WalksVV, Dimensions, WinSize, Iter, Verbose, EmbeddingsHV);
