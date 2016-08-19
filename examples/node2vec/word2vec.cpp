@@ -48,11 +48,11 @@ void InitUnigramTable(TIntV& Vocab, TIntV& KTable, TFltV& UTable) {
     } else {
       OverV.Add(Large);
     }
-  } 
+  }
 }
 
 int RndUnigramInt(TIntV& KTable, TFltV& UTable, TRnd& Rnd) {
-  TInt X = KTable[Rnd.GetUniDevInt(KTable.Len())];
+  TInt X = KTable[static_cast<int>(Rnd.GetUniDev()*KTable.Len())];
   double Y = Rnd.GetUniDev();
   return Y < UTable[X] ? X : KTable[X];
 }
@@ -70,7 +70,7 @@ void InitPosEmb(TIntV& Vocab, int& Dimensions, TRnd& Rnd, TFltVV& SynPos) {
   SynPos = TFltVV(Vocab.Len(),Dimensions);
   for (int i = 0; i < SynPos.GetXDim(); i++) {
     for (int j = 0; j < SynPos.GetYDim(); j++) {
-      SynPos(i,j) = (Rnd.GetUniDev()-0.5)/Dimensions;
+      SynPos(i,j) =(Rnd.GetUniDev()-0.5)/Dimensions;
     }
   }
 }
@@ -81,10 +81,10 @@ void TrainModel(TIntVV& WalksVV, int& Dimensions, int& WinSize, int& Iter, bool&
   TFltV Neu1V(Dimensions);
   TFltV Neu1eV(Dimensions);
   int AllWords = WalksVV.GetXDim()*WalksVV.GetYDim();
-  int LocalIter = Iter, WordI = 0;
+  //int WordI = 0;
   TIntV WalkV(WalksVV.GetYDim());
   for (int j = 0; j < WalksVV.GetYDim(); j++) { WalkV[j] = WalksVV(CurrWalk,j); }
-  while (1) {
+  for (int WordI=0; WordI<WalkV.Len(); WordI++) {
     if ( WordCntAll%10000 == 0 ) {
       if ( Verbose ) {
         printf("%cLearning Progress: %.2lf%% ",13,(double)WordCntAll*100/(double)(Iter*AllWords));
@@ -138,12 +138,6 @@ void TrainModel(TIntVV& WalksVV, int& Dimensions, int& WinSize, int& Iter, bool&
       }
     }
     WordCntAll++;
-    WordI++;
-    if (WordI >= WalkV.Len()) {
-      LocalIter--;
-      WordI = 0;
-      if(LocalIter == 0) { break; }
-    }
   }
 }
 
@@ -176,19 +170,19 @@ void LearnEmbeddings(TIntVV& WalksVV, int& Dimensions, int& WinSize,
   InitNegEmb(Vocab, Dimensions, SynNeg);
   InitUnigramTable(Vocab, KTable, UTable);
   TFltV ExpTable(TableSize);
-  double Alpha;
-  Alpha = StartAlpha;//learning rate
+  double Alpha = StartAlpha;//learning rate
 #pragma omp parallel for schedule(dynamic)
   for (int i = 0; i < TableSize; i++ ) {
     double Value = -MaxExp + static_cast<double>(i) / static_cast<double>(ExpTablePrecision);
     ExpTable[i] = TMath::Power(TMath::E, Value);
   }
   int WordCntAll = 0;
-#pragma omp parallel for schedule(dynamic)
-  for (int i = 0; i < WalksVV.GetXDim(); i++) {
-    TRnd LocalRnd(time(NULL)*(i+1));
-    TrainModel(WalksVV, Dimensions, WinSize, Iter, Verbose, KTable, UTable,
-     WordCntAll, ExpTable, Alpha, i, LocalRnd, SynNeg, SynPos); 
+#pragma omp parallel for schedule(dynamic) collapse(2)
+  for (int j = 0; j < Iter; j++) {
+    for (int i = 0; i < WalksVV.GetXDim(); i++) {
+      TrainModel(WalksVV, Dimensions, WinSize, Iter, Verbose, KTable, UTable,
+       WordCntAll, ExpTable, Alpha, i, Rnd, SynNeg, SynPos); 
+    }
   }
   if (Verbose) { printf("\n"); fflush(stdout); }
   for (int i = 0; i < SynPos.GetXDim(); i++) {
