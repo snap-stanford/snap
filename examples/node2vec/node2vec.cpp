@@ -32,15 +32,15 @@ void ParseArgs(int& argc, char* argv[], TStr& InFile, TStr& OutFile,
 
 void ReadGraph(TStr& InFile, bool& Directed, bool& Weighted, bool& Verbose,  PWNet& InNet) {
   TFIn FIn(InFile);
-  int LineCnt = 0;
+  int64 LineCnt = 0;
   try {
     while (!FIn.Eof()) {
       TStr Ln;
       FIn.GetNextLn(Ln);
       TStrV Tokens;
       Ln.SplitOnStr(" ",Tokens);
-      int SrcNId = Tokens[0].GetInt();
-      int DstNId = Tokens[1].GetInt();
+      int64 SrcNId = Tokens[0].GetInt();
+      int64 DstNId = Tokens[1].GetInt();
       double Weight = 1.0;
       if (Weighted) { Weight = Tokens[2].GetFlt(); }
       if (!InNet->IsNode(SrcNId)){ InNet->AddNode(SrcNId); }
@@ -49,10 +49,10 @@ void ReadGraph(TStr& InFile, bool& Directed, bool& Weighted, bool& Verbose,  PWN
       if (!Directed){ InNet->AddEdge(DstNId,SrcNId,Weight); }
       LineCnt++;
     }
-    if (Verbose) { printf("Read %d lines from %s\n", LineCnt, InFile.CStr()); }
+    if (Verbose) { printf("Read %lld lines from %s\n", (long long)LineCnt, InFile.CStr()); }
   } catch (PExcept Except) {
     if (Verbose) {
-      printf("Read %d lines from %s, then %s\n", LineCnt, InFile.CStr(),
+      printf("Read %lld lines from %s, then %s\n", (long long)LineCnt, InFile.CStr(),
      Except->GetStr().CStr());
     }
   }
@@ -70,13 +70,18 @@ void WriteOutput(TStr& OutFile, TIntFltVH& EmbeddingsHV) {
       First = 0;
     }
     FOut.PutInt(EmbeddingsHV.GetKey(i));
-    for (int j = 0; j < EmbeddingsHV[i].Len(); j++) {
+    for (int64 j = 0; j < EmbeddingsHV[i].Len(); j++) {
       FOut.PutCh(' ');
       FOut.PutFlt(EmbeddingsHV[i][j]);
     }
     FOut.PutLn();
   }
 }
+
+struct NodeAppCnt{
+  int cnt;
+  double ratio;
+};
 
 int main(int argc, char* argv[]) {
   TStr InFile,OutFile;
@@ -94,20 +99,20 @@ int main(int argc, char* argv[]) {
     NIdsV.Add(NI.GetId());
   }
   //Generate random walks
-  int AllWalks = NumWalks * NIdsV.Len();
+  int64 AllWalks = NumWalks * NIdsV.Len();
   TIntVV WalksVV(AllWalks,WalkLen);
   TRnd Rnd(time(NULL));
-  int WalksDone = 0;
-  for (int i = 0; i < NumWalks; i++) {
+  int64 WalksDone = 0;
+  for (int64 i = 0; i < NumWalks; i++) {
     NIdsV.Shuffle(Rnd);
 #pragma omp parallel for schedule(dynamic)
-    for (int j = 0; j < NIdsV.Len(); j++){
+    for (int64 j = 0; j < NIdsV.Len(); j++){
       if ( Verbose && WalksDone%10000 == 0 ) {
         printf("%cWalking Progress: %.2lf%%",13,(double)WalksDone*100/(double)AllWalks);fflush(stdout);
       }
       TIntV WalkV;
       SimulateWalk(InNet, NIdsV[j], WalkLen, Rnd, WalkV);
-      for (int k = 0; k < WalkV.Len(); k++) { 
+      for (int64 k = 0; k < WalkV.Len(); k++) { 
         WalksVV.PutXY(i*NIdsV.Len()+j, k, WalkV[k]);
       }
       WalksDone++;
