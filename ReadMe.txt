@@ -148,7 +148,7 @@ Description of examples:
 	of connected components, spectral properties of graph adjacency
 	matrix, etc.
   randwalk :
-        Computes Personalized PageRank between pairs of nodes
+        Computes Personalized PageRank between pairs of nodes.
   rolx :
         Implements the rolx algorithm for analysing the structural
         roles in the graph.
