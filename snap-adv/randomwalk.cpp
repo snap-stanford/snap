@@ -1,3 +1,7 @@
+#include "stdafx.h"
+#include "Snap.h"
+#include "randomwalk.h"
+
 //Preprocess alias sampling method
 void GetNodeAlias(TFltV& PTblV, TIntVFltVPr& NTTable) {
   int64 N = PTblV.Len();
@@ -99,6 +103,18 @@ void PreprocessTransitionProbs(PWNet& InNet, double& ParamP, double& ParamQ, boo
   }
   printf("\n");
 }
+
+int64 PredictMemoryRequirements(PWNet& InNet) {
+  int64 MemNeeded = 0;
+  for (TWNet::TNodeI NI = InNet->BegNI(); NI < InNet->EndNI(); NI++) {
+    for (int64 i = 0; i < NI.GetOutDeg(); i++) {
+      TWNet::TNodeI CurrI = InNet->GetNI(NI.GetNbrNId(i));
+      MemNeeded += CurrI.GetOutDeg()*(sizeof(TInt) + sizeof(TFlt));
+    }
+  }
+  return MemNeeded;
+}
+
 //Simulates a random walk
 void SimulateWalk(PWNet& InNet, int64 StartNId, int& WalkLen, TRnd& Rnd, TIntV& WalkV) {
   WalkV.Add(StartNId);

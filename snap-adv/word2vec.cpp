@@ -1,7 +1,11 @@
 #include "stdafx.h"
+#include "Snap.h"
+#include "word2vec.h"
 
 //Code from https://github.com/nicholas-leonard/word2vec/blob/master/word2vec.c
 //Rewritten for Snap and node2vec
+//Lots of improvements on word2vec have been done since above code was released.
+//Take a look at tensorflow if you need better word2vec performance.
 
 void LearnVocab(TIntVV& WalksVV, TIntV& Vocab) {
   for( int64 i = 0; i < Vocab.Len(); i++) { Vocab[i] = 0; }

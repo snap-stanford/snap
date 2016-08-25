@@ -1,6 +1,12 @@
 #include "stdafx.h"
 
-using namespace std;
+#include "randomwalk.h"
+#include "word2vec.h"
+#include "n2v.h"
+
+#ifdef USE_OPENMP
+#include <omp.h>
+#endif
 
 void ParseArgs(int& argc, char* argv[], TStr& InFile, TStr& OutFile,
  int& Dimensions, int& WalkLen, int& NumWalks, int& WinSize, int& Iter,
@@ -30,7 +36,7 @@ void ParseArgs(int& argc, char* argv[], TStr& InFile, TStr& OutFile,
   Weighted = Env.IsArgStr("-w", "Graph is weighted.");
 }
 
-void ReadGraph(TStr& InFile, bool& Directed, bool& Weighted, bool& Verbose,  PWNet& InNet) {
+void ReadGraph(TStr& InFile, bool& Directed, bool& Weighted, bool& Verbose, PWNet& InNet) {
   TFIn FIn(InFile);
   int64 LineCnt = 0;
   try {
@@ -38,7 +44,7 @@ void ReadGraph(TStr& InFile, bool& Directed, bool& Weighted, bool& Verbose,  PWN
       TStr Ln;
       FIn.GetNextLn(Ln);
       TStrV Tokens;
-      Ln.SplitOnStr(" ",Tokens);
+      Ln.SplitOnWs(Tokens);
       int64 SrcNId = Tokens[0].GetInt();
       int64 DstNId = Tokens[1].GetInt();
       double Weight = 1.0;
@@ -53,7 +59,7 @@ void ReadGraph(TStr& InFile, bool& Directed, bool& Weighted, bool& Verbose,  PWN
   } catch (PExcept Except) {
     if (Verbose) {
       printf("Read %lld lines from %s, then %s\n", (long long)LineCnt, InFile.CStr(),
-     Except->GetStr().CStr());
+       Except->GetStr().CStr());
     }
   }
 }
@@ -78,11 +84,6 @@ void WriteOutput(TStr& OutFile, TIntFltVH& EmbeddingsHV) {
   }
 }
 
-struct NodeAppCnt{
-  int cnt;
-  double ratio;
-};
-
 int main(int argc, char* argv[]) {
   TStr InFile,OutFile;
   int Dimensions, WalkLen, NumWalks, WinSize, Iter;
@@ -91,40 +92,10 @@ int main(int argc, char* argv[]) {
   ParseArgs(argc, argv, InFile, OutFile, Dimensions, WalkLen, NumWalks, WinSize,
    Iter, Verbose, ParamP, ParamQ, Directed, Weighted);
   PWNet InNet = PWNet::New();
-  ReadGraph(InFile, Directed, Weighted, Verbose, InNet);
-  //Preprocess transition probabilities
-  PreprocessTransitionProbs(InNet, ParamP, ParamQ, Verbose);
-  TIntV NIdsV;
-  for (TWNet::TNodeI NI = InNet->BegNI(); NI < InNet->EndNI(); NI++) {
-    NIdsV.Add(NI.GetId());
-  }
-  //Generate random walks
-  int64 AllWalks = NumWalks * NIdsV.Len();
-  TIntVV WalksVV(AllWalks,WalkLen);
-  TRnd Rnd(time(NULL));
-  int64 WalksDone = 0;
-  for (int64 i = 0; i < NumWalks; i++) {
-    NIdsV.Shuffle(Rnd);
-#pragma omp parallel for schedule(dynamic)
-    for (int64 j = 0; j < NIdsV.Len(); j++){
-      if ( Verbose && WalksDone%10000 == 0 ) {
-        printf("%cWalking Progress: %.2lf%%",13,(double)WalksDone*100/(double)AllWalks);fflush(stdout);
-      }
-      TIntV WalkV;
-      SimulateWalk(InNet, NIdsV[j], WalkLen, Rnd, WalkV);
-      for (int64 k = 0; k < WalkV.Len(); k++) { 
-        WalksVV.PutXY(i*NIdsV.Len()+j, k, WalkV[k]);
-      }
-      WalksDone++;
-    }
-  }
-  if (Verbose) {
-    printf("\n");
-    fflush(stdout);
-  }
-  //Learning embeddings
   TIntFltVH EmbeddingsHV;
-  LearnEmbeddings(WalksVV, Dimensions, WinSize, Iter, Verbose, EmbeddingsHV);
+  ReadGraph(InFile, Directed, Weighted, Verbose, InNet);
+  node2vec(InNet, ParamP, ParamQ, Dimensions, WalkLen, NumWalks, WinSize, Iter, 
+   Verbose, EmbeddingsHV);
   WriteOutput(OutFile, EmbeddingsHV);
   return 0;
 }

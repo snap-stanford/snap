@@ -1,13 +1,6 @@
-#ifndef NODE2VEC_STDAFX_H
-#define NODE2VEC_STDAFX_H
+#pragma once
 
-#include <stdio.h>
-#include <omp.h>
+#include "targetver.h"
+
 #include "Snap.h"
 
-#include "randomwalk.h"
-#include "randomwalk.cpp"
-#include "word2vec.h"
-#include "word2vec.cpp"
-
-#endif //NODE2VEC_STDAFX_H

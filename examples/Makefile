@@ -36,6 +36,7 @@ MakeAll:
 	$(MAKE) -C netevol
 	$(MAKE) -C netinf
 	$(MAKE) -C netstat
+	$(MAKE) -C node2vec
 	$(MAKE) -C randwalk
 	$(MAKE) -C rolx
 	$(MAKE) -C testgraph
@@ -71,6 +72,7 @@ clean:
 	$(MAKE) clean -C netevol
 	$(MAKE) clean -C netinf
 	$(MAKE) clean -C netstat
+	$(MAKE) clean -C node2vec
 	$(MAKE) clean -C randwalk
 	$(MAKE) clean -C rolx
 	$(MAKE) clean -C testgraph
