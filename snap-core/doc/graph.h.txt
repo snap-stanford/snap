@@ -32,6 +32,12 @@ If NId is -1, node ID is automatically assigned.
 Aborts, if a node with ID NId already exists.
 ///
 
+/// TUNGraph::AddNodeUnchecked (int NId = -1)
+Returns -1, if the node NId already exists.
+Otherwise, it returns the ID of the node being added.
+If NId is -1, node ID is automatically assigned.
+///
+
 /// TUNGraph::AddNode-1 (const int& NId, const TIntV& NbrNIdV)
 Returns the ID of the node being added.
 If NId is -1, node ID is automatically assigned.
@@ -61,6 +67,15 @@ If the node of ID NId does not exist the function aborts.
 If the edge already exists return -2. If the edge was successfully added return -1.
 Normally the function should return an ID of the edge added but since edges in TUNGraph have no IDs we return -1.
 The function aborts if SrcNId or DstNId are not nodes in the graph.
+///
+
+/// TUNGraph::AddEdgeUnchecked
+Returns -1.
+The method assumes that SrcNId and DstNId are existing nodes in the graph and
+adds new neighbor values at the end of their adjacency vectors.
+No checks are performed to verify these assumptions.
+Adjacency vectors must be sorted and have duplicates removed after a sequence
+of these operations to assure consistency of data structures.
 ///
 
 /// TUNGraph::DelEdge
@@ -127,6 +142,12 @@ Returns the ID of the node being added.
 If NId is -1, node ID is automatically assigned.
 Aborts, if a node with ID NId already exists.
 ///
+
+/// TNGraph::AddNodeUnchecked (int NId = -1)
+Returns -1, if the node NId already exists.
+Otherwise, it returns the ID of the node being added.
+If NId is -1, node ID is automatically assigned.
+///
     
 /// TNGraph::AddNode-1 (const int& NId, const TIntV& InNIdV, const TIntV& OutNIdV)
 Returns the ID of the node being added.
@@ -159,6 +180,15 @@ return -1.
 Normally the function should return an ID of the edge added but since edges in
 TNGraph have no IDs we return -1.
 Function aborts if SrcNId or DstNId are not nodes in the graph.
+///
+
+/// TNGraph::AddEdgeUnchecked
+Returns -1.
+The method assumes that SrcNId and DstNId are existing nodes in the graph and
+adds new neighbor values at the end of their adjacency vectors.
+No checks are performed to verify these assumptions.
+Adjacency vectors must be sorted and have duplicates removed after a sequence
+of these operations to assure consistency of data structures.
 ///
 
 /// TNGraph::DelEdge

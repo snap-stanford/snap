@@ -150,7 +150,7 @@ public:
   int GetNodes() const { return NodeH.Len(); }
   /// Adds a node of ID NId to the graph. ##TUNGraph::AddNode
   int AddNode(int NId = -1);
-  /// Adds a node of ID NId to the graph without performing checks.
+  /// Adds a node of ID NId to the network, noop if the node already exists. ##TUNGraph::AddNodeUnchecked
   int AddNodeUnchecked(int NId = -1);
   /// Adds a node of ID NodeI.GetId() to the graph.
   int AddNode(const TNodeI& NodeI) { return AddNode(NodeI.GetId()); }
@@ -177,7 +177,7 @@ public:
   int GetEdges() const;
   /// Adds an edge between node IDs SrcNId and DstNId to the graph. ##TUNGraph::AddEdge
   int AddEdge(const int& SrcNId, const int& DstNId);
-  /// Adds an edge from node IDs SrcNId to node DstNId to the graph without performing checks.
+  /// Adds an edge between node IDs SrcNId and DstNId to the graph. ##TUNGraph::AddEdgeUnchecked
   int AddEdgeUnchecked(const int& SrcNId, const int& DstNId);
   /// Adds an edge between node IDs SrcNId and DstNId to the graph. If nodes do not exists, create them.
   int AddEdge2(const int& SrcNId, const int& DstNId);
@@ -354,7 +354,7 @@ public:
   int GetNodes() const { return NodeH.Len(); }
   /// Adds a node of ID NId to the graph. ##TNGraph::AddNode
   int AddNode(int NId = -1);
-  /// Adds a node of ID NId to the graph without performing checks.
+  /// Adds a node of ID NId to the network, noop if the node already exists. ##TNGraph::AddNodeUnchecked
   int AddNodeUnchecked(int NId = -1);
   /// Adds a node of ID NodeI.GetId() to the graph.
   int AddNode(const TNodeI& NodeId) { return AddNode(NodeId.GetId()); }
@@ -381,9 +381,9 @@ public:
 
   /// Returns the number of edges in the graph.
   int GetEdges() const;
-  /// Adds an edge from node IDs SrcNId to node DstNId to the graph. ##TNGraph::AddEdge
+  /// Adds an edge from node SrcNId to node DstNId to the graph. ##TNGraph::AddEdge
   int AddEdge(const int& SrcNId, const int& DstNId);
-  /// Adds an edge from node IDs SrcNId to node DstNId to the graph without performing checks.
+  /// Adds an edge from node SrcNId to node DstNId to the graph. ##TNGraph::AddEdgeUnchecked
   int AddEdgeUnchecked(const int& SrcNId, const int& DstNId);
   /// Adds an edge from node IDs SrcNId to node DstNId to the graph. If nodes do not exist, create them.
   int AddEdge2(const int& SrcNId, const int& DstNId);

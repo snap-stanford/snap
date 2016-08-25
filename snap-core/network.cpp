@@ -379,15 +379,32 @@ TStr TNEANet::GetEdgeAttrValue(const int& EId, const TStrIntPrH::TIter& EdgeHI) 
 }
 
 int TNEANet::AddNode(int NId) {
-  int i;
   if (NId == -1) {
     NId = MxNId;  MxNId++;
   } else {
     IAssertR(!IsNode(NId), TStr::Fmt("NodeId %d already exists", NId));
     MxNId = TMath::Mx(NId+1, MxNId());
   }
-  // update attribute columns
   NodeH.AddDat(NId, TNode(NId));
+  AddAttributes(NId);
+  return NId;
+}
+
+int TNEANet::AddNodeUnchecked(int NId) {
+  if (NId == -1) {
+    NId = MxNId;  MxNId++;
+  } else {
+    if (IsNode(NId)) { return -1;}
+    MxNId = TMath::Mx(NId+1, MxNId());
+  }
+  NodeH.AddDat(NId, TNode(NId));
+  AddAttributes(NId);
+  return NId;
+}
+
+int TNEANet::AddAttributes(const int NId) {
+  int i;
+  // update attribute columns
   for (i = 0; i < VecOfIntVecsN.Len(); i++) {
     TVec<TInt>& IntVec = VecOfIntVecsN[i];
     int KeyId = NodeH.GetKeyId(NId);
@@ -1672,6 +1689,17 @@ int TUndirNet::AddNode(int NId) {
   return NId;
 }
 
+int TUndirNet::AddNodeUnchecked(int NId) {
+  if (NId == -1) {
+    NId = MxNId;  MxNId++;
+  } else {
+    if (IsNode(NId)) { return -1;}
+    MxNId = TMath::Mx(NId+1, MxNId());
+  }
+  NodeH.AddDat(NId, TNode(NId));
+  return NId;
+}
+
 // Add a node of ID NId to the graph and create edges to all nodes in vector NbrNIdV.
 int TUndirNet::AddNode(const int& NId, const TIntV& NbrNIdV) {
   int NewNId;
@@ -1746,7 +1774,16 @@ int TUndirNet::AddEdge(const int& SrcNId, const int& DstNId) {
   if (SrcNId!=DstNId) { // not a self edge
     GetNode(DstNId).NIdV.AddSorted(SrcNId); }
   NEdges++;
-  return -1; // edge id
+  return -1; // no edge id
+}
+
+// Add an edge between SrcNId and DstNId to the graph.
+int TUndirNet::AddEdgeUnchecked(const int& SrcNId, const int& DstNId) {
+  GetNode(SrcNId).NIdV.Add(DstNId);
+  if (SrcNId!=DstNId) { // not a self edge
+    GetNode(DstNId).NIdV.Add(SrcNId); }
+  NEdges++;
+  return -1; // no edge id
 }
 
 // Delete an edge between node IDs SrcNId and DstNId from the graph.
@@ -2150,6 +2187,17 @@ int TDirNet::AddNode(int NId) {
   return NId;
 }
 
+int TDirNet::AddNodeUnchecked(int NId) {
+  if (NId == -1) {
+    NId = MxNId;  MxNId++;
+  } else {
+    if (IsNode(NId)) { return -1;}
+    MxNId = TMath::Mx(NId+1, MxNId());
+  }
+  NodeH.AddDat(NId, TNode(NId));
+  return NId;
+}
+
 // add a node with a list of neighbors
 // (use TDirNet::IsOk to check whether the graph is consistent)
 int TDirNet::AddNode(const int& NId, const TIntV& InNIdV, const TIntV& OutNIdV) {
@@ -2225,7 +2273,13 @@ int TDirNet::AddEdge(const int& SrcNId, const int& DstNId) {
   if (IsEdge(SrcNId, DstNId)) { return -2; }
   GetNode(SrcNId).OutNIdV.AddSorted(DstNId);
   GetNode(DstNId).InNIdV.AddSorted(SrcNId);
-  return -1; // edge id
+  return -1; // no edge id
+}
+
+int TDirNet::AddEdgeUnchecked(const int& SrcNId, const int& DstNId) {
+  GetNode(SrcNId).OutNIdV.Add(DstNId);
+  GetNode(DstNId).InNIdV.Add(SrcNId);
+  return -1; // no edge id
 }
 
 void TDirNet::DelEdge(const int& SrcNId, const int& DstNId, const bool& IsDir) {

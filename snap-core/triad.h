@@ -44,14 +44,10 @@ template<class PGraph> int GetCmnNbrs(const PGraph& Graph, const int& NId1, cons
 template<class PGraph> int GetLen2Paths(const PGraph& Graph, const int& NId1, const int& NId2);
 /// Returns the 2 directed paths between a pair of nodes NId1, NId2 (NId1 --> U --> NId2). ##TSnap::GetLen2Paths
 template<class PGraph> int GetLen2Paths(const PGraph& Graph, const int& NId1, const int& NId2, TIntV& NbrV);
-/// Returns the number of triangles in graph \c Graph, original version
-template<class PGraph> int64 CountTriangles(const PGraph& Graph);
-/// Returns the number of triangles in graph \c Graph, newer version
+/// Returns the number of triangles in graph \c Graph.
 template<class PGraph> int64 GetTriangleCnt(const PGraph& Graph);
-/// Merges neighbors.
+/// Merges neighbors by removing duplicates and produces one sorted vector of neighbors.
 template<class PGraph> void MergeNbrs(TIntV& NeighbourV, const typename PGraph::TObj::TNodeI& NI);
-
-void GetMergeSortedV(TIntV& NeighbourV, TNGraph::TNodeI NI);
 
 /// Returns sorted vector \c NbrV containing unique in or out neighbors of node \c NId in graph \c Graph
 template <class PGraph> void GetUniqueNbrV(const PGraph& Graph, const int& NId, TIntV& NbrV);
@@ -302,13 +298,15 @@ void GetTriads(const PGraph& Graph, TIntTrV& NIdCOTriadV, int SampleNodes) {
   }
 }
 
+#if 0
+// OP RS 2016/08/25, this is an alternative implementation of GetTriangleCnt()
 template<class PGraph>
 int64 CountTriangles(const PGraph& Graph) {
   THash<TInt, TInt> H;
   TIntV MapV;
 
   int ind = 0;
-  for (TNGraph::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++)   {
+  for (typename PGraph::TObj::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++)   {
     H.AddDat(NI.GetId(), ind);
     MapV.Add(NI.GetId());
     ind += 1;
@@ -320,10 +318,10 @@ int64 CountTriangles(const PGraph& Graph) {
 #pragma omp parallel for schedule(dynamic)
 #endif
   for (int i = 0; i < ind; i++) {
-    TNGraph::TNodeI NI = Graph->GetNI(MapV[i]);
+    typename PGraph::TObj::TNodeI NI = Graph->GetNI(MapV[i]);
     TIntV NbrV;
 
-    GetMergeSortedV(NbrV, NI);
+    MergeNbrs<PGraph>(NbrV, NI);
 
     TIntV V;
     for (int j = 0; j < NbrV.Len(); j++) {
@@ -354,28 +352,15 @@ int64 CountTriangles(const PGraph& Graph) {
 
   return cnt;
 }
+#endif
 
 template<class PGraph>
 int64 GetTriangleCnt(const PGraph& Graph) {
-  struct timeval start, end;
-  struct timeval startall, endall;
-  float delta;
-  TTmProfiler Profiler;
-  int TimerId = Profiler.AddTimer("Profiler");
-  int TimerAll = Profiler.AddTimer("ProfilerAll");
   const int NNodes = Graph->GetNodes();
 
   TIntV MapV(NNodes);
   TVec<typename PGraph::TObj::TNodeI> NV(NNodes);
   NV.Reduce(0);
-
-  Profiler.ResetTimer(TimerAll);
-  Profiler.StartTimer(TimerAll);
-  gettimeofday(&startall, NULL);
-
-  Profiler.ResetTimer(TimerId);
-  Profiler.StartTimer(TimerId);
-  gettimeofday(&start, NULL);
 
   int MxId = -1;
   int ind = 0;
@@ -395,21 +380,7 @@ int64 GetTriangleCnt(const PGraph& Graph) {
     IndV[MapV[j]] = j;
   }
 
-  gettimeofday(&end, NULL);
-  Profiler.StopTimer(TimerId);
-  delta = ((end.tv_sec  - start.tv_sec) * 1000000u +
-          end.tv_usec - start.tv_usec) / 1.e6;
-  printf("__nodemap__\ttime %7.3f\tcpu %8.3f\n", delta, Profiler.GetTimerSec(TimerId));
-
-  Profiler.ResetTimer(TimerId);
-  Profiler.StartTimer(TimerId);
-  gettimeofday(&start, NULL);
-
   ind = MapV.Len();
-
-  Profiler.ResetTimer(TimerId);
-  Profiler.StartTimer(TimerId);
-  gettimeofday(&start, NULL);
 
   TVec<TIntV> HigherDegNbrV(ind);
 
@@ -419,25 +390,11 @@ int64 GetTriangleCnt(const PGraph& Graph) {
     HigherDegNbrV[i].Reduce(0);
   }
 
-  gettimeofday(&end, NULL);
-  Profiler.StopTimer(TimerId);
-  delta = ((end.tv_sec  - start.tv_sec) * 1000000u +
-            end.tv_usec - start.tv_usec) / 1.e6;
-  printf("__valloc__\ttime %7.3f\tcpu %8.3f\n", delta, Profiler.GetTimerSec(TimerId));
-
-  Profiler.ResetTimer(TimerId);
-  Profiler.StartTimer(TimerId);
-  gettimeofday(&start, NULL);
-
 #ifdef USE_OPENMP
 #pragma omp parallel for schedule(dynamic)
 #endif
   for (int i = 0; i < ind; i++) {
     typename PGraph::TObj::TNodeI NI = NV[i];
-    //HigherDegNbrV[i] = TVec<TInt>();
-    //HigherDegNbrV[i].Reserve(NI.GetDeg());
-    //HigherDegNbrV[i].Reduce(0);
-
     MergeNbrs<PGraph>(HigherDegNbrV[i], NI);
 
     int k = 0;
@@ -453,23 +410,12 @@ int64 GetTriangleCnt(const PGraph& Graph) {
     HigherDegNbrV[i].Reduce(k);
   }
 
-  gettimeofday(&end, NULL);
-  Profiler.StopTimer(TimerId);
-  delta = ((end.tv_sec  - start.tv_sec) * 1000000u +
-            end.tv_usec - start.tv_usec) / 1.e6;
-  printf("__sort__\ttime %7.3f\tcpu %8.3f\n", delta, Profiler.GetTimerSec(TimerId));
-
-  Profiler.ResetTimer(TimerId);
-  Profiler.StartTimer(TimerId);
-  gettimeofday(&start, NULL);
-
   int64 cnt = 0;
 #ifdef USE_OPENMP
 #pragma omp parallel for schedule(dynamic) reduction(+:cnt)
 #endif
   for (int i = 0; i < HigherDegNbrV.Len(); i++) {
     for (int j = 0; j < HigherDegNbrV[i].Len(); j++) {
-      //TInt NbrInd = H.GetDat(HigherDegNbrV[i][j]);
       TInt NbrInd = IndV[HigherDegNbrV[i][j]];
 
       int64 num = GetCommon(HigherDegNbrV[i], HigherDegNbrV[NbrInd]);
@@ -477,20 +423,9 @@ int64 GetTriangleCnt(const PGraph& Graph) {
     }
   }
 
-  gettimeofday(&end, NULL);
-  Profiler.StopTimer(TimerId);
-  delta = ((end.tv_sec  - start.tv_sec) * 1000000u +
-            end.tv_usec - start.tv_usec) / 1.e6;
-  printf("__count__\ttime %7.3f\tcpu %8.3f\n", delta, Profiler.GetTimerSec(TimerId));
-
-  gettimeofday(&endall, NULL);
-  Profiler.StopTimer(TimerAll);
-  delta = ((endall.tv_sec  - startall.tv_sec) * 1000000u +
-            endall.tv_usec - startall.tv_usec) / 1.e6;
-  printf("__all__  \ttime %7.3f\tcpu %8.3f\n", delta, Profiler.GetTimerSec(TimerAll));
-
   return cnt;
 }
+
 template<class PGraph>
 void MergeNbrs(TIntV& NeighbourV, const typename PGraph::TObj::TNodeI& NI) {
   int j = 0;
@@ -498,7 +433,6 @@ void MergeNbrs(TIntV& NeighbourV, const typename PGraph::TObj::TNodeI& NI) {
   int prev = -1;
   int indeg = NI.GetInDeg();
   int outdeg = NI.GetOutDeg();
-  //while (j < NI.GetInDeg() && k < NI.GetOutDeg()) {
   if (indeg > 0  &&  outdeg > 0) {
     int v1 = NI.GetInNId(j);
     int v2 = NI.GetOutNId(k);

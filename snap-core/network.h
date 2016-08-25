@@ -154,6 +154,8 @@ public:
   int GetNodes() const { return NodeH.Len(); }
   /// Adds a node of ID NId to the network. ##TNodeNet::AddNode
   int AddNode(int NId = -1);
+  /// Adds a node of ID NId to the network, noop if the node already exists. ##TNodeNet::AddNodeUnchecked
+  int AddNodeUnchecked(int NId = -1);
   /// Adds a node of ID NId and node data NodeDat to the network. ##TNodeNet::AddNode-1
   int AddNode(int NId, const TNodeData& NodeDat);
   /// Adds a node NodeI and its node data to the network.
@@ -184,7 +186,7 @@ public:
   // edges
   /// Returns the number of edges in the network.
   int GetEdges() const;
-  /// Adds an edge from node IDs SrcNId to node DstNId to the network. ##TNodeNet::AddEdge
+  /// Adds an edge from node SrcNId to node DstNId to the network. ##TNodeNet::AddEdge
   int AddEdge(const int& SrcNId, const int& DstNId);
   /// Adds an edge from EdgeI.GetSrcNId() to EdgeI.GetDstNId() to the network.
   int AddEdge(const TEdgeI& EdgeI) { return AddEdge(EdgeI.GetSrcNId(), EdgeI.GetDstNId()); }
@@ -251,6 +253,18 @@ int TNodeNet<TNodeData>::AddNode(int NId) {
 }
 
 template <class TNodeData>
+int TNodeNet<TNodeData>::AddNodeUnchecked(int NId) {
+  if (NId == -1) {
+    NId = MxNId;  MxNId++;
+  } else {
+    if (IsNode(NId)) { return -1;}
+    MxNId = TMath::Mx(NId+1, MxNId());
+  }
+  NodeH.AddDat(NId, TNode(NId));
+  return NId;
+}
+
+template <class TNodeData>
 int TNodeNet<TNodeData>::AddNode(int NId, const TNodeData& NodeDat) {
   if (NId == -1) {
     NId = MxNId;  MxNId++;
@@ -302,7 +316,7 @@ int TNodeNet<TNodeData>::AddEdge(const int& SrcNId, const int& DstNId) {
   if (IsEdge(SrcNId, DstNId)) { return -2; }
   GetNode(SrcNId).OutNIdV.AddSorted(DstNId);
   GetNode(DstNId).InNIdV.AddSorted(SrcNId);
-  return -1; // edge id
+  return -1; // no edge id
 }
 
 template <class TNodeData>
@@ -565,6 +579,8 @@ public:
   int GetNodes() const { return NodeH.Len(); }
   /// Adds a node of ID NId to the network. ##TNodeEDatNet::AddNode
   int AddNode(int NId = -1);
+  /// Adds a node of ID NId to the network, noop if the node already exists. ##TNodeEDatNet::AddNodeUnchecked
+  int AddNodeUnchecked(int NId = -1);
   /// Adds a node of ID NId and node data NodeDat to the network. ##TNodeEDatNet::AddNode-1
   int AddNode(int NId, const TNodeData& NodeDat);
   /// Adds a node NodeI and its node data to the network.
@@ -595,7 +611,7 @@ public:
   // edges
   /// Returns the number of edges in the network.
   int GetEdges() const;
-  /// Adds an edge from node IDs SrcNId to node DstNId to the network. ##TNodeEDatNet::AddEdge
+  /// Adds an edge from node SrcNId to node DstNId to the network. ##TNodeEDatNet::AddEdge
   int AddEdge(const int& SrcNId, const int& DstNId);
   /// Adds an edge and edge data from node IDs SrcNId to node DstNId. ##TNodeEDatNet::AddEdge-1
   int AddEdge(const int& SrcNId, const int& DstNId, const TEdgeData& EdgeDat);
@@ -688,6 +704,18 @@ int TNodeEDatNet<TNodeData, TEdgeData>::AddNode(int NId) {
 }
 
 template <class TNodeData, class TEdgeData>
+int TNodeEDatNet<TNodeData, TEdgeData>::AddNodeUnchecked(int NId) {
+  if (NId == -1) {
+    NId = MxNId;  MxNId++;
+  } else {
+    if (IsNode(NId)) { return -1;}
+    MxNId = TMath::Mx(NId+1, MxNId());
+  }
+  NodeH.AddDat(NId, TNode(NId));
+  return NId;
+}
+
+template <class TNodeData, class TEdgeData>
 int TNodeEDatNet<TNodeData, TEdgeData>::AddNode(int NId, const TNodeData& NodeDat) {
   if (NId == -1) {
     NId = MxNId;  MxNId++;
@@ -748,7 +776,7 @@ int TNodeEDatNet<TNodeData, TEdgeData>::AddEdge(const int& SrcNId, const int& Ds
   }
   GetNode(SrcNId).OutNIdV.AddSorted(TPair<TInt, TEdgeData>(DstNId, EdgeDat));
   GetNode(DstNId).InNIdV.AddSorted(SrcNId);
-  return -1; // edge id
+  return -1; // no edge id
 }
 
 template <class TNodeData, class TEdgeData>
@@ -1093,6 +1121,8 @@ public:
   int GetNodes() const { return NodeH.Len(); }
   /// Adds a node of ID NId to the network. ##TNodeEdgeNet::AddNode
   int AddNode(int NId = -1);
+  /// Adds a node of ID NId to the network, noop if the node already exists. ##TNodeEdgeNet::AddNodeUnchecked
+  int AddNodeUnchecked(int NId = -1);
   /// Adds node data to node with ID NId. ##TNodeEdgeNet::AddNode-1
   int AddNode(int NId, const TNodeData& NodeDat);
   /// Adds a node NodeI and its node data to the network.
@@ -1233,6 +1263,18 @@ int TNodeEdgeNet<TNodeData, TEdgeData>::AddNode(int NId) {
     NId = MxNId;  MxNId++;
   } else {
     IAssertR(!IsNode(NId), TStr::Fmt("NodeId %d already exists", NId));
+    MxNId = TMath::Mx(NId+1, MxNId());
+  }
+  NodeH.AddDat(NId, TNode(NId));
+  return NId;
+}
+
+template <class TNodeData, class TEdgeData>
+int TNodeEdgeNet<TNodeData, TEdgeData>::AddNodeUnchecked(int NId) {
+  if (NId == -1) {
+    NId = MxNId;  MxNId++;
+  } else {
+    if (IsNode(NId)) { return -1;}
     MxNId = TMath::Mx(NId+1, MxNId());
   }
   NodeH.AddDat(NId, TNode(NId));
@@ -1706,6 +1748,7 @@ protected:
   const TNode& GetNode(const int& NId) const { return NodeH.GetDat(NId); }
   TEdge& GetEdge(const int& EId) { return EdgeH.GetDat(EId); }
   const TEdge& GetEdge(const int& EId) const { return EdgeH.GetDat(EId); }
+  int AddAttributes(const int NId);
 
 protected:
   /// Gets Int node attribute val.  If not a proper attr, return default.
@@ -1829,10 +1872,12 @@ public:
     MxNId=Graph.MxNId; MxEId=Graph.MxEId; NodeH=Graph.NodeH; EdgeH=Graph.EdgeH; }
     return *this; }
 
-  /// Returns the number of nodes in the graph.
+  /// Returns the number of nodes in the network.
   int GetNodes() const { return NodeH.Len(); }
-  /// Adds a node of ID NId to the graph. ##TNEANet::AddNode
+  /// Adds a node of ID NId to the network. ##TNEANet::AddNode
   int AddNode(int NId = -1);
+  /// Adds a node of ID NId to the network, noop if the node already exists. ##TNEANet::AddNodeUnchecked
+  int AddNodeUnchecked(int NId = -1);
   /// Adds a node of ID NodeI.GetId() to the graph.
   int AddNode(const TNodeI& NodeI) { return AddNode(NodeI.GetId()); }
   /// Deletes node of ID NId from the graph. ##TNEANet::DelNode
@@ -2582,6 +2627,7 @@ public:
     bool IsOutNId(const int& NId) const { return IsNbrNId(NId); }
     void PackOutNIdV() { NIdV.Pack(); }
     void PackNIdV() { NIdV.Pack(); }
+    void SortNIdV() { NIdV.Sort();}
     friend class TUndirNet;
     friend class TUndirNetMtx;
   };
@@ -2613,6 +2659,8 @@ public:
     int GetInDeg() const { return NodeHI.GetDat().GetInDeg(); }
     /// Returns out-degree of the current node (returns same as value GetDeg() since the network is undirected).
     int GetOutDeg() const { return NodeHI.GetDat().GetOutDeg(); }
+    /// Sorts the adjacency lists of the current node.
+    void SortNIdV() { NodeHI.GetDat().SortNIdV(); }
     /// Returns ID of NodeN-th in-node (the node pointing to the current node). ##TUndirNet::TNodeI::GetInNId
     int GetInNId(const int& NodeN) const { return NodeHI.GetDat().GetInNId(NodeN); }
     /// Returns ID of NodeN-th out-node (the node the current node points to). ##TUndirNet::TNodeI::GetOutNId
@@ -2693,6 +2741,8 @@ public:
   int GetNodes() const { return NodeH.Len(); }
   /// Adds a node of ID NId to the network. ##TUndirNet::AddNode
   int AddNode(int NId = -1);
+  /// Adds a node of ID NId to the network, noop if the node already exists. ##TUndirNet::AddNodeUnchecked
+  int AddNodeUnchecked(int NId = -1);
   /// Adds a node of ID NodeI.GetId() to the network.
   int AddNode(const TNodeI& NodeI) { return AddNode(NodeI.GetId()); }
   /// Adds a node of ID NId to the network and create edges to all nodes in vector NbrNIdV. ##TUndirNet::AddNode-1
@@ -2718,6 +2768,8 @@ public:
   int GetEdges() const;
   /// Adds an edge between node IDs SrcNId and DstNId to the network. ##TUndirNet::AddEdge
   int AddEdge(const int& SrcNId, const int& DstNId);
+  /// Adds an edge between node IDs SrcNId and DstNId to the network. ##TUndirNet::AddEdgeUnchecked
+  int AddEdgeUnchecked(const int& SrcNId, const int& DstNId);
   /// Adds an edge between EdgeI.GetSrcNId() and EdgeI.GetDstNId() to the network.
   int AddEdge(const TEdgeI& EdgeI) { return AddEdge(EdgeI.GetSrcNId(), EdgeI.GetDstNId()); }
   /// Deletes an edge between node IDs SrcNId and DstNId from the network. ##TUndirNet::DelEdge
@@ -2748,6 +2800,8 @@ public:
   void Reserve(const int& Nodes, const int& Edges) { if (Nodes>0) NodeH.Gen(Nodes/2); }
   /// Reserves memory for node ID NId having Deg edges.
   void ReserveNIdDeg(const int& NId, const int& Deg) { GetNode(NId).NIdV.Reserve(Deg); }
+  /// Sorts the adjacency lists of each node.
+  void SortNodeAdjV() { for (TNodeI NI = BegNI(); NI < EndNI(); NI++) { NI.SortNIdV();} }
   /// Defragments the network. ##TUndirNet::Defrag
   void Defrag(const bool& OnlyNodeLinks=false);
   /// Checks the network data structure for internal consistency. ##TUndirNet::IsOk
@@ -3025,6 +3079,7 @@ public:
     bool IsNbrNId(const int& NId) const { return IsOutNId(NId) || IsInNId(NId); }
     void PackOutNIdV() { OutNIdV.Pack(); }
     void PackNIdV() { InNIdV.Pack(); }
+    void SortNIdV() { InNIdV.Sort(); OutNIdV.Sort();}
     friend class TDirNet;
     friend class TDirNetMtx;
   };
@@ -3053,6 +3108,8 @@ public:
     int GetInDeg() const { return NodeHI.GetDat().GetInDeg(); }
     /// Returns out-degree of the current node.
     int GetOutDeg() const { return NodeHI.GetDat().GetOutDeg(); }
+    /// Sorts the adjacency lists of the current node.
+    void SortNIdV() { NodeHI.GetDat().SortNIdV(); }
     /// Returns ID of NodeN-th in-node (the node pointing to the current node). ##TDirNet::TNodeI::GetInNId
     int GetInNId(const int& NodeN) const { return NodeHI.GetDat().GetInNId(NodeN); }
     /// Returns ID of NodeN-th out-node (the node the current node points to). ##TDirNet::TNodeI::GetOutNId
@@ -3129,6 +3186,8 @@ public:
   int GetNodes() const { return NodeH.Len(); }
   /// Adds a node of ID NId to the network. ##TDirNet::AddNode
   int AddNode(int NId = -1);
+  /// Adds a node of ID NId to the network, noop if the node already exists. ##TDirNet::AddNodeUnchecked
+  int AddNodeUnchecked(int NId = -1);
   /// Adds a node of ID NodeI.GetId() to the network.
   int AddNode(const TNodeI& NodeId) { return AddNode(NodeId.GetId()); }
   /// Adds a node of ID NId to the network, creates edges to the node from all nodes in vector InNIdV, creates edges from the node to all nodes in vector OutNIdV. ##TDirNet::AddNode-1
@@ -3154,9 +3213,11 @@ public:
 
   /// Returns the number of edges in the network.
   int GetEdges() const;
-  /// Adds an edge from node IDs SrcNId to node DstNId to the network. ##TDirNet::AddEdge
+  /// Adds an edge from node SrcNId to node DstNId to the network. ##TDirNet::AddEdge
   int AddEdge(const int& SrcNId, const int& DstNId);
-  /// Adds an edge from EdgeI.GetSrcNId() to EdgeI.GetDstNId() to the network.
+  /// Adds an edge from node SrcNId to node DstNId to the network. ##TDirNet::AddEdgeUnchecked
+  int AddEdgeUnchecked(const int& SrcNId, const int& DstNId);
+  // Adds an edge from EdgeI.GetSrcNId() to EdgeI.GetDstNId() to the network.
   int AddEdge(const TEdgeI& EdgeI) { return AddEdge(EdgeI.GetSrcNId(), EdgeI.GetDstNId()); }
   /// Deletes an edge from node IDs SrcNId to DstNId from the network. ##TDirNet::DelEdge
   void DelEdge(const int& SrcNId, const int& DstNId, const bool& IsDir = true);
@@ -3188,6 +3249,8 @@ public:
   void ReserveNIdInDeg(const int& NId, const int& InDeg) { GetNode(NId).InNIdV.Reserve(InDeg); }
   /// Reserves memory for node ID NId having OutDeg out-edges.
   void ReserveNIdOutDeg(const int& NId, const int& OutDeg) { GetNode(NId).OutNIdV.Reserve(OutDeg); }
+  /// Sorts the adjacency lists of each node.
+  void SortNodeAdjV() { for (TNodeI NI = BegNI(); NI < EndNI(); NI++) { NI.SortNIdV();} }
   /// Defragments the network. ##TDirNet::Defrag
   void Defrag(const bool& OnlyNodeLinks=false);
   /// Checks the network data structure for internal consistency. ##TDirNet::IsOk

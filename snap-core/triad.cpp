@@ -1,5 +1,7 @@
 namespace TSnap {
 
+// This function is obsolete, since it is TNGraph specific.
+// Use MergeNbrs() instead.
 void GetMergeSortedV(TIntV& NeighbourV, TNGraph::TNodeI NI) {
   int j = 0;
   int k = 0;
