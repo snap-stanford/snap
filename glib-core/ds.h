@@ -542,14 +542,6 @@ public:
   TSizeTy Add(){ AssertR(MxVals!=-1, "This vector was obtained from TVecPool. Such vectors cannot change its size!");
     if (Vals==MxVals){Resize();} return Vals++;}
 
-#ifdef USE_OPENMP
-  TSizeTy AddAtm(const TVal& Val){ const int Idx = __sync_fetch_and_add(&Vals, 1);
-  ValT[Idx]=Val; return Idx;}
-
-  TSizeTy MoveLastMP(const TVal& Val, int Inc){ const int Idx = __sync_fetch_and_add(&Vals, Inc);
-  return Idx;}
-#endif
-
   /// Adds a new element at the end of the vector, after its current last element. ##TVec::Add1
   TSizeTy Add(const TVal& Val){ AssertR(MxVals!=-1, "This vector was obtained from TVecPool. Such vectors cannot change its size!");
     if (Vals==MxVals){Resize();} ValT[Vals]=Val; return Vals++;}
@@ -562,6 +554,9 @@ public:
   /// Adds element \c Val at the end of the vector in a thread safe manner, returns the element index in the vector. #TVec::AddMP
   TSizeTy AddMP(const TVal& Val){ const int Idx = __sync_fetch_and_add(&Vals, 1);
      ValT[Idx]=Val; return Idx;}
+  /// Reserves space after the current last element in a thread safe manner, returning the old vector size. ##TVec::MoveLastMP
+  TSizeTy MoveLastMP(const TVal& Val, int Inc){ const int Idx = __sync_fetch_and_add(&Vals, Inc);
+  return Idx;}
 #endif
   /// Adds the elements of the vector \c ValV to the to end of the vector.
   TSizeTy AddV(const TVec<TVal, TSizeTy>& ValV);

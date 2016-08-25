@@ -6,12 +6,12 @@ typedef enum {NOT, AND, OR, NOP} TPredOp;
 /// Comparison operators for selection predicates
 typedef enum {LT = 0, LTE, EQ, NEQ, GTE, GT, SUBSTR, SUPERSTR} TPredComp; 
 
-class TPredicate;
 class TAtomicPredicate;
 class TPredicateNode;
+class TPredicate;
 
 //#//////////////////////////////////////////////
-/// TAtomicPredicate class - for encapsulating comparison operations
+/// Atomic predicate - encapsulates comparison operations
 class TAtomicPredicate {
   private:
     TAttrType Type; ///< Type of the predicate variables
@@ -47,8 +47,6 @@ class TAtomicPredicate {
 };
 
 //#//////////////////////////////////////////////
-/// Atomic predicate node - represents a binary predicate operation on two variables
-//#//////////////////////////////////////////////
 /// Predicate node - represents a binary predicate operation on two predicate nodes
 class TPredicateNode {
 	public:
@@ -80,7 +78,7 @@ class TPredicateNode {
 };
 
 //#//////////////////////////////////////////////
-/// TPredicate class - for encapsulating comparison operations
+/// Predicate - encapsulates comparison operations
 class TPredicate {
 	protected:
 		THash<TStr, TInt> IntVars; ///< Int variables in the current predicate tree
