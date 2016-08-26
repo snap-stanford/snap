@@ -2,6 +2,7 @@
 #include "Snap.h"
 #include "word2vec.h"
 #include "randomwalk.h"
+#include "n2v.h"
 
 void node2vec(PWNet& InNet, double& ParamP, double& ParamQ, int& Dimensions,
  int& WalkLen, int& NumWalks, int& WinSize, int& Iter, bool& Verbose,
@@ -13,8 +14,8 @@ void node2vec(PWNet& InNet, double& ParamP, double& ParamQ, int& Dimensions,
     NIdsV.Add(NI.GetId());
   }
   //Generate random walks
-  int64 AllWalks = NumWalks * NIdsV.Len();
-  TIntVV WalksVV(AllWalks,WalkLen);
+  int64 AllWalks = (int64)NumWalks * NIdsV.Len();
+  TVVec<TInt, int64> WalksVV(AllWalks,WalkLen);
   TRnd Rnd(time(NULL));
   int64 WalksDone = 0;
   for (int64 i = 0; i < NumWalks; i++) {

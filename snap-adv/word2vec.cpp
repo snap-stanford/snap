@@ -7,7 +7,7 @@
 //Lots of improvements on word2vec have been done since above code was released.
 //Take a look at tensorflow if you need better word2vec performance.
 
-void LearnVocab(TIntVV& WalksVV, TIntV& Vocab) {
+void LearnVocab(TVVec<TInt, int64>& WalksVV, TIntV& Vocab) {
   for( int64 i = 0; i < Vocab.Len(); i++) { Vocab[i] = 0; }
   for( int64 i = 0; i < WalksVV.GetXDim(); i++) {
     for( int j = 0; j < WalksVV.GetYDim(); j++) {
@@ -79,7 +79,7 @@ void InitPosEmb(TIntV& Vocab, int& Dimensions, TRnd& Rnd, TFltVV& SynPos) {
   }
 }
 
-void TrainModel(TIntVV& WalksVV, int& Dimensions, int& WinSize, int& Iter, bool& Verbose,
+void TrainModel(TVVec<TInt, int64>& WalksVV, int& Dimensions, int& WinSize, int& Iter, bool& Verbose,
    TIntV& KTable, TFltV& UTable, int64& WordCntAll, TFltV& ExpTable, double& Alpha,
    int64 CurrWalk, TRnd& Rnd, TFltVV& SynNeg, TFltVV& SynPos)  {
   TFltV Neu1V(Dimensions);
@@ -145,7 +145,7 @@ void TrainModel(TIntVV& WalksVV, int& Dimensions, int& WinSize, int& Iter, bool&
 }
 
 
-void LearnEmbeddings(TIntVV& WalksVV, int& Dimensions, int& WinSize,
+void LearnEmbeddings(TVVec<TInt, int64>& WalksVV, int& Dimensions, int& WinSize,
  int& Iter, bool& Verbose, TIntFltVH& EmbeddingsHV) {
   TIntIntH RnmH;
   TIntIntH RnmBackH;
@@ -175,7 +175,7 @@ void LearnEmbeddings(TIntVV& WalksVV, int& Dimensions, int& WinSize,
   TFltV ExpTable(TableSize);
   double Alpha = StartAlpha;//learning rate
 #pragma omp parallel for schedule(dynamic)
-  for (int i = 0; i < TableSize; i++ ) {
+  for (int i = 0; i < TableSize; i++) {
     double Value = -MaxExp + static_cast<double>(i) / static_cast<double>(ExpTablePrecision);
     ExpTable[i] = TMath::Power(TMath::E, Value);
   }
