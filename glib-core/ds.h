@@ -2232,23 +2232,23 @@ typedef TVVec<TIntPr> TIntPrVV;
 
 /////////////////////////////////////////////////
 // 3D-Vector
-template <class TVal>
+template <class TVal, class TSizeTy = int>
 class TVVVec{
 private:
-  TInt XDim, YDim, ZDim;
-  TVec<TVal> ValV;
+  TInt64 XDim, YDim, ZDim;
+  TVec<TVal, TSizeTy> ValV;
 public:
   TVVVec(): XDim(), YDim(), ZDim(), ValV(){}
   TVVVec(const TVVVec& Vec):
     XDim(Vec.XDim), YDim(Vec.YDim), ZDim(Vec.ZDim), ValV(Vec.ValV){}
-  TVVVec(const int& _XDim, const int& _YDim, const int& _ZDim):
+  TVVVec(const TSizeTy& _XDim, const TSizeTy& _YDim, const TSizeTy& _ZDim):
     XDim(), YDim(), ZDim(), ValV(){Gen(_XDim, _YDim, _ZDim);}
   explicit TVVVec(TSIn& SIn):
     XDim(SIn), YDim(SIn), ZDim(SIn), ValV(SIn){}
   void Save(TSOut& SOut) const {
     XDim.Save(SOut); YDim.Save(SOut); ZDim.Save(SOut); ValV.Save(SOut);}
 
-  TVVVec<TVal>& operator=(const TVVVec<TVal>& Vec){
+  TVVVec<TVal, TSizeTy>& operator=(const TVVVec<TVal, TSizeTy>& Vec){
     XDim=Vec.XDim; YDim=Vec.YDim; ZDim=Vec.ZDim; ValV=Vec.ValV;
     return *this;
   }
@@ -2258,22 +2258,22 @@ public:
 
   bool Empty() const {return ValV.Len()==0;}
   void Clr(){XDim=0; YDim=0; ZDim=0; ValV.Clr();}
-  void Gen(const int& _XDim, const int& _YDim, const int& _ZDim){
+  void Gen(const TSizeTy& _XDim, const TSizeTy& _YDim, const TSizeTy& _ZDim){
     Assert((_XDim>=0)&&(_YDim>=0)&&(_ZDim>=0));
     XDim=_XDim; YDim=_YDim; ZDim=_ZDim; ValV.Gen(XDim*YDim*ZDim);}
-  TVal& At(const int& X, const int& Y, const int& Z){
-    Assert((0<=X)&&(X<int(XDim))&&(0<=Y)&&(Y<int(YDim))&&(0<=Z)&&(Z<int(ZDim)));
+  TVal& At(const TSizeTy& X, const TSizeTy& Y, const TSizeTy& Z){
+    Assert((0<=X)&&(X<TSizeTy(XDim))&&(0<=Y)&&(Y<TSizeTy(YDim))&&(0<=Z)&&(Z<TSizeTy(ZDim)));
     return ValV[X*YDim*ZDim+Y*ZDim+Z];}
-  const TVal& At(const int& X, const int& Y, const int& Z) const {
-    Assert((0<=X)&&(X<int(XDim))&&(0<=Y)&&(Y<int(YDim))&&(0<=Z)&&(Z<int(ZDim)));
+  const TVal& At(const TSizeTy& X, const TSizeTy& Y, const TSizeTy& Z) const {
+    Assert((0<=X)&&(X<TSizeTy(XDim))&&(0<=Y)&&(Y<TSizeTy(YDim))&&(0<=Z)&&(Z<TSizeTy(ZDim)));
     return ValV[X*YDim*ZDim+Y*ZDim+Z];}
-  TVal& operator()(const int& X, const int& Y, const int& Z){
+  TVal& operator()(const TSizeTy& X, const TSizeTy& Y, const TSizeTy& Z){
     return At(X, Y, Z);}
-  const TVal& operator()(const int& X, const int& Y, const int& Z) const {
+  const TVal& operator()(const TSizeTy& X, const TSizeTy& Y, const TSizeTy& Z) const {
     return At(X, Y, Z);}
-  int GetXDim() const {return XDim;}
-  int GetYDim() const {return YDim;}
-  int GetZDim() const {return ZDim;}
+  TSizeTy GetXDim() const {return XDim;}
+  TSizeTy GetYDim() const {return YDim;}
+  TSizeTy GetZDim() const {return ZDim;}
 };
 
 /////////////////////////////////////////////////

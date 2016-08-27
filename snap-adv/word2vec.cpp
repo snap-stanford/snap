@@ -61,8 +61,8 @@ int64 RndUnigramInt(TIntV& KTable, TFltV& UTable, TRnd& Rnd) {
   return Y < UTable[X] ? X : KTable[X];
 }
 //Initialize negative embeddings
-void InitNegEmb(TIntV& Vocab, int& Dimensions, TFltVV& SynNeg) {
-  SynNeg = TFltVV(Vocab.Len(),Dimensions);
+void InitNegEmb(TIntV& Vocab, int& Dimensions, TVVec<TFlt, int64>& SynNeg) {
+  SynNeg = TVVec<TFlt, int64>(Vocab.Len(),Dimensions);
   for (int64 i = 0; i < SynNeg.GetXDim(); i++) {
     for (int j = 0; j < SynNeg.GetYDim(); j++) {
       SynNeg(i,j) = 0;
@@ -70,8 +70,8 @@ void InitNegEmb(TIntV& Vocab, int& Dimensions, TFltVV& SynNeg) {
   }
 }
 //Initialize positive embeddings
-void InitPosEmb(TIntV& Vocab, int& Dimensions, TRnd& Rnd, TFltVV& SynPos) {
-  SynPos = TFltVV(Vocab.Len(),Dimensions);
+void InitPosEmb(TIntV& Vocab, int& Dimensions, TRnd& Rnd, TVVec<TFlt, int64>& SynPos) {
+  SynPos = TVVec<TFlt, int64>(Vocab.Len(),Dimensions);
   for (int64 i = 0; i < SynPos.GetXDim(); i++) {
     for (int j = 0; j < SynPos.GetYDim(); j++) {
       SynPos(i,j) =(Rnd.GetUniDev()-0.5)/Dimensions;
@@ -81,7 +81,7 @@ void InitPosEmb(TIntV& Vocab, int& Dimensions, TRnd& Rnd, TFltVV& SynPos) {
 
 void TrainModel(TVVec<TInt, int64>& WalksVV, int& Dimensions, int& WinSize, int& Iter, bool& Verbose,
    TIntV& KTable, TFltV& UTable, int64& WordCntAll, TFltV& ExpTable, double& Alpha,
-   int64 CurrWalk, TRnd& Rnd, TFltVV& SynNeg, TFltVV& SynPos)  {
+   int64 CurrWalk, TRnd& Rnd, TVVec<TFlt, int64>& SynNeg, TVVec<TFlt, int64>& SynPos)  {
   TFltV Neu1V(Dimensions);
   TFltV Neu1eV(Dimensions);
   int64 AllWords = WalksVV.GetXDim()*WalksVV.GetYDim();
@@ -166,8 +166,8 @@ void LearnEmbeddings(TVVec<TInt, int64>& WalksVV, int& Dimensions, int& WinSize,
   LearnVocab(WalksVV, Vocab);
   TIntV KTable(NNodes);
   TFltV UTable(NNodes);
-  TFltVV SynNeg;
-  TFltVV SynPos;
+  TVVec<TFlt, int64> SynNeg;
+  TVVec<TFlt, int64> SynPos;
   TRnd Rnd(time(NULL));
   InitPosEmb(Vocab, Dimensions, Rnd, SynPos);
   InitNegEmb(Vocab, Dimensions, SynNeg);
@@ -175,7 +175,7 @@ void LearnEmbeddings(TVVec<TInt, int64>& WalksVV, int& Dimensions, int& WinSize,
   TFltV ExpTable(TableSize);
   double Alpha = StartAlpha;//learning rate
 #pragma omp parallel for schedule(dynamic)
-  for (int i = 0; i < TableSize; i++) {
+  for (int i = 0; i < TableSize; i++ ) {
     double Value = -MaxExp + static_cast<double>(i) / static_cast<double>(ExpTablePrecision);
     ExpTable[i] = TMath::Power(TMath::E, Value);
   }

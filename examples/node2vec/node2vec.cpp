@@ -19,10 +19,10 @@ void ParseArgs(int& argc, char* argv[], TStr& InFile, TStr& OutFile,
    "Output graph path");
   Dimensions = Env.GetIfArgPrefixInt("-d:", 128,
    "Number of dimensions. Default is 128");
-  WalkLen = Env.GetIfArgPrefixInt("-l:", 10,
-   "Length of walk per source. Default is 10");
-  NumWalks = Env.GetIfArgPrefixInt("-r:", 40,
-   "Number of walks per source. Default is 40");
+  WalkLen = Env.GetIfArgPrefixInt("-l:", 80,
+   "Length of walk per source. Default is 80");
+  NumWalks = Env.GetIfArgPrefixInt("-r:", 10,
+   "Number of walks per source. Default is 10");
   WinSize = Env.GetIfArgPrefixInt("-k:", 10,
    "Context size for optimization. Default is 10");
   Iter = Env.GetIfArgPrefixInt("-e:", 1,
