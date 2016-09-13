@@ -3549,8 +3549,10 @@ void TTable::FillBucketsByWindow(TStr SplitAttr, TInt JumpSize, TInt WindowSize,
   }
 
   // initialize buckets
-  if (JumpSize == 0) { NumBuckets = (EndVal - StartVal)/JumpSize + 1; }
-  else { NumBuckets = (EndVal - StartVal)/JumpSize + 1; }
+  NumBuckets = 1;
+  if (JumpSize > 0) {
+    NumBuckets = (EndVal - StartVal)/JumpSize + 1;
+  }
 
   InitRowIdBuckets(NumBuckets);
 

@@ -1,3 +1,6 @@
+#ifndef GRAPHMP_H
+#define GRAPHMP_H
+
 #ifdef GCC_ATOMIC
 //#//////////////////////////////////////////////
 /// Directed graphs
@@ -225,4 +228,14 @@ public:
 namespace TSnap {
 template <> struct IsDirected<TNGraphMP> { enum { Val = 1 }; };
 }
+
+#else
+
+// substitute TNGraph for TNGraphMP on non-gcc platforms
+//typedef TNGraph TNGraphMP;
+//typedef TPt<TNGraphMP> PNGraphMP;
+
 #endif // GCC_ATOMIC
+
+#endif // GRAPHMP_H
+
