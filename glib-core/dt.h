@@ -861,6 +861,95 @@ public:
 };
 
 /////////////////////////////////////////////////
+// Number Base Template
+template <class Base> class TNum{
+public:
+  Base Val;
+  TNum() : Val(0){}
+  TNum(const Base& _Val) : Val(_Val){}
+  operator Base() const { return Val; }
+  explicit TNum(TSIn& SIn){ SIn.Load(Val); }
+  void Load(TSIn& SIn){ SIn.Load(Val); }
+  void Save(TSOut& SOut) const { SOut.Save(Val); }
+
+  TNum& operator=(const TNum& Other){ Val = Other.Val; return *this; }
+  TNum& operator=(const Base& _Val){ Val = _Val; return *this; }
+  TNum& operator++(){ ++Val; return *this; } // prefix
+  TNum& operator--(){ --Val; return *this; } // prefix
+  TNum operator++(Base){ TNum oldVal = Val; Val++; return oldVal; } // postfix
+  TNum operator--(Base){ TNum oldVal = Val; Val--; return oldVal; } // postfix
+  Base& operator()() { return Val; }
+
+  int GetMemUsed() const { return sizeof(TNum); }
+};
+
+/////////////////////////////////////////////////
+// Signed-Integer-64Bit
+typedef TNum<int64> TInt64;
+template<>
+class TNum<int64>{
+public:
+  int64 Val;
+public:
+  static const int64 Mn;
+  static const int64 Mx;
+
+  TNum() : Val(0){}
+  TNum(const TNum& Int) : Val(Int.Val){}
+  TNum(const int64& Int) : Val(Int){}
+  operator int64() const { return Val; }
+  explicit TNum(TSIn& SIn){ SIn.Load(Val); }
+  void Load(TSIn& SIn){ SIn.Load(Val); }
+  void Save(TSOut& SOut) const { SOut.Save(Val); }
+  TNum& operator=(const TNum& Int){ Val = Int.Val; return *this; }
+  TNum& operator+=(const TNum& Int){ Val += Int.Val; return *this; }
+  TNum& operator-=(const TNum& Int){ Val -= Int.Val; return *this; }
+  TNum& operator++(){ ++Val; return *this; } // prefix
+  TNum& operator--(){ --Val; return *this; } // prefix
+  TNum operator++(int){ TNum oldVal = Val; Val++; return oldVal; } // postfix
+  TNum operator--(int){ TNum oldVal = Val; Val--; return oldVal; } // postfix
+  int GetMemUsed() const { return sizeof(TNum); }
+
+#ifdef GLib_WIN
+  TStr GetStr() const { return TStr::Fmt("%I64", Val); }
+  static TStr GetStr(const TNum& Int){ return TStr::Fmt("%I64", Int.Val); }
+  static TStr GetHexStr(const TNum& Int){ return TStr::Fmt("%I64X", Int.Val); }
+#else
+  TStr GetStr() const { return TStr::Fmt("%ll", Val); }
+  static TStr GetStr(const TNum& Int){ return TStr::Fmt("%ll", Int.Val); }
+  static TStr GetHexStr(const TNum& Int){ return TStr::Fmt("%ll", Int.Val); }
+#endif
+
+  static TStr GetKiloStr(const int64& Val){
+    if (Val>100 * 1000){ return GetStr(Val / 1000) + "K"; }
+    else if (Val>1000){ return GetStr(Val / 1000) + "." + GetStr((Val % 1000) / 100) + "K"; }
+    else { return GetStr(Val); }
+  }
+  static TStr GetMegaStr(const int64& Val){
+    if (Val>100 * 1000000){ return GetStr(Val / 1000000) + "M"; }
+    else if (Val>1000000){
+      return GetStr(Val / 1000000) + "." + GetStr((Val % 1000000) / 100000) + "M";
+    }
+    else { return GetKiloStr(Val); }
+  }
+  /*static TStr GetGigaStr(const int64& Val){
+   * if (Val>100*1000000000){return GetStr(Val/1000000000)+"G";}
+   * else if (Val>1000000000){
+   * return GetStr(Val/1000000000)+"."+GetStr((Val%1000000000)/100000000)+"G";}
+   * else {return GetMegaStr(Val);}}*/
+
+  static int64 GetFromBufSafe(const char * Bf) {
+#ifdef ARM
+    int64 Val;
+    memcpy(&Val, Bf, sizeof(int64)); //we cannot use a cast on ARM (needs 8byte memory aligned doubles)
+    return Val;
+#else
+    return *((int64*)Bf);
+#endif
+  }
+};
+
+/////////////////////////////////////////////////
 // Void
 class TVoid{
 public:
