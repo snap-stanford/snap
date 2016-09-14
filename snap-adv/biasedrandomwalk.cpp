@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "Snap.h"
-#include "randomwalk.h"
+#include "biasedrandomwalk.h"
 
 //Preprocess alias sampling method
 void GetNodeAlias(TFltV& PTblV, TIntVFltVPr& NTTable) {

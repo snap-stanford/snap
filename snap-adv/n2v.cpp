@@ -8,7 +8,7 @@ void node2vec(PWNet& InNet, double& ParamP, double& ParamQ, int& Dimensions,
  int& WalkLen, int& NumWalks, int& WinSize, int& Iter, bool& Verbose,
  TIntFltVH& EmbeddingsHV) {
   //Preprocess transition probabilities
-  PreprocessTransitionProbs(InNet, Verbose);
+  PreprocessTransitionProbs(InNet, ParamP, ParamQ, Verbose);
   TIntV NIdsV;
   for (TWNet::TNodeI NI = InNet->BegNI(); NI < InNet->EndNI(); NI++) {
     NIdsV.Add(NI.GetId());
@@ -26,7 +26,7 @@ void node2vec(PWNet& InNet, double& ParamP, double& ParamQ, int& Dimensions,
         printf("\rWalking Progress: %.2lf%%",(double)WalksDone*100/(double)AllWalks);fflush(stdout);
       }
       TIntV WalkV;
-      SimulateWalk(InNet, NIdsV[j], WalkLen, ParamP, ParamQ, Rnd, WalkV);
+      SimulateWalk(InNet, NIdsV[j], WalkLen, Rnd, WalkV);
       for (int64 k = 0; k < WalkV.Len(); k++) { 
         WalksVV.PutXY(i*NIdsV.Len()+j, k, WalkV[k]);
       }
