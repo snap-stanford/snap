@@ -663,6 +663,13 @@ namespace TSnap {
 template <> struct IsMultiGraph<TNEANetMP> { enum { Val = 1 }; };
 template <> struct IsDirected<TNEANetMP> { enum { Val = 1 }; };
 }
+
+#else
+
+// substitute TNEANet for TNEANetMP on non-gcc platforms
+//typedef TNEANet TNEANetMP;
+//typedef TPt<TNEANetMP> PNEANetMP;
+
 #endif // GCC_ATOMIC
 
 #endif // NETWORKMP_H

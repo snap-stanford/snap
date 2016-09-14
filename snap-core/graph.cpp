@@ -96,7 +96,7 @@ int TUNGraph::AddEdge(const int& SrcNId, const int& DstNId) {
   if (SrcNId!=DstNId) { // not a self edge
     GetNode(DstNId).NIdV.AddSorted(SrcNId); }
   NEdges++;
-  return -1; // edge id
+  return -1; // no edge id
 }
 
 // Add an edge between SrcNId and DstNId to the graph.
@@ -105,7 +105,7 @@ int TUNGraph::AddEdgeUnchecked(const int& SrcNId, const int& DstNId) {
   if (SrcNId!=DstNId) { // not a self edge
     GetNode(DstNId).NIdV.Add(SrcNId); }
   NEdges++;
-  return -1; // edge id
+  return -1; // no edge id
 }
 
 // Add an edge between SrcNId and DstNId to the graph and create the nodes if they don't yet exist.
@@ -117,7 +117,7 @@ int TUNGraph::AddEdge2(const int& SrcNId, const int& DstNId) {
   if (SrcNId!=DstNId) { // not a self edge
     GetNode(DstNId).NIdV.AddSorted(SrcNId); }
   NEdges++;
-  return -1; // edge id
+  return -1; // no edge id
 }
 
 // Delete an edge between node IDs SrcNId and DstNId from the graph.
@@ -324,13 +324,13 @@ int TNGraph::AddEdge(const int& SrcNId, const int& DstNId) {
   if (IsEdge(SrcNId, DstNId)) { return -2; }
   GetNode(SrcNId).OutNIdV.AddSorted(DstNId);
   GetNode(DstNId).InNIdV.AddSorted(SrcNId);
-  return -1; // edge id
+  return -1; // no edge id
 }
 
 int TNGraph::AddEdgeUnchecked(const int& SrcNId, const int& DstNId) {
   GetNode(SrcNId).OutNIdV.Add(DstNId);
   GetNode(DstNId).InNIdV.Add(SrcNId);
-  return -1; // edge id
+  return -1; // no edge id
 }
 
 int TNGraph::AddEdge2(const int& SrcNId, const int& DstNId) {
@@ -339,7 +339,7 @@ int TNGraph::AddEdge2(const int& SrcNId, const int& DstNId) {
   if (GetNode(SrcNId).IsOutNId(DstNId)) { return -2; } // edge already exists
   GetNode(SrcNId).OutNIdV.AddSorted(DstNId);
   GetNode(DstNId).InNIdV.AddSorted(SrcNId);
-  return -1; // edge id
+  return -1; // no edge id
 }
 
 void TNGraph::DelEdge(const int& SrcNId, const int& DstNId, const bool& IsDir) {
@@ -713,7 +713,7 @@ int TBPGraph::AddEdge(const int& LeftNId, const int& RightNId) {
   if (LeftH.GetDat(LNId).IsOutNId(RNId)) { return -2; } // edge already exists
   LeftH.GetDat(LNId).NIdV.AddSorted(RNId);
   RightH.GetDat(RNId).NIdV.AddSorted(LNId);
-  return -1; // edge id
+  return -1; // no edge id
 }
 
 void TBPGraph::DelEdge(const int& LeftNId, const int& RightNId) {

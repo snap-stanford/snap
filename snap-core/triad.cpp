@@ -1,5 +1,9 @@
 namespace TSnap {
 
+#if 0
+// OP RS 2016/09/12 commented out, fails to compile for Snap.py on Windows.
+// This function is obsolete, since it is TNGraph specific.
+// Use MergeNbrs() instead.
 void GetMergeSortedV(TIntV& NeighbourV, TNGraph::TNodeI NI) {
   int j = 0;
   int k = 0;
@@ -50,6 +54,7 @@ void GetMergeSortedV(TIntV& NeighbourV, TNGraph::TNodeI NI) {
     k += 1;
   }
 }
+#endif
 
 int GetCommon(TIntV& A, TIntV& B) {
   int i, j;

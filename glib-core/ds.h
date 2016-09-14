@@ -778,7 +778,7 @@ void TVec<TVal, TSizeTy>::Resize(const TSizeTy& _MxVals){
       NewValT=new TVal[MxVals];
     }
     catch (std::exception Ex){
-      FailR(TStr::Fmt("TVec::Resize: %s, Length:%s, Capacity:%s, New capacity:%s, Type:%s [Program failed to allocate more memory. Solution: Get a bigger machine and a 64-bit compiler.]",
+      FailR(TStr::Fmt("TVec::Resize: %s, Length:%s, Capacity:%s, New capacity:%s, Type:%s [Program failed to allocate more memory. Solution-1: Get a bigger machine and a 64-bit compiler.]",
         Ex.what(), TInt::GetStr(Vals).CStr(), TInt::GetStr(MxVals).CStr(), TInt::GetStr(_MxVals).CStr(), GetTypeNm(*this).CStr()).CStr());}
     IAssert(NewValT!=NULL);
     for (TSizeTy ValN=0; ValN<Vals; ValN++){NewValT[ValN]=ValT[ValN];}

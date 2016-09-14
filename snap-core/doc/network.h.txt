@@ -16,6 +16,12 @@ If NId is -1, node ID is automatically assigned.
 Aborts, if a node with ID NId already exists.
 ///
 
+/// TNodeNet::AddNodeUnchecked (int NId = -1)
+Returns -1, if the node NId already exists.
+Otherwise, it returns the ID of the node being added.
+If NId is -1, node ID is automatically assigned.
+///
+
 /// TNodeNet::AddNode-1 (int NId, const TNodeData& NodeDat)
 Returns the ID of the node being added.
 If NId is -1, node ID is automatically assigned.
@@ -68,6 +74,12 @@ Range of NodeN: 0 <= NodeN < GetNbrDeg().
 Returns the ID of the node being added.
 If NId is -1, node ID is automatically assigned.
 Aborts, if a node with ID NId already exists.
+///
+
+/// TNodeEDatNet::AddNodeUnchecked (int NId = -1)
+Returns -1, if the node NId already exists.
+Otherwise, it returns the ID of the node being added.
+If NId is -1, node ID is automatically assigned.
 ///
 
 /// TNodeEDatNet::AddNode-1 (int NId, const TNodeData& NodeDat)
@@ -134,6 +146,12 @@ Range of NodeN: 0 <= NodeN < GetNbrDeg().
 Returns the ID of the node being added.
 If NId is -1, node ID is automatically assigned.
 Aborts, if a node with ID NId already exists.
+///
+
+/// TNodeEdgeNet::AddNodeUnchecked (int NId = -1)
+Returns -1, if the node NId already exists.
+Otherwise, it returns the ID of the node being added.
+If NId is -1, node ID is automatically assigned.
 ///
 
 /// TNodeEdgeNet::AddNode-1 (int NId, const TNodeData& NodeDat)
@@ -216,6 +234,12 @@ Returns the ID of the node being added.
 If NId is -1, node ID is automatically assigned.
 Aborts, if a node with ID NId already exists.
 /// 
+
+/// TNEANet::AddNodeUnchecked (int NId = -1)
+Returns -1, if the node NId already exists.
+Otherwise, it returns the ID of the node being added.
+If NId is -1, node ID is automatically assigned.
+///
 
 /// TNEANet::DelNode
 If the node of ID NId does not exist the function aborts.
@@ -322,6 +346,12 @@ If NId is -1, node ID is automatically assigned.
 Aborts, if a node with ID NId already exists.
 ///
 
+/// TUndirNet::AddNodeUnchecked (int NId = -1)
+Returns -1, if the node NId already exists.
+Otherwise, it returns the ID of the node being added.
+If NId is -1, node ID is automatically assigned.
+///
+
 /// TUndirNet::AddNode-1 (const int& NId, const TIntV& NbrNIdV)
 Returns the ID of the node being added.
 If NId is -1, node ID is automatically assigned.
@@ -354,6 +384,15 @@ return -1.
 Normally the function should return an ID of the edge added but since edges in
 TUndirNet have no IDs we return -1.
 The function aborts if SrcNId or DstNId are not nodes in the graph.
+///
+
+/// TUndirNet::AddEdgeUnchecked
+Returns -1.
+The method assumes that SrcNId and DstNId are existing nodes in the graph and
+adds new neighbor values at the end of their adjacency vectors.
+No checks are performed to verify these assumptions.
+Adjacency vectors must be sorted and have duplicates removed after a sequence
+of these operations to assure consistency of data structures.
 ///
 
 /// TUndirNet::DelEdge
@@ -425,6 +464,12 @@ If NId is -1, node ID is automatically assigned.
 Aborts, if a node with ID NId already exists.
 ///
 
+/// TDirNet::AddNodeUnchecked (int NId = -1)
+Returns -1, if the node NId already exists.
+Otherwise, it returns the ID of the node being added.
+If NId is -1, node ID is automatically assigned.
+///
+
 /// TDirNet::AddNode-1 (const int& NId, const TIntV& InNIdV, const TIntV&
 //OutNIdV)
 Returns the ID of the node being added.
@@ -458,6 +503,15 @@ return -1.
 Normally the function should return an ID of the edge added but since edges in
 TDirNet have no IDs we return -1.
 Function aborts if SrcNId or DstNId are not nodes in the graph.
+///
+
+/// TDirNet::AddEdgeUnchecked
+Returns -1.
+The method assumes that SrcNId and DstNId are existing nodes in the graph and
+adds new neighbor values at the end of their adjacency vectors.
+No checks are performed to verify these assumptions.
+Adjacency vectors must be sorted and have duplicates removed after a sequence
+of these operations to assure consistency of data structures.
 ///
 
 /// TDirNet::DelEdge

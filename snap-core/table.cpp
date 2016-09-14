@@ -3549,8 +3549,10 @@ void TTable::FillBucketsByWindow(TStr SplitAttr, TInt JumpSize, TInt WindowSize,
   }
 
   // initialize buckets
-  if (JumpSize == 0) { NumBuckets = (EndVal - StartVal)/JumpSize + 1; }
-  else { NumBuckets = (EndVal - StartVal)/JumpSize + 1; }
+  NumBuckets = 1;
+  if (JumpSize > 0) {
+    NumBuckets = (EndVal - StartVal)/JumpSize + 1;
+  }
 
   InitRowIdBuckets(NumBuckets);
 
@@ -3912,7 +3914,7 @@ void TTable::PrintSize(){
 	printf("Number of Flt columns: %d\n", FltCols.Len());
 	printf("Number of Str columns: %d\n", StrColMaps.Len());
 	TSize MemUsed = GetMemUsedKB();
-	printf("Approximated size is %lu KB\n", MemUsed);
+	printf("Approximate table size is %s KB\n", TUInt64::GetStr(MemUsed).CStr());
 }
 
 TSize TTable::GetMemUsedKB() {
@@ -3940,7 +3942,8 @@ void TTable::PrintContextSize(){
 	printf("Number of entries in hash table: ");
 	printf("%d\n", Context->StringVals.Reserved());
 	TSize MemUsed = GetContextMemUsedKB();
-	printf("Approximate memory used for Context: %lu KB\n", MemUsed);
+	printf("Approximate context size is %s KB\n",
+          TUInt64::GetStr(MemUsed).CStr());
 }
 
 TSize TTable::GetContextMemUsedKB(){
