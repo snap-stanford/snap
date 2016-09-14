@@ -110,6 +110,7 @@ typedef TPair<TStrV, TInt> TStrVIntPr;
 typedef TPair<TInt, TIntPr> TIntIntPrPr;
 typedef TPair<TInt, TStrPr> TIntStrPrPr;
 typedef TPair<TFlt, TStrPr> TFltStrPrPr;
+typedef TPair<TIntV, TFltV> TIntVFltVPr;
 
 /// Compares the pair by the second value.
 template <class TVal1, class TVal2>

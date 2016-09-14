@@ -1,6 +1,6 @@
 #include "stdafx.h"
 
-#include "randomwalk.h"
+#include "biasedrandomwalk.h"
 #include "word2vec.h"
 #include "n2v.h"
 

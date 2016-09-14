@@ -3,9 +3,7 @@
 #include "word2vec.h"
 
 //Code from https://github.com/nicholas-leonard/word2vec/blob/master/word2vec.c
-//Rewritten for Snap and node2vec
-//Lots of improvements on word2vec have been done since above code was released.
-//Take a look at tensorflow if you need better word2vec performance.
+//Customized for SNAP and node2vec
 
 void LearnVocab(TVVec<TInt, int64>& WalksVV, TIntV& Vocab) {
   for( int64 i = 0; i < Vocab.Len(); i++) { Vocab[i] = 0; }
@@ -60,6 +58,7 @@ int64 RndUnigramInt(TIntV& KTable, TFltV& UTable, TRnd& Rnd) {
   double Y = Rnd.GetUniDev();
   return Y < UTable[X] ? X : KTable[X];
 }
+
 //Initialize negative embeddings
 void InitNegEmb(TIntV& Vocab, int& Dimensions, TVVec<TFlt, int64>& SynNeg) {
   SynNeg = TVVec<TFlt, int64>(Vocab.Len(),Dimensions);
@@ -69,6 +68,7 @@ void InitNegEmb(TIntV& Vocab, int& Dimensions, TVVec<TFlt, int64>& SynNeg) {
     }
   }
 }
+
 //Initialize positive embeddings
 void InitPosEmb(TIntV& Vocab, int& Dimensions, TRnd& Rnd, TVVec<TFlt, int64>& SynPos) {
   SynPos = TVVec<TFlt, int64>(Vocab.Len(),Dimensions);
@@ -90,7 +90,7 @@ void TrainModel(TVVec<TInt, int64>& WalksVV, int& Dimensions, int& WinSize, int&
   for (int64 WordI=0; WordI<WalkV.Len(); WordI++) {
     if ( WordCntAll%10000 == 0 ) {
       if ( Verbose ) {
-        printf("%cLearning Progress: %.2lf%% ",13,(double)WordCntAll*100/(double)(Iter*AllWords));
+        printf("\rLearning Progress: %.2lf%% ",(double)WordCntAll*100/(double)(Iter*AllWords));
         fflush(stdout);
       }
       Alpha = StartAlpha * (1 - WordCntAll / static_cast<double>(Iter * AllWords + 1));
@@ -124,7 +124,7 @@ void TrainModel(TVVec<TInt, int64>& WalksVV, int& Dimensions, int& WinSize, int&
         for (int i = 0; i < Dimensions; i++) {
           Product += SynPos(CurrWord,i) * SynNeg(Target,i);
         }
-        double Grad;//Gradient multiplied by learning rate
+        double Grad;                     //Gradient multiplied by learning rate
         if (Product > MaxExp) { Grad = (Label - 1) * Alpha; }
         else if (Product < -MaxExp) { Grad = Label * Alpha; }
         else { 
@@ -173,7 +173,7 @@ void LearnEmbeddings(TVVec<TInt, int64>& WalksVV, int& Dimensions, int& WinSize,
   InitNegEmb(Vocab, Dimensions, SynNeg);
   InitUnigramTable(Vocab, KTable, UTable);
   TFltV ExpTable(TableSize);
-  double Alpha = StartAlpha;//learning rate
+  double Alpha = StartAlpha;                              //learning rate
 #pragma omp parallel for schedule(dynamic)
   for (int i = 0; i < TableSize; i++ ) {
     double Value = -MaxExp + static_cast<double>(i) / static_cast<double>(ExpTablePrecision);

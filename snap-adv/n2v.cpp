@@ -1,14 +1,14 @@
 #include "stdafx.h"
 #include "Snap.h"
 #include "word2vec.h"
-#include "randomwalk.h"
+#include "biasedrandomwalk.h"
 #include "n2v.h"
 
 void node2vec(PWNet& InNet, double& ParamP, double& ParamQ, int& Dimensions,
  int& WalkLen, int& NumWalks, int& WinSize, int& Iter, bool& Verbose,
  TIntFltVH& EmbeddingsHV) {
   //Preprocess transition probabilities
-  PreprocessTransitionProbs(InNet, ParamP, ParamQ, Verbose);
+  PreprocessTransitionProbs(InNet, Verbose);
   TIntV NIdsV;
   for (TWNet::TNodeI NI = InNet->BegNI(); NI < InNet->EndNI(); NI++) {
     NIdsV.Add(NI.GetId());
@@ -23,10 +23,10 @@ void node2vec(PWNet& InNet, double& ParamP, double& ParamQ, int& Dimensions,
 #pragma omp parallel for schedule(dynamic)
     for (int64 j = 0; j < NIdsV.Len(); j++){
       if ( Verbose && WalksDone%10000 == 0 ) {
-        printf("%cWalking Progress: %.2lf%%",13,(double)WalksDone*100/(double)AllWalks);fflush(stdout);
+        printf("\rWalking Progress: %.2lf%%",(double)WalksDone*100/(double)AllWalks);fflush(stdout);
       }
       TIntV WalkV;
-      SimulateWalk(InNet, NIdsV[j], WalkLen, Rnd, WalkV);
+      SimulateWalk(InNet, NIdsV[j], WalkLen, ParamP, ParamQ, Rnd, WalkV);
       for (int64 k = 0; k < WalkV.Len(); k++) { 
         WalksVV.PutXY(i*NIdsV.Len()+j, k, WalkV[k]);
       }
