@@ -3914,7 +3914,7 @@ void TTable::PrintSize(){
 	printf("Number of Flt columns: %d\n", FltCols.Len());
 	printf("Number of Str columns: %d\n", StrColMaps.Len());
 	TSize MemUsed = GetMemUsedKB();
-	printf("Approximated size is %lu KB\n", MemUsed);
+	printf("Approximate table size is %s KB\n", TUInt64::GetStr(MemUsed).CStr());
 }
 
 TSize TTable::GetMemUsedKB() {
@@ -3942,7 +3942,8 @@ void TTable::PrintContextSize(){
 	printf("Number of entries in hash table: ");
 	printf("%d\n", Context->StringVals.Reserved());
 	TSize MemUsed = GetContextMemUsedKB();
-	printf("Approximate memory used for Context: %lu KB\n", MemUsed);
+	printf("Approximate context size is %s KB\n",
+          TUInt64::GetStr(MemUsed).CStr());
 }
 
 TSize TTable::GetContextMemUsedKB(){
