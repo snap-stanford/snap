@@ -11,4 +11,13 @@
 void node2vec(PWNet& InNet, double& ParamP, double& ParamQ, int& Dimensions,
  int& WalkLen, int& NumWalks, int& WinSize, int& Iter, bool& Verbose,
  TIntFltVH& EmbeddingsHV); 
+
+void node2vec(PNGraph& InNet, double& ParamP, double& ParamQ, int& Dimensions,
+ int& WalkLen, int& NumWalks, int& WinSize, int& Iter, bool& Verbose,
+ TIntFltVH& EmbeddingsHV); 
+
+template <class TNodeData>
+void node2vec(TPt<TNodeEDatNet<TNodeData, TFlt> >& InNet, double& ParamP, double& ParamQ,
+ int& Dimensions, int& WalkLen, int& NumWalks, int& WinSize, int& Iter, bool& Verbose,
+ TIntFltVH& EmbeddingsHV) {
 #endif //N2V_H

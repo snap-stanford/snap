@@ -37,3 +37,26 @@ void node2vec(PWNet& InNet, double& ParamP, double& ParamQ, int& Dimensions,
   //Learning embeddings
   LearnEmbeddings(WalksVV, Dimensions, WinSize, Iter, Verbose, EmbeddingsHV);
 }
+
+void node2vec(PNGraph& InNet, double& ParamP, double& ParamQ, int& Dimensions,
+ int& WalkLen, int& NumWalks, int& WinSize, int& Iter, bool& Verbose,
+ TIntFltVH& EmbeddingsHV) {
+  PWNet NewNet = PWNet::New();
+  for (TNGraph::TEdgeI EI = InNet->BegEI(); EI < InNet->EndEI(); EI++) {
+    NewNet->AddEdge(EI.GetSrcNId(), EI.GetDstNId(), 1.0);
+  }
+  node2vec(NewNet, ParamP, ParamQ, Dimensions, WalkLen, NumWalks, WinSize, Iter, 
+   Verbose, EmbeddingsHV);
+}
+
+template <class TNodeData>
+void node2vec(TPt<TNodeEDatNet<TNodeData, TFlt> >& InNet, double& ParamP, double& ParamQ,
+ int& Dimensions, int& WalkLen, int& NumWalks, int& WinSize, int& Iter, bool& Verbose,
+ TIntFltVH& EmbeddingsHV) {
+  PWNet NewNet = PWNet::New();
+  for (TNodeEDatNet<TNodeData, TFlt>::TEdgeI EI = InNet->BegEI(); EI < InNet->EndEI(); EI++) {
+    NewNet->AddEdge(EI.GetSrcNId(), EI.GetDstNId(), EI.GetDat());
+  }
+  node2vec(NewNet, ParamP, ParamQ, Dimensions, WalkLen, NumWalks, WinSize, Iter, 
+   Verbose, EmbeddingsHV);
+}
