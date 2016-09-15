@@ -1,7 +1,4 @@
 #include "stdafx.h"
-#include "Snap.h"
-#include "word2vec.h"
-#include "biasedrandomwalk.h"
 #include "n2v.h"
 
 void node2vec(PWNet& InNet, double& ParamP, double& ParamQ, int& Dimensions,

@@ -1,7 +1,5 @@
 #include "stdafx.h"
 
-#include "biasedrandomwalk.h"
-#include "word2vec.h"
 #include "n2v.h"
 
 #ifdef USE_OPENMP
