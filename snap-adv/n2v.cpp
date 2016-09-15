@@ -18,7 +18,7 @@ void node2vec(PWNet& InNet, double& ParamP, double& ParamQ, int& Dimensions,
   for (int64 i = 0; i < NumWalks; i++) {
     NIdsV.Shuffle(Rnd);
 #pragma omp parallel for schedule(dynamic)
-    for (int64 j = 0; j < NIdsV.Len(); j++){
+    for (int64 j = 0; j < NIdsV.Len(); j++) {
       if ( Verbose && WalksDone%10000 == 0 ) {
         printf("\rWalking Progress: %.2lf%%",(double)WalksDone*100/(double)AllWalks);fflush(stdout);
       }
@@ -49,13 +49,12 @@ void node2vec(PNGraph& InNet, double& ParamP, double& ParamQ, int& Dimensions,
    Verbose, EmbeddingsHV);
 }
 
-template <class TNodeData>
-void node2vec(TPt<TNodeEDatNet<TNodeData, TFlt> >& InNet, double& ParamP, double& ParamQ,
+void node2vec(PNEANet& InNet, double& ParamP, double& ParamQ,
  int& Dimensions, int& WalkLen, int& NumWalks, int& WinSize, int& Iter, bool& Verbose,
  TIntFltVH& EmbeddingsHV) {
   PWNet NewNet = PWNet::New();
-  for (TNodeEDatNet<TNodeData, TFlt>::TEdgeI EI = InNet->BegEI(); EI < InNet->EndEI(); EI++) {
-    NewNet->AddEdge(EI.GetSrcNId(), EI.GetDstNId(), EI.GetDat());
+  for (TNEANet::TEdgeI EI = InNet->BegEI(); EI < InNet->EndEI(); EI++) {
+    NewNet->AddEdge(EI.GetSrcNId(), EI.GetDstNId(), InNet->GetFltAttrDatE(EI,"weight"));
   }
   node2vec(NewNet, ParamP, ParamQ, Dimensions, WalkLen, NumWalks, WinSize, Iter, 
    Verbose, EmbeddingsHV);
