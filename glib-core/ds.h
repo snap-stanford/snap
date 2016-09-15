@@ -110,6 +110,7 @@ typedef TPair<TStrV, TInt> TStrVIntPr;
 typedef TPair<TInt, TIntPr> TIntIntPrPr;
 typedef TPair<TInt, TStrPr> TIntStrPrPr;
 typedef TPair<TFlt, TStrPr> TFltStrPrPr;
+typedef TPair<TVec<TInt, int>, TVec<TFlt, int> > TIntVFltVPr;
 
 /// Compares the pair by the second value.
 template <class TVal1, class TVal2>
@@ -2045,92 +2046,92 @@ typedef TPt<TStrVP> PStrV;
 
 /////////////////////////////////////////////////
 // 2D-Vector
-template <class TVal>
+template <class TVal, class TSizeTy = int>
 class TVVec{
 private:
-  TInt XDim, YDim;
-  TVec<TVal> ValV;
+  TInt64 XDim, YDim;
+  TVec<TVal, TSizeTy> ValV;
 public:
   TVVec(): XDim(), YDim(), ValV(){}
   TVVec(const TVVec& Vec):
     XDim(Vec.XDim), YDim(Vec.YDim), ValV(Vec.ValV){}
-  TVVec(const int& _XDim, const int& _YDim):
+  TVVec(const TSizeTy& _XDim, const TSizeTy& _YDim):
     XDim(), YDim(), ValV(){Gen(_XDim, _YDim);}
-  explicit TVVec(const TVec<TVal>& _ValV, const int& _XDim, const int& _YDim):
+  explicit TVVec(const TVec<TVal,TSizeTy>& _ValV, const TSizeTy& _XDim, const TSizeTy& _YDim):
     XDim(_XDim), YDim(_YDim), ValV(_ValV){ IAssert(ValV.Len()==XDim*YDim); }
   explicit TVVec(TSIn& SIn) {Load(SIn);}
   void Load(TSIn& SIn){XDim.Load(SIn); YDim.Load(SIn); ValV.Load(SIn);}
   void Save(TSOut& SOut) const {
     XDim.Save(SOut); YDim.Save(SOut); ValV.Save(SOut);}
 
-  TVVec<TVal>& operator=(const TVVec<TVal>& Vec){
+  TVVec<TVal, TSizeTy>& operator=(const TVVec<TVal, TSizeTy>& Vec){
     if (this!=&Vec){XDim=Vec.XDim; YDim=Vec.YDim; ValV=Vec.ValV;} return *this;}
   bool operator==(const TVVec& Vec) const {
     return (XDim==Vec.XDim)&&(YDim==Vec.YDim)&&(ValV==Vec.ValV);}
 
   bool Empty() const {return ValV.Len()==0;}
   void Clr(){XDim=0; YDim=0; ValV.Clr();}
-  void Gen(const int& _XDim, const int& _YDim){
+  void Gen(const TSizeTy& _XDim, const TSizeTy& _YDim){
     Assert((_XDim>=0)&&(_YDim>=0));
     XDim=_XDim; YDim=_YDim; ValV.Gen(XDim*YDim);}
-  int GetXDim() const {return XDim;}
-  int GetYDim() const {return YDim;}
-  int GetRows() const {return XDim;}
-  int GetCols() const {return YDim;}
-  TVec<TVal>& Get1DVec(){return ValV;}
+  TSizeTy GetXDim() const {return XDim;}
+  TSizeTy GetYDim() const {return YDim;}
+  TSizeTy GetRows() const {return XDim;}
+  TSizeTy GetCols() const {return YDim;}
+  TVec<TVal, TSizeTy>& Get1DVec(){return ValV;}
 
-  const TVal& At(const int& X, const int& Y) const {
-    Assert((0<=X)&&(X<int(XDim))&&(0<=Y)&&(Y<int(YDim)));
+  const TVal& At(const TSizeTy& X, const TSizeTy& Y) const {
+    Assert((0<=X)&&(X<TSizeTy(XDim))&&(0<=Y)&&(Y<TSizeTy(YDim)));
     return ValV[X*YDim+Y];}
-  TVal& At(const int& X, const int& Y){
-    Assert((0<=X)&&(X<int(XDim))&&(0<=Y)&&(Y<int(YDim)));
+  TVal& At(const TSizeTy& X, const TSizeTy& Y){
+    Assert((0<=X)&&(X<TSizeTy(XDim))&&(0<=Y)&&(Y<TSizeTy(YDim)));
     return ValV[X*YDim+Y];}
-  TVal& operator()(const int& X, const int& Y){
+  TVal& operator()(const TSizeTy& X, const TSizeTy& Y){
     return At(X, Y);}
-  const TVal& operator()(const int& X, const int& Y) const {
+  const TVal& operator()(const TSizeTy& X, const TSizeTy& Y) const {
     return At(X, Y);}
 
-  void PutXY(const int& X, const int& Y, const TVal& Val){At(X, Y)=Val;}
+  void PutXY(const TSizeTy& X, const TSizeTy& Y, const TVal& Val){At(X, Y)=Val;}
   void PutAll(const TVal& Val){ValV.PutAll(Val);}
-  void PutX(const int& X, const TVal& Val){
-    for (int Y=0; Y<int(YDim); Y++){At(X, Y)=Val;}}
-  void PutY(const int& Y, const TVal& Val){
-    for (int X=0; X<int(XDim); X++){At(X, Y)=Val;}}
-  TVal GetXY(const int& X, const int& Y) const {
-    Assert((0<=X)&&(X<int(XDim))&&(0<=Y)&&(Y<int(YDim)));
+  void PutX(const TSizeTy& X, const TVal& Val){
+    for (TSizeTy Y=0; Y<TSizeTy(YDim); Y++){At(X, Y)=Val;}}
+  void PutY(const TSizeTy& Y, const TVal& Val){
+    for (TSizeTy X=0; X<TSizeTy(XDim); X++){At(X, Y)=Val;}}
+  TVal GetXY(const TSizeTy& X, const TSizeTy& Y) const {
+    Assert((0<=X)&&(X<TSizeTy(XDim))&&(0<=Y)&&(Y<TSizeTy(YDim)));
     return ValV[X*YDim+Y];}
-  void GetRow(const int& RowN, TVec<TVal>& Vec) const;
-  void GetCol(const int& ColN, TVec<TVal>& Vec) const;
+  void GetRow(const TSizeTy& RowN, TVec<TVal, TSizeTy>& Vec) const;
+  void GetCol(const TSizeTy& ColN, TVec<TVal, TSizeTy>& Vec) const;
 
-  void SwapX(const int& X1, const int& X2);
-  void SwapY(const int& Y1, const int& Y2);
-  void Swap(TVVec<TVal>& Vec);
+  void SwapX(const TSizeTy& X1, const TSizeTy& X2);
+  void SwapY(const TSizeTy& Y1, const TSizeTy& Y2);
+  void Swap(TVVec<TVal, TSizeTy>& Vec);
 
   void ShuffleX(TRnd& Rnd);
   void ShuffleY(TRnd& Rnd);
-  void GetMxValXY(int& X, int& Y) const;
+  void GetMxValXY(TSizeTy& X, TSizeTy& Y) const;
 
-  void CopyFrom(const TVVec<TVal>& VVec);
+  void CopyFrom(const TVVec<TVal, TSizeTy>& VVec);
   void AddXDim();
   void AddYDim();
-  void DelX(const int& X);
-  void DelY(const int& Y);
+  void DelX(const TSizeTy& X);
+  void DelY(const TSizeTy& Y);
 };
 
-template <class TVal>
-void TVVec<TVal>::SwapX(const int& X1, const int& X2){
-  for (int Y=0; Y<int(YDim); Y++){
+template <class TVal, class TSizeTy>
+void TVVec<TVal, TSizeTy>::SwapX(const TSizeTy& X1, const TSizeTy& X2){
+  for (TSizeTy Y=0; Y<TSizeTy(YDim); Y++){
     TVal Val=At(X1, Y); At(X1, Y)=At(X2, Y); At(X2, Y)=Val;}
 }
 
-template <class TVal>
-void TVVec<TVal>::SwapY(const int& Y1, const int& Y2){
-  for (int X=0; X<int(XDim); X++){
+template <class TVal, class TSizeTy>
+void TVVec<TVal, TSizeTy>::SwapY(const TSizeTy& Y1, const TSizeTy& Y2){
+  for (TSizeTy X=0; X<TSizeTy(XDim); X++){
     TVal Val=At(X, Y1); At(X, Y1)=At(X, Y2); At(X, Y2)=Val;}
 }
 
-template <class TVal>
-void TVVec<TVal>::Swap(TVVec<TVal>& Vec){  //J:
+template <class TVal, class TSizeTy>
+void TVVec<TVal, TSizeTy>::Swap(TVVec<TVal, TSizeTy>& Vec){  //J:
   if (this!=&Vec){
     ::Swap(XDim, Vec.XDim);
     ::Swap(YDim, Vec.YDim);
@@ -2138,84 +2139,84 @@ void TVVec<TVal>::Swap(TVVec<TVal>& Vec){  //J:
   }
 }
 
-template <class TVal>
-void TVVec<TVal>::ShuffleX(TRnd& Rnd){
-  for (int X=0; X<XDim-1; X++){SwapX(X, X+Rnd.GetUniDevInt(XDim-X));}
+template <class TVal, class TSizeTy>
+void TVVec<TVal, TSizeTy>::ShuffleX(TRnd& Rnd){
+  for (TSizeTy X=0; X<XDim-1; X++){SwapX(X, X+Rnd.GetUniDevInt(XDim-X));}
 }
 
-template <class TVal>
-void TVVec<TVal>::ShuffleY(TRnd& Rnd){
-  for (int Y=0; Y<YDim-1; Y++){SwapY(Y, Y+Rnd.GetUniDevInt(YDim-Y));}
+template <class TVal, class TSizeTy>
+void TVVec<TVal, TSizeTy>::ShuffleY(TRnd& Rnd){
+  for (TSizeTy Y=0; Y<YDim-1; Y++){SwapY(Y, Y+Rnd.GetUniDevInt(YDim-Y));}
 }
 
-template <class TVal>
-void TVVec<TVal>::GetMxValXY(int& X, int& Y) const {
-  int MxValN=ValV.GetMxValN();
+template <class TVal, class TSizeTy>
+void TVVec<TVal, TSizeTy>::GetMxValXY(TSizeTy& X, TSizeTy& Y) const {
+  TSizeTy MxValN=ValV.GetMxValN();
   Y=MxValN%YDim;
   X=MxValN/YDim;
 }
 
-template <class TVal>
-void TVVec<TVal>::CopyFrom(const TVVec<TVal>& VVec){
-  int CopyXDim=TInt::GetMn(GetXDim(), VVec.GetXDim());
-  int CopyYDim=TInt::GetMn(GetYDim(), VVec.GetYDim());
-  for (int X=0; X<CopyXDim; X++){
-    for (int Y=0; Y<CopyYDim; Y++){
+template <class TVal, class TSizeTy>
+void TVVec<TVal, TSizeTy>::CopyFrom(const TVVec<TVal, TSizeTy>& VVec){
+  TSizeTy CopyXDim=TSizeTy::GetMn(GetXDim(), VVec.GetXDim());
+  TSizeTy CopyYDim=TSizeTy::GetMn(GetYDim(), VVec.GetYDim());
+  for (TSizeTy X=0; X<CopyXDim; X++){
+    for (TSizeTy Y=0; Y<CopyYDim; Y++){
       At(X, Y)=VVec.At(X, Y);
     }
   }
 }
 
-template <class TVal>
-void TVVec<TVal>::AddXDim(){
-  TVVec<TVal> NewVVec(XDim+1, YDim);
+template <class TVal, class TSizeTy>
+void TVVec<TVal, TSizeTy>::AddXDim(){
+  TVVec<TVal, TSizeTy> NewVVec(XDim+1, YDim);
   NewVVec.CopyFrom(*this);
   *this=NewVVec;
 }
 
-template <class TVal>
-void TVVec<TVal>::AddYDim(){
-  TVVec<TVal> NewVVec(XDim, YDim+1);
+template <class TVal, class TSizeTy>
+void TVVec<TVal, TSizeTy>::AddYDim(){
+  TVVec<TVal, TSizeTy> NewVVec(XDim, YDim+1);
   NewVVec.CopyFrom(*this);
   *this=NewVVec;
 }
 
-template <class TVal>
-void TVVec<TVal>::DelX(const int& X){
-  TVVec<TVal> NewVVec(XDim-1, YDim);
-  for (int Y=0; Y<YDim; Y++){
-    for (int LX=0; LX<X; LX++){
+template <class TVal, class TSizeTy>
+void TVVec<TVal, TSizeTy>::DelX(const TSizeTy& X){
+  TVVec<TVal, TSizeTy> NewVVec(XDim-1, YDim);
+  for (TSizeTy Y=0; Y<YDim; Y++){
+    for (TSizeTy LX=0; LX<X; LX++){
       NewVVec.At(LX, Y)=At(LX, Y);}
-    for (int RX=X+1; RX<XDim; RX++){
+    for (TSizeTy RX=X+1; RX<XDim; RX++){
       NewVVec.At(RX-1, Y)=At(RX, Y);}
   }
   *this=NewVVec;
 }
 
-template <class TVal>
-void TVVec<TVal>::DelY(const int& Y){
-  TVVec<TVal> NewVVec(XDim, YDim-1);
-  for (int X=0; X<XDim; X++){
-    for (int LY=0; LY<Y; LY++){
+template <class TVal, class TSizeTy>
+void TVVec<TVal, TSizeTy>::DelY(const TSizeTy& Y){
+  TVVec<TVal, TSizeTy> NewVVec(XDim, YDim-1);
+  for (TSizeTy X=0; X<XDim; X++){
+    for (TSizeTy LY=0; LY<Y; LY++){
       NewVVec.At(X, LY)=At(X, LY);}
-    for (int RY=Y+1; RY<YDim; RY++){
+    for (TSizeTy RY=Y+1; RY<YDim; RY++){
       NewVVec.At(X, RY-1)=At(X, RY);}
   }
   *this=NewVVec;
 }
 
-template <class TVal>
-void TVVec<TVal>::GetRow(const int& RowN, TVec<TVal>& Vec) const {
+template <class TVal, class TSizeTy >
+void TVVec<TVal, TSizeTy>::GetRow(const TSizeTy& RowN, TVec<TVal, TSizeTy>& Vec) const {
   Vec.Gen(GetCols(), 0);
-  for (int col = 0; col < GetCols(); col++) {
+  for (TSizeTy col = 0; col < GetCols(); col++) {
     Vec.Add(At(RowN, col));
   }
 }
 
-template <class TVal>
-void TVVec<TVal>::GetCol(const int& ColN, TVec<TVal>& Vec) const {
+template <class TVal, class TSizeTy>
+void TVVec<TVal, TSizeTy>::GetCol(const TSizeTy& ColN, TVec<TVal, TSizeTy>& Vec) const {
   Vec.Gen(GetRows(), 0);
-  for (int row = 0; row < GetRows(); row++) {
+  for (TSizeTy row = 0; row < GetRows(); row++) {
     Vec.Add(At(row, ColN));
   }
 }
@@ -2232,23 +2233,23 @@ typedef TVVec<TIntPr> TIntPrVV;
 
 /////////////////////////////////////////////////
 // 3D-Vector
-template <class TVal>
+template <class TVal, class TSizeTy = int>
 class TVVVec{
 private:
-  TInt XDim, YDim, ZDim;
-  TVec<TVal> ValV;
+  TInt64 XDim, YDim, ZDim;
+  TVec<TVal, TSizeTy> ValV;
 public:
   TVVVec(): XDim(), YDim(), ZDim(), ValV(){}
   TVVVec(const TVVVec& Vec):
     XDim(Vec.XDim), YDim(Vec.YDim), ZDim(Vec.ZDim), ValV(Vec.ValV){}
-  TVVVec(const int& _XDim, const int& _YDim, const int& _ZDim):
+  TVVVec(const TSizeTy& _XDim, const TSizeTy& _YDim, const TSizeTy& _ZDim):
     XDim(), YDim(), ZDim(), ValV(){Gen(_XDim, _YDim, _ZDim);}
   explicit TVVVec(TSIn& SIn):
     XDim(SIn), YDim(SIn), ZDim(SIn), ValV(SIn){}
   void Save(TSOut& SOut) const {
     XDim.Save(SOut); YDim.Save(SOut); ZDim.Save(SOut); ValV.Save(SOut);}
 
-  TVVVec<TVal>& operator=(const TVVVec<TVal>& Vec){
+  TVVVec<TVal, TSizeTy>& operator=(const TVVVec<TVal, TSizeTy>& Vec){
     XDim=Vec.XDim; YDim=Vec.YDim; ZDim=Vec.ZDim; ValV=Vec.ValV;
     return *this;
   }
@@ -2258,22 +2259,22 @@ public:
 
   bool Empty() const {return ValV.Len()==0;}
   void Clr(){XDim=0; YDim=0; ZDim=0; ValV.Clr();}
-  void Gen(const int& _XDim, const int& _YDim, const int& _ZDim){
+  void Gen(const TSizeTy& _XDim, const TSizeTy& _YDim, const TSizeTy& _ZDim){
     Assert((_XDim>=0)&&(_YDim>=0)&&(_ZDim>=0));
     XDim=_XDim; YDim=_YDim; ZDim=_ZDim; ValV.Gen(XDim*YDim*ZDim);}
-  TVal& At(const int& X, const int& Y, const int& Z){
-    Assert((0<=X)&&(X<int(XDim))&&(0<=Y)&&(Y<int(YDim))&&(0<=Z)&&(Z<int(ZDim)));
+  TVal& At(const TSizeTy& X, const TSizeTy& Y, const TSizeTy& Z){
+    Assert((0<=X)&&(X<TSizeTy(XDim))&&(0<=Y)&&(Y<TSizeTy(YDim))&&(0<=Z)&&(Z<TSizeTy(ZDim)));
     return ValV[X*YDim*ZDim+Y*ZDim+Z];}
-  const TVal& At(const int& X, const int& Y, const int& Z) const {
-    Assert((0<=X)&&(X<int(XDim))&&(0<=Y)&&(Y<int(YDim))&&(0<=Z)&&(Z<int(ZDim)));
+  const TVal& At(const TSizeTy& X, const TSizeTy& Y, const TSizeTy& Z) const {
+    Assert((0<=X)&&(X<TSizeTy(XDim))&&(0<=Y)&&(Y<TSizeTy(YDim))&&(0<=Z)&&(Z<TSizeTy(ZDim)));
     return ValV[X*YDim*ZDim+Y*ZDim+Z];}
-  TVal& operator()(const int& X, const int& Y, const int& Z){
+  TVal& operator()(const TSizeTy& X, const TSizeTy& Y, const TSizeTy& Z){
     return At(X, Y, Z);}
-  const TVal& operator()(const int& X, const int& Y, const int& Z) const {
+  const TVal& operator()(const TSizeTy& X, const TSizeTy& Y, const TSizeTy& Z) const {
     return At(X, Y, Z);}
-  int GetXDim() const {return XDim;}
-  int GetYDim() const {return YDim;}
-  int GetZDim() const {return ZDim;}
+  TSizeTy GetXDim() const {return XDim;}
+  TSizeTy GetYDim() const {return YDim;}
+  TSizeTy GetZDim() const {return ZDim;}
 };
 
 /////////////////////////////////////////////////
