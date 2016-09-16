@@ -43,6 +43,8 @@ void node2vec(PNGraph& InNet, double& ParamP, double& ParamQ, int& Dimensions,
  TIntFltVH& EmbeddingsHV) {
   PWNet NewNet = PWNet::New();
   for (TNGraph::TEdgeI EI = InNet->BegEI(); EI < InNet->EndEI(); EI++) {
+    if (!NewNet->IsNode(EI.GetSrcNId())) { NewNet->AddNode(EI.GetSrcNId()); }
+    if (!NewNet->IsNode(EI.GetDstNId())) { NewNet->AddNode(EI.GetDstNId()); }
     NewNet->AddEdge(EI.GetSrcNId(), EI.GetDstNId(), 1.0);
   }
   node2vec(NewNet, ParamP, ParamQ, Dimensions, WalkLen, NumWalks, WinSize, Iter, 
@@ -54,6 +56,8 @@ void node2vec(PNEANet& InNet, double& ParamP, double& ParamQ,
  TIntFltVH& EmbeddingsHV) {
   PWNet NewNet = PWNet::New();
   for (TNEANet::TEdgeI EI = InNet->BegEI(); EI < InNet->EndEI(); EI++) {
+    if (!NewNet->IsNode(EI.GetSrcNId())) { NewNet->AddNode(EI.GetSrcNId()); }
+    if (!NewNet->IsNode(EI.GetDstNId())) { NewNet->AddNode(EI.GetDstNId()); }
     NewNet->AddEdge(EI.GetSrcNId(), EI.GetDstNId(), InNet->GetFltAttrDatE(EI,"weight"));
   }
   node2vec(NewNet, ParamP, ParamQ, Dimensions, WalkLen, NumWalks, WinSize, Iter, 
