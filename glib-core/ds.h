@@ -2158,8 +2158,8 @@ void TVVec<TVal, TSizeTy>::GetMxValXY(TSizeTy& X, TSizeTy& Y) const {
 
 template <class TVal, class TSizeTy>
 void TVVec<TVal, TSizeTy>::CopyFrom(const TVVec<TVal, TSizeTy>& VVec){
-  TSizeTy CopyXDim=TSizeTy::GetMn(GetXDim(), VVec.GetXDim());
-  TSizeTy CopyYDim=TSizeTy::GetMn(GetYDim(), VVec.GetYDim());
+  TSizeTy CopyXDim = (GetXDim() < VVec.GetXDim()) ? GetXDim() : VVec.GetXDim();
+  TSizeTy CopyYDim = (GetYDim() < VVec.GetYDim()) ? GetYDim() : VVec.GetYDim();
   for (TSizeTy X=0; X<CopyXDim; X++){
     for (TSizeTy Y=0; Y<CopyYDim; Y++){
       At(X, Y)=VVec.At(X, Y);
