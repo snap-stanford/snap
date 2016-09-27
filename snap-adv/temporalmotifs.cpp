@@ -1,7 +1,9 @@
 #include "Snap.h"
 #include "temporalmotifs.h"
 
-void TemporalGraph::LoadData(const TStr& filename) {
+const int kNumThreeEventEdgeMotifs = 4;
+
+void TemporalMotifCounter::LoadData(const TStr& filename) {
   // First load the static graph
   static_graph_ = TSnap::LoadEdgeList<PNGraph>(filename, 0, 1);
   max_nodes_ = static_graph_->GetMxNId();
@@ -30,6 +32,74 @@ void TemporalGraph::LoadData(const TStr& filename) {
   }
 }
 
+void TemporalMotifCounter::ThreeEventEdgeMotifCounts(double delta, TIntV& counts) {
+  // Get a vector of undirected edges (so we can use openmp over it)
+  TVec< TKeyDat<TInt, TInt> > undir_edges;
+  for (TNGraph::TEdgeI it = static_graph_->BegEI();
+       it < static_graph_->EndEI(); it++) {
+    int src = it.GetSrcNId();
+    int dst = it.GetDstNId();
+    // Only consider undirected edges
+    if (src < dst || (dst < src && !static_graph_->IsEdge(dst, src))) {
+      undir_edges.Add(TKeyDat<TInt, TInt>(src, dst));
+    }
+  }
+  counts = TIntV(kNumThreeEventEdgeMotifs);
+  counts.PutAll(0);
+  #pragma omp parallel for
+  for (int i = 0; i < undir_edges.Len(); i++) {
+    TKeyDat<TInt, TInt> edge = undir_edges[i];
+    // Get the counts for that particular edge
+    TIntV local_counts;
+    int src = edge.Key;
+    int dst = edge.Dat;
+    ThreeEventEdgeMotifCounts(src, dst, delta, local_counts);
+    if (local_counts.Len() != counts.Len()) {
+      TExcept::Throw("Edge counts are of the incorrect size");
+    }
+    #pragma omp critical
+    {
+      for (int i = 0; i < local_counts.Len(); i++) {
+        counts[i] += local_counts[i];
+      }
+    }
+  }
+}
+
+void TemporalMotifCounter::ThreeEventEdgeMotifCounts(int u, int v, double delta,
+                                                     TIntV& counts) {
+  // Get u --> v and v --> u
+  TIntV& ts_uv = temporal_data_[u](v);
+  TIntV& ts_vu = temporal_data_[v](u);
+
+  // Sort event list by time
+  TVec < TKeyDat<TInt, TInt> > combined(ts_uv.Len() + ts_vu.Len());
+  int ts_uv_size = ts_uv.Len();
+  for (int k = 0; k < ts_uv_size; k++) {
+    combined[k] = TKeyDat<TInt, TInt>(ts_uv[k], 0);
+  }
+  for (int k = 0; k < ts_vu.Len(); k++) {
+    combined[k + ts_uv_size] = TKeyDat<TInt, TInt>(ts_vu[k], 1);
+  }
+  combined.Sort();
+
+  // Get the counts
+  ThreeEventMotifCounter counter(2);
+  TIntV in_out(combined.Len());
+  TIntV timestamps(combined.Len());
+  for (int k = 0; k < combined.Len(); k++) {
+    in_out[k] = combined[k].Dat;
+    timestamps[k] = combined[k].Key;
+  }
+  counter.Count(in_out, timestamps, delta);
+
+  counts = TIntV();
+  counts.Add(counter.FinalCount(0, 0, 0) + counter.FinalCount(1, 1, 1));
+  counts.Add(counter.FinalCount(0, 0, 1) + counter.FinalCount(1, 1, 0));
+  counts.Add(counter.FinalCount(0, 1, 0) + counter.FinalCount(1, 0, 1));
+  counts.Add(counter.FinalCount(0, 1, 1) + counter.FinalCount(1, 1, 0));
+}
+
 ThreeEventMotifCounter::ThreeEventMotifCounter(int size) {
   size_ = size;
   // Initialize everything to empty
@@ -49,8 +119,8 @@ ThreeEventMotifCounter::ThreeEventMotifCounter(int size) {
 }
 
 void ThreeEventMotifCounter::Count(const TIntV& event_string,
-				   const TIntV& timestamps,
-				   double delta) {
+                                   const TIntV& timestamps,
+                                   double delta) {
   if (event_string.Len() != timestamps.Len()) {
     TExcept::Throw("Number of events must equal number of timestamps");
   }
