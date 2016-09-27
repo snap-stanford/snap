@@ -1,8 +1,9 @@
 #include "Snap.h"
 #include "temporalmotifs.h"
 
-// TODO(arbenson): remove this cassert
+// TODO(arbenson): remove these
 #include <cassert>
+#include <iostream>
 
 const int kNumThreeEventEdgeMotifs = 4;
 
@@ -70,8 +71,7 @@ void TemporalMotifCounter::ThreeEventEdgeCounts(double delta, TIntV& counts) {
 }
 
 void TemporalMotifCounter::ThreeEventStarCounts(double delta, TIntV& counts) {
-  int max_nodes = static_graph_->GetMxNId();  
-  ThreeEventStarMotifCounter tesmc(max_nodes);
+  // TODO(arbenson): complete this
 }
 
 void TemporalMotifCounter::ThreeEventEdgeCounts(int u, int v, double delta,
@@ -173,34 +173,6 @@ ThreeEventStarMotifCounter::ThreeEventStarMotifCounter(int num_nodes) {
     pre_nodes_[i].PutAll(0);
     post_nodes_[i].PutAll(0);
   }
-
-  // Initialize sum counters
-  pre_sum_ = TVec< TIntV >(2);
-  post_sum_ = TVec< TIntV >(2);
-  for (int i = 0; i < 2; i++) {
-    pre_sum_[i] = TIntV(2);
-    post_sum_[i] = TIntV(2);
-    pre_sum_[i].PutAll(0);
-    post_sum_[i].PutAll(0);
-  }
-
-  // Initialize final counters
-  pre_counts_ = TVec< TVec< TIntV > >(2);
-  post_counts_ = TVec< TVec< TIntV > >(2);
-  mid_counts_ = TVec< TVec< TIntV > >(2);  
-  for (int i = 0; i < 2; i++) {
-    pre_counts_[i] = TVec< TIntV >(2);
-    post_counts_[i] = TVec< TIntV >(2);
-    mid_counts_[i] = TVec< TIntV >(2);    
-    for (int j = 0; j < 2; j++) {
-      pre_counts_[i][j] = TIntV(2);
-      post_counts_[i][j] = TIntV(2);
-      mid_counts_[i][j] = TIntV(2);
-      pre_counts_[i][j].PutAll(0);
-      post_counts_[i][j].PutAll(0);
-      mid_counts_[i][j].PutAll(0);      
-    }
-  }
 }
 
 void ThreeEventStarMotifCounter::Count(const TIntV& nbr, const TIntV& dir,
@@ -237,7 +209,7 @@ void ThreeEventStarMotifCounter::PopPre(int nbr, int dir) {
   pre_nodes_[dir][nbr] -= 1;
   assert(pre_nodes_[dir][nbr] >= 0);
   for (int i = 0; i < 2; i++) {
-    pre_sum_[i][dir] -= pre_nodes_[dir][nbr];
+    pre_sum_(i, dir) -= pre_nodes_[dir][nbr];
   }
 }
 
@@ -245,43 +217,43 @@ void ThreeEventStarMotifCounter::PopPost(int nbr, int dir) {
   post_nodes_[dir][nbr] -= 1;
   assert(post_nodes_[dir][nbr] >= 0);  
   for (int i = 0; i < 2; i++) {
-    post_sum_[i][dir] -= post_nodes_[dir][nbr];
+    post_sum_(i, dir) -= post_nodes_[dir][nbr];
   }
 }
 
 void ThreeEventStarMotifCounter::PushPre(int nbr, int dir) {
   for (int i = 0; i < 2; i++) {
-    pre_sum_[i][dir] += pre_nodes_[dir][nbr];
+    pre_sum_(i, dir) += pre_nodes_[dir][nbr];
   }
   pre_nodes_[dir][nbr] += 1;
 }
 
 void ThreeEventStarMotifCounter::PushPost(int nbr, int dir) {
   for (int i = 0; i < 2; i++) {
-    post_sum_[i][dir] += post_nodes_[dir][nbr];
+    post_sum_(i, dir) += post_nodes_[dir][nbr];
   }
   post_nodes_[dir][nbr] += 1;
 }
 
 void ThreeEventStarMotifCounter::DecMiddleSum(int nbr, int dir) {
   for (int i = 0; i < 2; i++) {
-    mid_sum_[i][dir] -= pre_nodes_[dir][nbr];
-    assert(mid_sum_[i][dir] >= 0);
+    mid_sum_(i, dir) -= pre_nodes_[dir][nbr];
+    assert(mid_sum_(i, dir) >= 0);
   }
 }
 
 void ThreeEventStarMotifCounter::IncMiddleSum(int nbr, int dir) {
   for (int i = 0; i < 2; i++) {
-    mid_sum_[i][dir] += post_nodes_[dir][nbr];
+    mid_sum_(i, dir) += post_nodes_[dir][nbr];
   }
 }
 
 void ThreeEventStarMotifCounter::ProcessCurrent(int nbr, int dir) {
   for (int i = 0; i < 2; i++) {
     for (int j = 0; j < 2; j++) {
-      pre_counts_[i][j][dir] += pre_sum_[i][j];
-      post_counts_[dir][i][j] += post_sum_[i][j];
-      mid_counts_[i][dir][j] += mid_sum_[i][j];      
+      pre_counts_(i, j, dir)  += pre_sum_(i, j);
+      post_counts_(dir, i, j) += post_sum_(i, j);
+      mid_counts_(i, dir, j)  += mid_sum_(i, j);      
     }
   }
 }

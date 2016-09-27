@@ -9,7 +9,7 @@ class Counter2D {
   // Base constructor
   Counter2D(int m, int n) : m_(m), n_(n) {
     if (m * n > 0) {
-      TIntV data_ = TIntV(m * n);
+      data_ = TIntV(m * n);
       data_.PutAll(0);
     }
   }
@@ -21,6 +21,7 @@ class Counter2D {
       n_ = that.n();
       if (m_ * n_ > 0) {
 	data_ = TIntV(m_ * n_);
+	data_.PutAll(0);
 	for (int j = 0; j < n_; ++j) {
 	  for (int i = 0; i < m_; ++i) {
 	    data_[i + j * m_] = that(i, j);
@@ -50,7 +51,7 @@ class Counter3D {
   // Base constructor
   Counter3D(int m, int n, int p) : m_(m), n_(n), p_(p) {
     if (m * n * p > 0) {
-      TIntV data_ = TIntV(m * n * p);
+      data_ = TIntV(m * n * p);
       data_.PutAll(0);
     }
   }
@@ -146,13 +147,13 @@ class ThreeEventStarMotifCounter {
   void ProcessCurrent(int nbr, int dir);  
 
 
-  TVec< TIntV > pre_sum_;
-  TVec< TIntV > post_sum_;  
-  TVec< TIntV > mid_sum_;
-  
-  TVec< TVec< TIntV > > pre_counts_;
-  TVec< TVec< TIntV > > post_counts_;
-  TVec< TVec< TIntV > > mid_counts_;
+  Counter2D pre_sum_  = Counter2D(2, 2);
+  Counter2D post_sum_ = Counter2D(2, 2);
+  Counter2D mid_sum_  = Counter2D(2, 2);
+
+  Counter3D pre_counts_  = Counter3D(2, 2, 2);
+  Counter3D post_counts_ = Counter3D(2, 2, 2);
+  Counter3D mid_counts_  = Counter3D(2, 2, 2);
 
   TVec< TIntV > pre_nodes_;
   TVec< TIntV > post_nodes_;  
