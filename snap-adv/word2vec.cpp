@@ -180,8 +180,10 @@ void LearnEmbeddings(TVVec<TInt, int64>& WalksVV, int& Dimensions, int& WinSize,
     ExpTable[i] = TMath::Power(TMath::E, Value);
   }
   int64 WordCntAll = 0;
-#pragma omp parallel for schedule(dynamic) collapse(2)
+// op RS 2016/09/26, collapse does not compile on Mac OS X
+//#pragma omp parallel for schedule(dynamic) collapse(2)
   for (int j = 0; j < Iter; j++) {
+#pragma omp parallel for schedule(dynamic)
     for (int64 i = 0; i < WalksVV.GetXDim(); i++) {
       TrainModel(WalksVV, Dimensions, WinSize, Iter, Verbose, KTable, UTable,
        WordCntAll, ExpTable, Alpha, i, Rnd, SynNeg, SynPos); 
