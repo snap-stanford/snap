@@ -105,7 +105,6 @@ class TemporalMotifCounter {
   void ThreeEventEdgeCounts(double delta, TIntV& counts);
   void ThreeEventEdgeCounts(int u, int v, double delta,
 			    TIntV& counts);
-
   void ThreeEventStarCounts(double delta, TIntV& counts);
 
  private:
@@ -131,12 +130,22 @@ class ThreeEventMotifCounter {
   int size_;  // alphabet size
 };
 
-class ThreeEventStarMotifCounter {
+class ThreeEventStarCounter {
  public:
-  ThreeEventStarMotifCounter(int num_nodes);
+  ThreeEventStarCounter(int num_nodes);
 
   void Count(const TIntV& node, const TIntV& dir,
 	     const TIntV& timestamps, double delta);
+
+  int PreFinalCount(int dir1, int dir2, int dir3) {
+    return pre_counts_(dir1, dir2, dir3);
+  }
+  int PostFinalCount(int dir1, int dir2, int dir3) {
+    return post_counts_(dir1, dir2, dir3);
+  }
+  int MidFinalCount(int dir1, int dir2, int dir3) {
+    return mid_counts_(dir1, dir2, dir3);
+  }  
  private:
   void PopPre(int nbr, int dir);
   void PopPost(int nbr, int dir);
