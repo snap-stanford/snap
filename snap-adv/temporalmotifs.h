@@ -102,10 +102,12 @@ class TemporalMotifCounter {
   TemporalMotifCounter() {}
   void LoadData(const TStr& filename);
 
-  void ThreeEventEdgeCounts(double delta, TIntV& counts);
+  void ThreeEventEdgeCounts(double delta, Counter3D& counts);
   void ThreeEventEdgeCounts(int u, int v, double delta,
-			    TIntV& counts);
-  void ThreeEventStarCounts(double delta, TIntV& counts);
+			    Counter3D& counts);
+  void ThreeEventStarCounts(double delta, Counter3D& pre_counts,
+			    Counter3D& post_counts, Counter3D& mid_counts);
+  
 
  private:
   PNGraph static_graph_;
@@ -119,7 +121,8 @@ class ThreeEventMotifCounter {
   ThreeEventMotifCounter(int size);
   void Count(const TIntV& event_string, const TIntV& timestamps,
              double delta);
-  int FinalCount(int i, int j, int k) { return counts3_(i, j, k); }  
+  int FinalCount(int i, int j, int k) { return counts3_(i, j, k); }
+  Counter3D& Counts() { return counts3_; }
 
  private:
   void IncrementCounts(int event);
@@ -137,15 +140,10 @@ class ThreeEventStarCounter {
   void Count(const TIntV& node, const TIntV& dir,
 	     const TIntV& timestamps, double delta);
 
-  int PreFinalCount(int dir1, int dir2, int dir3) {
-    return pre_counts_(dir1, dir2, dir3);
-  }
-  int PostFinalCount(int dir1, int dir2, int dir3) {
-    return post_counts_(dir1, dir2, dir3);
-  }
-  int MidFinalCount(int dir1, int dir2, int dir3) {
-    return mid_counts_(dir1, dir2, dir3);
-  }  
+  int PreCount(int dir1, int dir2, int dir3) { return pre_counts_(dir1, dir2, dir3); }
+  int PostCount(int dir1, int dir2, int dir3) { return post_counts_(dir1, dir2, dir3); }
+  int MidCount(int dir1, int dir2, int dir3) { return mid_counts_(dir1, dir2, dir3); }
+
  private:
   void PopPre(int nbr, int dir);
   void PopPost(int nbr, int dir);
