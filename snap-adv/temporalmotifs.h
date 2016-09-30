@@ -17,19 +17,9 @@ class Counter2D {
   // Copy assignment
   Counter2D& operator=(const Counter2D& that) {
     if (this != &that) {
-      m_ = that.m();
-      n_ = that.n();
-      if (m_ * n_ > 0) {
-	data_ = TIntV(m_ * n_);
-	data_.PutAll(0);
-	for (int j = 0; j < n_; ++j) {
-	  for (int i = 0; i < m_; ++i) {
-	    data_[i + j * m_] = that(i, j);
-	  }
-	}
-      } else {
-	data_ = TIntV();
-      }
+      m_ = that.m_;
+      n_ = that.n_;
+      data_ = that.data_;
     }
     return *this;
   }
@@ -59,21 +49,10 @@ class Counter3D {
   // Copy assignment
   Counter3D& operator=(const Counter3D& that) {
     if (this != &that) {
-      m_ = that.m();
-      n_ = that.n();
-      p_ = that.p();
-      if (m_ * n_ * p_ > 0) {
-	data_ = TIntV(m_ * n_ * p_);
-	for (int k = 0; k < p_; ++k) {      
-	  for (int j = 0; j < n_; ++j) {
-	    for (int i = 0; i < m_; ++i) {
-	      data_[i + j * m_ + k * m_ * n_] = that(i, j, k);
-	    }
-	  }
-	}
-      } else {
-	data_ = TIntV();
-      }
+      m_ = that.m_;
+      n_ = that.n_;
+      p_ = that.p_;
+      data_ = that.data_;
     }
     return *this;
   }
@@ -81,7 +60,6 @@ class Counter3D {
   int m() const { return m_; }
   int n() const { return n_; }
   int p() const { return p_; }
-  TIntV& data() { return data_; }
   
   const TInt& operator()(int i, int j, int k) const {
     return data_[i + j * m_ + k * m_ * n_];
@@ -108,7 +86,6 @@ class TemporalMotifCounter {
   void ThreeEventStarCounts(double delta, Counter3D& pre_counts,
 			    Counter3D& post_counts, Counter3D& mid_counts);
   
-
  private:
   PNGraph static_graph_;
   // temporal_data_[i][j] --> list of timestamps on (i, j)
