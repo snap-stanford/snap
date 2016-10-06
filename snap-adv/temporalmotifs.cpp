@@ -269,12 +269,8 @@ void ThreeEventStarCounter::Count(const TIntV& nbr, const TIntV& dir,
     }
     // Move current event off post-window
     PopPost(nbr[j], dir[j]);
-    DecMiddleSum(nbr[j], dir[j]);
-    // Handle the current event
     ProcessCurrent(nbr[j], dir[j]);
-    // Move current event into pre-window
     PushPre(nbr[j], dir[j]);
-    IncMiddleSum(nbr[j], dir[j]);
   }
 }
 
@@ -283,7 +279,9 @@ void ThreeEventStarCounter::PopPre(int nbr, int dir) {
   assert(pre_nodes_[dir][nbr] >= 0);
   for (int i = 0; i < 2; i++) {
     pre_sum_(dir, i) -= pre_nodes_[i][nbr];
-    assert(pre_sum_(dir, i) >= 0);    
+    assert(pre_sum_(dir, i) >= 0);
+    mid_sum_(dir, i) -= post_nodes_[i][nbr];
+    assert(mid_sum_(dir, i) >= 0);
   }
 }
 
@@ -293,12 +291,15 @@ void ThreeEventStarCounter::PopPost(int nbr, int dir) {
   for (int i = 0; i < 2; i++) {
     post_sum_(dir, i) -= post_nodes_[i][nbr];
     assert(post_sum_(dir, i) >= 0);
+    mid_sum_(i, dir) -= pre_nodes_[i][nbr];
+    assert(mid_sum_(i, dir) >= 0);
   }
 }
 
 void ThreeEventStarCounter::PushPre(int nbr, int dir) {
   for (int i = 0; i < 2; i++) {
     pre_sum_(i, dir) += pre_nodes_[i][nbr];
+    mid_sum_(dir, i) += post_nodes_[i][nbr];
   }
   pre_nodes_[dir][nbr] += 1;
 }
@@ -306,21 +307,9 @@ void ThreeEventStarCounter::PushPre(int nbr, int dir) {
 void ThreeEventStarCounter::PushPost(int nbr, int dir) {
   for (int i = 0; i < 2; i++) {
     post_sum_(i, dir) += post_nodes_[i][nbr];
+    mid_sum_(i, dir) += pre_nodes_[i][nbr];
   }
   post_nodes_[dir][nbr] += 1;
-}
-
-void ThreeEventStarCounter::DecMiddleSum(int nbr, int dir) {
-  for (int i = 0; i < 2; i++) {
-    mid_sum_(i, dir) -= pre_nodes_[i][nbr];
-    assert(mid_sum_(i, dir) >= 0);
-  }
-}
-
-void ThreeEventStarCounter::IncMiddleSum(int nbr, int dir) {
-  for (int i = 0; i < 2; i++) {
-    mid_sum_(dir, i) += post_nodes_[i][nbr];
-  }
 }
 
 void ThreeEventStarCounter::ProcessCurrent(int nbr, int dir) {
