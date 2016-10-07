@@ -81,15 +81,12 @@ class TemporalMotifCounter {
   void LoadData(const TStr& filename);
 
   void ThreeEventEdgeCounts(double delta, Counter3D& counts);
-  void ThreeEventEdgeCounts(int u, int v, double delta,
-			    Counter3D& counts);
+  void ThreeEventEdgeCounts(int u, int v, double delta, Counter3D& counts);
   void ThreeEventStarCounts(double delta, Counter3D& pre_counts,
 			    Counter3D& post_counts, Counter3D& mid_counts);
   
  private:
   PNGraph static_graph_;
-  // temporal_data_[i][j] --> list of timestamps on (i, j)
-  // This data structure double stores to access (i, j) or (j, i)
   TVec< THash<TInt, TIntV> > temporal_data_;
 };
 

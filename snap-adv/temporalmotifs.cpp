@@ -35,7 +35,6 @@ void TemporalMotifCounter::LoadData(const TStr& filename) {
     int dst = data_ptr->GetIntValAtRowIdx(dst_idx, row_idx).Val;
     int tim = data_ptr->GetIntValAtRowIdx(tim_idx, row_idx).Val;
     temporal_data_[src](dst).Add(tim);
-    temporal_data_[dst](src).Add(tim);
   }
 }
 
