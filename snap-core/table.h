@@ -439,33 +439,31 @@ public:
 };
 
 /// The name of the friend is not found by simple name lookup until a matching declaration is provided in that namespace scope (either before or after the class declaration granting friendship).
-namespace TSnap{
+namespace TSnap {
 	/// Converts table to a directed/undirected graph. Suitable for PUNGraph and PNGraph, but not for PNEANet where attributes are expected.
 	template<class PGraph> PGraph ToGraph(PTable Table,
     const TStr& SrcCol, const TStr& DstCol, TAttrAggr AggrPolicy);
 	/// Converts table to a network. Suitable for PNEANet - Requires node and edge attribute column names as vectors.
-	template<class PGraph> PGraph ToNetwork(PTable Table,
+  template<class PGraph> PGraph ToNetwork(PTable Table,
     const TStr& SrcCol, const TStr& DstCol,
     TStrV& SrcAttrs, TStrV& DstAttrs, TStrV& EdgeAttrs,
     TAttrAggr AggrPolicy);
 	/// Converts table to a network. Suitable for PNEANet - Assumes no node and edge attributes.
-	template<class PGraph> PGraph ToNetwork(PTable Table,
+  template<class PGraph> PGraph ToNetwork(PTable Table,
     const TStr& SrcCol, const TStr& DstCol, TAttrAggr AggrPolicy);
-
-    template<class PGraph> PGraph ToNetwork(PTable Table,
+  template<class PGraph> PGraph ToNetwork(PTable Table,
     const TStr& SrcCol, const TStr& DstCol,
     TStrV& EdgeAttrV,
     TAttrAggr AggrPolicy);
-
-    template<class PGraph> PGraph ToNetwork(PTable Table,
+  template<class PGraph> PGraph ToNetwork(PTable Table,
     const TStr& SrcCol, const TStr& DstCol,
     TStrV& EdgeAttrV, PTable NodeTable, const TStr& NodeCol, TStrV& NodeAttrV,
     TAttrAggr AggrPolicy);
-  int LoadCrossNet(TCrossNet& Graph, PTable Table, const TStr& SrcCol, const TStr& DstCol,
-  TStrV& EdgeAttrV);
-
+  int LoadCrossNet(TCrossNet& Graph, PTable Table,
+    const TStr& SrcCol, const TStr& DstCol,
+    TStrV& EdgeAttrV);
   int LoadMode(TModeNet& Graph, PTable Table, const TStr& NCol,
-  TStrV& NodeAttrV);
+    TStrV& NodeAttrV);
 
 #ifdef GCC_ATOMIC
   template<class PGraphMP> PGraphMP ToGraphMP(PTable Table,
@@ -498,25 +496,26 @@ protected:
 public:
   template<class PGraph> friend PGraph TSnap::ToGraph(PTable Table,
     const TStr& SrcCol, const TStr& DstCol, TAttrAggr AggrPolicy);
-    template<class PGraph> friend PGraph TSnap::ToNetwork(PTable Table,
+  template<class PGraph> friend PGraph TSnap::ToNetwork(PTable Table,
     const TStr& SrcCol, const TStr& DstCol,
     TStrV& SrcAttrs, TStrV& DstAttrs, TStrV& EdgeAttrs,
     TAttrAggr AggrPolicy);
-    template<class PGraph> friend PGraph TSnap::ToNetwork(PTable Table,
+  template<class PGraph> friend PGraph TSnap::ToNetwork(PTable Table,
+    const TStr& SrcCol, const TStr& DstCol,
+    TAttrAggr AggrPolicy);
+  template<class PGraph> friend PGraph TSnap::ToNetwork(PTable Table,
     const TStr& SrcCol, const TStr& DstCol,
     TStrV& EdgeAttrV,
     TAttrAggr AggrPolicy);
-    template<class PGraph> friend PGraph TSnap::ToNetwork(PTable Table,
-    const TStr& SrcCol, const TStr& DstCol,
-    TAttrAggr AggrPolicy);
-    template<class PGraph> friend PGraph TSnap::ToNetwork(PTable Table,
+  template<class PGraph> friend PGraph TSnap::ToNetwork(PTable Table,
     const TStr& SrcCol, const TStr& DstCol,
     TStrV& EdgeAttrV, PTable NodeTable, const TStr& NodeCol, TStrV& NodeAttrV,
     TAttrAggr AggrPolicy);
-    friend int TSnap::LoadCrossNet(TCrossNet& Graph, PTable Table, const TStr& SrcCol, const TStr& DstCol,
+  friend int TSnap::LoadCrossNet(TCrossNet& Graph, PTable Table,
+      const TStr& SrcCol, const TStr& DstCol,
       TStrV& EdgeAttrV);
-    friend int TSnap::LoadMode(TModeNet& Graph, PTable Table, const TStr& NCol,
-  TStrV& NodeAttrV); 
+  friend int TSnap::LoadMode(TModeNet& Graph, PTable Table,
+      const TStr& NCol, TStrV& NodeAttrV); 
 
 #ifdef GCC_ATOMIC
   template<class PGraphMP> friend PGraphMP TSnap::ToGraphMP(PTable Table, const TStr& SrcCol, const TStr& DstCol);
