@@ -53,7 +53,7 @@ void TemporalMotifCounter::ThreeEventEdgeCounts(double delta, Counter3D& counts)
       undir_edges.Add(TIntPair(src, dst));
     }
   }
-  counts = Counter3D(2, 2, 2);
+  counts = Counter3D(2);
   #pragma omp parallel for
   for (int i = 0; i < undir_edges.Len(); i++) {
     TIntPair edge = undir_edges[i];
@@ -85,9 +85,9 @@ void TemporalMotifCounter::ThreeEventStarCounts(double delta, Counter3D& pre_cou
   }
 
   // Get counts for each node as the center
-  pre_counts = Counter3D(2, 2, 2);
-  pos_counts = Counter3D(2, 2, 2);
-  mid_counts = Counter3D(2, 2, 2);  
+  pre_counts = Counter3D(2);
+  pos_counts = Counter3D(2);
+  mid_counts = Counter3D(2);
   #pragma omp parallel for
   for (int c = 0; c < centers.Len(); c++) {
     // Gather all adjacent events
@@ -232,7 +232,7 @@ void TemporalMotifCounter::ThreeEventTriangleCountsNaive(double delta, Counter3D
   TIntV Us, Vs, Ws;
   GetAllTriangles(Us, Vs, Ws);
 
-  counts = Counter3D(2, 2, 2);
+  counts = Counter3D(2);
   #pragma omp parallel for
   for (int i = 0; i < Us.Len(); i++) {
     int u = Us[i];
@@ -304,7 +304,7 @@ void TemporalMotifCounter::ThreeEventTriangleCountsNaive(double delta, Counter3D
 }
 
 void TemporalMotifCounter::AllCounts(double delta, Counter2D& counts) {
-  counts = Counter2D(6, 6);
+  counts = Counter2D(6);
   
   Counter3D edge_counts;
   ThreeEventEdgeCounts(delta, edge_counts);
@@ -358,8 +358,8 @@ ThreeEventMotifCounter::ThreeEventMotifCounter(int size) {
   // Initialize everything to empty
   counts1_ = TIntV(size_);
   counts1_.PutAll(0);
-  counts2_ = Counter2D(size_, size_);
-  counts3_ = Counter3D(size_, size_, size_);
+  counts2_ = Counter2D(size_);
+  counts3_ = Counter3D(size_);
 }
 
 

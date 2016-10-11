@@ -5,73 +5,54 @@
 
 class Counter2D {
  public:
-  // Base constructor
-  Counter2D(int m, int n) : m_(m), n_(n) {
-    if (m * n > 0) {
-      data_ = TIntV(m * n);
+ // Base constructor
+ Counter2D(int n) : n_(n) {
+    if (n > 0) {
+      data_ = TIntV(n * n);
       data_.PutAll(0);
     }
-  }
-  Counter2D() : Counter2D(0, 0) {}
-  // Copy assignment
-  Counter2D& operator=(const Counter2D& that) {
-    if (this != &that) {
-      m_ = that.m_;
-      n_ = that.n_;
-      data_ = that.data_;
-    }
-    return *this;
-  }
-
-  int m() const { return m_; }
-  int n() const { return n_; }
+ }
+ Counter2D() : Counter2D(0) {}
+ // Copy assignment
+ Counter2D& operator=(const Counter2D& that) {
+   if (this != &that) {
+     n_ = that.n_;
+     data_ = that.data_;
+   }
+   return *this;
+ }
+ const TInt& operator()(int i, int j) const { return data_[i + j * n_]; }
+ TInt& operator()(int i, int j) { return data_[i + j * n_]; }
   
-  const TInt& operator()(int i, int j) const { return data_[i + j * m_]; }
-  TInt& operator()(int i, int j) { return data_[i + j * m_]; }
-
  private:
-  int m_;
-  int n_;
-  TIntV data_;
+ int n_;
+ TIntV data_;
 };
 
 class Counter3D {
  public:
-  // Base constructor
-  Counter3D(int m, int n, int p) : m_(m), n_(n), p_(p) {
-    if (m * n * p > 0) {
-      data_ = TIntV(m * n * p);
-      data_.PutAll(0);
-    }
-  }
-  Counter3D() : Counter3D(0, 0, 0) {}
-  // Copy assignment
-  Counter3D& operator=(const Counter3D& that) {
-    if (this != &that) {
-      m_ = that.m_;
-      n_ = that.n_;
-      p_ = that.p_;
-      data_ = that.data_;
-    }
-    return *this;
-  }
-  
-  int m() const { return m_; }
-  int n() const { return n_; }
-  int p() const { return p_; }
-  
-  const TInt& operator()(int i, int j, int k) const {
-    return data_[i + j * m_ + k * m_ * n_];
-  }
-  TInt& operator()(int i, int j, int k) {
-    return data_[i + j * m_ + k * m_ * n_];
-  }
+ // Base constructor
+ Counter3D(int n) : n_(n) {
+   if (n > 0) {
+     data_ = TIntV(n * n * n);
+     data_.PutAll(0);
+   }
+ }
+ Counter3D() : Counter3D(0) {}
+ // Copy assignment
+ Counter3D& operator=(const Counter3D& that) {
+   if (this != &that) {
+     n_ = that.n_;
+     data_ = that.data_;
+   }
+   return *this;
+ }
+ const TInt& operator()(int i, int j, int k) const { return data_[i + j * n_ + k * n_ * n_]; }
+ TInt& operator()(int i, int j, int k) { return data_[i + j * n_ + k * n_ * n_]; }
 
  private:
-  int m_;
-  int n_;
-  int p_;
-  TIntV data_;
+ int n_;
+ TIntV data_;
 };
 
 class TemporalMotifCounter {
@@ -130,13 +111,13 @@ class ThreeEventStarCounter {
   void ProcessCurrent(int nbr, int dir);  
 
 
-  Counter2D pre_sum_  = Counter2D(2, 2);
-  Counter2D pos_sum_ = Counter2D(2, 2);
-  Counter2D mid_sum_  = Counter2D(2, 2);
+  Counter2D pre_sum_ = Counter2D(2);
+  Counter2D pos_sum_ = Counter2D(2);
+  Counter2D mid_sum_ = Counter2D(2);
 
-  Counter3D pre_counts_  = Counter3D(2, 2, 2);
-  Counter3D pos_counts_ = Counter3D(2, 2, 2);
-  Counter3D mid_counts_  = Counter3D(2, 2, 2);
+  Counter3D pre_counts_ = Counter3D(2);
+  Counter3D pos_counts_ = Counter3D(2);
+  Counter3D mid_counts_ = Counter3D(2);
 
   TVec< TIntV > pre_nodes_;
   TVec< TIntV > pos_nodes_;  
