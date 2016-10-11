@@ -2,7 +2,6 @@
 #define snap_temporalmotifs_h
 
 #include "Snap.h"
-#include "motifcluster.h"
 
 class Counter2D {
  public:
@@ -83,9 +82,12 @@ class TemporalMotifCounter {
   void ThreeEventEdgeCounts(double delta, Counter3D& counts);
   void ThreeEventEdgeCounts(int u, int v, double delta, Counter3D& counts);
   void ThreeEventStarCounts(double delta, Counter3D& pre_counts,
-			    Counter3D& post_counts, Counter3D& mid_counts);
+			    Counter3D& pos_counts, Counter3D& mid_counts);
+  void ThreeEventTriangleCountsNaive(double delta, Counter3D& counts);
+  void AllCounts(double delta, Counter2D& counts);
   
  private:
+  void GetAllTriangles(TIntV& Us, TIntV& Vs, TIntV& Ws);
   PNGraph static_graph_;
   TVec< THash<TInt, TIntV> > temporal_data_;
 };
@@ -115,29 +117,29 @@ class ThreeEventStarCounter {
 	     const TIntV& timestamps, double delta);
 
   int PreCount(int dir1, int dir2, int dir3) { return pre_counts_(dir1, dir2, dir3); }
-  int PostCount(int dir1, int dir2, int dir3) { return post_counts_(dir1, dir2, dir3); }
+  int PosCount(int dir1, int dir2, int dir3) { return pos_counts_(dir1, dir2, dir3); }
   int MidCount(int dir1, int dir2, int dir3) { return mid_counts_(dir1, dir2, dir3); }
 
  private:
   void PopPre(int nbr, int dir);
-  void PopPost(int nbr, int dir);
+  void PopPos(int nbr, int dir);
   void PushPre(int nbr, int dir);
-  void PushPost(int nbr, int dir);
+  void PushPos(int nbr, int dir);
   void DecMiddleSum(int nbr, int dir);
   void IncMiddleSum(int nbr, int dir);
   void ProcessCurrent(int nbr, int dir);  
 
 
   Counter2D pre_sum_  = Counter2D(2, 2);
-  Counter2D post_sum_ = Counter2D(2, 2);
+  Counter2D pos_sum_ = Counter2D(2, 2);
   Counter2D mid_sum_  = Counter2D(2, 2);
 
   Counter3D pre_counts_  = Counter3D(2, 2, 2);
-  Counter3D post_counts_ = Counter3D(2, 2, 2);
+  Counter3D pos_counts_ = Counter3D(2, 2, 2);
   Counter3D mid_counts_  = Counter3D(2, 2, 2);
 
   TVec< TIntV > pre_nodes_;
-  TVec< TIntV > post_nodes_;  
+  TVec< TIntV > pos_nodes_;  
 };
 
 #endif  // snap_temporalmotifs_h
