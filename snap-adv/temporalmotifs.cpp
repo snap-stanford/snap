@@ -137,20 +137,45 @@ void TemporalMotifCounter::ThreeEventStarCounts(double delta, Counter3D& pre_cou
 	}
       }
     }
-  }
 
-  // Subtract off edge-wise counts
-  Counter3D edge_counts;
-  ThreeEventEdgeCounts(delta, edge_counts);
-  for (int dir1 = 0; dir1 < 2; ++dir1) {
-    for (int dir2 = 0; dir2 < 2; ++dir2) {
-      for (int dir3 = 0; dir3 < 2; ++dir3) {
-	pre_counts(dir1, dir2, dir3) -= edge_counts(dir1, dir2, dir3);
-	pos_counts(dir1, dir2, dir3) -= edge_counts(dir1, dir2, dir3);
-	mid_counts(dir1, dir2, dir3) -= edge_counts(dir1, dir2, dir3);
+    // Subtract off edge-wise counts
+    for (int i = 0; i < NI.GetOutDeg(); i++) {
+      int nbr = NI.GetOutNId(i);
+      Counter3D edge_counts;
+      ThreeEventEdgeCounts(center, nbr, delta, edge_counts);
+      #pragma omp critical
+      {
+	for (int dir1 = 0; dir1 < 2; ++dir1) {
+	  for (int dir2 = 0; dir2 < 2; ++dir2) {
+	    for (int dir3 = 0; dir3 < 2; ++dir3) {
+	      pre_counts(dir1, dir2, dir3) -= edge_counts(dir1, dir2, dir3);
+	      pos_counts(dir1, dir2, dir3) -= edge_counts(dir1, dir2, dir3);
+	      mid_counts(dir1, dir2, dir3) -= edge_counts(dir1, dir2, dir3);
+	    }
+	  }
+	}
+      }
+    }
+    for (int i = 0; i < NI.GetInDeg(); i++) {
+      int nbr = NI.GetInNId(i);
+      if (NI.IsOutNId(nbr)) { continue; }
+      Counter3D edge_counts;
+      ThreeEventEdgeCounts(center, nbr, delta, edge_counts);
+      #pragma omp critical
+      {
+	for (int dir1 = 0; dir1 < 2; ++dir1) {
+	  for (int dir2 = 0; dir2 < 2; ++dir2) {
+	    for (int dir3 = 0; dir3 < 2; ++dir3) {
+	      pre_counts(dir1, dir2, dir3) -= edge_counts(dir1, dir2, dir3);
+	      pos_counts(dir1, dir2, dir3) -= edge_counts(dir1, dir2, dir3);
+	      mid_counts(dir1, dir2, dir3) -= edge_counts(dir1, dir2, dir3);
+	    }
+	  }
+	}
       }
     }
   }
+
 }
 
 void TemporalMotifCounter::ThreeEventEdgeCounts(int u, int v, double delta,
