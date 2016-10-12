@@ -64,6 +64,8 @@ class TemporalMotifCounter {
   void ThreeEventEdgeCounts(int u, int v, double delta, Counter3D& counts);
   void ThreeEventStarCounts(double delta, Counter3D& pre_counts,
 			    Counter3D& pos_counts, Counter3D& mid_counts);
+  void ThreeEventStarCountsNaive(double delta, Counter3D& pre_counts,
+				 Counter3D& pos_counts, Counter3D& mid_counts);  
   void ThreeEventTriangleCountsNaive(double delta, Counter3D& counts);
   void AllCounts(double delta, Counter2D& counts);
   

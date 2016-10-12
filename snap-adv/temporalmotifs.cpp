@@ -175,7 +175,78 @@ void TemporalMotifCounter::ThreeEventStarCounts(double delta, Counter3D& pre_cou
       }
     }
   }
+}
 
+
+void TemporalMotifCounter::ThreeEventStarCountsNaive(double delta, Counter3D& pre_counts,
+						     Counter3D& pos_counts, Counter3D& mid_counts) {
+  // Get a vector of nodes (so we can use openmp parallel for over it)
+  TIntV centers;
+  for (TNGraph::TNodeI it = static_graph_->BegNI();
+       it < static_graph_->EndNI(); it++) {
+    centers.Add(it.GetId());
+  }
+
+  // Get counts for each node as the center
+  pre_counts = Counter3D(2);
+  pos_counts = Counter3D(2);
+  mid_counts = Counter3D(2);
+  #pragma omp parallel for
+  for (int c = 0; c < centers.Len(); c++) {
+    // Gather all adjacent events
+    int center = centers[c];
+
+    // Get all neighbors
+    TIntV nbrs;
+    TNGraph::TNodeI NI = static_graph_->GetNI(center);
+    for (int i = 0; i < NI.GetOutDeg(); i++) { nbrs.Add(NI.GetOutNId(i)); }
+    for (int i = 0; i < NI.GetInDeg(); i++) {
+      int nbr = NI.GetInNId(i);
+      if (!NI.IsOutNId(nbr)) { nbrs.Add(nbr); }
+    }
+
+    for (int i = 0; i < nbrs.Len(); i++) {
+      for (int j = i + 1; j < nbrs.Len(); j++) {
+	int nbr1 = nbrs[i];
+	int nbr2 = nbrs[j];
+	int out1 = 0, in1 = 1;
+	int out2 = 2, in2 = 3;
+	TVec<TIntPair> combined;
+	TIntV& ts_out1 = temporal_data_[center](nbr1);
+	TIntV& ts_in1  = temporal_data_[nbr1](center);
+	TIntV& ts_out2 = temporal_data_[center](nbr2);
+	TIntV& ts_in2  = temporal_data_[nbr2](center);
+	for (int k = 0; k < ts_out1.Len(); k++) { combined.Add(TIntPair(ts_out1[k], out1)); }
+	for (int k = 0; k < ts_in1.Len();  k++) { combined.Add(TIntPair(ts_in1[k],  in1));  }	
+	for (int k = 0; k < ts_out2.Len(); k++) { combined.Add(TIntPair(ts_out2[k], out2)); }
+	for (int k = 0; k < ts_in2.Len();  k++) { combined.Add(TIntPair(ts_in2[k],  in2));  }
+
+	combined.Sort();
+	ThreeEventMotifCounter counter(4);
+	TIntV edge_id(combined.Len());
+	TIntV timestamps(combined.Len());
+	for (int k = 0; k < combined.Len(); k++) {
+	  edge_id[k] = combined[k].Dat;
+	  timestamps[k] = combined[k].Key;
+	}
+	counter.Count(edge_id, timestamps, delta);
+	Counter3D local = counter.Counts();
+
+	#pragma omp critical
+	{ // Update with local counts
+	  for (int dir1 = 0; dir1 < 2; ++dir1) {
+	    for (int dir2 = 0; dir2 < 2; ++dir2) {
+	      for (int dir3 = 0; dir3 < 2; ++dir3) {
+		pre_counts(dir1, dir2, dir3) += local(dir1, dir2, dir3 + 2) + local(dir1 + 2, dir2 + 2, dir3);
+		pos_counts(dir1, dir2, dir3) += local(dir1, dir2 + 2, dir3 + 2) + local(dir1 + 2, dir2, dir3);
+		mid_counts(dir1, dir2, dir3) += local(dir1, dir2 + 2, dir3) + local(dir1 + 2, dir2, dir3 + 2);
+	      }
+	    }
+	  }
+	}
+      }
+    }
+  }
 }
 
 void TemporalMotifCounter::ThreeEventEdgeCounts(int u, int v, double delta,
@@ -339,7 +410,12 @@ void TemporalMotifCounter::AllCounts(double delta, Counter2D& counts) {
   counts(4, 1) = edge_counts(1, 0, 0) + edge_counts(0, 1, 1);
 
   Counter3D star_pre_counts, star_pos_counts, star_mid_counts;
-  ThreeEventStarCounts(delta, star_pre_counts, star_pos_counts, star_mid_counts);
+  bool naive = true;
+  if (naive) {
+    ThreeEventStarCountsNaive(delta, star_pre_counts, star_pos_counts, star_mid_counts);
+  } else {
+    ThreeEventStarCounts(delta, star_pre_counts, star_pos_counts, star_mid_counts);
+  }
 
   counts(0, 0) = star_mid_counts(1, 1, 1);
   counts(0, 1) = star_mid_counts(1, 1, 0);
