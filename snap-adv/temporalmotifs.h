@@ -67,7 +67,7 @@ class TemporalMotifCounter {
   void ThreeEventStarCountsNaive(double delta, Counter3D& pre_counts,
 				 Counter3D& pos_counts, Counter3D& mid_counts);  
   void ThreeEventTriangleCountsNaive(double delta, Counter3D& counts);
-  void AllCounts(double delta, Counter2D& counts);
+  void AllCounts(double delta, Counter2D& counts, bool naive);
   
  private:
   void GetAllTriangles(TIntV& Us, TIntV& Vs, TIntV& Ws);
