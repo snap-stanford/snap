@@ -90,38 +90,39 @@ void TemporalMotifCounter::ThreeEventStarCounts(double delta, Counter3D& pre_cou
   for (int c = 0; c < centers.Len(); c++) {
     // Gather all adjacent events
     int center = centers[c];
-    TVec< TKeyDat<TInt, TIntPair> > ts_nbr_dir;
+    TVec<TIntPair> ts_indices;
+    TVec<StarEvent> events;
     TNGraph::TNodeI NI = static_graph_->GetNI(center);
+    int index = 0;
     for (int i = 0; i < NI.GetOutDeg(); i++) {
       int nbr = NI.GetOutNId(i);
       TIntV& ts_vec = temporal_data_[center](nbr);
       for (int j = 0; j < ts_vec.Len(); ++j) {
-	TIntPair nbr_dir(nbr, 0);
-	ts_nbr_dir.Add(TKeyDat<TInt, TIntPair>(ts_vec[j], nbr_dir));
+	ts_indices.Add(TIntPair(ts_vec[j], index));
+	events.Add(StarEvent(nbr, 0));
+	index++;
       }
     }
     for (int i = 0; i < NI.GetInDeg(); i++) {
       int nbr = NI.GetInNId(i);
       TIntV& ts_vec = temporal_data_[nbr](center);
       for (int j = 0; j < ts_vec.Len(); ++j) {
-	TIntPair nbr_dir(nbr, 1);
-	ts_nbr_dir.Add(TKeyDat<TInt, TIntPair>(ts_vec[j], nbr_dir));
+	ts_indices.Add(TIntPair(ts_vec[j], index));
+	events.Add(StarEvent(nbr, 1));	
+	index++;
       }      
     }
-    ts_nbr_dir.Sort();
+    ts_indices.Sort();
     TIntV timestamps;
-    TIntV nbrs;
-    TIntV dirs;
-    for (int j = 0; j < ts_nbr_dir.Len(); j++) {
-      timestamps.Add(ts_nbr_dir[j].Key);
-      TIntPair nbr_dir = ts_nbr_dir[j].Dat;
-      nbrs.Add(nbr_dir.Key);
-      dirs.Add(nbr_dir.Dat);
+    TVec<StarEvent> ordered_events;
+    for (int j = 0; j < ts_indices.Len(); j++) {
+      timestamps.Add(ts_indices[j].Key);
+      ordered_events.Add(events[ts_indices[j].Dat]);
     }
     
     ThreeEventStarCounter tesc(static_graph_->GetMxNId());
     // dirs: outgoing --> 0, incoming --> 1
-    tesc.Count(nbrs, dirs, timestamps, delta);
+    tesc.Count(ordered_events, timestamps, delta);
 
     #pragma omp critical
     {
@@ -506,41 +507,9 @@ void ThreeEventMotifCounter::DecrementCounts(int event) {
   }
 }
 
-ThreeEventStarCounter::ThreeEventStarCounter(int num_nodes) {
-  // Initialize node counters
-  pre_nodes_ = Counter2D(2, num_nodes);
-  pos_nodes_ = Counter2D(2, num_nodes);
-}
-
-void ThreeEventStarCounter::Count(const TIntV& nbr, const TIntV& dir,
-				  const TIntV& timestamps, double delta) {
-  if (dir.Len() != timestamps.Len() || dir.Len() != nbr.Len()) {
-    TExcept::Throw("nbr, dir, and timestamp vector must be the same size");
-  }
-  int start = 0;
-  int end = 0;
-  int L = timestamps.Len();
-
-  for (int j = 0; j < L; j++) {
-    double tj = double(timestamps[j]);
-    // Adjust counts in pre-window [tj - delta, tj)
-    while (start < L && double(timestamps[start]) < tj - delta) {
-      PopPre(nbr[start], dir[start]);
-      start++;
-    }
-    // Adjust counts in post-window (tj, tj + delta]
-    while (end < L && double(timestamps[end]) <= tj + delta) {
-      PushPos(nbr[end], dir[end]);
-      end++;
-    }
-    // Move current event off post-window
-    PopPos(nbr[j], dir[j]);
-    ProcessCurrent(nbr[j], dir[j]);
-    PushPre(nbr[j], dir[j]);
-  }
-}
-
-void ThreeEventStarCounter::PopPre(int nbr, int dir) {
+void ThreeEventStarCounter::PopPre(StarEvent event) {
+  int nbr = event.nbr;
+  int dir = event.dir;
   pre_nodes_(dir, nbr) -= 1;
   assert(pre_nodes_(dir, nbr) >= 0);
   for (int i = 0; i < 2; i++) {
@@ -549,7 +518,9 @@ void ThreeEventStarCounter::PopPre(int nbr, int dir) {
   }
 }
 
-void ThreeEventStarCounter::PopPos(int nbr, int dir) {
+void ThreeEventStarCounter::PopPos(StarEvent event) {
+  int nbr = event.nbr;
+  int dir = event.dir;  
   pos_nodes_(dir, nbr) -= 1;
   assert(pos_nodes_(dir, nbr) >= 0);  
   for (int i = 0; i < 2; i++) {
@@ -558,21 +529,28 @@ void ThreeEventStarCounter::PopPos(int nbr, int dir) {
   }
 }
 
-void ThreeEventStarCounter::PushPre(int nbr, int dir) {
+void ThreeEventStarCounter::PushPre(StarEvent event) {
+  int nbr = event.nbr;
+  int dir = event.dir;  
   for (int i = 0; i < 2; i++) {
     pre_sum_(i, dir) += pre_nodes_(i, nbr);
   }
   pre_nodes_(dir, nbr) += 1;
 }
 
-void ThreeEventStarCounter::PushPos(int nbr, int dir) {
+void ThreeEventStarCounter::PushPos(StarEvent event) {
+  int nbr = event.nbr;
+  int dir = event.dir;  
   for (int i = 0; i < 2; i++) {
     pos_sum_(i, dir) += pos_nodes_(i, nbr);
   }
   pos_nodes_(dir, nbr) += 1;
 }
 
-void ThreeEventStarCounter::ProcessCurrent(int nbr, int dir) {
+void ThreeEventStarCounter::ProcessCurrent(StarEvent event) {
+  int nbr = event.nbr;
+  int dir = event.dir;
+  
   // Decrement middle sum
   for (int i = 0; i < 2; i++) {
     mid_sum_(i, dir) -= pre_nodes_(i, nbr);

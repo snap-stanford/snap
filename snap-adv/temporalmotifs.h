@@ -98,34 +98,42 @@ class ThreeEventMotifCounter {
   int size_;  // alphabet size
 };
 
-#if 0
-template <typename T>
+template <typename EventType>
 class ThreeEventCounter {
  public:
   ThreeEventCounter() {}
 
- protected:
-};
-#endif
-
-class ThreeEventStarCounter {
- public:
-  ThreeEventStarCounter(int num_nodes);
-
-  void Count(const TIntV& node, const TIntV& dir,
-	     const TIntV& timestamps, double delta);
+  void Count(const TVec<EventType>& events, const TIntV& timestamps, double delta) {
+    if (events.Len() != timestamps.Len()) {
+      TExcept::Throw("Number of events must match number of timestamps.");
+    }
+    int start = 0;
+    int end = 0;
+    int L = timestamps.Len();
+    for (int j = 0; j < L; j++) {
+      double tj = double(timestamps[j]);
+      // Adjust counts in pre-window [tj - delta, tj)
+      while (start < L && double(timestamps[start]) < tj - delta) {
+	PopPre(events[start]);
+	start++;
+      }
+      // Adjust counts in post-window (tj, tj + delta]
+      while (end < L && double(timestamps[end]) <= tj + delta) {
+	PushPos(events[end]);
+	end++;
+      }
+      // Move current event off post-window
+      PopPos(events[j]);
+      ProcessCurrent(events[j]);
+      PushPre(events[j]);
+    }
+  }
   
   int PreCount(int dir1, int dir2, int dir3) { return pre_counts_(dir1, dir2, dir3); }
   int PosCount(int dir1, int dir2, int dir3) { return pos_counts_(dir1, dir2, dir3); }
   int MidCount(int dir1, int dir2, int dir3) { return mid_counts_(dir1, dir2, dir3); }
 
- private:
-  void PopPre(int nbr, int dir);
-  void PopPos(int nbr, int dir);
-  void PushPre(int nbr, int dir);
-  void PushPos(int nbr, int dir);
-  void ProcessCurrent(int nbr, int dir);  
-
+ protected:
   Counter2D pre_sum_ = Counter2D(2, 2);
   Counter2D pos_sum_ = Counter2D(2, 2);
   Counter2D mid_sum_ = Counter2D(2, 2);
@@ -134,6 +142,34 @@ class ThreeEventStarCounter {
   Counter3D pos_counts_ = Counter3D(2, 2, 2);
   Counter3D mid_counts_ = Counter3D(2, 2, 2);
 
+  virtual void PopPre(EventType event) = 0;
+  virtual void PopPos(EventType event) = 0;
+  virtual void PushPre(EventType event) = 0;
+  virtual void PushPos(EventType event) = 0;
+  virtual void ProcessCurrent(EventType event) = 0;
+};
+
+class StarEvent {
+ public:
+  StarEvent() {}
+  StarEvent(int _nbr, int _dir) : nbr(_nbr), dir(_dir) {}
+  int nbr;  // Which neighbor of the center node
+  int dir;  // Outgoing (0) or incoming (1) direction
+};
+
+class ThreeEventStarCounter : public ThreeEventCounter<StarEvent> {
+ public:
+ ThreeEventStarCounter(int num_nodes) : pre_nodes_(2, num_nodes),
+    pos_nodes_(2, num_nodes) {}
+
+ protected:
+  void PopPre(StarEvent event);
+  void PopPos(StarEvent event);
+  void PushPre(StarEvent event);
+  void PushPos(StarEvent event);
+  void ProcessCurrent(StarEvent event);
+  
+ private:
   Counter2D pre_nodes_;
   Counter2D pos_nodes_;
 };
