@@ -571,49 +571,11 @@ void ThreeEventStarCounter::ProcessCurrent(StarEvent event) {
   }  
 }
 
-#if 0
 // Triangle counters
-ThreeEventTriadCounter::ThreeEventTriadCounter(int num_nodes, int node1, int node2) {
-  // Initialize node counters
-  pre_nodes_ = Counter3D(2, 2, num_nodes);
-  pos_nodes_ = Counter3D(2, 2, num_nodes);
-  node1_ = node1;
-  node2_ = node2;
-}
-
-void ThreeEventTriadCounter::Count(const TIntV& nbr, const TIntV& dir,
-				   const TIntV& u_or_v, const TIntV& timestamps,
-				   double delta) {
-  if (dir.Len() != timestamps.Len() || dir.Len() != nbr.Len() || dir.Len() != u_or_v.Len()) {
-    TExcept::Throw("nbr, dir, u_or_v, and timestamp vector must be the same size");
-  }
-  int start = 0;
-  int end = 0;
-  int L = timestamps.Len();
-
-  for (int j = 0; j < L; j++) {
-    double tj = double(timestamps[j]);
-    // Adjust counts in pre-window [tj - delta, tj)
-    while (start < L && double(timestamps[start]) < tj - delta) {
-      PopPre(nbr[start], dir[start]);
-      start++;
-    }
-    // Adjust counts in post-window (tj, tj + delta]
-    while (end < L && double(timestamps[end]) <= tj + delta) {
-      PushPos(nbr[end], dir[end]);
-      end++;
-    }
-    // Move current event off post-window
-    PopPos(nbr[j], dir[j]);
-
-    DecMiddleSum(nbr[j], dir[j]);
-    ProcessCurrent(nbr[j], dir[j]);
-    IncMiddleSum(nbr[j], dir[j]);
-    PushPre(nbr[j], dir[j]);
-  }
-}
-
-void ThreeEventTriadCounter::PopPre(int nbr, int dir, int u_or_v) {
+void ThreeEventTriadCounter::PopPre(TriadEvent event) {
+  int nbr = event.nbr;
+  int dir = event.dir;
+  int u_or_v = event.u_or_v;
   if (!IsEdgeNode(nbr)) {
     pre_nodes_(dir, u_or_v, nbr) -= 1;
     assert(pre_nodes_(dir, u_or_v, nbr) >= 0);
@@ -624,7 +586,10 @@ void ThreeEventTriadCounter::PopPre(int nbr, int dir, int u_or_v) {
   }
 }
 
-void ThreeEventTriadCounter::PopPos(int nbr, int dir, int u_or_v) {
+void ThreeEventTriadCounter::PopPos(TriadEvent event) {
+  int nbr = event.nbr;
+  int dir = event.dir;
+  int u_or_v = event.u_or_v;  
   if (!IsEdgeNode(nbr)) {  
     pos_nodes_(dir, u_or_v, nbr) -= 1;
     assert(pos_nodes_(dir, u_or_v, nbr) >= 0);  
@@ -635,7 +600,10 @@ void ThreeEventTriadCounter::PopPos(int nbr, int dir, int u_or_v) {
   }
 }
 
-void ThreeEventTriadCounter::PushPre(int nbr, int dir, int u_or_v) {
+void ThreeEventTriadCounter::PushPre(TriadEvent event) {
+  int nbr = event.nbr;
+  int dir = event.dir;
+  int u_or_v = event.u_or_v;  
   if (!IsEdgeNode(nbr)) {  
     for (int i = 0; i < 2; i++) {
       pre_sum_(i, dir) += pre_nodes_(i, 1 - u_or_v, nbr);
@@ -644,7 +612,10 @@ void ThreeEventTriadCounter::PushPre(int nbr, int dir, int u_or_v) {
   }
 }
 
-void ThreeEventTriadCounter::PushPos(int nbr, int dir, int u_or_v) {
+void ThreeEventTriadCounter::PushPos(TriadEvent event) {
+  int nbr = event.nbr;
+  int dir = event.dir;
+  int u_or_v = event.u_or_v;  
   if (!IsEdgeNode(nbr)) {
     for (int i = 0; i < 2; i++) {
       pos_sum_(i, dir) += pos_nodes_(i, 1 - u_or_v, nbr);
@@ -653,7 +624,10 @@ void ThreeEventTriadCounter::PushPos(int nbr, int dir, int u_or_v) {
   }
 }
 
-void ThreeEventTriadCounter::ProcessCurrent(int nbr, int dir, int u_or_v) {
+void ThreeEventTriadCounter::ProcessCurrent(TriadEvent event) {
+  int nbr = event.nbr;
+  int dir = event.dir;
+  int u_or_v = event.u_or_v;  
   // Decrement middle sum  
   if (!IsEdgeNode(nbr)) {
     for (int i = 0; i < 2; i++) {
@@ -665,7 +639,7 @@ void ThreeEventTriadCounter::ProcessCurrent(int nbr, int dir, int u_or_v) {
   if (IsEdgeNode(nbr)) {
     // Determine if the event edge is u --> v or v --> u
     int u_to_v = 1;
-    if (((nbr == node1_) && dir == 0) || ((nbr == node2_) && dir == 1)) {
+    if (((nbr == node_u_) && dir == 0) || ((nbr == node_v_) && dir == 1)) {
       u_to_v = 0;
     }
     for (int i = 0; i < 2; i++) {
@@ -684,4 +658,4 @@ void ThreeEventTriadCounter::ProcessCurrent(int nbr, int dir, int u_or_v) {
     }
   }    
 }
-#endif
+

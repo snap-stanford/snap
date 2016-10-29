@@ -174,42 +174,35 @@ class ThreeEventStarCounter : public ThreeEventCounter<StarEvent> {
   Counter2D pos_nodes_;
 };
 
-#if 0
-class ThreeEventTriadCounter {
+class TriadEvent {
  public:
-  ThreeEventTriadCounter(int num_nodes, int node1, int node2);
+  TriadEvent() {}
+ TriadEvent(int _nbr, int _dir, int _u_or_v) : nbr(_nbr), dir(_dir), u_or_v(_u_or_v) {}
+  int nbr;  // Which neighbor of the center node
+  int dir;  // Outgoing (0) or incoming (1) direction
+  int u_or_v;  // Points to first end point (u) or second end point (v)
+};
 
-  void Count(const TIntV& node, const TIntV& dir,
-	     const TIntV& u_or_v, const TIntV& timestamps, double delta);
+class ThreeEventTriadCounter : public ThreeEventCounter<TriadEvent> {
+ public:
+ ThreeEventTriadCounter(int num_nodes, int node_u, int node_v) :
+  pre_nodes_(2, 2, num_nodes), pos_nodes_(2, 2, num_nodes),
+    node_u_(node_u), node_v_(node_v) {}
 
-  int PreCount(int dir1, int dir2, int dir3) { return pre_counts_(dir1, dir2, dir3); }
-  int PosCount(int dir1, int dir2, int dir3) { return pos_counts_(dir1, dir2, dir3); }
-  int MidCount(int dir1, int dir2, int dir3) { return mid_counts_(dir1, dir2, dir3); }
-
- private:
-  void PopPre(int nbr, int dir);
-  void PopPos(int nbr, int dir);
-  void PushPre(int nbr, int dir);
-  void PushPos(int nbr, int dir);
-  void ProcessCurrent(int nbr, int dir);
-  bool IsEdgeNode(int nbr) { return nbr == node1_ || nbr == node2_; }
+ protected:
+  void PopPre(TriadEvent event);
+  void PopPos(TriadEvent event);
+  void PushPre(TriadEvent event);
+  void PushPos(TriadEvent event);
+  void ProcessCurrent(TriadEvent event);
+  bool IsEdgeNode(int nbr) { return nbr == node_u_ || nbr == node_v_; }
 
   // Two end points of the edge whose triangles this class counts.
-  int node1_;
-  int node2_;
-
-  Counter2D pre_sum_ = Counter2D(2, 2);
-  Counter2D pos_sum_ = Counter2D(2, 2);
-  Counter2D mid_sum_ = Counter2D(2, 2);
-
-  Counter3D pre_counts_ = Counter3D(2, 2, 2);
-  Counter3D pos_counts_ = Counter3D(2, 2, 2);
-  Counter3D mid_counts_ = Counter3D(2, 2, 2);
+  int node_u_;
+  int node_v_;
 
   Counter3D pre_nodes_;
   Counter3D pos_nodes_;
 };
-#endif
-
 
 #endif  // snap_temporalmotifs_h
