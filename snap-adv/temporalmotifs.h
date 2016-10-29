@@ -156,8 +156,8 @@ class TriadEvent {
  public:
   TriadEvent() {}
  TriadEvent(int _nbr, int _dir, int _u_or_v) : nbr(_nbr), dir(_dir), u_or_v(_u_or_v) {}
-  int nbr;  // Which neighbor of the center node
-  int dir;  // Outgoing (0) or incoming (1) direction
+  int nbr;     // Which neighbor of the center node
+  int dir;     // Outgoing (0) or incoming (1) direction
   int u_or_v;  // Points to first end point u (0) or second end point v (1)
 };
 

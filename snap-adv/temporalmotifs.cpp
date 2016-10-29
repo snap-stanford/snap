@@ -6,15 +6,11 @@
 #include <cassert>
 #include <iostream>
 
-const int kNumThreeEventEdgeMotifs = 4;
-const int kNumThreeEventStars = 24;
-
 typedef TKeyDat<TInt, TInt> TIntPair;
 
 void TemporalMotifCounter::LoadData(const TStr& filename) {
   // First load the static graph
   static_graph_ = TSnap::LoadEdgeList<PNGraph>(filename, 0, 1);
-  TSnap::DelSelfEdges(static_graph_);
   int max_nodes = static_graph_->GetMxNId();
   temporal_data_ = TVec< THash<TInt, TIntV> >(max_nodes);
 
@@ -36,10 +32,7 @@ void TemporalMotifCounter::LoadData(const TStr& filename) {
     int src = data_ptr->GetIntValAtRowIdx(src_idx, row_idx).Val;
     int dst = data_ptr->GetIntValAtRowIdx(dst_idx, row_idx).Val;
     int tim = data_ptr->GetIntValAtRowIdx(tim_idx, row_idx).Val;
-    // Does not handle self-loops right now
-    if (src != dst) {
-      temporal_data_[src](dst).Add(tim);
-    }
+    temporal_data_[src](dst).Add(tim);
   }
 }
 
@@ -100,21 +93,25 @@ void TemporalMotifCounter::ThreeEventStarCounts(double delta, Counter3D& pre_cou
     int index = 0;
     for (int i = 0; i < NI.GetOutDeg(); i++) {
       int nbr = NI.GetOutNId(i);
-      TIntV& ts_vec = temporal_data_[center](nbr);
-      for (int j = 0; j < ts_vec.Len(); ++j) {
-	ts_indices.Add(TIntPair(ts_vec[j], index));
-	events.Add(StarEvent(nbr, 0));
-	index++;
+      if (nbr != center) {  // do not count self-loops
+	TIntV& ts_vec = temporal_data_[center](nbr);
+	for (int j = 0; j < ts_vec.Len(); ++j) {
+	  ts_indices.Add(TIntPair(ts_vec[j], index));
+	  events.Add(StarEvent(nbr, 0));
+	  index++;
+	}
       }
     }
     for (int i = 0; i < NI.GetInDeg(); i++) {
       int nbr = NI.GetInNId(i);
-      TIntV& ts_vec = temporal_data_[nbr](center);
-      for (int j = 0; j < ts_vec.Len(); ++j) {
-	ts_indices.Add(TIntPair(ts_vec[j], index));
-	events.Add(StarEvent(nbr, 1));	
-	index++;
-      }      
+      if (nbr != center) {  // do not count self-loops
+	TIntV& ts_vec = temporal_data_[nbr](center);
+	for (int j = 0; j < ts_vec.Len(); ++j) {
+	  ts_indices.Add(TIntPair(ts_vec[j], index));
+	  events.Add(StarEvent(nbr, 1));	
+	  index++;
+	}
+      }
     }
     ts_indices.Sort();
     TIntV timestamps;
@@ -142,26 +139,10 @@ void TemporalMotifCounter::ThreeEventStarCounts(double delta, Counter3D& pre_cou
     }
 
     // Subtract off edge-wise counts
-    for (int i = 0; i < NI.GetOutDeg(); i++) {
-      int nbr = NI.GetOutNId(i);
-      Counter3D edge_counts;
-      ThreeEventEdgeCounts(center, nbr, delta, edge_counts);
-      #pragma omp critical
-      {
-	for (int dir1 = 0; dir1 < 2; ++dir1) {
-	  for (int dir2 = 0; dir2 < 2; ++dir2) {
-	    for (int dir3 = 0; dir3 < 2; ++dir3) {
-	      pre_counts(dir1, dir2, dir3) -= edge_counts(dir1, dir2, dir3);
-	      pos_counts(dir1, dir2, dir3) -= edge_counts(dir1, dir2, dir3);
-	      mid_counts(dir1, dir2, dir3) -= edge_counts(dir1, dir2, dir3);
-	    }
-	  }
-	}
-      }
-    }
-    for (int i = 0; i < NI.GetInDeg(); i++) {
-      int nbr = NI.GetInNId(i);
-      if (NI.IsOutNId(nbr)) { continue; }
+    TIntV nbrs;
+    GetAllNeighbors(center, nbrs);
+    for (int nbr_id = 0; nbr_id < nbrs.Len(); nbr_id++) {
+      int nbr = nbrs[nbr_id];
       Counter3D edge_counts;
       ThreeEventEdgeCounts(center, nbr, delta, edge_counts);
       #pragma omp critical
@@ -204,7 +185,6 @@ void TemporalMotifCounter::ThreeEventStarCountsNaive(double delta,
     // Get all neighbors
     TIntV nbrs;
     GetAllNeighbors(center, nbrs);
-
     for (int i = 0; i < nbrs.Len(); i++) {
       for (int j = i + 1; j < nbrs.Len(); j++) {
 	int nbr1 = nbrs[i];
@@ -233,7 +213,7 @@ void TemporalMotifCounter::ThreeEventStarCountsNaive(double delta,
 	Counter3D local = counter.Counts();
 
 	#pragma omp critical
-	{ // Update with local counts
+	{  // Update with local counts
 	  for (int dir1 = 0; dir1 < 2; ++dir1) {
 	    for (int dir2 = 0; dir2 < 2; ++dir2) {
 	      for (int dir3 = 0; dir3 < 2; ++dir3) {
@@ -418,8 +398,7 @@ void TemporalMotifCounter::ThreeEventTriangleCounts(double delta, Counter3D& cou
        it < static_graph_->EndEI(); it++) {
     int src = it.GetSrcNId();
     int dst = it.GetDstNId();
-    TIntV& ts_src_dst = temporal_data_[src](dst);
-    edge_counts[MIN(src, dst)](MAX(src, dst)) += ts_src_dst.Len();
+    edge_counts[MIN(src, dst)](MAX(src, dst)) += temporal_data_[src](dst).Len();
   }
 
   // Assign triangles to the edge with the most events
@@ -442,15 +421,11 @@ void TemporalMotifCounter::ThreeEventTriangleCounts(double delta, Counter3D& cou
     }
   }
 
-  std::cerr << "about to count triangles" << std::endl;
   // Count triangles on edges with the assigned neighbors
   for (int u = 0; u < assignments.Len(); u++) {
-    // Get all neighbors (TODO: abstract this out)
     TIntV nbrs;
     GetAllNeighbors(u, nbrs);
 
-    TVec<TriadEvent> events;
-    TVec<TIntPair> ts_indices;
     #pragma omp parallel for
     for (int nbr_id = 0; nbr_id < nbrs.Len(); nbr_id++) {
       int v = nbrs[nbr_id];
@@ -458,6 +433,8 @@ void TemporalMotifCounter::ThreeEventTriangleCounts(double delta, Counter3D& cou
       // Skip if no triangles were assigned to this edge
       if (uv_assignment.Len() == 0) { continue; }
       // Get all events on (u, v)
+      TVec<TriadEvent> events;
+      TVec<TIntPair> ts_indices;
       int index = 0;
       TIntV& ts_uv = temporal_data_[u](v);
       for (int k = 0; k < ts_uv.Len(); k++) {
@@ -514,14 +491,7 @@ void TemporalMotifCounter::ThreeEventTriangleCounts(double delta, Counter3D& cou
       tetc.Count(sorted_events, timestamps, delta);
       #pragma omp critical
       {
-	for (int dir1 = 0; dir1 < 2; ++dir1) {
-	  for (int dir2 = 0; dir2 < 2; ++dir2) {
-	    for (int dir3 = 0; dir3 < 2; ++dir3) {
-	      counts(dir1, dir2, dir3) += tetc.PreCount(dir1, dir2, dir3) +
-		tetc.MidCount(dir1, dir2, dir3) + tetc.PosCount(dir1, dir2, dir3);
-	    }
-	  }
-	}
+	// TODO: update this
       }
     }
   }
@@ -641,7 +611,6 @@ void ThreeEventMotifCounter::DecrementCounts(int event) {
   }
 }
 
-
 template <typename EventType>
 void ThreeEventCounter<EventType>::Count(const TVec<EventType>& events,
 					 const TIntV& timestamps, double delta) {
@@ -688,40 +657,29 @@ void ThreeEventStarCounter::PopPos(StarEvent event) {
   int dir = event.dir;  
   pos_nodes_(dir, nbr) -= 1;
   assert(pos_nodes_(dir, nbr) >= 0);  
-  for (int i = 0; i < 2; i++) {
-    pos_sum_(dir, i) -= pos_nodes_(i, nbr);
-    assert(pos_sum_(dir, i) >= 0);
-  }
+  for (int i = 0; i < 2; i++) { pos_sum_(dir, i) -= pos_nodes_(i, nbr); }
 }
 
 void ThreeEventStarCounter::PushPre(StarEvent event) {
   int nbr = event.nbr;
   int dir = event.dir;  
-  for (int i = 0; i < 2; i++) {
-    pre_sum_(i, dir) += pre_nodes_(i, nbr);
-  }
+  for (int i = 0; i < 2; i++) { pre_sum_(i, dir) += pre_nodes_(i, nbr); }
   pre_nodes_(dir, nbr) += 1;
 }
 
 void ThreeEventStarCounter::PushPos(StarEvent event) {
   int nbr = event.nbr;
   int dir = event.dir;  
-  for (int i = 0; i < 2; i++) {
-    pos_sum_(i, dir) += pos_nodes_(i, nbr);
-  }
+  for (int i = 0; i < 2; i++) { pos_sum_(i, dir) += pos_nodes_(i, nbr); }
   pos_nodes_(dir, nbr) += 1;
 }
 
 void ThreeEventStarCounter::ProcessCurrent(StarEvent event) {
   int nbr = event.nbr;
   int dir = event.dir;
-  
   // Decrement middle sum
-  for (int i = 0; i < 2; i++) {
-    mid_sum_(i, dir) -= pre_nodes_(i, nbr);
-    assert(mid_sum_(i, dir) >= 0);
-  }
-  
+  for (int i = 0; i < 2; i++) { mid_sum_(i, dir) -= pre_nodes_(i, nbr); }
+  // Update counts
   for (int i = 0; i < 2; i++) {
     for (int j = 0; j < 2; j++) {
       pre_counts_(i, j, dir) += pre_sum_(i, j);
@@ -729,11 +687,8 @@ void ThreeEventStarCounter::ProcessCurrent(StarEvent event) {
       mid_counts_(i, dir, j) += mid_sum_(i, j);
     }
   }
-
   // Increment middle sum
-  for (int i = 0; i < 2; i++) {
-    mid_sum_(dir, i) += pos_nodes_(i, nbr);
-  }  
+  for (int i = 0; i < 2; i++) { mid_sum_(dir, i) += pos_nodes_(i, nbr); }
 }
 
 // Triangle counters
