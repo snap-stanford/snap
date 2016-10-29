@@ -103,31 +103,7 @@ class ThreeEventCounter {
  public:
   ThreeEventCounter() {}
 
-  void Count(const TVec<EventType>& events, const TIntV& timestamps, double delta) {
-    if (events.Len() != timestamps.Len()) {
-      TExcept::Throw("Number of events must match number of timestamps.");
-    }
-    int start = 0;
-    int end = 0;
-    int L = timestamps.Len();
-    for (int j = 0; j < L; j++) {
-      double tj = double(timestamps[j]);
-      // Adjust counts in pre-window [tj - delta, tj)
-      while (start < L && double(timestamps[start]) < tj - delta) {
-	PopPre(events[start]);
-	start++;
-      }
-      // Adjust counts in post-window (tj, tj + delta]
-      while (end < L && double(timestamps[end]) <= tj + delta) {
-	PushPos(events[end]);
-	end++;
-      }
-      // Move current event off post-window
-      PopPos(events[j]);
-      ProcessCurrent(events[j]);
-      PushPre(events[j]);
-    }
-  }
+  void Count(const TVec<EventType>& events, const TIntV& timestamps, double delta);
   
   int PreCount(int dir1, int dir2, int dir3) { return pre_counts_(dir1, dir2, dir3); }
   int PosCount(int dir1, int dir2, int dir3) { return pos_counts_(dir1, dir2, dir3); }

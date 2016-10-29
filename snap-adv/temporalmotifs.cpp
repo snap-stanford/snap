@@ -507,6 +507,37 @@ void ThreeEventMotifCounter::DecrementCounts(int event) {
   }
 }
 
+
+template <typename EventType>
+void ThreeEventCounter<EventType>::Count(const TVec<EventType>& events,
+					 const TIntV& timestamps, double delta) {
+  if (events.Len() != timestamps.Len()) {
+    TExcept::Throw("Number of events must match number of timestamps.");
+  }
+  int start = 0;
+  int end = 0;
+  int L = timestamps.Len();
+  for (int j = 0; j < L; j++) {
+    double tj = double(timestamps[j]);
+    // Adjust counts in pre-window [tj - delta, tj)
+    while (start < L && double(timestamps[start]) < tj - delta) {
+      PopPre(events[start]);
+      start++;
+    }
+    // Adjust counts in post-window (tj, tj + delta]
+    while (end < L && double(timestamps[end]) <= tj + delta) {
+      PushPos(events[end]);
+      end++;
+    }
+    // Move current event off post-window
+    PopPos(events[j]);
+    ProcessCurrent(events[j]);
+    PushPre(events[j]);
+  }
+}
+
+
+// Star counter
 void ThreeEventStarCounter::PopPre(StarEvent event) {
   int nbr = event.nbr;
   int dir = event.dir;
