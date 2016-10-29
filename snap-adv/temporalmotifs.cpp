@@ -1,6 +1,5 @@
 #include "Snap.h"
 #include "temporalmotifs.h"
-#include "motifcluster.h"
 
 // TODO(arbenson): remove these
 #include <cassert>
@@ -74,8 +73,7 @@ void TemporalMotifCounter::ThreeEventStarCounts(double delta, Counter3D& pre_cou
 						Counter3D& pos_counts, Counter3D& mid_counts) {
   // Get a vector of nodes (so we can use openmp parallel for over it)
   TIntV centers;
-  for (TNGraph::TNodeI it = static_graph_->BegNI();
-       it < static_graph_->EndNI(); it++) {
+  for (TNGraph::TNodeI it = static_graph_->BegNI(); it < static_graph_->EndNI(); it++) {
     centers.Add(it.GetId());
   }
 
@@ -238,12 +236,8 @@ void TemporalMotifCounter::ThreeEventEdgeCounts(int u, int v, double delta,
   // Sort event list by time
   TVec<TIntPair> combined(ts_uv.Len() + ts_vu.Len());
   int ts_uv_size = ts_uv.Len();
-  for (int k = 0; k < ts_uv_size; k++) {
-    combined[k] = TIntPair(ts_uv[k], 0);
-  }
-  for (int k = 0; k < ts_vu.Len(); k++) {
-    combined[k + ts_uv_size] = TIntPair(ts_vu[k], 1);
-  }
+  for (int k = 0; k < ts_uv_size; k++)  { combined[k] = TIntPair(ts_uv[k], 0); }
+  for (int k = 0; k < ts_vu.Len(); k++) { combined[k + ts_uv_size] = TIntPair(ts_vu[k], 1); }
   combined.Sort();
 
   // Get the counts
@@ -265,8 +259,22 @@ void TemporalMotifCounter::GetAllTriangles(TIntV& Us, TIntV& Vs, TIntV& Ws) {
   Vs = TIntV();
 
   // Get degree ordering of the graph
-  TIntV order;
-  MotifCluster::DegreeOrdering(static_graph_, order);
+  int max_nodes = static_graph_->GetMxNId() + 1;
+  TVec<TIntPair> degrees(max_nodes);
+  degrees.PutAll(TIntPair(0, 0));
+  // Set the degree of a node to be the number of nodes adjacent to the node in
+  // the undirected graph.
+  for (TNGraph::TNodeI NI = static_graph_->BegNI(); NI < static_graph_->EndNI(); NI++) {  
+    int src = NI.GetId();
+    TIntV nbrs;
+    GetAllNeighbors(src, nbrs);
+    degrees[src] = TIntPair(nbrs.Len(), src);
+  }
+  degrees.Sort();
+  TIntV order = TIntV(max_nodes);
+  for (int i = 0; i < order.Len(); ++i) {
+    order[degrees[i].Dat] = i;
+  }
 
   // Get triangles centered at a given node where that node is the smallest in
   // the degree ordering.
@@ -755,7 +763,7 @@ void ThreeEventTriadCounter::ProcessCurrent(TriadEvent event) {
       assert(mid_sum_(i, dir) >= 0);
     }
   }
-  
+  // Update counts
   if (IsEdgeNode(nbr)) {
     // Determine if the event edge is u --> v or v --> u
     int u_to_v = 1;
@@ -770,7 +778,6 @@ void ThreeEventTriadCounter::ProcessCurrent(TriadEvent event) {
       }
     }
   }
-
   // Increment middle sum
   if (!IsEdgeNode(nbr)) {
     for (int i = 0; i < 2; i++) {
