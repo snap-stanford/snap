@@ -73,10 +73,12 @@ class TemporalMotifCounter {
   void ThreeEventStarCountsNaive(double delta, Counter3D& pre_counts,
 				 Counter3D& pos_counts, Counter3D& mid_counts);  
   void ThreeEventTriangleCountsNaive(double delta, Counter3D& counts);
+  void ThreeEventTriangleCounts(double delta, Counter3D& counts);  
   void AllCounts(double delta, Counter2D& counts, bool naive);
   
  private:
   void GetAllTriangles(TIntV& Us, TIntV& Vs, TIntV& Ws);
+  void GetAllNeighbors(int node, TIntV& nbrs);
   PNGraph static_graph_;
   TVec< THash<TInt, TIntV> > temporal_data_;
 };
@@ -156,7 +158,7 @@ class TriadEvent {
  TriadEvent(int _nbr, int _dir, int _u_or_v) : nbr(_nbr), dir(_dir), u_or_v(_u_or_v) {}
   int nbr;  // Which neighbor of the center node
   int dir;  // Outgoing (0) or incoming (1) direction
-  int u_or_v;  // Points to first end point (u) or second end point (v)
+  int u_or_v;  // Points to first end point u (0) or second end point v (1)
 };
 
 class ThreeEventTriadCounter : public ThreeEventCounter<TriadEvent> {

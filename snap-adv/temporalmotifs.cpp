@@ -14,6 +14,7 @@ typedef TKeyDat<TInt, TInt> TIntPair;
 void TemporalMotifCounter::LoadData(const TStr& filename) {
   // First load the static graph
   static_graph_ = TSnap::LoadEdgeList<PNGraph>(filename, 0, 1);
+  TSnap::DelSelfEdges(static_graph_);
   int max_nodes = static_graph_->GetMxNId();
   temporal_data_ = TVec< THash<TInt, TIntV> >(max_nodes);
 
@@ -35,7 +36,10 @@ void TemporalMotifCounter::LoadData(const TStr& filename) {
     int src = data_ptr->GetIntValAtRowIdx(src_idx, row_idx).Val;
     int dst = data_ptr->GetIntValAtRowIdx(dst_idx, row_idx).Val;
     int tim = data_ptr->GetIntValAtRowIdx(tim_idx, row_idx).Val;
-    temporal_data_[src](dst).Add(tim);
+    // Does not handle self-loops right now
+    if (src != dst) {
+      temporal_data_[src](dst).Add(tim);
+    }
   }
 }
 
@@ -177,8 +181,10 @@ void TemporalMotifCounter::ThreeEventStarCounts(double delta, Counter3D& pre_cou
 }
 
 
-void TemporalMotifCounter::ThreeEventStarCountsNaive(double delta, Counter3D& pre_counts,
-						     Counter3D& pos_counts, Counter3D& mid_counts) {
+void TemporalMotifCounter::ThreeEventStarCountsNaive(double delta,
+						     Counter3D& pre_counts,
+						     Counter3D& pos_counts,
+						     Counter3D& mid_counts) {
   // Get a vector of nodes (so we can use openmp parallel for over it)
   TIntV centers;
   for (TNGraph::TNodeI it = static_graph_->BegNI();
@@ -197,12 +203,7 @@ void TemporalMotifCounter::ThreeEventStarCountsNaive(double delta, Counter3D& pr
 
     // Get all neighbors
     TIntV nbrs;
-    TNGraph::TNodeI NI = static_graph_->GetNI(center);
-    for (int i = 0; i < NI.GetOutDeg(); i++) { nbrs.Add(NI.GetOutNId(i)); }
-    for (int i = 0; i < NI.GetInDeg(); i++) {
-      int nbr = NI.GetInNId(i);
-      if (!NI.IsOutNId(nbr)) { nbrs.Add(nbr); }
-    }
+    GetAllNeighbors(center, nbrs);
 
     for (int i = 0; i < nbrs.Len(); i++) {
       for (int j = i + 1; j < nbrs.Len(); j++) {
@@ -398,6 +399,135 @@ void TemporalMotifCounter::ThreeEventTriangleCountsNaive(double delta, Counter3D
   }
 }
 
+void TemporalMotifCounter::GetAllNeighbors(int node, TIntV& nbrs) {
+  nbrs = TIntV();
+  TNGraph::TNodeI NI = static_graph_->GetNI(node);
+  for (int i = 0; i < NI.GetOutDeg(); i++) { nbrs.Add(NI.GetOutNId(i)); }
+  for (int i = 0; i < NI.GetInDeg(); i++) {
+    int nbr = NI.GetInNId(i);
+    if (!NI.IsOutNId(nbr)) { nbrs.Add(nbr); }
+  }
+}
+
+void TemporalMotifCounter::ThreeEventTriangleCounts(double delta, Counter3D& counts) {
+  counts = Counter3D(2, 2, 2);
+  
+  // Get the counts on each undirected edge
+  TVec< THash<TInt, TInt> > edge_counts(temporal_data_.Len());
+  for (TNGraph::TEdgeI it = static_graph_->BegEI();
+       it < static_graph_->EndEI(); it++) {
+    int src = it.GetSrcNId();
+    int dst = it.GetDstNId();
+    TIntV& ts_src_dst = temporal_data_[src](dst);
+    edge_counts[MIN(src, dst)](MAX(src, dst)) += ts_src_dst.Len();
+  }
+
+  // Assign triangles to the edge with the most events
+  TVec< THash<TInt, TIntV> > assignments(temporal_data_.Len());
+  TIntV Us, Vs, Ws;
+  GetAllTriangles(Us, Vs, Ws);
+  for (int i = 0; i < Us.Len(); i++) {
+    int u = Us[i];
+    int v = Vs[i];
+    int w = Ws[i];
+    int counts_uv = edge_counts[MIN(u, v)](MAX(u, v));
+    int counts_uw = edge_counts[MIN(u, w)](MAX(u, w));
+    int counts_vw = edge_counts[MIN(v, w)](MAX(v, w));
+    if        (counts_uv >= MAX(counts_uw, counts_vw)) {
+      assignments[MIN(u, v)](MAX(u, v)).Add(w);
+    } else if (counts_uw >= MAX(counts_uv, counts_vw)) {
+      assignments[MIN(u, w)](MAX(u, w)).Add(v);
+    } else if (counts_vw >= MAX(counts_uv, counts_uw)) {
+      assignments[MIN(v, w)](MAX(v, w)).Add(u);
+    }
+  }
+
+  std::cerr << "about to count triangles" << std::endl;
+  // Count triangles on edges with the assigned neighbors
+  for (int u = 0; u < assignments.Len(); u++) {
+    // Get all neighbors (TODO: abstract this out)
+    TIntV nbrs;
+    GetAllNeighbors(u, nbrs);
+
+    TVec<TriadEvent> events;
+    TVec<TIntPair> ts_indices;
+    #pragma omp parallel for
+    for (int nbr_id = 0; nbr_id < nbrs.Len(); nbr_id++) {
+      int v = nbrs[nbr_id];
+      TIntV& uv_assignment = assignments[u](v);
+      // Skip if no triangles were assigned to this edge
+      if (uv_assignment.Len() == 0) { continue; }
+      // Get all events on (u, v)
+      int index = 0;
+      TIntV& ts_uv = temporal_data_[u](v);
+      for (int k = 0; k < ts_uv.Len(); k++) {
+	ts_indices.Add(TIntPair(ts_uv[k], index));
+	events.Add(TriadEvent(u, 0, 1));
+	++index;
+      }
+      TIntV& ts_vu = temporal_data_[v](u);
+      for (int k = 0; k < ts_vu.Len(); k++) {
+	ts_indices.Add(TIntPair(ts_vu[k], index));
+	events.Add(TriadEvent(v, 0, 0));
+	++index;
+      }
+      // Get all events on triangles assigned to (u, v)
+      for (int w_id = 0; w_id < uv_assignment.Len(); w_id++) {
+	int w = uv_assignment[w_id];
+	TIntV& ts_wu = temporal_data_[w](u);
+	for (int k = 0; k < ts_wu.Len(); k++) {
+	  ts_indices.Add(TIntPair(ts_wu[k], index));
+	  events.Add(TriadEvent(w, 0, 0));
+	  ++index;
+	}
+	TIntV& ts_wv = temporal_data_[w](v);
+	for (int k = 0; k < ts_wv.Len(); k++) {
+	  ts_indices.Add(TIntPair(ts_wv[k], index));
+	  events.Add(TriadEvent(w, 0, 1));
+	  ++index;
+	}
+	TIntV& ts_uw = temporal_data_[u](w);
+	for (int k = 0; k < ts_uw.Len(); k++) {
+	  ts_indices.Add(TIntPair(ts_uw[k], index));
+	  events.Add(TriadEvent(w, 1, 0));
+	  ++index;
+	}
+	TIntV& ts_vw = temporal_data_[v](w);
+	for (int k = 0; k < ts_vw.Len(); k++) {
+	  ts_indices.Add(TIntPair(ts_vw[k], index));
+	  events.Add(TriadEvent(w, 1, 1));
+	  ++index;
+	}
+      }
+
+      // Put events in sorted order
+      ts_indices.Sort();
+      TIntV timestamps(ts_indices.Len());
+      TVec<TriadEvent> sorted_events(ts_indices.Len());
+      for (int i = 0; i < ts_indices.Len(); i++) {
+	timestamps[i] = ts_indices[i].Key;
+	sorted_events[i] = events[ts_indices[i].Dat];
+      }
+
+      // Get the counts and update the counter
+      ThreeEventTriadCounter tetc(static_graph_->GetMxNId(), u, v);
+      tetc.Count(sorted_events, timestamps, delta);
+      #pragma omp critical
+      {
+	for (int dir1 = 0; dir1 < 2; ++dir1) {
+	  for (int dir2 = 0; dir2 < 2; ++dir2) {
+	    for (int dir3 = 0; dir3 < 2; ++dir3) {
+	      counts(dir1, dir2, dir3) += tetc.PreCount(dir1, dir2, dir3) +
+		tetc.MidCount(dir1, dir2, dir3) + tetc.PosCount(dir1, dir2, dir3);
+	    }
+	  }
+	}
+      }
+    }
+  }
+}
+
+
 void TemporalMotifCounter::AllCounts(double delta, Counter2D& counts, bool naive) {
   counts = Counter2D(6, 6);
   
@@ -441,7 +571,11 @@ void TemporalMotifCounter::AllCounts(double delta, Counter2D& counts, bool naive
   counts(5, 5) = star_pre_counts(1, 1, 1);  
 
   Counter3D tri_counts;
-  ThreeEventTriangleCountsNaive(delta, tri_counts);
+  if (naive) {
+    ThreeEventTriangleCountsNaive(delta, tri_counts);
+  } else {
+    ThreeEventTriangleCounts(delta, tri_counts);
+  }
   counts(0, 2) = tri_counts(0, 0, 0);
   counts(0, 3) = tri_counts(0, 0, 1);
   counts(1, 2) = tri_counts(0, 1, 0);
@@ -689,4 +823,3 @@ void ThreeEventTriadCounter::ProcessCurrent(TriadEvent event) {
     }
   }    
 }
-
