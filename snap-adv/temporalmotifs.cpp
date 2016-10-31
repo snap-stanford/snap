@@ -165,7 +165,6 @@ void TemporalMotifCounter::GetAllNodes(TIntV& nodes) {
   }
 }
 
-
 void TemporalMotifCounter::ThreeEventStarCountsNaive(double delta,
 						     Counter3D& pre_counts,
 						     Counter3D& pos_counts,
@@ -182,8 +181,6 @@ void TemporalMotifCounter::ThreeEventStarCountsNaive(double delta,
   for (int c = 0; c < centers.Len(); c++) {
     // Gather all adjacent events
     int center = centers[c];
-
-    // Get all neighbors
     TIntV nbrs;
     GetAllNeighbors(center, nbrs);
     for (int i = 0; i < nbrs.Len(); i++) {
@@ -611,9 +608,7 @@ void ThreeEventMotifCounter::IncrementCounts(int event) {
     }
   }
   // Update two-counts
-  for (int i = 0; i < size_; i++) {
-    counts2_(i, event) += counts1_[i];
-  }
+  for (int i = 0; i < size_; i++) { counts2_(i, event) += counts1_[i]; }
   // Update one-counts
   counts1_[event] += 1;
 }
@@ -770,26 +765,54 @@ void ThreeEventTriadCounter::ProcessCurrent(TriadEvent event) {
   int nbr = event.nbr;
   int dir = event.dir;
   int u_or_v = event.u_or_v;  
-  // Decrement middle sum  
+  // Adjust middle sums
   if (!IsEdgeNode(nbr)) {
     for (int i = 0; i < 2; i++) {
       mid_sum_(1 - u_or_v, i, dir) -= pre_nodes_(1 - u_or_v, i, nbr);
       assert(mid_sum_(1 - u_or_v, i, dir) >= 0);
     }
+    for (int i = 0; i < 2; i++) {
+      mid_sum_(u_or_v, dir, i) += pos_nodes_(1 - u_or_v, i, nbr);
+    }
   }
   // Update counts
   if (IsEdgeNode(nbr)) {
     // Determine if the event edge is u --> v or v --> u
-    if (((nbr == node_u_) && dir == 0) || ((nbr == node_v_) && dir == 1)) {  // v --> u
-      triad_counts_(0, 0, 0) += mid_sum_(1, 1, 1) + pos_sum_(0, 0, 1) + pre_sum_(1, 1, 1);
-    } else {  // u --> v
-      triad_counts_(0, 0, 0) += mid_sum_(0, 1, 1) + pos_sum_(1, 0, 1) + pre_sum_(0, 1, 1);
+    int u_to_v = 0;
+    if (((nbr == node_u_) && dir == 0) || ((nbr == node_v_) && dir == 1)) {
+      u_to_v = 1;
     }
+    // i --> j, k --> j, i --> k    
+    triad_counts_(0, 0, 0) += mid_sum_(u_to_v,     0, 0)
+                           +  pos_sum_(u_to_v,     0, 1)
+                           +  pre_sum_(1 - u_to_v, 1, 1);
+    // i --> j, k --> j, k --> i
+    triad_counts_(0, 0, 1) += mid_sum_(u_to_v,     0, 1)
+                           +  pos_sum_(u_to_v,     0, 0)
+                           +  pre_sum_(u_to_v,     1, 1);
+    // i --> j, j --> k, i --> k
+    triad_counts_(0, 1, 0) += mid_sum_(1 - u_to_v, 0, 0)
+                           +  pos_sum_(u_to_v,     1, 1)
+                           +  pre_sum_(1 - u_to_v, 1, 0);
+    // i --> j, j --> k, k --> i
+    triad_counts_(0, 1, 1) += mid_sum_(1 - u_to_v, 0, 1)
+                           +  pos_sum_(u_to_v,     1, 0)
+                           +  pre_sum_(u_to_v,     1, 0);
+    // i --> j, k --> i, j --> k
+    triad_counts_(1, 0, 0) += mid_sum_(u_to_v,     1, 0)
+                           +  pos_sum_(1 - u_to_v, 0, 1)
+                           +  pre_sum_(1 - u_to_v, 0, 1);
+    // i --> j, k --> i, k --> j
+    triad_counts_(1, 0, 1) += mid_sum_(u_to_v,     1, 1)
+                           +  pos_sum_(1 - u_to_v, 0, 0)
+                           +  pre_sum_(u_to_v,     0, 1);
+    // i --> j, i --> k, j --> k
+    triad_counts_(1, 1, 0) += mid_sum_(1 - u_to_v, 1, 0)
+                           +  pos_sum_(1 - u_to_v, 1, 1)
+                           +  pre_sum_(1 - u_to_v, 0, 0);
+    // i --> j, i --> k, k --> j
+    triad_counts_(1, 1, 1) += mid_sum_(1 - u_to_v, 1, 1)
+                           +  pos_sum_(1 - u_to_v, 1, 0)
+                           +  pre_sum_(u_to_v,     0, 0);
   }
-  // Increment middle sum
-  if (!IsEdgeNode(nbr)) {
-    for (int i = 0; i < 2; i++) {
-      mid_sum_(u_or_v, dir, i) += pos_nodes_(1 - u_or_v, i, nbr);
-    }
-  }    
 }
