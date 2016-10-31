@@ -79,6 +79,7 @@ class TemporalMotifCounter {
  private:
   void GetAllTriangles(TIntV& Us, TIntV& Vs, TIntV& Ws);
   void GetAllNeighbors(int node, TIntV& nbrs);
+  void GetAllNodes(TIntV& nodes);
   PNGraph static_graph_;
   TVec< THash<TInt, TIntV> > temporal_data_;
 };
@@ -104,22 +105,9 @@ template <typename EventType>
 class ThreeEventCounter {
  public:
   ThreeEventCounter() {}
-
   void Count(const TVec<EventType>& events, const TIntV& timestamps, double delta);
   
-  int PreCount(int dir1, int dir2, int dir3) { return pre_counts_(dir1, dir2, dir3); }
-  int PosCount(int dir1, int dir2, int dir3) { return pos_counts_(dir1, dir2, dir3); }
-  int MidCount(int dir1, int dir2, int dir3) { return mid_counts_(dir1, dir2, dir3); }
-
  protected:
-  Counter2D pre_sum_ = Counter2D(2, 2);
-  Counter2D pos_sum_ = Counter2D(2, 2);
-  Counter2D mid_sum_ = Counter2D(2, 2);
-
-  Counter3D pre_counts_ = Counter3D(2, 2, 2);
-  Counter3D pos_counts_ = Counter3D(2, 2, 2);
-  Counter3D mid_counts_ = Counter3D(2, 2, 2);
-
   virtual void PopPre(EventType event) = 0;
   virtual void PopPos(EventType event) = 0;
   virtual void PushPre(EventType event) = 0;
@@ -140,6 +128,10 @@ class ThreeEventStarCounter : public ThreeEventCounter<StarEvent> {
  ThreeEventStarCounter(int num_nodes) : pre_nodes_(2, num_nodes),
     pos_nodes_(2, num_nodes) {}
 
+  int PreCount(int dir1, int dir2, int dir3) { return pre_counts_(dir1, dir2, dir3); }
+  int PosCount(int dir1, int dir2, int dir3) { return pos_counts_(dir1, dir2, dir3); }
+  int MidCount(int dir1, int dir2, int dir3) { return mid_counts_(dir1, dir2, dir3); }
+
  protected:
   void PopPre(StarEvent event);
   void PopPos(StarEvent event);
@@ -148,6 +140,12 @@ class ThreeEventStarCounter : public ThreeEventCounter<StarEvent> {
   void ProcessCurrent(StarEvent event);
   
  private:
+  Counter2D pre_sum_ = Counter2D(2, 2);
+  Counter2D pos_sum_ = Counter2D(2, 2);
+  Counter2D mid_sum_ = Counter2D(2, 2);
+  Counter3D pre_counts_ = Counter3D(2, 2, 2);
+  Counter3D pos_counts_ = Counter3D(2, 2, 2);
+  Counter3D mid_counts_ = Counter3D(2, 2, 2);
   Counter2D pre_nodes_;
   Counter2D pos_nodes_;
 };
@@ -167,6 +165,8 @@ class ThreeEventTriadCounter : public ThreeEventCounter<TriadEvent> {
   pre_nodes_(2, 2, num_nodes), pos_nodes_(2, 2, num_nodes),
     node_u_(node_u), node_v_(node_v) {}
 
+  int Counts(int dir1, int dir2, int dir3) { return triad_counts_(dir1, dir2, dir3); }
+
  protected:
   void PopPre(TriadEvent event);
   void PopPos(TriadEvent event);
@@ -175,12 +175,16 @@ class ThreeEventTriadCounter : public ThreeEventCounter<TriadEvent> {
   void ProcessCurrent(TriadEvent event);
   bool IsEdgeNode(int nbr) { return nbr == node_u_ || nbr == node_v_; }
 
+ private:
+  Counter3D pre_sum_ = Counter3D(2, 2, 2);
+  Counter3D pos_sum_ = Counter3D(2, 2, 2);
+  Counter3D mid_sum_ = Counter3D(2, 2, 2);
+  Counter3D triad_counts_ = Counter3D(2, 2, 2);
+  Counter3D pre_nodes_;
+  Counter3D pos_nodes_;
   // Two end points of the edge whose triangles this class counts.
   int node_u_;
   int node_v_;
-
-  Counter3D pre_nodes_;
-  Counter3D pos_nodes_;
 };
 
 #endif  // snap_temporalmotifs_h

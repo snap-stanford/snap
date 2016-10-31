@@ -73,9 +73,7 @@ void TemporalMotifCounter::ThreeEventStarCounts(double delta, Counter3D& pre_cou
 						Counter3D& pos_counts, Counter3D& mid_counts) {
   // Get a vector of nodes (so we can use openmp parallel for over it)
   TIntV centers;
-  for (TNGraph::TNodeI it = static_graph_->BegNI(); it < static_graph_->EndNI(); it++) {
-    centers.Add(it.GetId());
-  }
+  GetAllNodes(centers);
 
   // Get counts for each node as the center
   pre_counts = Counter3D(2, 2, 2);
@@ -159,6 +157,14 @@ void TemporalMotifCounter::ThreeEventStarCounts(double delta, Counter3D& pre_cou
   }
 }
 
+void TemporalMotifCounter::GetAllNodes(TIntV& nodes) {
+  nodes = TIntV();
+  for (TNGraph::TNodeI it = static_graph_->BegNI();
+       it < static_graph_->EndNI(); it++) {
+    nodes.Add(it.GetId());
+  }
+}
+
 
 void TemporalMotifCounter::ThreeEventStarCountsNaive(double delta,
 						     Counter3D& pre_counts,
@@ -166,10 +172,7 @@ void TemporalMotifCounter::ThreeEventStarCountsNaive(double delta,
 						     Counter3D& mid_counts) {
   // Get a vector of nodes (so we can use openmp parallel for over it)
   TIntV centers;
-  for (TNGraph::TNodeI it = static_graph_->BegNI();
-       it < static_graph_->EndNI(); it++) {
-    centers.Add(it.GetId());
-  }
+  GetAllNodes(centers);
 
   // Get counts for each node as the center
   pre_counts = Counter3D(2, 2, 2);
@@ -264,7 +267,8 @@ void TemporalMotifCounter::GetAllTriangles(TIntV& Us, TIntV& Vs, TIntV& Ws) {
   degrees.PutAll(TIntPair(0, 0));
   // Set the degree of a node to be the number of nodes adjacent to the node in
   // the undirected graph.
-  for (TNGraph::TNodeI NI = static_graph_->BegNI(); NI < static_graph_->EndNI(); NI++) {  
+  for (TNGraph::TNodeI NI = static_graph_->BegNI();
+       NI < static_graph_->EndNI(); NI++) {  
     int src = NI.GetId();
     TIntV nbrs;
     GetAllNeighbors(src, nbrs);
@@ -278,7 +282,8 @@ void TemporalMotifCounter::GetAllTriangles(TIntV& Us, TIntV& Vs, TIntV& Ws) {
 
   // Get triangles centered at a given node where that node is the smallest in
   // the degree ordering.
-  for (TNGraph::TNodeI NI = static_graph_->BegNI(); NI < static_graph_->EndNI(); NI++) {
+  for (TNGraph::TNodeI NI = static_graph_->BegNI();
+       NI < static_graph_->EndNI(); NI++) {
     int src = NI.GetId();
     int src_pos = order[src];
     
@@ -429,9 +434,12 @@ void TemporalMotifCounter::ThreeEventTriangleCounts(double delta, Counter3D& cou
     }
   }
 
+  TIntV all_nodes;
+  GetAllNodes(all_nodes);
   // Count triangles on edges with the assigned neighbors
-  for (int u = 0; u < assignments.Len(); u++) {
+  for (int node_id = 0; node_id < all_nodes.Len(); node_id++) {
     TIntV nbrs;
+    int u = all_nodes[node_id];
     GetAllNeighbors(u, nbrs);
 
     #pragma omp parallel for
@@ -499,7 +507,13 @@ void TemporalMotifCounter::ThreeEventTriangleCounts(double delta, Counter3D& cou
       tetc.Count(sorted_events, timestamps, delta);
       #pragma omp critical
       {
-	// TODO: update this
+	for (int dir1 = 0; dir1 < 2; dir1++) {
+	  for (int dir2 = 0; dir2 < 2; dir2++) {
+	    for (int dir3 = 0; dir3 < 2; dir3++) {	  
+	      counts(dir1, dir2, dir3) += tetc.Counts(dir1, dir2, dir3);
+	    }
+	  }
+	}
       }
     }
   }
@@ -647,7 +661,6 @@ void ThreeEventCounter<EventType>::Count(const TVec<EventType>& events,
   }
 }
 
-
 // Star counter
 void ThreeEventStarCounter::PopPre(StarEvent event) {
   int nbr = event.nbr;
@@ -699,17 +712,18 @@ void ThreeEventStarCounter::ProcessCurrent(StarEvent event) {
   for (int i = 0; i < 2; i++) { mid_sum_(dir, i) += pos_nodes_(i, nbr); }
 }
 
+///////////////////////////////////
 // Triangle counters
 void ThreeEventTriadCounter::PopPre(TriadEvent event) {
   int nbr = event.nbr;
   int dir = event.dir;
   int u_or_v = event.u_or_v;
   if (!IsEdgeNode(nbr)) {
-    pre_nodes_(dir, u_or_v, nbr) -= 1;
-    assert(pre_nodes_(dir, u_or_v, nbr) >= 0);
+    pre_nodes_(u_or_v, dir, nbr) -= 1;
+    assert(pre_nodes_(u_or_v, dir, nbr) >= 0);
     for (int i = 0; i < 2; i++) {
-      pre_sum_(dir, i) -= pre_nodes_(i, 1 - u_or_v, nbr);
-      assert(pre_sum_(dir, i) >= 0);
+      pre_sum_(u_or_v, dir, i) -= pre_nodes_(1 - u_or_v, i, nbr);
+      assert(pre_sum_(u_or_v, dir, i) >= 0);
     }
   }
 }
@@ -719,11 +733,11 @@ void ThreeEventTriadCounter::PopPos(TriadEvent event) {
   int dir = event.dir;
   int u_or_v = event.u_or_v;  
   if (!IsEdgeNode(nbr)) {  
-    pos_nodes_(dir, u_or_v, nbr) -= 1;
-    assert(pos_nodes_(dir, u_or_v, nbr) >= 0);  
+    pos_nodes_(u_or_v, dir, nbr) -= 1;
+    assert(pos_nodes_(u_or_v, dir, nbr) >= 0);  
     for (int i = 0; i < 2; i++) {
-      pos_sum_(dir, i) -= pos_nodes_(i, 1 - u_or_v, nbr);
-      assert(pos_sum_(dir, i) >= 0);
+      pos_sum_(u_or_v, dir, i) -= pos_nodes_(1 - u_or_v, i, nbr);
+      assert(pos_sum_(u_or_v, dir, i) >= 0);
     }
   }
 }
@@ -734,21 +748,21 @@ void ThreeEventTriadCounter::PushPre(TriadEvent event) {
   int u_or_v = event.u_or_v;  
   if (!IsEdgeNode(nbr)) {  
     for (int i = 0; i < 2; i++) {
-      pre_sum_(i, dir) += pre_nodes_(i, 1 - u_or_v, nbr);
+      pre_sum_(1 - u_or_v, i, dir) += pre_nodes_(1 - u_or_v, i, nbr);
     }
-    pre_nodes_(dir, u_or_v, nbr) += 1;
+    pre_nodes_(u_or_v, dir, nbr) += 1;
   }
 }
 
 void ThreeEventTriadCounter::PushPos(TriadEvent event) {
   int nbr = event.nbr;
   int dir = event.dir;
-  int u_or_v = event.u_or_v;  
+  int u_or_v = event.u_or_v;
   if (!IsEdgeNode(nbr)) {
     for (int i = 0; i < 2; i++) {
-      pos_sum_(i, dir) += pos_nodes_(i, 1 - u_or_v, nbr);
+      pos_sum_(1 - u_or_v, i, dir) += pos_nodes_(1 - u_or_v, i, nbr);
     }
-    pos_nodes_(dir, u_or_v, nbr) += 1;
+    pos_nodes_(u_or_v, dir, nbr) += 1;
   }
 }
 
@@ -759,29 +773,23 @@ void ThreeEventTriadCounter::ProcessCurrent(TriadEvent event) {
   // Decrement middle sum  
   if (!IsEdgeNode(nbr)) {
     for (int i = 0; i < 2; i++) {
-      mid_sum_(i, dir) -= pre_nodes_(i, 1 - u_or_v, nbr);
-      assert(mid_sum_(i, dir) >= 0);
+      mid_sum_(1 - u_or_v, i, dir) -= pre_nodes_(1 - u_or_v, i, nbr);
+      assert(mid_sum_(1 - u_or_v, i, dir) >= 0);
     }
   }
   // Update counts
   if (IsEdgeNode(nbr)) {
     // Determine if the event edge is u --> v or v --> u
-    int u_to_v = 1;
-    if (((nbr == node_u_) && dir == 0) || ((nbr == node_v_) && dir == 1)) {
-      u_to_v = 0;
-    }
-    for (int i = 0; i < 2; i++) {
-      for (int j = 0; j < 2; j++) {
-	pre_counts_(i, j, u_to_v) += pre_sum_(i, j);
-	pos_counts_(u_to_v, i, j) += pos_sum_(i, j);
-	mid_counts_(i, u_to_v, j) += mid_sum_(i, j);
-      }
+    if (((nbr == node_u_) && dir == 0) || ((nbr == node_v_) && dir == 1)) {  // v --> u
+      triad_counts_(0, 0, 0) += mid_sum_(1, 1, 1) + pos_sum_(0, 0, 1) + pre_sum_(1, 1, 1);
+    } else {  // u --> v
+      triad_counts_(0, 0, 0) += mid_sum_(0, 1, 1) + pos_sum_(1, 0, 1) + pre_sum_(0, 1, 1);
     }
   }
   // Increment middle sum
   if (!IsEdgeNode(nbr)) {
     for (int i = 0; i < 2; i++) {
-      mid_sum_(dir, i) += pos_nodes_(i, 1 - u_or_v, nbr);
+      mid_sum_(u_or_v, dir, i) += pos_nodes_(1 - u_or_v, i, nbr);
     }
   }    
 }
