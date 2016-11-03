@@ -72,6 +72,8 @@ class TempMotifCounter {
   //    source_node destination_node unix_timestamp
   TempMotifCounter(const TStr& filename);
 
+  void AllCounts(double delta, Counter2D& counts, bool naive);  
+
   // Count all three temporal edge, two-node delta-temporal motifs and fills the
   // counter counts with the results.  The format is:
   //   counts(0, 0): u --> v, v --> u, u --> v  (M_{5,1})
@@ -92,6 +94,7 @@ class TempMotifCounter {
   //   counts(0, 0, 1): u --> v, u --> v, v --> u
   //   counts(1, 1, 0): v --> u, v --> u, u --> v
   void ThreeTempEdgeTwoNodeCounts(int u, int v, double delta, Counter3D& counts);
+
   void ThreeEventStarCounts(double delta, Counter3D& pre_counts,
 			    Counter3D& pos_counts, Counter3D& mid_counts);
   void ThreeEventStarCountsNaive(double delta, Counter3D& pre_counts,
@@ -100,12 +103,16 @@ class TempMotifCounter {
   void ThreeEventTriangleCountsNaive(double delta, Counter3D& counts);
   void ThreeEventTriangleCounts(double delta, Counter3D& counts);
 
-  
-  void AllCounts(double delta, Counter2D& counts, bool naive);
+
   
  private:
-  void GetAllTriangles(TIntV& Us, TIntV& Vs, TIntV& Ws);
+  // Get all triangles in the static graph, (Us(i), Vs(i), Ws(i)) is the ith
+  // triangle.
+  void GetAllStaticTriangles(TIntV& Us, TIntV& Vs, TIntV& Ws);
+  // Fills nbrs with all neighbors (ignoring direction) of the node in the
+  // static graph.
   void GetAllNeighbors(int node, TIntV& nbrs);
+  // Fills nodes with a vector of all nodes in the static graph.
   void GetAllNodes(TIntV& nodes);
   PNGraph static_graph_;
   TVec< THash<TInt, TIntV> > temporal_data_;
