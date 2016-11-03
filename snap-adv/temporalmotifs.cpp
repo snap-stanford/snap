@@ -455,15 +455,18 @@ void TempMotifCounter::ThreeEventTriangleCountsNaive(double delta, Counter3D& co
   }
 }
 
-void AddTriadEvents(TVec<TriadEvent> events, TVec<TIntPair> ts_indices,
-		    TIntV& timestamps, int nbr, int key1, int key2) {
-  
+void AddTriadEvents(TVec<TriadEvent>& events, TVec<TIntPair>& ts_indices,
+		   TIntV& timestamps, int& index, int nbr, int key1, int key2) {
+  for (int i = 0; i < timestamps.Len(); i++) {
+    ts_indices.Add(TIntPair(timestamps[i], index));
+    events.Add(TriadEvent(nbr, key1, key2));
+    ++index;
+  }
 }
-
 
 void TempMotifCounter::ThreeEventTriangleCounts(double delta, Counter3D& counts) {
   counts = Counter3D(2, 2, 2);
-  
+
   // Get the counts on each undirected edge
   TVec< THash<TInt, TInt> > edge_counts(temporal_data_.Len());
   for (TNGraph::TEdgeI it = static_graph_->BegEI();
@@ -472,7 +475,7 @@ void TempMotifCounter::ThreeEventTriangleCounts(double delta, Counter3D& counts)
     int dst = it.GetDstNId();
     edge_counts[MIN(src, dst)](MAX(src, dst)) += temporal_data_[src](dst).Len();
   }
-
+  
   // Assign triangles to the edge with the most events
   TVec< THash<TInt, TIntV> > assignments(temporal_data_.Len());
   TIntV Us, Vs, Ws;
@@ -511,45 +514,15 @@ void TempMotifCounter::ThreeEventTriangleCounts(double delta, Counter3D& counts)
       TVec<TriadEvent> events;
       TVec<TIntPair> ts_indices;
       int index = 0;
-      TIntV& ts_uv = temporal_data_[u](v);
-      for (int k = 0; k < ts_uv.Len(); k++) {
-        ts_indices.Add(TIntPair(ts_uv[k], index));
-        events.Add(TriadEvent(u, 0, 1));
-        ++index;
-      }
-      TIntV& ts_vu = temporal_data_[v](u);
-      for (int k = 0; k < ts_vu.Len(); k++) {
-        ts_indices.Add(TIntPair(ts_vu[k], index));
-        events.Add(TriadEvent(v, 0, 0));
-        ++index;
-      }
+      AddTriadEvents(events, ts_indices, temporal_data_[u](v), index, u, 0, 1);
+      AddTriadEvents(events, ts_indices, temporal_data_[v](u), index, v, 0, 0);
       // Get all events on triangles assigned to (u, v)
       for (int w_id = 0; w_id < uv_assignment.Len(); w_id++) {
         int w = uv_assignment[w_id];
-        TIntV& ts_wu = temporal_data_[w](u);
-        for (int k = 0; k < ts_wu.Len(); k++) {
-          ts_indices.Add(TIntPair(ts_wu[k], index));
-          events.Add(TriadEvent(w, 0, 0));
-          ++index;
-        }
-        TIntV& ts_wv = temporal_data_[w](v);
-        for (int k = 0; k < ts_wv.Len(); k++) {
-          ts_indices.Add(TIntPair(ts_wv[k], index));
-          events.Add(TriadEvent(w, 0, 1));
-          ++index;
-        }
-        TIntV& ts_uw = temporal_data_[u](w);
-        for (int k = 0; k < ts_uw.Len(); k++) {
-          ts_indices.Add(TIntPair(ts_uw[k], index));
-          events.Add(TriadEvent(w, 1, 0));
-          ++index;
-        }
-        TIntV& ts_vw = temporal_data_[v](w);
-        for (int k = 0; k < ts_vw.Len(); k++) {
-          ts_indices.Add(TIntPair(ts_vw[k], index));
-          events.Add(TriadEvent(w, 1, 1));
-          ++index;
-        }
+	AddTriadEvents(events, ts_indices, temporal_data_[w](u), index, w, 0, 0);
+	AddTriadEvents(events, ts_indices, temporal_data_[w](v), index, w, 0, 1);
+	AddTriadEvents(events, ts_indices, temporal_data_[u](w), index, w, 1, 0);
+	AddTriadEvents(events, ts_indices, temporal_data_[v](w), index, w, 1, 1);
       }
 
       // Put events in sorted order
@@ -605,25 +578,18 @@ void ThreeEventMotifCounter::Count(const TIntV& event_string,
 }
 
 void ThreeEventMotifCounter::IncrementCounts(int event) {
-  // Update three-counts
   for (int i = 0; i < size_; i++) {
     for (int j = 0; j < size_; j++) {
       counts3_(i, j, event) += counts2_(i, j);
     }
   }
-  // Update two-counts
   for (int i = 0; i < size_; i++) { counts2_(i, event) += counts1_[i]; }
-  // Update one-counts
   counts1_[event] += 1;
 }
 
 void ThreeEventMotifCounter::DecrementCounts(int event) {
-  // Update one-counts
   counts1_[event]--;
-  // Update two-counts
-  for (int i = 0; i < size_; i++) {
-    counts2_(event, i) -= counts1_[i];
-  }
+  for (int i = 0; i < size_; i++) { counts2_(event, i) -= counts1_[i]; }
 }
 
 template <typename EventType>
