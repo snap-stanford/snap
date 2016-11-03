@@ -1,13 +1,9 @@
 #include "Snap.h"
 #include "temporalmotifs.h"
 
-// TODO(arbenson): remove these
-#include <cassert>
-#include <iostream>
-
 typedef TKeyDat<TInt, TInt> TIntPair;
 
-void TemporalMotifCounter::LoadData(const TStr& filename) {
+TempMotifCounter::TempMotifCounter(const TStr& filename) {
   // First load the static graph
   static_graph_ = TSnap::LoadEdgeList<PNGraph>(filename, 0, 1);
   int max_nodes = static_graph_->GetMxNId();
@@ -35,11 +31,10 @@ void TemporalMotifCounter::LoadData(const TStr& filename) {
   }
 }
 
-void TemporalMotifCounter::ThreeEventEdgeCounts(double delta, Counter3D& counts) {
+void TempMotifCounter::ThreeTempEdgeTwoNodeCounts(double delta, Counter2D& counts) {
   // Get a vector of undirected edges (so we can use openmp parallel for over it)
-  TVec< TIntPair > undir_edges;
-  for (TNGraph::TEdgeI it = static_graph_->BegEI();
-       it < static_graph_->EndEI(); it++) {
+  TVec<TIntPair> undir_edges;
+  for (TNGraph::TEdgeI it = static_graph_->BegEI(); it < static_graph_->EndEI(); it++) {
     int src = it.GetSrcNId();
     int dst = it.GetDstNId();
     // Only consider undirected edges
@@ -47,30 +42,27 @@ void TemporalMotifCounter::ThreeEventEdgeCounts(double delta, Counter3D& counts)
       undir_edges.Add(TIntPair(src, dst));
     }
   }
-  counts = Counter3D(2, 2, 2);
+  counts = Counter2D(2, 2);
   #pragma omp parallel for
   for (int i = 0; i < undir_edges.Len(); i++) {
     TIntPair edge = undir_edges[i];
     // Get the counts for that particular edge
-    Counter3D local_counts;
+    Counter3D local;
     int src = edge.Key;
     int dst = edge.Dat;
-    ThreeEventEdgeCounts(src, dst, delta, local_counts);
+    ThreeTempEdgeTwoNodeCounts(src, dst, delta, local);
     #pragma omp critical
     {
-      for (int dir1 = 0; dir1 < 2; ++dir1) {
-	for (int dir2 = 0; dir2 < 2; ++dir2) {
-	  for (int dir3 = 0; dir3 < 2; ++dir3) {
-	    counts(dir1, dir2, dir3) += local_counts(dir1, dir2, dir3);
-	  }
-	}
-      }
+      counts(0, 0) += local(0, 1, 0) + local(1, 0, 1);  // M_{5,1} in paper
+      counts(0, 1) += local(1, 0, 0) + local(0, 1, 1);  // M_{5,2}
+      counts(1, 0) += local(0, 0, 0) + local(1, 1, 1);  // M_{6,1}
+      counts(1, 1) += local(0, 0, 1) + local(1, 1, 0);  // M_{6,2}
     }
   }
 }
 
-void TemporalMotifCounter::ThreeEventStarCounts(double delta, Counter3D& pre_counts,
-						Counter3D& pos_counts, Counter3D& mid_counts) {
+void TempMotifCounter::ThreeEventStarCounts(double delta, Counter3D& pre_counts,
+					    Counter3D& pos_counts, Counter3D& mid_counts) {
   // Get a vector of nodes (so we can use openmp parallel for over it)
   TIntV centers;
   GetAllNodes(centers);
@@ -140,7 +132,7 @@ void TemporalMotifCounter::ThreeEventStarCounts(double delta, Counter3D& pre_cou
     for (int nbr_id = 0; nbr_id < nbrs.Len(); nbr_id++) {
       int nbr = nbrs[nbr_id];
       Counter3D edge_counts;
-      ThreeEventEdgeCounts(center, nbr, delta, edge_counts);
+      ThreeTempEdgeTwoNodeCounts(center, nbr, delta, edge_counts);
       #pragma omp critical
       {
 	for (int dir1 = 0; dir1 < 2; ++dir1) {
@@ -157,7 +149,7 @@ void TemporalMotifCounter::ThreeEventStarCounts(double delta, Counter3D& pre_cou
   }
 }
 
-void TemporalMotifCounter::GetAllNodes(TIntV& nodes) {
+void TempMotifCounter::GetAllNodes(TIntV& nodes) {
   nodes = TIntV();
   for (TNGraph::TNodeI it = static_graph_->BegNI();
        it < static_graph_->EndNI(); it++) {
@@ -165,7 +157,7 @@ void TemporalMotifCounter::GetAllNodes(TIntV& nodes) {
   }
 }
 
-void TemporalMotifCounter::ThreeEventStarCountsNaive(double delta,
+void TempMotifCounter::ThreeEventStarCountsNaive(double delta,
 						     Counter3D& pre_counts,
 						     Counter3D& pos_counts,
 						     Counter3D& mid_counts) {
@@ -227,8 +219,8 @@ void TemporalMotifCounter::ThreeEventStarCountsNaive(double delta,
   }
 }
 
-void TemporalMotifCounter::ThreeEventEdgeCounts(int u, int v, double delta,
-						Counter3D& counts) {
+void TempMotifCounter::ThreeTempEdgeTwoNodeCounts(int u, int v, double delta,
+						      Counter3D& counts) {
   // Get u --> v and v --> u
   TIntV& ts_uv = temporal_data_[u](v);
   TIntV& ts_vu = temporal_data_[v](u);
@@ -252,7 +244,7 @@ void TemporalMotifCounter::ThreeEventEdgeCounts(int u, int v, double delta,
   counts = counter.Counts();
 }
 
-void TemporalMotifCounter::GetAllTriangles(TIntV& Us, TIntV& Vs, TIntV& Ws) {
+void TempMotifCounter::GetAllTriangles(TIntV& Us, TIntV& Vs, TIntV& Ws) {
   // Clear vectors
   Us = TIntV();
   Vs = TIntV();
@@ -314,7 +306,7 @@ void TemporalMotifCounter::GetAllTriangles(TIntV& Us, TIntV& Vs, TIntV& Ws) {
   }
 }
 
-void TemporalMotifCounter::ThreeEventTriangleCountsNaive(double delta, Counter3D& counts) {
+void TempMotifCounter::ThreeEventTriangleCountsNaive(double delta, Counter3D& counts) {
   TIntV Us, Vs, Ws;
   GetAllTriangles(Us, Vs, Ws);
 
@@ -389,7 +381,7 @@ void TemporalMotifCounter::ThreeEventTriangleCountsNaive(double delta, Counter3D
   }
 }
 
-void TemporalMotifCounter::GetAllNeighbors(int node, TIntV& nbrs) {
+void TempMotifCounter::GetAllNeighbors(int node, TIntV& nbrs) {
   nbrs = TIntV();
   TNGraph::TNodeI NI = static_graph_->GetNI(node);
   for (int i = 0; i < NI.GetOutDeg(); i++) { nbrs.Add(NI.GetOutNId(i)); }
@@ -399,7 +391,7 @@ void TemporalMotifCounter::GetAllNeighbors(int node, TIntV& nbrs) {
   }
 }
 
-void TemporalMotifCounter::ThreeEventTriangleCounts(double delta, Counter3D& counts) {
+void TempMotifCounter::ThreeEventTriangleCounts(double delta, Counter3D& counts) {
   counts = Counter3D(2, 2, 2);
   
   // Get the counts on each undirected edge
@@ -517,15 +509,15 @@ void TemporalMotifCounter::ThreeEventTriangleCounts(double delta, Counter3D& cou
 }
 
 
-void TemporalMotifCounter::AllCounts(double delta, Counter2D& counts, bool naive) {
+void TempMotifCounter::AllCounts(double delta, Counter2D& counts, bool naive) {
   counts = Counter2D(6, 6);
   
-  Counter3D edge_counts;
-  ThreeEventEdgeCounts(delta, edge_counts);
-  counts(5, 0) = edge_counts(0, 0, 0) + edge_counts(1, 1, 1);
-  counts(5, 1) = edge_counts(0, 0, 1) + edge_counts(1, 1, 0);
-  counts(4, 0) = edge_counts(0, 1, 0) + edge_counts(1, 0, 1);
-  counts(4, 1) = edge_counts(1, 0, 0) + edge_counts(0, 1, 1);
+  Counter2D edge_counts;
+  ThreeTempEdgeTwoNodeCounts(delta, edge_counts);
+  counts(4, 0) = edge_counts(0, 0);
+  counts(4, 1) = edge_counts(0, 1);
+  counts(5, 0) = edge_counts(1, 0);
+  counts(5, 1) = edge_counts(1, 1);
 
   Counter3D star_pre_counts, star_pos_counts, star_mid_counts;
   if (naive) {
@@ -616,15 +608,9 @@ void ThreeEventMotifCounter::IncrementCounts(int event) {
 void ThreeEventMotifCounter::DecrementCounts(int event) {
   // Update one-counts
   counts1_[event]--;
-  if (counts1_[event] < 0) {
-    TExcept::Throw("Bad counts1 value in DecrementCounts()");
-  }
   // Update two-counts
   for (int i = 0; i < size_; i++) {
     counts2_(event, i) -= counts1_[i];
-    if (counts2_(event, i) < 0) {
-      TExcept::Throw("Bad count in DecrementCounts()");
-    }
   }
 }
 
@@ -661,18 +647,13 @@ void ThreeEventStarCounter::PopPre(StarEvent event) {
   int nbr = event.nbr;
   int dir = event.dir;
   pre_nodes_(dir, nbr) -= 1;
-  assert(pre_nodes_(dir, nbr) >= 0);
-  for (int i = 0; i < 2; i++) {
-    pre_sum_(dir, i) -= pre_nodes_(i, nbr);
-    assert(pre_sum_(dir, i) >= 0);
-  }
+  for (int i = 0; i < 2; i++) { pre_sum_(dir, i) -= pre_nodes_(i, nbr); }
 }
 
 void ThreeEventStarCounter::PopPos(StarEvent event) {
   int nbr = event.nbr;
   int dir = event.dir;  
   pos_nodes_(dir, nbr) -= 1;
-  assert(pos_nodes_(dir, nbr) >= 0);  
   for (int i = 0; i < 2; i++) { pos_sum_(dir, i) -= pos_nodes_(i, nbr); }
 }
 
@@ -714,11 +695,9 @@ void ThreeEventTriadCounter::PopPre(TriadEvent event) {
   int dir = event.dir;
   int u_or_v = event.u_or_v;
   if (!IsEdgeNode(nbr)) {
-    pre_nodes_(u_or_v, dir, nbr) -= 1;
-    assert(pre_nodes_(u_or_v, dir, nbr) >= 0);
+    pre_nodes_(nbr, u_or_v, dir) -= 1;
     for (int i = 0; i < 2; i++) {
-      pre_sum_(u_or_v, dir, i) -= pre_nodes_(1 - u_or_v, i, nbr);
-      assert(pre_sum_(u_or_v, dir, i) >= 0);
+      pre_sum_(u_or_v, dir, i) -= pre_nodes_(nbr, 1 - u_or_v, i);
     }
   }
 }
@@ -728,11 +707,9 @@ void ThreeEventTriadCounter::PopPos(TriadEvent event) {
   int dir = event.dir;
   int u_or_v = event.u_or_v;  
   if (!IsEdgeNode(nbr)) {  
-    pos_nodes_(u_or_v, dir, nbr) -= 1;
-    assert(pos_nodes_(u_or_v, dir, nbr) >= 0);  
+    pos_nodes_(nbr, u_or_v, dir) -= 1;
     for (int i = 0; i < 2; i++) {
-      pos_sum_(u_or_v, dir, i) -= pos_nodes_(1 - u_or_v, i, nbr);
-      assert(pos_sum_(u_or_v, dir, i) >= 0);
+      pos_sum_(u_or_v, dir, i) -= pos_nodes_(nbr, 1 - u_or_v, i);
     }
   }
 }
@@ -743,9 +720,9 @@ void ThreeEventTriadCounter::PushPre(TriadEvent event) {
   int u_or_v = event.u_or_v;  
   if (!IsEdgeNode(nbr)) {  
     for (int i = 0; i < 2; i++) {
-      pre_sum_(1 - u_or_v, i, dir) += pre_nodes_(1 - u_or_v, i, nbr);
+      pre_sum_(1 - u_or_v, i, dir) += pre_nodes_(nbr, 1 - u_or_v, i);
     }
-    pre_nodes_(u_or_v, dir, nbr) += 1;
+    pre_nodes_(nbr, u_or_v, dir) += 1;
   }
 }
 
@@ -755,9 +732,9 @@ void ThreeEventTriadCounter::PushPos(TriadEvent event) {
   int u_or_v = event.u_or_v;
   if (!IsEdgeNode(nbr)) {
     for (int i = 0; i < 2; i++) {
-      pos_sum_(1 - u_or_v, i, dir) += pos_nodes_(1 - u_or_v, i, nbr);
+      pos_sum_(1 - u_or_v, i, dir) += pos_nodes_(nbr, 1 - u_or_v, i);
     }
-    pos_nodes_(u_or_v, dir, nbr) += 1;
+    pos_nodes_(nbr, u_or_v, dir) += 1;
   }
 }
 
@@ -768,11 +745,10 @@ void ThreeEventTriadCounter::ProcessCurrent(TriadEvent event) {
   // Adjust middle sums
   if (!IsEdgeNode(nbr)) {
     for (int i = 0; i < 2; i++) {
-      mid_sum_(1 - u_or_v, i, dir) -= pre_nodes_(1 - u_or_v, i, nbr);
-      assert(mid_sum_(1 - u_or_v, i, dir) >= 0);
+      mid_sum_(1 - u_or_v, i, dir) -= pre_nodes_(nbr, 1 - u_or_v, i);
     }
     for (int i = 0; i < 2; i++) {
-      mid_sum_(u_or_v, dir, i) += pos_nodes_(1 - u_or_v, i, nbr);
+      mid_sum_(u_or_v, dir, i) += pos_nodes_(nbr, 1 - u_or_v, i);
     }
   }
   // Update counts

@@ -3,6 +3,7 @@
 
 #include "Snap.h"
 
+// Simple two-dimensional counter class.
 class Counter2D {
  public:
  // Base constructor
@@ -31,6 +32,7 @@ class Counter2D {
  TIntV data_;
 };
 
+// Simple three-dimensional counter class.
 class Counter3D {
  public:
  // Base constructor
@@ -61,19 +63,44 @@ class Counter3D {
  TIntV data_;
 };
 
-class TemporalMotifCounter {
+// Main temporal motif counting class.  This implementation has support for
+// counting motifs with three temporal edges on two or three nodes.  
+class TempMotifCounter {
  public:
-  TemporalMotifCounter() {}
-  void LoadData(const TStr& filename);
+  // Reads directed temporal graph data from the specified file, which must have
+  // the following format:
+  //    source_node destination_node unix_timestamp
+  TempMotifCounter(const TStr& filename);
 
-  void ThreeEventEdgeCounts(double delta, Counter3D& counts);
-  void ThreeEventEdgeCounts(int u, int v, double delta, Counter3D& counts);
+  // Count all three temporal edge, two-node delta-temporal motifs and fills the
+  // counter counts with the results.  The format is:
+  //   counts(0, 0): u --> v, v --> u, u --> v  (M_{5,1})
+  //   counts(0, 1): u --> v, v --> u, v --> u  (M_{5,2})
+  //   counts(1, 0): u --> v, u --> v, u --> v  (M_{6,1})
+  //   counts(1, 1): u --> v, u --> v, v --> u  (M_{6,2})
+  void ThreeTempEdgeTwoNodeCounts(double delta, Counter2D& counts);
+  
+  // Similar to ThreeTempEdgeTwoNodeCounts() except only counts motif instances
+  // for a given pair of nodes u and v and specifies the source and destination
+  // node.  The counts format is:
+  //   counts(0, 0, 0): u --> v, u --> v, u --> v
+  //   counts(1, 1, 1): v --> u, v --> u, v --> u
+  //   counts(0, 1, 1): u --> v, v --> u, v --> u
+  //   counts(1, 0, 0): v --> u, u --> v, u --> v
+  //   counts(0, 1, 0): u --> v, v --> u, u --> v
+  //   counts(1, 0, 1): v --> u, u --> v, v --> u
+  //   counts(0, 0, 1): u --> v, u --> v, v --> u
+  //   counts(1, 1, 0): v --> u, v --> u, u --> v
+  void ThreeTempEdgeTwoNodeCounts(int u, int v, double delta, Counter3D& counts);
   void ThreeEventStarCounts(double delta, Counter3D& pre_counts,
 			    Counter3D& pos_counts, Counter3D& mid_counts);
   void ThreeEventStarCountsNaive(double delta, Counter3D& pre_counts,
-				 Counter3D& pos_counts, Counter3D& mid_counts);  
+				 Counter3D& pos_counts, Counter3D& mid_counts);
+  
   void ThreeEventTriangleCountsNaive(double delta, Counter3D& counts);
-  void ThreeEventTriangleCounts(double delta, Counter3D& counts);  
+  void ThreeEventTriangleCounts(double delta, Counter3D& counts);
+
+  
   void AllCounts(double delta, Counter2D& counts, bool naive);
   
  private:
@@ -162,7 +189,7 @@ class TriadEvent {
 class ThreeEventTriadCounter : public ThreeEventCounter<TriadEvent> {
  public:
  ThreeEventTriadCounter(int num_nodes, int node_u, int node_v) :
-  pre_nodes_(2, 2, num_nodes), pos_nodes_(2, 2, num_nodes),
+  pre_nodes_(num_nodes, 2, 2), pos_nodes_(num_nodes, 2, 2),
     node_u_(node_u), node_v_(node_v) {}
 
   int Counts(int dir1, int dir2, int dir3) { return triad_counts_(dir1, dir2, dir3); }
