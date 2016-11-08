@@ -219,6 +219,17 @@ void TempMotifCounter::Count3TEdge2Node(int u, int v, double delta,
 
 ///////////////////////////////////////////////////////////////////////////////
 // Star counting methods
+
+void AddStarData(TIntV& ts_vec, TVec<TIntPair>& ts_indices,TVec<StarEdgeData>& events,
+		 int& index, int nbr, int key) {
+  for (int j = 0; j < ts_vec.Len(); ++j) {
+    ts_indices.Add(TIntPair(ts_vec[j], index));
+    events.Add(StarEdgeData(nbr, key));
+    index++;
+  }
+}
+		 
+
 void TempMotifCounter::Count3TEdge3NodeStars(
         double delta, Counter3D& pre_counts, Counter3D& pos_counts,
 	Counter3D& mid_counts) {
@@ -237,27 +248,12 @@ void TempMotifCounter::Count3TEdge3NodeStars(
     TVec<StarEdgeData> events;
     TNGraph::TNodeI NI = static_graph_->GetNI(center);
     int index = 0;
-    for (int i = 0; i < NI.GetOutDeg(); i++) {
-      int nbr = NI.GetOutNId(i);
-      if (nbr != center) {  // do not count self-loops
-        TIntV& ts_vec = temporal_data_[center](nbr);
-        for (int j = 0; j < ts_vec.Len(); ++j) {
-          ts_indices.Add(TIntPair(ts_vec[j], index));
-          events.Add(StarEdgeData(nbr, 0));
-          index++;
-        }
-      }
-    }
-    for (int i = 0; i < NI.GetInDeg(); i++) {
-      int nbr = NI.GetInNId(i);
-      if (nbr != center) {  // do not count self-loops
-        TIntV& ts_vec = temporal_data_[nbr](center);
-        for (int j = 0; j < ts_vec.Len(); ++j) {
-          ts_indices.Add(TIntPair(ts_vec[j], index));
-          events.Add(StarEdgeData(nbr, 1));        
-          index++;
-        }
-      }
+    TIntV nbrs;
+    GetAllNeighbors(center, nbrs);
+    for (int i = 0; i < nbrs.Len(); i++) {
+      int nbr = nbrs[i];
+      AddStarData(temporal_data_[center](nbr), ts_indices, events, index, nbr, 0);
+      AddStarData(temporal_data_[nbr](center), ts_indices, events, index, nbr, 1);      
     }
     ts_indices.Sort();
     TIntV timestamps;
@@ -270,9 +266,8 @@ void TempMotifCounter::Count3TEdge3NodeStars(
     ThreeEventStarCounter tesc(static_graph_->GetMxNId());
     // dirs: outgoing --> 0, incoming --> 1
     tesc.Count(ordered_events, timestamps, delta);
-
     #pragma omp critical
-    {
+    { // Update counts
       for (int dir1 = 0; dir1 < 2; ++dir1) {
         for (int dir2 = 0; dir2 < 2; ++dir2) {
           for (int dir3 = 0; dir3 < 2; ++dir3) {
@@ -285,8 +280,6 @@ void TempMotifCounter::Count3TEdge3NodeStars(
     }
 
     // Subtract off edge-wise counts
-    TIntV nbrs;
-    GetAllNeighbors(center, nbrs);
     for (int nbr_id = 0; nbr_id < nbrs.Len(); nbr_id++) {
       int nbr = nbrs[nbr_id];
       Counter3D edge_counts;
