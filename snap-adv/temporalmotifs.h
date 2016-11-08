@@ -9,7 +9,7 @@ class Counter2D {
  // Base constructor
  Counter2D(int m, int n) : m_(m), n_(n) {
     if (m * n > 0) {
-      data_ = TIntV(m * n);
+      data_ = TUInt64V(m * n);
       data_.PutAll(0);
     }
  }
@@ -23,13 +23,13 @@ class Counter2D {
    }
    return *this;
  }
- const TInt& operator()(int i, int j) const { return data_[i + j * m_]; }
- TInt& operator()(int i, int j) { return data_[i + j * m_]; }
+ const TUInt64& operator()(int i, int j) const { return data_[i + j * m_]; }
+ TUInt64& operator()(int i, int j) { return data_[i + j * m_]; }
   
  private:
  int m_;
  int n_;
- TIntV data_;
+ TUInt64V data_;
 };
 
 // Simple three-dimensional counter class.
@@ -38,7 +38,7 @@ class Counter3D {
  // Base constructor
  Counter3D(int m, int n, int p) : m_(m), n_(n), p_(p) {
    if (m * n * p > 0) {
-     data_ = TIntV(m * n * p);
+     data_ = TUInt64V(m * n * p);
      data_.PutAll(0);
    }
  }
@@ -53,14 +53,14 @@ class Counter3D {
    }
    return *this;
  }
- const TInt& operator()(int i, int j, int k) const { return data_[i + j * n_ + k * m_ * n_]; }
- TInt& operator()(int i, int j, int k) { return data_[i + j * m_ + k * m_ * n_]; }
+ const TUInt64& operator()(int i, int j, int k) const { return data_[i + j * n_ + k * m_ * n_]; }
+ TUInt64& operator()(int i, int j, int k) { return data_[i + j * m_ + k * m_ * n_]; }
 
  private:
  int m_;
  int n_;
  int p_;
- TIntV data_;
+ TUInt64V data_;
 };
 
 // Main temporal motif counting class.  This implementation has support for
@@ -72,17 +72,15 @@ class TempMotifCounter {
   //    source_node destination_node unix_timestamp
   TempMotifCounter(const TStr& filename);
 
-  void AllCounts(double delta, Counter2D& counts, bool naive);  
-
   // Count all three temporal edge, two-node delta-temporal motifs and fills the
   // counter counts with the results.  The format is:
   //   counts(0, 0): u --> v, v --> u, u --> v  (M_{5,1})
   //   counts(0, 1): u --> v, v --> u, v --> u  (M_{5,2})
   //   counts(1, 0): u --> v, u --> v, u --> v  (M_{6,1})
   //   counts(1, 1): u --> v, u --> v, v --> u  (M_{6,2})
-  void ThreeTempEdgeTwoNodeCounts(double delta, Counter2D& counts);
+  void Count3TEdge2Node(double delta, Counter2D& counts);
   
-  // Similar to ThreeTempEdgeTwoNodeCounts() except only counts motif instances
+  // Similar to Count3TEdge2Node() except only counts motif instances
   // for a given pair of nodes u and v and specifies the source and destination
   // node.  The counts format is:
   //   counts(0, 0, 0): u --> v, u --> v, u --> v
@@ -93,18 +91,47 @@ class TempMotifCounter {
   //   counts(1, 0, 1): v --> u, u --> v, v --> u
   //   counts(0, 0, 1): u --> v, u --> v, v --> u
   //   counts(1, 1, 0): v --> u, v --> u, u --> v
-  void ThreeTempEdgeTwoNodeCounts(int u, int v, double delta, Counter3D& counts);
+  void Count3TEdge2Node(int u, int v, double delta, Counter3D& counts);
 
-  void ThreeEventStarCounts(double delta, Counter3D& pre_counts,
-			    Counter3D& pos_counts, Counter3D& mid_counts);
-  void ThreeEventStarCountsNaive(double delta, Counter3D& pre_counts,
-				 Counter3D& pos_counts, Counter3D& mid_counts);
-  
-  void ThreeEventTriangleCountsNaive(double delta, Counter3D& counts);
-  void ThreeEventTriangleCounts(double delta, Counter3D& counts);
+  // Counts 3-edge, 3-node star motifs and places the results in pre_counts,
+  // pos_counts, and mid_counts.  Counts take the following structure (with
+  // center node c):
+  //
+  //     pre: {c, u}, {c, u}, {c, v}
+  //     pos: {c, u}, {c, v}, {c, v}
+  //     mid: {c, u}, {c, v}, {c, u}
+  //
+  // The indicies in the counter correspond to the direction with the center
+  // node as the reference (0 indexes outgoing and 1 indexes incoming edges to
+  // the center).  For example,
+  //
+  //     pos_counts(0, 1, 0): c --> u, v --> c, c --> v
+  void Count3TEdge3NodeStars(double delta, Counter3D& pre_counts,
+			     Counter3D& pos_counts, Counter3D& mid_counts);
+  // Counts the same information as Count3TEdge3NodeStars() but uses a naive
+  // counting algorithm that iterates over all pairs of neighbors.
+  void Count3TEdge3NodeStarsNaive(double delta, Counter3D& pre_counts,
+				  Counter3D& pos_counts, Counter3D& mid_counts);
 
+  // Counts 3-edge triad events and places the result in counts:
+  //
+  //    counts(0, 0, 0): u --> v, w --> v, u --> w (M_{1,3})
+  //    counts(0, 0, 1): u --> v, w --> v, w --> u (M_{1,4})
+  //    counts(0, 1, 0): u --> v, v --> w, u --> w (M_{2,3})
+  //    counts(0, 1, 1): u --> v, v --> w, w --> u (M_{2,4})
+  //    counts(1, 0, 0): u --> v, w --> u, v --> w (M_{3,5})
+  //    counts(1, 0, 1): u --> v, w --> u, w --> v (M_{3,6})
+  //    counts(1, 1, 0): u --> v, u --> w, v --> w (M_{4,5})
+  //    counts(1, 1, 1): u --> v, u --> w, w --> v (M_{4,6})
+  void Count3TEdgeTriads(double delta, Counter3D& counts);
+  // Counts the same information as Count3TEdgeTriads() but uses a naive
+  // counting algorithm that enumerates over all triangles in the static graph.
+  void Count3TEdgeTriadsNaive(double delta, Counter3D& counts);
 
-  
+  // Counts all 3-edge, {2,3}-node temporal motifs and places the result in
+  // counts such that counts(i, j) corresponds to motif M_{i,j}.
+  void Count3TEdge23Node(double delta, Counter2D& counts);  
+
  private:
   // Get all triangles in the static graph, (Us(i), Vs(i), Ws(i)) is the ith
   // triangle.
@@ -114,7 +141,12 @@ class TempMotifCounter {
   void GetAllNeighbors(int node, TIntV& nbrs);
   // Fills nodes with a vector of all nodes in the static graph.
   void GetAllNodes(TIntV& nodes);
-  PNGraph static_graph_;
+
+  // Directed graph from ignoring timestamps
+  PNGraph static_graph_;  
+
+  // Core data structure for storing temporal edges.  temporal_data_[u](v) is a
+  // list of temporal edges along the static edge (u, v).
   TVec< THash<TInt, TIntV> > temporal_data_;
 };
 
@@ -129,35 +161,35 @@ class ThreeEventMotifCounter {
  private:
   void IncrementCounts(int event);
   void DecrementCounts(int event);
-  TIntV counts1_;
+  TUInt64V counts1_;
   Counter2D counts2_;
   Counter3D counts3_;
   int size_;  // alphabet size
 };
 
-template <typename EventType>
-class ThreeEventCounter {
+template <typename EdgeData>
+class StarTriad3TEdgeCounter {
  public:
-  ThreeEventCounter() {}
-  void Count(const TVec<EventType>& events, const TIntV& timestamps, double delta);
+  StarTriad3TEdgeCounter() {}
+  void Count(const TVec<EdgeData>& events, const TIntV& timestamps, double delta);
   
  protected:
-  virtual void PopPre(EventType event) = 0;
-  virtual void PopPos(EventType event) = 0;
-  virtual void PushPre(EventType event) = 0;
-  virtual void PushPos(EventType event) = 0;
-  virtual void ProcessCurrent(EventType event) = 0;
+  virtual void PopPre(EdgeData event) = 0;
+  virtual void PopPos(EdgeData event) = 0;
+  virtual void PushPre(EdgeData event) = 0;
+  virtual void PushPos(EdgeData event) = 0;
+  virtual void ProcessCurrent(EdgeData event) = 0;
 };
 
-class StarEvent {
+class StarEdgeData {
  public:
-  StarEvent() {}
-  StarEvent(int _nbr, int _dir) : nbr(_nbr), dir(_dir) {}
+  StarEdgeData() {}
+  StarEdgeData(int _nbr, int _dir) : nbr(_nbr), dir(_dir) {}
   int nbr;  // Which neighbor of the center node
   int dir;  // Outgoing (0) or incoming (1) direction
 };
 
-class ThreeEventStarCounter : public ThreeEventCounter<StarEvent> {
+class ThreeEventStarCounter : public StarTriad3TEdgeCounter<StarEdgeData> {
  public:
  ThreeEventStarCounter(int num_nodes) : pre_nodes_(2, num_nodes),
     pos_nodes_(2, num_nodes) {}
@@ -167,11 +199,11 @@ class ThreeEventStarCounter : public ThreeEventCounter<StarEvent> {
   int MidCount(int dir1, int dir2, int dir3) { return mid_counts_(dir1, dir2, dir3); }
 
  protected:
-  void PopPre(StarEvent event);
-  void PopPos(StarEvent event);
-  void PushPre(StarEvent event);
-  void PushPos(StarEvent event);
-  void ProcessCurrent(StarEvent event);
+  void PopPre(StarEdgeData event);
+  void PopPos(StarEdgeData event);
+  void PushPre(StarEdgeData event);
+  void PushPos(StarEdgeData event);
+  void ProcessCurrent(StarEdgeData event);
   
  private:
   Counter2D pre_sum_ = Counter2D(2, 2);
@@ -184,16 +216,16 @@ class ThreeEventStarCounter : public ThreeEventCounter<StarEvent> {
   Counter2D pos_nodes_;
 };
 
-class TriadEvent {
+class TriadEdgeData {
  public:
-  TriadEvent() {}
- TriadEvent(int _nbr, int _dir, int _u_or_v) : nbr(_nbr), dir(_dir), u_or_v(_u_or_v) {}
+  TriadEdgeData() {}
+ TriadEdgeData(int _nbr, int _dir, int _u_or_v) : nbr(_nbr), dir(_dir), u_or_v(_u_or_v) {}
   int nbr;     // Which neighbor of the center node
   int dir;     // Outgoing (0) or incoming (1) direction
   int u_or_v;  // Points to first end point u (0) or second end point v (1)
 };
 
-class ThreeEventTriadCounter : public ThreeEventCounter<TriadEvent> {
+class ThreeEventTriadCounter : public StarTriad3TEdgeCounter<TriadEdgeData> {
  public:
  ThreeEventTriadCounter(int num_nodes, int node_u, int node_v) :
   pre_nodes_(num_nodes, 2, 2), pos_nodes_(num_nodes, 2, 2),
@@ -202,11 +234,11 @@ class ThreeEventTriadCounter : public ThreeEventCounter<TriadEvent> {
   int Counts(int dir1, int dir2, int dir3) { return triad_counts_(dir1, dir2, dir3); }
 
  protected:
-  void PopPre(TriadEvent event);
-  void PopPos(TriadEvent event);
-  void PushPre(TriadEvent event);
-  void PushPos(TriadEvent event);
-  void ProcessCurrent(TriadEvent event);
+  void PopPre(TriadEdgeData event);
+  void PopPos(TriadEdgeData event);
+  void PushPre(TriadEdgeData event);
+  void PushPos(TriadEdgeData event);
+  void ProcessCurrent(TriadEdgeData event);
   bool IsEdgeNode(int nbr) { return nbr == node_u_ || nbr == node_v_; }
 
  private:
