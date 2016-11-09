@@ -261,7 +261,7 @@ void TempMotifCounter::Count3TEdge3NodeStars(double delta, Counter3D& pre_counts
       ordered_events.Add(events[ts_indices[j].Dat]);
     }
     
-    ThreeEventStarCounter tesc(static_graph_->GetMxNId());
+    ThreeTEdgeStarCounter tesc(static_graph_->GetMxNId());
     // dirs: outgoing --> 0, incoming --> 1
     tesc.Count(ordered_events, timestamps, delta);
     #pragma omp critical
@@ -515,7 +515,7 @@ void TempMotifCounter::Count3TEdgeTriads(double delta, Counter3D& counts) {
       }
 
       // Get the counts and update the counter
-      ThreeEventTriadCounter tetc(static_graph_->GetMxNId(), u, v);
+      ThreeTEdgeTriadCounter tetc(static_graph_->GetMxNId(), u, v);
       tetc.Count(sorted_events, timestamps, delta);
       #pragma omp critical
       {
@@ -573,6 +573,7 @@ void ThreeTEdgeMotifCounter::DecrementCounts(int event) {
 template <typename EdgeData>
 void StarTriad3TEdgeCounter<EdgeData>::Count(const TVec<EdgeData>& events,
 					     const TIntV& timestamps, double delta) {
+  InitializeCounters();
   if (events.Len() != timestamps.Len()) {
     TExcept::Throw("Number of events must match number of timestamps.");
   }
@@ -599,35 +600,46 @@ void StarTriad3TEdgeCounter<EdgeData>::Count(const TVec<EdgeData>& events,
 }
 
 // Star counter
-void ThreeEventStarCounter::PopPre(StarEdgeData event) {
+void ThreeTEdgeStarCounter::InitializeCounters() {
+  pre_sum_ = Counter2D(2, 2);
+  pos_sum_ = Counter2D(2, 2);
+  mid_sum_ = Counter2D(2, 2);
+  pre_counts_ = Counter3D(2, 2, 2);
+  pos_counts_ = Counter3D(2, 2, 2);
+  mid_counts_ = Counter3D(2, 2, 2);
+  pre_nodes_ = Counter2D(2, max_nodes_);
+  pos_nodes_ = Counter2D(2, max_nodes_);
+}
+
+void ThreeTEdgeStarCounter::PopPre(StarEdgeData event) {
   int nbr = event.nbr;
   int dir = event.dir;
   pre_nodes_(dir, nbr) -= 1;
   for (int i = 0; i < 2; i++) { pre_sum_(dir, i) -= pre_nodes_(i, nbr); }
 }
 
-void ThreeEventStarCounter::PopPos(StarEdgeData event) {
+void ThreeTEdgeStarCounter::PopPos(StarEdgeData event) {
   int nbr = event.nbr;
   int dir = event.dir;  
   pos_nodes_(dir, nbr) -= 1;
   for (int i = 0; i < 2; i++) { pos_sum_(dir, i) -= pos_nodes_(i, nbr); }
 }
 
-void ThreeEventStarCounter::PushPre(StarEdgeData event) {
+void ThreeTEdgeStarCounter::PushPre(StarEdgeData event) {
   int nbr = event.nbr;
   int dir = event.dir;  
   for (int i = 0; i < 2; i++) { pre_sum_(i, dir) += pre_nodes_(i, nbr); }
   pre_nodes_(dir, nbr) += 1;
 }
 
-void ThreeEventStarCounter::PushPos(StarEdgeData event) {
+void ThreeTEdgeStarCounter::PushPos(StarEdgeData event) {
   int nbr = event.nbr;
   int dir = event.dir;  
   for (int i = 0; i < 2; i++) { pos_sum_(i, dir) += pos_nodes_(i, nbr); }
   pos_nodes_(dir, nbr) += 1;
 }
 
-void ThreeEventStarCounter::ProcessCurrent(StarEdgeData event) {
+void ThreeTEdgeStarCounter::ProcessCurrent(StarEdgeData event) {
   int nbr = event.nbr;
   int dir = event.dir;
   // Decrement middle sum
@@ -646,7 +658,16 @@ void ThreeEventStarCounter::ProcessCurrent(StarEdgeData event) {
 
 ///////////////////////////////////
 // Triangle counters
-void ThreeEventTriadCounter::PopPre(TriadEdgeData event) {
+void ThreeTEdgeTriadCounter::InitializeCounters() {
+  pre_nodes_ = Counter3D(max_nodes_, 2, 2);
+  pos_nodes_ = Counter3D(max_nodes_, 2, 2);
+  pre_sum_ = Counter3D(2, 2, 2);
+  pos_sum_ = Counter3D(2, 2, 2);
+  mid_sum_ = Counter3D(2, 2, 2);
+  triad_counts_ = Counter3D(2, 2, 2);
+}
+
+void ThreeTEdgeTriadCounter::PopPre(TriadEdgeData event) {
   int nbr = event.nbr;
   int dir = event.dir;
   int u_or_v = event.u_or_v;
@@ -658,7 +679,7 @@ void ThreeEventTriadCounter::PopPre(TriadEdgeData event) {
   }
 }
 
-void ThreeEventTriadCounter::PopPos(TriadEdgeData event) {
+void ThreeTEdgeTriadCounter::PopPos(TriadEdgeData event) {
   int nbr = event.nbr;
   int dir = event.dir;
   int u_or_v = event.u_or_v;  
@@ -670,7 +691,7 @@ void ThreeEventTriadCounter::PopPos(TriadEdgeData event) {
   }
 }
 
-void ThreeEventTriadCounter::PushPre(TriadEdgeData event) {
+void ThreeTEdgeTriadCounter::PushPre(TriadEdgeData event) {
   int nbr = event.nbr;
   int dir = event.dir;
   int u_or_v = event.u_or_v;  
@@ -682,7 +703,7 @@ void ThreeEventTriadCounter::PushPre(TriadEdgeData event) {
   }
 }
 
-void ThreeEventTriadCounter::PushPos(TriadEdgeData event) {
+void ThreeTEdgeTriadCounter::PushPos(TriadEdgeData event) {
   int nbr = event.nbr;
   int dir = event.dir;
   int u_or_v = event.u_or_v;
@@ -694,7 +715,7 @@ void ThreeEventTriadCounter::PushPos(TriadEdgeData event) {
   }
 }
 
-void ThreeEventTriadCounter::ProcessCurrent(TriadEdgeData event) {
+void ThreeTEdgeTriadCounter::ProcessCurrent(TriadEdgeData event) {
   int nbr = event.nbr;
   int dir = event.dir;
   int u_or_v = event.u_or_v;  

@@ -182,6 +182,7 @@ class StarTriad3TEdgeCounter {
   
  protected:
   // These methods depend on the motif type (star or triad).
+  virtual void InitializeCounters() = 0;
   virtual void PopPre(EdgeData event) = 0;
   virtual void PopPos(EdgeData event) = 0;
   virtual void PushPre(EdgeData event) = 0;
@@ -199,19 +200,20 @@ class StarEdgeData {
 };
 
 // Class for counting star motifs with a given center node.
-class ThreeEventStarCounter : public StarTriad3TEdgeCounter<StarEdgeData> {
+class ThreeTEdgeStarCounter : public StarTriad3TEdgeCounter<StarEdgeData> {
  public:
   // Construct class with maximum number of neighbor nodes.  Each processed edge
-  // will be a neighbor and a direction where the neighbor is represented by an
-  // int belong to the set {0, 1, ..., max_nodes - 1}.
-  ThreeEventStarCounter(int max_nodes) :
-      pre_nodes_(2, max_nodes), pos_nodes_(2, max_nodes) {}
+  // consists of a neighbor and a direction where the neighbor is represented by
+  // an int belong to the set {0, 1, ..., max_nodes - 1}.
+  ThreeTEdgeStarCounter(int max_nodes) : max_nodes_(max_nodes) {}
 
+  // Counting conventions follow TempMotifCounter::Count3TEdge3NodeStars().
   int PreCount(int dir1, int dir2, int dir3) { return pre_counts_(dir1, dir2, dir3); }
   int PosCount(int dir1, int dir2, int dir3) { return pos_counts_(dir1, dir2, dir3); }
   int MidCount(int dir1, int dir2, int dir3) { return mid_counts_(dir1, dir2, dir3); }
 
  protected:
+  void InitializeCounters();
   void PopPre(StarEdgeData event);
   void PopPos(StarEdgeData event);
   void PushPre(StarEdgeData event);
@@ -219,18 +221,19 @@ class ThreeEventStarCounter : public StarTriad3TEdgeCounter<StarEdgeData> {
   void ProcessCurrent(StarEdgeData event);
   
  private:
-  Counter2D pre_sum_ = Counter2D(2, 2);
-  Counter2D pos_sum_ = Counter2D(2, 2);
-  Counter2D mid_sum_ = Counter2D(2, 2);
-  Counter3D pre_counts_ = Counter3D(2, 2, 2);
-  Counter3D pos_counts_ = Counter3D(2, 2, 2);
-  Counter3D mid_counts_ = Counter3D(2, 2, 2);
+  int max_nodes_;
+  Counter2D pre_sum_;
+  Counter2D pos_sum_;
+  Counter2D mid_sum_;
+  Counter3D pre_counts_;
+  Counter3D pos_counts_;
+  Counter3D mid_counts_;
   Counter2D pre_nodes_;
   Counter2D pos_nodes_;
 };
 
 // Triad edge data consists of a neighbor, a direction, and an indicator of whether
-// the edge connects with node u or node v.
+// the edge connects with wich endpoint (u or v).
 class TriadEdgeData {
  public:
   TriadEdgeData() {}
@@ -240,15 +243,21 @@ class TriadEdgeData {
   int u_or_v;  // Points to first end point u (0) or second end point v (1)
 };
 
-class ThreeEventTriadCounter : public StarTriad3TEdgeCounter<TriadEdgeData> {
+// Class for counting triangle motifs that contain a specific undirected edge.
+class ThreeTEdgeTriadCounter : public StarTriad3TEdgeCounter<TriadEdgeData> {
  public:
- ThreeEventTriadCounter(int num_nodes, int node_u, int node_v) :
-  pre_nodes_(num_nodes, 2, 2), pos_nodes_(num_nodes, 2, 2),
-    node_u_(node_u), node_v_(node_v) {}
+  // Construct class with maximum number of neighbor nodes.  Each processed edge
+  // consists of a neighbor, a direction, and an indicator of which end point it
+  // connects with.  Each neighbor is represented by an int belong to the set
+  // {0, 1, ..., max_nodes - 1}.
+  ThreeTEdgeTriadCounter(int max_nodes, int node_u, int node_v) :
+      max_nodes_(max_nodes), node_u_(node_u), node_v_(node_v) {}
 
+  // Counting conventions follow TempMotifCounter::Count3TEdgeTriads().
   int Counts(int dir1, int dir2, int dir3) { return triad_counts_(dir1, dir2, dir3); }
 
  protected:
+  void InitializeCounters();
   void PopPre(TriadEdgeData event);
   void PopPos(TriadEdgeData event);
   void PushPre(TriadEdgeData event);
@@ -257,10 +266,11 @@ class ThreeEventTriadCounter : public StarTriad3TEdgeCounter<TriadEdgeData> {
   bool IsEdgeNode(int nbr) { return nbr == node_u_ || nbr == node_v_; }
 
  private:
-  Counter3D pre_sum_ = Counter3D(2, 2, 2);
-  Counter3D pos_sum_ = Counter3D(2, 2, 2);
-  Counter3D mid_sum_ = Counter3D(2, 2, 2);
-  Counter3D triad_counts_ = Counter3D(2, 2, 2);
+  int max_nodes_;
+  Counter3D pre_sum_;
+  Counter3D pos_sum_;
+  Counter3D mid_sum_;
+  Counter3D triad_counts_;
   Counter3D pre_nodes_;
   Counter3D pos_nodes_;
   // Two end points of the edge whose triangles this class counts.
