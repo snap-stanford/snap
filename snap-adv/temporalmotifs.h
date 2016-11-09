@@ -154,7 +154,7 @@ class TempMotifCounter {
 class ThreeTEdgeMotifCounter {
  public:
   // Initialize counter with a given alphabet size
-  ThreeTEdgeMotifCounter(int size);
+  ThreeTEdgeMotifCounter(int size) : size_(size) {}
   
   // Count all three-edge motifs with corresponding timestamps.  Each integer in
   // the event_string must belong to the set {0, 1, ..., size - 1}.  The function
@@ -183,11 +183,11 @@ class StarTriad3TEdgeCounter {
  protected:
   // These methods depend on the motif type (star or triad).
   virtual void InitializeCounters() = 0;
-  virtual void PopPre(EdgeData event) = 0;
-  virtual void PopPos(EdgeData event) = 0;
-  virtual void PushPre(EdgeData event) = 0;
-  virtual void PushPos(EdgeData event) = 0;
-  virtual void ProcessCurrent(EdgeData event) = 0;
+  virtual void PopPre(const EdgeData& event) = 0;
+  virtual void PopPos(const EdgeData& event) = 0;
+  virtual void PushPre(const EdgeData& event) = 0;
+  virtual void PushPos(const EdgeData& event) = 0;
+  virtual void ProcessCurrent(const EdgeData& event) = 0;
 };
 
 // Star edge data consists of a neighbor and a direction.
@@ -214,11 +214,11 @@ class ThreeTEdgeStarCounter : public StarTriad3TEdgeCounter<StarEdgeData> {
 
  protected:
   void InitializeCounters();
-  void PopPre(StarEdgeData event);
-  void PopPos(StarEdgeData event);
-  void PushPre(StarEdgeData event);
-  void PushPos(StarEdgeData event);
-  void ProcessCurrent(StarEdgeData event);
+  void PopPre(const StarEdgeData& event);
+  void PopPos(const StarEdgeData& event);
+  void PushPre(const StarEdgeData& event);
+  void PushPos(const StarEdgeData& event);
+  void ProcessCurrent(const StarEdgeData& event);
   
  private:
   int max_nodes_;
@@ -258,11 +258,11 @@ class ThreeTEdgeTriadCounter : public StarTriad3TEdgeCounter<TriadEdgeData> {
 
  protected:
   void InitializeCounters();
-  void PopPre(TriadEdgeData event);
-  void PopPos(TriadEdgeData event);
-  void PushPre(TriadEdgeData event);
-  void PushPos(TriadEdgeData event);
-  void ProcessCurrent(TriadEdgeData event);
+  void PopPre(const TriadEdgeData& event);
+  void PopPos(const TriadEdgeData& event);
+  void PushPre(const TriadEdgeData& event);
+  void PushPos(const TriadEdgeData& event);
+  void ProcessCurrent(const TriadEdgeData& event);
   bool IsEdgeNode(int nbr) { return nbr == node_u_ || nbr == node_v_; }
 
  private:
