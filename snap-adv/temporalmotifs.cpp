@@ -206,15 +206,14 @@ void TempMotifCounter::Count3TEdge2Node(int u, int v, double delta,
   combined.Sort();
 
   // Get the counts
-  ThreeEventMotifCounter counter(2);
+  ThreeTEdgeMotifCounter counter(2);
   TIntV in_out(combined.Len());
   TIntV timestamps(combined.Len());
   for (int k = 0; k < combined.Len(); k++) {
     in_out[k] = combined[k].Dat;
     timestamps[k] = combined[k].Key;
   }
-  counter.Count(in_out, timestamps, delta);
-  counts = counter.Counts();
+  counter.Count(in_out, timestamps, delta, counts);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -230,9 +229,8 @@ void AddStarData(TIntV& ts_vec, TVec<TIntPair>& ts_indices,TVec<StarEdgeData>& e
 }
 		 
 
-void TempMotifCounter::Count3TEdge3NodeStars(
-        double delta, Counter3D& pre_counts, Counter3D& pos_counts,
-	Counter3D& mid_counts) {
+void TempMotifCounter::Count3TEdge3NodeStars(double delta, Counter3D& pre_counts,
+					     Counter3D& pos_counts, Counter3D& mid_counts) {
   // Get a vector of nodes (so we can use openmp parallel for over it)
   TIntV centers;
   GetAllNodes(centers);
@@ -332,15 +330,15 @@ void TempMotifCounter::Count3TEdge3NodeStarsNaive(
 	AddEvents(combined, temporal_data_[center](nbr2), 2);
 	AddEvents(combined, temporal_data_[nbr2](center), 3);
         combined.Sort();
-        ThreeEventMotifCounter counter(4);
+        ThreeTEdgeMotifCounter counter(4);
         TIntV edge_id(combined.Len());
         TIntV timestamps(combined.Len());
         for (int k = 0; k < combined.Len(); k++) {
           edge_id[k] = combined[k].Dat;
           timestamps[k] = combined[k].Key;
         }
-        counter.Count(edge_id, timestamps, delta);
-        Counter3D local = counter.Counts();
+        Counter3D local;
+        counter.Count(edge_id, timestamps, delta, local);
 
         #pragma omp critical
         {  // Update with local counts
@@ -396,15 +394,15 @@ void TempMotifCounter::Count3TEdgeTriadsNaive(double delta, Counter3D& counts) {
     
     // Get the counts for this triangle
     combined.Sort();
-    ThreeEventMotifCounter counter(6);
+    ThreeTEdgeMotifCounter counter(6);
     TIntV edge_id(combined.Len());
     TIntV timestamps(combined.Len());
     for (int k = 0; k < combined.Len(); k++) {
       edge_id[k] = combined[k].Dat;
       timestamps[k] = combined[k].Key;
     }
-    counter.Count(edge_id, timestamps, delta);
-    Counter3D local = counter.Counts();
+    Counter3D local;
+    counter.Count(edge_id, timestamps, delta, local);
 
     // Update the global counter with the various symmetries
     #pragma omp critical
@@ -533,18 +531,16 @@ void TempMotifCounter::Count3TEdgeTriads(double delta, Counter3D& counts) {
   }
 }
 
-ThreeEventMotifCounter::ThreeEventMotifCounter(int size) {
+ThreeTEdgeMotifCounter::ThreeTEdgeMotifCounter(int size) {
   size_ = size;
-  // Initialize everything to empty
-  counts1_ = TUInt64V(size_);
-  counts1_.PutAll(0);
-  counts2_ = Counter2D(size_, size_);
-  counts3_ = Counter3D(size_, size_, size_);
 }
 
-void ThreeEventMotifCounter::Count(const TIntV& event_string,
-                                   const TIntV& timestamps,
-                                   double delta) {
+void ThreeTEdgeMotifCounter::Count(const TIntV& event_string, const TIntV& timestamps,
+				  double delta, Counter3D& counts) {
+  // Initialize everything to empty
+  counts1_ = Counter1D(size_);
+  counts2_ = Counter2D(size_, size_);
+  counts3_ = Counter3D(size_, size_, size_);
   if (event_string.Len() != timestamps.Len()) {
     TExcept::Throw("Number of events must equal number of timestamps");
   }
@@ -556,21 +552,22 @@ void ThreeEventMotifCounter::Count(const TIntV& event_string,
     }
     IncrementCounts(event_string[end]);
   }
+  counts = counts3_;
 }
 
-void ThreeEventMotifCounter::IncrementCounts(int event) {
+void ThreeTEdgeMotifCounter::IncrementCounts(int event) {
   for (int i = 0; i < size_; i++) {
     for (int j = 0; j < size_; j++) {
       counts3_(i, j, event) += counts2_(i, j);
     }
   }
-  for (int i = 0; i < size_; i++) { counts2_(i, event) += counts1_[i]; }
-  counts1_[event] += 1;
+  for (int i = 0; i < size_; i++) { counts2_(i, event) += counts1_(i); }
+  counts1_(event) += 1;
 }
 
-void ThreeEventMotifCounter::DecrementCounts(int event) {
-  counts1_[event]--;
-  for (int i = 0; i < size_; i++) { counts2_(event, i) -= counts1_[i]; }
+void ThreeTEdgeMotifCounter::DecrementCounts(int event) {
+  counts1_(event)--;
+  for (int i = 0; i < size_; i++) { counts2_(event, i) -= counts1_(i); }
 }
 
 template <typename EdgeData>
