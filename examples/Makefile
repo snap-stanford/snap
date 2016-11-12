@@ -39,6 +39,7 @@ MakeAll:
 	$(MAKE) -C node2vec
 	$(MAKE) -C randwalk
 	$(MAKE) -C rolx
+	$(MAKE) -C temporalmotifs
 	$(MAKE) -C testgraph
 
 clean:
@@ -75,5 +76,6 @@ clean:
 	$(MAKE) clean -C node2vec
 	$(MAKE) clean -C randwalk
 	$(MAKE) clean -C rolx
+	$(MAKE) clean -C temporalmotifs
 	$(MAKE) clean -C testgraph
 	rm -rf Debug Release ipch
