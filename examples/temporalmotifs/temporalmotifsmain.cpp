@@ -28,7 +28,7 @@ int main(int argc, char* argv[]) {
   omp_set_num_threads(num_threads);
 #endif
 
-  // Count all {2,3}-node temporal motifs with 3 temporal edges
+  // Count all 2-node and 3-node temporal motifs with 3 temporal edges
   TempMotifCounter tmc(temporal_graph_filename);
   Counter2D counts;
   tmc.Count3TEdge23Node(delta, counts);
