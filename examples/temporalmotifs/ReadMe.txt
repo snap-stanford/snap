@@ -9,12 +9,8 @@ Motifs in Temporal Networks.  Ashwin Paranjape, Austin R. Benson, and Jure
 Leskovec.  In Proceedings of the International Conference on Web Search and Data
 Mining (WSDM), 2017.
 
-By default, the example emits the motif counts in a 6 x 6 table that matches the
-presentation in the above paper.  Options are also available to just count one
-of the following:
-(1) two-node, three-event "edge motifs"
-(2) three-node, three-event "star motifs"
-(3) three-node, three-event "triangle motifs"
+The example formats the motif counts in a 6 x 6 table that matches the
+presentation in the above paper.
 
 Each line of the data file is assumed to take the following format:
 
@@ -32,11 +28,14 @@ and makefiles are provided. For makefiles, compile the code with
 
 /////////////////////////////////////////////////////////////////////////////
 Parameters:
-   -i:Input edgelist file name (default:'../as20graph.txt')
-   -m:Motif type  (default:'M4')
+   -i:Input edgelist file name (default:'example-temporal-graph.txt')
+   -delta:Time window delta (default:4096)
+   -o:Output file (default:'temporal-motif-counts.txt')
 /////////////////////////////////////////////////////////////////////////////
 Usage:
 
-Detect a M4-based cluster from an autonomous systems network.
+Count all 2-node and 3-node temporal motifs with 3 temporal edges in
+the graph stored in example-temporal-graph.txt using a time window
+of 300.  Results are written to out.txt.
 
-motifclustermain -m:M4
+temporalmotifsmain -i:example-temporal-graph.txt -delta:300 -o:out.txt

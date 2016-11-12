@@ -1,4 +1,4 @@
-// temporalmotifs.cpp : Defines the entry point for the console application.
+// temporalmotifsmain.cpp : Defines the entry point for the console application.
 //
 #include "stdafx.h"
 #include "temporalmotifs.h"
@@ -12,12 +12,14 @@ int main(int argc, char* argv[]) {
   const TStr temporal_graph_filename =
     Env.GetIfArgPrefixStr("-i:", "example-temporal-graph.txt",
 			  "Input directed temporal graph file");
+  const TStr output = 
+    Env.GetIfArgPrefixStr("-o:", "temporal-motif-counts.txt",
+			  "Output file to write data");
+  const TDbl delta =
+    Env.GetIfArgPrefixDbl("-delta:", 4096, "Time window delta");
 
-  const TInt delta =
-    Env.GetIfArgPrefixStr("-d:", 3600, "Time window delta");
-
+  // Count all {2,3}-node temporal motifs with 3 temporal edges
   TempMotifCounter tmc(graph_filename);
-  // Counts of all {2,3}-node, 3-edge motifs.
   Counter2D counts;
   tmc.Count3TEdge23Node(delta, counts);
   for (int i = 0; i < 6; i++) {
@@ -30,6 +32,6 @@ int main(int argc, char* argv[]) {
   
   Catch
   printf("\nrun time: %s (%s)\n", ExeTm.GetTmStr(),
-	 TSecTm::GetCurTm().GetTmStr().CStr());  
+	 TSecTm::GetCurTm().GetTmStr().CStr());
   return 0;
 }
