@@ -58,40 +58,41 @@ void TempMotifCounter::GetAllStaticTriangles(TIntV& Us, TIntV& Vs, TIntV& Ws) {
   Vs.Clr();
   Ws.Clr();
   // Get degree ordering of the graph
-  int max_nodes = static_graph_->GetMxNId() + 1;
+  int max_nodes = static_graph_->GetMxNId();
   TVec<TIntPair> degrees(max_nodes);
   degrees.PutAll(TIntPair(0, 0));
   // Set the degree of a node to be the number of nodes adjacent to the node in
   // the undirected graph.
-  for (TNGraph::TNodeI NI = static_graph_->BegNI();
-       NI < static_graph_->EndNI(); NI++) {  
-    int src = NI.GetId();
+  TIntV nodes;
+  GetAllNodes(nodes);
+  #pragma omp parallel for schedule(dynamic)  
+  for (int node_id = 0; node_id < nodes.Len(); node_id++) {
+    int src = nodes[node_id];
     TIntV nbrs;
     GetAllNeighbors(src, nbrs);
     degrees[src] = TIntPair(nbrs.Len(), src);
   }
   degrees.Sort();
   TIntV order = TIntV(max_nodes);
-  for (int i = 0; i < order.Len(); ++i) {
+  #pragma omp parallel for schedule(dynamic)  
+  for (int i = 0; i < order.Len(); i++) {
     order[degrees[i].Dat] = i;
   }
 
   // Get triangles centered at a given node where that node is the smallest in
   // the degree ordering.
-  for (TNGraph::TNodeI NI = static_graph_->BegNI();
-       NI < static_graph_->EndNI(); NI++) {
-    int src = NI.GetId();
+  #pragma omp parallel for schedule(dynamic)  
+  for (int node_id = 0; node_id < nodes.Len(); node_id++) {
+    int src = nodes[node_id];
     int src_pos = order[src];
     
     // Get all neighbors who come later in the ordering
+    TIntV nbrs;
+    GetAllNeighbors(src, nbrs);    
     TIntV neighbors_higher;
-    for (int i = 0; i < NI.GetOutDeg(); i++) {
-      int nbr = NI.GetOutNId(i);
+    for (int i = 0; i < nbrs.Len(); i++) {
+      int nbr = nbrs[i];
       if (order[nbr] > src_pos) { neighbors_higher.Add(nbr); }
-    }
-    for (int i = 0; i < NI.GetInDeg(); i++) {
-      int nbr = NI.GetInNId(i);
-      if (!NI.IsOutNId(nbr) && order[nbr] > src_pos) { neighbors_higher.Add(nbr); }
     }
 
     for (int ind1 = 0; ind1 < neighbors_higher.Len(); ind1++) {
@@ -100,9 +101,12 @@ void TempMotifCounter::GetAllStaticTriangles(TIntV& Us, TIntV& Vs, TIntV& Ws) {
         int dst2 = neighbors_higher[ind2];
         // Check for triangle formation
         if (static_graph_->IsEdge(dst1, dst2) || static_graph_->IsEdge(dst2, dst1)) {
-          Us.Add(src);
-          Vs.Add(dst1);
-          Ws.Add(dst2);
+	  #pragma omp critical
+	  {
+	    Us.Add(src);
+	    Vs.Add(dst1);
+	    Ws.Add(dst2);
+	  }
         }
       }
     }
@@ -179,14 +183,11 @@ void TempMotifCounter::Count3TEdge2Node(double delta, Counter2D& counts) {
   #pragma omp parallel for schedule(dynamic)
   for (int i = 0; i < undir_edges.Len(); i++) {
     TIntPair edge = undir_edges[i];
-    // Get the counts for that particular edge
     Counter3D local;
-    int src = edge.Key;
-    int dst = edge.Dat;
-    Count3TEdge2Node(src, dst, delta, local);
+    Count3TEdge2Node(edge.Key, edge.Dat, delta, local);
     #pragma omp critical
     {
-      counts(0, 0) += local(0, 1, 0) + local(1, 0, 1);  // M_{5,1} in paper
+      counts(0, 0) += local(0, 1, 0) + local(1, 0, 1);  // M_{5,1}
       counts(0, 1) += local(1, 0, 0) + local(0, 1, 1);  // M_{5,2}
       counts(1, 0) += local(0, 0, 0) + local(1, 1, 1);  // M_{6,1}
       counts(1, 1) += local(0, 0, 1) + local(1, 1, 0);  // M_{6,2}
@@ -196,16 +197,17 @@ void TempMotifCounter::Count3TEdge2Node(double delta, Counter2D& counts) {
 
 void TempMotifCounter::Count3TEdge2Node(int u, int v, double delta,
                                         Counter3D& counts) {
-  // Get u --> v and v --> u
-  TIntV& ts_uv = temporal_data_[u](v);
-  TIntV& ts_vu = temporal_data_[v](u);
-
   // Sort event list by time
-  TVec<TIntPair> combined(ts_uv.Len() + ts_vu.Len());
-  int ts_uv_size = ts_uv.Len();
-  for (int k = 0; k < ts_uv_size; k++)  { combined[k] = TIntPair(ts_uv[k], 0); }
-  for (int k = 0; k < ts_vu.Len(); k++) {
-    combined[k + ts_uv_size] = TIntPair(ts_vu[k], 1);
+  TVec<TIntPair> combined;
+  if (HasEdges(u, v)) {
+    TIntV& ts_uv = temporal_data_[u](v);
+    for (int k = 0; k < ts_uv.Len(); k++) {
+      combined.Add(TIntPair(ts_uv[k], 0));
+    }
+  }
+  if (HasEdges(v, u)) {  
+    TIntV& ts_vu = temporal_data_[v](u);
+    for (int k = 0; k < ts_vu.Len(); k++) { combined.Add(TIntPair(ts_vu[k], 1)); }
   }
   combined.Sort();
 
@@ -222,9 +224,13 @@ void TempMotifCounter::Count3TEdge2Node(int u, int v, double delta,
 
 ///////////////////////////////////////////////////////////////////////////////
 // Star counting methods
-void AddEvents(TVec<TIntPair>& combined, TIntV& timestamps, int value) {
-  for (int i = 0; i < timestamps.Len(); i++) {
-    combined.Add(TIntPair(timestamps[i], value));
+void TempMotifCounter::AddStarEdges(TVec<TIntPair>& combined, int u, int v,
+				    int key) {
+  if (HasEdges(u, v)) {
+    const TIntV& timestamps = temporal_data_[u](v);
+    for (int i = 0; i < timestamps.Len(); i++) {
+      combined.Add(TIntPair(timestamps[i], key));
+    }
   }
 }
 
@@ -248,10 +254,10 @@ void TempMotifCounter::Count3TEdge3NodeStarsNaive(
         int nbr1 = nbrs[i];
         int nbr2 = nbrs[j];
         TVec<TIntPair> combined;
-        AddEvents(combined, temporal_data_[center](nbr1), 0);
-        AddEvents(combined, temporal_data_[nbr1](center), 1);
-        AddEvents(combined, temporal_data_[center](nbr2), 2);
-        AddEvents(combined, temporal_data_[nbr2](center), 3);
+        AddStarEdges(combined, center, nbr1, 0);
+        AddStarEdges(combined, nbr1, center, 1);
+        AddStarEdges(combined, center, nbr2, 2);
+        AddStarEdges(combined, nbr2, center, 3);
         combined.Sort();
         ThreeTEdgeMotifCounter counter(4);
         TIntV edge_id(combined.Len());
@@ -283,17 +289,22 @@ void TempMotifCounter::Count3TEdge3NodeStarsNaive(
   }
 }
 
-void AddStarData(TIntV& ts_vec, TVec<TIntPair>& ts_indices,TVec<StarEdgeData>& events,
-                 int& index, int nbr, int key) {
-  for (int j = 0; j < ts_vec.Len(); ++j) {
-    ts_indices.Add(TIntPair(ts_vec[j], index));
-    events.Add(StarEdgeData(nbr, key));
-    index++;
+void TempMotifCounter::AddStarEdgeData(TVec<TIntPair>& ts_indices,
+				       TVec<StarEdgeData>& events,
+				       int& index, int u, int v, int nbr, int key) {
+  if (HasEdges(u, v)) {
+    const TIntV& ts_vec = temporal_data_[u](v);
+    for (int j = 0; j < ts_vec.Len(); ++j) {
+      ts_indices.Add(TIntPair(ts_vec[j], index));
+      events.Add(StarEdgeData(nbr, key));
+      index++;
+    }
   }
 }
 
 void TempMotifCounter::Count3TEdge3NodeStars(double delta, Counter3D& pre_counts,
-                                             Counter3D& pos_counts, Counter3D& mid_counts) {
+                                             Counter3D& pos_counts,
+					     Counter3D& mid_counts) {
   TIntV centers;
   GetAllNodes(centers);
   pre_counts = Counter3D(2, 2, 2);
@@ -313,8 +324,8 @@ void TempMotifCounter::Count3TEdge3NodeStars(double delta, Counter3D& pre_counts
     int nbr_index = 0;
     for (int i = 0; i < nbrs.Len(); i++) {
       int nbr = nbrs[i];
-      AddStarData(temporal_data_[center](nbr), ts_indices, events, index, nbr_index, 0);
-      AddStarData(temporal_data_[nbr](center), ts_indices, events, index, nbr_index, 1);
+      AddStarEdgeData(ts_indices, events, index, center, nbr, nbr_index, 0);
+      AddStarEdgeData(ts_indices, events, index, nbr, center, nbr_index, 1);
       nbr_index++;
     }
     ts_indices.Sort();
@@ -362,15 +373,6 @@ void TempMotifCounter::Count3TEdge3NodeStars(double delta, Counter3D& pre_counts
   }
 }
 
-void TempMotifCounter::AddEdges(TVec<TIntPair>& combined, int u, int v, int key) {
-  if (HasEdges(u, v)) {
-    const TIntV& ts_uv = temporal_data_[u](v);
-    for (int k = 0; k < ts_uv.Len(); k++) {
-      combined.Add(TIntPair(ts_uv[k], key));
-    }
-  }
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 // Triad counting methods
 void TempMotifCounter::Count3TEdgeTriadsNaive(double delta, Counter3D& counts) {
@@ -385,12 +387,12 @@ void TempMotifCounter::Count3TEdgeTriadsNaive(double delta, Counter3D& counts) {
     // Gather all edges in triangle (u, v, w)
     int uv = 0, vu = 1, uw = 2, wu = 3, vw = 4, wv = 5;
     TVec<TIntPair> combined;
-    AddEdges(combined, u, v, uv);
-    AddEdges(combined, v, u, vu);
-    AddEdges(combined, u, w, uw);
-    AddEdges(combined, w, u, wu);
-    AddEdges(combined, v, w, vw);
-    AddEdges(combined, w, v, wv);        
+    AddStarEdges(combined, u, v, uv);
+    AddStarEdges(combined, v, u, vu);
+    AddStarEdges(combined, u, w, uw);
+    AddStarEdges(combined, w, u, wu);
+    AddStarEdges(combined, v, w, vw);
+    AddStarEdges(combined, w, v, wv);        
     // Get the counts for this triangle
     combined.Sort();
     ThreeTEdgeMotifCounter counter(6);
@@ -464,6 +466,7 @@ void TempMotifCounter::Count3TEdgeTriads(double delta, Counter3D& counts) {
   TVec< THash<TInt, TIntV> > assignments(static_graph_->GetMxNId());
   TIntV Us, Vs, Ws;
   GetAllStaticTriangles(Us, Vs, Ws);
+  #pragma omp parallel for
   for (int i = 0; i < Us.Len(); i++) {
     int u = Us[i];
     int v = Vs[i];
@@ -472,10 +475,13 @@ void TempMotifCounter::Count3TEdgeTriads(double delta, Counter3D& counts) {
     int counts_uw = edge_counts[MIN(u, w)](MAX(u, w));
     int counts_vw = edge_counts[MIN(v, w)](MAX(v, w));
     if        (counts_uv >= MAX(counts_uw, counts_vw)) {
+      #pragma omp critical
       assignments[MIN(u, v)](MAX(u, v)).Add(w);
     } else if (counts_uw >= MAX(counts_uv, counts_vw)) {
+      #pragma omp critical
       assignments[MIN(u, w)](MAX(u, w)).Add(v);
     } else if (counts_vw >= MAX(counts_uv, counts_uw)) {
+      #pragma omp critical      
       assignments[MIN(v, w)](MAX(v, w)).Add(u);
     }
   }

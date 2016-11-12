@@ -167,12 +167,14 @@ class TempMotifCounter {
   // Checks whether or not there is a temporal edge along the static edge (u, v)
   bool HasEdges(int u, int v);
 
-  // Simple wrapper for adding edge data
+  // A simple wrapper for adding triad edge data
   void AddTriadEdgeData(TVec<TriadEdgeData>& events, TVec<TIntPair>& ts_indices,
                         int& index, int u, int v, int nbr, int key1, int key2);
-  // Another simple wrapper for adding edge data
-  void AddEdges(TVec<TIntPair>& combined, int u, int v, int key);
-    
+  // A simple wrapper for adding star edge data  
+  void AddStarEdgeData(TVec<TIntPair>& ts_indices, TVec<StarEdgeData>& events,
+		       int& index, int u, int v, int nbr, int key);
+  // Another simple wrapper for adding star edge data
+  void AddStarEdges(TVec<TIntPair>& combined, int u, int v, int key);
 
   // Directed graph from ignoring timestamps
   PNGraph static_graph_;  
