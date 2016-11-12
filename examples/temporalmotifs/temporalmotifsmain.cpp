@@ -19,8 +19,8 @@ int main(int argc, char* argv[]) {
   const TStr output = 
     Env.GetIfArgPrefixStr("-o:", "temporal-motif-counts.txt",
 			  "Output file in which to write counts");
-  const TDbl delta =
-    Env.GetIfArgPrefixDbl("-delta:", 4096, "Time window delta");
+  const TFlt delta =
+    Env.GetIfArgPrefixFlt("-delta:", 4096, "Time window delta");
   const int num_threads =
     Env.GetIfArgPrefixInt("-nt:", 4, "Number of threads for parallelization");
 
@@ -29,14 +29,15 @@ int main(int argc, char* argv[]) {
 #endif
 
   // Count all {2,3}-node temporal motifs with 3 temporal edges
-  TempMotifCounter tmc(graph_filename);
+  TempMotifCounter tmc(temporal_graph_filename);
   Counter2D counts;
   tmc.Count3TEdge23Node(delta, counts);
   FILE* output_file = fopen(output.CStr(), "wt");
-  for (int i = 0; i < 6; i++) {
-    for (int j = 0; j < 6; j++) {
-      fprintf(output_file, "%d", counts(i, j));
-      if (j < 5) { fprintf(output_file, " "); }
+  for (int i = 0; i < counts.m(); i++) {
+    for (int j = 0; j < counts.n(); j++) {
+      int count = counts(i, j);
+      fprintf(output_file, "%d", count);
+      if (j < counts.n() - 1) { fprintf(output_file, " "); }
     }
     fprintf(output_file, "\n");
   }
