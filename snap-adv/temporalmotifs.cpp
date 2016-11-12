@@ -502,7 +502,11 @@ void TempMotifCounter::Count3TEdgeTriads(double delta, Counter3D& counts) {
     TIntPair edge = all_edges[edge_id];
     int u = edge.Key;
     int v = edge.Dat;
-    TIntV& uv_assignment = assignments[u](v);
+    // Continue if no assignment
+    if (!assignments[u].IsKey(v)) { continue; }
+    TIntV& uv_assignment = assignments[u].GetDat(v);
+    // Continue if no data
+    if (uv_assignment.Len() == 0) { continue; }
     // Get all events on (u, v)
     TVec<TriadEdgeData> events;
     TVec<TIntPair> ts_indices;
