@@ -15,13 +15,13 @@ TempMotifCounter::TempMotifCounter(const TStr& filename) {
   Schema temp_graph_schema;
   temp_graph_schema.Add(TPair<TStr,TAttrType>("source", atInt));
   temp_graph_schema.Add(TPair<TStr,TAttrType>("destination", atInt));
-  temp_graph_schema.Add(TPair<TStr,TAttrType>("start", atInt));
+  temp_graph_schema.Add(TPair<TStr,TAttrType>("time", atInt));
 
   // Load the temporal graph
   PTable data_ptr = TTable::LoadSS(temp_graph_schema, filename, &context, ' ');
   TInt src_idx = data_ptr->GetColIdx("source");
   TInt dst_idx = data_ptr->GetColIdx("destination");
-  TInt tim_idx = data_ptr->GetColIdx("start");
+  TInt tim_idx = data_ptr->GetColIdx("time");
   for (TRowIterator RI = data_ptr->BegRI(); RI < data_ptr->EndRI(); RI++) {
     TInt row_idx = RI.GetRowIdx();
     int src = data_ptr->GetIntValAtRowIdx(src_idx, row_idx).Val;
@@ -101,12 +101,12 @@ void TempMotifCounter::GetAllStaticTriangles(TIntV& Us, TIntV& Vs, TIntV& Ws) {
         int dst2 = neighbors_higher[ind2];
         // Check for triangle formation
         if (static_graph_->IsEdge(dst1, dst2) || static_graph_->IsEdge(dst2, dst1)) {
-	  #pragma omp critical
-	  {
-	    Us.Add(src);
-	    Vs.Add(dst1);
-	    Ws.Add(dst2);
-	  }
+          #pragma omp critical
+          {
+            Us.Add(src);
+            Vs.Add(dst1);
+            Ws.Add(dst2);
+          }
         }
       }
     }
@@ -217,7 +217,7 @@ void TempMotifCounter::Count3TEdge2Node(int u, int v, double delta,
 ///////////////////////////////////////////////////////////////////////////////
 // Star counting methods
 void TempMotifCounter::AddStarEdges(TVec<TIntPair>& combined, int u, int v,
-				    int key) {
+                                    int key) {
   if (HasEdges(u, v)) {
     const TIntV& timestamps = temporal_data_[u].GetDat(v);
     for (int i = 0; i < timestamps.Len(); i++) {
@@ -282,8 +282,8 @@ void TempMotifCounter::Count3TEdge3NodeStarsNaive(
 }
 
 void TempMotifCounter::AddStarEdgeData(TVec<TIntPair>& ts_indices,
-				       TVec<StarEdgeData>& events,
-				       int& index, int u, int v, int nbr, int key) {
+                                       TVec<StarEdgeData>& events,
+                                       int& index, int u, int v, int nbr, int key) {
   if (HasEdges(u, v)) {
     const TIntV& ts_vec = temporal_data_[u].GetDat(v);
     for (int j = 0; j < ts_vec.Len(); ++j) {
@@ -296,7 +296,7 @@ void TempMotifCounter::AddStarEdgeData(TVec<TIntPair>& ts_indices,
 
 void TempMotifCounter::Count3TEdge3NodeStars(double delta, Counter3D& pre_counts,
                                              Counter3D& pos_counts,
-					     Counter3D& mid_counts) {
+                                             Counter3D& mid_counts) {
   TIntV centers;
   GetAllNodes(centers);
   pre_counts = Counter3D(2, 2, 2);
@@ -471,13 +471,22 @@ void TempMotifCounter::Count3TEdgeTriads(double delta, Counter3D& counts) {
     int counts_vw = edge_counts[MIN(v, w)].GetDat(MAX(v, w));
     if        (counts_uv >= MAX(counts_uw, counts_vw)) {
       #pragma omp critical
-      assignments[MIN(u, v)](MAX(u, v)).Add(w);
+      {
+        TIntV& assignment = assignments[MIN(u, v)].GetDat(MAX(u, v));
+        assignment.Add(w);
+      }
     } else if (counts_uw >= MAX(counts_uv, counts_vw)) {
       #pragma omp critical
-      assignments[MIN(u, w)](MAX(u, w)).Add(v);
+      {
+        TIntV& assignment = assignments[MIN(u, w)].GetDat(MAX(u, w));
+        assignment.Add(v);      
+      }
     } else if (counts_vw >= MAX(counts_uv, counts_uw)) {
       #pragma omp critical
-      assignments[MIN(v, w)](MAX(v, w)).Add(u);
+      {
+        TIntV& assignment = assignments[MIN(v, w)].GetDat(MAX(v, w));
+        assignment.Add(u);              
+      }
     }
   }
 
@@ -490,7 +499,7 @@ void TempMotifCounter::Count3TEdgeTriads(double delta, Counter3D& counts) {
     GetAllNeighbors(u, nbrs);
     for (int nbr_id = 0; nbr_id < nbrs.Len(); nbr_id++) {
       int v = nbrs[nbr_id];
-      if (assignments[u].IsKey(v)) {
+      if (assignments[u].IsKey(v) && assignments[u].GetDat(v).Len() > 0) {
         all_edges.Add(TIntPair(u, v));
       }
     }
@@ -587,7 +596,6 @@ void ThreeTEdgeMotifCounter::DecrementCounts(int event) {
   counts1_(event)--;
   for (int i = 0; i < size_; i++) { counts2_(event, i) -= counts1_(i); }
 }
-
 
 ///////////////////////////////////////////////////////////////////////////////
 // Generic three temporal edge, three node star and triad counter.
