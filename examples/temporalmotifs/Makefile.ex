@@ -5,4 +5,3 @@
 MAIN = temporalmotifsmain
 DEPH = $(EXSNAPADV)/temporalmotifs.h
 DEPCPP = $(EXSNAPADV)/temporalmotifs.cpp
-
