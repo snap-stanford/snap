@@ -9,6 +9,7 @@ int main(int argc, char* argv[]) {
 			 __TIME__, __DATE__, TExeTm::GetCurTm()));  
   TExeTm ExeTm;  
   Try
+    
   const TStr temporal_graph_filename =
     Env.GetIfArgPrefixStr("-i:", "example-temporal-graph.txt",
 			  "Input directed temporal graph file");
@@ -22,12 +23,13 @@ int main(int argc, char* argv[]) {
   TempMotifCounter tmc(graph_filename);
   Counter2D counts;
   tmc.Count3TEdge23Node(delta, counts);
+  FILE* output_file = fopen(output.CStr(), "wt");
   for (int i = 0; i < 6; i++) {
     for (int j = 0; j < 6; j++) {
-      printf("%d", counts(i, j));
-      if (j < 5) { printf(" "); }
+      fprintf(output_file, "%d", counts(i, j));
+      if (j < 5) { fprintf(output_file, " "); }
     }
-    printf("%d\n");
+    fprintf(output_file, "\n");
   }
   
   Catch
