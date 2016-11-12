@@ -17,6 +17,7 @@ class Counter1D {
   }
   const TUInt64& operator()(int i) const { return data_[i]; }
   TUInt64& operator()(int i) { return data_[i]; }
+  int m() { return m_; }
   
  private:
   int m_;
@@ -33,6 +34,8 @@ class Counter2D {
   }
   const TUInt64& operator()(int i, int j) const { return data_[i + j * m_]; }
   TUInt64& operator()(int i, int j) { return data_[i + j * m_]; }
+  int m() { return m_; }
+  int n() { return n_; }
   
  private:
   int m_;
@@ -54,6 +57,9 @@ class Counter3D {
   TUInt64& operator()(int i, int j, int k) {
     return data_[i + j * m_ + k * m_ * n_];
   }
+  int m() { return m_; }
+  int n() { return n_; }
+  int p() { return p_; }  
   
  private:
   int m_;
