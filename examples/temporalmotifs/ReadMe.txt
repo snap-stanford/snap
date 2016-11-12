@@ -31,6 +31,7 @@ Parameters:
    -i:Input edgelist file name (default:'example-temporal-graph.txt')
    -delta:Time window delta (default:4096)
    -o:Output file (default:'temporal-motif-counts.txt')
+   -nt:Number of threads (default:4)
 /////////////////////////////////////////////////////////////////////////////
 Usage:
 

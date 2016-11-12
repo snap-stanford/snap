@@ -2,6 +2,9 @@
 //
 #include "stdafx.h"
 #include "temporalmotifs.h"
+#ifdef USE_OPENMP
+#include <omp.h>
+#endif
 
 int main(int argc, char* argv[]) {
   Env = TEnv(argc, argv, TNotify::StdNotify);
@@ -9,15 +12,21 @@ int main(int argc, char* argv[]) {
 			 __TIME__, __DATE__, TExeTm::GetCurTm()));  
   TExeTm ExeTm;  
   Try
-    
+
   const TStr temporal_graph_filename =
     Env.GetIfArgPrefixStr("-i:", "example-temporal-graph.txt",
 			  "Input directed temporal graph file");
   const TStr output = 
     Env.GetIfArgPrefixStr("-o:", "temporal-motif-counts.txt",
-			  "Output file to write data");
+			  "Output file in which to write counts");
   const TDbl delta =
     Env.GetIfArgPrefixDbl("-delta:", 4096, "Time window delta");
+  const int num_threads =
+    Env.GetIfArgPrefixInt("-nt:", 4, "Number of threads for parallelization");
+
+#ifdef USE_OPENMP
+  omp_set_num_threads(num_threads);
+#endif
 
   // Count all {2,3}-node temporal motifs with 3 temporal edges
   TempMotifCounter tmc(graph_filename);
