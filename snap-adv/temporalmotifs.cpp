@@ -446,16 +446,19 @@ void TempMotifCounter::Count3TEdgeTriads(double delta, Counter3D& counts) {
   counts = Counter3D(2, 2, 2);
 
   // Get the counts on each undirected edge
-  TVec< THash<TInt, TInt> > edge_counts(temporal_data_.Len());
+  TVec< THash<TInt, TInt> > edge_counts(static_graph_->GetMxNId());
+  TVec< THash<TInt, TIntV> > assignments(static_graph_->GetMxNId());
   for (TNGraph::TEdgeI it = static_graph_->BegEI();
        it < static_graph_->EndEI(); it++) {
     int src = it.GetSrcNId();
     int dst = it.GetDstNId();
-    edge_counts[MIN(src, dst)](MAX(src, dst)) += temporal_data_[src](dst).Len();
+    int min_node = MIN(src, dst);
+    int max_node = MAX(src, dst);
+    edge_counts[min_node](max_node) += temporal_data_[src](dst).Len();
+    assignments[min_node](max_node) = TIntV();
   }
   
   // Assign triangles to the edge with the most events
-  TVec< THash<TInt, TIntV> > assignments(static_graph_->GetMxNId());
   TIntV Us, Vs, Ws;
   GetAllStaticTriangles(Us, Vs, Ws);
   #pragma omp parallel for schedule(dynamic)
@@ -463,9 +466,9 @@ void TempMotifCounter::Count3TEdgeTriads(double delta, Counter3D& counts) {
     int u = Us[i];
     int v = Vs[i];
     int w = Ws[i];
-    int counts_uv = edge_counts[MIN(u, v)](MAX(u, v));
-    int counts_uw = edge_counts[MIN(u, w)](MAX(u, w));
-    int counts_vw = edge_counts[MIN(v, w)](MAX(v, w));
+    int counts_uv = edge_counts[MIN(u, v)].GetDat(MAX(u, v));
+    int counts_uw = edge_counts[MIN(u, w)].GetDat(MAX(u, w));
+    int counts_vw = edge_counts[MIN(v, w)].GetDat(MAX(v, w));
     if        (counts_uv >= MAX(counts_uw, counts_vw)) {
       #pragma omp critical
       assignments[MIN(u, v)](MAX(u, v)).Add(w);
@@ -473,7 +476,7 @@ void TempMotifCounter::Count3TEdgeTriads(double delta, Counter3D& counts) {
       #pragma omp critical
       assignments[MIN(u, w)](MAX(u, w)).Add(v);
     } else if (counts_vw >= MAX(counts_uv, counts_uw)) {
-      #pragma omp critical      
+      #pragma omp critical
       assignments[MIN(v, w)](MAX(v, w)).Add(u);
     }
   }
