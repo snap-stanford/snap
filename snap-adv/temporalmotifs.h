@@ -3,6 +3,8 @@
 
 #include "Snap.h"
 
+typedef TKeyDat<TInt, TInt> TIntPair;
+
 // Simple one-dimensional, two-dimensional, and three-dimensional counter
 // classes with default intialization.
 class Counter1D {
@@ -60,6 +62,27 @@ class Counter3D {
   TUInt64V data_;
 };
 
+// Triad edge data consists of a neighbor, a direction, and an indicator of whether
+// the edge connects with wich endpoint (u or v).
+class TriadEdgeData {
+ public:
+  TriadEdgeData() {}
+  TriadEdgeData(int _nbr, int _dir, int _u_or_v) :
+      nbr(_nbr), dir(_dir), u_or_v(_u_or_v) {}
+  int nbr;     // Which neighbor of the center node
+  int dir;     // Outgoing (0) or incoming (1) direction
+  int u_or_v;  // Points to first end point u (0) or second end point v (1)
+};
+
+// Star edge data consists of a neighbor and a direction.
+class StarEdgeData {
+ public:
+  StarEdgeData() {}
+  StarEdgeData(int _nbr, int _dir) : nbr(_nbr), dir(_dir) {}
+  int nbr;  // Which neighbor of the center node
+  int dir;  // Outgoing (0) or incoming (1) direction
+};
+
 // Main temporal motif counting class.  This implementation has support for
 // counting motifs with three temporal edges on two or three nodes.  
 class TempMotifCounter {
@@ -104,12 +127,12 @@ class TempMotifCounter {
   //
   //     pos_counts(0, 1, 0): c --> u, v --> c, c --> v
   void Count3TEdge3NodeStars(double delta, Counter3D& pre_counts,
-			     Counter3D& pos_counts, Counter3D& mid_counts);
+                             Counter3D& pos_counts, Counter3D& mid_counts);
   
   // Counts the same information as Count3TEdge3NodeStars() but uses a naive
   // counting algorithm that iterates over all pairs of neighbors.
   void Count3TEdge3NodeStarsNaive(double delta, Counter3D& pre_counts,
-				  Counter3D& pos_counts, Counter3D& mid_counts);
+                                  Counter3D& pos_counts, Counter3D& mid_counts);
 
   // Counts 3-edge triad events and places the result in counts:
   //
@@ -140,6 +163,16 @@ class TempMotifCounter {
   void GetAllNeighbors(int node, TIntV& nbrs);
   // Fills nodes with a vector of all nodes in the static graph.
   void GetAllNodes(TIntV& nodes);
+
+  // Checks whether or not there is a temporal edge along the static edge (u, v)
+  bool HasEdges(int u, int v);
+
+  // Simple wrapper for adding edge data
+  void AddTriadEdgeData(TVec<TriadEdgeData>& events, TVec<TIntPair>& ts_indices,
+                        int& index, int u, int v, int nbr, int key1, int key2);
+  // Another simple wrapper for adding edge data
+  void AddEdges(TVec<TIntPair>& combined, int u, int v, int key);
+    
 
   // Directed graph from ignoring timestamps
   PNGraph static_graph_;  
@@ -190,15 +223,6 @@ class StarTriad3TEdgeCounter {
   virtual void ProcessCurrent(const EdgeData& event) = 0;
 };
 
-// Star edge data consists of a neighbor and a direction.
-class StarEdgeData {
- public:
-  StarEdgeData() {}
-  StarEdgeData(int _nbr, int _dir) : nbr(_nbr), dir(_dir) {}
-  int nbr;  // Which neighbor of the center node
-  int dir;  // Outgoing (0) or incoming (1) direction
-};
-
 // Class for counting star motifs with a given center node.
 class ThreeTEdgeStarCounter : public StarTriad3TEdgeCounter<StarEdgeData> {
  public:
@@ -232,16 +256,6 @@ class ThreeTEdgeStarCounter : public StarTriad3TEdgeCounter<StarEdgeData> {
   Counter2D pos_nodes_;
 };
 
-// Triad edge data consists of a neighbor, a direction, and an indicator of whether
-// the edge connects with wich endpoint (u or v).
-class TriadEdgeData {
- public:
-  TriadEdgeData() {}
- TriadEdgeData(int _nbr, int _dir, int _u_or_v) : nbr(_nbr), dir(_dir), u_or_v(_u_or_v) {}
-  int nbr;     // Which neighbor of the center node
-  int dir;     // Outgoing (0) or incoming (1) direction
-  int u_or_v;  // Points to first end point u (0) or second end point v (1)
-};
 
 // Class for counting triangle motifs that contain a specific undirected edge.
 class ThreeTEdgeTriadCounter : public StarTriad3TEdgeCounter<TriadEdgeData> {
