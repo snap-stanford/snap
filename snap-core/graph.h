@@ -36,6 +36,10 @@ public:
     TNode(const int& NId) : Id(NId), NIdV() { }
     TNode(const TNode& Node) : Id(Node.Id), NIdV(Node.NIdV) { }
     TNode(TSIn& SIn) : Id(SIn), NIdV(SIn) { }
+    void LoadShM(TShMIn& mstream) {
+      Id = TInt(mstream);
+      NIdV.LoadShM(mstream);
+    }
     void Save(TSOut& SOut) const { Id.Save(SOut); NIdV.Save(SOut); }
     int GetId() const { return Id; }
     int GetDeg() const { return NIdV.Len(); }
@@ -124,8 +128,20 @@ private:
   TInt MxNId, NEdges;
   THash<TInt, TNode> NodeH;
 private:
+  class LoadTNodeFunctor {
+  public:
+    LoadTNodeFunctor() {}
+    void operator() (TNode* n, TShMIn& ShMin) { n->LoadShM(ShMin);}
+  };
+private:
   TNode& GetNode(const int& NId) { return NodeH.GetDat(NId); }
   const TNode& GetNode(const int& NId) const { return NodeH.GetDat(NId); }
+  void LoadGraphShm(TShMIn& ShMin) {
+    MxNId = TInt(ShMin);
+    NEdges = TInt(ShMin);
+    LoadTNodeFunctor fn;
+    NodeH.LoadShM(ShMin, fn);
+  }
 public:
   TUNGraph() : CRef(), MxNId(0), NEdges(0), NodeH() { }
   /// Constructor that reserves enough memory for a graph of Nodes nodes and Edges edges.
@@ -134,6 +150,7 @@ public:
   /// Constructor that loads the graph from a (binary) stream SIn.
   TUNGraph(TSIn& SIn) : MxNId(SIn), NEdges(SIn), NodeH(SIn) { }
   /// Saves the graph to a (binary) stream SOut.
+
   void Save(TSOut& SOut) const { MxNId.Save(SOut); NEdges.Save(SOut); NodeH.Save(SOut); }
   /// Static constructor that returns a pointer to the graph. Call: PUNGraph Graph = TUNGraph::New().
   static PUNGraph New() { return new TUNGraph(); }
@@ -141,7 +158,13 @@ public:
   static PUNGraph New(const int& Nodes, const int& Edges) { return new TUNGraph(Nodes, Edges); }
   /// Static constructor that loads the graph from a stream SIn and returns a pointer to it.
   static PUNGraph Load(TSIn& SIn) { return PUNGraph(new TUNGraph(SIn)); }
-  /// Allows for run-time checking the type of the graph (see the TGraphFlag for flags).
+  /* static constructor to load the graph from memory. Cannot perform operations that edit the edge
+   * vectors of nodes or perform illegal operations on the NodeH (deletion or swapping keys) */
+  static PUNGraph LoadShM(TShMIn& ShMIn) {
+    TUNGraph* g = new TUNGraph();
+    g->LoadGraphShm(ShMIn);
+    return PUNGraph(g);
+  }  /// Allows for run-time checking the type of the graph (see the TGraphFlag for flags).
   bool HasFlag(const TGraphFlag& Flag) const;
   TUNGraph& operator = (const TUNGraph& Graph) {
     if (this!=&Graph) { MxNId=Graph.MxNId; NEdges=Graph.NEdges; NodeH=Graph.NodeH; } return *this; }
@@ -256,6 +279,11 @@ public:
     void PackOutNIdV() { OutNIdV.Pack(); }
     void PackNIdV() { InNIdV.Pack(); }
     void SortNIdV() { InNIdV.Sort(); OutNIdV.Sort();}
+    void LoadShM(TShMIn& mstream) {
+      Id = TInt(mstream);
+      InNIdV.LoadShM(mstream);
+      OutNIdV.LoadShM(mstream);
+    }
     friend class TNGraph;
     friend class TNGraphMtx;
   };
@@ -328,8 +356,20 @@ private:
   TInt MxNId;
   THash<TInt, TNode> NodeH;
 private:
+  class LoadTNodeFunctor {
+  public:
+    LoadTNodeFunctor() {}
+    void operator() (TNode* n, TShMIn& ShMin) { n->LoadShM(ShMin);}
+  };
+private:
   TNode& GetNode(const int& NId) { return NodeH.GetDat(NId); }
   const TNode& GetNode(const int& NId) const { return NodeH.GetDat(NId); }
+  void LoadGraphShm(TShMIn& ShMin) {
+      MxNId = TInt(ShMin);
+      LoadTNodeFunctor fn;
+      NodeH.LoadShM(ShMin, fn);
+  }
+
 public:
   TNGraph() : CRef(), MxNId(0), NodeH() { }
   /// Constructor that reserves enough memory for a graph of Nodes nodes and Edges edges.
@@ -345,6 +385,14 @@ public:
   static PNGraph New(const int& Nodes, const int& Edges) { return new TNGraph(Nodes, Edges); }
   /// Static constructor that loads the graph from a stream SIn and returns a pointer to it.
   static PNGraph Load(TSIn& SIn) { return PNGraph(new TNGraph(SIn)); }
+  /// Static constructor that loads the graph from a shared memory stream and returns pointer to it.
+  /* static constructor to load the graph from memory. Cannot perform operations that edit the edge
+   * vectors of nodes or perform illegal operations on the NodeH (deletion or swapping keys) */
+  static PNGraph LoadShM(TShMIn& ShMIn) {
+    TNGraph* g = new TNGraph();
+    g->LoadGraphShm(ShMIn);
+    return PNGraph(g);
+  }
   /// Allows for run-time checking the type of the graph (see the TGraphFlag for flags).
   bool HasFlag(const TGraphFlag& Flag) const;
   TNGraph& operator = (const TNGraph& Graph) {

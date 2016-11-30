@@ -601,6 +601,24 @@ int TCrossNet::DelAttrE(const TStr& attr) {
   return 0;
 }
 
+void TMMNet::LoadNetworkShm(TShMIn& ShMin) {
+    MxModeId = TInt(ShMin);
+    MxCrossNetId = TInt(ShMin);
+    TModeNetFunctor fm;
+    TModeNetH.LoadShM(ShMin, fm);
+    TCrossNetFunctor fc;
+    TCrossNetH.LoadShM(ShMin);
+    ModeIdToNameH.LoadShM(ShMin);
+    ModeNameToIdH.LoadShM(ShMin);
+    CrossIdToNameH.LoadShM(ShMin);
+    CrossNameToIdH.LoadShM(ShMin);
+    for (THash<TInt, TModeNet>::TIter it = TModeNetH.BegI(); it < TModeNetH.EndI(); it++) {
+      it.GetDat().SetParentPointer(this);
+    }
+    for (THash<TInt, TCrossNet>::TIter it = TCrossNetH.BegI(); it < TCrossNetH.EndI(); it++) {
+      it.GetDat().SetParentPointer(this);
+    }
+  }
 
 int TMMNet::AddModeNet(const TStr& ModeName) {
   if (ModeNameToIdH.IsKey(ModeName)) {

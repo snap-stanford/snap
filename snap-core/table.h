@@ -195,6 +195,7 @@ class TTableContext {
 protected:
   TStrHash<TInt, TBigStrPool> StringVals; ///< StringPool - stores string data values and maps them to integers.
   friend class TTable;
+
 public:
   /// Default constructor.
   TTableContext() {}
@@ -202,6 +203,10 @@ public:
   TTableContext(TSIn& SIn): StringVals(SIn) {}
   /// Loads TTableContext in binary from \c SIn.
   void Load(TSIn& SIn) { StringVals.Load(SIn); }
+  /// Loads TTablContext using shared memory
+  void LoadShM(TShMIn& ShMin) {
+    StringVals.LoadShM(ShMin, true);
+  }
   /// Saves TTableContext in binary to \c SOut.
   void Save(TSOut& SOut) { StringVals.Save(SOut); }
   /// Adds string \c Key to the context, returns its KeyId.
@@ -849,6 +854,19 @@ protected:
 
   /// Gets set of row ids of rows common with table \c T.
   void GetCollidingRows(const TTable& T, THashSet<TInt>& Collisions);
+private:
+  class LoadVecFunctor {
+  public:
+    LoadVecFunctor() {}
+    template<typename TElem>
+    void operator() (TVec<TElem>* n, TShMIn& ShMin) {
+      n->LoadShM(ShMin);
+    }
+  };
+private:
+  void GenerateColTypeMap(THash<TStr,TPair<TInt,TInt> > & ColTypeIntMap);
+  void LoadTableShm(TShMIn& ShMIn, TTableContext* Context);
+
 
 public:
 /***** Constructors *****/
@@ -917,6 +935,13 @@ public:
   void SaveBin(const TStr& OutFNm);
   /// Loads table from a binary format. ##TTable::Load
   static PTable Load(TSIn& SIn, TTableContext* Context){ return new TTable(SIn, Context);}
+  /* static constructor to load the table from memory. Cannot perform operations that edit the edge
+   * vectors of nodes or perform illegal operations on any internal hashes (deletion or swapping keys) */
+  static PTable LoadShM(TShMIn& ShMIn, TTableContext* Context) {
+    TTable* table = new TTable();
+    table->LoadTableShm(ShMIn, Context);
+    return PTable(table);
+  }
   /// Saves table schema and content to a binary format. ##TTable::Save
   void Save(TSOut& SOut);
   /// Prints table contents to a text file.

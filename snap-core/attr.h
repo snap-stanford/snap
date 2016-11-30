@@ -21,6 +21,14 @@ public:
   /// Constructor for loading attributes from a (binary) stream SIn.
   TAttr(TSIn& SIn) : AttrNameToId(SIn), AttrIdToName(SIn),
     IntAttrVals(SIn), FltAttrVals(SIn), StrAttrVals(SIn) { }
+
+  void Load(TSIn& SIn) {
+    AttrNameToId.Load(SIn);
+    AttrIdToName.Load(SIn);
+    IntAttrVals.Load(SIn);
+    FltAttrVals.Load(SIn);
+    StrAttrVals.Load(SIn);
+  }
   /// Saves the attributes to a (binary) stream SOut.
   void Save(TSOut& SOut) const {
     AttrNameToId.Save(SOut); AttrIdToName.Save(SOut);

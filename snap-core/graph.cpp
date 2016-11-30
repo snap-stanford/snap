@@ -233,6 +233,7 @@ bool TNGraph::HasFlag(const TGraphFlag& Flag) const {
   return HasGraphFlag(TNGraph::TNet, Flag);
 }
 
+
 int TNGraph::AddNode(int NId) {
   if (NId == -1) {
     NId = MxNId;  MxNId++;

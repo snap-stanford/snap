@@ -534,6 +534,74 @@ TStr TFInOut::GetFNm() const {
 }
 
 /////////////////////////////////////////////////
+// Shared-Memory
+TShMIn::TShMIn(const TStr& Str): TSBase("Input-Shared_Memory"), 
+    TSIn("Input-Shared_Memory"), total_length(0),
+    size_left(0) {
+
+#ifdef GLib_LINUX
+      TStr FNm = Str;
+      TFileId FileId;
+      int fd;
+      uint64 FLen;
+      EAssertR(!FNm.Empty(), "Empty file-name.");
+      FileId=fopen(FNm.CStr(), "rb");
+      fd = fileno(FileId);
+      EAssertR(FileId!=NULL, "Can not open file '"+FNm+"'.");
+      EAssertR(
+          fseek(FileId, 0, SEEK_END)==0,
+          "Error seeking into file '"+TStr(FNm)+"'.");
+      FLen=(uint64)ftell(FileId);
+      EAssertR(
+          fseek(FileId, 0, SEEK_SET)==0,
+          "Error seeking into file '"+TStr(FNm)+"'.");
+
+      // memory map contents of file
+      char *mapped;
+      mapped = (char *) mmap (0, FLen, PROT_READ, MAP_PRIVATE, fd, 0);
+      EAssertR(mapped!=MAP_FAILED, "mmap failed in TShMIn.");
+      original_buffer = mapped;
+      cursor = original_buffer;
+      size_left = FLen;
+      total_length = FLen;
+      IsMemoryMapped = true;
+#else
+      TExcept::Throw("TMIn::TMIn(TStr, Bool): GLib_LINUX undefined.\n");
+#endif
+    }
+
+TShMIn::TShMIn(void* _Bf, const TSize& _BfL): TSBase("Input-Shared_Memory"), 
+  TSIn("Input-Shared_Memory"), total_length(_BfL), size_left(_BfL), IsMemoryMapped(false) {
+    original_buffer = (char*)_Bf;
+    cursor = (char*)_Bf;
+  }
+
+TShMIn::~TShMIn(){
+//   if (original_buffer!=NULL){
+//     if (IsMemoryMapped) {
+// #ifdef GLib_LINUX
+//       munmap(original_buffer, total_length);
+// #endif
+//     }
+//   }
+}
+
+void TShMIn::close_mapping() {
+  if (original_buffer!=NULL){
+    if (IsMemoryMapped) {
+#ifdef GLib_LINUX
+      munmap(original_buffer, total_length);
+      IsMemoryMapped = false;
+      original_buffer = NULL;
+      cursor = NULL;
+      total_length= 0;
+      size_left = 0;
+#endif
+    }
+  }
+}
+
+/////////////////////////////////////////////////
 // Input-Memory
 TMIn::TMIn(const void* _Bf, const uint64& _BfL, const bool& TakeBf):
   TSBase("Input-Memory"), TSIn("Input-Memory"), Bf(NULL), BfC(0), BfL(_BfL), IsMemoryMapped(false){

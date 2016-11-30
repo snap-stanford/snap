@@ -380,6 +380,81 @@ public:
 };
 
 /////////////////////////////////////////////////
+//
+class TShMIn: public TSIn {
+private:
+    char* original_buffer;
+    TSize total_length; // in bytes
+    TSize size_left;
+    char* cursor;
+    bool IsMemoryMapped;
+// private:
+//   TShMIn();
+//   TShMIn(const TShMIn&);
+//   TShMIn& operator=(const TShMIn&);
+public:
+    // mmap the file
+    TShMIn(const TStr& Str);
+
+    TShMIn(void* _Bf, const TSize& _BfL);
+    ~TShMIn();
+
+    bool Eof() { return size_left<=0; }
+    int Len() const { return total_length; }
+    char GetCh() {
+      char c;
+      load_and_advance(&c, sizeof(c));
+      return c;
+    }
+    char* getCursor() {
+      return cursor;
+    }
+    char PeekCh() {
+      return ((char*)cursor)[0];
+    }
+
+    /* cksum does not work properly for this instream, so just skip it */
+    void LoadCs() {
+      TCs TestCs;
+      GetBf(&TestCs, sizeof(TestCs));
+    }
+
+    int GetBf(const void* LBf, const TSize& LBfL){
+      /* chksum not implemented */
+      load_and_advance((char*)LBf, LBfL);
+      return 0;
+      // int LBfS=0;
+      // for (TSize LBfC=0; LBfC<LBfL; LBfC++){
+      //   LBfS+=(((char*)LBf)[LBfC]=GetCh());}
+      // return LBfS;
+    }
+
+    bool GetNextLnBf(TChA& LnChA){
+      // not implemented
+      // FailR(TStr::Fmt("TShMin::GetNextLnBf: not implemented").CStr());
+      return false;
+    }
+
+    void load_and_advance(void* dst, TSize elem_size) {
+      // EAssertR(size_left >= elem_size, "Reading beyond the end of stream.");
+      memcpy(dst, cursor, elem_size);
+      advanceCursor(elem_size);
+    }
+
+    // return cursor before advancing
+    char* advanceCursor(TSize N) {
+      char* temp_cursor = cursor;
+      cursor += N;
+      size_left -= N;
+      // EAssertR(size_left >= 0, "Reading beyond the end of stream.");
+      return temp_cursor;
+    }
+
+
+    void close_mapping();
+};
+
+/////////////////////////////////////////////////
 // Input-Memory
 class TMIn: public TSIn{
 private:

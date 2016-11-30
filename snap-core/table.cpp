@@ -334,11 +334,7 @@ TTable::TTable(const Schema& TableSchema, TTableContext* Context): Context(Conte
   StrColMaps = TVec<TIntV>(StrColCnt);
 }
 
-TTable::TTable(TSIn& SIn, TTableContext* Context): Context(Context), NumRows(SIn),
-  NumValidRows(SIn), FirstValidRow(SIn), LastValidRow(SIn), Next(SIn), IntCols(SIn),
-  FltCols(SIn), StrColMaps(SIn) {
-  THash<TStr,TPair<TInt,TInt> > ColTypeIntMap(SIn);
-
+void TTable::GenerateColTypeMap(THash<TStr,TPair<TInt,TInt> > & ColTypeIntMap) {
   ColTypeMap.Clr();
   Sch.Clr();
   for (THash<TStr,TPair<TInt,TInt> >::TIter it = ColTypeIntMap.BegI(); it < ColTypeIntMap.EndI(); it++) {
@@ -358,8 +354,32 @@ TTable::TTable(TSIn& SIn, TTableContext* Context): Context(Context), NumRows(SIn
         break;
     }
   }
-
   IsNextDirty = 0;
+}
+
+void TTable::LoadTableShm(TShMIn& ShMIn, TTableContext* Context) {
+    Context = Context;
+    NumRows = TInt(ShMIn);
+    NumValidRows = TInt(ShMIn);
+    FirstValidRow = TInt(ShMIn);
+    LastValidRow = TInt(ShMIn);
+    Next.LoadShM(ShMIn); /* load using shared memory */
+
+    LoadVecFunctor f;
+    IntCols.LoadShM(ShMIn, f);
+    FltCols.LoadShM(ShMIn, f);
+    StrColMaps.LoadShM(ShMIn, f);
+    THash<TStr,TPair<TInt,TInt> > ColTypeIntMap;
+    ColTypeIntMap.LoadShM(ShMIn);
+
+    GenerateColTypeMap(ColTypeIntMap);
+  }
+
+TTable::TTable(TSIn& SIn, TTableContext* Context): Context(Context), NumRows(SIn),
+  NumValidRows(SIn), FirstValidRow(SIn), LastValidRow(SIn), Next(SIn), IntCols(SIn),
+  FltCols(SIn), StrColMaps(SIn) {
+  THash<TStr,TPair<TInt,TInt> > ColTypeIntMap(SIn);
+  GenerateColTypeMap(ColTypeIntMap);
 }
 
 TTable::TTable(const TIntIntH& H, const TStr& Col1, const TStr& Col2,

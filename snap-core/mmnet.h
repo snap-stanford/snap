@@ -60,7 +60,14 @@ public:
   /// Saves the graph to a (binary) stream SOut.
   void Save(TSOut& SOut) const {
     TNEANet::Save(SOut); ModeId.Save(SOut); NeighborTypes.Save(SOut); }
-
+  /* Load the network from memory. Cannot perform operations that
+   * perform illegal operations on any internal hashes (deletion or swapping keys) */
+  void LoadShM(TShMIn & ShMin) {
+    TNEANet::LoadShM(ShMin);
+    ModeId = TInt(ShMin);
+    MMNet = NULL;
+    NeighborTypes.LoadShM(ShMin);
+  }
   /// Deletes the given node from this mode.
   void DelNode(const int& NId);
   /// Gets a list of CrossNets that have this Mode as either a source or destination type.
@@ -236,6 +243,15 @@ public:
     friend class TCrossNet;
   };
 private:
+  class LoadVecFunctor {
+  public:
+    LoadVecFunctor() {}
+    template<typename TElem>
+    void operator() (TVec<TElem>* n, TShMIn& ShMin) {
+      n->LoadShM(ShMin);
+    }
+  };
+private:
   THash<TInt,TCrossEdge> CrossH; /// The HashTable from Edge id to the corresponding Edge
   TInt MxEId;
   TInt Mode1; ///The first mode. In the case of directed crossnets, this is implicitly understood to be the source mode.
@@ -319,6 +335,27 @@ public:
   void Save(TSOut& SOut) const { CrossH.Save(SOut); MxEId.Save(SOut); Mode1.Save(SOut); Mode2.Save(SOut); IsDirect.Save(SOut); CrossNetId.Save(SOut); 
     KeyToIndexTypeE.Save(SOut); IntDefaultsE.Save(SOut); StrDefaultsE.Save(SOut); FltDefaultsE.Save(SOut); VecOfIntVecsE.Save(SOut);
     VecOfStrVecsE.Save(SOut); VecOfFltVecsE.Save(SOut); }
+
+  /* Load the network from memory. Cannot perform operations that edit the edge
+   * vectors of nodes or perform illegal operations on any internal hashes (deletion or swapping keys) */
+  void LoadShM(TShMIn& ShMin) {
+    CrossH.LoadShM(ShMin);
+    MxEId = TInt(ShMin);
+    Mode1 = TInt(ShMin);
+    Mode2 = TInt(ShMin);
+    IsDirect = TBool(ShMin);
+    CrossNetId = TInt(ShMin);
+    Net = NULL;
+    KeyToIndexTypeE.LoadShM(ShMin);
+    IntDefaultsE.LoadShM(ShMin);
+    StrDefaultsE.LoadShM(ShMin);
+    FltDefaultsE.LoadShM(ShMin);
+
+    LoadVecFunctor vec_fn;
+    VecOfIntVecsE.LoadShM(ShMin, vec_fn);
+    VecOfStrVecsE.LoadShM(ShMin);
+    VecOfFltVecsE.LoadShM(ShMin, vec_fn);
+  }
 
   /// Whether edges in the crossnet are directed.
   bool IsDirected() const { return IsDirect;}
@@ -526,6 +563,20 @@ public:
   friend class TCrossNet;
   friend class TModeNet;
 
+private:
+  class TModeNetFunctor {
+  public:
+    TModeNetFunctor() {}
+    void operator() (TModeNet* n, TShMIn& ShMin) { n->LoadShM(ShMin);}
+  };
+
+  class TCrossNetFunctor {
+  public:
+    TCrossNetFunctor() {}
+    void operator() (TCrossNet* n, TShMIn& ShMin) { n->LoadShM(ShMin);}
+  };
+private:
+  void LoadNetworkShm(TShMIn& ShMin);
 public:
   TMMNet() : CRef(), MxModeId(0), MxCrossNetId(0), TModeNetH(), TCrossNetH(), ModeIdToNameH(), ModeNameToIdH(), CrossIdToNameH(), CrossNameToIdH() {}
   TMMNet(const TMMNet& OtherTMMNet) : MxModeId(OtherTMMNet.MxModeId), MxCrossNetId(OtherTMMNet.MxCrossNetId), TModeNetH(OtherTMMNet.TModeNetH), 
@@ -556,6 +607,13 @@ public:
     CrossNameToIdH.Save(SOut); }
   /// Loads the TMMNet from binary stream.
   static PMMNet Load(TSIn& SIn) { return PMMNet(new TMMNet(SIn)); }
+  /* static constructor to load the network from memory. Cannot perform operations that edit the edge
+   * vectors of nodes or perform illegal operations on any internal hashes (deletion or swapping keys) */
+  static PMMNet LoadShM(TShMIn& ShMin) {
+    TMMNet* network = new TMMNet();
+    network->LoadNetworkShm(ShMin);
+    return PMMNet(network);
+  }
   static PMMNet New() { return PMMNet(new TMMNet()); }
 
   /// Gets the mode id from the mode name.
