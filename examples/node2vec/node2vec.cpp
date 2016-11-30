@@ -41,8 +41,11 @@ void ReadGraph(TStr& InFile, bool& Directed, bool& Weighted, bool& Verbose, PWNe
     while (!FIn.Eof()) {
       TStr Ln;
       FIn.GetNextLn(Ln);
+      TStr Line, Comment;
+      Ln.SplitOnCh(Line,'#',Comment);
       TStrV Tokens;
-      Ln.SplitOnWs(Tokens);
+      Line.SplitOnWs(Tokens);
+      if(Tokens.Len()<2){ continue; }
       int64 SrcNId = Tokens[0].GetInt();
       int64 DstNId = Tokens[1].GetInt();
       double Weight = 1.0;

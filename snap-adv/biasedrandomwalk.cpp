@@ -102,7 +102,7 @@ void PreprocessTransitionProbs(PWNet& InNet, double& ParamP, double& ParamQ, boo
   for (int64 i = 0; i < NIds.Len(); i++) {
     PreprocessNode(InNet, ParamP, ParamQ, InNet->GetNI(NIds[i]), NCnt, Verbose);
   }
-  printf("\n");
+  if(Verbose){ printf("\n"); }
 }
 
 int64 PredictMemoryRequirements(PWNet& InNet) {
@@ -120,12 +120,12 @@ int64 PredictMemoryRequirements(PWNet& InNet) {
 void SimulateWalk(PWNet& InNet, int64 StartNId, int& WalkLen, TRnd& Rnd, TIntV& WalkV) {
   WalkV.Add(StartNId);
   if (WalkLen == 1) { return; }
-  if (InNet->GetNI(StartNId).GetDeg() == 0) { return; }
-  WalkV.Add(InNet->GetNI(StartNId).GetNbrNId(Rnd.GetUniDevInt(InNet->GetNI(StartNId).GetDeg())));
+  if (InNet->GetNI(StartNId).GetOutDeg() == 0) { return; }
+  WalkV.Add(InNet->GetNI(StartNId).GetNbrNId(Rnd.GetUniDevInt(InNet->GetNI(StartNId).GetOutDeg())));
   while (WalkV.Len() < WalkLen) {
     int64 Dst = WalkV.Last();
     int64 Src = WalkV.LastLast();
-    if (InNet->GetNI(Dst).GetDeg() == 0) { return; }
+    if (InNet->GetNI(Dst).GetOutDeg() == 0) { return; }
     int64 Next = AliasDrawInt(InNet->GetNDat(Dst).GetDat(Src),Rnd);
     WalkV.Add(InNet->GetNI(Dst).GetNbrNId(Next));
   }
