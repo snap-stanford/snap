@@ -77,7 +77,7 @@ public:
   bool IsFastMode() const {return FastMode;}
   void SetFastMode(const bool& _FastMode){FastMode=_FastMode;}
 
-  void LoadCs();
+  virtual void LoadCs();
   void LoadBf(const void* Bf, const TSize& BfL){Cs+=GetBf(Bf, BfL);}
   void* LoadNewBf(const int& BfL){
     void* Bf=(void*)new char[BfL]; Cs+=GetBf(Bf, BfL); return Bf;}
@@ -423,10 +423,6 @@ public:
       /* chksum not implemented */
       load_and_advance((char*)LBf, LBfL);
       return 0;
-      // int LBfS=0;
-      // for (TSize LBfC=0; LBfC<LBfL; LBfC++){
-      //   LBfS+=(((char*)LBf)[LBfC]=GetCh());}
-      // return LBfS;
     }
 
     bool GetNextLnBf(TChA& LnChA){

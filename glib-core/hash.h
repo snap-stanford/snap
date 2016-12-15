@@ -192,7 +192,6 @@ public:
     AutoSizeP=TBool(SIn);
     FFreeKeyId=TInt(SIn);
     FreeKeys=TInt(SIn);
-    printf("KeyDatV Length: %d, AutoSizeP: %d, FFreeKeyId: %d, FreeKeys: %d\n", KeyDatV.Len(), AutoSizeP.Val, FFreeKeyId.Val, FreeKeys.Val);
     SIn.LoadCs();
   }
 

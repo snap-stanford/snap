@@ -19,12 +19,11 @@ void TNEANet::LoadNetworkShm(TShMIn& ShMin) {
       LoadVecFunctor vec_fn;
       VecOfIntVecsN.LoadShM(ShMin, vec_fn);
       VecOfIntVecsE.LoadShM(ShMin, vec_fn);
-      /* Strings are complicated, so don't optimize on these */
-      VecOfStrVecsN.LoadShM(ShMin);
-      VecOfStrVecsE.LoadShM(ShMin);
-      /* Floats we can load as shared memory again */
-      VecOfFltVecsN.LoadShM(ShMin, vec_fn);
-      VecOfFltVecsE.LoadShM(ShMin, vec_fn);
+      /* Strings and floats are complicated, so don't optimize on these */
+      VecOfStrVecsN.Load(ShMin);
+      VecOfStrVecsE.Load(ShMin);
+      VecOfFltVecsN.Load(ShMin);
+      VecOfFltVecsE.Load(ShMin);
 
       LoadVecOfVecFunctor vec_of_vec_fn;
       VecOfIntVecVecsN.LoadShM(ShMin, vec_of_vec_fn);
