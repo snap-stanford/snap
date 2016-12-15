@@ -731,7 +731,7 @@ private:
   uint GrowBy;
   char *Bf;
   TVec<TSize> IdOffV; // string ID to offset
-  bool shared_memory;
+  bool IsShM;
 private:
   void Resize(TSize _MxBfL);
   /* Buffer is backed by shared memory, although IdOffV is not */
@@ -782,7 +782,7 @@ public:
   void Clr(bool DoDel = false) {
     BfL = 0;
     if (DoDel && Bf) {
-      if (!shared_memory) {
+      if (!IsShM) {
         free(Bf);
       }
       Bf = 0;

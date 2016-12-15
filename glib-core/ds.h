@@ -427,33 +427,33 @@ protected:
   TSizeTy MxVals; //!< Vector capacity. Capacity is the size of allocated storage. If <tt>MxVals==-1</tt>, then \c ValT is not owned by the vector, and it won't free it at destruction.
   TSizeTy Vals;   //!< Vector length. Length is the number of elements stored in the vector.
   TVal* ValT;     //!< Pointer to the memory where the elements of the vector are stored.
-  bool shared_memory; // True if the vector array is in shared memory
+  bool IsShM; // True if the vector array is in shared memory
   /// Resizes the vector so that it can store at least \c _MxVals.
   void Resize(const TSizeTy& _MxVals=-1);
   /// Constructs the out of bounds error message.
   TStr GetXOutOfBoundsErrMsg(const TSizeTy& ValN) const;
 public:
-  TVec(): MxVals(0), Vals(0), ValT(NULL), shared_memory(false) {}
+  TVec(): MxVals(0), Vals(0), ValT(NULL), IsShM(false) {}
   TVec(const TVec<TVal, TSizeTy>& Vec);
   /// Constructs a vector (an array) of length \c _Vals.
   explicit TVec(const TSizeTy& _Vals){
-    shared_memory = false;
+    IsShM = false;
     IAssert(0<=_Vals); MxVals=Vals=_Vals;
     if (_Vals==0){ValT=NULL;} else {ValT=new TVal[_Vals];}}
   /// Constructs a vector (an array) of length \c _Vals, while reserving enough memory to store \c _MxVals elements.
   TVec(const TSizeTy& _MxVals, const TSizeTy& _Vals){
-    shared_memory = false;
+    IsShM = false;
     IAssert((0<=_Vals)&&(_Vals<=_MxVals)); MxVals=_MxVals; Vals=_Vals;
     if (_MxVals==0){ValT=NULL;} else {ValT=new TVal[_MxVals];}}
   /// Constructs a vector of \c _Vals elements of memory array \c _ValT. ##TVec::TVec
   explicit TVec(TVal *_ValT, const TSizeTy& _Vals):
-    MxVals(-1), Vals(_Vals), ValT(_ValT), shared_memory(false){}
+    MxVals(-1), Vals(_Vals), ValT(_ValT), IsShM(false){}
   ~TVec() {
     if ((ValT!=NULL) && (MxVals!=-1)) {
       delete[] ValT;
     }
   }
-  explicit TVec(TSIn& SIn): MxVals(0), Vals(0), ValT(NULL), shared_memory(false) {Load(SIn);}
+  explicit TVec(TSIn& SIn): MxVals(0), Vals(0), ValT(NULL), IsShM(false) {Load(SIn);}
   /* Load vector from shared memory but treat underlying array as coming straight from mmapped file
    * Invalid Operations:
    * Editing values in the vector directly
@@ -464,7 +464,7 @@ public:
 
   /* Given a pointer to somewhere in shared memory, construct the TVec */
   template <typename BinaryFunction>
-  void LoadShM(TShMIn& ShMin, BinaryFunction loadFromShared) {
+  void LoadShM(TShMIn& ShMin, BinaryFunction LoadFromSharedFn) {
     if ( (ValT!=NULL) && (MxVals!=-1)){
       delete[] ValT;
     }
@@ -476,10 +476,10 @@ public:
         // Memory is not contiguous, so we just pretend as if it's not in shared memory
         ValT=new TVal[MxVals];
         for (TSizeTy ValN=0; ValN<Vals; ValN++) {
-          loadFromShared(ValT+ValN, ShMin);
+          LoadFromSharedFn(ValT+ValN, ShMin);
         }
     }
-    shared_memory = false;
+    IsShM = false;
   }
 
   void Load(TSIn& SIn);
@@ -612,7 +612,7 @@ public:
   TVal& GetVal(const TSizeTy& ValN){return operator[](ValN);}
   /// Sets the value of element at position \c ValN to \c Val.
   void SetVal(const TSizeTy& ValN, const TVal& Val){
-    IAssertR(!(shared_memory && (MxVals == -1)), "Cannot directly access shared memory");
+    IAssertR(!(IsShM && (MxVals == -1)), "Cannot directly access shared memory");
     AssertR((0<=ValN)&&(ValN<Vals), GetXOutOfBoundsErrMsg(ValN)); ValT[ValN] = Val;}
   /// Fills \c ValV with elements at positions <tt>BValN...EValN</tt>.
   void GetSubValV(const TSizeTy& BValN, const TSizeTy& EValN, TVec<TVal, TSizeTy>& ValV) const;
@@ -632,7 +632,7 @@ public:
   void PutAll(const TVal& Val);
 
   /// Swaps elements at positions \c ValN1 and \c ValN2.
-  void Swap(const TSizeTy& ValN1, const TSizeTy& ValN2){IAssertR(!(shared_memory && (MxVals == -1)), "Cannot directly access shared memory");
+  void Swap(const TSizeTy& ValN1, const TSizeTy& ValN2){IAssertR(!(IsShM && (MxVals == -1)), "Cannot directly access shared memory");
     const TVal Val=ValT[ValN1]; ValT[ValN1]=ValT[ValN2]; ValT[ValN2]=Val;}
   /// Swaps the elements that iterators \c LVal and \c RVal point to.
   static void SwapI(TIter LVal, TIter RVal){const TVal Val=*LVal; *LVal=*RVal; *RVal=Val;}
@@ -793,7 +793,7 @@ public:
 
 template <class TVal, class TSizeTy>
 void TVec<TVal, TSizeTy>::Resize(const TSizeTy& _MxVals){
-  IAssertR(MxVals!=-1 || shared_memory, TStr::Fmt("Can not increase the capacity of the vector. %s. [Program failed to allocate more memory. Solution: Get a bigger machine and a 64-bit compiler.]", GetTypeNm(*this).CStr()).CStr());
+  IAssertR(MxVals!=-1 || IsShM, TStr::Fmt("Can not increase the capacity of the vector. %s. [Program failed to allocate more memory. Solution: Get a bigger machine and a 64-bit compiler.]", GetTypeNm(*this).CStr()).CStr());
   IAssertR(MxVals!=(TInt::Mx-1024), TStr::Fmt("Buffer size at maximum. %s. [Program refuses to allocate more memory. Solution-1: Send your test case to developers.]", GetTypeNm(*this).CStr()).CStr());
   TSizeTy oldMxVals = MxVals;
   if (MxVals == -1) {MxVals = Vals;}
@@ -824,7 +824,7 @@ void TVec<TVal, TSizeTy>::Resize(const TSizeTy& _MxVals){
     for (TSizeTy ValN=0; ValN<Vals; ValN++){NewValT[ValN]=ValT[ValN];}
     if (oldMxVals != -1) {delete[] ValT;} ValT=NewValT;
   }
-  shared_memory = false;
+  IsShM = false;
 }
 
 template <class TVal, class TSizeTy>
@@ -846,7 +846,7 @@ TVec<TVal, TSizeTy>::TVec(const TVec<TVal, TSizeTy>& Vec){
     ValT=new TVal[MxVals];
   }
   for (TSizeTy ValN=0; ValN<Vec.Vals; ValN++){ValT[ValN]=Vec.ValT[ValN];}
-  shared_memory = false;
+  IsShM = false;
 }
 
 
@@ -861,8 +861,8 @@ void TVec<TVal, TSizeTy>::LoadShM(TShMIn& ShMin) {
   if (MxVals == 0) {
     ValT = NULL;
   } else {
-      ValT = (TVal*)(ShMin.advanceCursor(Vals*sizeof(TVal)));
-      shared_memory = true;
+      ValT = (TVal*)(ShMin.AdvanceCursor(Vals*sizeof(TVal)));
+      IsShM = true;
   }
 }
 
@@ -956,14 +956,14 @@ void TVec<TVal, TSizeTy>::Clr(const bool& DoDel, const TSizeTy& NoDelLim){
     if ((ValT!=NULL)&&(MxVals!=-1)){delete[] ValT;}
     MxVals=Vals=0; ValT=NULL;
   } else {
-    IAssertR(MxVals!=-1 || shared_memory, "This vector was obtained from TVecPool. Such vectors cannot change its size!");
+    IAssertR(MxVals!=-1 || IsShM, "This vector was obtained from TVecPool. Such vectors cannot change its size!");
     Vals=0;
   }
 }
 
 template <class TVal, class TSizeTy>
 void TVec<TVal, TSizeTy>::Trunc(const TSizeTy& _Vals){
-  IAssertR(!(MxVals==-1 && shared_memory), "Cannot truncate a shared memory vector");
+  IAssertR(!(MxVals==-1 && IsShM), "Cannot truncate a shared memory vector");
   IAssertR(MxVals!=-1, "This vector was obtained from TVecPool. Such vectors cannot change its size!");
   IAssert((_Vals==-1)||(_Vals>=0));
   if ((_Vals!=-1)&&(_Vals>=Vals)){
@@ -987,7 +987,7 @@ void TVec<TVal, TSizeTy>::Trunc(const TSizeTy& _Vals){
 
 template <class TVal, class TSizeTy>
 void TVec<TVal, TSizeTy>::Pack(){
-  IAssertR(!(shared_memory && (MxVals == -1)), "Cannot pack accessed shared memory");
+  IAssertR(!(IsShM && (MxVals == -1)), "Cannot pack accessed shared memory");
   IAssertR(MxVals!=-1, "This vector was obtained from TVecPool. Such vectors cannot change its size!");
   if (Vals==0){
     if (ValT!=NULL){delete[] ValT;} ValT=NULL;
@@ -1012,7 +1012,7 @@ void TVec<TVal, TSizeTy>::MoveFrom(TVec<TVal, TSizeTy>& Vec){
 
 template <class TVal, class TSizeTy>
 void TVec<TVal, TSizeTy>::CopyUniqueFrom(TVec<TVal, TSizeTy>& Vec, TInt Offset, TInt Sz){
-  IAssertR(!(shared_memory && (MxVals == -1)), "Cannot directly access shared memory");
+  IAssertR(!(IsShM && (MxVals == -1)), "Cannot directly access shared memory");
   if (this!=&Vec){
     if (ValT!=NULL && MxVals!=-1 && MxVals < Sz){
       delete[] ValT;
@@ -1040,14 +1040,14 @@ void TVec<TVal, TSizeTy>::Swap(TVec<TVal, TSizeTy>& Vec){
 
 template <class TVal, class TSizeTy>
 TSizeTy TVec<TVal, TSizeTy>::AddV(const TVec<TVal, TSizeTy>& ValV){
-  AssertR(MxVals!=-1 || shared_memory, "This vector was obtained from TVecPool. Such vectors cannot change its size!");
+  AssertR(MxVals!=-1 || IsShM, "This vector was obtained from TVecPool. Such vectors cannot change its size!");
   for (TSizeTy ValN=0; ValN<ValV.Vals; ValN++){Add(ValV[ValN]);}
   return Len();
 }
 
 template <class TVal, class TSizeTy>
 TSizeTy TVec<TVal, TSizeTy>::AddSorted(const TVal& Val, const bool& Asc, const TSizeTy& _MxVals){
-  IAssertR(!(shared_memory && (MxVals == -1)), "Cannot directly access shared memory");
+  IAssertR(!(IsShM && (MxVals == -1)), "Cannot directly access shared memory");
   AssertR(MxVals!=-1, "This vector was obtained from TVecPool. Such vectors cannot change its size!");
   TSizeTy ValN=Add(Val);
   if (Asc){
@@ -1063,7 +1063,7 @@ TSizeTy TVec<TVal, TSizeTy>::AddSorted(const TVal& Val, const bool& Asc, const T
 
 template <class TVal, class TSizeTy>
 TSizeTy TVec<TVal, TSizeTy>::AddBackSorted(const TVal& Val, const bool& Asc){
-  IAssertR(!(shared_memory && (MxVals == -1)), "Cannot directly access shared memory");
+  IAssertR(!(IsShM && (MxVals == -1)), "Cannot directly access shared memory");
   AssertR(MxVals!=-1, "This vector was obtained from TVecPool. Such vectors cannot change its size!");
   Add();
   TSizeTy ValN=Vals-2;
@@ -1075,7 +1075,7 @@ TSizeTy TVec<TVal, TSizeTy>::AddBackSorted(const TVal& Val, const bool& Asc){
 
 template <class TVal, class TSizeTy>
 TSizeTy TVec<TVal, TSizeTy>::AddMerged(const TVal& Val){
-  IAssertR(!(shared_memory && (MxVals == -1)), "Cannot directly access shared memory");
+  IAssertR(!(IsShM && (MxVals == -1)), "Cannot directly access shared memory");
   AssertR(MxVals!=-1, "This vector was obtained from TVecPool. Such vectors cannot change its size!");
   TSizeTy ValN=SearchBin(Val);
   if (ValN==-1){return AddSorted(Val);}
@@ -1084,7 +1084,7 @@ TSizeTy TVec<TVal, TSizeTy>::AddMerged(const TVal& Val){
 
 template <class TVal, class TSizeTy>
 TSizeTy TVec<TVal, TSizeTy>::AddVMerged(const TVec<TVal, TSizeTy>& ValV){
-  IAssertR(!(shared_memory && (MxVals == -1)), "Cannot directly access shared memory");
+  IAssertR(!(IsShM && (MxVals == -1)), "Cannot directly access shared memory");
   AssertR(MxVals!=-1, "This vector was obtained from TVecPool. Such vectors cannot change its size!");
   for (TSizeTy ValN=0; ValN<ValV.Vals; ValN++){AddMerged(ValV[ValN]);}
   return Len();
@@ -1092,7 +1092,7 @@ TSizeTy TVec<TVal, TSizeTy>::AddVMerged(const TVec<TVal, TSizeTy>& ValV){
 
 template <class TVal, class TSizeTy>
 TSizeTy TVec<TVal, TSizeTy>::AddUnique(const TVal& Val){
-  AssertR(MxVals!=-1 || shared_memory, "This vector was obtained from TVecPool. Such vectors cannot change its size!");
+  AssertR(MxVals!=-1 || IsShM, "This vector was obtained from TVecPool. Such vectors cannot change its size!");
   TSizeTy ValN=SearchForw(Val);
   if (ValN==-1){return Add(Val);}
   else {GetVal(ValN)=Val; return -1;}
@@ -1110,7 +1110,7 @@ void TVec<TVal, TSizeTy>::GetSubValV(const TSizeTy& _BValN, const TSizeTy& _EVal
 
 template <class TVal, class TSizeTy>
 void TVec<TVal, TSizeTy>::Ins(const TSizeTy& ValN, const TVal& Val){
-  IAssertR(!(shared_memory && (MxVals == -1)), "Cannot directly access shared memory");
+  IAssertR(!(IsShM && (MxVals == -1)), "Cannot directly access shared memory");
   AssertR(MxVals!=-1, "This vector was obtained from TVecPool. Such vectors cannot change its size!");
   Add();  Assert((0<=ValN)&&(ValN<Vals));
   for (TSizeTy MValN=Vals-2; MValN>=ValN; MValN--){ValT[MValN+1]=ValT[MValN];}
@@ -1119,7 +1119,7 @@ void TVec<TVal, TSizeTy>::Ins(const TSizeTy& ValN, const TVal& Val){
 
 template <class TVal, class TSizeTy>
 void TVec<TVal, TSizeTy>::Del(const TSizeTy& ValN){
-  IAssertR(!(shared_memory && (MxVals == -1)), "Cannot directly access shared memory");
+  IAssertR(!(IsShM && (MxVals == -1)), "Cannot directly access shared memory");
   AssertR(MxVals!=-1, "This vector was obtained from TVecPool. Such vectors cannot change its size!");
   Assert((0<=ValN)&&(ValN<Vals));
   for (TSizeTy MValN=ValN+1; MValN<Vals; MValN++){
@@ -1129,7 +1129,7 @@ void TVec<TVal, TSizeTy>::Del(const TSizeTy& ValN){
 
 template <class TVal, class TSizeTy>
 void TVec<TVal, TSizeTy>::Del(const TSizeTy& MnValN, const TSizeTy& MxValN){
-  IAssertR(!(shared_memory && (MxVals == -1)), "Cannot directly access shared memory");
+  IAssertR(!(IsShM && (MxVals == -1)), "Cannot directly access shared memory");
   AssertR(MxVals!=-1, "This vector was obtained from TVecPool. Such vectors cannot change its size!");
   Assert((0<=MnValN)&&(MnValN<Vals)&&(0<=MxValN)&&(MxValN<Vals));
   Assert(MnValN<=MxValN);
@@ -1142,7 +1142,7 @@ void TVec<TVal, TSizeTy>::Del(const TSizeTy& MnValN, const TSizeTy& MxValN){
 
 template <class TVal, class TSizeTy>
 bool TVec<TVal, TSizeTy>::DelIfIn(const TVal& Val){
-  IAssertR(!(shared_memory && (MxVals == -1)), "Cannot directly access shared memory");
+  IAssertR(!(IsShM && (MxVals == -1)), "Cannot directly access shared memory");
   AssertR(MxVals!=-1, "This vector was obtained from TVecPool. Such vectors cannot change its size!");
   TSizeTy ValN=SearchForw(Val);
   if (ValN!=-1){Del(ValN); return true;}
@@ -1151,7 +1151,7 @@ bool TVec<TVal, TSizeTy>::DelIfIn(const TVal& Val){
 
 template <class TVal, class TSizeTy>
 void TVec<TVal, TSizeTy>::DelAll(const TVal& Val){
-  IAssertR(!(shared_memory && (MxVals == -1)), "Cannot directly access shared memory");
+  IAssertR(!(IsShM && (MxVals == -1)), "Cannot directly access shared memory");
   AssertR(MxVals!=-1, "This vector was obtained from TVecPool. Such vectors cannot change its size!");
   TSizeTy ValN;
   while ((ValN=SearchForw(Val))!=-1){Del(ValN);}
@@ -1159,7 +1159,7 @@ void TVec<TVal, TSizeTy>::DelAll(const TVal& Val){
 
 template <class TVal, class TSizeTy>
 void TVec<TVal, TSizeTy>::PutAll(const TVal& Val){
-  IAssertR(!(shared_memory && (MxVals == -1)), "Cannot directly access shared memory");
+  IAssertR(!(IsShM && (MxVals == -1)), "Cannot directly access shared memory");
   for (TSizeTy ValN=0; ValN<Vals; ValN++){ValT[ValN]=Val;}
 }
 
@@ -1286,7 +1286,7 @@ void TVec<TVal, TSizeTy>::Reverse(){
 
 template <class TVal, class TSizeTy>
 void TVec<TVal, TSizeTy>::Merge(){
-  IAssertR(!(shared_memory && (MxVals == -1)), "Cannot directly access shared memory");
+  IAssertR(!(IsShM && (MxVals == -1)), "Cannot directly access shared memory");
   AssertR(MxVals!=-1, "This vector was obtained from TVecPool. Such vectors cannot change its size!");
   TVec<TVal, TSizeTy> SortedVec(*this); SortedVec.Sort();
   Clr();

@@ -8,9 +8,9 @@ void TBigStrPool::Resize(TSize _MxBfL) {
     else newSize = TInt::GetMn(GrowBy, 1024);
   }
   if (newSize > MxBfL) {
-    if (shared_memory) {
+    if (IsShM) {
       Bf = (char*) malloc(newSize);
-      shared_memory = false;
+      IsShM = false;
     } else {
       Bf = (char *) realloc(Bf, newSize);
     }
@@ -20,13 +20,13 @@ void TBigStrPool::Resize(TSize _MxBfL) {
   IAssert(MxBfL >= _MxBfL);
 }
 
-TBigStrPool::TBigStrPool(TSize MxBfLen, uint _GrowBy) : MxBfL(MxBfLen), BfL(0), GrowBy(_GrowBy), Bf(0), shared_memory(false) {
+TBigStrPool::TBigStrPool(TSize MxBfLen, uint _GrowBy) : MxBfL(MxBfLen), BfL(0), GrowBy(_GrowBy), Bf(0), IsShM(false) {
   //IAssert(MxBfL >= 0); IAssert(GrowBy >= 0);
   if (MxBfL > 0) { Bf = (char *) malloc(MxBfL);  IAssert(Bf); }
   AddStr(""); // add empty string
 }
 
-TBigStrPool::TBigStrPool(TSIn& SIn, bool LoadCompact) : MxBfL(0), BfL(0), GrowBy(0), Bf(0), shared_memory(false) {
+TBigStrPool::TBigStrPool(TSIn& SIn, bool LoadCompact) : MxBfL(0), BfL(0), GrowBy(0), Bf(0), IsShM(false) {
   uint64 Tmp;
   SIn.Load(Tmp); IAssert(Tmp <= uint64(TSizeMx)); MxBfL=TSize(Tmp);
   SIn.Load(Tmp); IAssert(Tmp <= uint64(TSizeMx)); BfL=TSize(Tmp);
@@ -50,11 +50,11 @@ void TBigStrPool::LoadPoolShM(TShMIn& ShMin, bool LoadCompact) {
   ShMin.Load(Tmp); IAssert(Tmp <= uint64(TSizeMx)); MxBfL=TSize(Tmp);
   ShMin.Load(Tmp); IAssert(Tmp <= uint64(TSizeMx)); BfL=TSize(Tmp);
   ShMin.Load(GrowBy); IAssert(MxBfL >= BfL);  IAssert(BfL >= 0);  IAssert(GrowBy >= 0);
-  shared_memory = true;
+  IsShM = true;
   if (LoadCompact) MxBfL = BfL;
   /* underlying buffer is mapped straight to memory */
-  Bf = (char*)(ShMin.advanceCursor(MxBfL));
-  shared_memory = true;
+  Bf = (char*)(ShMin.AdvanceCursor(MxBfL));
+  IsShM = true;
   ShMin.LoadCs(); /* no op */
   int NStr=0;
   ShMin.Load(NStr);

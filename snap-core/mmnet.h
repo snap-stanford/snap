@@ -353,8 +353,8 @@ public:
 
     LoadVecFunctor vec_fn;
     VecOfIntVecsE.LoadShM(ShMin, vec_fn);
-    VecOfStrVecsE.LoadShM(ShMin);
-    VecOfFltVecsE.LoadShM(ShMin, vec_fn);
+    VecOfStrVecsE.Load(ShMin);
+    VecOfFltVecsE.Load(ShMin);
   }
 
   /// Whether edges in the crossnet are directed.

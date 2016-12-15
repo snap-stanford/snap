@@ -434,11 +434,11 @@ public:
     void load_and_advance(void* dst, TSize elem_size) {
       // EAssertR(size_left >= elem_size, "Reading beyond the end of stream.");
       memcpy(dst, cursor, elem_size);
-      advanceCursor(elem_size);
+      AdvanceCursor(elem_size);
     }
 
     // return cursor before advancing
-    char* advanceCursor(TSize N) {
+    char* AdvanceCursor(TSize N) {
       char* temp_cursor = cursor;
       cursor += N;
       size_left -= N;
