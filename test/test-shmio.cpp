@@ -8,56 +8,56 @@ class SHMTest { };  // For gtest highlighting
 using namespace TSnap;
 
 template <class PGraph>
-void checkGraphCorrect(PGraph saved, PGraph loaded) {
-  EXPECT_EQ(saved->GetNodes(), loaded->GetNodes());
-  EXPECT_EQ(saved->GetEdges(), loaded->GetEdges());
-  for (typename PGraph::TObj::TEdgeI EI = saved->BegEI(); EI < saved->EndEI(); EI++) {
+void CheckGraphCorrect(PGraph Saved, PGraph Loaded) {
+  EXPECT_EQ(Saved->GetNodes(), Loaded->GetNodes());
+  EXPECT_EQ(Saved->GetEdges(), Loaded->GetEdges());
+  for (typename PGraph::TObj::TEdgeI EI = Saved->BegEI(); EI < Saved->EndEI(); EI++) {
     TInt Src = EI.GetSrcNId();
     TInt Dst = EI.GetDstNId();
-    EXPECT_TRUE(loaded->IsEdge(Src, Dst));
+    EXPECT_TRUE(Loaded->IsEdge(Src, Dst));
   }
 }
 
 template <class PGraph>
-PGraph writeGraph(TStr filename) {
+PGraph WriteGraph(TStr Filename) {
   int num_nodes = 100;
-  PGraph g = PGraph::TObj::New();
+  PGraph Graph = PGraph::TObj::New();
   for (int i = 0; i < num_nodes; i++) {
-    g->AddNode(i);
+    Graph->AddNode(i);
   }
   for (int i = 1; i < num_nodes - 1; i++) {
-    g->AddEdge(i, i+1);
-    g->AddEdge(i, i-1);
+    Graph->AddEdge(i, i+1);
+    Graph->AddEdge(i, i-1);
   }
-  TFOut outstream(filename);
-  g->Save(outstream);
-  return g;
+  TFOut outstream(Filename);
+  Graph->Save(outstream);
+  return Graph;
 }
 
 template <class PGraph>
-PGraph readGraph(TStr filename) {
-  TShMIn ShMIn(filename);
-  PGraph g = PGraph::TObj::LoadShM(ShMIn);
-  return g;
+PGraph ReadGraph(TStr Filename) {
+  TShMIn ShMIn(Filename);
+  PGraph Graph = PGraph::TObj::LoadShM(ShMIn);
+  return Graph;
 }
 
 template <class PGraph>
-void checkGraph() {
-  TStr filename("test.graph");
-  PGraph g = writeGraph<PGraph>(filename);
-  PGraph g2 = readGraph<PGraph>(filename);
-  checkGraphCorrect<PGraph>(g, g2);
+void CheckGraph() {
+  TStr Filename("test.graph");
+  PGraph g = WriteGraph<PGraph>(Filename);
+  PGraph g2 = ReadGraph<PGraph>(Filename);
+  CheckGraphCorrect<PGraph>(g, g2);
 }
 
 // Tests saving and loading of undirected and directed graphs
 TEST(SHMTest, LoadGraphs) {
   // Undirected graph
-  checkGraph<PUNGraph>();
+  CheckGraph<PUNGraph>();
   // Directed graph
-  checkGraph<PNGraph>();
+  CheckGraph<PNGraph>();
 }
 
-PNEANet writeTNEANet(TStr filename) {
+PNEANet writeTNEANet(TStr Filename) {
   int NNodes = 100;
   int NEdges = 100;
   PNEANet Graph = TNEANet::New();
@@ -88,7 +88,7 @@ PNEANet writeTNEANet(TStr filename) {
   Graph->AddStrAttrDatN(10, "abc", attr1);
   Graph->AddStrAttrDatN(20, "def", attr1);
 
-  TFOut outstream(filename);
+  TFOut outstream(Filename);
   Graph->Save(outstream);
   return Graph;
 }
@@ -110,41 +110,41 @@ checkTNEANetCorrect(PNEANet g, PNEANet g2) {
 
 // Tests saving and loading of undirected and directed graphs
 TEST(SHMTest, LoadTNeanet) {
-  TStr filename("test.graph");
-  PNEANet g = writeTNEANet(filename);
-  TShMIn ShMIn(filename);
+  TStr Filename("test.graph");
+  PNEANet g = writeTNEANet(Filename);
+  TShMIn ShMIn(Filename);
   PNEANet g2 = TNEANet::LoadShM(ShMIn);
   checkTNEANetCorrect(g, g2);
 }
 
 template <class PNet>
-void checkNetworkCorrect(PNet saved, PNet loaded) {
-  EXPECT_EQ(saved->GetNodes(), loaded->GetNodes());
-  EXPECT_EQ(saved->GetEdges(), loaded->GetEdges());
+void checkNetworkCorrect(PNet Saved, PNet Loaded) {
+  EXPECT_EQ(Saved->GetNodes(), Loaded->GetNodes());
+  EXPECT_EQ(Saved->GetEdges(), Loaded->GetEdges());
   TAttrType AttrTypeS;
   TAttrType AttrTypeL;
   TInt AttrIdS;
   TInt AttrIdL;
 
-  saved->GetSAttrIdN(TStr("TestInt"), AttrIdS, AttrTypeS);
-  loaded->GetSAttrIdN(TStr("TestInt"), AttrIdL, AttrTypeL);
+  Saved->GetSAttrIdN(TStr("TestInt"), AttrIdS, AttrTypeS);
+  Loaded->GetSAttrIdN(TStr("TestInt"), AttrIdL, AttrTypeL);
   EXPECT_EQ(AttrTypeS, AttrTypeL);
   EXPECT_EQ(AttrIdS, AttrIdL);
 
-  saved->GetSAttrIdN(TStr("TestFlt"), AttrIdS, AttrTypeS);
-  loaded->GetSAttrIdN(TStr("TestFlt"), AttrIdL, AttrTypeL);
+  Saved->GetSAttrIdN(TStr("TestFlt"), AttrIdS, AttrTypeS);
+  Loaded->GetSAttrIdN(TStr("TestFlt"), AttrIdL, AttrTypeL);
   EXPECT_EQ(AttrTypeS, AttrTypeL);
   EXPECT_EQ(AttrIdS, AttrIdL);
 
-  saved->GetSAttrIdN(TStr("TestStr"), AttrIdS, AttrTypeS);
-  loaded->GetSAttrIdN(TStr("TestStr"), AttrIdL, AttrTypeL);
+  Saved->GetSAttrIdN(TStr("TestStr"), AttrIdS, AttrTypeS);
+  Loaded->GetSAttrIdN(TStr("TestStr"), AttrIdL, AttrTypeL);
   EXPECT_EQ(AttrTypeS, AttrTypeL);
   EXPECT_EQ(AttrIdS, AttrIdL);
 }
 
 
 template <class PNet>
-PNet writeNetwork(TStr filename) {
+PNet writeNetwork(TStr Filename) {
   int NNodes = 1000;
   int NEdges = 1000;
   PNet Graph = PNet::TObj::New();
@@ -166,23 +166,23 @@ PNet writeNetwork(TStr filename) {
   Graph->AddSAttrN("TestInt", atInt, AttrId);
   Graph->AddSAttrN("TestFlt", atFlt, AttrId);
   Graph->AddSAttrN("TestStr", atStr, AttrId);
-  TFOut outstream(filename);
+  TFOut outstream(Filename);
   Graph->Save(outstream);
   return Graph;
 }
 
 template <class PNet>
-PNet readNetwork(TStr filename) {
-  TShMIn ShMIn(filename);
+PNet readNetwork(TStr Filename) {
+  TShMIn ShMIn(Filename);
   PNet g = PNet::TObj::LoadShM(ShMIn);
   return g;
 }
 
 template <class PNet>
 void checkNetwork() {
-  TStr filename("test.graph");
-  PNet g = writeNetwork<PNet>(filename);
-  PNet g2 = readNetwork<PNet>(filename);
+  TStr Filename("test.graph");
+  PNet g = writeNetwork<PNet>(Filename);
+  PNet g2 = readNetwork<PNet>(Filename);
   checkNetworkCorrect<PNet>(g, g2);
 }
 
@@ -193,7 +193,35 @@ TEST(SHMTest, LoadNetworks) {
   // Directed network
   checkNetwork<PDirNet>();
   // only check graph functionality for the following networks
-  checkGraph< TPt<TNodeNet<TInt> > >();
-  checkGraph< TPt<TNodeEdgeNet<TInt, TInt> > >();
-  checkGraph< TPt<TNodeEDatNet<TInt, TInt> > >();
+  CheckGraph< TPt<TNodeNet<TInt> > >();
+  CheckGraph< TPt<TNodeEdgeNet<TInt, TInt> > >();
+  CheckGraph< TPt<TNodeEDatNet<TInt, TInt> > >();
+}
+
+TEST(SHMTest, LoadTables) {
+  TStr Filename("test.graph");
+
+  TTableContext Context;
+  // Create schema.
+  Schema GradeS;
+  GradeS.Add(TPair<TStr,TAttrType>("A", atStr));
+  GradeS.Add(TPair<TStr,TAttrType>("B", atStr));
+  GradeS.Add(TPair<TStr,TAttrType>("Quarter", atStr));
+  GradeS.Add(TPair<TStr,TAttrType>("Grade 2011", atInt));
+  GradeS.Add(TPair<TStr,TAttrType>("Grade 2012", atInt));
+  GradeS.Add(TPair<TStr,TAttrType>("Grade 2013", atInt));
+  TIntV RelevantCols;
+  RelevantCols.Add(0); RelevantCols.Add(1); RelevantCols.Add(2);
+  RelevantCols.Add(3); RelevantCols.Add(4); RelevantCols.Add(5);
+  PTable p1 = TTable::LoadSS(GradeS, "table/grades.txt", &Context, RelevantCols);
+  TFOut outstream(Filename);
+  p1->Save(outstream);
+
+  TShMIn Shmin(Filename);
+  PTable p2 = TTable::LoadShM(Shmin, &Context);
+
+  EXPECT_EQ(p1->GetNumRows().Val, p2->GetNumRows().Val);
+  EXPECT_EQ(p1->GetNumValidRows().Val, p2->GetNumValidRows().Val); 
+  EXPECT_EQ(p1->GetIntVal("Grade 2011", 0).Val, p2->GetIntVal("Grade 2011", 0).Val);
+  EXPECT_EQ(p1->GetIntVal("Grade 2013", 4).Val, p2->GetIntVal("Grade 2013", 4).Val);
 }

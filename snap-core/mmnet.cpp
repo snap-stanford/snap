@@ -604,10 +604,10 @@ int TCrossNet::DelAttrE(const TStr& attr) {
 void TMMNet::LoadNetworkShm(TShMIn& ShMin) {
     MxModeId = TInt(ShMin);
     MxCrossNetId = TInt(ShMin);
-    TModeNetFunctor fm;
-    TModeNetH.LoadShM(ShMin, fm);
-    TCrossNetFunctor fc;
-    TCrossNetH.LoadShM(ShMin);
+    TModeNetInit Fm;
+    TModeNetH.LoadShM(ShMin, Fm);
+    TCrossNetInit Fc;
+    TCrossNetH.LoadShM(ShMin, Fc);
     ModeIdToNameH.LoadShM(ShMin);
     ModeNameToIdH.LoadShM(ShMin);
     CrossIdToNameH.LoadShM(ShMin);

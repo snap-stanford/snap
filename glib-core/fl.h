@@ -380,74 +380,56 @@ public:
 };
 
 /////////////////////////////////////////////////
-//
-class TShMIn: public TSIn {
+// Shared Memory
+class TShMIn : public TSIn {
 private:
-    char* original_buffer;
-    TSize total_length; // in bytes
-    TSize size_left;
-    char* cursor;
+    char* OriginalBuffer;
+    TSize TotalLength;
+    TSize SizeLeft;
+    char* Cursor;
     bool IsMemoryMapped;
-// private:
-//   TShMIn();
-//   TShMIn(const TShMIn&);
-//   TShMIn& operator=(const TShMIn&);
 public:
-    // mmap the file
     TShMIn(const TStr& Str);
-
     TShMIn(void* _Bf, const TSize& _BfL);
-    ~TShMIn();
-
-    bool Eof() { return size_left<=0; }
-    int Len() const { return total_length; }
+    ~TShMIn() {}
+    bool Eof() { return SizeLeft<=0; }
+    int Len() const { return TotalLength; }
     char GetCh() {
       char c;
-      load_and_advance(&c, sizeof(c));
+      LoadAndAdvance(&c, sizeof(c));
       return c;
     }
     char* getCursor() {
-      return cursor;
+      return Cursor;
     }
     char PeekCh() {
-      return ((char*)cursor)[0];
+      return ((char*)Cursor)[0];
     }
-
-    /* cksum does not work properly for this instream, so just skip it */
     void LoadCs() {
       TCs TestCs;
       GetBf(&TestCs, sizeof(TestCs));
     }
-
     int GetBf(const void* LBf, const TSize& LBfL){
-      /* chksum not implemented */
-      load_and_advance((char*)LBf, LBfL);
+      LoadAndAdvance((char*)LBf, LBfL);
       return 0;
     }
-
     bool GetNextLnBf(TChA& LnChA){
-      // not implemented
-      // FailR(TStr::Fmt("TShMin::GetNextLnBf: not implemented").CStr());
       return false;
     }
-
-    void load_and_advance(void* dst, TSize elem_size) {
-      // EAssertR(size_left >= elem_size, "Reading beyond the end of stream.");
-      memcpy(dst, cursor, elem_size);
-      AdvanceCursor(elem_size);
+    /// Copy memory into the destination and advance the cursor
+    void LoadAndAdvance(void* Dest, TSize ElemSize) {
+      memcpy(Dest, Cursor, ElemSize);
+      AdvanceCursor(ElemSize);
     }
-
-    // return cursor before advancing
+    /// Return the current pointer and advance the cursor
     char* AdvanceCursor(TSize N) {
-      char* temp_cursor = cursor;
-      cursor += N;
-      size_left -= N;
-      // EAssertR(size_left >= 0, "Reading beyond the end of stream.");
-      return temp_cursor;
+      char* TempCursor = Cursor;
+      Cursor += N;
+      SizeLeft -= N;
+      return TempCursor;
     }
-
-
-    void close_mapping();
+    /// munmap the mapping. Note that munmap is not called by the destructor
+    void CloseMapping();
 };
 
 /////////////////////////////////////////////////

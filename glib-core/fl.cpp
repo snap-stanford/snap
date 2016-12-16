@@ -536,8 +536,8 @@ TStr TFInOut::GetFNm() const {
 /////////////////////////////////////////////////
 // Shared-Memory
 TShMIn::TShMIn(const TStr& Str): TSBase("Input-Shared_Memory"), 
-    TSIn("Input-Shared_Memory"), total_length(0),
-    size_left(0) {
+    TSIn("Input-Shared_Memory"), TotalLength(0),
+    SizeLeft(0) {
 
 #ifdef GLib_LINUX
       TStr FNm = Str;
@@ -555,15 +555,13 @@ TShMIn::TShMIn(const TStr& Str): TSBase("Input-Shared_Memory"),
       EAssertR(
           fseek(FileId, 0, SEEK_SET)==0,
           "Error seeking into file '"+TStr(FNm)+"'.");
-
-      // memory map contents of file
-      char *mapped;
-      mapped = (char *) mmap (0, FLen, PROT_READ, MAP_PRIVATE, fd, 0);
-      EAssertR(mapped!=MAP_FAILED, "mmap failed in TShMIn.");
-      original_buffer = mapped;
-      cursor = original_buffer;
-      size_left = FLen;
-      total_length = FLen;
+      char *Mapped;
+      Mapped = (char *) mmap (0, FLen, PROT_READ, MAP_PRIVATE, fd, 0);
+      EAssertR(Mapped!=MAP_FAILED, "mmap failed in TShMIn.");
+      OriginalBuffer = Mapped;
+      Cursor = OriginalBuffer;
+      SizeLeft = FLen;
+      TotalLength = FLen;
       IsMemoryMapped = true;
 #else
       TExcept::Throw("TMIn::TMIn(TStr, Bool): GLib_LINUX undefined.\n");
@@ -571,31 +569,21 @@ TShMIn::TShMIn(const TStr& Str): TSBase("Input-Shared_Memory"),
     }
 
 TShMIn::TShMIn(void* _Bf, const TSize& _BfL): TSBase("Input-Shared_Memory"), 
-  TSIn("Input-Shared_Memory"), total_length(_BfL), size_left(_BfL), IsMemoryMapped(false) {
-    original_buffer = (char*)_Bf;
-    cursor = (char*)_Bf;
+  TSIn("Input-Shared_Memory"), TotalLength(_BfL), SizeLeft(_BfL), IsMemoryMapped(false) {
+    OriginalBuffer = (char*)_Bf;
+    Cursor = (char*)_Bf;
   }
 
-TShMIn::~TShMIn(){
-//   if (original_buffer!=NULL){
-//     if (IsMemoryMapped) {
-// #ifdef GLib_LINUX
-//       munmap(original_buffer, total_length);
-// #endif
-//     }
-//   }
-}
-
-void TShMIn::close_mapping() {
-  if (original_buffer!=NULL){
+void TShMIn::CloseMapping() {
+  if (OriginalBuffer!=NULL){
     if (IsMemoryMapped) {
 #ifdef GLib_LINUX
-      munmap(original_buffer, total_length);
+      munmap(OriginalBuffer, TotalLength);
       IsMemoryMapped = false;
-      original_buffer = NULL;
-      cursor = NULL;
-      total_length= 0;
-      size_left = 0;
+      OriginalBuffer = NULL;
+      Cursor = NULL;
+      TotalLength= 0;
+      SizeLeft = 0;
 #endif
     }
   }

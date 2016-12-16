@@ -52,20 +52,17 @@ void TBigStrPool::LoadPoolShM(TShMIn& ShMin, bool LoadCompact) {
   ShMin.Load(GrowBy); IAssert(MxBfL >= BfL);  IAssert(BfL >= 0);  IAssert(GrowBy >= 0);
   IsShM = true;
   if (LoadCompact) MxBfL = BfL;
-  /* underlying buffer is mapped straight to memory */
   Bf = (char*)(ShMin.AdvanceCursor(MxBfL));
   IsShM = true;
-  ShMin.LoadCs(); /* no op */
+  ShMin.LoadCs();
   int NStr=0;
   ShMin.Load(NStr);
-  /* loading ID offsets regularly since TSize and uint64 might not be the same size */
   IdOffV.Gen(NStr, 0);
   for (int i = 0; i < NStr; i++) {
     ShMin.Load(Tmp);
     IAssert(Tmp <= uint64(TSizeMx));
     IdOffV.Add(TSize(Tmp));
   }
-
 }
 
 

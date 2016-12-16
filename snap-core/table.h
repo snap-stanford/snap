@@ -203,7 +203,7 @@ public:
   TTableContext(TSIn& SIn): StringVals(SIn) {}
   /// Loads TTableContext in binary from \c SIn.
   void Load(TSIn& SIn) { StringVals.Load(SIn); }
-  /// Loads TTablContext using shared memory
+  /// Loads TTableContext using shared memory
   void LoadShM(TShMIn& ShMin) {
     StringVals.LoadShM(ShMin, true);
   }
@@ -855,17 +855,15 @@ protected:
   /// Gets set of row ids of rows common with table \c T.
   void GetCollidingRows(const TTable& T, THashSet<TInt>& Collisions);
 private:
-  class LoadVecFunctor {
+  class TLoadVecInit {
   public:
-    LoadVecFunctor() {}
+    TLoadVecInit() {}
     template<typename TElem>
-    void operator() (TVec<TElem>* n, TShMIn& ShMin) {
-      n->LoadShM(ShMin);
-    }
+    void operator() (TVec<TElem>* Node, TShMIn& ShMin) {Node->LoadShM(ShMin);}
   };
 private:
   void GenerateColTypeMap(THash<TStr,TPair<TInt,TInt> > & ColTypeIntMap);
-  void LoadTableShm(TShMIn& ShMIn, TTableContext* Context);
+  void LoadTableShm(TShMIn& ShMIn, TTableContext* ContextTable);
 
 
 public:
@@ -935,8 +933,7 @@ public:
   void SaveBin(const TStr& OutFNm);
   /// Loads table from a binary format. ##TTable::Load
   static PTable Load(TSIn& SIn, TTableContext* Context){ return new TTable(SIn, Context);}
-  /* static constructor to load the table from memory. Cannot perform operations that edit the edge
-   * vectors of nodes or perform illegal operations on any internal hashes (deletion or swapping keys) */
+  /// Static constructor to load table from memory ##TTable::LoadShM
   static PTable LoadShM(TShMIn& ShMIn, TTableContext* Context) {
     TTable* table = new TTable();
     table->LoadTableShm(ShMIn, Context);

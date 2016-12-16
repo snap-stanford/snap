@@ -357,18 +357,18 @@ void TTable::GenerateColTypeMap(THash<TStr,TPair<TInt,TInt> > & ColTypeIntMap) {
   IsNextDirty = 0;
 }
 
-void TTable::LoadTableShm(TShMIn& ShMIn, TTableContext* Context) {
-    Context = Context;
+void TTable::LoadTableShm(TShMIn& ShMIn, TTableContext* ContextTable) {
+    Context = ContextTable;
     NumRows = TInt(ShMIn);
     NumValidRows = TInt(ShMIn);
     FirstValidRow = TInt(ShMIn);
     LastValidRow = TInt(ShMIn);
-    Next.LoadShM(ShMIn); /* load using shared memory */
+    Next.LoadShM(ShMIn);
 
-    LoadVecFunctor f;
-    IntCols.LoadShM(ShMIn, f);
-    FltCols.LoadShM(ShMIn, f);
-    StrColMaps.LoadShM(ShMIn, f);
+    TLoadVecInit Fn;
+    IntCols.LoadShM(ShMIn, Fn);
+    FltCols.LoadShM(ShMIn);
+    StrColMaps.LoadShM(ShMIn);
     THash<TStr,TPair<TInt,TInt> > ColTypeIntMap;
     ColTypeIntMap.LoadShM(ShMIn);
 
