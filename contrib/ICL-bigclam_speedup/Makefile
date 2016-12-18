@@ -4,14 +4,14 @@ include ./Makefile.config
      
 all: bigclam bigclam_parallelised
      
-bigclam_parallelised: bigclam.cpp $(BIGCLAM_DEP_PARALLELISED_O) $(SNAPLIB)
+bigclam_parallelised: src/bigclam.cpp $(BIGCLAM_DEP_PARALLELISED_O) $(SNAPLIB)
 	$(CC) $(CXXFLAGS) $(CXXOPENMP) $(LDFLAGS) $(LIBS) \
 	$(BIGCLAM_HEADERFLAGS) \
 	$(BIGCLAM_DEP_PARALLELISED_O) $(SNAPLIB) \
 	$< \
 	-o $@
 
-bigclam: bigclam.cpp $(BIGCLAM_DEP_O) $(SNAPLIB)
+bigclam: src/bigclam.cpp $(BIGCLAM_DEP_O) $(SNAPLIB)
 	$(CC) $(CXXFLAGS) $(CXXOPENMP) $(LDFLAGS) $(LIBS) \
 	$(BIGCLAM_HEADERFLAGS) \
 	$(BIGCLAM_DEP_O) $(SNAPLIB) \
@@ -21,7 +21,7 @@ bigclam: bigclam.cpp $(BIGCLAM_DEP_O) $(SNAPLIB)
 $(SNAPLIB):
 	$(MAKE) -C $(SNAPDIR)
 	
-$(BINDIR)/agmfast_parallelised.o: agmfast_parallelised.cpp
+$(BINDIR)/agmfast_parallelised.o: src/agmfast_parallelised.cpp
 	$(CC) $(CXXFLAGS) $(CXXOPENMP) $(LDFLAGS) $(LIBS) \
 	$(BIGCLAM_HEADERFLAGS) \
 	-c $< -o $@
