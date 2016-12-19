@@ -20,17 +20,17 @@ void CheckGraphCorrect(PGraph Saved, PGraph Loaded) {
 
 template <class PGraph>
 PGraph WriteGraph(TStr Filename) {
-  int num_nodes = 100;
+  int NNodes = 100;
   PGraph Graph = PGraph::TObj::New();
-  for (int i = 0; i < num_nodes; i++) {
+  for (int i = 0; i < NNodes; i++) {
     Graph->AddNode(i);
   }
-  for (int i = 1; i < num_nodes - 1; i++) {
+  for (int i = 1; i < NNodes - 1; i++) {
     Graph->AddEdge(i, i+1);
     Graph->AddEdge(i, i-1);
   }
-  TFOut outstream(Filename);
-  Graph->Save(outstream);
+  TFOut OutStream(Filename);
+  Graph->Save(OutStream);
   return Graph;
 }
 
@@ -44,9 +44,9 @@ PGraph ReadGraph(TStr Filename) {
 template <class PGraph>
 void CheckGraph() {
   TStr Filename("test.graph");
-  PGraph g = WriteGraph<PGraph>(Filename);
-  PGraph g2 = ReadGraph<PGraph>(Filename);
-  CheckGraphCorrect<PGraph>(g, g2);
+  PGraph G = WriteGraph<PGraph>(Filename);
+  PGraph G2 = ReadGraph<PGraph>(Filename);
+  CheckGraphCorrect<PGraph>(G, G2);
 }
 
 // Tests saving and loading of undirected and directed graphs
@@ -88,33 +88,33 @@ PNEANet writeTNEANet(TStr Filename) {
   Graph->AddStrAttrDatN(10, "abc", attr1);
   Graph->AddStrAttrDatN(20, "def", attr1);
 
-  TFOut outstream(Filename);
-  Graph->Save(outstream);
+  TFOut OutStream(Filename);
+  Graph->Save(OutStream);
   return Graph;
 }
 
 void
-checkTNEANetCorrect(PNEANet g, PNEANet g2) {
-  EXPECT_EQ(g->GetNodes(), g2->GetNodes());
-  EXPECT_EQ(g->GetEdges(), g2->GetEdges());
+checkTNEANetCorrect(PNEANet G, PNEANet G2) {
+  EXPECT_EQ(G->GetNodes(), G2->GetNodes());
+  EXPECT_EQ(G->GetEdges(), G2->GetEdges());
   TStr attr2 = "int";
   TStr attr3 = "float";
   TStr attr1 = "str";
-  EXPECT_EQ(g->GetNAIntI(attr2, 3).GetDat(), g2->GetNAIntI(attr2, 3).GetDat());
-  EXPECT_EQ(g->GetNAIntI(attr2, 50).GetDat(), g2->GetNAIntI(attr2, 50).GetDat());
-  EXPECT_EQ(g->GetNAFltI(attr3, 5).GetDat(), g2->GetNAFltI(attr3, 5).GetDat());
-  EXPECT_EQ(g->GetNAFltI(attr3, 50).GetDat(), g2->GetNAFltI(attr3, 50).GetDat());
-  EXPECT_EQ(g->GetNAStrI(attr1, 10).GetDat().LastCh(), g2->GetNAStrI(attr1, 10).GetDat().LastCh());
-  EXPECT_EQ(g->GetNAStrI(attr1, 20).GetDat().LastCh(), g2->GetNAStrI(attr1, 20).GetDat().LastCh());
+  EXPECT_EQ(G->GetNAIntI(attr2, 3).GetDat(), G2->GetNAIntI(attr2, 3).GetDat());
+  EXPECT_EQ(G->GetNAIntI(attr2, 50).GetDat(), G2->GetNAIntI(attr2, 50).GetDat());
+  EXPECT_EQ(G->GetNAFltI(attr3, 5).GetDat(), G2->GetNAFltI(attr3, 5).GetDat());
+  EXPECT_EQ(G->GetNAFltI(attr3, 50).GetDat(), G2->GetNAFltI(attr3, 50).GetDat());
+  EXPECT_EQ(G->GetNAStrI(attr1, 10).GetDat().LastCh(), G2->GetNAStrI(attr1, 10).GetDat().LastCh());
+  EXPECT_EQ(G->GetNAStrI(attr1, 20).GetDat().LastCh(), G2->GetNAStrI(attr1, 20).GetDat().LastCh());
 }
 
 // Tests saving and loading of undirected and directed graphs
 TEST(SHMTest, LoadTNeanet) {
   TStr Filename("test.graph");
-  PNEANet g = writeTNEANet(Filename);
+  PNEANet G = writeTNEANet(Filename);
   TShMIn ShMIn(Filename);
-  PNEANet g2 = TNEANet::LoadShM(ShMIn);
-  checkTNEANetCorrect(g, g2);
+  PNEANet G2 = TNEANet::LoadShM(ShMIn);
+  checkTNEANetCorrect(G, G2);
 }
 
 template <class PNet>
@@ -166,24 +166,24 @@ PNet writeNetwork(TStr Filename) {
   Graph->AddSAttrN("TestInt", atInt, AttrId);
   Graph->AddSAttrN("TestFlt", atFlt, AttrId);
   Graph->AddSAttrN("TestStr", atStr, AttrId);
-  TFOut outstream(Filename);
-  Graph->Save(outstream);
+  TFOut OutStream(Filename);
+  Graph->Save(OutStream);
   return Graph;
 }
 
 template <class PNet>
 PNet readNetwork(TStr Filename) {
   TShMIn ShMIn(Filename);
-  PNet g = PNet::TObj::LoadShM(ShMIn);
-  return g;
+  PNet G = PNet::TObj::LoadShM(ShMIn);
+  return G;
 }
 
 template <class PNet>
 void checkNetwork() {
   TStr Filename("test.graph");
-  PNet g = writeNetwork<PNet>(Filename);
-  PNet g2 = readNetwork<PNet>(Filename);
-  checkNetworkCorrect<PNet>(g, g2);
+  PNet G = writeNetwork<PNet>(Filename);
+  PNet G2 = readNetwork<PNet>(Filename);
+  checkNetworkCorrect<PNet>(G, G2);
 }
 
 // Tests saving and loading of undirected and directed graphs
@@ -214,8 +214,8 @@ TEST(SHMTest, LoadTables) {
   RelevantCols.Add(0); RelevantCols.Add(1); RelevantCols.Add(2);
   RelevantCols.Add(3); RelevantCols.Add(4); RelevantCols.Add(5);
   PTable p1 = TTable::LoadSS(GradeS, "table/grades.txt", &Context, RelevantCols);
-  TFOut outstream(Filename);
-  p1->Save(outstream);
+  TFOut OutStream(Filename);
+  p1->Save(OutStream);
 
   TShMIn Shmin(Filename);
   PTable p2 = TTable::LoadShM(Shmin, &Context);

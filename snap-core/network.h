@@ -44,11 +44,11 @@ public:
     bool IsInNId(const int& NId) const { return InNIdV.SearchBin(NId) != -1; }
     bool IsOutNId(const int& NId) const { return OutNIdV.SearchBin(NId) != -1; }
     bool IsNbrNId(const int& NId) const { return IsOutNId(NId) || IsInNId(NId); }
-    void LoadShM(TShMIn& mstream) {
-      Id = TInt(mstream);
-      NodeDat = TNodeData(mstream);
-      InNIdV.LoadShM(mstream);
-      OutNIdV.LoadShM(mstream);
+    void LoadShM(TShMIn& MStream) {
+      Id = TInt(MStream);
+      NodeDat = TNodeData(MStream);
+      InNIdV.LoadShM(MStream);
+      OutNIdV.LoadShM(MStream);
     }
     bool operator < (const TNode& Node) const { return NodeDat < Node.NodeDat; }
     friend class TNodeNet<TNodeData>;
@@ -166,9 +166,9 @@ public:
   static PNet Load(TSIn& SIn) { return PNet(new TNodeNet(SIn)); }
   /// Static constructor that loads the network from shared memory
   static PNet LoadShM(TShMIn& ShMIn) {
-    TNodeNet* network = new TNodeNet();
-    network->LoadNetworkShm(ShMIn);
-    return PNet(network);
+    TNodeNet* Network = new TNodeNet();
+    Network->LoadNetworkShm(ShMIn);
+    return PNet(Network);
   }
   /// Allows for run-time checking the type of the network (see the TGraphFlag for flags).
   bool HasFlag(const TGraphFlag& Flag) const;
@@ -481,11 +481,11 @@ public:
     bool IsInNId(const int& NId) const { return InNIdV.SearchBin(NId)!=-1; }
     bool IsOutNId(const int& NId) const { return TNodeEDatNet::GetNIdPos(OutNIdV, NId)!=-1; }
     bool IsNbrNId(const int& NId) const { return IsOutNId(NId) || IsInNId(NId); }
-    void LoadShM(TShMIn& mstream) {
-      Id = TInt(mstream);
-      NodeDat = TNodeData(mstream);
-      InNIdV.LoadShM(mstream);
-      OutNIdV.LoadShM(mstream);
+    void LoadShM(TShMIn& MStream) {
+      Id = TInt(MStream);
+      NodeDat = TNodeData(MStream);
+      InNIdV.LoadShM(MStream);
+      OutNIdV.LoadShM(MStream);
     }
     bool operator < (const TNode& Node) const { return NodeDat < Node.NodeDat; }
     friend class TNodeEDatNet<TNodeData, TEdgeData>;
@@ -614,9 +614,9 @@ public:
   /// Static constructor that loads the network from a stream SIn and returns a pointer to it.
   static PNet Load(TSIn& SIn) { return PNet(new TNet(SIn)); }
   static PNet LoadShM(TShMIn& ShMIn) {
-    TNet* network = new TNet();
-    network->LoadNetworkShm(ShMIn);
-    return PNet(network);
+    TNet* Network = new TNet();
+    Network->LoadNetworkShm(ShMIn);
+    return PNet(Network);
   }
   /// Allows for run-time checking the type of the network (see the TGraphFlag for flags).
   bool HasFlag(const TGraphFlag& Flag) const;
@@ -1010,11 +1010,11 @@ public:
     bool IsInEId(const int& EId) const { return InEIdV.SearchBin(EId) != -1; }
     bool IsOutEId(const int& EId) const { return OutEIdV.SearchBin(EId) != -1; }
     bool IsNbrEId(const int& EId) const { return IsInEId(EId) || IsOutEId(EId); }
-    void LoadShM(TShMIn& mstream) {
-      Id = TInt(mstream);
-      InEIdV.LoadShM(mstream);
-      OutEIdV.LoadShM(mstream);
-      NodeDat = TNodeData(mstream);
+    void LoadShM(TShMIn& MStream) {
+      Id = TInt(MStream);
+      InEIdV.LoadShM(MStream);
+      OutEIdV.LoadShM(MStream);
+      NodeDat = TNodeData(MStream);
     }
     friend class TNodeEdgeNet<TNodeData, TEdgeData>;
   };
@@ -1034,11 +1034,11 @@ public:
     int GetId() const { return Id; }
     int GetSrcNId() const { return SrcNId; }
     int GetDstNId() const { return DstNId; }
-    void Load(TSIn& instream) {
-      Id = TInt(instream);
-      SrcNId = TInt(instream);
-      DstNId = TInt(instream);
-      EdgeDat = TEdgeData(instream);
+    void Load(TSIn& InStream) {
+      Id = TInt(InStream);
+      SrcNId = TInt(InStream);
+      DstNId = TInt(InStream);
+      EdgeDat = TEdgeData(InStream);
 
     }
     const TEdgeData& GetDat() const { return EdgeDat; }
@@ -1190,9 +1190,9 @@ public:
   /* static constructor to load the graph from memory. Cannot perform operations that edit the edge
    * vectors of nodes or perform illegal operations on the NodeH,EdgeH (deletion or swapping keys) */
   static PNet LoadShM(TShMIn& ShMIn) {
-    TNet* network = new TNet();
-    network->LoadNetworkShm(ShMIn);
-    return PNet(network);
+    TNet* Network = new TNet();
+    Network->LoadNetworkShm(ShMIn);
+    return PNet(Network);
   }
   /// Allows for run-time checking the type of the network (see the TGraphFlag for flags).
   bool HasFlag(const TGraphFlag& Flag) const;
@@ -1607,10 +1607,10 @@ public:
     int GetNbrEId(const int& EdgeN) const { return EdgeN<GetOutDeg()?GetOutEId(EdgeN):GetInEId(EdgeN-GetOutDeg()); }
     bool IsInEId(const int& EId) const { return InEIdV.SearchBin(EId) != -1; }
     bool IsOutEId(const int& EId) const { return OutEIdV.SearchBin(EId) != -1; }
-    void LoadShM(TShMIn& mstream) {
-      Id = TInt(mstream);
-      InEIdV.LoadShM(mstream);
-      OutEIdV.LoadShM(mstream);
+    void LoadShM(TShMIn& MStream) {
+      Id = TInt(MStream);
+      InEIdV.LoadShM(MStream);
+      OutEIdV.LoadShM(MStream);
     }
     friend class TNEANet;
   };
@@ -1626,10 +1626,10 @@ public:
     int GetId() const { return Id; }
     int GetSrcNId() const { return SrcNId; }
     int GetDstNId() const { return DstNId; }
-    void Load(TSIn& instream) {
-      Id = TInt(instream);
-      SrcNId = TInt(instream);
-      DstNId = TInt(instream);
+    void Load(TSIn& InStream) {
+      Id = TInt(InStream);
+      SrcNId = TInt(InStream);
+      DstNId = TInt(InStream);
     }
     friend class TNEANet;
   };
@@ -1986,9 +1986,9 @@ public:
   /* static constructor to load the network from memory. Cannot perform operations that edit the edge
    * vectors of nodes or perform illegal operations on any internal hashes (deletion or swapping keys) */
   static PNEANet LoadShM(TShMIn& ShMin) {
-    TNEANet* network = new TNEANet();
-    network->LoadNetworkShm(ShMin);
-    return PNEANet(network);
+    TNEANet* Network = new TNEANet();
+    Network->LoadNetworkShm(ShMin);
+    return PNEANet(Network);
   }
 
   /// Allows for run-time checking the type of the graph (see the TGraphFlag for flags).
@@ -2754,9 +2754,9 @@ public:
     void PackOutNIdV() { NIdV.Pack(); }
     void PackNIdV() { NIdV.Pack(); }
     void SortNIdV() { NIdV.Sort();}
-    void LoadShM(TShMIn& mstream) {
-      Id = TInt(mstream);
-      NIdV.LoadShM(mstream);
+    void LoadShM(TShMIn& MStream) {
+      Id = TInt(MStream);
+      NIdV.LoadShM(MStream);
     }
     friend class TUndirNet;
     friend class TUndirNetMtx;
@@ -2848,8 +2848,8 @@ private:
   void LoadNetworkShm(TShMIn& ShMin) {
     MxNId = TInt(ShMin);
     NEdges = TInt(ShMin);
-    LoadTNodeFunctor node_fn;
-    NodeH.LoadShM(ShMin, node_fn);
+    LoadTNodeFunctor NodeFn;
+    NodeH.LoadShM(ShMin, NodeFn);
     SAttrN.Load(ShMin);
     SAttrE = TAttrPair(ShMin);
   }
@@ -2879,9 +2879,9 @@ public:
   /* static constructor to load the network from memory. Cannot perform operations that edit the edge
    * vectors of nodes or perform illegal operations on any internal hashes (deletion or swapping keys) */
   static PUndirNet LoadShM(TShMIn& ShMIn) {
-    TUndirNet* network = new TUndirNet();
-    network->LoadNetworkShm(ShMIn);
-    return PUndirNet(network);
+    TUndirNet* Network = new TUndirNet();
+    Network->LoadNetworkShm(ShMIn);
+    return PUndirNet(Network);
   }
 
   /// Allows for run-time checking the type of the network (see the TGraphFlag for flags).
@@ -3232,10 +3232,10 @@ public:
     void PackOutNIdV() { OutNIdV.Pack(); }
     void PackNIdV() { InNIdV.Pack(); }
     void SortNIdV() { InNIdV.Sort(); OutNIdV.Sort();}
-    void LoadShM(TShMIn& mstream) {
-      Id = TInt(mstream);
-      InNIdV.LoadShM(mstream);
-      OutNIdV.LoadShM(mstream);
+    void LoadShM(TShMIn& MStream) {
+      Id = TInt(MStream);
+      InNIdV.LoadShM(MStream);
+      OutNIdV.LoadShM(MStream);
     }
     friend class TDirNet;
     friend class TDirNetMtx;
@@ -3351,9 +3351,9 @@ public:
   /* static constructor to load the network from memory. Cannot perform operations that edit the edge
    * vectors of nodes or perform illegal operations on any internal hashes (deletion or swapping keys) */
   static PDirNet LoadShM(TShMIn& ShMIn) {
-    TDirNet* network = new TDirNet();
-    network->LoadNetworkShm(ShMIn);
-    return PDirNet(network);
+    TDirNet* Network = new TDirNet();
+    Network->LoadNetworkShm(ShMIn);
+    return PDirNet(Network);
   }
   /// Allows for run-time checking the type of the network (see the TGraphFlag for flags).
   bool HasFlag(const TGraphFlag& Flag) const;

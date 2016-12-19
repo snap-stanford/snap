@@ -3,8 +3,8 @@ void TNEANet::LoadNetworkShm(TShMIn& ShMin) {
       MxNId = TInt(ShMin);
       MxEId = TInt(ShMin);
 
-      LoadTNodeFunctor node_fn;
-      NodeH.LoadShM(ShMin, node_fn);
+      LoadTNodeFunctor NodeFn;
+      NodeH.LoadShM(ShMin, NodeFn);
 
       EdgeH.LoadShM(ShMin);
       KeyToIndexTypeN.LoadShM(ShMin);

@@ -935,9 +935,9 @@ public:
   static PTable Load(TSIn& SIn, TTableContext* Context){ return new TTable(SIn, Context);}
   /// Static constructor to load table from memory ##TTable::LoadShM
   static PTable LoadShM(TShMIn& ShMIn, TTableContext* Context) {
-    TTable* table = new TTable();
-    table->LoadTableShm(ShMIn, Context);
-    return PTable(table);
+    TTable* Table = new TTable();
+    Table->LoadTableShm(ShMIn, Context);
+    return PTable(Table);
   }
   /// Saves table schema and content to a binary format. ##TTable::Save
   void Save(TSOut& SOut);
