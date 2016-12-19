@@ -77,7 +77,7 @@ public:
   bool IsFastMode() const {return FastMode;}
   void SetFastMode(const bool& _FastMode){FastMode=_FastMode;}
 
-  void LoadCs();
+  virtual void LoadCs();
   void LoadBf(const void* Bf, const TSize& BfL){Cs+=GetBf(Bf, BfL);}
   void* LoadNewBf(const int& BfL){
     void* Bf=(void*)new char[BfL]; Cs+=GetBf(Bf, BfL); return Bf;}
@@ -377,6 +377,59 @@ public:
   int PutCh(const char& Ch) { return PutBf(&Ch, sizeof(Ch)); }
   int PutBf(const void* LBf, const TSize& LBfL);
   void Flush() { IAssert(fflush(FileId) == 0); }
+};
+
+/////////////////////////////////////////////////
+// Shared Memory
+class TShMIn : public TSIn {
+private:
+    char* OriginalBuffer;
+    TSize TotalLength;
+    TSize SizeLeft;
+    char* Cursor;
+    bool IsMemoryMapped;
+public:
+    TShMIn(const TStr& Str);
+    TShMIn(void* _Bf, const TSize& _BfL);
+    ~TShMIn() {}
+    bool Eof() { return SizeLeft<=0; }
+    int Len() const { return TotalLength; }
+    char GetCh() {
+      char c;
+      LoadAndAdvance(&c, sizeof(c));
+      return c;
+    }
+    char* getCursor() {
+      return Cursor;
+    }
+    char PeekCh() {
+      return ((char*)Cursor)[0];
+    }
+    void LoadCs() {
+      TCs TestCs;
+      GetBf(&TestCs, sizeof(TestCs));
+    }
+    int GetBf(const void* LBf, const TSize& LBfL){
+      LoadAndAdvance((char*)LBf, LBfL);
+      return 0;
+    }
+    bool GetNextLnBf(TChA& LnChA){
+      return false;
+    }
+    /// Copy memory into the destination and advance the cursor
+    void LoadAndAdvance(void* Dest, TSize ElemSize) {
+      memcpy(Dest, Cursor, ElemSize);
+      AdvanceCursor(ElemSize);
+    }
+    /// Return the current pointer and advance the cursor
+    char* AdvanceCursor(TSize N) {
+      char* TempCursor = Cursor;
+      Cursor += N;
+      SizeLeft -= N;
+      return TempCursor;
+    }
+    /// munmap the mapping. Note that munmap is not called by the destructor
+    void CloseMapping();
 };
 
 /////////////////////////////////////////////////

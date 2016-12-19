@@ -1,4 +1,39 @@
 /////////////////////////////////////////////////
+void TNEANet::LoadNetworkShm(TShMIn& ShMin) {
+      MxNId = TInt(ShMin);
+      MxEId = TInt(ShMin);
+
+      LoadTNodeFunctor node_fn;
+      NodeH.LoadShM(ShMin, node_fn);
+
+      EdgeH.LoadShM(ShMin);
+      KeyToIndexTypeN.LoadShM(ShMin);
+      KeyToIndexTypeE.LoadShM(ShMin);
+      IntDefaultsN.LoadShM(ShMin);
+      IntDefaultsE.LoadShM(ShMin);
+      StrDefaultsN.LoadShM(ShMin);
+      StrDefaultsE.LoadShM(ShMin);
+      FltDefaultsE.LoadShM(ShMin);
+      FltDefaultsE.LoadShM(ShMin);
+
+      LoadVecFunctor vec_fn;
+      VecOfIntVecsN.LoadShM(ShMin, vec_fn);
+      VecOfIntVecsE.LoadShM(ShMin, vec_fn);
+      /* Strings and floats are complicated, so don't optimize on these */
+      VecOfStrVecsN.Load(ShMin);
+      VecOfStrVecsE.Load(ShMin);
+      VecOfFltVecsN.Load(ShMin);
+      VecOfFltVecsE.Load(ShMin);
+
+      LoadVecOfVecFunctor vec_of_vec_fn;
+      VecOfIntVecVecsN.LoadShM(ShMin, vec_of_vec_fn);
+      VecOfIntVecVecsE.LoadShM(ShMin, vec_of_vec_fn);
+
+      /* Attributes are complicated so load these straight */
+      SAttrN.Load(ShMin);
+      SAttrE.Load(ShMin);
+  }
+
 // Attribute Node Edge Network
 bool TNEANet::HasFlag(const TGraphFlag& Flag) const {
   return HasGraphFlag(TNEANet::TNet, Flag);
