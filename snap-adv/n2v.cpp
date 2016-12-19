@@ -18,7 +18,7 @@ void node2vec(PWNet& InNet, double& ParamP, double& ParamQ, int& Dimensions,
   for (int64 i = 0; i < NumWalks; i++) {
     NIdsV.Shuffle(Rnd);
 #pragma omp parallel for schedule(dynamic)
-    for (int64 j = 0; j < NIdsV.Len(); j++){
+    for (int64 j = 0; j < NIdsV.Len(); j++) {
       if ( Verbose && WalksDone%10000 == 0 ) {
         printf("\rWalking Progress: %.2lf%%",(double)WalksDone*100/(double)AllWalks);fflush(stdout);
       }
@@ -36,4 +36,30 @@ void node2vec(PWNet& InNet, double& ParamP, double& ParamQ, int& Dimensions,
   }
   //Learning embeddings
   LearnEmbeddings(WalksVV, Dimensions, WinSize, Iter, Verbose, EmbeddingsHV);
+}
+
+void node2vec(PNGraph& InNet, double& ParamP, double& ParamQ, int& Dimensions,
+ int& WalkLen, int& NumWalks, int& WinSize, int& Iter, bool& Verbose,
+ TIntFltVH& EmbeddingsHV) {
+  PWNet NewNet = PWNet::New();
+  for (TNGraph::TEdgeI EI = InNet->BegEI(); EI < InNet->EndEI(); EI++) {
+    if (!NewNet->IsNode(EI.GetSrcNId())) { NewNet->AddNode(EI.GetSrcNId()); }
+    if (!NewNet->IsNode(EI.GetDstNId())) { NewNet->AddNode(EI.GetDstNId()); }
+    NewNet->AddEdge(EI.GetSrcNId(), EI.GetDstNId(), 1.0);
+  }
+  node2vec(NewNet, ParamP, ParamQ, Dimensions, WalkLen, NumWalks, WinSize, Iter, 
+   Verbose, EmbeddingsHV);
+}
+
+void node2vec(PNEANet& InNet, double& ParamP, double& ParamQ,
+ int& Dimensions, int& WalkLen, int& NumWalks, int& WinSize, int& Iter, bool& Verbose,
+ TIntFltVH& EmbeddingsHV) {
+  PWNet NewNet = PWNet::New();
+  for (TNEANet::TEdgeI EI = InNet->BegEI(); EI < InNet->EndEI(); EI++) {
+    if (!NewNet->IsNode(EI.GetSrcNId())) { NewNet->AddNode(EI.GetSrcNId()); }
+    if (!NewNet->IsNode(EI.GetDstNId())) { NewNet->AddNode(EI.GetDstNId()); }
+    NewNet->AddEdge(EI.GetSrcNId(), EI.GetDstNId(), InNet->GetFltAttrDatE(EI,"weight"));
+  }
+  node2vec(NewNet, ParamP, ParamQ, Dimensions, WalkLen, NumWalks, WinSize, Iter, 
+   Verbose, EmbeddingsHV);
 }

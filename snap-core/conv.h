@@ -59,8 +59,7 @@ PGraph ToGraph(PTable Table, const TStr& SrcCol, const TStr& DstCol, TAttrAggr A
   return Graph;
 }
 
-///  Converts the Table into a graph with edges from \c SrcCol to \c DstCol, and attribute vector
-/// defined by the arguments.
+///  Converts the Table into a graph with edges from \c SrcCol to \c DstCol, and attribute vector defined by the arguments.
 template<class PGraph>
 PGraph ToNetwork(PTable Table,
   const TStr& SrcCol, const TStr& DstCol,
@@ -529,7 +528,6 @@ PGraphMP ToGraphMP(PTable Table, const TStr& SrcCol, const TStr& DstCol) {
 }
 
 /// Performs table to graph conversion in parallel. Uses the hash-first method, which is less optimal, use ToGraphMP instead.
-#ifdef GCC_ATOMIC
 template<class PGraphMP>
 PGraphMP ToGraphMP3(PTable Table, const TStr& SrcCol, const TStr& DstCol) {
   PNGraphMP Graph;
@@ -1646,7 +1644,7 @@ PGraph ToNetwork(PTable Table,
 
 }
 
-
+#ifdef GCC_ATOMIC
 
 /// Converts table to network in parallel. Use if network has only edge attributes.
 template<class PGraphMP>
@@ -1974,11 +1972,9 @@ inline PGraphMP ToNetworkMP(PTable Table,
 
   }
 
-
   Graph->SetEdges(NumRows);
   Graph->SetMxEId(NumRows);
   Sw->Stop(TStopwatch::AddEdges);
-
 
   // make single pass over all rows in the table to add attributes
   for (int CurrRowIdx = 0; CurrRowIdx < (Table->Next).Len(); CurrRowIdx++) {
@@ -2007,7 +2003,7 @@ inline PGraphMP ToNetworkMP(PTable Table,
 
   return Graph;
 }
-
+#endif // GCC_ATOMIC
 
 /// Converts table to network sequentially. Takes edges from \c Table and nodes explicitly from \c NodeCol in \c NodeTable, with attribute vectors passed as columns in corresponding tables.
 template<class PGraph>
@@ -2128,6 +2124,7 @@ PGraph ToNetwork(PTable Table,
 
 }
 
+#ifdef GCC_ATOMIC
 
 /// Converts table to network in parallel. Takes edges from \c Table and nodes explicitly from \c NodeCol in \c NodeTable, with attribute vectors passed as columns in corresponding tables.
 template<class PGraphMP>
@@ -2457,11 +2454,9 @@ inline PGraphMP ToNetworkMP(PTable Table,
 
   }
 
-
   Graph->SetEdges(NumRows);
   Graph->SetMxEId(NumRows);
   Sw->Stop(TStopwatch::AddEdges);
-
 
   // make single pass over all rows in the table to add attributes
   for (int CurrRowIdx = 0; CurrRowIdx < (Table->Next).Len(); CurrRowIdx++) {
@@ -2486,8 +2481,7 @@ inline PGraphMP ToNetworkMP(PTable Table,
     }
   }
 
-
-  //Add node attribtes
+  // Add node attribtes
   if (NodeAttrV.Len() > 0) {
     for (int CurrRowIdx = 0; CurrRowIdx < (NodeTable->Next).Len(); CurrRowIdx++) {
       if ((NodeTable->Next)[CurrRowIdx] == NodeTable->Invalid) {
@@ -2526,9 +2520,6 @@ inline PGraphMP ToNetworkMP(PTable Table,
 #endif // GCC_ATOMIC
 
 }; // TSnap namespace
-
-// TODO tidy up GCC_ATOMIC directives
-
 
 #endif // CONV_H
 

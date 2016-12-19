@@ -154,6 +154,8 @@ Description of examples:
         roles in the graph.
   testgraph :
 	Demonstrates some of the basic SNAP functionality.
+  temporalmotifs :
+	Counts temporal motifs in temporal networks.
   zygote :
         Demonstrates how to use SNAP with the Zygote library, which
         significantly speeds up computations that need to process the
