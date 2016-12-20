@@ -18,6 +18,13 @@ bigclam: src/bigclam.cpp $(BIGCLAM_DEP_O) $(SNAPLIB)
 	$< \
 	-o $@
 
+cmtycompare: src/cmtycompare.cpp $(SNAPLIB)
+	$(CC) $(CXXFLAGS) $(CXXOPENMP) $(LDFLAGS) $(LIBS) \
+	$(BIGCLAM_HEADERFLAGS) \
+	$(SNAPLIB) \
+	$< \
+	-o $@
+
 $(SNAPLIB):
 	$(MAKE) -C $(SNAPDIR)
 	
