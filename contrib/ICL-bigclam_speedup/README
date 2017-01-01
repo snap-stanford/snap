@@ -36,11 +36,11 @@ parallelised versions, run:
 ```
 # Amazon product co-purchase network
 > ./bigclam -i:./data/com-amazon.ungraph.txt -c:75149
-> ./bigclam_parallelised -o:parallelised -i:./data/com-amazon.ungraph.txt -c:75149
+> ./bigclam_old -o:old -i:./data/com-amazon.ungraph.txt -c:75149
 
 # DBLP collaboration network
 > ./bigclam -i:./data/com-dblp.ungraph.txt -c:13477
-> ./bigclam_parallelised -o:parallelised -i:./data/com-dblp.ungraph.txt -c:13477
+> ./bigclam_old -o:old -i:./data/com-dblp.ungraph.txt -c:13477
 ```
 
 ...where the seemingly hard-coded number of communities are that specified

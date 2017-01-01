@@ -2,12 +2,12 @@ include ./Makefile.config
 
 .SECONDARY:
      
-all: bigclam bigclam_parallelised
+all: bigclam bigclam_old cmtycompare
      
-bigclam_parallelised: src/bigclam.cpp $(BIGCLAM_DEP_PARALLELISED_O) $(SNAPLIB)
+bigclam_old: src/bigclam.cpp $(BIGCLAM_OLD_DEP_O) $(SNAPLIB)
 	$(CC) $(CXXFLAGS) $(CXXOPENMP) $(LDFLAGS) $(LIBS) \
 	$(BIGCLAM_HEADERFLAGS) \
-	$(BIGCLAM_DEP_PARALLELISED_O) $(SNAPLIB) \
+	$(BIGCLAM_OLD_DEP_O) $(SNAPLIB) \
 	$< \
 	-o $@
 
@@ -28,7 +28,7 @@ cmtycompare: src/cmtycompare.cpp $(SNAPLIB)
 $(SNAPLIB):
 	$(MAKE) -C $(SNAPDIR)
 	
-$(BINDIR)/agmfast_parallelised.o: src/agmfast_parallelised.cpp
+$(BINDIR)/agmfast_old.o: src/agmfast_old.cpp
 	$(CC) $(CXXFLAGS) $(CXXOPENMP) $(LDFLAGS) $(LIBS) \
 	$(BIGCLAM_HEADERFLAGS) \
 	-c $< -o $@
@@ -46,7 +46,8 @@ $(BINDIR)/%.o: %.cpp
 clean:
 	rm -rf bin/*.*
 	rm bigclam
-	rm bigclam_parallelised
+	rm bigclam_old
+	rm cmtycompare
 
 deepclean: clean
 	$(MAKE) clean -C $(SNAPDIR)

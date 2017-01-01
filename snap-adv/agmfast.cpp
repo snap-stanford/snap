@@ -517,6 +517,8 @@ void TAGMFast::GetCmtyVV(TVec<TIntV>& CmtyVV, const double Thres, const int MinS
     CIDSumFH.AddDat(c, SumFV[c]);
   }
   CIDSumFH.SortByDat(false);
+  
+  #pragma omp parallel for
   for (int c = 0; c < NumComs; c++) {
     int CID = CIDSumFH.GetKey(c);
     TIntFltH NIDFucH(F.Len() / 10);
@@ -530,7 +532,12 @@ void TAGMFast::GetCmtyVV(TVec<TIntV>& CmtyVV, const double Thres, const int MinS
     }
     NIDFucH.SortByDat(false);
     NIDFucH.GetKeyV(CmtyV);
-    if (CmtyV.Len() >= MinSz) { CmtyVV.Add(CmtyV); }
+    if (CmtyV.Len() >= MinSz) {
+      #pragma omp critical
+      {
+        CmtyVV.Add(CmtyV); 
+      }
+    }
   }
   if ( NumComs != CmtyVV.Len()) {
     printf("Community vector generated. %d communities are ommitted\n", NumComs.Val - CmtyVV.Len());
