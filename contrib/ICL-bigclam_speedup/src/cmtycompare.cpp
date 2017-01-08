@@ -101,15 +101,15 @@ void PrintCmtyMembership(
 void PrintInconsistentCmty(
   TInt Cmty1Index, TInt ClosestMatchCmty2Index,
   const TVec<TIntV>& CmtyVV1, const TVec<TIntV>& CmtyVV2,
-  TInt ClosestMatchMemberCount) {
+  double ClosestMatchSimilarity) {
 
   printf("No exact match for community (line) %d ", Cmty1Index() + 1);
   PrintCmtyMembership(CmtyVV1[Cmty1Index]);
-  printf(" in input community set one. Closest match in input community ");
-  printf("set two is community (line) %d ", ClosestMatchCmty2Index() + 1);
+  printf(" in the first input community set. "
+         "Closest match in the second input community set is ");
+  printf("community (line) %d ", ClosestMatchCmty2Index() + 1);
   PrintCmtyMembership(CmtyVV2[ClosestMatchCmty2Index]);
-  printf(" with similarity %.2f%%.", 
-         100.0 * ClosestMatchMemberCount() / CmtyVV1[Cmty1Index].Len());
+  printf(", with %.2f%% similarity.", ClosestMatchSimilarity);
 }
 
 void PrintMaxInconsistentCmtyReachedMsg(TInt MaxInconsistentCmtyPrinted) {
@@ -143,19 +143,24 @@ void PrintInconsistentCmtySetDiagnostic(const TVec<TIntV>& CmtyVV1,
   for (TInt i = 0; i < CmtyList1.Len(); i++) {
     TIntV CurrCmty = CmtyList1[i];
     bool Matched = false;
-    TInt ClosestMatchMemberCount = 0;
+    double ClosestMatchSimilarity = 0.0;
     TInt ClosestMatchCmtyIndex = 0;
 
     for (TInt j = 0; j < UnmatchedCmtyIndex.Len(); j++) {
-      TInt NumMatchedMembers = 
+      TInt NumMemberIntersection = 
+        CurrCmty.IntrsLen(CmtyList2[UnmatchedCmtyIndex[j]]);
+
+      TInt NumMemberUnion = 
         CurrCmty.UnionLen(CmtyList2[UnmatchedCmtyIndex[j]]);
       
-      if (NumMatchedMembers == CurrCmty.Len()) {
+      if (NumMemberIntersection == NumMemberUnion) {
         Matched = true;
         UnmatchedCmtyIndex.Del(j);
         break;
-      } else if (NumMatchedMembers > ClosestMatchMemberCount) {
-        ClosestMatchMemberCount = NumMatchedMembers;
+      } else if (100.0 * NumMemberIntersection() / NumMemberUnion() > 
+                 ClosestMatchSimilarity) {
+        ClosestMatchSimilarity = 
+          100.0 * NumMemberIntersection() / NumMemberUnion();
         ClosestMatchCmtyIndex = UnmatchedCmtyIndex[j];
       }
     }
@@ -166,7 +171,7 @@ void PrintInconsistentCmtySetDiagnostic(const TVec<TIntV>& CmtyVV1,
 
     NumInconsistentCmty++;
     PrintInconsistentCmty(i, ClosestMatchCmtyIndex, CmtyVV1, CmtyVV2,
-                          ClosestMatchMemberCount);
+                          ClosestMatchSimilarity);
     
     if (NumInconsistentCmty >= MaxInconsistentCmtyPrinted) {
       PrintMaxInconsistentCmtyReachedMsg(MaxInconsistentCmtyPrinted);
