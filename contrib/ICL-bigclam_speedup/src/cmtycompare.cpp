@@ -80,28 +80,60 @@ bool EqualCmtyFast(const TVec<TIntV>& CmtyVV1, const TVec<TIntV>& CmtyVV2) {
   return true;
 }
 
-void PrintMaxInconsistenciesReached(int MaxInconsistentCmty) {
-  printf("...and so on (only the first %d inconsistencies are reported.", 
-         MaxInconsistentCmty);
+void PrintCmtyMembership(
+  const TIntV& CmtyV, int MaxNumMembersToPrint = 5) {
+
+  // If there are no members in the community, we have nothing to do
+  if (CmtyV.Len() == 0) {
+    return;
+  }
+
+  printf("(Members' ID: %d", CmtyV[0]());
+  for (TInt i = 1; i < TInt::GetMn(CmtyV.Len(), MaxNumMembersToPrint); i++) {
+    printf(", %d", CmtyV[i]());
+  }
+  if (CmtyV.Len() > MaxNumMembersToPrint) {
+    printf(", ...");
+  }
+  printf(")");
 }
 
-bool EqualCmtyDetailed(const TVec<TIntV>& CmtyVV1,
-                       const TVec<TIntV>& CmtyVV2,
-                       TInt MaxInconsistentCmty = 10) {
+void PrintInconsistentCmty(
+  TInt Cmty1Index, TInt ClosestMatchCmty2Index,
+  const TVec<TIntV>& CmtyVV1, const TVec<TIntV>& CmtyVV2,
+  TInt ClosestMatchMemberCount) {
+
+  printf("No exact match for community (line) %d ", Cmty1Index() + 1);
+  PrintCmtyMembership(CmtyVV1[Cmty1Index]);
+  printf(" in input community set one. Closest match in input community ");
+  printf("set two is community (line) %d ", ClosestMatchCmty2Index() + 1);
+  PrintCmtyMembership(CmtyVV2[ClosestMatchCmty2Index]);
+  printf(" with similarity %.2f%%.", 
+         100.0 * ClosestMatchMemberCount() / CmtyVV1[Cmty1Index].Len());
+}
+
+void PrintMaxInconsistentCmtyReachedMsg(TInt MaxInconsistentCmtyPrinted) {
+  printf("...and so on (only the first %d inconsistencies are reported).", 
+         MaxInconsistentCmtyPrinted());
+}
+
+void PrintInconsistentCmtySetDiagnostic(const TVec<TIntV>& CmtyVV1,
+  const TVec<TIntV>& CmtyVV2, TInt MaxInconsistentCmtyPrinted = 10) {
 
   // Quick check: if the number of communities are the same
   if (CmtyVV1.Len() != CmtyVV2.Len()) {
-    return false;
+    printf("The number of communities in the input files are not the same.");
+    return;
   }
 
   const bool WITH_SORTED_COMMUNITIES = true;
   const bool KEEP_COMMUNITY_LIST_ORDER = false;
 
-  TVec<TIntV> CmtyList1 = CreateCmtyCopy(CmtyVV2, WITH_SORTED_COMMUNITIES,
+  TVec<TIntV> CmtyList1 = CreateCmtyCopy(CmtyVV1, WITH_SORTED_COMMUNITIES,
                                          KEEP_COMMUNITY_LIST_ORDER);
   TVec<TIntV> CmtyList2 = CreateCmtyCopy(CmtyVV2, WITH_SORTED_COMMUNITIES,
                                          KEEP_COMMUNITY_LIST_ORDER);
-
+  
   TInt NumInconsistentCmty = 0;
   TIntV UnmatchedCmtyIndex;
   for (TInt i = 0; i < CmtyList2.Len(); i++) {
@@ -115,9 +147,16 @@ bool EqualCmtyDetailed(const TVec<TIntV>& CmtyVV1,
     TInt ClosestMatchCmtyIndex = 0;
 
     for (TInt j = 0; j < UnmatchedCmtyIndex.Len(); j++) {
-      if (CurrCmty.UnionLen(CmtyList2[j]) == CurrCmty.Len()) {
+      TInt NumMatchedMembers = 
+        CurrCmty.UnionLen(CmtyList2[UnmatchedCmtyIndex[j]]);
+      
+      if (NumMatchedMembers == CurrCmty.Len()) {
+        Matched = true;
         UnmatchedCmtyIndex.Del(j);
         break;
+      } else if (NumMatchedMembers > ClosestMatchMemberCount) {
+        ClosestMatchMemberCount = NumMatchedMembers;
+        ClosestMatchCmtyIndex = UnmatchedCmtyIndex[j];
       }
     }
 
@@ -125,62 +164,18 @@ bool EqualCmtyDetailed(const TVec<TIntV>& CmtyVV1,
       continue;
     }
 
-    if (NumInconsistentCmty >= MaxInconsistentCmty) {
-      PrintMaxInconsistenciesReached(MaxInconsistentCmty);
-      return false;
+    NumInconsistentCmty++;
+    PrintInconsistentCmty(i, ClosestMatchCmtyIndex, CmtyVV1, CmtyVV2,
+                          ClosestMatchMemberCount);
+    
+    if (NumInconsistentCmty >= MaxInconsistentCmtyPrinted) {
+      PrintMaxInconsistentCmtyReachedMsg(MaxInconsistentCmtyPrinted);
+      break;
     }
   }
-
-  return false;
+  
 }
 
-
-
-void PrintCommunityMembership(const TIntV& CmtyV, int NumMembersToPrint = 5) {
-  // If there are no members in the community, we have nothing to do
-  if (CmtyV.Len() == 0) {
-    return;
-  }
-
-  printf("(Members' ID: %d", CmtyV[0]());
-  for (TInt i = 1; i < TInt::GetMn(CmtyV.Len(), NumMembersToPrint); i++) {
-    printf(", %d", CmtyV[i]());
-  }
-  if (CmtyV.Len() > NumMembersToPrint) {
-    printf(", ...");
-  }
-  printf(")");
-}
-
-void PrintInconsistencies(const TVec<TIntV>& CmtyVV1, 
-  const TVec<TIntV>& CmtyVV2, int MaxInconsistencies = 10) {
-
-  if (CmtyVV1.Len() != CmtyVV2.Len()) {
-    printf("The number of communities do not match.");
-    return;
-  }
-
-  TInt NumInconsistencies = 0;
-
-  for (TInt i = 0; i < CmtyVV1.Len(); i++) {
-    if (!(CmtyVV1[i] == CmtyVV2[i])) {
-      printf("The membership of community %d in the first set of "
-             "communities ", i());
-      PrintCommunityMembership(CmtyVV1[i]);
-      printf(" does not match that in the second set of communities ");
-      PrintCommunityMembership(CmtyVV2[i]);
-      printf(".\n");
-      
-      NumInconsistencies++;
-      if (NumInconsistencies > MaxInconsistencies) {
-        printf("...and so on (only the first %d inconsistencies are reported).",
-               MaxInconsistencies);
-        return;
-      }
-    }
-
-  } 
-}
 
 int main(int argc, char* argv[]) {
   Env = TEnv(argc, argv, TNotify::StdNotify);
@@ -200,17 +195,13 @@ int main(int argc, char* argv[]) {
   TVec<TIntV> CmtyVV2 = CreateCommunitiesFromFile(InFNm2);
 
   if (EqualCmtyFast(CmtyVV1, CmtyVV2)) {
-    printf("Woohoo!");
+    printf("\nThe community sets contain in the input files are equal.\n");
+  } else {
+    printf("\nIt seems the community sets in the input files are not "
+           "exactly the same:\n");
+    PrintInconsistentCmtySetDiagnostic(CmtyVV1, CmtyVV2);
   }
 
-  //if (EqualCommunities(CmtyVV1, CmtyVV2)) {
-   // printf("\nThe two sets of communities are equal.");
-  //} else {
-  //  printf("\nThe two sets of communities are not equal with the following "
-  //         "inconsistencies:\n");
-  //  PrintInconsistencies(CmtyVV1, CmtyVV2);
-  //}
-
-  //printf("\nEnd time: %s\n", TExeTm::GetCurTm());
+  printf("\nEnd time: %s\n", TExeTm::GetCurTm());
   return 0;
 }
