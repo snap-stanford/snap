@@ -202,10 +202,9 @@ TEST(SHMTest, LoadTables) {
   TStr Filename("test.graph");
 
   TTableContext Context;
-  // Create schema.
   Schema GradeS;
-  GradeS.Add(TPair<TStr,TAttrType>("A", atStr));
-  GradeS.Add(TPair<TStr,TAttrType>("B", atStr));
+  GradeS.Add(TPair<TStr,TAttrType>("Class", atStr));
+  GradeS.Add(TPair<TStr,TAttrType>("Area", atStr));
   GradeS.Add(TPair<TStr,TAttrType>("Quarter", atStr));
   GradeS.Add(TPair<TStr,TAttrType>("Grade 2011", atInt));
   GradeS.Add(TPair<TStr,TAttrType>("Grade 2012", atInt));
@@ -224,4 +223,95 @@ TEST(SHMTest, LoadTables) {
   EXPECT_EQ(p1->GetNumValidRows().Val, p2->GetNumValidRows().Val); 
   EXPECT_EQ(p1->GetIntVal("Grade 2011", 0).Val, p2->GetIntVal("Grade 2011", 0).Val);
   EXPECT_EQ(p1->GetIntVal("Grade 2013", 4).Val, p2->GetIntVal("Grade 2013", 4).Val);
+  EXPECT_STREQ("Compilers", p2->GetStrVal("Class", 3).CStr());
+}
+
+void writeModeNetGraph(TStr Filename, TModeNet & Graph) {
+  TFOut OutStream(Filename);
+  Graph.Save(OutStream);
+}
+
+TEST(SHMTest, LoadModeNet) {
+  TStr Filename("test.graph");
+  int NNodes = 100;
+  TModeNet Graph;
+  Graph = TModeNet();
+  for (int i = 0; i < NNodes; i++) {
+    Graph.AddNode(i);
+  }
+  int NCount = 100;
+  while (NCount > 0) {
+    int x = (long) (drand48() * NNodes);
+    int y = (long) (drand48() * NNodes);
+    Graph.AddEdge(x, y);
+    NCount--;
+  }
+
+  writeModeNetGraph(Filename, Graph);
+  TShMIn Shmin(Filename);
+  TModeNet Graph2;
+  Graph2 = TModeNet();
+  Graph2.LoadShM(Shmin);
+
+  EXPECT_EQ(Graph.GetEdges(), Graph2.GetEdges());
+  EXPECT_EQ(Graph.GetNodes(), Graph2.GetNodes());
+}
+
+void writeCrossNetGraph(TStr Filename, TCrossNet & Graph) {
+  TFOut OutStream(Filename);
+  Graph.Save(OutStream);
+}
+
+TEST(SHMTest, LoadCrossNet) {
+  TStr Filename("test.graph");
+  TCrossNet Graph;
+  Graph = TCrossNet();
+  TStr EIntAttr("weight");
+  Graph.AddIntAttrE(EIntAttr);
+  Graph.AddEdge(0, 1);
+  Graph.AddEdge(1, 2);
+  Graph.AddEdge(2, 0);
+
+  for (TCrossNet::TCrossEdgeI EI = Graph.BegEdgeI(); EI < Graph.EndEdgeI(); EI++) {
+    Graph.AddIntAttrDatE(EI.GetId(), EI.GetId()*3+1, EIntAttr);
+  }
+  writeCrossNetGraph(Filename, Graph);
+  TShMIn Shmin(Filename);
+  TCrossNet Graph2;
+  Graph2 = TCrossNet();
+  Graph2.LoadShM(Shmin);
+
+  for (TCrossNet::TCrossEdgeI EI = Graph2.BegEdgeI(); EI < Graph2.EndEdgeI(); EI++) {
+    TInt AttrVal = Graph2.GetIntAttrDatE(EI.GetId(), EIntAttr);
+    ASSERT_EQ(EI.GetId()*3+1, AttrVal);
+  }
+}
+
+void writeMMNetGraph(TStr Filename, PMMNet Graph) {
+  TFOut OutStream(Filename);
+  Graph->Save(OutStream);
+}
+
+TEST(SHMTest, LoadMMNet) {
+    TStr Filename("test.graph");
+    PMMNet Net;
+    Net = TMMNet::New();
+    Net->AddModeNet("0");
+    for(int i = 1; i < 11; i++) {
+      TInt MPrev(i-1);
+      TInt MId(i);
+      TInt LId(i-1);
+      Net->AddModeNet(MId.GetStr());
+      Net->AddModeNet(MPrev.GetStr());
+      Net->AddCrossNet(MPrev, MId, LId.GetStr());
+    }
+    writeMMNetGraph(Filename, Net);
+    TShMIn Shmin(Filename);
+    PMMNet Net2 = TMMNet::LoadShM(Shmin);
+    int i = 0;
+    TMMNet::TCrossNetI CI;
+    for(i = 0, CI = Net2->BegCrossNetI(); i < 10 && CI < Net2->EndCrossNetI(); i++, CI++) {
+      EXPECT_EQ(i, CI.GetCrossId());
+    }
+    EXPECT_EQ(10, i);
 }

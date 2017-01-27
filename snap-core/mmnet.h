@@ -62,7 +62,7 @@ public:
     TNEANet::Save(SOut); ModeId.Save(SOut); NeighborTypes.Save(SOut); }
   /// Load graph from shared memory
   void LoadShM(TShMIn & ShMin) {
-    TNEANet::LoadShM(ShMin);
+    TNEANet::LoadNetworkShm(ShMin);
     ModeId = TInt(ShMin);
     MMNet = NULL;
     NeighborTypes.LoadShM(ShMin);
