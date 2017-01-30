@@ -1898,8 +1898,7 @@ private:
       n->LoadShM(ShMin, f);
     }
   };
-private:
-  void LoadNetworkShm(TShMIn& ShMin);
+  
 
 public:
   TNEANet() : CRef(), MxNId(0), MxEId(0), NodeH(), EdgeH(),
@@ -1982,9 +1981,9 @@ public:
     Graph->VecOfFltVecsN.Load(SIn); Graph->VecOfFltVecsE.Load(SIn);
     return Graph;
   }
-
-  /* static constructor to load the network from memory. Cannot perform operations that edit the edge
-   * vectors of nodes or perform illegal operations on any internal hashes (deletion or swapping keys) */
+  /// load network from shared memory for this network
+  void LoadNetworkShm(TShMIn& ShMin);
+  /// static constructor to create and load a network from memory.
   static PNEANet LoadShM(TShMIn& ShMin) {
     TNEANet* Network = new TNEANet();
     Network->LoadNetworkShm(ShMin);

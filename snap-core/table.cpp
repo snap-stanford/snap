@@ -367,8 +367,8 @@ void TTable::LoadTableShm(TShMIn& ShMIn, TTableContext* ContextTable) {
 
     TLoadVecInit Fn;
     IntCols.LoadShM(ShMIn, Fn);
-    FltCols.LoadShM(ShMIn);
-    StrColMaps.LoadShM(ShMIn);
+    FltCols.Load(ShMIn);
+    StrColMaps.LoadShM(ShMIn, Fn);
     THash<TStr,TPair<TInt,TInt> > ColTypeIntMap;
     ColTypeIntMap.LoadShM(ShMIn);
 
