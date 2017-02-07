@@ -53,5 +53,5 @@
 #include "conv.h" 	   // conversion functions - table to graph
 #include "numpy.h" 	   // numpy conversion
 #include "casc.h"          // cascade detection^M
-
+#include "sim.h"
 #endif // SNAP_H

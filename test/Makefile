@@ -16,7 +16,7 @@ LIBS += -lgtest
 ## Main application file
 MAIN = run-all-tests
 
-TEST_SRCS = \
+TEST_SRCS = test-sim.cpp\
 	test-helper.cpp \
 	test-TUNGraph.cpp test-TNGraph.cpp \
 	test-TNEGraph.cpp test-TNEANet.cpp \
