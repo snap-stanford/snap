@@ -14,7 +14,4 @@ PNGraph GetPNGraph(PTable P, int index_col_1, int index_col_2);
 PNEANet KNNJaccard(PNGraph Graph,int K);
 PNEANet KNNJaccardParallel(PNGraph Graph,int K);
 
-const std::string currentDateTime();
-float jaccard(TNGraph::TNodeI NI1, TNGraph::TNodeI NI2);
-void MergeNbrs(TIntV* NeighbourV, TIntV* list1, TNGraph::TNodeI NI2);
 #endif

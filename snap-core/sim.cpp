@@ -1,15 +1,16 @@
 #include "sim.h"
-const std::string currentDateTime() {
-    time_t     now = time(0);
-    struct tm  tstruct;
-    char       buf[80];
-    tstruct = *localtime(&now);
-    // Visit http://en.cppreference.com/w/cpp/chrono/c/strftime
-    // for more information about date/time format
-    strftime(buf, sizeof(buf), "%Y-%m-%d.%X", &tstruct);
 
-    return buf;
-}
+//const std::string currentDateTime() {
+//    time_t     now = time(0);
+//    struct tm  tstruct;
+//    char       buf[80];
+//    tstruct = *localtime(&now);
+//    // Visit http://en.cppreference.com/w/cpp/chrono/c/strftime
+//    // for more information about date/time format
+//    strftime(buf, sizeof(buf), "%Y-%m-%d.%X", &tstruct);
+//
+//    return buf;
+//}
 
 float jaccard(TNGraph::TNodeI NI1, TNGraph::TNodeI NI2) {
   int lenA = NI1.GetOutDeg();
@@ -31,14 +32,12 @@ float jaccard(TNGraph::TNodeI NI1, TNGraph::TNodeI NI2) {
 }
 
 void MergeNbrs(TIntV* NeighbourV, TIntV* list1, TNGraph::TNodeI NI2) {
-//  cout<<"In Merge"<<endl;
-	int j = 0;
+  int j = 0;
   int k = 0;
   int prev = -1;
   int lenA = list1->Len();
 
   int lenB = NI2.GetInDeg();
-//  cout<<lenA<<" "<<lenB<< endl;
   if (lenA > 0  &&  lenB > 0) {
     int v1 = (*list1)[j];
     int v2 = NI2.GetInNId(k);
@@ -112,7 +111,7 @@ PNEANet KNNJaccardParallel(PNGraph Graph,int K){
 	TIntV NodeList;
 	TIntV ThNodeList;
 
-	#pragma omp parallel private(ThTopCascVV) num_threads(10)
+	#pragma omp parallel private(ThNodeList) num_threads(10)
 	{
 		#pragma omp for schedule(dynamic,1000)
 			for (int ind = 0; ind < size; ind++){
@@ -132,7 +131,6 @@ PNEANet KNNJaccardParallel(PNGraph Graph,int K){
 
 				for (int i = 0; i < NI.GetOutDeg(); i++){
 					TNGraph::TNodeI Inst_NI = Graph->GetNI(NI.GetOutNId(i));
-					//cout<<NI.GetOutNId(i)<<" "<<Inst_NI.GetInDeg()<<endl;
 					MergeNbrs(Neighbors, Neighbors_old, Inst_NI);
 
 					temp = Neighbors_old;
@@ -171,8 +169,8 @@ PNEANet KNNJaccardParallel(PNGraph Graph,int K){
 			ThTopK.Add(TopK);
 			ThNodeList.Add(NIdV[ind]);
 
-    if (ct%10000 == 0)
-    	cout<<ct<<" avg neighbor degree = "<<sum_neighbors*1.0/ct<<" "<<currentDateTime()<<endl;
+//    if (ct%10000 == 0)
+//    	cout<<ct<<" avg neighbor degree = "<<sum_neighbors*1.0/ct<<" "<<currentDateTime()<<endl;
 
 		}
 		#pragma omp critical
@@ -225,11 +223,7 @@ PNEANet KNNJaccard(PNGraph Graph,int K){
 		if (NI.GetOutDeg() == 0)
 			continue;
 		ct ++;
-//    if (ct < start)
-//    	continue;
-//    if (ct > end)
-//    	break;
-		//cout<<ct<<" author: "<<NI.GetId()<<endl;
+
 		TVec<TPair<TFlt, TInt> > TopK;
 		for (int i = 0; i < K; i++)
 			TopK.Add(TPair<TFlt,TInt>(0.0, -1));
@@ -239,7 +233,6 @@ PNEANet KNNJaccard(PNGraph Graph,int K){
 
 		for (int i = 0; i < NI.GetOutDeg(); i++){
 			TNGraph::TNodeI Inst_NI = Graph->GetNI(NI.GetOutNId(i));
-			//cout<<NI.GetOutNId(i)<<" "<<Inst_NI.GetInDeg()<<endl;
 			MergeNbrs(Neighbors, Neighbors_old, Inst_NI);
 
 			temp = Neighbors_old;
@@ -250,13 +243,7 @@ PNEANet KNNJaccard(PNGraph Graph,int K){
 		}
 		int num = Neighbors_old->Len();
 		sum_neighbors += num;
-//    cout<<num<<endl;
-//    for (int i = 0; i < num; i++)
-//    	cout<<(*Neighbors_old)[i]<<" ";
 
-
-
-		//cout<<"Num Neighbors: "<<Neighbors.Len()<<endl;
 		//Swap neighbors and Neighbors_old
 
 		temp = Neighbors_old;
@@ -279,11 +266,7 @@ PNEANet KNNJaccard(PNGraph Graph,int K){
 				TopK.SetVal(index, TPair<TFlt, TInt>(similarity, (*Neighbors)[j]));
 			}
 		}
-//    fil<<NI.GetId()<<" ";
-//    for (int i = 0; i < K; i++)
-//    	fil<<"("<<TopK[i].GetVal1()<<","<<TopK[i].GetVal2()<<") ";
-//    fil<<"\n";
-//Add to TNEANet graph
+
     for(int i = 0; i < K; i++){
     	int EId = KNN->AddEdge(NI.GetId(), TopK[i].GetVal2());
     	KNN->AddFltAttrDatE(EId, TopK[i].GetVal1(), "sim");

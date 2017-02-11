@@ -23,6 +23,7 @@ MakeAll:
 	$(MAKE) -C graphhash
 	$(MAKE) -C infopath
 	$(MAKE) -C kcores
+	$(MAKE) -C knnjaccardsim
 	$(MAKE) -C kronem
 	$(MAKE) -C kronfit
 	$(MAKE) -C krongen
