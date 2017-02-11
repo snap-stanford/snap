@@ -91,14 +91,6 @@ PNGraph GetPNGraph(PTable P, int index_col_1, int index_col_2){
 
 PNEANet KNNJaccardParallel(PNGraph Graph,int K){
 	PNEANet KNN = TNEANet::New();
-
-  int sum_neighbors = 0;
-  int ct;
-  int start = 0,end;
-  end = Graph->GetNodes();
-  TIntV* Neighbors_old = new TIntV();
-	TIntV* Neighbors = new TIntV();
-	TIntV* temp;
 	TIntV NIdV;
 	Graph->GetNIdV (NIdV);
 	int size = NIdV.Len();
@@ -109,10 +101,15 @@ PNEANet KNNJaccardParallel(PNGraph Graph,int K){
 	TVec<TVec<TPair<TFlt, TInt>, int >, int > TopKList;
 	TVec<TVec<TPair<TFlt, TInt>, int >, int > ThTopK; // for each thread
 	TIntV NodeList;
-	TIntV ThNodeList;
+	TIntV ThNodeList;// for each thread
 
-	#pragma omp parallel private(ThNodeList) num_threads(10)
+
+	#pragma omp parallel private(ThNodeList, ThTopK) num_threads(10)
 	{
+		TIntV* Neighbors_old = new TIntV();
+		TIntV* Neighbors = new TIntV();
+		TIntV* temp;
+
 		#pragma omp for schedule(dynamic,1000)
 			for (int ind = 0; ind < size; ind++){
 				TNGraph::TNodeI NI = Graph->GetNI(NIdV[ind]);
@@ -120,7 +117,6 @@ PNEANet KNNJaccardParallel(PNGraph Graph,int K){
 					continue;
 				if (NI.GetOutDeg() == 0)
 					continue;
-				ct ++;
 
 				TVec<TPair<TFlt, TInt>, int > TopK;
 				for (int i = 0; i < K; i++)
@@ -139,8 +135,6 @@ PNEANet KNNJaccardParallel(PNGraph Graph,int K){
 					Neighbors = temp;
 
 				}
-				int num = Neighbors_old->Len();
-				sum_neighbors += num;
 
 
 				//Swap neighbors and Neighbors_old
