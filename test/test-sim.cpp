@@ -31,7 +31,7 @@ TEST(sim, sequential) {
 	EXPECT_EQ(8, int(sum));
 
 }
-
+#ifdef GCC_ATOMIC
 TEST(sim, parallel) {
 	PNGraph G = new TNGraph();
 	G->AddNode(1);
@@ -61,3 +61,4 @@ TEST(sim, parallel) {
 	EXPECT_EQ(8, int(sum));
 
 }
+#endif

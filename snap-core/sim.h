@@ -10,8 +10,10 @@
 #include <unistd.h>
 using namespace std;
 
-PNGraph GetPNGraph(PTable P, int index_col_1, int index_col_2);
+PNGraph GetBiGraph(PTable P, int index_col_1, int index_col_2);
 PNEANet KNNJaccard(PNGraph Graph,int K);
+#ifdef GCC_ATOMIC
 PNEANet KNNJaccardParallel(PNGraph Graph,int K);
+#endif
 
 #endif

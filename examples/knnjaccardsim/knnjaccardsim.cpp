@@ -25,14 +25,15 @@ int main(int argc,char* argv[]) {
 	PTable P = TTable::LoadSS(TimeS,argv[1],&Context,' ');
 	int K = atoi(argv[2]);
 	cerr<<"Table Loaded "<<currentDateTime()<<endl;
-	PNGraph G = GetPNGraph(P, 0, 1);
+	PNGraph G = GetBiGraph(P, 0, 1);
 	cerr<<"Graph Generated "<<currentDateTime()<<endl;
+  #ifdef GCC_ATOMIC
 	PNEANet KNN =  KNNJaccardParallel(G, K);
+
 	for (TNEANet::TEdgeI EI = KNN->BegEI(); EI < KNN->EndEI(); EI++ ){
 			cout<<EI.GetSrcNId()<<" "<<EI.GetDstNId()<<" "<<KNN->GetFltAttrDatE(EI.GetId(), "sim")<<endl;
 		}
-	cerr<<"KNN Computed "<<currentDateTime()<<endl;
-
+  #endif
   return 0;
 }
 

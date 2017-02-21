@@ -1,5 +1,4 @@
 #include "sim.h"
-
 //const std::string currentDateTime() {
 //    time_t     now = time(0);
 //    struct tm  tstruct;
@@ -83,14 +82,15 @@ void MergeNbrs(TIntV* NeighbourV, TIntV* list1, TNGraph::TNodeI NI2) {
   }
 }
 
-PNGraph GetPNGraph(PTable P, int index_col_1, int index_col_2){
-	TVec<TPair<TStr, TAttrType>, int > S = P->GetSchema();
+PNGraph GetBiGraph(PTable P, int index_col_1, int index_col_2){
+  TVec<TPair<TStr, TAttrType>, int > S = P->GetSchema();
   PNGraph Graph = TSnap::ToGraph<PNGraph>(P, S[index_col_1].GetVal1(), S[index_col_2].GetVal1(), aaFirst);
   return Graph;
 }
 
+#ifdef GCC_ATOMIC
 PNEANet KNNJaccardParallel(PNGraph Graph,int K){
-	PNEANet KNN = TNEANet::New();
+  PNEANet KNN = TNEANet::New();
 	TIntV NIdV;
 	Graph->GetNIdV (NIdV);
 	int size = NIdV.Len();
@@ -102,9 +102,9 @@ PNEANet KNNJaccardParallel(PNGraph Graph,int K){
 	TVec<TVec<TPair<TFlt, TInt>, int >, int > ThTopK; // for each thread
 	TIntV NodeList;
 	TIntV ThNodeList;// for each thread
-
-
-	#pragma omp parallel private(ThNodeList, ThTopK) num_threads(10)
+	int NumThreads = omp_get_max_threads();
+	omp_set_num_threads(NumThreads);
+	#pragma omp parallel private(ThNodeList, ThTopK)
 	{
 		TIntV* Neighbors_old = new TIntV();
 		TIntV* Neighbors = new TIntV();
@@ -191,7 +191,7 @@ PNEANet KNNJaccardParallel(PNGraph Graph,int K){
 	}
   return KNN;
 }
-
+#endif
 PNEANet KNNJaccard(PNGraph Graph,int K){
 	PNEANet KNN = TNEANet::New();
 
