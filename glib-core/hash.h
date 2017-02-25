@@ -723,7 +723,7 @@ public:
   TBigStrPool(TSIn& SIn, bool LoadCompact = true);
   TBigStrPool(const TBigStrPool& Pool) : MxBfL(Pool.MxBfL), BfL(Pool.BfL), GrowBy(Pool.GrowBy) {
     Bf = (char *) malloc(Pool.MxBfL); IAssert(Bf); memcpy(Bf, Pool.Bf, Pool.BfL); }
-  ~TBigStrPool() { if (Bf) free(Bf); else IAssert(MxBfL == 0);  MxBfL = 0; BfL = 0; }
+  ~TBigStrPool() { if (Bf && !IsShM) free(Bf); else IAssert(MxBfL == 0 || IsShM);  MxBfL = 0; BfL = 0; }
 
   static PBigStrPool New(TSize _MxBfLen = 0, uint _GrowBy = 16*1024*1024) { return PBigStrPool(new TBigStrPool(_MxBfLen, _GrowBy)); }
   static PBigStrPool New(TSIn& SIn) { return new TBigStrPool(SIn); }
@@ -815,12 +815,16 @@ public:
   void LoadShM(TShMIn& ShMin, bool SharedPool=true) {
     PortV.LoadShM(ShMin);
     KeyDatV.Load(ShMin);
-    AutoSizeP=TBool(ShMin);
-    FFreeKeyId=TInt(ShMin);
-    FreeKeys=TInt(ShMin);
+    AutoSizeP.Load(ShMin);
+    FFreeKeyId.Load(ShMin);
+    FreeKeys.Load(ShMin);
     ShMin.LoadCs();
     if (SharedPool) {
-      Pool = TStringPool::LoadShM(ShMin);
+      TBool isNull;
+      isNull.Load(ShMin);
+      if (!isNull) {
+        Pool = TStringPool::LoadShM(ShMin);
+      }
     } else {
       Pool = PStringPool(ShMin);
     }

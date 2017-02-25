@@ -51,9 +51,15 @@ void TBigStrPool::LoadPoolShM(TShMIn& ShMin, bool LoadCompact) {
   ShMin.Load(Tmp); IAssert(Tmp <= uint64(TSizeMx)); BfL=TSize(Tmp);
   ShMin.Load(GrowBy); IAssert(MxBfL >= BfL);  IAssert(BfL >= 0);  IAssert(GrowBy >= 0);
   IsShM = true;
-  if (LoadCompact) MxBfL = BfL;
-  Bf = (char*)(ShMin.AdvanceCursor(MxBfL));
-  IsShM = true;
+  if (LoadCompact) {
+    MxBfL = BfL;
+    Bf = (char*)(ShMin.AdvanceCursor(BfL));
+    IsShM = true;
+  } else {
+    if (MxBfL > 0) { Bf = (char *) malloc(MxBfL); IAssert(Bf); IsShM = false;}
+    if (BfL > 0) { ShMin.LoadBf(Bf, BfL); }
+    IsShM = false;
+  }
   ShMin.LoadCs();
   int NStr=0;
   ShMin.Load(NStr);
