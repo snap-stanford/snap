@@ -614,6 +614,12 @@ public:
   }
   static PMMNet New() { return PMMNet(new TMMNet()); }
 
+  void ConvertToSparse() {
+    for (THash<TInt, TModeNet>::TIter it = TModeNetH.BegI(); it < TModeNetH.EndI(); it++) {
+      it.GetDat().ConvertToSparse();
+    }
+  }
+
   /// Gets the mode id from the mode name.
   int GetModeId(const TStr& ModeName) const { if (ModeNameToIdH.IsKey(ModeName)) { return ModeNameToIdH.GetDat(ModeName); } else { return -1; }  }
   /// Gets the mode name from the mode id.
