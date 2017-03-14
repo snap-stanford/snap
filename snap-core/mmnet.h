@@ -88,10 +88,12 @@ public:
     if (this!=&Graph) {
       MxNId=Graph.MxNId; MxEId=Graph.MxEId; NodeH=Graph.NodeH; EdgeH=Graph.EdgeH;
       KeyToIndexTypeN=Graph.KeyToIndexTypeN; KeyToIndexTypeE=Graph.KeyToIndexTypeE;
+      KeyToDenseN = Graph.KeyToDenseN; KeyToDenseE = Graph.KeyToDenseE;
       IntDefaultsN=Graph.IntDefaultsN; IntDefaultsE=Graph.IntDefaultsE; StrDefaultsN=Graph.StrDefaultsN; StrDefaultsE=Graph.StrDefaultsE;
       FltDefaultsN=Graph.FltDefaultsN; FltDefaultsE=Graph.FltDefaultsE; VecOfIntVecsN=Graph.VecOfIntVecsN; VecOfIntVecsE=Graph.VecOfIntVecsE;
       VecOfStrVecsN=Graph.VecOfStrVecsN; VecOfStrVecsE=Graph.VecOfStrVecsE; VecOfFltVecsN=Graph.VecOfFltVecsN; VecOfFltVecsE=Graph.VecOfFltVecsE;
-      VecOfIntVecVecsN=Graph.VecOfIntVecVecsN; VecOfIntVecVecsE=Graph.VecOfIntVecVecsE; SAttrN=Graph.SAttrN; SAttrE=Graph.SAttrE;
+      VecOfIntVecVecsN=Graph.VecOfIntVecVecsN; VecOfIntVecVecsE=Graph.VecOfIntVecVecsE; 
+      VecOfIntHashVecsN = Graph.VecOfIntHashVecsN; VecOfIntHashVecsE = Graph.VecOfIntHashVecsE; SAttrN=Graph.SAttrN; SAttrE=Graph.SAttrE;
       ModeId=Graph.ModeId; MMNet=Graph.MMNet; NeighborTypes=Graph.NeighborTypes;
     }
     return *this; 
@@ -107,7 +109,8 @@ private:
   void SetParentPointer(TMMNet* parent);
   int AddNbrType(const TStr& CrossName, const bool sameMode, bool isDir);
   /// Adds a new TIntV node attribute to the hashmap.
-  int AddIntVAttrByVecN(const TStr& attr, TVec<TIntV>& Attrs);
+  int AddIntVAttrByVecN(const TStr& attr, TVec<TIntV>& Attrs, TBool UseDense=true);
+  int AddIntVAttrByHashN(const TStr& attr, THash<TInt, TIntV>& Attrs);
   void RemoveCrossNets(TModeNet& Result, TStrV& CrossNets);
   int DelNbrType(const TStr& CrossName);
   int GetAttrTypeN(const TStr& attr) const;
