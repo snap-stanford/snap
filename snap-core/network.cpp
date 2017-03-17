@@ -9,6 +9,10 @@ void TNEANet::LoadNetworkShm(TShMIn& ShMin) {
       EdgeH.LoadShM(ShMin);
       KeyToIndexTypeN.LoadShM(ShMin);
       KeyToIndexTypeE.LoadShM(ShMin);
+      
+      KeyToDenseN.LoadShM(ShMin);
+      KeyToDenseE.LoadShM(ShMin);
+
       IntDefaultsN.LoadShM(ShMin);
       IntDefaultsE.LoadShM(ShMin);
       StrDefaultsN.LoadShM(ShMin);
@@ -28,6 +32,10 @@ void TNEANet::LoadNetworkShm(TShMIn& ShMin) {
       LoadVecOfVecFunctor vec_of_vec_fn;
       VecOfIntVecVecsN.LoadShM(ShMin, vec_of_vec_fn);
       VecOfIntVecVecsE.LoadShM(ShMin, vec_of_vec_fn);
+
+      LoadHashOfVecFunctor hash_of_vec_fn;
+      VecOfIntHashVecsN.LoadShM(ShMin, hash_of_vec_fn);
+      VecOfIntHashVecsE.LoadShM(ShMin, hash_of_vec_fn);
 
       /* Attributes are complicated so load these straight */
       SAttrN.Load(ShMin);

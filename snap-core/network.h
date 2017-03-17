@@ -1907,6 +1907,16 @@ private:
     }
   };
 
+  class LoadHashOfVecFunctor {
+  public:
+    LoadHashOfVecFunctor() {}
+    template<typename TElem>
+    void operator() (THash<TInt, TVec<TElem> >* n, TShMIn& ShMin) {
+      LoadVecFunctor f;
+      n->LoadShM(ShMin, f);
+    }
+  };
+
 protected:
   /// Return 1 if in Dense, 0 if in Sparse, -1 if neither 
   TInt CheckDenseOrSparseN(const TStr& attr) const {
@@ -1976,7 +1986,8 @@ public:
     VecOfIntVecsN.Save(SOut); VecOfIntVecsE.Save(SOut);
     VecOfStrVecsN.Save(SOut); VecOfStrVecsE.Save(SOut);
     VecOfFltVecsN.Save(SOut); VecOfFltVecsE.Save(SOut);
-    VecOfIntVecVecsN.Save(SOut); VecOfIntVecVecsE.Save(SOut); 
+    VecOfIntVecVecsN.Save(SOut); VecOfIntVecVecsE.Save(SOut);
+    VecOfIntHashVecsN.Save(SOut); VecOfIntHashVecsE.Save(SOut); 
     SAttrN.Save(SOut); SAttrE.Save(SOut); }
   /// Saves the graph to a (binary) stream SOut. Available for backwards compatibility.
   void Save_V1(TSOut& SOut) const {
