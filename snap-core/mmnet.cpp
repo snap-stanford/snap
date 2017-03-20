@@ -13,9 +13,17 @@ TStr TModeNet::GetNeighborCrossName(const TStr& CrossName, bool isOutEdge, const
 
 void TModeNet::ClrNbr(const TStr& CrossNetName, const bool& outEdge, const bool& sameMode, bool& isDir) {
   TStr Name = GetNeighborCrossName(CrossNetName, outEdge, sameMode, isDir);
-  TVec<TIntV> Attrs(MxNId);
+  TInt location = CheckDenseOrSparseN(Name);
   int index = KeyToIndexTypeN.GetDat(Name).Val2;
-  VecOfIntVecVecsN[index] = Attrs;
+  if (location == 1) {
+    TVec<TIntV> Attrs(MxNId);
+    VecOfIntVecVecsN[index] = Attrs;
+  } else {
+    THash<TInt, TIntV> Attrs;
+    VecOfIntHashVecsN[index] = Attrs;
+  }
+  
+  
 }
 
 void TModeNet::Clr() {
@@ -113,12 +121,36 @@ void TModeNet::GetNeighborsByCrossNet(const int& NId, TStr& Name, TIntV& Neighbo
   }
 }
 
-int TModeNet::AddIntVAttrByVecN(const TStr& attr, TVec<TIntV>& Attrs){
+int TModeNet::AddIntVAttrByVecN(const TStr& attr, TVec<TIntV>& Attrs, TBool UseDense){
   TInt CurrLen;
-  TVec<TIntV> NewVec;
-  CurrLen = VecOfIntVecVecsN.Len();
+  if (UseDense) {
+    CurrLen = VecOfIntVecVecsN.Len();
+    KeyToIndexTypeN.AddDat(attr, TIntPr(IntVType, CurrLen));
+    KeyToDenseN.AddDat(attr, true);
+    VecOfIntVecVecsN.Add(Attrs);
+  } else {
+    THash<TInt, TIntV> NewHash;
+    CurrLen = VecOfIntHashVecsN.Len();
+    KeyToIndexTypeN.AddDat(attr, TIntPr(IntVType, CurrLen));
+    KeyToDenseN.AddDat(attr, false);
+    for (int i=0; i< Attrs.Len(); i++) {
+      NewHash.AddDat(i, Attrs[i]);
+    }
+    VecOfIntHashVecsN.Add(NewHash);
+  }
+  return 0;
+}
+
+int TModeNet::AddIntVAttrByHashN(const TStr& attr, THash<TInt, TIntV>& Attrs){
+  TInt CurrLen;
+  THash<TInt, TIntV> NewHash;
+  CurrLen = VecOfIntHashVecsN.Len();
   KeyToIndexTypeN.AddDat(attr, TIntPr(IntVType, CurrLen));
-  VecOfIntVecVecsN.Add(Attrs);
+  KeyToDenseN.AddDat(attr, false);
+  for (int i=0; i< Attrs.Len(); i++) {
+    NewHash.AddDat(i, Attrs[i]);
+  }
+  VecOfIntHashVecsN.Add(NewHash);
   return 0;
 }
 
@@ -144,12 +176,26 @@ void TModeNet::RemoveCrossNets(TModeNet& Result, TStrV& CrossNets) {
         TStr NbrName = isSingleVNbrAttr ? AttrName : WithoutSuffix;
         if (CrossNets.IsIn(NbrName)) {
           Result.AddNbrType(NbrName, removeSuffix, removeSuffix);
-          TVec<TIntV>& Attrs = VecOfIntVecVecsN[AttrIndex];
-          Result.AddIntVAttrByVecN(AttrName, Attrs);
+          TInt location = CheckDenseOrSparseN(AttrName);
+          if (location == 1) {
+            TVec<TIntV>& Attrs = VecOfIntVecVecsN[AttrIndex];
+            Result.AddIntVAttrByVecN(AttrName, Attrs);
+          } else {
+            THash<TInt, TIntV>& Attrs = VecOfIntHashVecsN[AttrIndex];
+            Result.AddIntVAttrByHashN(AttrName, Attrs);
+          }
+          
         }
       } else {
-        TVec<TIntV>& Attrs = VecOfIntVecVecsN[AttrIndex];
-        Result.AddIntVAttrByVecN(AttrName, Attrs);
+        TInt location = CheckDenseOrSparseN(AttrName);
+        if (location == 1) {
+          TVec<TIntV>& Attrs = VecOfIntVecVecsN[AttrIndex];
+          Result.AddIntVAttrByVecN(AttrName, Attrs);
+        } else {
+          THash<TInt, TIntV>& Attrs = VecOfIntHashVecsN[AttrIndex];
+          Result.AddIntVAttrByHashN(AttrName, Attrs);
+        }
+        
       }
     }
   }
