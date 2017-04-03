@@ -268,10 +268,10 @@ void GenerateForestFireGraph() {
   const double BckProb = 1.0;
   
   // Generate directed forest fire graph
-  PNGraph UNGraph = TSnap::GenForestFire(NNodes, FwdProb, BckProb);
+  PNGraph NGraph = TSnap::GenForestFire(NNodes, FwdProb, BckProb);
   
-  TStr FuncStr = TStr::Fmt("%s:UNgraph", __func__);
-  PrintGStats(FuncStr.CStr(), UNGraph);
+  TStr FuncStr = TStr::Fmt("%s:Ngraph", __func__);
+  PrintGStats(FuncStr.CStr(), NGraph);
 }
 
 // Generate copy model graph 
