@@ -239,20 +239,25 @@ namespace TSnapDetail {
 template <class PGraph>
 TIntPr GetRndEdgeNonAdjNode(const PGraph& Graph, int NId1, int NId2) {
   typename PGraph::TObj::TNodeI NI1, NI2;
+  const int NNodes = Graph->GetNodes();
   int OutDeg = -1;
+  int iter = 0;
   do {
     NI1 = Graph->GetRndNI();
     OutDeg = NI1.GetOutDeg();
+    if (iter++ >= NNodes*2) { return TIntPr(-1, -1); }
   } while (OutDeg == 0);
   NI2 = Graph->GetNI(NI1.GetOutNId(TInt::Rnd.GetUniDevInt(OutDeg)));
   int runs = 0;
   while (NI1.IsNbrNId(NId1) || NI1.IsNbrNId(NId2) || NI2.IsNbrNId(NId1) || NI2.IsNbrNId(NId2) || NI1.GetId()==NI2.GetId()) {
+    int iter = 0;
     do {
       NI1 = Graph->GetRndNI();
       OutDeg = NI1.GetOutDeg();
+      if (iter++ >= NNodes*2) { return TIntPr(-1, -1); }
     } while (OutDeg == 0);
     NI2 = Graph->GetNI(NI1.GetOutNId(TInt::Rnd.GetUniDevInt(OutDeg)));
-    if (runs++ == 1000) { return TIntPr(-1, -1); }
+    if (runs++ >= 1000) { return TIntPr(-1, -1); }
   }
   return TIntPr(NI1.GetId(), NI2.GetId());
 }

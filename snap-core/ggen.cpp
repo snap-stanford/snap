@@ -91,7 +91,7 @@ PUNGraph GenDegSeq(const TIntV& DegSeqV, TRnd& Rnd) {
       else {
         // find rnd edge, break and cross-connect
         const TIntPr Edge = TSnapDetail::GetRndEdgeNonAdjNode(GraphPt, NId1, NId2);
-        if (Edge.Val1==-1) {continue; }
+        if (Edge.Val1==-1) { continue; }
         Graph.DelEdge(Edge.Val1, Edge.Val2);
         Graph.AddEdge(NId1, Edge.Val1);
         Graph.AddEdge(NId2, Edge.Val2);
