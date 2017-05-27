@@ -1132,7 +1132,7 @@ void TMMNet::GetPartitionRanges(TIntPrV& Partitions, const TInt& NumPartitions, 
   }
 }
 
-//#ifdef GCC_ATOMIC
+#ifdef GCC_ATOMIC
 
 PNEANetMP TMMNet::ToNetworkMP(TStrV& CrossNetNames) {
 
