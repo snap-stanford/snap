@@ -41,6 +41,7 @@ MakeAll:
 	$(MAKE) -C rolx
 	$(MAKE) -C temporalmotifs
 	$(MAKE) -C testgraph
+	$(MAKE) -C truss
 
 clean:
 	$(MAKE) clean -C agmgen
@@ -78,4 +79,5 @@ clean:
 	$(MAKE) clean -C rolx
 	$(MAKE) clean -C temporalmotifs
 	$(MAKE) clean -C testgraph
+	$(MAKE) clean -C truss
 	rm -rf Debug Release ipch
