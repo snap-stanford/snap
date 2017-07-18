@@ -36,6 +36,9 @@ PNGraph CascGraphSource(PTable P,const TStr C1,const TStr C2,const TStr C3,const
       else { index = mid; hi = mid - 1;}
     }
     // End of binary Search
+    if (index < 0) {
+      continue;
+    }
     int BIdx = index;
     for(int i = BIdx; i < Source.Len(); i++) {
       int InIdx = MapV.GetVal(i).Val;
@@ -100,6 +103,9 @@ PNGraph CascGraphTime(PTable P,const TStr C1,const TStr C2,const TStr C3,const T
       else { index = mid; hi = mid - 1;}
     }
     // End of binary Search
+    if (index < 0) {
+      continue;
+    }
     int BIdx = index;
     for(int i = BIdx; i < Start.Len(); i++) {
       int InIdx = MapV.GetVal(i).Val;
