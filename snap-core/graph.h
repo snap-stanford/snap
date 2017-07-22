@@ -36,9 +36,9 @@ public:
     TNode(const int& NId) : Id(NId), NIdV() { }
     TNode(const TNode& Node) : Id(Node.Id), NIdV(Node.NIdV) { }
     TNode(TSIn& SIn) : Id(SIn), NIdV(SIn) { }
-    void LoadShM(TShMIn& ShMin) {
-      Id = TInt(ShMin);
-      NIdV.LoadShM(ShMin);
+    void LoadShM(TShMIn& ShMIn) {
+      Id = TInt(ShMIn);
+      NIdV.LoadShM(ShMIn);
     }
     void Save(TSOut& SOut) const { Id.Save(SOut); NIdV.Save(SOut); }
     int GetId() const { return Id; }
@@ -131,16 +131,16 @@ private:
   class TLoadTNodeInitializer {
   public:
     TLoadTNodeInitializer() {}
-    void operator() (TNode* Node, TShMIn& ShMin) { Node->LoadShM(ShMin);}
+    void operator() (TNode* Node, TShMIn& ShMIn) { Node->LoadShM(ShMIn);}
   };
 private:
   TNode& GetNode(const int& NId) { return NodeH.GetDat(NId); }
   const TNode& GetNode(const int& NId) const { return NodeH.GetDat(NId); }
-  void LoadGraphShm(TShMIn& ShMin) {
-    MxNId = TInt(ShMin);
-    NEdges = TInt(ShMin);
+  void LoadGraphShM(TShMIn& ShMIn) {
+    MxNId = TInt(ShMIn);
+    NEdges = TInt(ShMIn);
     TLoadTNodeInitializer Fn;
-    NodeH.LoadShM(ShMin, Fn);
+    NodeH.LoadShM(ShMIn, Fn);
   }
 public:
   TUNGraph() : CRef(), MxNId(0), NEdges(0), NodeH() { }
@@ -161,7 +161,7 @@ public:
   /// Static constructor that loads the graph from shared memory ##TUNGraph::LoadShM
   static PUNGraph LoadShM(TShMIn& ShMIn) {
     TUNGraph* Graph = new TUNGraph();
-    Graph->LoadGraphShm(ShMIn);
+    Graph->LoadGraphShM(ShMIn);
     return PUNGraph(Graph);
   }  /// Allows for run-time checking the type of the graph (see the TGraphFlag for flags).
   bool HasFlag(const TGraphFlag& Flag) const;
@@ -278,10 +278,10 @@ public:
     void PackOutNIdV() { OutNIdV.Pack(); }
     void PackNIdV() { InNIdV.Pack(); }
     void SortNIdV() { InNIdV.Sort(); OutNIdV.Sort();}
-    void LoadShM(TShMIn& ShMin) {
-      Id = TInt(ShMin);
-      InNIdV.LoadShM(ShMin);
-      OutNIdV.LoadShM(ShMin);
+    void LoadShM(TShMIn& ShMIn) {
+      Id = TInt(ShMIn);
+      InNIdV.LoadShM(ShMIn);
+      OutNIdV.LoadShM(ShMIn);
     }
     friend class TNGraph;
     friend class TNGraphMtx;
@@ -358,15 +358,15 @@ private:
   class TLoadTNodeInitializer {
   public:
     TLoadTNodeInitializer() {}
-    void operator() (TNode* Node, TShMIn& ShMin) {Node->LoadShM(ShMin);}
+    void operator() (TNode* Node, TShMIn& ShMIn) {Node->LoadShM(ShMIn);}
   };
 private:
   TNode& GetNode(const int& NId) { return NodeH.GetDat(NId); }
   const TNode& GetNode(const int& NId) const { return NodeH.GetDat(NId); }
-  void LoadGraphShm(TShMIn& ShMin) {
-      MxNId = TInt(ShMin);
+  void LoadGraphShM(TShMIn& ShMIn) {
+      MxNId = TInt(ShMIn);
       TLoadTNodeInitializer Fn;
-      NodeH.LoadShM(ShMin, Fn);
+      NodeH.LoadShM(ShMIn, Fn);
   }
 
 public:
@@ -387,7 +387,7 @@ public:
   /// Static constructor that loads the graph from a shared memory stream and returns pointer to it. ##TNGraph::LoadShM
   static PNGraph LoadShM(TShMIn& ShMIn) {
     TNGraph* Graph = new TNGraph();
-    Graph->LoadGraphShm(ShMIn);
+    Graph->LoadGraphShM(ShMIn);
     return PNGraph(Graph);
   }
   /// Allows for run-time checking the type of the graph (see the TGraphFlag for flags).

@@ -204,8 +204,8 @@ public:
   /// Loads TTableContext in binary from \c SIn.
   void Load(TSIn& SIn) { StringVals.Load(SIn); }
   /// Loads TTableContext using shared memory
-  void LoadShM(TShMIn& ShMin) {
-    StringVals.LoadShM(ShMin, true);
+  void LoadShM(TShMIn& ShMIn) {
+    StringVals.LoadShM(ShMIn, true);
   }
   /// Saves TTableContext in binary to \c SOut.
   void Save(TSOut& SOut) { StringVals.Save(SOut); }
@@ -858,11 +858,11 @@ private:
   public:
     TLoadVecInit() {}
     template<typename TElem>
-    void operator() (TVec<TElem>* Node, TShMIn& ShMin) {Node->LoadShM(ShMin);}
+    void operator() (TVec<TElem>* Node, TShMIn& ShMIn) {Node->LoadShM(ShMIn);}
   };
 private:
   void GenerateColTypeMap(THash<TStr,TPair<TInt,TInt> > & ColTypeIntMap);
-  void LoadTableShm(TShMIn& ShMIn, TTableContext* ContextTable);
+  void LoadTableShM(TShMIn& ShMIn, TTableContext* ContextTable);
 
 
 public:
@@ -935,7 +935,7 @@ public:
   /// Static constructor to load table from memory ##TTable::LoadShM
   static PTable LoadShM(TShMIn& ShMIn, TTableContext* Context) {
     TTable* Table = new TTable();
-    Table->LoadTableShm(ShMIn, Context);
+    Table->LoadTableShM(ShMIn, Context);
     return PTable(Table);
   }
   /// Saves table schema and content to a binary format. ##TTable::Save

@@ -197,7 +197,7 @@ PNEANet KNNJaccard(PNGraph Graph,int K){
 
   int sum_neighbors = 0;
   int ct;
-  int start = 0,end;
+  int end;
   end = Graph->GetNodes();
   TIntV* Neighbors_old = new TIntV();
   TIntV* Neighbors = new TIntV();
@@ -243,17 +243,17 @@ PNEANet KNNJaccard(PNGraph Graph,int K){
     temp = Neighbors_old;
     Neighbors_old = Neighbors;
     Neighbors = temp;
-    for(int j = 0; j< Neighbors->Len(); j++){
+    for (int j = 0; j< Neighbors->Len(); j++) {
 
       TNGraph::TNodeI Auth_NI = Graph->GetNI((*Neighbors)[j]);
 
       float similarity = jaccard(NI, Auth_NI);
-      if (TopK[K-1].GetVal1() < similarity){
+      if (TopK[K-1].GetVal1() < similarity) {
         int index = 0;
         for (int i = K-2; i >= 0; i--)
-          if (TopK[i].GetVal1() < similarity)
+          if (TopK[i].GetVal1() < similarity) {
             TopK.SetVal(i+1, TopK[i]);
-          else{
+          } else {
             index = i+1;
             break;
           }

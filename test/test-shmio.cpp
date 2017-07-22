@@ -216,8 +216,8 @@ TEST(SHMTest, LoadTables) {
   TFOut OutStream(Filename);
   p1->Save(OutStream);
 
-  TShMIn Shmin(Filename);
-  PTable p2 = TTable::LoadShM(Shmin, &Context);
+  TShMIn ShMIn(Filename);
+  PTable p2 = TTable::LoadShM(ShMIn, &Context);
 
   EXPECT_EQ(p1->GetNumRows().Val, p2->GetNumRows().Val);
   EXPECT_EQ(p1->GetNumValidRows().Val, p2->GetNumValidRows().Val); 
@@ -248,10 +248,10 @@ TEST(SHMTest, LoadModeNet) {
   }
 
   writeModeNetGraph(Filename, Graph);
-  TShMIn Shmin(Filename);
+  TShMIn ShMIn(Filename);
   TModeNet Graph2;
   Graph2 = TModeNet();
-  Graph2.LoadShM(Shmin);
+  Graph2.LoadShM(ShMIn);
 
   EXPECT_EQ(Graph.GetEdges(), Graph2.GetEdges());
   EXPECT_EQ(Graph.GetNodes(), Graph2.GetNodes());
@@ -276,10 +276,10 @@ TEST(SHMTest, LoadCrossNet) {
     Graph.AddIntAttrDatE(EI.GetId(), EI.GetId()*3+1, EIntAttr);
   }
   writeCrossNetGraph(Filename, Graph);
-  TShMIn Shmin(Filename);
+  TShMIn ShMIn(Filename);
   TCrossNet Graph2;
   Graph2 = TCrossNet();
-  Graph2.LoadShM(Shmin);
+  Graph2.LoadShM(ShMIn);
 
   for (TCrossNet::TCrossEdgeI EI = Graph2.BegEdgeI(); EI < Graph2.EndEdgeI(); EI++) {
     TInt AttrVal = Graph2.GetIntAttrDatE(EI.GetId(), EIntAttr);
@@ -306,8 +306,8 @@ TEST(SHMTest, LoadMMNet) {
       Net->AddCrossNet(MPrev, MId, LId.GetStr());
     }
     writeMMNetGraph(Filename, Net);
-    TShMIn Shmin(Filename);
-    PMMNet Net2 = TMMNet::LoadShM(Shmin);
+    TShMIn ShMIn(Filename);
+    PMMNet Net2 = TMMNet::LoadShM(ShMIn);
     int i = 0;
     TMMNet::TCrossNetI CI;
     for(i = 0, CI = Net2->BegCrossNetI(); i < 10 && CI < Net2->EndCrossNetI(); i++, CI++) {

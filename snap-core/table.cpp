@@ -357,7 +357,7 @@ void TTable::GenerateColTypeMap(THash<TStr,TPair<TInt,TInt> > & ColTypeIntMap) {
   IsNextDirty = 0;
 }
 
-void TTable::LoadTableShm(TShMIn& ShMIn, TTableContext* ContextTable) {
+void TTable::LoadTableShM(TShMIn& ShMIn, TTableContext* ContextTable) {
     Context = ContextTable;
     NumRows = TInt(ShMIn);
     NumValidRows = TInt(ShMIn);

@@ -1,45 +1,45 @@
 /////////////////////////////////////////////////
-void TNEANet::LoadNetworkShm(TShMIn& ShMin) {
-      MxNId = TInt(ShMin);
-      MxEId = TInt(ShMin);
+void TNEANet::LoadNetworkShM(TShMIn& ShMIn) {
+      MxNId = TInt(ShMIn);
+      MxEId = TInt(ShMIn);
 
       LoadTNodeFunctor NodeFn;
-      NodeH.LoadShM(ShMin, NodeFn);
+      NodeH.LoadShM(ShMIn, NodeFn);
 
-      EdgeH.LoadShM(ShMin);
-      KeyToIndexTypeN.LoadShM(ShMin);
-      KeyToIndexTypeE.LoadShM(ShMin);
+      EdgeH.LoadShM(ShMIn);
+      KeyToIndexTypeN.LoadShM(ShMIn);
+      KeyToIndexTypeE.LoadShM(ShMIn);
       
-      KeyToDenseN.LoadShM(ShMin);
-      KeyToDenseE.LoadShM(ShMin);
+      KeyToDenseN.LoadShM(ShMIn);
+      KeyToDenseE.LoadShM(ShMIn);
 
-      IntDefaultsN.LoadShM(ShMin);
-      IntDefaultsE.LoadShM(ShMin);
-      StrDefaultsN.LoadShM(ShMin);
-      StrDefaultsE.LoadShM(ShMin);
-      FltDefaultsE.LoadShM(ShMin);
-      FltDefaultsE.LoadShM(ShMin);
+      IntDefaultsN.LoadShM(ShMIn);
+      IntDefaultsE.LoadShM(ShMIn);
+      StrDefaultsN.LoadShM(ShMIn);
+      StrDefaultsE.LoadShM(ShMIn);
+      FltDefaultsE.LoadShM(ShMIn);
+      FltDefaultsE.LoadShM(ShMIn);
 
       LoadVecFunctor vec_fn;
-      VecOfIntVecsN.LoadShM(ShMin, vec_fn);
-      VecOfIntVecsE.LoadShM(ShMin, vec_fn);
+      VecOfIntVecsN.LoadShM(ShMIn, vec_fn);
+      VecOfIntVecsE.LoadShM(ShMIn, vec_fn);
       /* Strings and floats are complicated, so don't optimize on these */
-      VecOfStrVecsN.Load(ShMin);
-      VecOfStrVecsE.Load(ShMin);
-      VecOfFltVecsN.Load(ShMin);
-      VecOfFltVecsE.Load(ShMin);
+      VecOfStrVecsN.Load(ShMIn);
+      VecOfStrVecsE.Load(ShMIn);
+      VecOfFltVecsN.Load(ShMIn);
+      VecOfFltVecsE.Load(ShMIn);
 
       LoadVecOfVecFunctor vec_of_vec_fn;
-      VecOfIntVecVecsN.LoadShM(ShMin, vec_of_vec_fn);
-      VecOfIntVecVecsE.LoadShM(ShMin, vec_of_vec_fn);
+      VecOfIntVecVecsN.LoadShM(ShMIn, vec_of_vec_fn);
+      VecOfIntVecVecsE.LoadShM(ShMIn, vec_of_vec_fn);
 
       LoadHashOfVecFunctor hash_of_vec_fn;
-      VecOfIntHashVecsN.LoadShM(ShMin, hash_of_vec_fn);
-      VecOfIntHashVecsE.LoadShM(ShMin, hash_of_vec_fn);
+      VecOfIntHashVecsN.LoadShM(ShMIn, hash_of_vec_fn);
+      VecOfIntHashVecsE.LoadShM(ShMIn, hash_of_vec_fn);
 
       /* Attributes are complicated so load these straight */
-      SAttrN.Load(ShMin);
-      SAttrE.Load(ShMin);
+      SAttrN.Load(ShMIn);
+      SAttrE.Load(ShMIn);
   }
 
 // Attribute Node Edge Network

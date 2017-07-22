@@ -24,12 +24,12 @@ public:
   void SaveXml(TSOut& SOut, const TStr& Nm) const;
 
   template<typename TDatFunctor>
-  void LoadShM(TShMIn& ShMin, TDatFunctor LoadDatFromShared) {
-    Next = TInt(ShMin);
-    HashCd = TInt(ShMin);
-    TKey K(ShMin);
+  void LoadShM(TShMIn& ShMIn, TDatFunctor LoadDatFromShared) {
+    Next = TInt(ShMIn);
+    HashCd = TInt(ShMIn);
+    TKey K(ShMIn);
     Key = K;
-    LoadDatFromShared(&Dat, ShMin);
+    LoadDatFromShared(&Dat, ShMIn);
   }
   bool operator==(const THashKeyDat& HashKeyDat) const {
     if (this==&HashKeyDat || (HashCd==HashKeyDat.HashCd
@@ -129,7 +129,7 @@ private:
     TDatInitFn DatInitFn;
   public:
     TLoadTHKeyDatInitializer(TDatInitFn Fn) { DatInitFn = Fn;}
-    void operator() (THKeyDat* HKeyDat, TShMIn& ShMin) { HKeyDat->LoadShM(ShMin, DatInitFn);}
+    void operator() (THKeyDat* HKeyDat, TShMIn& ShMIn) { HKeyDat->LoadShM(ShMIn, DatInitFn);}
   };
 
 private:
@@ -154,24 +154,24 @@ public:
     AutoSizeP(SIn), FFreeKeyId(SIn), FreeKeys(SIn){
     SIn.LoadCs();}
   /// Load THash from shared memory file. Copying/Deleting Keys is illegal
-  void LoadShM(TShMIn& ShMin) {
-    PortV.LoadShM(ShMin);
-    KeyDatV.Load(ShMin);
-    AutoSizeP=TBool(ShMin);
-    FFreeKeyId=TInt(ShMin);
-    FreeKeys=TInt(ShMin);
-    ShMin.LoadCs();
+  void LoadShM(TShMIn& ShMIn) {
+    PortV.LoadShM(ShMIn);
+    KeyDatV.Load(ShMIn);
+    AutoSizeP=TBool(ShMIn);
+    FFreeKeyId=TInt(ShMIn);
+    FreeKeys=TInt(ShMIn);
+    ShMIn.LoadCs();
   }
   /// Load THash from shared memory passing in the Dat initializer
   template <typename TDatInitFn>
-  void LoadShM(TShMIn& ShMin, TDatInitFn Fn) {
+  void LoadShM(TShMIn& ShMIn, TDatInitFn Fn) {
     TLoadTHKeyDatInitializer<TDatInitFn> HKeyDatFn(Fn);
-    PortV.LoadShM(ShMin);
-    KeyDatV.LoadShM(ShMin, HKeyDatFn);
-    AutoSizeP=TBool(ShMin);
-    FFreeKeyId=TInt(ShMin);
-    FreeKeys=TInt(ShMin);
-    ShMin.LoadCs();
+    PortV.LoadShM(ShMIn);
+    KeyDatV.LoadShM(ShMIn, HKeyDatFn);
+    AutoSizeP=TBool(ShMIn);
+    FFreeKeyId=TInt(ShMIn);
+    FreeKeys=TInt(ShMIn);
+    ShMIn.LoadCs();
   }
   
   void Load(TSIn& SIn){
@@ -717,7 +717,7 @@ private:
   bool IsShM; //True if BigStrPool backed by shared memory
 private:
   void Resize(TSize _MxBfL);
-  void LoadPoolShM(TShMIn& ShMin, bool LoadCompact = true);
+  void LoadPoolShM(TShMIn& ShMIn, bool LoadCompact = true);
 public:
   TBigStrPool(TSize MxBfLen = 0, uint _GrowBy = 16*1024*1024);
   TBigStrPool(TSIn& SIn, bool LoadCompact = true);
@@ -730,9 +730,9 @@ public:
   static PBigStrPool New(const TStr& fileName) { PSIn SIn = TFIn::New(fileName); return new TBigStrPool(*SIn); }
   static PBigStrPool Load(TSIn& SIn, bool LoadCompacted = true) { return PBigStrPool(new TBigStrPool(SIn, LoadCompacted)); }
   /// Load the string pool with the buffer backed by shared memory
-  static PBigStrPool LoadShM(TShMIn& ShMin, bool LoadCompact = true) {
+  static PBigStrPool LoadShM(TShMIn& ShMIn, bool LoadCompact = true) {
     TBigStrPool* StrPool = new TBigStrPool();
-    StrPool->LoadPoolShM(ShMin, LoadCompact);
+    StrPool->LoadPoolShM(ShMIn, LoadCompact);
     return PBigStrPool(StrPool);
   }
   void Save(TSOut& SOut) const;
@@ -812,21 +812,21 @@ public:
     FreeKeys.Load(SIn); SIn.LoadCs(); if (PoolToo) Pool = PStringPool(SIn);}
 
   /// Load hash from shared memory. If shared pool is true load pool from shared memory
-  void LoadShM(TShMIn& ShMin, bool SharedPool=true) {
-    PortV.LoadShM(ShMin);
-    KeyDatV.Load(ShMin);
-    AutoSizeP.Load(ShMin);
-    FFreeKeyId.Load(ShMin);
-    FreeKeys.Load(ShMin);
-    ShMin.LoadCs();
+  void LoadShM(TShMIn& ShMIn, bool SharedPool=true) {
+    PortV.LoadShM(ShMIn);
+    KeyDatV.Load(ShMIn);
+    AutoSizeP.Load(ShMIn);
+    FFreeKeyId.Load(ShMIn);
+    FreeKeys.Load(ShMIn);
+    ShMIn.LoadCs();
     if (SharedPool) {
       TBool isNull;
-      isNull.Load(ShMin);
+      isNull.Load(ShMIn);
       if (!isNull) {
-        Pool = TStringPool::LoadShM(ShMin);
+        Pool = TStringPool::LoadShM(ShMIn);
       }
     } else {
-      Pool = PStringPool(ShMin);
+      Pool = PStringPool(ShMIn);
     }
   }
 

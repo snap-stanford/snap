@@ -61,11 +61,11 @@ public:
   void Save(TSOut& SOut) const {
     TNEANet::Save(SOut); ModeId.Save(SOut); NeighborTypes.Save(SOut); }
   /// Load graph from shared memory
-  void LoadShM(TShMIn & ShMin) {
-    TNEANet::LoadNetworkShm(ShMin);
-    ModeId = TInt(ShMin);
+  void LoadShM(TShMIn & ShMIn) {
+    TNEANet::LoadNetworkShM(ShMIn);
+    ModeId = TInt(ShMIn);
     MMNet = NULL;
-    NeighborTypes.LoadShM(ShMin);
+    NeighborTypes.LoadShM(ShMIn);
   }
   /// Deletes the given node from this mode.
   void DelNode(const int& NId);
@@ -249,8 +249,8 @@ private:
   public:
     TLoadVecInit() {}
     template<typename TElem>
-    void operator() (TVec<TElem>* Node, TShMIn& ShMin) {
-      Node->LoadShM(ShMin);
+    void operator() (TVec<TElem>* Node, TShMIn& ShMIn) {
+      Node->LoadShM(ShMIn);
     }
   };
 private:
@@ -338,22 +338,22 @@ public:
     KeyToIndexTypeE.Save(SOut); IntDefaultsE.Save(SOut); StrDefaultsE.Save(SOut); FltDefaultsE.Save(SOut); VecOfIntVecsE.Save(SOut);
     VecOfStrVecsE.Save(SOut); VecOfFltVecsE.Save(SOut); }
   /// Load network from shared memory stream
-  void LoadShM(TShMIn& ShMin) {
-    CrossH.LoadShM(ShMin);
-    MxEId = TInt(ShMin);
-    Mode1 = TInt(ShMin);
-    Mode2 = TInt(ShMin);
-    IsDirect = TBool(ShMin);
-    CrossNetId = TInt(ShMin);
+  void LoadShM(TShMIn& ShMIn) {
+    CrossH.LoadShM(ShMIn);
+    MxEId = TInt(ShMIn);
+    Mode1 = TInt(ShMIn);
+    Mode2 = TInt(ShMIn);
+    IsDirect = TBool(ShMIn);
+    CrossNetId = TInt(ShMIn);
     Net = NULL;
-    KeyToIndexTypeE.LoadShM(ShMin);
-    IntDefaultsE.LoadShM(ShMin);
-    StrDefaultsE.LoadShM(ShMin);
-    FltDefaultsE.LoadShM(ShMin);
+    KeyToIndexTypeE.LoadShM(ShMIn);
+    IntDefaultsE.LoadShM(ShMIn);
+    StrDefaultsE.LoadShM(ShMIn);
+    FltDefaultsE.LoadShM(ShMIn);
     TLoadVecInit VecFn;
-    VecOfIntVecsE.LoadShM(ShMin, VecFn);
-    VecOfStrVecsE.Load(ShMin);
-    VecOfFltVecsE.Load(ShMin);
+    VecOfIntVecsE.LoadShM(ShMIn, VecFn);
+    VecOfStrVecsE.Load(ShMIn);
+    VecOfFltVecsE.Load(ShMIn);
   }
 
   /// Whether edges in the crossnet are directed.
@@ -566,16 +566,16 @@ private:
   class TModeNetInit {
   public:
     TModeNetInit() {}
-    void operator() (TModeNet* Node, TShMIn& ShMin) { Node->LoadShM(ShMin);}
+    void operator() (TModeNet* Node, TShMIn& ShMIn) { Node->LoadShM(ShMIn);}
   };
 
   class TCrossNetInit {
   public:
     TCrossNetInit() {}
-    void operator() (TCrossNet* Node, TShMIn& ShMin) { Node->LoadShM(ShMin);}
+    void operator() (TCrossNet* Node, TShMIn& ShMIn) { Node->LoadShM(ShMIn);}
   };
 private:
-  void LoadNetworkShm(TShMIn& ShMin);
+  void LoadNetworkShM(TShMIn& ShMIn);
 public:
   TMMNet() : CRef(), MxModeId(0), MxCrossNetId(0), TModeNetH(), TCrossNetH(), ModeIdToNameH(), ModeNameToIdH(), CrossIdToNameH(), CrossNameToIdH() {}
   TMMNet(const TMMNet& OtherTMMNet) : MxModeId(OtherTMMNet.MxModeId), MxCrossNetId(OtherTMMNet.MxCrossNetId), TModeNetH(OtherTMMNet.TModeNetH), 
@@ -607,9 +607,9 @@ public:
   /// Loads the TMMNet from binary stream.
   static PMMNet Load(TSIn& SIn) { return PMMNet(new TMMNet(SIn)); }
   /// Load network from mmapped shared memory. 
-  static PMMNet LoadShM(TShMIn& ShMin) {
+  static PMMNet LoadShM(TShMIn& ShMIn) {
     TMMNet* Network = new TMMNet();
-    Network->LoadNetworkShm(ShMin);
+    Network->LoadNetworkShM(ShMIn);
     return PMMNet(Network);
   }
   static PMMNet New() { return PMMNet(new TMMNet()); }

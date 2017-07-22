@@ -45,27 +45,27 @@ TBigStrPool::TBigStrPool(TSIn& SIn, bool LoadCompact) : MxBfL(0), BfL(0), GrowBy
   }
 }
 
-void TBigStrPool::LoadPoolShM(TShMIn& ShMin, bool LoadCompact) {
+void TBigStrPool::LoadPoolShM(TShMIn& ShMIn, bool LoadCompact) {
   uint64 Tmp;
-  ShMin.Load(Tmp); IAssert(Tmp <= uint64(TSizeMx)); MxBfL=TSize(Tmp);
-  ShMin.Load(Tmp); IAssert(Tmp <= uint64(TSizeMx)); BfL=TSize(Tmp);
-  ShMin.Load(GrowBy); IAssert(MxBfL >= BfL);  IAssert(BfL >= 0);  IAssert(GrowBy >= 0);
+  ShMIn.Load(Tmp); IAssert(Tmp <= uint64(TSizeMx)); MxBfL=TSize(Tmp);
+  ShMIn.Load(Tmp); IAssert(Tmp <= uint64(TSizeMx)); BfL=TSize(Tmp);
+  ShMIn.Load(GrowBy); IAssert(MxBfL >= BfL);  IAssert(BfL >= 0);  IAssert(GrowBy >= 0);
   IsShM = true;
   if (LoadCompact) {
     MxBfL = BfL;
-    Bf = (char*)(ShMin.AdvanceCursor(BfL));
+    Bf = (char*)(ShMIn.AdvanceCursor(BfL));
     IsShM = true;
   } else {
     if (MxBfL > 0) { Bf = (char *) malloc(MxBfL); IAssert(Bf); IsShM = false;}
-    if (BfL > 0) { ShMin.LoadBf(Bf, BfL); }
+    if (BfL > 0) { ShMIn.LoadBf(Bf, BfL); }
     IsShM = false;
   }
-  ShMin.LoadCs();
+  ShMIn.LoadCs();
   int NStr=0;
-  ShMin.Load(NStr);
+  ShMIn.Load(NStr);
   IdOffV.Gen(NStr, 0);
   for (int i = 0; i < NStr; i++) {
-    ShMin.Load(Tmp);
+    ShMIn.Load(Tmp);
     IAssert(Tmp <= uint64(TSizeMx));
     IdOffV.Add(TSize(Tmp));
   }

@@ -141,13 +141,13 @@ private:
   class TNodeFunctor {
   public:
     TNodeFunctor() {}
-    void operator() (TNode* n, TShMIn& ShMin) { n->LoadShM(ShMin);}
+    void operator() (TNode* n, TShMIn& ShMIn) { n->LoadShM(ShMIn);}
   };
 private:
-  void LoadNetworkShm(TShMIn& ShMin) {
-    MxNId = TInt(ShMin);
+  void LoadNetworkShM(TShMIn& ShMIn) {
+    MxNId = TInt(ShMIn);
     TNodeFunctor f;
-    NodeH.LoadShM(ShMin, f);
+    NodeH.LoadShM(ShMIn, f);
   }
 
 public:
@@ -167,7 +167,7 @@ public:
   /// Static constructor that loads the network from shared memory
   static PNet LoadShM(TShMIn& ShMIn) {
     TNodeNet* Network = new TNodeNet();
-    Network->LoadNetworkShm(ShMIn);
+    Network->LoadNetworkShM(ShMIn);
     return PNet(Network);
   }
   /// Allows for run-time checking the type of the network (see the TGraphFlag for flags).
@@ -591,13 +591,13 @@ private:
   class TNodeFunctor {
   public:
     TNodeFunctor() {}
-    void operator() (TNode* n, TShMIn& ShMin) { n->LoadShM(ShMin);}
+    void operator() (TNode* n, TShMIn& ShMIn) { n->LoadShM(ShMIn);}
   };
 private:
-  void LoadNetworkShm(TShMIn& ShMin) {
-    MxNId = TInt(ShMin);
+  void LoadNetworkShM(TShMIn& ShMIn) {
+    MxNId = TInt(ShMIn);
     TNodeFunctor f;
-    NodeH.LoadShM(ShMin, f);
+    NodeH.LoadShM(ShMIn, f);
   }
 public:
   TNodeEDatNet() : CRef(), MxNId(0), NodeH() { }
@@ -615,7 +615,7 @@ public:
   static PNet Load(TSIn& SIn) { return PNet(new TNet(SIn)); }
   static PNet LoadShM(TShMIn& ShMIn) {
     TNet* Network = new TNet();
-    Network->LoadNetworkShm(ShMIn);
+    Network->LoadNetworkShM(ShMIn);
     return PNet(Network);
   }
   /// Allows for run-time checking the type of the network (see the TGraphFlag for flags).
@@ -1163,15 +1163,15 @@ private:
   class LoadTNodeFunctor {
   public:
     LoadTNodeFunctor() {}
-    void operator() (TNode* n, TShMIn& ShMin) { n->LoadShM(ShMin);}
+    void operator() (TNode* n, TShMIn& ShMIn) { n->LoadShM(ShMIn);}
   };
 private:
-  void LoadNetworkShm(TShMIn& ShMin) {
-    MxNId = TInt(ShMin);
-    MxEId = TInt(ShMin);
+  void LoadNetworkShM(TShMIn& ShMIn) {
+    MxNId = TInt(ShMIn);
+    MxEId = TInt(ShMIn);
     LoadTNodeFunctor fn;
-    NodeH.LoadShM(ShMin, fn);
-    EdgeH.LoadShM(ShMin);
+    NodeH.LoadShM(ShMIn, fn);
+    EdgeH.LoadShM(ShMIn);
   }
 public:
   TNodeEdgeNet() : CRef(), MxNId(0), MxEId(0) { }
@@ -1191,7 +1191,7 @@ public:
    * vectors of nodes or perform illegal operations on the NodeH,EdgeH (deletion or swapping keys) */
   static PNet LoadShM(TShMIn& ShMIn) {
     TNet* Network = new TNet();
-    Network->LoadNetworkShm(ShMIn);
+    Network->LoadNetworkShM(ShMIn);
     return PNet(Network);
   }
   /// Allows for run-time checking the type of the network (see the TGraphFlag for flags).
@@ -1887,23 +1887,23 @@ private:
   class LoadTNodeFunctor {
   public:
     LoadTNodeFunctor() {}
-    void operator() (TNode* n, TShMIn& ShMin) { n->LoadShM(ShMin);}
+    void operator() (TNode* n, TShMIn& ShMIn) { n->LoadShM(ShMIn);}
   };
   class LoadVecFunctor {
   public:
     LoadVecFunctor() {}
     template<typename TElem>
-    void operator() (TVec<TElem>* n, TShMIn& ShMin) {
-      n->LoadShM(ShMin);
+    void operator() (TVec<TElem>* n, TShMIn& ShMIn) {
+      n->LoadShM(ShMIn);
     }
   };
   class LoadVecOfVecFunctor {
   public:
     LoadVecOfVecFunctor() {}
     template<typename TElem>
-    void operator() (TVec<TVec<TElem> >* n, TShMIn& ShMin) {
+    void operator() (TVec<TVec<TElem> >* n, TShMIn& ShMIn) {
       LoadVecFunctor f;
-      n->LoadShM(ShMin, f);
+      n->LoadShM(ShMIn, f);
     }
   };
 
@@ -1911,9 +1911,9 @@ private:
   public:
     LoadHashOfVecFunctor() {}
     template<typename TElem>
-    void operator() (THash<TInt, TVec<TElem> >* n, TShMIn& ShMin) {
+    void operator() (THash<TInt, TVec<TElem> >* n, TShMIn& ShMIn) {
       LoadVecFunctor f;
-      n->LoadShM(ShMin, f);
+      n->LoadShM(ShMIn, f);
     }
   };
 
@@ -2050,11 +2050,11 @@ public:
   }
 
   /// load network from shared memory for this network
-  void LoadNetworkShm(TShMIn& ShMin);
+  void LoadNetworkShM(TShMIn& ShMIn);
   /// static constructor to create and load a network from memory.
-  static PNEANet LoadShM(TShMIn& ShMin) {
+  static PNEANet LoadShM(TShMIn& ShMIn) {
     TNEANet* Network = new TNEANet();
-    Network->LoadNetworkShm(ShMin);
+    Network->LoadNetworkShM(ShMIn);
     return PNEANet(Network);
   }
 
@@ -3033,16 +3033,16 @@ private:
   class LoadTNodeFunctor {
   public:
     LoadTNodeFunctor() {}
-    void operator() (TNode* n, TShMIn& ShMin) {n->LoadShM(ShMin);}
+    void operator() (TNode* n, TShMIn& ShMIn) {n->LoadShM(ShMIn);}
   };
 private:
-  void LoadNetworkShm(TShMIn& ShMin) {
-    MxNId = TInt(ShMin);
-    NEdges = TInt(ShMin);
+  void LoadNetworkShM(TShMIn& ShMIn) {
+    MxNId = TInt(ShMIn);
+    NEdges = TInt(ShMIn);
     LoadTNodeFunctor NodeFn;
-    NodeH.LoadShM(ShMin, NodeFn);
-    SAttrN.Load(ShMin);
-    SAttrE = TAttrPair(ShMin);
+    NodeH.LoadShM(ShMIn, NodeFn);
+    SAttrN.Load(ShMIn);
+    SAttrE = TAttrPair(ShMIn);
   }
 public:
   TUndirNet() : CRef(), MxNId(0), NEdges(0), NodeH(), SAttrN(), SAttrE() { }
@@ -3071,7 +3071,7 @@ public:
    * vectors of nodes or perform illegal operations on any internal hashes (deletion or swapping keys) */
   static PUndirNet LoadShM(TShMIn& ShMIn) {
     TUndirNet* Network = new TUndirNet();
-    Network->LoadNetworkShm(ShMIn);
+    Network->LoadNetworkShM(ShMIn);
     return PUndirNet(Network);
   }
 
@@ -3508,15 +3508,15 @@ private:
   class TNodeFunctor {
   public:
     TNodeFunctor() {}
-    void operator() (TNode* n, TShMIn& ShMin) { n->LoadShM(ShMin);}
+    void operator() (TNode* n, TShMIn& ShMIn) { n->LoadShM(ShMIn);}
   };
 private:
-  void LoadNetworkShm(TShMIn& ShMin) {
-    MxNId = TInt(ShMin);
+  void LoadNetworkShM(TShMIn& ShMIn) {
+    MxNId = TInt(ShMIn);
     TNodeFunctor f;
-    NodeH.LoadShM(ShMin, f);
-    SAttrN.Load(ShMin);
-    SAttrE = TAttrPair(ShMin);
+    NodeH.LoadShM(ShMIn, f);
+    SAttrN.Load(ShMIn);
+    SAttrE = TAttrPair(ShMIn);
   }
 public:
   TDirNet() : CRef(), MxNId(0), NodeH(), SAttrN(), SAttrE() { }
@@ -3543,7 +3543,7 @@ public:
    * vectors of nodes or perform illegal operations on any internal hashes (deletion or swapping keys) */
   static PDirNet LoadShM(TShMIn& ShMIn) {
     TDirNet* Network = new TDirNet();
-    Network->LoadNetworkShm(ShMIn);
+    Network->LoadNetworkShM(ShMIn);
     return PDirNet(Network);
   }
   /// Allows for run-time checking the type of the network (see the TGraphFlag for flags).
