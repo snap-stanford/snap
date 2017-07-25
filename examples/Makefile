@@ -27,6 +27,7 @@ MakeAll:
 	$(MAKE) -C kronem
 	$(MAKE) -C kronfit
 	$(MAKE) -C krongen
+	$(MAKE) -C localmotifcluster
 	$(MAKE) -C magfit
 	$(MAKE) -C maggen
 	$(MAKE) -C mkdatasets
@@ -66,6 +67,7 @@ clean:
 	$(MAKE) clean -C kronem
 	$(MAKE) clean -C krongen
 	$(MAKE) clean -C kronfit
+	$(MAKE) clean -C localmotifcluster
 	$(MAKE) clean -C magfit
 	$(MAKE) clean -C maggen
 	$(MAKE) clean -C mkdatasets

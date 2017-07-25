@@ -42,6 +42,7 @@ Davide Sardina
 Christoph Schaefer
 Pararth Shah
 Nicholas Shelly
+Klemen Simonic
 Guo Tai
 Ming Han Teh
 Ba-Quan Truong
@@ -49,6 +50,7 @@ Utkarsh Upadhyay
 Theodore Vasiloudis
 Viswajith Venugopal
 Jaewon Yang
+Hao Yin
 David Zeng
 Chenguang Zhu
 Ziga Zupanec
