@@ -203,7 +203,7 @@ public:
   TTableContext(TSIn& SIn): StringVals(SIn) {}
   /// Loads TTableContext in binary from \c SIn.
   void Load(TSIn& SIn) { StringVals.Load(SIn); }
-  /// Loads TTableContext using shared memory
+  /// Loads TTableContext using shared memory, the object is read only.
   void LoadShM(TShMIn& ShMIn) {
     StringVals.LoadShM(ShMIn, true);
   }

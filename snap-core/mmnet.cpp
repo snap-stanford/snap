@@ -647,23 +647,23 @@ int TCrossNet::DelAttrE(const TStr& attr) {
 }
 
 void TMMNet::LoadNetworkShM(TShMIn& ShMIn) {
-    MxModeId = TInt(ShMIn);
-    MxCrossNetId = TInt(ShMIn);
-    TModeNetInit Fm;
-    TModeNetH.LoadShM(ShMIn, Fm);
-    TCrossNetInit Fc;
-    TCrossNetH.LoadShM(ShMIn, Fc);
-    ModeIdToNameH.LoadShM(ShMIn);
-    ModeNameToIdH.LoadShM(ShMIn);
-    CrossIdToNameH.LoadShM(ShMIn);
-    CrossNameToIdH.LoadShM(ShMIn);
-    for (THash<TInt, TModeNet>::TIter it = TModeNetH.BegI(); it < TModeNetH.EndI(); it++) {
-      it.GetDat().SetParentPointer(this);
-    }
-    for (THash<TInt, TCrossNet>::TIter it = TCrossNetH.BegI(); it < TCrossNetH.EndI(); it++) {
-      it.GetDat().SetParentPointer(this);
-    }
+  MxModeId = TInt(ShMIn);
+  MxCrossNetId = TInt(ShMIn);
+  TModeNetInit Fm;
+  TModeNetH.LoadShM(ShMIn, Fm);
+  TCrossNetInit Fc;
+  TCrossNetH.LoadShM(ShMIn, Fc);
+  ModeIdToNameH.LoadShM(ShMIn);
+  ModeNameToIdH.LoadShM(ShMIn);
+  CrossIdToNameH.LoadShM(ShMIn);
+  CrossNameToIdH.LoadShM(ShMIn);
+  for (THash<TInt, TModeNet>::TIter it = TModeNetH.BegI(); it < TModeNetH.EndI(); it++) {
+    it.GetDat().SetParentPointer(this);
   }
+  for (THash<TInt, TCrossNet>::TIter it = TCrossNetH.BegI(); it < TCrossNetH.EndI(); it++) {
+    it.GetDat().SetParentPointer(this);
+  }
+}
 
 int TMMNet::AddModeNet(const TStr& ModeName) {
   if (ModeNameToIdH.IsKey(ModeName)) {
@@ -1113,10 +1113,9 @@ PNEANet TMMNet::ToNetwork2(TIntV& CrossNetTypes, TIntStrPrVH& NodeAttrMap, THash
 }
 
 void TMMNet::GetPartitionRanges(TIntPrV& Partitions, const TInt& NumPartitions, const TInt& MxLen) const {
-  if (MxLen <= NumPartitions){
+  if (MxLen <= NumPartitions) {
       Partitions.Add(TIntPr(0,MxLen));
-    }
-  else{
+  } else {
     TInt PartitionSize = MxLen/NumPartitions;
     TInt CurrStart = 0;
     bool done = false;

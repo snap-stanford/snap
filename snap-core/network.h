@@ -164,7 +164,7 @@ public:
   static PNet New() { return PNet(new TNodeNet()); }
   /// Static constructor that loads the network from a stream SIn and returns a pointer to it.
   static PNet Load(TSIn& SIn) { return PNet(new TNodeNet(SIn)); }
-  /// Static constructor that loads the network from shared memory
+  /// Static constructor that loads the network from shared memory. ##TNodeNet::LoadShM(TShMIn& ShMIn)
   static PNet LoadShM(TShMIn& ShMIn) {
     TNodeNet* Network = new TNodeNet();
     Network->LoadNetworkShM(ShMIn);
@@ -613,6 +613,7 @@ public:
   static PNet New() { return PNet(new TNet()); }
   /// Static constructor that loads the network from a stream SIn and returns a pointer to it.
   static PNet Load(TSIn& SIn) { return PNet(new TNet(SIn)); }
+  /// Static constructor that loads the network from shared memory. ##TNodeEDatNet::LoadShM(TShMIn& ShMIn)
   static PNet LoadShM(TShMIn& ShMIn) {
     TNet* Network = new TNet();
     Network->LoadNetworkShM(ShMIn);
@@ -1183,12 +1184,11 @@ public:
   virtual ~TNodeEdgeNet() { }
   /// Saves the network to a (binary) stream SOut.
   virtual void Save(TSOut& SOut) const { MxNId.Save(SOut);  MxEId.Save(SOut);  NodeH.Save(SOut);  EdgeH.Save(SOut); }
-  /// Static constructor that returns a pointer to the network. Call: TPt <TNodeEdgeNet<TNodeData, TEdgeData> > Net = TNodeEdgeNet<TNodeData, TEdgeData>::New().
+  /// Static constructor that returns a pointer to the network. ##TNodeEdgeNet::New()
   static PNet New() { return PNet(new TNet()); }
   /// Static constructor that loads the network from a stream SIn and returns a pointer to it.
   static PNet Load(TSIn& SIn) { return PNet(new TNet(SIn)); }
-  /* static constructor to load the graph from memory. Cannot perform operations that edit the edge
-   * vectors of nodes or perform illegal operations on the NodeH,EdgeH (deletion or swapping keys) */
+  /// Static constructor that loads the network from memory. ##TNodeEdgeNet::LoadShM(TShMIn& ShMIn)
   static PNet LoadShM(TShMIn& ShMIn) {
     TNet* Network = new TNet();
     Network->LoadNetworkShM(ShMIn);
@@ -2051,7 +2051,7 @@ public:
 
   /// load network from shared memory for this network
   void LoadNetworkShM(TShMIn& ShMIn);
-  /// static constructor to create and load a network from memory.
+  /// Static constructor that loads the network from memory. ##TNEANet::LoadShM(TShMIn& ShMIn)
   static PNEANet LoadShM(TShMIn& ShMIn) {
     TNEANet* Network = new TNEANet();
     Network->LoadNetworkShM(ShMIn);
@@ -3067,8 +3067,8 @@ public:
   static PUndirNet Load_V1(TSIn& SIn) { PUndirNet Graph = PUndirNet(new TUndirNet());
     Graph->MxNId.Load(SIn); Graph->NEdges.Load(SIn); Graph->NodeH.Load(SIn); return Graph;
   }
-  /* static constructor to load the network from memory. Cannot perform operations that edit the edge
-   * vectors of nodes or perform illegal operations on any internal hashes (deletion or swapping keys) */
+
+  /// Static constructor that loads the network from memory. ##TUndirNet::LoadShM(TShMIn& ShMIn)
   static PUndirNet LoadShM(TShMIn& ShMIn) {
     TUndirNet* Network = new TUndirNet();
     Network->LoadNetworkShM(ShMIn);
@@ -3539,8 +3539,7 @@ public:
   static PDirNet Load_V1(TSIn& SIn) { PDirNet Graph = PDirNet(new TDirNet());
     Graph->MxNId.Load(SIn); Graph->NodeH.Load(SIn); return Graph;
   }
-  /* static constructor to load the network from memory. Cannot perform operations that edit the edge
-   * vectors of nodes or perform illegal operations on any internal hashes (deletion or swapping keys) */
+  /// Static constructor that loads the network from memory. ##TDirNet::LoadShM(TShMIn& ShMIn)
   static PDirNet LoadShM(TShMIn& ShMIn) {
     TDirNet* Network = new TDirNet();
     Network->LoadNetworkShM(ShMIn);

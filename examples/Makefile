@@ -62,6 +62,7 @@ clean:
 	$(MAKE) clean -C graphhash
 	$(MAKE) clean -C infopath
 	$(MAKE) clean -C kcores
+	$(MAKE) clean -C knnjaccardsim
 	$(MAKE) clean -C kronem
 	$(MAKE) clean -C krongen
 	$(MAKE) clean -C kronfit

@@ -16,7 +16,7 @@ LIBS += -lgtest
 ## Main application file
 MAIN = run-all-tests
 
-TEST_SRCS = test-sim.cpp\
+TEST_SRCS = \
 	test-helper.cpp \
 	test-TUNGraph.cpp test-TNGraph.cpp \
 	test-TNEGraph.cpp test-TNEANet.cpp \
@@ -42,7 +42,8 @@ TEST_SRCS = test-sim.cpp\
 	test-TAttr.cpp \
 	test-flow.cpp \
 	test-randwalk.cpp \
-	test-priority-queue.cpp
+	test-priority-queue.cpp \
+	test-sim.cpp
 
 TEST_OBJS = $(TEST_SRCS:.cpp=.o)
 

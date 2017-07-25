@@ -1,30 +1,18 @@
-#include "sim.h"
-//const std::string currentDateTime() {
-//    time_t     now = time(0);
-//    struct tm  tstruct;
-//    char       buf[80];
-//    tstruct = *localtime(&now);
-//    // Visit http://en.cppreference.com/w/cpp/chrono/c/strftime
-//    // for more information about date/time format
-//    strftime(buf, sizeof(buf), "%Y-%m-%d.%X", &tstruct);
-//
-//    return buf;
-//}
 
-float jaccard(TNGraph::TNodeI NI1, TNGraph::TNodeI NI2) {
+float JaccardSim(TNGraph::TNodeI NI1, TNGraph::TNodeI NI2) {
   int lenA = NI1.GetOutDeg();
   int lenB = NI2.GetOutDeg();
   int ct = 0;
   int j = 0;
   int i = 0;
-  while (i< lenA && j < lenB){
-    if (NI1.GetOutNId(i) == NI2.GetOutNId(j)){
+  while (i < lenA  &&  j < lenB) {
+    if (NI1.GetOutNId(i) == NI2.GetOutNId(j)) {
       ct++; i++; j++;
-    }
-    else if (NI1.GetOutNId(i) > NI2.GetOutNId(j))
+    } else if (NI1.GetOutNId(i) > NI2.GetOutNId(j)) {
       j++;
-    else
+    } else {
       i++;
+    }
   }
   return ct*1.0/(lenA+lenB-ct);
 
@@ -82,19 +70,19 @@ void MergeNbrs(TIntV* NeighbourV, TIntV* list1, TNGraph::TNodeI NI2) {
   }
 }
 
-PNGraph GetBiGraph(PTable P, int index_col_1, int index_col_2){
+PNGraph GetBiGraph(PTable P, int index_col_1, int index_col_2) {
   TVec<TPair<TStr, TAttrType>, int > S = P->GetSchema();
   PNGraph Graph = TSnap::ToGraph<PNGraph>(P, S[index_col_1].GetVal1(), S[index_col_2].GetVal1(), aaFirst);
   return Graph;
 }
 
 #ifdef GCC_ATOMIC
-PNEANet KNNJaccardParallel(PNGraph Graph,int K){
+PNEANet KNNJaccardParallel(PNGraph Graph,int K) {
   PNEANet KNN = TNEANet::New();
   TIntV NIdV;
   Graph->GetNIdV (NIdV);
   int size = NIdV.Len();
-  for (int ind = 0; ind < size; ind++){
+  for (int ind = 0; ind < size; ind++) {
     KNN->AddNode(NIdV[ind]);
   }
   KNN->AddFltAttrE("sim");
@@ -111,88 +99,88 @@ PNEANet KNNJaccardParallel(PNGraph Graph,int K){
     TIntV* temp;
 
     #pragma omp for schedule(dynamic,1000)
-      for (int ind = 0; ind < size; ind++){
-        TNGraph::TNodeI NI = Graph->GetNI(NIdV[ind]);
-        if (NI.GetInDeg() > 0)
-          continue;
-        if (NI.GetOutDeg() == 0)
-          continue;
+    for (int ind = 0; ind < size; ind++) {
+      TNGraph::TNodeI NI = Graph->GetNI(NIdV[ind]);
+      if (NI.GetInDeg() > 0) {
+        continue;
+      }
+      if (NI.GetOutDeg() == 0) {
+        continue;
+      }
 
-        TVec<TPair<TFlt, TInt>, int > TopK;
-        for (int i = 0; i < K; i++)
+      TVec<TPair<TFlt, TInt>, int > TopK;
+      for (int i = 0; i < K; i++) {
           TopK.Add(TPair<TFlt,TInt>(0.0, -1));
+      }
 
-        Neighbors->Clr(false);
-        Neighbors_old->Clr(false);
+      Neighbors->Clr(false);
+      Neighbors_old->Clr(false);
 
-        for (int i = 0; i < NI.GetOutDeg(); i++){
-          TNGraph::TNodeI Inst_NI = Graph->GetNI(NI.GetOutNId(i));
-          MergeNbrs(Neighbors, Neighbors_old, Inst_NI);
-
-          temp = Neighbors_old;
-          temp->Clr(false);
-          Neighbors_old = Neighbors;
-          Neighbors = temp;
-
-				}
-
-
-				//Swap neighbors and Neighbors_old
+      for (int i = 0; i < NI.GetOutDeg(); i++) {
+        TNGraph::TNodeI Inst_NI = Graph->GetNI(NI.GetOutNId(i));
+        MergeNbrs(Neighbors, Neighbors_old, Inst_NI);
 
         temp = Neighbors_old;
+        temp->Clr(false);
         Neighbors_old = Neighbors;
         Neighbors = temp;
-        for(int j = 0; j< Neighbors->Len(); j++){
+      }
 
-          TNGraph::TNodeI Auth_NI = Graph->GetNI((*Neighbors)[j]);
+      // Swap neighbors and Neighbors_old
 
-          float similarity = jaccard(NI, Auth_NI);
-          if (TopK[K-1].GetVal1() < similarity){
-            int index = 0;
-            for (int i = K-2; i >= 0; i--)
-              if (TopK[i].GetVal1() < similarity)
-                TopK.SetVal(i+1, TopK[i]);
-              else{
-                index = i+1;
-                break;
-              }
-            TopK.SetVal(index, TPair<TFlt, TInt>(similarity, (*Neighbors)[j]));
-          }
+      temp = Neighbors_old;
+      Neighbors_old = Neighbors;
+      Neighbors = temp;
+      for(int j = 0; j< Neighbors->Len(); j++) {
+
+        TNGraph::TNodeI Auth_NI = Graph->GetNI((*Neighbors)[j]);
+
+        float similarity = JaccardSim(NI, Auth_NI);
+        if (TopK[K-1].GetVal1() < similarity) {
+          int index = 0;
+          for (int i = K-2; i >= 0; i--)
+            if (TopK[i].GetVal1() < similarity) {
+              TopK.SetVal(i+1, TopK[i]);
+            } else {
+              index = i+1;
+              break;
+            }
+          TopK.SetVal(index, TPair<TFlt, TInt>(similarity, (*Neighbors)[j]));
         }
+      }
 
-			ThTopK.Add(TopK);
-			ThNodeList.Add(NIdV[ind]);
+      ThTopK.Add(TopK);
+      ThNodeList.Add(NIdV[ind]);
 
 //    if (ct%10000 == 0)
 //    	cout<<ct<<" avg neighbor degree = "<<sum_neighbors*1.0/ct<<" "<<currentDateTime()<<endl;
 
-      }
+    }
     #pragma omp critical
-      {
-        for (int j = 0; j < ThTopK.Len(); j++) {
-          TopKList.Add(ThTopK[j]);
-          NodeList.Add(ThNodeList[j]);
-        }
+    {
+      for (int j = 0; j < ThTopK.Len(); j++) {
+        TopKList.Add(ThTopK[j]);
+        NodeList.Add(ThNodeList[j]);
+      }
     }
 	}
 
   int size2 = NodeList.Len();
-  for (int i= 0; i < size2 ; i++){
+  for (int i= 0; i < size2 ; i++) {
 
-    for(int j = 0; j < K; j++){
-      if(TopKList[i][j].GetVal2() >-1){
-        int EId = KNN->AddEdge(NodeList[i], TopKList[i][j].GetVal2());
-        KNN->AddFltAttrDatE(EId, TopKList[i][j].GetVal1(), "sim");
-
-      }
-      else
+    for (int j = 0; j < K; j++) {
+      if (TopKList[i][j].GetVal2() <= -1) {
         break;
+      }
+      int EId = KNN->AddEdge(NodeList[i], TopKList[i][j].GetVal2());
+      KNN->AddFltAttrDatE(EId, TopKList[i][j].GetVal1(), "sim");
     }
   }
   return KNN;
 }
 #endif
-PNEANet KNNJaccard(PNGraph Graph,int K){
+
+PNEANet KNNJaccard(PNGraph Graph, int K) {
   PNEANet KNN = TNEANet::New();
 
   int sum_neighbors = 0;
@@ -205,27 +193,30 @@ PNEANet KNNJaccard(PNGraph Graph,int K){
   TIntV NIdV;
   Graph->GetNIdV (NIdV);
   int size = NIdV.Len();
-  for (int ind = 0; ind < size; ind++){
+  for (int ind = 0; ind < size; ind++) {
     KNN->AddNode(NIdV[ind]);
   }
   KNN->AddFltAttrE("sim");
 
-  for (int ind = 0; ind < size; ind++){
+  for (int ind = 0; ind < size; ind++) {
     TNGraph::TNodeI NI = Graph->GetNI(NIdV[ind]);
-    if (NI.GetInDeg() > 0)
+    if (NI.GetInDeg() > 0) {
       continue;
-    if (NI.GetOutDeg() == 0)
+    }
+    if (NI.GetOutDeg() == 0) {
       continue;
+    }
     ct ++;
 
     TVec<TPair<TFlt, TInt> > TopK;
-    for (int i = 0; i < K; i++)
+    for (int i = 0; i < K; i++) {
       TopK.Add(TPair<TFlt,TInt>(0.0, -1));
+    }
 
     Neighbors->Clr(false);
     Neighbors_old->Clr(false);
 
-    for (int i = 0; i < NI.GetOutDeg(); i++){
+    for (int i = 0; i < NI.GetOutDeg(); i++) {
       TNGraph::TNodeI Inst_NI = Graph->GetNI(NI.GetOutNId(i));
       MergeNbrs(Neighbors, Neighbors_old, Inst_NI);
 
@@ -233,7 +224,6 @@ PNEANet KNNJaccard(PNGraph Graph,int K){
       temp->Clr(false);
       Neighbors_old = Neighbors;
       Neighbors = temp;
-
     }
     int num = Neighbors_old->Len();
     sum_neighbors += num;
@@ -247,7 +237,7 @@ PNEANet KNNJaccard(PNGraph Graph,int K){
 
       TNGraph::TNodeI Auth_NI = Graph->GetNI((*Neighbors)[j]);
 
-      float similarity = jaccard(NI, Auth_NI);
+      float similarity = JaccardSim(NI, Auth_NI);
       if (TopK[K-1].GetVal1() < similarity) {
         int index = 0;
         for (int i = K-2; i >= 0; i--)
@@ -261,11 +251,10 @@ PNEANet KNNJaccard(PNGraph Graph,int K){
       }
     }
 
-    for(int i = 0; i < K; i++){
+    for (int i = 0; i < K; i++) {
       int EId = KNN->AddEdge(NI.GetId(), TopK[i].GetVal2());
       KNN->AddFltAttrDatE(EId, TopK[i].GetVal1(), "sim");
     }
-
 
 //    if (ct%10000 == 0)
 //    	cout<<ct<<" avg neighbor degree = "<<sum_neighbors*1.0/ct<<" "<<currentDateTime()<<endl;
@@ -274,3 +263,4 @@ PNEANet KNNJaccard(PNGraph Graph,int K){
 
   return KNN;
 }
+

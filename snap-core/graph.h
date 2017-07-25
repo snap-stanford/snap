@@ -364,9 +364,9 @@ private:
   TNode& GetNode(const int& NId) { return NodeH.GetDat(NId); }
   const TNode& GetNode(const int& NId) const { return NodeH.GetDat(NId); }
   void LoadGraphShM(TShMIn& ShMIn) {
-      MxNId = TInt(ShMIn);
-      TLoadTNodeInitializer Fn;
-      NodeH.LoadShM(ShMIn, Fn);
+    MxNId = TInt(ShMIn);
+    TLoadTNodeInitializer Fn;
+    NodeH.LoadShM(ShMIn, Fn);
   }
 
 public:
