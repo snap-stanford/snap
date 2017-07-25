@@ -25,6 +25,8 @@ Nikhil Khadke
 Vikesh Khanna
 Emmanouil Kiagias
 Myunghwan Kim
+Vid Kocijan
+Saachi Jain
 Jason Jong
 Peter Lofgren
 Stephen Macke
@@ -33,6 +35,7 @@ Julian McAuley
 Morteza Milani
 Riyad Parvez
 Yonathan Perez
+Mohana Prasad
 Rohan Puttagunta
 Martin Raison
 Sheila Ramaswamy
