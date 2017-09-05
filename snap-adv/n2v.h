@@ -12,7 +12,7 @@ void node2vec(PWNet& InNet, double& ParamP, double& ParamQ, int& Dimensions,
  int& WalkLen, int& NumWalks, int& WinSize, int& Iter, bool& Verbose,
  bool& OutputWalks, TVVec<TInt, int64>& WalksVV, TIntFltVH& EmbeddingsHV); 
 
-/// Version without possibility of walk output. For backward compatibility.
+/// Version without walk output flag. For backward compatibility.
 void node2vec(PWNet& InNet, double& ParamP, double& ParamQ, int& Dimensions,
  int& WalkLen, int& NumWalks, int& WinSize, int& Iter, bool& Verbose,
  TIntFltVH& EmbeddingsHV); 
@@ -22,7 +22,7 @@ void node2vec(PNGraph& InNet, double& ParamP, double& ParamQ, int& Dimensions,
  int& WalkLen, int& NumWalks, int& WinSize, int& Iter, bool& Verbose,
  bool& OutputWalks, TVVec<TInt, int64>& WalksVV, TIntFltVH& EmbeddingsHV); 
 
-/// Version for unweighted graphs without walk output. For backward compatibility.
+/// Version for unweighted graphs without walk output flag. For backward compatibility.
 void node2vec(PNGraph& InNet, double& ParamP, double& ParamQ, int& Dimensions,
  int& WalkLen, int& NumWalks, int& WinSize, int& Iter, bool& Verbose,
  TIntFltVH& EmbeddingsHV); 
@@ -32,7 +32,7 @@ void node2vec(PNEANet& InNet, double& ParamP, double& ParamQ, int& Dimensions,
  int& WalkLen, int& NumWalks, int& WinSize, int& Iter, bool& Verbose,
  bool& OutputWalks, TVVec<TInt, int64>& WalksVV, TIntFltVH& EmbeddingsHV); 
 
-/// Version for weighted graphs. Edges must have TFlt attribute "weight". No possibility of walk outputs. For backward compatibility.
+/// Version for weighted graphs. Edges must have TFlt attribute "weight". No walk output flag. For backward compatibility.
 void node2vec(PNEANet& InNet, double& ParamP, double& ParamQ, int& Dimensions,
  int& WalkLen, int& NumWalks, int& WinSize, int& Iter, bool& Verbose,
  TIntFltVH& EmbeddingsHV);
