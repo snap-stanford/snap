@@ -7,6 +7,10 @@ This means adding a node takes constant time, while adding an edge takes linear 
 Accessing arbitrary node takes constant time and accessing any edge takes logarithmic time in the node degree.
 ///
 
+/// TUNGraph::LoadShM
+Cannot perform operations that edit the edge vectors of nodes or perform illegal operations on the NodeH (deletion or swapping keys)
+///
+
 /// TUNGraph::TNodeI::GetInNId
 Range of NodeN: 0 <= NodeN < GetInDeg(). Since the graph is undirected
 GetInNId(), GetOutNId() and GetNbrNId() all give the same output.
@@ -119,6 +123,11 @@ This means adding a node takes constant time, while adding an edge takes
 linear time (since adjacency list is kept sorted) in the node degree.
 Accessing arbitrary node takes constant time and accessing any edge takes
 logarithmic time in the node degree.
+///
+
+/// TNGraph::LoadShM
+static constructor to load the graph from memory. Cannot perform operations that edit the edge
+vectors of nodes or perform illegal operations on the NodeH (deletion or swapping keys)
 ///
 
 /// TNGraph::TNodeI::GetInNId

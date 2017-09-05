@@ -8,8 +8,8 @@ MakeAll:
 	$(MAKE) -C agmfit
 	$(MAKE) -C agmgen
 	$(MAKE) -C bigclam
-	$(MAKE) -C cascades
 	$(MAKE) -C cascadegen
+	$(MAKE) -C cascades
 	$(MAKE) -C centrality
 	$(MAKE) -C cesna
 	$(MAKE) -C circles
@@ -23,9 +23,12 @@ MakeAll:
 	$(MAKE) -C graphhash
 	$(MAKE) -C infopath
 	$(MAKE) -C kcores
+	$(MAKE) -C knnjaccardsim
 	$(MAKE) -C kronem
 	$(MAKE) -C kronfit
 	$(MAKE) -C krongen
+	$(MAKE) -C localmotifcluster
+	$(MAKE) -C lshtest
 	$(MAKE) -C magfit
 	$(MAKE) -C maggen
 	$(MAKE) -C mkdatasets
@@ -46,8 +49,8 @@ clean:
 	$(MAKE) clean -C agmgen
 	$(MAKE) clean -C agmfit
 	$(MAKE) clean -C bigclam
-	$(MAKE) clean -C cascades
 	$(MAKE) clean -C cascadegen
+	$(MAKE) clean -C cascades
 	$(MAKE) clean -C centrality
 	$(MAKE) clean -C cesna
 	$(MAKE) clean -C circles
@@ -61,9 +64,12 @@ clean:
 	$(MAKE) clean -C graphhash
 	$(MAKE) clean -C infopath
 	$(MAKE) clean -C kcores
+	$(MAKE) clean -C knnjaccardsim
 	$(MAKE) clean -C kronem
-	$(MAKE) clean -C krongen
 	$(MAKE) clean -C kronfit
+	$(MAKE) clean -C krongen
+	$(MAKE) clean -C localmotifcluster
+	$(MAKE) clean -C lshtest
 	$(MAKE) clean -C magfit
 	$(MAKE) clean -C maggen
 	$(MAKE) clean -C mkdatasets

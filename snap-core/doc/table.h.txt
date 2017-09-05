@@ -8,6 +8,10 @@ Execution context includes a global string pool for all string values of tables 
 Access to the pool is done via \c Context.StringVals.
 ///
 
+/// TTable::LoadShM
+Cannot perform operations that edit the edge vectors of nodes or perform illegal operations on any internal hashes (deletion or swapping keys)
+///
+
 /// TTable::Next
 \c Next[i] is the successor of row \c i. Table iterators follow the order dictated by Next
 ///

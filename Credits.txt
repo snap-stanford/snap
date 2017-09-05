@@ -25,6 +25,8 @@ Nikhil Khadke
 Vikesh Khanna
 Emmanouil Kiagias
 Myunghwan Kim
+Vid Kocijan
+Saachi Jain
 Jason Jong
 Peter Lofgren
 Stephen Macke
@@ -33,6 +35,7 @@ Julian McAuley
 Morteza Milani
 Riyad Parvez
 Yonathan Perez
+Mohana Prasad
 Rohan Puttagunta
 Martin Raison
 Sheila Ramaswamy
@@ -42,6 +45,7 @@ Davide Sardina
 Christoph Schaefer
 Pararth Shah
 Nicholas Shelly
+Klemen Simonic
 Guo Tai
 Ming Han Teh
 Ba-Quan Truong
@@ -49,6 +53,7 @@ Utkarsh Upadhyay
 Theodore Vasiloudis
 Viswajith Venugopal
 Jaewon Yang
+Hao Yin
 David Zeng
 Chenguang Zhu
 Ziga Zupanec
