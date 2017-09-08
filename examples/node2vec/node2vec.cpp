@@ -8,7 +8,8 @@
 
 void ParseArgs(int& argc, char* argv[], TStr& InFile, TStr& OutFile,
  int& Dimensions, int& WalkLen, int& NumWalks, int& WinSize, int& Iter,
- bool& Verbose, double& ParamP, double& ParamQ, bool& Directed, bool& Weighted) {
+ bool& Verbose, double& ParamP, double& ParamQ, bool& Directed, bool& Weighted,
+ bool& OutputWalks) {
   Env = TEnv(argc, argv, TNotify::StdNotify);
   Env.PrepArgs(TStr::Fmt("\nAn algorithmic framework for representational learning on graphs."));
   InFile = Env.GetIfArgPrefixStr("-i:", "graph/karate.edgelist",
@@ -32,6 +33,7 @@ void ParseArgs(int& argc, char* argv[], TStr& InFile, TStr& OutFile,
   Verbose = Env.IsArgStr("-v", "Verbose output.");
   Directed = Env.IsArgStr("-dr", "Graph is directed.");
   Weighted = Env.IsArgStr("-w", "Graph is weighted.");
+  OutputWalks = Env.IsArgStr("-ow", "Output random walks instead of embeddings.");
 }
 
 void ReadGraph(TStr& InFile, bool& Directed, bool& Weighted, bool& Verbose, PWNet& InNet) {
@@ -65,8 +67,22 @@ void ReadGraph(TStr& InFile, bool& Directed, bool& Weighted, bool& Verbose, PWNe
   }
 }
 
-void WriteOutput(TStr& OutFile, TIntFltVH& EmbeddingsHV) {
+void WriteOutput(TStr& OutFile, TIntFltVH& EmbeddingsHV, TVVec<TInt, int64>& WalksVV,
+ bool& OutputWalks) {
   TFOut FOut(OutFile);
+  if (OutputWalks) {
+    for (int64 i = 0; i < WalksVV.GetXDim(); i++) {
+      for (int64 j = 0; j < WalksVV.GetYDim(); j++) {
+        FOut.PutInt(WalksVV(i,j));
+	if(j+1==WalksVV.GetYDim()) {
+          FOut.PutLn();
+	} else {
+          FOut.PutCh(' ');
+	}
+      }
+    }
+    return;
+  }
   bool First = 1;
   for (int i = EmbeddingsHV.FFirstKeyId(); EmbeddingsHV.FNextKeyId(i);) {
     if (First) {
@@ -89,14 +105,15 @@ int main(int argc, char* argv[]) {
   TStr InFile,OutFile;
   int Dimensions, WalkLen, NumWalks, WinSize, Iter;
   double ParamP, ParamQ;
-  bool Directed, Weighted, Verbose;
+  bool Directed, Weighted, Verbose, OutputWalks;
   ParseArgs(argc, argv, InFile, OutFile, Dimensions, WalkLen, NumWalks, WinSize,
-   Iter, Verbose, ParamP, ParamQ, Directed, Weighted);
+   Iter, Verbose, ParamP, ParamQ, Directed, Weighted, OutputWalks);
   PWNet InNet = PWNet::New();
   TIntFltVH EmbeddingsHV;
+  TVVec <TInt, int64> WalksVV;
   ReadGraph(InFile, Directed, Weighted, Verbose, InNet);
   node2vec(InNet, ParamP, ParamQ, Dimensions, WalkLen, NumWalks, WinSize, Iter, 
-   Verbose, EmbeddingsHV);
-  WriteOutput(OutFile, EmbeddingsHV);
+   Verbose, OutputWalks, WalksVV, EmbeddingsHV);
+  WriteOutput(OutFile, EmbeddingsHV, WalksVV, OutputWalks);
   return 0;
 }

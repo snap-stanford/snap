@@ -44,12 +44,22 @@ void InitUnigramTable(TIntV& Vocab, TIntV& KTable, TFltV& UTable) {
     UnderV.DelLast();
     OverV.DelLast();
     KTable[Small] = Large;
-    UTable[Large] = UTable[Large] + UTable[Small] - 1;
+    UTable[Large] = (UTable[Large] + UTable[Small]) - 1;
     if (UTable[Large] < 1) {
       UnderV.Add(Large);
     } else {
       OverV.Add(Large);
     }
+  }
+  while(UnderV.Len() > 0){
+    int64 curr = UnderV.Last();
+    UnderV.DelLast();
+    UTable[curr]=1;
+  }
+  while(OverV.Len() > 0){
+    int64 curr = OverV.Last();
+    OverV.DelLast();
+    UTable[curr]=1;
   }
 }
 

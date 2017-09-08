@@ -25,6 +25,7 @@ Inout hyperparameter. Default is 1 (-q:)
 Verbose output. (-v)
 Graph is directed. (-dr)
 Graph is weighted. (-w)
+Output random walks instead of embeddings. (-ow)
 
 /////////////////////////////////////////////////////////////////////////////
 
