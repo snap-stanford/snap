@@ -534,6 +534,62 @@ TStr TFInOut::GetFNm() const {
 }
 
 /////////////////////////////////////////////////
+// Shared-Memory
+TShMIn::TShMIn(const TStr& Str): TSBase("Input-Shared_Memory"), 
+    TSIn("Input-Shared_Memory"), TotalLength(0),
+    SizeLeft(0) {
+
+#ifdef GLib_LINUX
+      TStr FNm = Str;
+      TFileId FileId;
+      int fd;
+      uint64 FLen;
+      EAssertR(!FNm.Empty(), "Empty file-name.");
+      FileId=fopen(FNm.CStr(), "rb");
+      fd = fileno(FileId);
+      EAssertR(FileId!=NULL, "Can not open file '"+FNm+"'.");
+      EAssertR(
+          fseek(FileId, 0, SEEK_END)==0,
+          "Error seeking into file '"+TStr(FNm)+"'.");
+      FLen=(uint64)ftell(FileId);
+      EAssertR(
+          fseek(FileId, 0, SEEK_SET)==0,
+          "Error seeking into file '"+TStr(FNm)+"'.");
+      char *Mapped;
+      Mapped = (char *) mmap (0, FLen, PROT_READ, MAP_PRIVATE, fd, 0);
+      EAssertR(Mapped!=MAP_FAILED, "mmap failed in TShMIn.");
+      OriginalBuffer = Mapped;
+      Cursor = OriginalBuffer;
+      SizeLeft = FLen;
+      TotalLength = FLen;
+      IsMemoryMapped = true;
+#else
+      TExcept::Throw("TMIn::TMIn(TStr, Bool): GLib_LINUX undefined.\n");
+#endif
+    }
+
+TShMIn::TShMIn(void* _Bf, const TSize& _BfL): TSBase("Input-Shared_Memory"), 
+  TSIn("Input-Shared_Memory"), TotalLength(_BfL), SizeLeft(_BfL), IsMemoryMapped(false) {
+    OriginalBuffer = (char*)_Bf;
+    Cursor = (char*)_Bf;
+  }
+
+void TShMIn::CloseMapping() {
+  if (OriginalBuffer!=NULL){
+    if (IsMemoryMapped) {
+#ifdef GLib_LINUX
+      munmap(OriginalBuffer, TotalLength);
+      IsMemoryMapped = false;
+      OriginalBuffer = NULL;
+      Cursor = NULL;
+      TotalLength= 0;
+      SizeLeft = 0;
+#endif
+    }
+  }
+}
+
+/////////////////////////////////////////////////
 // Input-Memory
 TMIn::TMIn(const void* _Bf, const uint64& _BfL, const bool& TakeBf):
   TSBase("Input-Memory"), TSIn("Input-Memory"), Bf(NULL), BfC(0), BfL(_BfL), IsMemoryMapped(false){

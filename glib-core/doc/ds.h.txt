@@ -12,6 +12,13 @@ The data is not copied and the vector does not own the memory (i.e., the
 vector won't free the memory at destruction).
 ///
 
+/// TVec::LoadShM
+The buffer is mapped straight to memory, so this method should not
+be used if initialization of the elements is needed. Disallowed operations
+for shared memory vectors include editing values in the vector directly,
+copying into the vector, and truncating the vector
+///
+
 /// TVec::Less
 For example, <tt>(a,b) < (a',b')</tt> if and only if <tt>a < a'</tt> or <tt>(a = a' and b < b')</tt>.
 ///

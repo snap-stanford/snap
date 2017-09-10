@@ -823,6 +823,7 @@ public:
     if (Offset != 0) return GetPrimHashCd(Bf + Offset); else return GetPrimHashCd(""); }
   int GetSecHashCd(const uint& Offset) { Assert(Offset < BfL);
     if (Offset != 0) return GetSecHashCd(Bf + Offset); else return GetSecHashCd(""); }
+  static PStrPool LoadShM(TSIn& SIn){ return new TStrPool(SIn); }
 };
 
 /////////////////////////////////////////////////

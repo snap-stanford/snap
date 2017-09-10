@@ -3,6 +3,75 @@ performance system for graph and network manipulation and analysis
 
 This file contains a high-level description of changes in SNAP releases.
 
+Release 4.0, Jul 27, 2017
+
+This is a major release and brings significant new functionality: local
+higher-order clustering, counting of temporal motifs, node embedding with
+node2vec, locality sensitive hashing, K nearest neighbor graph construction,
+fast object loading using memory mapped files, and sparse attributes.
+
+Here is a detailed list:
+
+- implemented local higher-order clustering, see examples/localmotifcluster
+- implemented counting of temporal motifs, see examples/temporalmotifs
+- implemented node embedding with node2vec, see examples/node2vec
+- implemented locality sensitive hashing, see examples/lshtest
+- implemented K nearest neighbor graph construction, see
+  examples/knnjaccardsim
+- implemented methods for computing biased random walks, required for node2vec
+- implemented fast loading of objects using a memory mapped files via shared
+  memory for the following classes: TVec, TStrPool, TBigStrPool, THashKeyDat,
+  THash, TStrHash, TUNGraph, TNGraph, TMMNet, TNEANet, TNodeNet, TNodeEDatNet,
+  TNodeEdgeNet, TUndirNet, TDirNet, TTable, TTableContext
+- implemented a shared-memory class TShMIn for input stream objects
+- implemented sparse attributes (vector rather than hash based) in TMMNet and
+  TNEANet
+- implemented a backward compatible load function TNEANet::Load_V2()
+- implemented a method to convert a dense network to sparse
+  TNEANet::ConvertToSparse()
+- implemented node2vec for TNEANet, TNGraph, and TNodeEDatNet
+- defined a number of new vector and hash classes
+- implemented base TNum class for integer based classes
+- implemented a class for 64-bit integers TInt64
+- expanded TVVVec to work with 64-bit integers
+- expanded TVVec to work with 64-bit integers
+- changed API for centrality calculations so that IsDir is the last parameter
+- improved the code for betweenness centrality for directed graphs
+- implemented AddNodeUnchecked() for TNodeNet, TNodeEDatNet, TNodeEdgeNet,
+  TNEANet, TUndirNet, TDirNet
+- implemented SortNodeAdjV() for TUndirNet, TDirNet
+- implemented TAttr::Load() to work with sparse attributes
+- fixed a division by 0 in TTable::FillBucketsByWindow()
+- fixed a bug in GenRewire() for directed graphs
+- fixed a problem in GetGraphAnf(), dist=1 was redundant
+- fixed a negative index error in casc.cpp
+- fixed incorrect GCC_ATOMIC to better support ToNetwork() on Windows
+- fixed a possible infinite loop in GetRndEdgeNonAdjNode()
+- fixed node2vec crashing on directed graphs
+- fixed and optimized TMMNet::ToNetworkMP
+- added assertions for preventing writing to read only objects
+- added a test for GenRwire()
+- added tests for fast loading from shared memory
+- added tests for jaccard similarity
+- improved printing of 64-bit values
+- renamed AddAtm() to AddMP()
+- replaced GetMn() with explicit code to enable compilation in Snap.py
+- removed profiling code from GetTriangleCnt()
+- removed a redundant openmp flag from Makefile
+- removed dependency of table.h on centr.h
+- moved MapPageRank() and MapHits() from table.h to centr.h
+- moved GetMapPageRank() and GetMapHitsIterator() from table.h to centr.cpp
+- made edits for the code to compile with gcc on Mac OS X 10.9 and clang on
+  macOS 10.12
+- updated code for compilation of Snap.py on Windows
+- commented out obsolete GetMergeSortedV()
+- commented out CountTriangles(), a previous implementation of
+  GetTriangleCnt()
+- commented out dummy definitions of TNGraphMP, TNEANetMP
+- fixed a few documentation typos in alg.h
+- fixed a minor typo in agm comments
+- edited ReadMe.txt to use only ASCII characters
+
 Release 3.0, Jul 18, 2016
 
 This is a mega large release. It brings major new functionality: relational

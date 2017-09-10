@@ -44,6 +44,12 @@ public:
     bool IsInNId(const int& NId) const { return InNIdV.SearchBin(NId) != -1; }
     bool IsOutNId(const int& NId) const { return OutNIdV.SearchBin(NId) != -1; }
     bool IsNbrNId(const int& NId) const { return IsOutNId(NId) || IsInNId(NId); }
+    void LoadShM(TShMIn& MStream) {
+      Id = TInt(MStream);
+      NodeDat = TNodeData(MStream);
+      InNIdV.LoadShM(MStream);
+      OutNIdV.LoadShM(MStream);
+    }
     bool operator < (const TNode& Node) const { return NodeDat < Node.NodeDat; }
     friend class TNodeNet<TNodeData>;
   };
@@ -131,6 +137,19 @@ protected:
   TInt MxNId;
   THash<TInt, TNode> NodeH;
 
+private:
+  class TNodeFunctor {
+  public:
+    TNodeFunctor() {}
+    void operator() (TNode* n, TShMIn& ShMIn) { n->LoadShM(ShMIn);}
+  };
+private:
+  void LoadNetworkShM(TShMIn& ShMIn) {
+    MxNId = TInt(ShMIn);
+    TNodeFunctor f;
+    NodeH.LoadShM(ShMIn, f);
+  }
+
 public:
   TNodeNet() : CRef(), MxNId(0), NodeH() { }
   /// Constructor that reserves enough memory for a network of Nodes nodes and Edges edges.
@@ -145,6 +164,12 @@ public:
   static PNet New() { return PNet(new TNodeNet()); }
   /// Static constructor that loads the network from a stream SIn and returns a pointer to it.
   static PNet Load(TSIn& SIn) { return PNet(new TNodeNet(SIn)); }
+  /// Static constructor that loads the network from shared memory. ##TNodeNet::LoadShM(TShMIn& ShMIn)
+  static PNet LoadShM(TShMIn& ShMIn) {
+    TNodeNet* Network = new TNodeNet();
+    Network->LoadNetworkShM(ShMIn);
+    return PNet(Network);
+  }
   /// Allows for run-time checking the type of the network (see the TGraphFlag for flags).
   bool HasFlag(const TGraphFlag& Flag) const;
   TNodeNet& operator = (const TNodeNet& NodeNet) {
@@ -456,6 +481,12 @@ public:
     bool IsInNId(const int& NId) const { return InNIdV.SearchBin(NId)!=-1; }
     bool IsOutNId(const int& NId) const { return TNodeEDatNet::GetNIdPos(OutNIdV, NId)!=-1; }
     bool IsNbrNId(const int& NId) const { return IsOutNId(NId) || IsInNId(NId); }
+    void LoadShM(TShMIn& MStream) {
+      Id = TInt(MStream);
+      NodeDat = TNodeData(MStream);
+      InNIdV.LoadShM(MStream);
+      OutNIdV.LoadShM(MStream);
+    }
     bool operator < (const TNode& Node) const { return NodeDat < Node.NodeDat; }
     friend class TNodeEDatNet<TNodeData, TEdgeData>;
   };
@@ -556,6 +587,18 @@ protected:
   TCRef CRef;
   TInt MxNId;
   THash<TInt, TNode> NodeH;
+private:
+  class TNodeFunctor {
+  public:
+    TNodeFunctor() {}
+    void operator() (TNode* n, TShMIn& ShMIn) { n->LoadShM(ShMIn);}
+  };
+private:
+  void LoadNetworkShM(TShMIn& ShMIn) {
+    MxNId = TInt(ShMIn);
+    TNodeFunctor f;
+    NodeH.LoadShM(ShMIn, f);
+  }
 public:
   TNodeEDatNet() : CRef(), MxNId(0), NodeH() { }
   /// Constructor that reserves enough memory for a network of Nodes nodes and Edges edges.
@@ -570,6 +613,12 @@ public:
   static PNet New() { return PNet(new TNet()); }
   /// Static constructor that loads the network from a stream SIn and returns a pointer to it.
   static PNet Load(TSIn& SIn) { return PNet(new TNet(SIn)); }
+  /// Static constructor that loads the network from shared memory. ##TNodeEDatNet::LoadShM(TShMIn& ShMIn)
+  static PNet LoadShM(TShMIn& ShMIn) {
+    TNet* Network = new TNet();
+    Network->LoadNetworkShM(ShMIn);
+    return PNet(Network);
+  }
   /// Allows for run-time checking the type of the network (see the TGraphFlag for flags).
   bool HasFlag(const TGraphFlag& Flag) const;
   TNodeEDatNet& operator = (const TNodeEDatNet& NodeNet) { if (this!=&NodeNet) {
@@ -962,6 +1011,12 @@ public:
     bool IsInEId(const int& EId) const { return InEIdV.SearchBin(EId) != -1; }
     bool IsOutEId(const int& EId) const { return OutEIdV.SearchBin(EId) != -1; }
     bool IsNbrEId(const int& EId) const { return IsInEId(EId) || IsOutEId(EId); }
+    void LoadShM(TShMIn& MStream) {
+      Id = TInt(MStream);
+      InEIdV.LoadShM(MStream);
+      OutEIdV.LoadShM(MStream);
+      NodeDat = TNodeData(MStream);
+    }
     friend class TNodeEdgeNet<TNodeData, TEdgeData>;
   };
 
@@ -980,6 +1035,13 @@ public:
     int GetId() const { return Id; }
     int GetSrcNId() const { return SrcNId; }
     int GetDstNId() const { return DstNId; }
+    void Load(TSIn& InStream) {
+      Id = TInt(InStream);
+      SrcNId = TInt(InStream);
+      DstNId = TInt(InStream);
+      EdgeDat = TEdgeData(InStream);
+
+    }
     const TEdgeData& GetDat() const { return EdgeDat; }
     TEdgeData& GetDat() { return EdgeDat; }
     friend class TNodeEdgeNet;
@@ -1098,6 +1160,20 @@ protected:
   TInt MxNId, MxEId;
   THash<TInt, TNode> NodeH;
   THash<TInt, TEdge> EdgeH;
+private:
+  class LoadTNodeFunctor {
+  public:
+    LoadTNodeFunctor() {}
+    void operator() (TNode* n, TShMIn& ShMIn) { n->LoadShM(ShMIn);}
+  };
+private:
+  void LoadNetworkShM(TShMIn& ShMIn) {
+    MxNId = TInt(ShMIn);
+    MxEId = TInt(ShMIn);
+    LoadTNodeFunctor fn;
+    NodeH.LoadShM(ShMIn, fn);
+    EdgeH.LoadShM(ShMIn);
+  }
 public:
   TNodeEdgeNet() : CRef(), MxNId(0), MxEId(0) { }
   /// Constructor that reserves enough memory for a network of Nodes nodes and Edges edges.
@@ -1108,10 +1184,16 @@ public:
   virtual ~TNodeEdgeNet() { }
   /// Saves the network to a (binary) stream SOut.
   virtual void Save(TSOut& SOut) const { MxNId.Save(SOut);  MxEId.Save(SOut);  NodeH.Save(SOut);  EdgeH.Save(SOut); }
-  /// Static constructor that returns a pointer to the network. Call: TPt <TNodeEdgeNet<TNodeData, TEdgeData> > Net = TNodeEdgeNet<TNodeData, TEdgeData>::New().
+  /// Static constructor that returns a pointer to the network. ##TNodeEdgeNet::New()
   static PNet New() { return PNet(new TNet()); }
   /// Static constructor that loads the network from a stream SIn and returns a pointer to it.
   static PNet Load(TSIn& SIn) { return PNet(new TNet(SIn)); }
+  /// Static constructor that loads the network from memory. ##TNodeEdgeNet::LoadShM(TShMIn& ShMIn)
+  static PNet LoadShM(TShMIn& ShMIn) {
+    TNet* Network = new TNet();
+    Network->LoadNetworkShM(ShMIn);
+    return PNet(Network);
+  }
   /// Allows for run-time checking the type of the network (see the TGraphFlag for flags).
   bool HasFlag(const TGraphFlag& Flag) const;
   TNodeEdgeNet& operator = (const TNodeEdgeNet& Net) {
@@ -1525,6 +1607,11 @@ public:
     int GetNbrEId(const int& EdgeN) const { return EdgeN<GetOutDeg()?GetOutEId(EdgeN):GetInEId(EdgeN-GetOutDeg()); }
     bool IsInEId(const int& EId) const { return InEIdV.SearchBin(EId) != -1; }
     bool IsOutEId(const int& EId) const { return OutEIdV.SearchBin(EId) != -1; }
+    void LoadShM(TShMIn& MStream) {
+      Id = TInt(MStream);
+      InEIdV.LoadShM(MStream);
+      OutEIdV.LoadShM(MStream);
+    }
     friend class TNEANet;
   };
   class TEdge {
@@ -1539,6 +1626,11 @@ public:
     int GetId() const { return Id; }
     int GetSrcNId() const { return SrcNId; }
     int GetDstNId() const { return DstNId; }
+    void Load(TSIn& InStream) {
+      Id = TInt(InStream);
+      SrcNId = TInt(InStream);
+      DstNId = TInt(InStream);
+    }
     friend class TNEANet;
   };
   /// Node iterator. Only forward iteration (operator++) is supported.
@@ -1681,19 +1773,24 @@ public:
   private:
     typedef TVec<TIntV>::TIter TIntVVecIter;
     TIntVVecIter HI;
+    bool IsDense;
+    typedef THash<TInt, TIntV>::TIter TIntHVecIter;
+    TIntHVecIter HHI;
     bool isNode;
     TStr attr;
     const TNEANet *Graph;
   public:
-    TAIntVI() : HI(), attr(), Graph(NULL) { }
-    TAIntVI(const TIntVVecIter& HIter, TStr attribute, bool isEdgeIter, const TNEANet* GraphPt) : HI(HIter), attr(), Graph(GraphPt) { isNode = !isEdgeIter; attr = attribute; }
-    TAIntVI(const TAIntVI& I) : HI(I.HI), attr(I.attr), Graph(I.Graph) { isNode = I.isNode; }
-    TAIntVI& operator = (const TAIntVI& I) { HI = I.HI; Graph=I.Graph; isNode = I.isNode; attr = I.attr; return *this; }
-    bool operator < (const TAIntVI& I) const { return HI < I.HI; }
-    bool operator == (const TAIntVI& I) const { return HI == I.HI; }
+    TAIntVI() : HI(), IsDense(), HHI(), attr(), Graph(NULL) { }
+    TAIntVI(const TIntVVecIter& HIter, const TIntHVecIter& HHIter, TStr attribute, bool isEdgeIter, const TNEANet* GraphPt, bool is_dense) : HI(HIter), IsDense(is_dense), HHI(HHIter), attr(), Graph(GraphPt) {
+      isNode = !isEdgeIter; attr = attribute;
+    }
+    TAIntVI(const TAIntVI& I) : HI(I.HI), IsDense(I.IsDense), HHI(I.HHI), attr(I.attr), Graph(I.Graph) { isNode = I.isNode; }
+    TAIntVI& operator = (const TAIntVI& I) { HI = I.HI; HHI = I.HHI, Graph=I.Graph; isNode = I.isNode; attr = I.attr; return *this; }
+    bool operator < (const TAIntVI& I) const { return HI == I.HI ? HHI < I.HHI : HI < I.HI; }
+    bool operator == (const TAIntVI& I) const { return HI == I.HI && HHI == I.HHI; }
     /// Returns an attribute of the node.
-    TIntV GetDat() const { return HI[0]; }
-    TAIntVI& operator++(int) { HI++; return *this; }
+    TIntV GetDat() const { return IsDense? HI[0] : HHI.GetDat(); }
+    TAIntVI& operator++(int) { if (IsDense) {HI++;} else {HHI++;} return *this; }
     friend class TNEANet;
   };
 
@@ -1771,6 +1868,8 @@ protected:
   THash<TInt, TEdge> EdgeH;
   /// KeyToIndexType[N|E]: Key->(Type,Index).
   TStrIntPrH KeyToIndexTypeN, KeyToIndexTypeE;
+  /// KeyToDense[N|E]: Key->(True if Vec, False if Hash)
+  THash<TStr, TBool> KeyToDenseN, KeyToDenseE;
 
   THash<TStr, TInt> IntDefaultsN, IntDefaultsE;
   THash<TStr, TStr> StrDefaultsN, StrDefaultsE;
@@ -1779,61 +1878,116 @@ protected:
   TVec<TStrV> VecOfStrVecsN, VecOfStrVecsE;
   TVec<TFltV> VecOfFltVecsN, VecOfFltVecsE;
   TVec<TVec<TIntV> > VecOfIntVecVecsN, VecOfIntVecVecsE;
+  TVec<THash<TInt, TIntV> > VecOfIntHashVecsN, VecOfIntHashVecsE;
   enum { IntType, StrType, FltType, IntVType };
 
   TAttr SAttrN;
   TAttr SAttrE;
+private:
+  class LoadTNodeFunctor {
+  public:
+    LoadTNodeFunctor() {}
+    void operator() (TNode* n, TShMIn& ShMIn) { n->LoadShM(ShMIn);}
+  };
+  class LoadVecFunctor {
+  public:
+    LoadVecFunctor() {}
+    template<typename TElem>
+    void operator() (TVec<TElem>* n, TShMIn& ShMIn) {
+      n->LoadShM(ShMIn);
+    }
+  };
+  class LoadVecOfVecFunctor {
+  public:
+    LoadVecOfVecFunctor() {}
+    template<typename TElem>
+    void operator() (TVec<TVec<TElem> >* n, TShMIn& ShMIn) {
+      LoadVecFunctor f;
+      n->LoadShM(ShMIn, f);
+    }
+  };
+
+  class LoadHashOfVecFunctor {
+  public:
+    LoadHashOfVecFunctor() {}
+    template<typename TElem>
+    void operator() (THash<TInt, TVec<TElem> >* n, TShMIn& ShMIn) {
+      LoadVecFunctor f;
+      n->LoadShM(ShMIn, f);
+    }
+  };
+
+protected:
+  /// Return 1 if in Dense, 0 if in Sparse, -1 if neither 
+  TInt CheckDenseOrSparseN(const TStr& attr) const {
+    if (!KeyToDenseN.IsKey(attr)) return -1;
+    if (KeyToDenseN.GetDat(attr)) return 1;
+    return 0;
+  }
+
+  TInt CheckDenseOrSparseE(const TStr& attr) const {
+    if (!KeyToDenseE.IsKey(attr)) return -1;
+    if (KeyToDenseE.GetDat(attr)) return 1;
+    return 0;
+  }
+  
 
 public:
   TNEANet() : CRef(), MxNId(0), MxEId(0), NodeH(), EdgeH(),
-    KeyToIndexTypeN(), KeyToIndexTypeE(), IntDefaultsN(), IntDefaultsE(),
+    KeyToIndexTypeN(), KeyToIndexTypeE(), KeyToDenseN(), KeyToDenseE(), IntDefaultsN(), IntDefaultsE(),
     StrDefaultsN(), StrDefaultsE(), FltDefaultsN(), FltDefaultsE(),
     VecOfIntVecsN(), VecOfIntVecsE(), VecOfStrVecsN(), VecOfStrVecsE(),
-    VecOfFltVecsN(), VecOfFltVecsE(),  VecOfIntVecVecsN(), VecOfIntVecVecsE(), SAttrN(), SAttrE(){ }
+    VecOfFltVecsN(), VecOfFltVecsE(),  VecOfIntVecVecsN(), VecOfIntVecVecsE(),
+    VecOfIntHashVecsN(), VecOfIntHashVecsE(), SAttrN(), SAttrE(){ }
   /// Constructor that reserves enough memory for a graph of nodes and edges.
   explicit TNEANet(const int& Nodes, const int& Edges) : CRef(),
-    MxNId(0), MxEId(0), NodeH(), EdgeH(), KeyToIndexTypeN(), KeyToIndexTypeE(),
+    MxNId(0), MxEId(0), NodeH(), EdgeH(), KeyToIndexTypeN(), KeyToIndexTypeE(), KeyToDenseN(), KeyToDenseE(),
     IntDefaultsN(), IntDefaultsE(), StrDefaultsN(), StrDefaultsE(),
     FltDefaultsN(), FltDefaultsE(), VecOfIntVecsN(), VecOfIntVecsE(),
-    VecOfStrVecsN(), VecOfStrVecsE(), VecOfFltVecsN(), VecOfFltVecsE(), VecOfIntVecVecsN(), VecOfIntVecVecsE(), SAttrN(), SAttrE()
+    VecOfStrVecsN(), VecOfStrVecsE(), VecOfFltVecsN(), VecOfFltVecsE(), VecOfIntVecVecsN(), VecOfIntVecVecsE(),
+    VecOfIntHashVecsN(), VecOfIntHashVecsE(), SAttrN(), SAttrE()
     { Reserve(Nodes, Edges); }
   TNEANet(const TNEANet& Graph) : MxNId(Graph.MxNId), MxEId(Graph.MxEId),
-    NodeH(Graph.NodeH), EdgeH(Graph.EdgeH), KeyToIndexTypeN(), KeyToIndexTypeE(),
+    NodeH(Graph.NodeH), EdgeH(Graph.EdgeH), KeyToIndexTypeN(), KeyToIndexTypeE(), KeyToDenseN(), KeyToDenseE(),
     IntDefaultsN(), IntDefaultsE(), StrDefaultsN(), StrDefaultsE(),
     FltDefaultsN(), FltDefaultsE(), VecOfIntVecsN(), VecOfIntVecsE(),
-    VecOfStrVecsN(), VecOfStrVecsE(), VecOfFltVecsN(), VecOfFltVecsE(), VecOfIntVecVecsN(), VecOfIntVecVecsE(), SAttrN(), SAttrE() { }
+    VecOfStrVecsN(), VecOfStrVecsE(), VecOfFltVecsN(), VecOfFltVecsE(), VecOfIntVecVecsN(), VecOfIntVecVecsE(),
+    VecOfIntHashVecsN(), VecOfIntHashVecsE(), SAttrN(), SAttrE() { }
   /// Constructor for loading the graph from a (binary) stream SIn.
   TNEANet(TSIn& SIn) : MxNId(SIn), MxEId(SIn), NodeH(SIn), EdgeH(SIn),
-    KeyToIndexTypeN(SIn), KeyToIndexTypeE(SIn), IntDefaultsN(SIn), IntDefaultsE(SIn),
+    KeyToIndexTypeN(SIn), KeyToIndexTypeE(SIn), KeyToDenseN(SIn), KeyToDenseE(SIn), IntDefaultsN(SIn), IntDefaultsE(SIn),
     StrDefaultsN(SIn), StrDefaultsE(SIn), FltDefaultsN(SIn), FltDefaultsE(SIn),
     VecOfIntVecsN(SIn), VecOfIntVecsE(SIn), VecOfStrVecsN(SIn),VecOfStrVecsE(SIn),
-    VecOfFltVecsN(SIn), VecOfFltVecsE(SIn), VecOfIntVecVecsN(SIn), VecOfIntVecVecsE(SIn), SAttrN(SIn), SAttrE(SIn) { }
+    VecOfFltVecsN(SIn), VecOfFltVecsE(SIn), VecOfIntVecVecsN(SIn), VecOfIntVecVecsE(SIn), VecOfIntHashVecsN(SIn), VecOfIntHashVecsE(SIn),
+    SAttrN(SIn), SAttrE(SIn) { }
 protected:
   TNEANet(const TNEANet& Graph, bool modeSubGraph) : MxNId(Graph.MxNId), MxEId(Graph.MxEId),
-    NodeH(Graph.NodeH), EdgeH(Graph.EdgeH), KeyToIndexTypeN(), KeyToIndexTypeE(Graph.KeyToIndexTypeE),
+    NodeH(Graph.NodeH), EdgeH(Graph.EdgeH), KeyToIndexTypeN(), KeyToIndexTypeE(Graph.KeyToIndexTypeE), KeyToDenseN(), KeyToDenseE(Graph.KeyToDenseE),
     IntDefaultsN(Graph.IntDefaultsN), IntDefaultsE(Graph.IntDefaultsE), StrDefaultsN(Graph.StrDefaultsN), StrDefaultsE(Graph.StrDefaultsE),
     FltDefaultsN(Graph.FltDefaultsN), FltDefaultsE(Graph.FltDefaultsE), VecOfIntVecsN(Graph.VecOfIntVecsN), VecOfIntVecsE(Graph.VecOfIntVecsE),
     VecOfStrVecsN(Graph.VecOfStrVecsN), VecOfStrVecsE(Graph.VecOfStrVecsE), VecOfFltVecsN(Graph.VecOfFltVecsN), VecOfFltVecsE(Graph.VecOfFltVecsE),
-    VecOfIntVecVecsN(), VecOfIntVecVecsE(Graph.VecOfIntVecVecsE) { }
+    VecOfIntVecVecsN(), VecOfIntVecVecsE(Graph.VecOfIntVecVecsE), VecOfIntHashVecsN(), VecOfIntHashVecsE(Graph.VecOfIntHashVecsE) { }
   TNEANet(bool copyAll, const TNEANet& Graph) : MxNId(Graph.MxNId), MxEId(Graph.MxEId),
-    NodeH(Graph.NodeH), EdgeH(Graph.EdgeH), KeyToIndexTypeN(Graph.KeyToIndexTypeN), KeyToIndexTypeE(Graph.KeyToIndexTypeE),
+    NodeH(Graph.NodeH), EdgeH(Graph.EdgeH), KeyToIndexTypeN(Graph.KeyToIndexTypeN), KeyToIndexTypeE(Graph.KeyToIndexTypeE), KeyToDenseN(Graph.KeyToDenseN), KeyToDenseE(Graph.KeyToDenseE),
     IntDefaultsN(Graph.IntDefaultsN), IntDefaultsE(Graph.IntDefaultsE), StrDefaultsN(Graph.StrDefaultsN), StrDefaultsE(Graph.StrDefaultsE),
     FltDefaultsN(Graph.FltDefaultsN), FltDefaultsE(Graph.FltDefaultsE), VecOfIntVecsN(Graph.VecOfIntVecsN), VecOfIntVecsE(Graph.VecOfIntVecsE),
     VecOfStrVecsN(Graph.VecOfStrVecsN), VecOfStrVecsE(Graph.VecOfStrVecsE), VecOfFltVecsN(Graph.VecOfFltVecsN), VecOfFltVecsE(Graph.VecOfFltVecsE),
-    VecOfIntVecVecsN(Graph.VecOfIntVecVecsN), VecOfIntVecVecsE(Graph.VecOfIntVecVecsE), SAttrN(Graph.SAttrN), SAttrE(Graph.SAttrE) { }
+    VecOfIntVecVecsN(Graph.VecOfIntVecVecsN), VecOfIntVecVecsE(Graph.VecOfIntVecVecsE), VecOfIntHashVecsN(Graph.VecOfIntHashVecsN), VecOfIntHashVecsE(Graph.VecOfIntHashVecsE), SAttrN(Graph.SAttrN), SAttrE(Graph.SAttrE) { }
   // virtual ~TNEANet() { }
 public:
   /// Saves the graph to a (binary) stream SOut. Expects data structures for sparse attributes.
   void Save(TSOut& SOut) const {
     MxNId.Save(SOut); MxEId.Save(SOut); NodeH.Save(SOut); EdgeH.Save(SOut);
     KeyToIndexTypeN.Save(SOut); KeyToIndexTypeE.Save(SOut);
+    KeyToDenseN.Save(SOut); KeyToDenseE.Save(SOut);
     IntDefaultsN.Save(SOut); IntDefaultsE.Save(SOut);
     StrDefaultsN.Save(SOut); StrDefaultsE.Save(SOut);
     FltDefaultsN.Save(SOut); FltDefaultsE.Save(SOut);
     VecOfIntVecsN.Save(SOut); VecOfIntVecsE.Save(SOut);
     VecOfStrVecsN.Save(SOut); VecOfStrVecsE.Save(SOut);
     VecOfFltVecsN.Save(SOut); VecOfFltVecsE.Save(SOut);
-    VecOfIntVecVecsN.Save(SOut); VecOfIntVecVecsE.Save(SOut); 
+    VecOfIntVecVecsN.Save(SOut); VecOfIntVecVecsE.Save(SOut);
+    VecOfIntHashVecsN.Save(SOut); VecOfIntHashVecsE.Save(SOut); 
     SAttrN.Save(SOut); SAttrE.Save(SOut); }
   /// Saves the graph to a (binary) stream SOut. Available for backwards compatibility.
   void Save_V1(TSOut& SOut) const {
@@ -1845,6 +1999,18 @@ public:
     VecOfIntVecsN.Save(SOut); VecOfIntVecsE.Save(SOut);
     VecOfStrVecsN.Save(SOut); VecOfStrVecsE.Save(SOut);
     VecOfFltVecsN.Save(SOut); VecOfFltVecsE.Save(SOut); }
+  /// Saves the graph without any sparse data structures. Available for backwards compatibility
+  void Save_V2(TSOut& SOut) const {
+    MxNId.Save(SOut); MxEId.Save(SOut); NodeH.Save(SOut); EdgeH.Save(SOut);
+    KeyToIndexTypeN.Save(SOut); KeyToIndexTypeE.Save(SOut);
+    IntDefaultsN.Save(SOut); IntDefaultsE.Save(SOut);
+    StrDefaultsN.Save(SOut); StrDefaultsE.Save(SOut);
+    FltDefaultsN.Save(SOut); FltDefaultsE.Save(SOut);
+    VecOfIntVecsN.Save(SOut); VecOfIntVecsE.Save(SOut);
+    VecOfStrVecsN.Save(SOut); VecOfStrVecsE.Save(SOut);
+    VecOfFltVecsN.Save(SOut); VecOfFltVecsE.Save(SOut);
+    VecOfIntVecVecsN.Save(SOut); VecOfIntVecVecsE.Save(SOut); 
+    SAttrN.Save(SOut); SAttrE.Save(SOut); }
   /// Static cons returns pointer to graph. Ex: PNEANet Graph=TNEANet::New().
   static PNEANet New() { return PNEANet(new TNEANet()); }
   /// Static constructor that returns a pointer to the graph and reserves enough memory for Nodes nodes and Edges edges. ##TNEANet::New
@@ -1865,6 +2031,73 @@ public:
     Graph->VecOfFltVecsN.Load(SIn); Graph->VecOfFltVecsE.Load(SIn);
     return Graph;
   }
+
+  /// Static constructor that loads the graph from a stream SIn and returns a pointer to it. Backwards compatible without Sparse
+  static PNEANet Load_V2(TSIn& SIn) {
+    PNEANet Graph = PNEANet(new TNEANet());
+    Graph->MxNId.Load(SIn); Graph->MxEId.Load(SIn);
+    Graph->NodeH.Load(SIn); Graph->EdgeH.Load(SIn);
+    Graph->KeyToIndexTypeN.Load(SIn); Graph->KeyToIndexTypeE.Load(SIn);
+    Graph->IntDefaultsN.Load(SIn); Graph->IntDefaultsE.Load(SIn);
+    Graph->StrDefaultsN.Load(SIn); Graph->StrDefaultsE.Load(SIn);
+    Graph->FltDefaultsN.Load(SIn); Graph->FltDefaultsE.Load(SIn);
+    Graph->VecOfIntVecsN.Load(SIn); Graph->VecOfIntVecsE.Load(SIn);
+    Graph->VecOfStrVecsN.Load(SIn); Graph->VecOfStrVecsE.Load(SIn);
+    Graph->VecOfFltVecsN.Load(SIn); Graph->VecOfFltVecsE.Load(SIn);
+    Graph->VecOfIntVecVecsN.Load(SIn); Graph->VecOfIntVecVecsE.Load(SIn);
+    Graph->SAttrN.Load(SIn); Graph->SAttrE.Load(SIn);
+    return Graph;
+  }
+
+  /// load network from shared memory for this network
+  void LoadNetworkShM(TShMIn& ShMIn);
+  /// Static constructor that loads the network from memory. ##TNEANet::LoadShM(TShMIn& ShMIn)
+  static PNEANet LoadShM(TShMIn& ShMIn) {
+    TNEANet* Network = new TNEANet();
+    Network->LoadNetworkShM(ShMIn);
+    return PNEANet(Network);
+  }
+
+  void ConvertToSparse() {
+    TInt VecLength = VecOfIntVecVecsN.Len();
+    THash<TStr, TIntPr>::TIter iter;
+    if (VecLength != 0) {
+      VecOfIntHashVecsN = TVec<THash<TInt, TIntV> >(VecLength);
+      for (iter = KeyToIndexTypeN.BegI(); !iter.IsEnd(); iter=iter.Next()) {
+        if (iter.GetDat().Val1 == IntVType) {
+          TStr attribute = iter.GetKey();
+          TInt index = iter.GetDat().Val2();
+          for (int i=0; i<VecOfIntVecVecsN[index].Len(); i++) {
+            if(VecOfIntVecVecsN[index][i].Len() > 0) {
+              VecOfIntHashVecsN[index].AddDat(TInt(i), VecOfIntVecVecsN[index][i]);
+            }
+          }
+          KeyToDenseN.AddDat(attribute, TBool(false));
+        }
+      }
+    }
+    VecOfIntVecVecsN.Clr();
+
+    VecLength = VecOfIntVecVecsE.Len();
+    if (VecLength != 0) {
+      VecOfIntHashVecsE = TVec<THash<TInt, TIntV> >(VecLength);
+      for (iter = KeyToIndexTypeE.BegI(); !iter.IsEnd(); iter=iter.Next()) {
+        if (iter.GetDat().Val1 == IntVType) {
+          TStr attribute = iter.GetKey();
+          TInt index = iter.GetDat().Val2();
+          for (int i=0; i<VecOfIntVecVecsE[index].Len(); i++) {
+            if(VecOfIntVecVecsE[index][i].Len() > 0) {
+              VecOfIntHashVecsE[index].AddDat(TInt(i), VecOfIntVecVecsE[index][i]);
+            }
+          }
+          KeyToDenseE.AddDat(attribute, TBool(false));
+        }
+      }
+    }
+    VecOfIntVecVecsE.Clr();
+  }
+
+
   /// Allows for run-time checking the type of the graph (see the TGraphFlag for flags).
   bool HasFlag(const TGraphFlag& Flag) const;
   
@@ -1904,13 +2137,58 @@ public:
 
   /// Returns an iterator referring to the first node's int attribute.
   TAIntVI BegNAIntVI(const TStr& attr) const {
-    return TAIntVI(VecOfIntVecVecsN[KeyToIndexTypeN.GetDat(attr).Val2].BegI(), attr, false, this); }
+    TVec<TIntV>::TIter HI = NULL;
+    THash<TInt, TIntV>::TIter HHI;
+    TInt location = CheckDenseOrSparseN(attr);
+    TBool IsDense = true;
+    if (location != -1) {
+      TInt index = KeyToIndexTypeN.GetDat(attr).Val2;
+      if (location == 1) {
+        HI = VecOfIntVecVecsN[index].BegI();
+      } else {
+        IsDense = false;
+        HHI = VecOfIntHashVecsN[index].BegI();
+      }
+    }
+    return TAIntVI(HI, HHI, attr, false, this, IsDense);
+  }
   /// Returns an iterator referring to the past-the-end node's attribute.
   TAIntVI EndNAIntVI(const TStr& attr) const {
-    return TAIntVI(VecOfIntVecVecsN[KeyToIndexTypeN.GetDat(attr).Val2].EndI(), attr, false, this); }
+    TVec<TIntV>::TIter HI = NULL;
+    THash<TInt, TIntV>::TIter HHI;
+    TInt location = CheckDenseOrSparseN(attr);
+    TBool IsDense = true;
+    if (location != -1) {
+      TInt index = KeyToIndexTypeN.GetDat(attr).Val2;
+      if (location == 1) {
+        HI = VecOfIntVecVecsN[index].EndI();
+      } else {
+        IsDense = false;
+        HHI = VecOfIntHashVecsN[index].EndI();
+      }
+    }
+    return TAIntVI(HI, HHI, attr, false, this, IsDense);
+  }
+
+
   /// Returns an iterator referring to the node of ID NId in the graph.
   TAIntVI GetNAIntVI(const TStr& attr, const int& NId) const {
-    return TAIntVI(VecOfIntVecVecsN[KeyToIndexTypeN.GetDat(attr).Val2].GetI(NodeH.GetKeyId(NId)), attr, false, this); }
+    TVec<TIntV>::TIter HI = NULL;
+    THash<TInt, TIntV>::TIter HHI;
+    TInt location = CheckDenseOrSparseN(attr);
+    TBool IsDense = true;
+    if (location != -1) {
+      TInt index = KeyToIndexTypeN.GetDat(attr).Val2;
+      if (location == 1) {
+        HI = VecOfIntVecVecsN[index].GetI(NodeH.GetKeyId(NId));
+      } else {
+        IsDense = false;
+        HHI = VecOfIntHashVecsN[index].GetI(NodeH.GetKeyId(NId));
+      }
+    }
+    return TAIntVI(HI, HHI, attr, false, this, IsDense);
+  }
+
 
 
   /// Returns an iterator referring to the first node's str attribute.
@@ -2039,15 +2317,54 @@ public:
 
   /// Returns an iterator referring to the first edge's int attribute.
   TAIntVI BegEAIntVI(const TStr& attr) const {
-    return TAIntVI(VecOfIntVecVecsE[KeyToIndexTypeE.GetDat(attr).Val2].BegI(), attr, true, this);
+    TVec<TIntV>::TIter HI = NULL;
+    THash<TInt, TIntV>::TIter HHI;
+    TInt location = CheckDenseOrSparseE(attr);
+    TBool IsDense = true;
+    if (location != -1) {
+      TInt index = KeyToIndexTypeE.GetDat(attr).Val2;
+      if (location == 1) {
+        HI = VecOfIntVecVecsE[index].BegI();
+      } else {
+        IsDense = false;
+        HHI = VecOfIntHashVecsE[index].BegI();
+      }
+    }
+    return TAIntVI(HI, HHI, attr, true, this, IsDense);
   }
   /// Returns an iterator referring to the past-the-end edge's attribute.
   TAIntVI EndEAIntVI(const TStr& attr) const {
-    return TAIntVI(VecOfIntVecVecsE[KeyToIndexTypeE.GetDat(attr).Val2].EndI(), attr, true, this);
+    TVec<TIntV>::TIter HI = NULL;
+    THash<TInt, TIntV>::TIter HHI;
+    TInt location = CheckDenseOrSparseE(attr);
+    TBool IsDense = true;
+    if (location != -1) {
+      TInt index = KeyToIndexTypeE.GetDat(attr).Val2;
+      if (location == 1) {
+        HI = VecOfIntVecVecsE[index].EndI();
+      } else {
+        IsDense = false;
+        HHI = VecOfIntHashVecsE[index].EndI();
+      }
+    }
+    return TAIntVI(HI, HHI, attr, true, this, IsDense);
   }
   /// Returns an iterator referring to the edge of ID EId in the graph.
   TAIntVI GetEAIntVI(const TStr& attr, const int& EId) const {
-    return TAIntVI(VecOfIntVecVecsE[KeyToIndexTypeE.GetDat(attr).Val2].GetI(EdgeH.GetKeyId(EId)), attr, true, this);
+    TVec<TIntV>::TIter HI = NULL;
+    THash<TInt, TIntV>::TIter HHI;
+    TInt location = CheckDenseOrSparseE(attr);
+    TBool IsDense = true;
+    if (location != -1) {
+      TInt index = KeyToIndexTypeE.GetDat(attr).Val2;
+      if (location == 1) {
+        HI = VecOfIntVecVecsE[index].GetI(EdgeH.GetKeyId(EId));
+      } else {
+        IsDense = false;
+        HHI = VecOfIntHashVecsE[index].GetI(EdgeH.GetKeyId(EId));
+      }
+    }
+    return TAIntVI(HI, HHI, attr, true, this, IsDense);
   }
 
   /// Returns an iterator referring to the first edge's str attribute.
@@ -2148,10 +2465,10 @@ public:
   int AddFltAttrDatN(const int& NId, const TFlt& value, const TStr& attr);
   /// Attribute based add function for attr to IntV value. ##TNEANet::AddIntVAttrDatN
   int AddIntVAttrDatN(const TNodeI& NodeI, const TIntV& value, const TStr& attr) { return AddIntVAttrDatN(NodeI.GetId(), value, attr); }
-  int AddIntVAttrDatN(const int& NId, const TIntV& value, const TStr& attr);
+  int AddIntVAttrDatN(const int& NId, const TIntV& value, const TStr& attr, TBool UseDense=true);
   /// Appends value onto the TIntV attribute for the given node.
   int AppendIntVAttrDatN(const TNodeI& NodeI, const TInt& value, const TStr& attr) { return AppendIntVAttrDatN(NodeI.GetId(), value, attr); }
-  int AppendIntVAttrDatN(const int& NId, const TInt& value, const TStr& attr);
+  int AppendIntVAttrDatN(const int& NId, const TInt& value, const TStr& attr, TBool UseDense=true);
   /// Deletes value from the TIntV attribute for the given node.
   int DelFromIntVAttrDatN(const TNodeI& NodeI, const TInt& value, const TStr& attr) { return DelFromIntVAttrDatN(NodeI.GetId(), value, attr); }
   int DelFromIntVAttrDatN(const int& NId, const TInt& value, const TStr& attr);
@@ -2166,10 +2483,10 @@ public:
   int AddFltAttrDatE(const int& EId, const TFlt& value, const TStr& attr);
   /// Attribute based add function for attr to IntV value. ##TNEANet::AddIntVAttrDatE
   int AddIntVAttrDatE(const TEdgeI& EdgeI, const TIntV& value, const TStr& attr) { return AddIntVAttrDatE(EdgeI.GetId(), value, attr); }
-  int AddIntVAttrDatE(const int& EId, const TIntV& value, const TStr& attr);
+  int AddIntVAttrDatE(const int& EId, const TIntV& value, const TStr& attr, TBool UseDense=true);
   /// Appends value onto the TIntV attribute for the given node.
   int AppendIntVAttrDatE(const TEdgeI& EdgeI, const TInt& value, const TStr& attr) { return AppendIntVAttrDatE(EdgeI.GetId(), value, attr); }
-  int AppendIntVAttrDatE(const int& EId, const TInt& value, const TStr& attr);
+  int AppendIntVAttrDatE(const int& EId, const TInt& value, const TStr& attr, TBool UseDense=true);
   /// Gets the value of int attr from the node attr value vector.
   TInt GetIntAttrDatN(const TNodeI& NodeI, const TStr& attr) { return GetIntAttrDatN(NodeI.GetId(), attr); }
   TInt GetIntAttrDatN(const int& NId, const TStr& attr);
@@ -2251,7 +2568,7 @@ public:
   /// Adds a new Flt node attribute to the hashmap.
   int AddFltAttrN(const TStr& attr, TFlt defaultValue=TFlt::Mn);
   /// Adds a new IntV node attribute to the hashmap.
-  int AddIntVAttrN(const TStr& attr);
+  int AddIntVAttrN(const TStr& attr, TBool UseDense=true);
 
   /// Adds a new Int edge attribute to the hashmap.
   int AddIntAttrE(const TStr& attr, TInt defaultValue=TInt::Mn);
@@ -2260,7 +2577,7 @@ public:
   /// Adds a new Flt edge attribute to the hashmap.
   int AddFltAttrE(const TStr& attr, TFlt defaultValue=TFlt::Mn);
   /// Adds a new IntV edge attribute to the hashmap.
-  int AddIntVAttrE(const TStr& attr);
+  int AddIntVAttrE(const TStr& attr, TBool UseDense=true);
 
   /// Removes all the values for node attr.
   int DelAttrN(const TStr& attr);
@@ -2628,6 +2945,10 @@ public:
     void PackOutNIdV() { NIdV.Pack(); }
     void PackNIdV() { NIdV.Pack(); }
     void SortNIdV() { NIdV.Sort();}
+    void LoadShM(TShMIn& MStream) {
+      Id = TInt(MStream);
+      NIdV.LoadShM(MStream);
+    }
     friend class TUndirNet;
     friend class TUndirNetMtx;
   };
@@ -2708,6 +3029,21 @@ private:
   TNode& GetNode(const int& NId) { return NodeH.GetDat(NId); }
   const TNode& GetNode(const int& NId) const { return NodeH.GetDat(NId); }
   TIntPr OrderEdgeNodes(const int& SrcNId, const int& DstNId) const;
+private:
+  class LoadTNodeFunctor {
+  public:
+    LoadTNodeFunctor() {}
+    void operator() (TNode* n, TShMIn& ShMIn) {n->LoadShM(ShMIn);}
+  };
+private:
+  void LoadNetworkShM(TShMIn& ShMIn) {
+    MxNId = TInt(ShMIn);
+    NEdges = TInt(ShMIn);
+    LoadTNodeFunctor NodeFn;
+    NodeH.LoadShM(ShMIn, NodeFn);
+    SAttrN.Load(ShMIn);
+    SAttrE = TAttrPair(ShMIn);
+  }
 public:
   TUndirNet() : CRef(), MxNId(0), NEdges(0), NodeH(), SAttrN(), SAttrE() { }
   /// Constructor that reserves enough memory for a network of Nodes nodes and Edges edges.
@@ -2730,6 +3066,13 @@ public:
   /// Static constructor that loads the network from a stream SIn and returns a pointer to it. Backwards compatible.
   static PUndirNet Load_V1(TSIn& SIn) { PUndirNet Graph = PUndirNet(new TUndirNet());
     Graph->MxNId.Load(SIn); Graph->NEdges.Load(SIn); Graph->NodeH.Load(SIn); return Graph;
+  }
+
+  /// Static constructor that loads the network from memory. ##TUndirNet::LoadShM(TShMIn& ShMIn)
+  static PUndirNet LoadShM(TShMIn& ShMIn) {
+    TUndirNet* Network = new TUndirNet();
+    Network->LoadNetworkShM(ShMIn);
+    return PUndirNet(Network);
   }
 
   /// Allows for run-time checking the type of the network (see the TGraphFlag for flags).
@@ -3080,6 +3423,11 @@ public:
     void PackOutNIdV() { OutNIdV.Pack(); }
     void PackNIdV() { InNIdV.Pack(); }
     void SortNIdV() { InNIdV.Sort(); OutNIdV.Sort();}
+    void LoadShM(TShMIn& MStream) {
+      Id = TInt(MStream);
+      InNIdV.LoadShM(MStream);
+      OutNIdV.LoadShM(MStream);
+    }
     friend class TDirNet;
     friend class TDirNetMtx;
   };
@@ -3156,6 +3504,20 @@ private:
 private:
   TNode& GetNode(const int& NId) { return NodeH.GetDat(NId); }
   const TNode& GetNode(const int& NId) const { return NodeH.GetDat(NId); }
+private:
+  class TNodeFunctor {
+  public:
+    TNodeFunctor() {}
+    void operator() (TNode* n, TShMIn& ShMIn) { n->LoadShM(ShMIn);}
+  };
+private:
+  void LoadNetworkShM(TShMIn& ShMIn) {
+    MxNId = TInt(ShMIn);
+    TNodeFunctor f;
+    NodeH.LoadShM(ShMIn, f);
+    SAttrN.Load(ShMIn);
+    SAttrE = TAttrPair(ShMIn);
+  }
 public:
   TDirNet() : CRef(), MxNId(0), NodeH(), SAttrN(), SAttrE() { }
   /// Constructor that reserves enough memory for a network of Nodes nodes and Edges edges.
@@ -3176,6 +3538,12 @@ public:
   /// Static constructor that loads the network from a stream SIn and returns a pointer to it. Backwards compatible.
   static PDirNet Load_V1(TSIn& SIn) { PDirNet Graph = PDirNet(new TDirNet());
     Graph->MxNId.Load(SIn); Graph->NodeH.Load(SIn); return Graph;
+  }
+  /// Static constructor that loads the network from memory. ##TDirNet::LoadShM(TShMIn& ShMIn)
+  static PDirNet LoadShM(TShMIn& ShMIn) {
+    TDirNet* Network = new TDirNet();
+    Network->LoadNetworkShM(ShMIn);
+    return PDirNet(Network);
   }
   /// Allows for run-time checking the type of the network (see the TGraphFlag for flags).
   bool HasFlag(const TGraphFlag& Flag) const;

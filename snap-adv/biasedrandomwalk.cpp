@@ -34,6 +34,17 @@ void GetNodeAlias(TFltV& PTblV, TIntVFltVPr& NTTable) {
       OverV.Add(Large);
     }
   }
+  while(UnderV.Len() > 0){
+    int64 curr = UnderV.Last();
+    UnderV.DelLast();
+    UTbl[curr]=1;
+  }
+  while(OverV.Len() > 0){
+    int64 curr = OverV.Last();
+    OverV.DelLast();
+    UTbl[curr]=1;
+  }
+
 }
 
 //Get random element using alias sampling method

@@ -8,20 +8,25 @@ void TBigStrPool::Resize(TSize _MxBfL) {
     else newSize = TInt::GetMn(GrowBy, 1024);
   }
   if (newSize > MxBfL) {
-    Bf = (char *) realloc(Bf, newSize);
+    if (IsShM) {
+      Bf = (char*) malloc(newSize);
+      IsShM = false;
+    } else {
+      Bf = (char *) realloc(Bf, newSize);
+    }
     IAssertR(Bf, TStr::Fmt("old Bf size: %u, new size: %u", MxBfL, newSize).CStr());
     MxBfL = newSize;
   }
   IAssert(MxBfL >= _MxBfL);
 }
 
-TBigStrPool::TBigStrPool(TSize MxBfLen, uint _GrowBy) : MxBfL(MxBfLen), BfL(0), GrowBy(_GrowBy), Bf(0) {
+TBigStrPool::TBigStrPool(TSize MxBfLen, uint _GrowBy) : MxBfL(MxBfLen), BfL(0), GrowBy(_GrowBy), Bf(0), IsShM(false) {
   //IAssert(MxBfL >= 0); IAssert(GrowBy >= 0);
   if (MxBfL > 0) { Bf = (char *) malloc(MxBfL);  IAssert(Bf); }
   AddStr(""); // add empty string
 }
 
-TBigStrPool::TBigStrPool(TSIn& SIn, bool LoadCompact) : MxBfL(0), BfL(0), GrowBy(0), Bf(0) {
+TBigStrPool::TBigStrPool(TSIn& SIn, bool LoadCompact) : MxBfL(0), BfL(0), GrowBy(0), Bf(0), IsShM(false) {
   uint64 Tmp;
   SIn.Load(Tmp); IAssert(Tmp <= uint64(TSizeMx)); MxBfL=TSize(Tmp);
   SIn.Load(Tmp); IAssert(Tmp <= uint64(TSizeMx)); BfL=TSize(Tmp);
@@ -39,6 +44,33 @@ TBigStrPool::TBigStrPool(TSIn& SIn, bool LoadCompact) : MxBfL(0), BfL(0), GrowBy
     IdOffV.Add(TSize(Tmp));
   }
 }
+
+void TBigStrPool::LoadPoolShM(TShMIn& ShMIn, bool LoadCompact) {
+  uint64 Tmp;
+  ShMIn.Load(Tmp); IAssert(Tmp <= uint64(TSizeMx)); MxBfL=TSize(Tmp);
+  ShMIn.Load(Tmp); IAssert(Tmp <= uint64(TSizeMx)); BfL=TSize(Tmp);
+  ShMIn.Load(GrowBy); IAssert(MxBfL >= BfL);  IAssert(BfL >= 0);  IAssert(GrowBy >= 0);
+  IsShM = true;
+  if (LoadCompact) {
+    MxBfL = BfL;
+    Bf = (char*)(ShMIn.AdvanceCursor(BfL));
+    IsShM = true;
+  } else {
+    if (MxBfL > 0) { Bf = (char *) malloc(MxBfL); IAssert(Bf); IsShM = false;}
+    if (BfL > 0) { ShMIn.LoadBf(Bf, BfL); }
+    IsShM = false;
+  }
+  ShMIn.LoadCs();
+  int NStr=0;
+  ShMIn.Load(NStr);
+  IdOffV.Gen(NStr, 0);
+  for (int i = 0; i < NStr; i++) {
+    ShMIn.Load(Tmp);
+    IAssert(Tmp <= uint64(TSizeMx));
+    IdOffV.Add(TSize(Tmp));
+  }
+}
+
 
 void TBigStrPool::Save(TSOut& SOut) const {
   SOut.Save(uint64(MxBfL));  SOut.Save(uint64(BfL));  SOut.Save(GrowBy);

@@ -887,3 +887,64 @@ TEST(GGenTest, GenRMat) {
     
   } // end loop - NNodes
 }
+
+template <class PGraph> void TestRewire(const PGraph& Graph) {
+  PGraph GraphOut;
+  TIntPrV DegToCntV;
+  TIntPrV DegToCntV1;
+  int CntLoops;
+
+  // Rewire the graph
+  GraphOut = TSnap::GenRewire(Graph, 10, TInt::Rnd);
+
+  // Check degrees
+  TSnap::GetDegCnt(Graph, DegToCntV);
+  TSnap::GetDegCnt(GraphOut, DegToCntV1);
+
+  EXPECT_EQ(DegToCntV.Len(), DegToCntV1.Len());
+  for (int i = 0; i < DegToCntV.Len(); i++) {
+    EXPECT_EQ(DegToCntV[i].Val1.Val, DegToCntV1[i].Val1.Val);
+  }
+
+  // Check in-degrees
+  TSnap::GetInDegCnt(Graph, DegToCntV);
+  TSnap::GetInDegCnt(GraphOut, DegToCntV1);
+
+  EXPECT_EQ(DegToCntV.Len(), DegToCntV1.Len());
+  for (int i = 0; i < DegToCntV.Len(); i++) {
+    EXPECT_EQ(DegToCntV[i].Val1.Val, DegToCntV1[i].Val1.Val);
+  }
+
+  // Check out-degrees
+  TSnap::GetOutDegCnt(Graph, DegToCntV);
+  TSnap::GetOutDegCnt(GraphOut, DegToCntV1);
+
+  EXPECT_EQ(DegToCntV.Len(), DegToCntV1.Len());
+  for (int i = 0; i < DegToCntV.Len(); i++) {
+    EXPECT_EQ(DegToCntV[i].Val1.Val, DegToCntV1[i].Val1.Val);
+  }
+
+  // Check for no loops
+  CntLoops = TSnap::CntSelfEdges<PGraph>(GraphOut);
+
+  EXPECT_EQ(CntLoops, 0);
+}
+
+// Test GenRewire
+TEST(GGenRewire, GenRewire) {
+  PNGraph GraphFF;
+  PNGraph Graph;
+  PUNGraph UGraph;
+  const int NNodes = 100000;
+  const double FwdProb = 0.35;
+  const double BckProb = 0.32;
+
+  // directed graph
+  GraphFF = TSnap::GenForestFire(NNodes, FwdProb, BckProb);
+  TestRewire<PNGraph>(GraphFF);
+
+  // undirected graph
+  UGraph = TSnap::ConvertGraph<PUNGraph, PNGraph>(GraphFF);
+  TestRewire<PUNGraph>(UGraph);
+}
+

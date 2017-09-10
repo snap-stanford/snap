@@ -903,4 +903,24 @@ void GetWeightedBetweennessCentr(const PNEANet Graph, TIntPrFltH& EdgeBtwH, cons
     Attr, IsDir);
 }
 
+/// Gets sequence of PageRank tables from given \c GraphSeq.
+TTableIterator GetMapPageRank(
+    const TVec<PNEANet>& GraphSeq,
+    TTableContext* Context,
+    const double& C = 0.85, const double& Eps = 1e-4, const int& MaxIter = 100) {
+  TVec<PTable> TableSeq(GraphSeq.Len());
+  TSnap::MapPageRank(GraphSeq, TableSeq, Context, C, Eps, MaxIter);
+  return TTableIterator(TableSeq);
+}
+
+/// Gets sequence of Hits tables from given \c GraphSeq.
+TTableIterator GetMapHitsIterator(
+    const TVec<PNEANet>& GraphSeq,
+    TTableContext* Context,
+    const int& MaxIter = 20) {
+  TVec<PTable> TableSeq(GraphSeq.Len());
+  TSnap::MapHits(GraphSeq, TableSeq, Context, MaxIter);
+  return TTableIterator(TableSeq);
+}
+
 }; // namespace TSnap

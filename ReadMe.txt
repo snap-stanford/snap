@@ -120,6 +120,8 @@ Description of examples:
   	Estimates Kronecker graph parameter matrix.
   krongen : 
   	Generates Kronecker graphs.
+  localmotifcluster :
+	Implements a local method for motif-based clustering using MAPPR.
   lshtest :
 	Implements locality sensitive hashing.
   magfit :

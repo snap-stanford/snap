@@ -10,6 +10,12 @@ Range of NodeN: 0 <= NodeN < GetOutDeg().
 Range of NodeN: 0 <= NodeN < GetNbrDeg().
 ///
 
+/// TNodeNet::LoadShM(TShMIn& ShMIn)
+The object is read-only. It does not support operations that edit the edge
+vectors of nodes or perform illegal operations on the NodeH, EdgeH
+(deletion or swapping keys).
+///
+
 /// TNodeNet::AddNode (int NId = -1)
 Returns the ID of the node being added.
 If NId is -1, node ID is automatically assigned.
@@ -68,6 +74,12 @@ Range of NodeN: 0 <= NodeN < GetOutDeg().
 
 /// TNodeEDatNet::TNodeI::GetNbrNId
 Range of NodeN: 0 <= NodeN < GetNbrDeg().
+///
+
+/// TNodeEDatNet::LoadShM(TShMIn& ShMIn)
+The object is read-only. It does not support operations that edit the edge
+vectors of nodes or perform illegal operations on the NodeH, EdgeH
+(deletion or swapping keys).
 ///
 
 /// TNodeEDatNet::AddNode (int NId = -1)
@@ -140,6 +152,16 @@ Range of NodeN: 0 <= NodeN < GetOutDeg().
 
 /// TNodeEdgeNet::TNodeI::GetNbrNId
 Range of NodeN: 0 <= NodeN < GetNbrDeg().
+///
+
+/// TNodeEdgeNet::New()
+Call with: TPt <TNodeEdgeNet<TNodeData, TEdgeData> > Net = TNodeEdgeNet<TNodeData, TEdgeData>::New().
+///
+
+/// TNodeEdgeNet::LoadShM(TShMIn& ShMIn)
+The object is read-only. It does not support operations that edit the edge
+vectors of nodes or perform illegal operations on the NodeH, EdgeH
+(deletion or swapping keys).
 ///
 
 /// TNodeEdgeNet::AddNode (int NId = -1)
@@ -227,6 +249,12 @@ Range of NodeN: 0 <= NodeN < GetNbrDeg().
 
 /// TNEANet::New
 Call: PNEANet Net = TNEANet::New(Nodes, Edges).
+///
+
+/// TNEANet::LoadShM(TShMIn& ShMIn)
+The object is read-only. It does not support operations that edit the edge
+vectors of nodes or perform illegal operations on the NodeH, EdgeH
+(deletion or swapping keys).
 ///
     
 /// TNEANet::AddNode (int NId = -1)
@@ -338,6 +366,12 @@ GetInNId(), GetOutNId() and GetNbrNId() all give the same output.
 
 /// TUndirNet::New
 Call: PUndirNet Net = TUndirNet::New(Nodes, Edges).
+///
+
+/// TUndirNet::LoadShM(TShMIn& ShMIn)
+The object is read-only. It does not support operations that edit the edge
+vectors of nodes or perform illegal operations on the NodeH, EdgeH
+(deletion or swapping keys).
 ///
 
 /// TUndirNet::AddNode (int NId = -1)
@@ -456,6 +490,12 @@ Range of NodeN: 0 <= NodeN < GetNbrDeg().
 
 /// TDirNet::New
 Call: PDirNet Net = TDirNet::New(Nodes, Edges).
+///
+
+/// TDirNet::LoadShM(TShMIn& ShMIn)
+The object is read-only. It does not support operations that edit the edge
+vectors of nodes or perform illegal operations on the NodeH, EdgeH
+(deletion or swapping keys).
 ///
 
 /// TDirNet::AddNode (int NId = -1)
