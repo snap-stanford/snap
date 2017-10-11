@@ -191,9 +191,10 @@ PGraph LoadPajek(const TStr& InFNm) {
     if (Ss.Len()>0 && Ss[0][0] == '%') { continue; } // comment
     if (Ss.Len()>0 && Ss[0][0] == '*') { break; }
     if (EdgeList) {
-      // <source> <destination> <weight>
-      if (Ss.Len() >= 3 && Ss.IsInt(0) && Ss.IsInt(1)) {
-        Graph->AddEdge(Ss.GetInt(0), Ss.GetInt(1)); }
+      // <source> <destination> [ <weight> ]
+      if (Ss.Len() >= 2 && Ss.IsInt(0) && Ss.IsInt(1)) {
+        Graph->AddEdge(Ss.GetInt(0), Ss.GetInt(1));
+      }
     } else {
       // <source> <destination1> <destination2> <destination3> ...
       const int SrcNId = Ss.GetInt(0);
