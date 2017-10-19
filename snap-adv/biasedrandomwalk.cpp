@@ -55,8 +55,8 @@ int64 AliasDrawInt(TIntVFltVPr& NTTable, TRnd& Rnd) {
   return Y < NTTable.GetVal2()[X] ? X : NTTable.GetVal1()[X];
 }
 
-void PreprocessNode (PWNet& InNet, double& ParamP, double& ParamQ,
- TWNet::TNodeI NI, int64& NCnt, bool& Verbose) {
+void PreprocessNode (PWNet& InNet, const double& ParamP, const double& ParamQ,
+ TWNet::TNodeI NI, int64& NCnt, const bool& Verbose) {
   if (Verbose && NCnt%100 == 0) {
     printf("\rPreprocessing progress: %.2lf%% ",(double)NCnt*100/(double)(InNet->GetNodes()));fflush(stdout);
   }
@@ -94,7 +94,7 @@ void PreprocessNode (PWNet& InNet, double& ParamP, double& ParamQ,
 }
 
 //Preprocess transition probabilities for each path t->v->x
-void PreprocessTransitionProbs(PWNet& InNet, double& ParamP, double& ParamQ, bool& Verbose) {
+void PreprocessTransitionProbs(PWNet& InNet, const double& ParamP, const double& ParamQ, const bool& Verbose) {
   for (TWNet::TNodeI NI = InNet->BegNI(); NI < InNet->EndNI(); NI++) {
     InNet->SetNDat(NI.GetId(),TIntIntVFltVPrH());
   }
@@ -128,7 +128,7 @@ int64 PredictMemoryRequirements(PWNet& InNet) {
 }
 
 //Simulates a random walk
-void SimulateWalk(PWNet& InNet, int64 StartNId, int& WalkLen, TRnd& Rnd, TIntV& WalkV) {
+void SimulateWalk(PWNet& InNet, int64 StartNId, const int& WalkLen, TRnd& Rnd, TIntV& WalkV) {
   WalkV.Add(StartNId);
   if (WalkLen == 1) { return; }
   if (InNet->GetNI(StartNId).GetOutDeg() == 0) { return; }

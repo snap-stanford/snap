@@ -70,7 +70,7 @@ int64 RndUnigramInt(TIntV& KTable, TFltV& UTable, TRnd& Rnd) {
 }
 
 //Initialize negative embeddings
-void InitNegEmb(TIntV& Vocab, int& Dimensions, TVVec<TFlt, int64>& SynNeg) {
+void InitNegEmb(TIntV& Vocab, const int& Dimensions, TVVec<TFlt, int64>& SynNeg) {
   SynNeg = TVVec<TFlt, int64>(Vocab.Len(),Dimensions);
   for (int64 i = 0; i < SynNeg.GetXDim(); i++) {
     for (int j = 0; j < SynNeg.GetYDim(); j++) {
@@ -80,7 +80,7 @@ void InitNegEmb(TIntV& Vocab, int& Dimensions, TVVec<TFlt, int64>& SynNeg) {
 }
 
 //Initialize positive embeddings
-void InitPosEmb(TIntV& Vocab, int& Dimensions, TRnd& Rnd, TVVec<TFlt, int64>& SynPos) {
+void InitPosEmb(TIntV& Vocab, const int& Dimensions, TRnd& Rnd, TVVec<TFlt, int64>& SynPos) {
   SynPos = TVVec<TFlt, int64>(Vocab.Len(),Dimensions);
   for (int64 i = 0; i < SynPos.GetXDim(); i++) {
     for (int j = 0; j < SynPos.GetYDim(); j++) {
@@ -89,9 +89,11 @@ void InitPosEmb(TIntV& Vocab, int& Dimensions, TRnd& Rnd, TVVec<TFlt, int64>& Sy
   }
 }
 
-void TrainModel(TVVec<TInt, int64>& WalksVV, int& Dimensions, int& WinSize, int& Iter, bool& Verbose,
-   TIntV& KTable, TFltV& UTable, int64& WordCntAll, TFltV& ExpTable, double& Alpha,
-   int64 CurrWalk, TRnd& Rnd, TVVec<TFlt, int64>& SynNeg, TVVec<TFlt, int64>& SynPos)  {
+void TrainModel(TVVec<TInt, int64>& WalksVV, const int& Dimensions,
+    const int& WinSize, const int& Iter, const bool& Verbose,
+    TIntV& KTable, TFltV& UTable, int64& WordCntAll, TFltV& ExpTable,
+    double& Alpha, int64 CurrWalk, TRnd& Rnd,
+    TVVec<TFlt, int64>& SynNeg, TVVec<TFlt, int64>& SynPos)  {
   TFltV Neu1V(Dimensions);
   TFltV Neu1eV(Dimensions);
   int64 AllWords = WalksVV.GetXDim()*WalksVV.GetYDim();
@@ -155,8 +157,9 @@ void TrainModel(TVVec<TInt, int64>& WalksVV, int& Dimensions, int& WinSize, int&
 }
 
 
-void LearnEmbeddings(TVVec<TInt, int64>& WalksVV, int& Dimensions, int& WinSize,
- int& Iter, bool& Verbose, TIntFltVH& EmbeddingsHV) {
+void LearnEmbeddings(TVVec<TInt, int64>& WalksVV, const int& Dimensions,
+  const int& WinSize, const int& Iter, const bool& Verbose,
+  TIntFltVH& EmbeddingsHV) {
   TIntIntH RnmH;
   TIntIntH RnmBackH;
   int64 NNodes = 0;

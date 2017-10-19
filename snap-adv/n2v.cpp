@@ -1,9 +1,11 @@
 #include "stdafx.h"
 #include "n2v.h"
 
-void node2vec(PWNet& InNet, double& ParamP, double& ParamQ, int& Dimensions,
- int& WalkLen, int& NumWalks, int& WinSize, int& Iter, bool& Verbose,
- bool& OutputWalks, TVVec<TInt, int64>& WalksVV, TIntFltVH& EmbeddingsHV) {
+void node2vec(PWNet& InNet, const double& ParamP, const double& ParamQ,
+  const int& Dimensions, const int& WalkLen, const int& NumWalks,
+  const int& WinSize, const int& Iter, const bool& Verbose,
+  const bool& OutputWalks, TVVec<TInt, int64>& WalksVV,
+  TIntFltVH& EmbeddingsHV) {
   //Preprocess transition probabilities
   PreprocessTransitionProbs(InNet, ParamP, ParamQ, Verbose);
   TIntV NIdsV;
@@ -40,18 +42,22 @@ void node2vec(PWNet& InNet, double& ParamP, double& ParamQ, int& Dimensions,
   }
 }
 
-void node2vec(PWNet& InNet, double& ParamP, double& ParamQ, int& Dimensions,
- int& WalkLen, int& NumWalks, int& WinSize, int& Iter, bool& Verbose,
- TIntFltVH& EmbeddingsHV) {
+void node2vec(PWNet& InNet, const double& ParamP, const double& ParamQ,
+  const int& Dimensions, const int& WalkLen, const int& NumWalks,
+  const int& WinSize, const int& Iter, const bool& Verbose,
+  TIntFltVH& EmbeddingsHV) {
   TVVec <TInt, int64> WalksVV;
   bool OutputWalks = 0;
   node2vec(InNet, ParamP, ParamQ, Dimensions, WalkLen, NumWalks, WinSize,
    Iter, Verbose, OutputWalks, WalksVV, EmbeddingsHV);
 }
 
-void node2vec(PNGraph& InNet, double& ParamP, double& ParamQ, int& Dimensions,
- int& WalkLen, int& NumWalks, int& WinSize, int& Iter, bool& Verbose,
- bool& OutputWalks, TVVec<TInt, int64>& WalksVV, TIntFltVH& EmbeddingsHV) {
+
+void node2vec(const PNGraph& InNet, const double& ParamP, const double& ParamQ,
+  const int& Dimensions, const int& WalkLen, const int& NumWalks,
+  const int& WinSize, const int& Iter, const bool& Verbose,
+  const bool& OutputWalks, TVVec<TInt, int64>& WalksVV,
+  TIntFltVH& EmbeddingsHV) {
   PWNet NewNet = PWNet::New();
   for (TNGraph::TEdgeI EI = InNet->BegEI(); EI < InNet->EndEI(); EI++) {
     if (!NewNet->IsNode(EI.GetSrcNId())) { NewNet->AddNode(EI.GetSrcNId()); }
@@ -62,18 +68,21 @@ void node2vec(PNGraph& InNet, double& ParamP, double& ParamQ, int& Dimensions,
    Verbose, OutputWalks, WalksVV, EmbeddingsHV);
 }
 
-void node2vec(PNGraph& InNet, double& ParamP, double& ParamQ, int& Dimensions,
- int& WalkLen, int& NumWalks, int& WinSize, int& Iter, bool& Verbose,
- TIntFltVH& EmbeddingsHV) {
+void node2vec(const PNGraph& InNet, const double& ParamP, const double& ParamQ,
+  const int& Dimensions, const int& WalkLen, const int& NumWalks,
+  const int& WinSize, const int& Iter, const bool& Verbose,
+  TIntFltVH& EmbeddingsHV) {
   TVVec <TInt, int64> WalksVV;
   bool OutputWalks = 0;
   node2vec(InNet, ParamP, ParamQ, Dimensions, WalkLen, NumWalks, WinSize,
    Iter, Verbose, OutputWalks, WalksVV, EmbeddingsHV);
 }
 
-void node2vec(PNEANet& InNet, double& ParamP, double& ParamQ,
- int& Dimensions, int& WalkLen, int& NumWalks, int& WinSize, int& Iter, bool& Verbose,
- bool& OutputWalks, TVVec<TInt, int64>& WalksVV, TIntFltVH& EmbeddingsHV) {
+void node2vec(const PNEANet& InNet, const double& ParamP, const double& ParamQ,
+  const int& Dimensions, const int& WalkLen, const int& NumWalks,
+  const int& WinSize, const int& Iter, const bool& Verbose,
+  const bool& OutputWalks, TVVec<TInt, int64>& WalksVV,
+  TIntFltVH& EmbeddingsHV) {
   PWNet NewNet = PWNet::New();
   for (TNEANet::TEdgeI EI = InNet->BegEI(); EI < InNet->EndEI(); EI++) {
     if (!NewNet->IsNode(EI.GetSrcNId())) { NewNet->AddNode(EI.GetSrcNId()); }
@@ -84,8 +93,9 @@ void node2vec(PNEANet& InNet, double& ParamP, double& ParamQ,
    Verbose, OutputWalks, WalksVV, EmbeddingsHV);
 }
 
-void node2vec(PNEANet& InNet, double& ParamP, double& ParamQ, int& Dimensions,
- int& WalkLen, int& NumWalks, int& WinSize, int& Iter, bool& Verbose,
+void node2vec(const PNEANet& InNet, const double& ParamP, const double& ParamQ,
+  const int& Dimensions, const int& WalkLen, const int& NumWalks,
+  const int& WinSize, const int& Iter, const bool& Verbose,
  TIntFltVH& EmbeddingsHV) {
   TVVec <TInt, int64> WalksVV;
   bool OutputWalks = 0;
