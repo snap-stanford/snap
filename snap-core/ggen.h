@@ -200,7 +200,7 @@ PGraph GenBaraHierar(const int& Levels, const bool& IsDir) {
     // add edges to the center
     //const int LevPow = (int)TMath::Round(TMath::Power(5,lev-1));
     for (int n = MxNId; n < Graph.GetNodes(); n++) {
-      typename PGraph::TObj::TNodeI NI = Graph.GetNI(n);
+      //typename PGraph::TObj::TNodeI NI = Graph.GetNI(n);
       const int SrcId = n;
       int Pow = 1;  bool Skip = false;
       for (int p = 1; p <= lev; p++) {

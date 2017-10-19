@@ -877,8 +877,8 @@ public:
   TNum& operator=(const Base& _Val){ Val = _Val; return *this; }
   TNum& operator++(){ ++Val; return *this; } // prefix
   TNum& operator--(){ --Val; return *this; } // prefix
-  TNum operator++(Base){ TNum oldVal = Val; Val++; return oldVal; } // postfix
-  TNum operator--(Base){ TNum oldVal = Val; Val--; return oldVal; } // postfix
+  TNum operator++(int){ TNum oldVal = Val; Val++; return oldVal; } // postfix
+  TNum operator--(int){ TNum oldVal = Val; Val--; return oldVal; } // postfix
   Base& operator()() { return Val; }
 
   int GetMemUsed() const { return sizeof(TNum); }
