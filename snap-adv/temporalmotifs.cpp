@@ -27,7 +27,9 @@ TempMotifCounter::TempMotifCounter(const TStr& filename) {
     int src = data_ptr->GetIntValAtRowIdx(src_idx, row_idx).Val;
     int dst = data_ptr->GetIntValAtRowIdx(dst_idx, row_idx).Val;
     int tim = data_ptr->GetIntValAtRowIdx(tim_idx, row_idx).Val;
-    temporal_data_[src](dst).Add(tim);
+    // Do not include self loops as they do not appear in the definition of
+    // temporal motifs.
+    if (src != dst) { temporal_data_[src](dst).Add(tim); }
   }
 }
 
