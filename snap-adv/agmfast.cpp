@@ -518,7 +518,7 @@ void TAGMFast::GetCmtyVV(TVec<TIntV>& CmtyVV, const double Thres, const int MinS
   }
   CIDSumFH.SortByDat(false);
   
-  #pragma omp parallel for
+#pragma omp parallel for
   for (int c = 0; c < NumComs; c++) {
     int CID = CIDSumFH.GetKey(c);
     TIntFltH NIDFucH(F.Len() / 10);
@@ -533,10 +533,8 @@ void TAGMFast::GetCmtyVV(TVec<TIntV>& CmtyVV, const double Thres, const int MinS
     NIDFucH.SortByDat(false);
     NIDFucH.GetKeyV(CmtyV);
     if (CmtyV.Len() >= MinSz) {
-      #pragma omp critical
-      {
-        CmtyVV.Add(CmtyV); 
-      }
+#pragma omp critical
+      CmtyVV.Add(CmtyV);
     }
   }
   if ( NumComs != CmtyVV.Len()) {
