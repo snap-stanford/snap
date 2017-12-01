@@ -19,8 +19,18 @@ Parallelised computation in the community association stage will better
 utilise available resources, and hence improve the scalability of BigClam
 community detection algorithm.
 
+1. To load the data, run:
+```
+./load_data.sh
+```
 
-1. To build the executables, run:
+2. To get the total number of community affiliations in each network,
+run the following AFTER running step 1:
+```
+wc -w ./data/*.all.cmty.txt
+```
+
+3. To build the executables, run:
 
 ```
 > make all
@@ -30,7 +40,7 @@ community detection algorithm.
 and ./bigclam_parallelised (with CA stage parallelised). The final executables
 link with different object files, compiled 
 
-2. To compare the runtime difference between the unparallelised and 
+4. To compare the runtime difference between the unparallelised and 
 parallelised versions, run:
 
 ```
@@ -46,7 +56,7 @@ parallelised versions, run:
 ...where the seemingly hard-coded number of communities are that specified
 by Leskovec and Krevl [1].
 
-3. To show the parallelised version produced the same community memberships
+5. To show the parallelised version produced the same community memberships
 (not necessarily in the same community order), run:
 
 ```
