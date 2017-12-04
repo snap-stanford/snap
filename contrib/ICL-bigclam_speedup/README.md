@@ -24,9 +24,9 @@ wc -w ./data/*.all.cmty.txt
 ```
 
 
-## Running the code
+## Running the code
 
-Note: While the code is tested to be compilable and running on MacOSX and Linux machines. The effect of parallel computing can only be seen on a Linux machine. We therefore **recommend you to run the following commands on a Linux machine to verify our claims**. 
+Note: While the code is tested to be compilable and running on MacOSX and Linux machines. The effect of parallel computing can only be seen on a Linux machine on our side. We therefore **recommend you to run the following commands on a Linux machine to verify our claims**. 
 
 First compile the code (you need to have `make` and `g++` installed):
 
@@ -62,8 +62,7 @@ parallelized versions, run the following - it is ordered by increasing runtime r
 ./bigclam_old -o:./data/lj_old_ -i:./data/com-lj.ungraph.txt -c:287512
 ```
 
-The seemingly hard-coded number of communities are the number of ground truth communities (see http://snap.stanford.edu/data). You can also ignore the compilation warnings.
-
+The seemingly hard-coded number of communities is the number of ground truth communities (see http://snap.stanford.edu/data).
 
 To show the parallelized version produced the same community memberships
 (which are not necessarily in the same order), run:
@@ -75,8 +74,23 @@ To show the parallelized version produced the same community memberships
 ./cmtycompare -i1:./data/lj_cmtyvv.txt -i2:./data/lj_old_cmtyvv.txt
 ```
 
+You can remove the object files and executables by _either_ doing the shallow clean:
+
+```
+make clean
+```
+
+... or a deep clean, which also remove the object files and executables in the main SNAP library:
+
+```
+make deepclean
+```
+
+
 ## Using Our Experiment Data
 
-You can find the data generated in our experiments in the `experiment_data` directory. The file `parallelize_runtime.csv` contains data generated in the experiment described in Section 5.1 of the paper (showing parallelizing the CA stage speeds up the implementation), and the file `parallelize_speedup_limit_test.csv` contains data generated in the experiment described in Section 5.3 of the paper (exploring the limit in speed up with parallel computing).
+You can find the data generated in our experiments in the `experiment_data` directory. 
 
-We also have a number of R scripts / Jupyter Notebook generating the figures and table featured in the paper. We will shortly update the file with the required dependencies, but they are more or less the standard ones (R: ggplot2 and reshape2, Python: Numpy, Pandas, Matplotlib, Scipy, and Jupyter). 
+The file `parallelize_runtime.csv` contains data generated in the experiment described in Section 5.1 of the paper (showing parallelizing the CA stage speeds up the implementation), and the file `parallelize_speedup_limit_test.csv` contains data generated in the experiment described in Section 5.3 of the paper (exploring the limit in speed up with parallel computing).
+
+We also have a number of R scripts / Jupyter Notebook generating the figures and table featured in the paper. We will shortly update this file with a handy dependency installation script, though the dependencies are more or less the standard ones (R: ggplot2 and reshape2, Python: Numpy, Pandas, Matplotlib, Scipy, and Jupyter).
