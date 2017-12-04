@@ -23,6 +23,7 @@ which is used to calculate r in Table 2, run the following:
 wc -w ./data/*.all.cmty.txt
 ```
 
+
 ## Running the code
 
 Note: While the code is tested to be compilable and running on MacOSX and Linux machines. The effect of parallel computing can only be seen on a Linux machine. We therefore **recommend you to run the following commands on a Linux machine to verify our claims**. 
