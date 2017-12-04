@@ -74,4 +74,8 @@ To show the parallelized version produced the same community memberships
 ./cmtycompare -i1:./data/lj_cmtyvv.txt -i2:./data/lj_old_cmtyvv.txt
 ```
 
+## Using Our Experiment Data
 
+You can find the data generated in our experiments in the `experiment_data` directory. The file `parallelize_runtime.csv` contains data generated in the experiment described in Section 5.1 of the paper (showing parallelizing the CA stage speeds up the implementation), and the file `parallelize_speedup_limit_test.csv` contains data generated in the experiment described in Section 5.3 of the paper (exploring the limit in speed up with parallel computing).
+
+We also have a number of R scripts / Jupyter Notebook generating the figures and table featured in the paper. We will shortly update the file with the required dependencies, but they are more or less the standard ones (R: ggplot2 and reshape2, Python: Numpy, Pandas, Matplotlib, Scipy, and Jupyter). 
