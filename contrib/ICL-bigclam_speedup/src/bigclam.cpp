@@ -1,4 +1,5 @@
-// bigclam.cpp : Defines the entry point for the console application.
+// bigclam.cpp : Example program for BigClam - Cluster Affiliation Model
+//               for Big Networks
 //
 #include "stdafx.h"
 #include "agmfast.h"
@@ -19,12 +20,12 @@ int main(int argc, char* argv[]) {
   TExeTm ExeTm;
 
   TStr OutFPrx = 
-    Env.GetIfArgPrefixStr("-o:", "", "Output Graph data prefix");
+    Env.GetIfArgPrefixStr("-o:", "", "Output community affiliation data prefix");
   const TStr InFNm =
     Env.GetIfArgPrefixStr("-i:", "./data/com-amazon.ungraph.txt", 
                           "Input edgelist file name");
   int OptComs = 
-    Env.GetIfArgPrefixInt("-c:", 100, "The number of communities to detect");
+    Env.GetIfArgPrefixInt("-c:", 100, "Number of communities to detect");
   const int NumThreads = 
     Env.GetIfArgPrefixInt("-nt:", 4, "Number of threads for parallelization");
 
@@ -58,14 +59,16 @@ int main(int argc, char* argv[]) {
   uint64 GradientAscentRunTime = TSecTm::GetCurTm().GetAbsSecs() - STime;
  
   // Community association stage
+  printf("\nExtracting community affiliations from matrix...");
   STime = TSecTm::GetCurTm().GetAbsSecs();
   RAGM.GetCmtyVV(EstCmtyVV);
   uint64 CommunityAssociationRunTime = TSecTm::GetCurTm().GetAbsSecs() - STime;
+  printf("completed.\n");
   
   // Dump list of community memberships
   TAGMUtil::DumpCmtyVV(OutFPrx + "cmtyvv.txt", EstCmtyVV, NIDNameH);
   
-  printf("\n\nRuntime breakdown (in full seconds elapsed):\n"
+  printf("\nRuntime breakdown (in full seconds elapsed):\n"
          "- Conductance test stage:\t %" PRIu64 " second(s)\n"
          "- Gradient ascent stage:\t %" PRIu64 " second(s)\n"
          "- Community association stage:\t %" PRIu64 " second(s)\n",
