@@ -26,4 +26,9 @@ gunzip ./data/com-lj.all.cmty.txt.gz --force
 curl https://snap.stanford.edu/data/bigdata/communities/com-youtube.all.cmty.txt.gz > ./data/com-youtube.all.cmty.txt.gz
 gunzip ./data/com-youtube.all.cmty.txt.gz --force
 
+curl https://snap.stanford.edu/data/bigdata/communities/com-friendster.all.cmty.txt.gz > ./data/com-friendster.all.cmty.txt.gz
+gunzip ./data/com-friendster.all.cmty.txt.gz --force
+
+curl https://snap.stanford.edu/data/bigdata/communities/com-orkut.all.cmty.txt.gz > ./data/com-orkut.all.cmty.txt.gz
+gunzip ./data/com-orkut.all.cmty.txt.gz --force
 

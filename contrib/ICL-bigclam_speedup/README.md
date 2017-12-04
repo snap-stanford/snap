@@ -1,9 +1,10 @@
 # Speeding Up BigClam Implementation on SNAP
 
+
 C.H. Bryan Liu, Benjamin Paul Chamberlain
-----------------------------------------------------------
 
 We perform a detailed analysis of the C++ implementation of the Cluster Affiliation Model for Big Networks (BigClam) on the Stanford Network Analysis Project (SNAP). BigClam is a popular graph mining algorithm that is capable of finding overlapping communities in networks containing millions of nodes. Our analysis shows a key stage of the algorithm - determining if a node belongs to a community - dominates the runtime of the implementation, yet the computation is not parallelized. We show that by parallelizing computations across multiple threads using OpenMP we can speed up the algorithm by 5.3 times when solving large networks for communities, while preserving the integrity of the program and the result.
+
 
 ## Setup
 
@@ -12,6 +13,8 @@ We provide a script to load the SNAP network datasets:
 ```
 ./load_data.sh
 ```
+
+The script requires ~600MB of network traffic and ~1700MB of disk space. 
 
 To get the total number of community affiliations in each network,
 which is used to calculate r in Table 2, run the following:
@@ -22,7 +25,7 @@ wc -w ./data/*.all.cmty.txt
 
 ## Running the code
 
-Note: While the implementation is tested to be running on both MacOSX and Linux, the effect of parallelization is currently only seen on a Linux machine. We therefore *recommend you to compile and run the program on a Linux machine to verify our claims*.
+Note: While the code is tested to be compilable and running on MacOSX and Linux machines. The effect of parallel computing can only be seen on a Linux machine. We therefore **recommend you to run the following commands on a Linux machine to verify our claims**. 
 
 First compile the code:
 
@@ -65,10 +68,10 @@ To show the parallelized version produced the same community memberships
 (which are not necessarily in the same order), run:
 
 ```
-./cmtycompare -i1:dblp_cmtyvv.txt -i2:dblp_old_cmtyvv.txt
-./cmtycompare -i1:amazon_cmtyvv.txt -i2:amazon_old_cmtyvv.txt
-./cmtycompare -i1:youtube_cmtyvv.txt -i2:youtube_old_cmtyvv.txt
-./cmtycompare -i1:youtbe_cmtyvv.txt -i2:youtube_old_cmtyvv.txt
+./cmtycompare -i1:./data/dblp_cmtyvv.txt -i2:./data/dblp_old_cmtyvv.txt
+./cmtycompare -i1:./data/amazon_cmtyvv.txt -i2:./data/amazon_old_cmtyvv.txt
+./cmtycompare -i1:./data/youtube_cmtyvv.txt -i2:./data/youtube_old_cmtyvv.txt
+./cmtycompare -i1:./data/lj_cmtyvv.txt -i2:./data/lj_old_cmtyvv.txt
 ```
 
 
