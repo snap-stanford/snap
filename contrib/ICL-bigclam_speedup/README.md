@@ -27,7 +27,7 @@ wc -w ./data/*.all.cmty.txt
 
 Note: While the code is tested to be compilable and running on MacOSX and Linux machines. The effect of parallel computing can only be seen on a Linux machine. We therefore **recommend you to run the following commands on a Linux machine to verify our claims**. 
 
-First compile the code:
+First compile the code (you need to have `make` and `g++` installed):
 
 ```
 make all
