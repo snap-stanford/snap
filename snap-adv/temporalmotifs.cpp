@@ -139,7 +139,7 @@ void TempMotifCounter::Count3TEdge23Node(double delta, Counter2D& counts) {
   counts(1, 1) = mid_counts(1, 0, 0);
   counts(1, 4) = pos_counts(1, 0, 0);
   counts(1, 5) = pos_counts(1, 0, 1);
-  counts(2, 0) = mid_counts(0, 0, 1);
+  counts(2, 0) = mid_counts(0, 1, 0);
   counts(2, 1) = mid_counts(0, 1, 1);
   counts(2, 2) = pos_counts(0, 1, 0);
   counts(2, 3) = pos_counts(0, 1, 1);
