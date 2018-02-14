@@ -184,7 +184,7 @@ PNEANet KNNJaccard(PNGraph Graph, int K) {
   PNEANet KNN = TNEANet::New();
 
   int sum_neighbors = 0;
-  int ct;
+  int ct = 0;
   int end;
   end = Graph->GetNodes();
   TIntV* Neighbors_old = new TIntV();

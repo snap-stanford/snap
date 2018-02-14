@@ -46,15 +46,18 @@ PUNGraph GenRndPowerLaw(const int& Nodes, const double& PowerExp, const bool& Co
     // use configuration model -- fast but does not exactly obey the degree sequence
     return GenConfModel(DegSeqV, Rnd);
   } else {
+    DegSeqV.Sort();
+    DegSeqV.Reverse();
     PUNGraph G = TSnap::GenDegSeq(DegSeqV, Rnd);
     return TSnap::GenRewire(G, 10, Rnd);
   }
 }
 
-/// Generates a random graph with exact degree sequence DegSeqV.
-/// The generated graph has no self loops. The graph generation process
-/// simulates the Configuration Model but if a duplicate edge occurs, we find a
-/// random edge, break it and reconnect it with the duplicate.
+/// Generates a random graph with exact degree sequence \c DegSeqV. \c DegSeqV
+/// must be sorted in descending order. The generated graph has no self loops.
+/// The graph generation process simulates the Configuration Model,
+/// but if a duplicate edge occurs, we find a random edge, break it and
+/// reconnect it with the duplicate.
 PUNGraph GenDegSeq(const TIntV& DegSeqV, TRnd& Rnd) {
   const int Nodes = DegSeqV.Len();
   PUNGraph GraphPt = TUNGraph::New();

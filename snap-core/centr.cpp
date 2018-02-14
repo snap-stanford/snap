@@ -687,8 +687,8 @@ int findMinimum(TIntV& Frontier, TIntFltH& NIdDistH) {
   int min_index = 0;
   for (int i = 0; i < Frontier.Len(); i++) {
     int NId = Frontier.GetVal(i);
-    if (NIdDistH[NId] < minimum) {
-      minimum = NIdDistH[NId];
+    if (NIdDistH.GetDat(NId) < minimum) {
+      minimum = NIdDistH.GetDat(NId);
       min_index = i;
     }
   }
@@ -714,8 +714,8 @@ const PNEANet Graph, const int& SrcNId, TIntFltH& NIdDistH, const TFltV& Attr) {
         NIdDistH.AddDat(DstNId, NIdDistH.GetDat(NId) + Attr[EId]);
         frontier.Add(DstNId);
       } else {
-        if (NIdDistH[DstNId] > NIdDistH.GetDat(NId) + Attr[EId]) {
-          NIdDistH[DstNId] = NIdDistH.GetDat(NId) + Attr[EId]; 
+        if (NIdDistH.GetDat(DstNId) > NIdDistH.GetDat(NId) + Attr[EId]) {
+          NIdDistH.GetDat(DstNId) = NIdDistH.GetDat(NId) + Attr[EId]; 
         }
       }
     }
