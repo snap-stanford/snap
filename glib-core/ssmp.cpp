@@ -163,27 +163,33 @@ int TSsParserMP::GetIntFromFldV(TVec<char*>& FieldsV, const int& FldN) {
     c++; 
   }
   if (Minus) { _Val = -_Val; }
-  //if (*c != 0) { return -1; }
+  if (*c != 0  &&  !TCh::IsWs(*c)) { return -1; }
   return _Val;
 }
 
 double TSsParserMP::GetFltFromFldV(TVec<char*>& FieldsV, const int& FldN) {
   // parsing format {ws} [+/-] +{d} ([.]{d}) ([E|e] [+/-] +{d})
   const char *c = FieldsV[FldN];
+  /* skip whitespace at the beginning */
   while (TCh::IsWs(*c)) { c++; }
+  /* skip the sign */
   if (*c=='+' || *c=='-') { c++; }
+  /* error, if not a digit or '.' */
   if (! TCh::IsNum(*c) && *c!='.') { return -1; }
+  /* skip digits */
   while (TCh::IsNum(*c)) { c++; }
   if (*c == '.') {
     c++;
     while (TCh::IsNum(*c)) { c++; }
   }
+  /* skip exponent */
   if (*c=='e' || *c == 'E') {
     c++;
     if (*c == '+' || *c == '-' ) { c++; }
     if (! TCh::IsNum(*c)) { return -1; }
     while (TCh::IsNum(*c)) { c++; }
   }
-  if (*c != 0) { return -1; }
+  if (*c != 0  &&  !TCh::IsWs(*c)) { return -1; }
   return atof(FieldsV[FldN]);
 }
+
