@@ -94,6 +94,11 @@ void TestFullBfsDfs() {
     EXPECT_TRUE(FullDiam == 1);
     EXPECT_TRUE(AvgDiam > 0.9980 - EPSILON && AvgDiam < 0.9980 + EPSILON);
     
+    EffDiam = GetBfsEffDiamAll (G, NTestNodes, IsDir, EffDiam, FullDiam, AvgDiam);
+    EXPECT_TRUE(EffDiam > 0.8 - EPSILON && EffDiam < 0.95 + EPSILON);
+    EXPECT_TRUE(FullDiam == 1);
+    EXPECT_TRUE(AvgDiam > 0.9980 - EPSILON && AvgDiam < 0.9980 + EPSILON);
+    
     TIntV SubGraphNIdV;
     for (int i = 0; i < NTestNodes; i++) {
       SubGraphNIdV.Add(G->GetRndNId());

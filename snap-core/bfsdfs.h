@@ -27,9 +27,11 @@ template <class PGraph> int GetBfsFullDiam(const PGraph& Graph, const int& NTest
 template <class PGraph> double GetBfsEffDiam(const PGraph& Graph, const int& NTestNodes, const bool& IsDir=false);
 /// Returns the (approximation of the) Effective Diameter and the Diameter of a graph (by performing BFS from NTestNodes random starting nodes). ##GetBfsEffDiam2
 template <class PGraph> double GetBfsEffDiam(const PGraph& Graph, const int& NTestNodes, const bool& IsDir, double& EffDiamX, int& FullDiamX);
-/// Returns the (approximation of the) Effective Diameter, the Diameter and the Average Shortest Path length in a graph (by performing BFS from NTestNodes random starting nodes). GetBfsEffDiam3
+/// Returns the (approximation of the) Effective Diameter, the Diameter and the Average Shortest Path length in a graph (by performing BFS from NTestNodes random starting nodes). ##GetBfsEffDiam3
 template <class PGraph> double GetBfsEffDiam(const PGraph& Graph, const int& NTestNodes, const bool& IsDir, double& EffDiamX, int& FullDiamX, double& AvgSPLX);
-/// Use the whole graph (all edges) to measure the shortest path lengths but only report the path lengths between nodes in the SubGraphNIdV. GetBfsEffDiam4
+/// Returns the (approximation of the) Effective Diameter, the Diameter and the Average Shortest Path length in a graph (by performing BFS from NTestNodes random starting nodes). ##GetBfsEffDiamAll
+template <class PGraph> double GetBfsEffDiamAll(const PGraph& Graph, const int& NTestNodes, const bool& IsDir, double& EffDiamX, int& FullDiamX, double& AvgSPLX);
+/// Use the whole graph (all edges) to measure the shortest path lengths but only report the path lengths between nodes in the SubGraphNIdV. ##GetBfsEffDiam4
 template <class PGraph> double GetBfsEffDiam(const PGraph& Graph, const int& NTestNodes, const TIntV& SubGraphNIdV, const bool& IsDir, double& EffDiamX, int& FullDiamX);
 
 // TODO: Implement in the future
@@ -433,6 +435,11 @@ double GetBfsEffDiam(const PGraph& Graph, const int& NTestNodes, const bool& IsD
   FullDiam = DistNbrsPdfV.Last().Key;                // approximate full diameter (max shortest path length over the sampled nodes)
   AvgSPL = SumPathL/PathCnt;                        // average shortest path length
   return EffDiam;
+}
+
+template <class PGraph>
+double GetBfsEffDiamAll(const PGraph& Graph, const int& NTestNodes, const bool& IsDir, double& EffDiam, int& FullDiam, double& AvgSPL) {
+  return GetBfsEffDiam(Graph, NTestNodes, IsDir, EffDiam, FullDiam, AvgSPL);
 }
 
 template <class PGraph>

@@ -39,14 +39,12 @@
   @param IsDir false: ignore edge directions and consider edges/paths as undirected (in case they are directed).
 ///
 
+/// GetBfsEffDiamAll
+  This function is a duplicate. It is required by Snap.py.
+  @param IsDir false: ignore edge directions and consider edges/paths as undirected (in case they are directed).
+///
+
 /// GetBfsEffDiam4
 @param IsDir false: ignore edge directions and consider edges/paths as undirected (in case they are directed).
 ///
-
-
-
-
-
-
-
 
