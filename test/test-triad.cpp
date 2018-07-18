@@ -379,6 +379,9 @@ TEST(triad, TestGetNodeCOTriads) {
     TSnap::GetNodeTriads(GraphTUN, i, ClosedTr, OpenTr);
     VerifyClosedTriads(i, ClosedTr);
     VerifyOpenTriads(i, OpenTr);
+    TSnap::GetNodeTriadsAll(GraphTUN, i, ClosedTr, OpenTr);
+    VerifyClosedTriads(i, ClosedTr);
+    VerifyOpenTriads(i, OpenTr);
   }
   
   // Test TNGraph which is treated same as undirected.
@@ -388,6 +391,9 @@ TEST(triad, TestGetNodeCOTriads) {
     TSnap::GetNodeTriads(GraphTN, i, ClosedTr, OpenTr);
     VerifyClosedTriads(i, ClosedTr);
     VerifyOpenTriads(i, OpenTr);
+    TSnap::GetNodeTriadsAll(GraphTN, i, ClosedTr, OpenTr);
+    VerifyClosedTriads(i, ClosedTr);
+    VerifyOpenTriads(i, OpenTr);
   }
 
   // Test TNEGraph which is treated same as undirected.
@@ -395,6 +401,9 @@ TEST(triad, TestGetNodeCOTriads) {
   for (int i = 0; i < GraphTNE->GetNodes(); i++) {
     int ClosedTr = -1, OpenTr = -1;
     TSnap::GetNodeTriads(GraphTNE, i, ClosedTr, OpenTr);
+    VerifyClosedTriads(i, ClosedTr);
+    VerifyOpenTriads(i, OpenTr);
+    TSnap::GetNodeTriadsAll(GraphTNE, i, ClosedTr, OpenTr);
     VerifyClosedTriads(i, ClosedTr);
     VerifyOpenTriads(i, OpenTr);
   }

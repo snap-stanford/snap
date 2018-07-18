@@ -34,6 +34,8 @@ template <class PGraph> int GetTriadEdges(const PGraph& Graph, int SampleEdges=-
 template <class PGraph> int GetNodeTriads(const PGraph& Graph, const int& NId);
 /// Returns number of Open and Closed triads a node \c NId participates in. ##TSnap::GetNodeTriads1
 template <class PGraph> int GetNodeTriads(const PGraph& Graph, const int& NId, int& ClosedNTriadsX, int& OpenNTriadsX);
+/// Returns number of Open and Closed triads a node \c NId participates in. ##TSnap::GetNodeTriadsAll
+template <class PGraph> int GetNodeTriadsAll(const PGraph& Graph, const int& NId, int& ClosedNTriadsX, int& OpenNTriadsX);
 /// Returns the number of triads between a node \c NId and a subset of its neighbors \c GroupSet. ##TSnap::GetNodeTriads3
 template <class PGraph>
 int GetNodeTriads(const PGraph& Graph, const int& NId, const TIntSet& GroupSet, int& InGroupEdgesX, int& InOutGroupEdgesX, int& OutGroupEdgesX);
@@ -563,6 +565,11 @@ int GetNodeTriads(const PGraph& Graph, const int& NId, int& ClosedTriads, int& O
     }
   }
   return ClosedTriads;
+}
+
+template <class PGraph>
+int GetNodeTriadsAll(const PGraph& Graph, const int& NId, int& ClosedTriads, int& OpenTriads) {
+  return GetNodeTriads(Graph, NId, ClosedTriads, OpenTriads);
 }
 
 // Node NId and a subset of its neighbors GroupSet

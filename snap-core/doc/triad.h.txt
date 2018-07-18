@@ -71,6 +71,15 @@ Considers the graph as undirected.
 @param OpenNTriadsX On return contains the number of open triads
 ///
 
+/// TSnap::GetNodeTriadsAll
+Considers the graph as undirected.
+This function is a duplicate. It is required by Snap.py.
+@param Graph Input graph
+@param NId Input node
+@param ClosedNTriadsX On return contains the number of closed triads
+@param OpenNTriadsX On return contains the number of open triads
+///
+
 /// TSnap::GetNodeTriads3
 Considers the graph as undirected.
 @param Graph Input graph
