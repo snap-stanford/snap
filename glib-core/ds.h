@@ -1567,6 +1567,7 @@ typedef TVec<TStrVIntPr> TStrVIntPrV;
 typedef TVec<TFltIntIntIntQu> TFltIntIntIntQuV;
 typedef TVec<TIntStrIntIntQu> TIntStrIntIntQuV;
 typedef TVec<TIntIntPrPr> TIntIntPrPrV;
+typedef TVec<TFltV> TFltVFltV;
 
 //#//////////////////////////////////////////////
 /// Vector Pool. ##TVecPool

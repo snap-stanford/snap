@@ -258,7 +258,7 @@ void GetSngVec(const PNGraph& Graph, TFltV& LeftSV, TFltV& RightSV) {
   IsAllValVNeg(RightSV, true);
 }
 
-void GetSngVec(const PNGraph& Graph, const int& SngVecs, TFltV& SngValV, TVec<TFltV>& LeftSV, TVec<TFltV>& RightSV) {
+void GetSngVec(const PNGraph& Graph, const int& SngVecs, TFltV& SngValV, TFltVFltV& LeftSV, TFltVFltV& RightSV) {
   const int Nodes = Graph->GetNodes();
   SngValV.Clr();
   LeftSV.Clr();
@@ -343,7 +343,8 @@ void GetEigVec(const PUNGraph& Graph, TFltV& EigVecV) {
 }
 
 // to get first few eigenvectors
-void GetEigVec(const PUNGraph& Graph, const int& EigVecs, TFltV& EigValV, TVec<TFltV>& EigVecV) {
+//void GetEigVec(const PUNGraph& Graph, const int& EigVecs, TFltV& EigValV, TVec<TFltV>& EigVecV) {
+void GetEigVec(const PUNGraph& Graph, const int& EigVecs, TFltV& EigValV, TFltVFltV& EigVecV) {
   const int Nodes = Graph->GetNodes();
   // Lanczos
   TUNGraphMtx GraphMtx(Graph);
