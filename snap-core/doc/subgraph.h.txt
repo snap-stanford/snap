@@ -5,6 +5,13 @@ Node IDs are preserved. Nodes in the resulting subgraph have the same node
 IDs as nodes in Graph.
 ///
 
+/// TSnap::GetSubGraphRenumber
+The resulting subgraph contains all the nodes from Graph, which have
+node IDs in the NIdV vector and all the edges with both nodes in NIdV.
+The nodes in the resulting subgraph are renumbered sequentially from 0 to N-1.
+This function is required by Snap.py.
+///
+
 /// TSnap::GetSubGraph-1
 The resulting subgraph contains all the nodes from Graph, which have
 node IDs in the NIdV vector and all the edges with both nodes in NIdV.

@@ -14,6 +14,7 @@ TEST(subgraph, TestSubTUNGraphs) {
   PUNGraph Graph1;
   PUNGraph Graph2;
   PUNGraph Graph3;
+  PUNGraph Graph4;
   int i;
   TIntV NIdV;
   TIntV NIdV1;
@@ -41,6 +42,10 @@ TEST(subgraph, TestSubTUNGraphs) {
   Graph3 = TSnap::GetSubGraph(Graph, NIdV1, true);
   EXPECT_EQ(10,Graph3->GetNodes());
   EXPECT_EQ(10,Graph3->GetEdges());
+
+  Graph4 = TSnap::GetSubGraphRenumber(Graph, NIdV1);
+  EXPECT_EQ(10,Graph4->GetNodes());
+  EXPECT_EQ(10,Graph4->GetEdges());
 }
 
 // Test subgraphs
@@ -49,6 +54,7 @@ TEST(subgraph, TestSubTNGraphs) {
   PNGraph Graph1;
   PNGraph Graph2;
   PNGraph Graph3;
+  PNGraph Graph4;
   int i;
   TIntV NIdV;
   TIntV NIdV1;
@@ -76,6 +82,10 @@ TEST(subgraph, TestSubTNGraphs) {
   Graph3 = TSnap::GetSubGraph(Graph, NIdV1, true);
   EXPECT_EQ(10,Graph3->GetNodes());
   EXPECT_EQ(10,Graph3->GetEdges());
+
+  Graph4 = TSnap::GetSubGraphRenumber(Graph, NIdV1);
+  EXPECT_EQ(10,Graph4->GetNodes());
+  EXPECT_EQ(10,Graph4->GetEdges());
 }
 
 // Test subgraphs

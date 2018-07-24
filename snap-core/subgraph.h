@@ -11,6 +11,8 @@ namespace TSnap {
 // node subgraphs
 /// Returns an induced subgraph of graph Graph with NIdV nodes. ##TSnap::GetSubGraph
 template<class PGraph> PGraph GetSubGraph(const PGraph& Graph, const TIntV& NIdV);
+/// Returns an induced subgraph of graph Graph with NIdV nodes with an node renumbering. ##TSnap::GetSubGraph
+template<class PGraph> PGraph GetSubGraphRenumber(const PGraph& Graph, const TIntV& NIdV);
 /// Returns an induced subgraph of an undirected graph Graph with NIdV nodes with an optional node renumbering. ##TSnap::GetSubGraph-1
 PUNGraph GetSubGraph(const PUNGraph& Graph, const TIntV& NIdV, const bool& RenumberNodes=false);
 // Returns an induced subgraph of a directed graph Graph with NIdV nodes with an optional node renumbering. ##TSnap::GetSubGraph-2
@@ -112,6 +114,11 @@ template<class PGraph>
 PGraph GetSubGraph(const PGraph& Graph, const TIntV& NIdV) {
   return TSnapDetail::TGetSubGraph<PGraph, HasGraphFlag(typename PGraph::TObj, gfMultiGraph)>
     ::Do(Graph, NIdV);
+}
+
+template<class PGraph>
+PGraph GetSubGraphRenumber(const PGraph& Graph, const TIntV& NIdV) {
+  return GetSubGraph(Graph, NIdV, true);
 }
 
 template<class PGraph> 

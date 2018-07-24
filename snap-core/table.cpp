@@ -1225,7 +1225,7 @@ void TTable::GroupingSanityCheck(const TStr& GroupBy, const TAttrType& AttrType)
 void TTable::GroupByIntColMP(const TStr& GroupBy, THashMP<TInt, TIntV>& Grouping, TBool UsePhysicalIds) const {
   timeval timer0;
   gettimeofday(&timer0, NULL);
-  double t1 = timer0.tv_sec + (timer0.tv_usec/1000000.0);
+  //double t1 = timer0.tv_sec + (timer0.tv_usec/1000000.0);
   //printf("X\n");
   TInt IdColIdx = GetColIdx(IdColName);
   TInt GroupByColIdx = GetColIdx(GroupBy);
@@ -1256,8 +1256,8 @@ void TTable::GroupByIntColMP(const TStr& GroupBy, THashMP<TInt, TIntV>& Grouping
     }
   }
   gettimeofday(&timer0, NULL);
-  double t2 = timer0.tv_sec + (timer0.tv_usec/1000000.0);
-  printf("Grouping time: %f\n", t2 - t1);
+  //double t2 = timer0.tv_sec + (timer0.tv_usec/1000000.0);
+  //printf("Grouping time: %f\n", t2 - t1);
   //double endAdd = omp_get_wtime();
   //printf("Add time = %f\n", endAdd-endGen);
 }
