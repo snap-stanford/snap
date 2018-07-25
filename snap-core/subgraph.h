@@ -147,17 +147,18 @@ PGraph GetESubGraph(const PGraph& Graph, const TIntPrV& EdgeV) {
   PGraph NewGraphPt = PGraph::TObj::New();
   typename PGraph::TObj& NewGraph = *NewGraphPt;
   NewGraph.Reserve(-1, EdgeV.Len());
+
   for (int edge = 0; edge < EdgeV.Len(); edge++) {
     const int SrcNId = EdgeV[edge].Val1;
     const int DstNId = EdgeV[edge].Val2;
-    const typename PGraph::TObj::TEdgeI EI = Graph->GetEI(SrcNId, DstNId);
-    if (! NewGraph.IsNode(EI.GetSrcNId())) {
-      NewGraph.AddNode(Graph->GetNI(EI.GetSrcNId())); 
+    if (! NewGraph.IsNode(SrcNId)) {
+      NewGraph.AddNode(Graph->GetNI(SrcNId)); 
     }
-    if (! NewGraph.IsNode(EI.GetDstNId())) {
-      NewGraph.AddNode(Graph->GetNI(EI.GetDstNId())); 
+    if (! NewGraph.IsNode(DstNId)) {
+      NewGraph.AddNode(Graph->GetNI(DstNId)); 
     }
-    NewGraph.AddEdge(EI);
+
+    NewGraph.AddEdge(SrcNId, DstNId);
   }
   return NewGraphPt;
 }
