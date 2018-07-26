@@ -1,5 +1,7 @@
+Release Notes for SNAP
+
 Stanford Network Analysis Platform (SNAP) is a general purpose, high
-performance system for graph and network manipulation and analysis
+performance system for graph and network manipulation and analysis.
 
 This file contains a high-level description of changes in SNAP releases.
 
