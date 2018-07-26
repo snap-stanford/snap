@@ -3,6 +3,30 @@ performance system for graph and network manipulation and analysis
 
 This file contains a high-level description of changes in SNAP releases.
 
+Release 4.1, Jul 25, 2018
+
+This is a minor release and brings several bug fixes and improvements.
+
+Here is a detailed list:
+
+- fixed the parsing of floating point numbers in TSsParserMP
+- fixed bugs in temporal motif counting, ignore self loops
+- fixed a bug in GetWeightedShortestPath()
+- fixed a bug in GenRndPowerLaw(), GenDegSeq() requires a sorted vector
+- fixed a crash in GetESubGraph() for multigraphs
+- improved LoadPajek(), so that it can read edges without weights
+- improved the parsing of integers in TSsParserMP
+- improved the quality of word2vec embeddings
+- added a flag for random walk output in node2vec
+- defined a new type TFltVFltV for TVec<TFltV>
+- fixed compilation errors and a few compilation warnings on macOS
+- implemented GetSubGraphRenumber(), which is required by Snap.py
+- implemented GetNodeTriadsAll(), which is needed by Snap.py
+- implemented GetBfsEffDiamAll(), which is needed by Snap.py
+- implemented GetClustCfAll(), which is needed by Snap.py
+- implemented GetTriadsAll(), which is needed by Snap.py
+- added 'const' to node2vec code to make it work with Snap.py
+
 Release 4.0, Jul 27, 2017
 
 This is a major release and brings significant new functionality: local
