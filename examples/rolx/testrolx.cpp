@@ -23,8 +23,8 @@ int main(int argc, char* argv[]) {
   TIntFtrH Features = ExtractFeatures(Graph);
   TIntIntH NodeIdMtxIdH = CreateNodeIdMtxIdxHash(Features);
   TFltVV V = ConvertFeatureToMatrix(Features, NodeIdMtxIdH);
-  //printf("saving features...\n");
-  //FPrintMatrix(V, "v.txt");
+  printf("saving features...\n");
+  FPrintMatrix(V, "v.txt");
   printf("feature matrix is saved in v.txt\n");
   TFlt MnError = TFlt::Mx;
   TFltVV FinalG, FinalF;
