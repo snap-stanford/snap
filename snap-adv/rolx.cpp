@@ -448,6 +448,17 @@ void FPrintMatrix(const TFltVV& Matrix, const TStr& Path) {
   fclose(Fp);
 }
 
+void FPrintNodeMappings(const TIntIntH& NodeIdMtxIdxH, const TStr& Path) {
+  FILE *Fp;
+  Fp = fopen(Path.CStr(), "w");
+  fprintf(Fp, "# mappings from the feature line numbers to node IDs\n");
+  for (int i = 0; i < NodeIdMtxIdxH.Len(); i++) {
+    int NodeId = GetNodeId(i, NodeIdMtxIdxH);
+    fprintf(Fp, "%d %d\n", i, NodeId);
+  }
+  fclose(Fp);
+}
+
 void FPrintRoles(const TIntIntH& Roles, const TStr& Path) {
   FILE *Fp;
   Fp = fopen(Path.CStr(), "w");

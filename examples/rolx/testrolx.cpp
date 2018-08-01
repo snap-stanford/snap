@@ -26,6 +26,9 @@ int main(int argc, char* argv[]) {
   printf("saving features...\n");
   FPrintMatrix(V, "v.txt");
   printf("feature matrix is saved in v.txt\n");
+  printf("saving node mappings: feature line -> node ID...\n");
+  FPrintNodeMappings(NodeIdMtxIdH, "mappings.txt");
+  printf("node mappings are saved to mappings.txt\n");
   TFlt MnError = TFlt::Mx;
   TFltVV FinalG, FinalF;
   int NumRoles = -1;
