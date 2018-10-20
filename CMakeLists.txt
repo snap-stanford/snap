@@ -16,9 +16,18 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     if(CYGWIN)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -O3 -DNDEBUG -D__STDC_LIMIT_MACROS -fmax-errors=1")
     else()
-        add_definitions(/Ddrand48=rand /Dnot=!)
-        set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
-        set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MT")
+        # Some unix functions are assumed to be available in many sources, but not defined on windows.
+        # This adds declarations in all sources
+        add_definitions(/D_CRT_RAND_S)
+        set(COMPAT_HEADER_FLAG "/FI${CMAKE_SOURCE_DIR}/cmake/windows_compat.h")
+        set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT ${COMPAT_HEADER_FLAG}")
+        set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MT ${COMPAT_HEADER_FLAG}")
+        # And the definition is added to all binaries.
+        add_library(windowsCompat 
+            ${CMAKE_SOURCE_DIR}/cmake/windows_compat.h
+            ${CMAKE_SOURCE_DIR}/cmake/windows_compat.cpp
+        )
+        link_libraries(windowsCompat)
     endif(CYGWIN)
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -O3 -DNDEBUG -Wno-unknown-pragmas -fmax-errors=1")

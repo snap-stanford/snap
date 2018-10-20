@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "Snap.h"
 #include<iostream>
-#include<string>
 using namespace std;
 
 const std::string currentDateTime() {
