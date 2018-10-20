@@ -1,3 +1,4 @@
+set(APPNAME coda)
 set(SOURCES
     coda.cpp
     ${SNAPADV_SOURCE_DIR}/agm.h
@@ -10,8 +11,10 @@ set(SOURCES
     ${SNAPADV_SOURCE_DIR}/agmdirected.cpp
 )
 
-add_snap_example(coda SOURCES)
+add_snap_example(${APPNAME} SOURCES)
 
-target_compile_options(coda
-    PUBLIC -fopenmp
-)
+if(CMAKE_HOST_WIN32)
+target_compile_options(${APPNAME} PRIVATE /openmp)
+else()
+target_compile_options(${APPNAME} PRIVATE -fopenmp)
+endif(CMAKE_HOST_WIN32)

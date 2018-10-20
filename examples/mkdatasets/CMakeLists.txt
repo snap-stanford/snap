@@ -1,5 +1,6 @@
+set(APPNAME mkdatasets)
 set(SOURCES
     mkdatasets.cpp
 )
 
-add_snap_example(mkdatasets SOURCES)
+add_snap_example(${APPNAME} SOURCES)

@@ -1,3 +1,4 @@
+set(APPNAME node2vec)
 set(SOURCES
     node2vec.cpp
     ${SNAPADV_SOURCE_DIR}/n2v.h
@@ -8,8 +9,10 @@ set(SOURCES
     ${SNAPADV_SOURCE_DIR}/biasedrandomwalk.cpp
 )
 
-add_snap_example(node2vec SOURCES)
+add_snap_example(${APPNAME} SOURCES)
 
-target_compile_options(node2vec
-    PUBLIC -fopenmp
-)
+if(CMAKE_HOST_WIN32)
+target_compile_options(${APPNAME} PRIVATE /openmp)
+else()
+target_compile_options(${APPNAME} PRIVATE -fopenmp)
+endif(CMAKE_HOST_WIN32)

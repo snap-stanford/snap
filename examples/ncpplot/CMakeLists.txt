@@ -1,7 +1,8 @@
+set(APPNAME ncpplot)
 set(SOURCES
     ncpplot.cpp
     ${SNAPADV_SOURCE_DIR}/ncp.h
     ${SNAPADV_SOURCE_DIR}/ncp.cpp
 )
 
-add_snap_example(ncpplot SOURCES)
+add_snap_example(${APPNAME} SOURCES)

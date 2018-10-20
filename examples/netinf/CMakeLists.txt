@@ -1,7 +1,8 @@
+set(APPNAME netinf)
 set(SOURCES
     netinf.cpp
     ${SNAPADV_SOURCE_DIR}/cascnetinf.h
     ${SNAPADV_SOURCE_DIR}/cascnetinf.cpp
 )
 
-add_snap_example(netinf SOURCES)
+add_snap_example(${APPNAME} SOURCES)

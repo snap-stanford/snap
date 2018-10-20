@@ -1,5 +1,6 @@
+set(APPNAME knnjaccardsim)
 set(SOURCES
     knnjaccardsim.cpp
 )
 
-add_snap_example(knnjaccardsim SOURCES)
+add_snap_example(${APPNAME} SOURCES)

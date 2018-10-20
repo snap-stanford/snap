@@ -1,4 +1,4 @@
-set(demoFiles
+set(demo_SOURCES
     demo-TUNGraph
     demo-TNGraph
     demo-TNEGraph
@@ -13,22 +13,27 @@ set(demoFiles
     demo-subgraph
     demo-ggen
     demo-gio
-    demo-gviz
     demo-alg
-    demo-cncom
     demo-cncom1
-    demo-bfsdfs
     demo-triad
     demo-THash
     demo-topology-benchmark
-    demo-hashvec-benchmark
     demo-TSsParser
 )
+if(CMAKE_HOST_WIN32)
+else()
+    set(demo_SOURCES ${test_SOURCES}
+        demo-gviz
+        demo-bfsdfs
+        demo-cncom
+        demo-hashvec-benchmark
+    )
+endif(CMAKE_HOST_WIN32)
 
 # meta target that will build ALL demos
-add_custom_target(tutorials ALL)
+add_custom_target(ALL_TUTORIALS ALL)
 
-foreach(demoFile ${demoFiles})
+foreach(demoFile ${demo_SOURCES})
     string(REPLACE "demo-" "" demoName ${demoFile})
     add_executable(${demoName}
         ${demoFile}.cpp
@@ -41,6 +46,6 @@ foreach(demoFile ${demoFiles})
     target_link_libraries(${demoName}
         snapcore
     )
-    add_dependencies(tutorials ${demoName})
+    add_dependencies(ALL_TUTORIALS ${demoName})
     message("Declared SNAP tutorial ${demoName}")
-endforeach(demoName)
+endforeach(demoFile)

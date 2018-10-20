@@ -1,3 +1,11 @@
+if(CMAKE_HOST_WIN32)
+if(GTEST_ROOT)
+else()
+set(GTEST_ROOT "C:/Program Files/googletest-distribution")
+message("GTEST_ROOT not defined, hinting at ${GTEST_ROOT}")
+endif(GTEST_ROOT)
+endif(CMAKE_HOST_WIN32)
+
 find_package(GTest REQUIRED)
 
 set(test_SOURCES
@@ -17,9 +25,6 @@ set(test_SOURCES
     test-TSysTm.cpp
     test-ggen.cpp
     test-gio.cpp
-    test-gviz.cpp
-    test-cncom.cpp
-    test-bfsdfs.cpp
     test-alg.cpp
     test-triad.cpp
     test-THash.cpp
@@ -30,6 +35,14 @@ set(test_SOURCES
     test-priority-queue.cpp
     test-sim.cpp
 )
+if(CMAKE_HOST_WIN32)
+else()
+    set(test_SOURCES ${test_SOURCES} 
+        test-bfsdfs.cpp
+        test-cncom.cpp
+        test-gviz.cpp
+    )
+endif(CMAKE_HOST_WIN32)
 
 add_executable(run-all-tests
     ${test_SOURCES}
@@ -42,5 +55,5 @@ target_include_directories(run-all-tests SYSTEM
 )
 target_link_libraries(run-all-tests
     snapcore
-    ${GTEST_LIBRARY} ${GTEST_MAIN_LIBRARY}
+    ${GTEST_BOTH_LIBRARIES}
 )

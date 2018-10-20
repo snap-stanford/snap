@@ -1,3 +1,4 @@
+set(APPNAME cesna)
 set(SOURCES
     cesna.cpp
     ${SNAPADV_SOURCE_DIR}/agm.h
@@ -10,8 +11,10 @@ set(SOURCES
     ${SNAPADV_SOURCE_DIR}/agmattr.cpp
 )
 
-add_snap_example(cesna SOURCES)
+add_snap_example(${APPNAME} SOURCES)
 
-target_compile_options(cesna
-    PUBLIC -fopenmp
-)
+if(CMAKE_HOST_WIN32)
+target_compile_options(${APPNAME} PRIVATE /openmp)
+else()
+target_compile_options(${APPNAME} PRIVATE -fopenmp)
+endif(CMAKE_HOST_WIN32)

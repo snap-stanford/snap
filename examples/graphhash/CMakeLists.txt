@@ -1,5 +1,6 @@
+set(APPNAME graphhash)
 set(SOURCES
     graphhash.cpp
 )
 
-add_snap_example(graphhash SOURCES)
+add_snap_example(${APPNAME} SOURCES)

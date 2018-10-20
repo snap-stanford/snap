@@ -1,3 +1,4 @@
+set(APPNAME agmgen)
 set(SOURCES
     agmgen.cpp
     ${SNAPADV_SOURCE_DIR}/agm.h
@@ -6,4 +7,4 @@ set(SOURCES
     ${SNAPADV_SOURCE_DIR}/agmfit.cpp
 )
 
-add_snap_example(agmgen SOURCES)
+add_snap_example(${APPNAME} SOURCES)

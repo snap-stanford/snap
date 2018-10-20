@@ -12,3 +12,4 @@ set(glibcore_SOURCES
 # target_link_libraries(glibcore)
 
 set(GLIBCORE_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR} PARENT_SCOPE)
+

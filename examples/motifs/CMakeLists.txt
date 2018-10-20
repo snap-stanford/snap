@@ -1,3 +1,4 @@
+set(APPNAME motifs)
 set(SOURCES
     motifs.cpp
     ${SNAPADV_SOURCE_DIR}/subgraphenum.h
@@ -6,4 +7,4 @@ set(SOURCES
     ${SNAPADV_SOURCE_DIR}/graphcounter.cpp
 )
 
-add_snap_example(motifs SOURCES)
+add_snap_example(${APPNAME} SOURCES)

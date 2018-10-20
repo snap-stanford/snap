@@ -1,3 +1,4 @@
+set(APPNAME bigclam)
 set(SOURCES
     bigclam.cpp
     ${SNAPADV_SOURCE_DIR}/agm.h
@@ -8,8 +9,10 @@ set(SOURCES
     ${SNAPADV_SOURCE_DIR}/agmfast.cpp
 )
 
-add_snap_example(bigclam SOURCES)
+add_snap_example(${APPNAME} SOURCES)
 
-target_compile_options(bigclam
-    PUBLIC -fopenmp
-)
+if(CMAKE_HOST_WIN32)
+target_compile_options(${APPNAME} PRIVATE /openmp)
+else()
+target_compile_options(${APPNAME} PRIVATE -fopenmp)
+endif(CMAKE_HOST_WIN32)

@@ -1,3 +1,5 @@
+# meta target that will build ALL examples
+add_custom_target(ALL_EXAMPLES ALL)
 
 function(add_snap_example appName sources)
     add_executable(${appName}
@@ -13,8 +15,11 @@ function(add_snap_example appName sources)
         snapcore
         ${${ARGV2}}
     )
+    add_dependencies(ALL_EXAMPLES ${appName})
     message("Declared SNAP example ${appName}")
 endfunction(add_snap_example)
+
+find_package(arpack QUIET)
 
 add_subdirectory(agmfit)
 add_subdirectory(agmgen)
@@ -43,7 +48,11 @@ add_subdirectory(lshtest)
 add_subdirectory(magfit)
 add_subdirectory(maggen)
 add_subdirectory(mkdatasets)
+if(arpack_FOUND)
 add_subdirectory(motifcluster)
+else()
+message("Skipping example 'motifcluster': arpack not found.")
+endif(arpack_FOUND)
 add_subdirectory(motifs)
 add_subdirectory(ncpplot)
 add_subdirectory(netevol)

@@ -1,3 +1,4 @@
+set(APPNAME motifclustermain)
 set(SOURCES
     motifclustermain.cpp
     ${SNAPADV_SOURCE_DIR}/motifcluster.h
@@ -6,10 +7,7 @@ set(SOURCES
 
 set(EXTRA_LIBS arpack)
 
-add_snap_example(motifclustermain SOURCES EXTRA_LIBS)
-target_link_libraries(motifclustermain
-    PUBLIC
-)
-target_compile_definitions(motifclustermain
+add_snap_example(${APPNAME} SOURCES)
+target_compile_definitions(${APPNAME}
     PUBLIC F77_POST
 )
