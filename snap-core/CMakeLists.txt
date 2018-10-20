@@ -8,13 +8,14 @@ set_target_properties(snapcore PROPERTIES LINKER_LANGUAGE CXX)
 target_include_directories(snapcore SYSTEM PUBLIC ${GLIBCORE_INCLUDE_DIRS})
 target_link_libraries(snapcore)
 
+set(SNAPCORE_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR} PARENT_SCOPE)
 
-if(CMAKE_HOST_WIN32)
-# switches SubSystem from Console to Windows
-# and links against windows CRT.
-set(WINTAG WIN32)
-endif(CMAKE_HOST_WIN32)
 ################## testSnap
+
+if(CMAKE_HOST_LINUX)
+set(testSnapLibs rt)
+endif(CMAKE_HOST_LINUX)
+
 add_executable(testSnap
     ${WINTAG}
     testSnap.cpp
@@ -22,5 +23,4 @@ add_executable(testSnap
 target_include_directories(testSnap SYSTEM PUBLIC ${GLIBCORE_INCLUDE_DIRS})
 target_link_libraries(testSnap
     snapcore
-    rt
 )
