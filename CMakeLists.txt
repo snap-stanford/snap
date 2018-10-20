@@ -30,17 +30,12 @@ set(CMAKE_CXX_STANDARD 98)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 add_subdirectory(glib-core)
-###
-#add_subdirectory(snap-adv)
 set(SNAPADV_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/snap-adv")
 set(SNAPADV_SOURCE_DIR "${CMAKE_SOURCE_DIR}/snap-adv")
-###
-###
-#add_subdirectory(snap-exp)
 set(SNAPEXP_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/snap-exp")
 set(SNAPEXP_SOURCE_DIR "${CMAKE_SOURCE_DIR}/snap-exp")
-###
+
 add_subdirectory(snap-core)
 add_subdirectory(examples)
 add_subdirectory(test)
-# add_subdirectory(tutorial)
+add_subdirectory(tutorials)
