@@ -1,7 +1,8 @@
 #pragma once
 
-// msvc has a hard time with this one
-#define not !
+// msvc does not support token for logical operators
+// https://stackoverflow.com/questions/24414124/why-does-vs-not-define-the-alternative-tokens-for-logical-operators
+#include <ciso646>
 
 // sometimes assumed
 #include <string>
