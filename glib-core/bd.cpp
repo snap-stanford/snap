@@ -1,10 +1,9 @@
 #if SW_TRACE
 #include <execinfo.h>
 #endif
-#include <math.h>
+
 /////////////////////////////////////////////////
 // Mathmatical-Errors
-
 #if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__==0x0530)
 int std::_matherr(struct math_exception* e){
   e->retval=0;
