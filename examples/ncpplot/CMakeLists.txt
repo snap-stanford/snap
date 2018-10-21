@@ -1,7 +1,7 @@
 set(APPNAME ncpplot)
 set(SOURCES
     ncpplot.cpp
-    ${SNAPADV_SOURCE_DIR}/ncp.h
+    ${SNAPADV_INCLUDE_DIR}/ncp.h
     ${SNAPADV_SOURCE_DIR}/ncp.cpp
 )
 

@@ -1,7 +1,7 @@
 set(APPNAME cliquesmain)
 set(SOURCES
     cliquesmain.cpp
-    ${SNAPADV_SOURCE_DIR}/cliques.h
+    ${SNAPADV_INCLUDE_DIR}/cliques.h
     ${SNAPADV_SOURCE_DIR}/cliques.cpp
 )
 

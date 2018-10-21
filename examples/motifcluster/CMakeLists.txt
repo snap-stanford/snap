@@ -1,7 +1,7 @@
 set(APPNAME motifclustermain)
 set(SOURCES
     motifclustermain.cpp
-    ${SNAPADV_SOURCE_DIR}/motifcluster.h
+    ${SNAPADV_INCLUDE_DIR}/motifcluster.h
     ${SNAPADV_SOURCE_DIR}/motifcluster.cpp
 )
 

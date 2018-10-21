@@ -1,7 +1,7 @@
 set(APPNAME localmotifclustermain)
 set(SOURCES
     localmotifclustermain.cpp
-    ${SNAPADV_SOURCE_DIR}/localmotifcluster.h
+    ${SNAPADV_INCLUDE_DIR}/localmotifcluster.h
     ${SNAPADV_SOURCE_DIR}/localmotifcluster.cpp
 )
 

@@ -1,7 +1,7 @@
 set(APPNAME magfit)
 set(SOURCES
     magfit.cpp
-    ${SNAPADV_SOURCE_DIR}/mag.h
+    ${SNAPADV_INCLUDE_DIR}/mag.h
     ${SNAPADV_SOURCE_DIR}/mag.cpp
 )
 

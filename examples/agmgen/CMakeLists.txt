@@ -1,8 +1,8 @@
 set(APPNAME agmgen)
 set(SOURCES
     agmgen.cpp
-    ${SNAPADV_SOURCE_DIR}/agm.h
-    ${SNAPADV_SOURCE_DIR}/agmfit.h
+    ${SNAPADV_INCLUDE_DIR}/agm.h
+    ${SNAPADV_INCLUDE_DIR}/agmfit.h
     ${SNAPADV_SOURCE_DIR}/agm.cpp
     ${SNAPADV_SOURCE_DIR}/agmfit.cpp
 )

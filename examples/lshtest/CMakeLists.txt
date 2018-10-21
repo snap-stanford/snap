@@ -1,7 +1,7 @@
 set(APPNAME lshtest)
 set(SOURCES
     lshtest.cpp
-    ${SNAPEXP_SOURCE_DIR}/lsh.h
+    ${SNAPEXP_INCLUDE_DIR}/lsh.h
     ${SNAPEXP_SOURCE_DIR}/lsh.cpp
 )
 

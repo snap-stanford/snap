@@ -1,10 +1,10 @@
 set(APPNAME coda)
 set(SOURCES
     coda.cpp
-    ${SNAPADV_SOURCE_DIR}/agm.h
-    ${SNAPADV_SOURCE_DIR}/agmfit.h
-    ${SNAPADV_SOURCE_DIR}/agmfast.h
-    ${SNAPADV_SOURCE_DIR}/agmdirected.h
+    ${SNAPADV_INCLUDE_DIR}/agm.h
+    ${SNAPADV_INCLUDE_DIR}/agmfit.h
+    ${SNAPADV_INCLUDE_DIR}/agmfast.h
+    ${SNAPADV_INCLUDE_DIR}/agmdirected.h
     ${SNAPADV_SOURCE_DIR}/agm.cpp
     ${SNAPADV_SOURCE_DIR}/agmfit.cpp
     ${SNAPADV_SOURCE_DIR}/agmfast.cpp

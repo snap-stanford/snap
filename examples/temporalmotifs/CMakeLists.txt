@@ -1,7 +1,7 @@
 set(APPNAME temporalmotifsmain)
 set(SOURCES
     temporalmotifsmain.cpp
-    ${SNAPADV_SOURCE_DIR}/temporalmotifs.h
+    ${SNAPADV_INCLUDE_DIR}/temporalmotifs.h
     ${SNAPADV_SOURCE_DIR}/temporalmotifs.cpp
 )
 

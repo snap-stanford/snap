@@ -1,7 +1,7 @@
 set(APPNAME maggen)
 set(SOURCES
     maggen.cpp
-    ${SNAPADV_SOURCE_DIR}/mag.h
+    ${SNAPADV_INCLUDE_DIR}/mag.h
     ${SNAPADV_SOURCE_DIR}/mag.cpp
 )
 

@@ -1,7 +1,7 @@
 set(APPNAME testrolx)
 set(SOURCES
     testrolx.cpp
-    ${SNAPADV_SOURCE_DIR}/rolx.h
+    ${SNAPADV_INCLUDE_DIR}/rolx.h
     ${SNAPADV_SOURCE_DIR}/rolx.cpp
 )
 

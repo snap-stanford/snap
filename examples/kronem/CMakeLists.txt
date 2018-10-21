@@ -1,7 +1,7 @@
 set(APPNAME kronem)
 set(SOURCES
     kronem.cpp
-    ${SNAPADV_SOURCE_DIR}/kronecker.h
+    ${SNAPADV_INCLUDE_DIR}/kronecker.h
     ${SNAPADV_SOURCE_DIR}/kronecker.cpp
 )
 
