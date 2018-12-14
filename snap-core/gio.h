@@ -351,7 +351,7 @@ void SaveMatlabSparseMtx(const PGraph& Graph, const TStr& OutFNm) {
 
 // Output has three sections: header, nodes section, and edges section
 // See http://www.algorithmic-solutions.info/leda_guide/graphs/leda_native_graph_fileformat.html
-// for details.
+// for details...
 template <class PGraph>
 void SaveLEDA(const PGraph& Graph, const TStr& OutFNm) {
   FILE *F = fopen(OutFNm.CStr(), "wt");
