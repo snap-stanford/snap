@@ -1,3 +1,5 @@
+#include <map>
+
 /////////////////////////////////////////////////
 // Loading and saving graphs from/to various file formats.
 namespace TSnap {
@@ -343,6 +345,59 @@ void SaveMatlabSparseMtx(const PGraph& Graph, const TStr& OutFNm) {
     if (! HasGraphFlag(typename PGraph::TObj, gfDirected) && Src!=Dst) {
       fprintf(F, "%d\t%d\t1\n", Dst, Src);
     }
+  }
+  fclose(F);
+}
+
+// Output has three sections: header, nodes section, and edges section
+// See http://www.algorithmic-solutions.info/leda_guide/graphs/leda_native_graph_fileformat.html
+// for details.
+template <class PGraph>
+void SaveLEDA(const PGraph& Graph, const TStr& OutFNm) {
+  FILE *F = fopen(OutFNm.CStr(), "wt");
+  TIntSet NIdSet(Graph->GetNodes());
+  fprintf(F, "#header section\n");
+  fprintf(F, "LEDA.GRAPH\n");
+  fprintf(F, "int\n");  // We assume the nodes are integers (as given by PGraph)
+  fprintf(F, "int\n");  // We also assume the edges are integers
+  if (HasGraphFlag(typename PGraph::TObj, gfDirected)) {
+    fprintf(F, "-1\n");
+  }
+  else {
+    fprintf(F, "-2\n");
+  }
+  fprintf(F, "#nodes section\n");
+  fprintf(F, "%d\n", Graph->GetNodes());
+  for(typename PGraph::TObj::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
+    fprintf(F, "|{%d}|\n", NI.GetId());
+    NIdSet.AddKey(NI.GetId());
+  }
+  fprintf(F, "\n#edges section\n");
+  fprintf(F, "%d\n", Graph->GetEdges());
+
+  int i;
+  // For directed graphs, we need keep track of reversal edges
+  std::map<int, std::map<int, int> > EdgeMap;  // EdgeMap[Src][Dst] = Id of Edge from Src to Dst
+  if (HasGraphFlag(typename PGraph::TObj, gfDirected)) {
+    // We first map all the edges to discrete indices...
+    i = 1;
+    for(typename PGraph::TObj::TEdgeI EI = Graph->BegEI(); EI < Graph->EndEI(); EI++) {
+      const int Src = NIdSet.GetKeyId(EI.GetSrcNId()) + 1;
+      const int Dst = NIdSet.GetKeyId(EI.GetDstNId()) + 1;
+      EdgeMap[Src][Dst] = i;
+      i++;
+    }
+  }
+  i = 1;
+  for(typename PGraph::TObj::TEdgeI EI = Graph->BegEI(); EI < Graph->EndEI(); EI++) {
+    const int Src = NIdSet.GetKeyId(EI.GetSrcNId()) + 1;
+    const int Dst = NIdSet.GetKeyId(EI.GetDstNId()) + 1;
+    int ReverseEdge = 0;
+    if (HasGraphFlag(typename PGraph::TObj, gfDirected) && Graph->IsEdge(Dst, Src) && Src!=Dst) {
+      ReverseEdge = EdgeMap[Dst][Src];  //...then use our map to print the appropriate reversal edge
+    }
+    fprintf(F, "%d %d %d |{%d}|\n", Src, Dst, ReverseEdge, i);
+    i++;
   }
   fclose(F);
 }
