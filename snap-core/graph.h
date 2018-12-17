@@ -239,6 +239,8 @@ public:
   void Defrag(const bool& OnlyNodeLinks=false);
   /// Checks the graph data structure for internal consistency. ##TUNGraph::IsOk
   bool IsOk(const bool& ThrowExcept=true) const;
+  /// Fills in the neighbor list of the node in the provided vector ##TUNGraph::GetNeighbors
+  void GetNeighbors(const int& NId, TIntV& NeighborsIdV);
   /// Print the graph in a human readable form to an output stream OutF.
   void Dump(FILE *OutF=stdout) const;
   /// Returns a small graph on 5 nodes and 5 edges. ##TUNGraph::GetSmallGraph

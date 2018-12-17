@@ -203,6 +203,46 @@ bool TUNGraph::IsOk(const bool& ThrowExcept) const {
   return RetVal;
 }
 
+void TUNGraph::GetNeighbors(const int& NId, TIntV& NeighborsIdV){
+  //check if the node exists
+  AssertR(IsNode(NId), TStr::Fmt("NodeId %d does not exist", NId));
+
+  //get the snap node corresponding to nodeId
+  TNode& Node = GetNode(NId);
+
+  int neighborCount = Node.GetDeg();
+
+  NeighborsIdV.Gen(neighborCount, 0);
+  
+  //go through the entire degree (as it is undirected) of this node
+  //NEdges -= Node.GetDeg();
+
+  for (int e = 0; e < Node.GetDeg(); e++) {
+    
+    const int nbr = Node.GetNbrNId(e);
+    
+    if (nbr == NId) 
+    { 
+        continue; 
+    }
+    
+    TNode& N = GetNode(nbr);
+    
+    const int n = N.NIdV.SearchBin(NId);
+    
+    IAssert(n != -1); // if NId points to N, then N also should point back
+    
+    //add neighbor to neighbors list
+    if (n != -1) { 
+      NeighborsIdV.Add(nbr); 
+    }
+
+  } 
+
+  //for (int N=NodeH.FFirstKeyId(); NodeH.FNextKeyId(N); ) {
+  //  NIdV.Add(NodeH.GetKey(N)); }
+}
+
 // Print the graph in a human readable form to an output stream OutF.
 void TUNGraph::Dump(FILE *OutF) const {
   const int NodePlaces = (int) ceil(log10((double) GetNodes()));
