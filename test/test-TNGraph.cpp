@@ -159,3 +159,37 @@ TEST(TNGraph, GetSmallGraph) {
   EXPECT_EQ(0,Graph->Empty());
   EXPECT_EQ(1,Graph->HasFlag(gfDirected));
 }
+
+// Test Neighbors
+TEST(TNGraph, TestNeighbors) {
+  PNGraph Graph;
+
+  Graph = TNGraph::GetSmallGraph();
+
+  TIntV NeighborNodeIds;
+
+  Graph->GetNeighbors(0, NeighborNodeIds);
+
+  TNGraph::TNodeI NodeI = Graph->GetNI(0);
+  int degree = NodeI.GetOutDeg();
+  std::set<int> st; 
+
+  for(int i=0;i<degree;i++){
+    std::cout<<"The "<<i<<"th neighbor of Node 1 is "<<NeighborNodeIds[i]<<std::endl; 
+    st.insert(NeighborNodeIds[i]);
+  }
+  
+  //only 2 neightbors should be present (0 & 2)
+  EXPECT_EQ(1, st.find(1) != st.end());
+  st.erase(1);
+
+  EXPECT_EQ(1, st.find(2) != st.end());
+  st.erase(2);
+  
+  //check if null now
+  EXPECT_EQ(1, st.empty());
+
+  EXPECT_EQ(1,Graph->IsOk());
+  
+  EXPECT_EQ(1,Graph->HasFlag(gfDirected));
+}
