@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include "Snap.h"
+#include<set>
 
 // Test the default constructor
 TEST(TUNGraph, DefaultConstructor) {
@@ -288,5 +289,39 @@ TEST(TUNGraph, GetSmallGraph) {
 
   EXPECT_EQ(1,Graph->IsOk());
   EXPECT_EQ(0,Graph->Empty());
+  EXPECT_EQ(0,Graph->HasFlag(gfDirected));
+}
+
+// Test Neighbors
+TEST(TUNGraph, TestNeighbors) {
+  PUNGraph Graph;
+
+  Graph = TUNGraph::GetSmallGraph();
+
+  TIntV NeighborNodeIds;
+
+  Graph->GetNeighbors(1, NeighborNodeIds);
+
+  TUNGraph::TNodeI NodeI = Graph->GetNI(1);
+  int degree = NodeI.GetDeg();
+  std::set<int> st; 
+
+  for(int i=0;i<degree;i++){
+    std::cout<<"The "<<i<<"th neighbor of Node 1 is "<<NeighborNodeIds[i]<<std::endl; 
+    st.insert(NeighborNodeIds[i]);
+  }
+  
+  //only 2 neightbors should be present (0 & 2)
+  EXPECT_EQ(1, st.find(0) != st.end());
+  st.erase(0);
+
+  EXPECT_EQ(1, st.find(2) != st.end());
+  st.erase(2);
+  
+  //check if null now
+  EXPECT_EQ(1, st.empty());
+
+  EXPECT_EQ(1,Graph->IsOk());
+  
   EXPECT_EQ(0,Graph->HasFlag(gfDirected));
 }
