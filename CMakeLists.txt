@@ -44,6 +44,7 @@ set(SNAPEXP_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/snap-exp")
 set(SNAPEXP_SOURCE_DIR "${CMAKE_SOURCE_DIR}/snap-exp")
 
 add_subdirectory(snap-core)
+add_subdirectory(snap-adv)
 add_subdirectory(examples)
 add_subdirectory(test)
 add_subdirectory(tutorials)
