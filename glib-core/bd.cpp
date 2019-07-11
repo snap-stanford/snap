@@ -10,14 +10,6 @@ int std::_matherr(struct math_exception* e){
   return 1;
 }
 #elif defined(GLib_GLIBC) || defined(GLib_BSD)
-//quick fix for struct exception error
-struct __exception {
-    int    type;      /* Exception type */
-    char*  name;      /* Name of function causing exception */
-    double arg1;      /* 1st argument to function */
-    double arg2;      /* 2nd argument to function */
-    double retval;    /* Function return value */
-};
 int _matherr(struct __exception* e){
   e->retval=0;
   return 1;
@@ -28,14 +20,6 @@ int _matherr(struct __math_exception* e){
   return 1;
 }
 #elif defined(GLib_CYGWIN)
-//quick fix for struct exception error
-struct __exception {
-    int    type;      /* Exception type */
-    char*  name;      /* Name of function causing exception */
-    double arg1;      /* 1st argument to function */
-    double arg2;      /* 2nd argument to function */
-    double retval;    /* Function return value */
-};
 int matherr(struct __exception *e){
   e->retval=0;
   return 1;
