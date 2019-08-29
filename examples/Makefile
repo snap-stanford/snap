@@ -85,3 +85,7 @@ clean:
 	$(MAKE) clean -C temporalmotifs
 	$(MAKE) clean -C testgraph
 	rm -rf Debug Release ipch
+
+bin-win:
+	cd Release; zip ../Snap-$(VERSION)-Win32.zip *.exe
+
