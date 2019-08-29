@@ -5,6 +5,20 @@ performance system for graph and network manipulation and analysis.
 
 This file contains a high-level description of changes in SNAP releases.
 
+Release 5.0, Aug 29, 2019
+
+This is a maintenance release and brings several upgrades.
+
+Here is a detailed list:
+
+- upgraded Visual Studio files to version 2019
+- added support for g++ compiler versions 6.0+
+- modified the code for python3 support
+- added a license text
+- implemented rolx:FPrintNodeMappings() to determine node IDs for features
+- turned on the printing of feature matrix in rolx
+- removed the Visual Studio 2008 solution file
+
 Release 4.1, Jul 25, 2018
 
 This is a minor release and brings several bug fixes and improvements.
