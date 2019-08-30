@@ -5,6 +5,7 @@
 all: MakeAll
 
 MakeAll:
+	mkdir Release
 	$(MAKE) -C agmfit
 	$(MAKE) -C agmgen
 	$(MAKE) -C bigclam
@@ -85,6 +86,9 @@ clean:
 	$(MAKE) clean -C temporalmotifs
 	$(MAKE) clean -C testgraph
 	rm -rf Debug Release ipch
+
+bin-linux:
+	cd Release; tar zcvf ../Snap-$(VERSION)-Ubuntu18.04.tgz *
 
 bin-win:
 	cd Release; zip ../Snap-$(VERSION)-Win32.zip *.exe
