@@ -88,7 +88,9 @@ clean:
 	rm -rf Debug Release ipch *.tgz *.zip
 
 bin-linux:
-	cd Release; tar zcvf ../Snap-$(VERSION)-Ubuntu18.04.tgz *
+	mv Release Snap-$(VERSION)-Ubuntu18.04
+	tar zcvf Snap-$(VERSION)-Ubuntu18.04.tgz Snap-$(VERSION)-Ubuntu18.04
+	mv Snap-$(VERSION)-Ubuntu18.04 Release
 
 bin-mac:
 	mv Release Snap-$(VERSION)-macOS14.10
