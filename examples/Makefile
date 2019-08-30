@@ -98,5 +98,7 @@ bin-mac:
 	mv Snap-$(VERSION)-macOS14.10 Release
 
 bin-win:
-	cd Release; zip ../Snap-$(VERSION)-Win32.zip *.exe
+	mv Release Snap-$(VERSION)-Win32
+	zip -r Snap-$(VERSION)-Win32.zip Snap-$(VERSION)-Win32/*.exe
+	mv Snap-$(VERSION)-Win32 Release
 
