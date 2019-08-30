@@ -85,10 +85,15 @@ clean:
 	$(MAKE) clean -C rolx
 	$(MAKE) clean -C temporalmotifs
 	$(MAKE) clean -C testgraph
-	rm -rf Debug Release ipch
+	rm -rf Debug Release ipch *.tgz *.zip
 
 bin-linux:
 	cd Release; tar zcvf ../Snap-$(VERSION)-Ubuntu18.04.tgz *
+
+bin-mac:
+	mv Release Snap-$(VERSION)-macOS14.10
+	tar zcvf Snap-$(VERSION)-macOS14.10.tgz Snap-$(VERSION)-macOS14.10
+	mv Snap-$(VERSION)-macOS14.10 Release
 
 bin-win:
 	cd Release; zip ../Snap-$(VERSION)-Win32.zip *.exe
