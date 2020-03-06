@@ -9,7 +9,7 @@
 void ParseArgs(int& argc, char* argv[], TStr& InFile, TStr& OutFile,
  int& Dimensions, int& WalkLen, int& NumWalks, int& WinSize, int& Iter,
  bool& Verbose, double& ParamP, double& ParamQ, bool& Directed, bool& Weighted,
- bool& OutputWalks) {
+ bool& OutputWalks, int& RandomSeedValue, int& NumThreads) { 
   Env = TEnv(argc, argv, TNotify::StdNotify);
   Env.PrepArgs(TStr::Fmt("\nAn algorithmic framework for representational learning on graphs."));
   InFile = Env.GetIfArgPrefixStr("-i:", "graph/karate.edgelist",
@@ -34,6 +34,8 @@ void ParseArgs(int& argc, char* argv[], TStr& InFile, TStr& OutFile,
   Directed = Env.IsArgStr("-dr", "Graph is directed.");
   Weighted = Env.IsArgStr("-w", "Graph is weighted.");
   OutputWalks = Env.IsArgStr("-ow", "Output random walks instead of embeddings.");
+  RandomSeedValue = Env.GetIfArgPrefixInt("-seed:", 42, "Specify the random seed. Default is 42.");
+  NumThreads = Env.GetIfArgPrefixInt("-t:", 1, "Number of parallalization threads; for node2vec, set to 1. Default is 1.");
 }
 
 void ReadGraph(TStr& InFile, bool& Directed, bool& Weighted, bool& Verbose, PWNet& InNet) {
@@ -103,17 +105,17 @@ void WriteOutput(TStr& OutFile, TIntFltVH& EmbeddingsHV, TVVec<TInt, int64>& Wal
 
 int main(int argc, char* argv[]) {
   TStr InFile,OutFile;
-  int Dimensions, WalkLen, NumWalks, WinSize, Iter;
+  int Dimensions, WalkLen, NumWalks, WinSize, Iter, RandomSeedValue, NumThreads;
   double ParamP, ParamQ;
   bool Directed, Weighted, Verbose, OutputWalks;
   ParseArgs(argc, argv, InFile, OutFile, Dimensions, WalkLen, NumWalks, WinSize,
-   Iter, Verbose, ParamP, ParamQ, Directed, Weighted, OutputWalks);
+   Iter, Verbose, ParamP, ParamQ, Directed, Weighted, OutputWalks, RandomSeedValue, NumThreads);
   PWNet InNet = PWNet::New();
   TIntFltVH EmbeddingsHV;
   TVVec <TInt, int64> WalksVV;
   ReadGraph(InFile, Directed, Weighted, Verbose, InNet);
   node2vec(InNet, ParamP, ParamQ, Dimensions, WalkLen, NumWalks, WinSize, Iter, 
-   Verbose, OutputWalks, WalksVV, EmbeddingsHV);
+   Verbose, OutputWalks, WalksVV, EmbeddingsHV, RandomSeedValue, NumThreads);
   WriteOutput(OutFile, EmbeddingsHV, WalksVV, OutputWalks);
   return 0;
 }
