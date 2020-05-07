@@ -12,6 +12,8 @@
 include ../Makefile.config
 CXXFLAGS += $(CXXOPENMP)
 LIBS += -lgtest
+# use the following line for linking the static library
+#LIBS += /Users/snap/miniconda3/lib/libgtest.a
 
 ## Main application file
 MAIN = run-all-tests
