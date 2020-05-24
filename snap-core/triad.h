@@ -81,6 +81,10 @@ template <class PGraph> double GetClustCf(const PGraph& Graph, int SampleNodes) 
 template <class PGraph> double GetClustCf(const PGraph& Graph, TFltPrV& DegToCCfV, int SampleNodes) {
   TIntTrV NIdCOTriadV;
   GetTriads(Graph, NIdCOTriadV, SampleNodes);
+  if (NIdCOTriadV.Empty()) {
+    DegToCCfV.Clr(false);
+    return 0.0;
+  }
   THash<TInt, TFltPr> DegSumCnt;
   double SumCcf = 0.0;
   for (int i = 0; i < NIdCOTriadV.Len(); i++) {
@@ -104,6 +108,12 @@ template <class PGraph>
 double GetClustCf(const PGraph& Graph, TFltPrV& DegToCCfV, int64& ClosedTriads, int64& OpenTriads, int SampleNodes) {
   TIntTrV NIdCOTriadV;
   GetTriads(Graph, NIdCOTriadV, SampleNodes);
+  if (NIdCOTriadV.Empty()) {
+    DegToCCfV.Clr(false);
+    ClosedTriads = 0;
+    OpenTriads = 0;
+    return 0.0;
+  }
   THash<TInt, TFltPr> DegSumCnt;
   double SumCcf = 0.0;
   int64 closedTriads = 0;
