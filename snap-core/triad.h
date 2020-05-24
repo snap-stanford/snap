@@ -11,12 +11,12 @@ template <class PGraph> double GetClustCf(const PGraph& Graph, int SampleNodes=-
 /// Computes the distribution of average clustering coefficient. ##TSnap::GetClustCf1
 template <class PGraph> double GetClustCf(const PGraph& Graph, TFltPrV& DegToCCfV, int SampleNodes=-1);
 /// Computes the distribution of average clustering coefficient as well as the number of open and closed triads in the graph. ##TSnap::GetClustCf2
-template <class PGraph> double GetClustCf(const PGraph& Graph, TFltPrV& DegToCCfV, int64& ClosedTriadsX, int64& OpenTriadsX, int SampleNodes=-1);
+template <class PGraph> double GetClustCf(const PGraph& Graph, TFltPrV& DegToCCfV, int64& ClosedTriads, int64& OpenTriads, int SampleNodes=-1);
 /// Computes the distribution of average clustering coefficient as well as the number of open and closed triads in the graph. ##TSnap::GetClustCfAll
 template <class PGraph> double GetClustCfAll(const PGraph& Graph, TFltPrV& DegToCCfV, int64& ClosedTriadsX, int64& OpenTriadsX, int SampleNodes=-1);
 /// Returns clustering coefficient of a particular node. ##TSnap::GetNodeClustCf
 template <class PGraph> double GetNodeClustCf(const PGraph& Graph, const int& NId);
-/// Computes clustering coefficient of each node of the Graph. ##TSnap::GetClustCf1
+/// Computes clustering coefficient of each node of the Graph. ##TSnap::GetNodeClustCf
 template <class PGraph> void GetNodeClustCf(const PGraph& Graph, TIntFltH& NIdCCfH);
 
 /// Returns the number of triangles in a graph. ##TSnap::GetTriads
