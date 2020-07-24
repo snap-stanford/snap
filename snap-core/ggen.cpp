@@ -75,8 +75,8 @@ PUNGraph GenDegSeq(const TIntV& DegSeqV, TRnd& Rnd) {
   IAssert(DegSum % 2 == 0);
   while (! DegH.Empty()) {
     // pick random nodes and connect
-    const int NId1 = DegH.GetKey(DegH.GetRndKeyId(TInt::Rnd, 0.5));
-    const int NId2 = DegH.GetKey(DegH.GetRndKeyId(TInt::Rnd, 0.5));
+    const int NId1 = DegH.GetKey(DegH.GetRndKeyId(Rnd, 0.5));
+    const int NId2 = DegH.GetKey(DegH.GetRndKeyId(Rnd, 0.5));
     IAssert(DegH.IsKey(NId1) && DegH.IsKey(NId2));
     if (NId1 == NId2) {
       if (DegH.GetDat(NId1) == 1) { continue; }
@@ -323,7 +323,7 @@ PUNGraph GenPrefAttach(const int& Nodes, const int& NodeOutDeg, TRnd& Rnd) {
   for (int node = 2; node < Nodes; node++) {
     NodeSet.Clr(false);
     while (NodeSet.Len() < NodeOutDeg && NodeSet.Len() < node) {
-      NodeSet.AddKey(NIdV[TInt::Rnd.GetUniDevInt(NIdV.Len())]);
+      NodeSet.AddKey(NIdV[Rnd.GetUniDevInt(NIdV.Len())]);
     }
     const int N = Graph.AddNode();
     for (int i = 0; i < NodeSet.Len(); i++) {
