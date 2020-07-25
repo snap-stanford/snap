@@ -1444,7 +1444,7 @@ T TTable::AggregateVector(TVec<T>& V, TAttrAggr Policy) {
       for (TInt i = 1; i < V.Len(); i++) {
         Res = Res + V[i];
       }
-      //Res = Res / V.Len(); // TODO: Handle Str case separately?
+      Res = Res / V.Len();
       return Res;
     }
     case aaMedian: {

@@ -458,6 +458,9 @@ public:
     TRStr* NewRStr=new TRStr(RStr->CStr(), CStr);
     RStr->UnRef(); RStr=NewRStr; RStr->MkRef();
     Optimize(); return *this;}
+  TStr& operator/(const int& N){
+    // no-op, this definition is required by the aaMean table aggregation
+    return *this;}
   bool operator==(const TStr& Str) const {
     return (RStr==Str.RStr)||(strcmp(RStr->CStr(), Str.RStr->CStr())==0);}
   bool operator==(const char* CStr) const {
