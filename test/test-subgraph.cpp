@@ -315,6 +315,40 @@ TEST(subgraph, TestGetRndGraphs) {
   EXPECT_EQ(10,NGraph3->GetEdges());
 }
 
+// Test GetEgograph
+// TEST(subgraph, TestEgoGraphs)
+// {
+//   PUNGraph Graph;
+//   PUNGraph Graph1;
+//   PUNGraph Graph2;
+//   PUNGraph Graph3;
+
+//   Graph = GetTestTUNGraph();
+//   EXPECT_EQ(20, Graph->GetNodes());
+//   EXPECT_EQ(60, Graph->GetEdges());
+
+//   for (i = 1; i < 15; i++)
+//   {
+//     Graph1 = TSnap::GetEgoGraph(Graph, i, 1);
+//     EXPECT_EQ(3, Graph1->GetNodes());
+//     EXPECT_EQ(3, Graph1->GetEdges());
+//   }
+
+//   for (i = 1; i < 15; i++)
+//   {
+//     Graph2 = TSnap::GetEgoGraph(Graph, i, 2);
+//     EXPECT_EQ(6, Graph2->GetNodes());
+//     EXPECT_EQ(15, Graph2->GetEdges());
+//   }
+
+//   for (i = 1; i < 15; i++)
+//   {
+//     Graph3 = TSnap::GetEgoGraph(Graph, i, 3);
+//     EXPECT_EQ(10, Graph3->GetNodes());
+//     EXPECT_EQ(24, Graph3->GetEdges());
+//   }
+// }
+
 // Generate TUNGraph
 PUNGraph GetTestTUNGraph() {
   PUNGraph Graph = TUNGraph::New();
