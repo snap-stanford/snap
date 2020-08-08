@@ -323,7 +323,7 @@ TEST(subgraph, TestEgoNets)
   PUNGraph Graph1;
   PUNGraph Graph2;
   PUNGraph Graph3;
-  // int i;
+  PUNGraph Graph4;
 
   Graph = GetTestTUNGraph();
   EXPECT_EQ(20, Graph->GetNodes());
@@ -345,7 +345,7 @@ TEST(subgraph, TestEgoNets)
   EXPECT_EQ(19, Graph3->GetNodes());
   EXPECT_EQ(54, Graph3->GetEdges());
 
-  Graph3 = TSnap::GetEgonetHop(Graph, 8, 3);
+  Graph4 = TSnap::GetEgonetHop(Graph, 8, 3);
   EXPECT_EQ(20, Graph3->GetNodes());
   EXPECT_EQ(60, Graph3->GetEdges());
 
