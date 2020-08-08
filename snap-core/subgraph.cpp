@@ -140,7 +140,7 @@ PNGraph GetEgonet(const PNGraph& Graph, const int CtrNId, int& InEdges, int& Out
   return NewGraphPt;
 }
 
-PUNGraph GetEgonet(const PUNGraph &Graph, const int CtrNId, const int Radius) {
+PUNGraph GetEgonetHop(const PUNGraph &Graph, const int CtrNId, const int Radius) {
   PUNGraph NewGraphPt = TUNGraph::New();
   TUNGraph &NewGraph = *NewGraphPt;
   TSnapQueue<int> Queue1;
