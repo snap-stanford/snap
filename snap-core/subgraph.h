@@ -53,6 +53,8 @@ template<class PGraph> PGraph GetRndESubGraph(const PGraph& Graph, const int& NE
 PUNGraph GetEgonet(const PUNGraph& Graph, const int CtrNId, int& ArndEdges);
 /// Returns the egonet of node CtrNId as center in directed graph Graph. And returns number of edges go in and out the egonet.
 PNGraph GetEgonet(const PNGraph& Graph, const int CtrNId, int& InEdges, int& OutEdges);
+/// Returns the egonet of node CtrNId as center in undirected graph Graph for a given radius.
+PUNGraph GetEgonet(const PUNGraph& Graph, const int CtrNId, const int Radius);
 
 /////////////////////////////////////////////////
 // Implementation
