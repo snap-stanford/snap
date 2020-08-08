@@ -145,12 +145,15 @@ PUNGraph GetEgonetHop(const PUNGraph &Graph, const int CtrNId, const int Radius)
   TUNGraph &NewGraph = *NewGraphPt;
   TSnapQueue<int> Queue1;
   TSnapQueue<int> Queue2;
+  TSnapQueue<int> tempQueue;
+  NewGraph.AddNode(CtrNId);
   Queue1.Clr(false); Queue1.Push(CtrNId);
   for (int r = 0; r < Radius; ++r) {
-    Queue2.Clr(true);
     while (! Queue1.Empty()) {
       const int NId = Queue1.Top(); Queue1.Pop();
-      NewGraph.AddNode(NId);
+      if (! NewGraph.IsNode(NId)) {
+        NewGraph.AddNode(NId);
+      }
       const TUNGraph::TNodeI &Node = Graph->GetNI(NId);
       for (int i = 0; i < Node.GetInDeg(); ++i)
       {
@@ -178,7 +181,9 @@ PUNGraph GetEgonetHop(const PUNGraph &Graph, const int CtrNId, const int Radius)
         }
       }
     }
+    tempQueue = Queue1;
     Queue1 = Queue2;
+    Queue2 = tempQueue;
   }
   return NewGraphPt;
 }
