@@ -333,17 +333,21 @@ TEST(subgraph, TestEgoNets)
   EXPECT_EQ(1, Graph0->GetNodes());
   EXPECT_EQ(0, Graph0->GetEdges());
 
-  Graph1 = TSnap::GetEgonetHop(Graph, 3, 1);
-  EXPECT_EQ(4, Graph1->GetNodes());
-  EXPECT_EQ(3, Graph1->GetEdges());
+  Graph1 = TSnap::GetEgonetHop(Graph, 0, 1);
+  EXPECT_EQ(7, Graph1->GetNodes());
+  EXPECT_EQ(15, Graph1->GetEdges());
 
   Graph2 = TSnap::GetEgonetHop(Graph, 7, 2);
-  EXPECT_EQ(7, Graph2->GetNodes());
-  EXPECT_EQ(15, Graph2->GetEdges());
+  EXPECT_EQ(13, Graph2->GetNodes());
+  EXPECT_EQ(33, Graph2->GetEdges());
 
   Graph3 = TSnap::GetEgonetHop(Graph, 19, 3);
-  EXPECT_EQ(10, Graph3->GetNodes());
-  EXPECT_EQ(24, Graph3->GetEdges());
+  EXPECT_EQ(19, Graph3->GetNodes());
+  EXPECT_EQ(54, Graph3->GetEdges());
+
+  Graph3 = TSnap::GetEgonetHop(Graph, 8, 3);
+  EXPECT_EQ(20, Graph3->GetNodes());
+  EXPECT_EQ(60, Graph3->GetEdges());
 
 }
 
