@@ -315,8 +315,43 @@ TEST(subgraph, TestGetRndGraphs) {
   EXPECT_EQ(10,NGraph3->GetEdges());
 }
 
-// Test GetEgoNet
-TEST(subgraph, TestEgoNets)
+// Test TUNGraph GetEgoNetHop
+TEST(subgraph, TestEgoNetsTNGraph)
+{
+  PNGraph Graph;
+  PNGraph Graph0;
+  PNGraph Graph1;
+  PNGraph Graph2;
+  PNGraph Graph3;
+  PNGraph Graph4;
+
+  Graph = GetTestTUNGraph();
+  EXPECT_EQ(20, Graph->GetNodes());
+  EXPECT_EQ(60, Graph->GetEdges());
+
+  Graph0 = TSnap::GetEgonetHop(Graph, 3, 0);
+  EXPECT_EQ(1, Graph0->GetNodes());
+  EXPECT_EQ(0, Graph0->GetEdges());
+
+  Graph1 = TSnap::GetEgonetHop(Graph, 0, 1);
+  EXPECT_EQ(7, Graph1->GetNodes());
+  EXPECT_EQ(15, Graph1->GetEdges());
+
+  Graph2 = TSnap::GetEgonetHop(Graph, 7, 2);
+  EXPECT_EQ(13, Graph2->GetNodes());
+  EXPECT_EQ(33, Graph2->GetEdges());
+
+  Graph3 = TSnap::GetEgonetHop(Graph, 19, 3);
+  EXPECT_EQ(19, Graph3->GetNodes());
+  EXPECT_EQ(54, Graph3->GetEdges());
+
+  Graph4 = TSnap::GetEgonetHop(Graph, 8, 4);
+  EXPECT_EQ(20, Graph4->GetNodes());
+  EXPECT_EQ(60, Graph4->GetEdges());
+}
+
+// Test TUNGraph GetEgoNetHop
+TEST(subgraph, TestEgoNetsTUNGraph)
 {
   PUNGraph Graph;
   PUNGraph Graph0;
@@ -350,6 +385,41 @@ TEST(subgraph, TestEgoNets)
   EXPECT_EQ(60, Graph4->GetEdges());
 
 }
+
+// Test PNEANet GetEgoNetHop
+// TEST(subgraph, TestEgoNetsPNEANet)
+// {
+//   PUNGraph Graph;
+//   PUNGraph Graph0;
+//   PUNGraph Graph1;
+//   PUNGraph Graph2;
+//   PUNGraph Graph3;
+//   PUNGraph Graph4;
+
+//   Graph = GetTestTUNGraph();
+//   EXPECT_EQ(20, Graph->GetNodes());
+//   EXPECT_EQ(60, Graph->GetEdges());
+
+//   Graph0 = TSnap::GetEgonetHop(Graph, 3, 0);
+//   EXPECT_EQ(1, Graph0->GetNodes());
+//   EXPECT_EQ(0, Graph0->GetEdges());
+
+//   Graph1 = TSnap::GetEgonetHop(Graph, 0, 1);
+//   EXPECT_EQ(7, Graph1->GetNodes());
+//   EXPECT_EQ(15, Graph1->GetEdges());
+
+//   Graph2 = TSnap::GetEgonetHop(Graph, 7, 2);
+//   EXPECT_EQ(13, Graph2->GetNodes());
+//   EXPECT_EQ(33, Graph2->GetEdges());
+
+//   Graph3 = TSnap::GetEgonetHop(Graph, 19, 3);
+//   EXPECT_EQ(19, Graph3->GetNodes());
+//   EXPECT_EQ(54, Graph3->GetEdges());
+
+//   Graph4 = TSnap::GetEgonetHop(Graph, 8, 4);
+//   EXPECT_EQ(20, Graph4->GetNodes());
+//   EXPECT_EQ(60, Graph4->GetEdges());
+// }
 
 // Generate TUNGraph
 PUNGraph GetTestTUNGraph() {
