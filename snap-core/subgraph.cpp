@@ -321,7 +321,7 @@ void AddEdgeWithAttributes(const PNEANet &Graph1, PNEANet &Graph2,
   Graph1->IntVAttrValueEI(EId, IntVAttrValues);
   for (int i = 0; i < IntVAttrNames.Len(); i++)
   {
-    Graph2->AddIntAttrDatE(EId, IntVAttrValues[i], IntVAttrNames[i]);
+    Graph2->AddIntVAttrDatE(EId, IntVAttrValues[i], IntVAttrNames[i]);
   }
 }
 
@@ -332,7 +332,7 @@ PNEANet GetEgonetHop(const PNEANet &Graph, const int CtrNId, const int Radius)
   TSnapQueue<int> Queue1;
   TSnapQueue<int> Queue2;
   TSnapQueue<int> tempQueue;
-  AddNodeWithAttributes(Graph, NewGraph, CtrNId);
+  AddNodeWithAttributes(Graph, NewGraphPt, CtrNId);
   Queue1.Clr(false);
   Queue1.Push(CtrNId);
   for (int r = 0; r < Radius; ++r)
