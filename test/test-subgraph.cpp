@@ -329,6 +329,18 @@ TEST(subgraph, TestEgoNetsTNGraph)
   PNGraph Graph6;
   PNGraph Graph7;
 
+  // Test on TNSmall Graph
+  PNGraph Small = TNGraph::GetSmallGraph();
+  PNGraph ego1 = TSnap::GetEgonetHop(Small, 4, 1);
+  EXPECT_EQ(2, ego1->GetNodes());
+  EXPECT_EQ(1, ego1->GetEdges());
+  PNGraph ego2 = TSnap::GetEgonetHop(Small, 4, 2);
+  EXPECT_EQ(4, ego2->GetNodes());
+  EXPECT_EQ(4, ego2->GetEdges());
+  PNGraph ego3 = TSnap::GetEgonetHop(Small, 4, 3);
+  EXPECT_EQ(5, ego1->GetNodes());
+  EXPECT_EQ(6, ego1->GetEdges());
+
   Graph = GetTestTNGraph();
   EXPECT_EQ(20, Graph->GetNodes());
   EXPECT_EQ(60, Graph->GetEdges());
@@ -339,31 +351,31 @@ TEST(subgraph, TestEgoNetsTNGraph)
 
   Graph1 = TSnap::GetEgonetHop(Graph, 3, 1);
   EXPECT_EQ(4, Graph1->GetNodes());
-  EXPECT_EQ(6, Graph1->GetEdges());
+  EXPECT_EQ(3, Graph1->GetEdges());
 
   Graph2 = TSnap::GetEgonetHop(Graph, 6, 2);
   EXPECT_EQ(7, Graph2->GetNodes());
-  EXPECT_EQ(15, Graph2->GetEdges());
+  EXPECT_EQ(12, Graph2->GetEdges());
 
   Graph3 = TSnap::GetEgonetHop(Graph, 9, 3);
   EXPECT_EQ(10, Graph3->GetNodes());
-  EXPECT_EQ(24, Graph3->GetEdges());
+  EXPECT_EQ(21, Graph3->GetEdges());
 
   Graph4 = TSnap::GetEgonetHop(Graph, 12, 4);
   EXPECT_EQ(13, Graph4->GetNodes());
-  EXPECT_EQ(33, Graph4->GetEdges());
+  EXPECT_EQ(30, Graph4->GetEdges());
 
   Graph5 = TSnap::GetEgonetHop(Graph, 15, 5);
   EXPECT_EQ(16, Graph5->GetNodes());
-  EXPECT_EQ(42, Graph5->GetEdges());
+  EXPECT_EQ(39, Graph5->GetEdges());
 
   Graph6 = TSnap::GetEgonetHop(Graph, 18, 6);
   EXPECT_EQ(19, Graph6->GetNodes());
-  EXPECT_EQ(54, Graph6->GetEdges());
+  EXPECT_EQ(48, Graph6->GetEdges());
 
   Graph7 = TSnap::GetEgonetHop(Graph, 1, 7);
   EXPECT_EQ(20, Graph7->GetNodes());
-  EXPECT_EQ(60, Graph7->GetEdges());
+  EXPECT_EQ(57, Graph7->GetEdges());
 }
 
 // Test TUNGraph GetEgoNetHop
@@ -424,7 +436,7 @@ TEST(subgraph, TestEgoNetsTNEANet)
   Graph0 = TSnap::GetEgonetHop(Graph, 0, 0);
   EXPECT_EQ(1, Graph0->GetNodes());
   EXPECT_EQ(0, Graph0->GetEdges());
-  Graph0->GetNidV(NIds);
+  Graph0->GetNIdV(NIds);
   for (int i = 0; i < NIds.Len(); i++)
   {
     EXPECT_EQ(NIds[i], Graph0->GetIntAttrDatN(NIds[i], s));
@@ -434,7 +446,7 @@ TEST(subgraph, TestEgoNetsTNEANet)
   EXPECT_EQ(4, Graph1->GetNodes());
   EXPECT_EQ(6, Graph1->GetEdges());
   NIds.Clr();
-  Graph1->GetNidV(NIds);
+  Graph1->GetNIdV(NIds);
   for (int i = 0; i < NIds.Len(); i++)
   {
     EXPECT_EQ(NIds[i], Graph1->GetIntAttrDatN(NIds[i], s));
@@ -444,7 +456,7 @@ TEST(subgraph, TestEgoNetsTNEANet)
   EXPECT_EQ(7, Graph2->GetNodes());
   EXPECT_EQ(15, Graph2->GetEdges());
   NIds.Clr();
-  Graph2->GetNidV(NIds);
+  Graph2->GetNIdV(NIds);
   for (int i = 0; i < NIds.Len(); i++)
   {
     EXPECT_EQ(NIds[i], Graph2->GetIntAttrDatN(NIds[i], s));
@@ -454,7 +466,7 @@ TEST(subgraph, TestEgoNetsTNEANet)
   EXPECT_EQ(10, Graph3->GetNodes());
   EXPECT_EQ(24, Graph3->GetEdges());
   NIds.Clr();
-  Graph3->GetNidV(NIds);
+  Graph3->GetNIdV(NIds);
   for (int i = 0; i < NIds.Len(); i++)
   {
     EXPECT_EQ(NIds[i], Graph3->GetIntAttrDatN(NIds[i], s));
@@ -464,7 +476,7 @@ TEST(subgraph, TestEgoNetsTNEANet)
   EXPECT_EQ(13, Graph4->GetNodes());
   EXPECT_EQ(33, Graph4->GetEdges());
   NIds.Clr();
-  Graph4->GetNidV(NIds);
+  Graph4->GetNIdV(NIds);
   for (int i = 0; i < NIds.Len(); i++)
   {
     EXPECT_EQ(NIds[i], Graph4->GetIntAttrDatN(NIds[i], s));
@@ -474,7 +486,7 @@ TEST(subgraph, TestEgoNetsTNEANet)
   EXPECT_EQ(16, Graph5->GetNodes());
   EXPECT_EQ(42, Graph5->GetEdges());
   NIds.Clr();
-  Graph5->GetNidV(NIds);
+  Graph5->GetNIdV(NIds);
   for (int i = 0; i < NIds.Len(); i++)
   {
     EXPECT_EQ(NIds[i], Graph5->GetIntAttrDatN(NIds[i], s));
@@ -484,7 +496,7 @@ TEST(subgraph, TestEgoNetsTNEANet)
   EXPECT_EQ(19, Graph6->GetNodes());
   EXPECT_EQ(54, Graph6->GetEdges());
   NIds.Clr();
-  Graph6->GetNidV(NIds);
+  Graph6->GetNIdV(NIds);
   for (int i = 0; i < NIds.Len(); i++)
   {
     EXPECT_EQ(NIds[i], Graph6->GetIntAttrDatN(NIds[i], s));
@@ -494,7 +506,7 @@ TEST(subgraph, TestEgoNetsTNEANet)
   EXPECT_EQ(20, Graph7->GetNodes());
   EXPECT_EQ(60, Graph7->GetEdges());
   NIds.Clr();
-  Graph7->GetNidV(NIds);
+  Graph7->GetNIdV(NIds);
   for (int i = 0; i < NIds.Len(); i++)
   {
     EXPECT_EQ(NIds[i], Graph7->GetIntAttrDatN(NIds[i], s));

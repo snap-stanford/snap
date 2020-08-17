@@ -169,19 +169,23 @@ PNGraph GetEgonetHop(const PNGraph &Graph, const int CtrNId, const int Radius)
           NewGraph.AddNode(InNId);
           Queue2.Push(InNId);
         }
+        if (!NewGraph.IsEdge(InNId, NId))
+        {
+          NewGraph.AddEdge(InNId, NId);
+        }
       }
       for (int i = 0; i < Node.GetInDeg(); ++i)
       {
         int NbrNId = Node.GetInNId(i);
         const TNGraph::TNodeI &NbrNode = Graph->GetNI(NbrNId);
-        for (int j = 0; j < NbrNode.GetInDeg(); ++j)
+        for (int j = 0; j < NbrNode.GetOutDeg(); ++j)
         {
-          int NbrNbrNId = NbrNode.GetInNId(j);
-          if (NewGraph.IsNode(NbrNbrNId))
+          int NbrInNId = NbrNode.GetOutNId(j);
+          if (NewGraph.IsNode(NbrInNId))
           {
-            if (!NewGraph.IsEdge(NbrNId, NbrNbrNId))
+            if (!NewGraph.IsEdge(NbrNId, NbrInNId))
             {
-              NewGraph.AddEdge(NbrNId, NbrNbrNId);
+              NewGraph.AddEdge(NbrNId, NbrInNId);
             }
           }
         }
