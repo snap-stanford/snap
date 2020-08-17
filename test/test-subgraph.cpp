@@ -331,6 +331,25 @@ TEST(subgraph, TestEgoNetsTNGraph)
   EXPECT_EQ(5, ego3->GetNodes());
   EXPECT_EQ(6, ego3->GetEdges());
 
+  // Middle Size TN graph
+  PNGraph Middle = TNGraph::New();
+  for (int i = 0; i < 6; i++)
+  {
+    Middle->AddNode(i);
+  }
+  for (int i = 0; i < 6; i++)
+  {
+    Middle->AddEdge(i, (i + 1) % 6);
+    Middle->AddEdge(i, (i + 2) % 6);
+  }
+  EXPECT_EQ(12, Middle->GetEdges());
+  PNGraph midego2 = TSnap::GetEgonetHop(Middle, 0, 2);
+  EXPECT_EQ(5, midego2->GetNodes());
+  EXPECT_EQ(7, midego2->GetEdges());
+  PNGraph midego3 = TSnap::GetEgonetHop(Middle, 0, 3);
+  EXPECT_EQ(6, midego3->GetNodes());
+  EXPECT_EQ(12, midego3->GetEdges());
+
   // Larger TN Graph
   PNGraph Graph;
   PNGraph Graph0;

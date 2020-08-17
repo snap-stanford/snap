@@ -156,10 +156,6 @@ PNGraph GetEgonetHop(const PNGraph &Graph, const int CtrNId, const int Radius)
     {
       const int NId = Queue1.Top();
       Queue1.Pop();
-      if (!NewGraph.IsNode(NId))
-      {
-        NewGraph.AddNode(NId);
-      }
       const TNGraph::TNodeI &Node = Graph->GetNI(NId);
       for (int i = 0; i < Node.GetInDeg(); ++i)
       {
@@ -172,6 +168,14 @@ PNGraph GetEgonetHop(const PNGraph &Graph, const int CtrNId, const int Radius)
         if (!NewGraph.IsEdge(InNId, NId))
         {
           NewGraph.AddEdge(InNId, NId);
+        }
+      }
+      for (int i = 0; i < Node.GetOutDeg(); ++i)
+      {
+        const int OutNId = Node.GetInNId(i);
+        if (NewGraph.IsNode(OutNId) and !NewGraph.IsEdge(NId, OutNId))
+        {
+          NewGraph.AddEdge(NId, OutNId);
         }
       }
       for (int i = 0; i < Node.GetInDeg(); ++i)
@@ -211,10 +215,6 @@ PUNGraph GetEgonetHop(const PUNGraph &Graph, const int CtrNId, const int Radius)
     {
       const int NId = Queue1.Top();
       Queue1.Pop();
-      if (!NewGraph.IsNode(NId))
-      {
-        NewGraph.AddNode(NId);
-      }
       const TUNGraph::TNodeI &Node = Graph->GetNI(NId);
       for (int i = 0; i < Node.GetInDeg(); ++i)
       {
@@ -227,6 +227,14 @@ PUNGraph GetEgonetHop(const PUNGraph &Graph, const int CtrNId, const int Radius)
         if (!NewGraph.IsEdge(InNId, NId))
         {
           NewGraph.AddEdge(InNId, NId);
+        }
+      }
+      for (int i = 0; i < Node.GetOutDeg(); ++i)
+      {
+        const int OutNId = Node.GetInNId(i);
+        if (NewGraph.IsNode(OutNId) and !NewGraph.IsEdge(NId, OutNId))
+        {
+          NewGraph.AddEdge(NId, OutNId);
         }
       }
       for (int i = 0; i < Node.GetInDeg(); ++i)
@@ -352,10 +360,6 @@ PNEANet GetEgonetHop(const PNEANet &Graph, const int CtrNId, const int Radius)
     {
       const int NId = Queue1.Top();
       Queue1.Pop();
-      if (!NewGraph.IsNode(NId))
-      {
-        NewGraph.AddNode(NId);
-      }
       const TNEANet::TNodeI &Node = Graph->GetNI(NId);
       for (int i = 0; i < Node.GetInDeg(); ++i)
       {
@@ -368,6 +372,14 @@ PNEANet GetEgonetHop(const PNEANet &Graph, const int CtrNId, const int Radius)
         if (!NewGraph.IsEdge(InNId, NId))
         {
           AddEdgeWithAttributes(Graph, NewGraphPt, InNId, NId);
+        }
+      }
+      for (int i = 0; i < Node.GetOutDeg(); ++i)
+      {
+        const int OutNId = Node.GetInNId(i);
+        if (NewGraph.IsNode(OutNId) and !NewGraph.IsEdge(NId, OutNId))
+        {
+          AddEdgeWithAttributes(Graph, NewGraphPt, NId, OutNId);
         }
       }
       for (int i = 0; i < Node.GetInDeg(); ++i)
