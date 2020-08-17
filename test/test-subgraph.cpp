@@ -386,40 +386,40 @@ TEST(subgraph, TestEgoNetsTUNGraph)
 
 }
 
-// Test PNEANet GetEgoNetHop
-// TEST(subgraph, TestEgoNetsPNEANet)
-// {
-//   PUNGraph Graph;
-//   PUNGraph Graph0;
-//   PUNGraph Graph1;
-//   PUNGraph Graph2;
-//   PUNGraph Graph3;
-//   PUNGraph Graph4;
+// Test TNEANet GetEgoNetHop
+TEST(subgraph, TestEgoNetsPNEANet)
+{
+  PNEANet Graph;
+  PNEANet Graph0;
+  PNEANet Graph1;
+  PNEANet Graph2;
+  PNEANet Graph3;
+  PNEANet Graph4;
 
-//   Graph = GetTestTUNGraph();
-//   EXPECT_EQ(20, Graph->GetNodes());
-//   EXPECT_EQ(60, Graph->GetEdges());
+  Graph = GetTestTNEANet();
+  EXPECT_EQ(20, Graph->GetNodes());
+  EXPECT_EQ(60, Graph->GetEdges());
 
-//   Graph0 = TSnap::GetEgonetHop(Graph, 3, 0);
-//   EXPECT_EQ(1, Graph0->GetNodes());
-//   EXPECT_EQ(0, Graph0->GetEdges());
+  Graph0 = TSnap::GetEgonetHop(Graph, 3, 0);
+  EXPECT_EQ(1, Graph0->GetNodes());
+  EXPECT_EQ(0, Graph0->GetEdges());
 
-//   Graph1 = TSnap::GetEgonetHop(Graph, 0, 1);
-//   EXPECT_EQ(7, Graph1->GetNodes());
-//   EXPECT_EQ(15, Graph1->GetEdges());
+  Graph1 = TSnap::GetEgonetHop(Graph, 0, 1);
+  EXPECT_EQ(7, Graph1->GetNodes());
+  EXPECT_EQ(15, Graph1->GetEdges());
 
-//   Graph2 = TSnap::GetEgonetHop(Graph, 7, 2);
-//   EXPECT_EQ(13, Graph2->GetNodes());
-//   EXPECT_EQ(33, Graph2->GetEdges());
+  Graph2 = TSnap::GetEgonetHop(Graph, 7, 2);
+  EXPECT_EQ(13, Graph2->GetNodes());
+  EXPECT_EQ(33, Graph2->GetEdges());
 
-//   Graph3 = TSnap::GetEgonetHop(Graph, 19, 3);
-//   EXPECT_EQ(19, Graph3->GetNodes());
-//   EXPECT_EQ(54, Graph3->GetEdges());
+  Graph3 = TSnap::GetEgonetHop(Graph, 19, 3);
+  EXPECT_EQ(19, Graph3->GetNodes());
+  EXPECT_EQ(54, Graph3->GetEdges());
 
-//   Graph4 = TSnap::GetEgonetHop(Graph, 8, 4);
-//   EXPECT_EQ(20, Graph4->GetNodes());
-//   EXPECT_EQ(60, Graph4->GetEdges());
-// }
+  Graph4 = TSnap::GetEgonetHop(Graph, 8, 4);
+  EXPECT_EQ(20, Graph4->GetNodes());
+  EXPECT_EQ(60, Graph4->GetEdges());
+}
 
 // Generate TUNGraph
 PUNGraph GetTestTUNGraph() {
@@ -450,6 +450,28 @@ PNGraph GetTestTNGraph() {
     Graph->AddEdge(i,(i+1) % 20);
     Graph->AddEdge(i,(i+2) % 20);
     Graph->AddEdge(i,(i+3) % 20);
+  }
+
+  return Graph;
+}
+
+// Generate TNEANet
+PNEANet GetTestTNEANet()
+{
+  PNEANet Graph = PNEANet::New();
+  TStr s = "id";
+
+  for (int i = 0; i < 20; i++)
+  {
+    Graph->AddNode(i);
+    Graph->AddIntAttrDatN(i, i, s);
+  }
+
+  for (int i = 0; i < 20; i++)
+  {
+    Graph->AddEdge(i, (i + 1) % 20);
+    Graph->AddEdge(i, (i + 2) % 20);
+    Graph->AddEdge(i, (i + 3) % 20);
   }
 
   return Graph;
