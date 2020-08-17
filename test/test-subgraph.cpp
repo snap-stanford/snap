@@ -315,7 +315,7 @@ TEST(subgraph, TestGetRndGraphs) {
   EXPECT_EQ(10,NGraph3->GetEdges());
 }
 
-// Test TUNGraph GetEgoNetHop
+// Test TNGraph GetEgoNetHop
 TEST(subgraph, TestEgoNetsTNGraph)
 {
   PNGraph Graph;
@@ -325,7 +325,7 @@ TEST(subgraph, TestEgoNetsTNGraph)
   PNGraph Graph3;
   PNGraph Graph4;
 
-  Graph = GetTestTUNGraph();
+  Graph = GetTestTNGraph();
   EXPECT_EQ(20, Graph->GetNodes());
   EXPECT_EQ(60, Graph->GetEdges());
 
