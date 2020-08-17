@@ -243,85 +243,85 @@ PUNGraph GetEgonetHop(const PUNGraph &Graph, const int CtrNId, const int Radius)
 }
 
 void AddNodeWithAttributes(const PNEANet& Graph1, PNEANet& Graph2, const int NId) {
-  Graph2.AddNode(NId);
+  Graph2->AddNode(NId);
   // Copy Int Attributes
   TStrV IntAttrNames;
   TIntV IntAttrValues;
-  Graph1.IntAttrNameNI(NId, IntAttrNames);
-  Graph1.IntAttrValueNI(NId, IntAttrValues);
+  Graph1->IntAttrNameNI(NId, IntAttrNames);
+  Graph1->IntAttrValueNI(NId, IntAttrValues);
   for (int i = 0; i < IntAttrNames.Len(); i++)
   {
-    Graph2.AddIntAttrDatN(NId, IntAttrValues[i], IntAttrNames[i]);
+    Graph2->AddIntAttrDatN(NId, IntAttrValues[i], IntAttrNames[i]);
   }
   // Copy Float Attributes
   TStrV FltAttrNames;
   TFltV FltAttrValues;
-  Graph1.FltAttrNameNI(NId, FltAttrNames);
-  Graph1.FltAttrValueNI(NId, FltAttrValues);
+  Graph1->FltAttrNameNI(NId, FltAttrNames);
+  Graph1->FltAttrValueNI(NId, FltAttrValues);
   for (int i = 0; i < FltAttrNames.Len(); i++)
   {
-    Graph2.AddFltAttrDatN(NId, FltAttrValues[i], FltAttrNames[i]);
+    Graph2->AddFltAttrDatN(NId, FltAttrValues[i], FltAttrNames[i]);
   }
   // Copy Str Attributes
   TStrV StrAttrNames;
   TStrV StrAttrValues;
-  Graph1.StrAttrNameNI(NId, StrAttrNames);
-  Graph1.StrAttrValueNI(NId, StrAttrValues);
+  Graph1->StrAttrNameNI(NId, StrAttrNames);
+  Graph1->StrAttrValueNI(NId, StrAttrValues);
   for (int i = 0; i < StrAttrNames.Len(); i++)
   {
-    Graph2.AddStrAttrDatN(NId, StrAttrValues[i], StrAttrNames[i]);
+    Graph2->AddStrAttrDatN(NId, StrAttrValues[i], StrAttrNames[i]);
   }
   // Copy IntV Attributes
   TStrV IntVAttrNames;
   TVec<TIntV> IntVAttrValues;
-  Graph1.IntVAttrNameNI(NId, IntVAttrNames);
-  Graph1.IntVAttrValueNI(NId, IntVAttrValues);
+  Graph1->IntVAttrNameNI(NId, IntVAttrNames);
+  Graph1->IntVAttrValueNI(NId, IntVAttrValues);
   for (int i = 0; i < IntVAttrNames.Len(); i++)
   {
-    Graph2.AddIntAttrDatN(NId, IntVAttrValues[i], IntVAttrNames[i]);
+    Graph2->AddIntVAttrDatN(NId, IntVAttrValues[i], IntVAttrNames[i]);
   }
 }
 
 void AddEdgeWithAttributes(const PNEANet &Graph1, PNEANet &Graph2, 
                            const int NId, const int NbrId)
 {
-  Graph2.AddEdge(NId, NbrId);
-  const int EId = Graph2.GetEId(NId, NbrId);
+  Graph2->AddEdge(NId, NbrId);
+  const int EId = Graph2->GetEId(NId, NbrId);
   // Copy Int Attributes
   TStrV IntAttrNames;
   TIntV IntAttrValues;
-  Graph1.IntAttrNameEI(EId, IntAttrNames);
-  Graph1.IntAttrValueEI(EId, IntAttrValues);
+  Graph1->IntAttrNameEI(EId, IntAttrNames);
+  Graph1->IntAttrValueEI(EId, IntAttrValues);
   for (int i = 0; i < IntAttrNames.Len(); i++)
   {
-    Graph2.AddIntAttrDatE(EId, IntAttrValues[i], IntAttrNames[i]);
+    Graph2->AddIntAttrDatE(EId, IntAttrValues[i], IntAttrNames[i]);
   }
   // Copy Float Attributes
   TStrV FltAttrNames;
   TFltV FltAttrValues;
-  Graph1.FltAttrNameEI(EId, FltAttrNames);
-  Graph1.FltAttrValueEI(EId, FltAttrValues);
+  Graph1->FltAttrNameEI(EId, FltAttrNames);
+  Graph1->FltAttrValueEI(EId, FltAttrValues);
   for (int i = 0; i < FltAttrNames.Len(); i++)
   {
-    Graph2.AddFltAttrDatE(EId, FltAttrValues[i], FltAttrNames[i]);
+    Graph2->AddFltAttrDatE(EId, FltAttrValues[i], FltAttrNames[i]);
   }
   // Copy Str Attributes
   TStrV StrAttrNames;
   TStrV StrAttrValues;
-  Graph1.StrAttrNameEI(EId, StrAttrNames);
-  Graph1.StrAttrValueEI(EId, StrAttrValues);
+  Graph1->StrAttrNameEI(EId, StrAttrNames);
+  Graph1->StrAttrValueEI(EId, StrAttrValues);
   for (int i = 0; i < StrAttrNames.Len(); i++)
   {
-    Graph2.AddStrAttrDatE(EId, StrAttrValues[i], StrAttrNames[i]);
+    Graph2->AddStrAttrDatE(EId, StrAttrValues[i], StrAttrNames[i]);
   }
   // Copy IntV Attributes
   TStrV IntVAttrNames;
   TVec<TIntV> IntVAttrValues;
-  Graph1.IntVAttrNameEI(EId, IntVAttrNames);
-  Graph1.IntVAttrValueEI(EId, IntVAttrValues);
+  Graph1->IntVAttrNameEI(EId, IntVAttrNames);
+  Graph1->IntVAttrValueEI(EId, IntVAttrValues);
   for (int i = 0; i < IntVAttrNames.Len(); i++)
   {
-    Graph2.AddIntAttrDatE(EId, IntVAttrValues[i], IntVAttrNames[i]);
+    Graph2->AddIntAttrDatE(EId, IntVAttrValues[i], IntVAttrNames[i]);
   }
 }
 
@@ -343,7 +343,7 @@ PNEANet GetEgonetHop(const PNEANet &Graph, const int CtrNId, const int Radius)
       Queue1.Pop();
       if (!NewGraph.IsNode(NId))
       {
-        AddNodeWithAttributes(Graph, NewGraph, NId);
+        AddNodeWithAttributes(Graph, NewGraphPt, NId);
       }
       const TNEANet::TNodeI &Node = Graph->GetNI(NId);
       for (int i = 0; i < Node.GetInDeg(); ++i)
@@ -351,7 +351,7 @@ PNEANet GetEgonetHop(const PNEANet &Graph, const int CtrNId, const int Radius)
         const int InNId = Node.GetInNId(i);
         if (!NewGraph.IsNode(InNId))
         {
-          AddNodeWithAttributes(Graph, NewGraph, InNId);
+          AddNodeWithAttributes(Graph, NewGraphPt, InNId);
           Queue2.Push(InNId);
         }
       }
@@ -366,7 +366,7 @@ PNEANet GetEgonetHop(const PNEANet &Graph, const int CtrNId, const int Radius)
           {
             if (!NewGraph.IsEdge(NbrNId, NbrNbrNId))
             {
-              AddEdgeWithAttributes(Graph, NewGraph, NbrNId, NbrNbrNId);
+              AddEdgeWithAttributes(Graph, NewGraphPt, NbrNId, NbrNbrNId);
             }
           }
         }
