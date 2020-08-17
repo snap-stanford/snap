@@ -56,7 +56,7 @@ PNGraph GetEgonet(const PNGraph& Graph, const int CtrNId, int& InEdges, int& Out
 /// Returns the egonet of node CtrNId as center in undirected graph Graph for a given radius.
 PUNGraph GetEgonetHop(const PUNGraph& Graph, const int CtrNId, const int Radius);
 /// Returns the egonet of node CtrNId as center in PNEANet for a given radius.
-PUNGraph GetEgonetHop(const PUNGraph &Graph, const int CtrNId, const int Radius);
+PNEANet GetEgonetHop(const PNEANet &Graph, const int CtrNId, const int Radius);
 
 /////////////////////////////////////////////////
 // Implementation
