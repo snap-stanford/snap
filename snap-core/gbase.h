@@ -173,7 +173,7 @@ public:
   /// Returns the value of the ValN element in the queue, but does not remove the element.
   const TVal& operator[](const int& ValN) const { return ValV[First+ValN]; }
 
-  // Randomly sample n elements and add to front of queue 
+  // Randomly sample num elements from Queue and add to front
   void Sample(const int num);
 
   /// Deletes all elements from the queue.

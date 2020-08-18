@@ -382,4 +382,58 @@ PNEANet GetEgonetHop(const PNEANet &Graph, const int CtrNId, const int Radius)
   return NewGraphPt;
 }
 
+PUNGraph GetEgonetHop(const PUNGraph &Graph, const int CtrNId, const int Radius, const int MaxNum) {
+  PUNGraph NewGraphPt = TUNGraph::New();
+  TUNGraph &NewGraph = *NewGraphPt;
+  TSnapQueue<int> Queue1;
+  TSnapQueue<int> Queue2;
+  TSnapQueue<int> tempQueue;
+  NewGraph.AddNode(CtrNId);
+  Queue1.Clr(false);
+  Queue1.Push(CtrNId);
+  for (int r = 0; r < Radius; ++r)
+  {
+    Queue1.Sample(MaxNum);
+    for (int el = 0; el < MaxNum && !Queue1.empty(); ++el)
+    {
+      const int NId = Queue1.Top();
+      Queue1.Pop();
+      const TUNGraph::TNodeI &Node = Graph->GetNI(NId);
+      for (int i = 0; i < Node.GetInDeg(); ++i)
+      {
+        const int InNId = Node.GetInNId(i);
+        if (!NewGraph.IsNode(InNId))
+        {
+          NewGraph.AddNode(InNId);
+          Queue2.Push(InNId);
+        }
+        if (!NewGraph.IsEdge(InNId, NId))
+        {
+          NewGraph.AddEdge(InNId, NId);
+        }
+      }
+      for (int i = 0; i < Node.GetInDeg(); ++i)
+      {
+        int NbrNId = Node.GetInNId(i);
+        const TUNGraph::TNodeI &NbrNode = Graph->GetNI(NbrNId);
+        for (int j = 0; j < NbrNode.GetOutDeg(); ++j)
+        {
+          int NbrOutNId = NbrNode.GetOutNId(j);
+          if (NewGraph.IsNode(NbrOutNId))
+          {
+            if (!NewGraph.IsEdge(NbrNId, NbrOutNId))
+            {
+              NewGraph.AddEdge(NbrNId, NbrOutNId);
+            }
+          }
+        }
+      }
+    }
+    tempQueue = Queue1;
+    Queue1 = Queue2;
+    Queue2 = tempQueue;
+  }
+  return NewGraphPt;
+}
+
 } // namespace TSnap

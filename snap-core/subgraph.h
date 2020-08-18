@@ -53,12 +53,22 @@ template<class PGraph> PGraph GetRndESubGraph(const PGraph& Graph, const int& NE
 PUNGraph GetEgonet(const PUNGraph& Graph, const int CtrNId, int& ArndEdges);
 /// Returns the egonet of node CtrNId as center in directed graph Graph. And returns number of edges go in and out the egonet.
 PNGraph GetEgonet(const PNGraph& Graph, const int CtrNId, int& InEdges, int& OutEdges);
+
+// Get egonet of center node given a radius
 /// Returns the egonet of node CtrNId as center in directed graph Graph for a given radius.
 PNGraph GetEgonetHop(const PNGraph &Graph, const int CtrNId, const int Radius);
 /// Returns the egonet of node CtrNId as center in undirected graph Graph for a given radius.
 PUNGraph GetEgonetHop(const PUNGraph& Graph, const int CtrNId, const int Radius);
 /// Returns the egonet of node CtrNId as center in PNEANet for a given radius.
 PNEANet GetEgonetHop(const PNEANet &Graph, const int CtrNId, const int Radius);
+
+// Get egonet of center node, given a radius using fixed number of neighbor nodes
+// /// Returns the egonet of node CtrNId as center for a given radius and fixed sample number
+// PNGraph GetEgonetHop(const PNGraph &Graph, const int CtrNId, const int Radius, const int MaxNum);
+/// Returns the egonet of node CtrNId as center for a given radius and fixed sample number
+PUNGraph GetEgonetHop(const PUNGraph &Graph, const int CtrNId, const int Radius, const int MaxNum);
+// /// Returns the egonet of node CtrNId as center for a given radius and fixed sample number
+// PNEANet GetEgonetHop(const PNEANet &Graph, const int CtrNId, const int Radius, const int MaxNum);
 
 /////////////////////////////////////////////////
 // Implementation
