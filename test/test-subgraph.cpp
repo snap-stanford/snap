@@ -342,7 +342,7 @@ TEST(subgraph, TestEgoNetsTNGraph) {
   EXPECT_EQ(12, Middle->GetEdges());
   PNGraph midego2 = TSnap::GetInEgonetHop<PNGraph>(Middle, 0, 2);
   EXPECT_EQ(5, midego2->GetNodes());
-  EXPECT_EQ(7, midego2->GetEdges());
+  EXPECT_EQ(8, midego2->GetEdges());
   PNGraph midego3 = TSnap::GetInEgonetHop<PNGraph>(Middle, 0, 3);
   EXPECT_EQ(6, midego3->GetNodes());
   EXPECT_EQ(12, midego3->GetEdges());

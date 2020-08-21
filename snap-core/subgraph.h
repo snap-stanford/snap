@@ -427,6 +427,15 @@ PGraph GetInEgonetHop(const PGraph &Graph, const int CtrNId, const int Radius) {
       for (int i = 0; i < Node.GetInDeg(); ++i) {
         int NbrNId = Node.GetInNId(i);
         const typename PGraph::TObj::TNodeI &NbrNode = Graph->GetNI(NbrNId);
+        for (int j = 0; j < NbrNode.GetInDeg(); ++j) {
+          int NbrInNId = NbrNode.GetInNId(j);
+          if (NewGraph.IsNode(NbrInNId)) {
+            if (!NewGraph.IsEdge(NbrInNId, NbrNId)) {
+              NewGraph.AddEdge(NbrInNId, NbrNId);
+              printf("(%d, %d) ", NbrInNId,  NbrNId);
+            }
+          }
+        }
         for (int j = 0; j < NbrNode.GetOutDeg(); ++j) {
           int NbrOutNId = NbrNode.GetOutNId(j);
           if (NewGraph.IsNode(NbrOutNId)) {
