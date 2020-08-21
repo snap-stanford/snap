@@ -48,27 +48,26 @@ template<class PGraph> PGraph GetRndSubGraph(const PGraph& Graph, const int& NNo
 /// Returns a random subgraph of graph Graph with NEdges edges. ##TSnap::GetRndESubGraph
 template<class PGraph> PGraph GetRndESubGraph(const PGraph& Graph, const int& NEdges);
 
-// get egonet of a center node
+// Get 1st degree egonet of a center node
 /// Returns the egonet of node CtrNId as center in undirected graph Graph. And returns number of edges around the egonet.
 PUNGraph GetEgonet(const PUNGraph& Graph, const int CtrNId, int& ArndEdges);
 /// Returns the egonet of node CtrNId as center in directed graph Graph. And returns number of edges go in and out the egonet.
 PNGraph GetEgonet(const PNGraph& Graph, const int CtrNId, int& InEdges, int& OutEdges);
 
-// Get egonet of center node given a radius
-/// Returns the egonet of node CtrNId as center in directed graph Graph for a given radius.
-PNGraph GetEgonetHop(const PNGraph &Graph, const int CtrNId, const int Radius);
-/// Returns the egonet of node CtrNId as center in undirected graph Graph for a given radius.
-PUNGraph GetEgonetHop(const PUNGraph& Graph, const int CtrNId, const int Radius);
-/// Returns the egonet of node CtrNId as center in PNEANet for a given radius.
-PNEANet GetEgonetHop(const PNEANet &Graph, const int CtrNId, const int Radius);
+// Get egonet for given radius
+/// Returns the egonet of node CtrNId as center for a Graph for a given radius.
+// template<class PGraph> PGraph GetEgonetHop(const PGraph &Graph, const int CtrNId, const int Radius);
+/// Returns the in-egonet of node CtrNId as center in directed graph Graph for a given radius.
+template<class PGraph> PGraph GetInEgonetHop(const PGraph &Graph, const int CtrNId, const int Radius);
+/// Returns the out-egonet of node CtrNId as center in directed graph Graph for a given radius.
+// template<class PGraph> PGraph GetOutEgonetHop(const PGraph &Graph, const int CtrNId, const int Radius);
+/// Returns the in-egonet of at given radius and copies node and edge attributes
+// PNEANet GetInEgonetAttr(const PNEANet &Graph, const int CtrNId, const int Radius);
 
-// Get egonet of center node, given a radius using fixed number of neighbor nodes
-// /// Returns the egonet of node CtrNId as center for a given radius and fixed sample number
-// PNGraph GetEgonetHop(const PNGraph &Graph, const int CtrNId, const int Radius, const int MaxNum);
-/// Returns the egonet of node CtrNId as center for a given radius and fixed sample number
-PUNGraph GetEgonetHop(const PUNGraph &Graph, const int CtrNId, const int Radius, const int MaxNum);
-// /// Returns the egonet of node CtrNId as center for a given radius and fixed sample number
-// PNEANet GetEgonetHop(const PNEANet &Graph, const int CtrNId, const int Radius, const int MaxNum);
+/// Returns the randomly sampled in-egonet with nodes sampled based on percentage or raw number.
+// template<class PGraph> PGraph GetInEgonetSub(const PGraph &Graph, const int CtrNId, const int Radius, const int MaxNum, const float percent);
+/// Returns the randomly sampled egonet with nodes sampled based on percentage or raw number, copying attributes
+// PNEANet GetInEgonetSubAttr(const PNEANet &Graph, const int CtrNId, const int Radius, const int MaxNum, const float percent);
 
 /////////////////////////////////////////////////
 // Implementation
