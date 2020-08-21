@@ -539,13 +539,13 @@ TEST(subgraph, TestGetInEgonetSubTUNGraph)
 
   Graph1 = TSnap::GetInEgonetSub<PUNGraph>(Graph, 0, 1, 3, -1.0);
   EXPECT_EQ(4, Graph1->GetNodes());
-  EXPECT_GE(4, Graph1->GetEdges());
-  EXPECT_LE(6, Graph1->GetEdges());
+  EXPECT_LE(4, Graph1->GetEdges());
+  EXPECT_GE(6, Graph1->GetEdges());
 
   Graph2 = TSnap::GetInEgonetSub<PUNGraph>(Graph, 0, 1, 0, 0.9);
   EXPECT_EQ(6, Graph2->GetNodes());
-  EXPECT_GE(10, Graph2->GetEdges());
-  EXPECT_LE(12, Graph2->GetEdges());
+  EXPECT_LE(10, Graph2->GetEdges());
+  EXPECT_GE(12, Graph2->GetEdges());
 }
 
 // Generate TUNGraph

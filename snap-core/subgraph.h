@@ -478,9 +478,9 @@ PGraph GetInEgonetSub(const PGraph &Graph, const int CtrNId, const int Radius, c
         }
       }
       if (usePercent) {
-        numSamples = (int) percent * sampleQueue.Len();
+        numSamples = (int) (percent * sampleQueue.Len());
       }
-      printf("Queue: %d %d %d", sampleQueue.Len(), numSamples, sampleQueue.Top());
+      printf("Queue: %d %d %d ", sampleQueue.Len(), numSamples, sampleQueue.Top());
       sampleQueue.Sample(numSamples);
       printf("%d \n", sampleQueue.Top());
       for (int i = 0; i < numSamples && !sampleQueue.Empty(); ++i) {
