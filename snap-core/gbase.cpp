@@ -57,19 +57,3 @@ void TUnionFind::Dump() {
   }
   printf("\n");
 }
-
-/////////////////////////////////////////////////
-// Snap Queue
-// void TSnapQueue<TVal>::Sample(const int num) {
-//   const int size = Last - First;
-//   int n = min(num, size);
-//   int loc;
-//   TVal temp;
-//   for (int i = 0; i < n; ++i)
-//   {
-//     loc = rand() % (size - i) + First + i; 
-//     temp = ValV[loc];
-//     ValV[loc] = ValV[First + i];
-//     ValV[First + i] = temp;
-//   }
-// }
