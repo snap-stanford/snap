@@ -176,7 +176,7 @@ public:
   // Randomly sample num elements from Queue and add to front
   void Sample(const int num) {
     const int size = Last - First;
-    int n = min(num, size);
+    int n = num ? num < size : size;
     int loc;
     TVal temp;
     for (int i = 0; i < n; ++i) {

@@ -459,22 +459,33 @@ PGraph GetInEgonetSub(const PGraph &Graph, const int CtrNId, const int Radius, c
   TSnapQueue<int> Queue1;
   TSnapQueue<int> Queue2;
   TSnapQueue<int> tempSwapQueue;
+  TSnapQueue<int> sampleQueue;
   NewGraph.AddNode(CtrNId);
   Queue1.Clr(false);
   Queue1.Push(CtrNId);
   bool usePercent = (percent != -1.0);
   int numSamples = MaxNum;
   for (int r = 0; r < Radius; ++r) {
-    if (usePercent) {
-      numSamples = (int) percent * Queue1.Len();
-    }
-    Queue1.Sample(numSamples);
-    for (int i = 0; i < numSamples && !Queue1.Empty(); ++i) {
+    while (!Queue1.Empty()) {
       const int NId = Queue1.Top();
       Queue1.Pop();
       const typename PGraph::TObj::TNodeI &Node = Graph->GetNI(NId);
+      sampleQueue.Clr(true);
       for (int i = 0; i < Node.GetInDeg(); ++i) {
         const int InNId = Node.GetInNId(i);
+        if (!NewGraph.IsNode(InNId)) {
+          sampleQueue.Push(InNId);
+        }
+      }
+      if (usePercent) {
+        numSamples = (int) percent * sampleQueue.Len();
+      }
+      printf("Queue: %d %d %d", sampleQueue.Len(), numSamples, sampleQueue.Top());
+      sampleQueue.Sample(numSamples);
+      printf("%d \n", sampleQueue.Top());
+      for (int i = 0; i < numSamples && !sampleQueue.Empty(); ++i) {
+        const int InNId = sampleQueue.Top();
+        sampleQueue.Pop();
         if (!NewGraph.IsNode(InNId)) {
           NewGraph.AddNode(InNId);
           Queue2.Push(InNId);
@@ -485,6 +496,7 @@ PGraph GetInEgonetSub(const PGraph &Graph, const int CtrNId, const int Radius, c
       }
       for (int i = 0; i < Node.GetInDeg(); ++i) {
         int InNId = Node.GetInNId(i);
+        if (!NewGraph.IsNode(InNId)) { continue; }
         const typename PGraph::TObj::TNodeI &InNode = Graph->GetNI(InNId);
         for (int j = 0; j < InNode.GetInDeg(); ++j) {
           int NbrInNId = InNode.GetInNId(j);

@@ -317,7 +317,7 @@ TEST(subgraph, TestGetRndGraphs) {
 }
 
 // Test TNGraph GetEgoNetHop
-TEST(subgraph, TestEgoNetsTNGraph) {
+TEST(subgraph, TestGetInEgonetHopTNGraph) {
   // Test on TNSmall Graph
   PNGraph Small = TNGraph::GetSmallGraph();
   PNGraph ego1 = TSnap::GetInEgonetHop<PNGraph>(Small, 4, 1);
@@ -519,6 +519,33 @@ TEST(subgraph, TestGetInEgonetsAttr)
   for (int i = 0; i < NIds.Len(); i++) {
     EXPECT_EQ(NIds[i], Graph7->GetIntAttrDatN(NIds[i], s));
   }
+}
+
+// Test TUNGraph GetInEgonetSub
+TEST(subgraph, TestGetInEgonetSubTUNGraph)
+{
+  PUNGraph Graph;
+  PUNGraph Graph0;
+  PUNGraph Graph1;
+  PUNGraph Graph2;
+
+  Graph = GetTestTUNGraph();
+  EXPECT_EQ(20, Graph->GetNodes());
+  EXPECT_EQ(60, Graph->GetEdges());
+
+  Graph0 = TSnap::GetInEgonetSub<PUNGraph>(Graph, 3, 0, 2, 1.0);
+  EXPECT_EQ(1, Graph0->GetNodes());
+  EXPECT_EQ(0, Graph0->GetEdges());
+
+  Graph1 = TSnap::GetInEgonetSub<PUNGraph>(Graph, 0, 1, 3, -1.0);
+  EXPECT_EQ(4, Graph1->GetNodes());
+  EXPECT_GE(4, Graph1->GetEdges());
+  EXPECT_LE(6, Graph1->GetEdges());
+
+  Graph2 = TSnap::GetInEgonetSub<PUNGraph>(Graph, 0, 1, 0, 0.9);
+  EXPECT_EQ(6, Graph2->GetNodes());
+  EXPECT_GE(10, Graph2->GetEdges());
+  EXPECT_LE(12, Graph2->GetEdges());
 }
 
 // Generate TUNGraph
