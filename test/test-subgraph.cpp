@@ -606,7 +606,7 @@ TEST(subgraph, TestGetInEgonetSubAttr) {
   EXPECT_EQ(20, Graph->GetNodes());
   EXPECT_EQ(60, Graph->GetEdges());
 
-  Graph0 = TSnap::GetInEgonetSub<PNEANet>(Graph, 3, 0, 2, 1.0);
+  Graph0 = TSnap::GetInEgonetSubAttr(Graph, 3, 0, 2, 1.0);
   EXPECT_EQ(1, Graph0->GetNodes());
   EXPECT_EQ(0, Graph0->GetEdges());
   NIds.Clr();
@@ -615,7 +615,7 @@ TEST(subgraph, TestGetInEgonetSubAttr) {
     EXPECT_EQ(NIds[i], Graph0->GetIntAttrDatN(NIds[i], s));
   }
 
-  Graph1 = TSnap::GetInEgonetSub<PNEANet>(Graph, 0, 1, 2, -1.0);
+  Graph1 = TSnap::GetInEgonetSubAttr(Graph, 0, 1, 2, -1.0);
   EXPECT_EQ(3, Graph1->GetNodes());
   EXPECT_EQ(3, Graph1->GetEdges());
   NIds.Clr();
@@ -624,7 +624,7 @@ TEST(subgraph, TestGetInEgonetSubAttr) {
     EXPECT_EQ(NIds[i], Graph1->GetIntAttrDatN(NIds[i], s));
   }
 
-  Graph2 = TSnap::GetInEgonetSub<PNEANet>(Graph, 0, 1, 0, 0.9);
+  Graph2 = TSnap::GetInEgonetSubAttr(Graph, 0, 1, 0, 0.9);
   EXPECT_EQ(3, Graph2->GetNodes());
   EXPECT_EQ(3, Graph2->GetEdges());
   NIds.Clr();

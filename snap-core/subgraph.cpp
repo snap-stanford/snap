@@ -265,7 +265,7 @@ PNEANet GetInEgonetAttr(const PNEANet &Graph, const int CtrNId, const int Radius
   return NewGraphPt;
 }
 
-PNEANet GetInEgonetSub(const PNEANet &Graph, const int CtrNId, const int Radius, const int MaxNum, const float percent) {
+PNEANet GetInEgonetSubAttr(const PNEANet &Graph, const int CtrNId, const int Radius, const int MaxNum, const float percent) {
   PNEANet NewGraphPt = TNEANet::New();
   TNEANet& NewGraph = *NewGraphPt;
   TSnapQueue<int> Queue1;
