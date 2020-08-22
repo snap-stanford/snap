@@ -281,7 +281,7 @@ PNEANet GetInEgonetSub(const PNEANet &Graph, const int CtrNId, const int Radius,
     while (!Queue1.Empty()) {
       const int NId = Queue1.Top();
       Queue1.Pop();
-      TNEANet::TNodeI &Node = Graph->GetNI(NId);
+      const TNEANet::TNodeI &Node = Graph->GetNI(NId);
       sampleQueue.Clr(true);
       for (int i = 0; i < Node.GetInDeg(); ++i) {
         const int InNId = Node.GetInNId(i);
@@ -307,7 +307,7 @@ PNEANet GetInEgonetSub(const PNEANet &Graph, const int CtrNId, const int Radius,
       for (int i = 0; i < Node.GetInDeg(); ++i) {
         int InNId = Node.GetInNId(i);
         if (!NewGraph.IsNode(InNId)) { continue; }
-        TNEANet::TNodeI &InNode = Graph->GetNI(InNId);
+        const TNEANet::TNodeI &InNode = Graph->GetNI(InNId);
         for (int j = 0; j < InNode.GetInDeg(); ++j) {
           int NbrInNId = InNode.GetInNId(j);
           if (NewGraph.IsNode(NbrInNId)) {
