@@ -176,26 +176,14 @@ public:
   // Randomly sample num elements from Queue and add to front
   void Sample(const int num) {
     const int size = Last - First;
-    int n = num ? num < size : size;
     int loc;
     TVal temp;
-    printf("before: ");
-    for (int i = 0; i < size; ++i) {
-      printf("%d ", ValV[First+i]);
-    }
-    printf("\n");
-    for (int i = 0; i < n; ++i) {
-      loc = rand() % (size - i) + First + i; 
+    for (int i = 0; i < num && i < size; ++i) {
+      loc = (rand() % (size - i)) + First + i;
       temp = ValV[loc];
       ValV[loc] = ValV[First + i];
       ValV[First + i] = temp;
-      printf("%d ", loc - First)
     }
-    printf("\nafter: ");
-    for (int i = 0; i < size; ++i) {
-      printf("%d ", ValV[First+i]);
-    }
-    printf("\n");
   }
 
   /// Deletes all elements from the queue.
