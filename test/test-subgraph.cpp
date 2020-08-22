@@ -670,8 +670,7 @@ PNGraph GetTestTNGraph() {
 }
 
 // Generate TNEANet
-PNEANet GetTestTNEANet()
-{
+PNEANet GetTestTNEANet() {
   PNEANet Graph = PNEANet::New();
   TStr s = "id";
 
