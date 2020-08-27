@@ -48,11 +48,26 @@ template<class PGraph> PGraph GetRndSubGraph(const PGraph& Graph, const int& NNo
 /// Returns a random subgraph of graph Graph with NEdges edges. ##TSnap::GetRndESubGraph
 template<class PGraph> PGraph GetRndESubGraph(const PGraph& Graph, const int& NEdges);
 
-// get egonet of a center node
+// Get 1st degree egonet of a center node
 /// Returns the egonet of node CtrNId as center in undirected graph Graph. And returns number of edges around the egonet.
 PUNGraph GetEgonet(const PUNGraph& Graph, const int CtrNId, int& ArndEdges);
 /// Returns the egonet of node CtrNId as center in directed graph Graph. And returns number of edges go in and out the egonet.
 PNGraph GetEgonet(const PNGraph& Graph, const int CtrNId, int& InEdges, int& OutEdges);
+
+// Get egonet for given radius
+/// Returns the egonet of node CtrNId as center for a Graph for a given radius.
+// template<class PGraph> PGraph GetEgonetHop(const PGraph &Graph, const int CtrNId, const int Radius);
+/// Returns the in-egonet of node CtrNId as center in directed graph Graph for a given radius.
+template<class PGraph> PGraph GetInEgonetHop(const PGraph& Graph, const int CtrNId, const int Radius);
+/// Returns the out-egonet of node CtrNId as center in directed graph Graph for a given radius.
+// template<class PGraph> PGraph GetOutEgonetHop(const PGraph &Graph, const int CtrNId, const int Radius);
+/// Returns the in-egonet of at given radius and copies node and edge attributes
+PNEANet GetInEgonetAttr(const PNEANet &Graph, const int CtrNId, const int Radius);
+
+/// Returns the randomly sampled in-egonet with nodes sampled based on percentage or raw number.
+template<class PGraph> PGraph GetInEgonetSub(const PGraph &Graph, const int CtrNId, const int Radius, const int MaxNum, const float percent);
+/// Returns the randomly sampled egonet with nodes sampled based on percentage or raw number, copying attributes
+PNEANet GetInEgonetSubAttr(const PNEANet &Graph, const int CtrNId, const int Radius, const int MaxNum, const float percent);
 
 /////////////////////////////////////////////////
 // Implementation
@@ -379,6 +394,131 @@ PGraph GetRndESubGraph(const PGraph& Graph, const int& NEdges) {
   EdgeV.Del(NEdges, EdgeV.Len()-1);
   IAssert(EdgeV.Len() == NEdges);
   return GetESubGraph(Graph, EdgeV);
+}
+
+
+// Egonet templatized functions
+
+template<class PGraph>
+PGraph GetInEgonetHop(const PGraph &Graph, const int CtrNId, const int Radius) {
+  PGraph NewGraphPt = PGraph::TObj::New();
+  typename PGraph::TObj& NewGraph = *NewGraphPt;
+  TSnapQueue<int> Queue1;
+  TSnapQueue<int> Queue2;
+  TSnapQueue<int> tempSwapQueue;
+  NewGraph.AddNode(CtrNId);
+  Queue1.Clr(false);
+  Queue1.Push(CtrNId);
+  for (int r = 0; r < Radius; ++r) {
+    while (!Queue1.Empty()) {
+      const int NId = Queue1.Top();
+      Queue1.Pop();
+      const typename PGraph::TObj::TNodeI &Node = Graph->GetNI(NId);
+      for (int i = 0; i < Node.GetInDeg(); ++i) {
+        const int InNId = Node.GetInNId(i);
+        if (!NewGraph.IsNode(InNId)) {
+          NewGraph.AddNode(InNId);
+          Queue2.Push(InNId);
+        }
+        if (!NewGraph.IsEdge(InNId, NId)) {
+          NewGraph.AddEdge(InNId, NId);
+        }
+      }
+      for (int i = 0; i < Node.GetInDeg(); ++i) {
+        int InNId = Node.GetInNId(i);
+        const typename PGraph::TObj::TNodeI &InNode = Graph->GetNI(InNId);
+        for (int j = 0; j < InNode.GetInDeg(); ++j) {
+          int NbrInNId = InNode.GetInNId(j);
+          if (NewGraph.IsNode(NbrInNId)) {
+            if (!NewGraph.IsEdge(NbrInNId, InNId)) {
+              NewGraph.AddEdge(NbrInNId, InNId);
+            }
+          }
+        }
+        for (int j = 0; j < InNode.GetOutDeg(); ++j) {
+          int NbrOutNId = InNode.GetOutNId(j);
+          if (NewGraph.IsNode(NbrOutNId)) {
+            if (!NewGraph.IsEdge(InNId, NbrOutNId)) {
+              NewGraph.AddEdge(InNId, NbrOutNId);
+            }
+          }
+        }
+      }
+    }
+    tempSwapQueue = Queue1;
+    Queue1 = Queue2;
+    Queue2 = tempSwapQueue;
+  }
+  return NewGraphPt;
+}
+
+template<class PGraph>
+PGraph GetInEgonetSub(const PGraph &Graph, const int CtrNId, const int Radius, const int MaxNum, const float percent) {
+  PGraph NewGraphPt = PGraph::TObj::New();
+  typename PGraph::TObj& NewGraph = *NewGraphPt;
+  TSnapQueue<int> Queue1;
+  TSnapQueue<int> Queue2;
+  TSnapQueue<int> tempSwapQueue;
+  TSnapQueue<int> sampleQueue;
+  NewGraph.AddNode(CtrNId);
+  Queue1.Clr(false);
+  Queue1.Push(CtrNId);
+  bool usePercent = (percent != -1.0);
+  int numSamples = MaxNum;
+  for (int r = 0; r < Radius; ++r) {
+    while (!Queue1.Empty()) {
+      const int NId = Queue1.Top();
+      Queue1.Pop();
+      const typename PGraph::TObj::TNodeI &Node = Graph->GetNI(NId);
+      sampleQueue.Clr(true);
+      for (int i = 0; i < Node.GetInDeg(); ++i) {
+        const int InNId = Node.GetInNId(i);
+        if (!NewGraph.IsNode(InNId)) {
+          sampleQueue.Push(InNId);
+        }
+      }
+      if (usePercent) {
+        numSamples = (int) (percent * sampleQueue.Len());
+      }
+      sampleQueue.Sample(numSamples);
+      for (int i = 0; i < numSamples && !sampleQueue.Empty(); ++i) {
+        const int InNId = sampleQueue.Top();
+        sampleQueue.Pop();
+        if (!NewGraph.IsNode(InNId)) {
+          NewGraph.AddNode(InNId);
+          Queue2.Push(InNId);
+        }
+        if (!NewGraph.IsEdge(InNId, NId)) {
+          NewGraph.AddEdge(InNId, NId);
+        }
+      }
+      for (int i = 0; i < Node.GetInDeg(); ++i) {
+        int InNId = Node.GetInNId(i);
+        if (!NewGraph.IsNode(InNId)) { continue; }
+        const typename PGraph::TObj::TNodeI &InNode = Graph->GetNI(InNId);
+        for (int j = 0; j < InNode.GetInDeg(); ++j) {
+          int NbrInNId = InNode.GetInNId(j);
+          if (NewGraph.IsNode(NbrInNId)) {
+            if (!NewGraph.IsEdge(NbrInNId, InNId)) {
+              NewGraph.AddEdge(NbrInNId, InNId);
+            }
+          }
+        }
+        for (int j = 0; j < InNode.GetOutDeg(); ++j) {
+          int NbrOutNId = InNode.GetOutNId(j);
+          if (NewGraph.IsNode(NbrOutNId)) {
+            if (!NewGraph.IsEdge(InNId, NbrOutNId)) {
+              NewGraph.AddEdge(InNId, NbrOutNId);
+            }
+          }
+        }
+      }
+    }
+    tempSwapQueue = Queue1;
+    Queue1 = Queue2;
+    Queue2 = tempSwapQueue;
+  }
+  return NewGraphPt;
 }
 
 } // namespace TSnap

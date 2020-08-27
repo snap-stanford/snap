@@ -5,6 +5,7 @@
 PUNGraph GetTestTUNGraph();
 PNGraph GetTestTNGraph();
 PNEGraph GetTestTNEGraph();
+PNEANet GetTestTNEANet();
 TPt <TNodeEDatNet<TInt, TInt> > GetTestTNodeEDatNet();
 TPt <TNodeEdgeNet<TInt, TInt> > GetTestTNodeEdgeNet();
 
@@ -315,6 +316,325 @@ TEST(subgraph, TestGetRndGraphs) {
   EXPECT_EQ(10,NGraph3->GetEdges());
 }
 
+// Test TNGraph GetEgoNetHop
+TEST(subgraph, TestGetInEgonetHopTNGraph) {
+  // Test on TNSmall Graph
+  PNGraph Small = TNGraph::GetSmallGraph();
+  PNGraph ego1 = TSnap::GetInEgonetHop<PNGraph>(Small, 4, 1);
+  EXPECT_EQ(2, ego1->GetNodes());
+  EXPECT_EQ(1, ego1->GetEdges());
+  PNGraph ego2 = TSnap::GetInEgonetHop<PNGraph>(Small, 4, 2);
+  EXPECT_EQ(4, ego2->GetNodes());
+  EXPECT_EQ(4, ego2->GetEdges());
+  PNGraph ego3 = TSnap::GetInEgonetHop<PNGraph>(Small, 4, 3);
+  EXPECT_EQ(5, ego3->GetNodes());
+  EXPECT_EQ(6, ego3->GetEdges());
+
+  // Middle Size TN graph
+  PNGraph Middle = TNGraph::New();
+  for (int i = 0; i < 6; i++) {
+    Middle->AddNode(i);
+  }
+  for (int i = 0; i < 6; i++) {
+    Middle->AddEdge(i, (i + 1) % 6);
+    Middle->AddEdge(i, (i + 2) % 6);
+  }
+  EXPECT_EQ(12, Middle->GetEdges());
+  PNGraph midego2 = TSnap::GetInEgonetHop<PNGraph>(Middle, 0, 2);
+  EXPECT_EQ(5, midego2->GetNodes());
+  EXPECT_EQ(8, midego2->GetEdges());
+  PNGraph midego3 = TSnap::GetInEgonetHop<PNGraph>(Middle, 0, 3);
+  EXPECT_EQ(6, midego3->GetNodes());
+  EXPECT_EQ(12, midego3->GetEdges());
+
+  // Larger TN Graph
+  PNGraph Graph;
+  PNGraph Graph0;
+  PNGraph Graph1;
+  PNGraph Graph2;
+  PNGraph Graph3;
+  PNGraph Graph4;
+  PNGraph Graph5;
+  PNGraph Graph6;
+  PNGraph Graph7;
+
+  Graph = GetTestTNGraph();
+  EXPECT_EQ(20, Graph->GetNodes());
+  EXPECT_EQ(60, Graph->GetEdges());
+
+  Graph0 = TSnap::GetInEgonetHop<PNGraph>(Graph, 0, 0);
+  EXPECT_EQ(1, Graph0->GetNodes());
+  EXPECT_EQ(0, Graph0->GetEdges());
+
+  Graph1 = TSnap::GetInEgonetHop<PNGraph>(Graph, 3, 1);
+  EXPECT_EQ(4, Graph1->GetNodes());
+  EXPECT_EQ(6, Graph1->GetEdges());
+
+  Graph2 = TSnap::GetInEgonetHop<PNGraph>(Graph, 6, 2);
+  EXPECT_EQ(7, Graph2->GetNodes());
+  EXPECT_EQ(15, Graph2->GetEdges());
+
+  Graph3 = TSnap::GetInEgonetHop<PNGraph>(Graph, 9, 3);
+  EXPECT_EQ(10, Graph3->GetNodes());
+  EXPECT_EQ(24, Graph3->GetEdges());
+
+  Graph4 = TSnap::GetInEgonetHop<PNGraph>(Graph, 12, 4);
+  EXPECT_EQ(13, Graph4->GetNodes());
+  EXPECT_EQ(33, Graph4->GetEdges());
+
+  Graph5 = TSnap::GetInEgonetHop<PNGraph>(Graph, 15, 5);
+  EXPECT_EQ(16, Graph5->GetNodes());
+  EXPECT_EQ(42, Graph5->GetEdges());
+
+  Graph6 = TSnap::GetInEgonetHop<PNGraph>(Graph, 18, 6);
+  EXPECT_EQ(19, Graph6->GetNodes());
+  EXPECT_EQ(54, Graph6->GetEdges());
+
+  Graph7 = TSnap::GetInEgonetHop<PNGraph>(Graph, 1, 7);
+  EXPECT_EQ(20, Graph7->GetNodes());
+  EXPECT_EQ(60, Graph7->GetEdges());
+}
+
+// Test TUNGraph GetInEgonetHop
+TEST(subgraph, TestGetInEgonetHopTUNGraph) {
+  PUNGraph Graph;
+  PUNGraph Graph0;
+  PUNGraph Graph1;
+  PUNGraph Graph2;
+  PUNGraph Graph3;
+  PUNGraph Graph4;
+
+  Graph = GetTestTUNGraph();
+  EXPECT_EQ(20, Graph->GetNodes());
+  EXPECT_EQ(60, Graph->GetEdges());
+
+  Graph0 = TSnap::GetInEgonetHop<PUNGraph>(Graph, 3, 0);
+  EXPECT_EQ(1, Graph0->GetNodes());
+  EXPECT_EQ(0, Graph0->GetEdges());
+
+  Graph1 = TSnap::GetInEgonetHop<PUNGraph>(Graph, 0, 1);
+  EXPECT_EQ(7, Graph1->GetNodes());
+  EXPECT_EQ(15, Graph1->GetEdges());
+
+  Graph2 = TSnap::GetInEgonetHop<PUNGraph>(Graph, 7, 2);
+  EXPECT_EQ(13, Graph2->GetNodes());
+  EXPECT_EQ(33, Graph2->GetEdges());
+
+  Graph3 = TSnap::GetInEgonetHop<PUNGraph>(Graph, 19, 3);
+  EXPECT_EQ(19, Graph3->GetNodes());
+  EXPECT_EQ(54, Graph3->GetEdges());
+
+  Graph4 = TSnap::GetInEgonetHop<PUNGraph>(Graph, 8, 4);
+  EXPECT_EQ(20, Graph4->GetNodes());
+  EXPECT_EQ(60, Graph4->GetEdges());
+}
+
+// Test TNEANet GetInEgonetAttr
+TEST(subgraph, TestGetInEgonetsAttr) {
+  PNEANet Graph;
+  PNEANet Graph0;
+  PNEANet Graph1;
+  PNEANet Graph2;
+  PNEANet Graph3;
+  PNEANet Graph4;
+  PNEANet Graph5;
+  PNEANet Graph6;
+  PNEANet Graph7;
+  TIntV NIds;
+  const TStr s = "id";
+
+  Graph = GetTestTNEANet();
+  EXPECT_EQ(20, Graph->GetNodes());
+  EXPECT_EQ(60, Graph->GetEdges());
+
+  Graph0 = TSnap::GetInEgonetAttr(Graph, 0, 0);
+  EXPECT_EQ(1, Graph0->GetNodes());
+  EXPECT_EQ(0, Graph0->GetEdges());
+  Graph0->GetNIdV(NIds);
+  for (int i = 0; i < NIds.Len(); i++) {
+    EXPECT_EQ(NIds[i], Graph0->GetIntAttrDatN(NIds[i], s));
+  }
+
+  Graph1 = TSnap::GetInEgonetAttr(Graph, 3, 1);
+  EXPECT_EQ(4, Graph1->GetNodes());
+  EXPECT_EQ(6, Graph1->GetEdges());
+  NIds.Clr();
+  Graph1->GetNIdV(NIds);
+  for (int i = 0; i < NIds.Len(); i++) {
+    EXPECT_EQ(NIds[i], Graph1->GetIntAttrDatN(NIds[i], s));
+  }
+
+  Graph2 = TSnap::GetInEgonetAttr(Graph, 6, 2);
+  EXPECT_EQ(7, Graph2->GetNodes());
+  EXPECT_EQ(15, Graph2->GetEdges());
+  NIds.Clr();
+  Graph2->GetNIdV(NIds);
+  for (int i = 0; i < NIds.Len(); i++) {
+    EXPECT_EQ(NIds[i], Graph2->GetIntAttrDatN(NIds[i], s));
+  }
+
+  Graph3 = TSnap::GetInEgonetAttr(Graph, 9, 3);
+  EXPECT_EQ(10, Graph3->GetNodes());
+  EXPECT_EQ(24, Graph3->GetEdges());
+  NIds.Clr();
+  Graph3->GetNIdV(NIds);
+  for (int i = 0; i < NIds.Len(); i++) {
+    EXPECT_EQ(NIds[i], Graph3->GetIntAttrDatN(NIds[i], s));
+  }
+
+  Graph4 = TSnap::GetInEgonetAttr(Graph, 12, 4);
+  EXPECT_EQ(13, Graph4->GetNodes());
+  EXPECT_EQ(33, Graph4->GetEdges());
+  NIds.Clr();
+  Graph4->GetNIdV(NIds);
+  for (int i = 0; i < NIds.Len(); i++) {
+    EXPECT_EQ(NIds[i], Graph4->GetIntAttrDatN(NIds[i], s));
+  }
+
+  Graph5 = TSnap::GetInEgonetAttr(Graph, 15, 5);
+  EXPECT_EQ(16, Graph5->GetNodes());
+  EXPECT_EQ(42, Graph5->GetEdges());
+  NIds.Clr();
+  Graph5->GetNIdV(NIds);
+  for (int i = 0; i < NIds.Len(); i++) {
+    EXPECT_EQ(NIds[i], Graph5->GetIntAttrDatN(NIds[i], s));
+  }
+
+  Graph6 = TSnap::GetInEgonetAttr(Graph, 18, 6);
+  EXPECT_EQ(19, Graph6->GetNodes());
+  EXPECT_EQ(54, Graph6->GetEdges());
+  NIds.Clr();
+  Graph6->GetNIdV(NIds);
+  for (int i = 0; i < NIds.Len(); i++) {
+    EXPECT_EQ(NIds[i], Graph6->GetIntAttrDatN(NIds[i], s));
+  }
+
+  Graph7 = TSnap::GetInEgonetAttr(Graph, 1, 7);
+  EXPECT_EQ(20, Graph7->GetNodes());
+  EXPECT_EQ(60, Graph7->GetEdges());
+  NIds.Clr();
+  Graph7->GetNIdV(NIds);
+  for (int i = 0; i < NIds.Len(); i++) {
+    EXPECT_EQ(NIds[i], Graph7->GetIntAttrDatN(NIds[i], s));
+  }
+}
+
+// Test TUNGraph GetInEgonetSub
+TEST(subgraph, TestGetInEgonetSubTUNGraph) {
+  PUNGraph Graph;
+  PUNGraph Graph0;
+  PUNGraph Graph1;
+  PUNGraph Graph2;
+
+  Graph = GetTestTUNGraph();
+  EXPECT_EQ(20, Graph->GetNodes());
+  EXPECT_EQ(60, Graph->GetEdges());
+
+  Graph0 = TSnap::GetInEgonetSub<PUNGraph>(Graph, 3, 0, 2, 1.0);
+  EXPECT_EQ(1, Graph0->GetNodes());
+  EXPECT_EQ(0, Graph0->GetEdges());
+
+  Graph1 = TSnap::GetInEgonetSub<PUNGraph>(Graph, 0, 1, 3, -1.0);
+  EXPECT_EQ(4, Graph1->GetNodes());
+  EXPECT_LE(4, Graph1->GetEdges());
+  EXPECT_GE(6, Graph1->GetEdges());
+
+  Graph2 = TSnap::GetInEgonetSub<PUNGraph>(Graph, 0, 1, 0, 0.9);
+  EXPECT_EQ(6, Graph2->GetNodes());
+  EXPECT_LE(10, Graph2->GetEdges());
+  EXPECT_GE(12, Graph2->GetEdges());
+}
+
+// Test TUNGraph GetInEgonetSub
+TEST(subgraph, TestGetInEgonetSubTNGraph) {
+  PNGraph Graph;
+  PNGraph Graph0;
+  PNGraph Graph1;
+  PNGraph Graph2;
+
+  Graph = GetTestTNGraph();
+  EXPECT_EQ(20, Graph->GetNodes());
+  EXPECT_EQ(60, Graph->GetEdges());
+
+  Graph0 = TSnap::GetInEgonetSub<PNGraph>(Graph, 3, 0, 2, 1.0);
+  EXPECT_EQ(1, Graph0->GetNodes());
+  EXPECT_EQ(0, Graph0->GetEdges());
+
+  Graph1 = TSnap::GetInEgonetSub<PNGraph>(Graph, 0, 1, 2, -1.0);
+  EXPECT_EQ(3, Graph1->GetNodes());
+  EXPECT_EQ(3, Graph1->GetEdges());
+
+  Graph2 = TSnap::GetInEgonetSub<PNGraph>(Graph, 0, 1, 0, 0.9);
+  EXPECT_EQ(3, Graph2->GetNodes());
+  EXPECT_EQ(3, Graph2->GetEdges());
+}
+
+// Test TNEANet GetInEgonetSub
+TEST(subgraph, TestGetInEgonetSubTNEANet) {
+  PNEANet Graph;
+  PNEANet Graph0;
+  PNEANet Graph1;
+  PNEANet Graph2;
+
+  Graph = GetTestTNEANet();
+  EXPECT_EQ(20, Graph->GetNodes());
+  EXPECT_EQ(60, Graph->GetEdges());
+
+  Graph0 = TSnap::GetInEgonetSub<PNEANet>(Graph, 3, 0, 2, 1.0);
+  EXPECT_EQ(1, Graph0->GetNodes());
+  EXPECT_EQ(0, Graph0->GetEdges());
+
+  Graph1 = TSnap::GetInEgonetSub<PNEANet>(Graph, 0, 1, 2, -1.0);
+  EXPECT_EQ(3, Graph1->GetNodes());
+  EXPECT_EQ(3, Graph1->GetEdges());
+
+  Graph2 = TSnap::GetInEgonetSub<PNEANet>(Graph, 0, 1, 0, 0.9);
+  EXPECT_EQ(3, Graph2->GetNodes());
+  EXPECT_EQ(3, Graph2->GetEdges());
+}
+
+// Test TNEANet GetInEgonetSubAttr
+TEST(subgraph, TestGetInEgonetSubAttr) {
+  PNEANet Graph;
+  PNEANet Graph0;
+  PNEANet Graph1;
+  PNEANet Graph2;
+  TIntV NIds;
+  const TStr s = "id";
+
+  Graph = GetTestTNEANet();
+  EXPECT_EQ(20, Graph->GetNodes());
+  EXPECT_EQ(60, Graph->GetEdges());
+
+  Graph0 = TSnap::GetInEgonetSubAttr(Graph, 3, 0, 2, 1.0);
+  EXPECT_EQ(1, Graph0->GetNodes());
+  EXPECT_EQ(0, Graph0->GetEdges());
+  NIds.Clr();
+  Graph0->GetNIdV(NIds);
+  for (int i = 0; i < NIds.Len(); i++) {
+    EXPECT_EQ(NIds[i], Graph0->GetIntAttrDatN(NIds[i], s));
+  }
+
+  Graph1 = TSnap::GetInEgonetSubAttr(Graph, 0, 1, 2, -1.0);
+  EXPECT_EQ(3, Graph1->GetNodes());
+  EXPECT_EQ(3, Graph1->GetEdges());
+  NIds.Clr();
+  Graph1->GetNIdV(NIds);
+  for (int i = 0; i < NIds.Len(); i++) {
+    EXPECT_EQ(NIds[i], Graph1->GetIntAttrDatN(NIds[i], s));
+  }
+
+  Graph2 = TSnap::GetInEgonetSubAttr(Graph, 0, 1, 0, 0.9);
+  EXPECT_EQ(3, Graph2->GetNodes());
+  EXPECT_EQ(3, Graph2->GetEdges());
+  NIds.Clr();
+  Graph2->GetNIdV(NIds);
+  for (int i = 0; i < NIds.Len(); i++) {
+    EXPECT_EQ(NIds[i], Graph2->GetIntAttrDatN(NIds[i], s));
+  }
+}
+
+
 // Generate TUNGraph
 PUNGraph GetTestTUNGraph() {
   PUNGraph Graph = TUNGraph::New();
@@ -344,6 +664,25 @@ PNGraph GetTestTNGraph() {
     Graph->AddEdge(i,(i+1) % 20);
     Graph->AddEdge(i,(i+2) % 20);
     Graph->AddEdge(i,(i+3) % 20);
+  }
+
+  return Graph;
+}
+
+// Generate TNEANet
+PNEANet GetTestTNEANet() {
+  PNEANet Graph = PNEANet::New();
+  TStr s = "id";
+
+  for (int i = 0; i < 20; i++) {
+    Graph->AddNode(i);
+    Graph->AddIntAttrDatN(i, i, s);
+  }
+
+  for (int i = 0; i < 20; i++) {
+    Graph->AddEdge(i, (i + 1) % 20);
+    Graph->AddEdge(i, (i + 2) % 20);
+    Graph->AddEdge(i, (i + 3) % 20);
   }
 
   return Graph;

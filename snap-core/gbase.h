@@ -173,6 +173,19 @@ public:
   /// Returns the value of the ValN element in the queue, but does not remove the element.
   const TVal& operator[](const int& ValN) const { return ValV[First+ValN]; }
 
+  // Randomly sample num elements from Queue and add to front
+  void Sample(const int num) {
+    const int size = Last - First;
+    int loc;
+    TVal temp;
+    for (int i = 0; i < num && i < size; ++i) {
+      loc = (rand() % (size - i)) + First + i;
+      temp = ValV[loc];
+      ValV[loc] = ValV[First + i];
+      ValV[First + i] = temp;
+    }
+  }
+
   /// Deletes all elements from the queue.
   void Clr(const bool& DoDel=true) { ValV.Clr(DoDel);  First=Last=0; }
   void Gen(const int& MxVals, const int& MaxFirst=1024) {
