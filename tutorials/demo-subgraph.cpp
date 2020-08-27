@@ -3,6 +3,7 @@
 PUNGraph GetTestTUNGraph();
 PNGraph GetTestTNGraph();
 PNEGraph GetTestTNEGraph();
+PNEANet GetTestTNEANet();
 TPt <TNodeEDatNet<TInt, TInt> > GetTestTNodeEDatNet();
 TPt <TNodeEdgeNet<TInt, TInt> > GetTestTNodeEdgeNet();
 
@@ -447,8 +448,6 @@ void TestGetInEgonetSubTUNGraph() {
   PUNGraph Graph2;
 
   Graph = GetTestTUNGraph();
-  EXPECT_EQ(20, Graph->GetNodes());
-  EXPECT_EQ(60, Graph->GetEdges());
 
   Graph1 = TSnap::GetInEgonetSub<PUNGraph>(Graph, 0, 1, 3, -1.0);
   PrintGraph("TUNGraph - Ego 1 - Sub 3", Graph1);
