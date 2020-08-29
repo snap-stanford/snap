@@ -403,6 +403,7 @@ PGraph GetRndESubGraph(const PGraph& Graph, const int& NEdges) {
 
 
 // Egonet templatized functions
+
 template<class PGraph>
 PGraph GetEgonetHop(const PGraph &Graph, const int CtrNId, const int Radius) {
   PGraph NewGraphPt = PGraph::TObj::New();
@@ -507,6 +508,59 @@ PGraph GetInEgonetHop(const PGraph &Graph, const int CtrNId, const int Radius) {
           if (NewGraph.IsNode(NbrOutNId)) {
             if (!NewGraph.IsEdge(InNId, NbrOutNId)) {
               NewGraph.AddEdge(InNId, NbrOutNId);
+            }
+          }
+        }
+      }
+    }
+    tempSwapQueue = Queue1;
+    Queue1 = Queue2;
+    Queue2 = tempSwapQueue;
+  }
+  return NewGraphPt;
+}
+
+template<class PGraph>
+PGraph GetOutEgonetHop(const PGraph &Graph, const int CtrNId, const int Radius) {
+  PGraph NewGraphPt = PGraph::TObj::New();
+  typename PGraph::TObj& NewGraph = *NewGraphPt;
+  TSnapQueue<int> Queue1;
+  TSnapQueue<int> Queue2;
+  TSnapQueue<int> tempSwapQueue;
+  NewGraph.AddNode(CtrNId);
+  Queue1.Clr(false);
+  Queue1.Push(CtrNId);
+  for (int r = 0; r < Radius; ++r) {
+    while (!Queue1.Empty()) {
+      const int NId = Queue1.Top();
+      Queue1.Pop();
+      const typename PGraph::TObj::TNodeI &Node = Graph->GetNI(NId);
+      for (int i = 0; i < Node.GetOutDeg(); ++i) {
+        const int OutNId = Node.GetOutNId(i);
+        if (!NewGraph.IsNode(OutNId)) {
+          NewGraph.AddNode(OutNId);
+          Queue2.Push(OutNId);
+        }
+        if (!NewGraph.IsEdge(NId, OutNId)) {
+          NewGraph.AddEdge(NId, OutNId);
+        }
+      }
+      for (int i = 0; i < Node.GetDeg(); ++i) {
+        int OutNId = Node.GetNId(i);
+        const typename PGraph::TObj::TNodeI &OutNode = Graph->GetNI(OutNId);
+        for (int j = 0; j < OutNode.GetInDeg(); ++j) {
+          int NbrInNId = OutNode.GetInNId(j);
+          if (NewGraph.IsNode(NbrInNId)) {
+            if (!NewGraph.IsEdge(NbrInNId, OutNId)) {
+              NewGraph.AddEdge(NbrInNId, OutNId);
+            }
+          }
+        }
+        for (int j = 0; j < OutNode.GetOutDeg(); ++j) {
+          int NbrOutNId = OutNode.GetOutNId(j);
+          if (NewGraph.IsNode(NbrOutNId)) {
+            if (!NewGraph.IsEdge(OutNId, NbrOutNId)) {
+              NewGraph.AddEdge(OutNId, NbrOutNId);
             }
           }
         }
