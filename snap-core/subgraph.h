@@ -56,13 +56,18 @@ PNGraph GetEgonet(const PNGraph& Graph, const int CtrNId, int& InEdges, int& Out
 
 // Get egonet for given radius
 /// Returns the egonet of node CtrNId as center for a Graph for a given radius.
-// template<class PGraph> PGraph GetEgonetHop(const PGraph &Graph, const int CtrNId, const int Radius);
+template<class PGraph> PGraph GetEgonetHop(const PGraph &Graph, const int CtrNId, const int Radius);
 /// Returns the in-egonet of node CtrNId as center in directed graph Graph for a given radius.
 template<class PGraph> PGraph GetInEgonetHop(const PGraph& Graph, const int CtrNId, const int Radius);
 /// Returns the out-egonet of node CtrNId as center in directed graph Graph for a given radius.
-// template<class PGraph> PGraph GetOutEgonetHop(const PGraph &Graph, const int CtrNId, const int Radius);
+template<class PGraph> PGraph GetOutEgonetHop(const PGraph &Graph, const int CtrNId, const int Radius);
+
+/// Returns the complete egonet of at given radius and copies node and edge attributes
+PNEANet GetEgonetAttr(const PNEANet &Graph, const int CtrNId, const int Radius);
 /// Returns the in-egonet of at given radius and copies node and edge attributes
 PNEANet GetInEgonetAttr(const PNEANet &Graph, const int CtrNId, const int Radius);
+/// Returns the out-egonet of at given radius and copies node and edge attributes
+PNEANet GetOutEgonetAttr(const PNEANet &Graph, const int CtrNId, const int Radius);
 
 /// Returns the randomly sampled in-egonet with nodes sampled based on percentage or raw number.
 template<class PGraph> PGraph GetInEgonetSub(const PGraph &Graph, const int CtrNId, const int Radius, const int MaxNum, const float percent);
