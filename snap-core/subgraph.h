@@ -403,6 +403,68 @@ PGraph GetRndESubGraph(const PGraph& Graph, const int& NEdges) {
 
 
 // Egonet templatized functions
+template<class PGraph>
+PGraph GetEgonetHop(const PGraph &Graph, const int CtrNId, const int Radius) {
+  PGraph NewGraphPt = PGraph::TObj::New();
+  typename PGraph::TObj& NewGraph = *NewGraphPt;
+  TSnapQueue<int> Queue1;
+  TSnapQueue<int> Queue2;
+  TSnapQueue<int> tempSwapQueue;
+  NewGraph.AddNode(CtrNId);
+  Queue1.Clr(false);
+  Queue1.Push(CtrNId);
+  for (int r = 0; r < Radius; ++r) {
+    while (!Queue1.Empty()) {
+      const int NId = Queue1.Top();
+      Queue1.Pop();
+      const typename PGraph::TObj::TNodeI &Node = Graph->GetNI(NId);
+      for (int i = 0; i < Node.GetInDeg(); ++i) {
+        const int InNId = Node.GetInNId(i);
+        if (!NewGraph.IsNode(InNId)) {
+          NewGraph.AddNode(InNId);
+          Queue2.Push(InNId);
+        }
+        if (!NewGraph.IsEdge(InNId, NId)) {
+          NewGraph.AddEdge(InNId, NId);
+        }
+      }
+      for (int i = 0; i < Node.GetOutDeg(); ++i) {
+        const int OutNId = Node.GetOutNId(i);
+        if (!NewGraph.IsNode(OutNId)) {
+          NewGraph.AddNode(OutNId);
+          Queue2.Push(OutNId);
+        }
+        if (!NewGraph.IsEdge(NId, OutNId)) {
+          NewGraph.AddEdge(NId, OutNId);
+        }
+      }
+      for (int i = 0; i < Node.GetDeg(); ++i) {
+        int NbrNId = Node.GetNId(i);
+        const typename PGraph::TObj::TNodeI &NbrNode = Graph->GetNI(NbrNId);
+        for (int j = 0; j < NbrNode.GetInDeg(); ++j) {
+          int NbrInNId = NbrNode.GetInNId(j);
+          if (NewGraph.IsNode(NbrInNId)) {
+            if (!NewGraph.IsEdge(NbrInNId, NbrNId)) {
+              NewGraph.AddEdge(NbrInNId, NbrNId);
+            }
+          }
+        }
+        for (int j = 0; j < NbrNode.GetOutDeg(); ++j) {
+          int NbrOutNId = NbrNode.GetOutNId(j);
+          if (NewGraph.IsNode(NbrOutNId)) {
+            if (!NewGraph.IsEdge(NbrNId, NbrOutNId)) {
+              NewGraph.AddEdge(NbrNId, NbrOutNId);
+            }
+          }
+        }
+      }
+    }
+    tempSwapQueue = Queue1;
+    Queue1 = Queue2;
+    Queue2 = tempSwapQueue;
+  }
+  return NewGraphPt;
+}
 
 template<class PGraph>
 PGraph GetInEgonetHop(const PGraph &Graph, const int CtrNId, const int Radius) {
