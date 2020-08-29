@@ -565,8 +565,8 @@ PGraph GetOutEgonetHop(const PGraph &Graph, const int CtrNId, const int Radius) 
           NewGraph.AddEdge(NId, OutNId);
         }
       }
-      for (int i = 0; i < Node.GetDeg(); ++i) {
-        int OutNId = Node.GetNId(i);
+      for (int i = 0; i < Node.GetOutDeg(); ++i) {
+        int OutNId = Node.GetOutNId(i);
         const typename PGraph::TObj::TNodeI &OutNode = Graph->GetNI(OutNId);
         for (int j = 0; j < OutNode.GetInDeg(); ++j) {
           int NbrInNId = OutNode.GetInNId(j);
