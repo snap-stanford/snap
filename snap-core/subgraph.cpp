@@ -79,7 +79,7 @@ PNGraph GetSubGraph(const PNGraph& Graph, const TIntV& NIdV, const bool& Renumbe
   return NewGraphPt;
 }
 
-PUNGraph GetEgonet(const PUNGraph& Graph, const int CtrNId, int& ArndEdgesX) {
+PUNGraph GetEgonet(const PUNGraph& Graph, const int CtrNId, int& ArndEdges) {
   PUNGraph NewGraphPt = TUNGraph::New();
   TUNGraph& NewGraph = *NewGraphPt;
   NewGraph.AddNode(CtrNId);
@@ -105,7 +105,7 @@ PUNGraph GetEgonet(const PUNGraph& Graph, const int CtrNId, int& ArndEdgesX) {
   return NewGraphPt;
 }
 
-PNGraph GetEgonet(const PNGraph& Graph, const int CtrNId, int& InEgoEdgesX, int& OutEgoEdgesX) {
+PNGraph GetEgonet(const PNGraph& Graph, const int CtrNId, int& InEdges, int& OutEdges) {
   PNGraph NewGraphPt = TNGraph::New();
   TNGraph& NewGraph = *NewGraphPt;
   NewGraph.AddNode(CtrNId);

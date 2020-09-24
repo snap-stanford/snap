@@ -6,6 +6,8 @@ PUNGraph GetTestTUNGraph();
 PNGraph GetTestTNGraph();
 PNEGraph GetTestTNEGraph();
 PNEANet GetTestTNEANet();
+PUNGraph GetUPetersen();
+PNGraph GetDPetersen();
 TPt <TNodeEDatNet<TInt, TInt> > GetTestTNodeEDatNet();
 TPt <TNodeEdgeNet<TInt, TInt> > GetTestTNodeEdgeNet();
 
@@ -314,6 +316,34 @@ TEST(subgraph, TestGetRndGraphs) {
 
   NGraph3 = TSnap::GetRndESubGraph(NGraph1,10);
   EXPECT_EQ(10,NGraph3->GetEdges());
+}
+
+// Test GetEgonet
+TEST(subgraph, TestGetEgonet) {
+
+  PUNGraph UGraph = GetUPetersen();
+  for (int i = 0; i < 10; i++) {
+    int Edges;
+    PUNGraph Ego = TSnap::GetEgonet(UGraph, i, Edges);
+    EXPECT_EQ(4, Ego->GetNodes());
+    EXPECT_EQ(3, Ego->GetEdges());
+    EXPECT_EQ(6, Edges);
+  }
+  
+  PNGraph Graph = GetDPetersen();
+  for (int i = 0; i < 10; i++) {
+    int EdgesIn, EdgesOut;
+    PNGraph Ego = TSnap::GetEgonet(Graph, i, EdgesIn, EdgesOut);
+    EXPECT_EQ(4, Ego->GetNodes());
+    EXPECT_EQ(3, Ego->GetEdges());
+    if (i < 5) {
+      EXPECT_EQ(2, EdgesIn);
+      EXPECT_EQ(4, EdgesOut);
+    } else {
+      EXPECT_EQ(4, EdgesIn);
+      EXPECT_EQ(2, EdgesOut);
+    }
+  }
 }
 
 // Test TNGraph GetEgoNetHop
@@ -703,6 +733,46 @@ PNEGraph GetTestTNEGraph() {
     Graph->AddEdge(i,(i+1) % 20);
     Graph->AddEdge(i,(i+2) % 20);
     Graph->AddEdge(i,(i+3) % 20);
+  }
+
+  return Graph;
+}
+
+// Generate TUNGraph Petersen graph
+PUNGraph GetUPetersen() {
+  PUNGraph Graph = TUNGraph::New();
+
+  for (int i = 0; i < 10; i++) {
+    Graph->AddNode(i);
+  }
+  for (int i = 0; i < 5; i++) {
+    Graph->AddEdge(i,(i+1) % 5);
+  }
+  for (int i = 0; i < 5; i++) {
+    Graph->AddEdge(i + 5,(i+2) % 5 + 5);
+  }
+  for (int i = 0; i < 5; i++) {
+    Graph->AddEdge(i,i + 5);
+  }
+
+  return Graph;
+}
+
+// Generate TNGraph Petersen graph
+PNGraph GetDPetersen() {
+  PNGraph Graph = TNGraph::New();
+  
+  for (int i = 0; i < 10; i++) {
+    Graph->AddNode(i);
+  }
+  for (int i = 0; i < 5; i++) {
+    Graph->AddEdge(i,(i+1) % 5);
+  }
+  for (int i = 0; i < 5; i++) {
+    Graph->AddEdge(i + 5,(i+2) % 5 + 5);
+  }
+  for (int i = 0; i < 5; i++) {
+    Graph->AddEdge(i,i + 5);
   }
 
   return Graph;
