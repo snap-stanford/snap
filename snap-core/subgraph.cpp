@@ -213,6 +213,88 @@ void AddEdgeWithAttributes(const PNEANet &Graph1, PNEANet &Graph2, const int NId
   }
 }
 
+PNEANet GetEgonetAttr(const PNEANet &Graph, const int CtrNId, const int Radius) {
+  PNEANet NewGraphPt = PNEANet::New();
+  TNEANet &NewGraph = *NewGraphPt;
+  TSnapQueue<int> Queue1;
+  TSnapQueue<int> Queue2;
+  TSnapQueue<int> tempSwapQueue;
+  AddNodeWithAttributes(Graph, NewGraphPt, CtrNId);
+  Queue1.Clr(false);
+  Queue1.Push(CtrNId);
+  for (int r = 0; r < Radius; ++r) {
+    while (!Queue1.Empty()) {
+      const int NId = Queue1.Top();
+      Queue1.Pop();
+      const TNEANet::TNodeI &Node = Graph->GetNI(NId);
+      for (int i = 0; i < Node.GetInDeg(); ++i) {
+        const int InNId = Node.GetInNId(i);
+        if (!NewGraph.IsNode(InNId)) {
+          AddNodeWithAttributes(Graph, NewGraphPt, InNId);
+          Queue2.Push(InNId);
+        }
+        if (!NewGraph.IsEdge(InNId, NId)) {
+          AddEdgeWithAttributes(Graph, NewGraphPt, InNId, NId);
+        }
+      }
+      for (int i = 0; i < Node.GetOutDeg(); ++i) {
+        const int OutNId = Node.GetOutNId(i);
+        if (!NewGraph.IsNode(OutNId)) {
+          AddNodeWithAttributes(Graph, NewGraphPt, OutNId);
+          Queue2.Push(OutNId);
+        }
+        if (!NewGraph.IsEdge(NId, OutNId)) {
+          AddEdgeWithAttributes(Graph, NewGraphPt, NId, OutNId);
+        }
+      }
+      for (int i = 0; i < Node.GetInDeg(); ++i) {
+        int InNId = Node.GetInNId(i);
+        const TNEANet::TNodeI &InNode = Graph->GetNI(InNId);
+        for (int j = 0; j < InNode.GetInDeg(); ++j) {
+          int NbrInNId = InNode.GetInNId(j);
+          if (NewGraph.IsNode(NbrInNId)) {
+            if (!NewGraph.IsEdge(NbrInNId, InNId)) {
+              AddEdgeWithAttributes(Graph, NewGraphPt, NbrInNId, InNId);
+            }
+          }
+        }
+        for (int j = 0; j < InNode.GetOutDeg(); ++j) {
+          int NbrOutNId = InNode.GetOutNId(j);
+          if (NewGraph.IsNode(NbrOutNId)) {
+            if (!NewGraph.IsEdge(InNId, NbrOutNId)) {
+              AddEdgeWithAttributes(Graph, NewGraphPt, InNId, NbrOutNId);
+            }
+          }
+        }
+      }
+      for (int i = 0; i < Node.GetOutDeg(); ++i) {
+        int OutNId = Node.GetOutNId(i);
+        const TNEANet::TNodeI &OutNode = Graph->GetNI(OutNId);
+        for (int j = 0; j < OutNode.GetInDeg(); ++j) {
+          int NbrInNId = OutNode.GetInNId(j);
+          if (NewGraph.IsNode(NbrInNId)) {
+            if (!NewGraph.IsEdge(NbrInNId, OutNId)) {
+              AddEdgeWithAttributes(Graph, NewGraphPt, NbrInNId, OutNId);
+            }
+          }
+        }
+        for (int j = 0; j < OutNode.GetOutDeg(); ++j) {
+          int NbrOutNId = OutNode.GetOutNId(j);
+          if (NewGraph.IsNode(NbrOutNId)) {
+            if (!NewGraph.IsEdge(OutNId, NbrOutNId)) {
+              AddEdgeWithAttributes(Graph, NewGraphPt, OutNId, NbrOutNId);
+            }
+          }
+        }
+      }
+    }
+    tempSwapQueue = Queue1;
+    Queue1 = Queue2;
+    Queue2 = tempSwapQueue;
+  }
+  return NewGraphPt;
+}
+
 PNEANet GetInEgonetAttr(const PNEANet &Graph, const int CtrNId, const int Radius) {
   PNEANet NewGraphPt = PNEANet::New();
   TNEANet &NewGraph = *NewGraphPt;
@@ -253,6 +335,58 @@ PNEANet GetInEgonetAttr(const PNEANet &Graph, const int CtrNId, const int Radius
           if (NewGraph.IsNode(NbrOutNId)) {
             if (!NewGraph.IsEdge(InNId, NbrOutNId)) {
               AddEdgeWithAttributes(Graph, NewGraphPt, InNId, NbrOutNId);
+            }
+          }
+        }
+      }
+    }
+    tempSwapQueue = Queue1;
+    Queue1 = Queue2;
+    Queue2 = tempSwapQueue;
+  }
+  return NewGraphPt;
+}
+
+PNEANet GetOutEgonetAttr(const PNEANet &Graph, const int CtrNId, const int Radius) {
+  PNEANet NewGraphPt = PNEANet::New();
+  TNEANet &NewGraph = *NewGraphPt;
+  TSnapQueue<int> Queue1;
+  TSnapQueue<int> Queue2;
+  TSnapQueue<int> tempSwapQueue;
+  AddNodeWithAttributes(Graph, NewGraphPt, CtrNId);
+  Queue1.Clr(false);
+  Queue1.Push(CtrNId);
+  for (int r = 0; r < Radius; ++r) {
+    while (!Queue1.Empty()) {
+      const int NId = Queue1.Top();
+      Queue1.Pop();
+      const TNEANet::TNodeI &Node = Graph->GetNI(NId);
+      for (int i = 0; i < Node.GetOutDeg(); ++i) {
+        const int OutNId = Node.GetOutNId(i);
+        if (!NewGraph.IsNode(OutNId)) {
+          AddNodeWithAttributes(Graph, NewGraphPt, OutNId);
+          Queue2.Push(OutNId);
+        }
+        if (!NewGraph.IsEdge(NId, OutNId)) {
+          AddEdgeWithAttributes(Graph, NewGraphPt, NId, OutNId);
+        }
+      }
+      for (int i = 0; i < Node.GetOutDeg(); ++i) {
+        int OutNId = Node.GetOutNId(i);
+        const TNEANet::TNodeI &OutNode = Graph->GetNI(OutNId);
+        for (int j = 0; j < OutNode.GetInDeg(); ++j) {
+          int NbrInNId = OutNode.GetInNId(j);
+          if (NewGraph.IsNode(NbrInNId)) {
+            if (!NewGraph.IsEdge(NbrInNId, OutNId)) {
+              AddEdgeWithAttributes(Graph, NewGraphPt, NbrInNId, OutNId);
+            }
+          }
+        }
+        for (int j = 0; j < OutNode.GetOutDeg(); ++j) {
+          int NbrOutNId = OutNode.GetOutNId(j);
+          if (NewGraph.IsNode(NbrOutNId)) {
+            if (!NewGraph.IsEdge(OutNId, NbrOutNId)) {
+              AddEdgeWithAttributes(Graph, NewGraphPt, OutNId, NbrOutNId);
             }
           }
         }
