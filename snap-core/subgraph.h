@@ -69,8 +69,8 @@ PNEANet GetInEgonetAttr(const PNEANet &Graph, const int CtrNId, const int Radius
 /// Returns the out-egonet of at given radius and copies node and edge attributes
 PNEANet GetOutEgonetAttr(const PNEANet &Graph, const int CtrNId, const int Radius);
 
-/// Returns the randomly sampled in-egonet with nodes sampled based on percentage or raw number.
-template<class PGraph> PGraph GetInEgonetSub(const PGraph &Graph, const int CtrNId, const int Radius, const int MaxNum, const float percent);
+/// Returns the randomly sampled in-egonet with nodes sampled based on percentage, if percent != -1.0, or MaxNum nodes otherwise.
+template<class PGraph> PGraph GetInEgonetSub(const PGraph &Graph, const int CtrNId, const int Radius, const int MaxNum = 2, const float percent = -1.0);
 /// Returns the randomly sampled egonet with nodes sampled based on percentage or raw number, copying attributes
 PNEANet GetInEgonetSubAttr(const PNEANet &Graph, const int CtrNId, const int Radius, const int MaxNum, const float percent);
 
