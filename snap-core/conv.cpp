@@ -49,7 +49,7 @@ int LoadMode(TModeNet& Graph, PTable Table, const TStr& NCol,
           Graph.AddFltAttrDatN(NVal, Table->FltCols[Index][CurrRowIdx], ColName);
           break;
         case atStr:
-          Graph.AddStrAttrDatN(NVal, Table->GetStrVal(Index, CurrRowIdx), ColName);
+          Graph.AddStrAttrDatN(NVal, Table->GetStrValIdx(Index, CurrRowIdx), ColName);
           break;
       }
     }
@@ -117,7 +117,7 @@ int LoadCrossNet(TCrossNet& Graph, PTable Table, const TStr& SrcCol, const TStr&
           Graph.AddFltAttrDatE(CurrRowIdx, Table->FltCols[Index][CurrRowIdx], ColName);
           break;
         case atStr:
-          Graph.AddStrAttrDatE(CurrRowIdx, Table->GetStrVal(Index, CurrRowIdx), ColName);
+          Graph.AddStrAttrDatE(CurrRowIdx, Table->GetStrValIdx(Index, CurrRowIdx), ColName);
           break;
       }
     }

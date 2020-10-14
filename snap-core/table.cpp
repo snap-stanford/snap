@@ -161,7 +161,7 @@ TFlt TRowIterator::GetFltAttr(TInt ColIdx) const {
 }
 
 TStr TRowIterator::GetStrAttr(TInt ColIdx) const {
-  return Table->GetStrVal(ColIdx, CurrRowIdx);
+  return Table->GetStrValIdx(ColIdx, CurrRowIdx);
 }
 
 TInt TRowIterator::GetIntAttr(const TStr& Col) const {
@@ -254,7 +254,7 @@ TFlt TRowIteratorWithRemove::GetNextFltAttr(TInt ColIdx) const {
 }
 
 TStr TRowIteratorWithRemove::GetNextStrAttr(TInt ColIdx) const {
-  return Table->GetStrVal(ColIdx, GetNextRowIdx());
+  return Table->GetStrValIdx(ColIdx, GetNextRowIdx());
 }
 
 TInt TRowIteratorWithRemove::GetNextIntAttr(const TStr& Col) const {
@@ -955,7 +955,7 @@ TTableContext* TTable::ChangeContext(TTableContext* NewContext) {
     for (TRowIterator RowI = BegRI(); RowI < EndRI(); RowI++) {
       TInt RowIdx = RowI.GetRowIdx();
       // get the string
-      TStr Key = GetStrVal(ColIdx, RowIdx);
+      TStr Key = GetStrValIdx(ColIdx, RowIdx);
       // add the string to the new context
       TInt KeyId = TInt(NewContext->StringVals.AddKey(Key));
       // change the value in the table
@@ -3046,7 +3046,7 @@ void TTable::SelectAtomicConst(const TStr& Col, const TPrimitive& Val, TPredComp
 #endif
       for(TRowIterator RowI = BegRI(); RowI < EndRI(); RowI++){
         if (RowI.CompareAtomicConst(ColIdx, Val, Cmp)) { 
-          SelectedTable->AddRow(RowI);
+          SelectedTable->AddRowI(RowI);
         }
       }
 #ifdef USE_OPENMP
@@ -3075,8 +3075,8 @@ inline TInt TTable::CompareRows(TInt R1, TInt R2, const TAttrType& CompareByType
       return 0;
     }
     case atStr:{
-      TStr S1 = GetStrVal(CompareByIndex, R1);
-      TStr S2 = GetStrVal(CompareByIndex, R2);
+      TStr S1 = GetStrValIdx(CompareByIndex, R1);
+      TStr S2 = GetStrValIdx(CompareByIndex, R2);
       int CmpRes = strcmp(S1.CStr(), S2.CStr());
       return (Asc ? CmpRes : -CmpRes);
     }
@@ -3405,7 +3405,7 @@ inline void TTable::AddEdgeAttributes(PNEANet& Graph, int RowId) {
         Graph->AddFltAttrDatE(RowId, FltCols[Index][RowId], ColName);
         break;
       case atStr:
-        Graph->AddStrAttrDatE(RowId, GetStrVal(Index, RowId), ColName);
+        Graph->AddStrAttrDatE(RowId, GetStrValIdx(Index, RowId), ColName);
         break;
     }
   }
@@ -3435,7 +3435,7 @@ inline void TTable::AddNodeAttributes(TInt NId, TStrV NodeAttrV, TInt RowId, THa
     } else {
       if (!NodeStrAttrs.IsKey(NId)) { NodeStrAttrs.AddKey(NId); }
       if (!NodeStrAttrs.GetDat(NId).IsKey(ColAttr)) { NodeStrAttrs.GetDat(NId).AddKey(ColAttr); }
-      NodeStrAttrs.GetDat(NId).GetDat(ColAttr).Add(GetStrVal(ColId, RowId));
+      NodeStrAttrs.GetDat(NId).GetDat(ColAttr).Add(GetStrValIdx(ColId, RowId));
     }
   }
 }
@@ -4292,7 +4292,7 @@ void TTable::UpdateFltFromTable(const TStr& KeyAttr, const TStr& UpdateAttr, con
 
 
 // can ONLY be called when a table is being initialised (before IDs are allocated)
-void TTable::AddRow(const TRowIterator& RI) {
+void TTable::AddRowI(const TRowIterator& RI) {
   for (TInt c = 0; c < Sch.Len(); c++) {
     TStr ColName = GetSchemaColName(c);
     if (ColName == IdColName) { continue; }
@@ -4314,7 +4314,7 @@ void TTable::AddRow(const TRowIterator& RI) {
   UpdateTableForNewRow();
 }
 
-void TTable::AddRow(const TIntV& IntVals, const TFltV& FltVals, const TStrV& StrVals) {
+void TTable::AddRowV(const TIntV& IntVals, const TFltV& FltVals, const TStrV& StrVals) {
   for (TInt c = 0; c < IntVals.Len(); c++) {
     IntCols[c].Add(IntVals[c]);
   }
@@ -4550,7 +4550,7 @@ PTable TTable::Union(const TTable& Table) {
   // this part should be made faster by adding all the rows in one go
   for (TRowIterator it = Table.BegRI(); it < Table.EndRI(); it++) {
     if (!Collisions.IsKey(it.GetRowIdx())) {
-      result->AddRow(it);
+      result->AddRowI(it);
     }
   }
 
@@ -4580,7 +4580,7 @@ PTable TTable::Intersection(const TTable& Table) {
   // this part should be made faster by adding all the rows in one go
   for (TRowIterator it = Table.BegRI(); it < Table.EndRI(); it++) {
     if (Collisions.IsKey(it.GetRowIdx())) {
-      result->AddRow(it);
+      result->AddRowI(it);
     }
   }
   result->InitIds();
@@ -4605,7 +4605,7 @@ PTable TTable::Minus(TTable& Table) {
   // this part should be made faster by adding all the rows in one go
   for (TRowIterator it = BegRI(); it < EndRI(); it++) {
     if (!Collisions.IsKey(it.GetRowIdx())) {
-      result->AddRow(it);
+      result->AddRowI(it);
     }
   }
   result->InitIds();
