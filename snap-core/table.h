@@ -599,7 +599,7 @@ protected:
 	  return Context->StringVals.GetKey(Val);
   }
   /// Gets the value in column with id \c ColIdx at row \c RowIdx.
-  TStr GetStrVal(TInt ColIdx, TInt RowIdx) const {
+  TStr GetStrValIdx(TInt ColIdx, TInt RowIdx) const {
     return TStr(Context->StringVals.GetKey(StrColMaps[ColIdx][RowIdx]));
   }
   /// Adds \c Val in column with id \c ColIdx.
@@ -659,9 +659,9 @@ protected:
   void ConcatTable(const PTable& T) {AddTable(*T); Reindex(); }
 
   /// Adds row corresponding to \c RI.
-  void AddRow(const TRowIterator& RI);
+  void AddRowI(const TRowIterator& RI);
   /// Adds row with values corresponding to the given vectors by type.
-  void AddRow(const TIntV& IntVals, const TFltV& FltVals, const TStrV& StrVals);
+  void AddRowV(const TIntV& IntVals, const TFltV& FltVals, const TStrV& StrVals);
 
 /***** Utility functions for building graph from TTable *****/
   /// Adds names of columns to be used as graph attributes.
@@ -944,7 +944,7 @@ public:
     return T;
   }
   /// Adds row with values taken from given TTableRow.
-  void AddRow(const TTableRow& Row) { AddRow(Row.GetIntVals(), Row.GetFltVals(), Row.GetStrVals()); };
+  void AddRow(const TTableRow& Row) { AddRowV(Row.GetIntVals(), Row.GetFltVals(), Row.GetStrVals()); };
 
   /// Returns the context.
   TTableContext* GetContext() {
@@ -971,7 +971,7 @@ public:
   }
   /// Gets the value of string attribute \c ColName at row \c RowIdx.
   TStr GetStrVal(const TStr& ColName, const TInt& RowIdx) const {
-    return GetStrVal(GetColIdx(ColName), RowIdx);
+    return GetStrValIdx(GetColIdx(ColName), RowIdx);
   }
 
   /// Gets the integer mapping of the string at column \c ColIdx at row \c RowIdx.
@@ -986,7 +986,7 @@ public:
 
   /// Gets the value of the string attribute at column \c ColIdx at row \c RowIdx.
   TStr GetStrValById(TInt ColIdx, TInt RowIdx) const {
-    return GetStrVal(ColIdx, RowIdx);
+    return GetStrValIdx(ColIdx, RowIdx);
   }
 
   /// Gets the value of the string attribute at column \c ColName at row \c RowIdx.

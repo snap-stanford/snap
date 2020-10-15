@@ -131,7 +131,7 @@ PGraph ToNetwork(PTable Table,
 					Graph->AddFltAttrDatE(CurrRowIdx, Table->FltCols[Index][CurrRowIdx], ColName);
 					break;
 				case atStr:
-					Graph->AddStrAttrDatE(CurrRowIdx, Table->GetStrVal(Index, CurrRowIdx), ColName);
+					Graph->AddStrAttrDatE(CurrRowIdx, Table->GetStrValIdx(Index, CurrRowIdx), ColName);
 					break;
 			}
 		}
@@ -1635,7 +1635,7 @@ PGraph ToNetwork(PTable Table,
           Graph->AddFltAttrDatE(CurrRowIdx, Table->FltCols[Index][CurrRowIdx], ColName);
           break;
         case atStr:
-          Graph->AddStrAttrDatE(CurrRowIdx, Table->GetStrVal(Index, CurrRowIdx), ColName);
+          Graph->AddStrAttrDatE(CurrRowIdx, Table->GetStrValIdx(Index, CurrRowIdx), ColName);
           break;
       }
     }
@@ -2081,7 +2081,7 @@ PGraph ToNetwork(PTable Table,
           Graph->AddFltAttrDatE(CurrRowIdx, Table->FltCols[Index][CurrRowIdx], ColName);
           break;
         case atStr:
-          Graph->AddStrAttrDatE(CurrRowIdx, Table->GetStrVal(Index, CurrRowIdx), ColName);
+          Graph->AddStrAttrDatE(CurrRowIdx, Table->GetStrValIdx(Index, CurrRowIdx), ColName);
           break;
       }
     }
@@ -2113,7 +2113,7 @@ PGraph ToNetwork(PTable Table,
             Graph->AddFltAttrDatN(NId, NodeTable->FltCols[Index][CurrRowIdx], ColName);
             break;
           case atStr:
-            Graph->AddStrAttrDatN(NId, NodeTable->GetStrVal(Index, CurrRowIdx), ColName);
+            Graph->AddStrAttrDatN(NId, NodeTable->GetStrValIdx(Index, CurrRowIdx), ColName);
             break;
         }
       }

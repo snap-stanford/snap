@@ -291,7 +291,7 @@ void TNEANet::IntAttrValueEI(const TInt& EId, TStrIntPrH::TIter EdgeHI, TIntV& V
   Values = TVec<TInt>();
   while (!EdgeHI.IsEnd()) {
     if (EdgeHI.GetDat().Val1 == IntType && !EdgeAttrIsIntDeleted(EId, EdgeHI)) {
-      TInt val = (this->VecOfIntVecsE.GetVal(EdgeHI.GetDat().Val2).GetVal(EId));
+      TInt val = (this->VecOfIntVecsE[EdgeHI.GetDat().Val2].GetVal(EdgeH.GetKeyId(EId)));
       Values.Add(val);
     }
     EdgeHI++;
@@ -872,6 +872,7 @@ void TNEANet::Dump(FILE *OutF) const {
     for (int i = 0; i < IntAttrE.Len(); i++) {
       fprintf(OutF, " %*i", EdgePlaces, IntAttrE[i]()); 
     }
+
     TStrV StrAttrE;
     StrAttrValueEI(EdgeI.GetId(), StrAttrE);
     fprintf(OutF, "    eas[%d]", StrAttrE.Len());

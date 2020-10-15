@@ -470,82 +470,92 @@ TEST(subgraph, TestGetInEgonetsAttr) {
   PNEANet Graph5;
   PNEANet Graph6;
   PNEANet Graph7;
-  TIntV NIds;
   const TStr s = "id";
 
   Graph = GetTestTNEANet();
+  //Graph->Dump();
   EXPECT_EQ(20, Graph->GetNodes());
   EXPECT_EQ(60, Graph->GetEdges());
 
   Graph0 = TSnap::GetInEgonetAttr(Graph, 0, 0);
   EXPECT_EQ(1, Graph0->GetNodes());
   EXPECT_EQ(0, Graph0->GetEdges());
-  Graph0->GetNIdV(NIds);
-  for (int i = 0; i < NIds.Len(); i++) {
-    EXPECT_EQ(NIds[i], Graph0->GetIntAttrDatN(NIds[i], s));
+  for (TNEANet::TNodeI NI = Graph0->BegNI(); NI < Graph0->EndNI(); NI++) {
+    EXPECT_EQ(NI.GetId(), Graph0->GetIntAttrDatN(NI.GetId(), s));
+  }
+  for (TNEANet::TEdgeI EI = Graph0->BegEI(); EI < Graph0->EndEI(); EI++) {
+    EXPECT_EQ(EI.GetSrcNId() + EI.GetDstNId(), Graph0->GetIntAttrDatE(EI.GetId(), s));
   }
 
   Graph1 = TSnap::GetInEgonetAttr(Graph, 3, 1);
+  //Graph1->Dump();
   EXPECT_EQ(4, Graph1->GetNodes());
   EXPECT_EQ(6, Graph1->GetEdges());
-  NIds.Clr();
-  Graph1->GetNIdV(NIds);
-  for (int i = 0; i < NIds.Len(); i++) {
-    EXPECT_EQ(NIds[i], Graph1->GetIntAttrDatN(NIds[i], s));
+  for (TNEANet::TNodeI NI = Graph1->BegNI(); NI < Graph1->EndNI(); NI++) {
+    EXPECT_EQ(NI.GetId(), Graph1->GetIntAttrDatN(NI.GetId(), s));
+  }
+  for (TNEANet::TEdgeI EI = Graph1->BegEI(); EI < Graph1->EndEI(); EI++) {
+    EXPECT_EQ(EI.GetSrcNId() + EI.GetDstNId(), Graph1->GetIntAttrDatE(EI.GetId(), s));
   }
 
   Graph2 = TSnap::GetInEgonetAttr(Graph, 6, 2);
   EXPECT_EQ(7, Graph2->GetNodes());
   EXPECT_EQ(15, Graph2->GetEdges());
-  NIds.Clr();
-  Graph2->GetNIdV(NIds);
-  for (int i = 0; i < NIds.Len(); i++) {
-    EXPECT_EQ(NIds[i], Graph2->GetIntAttrDatN(NIds[i], s));
+  for (TNEANet::TNodeI NI = Graph2->BegNI(); NI < Graph2->EndNI(); NI++) {
+    EXPECT_EQ(NI.GetId(), Graph2->GetIntAttrDatN(NI.GetId(), s));
+  }
+  for (TNEANet::TEdgeI EI = Graph2->BegEI(); EI < Graph2->EndEI(); EI++) {
+    EXPECT_EQ(EI.GetSrcNId() + EI.GetDstNId(), Graph2->GetIntAttrDatE(EI.GetId(), s));
   }
 
   Graph3 = TSnap::GetInEgonetAttr(Graph, 9, 3);
   EXPECT_EQ(10, Graph3->GetNodes());
   EXPECT_EQ(24, Graph3->GetEdges());
-  NIds.Clr();
-  Graph3->GetNIdV(NIds);
-  for (int i = 0; i < NIds.Len(); i++) {
-    EXPECT_EQ(NIds[i], Graph3->GetIntAttrDatN(NIds[i], s));
+  for (TNEANet::TNodeI NI = Graph3->BegNI(); NI < Graph3->EndNI(); NI++) {
+    EXPECT_EQ(NI.GetId(), Graph3->GetIntAttrDatN(NI.GetId(), s));
+  }
+  for (TNEANet::TEdgeI EI = Graph3->BegEI(); EI < Graph3->EndEI(); EI++) {
+    EXPECT_EQ(EI.GetSrcNId() + EI.GetDstNId(), Graph3->GetIntAttrDatE(EI.GetId(), s));
   }
 
   Graph4 = TSnap::GetInEgonetAttr(Graph, 12, 4);
   EXPECT_EQ(13, Graph4->GetNodes());
   EXPECT_EQ(33, Graph4->GetEdges());
-  NIds.Clr();
-  Graph4->GetNIdV(NIds);
-  for (int i = 0; i < NIds.Len(); i++) {
-    EXPECT_EQ(NIds[i], Graph4->GetIntAttrDatN(NIds[i], s));
+  for (TNEANet::TNodeI NI = Graph4->BegNI(); NI < Graph4->EndNI(); NI++) {
+    EXPECT_EQ(NI.GetId(), Graph4->GetIntAttrDatN(NI.GetId(), s));
+  }
+  for (TNEANet::TEdgeI EI = Graph4->BegEI(); EI < Graph4->EndEI(); EI++) {
+    EXPECT_EQ(EI.GetSrcNId() + EI.GetDstNId(), Graph4->GetIntAttrDatE(EI.GetId(), s));
   }
 
   Graph5 = TSnap::GetInEgonetAttr(Graph, 15, 5);
   EXPECT_EQ(16, Graph5->GetNodes());
   EXPECT_EQ(42, Graph5->GetEdges());
-  NIds.Clr();
-  Graph5->GetNIdV(NIds);
-  for (int i = 0; i < NIds.Len(); i++) {
-    EXPECT_EQ(NIds[i], Graph5->GetIntAttrDatN(NIds[i], s));
+  for (TNEANet::TNodeI NI = Graph5->BegNI(); NI < Graph5->EndNI(); NI++) {
+    EXPECT_EQ(NI.GetId(), Graph5->GetIntAttrDatN(NI.GetId(), s));
+  }
+  for (TNEANet::TEdgeI EI = Graph5->BegEI(); EI < Graph5->EndEI(); EI++) {
+    EXPECT_EQ(EI.GetSrcNId() + EI.GetDstNId(), Graph5->GetIntAttrDatE(EI.GetId(), s));
   }
 
   Graph6 = TSnap::GetInEgonetAttr(Graph, 18, 6);
   EXPECT_EQ(19, Graph6->GetNodes());
   EXPECT_EQ(54, Graph6->GetEdges());
-  NIds.Clr();
-  Graph6->GetNIdV(NIds);
-  for (int i = 0; i < NIds.Len(); i++) {
-    EXPECT_EQ(NIds[i], Graph6->GetIntAttrDatN(NIds[i], s));
+  for (TNEANet::TNodeI NI = Graph6->BegNI(); NI < Graph6->EndNI(); NI++) {
+    EXPECT_EQ(NI.GetId(), Graph6->GetIntAttrDatN(NI.GetId(), s));
+  }
+  for (TNEANet::TEdgeI EI = Graph6->BegEI(); EI < Graph6->EndEI(); EI++) {
+    EXPECT_EQ(EI.GetSrcNId() + EI.GetDstNId(), Graph6->GetIntAttrDatE(EI.GetId(), s));
   }
 
   Graph7 = TSnap::GetInEgonetAttr(Graph, 1, 7);
   EXPECT_EQ(20, Graph7->GetNodes());
   EXPECT_EQ(60, Graph7->GetEdges());
-  NIds.Clr();
-  Graph7->GetNIdV(NIds);
-  for (int i = 0; i < NIds.Len(); i++) {
-    EXPECT_EQ(NIds[i], Graph7->GetIntAttrDatN(NIds[i], s));
+  for (TNEANet::TNodeI NI = Graph7->BegNI(); NI < Graph7->EndNI(); NI++) {
+    EXPECT_EQ(NI.GetId(), Graph7->GetIntAttrDatN(NI.GetId(), s));
+  }
+  for (TNEANet::TEdgeI EI = Graph7->BegEI(); EI < Graph7->EndEI(); EI++) {
+    EXPECT_EQ(EI.GetSrcNId() + EI.GetDstNId(), Graph7->GetIntAttrDatE(EI.GetId(), s));
   }
 }
 
@@ -623,13 +633,123 @@ TEST(subgraph, TestGetInEgonetSubTNEANet) {
   EXPECT_EQ(3, Graph2->GetEdges());
 }
 
+// Test TNEANet GetEgonetAttr
+TEST(subgraph, TestGetEgonetAttr) {
+  PNEANet Graph;
+  PNEANet Graph0;
+  PNEANet Graph1;
+  PNEANet Graph2;
+  const TStr s = "id";
+
+  Graph = GetTestTNEANet();
+  EXPECT_EQ(20, Graph->GetNodes());
+  EXPECT_EQ(60, Graph->GetEdges());
+
+  Graph0 = TSnap::GetEgonetAttr(Graph, 3, 0);
+  EXPECT_EQ(1, Graph0->GetNodes());
+  EXPECT_EQ(0, Graph0->GetEdges());
+  for (TNEANet::TNodeI NI = Graph0->BegNI(); NI < Graph0->EndNI(); NI++) {
+    EXPECT_EQ(NI.GetId(), Graph0->GetIntAttrDatN(NI.GetId(), s));
+  }
+  for (TNEANet::TEdgeI EI = Graph0->BegEI(); EI < Graph0->EndEI(); EI++) {
+    EXPECT_EQ(EI.GetSrcNId() + EI.GetDstNId(), Graph0->GetIntAttrDatE(EI.GetId(), s));
+  }
+
+  Graph1 = TSnap::GetEgonetAttr(Graph, 4, 1);
+  EXPECT_EQ(7, Graph1->GetNodes());
+  EXPECT_EQ(15, Graph1->GetEdges());
+  for (TNEANet::TNodeI NI = Graph1->BegNI(); NI < Graph1->EndNI(); NI++) {
+    EXPECT_EQ(NI.GetId(), Graph1->GetIntAttrDatN(NI.GetId(), s));
+  }
+  for (TNEANet::TEdgeI EI = Graph1->BegEI(); EI < Graph1->EndEI(); EI++) {
+    EXPECT_EQ(EI.GetSrcNId() + EI.GetDstNId(), Graph1->GetIntAttrDatE(EI.GetId(), s));
+  }
+
+  Graph2 = TSnap::GetEgonetAttr(Graph, 4, 2);
+  EXPECT_EQ(13, Graph2->GetNodes());
+  EXPECT_EQ(33, Graph2->GetEdges());
+  for (TNEANet::TNodeI NI = Graph2->BegNI(); NI < Graph2->EndNI(); NI++) {
+    EXPECT_EQ(NI.GetId(), Graph2->GetIntAttrDatN(NI.GetId(), s));
+  }
+  for (TNEANet::TEdgeI EI = Graph2->BegEI(); EI < Graph2->EndEI(); EI++) {
+    EXPECT_EQ(EI.GetSrcNId() + EI.GetDstNId(), Graph2->GetIntAttrDatE(EI.GetId(), s));
+  }
+}
+
+// Test TNEANet GetInEgonetAttr
+TEST(subgraph, TestGetInEgonetAttr) {
+  PNEANet Graph;
+  PNEANet Graph0;
+  PNEANet Graph1;
+  PNEANet Graph2;
+  const TStr s = "id";
+
+  Graph = GetTestTNEANet();
+  EXPECT_EQ(20, Graph->GetNodes());
+  EXPECT_EQ(60, Graph->GetEdges());
+
+  Graph0 = TSnap::GetInEgonetAttr(Graph, 3, 0);
+  EXPECT_EQ(1, Graph0->GetNodes());
+  EXPECT_EQ(0, Graph0->GetEdges());
+  for (TNEANet::TNodeI NI = Graph0->BegNI(); NI < Graph0->EndNI(); NI++) {
+    EXPECT_EQ(NI.GetId(), Graph0->GetIntAttrDatN(NI.GetId(), s));
+  }
+
+  Graph1 = TSnap::GetInEgonetAttr(Graph, 4, 1);
+  EXPECT_EQ(4, Graph1->GetNodes());
+  EXPECT_EQ(6, Graph1->GetEdges());
+  for (TNEANet::TNodeI NI = Graph1->BegNI(); NI < Graph1->EndNI(); NI++) {
+    EXPECT_EQ(NI.GetId(), Graph1->GetIntAttrDatN(NI.GetId(), s));
+  }
+
+  Graph2 = TSnap::GetInEgonetAttr(Graph, 4, 2);
+  EXPECT_EQ(7, Graph2->GetNodes());
+  EXPECT_EQ(15, Graph2->GetEdges());
+  for (TNEANet::TNodeI NI = Graph2->BegNI(); NI < Graph2->EndNI(); NI++) {
+    EXPECT_EQ(NI.GetId(), Graph2->GetIntAttrDatN(NI.GetId(), s));
+  }
+}
+
+// Test TNEANet GetOutEgonetAttr
+TEST(subgraph, TestGetOutEgonetAttr) {
+  PNEANet Graph;
+  PNEANet Graph0;
+  PNEANet Graph1;
+  PNEANet Graph2;
+  const TStr s = "id";
+
+  Graph = GetTestTNEANet();
+  EXPECT_EQ(20, Graph->GetNodes());
+  EXPECT_EQ(60, Graph->GetEdges());
+
+  Graph0 = TSnap::GetOutEgonetAttr(Graph, 3, 0);
+  EXPECT_EQ(1, Graph0->GetNodes());
+  EXPECT_EQ(0, Graph0->GetEdges());
+  for (TNEANet::TNodeI NI = Graph0->BegNI(); NI < Graph0->EndNI(); NI++) {
+    EXPECT_EQ(NI.GetId(), Graph0->GetIntAttrDatN(NI.GetId(), s));
+  }
+
+  Graph1 = TSnap::GetOutEgonetAttr(Graph, 4, 1);
+  EXPECT_EQ(4, Graph1->GetNodes());
+  EXPECT_EQ(6, Graph1->GetEdges());
+  for (TNEANet::TNodeI NI = Graph1->BegNI(); NI < Graph1->EndNI(); NI++) {
+    EXPECT_EQ(NI.GetId(), Graph1->GetIntAttrDatN(NI.GetId(), s));
+  }
+
+  Graph2 = TSnap::GetOutEgonetAttr(Graph, 4, 2);
+  EXPECT_EQ(7, Graph2->GetNodes());
+  EXPECT_EQ(15, Graph2->GetEdges());
+  for (TNEANet::TNodeI NI = Graph2->BegNI(); NI < Graph2->EndNI(); NI++) {
+    EXPECT_EQ(NI.GetId(), Graph2->GetIntAttrDatN(NI.GetId(), s));
+  }
+}
+
 // Test TNEANet GetInEgonetSubAttr
 TEST(subgraph, TestGetInEgonetSubAttr) {
   PNEANet Graph;
   PNEANet Graph0;
   PNEANet Graph1;
   PNEANet Graph2;
-  TIntV NIds;
   const TStr s = "id";
 
   Graph = GetTestTNEANet();
@@ -639,31 +759,24 @@ TEST(subgraph, TestGetInEgonetSubAttr) {
   Graph0 = TSnap::GetInEgonetSubAttr(Graph, 3, 0, 2, 1.0);
   EXPECT_EQ(1, Graph0->GetNodes());
   EXPECT_EQ(0, Graph0->GetEdges());
-  NIds.Clr();
-  Graph0->GetNIdV(NIds);
-  for (int i = 0; i < NIds.Len(); i++) {
-    EXPECT_EQ(NIds[i], Graph0->GetIntAttrDatN(NIds[i], s));
+  for (TNEANet::TNodeI NI = Graph0->BegNI(); NI < Graph0->EndNI(); NI++) {
+    EXPECT_EQ(NI.GetId(), Graph0->GetIntAttrDatN(NI.GetId(), s));
   }
 
   Graph1 = TSnap::GetInEgonetSubAttr(Graph, 0, 1, 2, -1.0);
   EXPECT_EQ(3, Graph1->GetNodes());
   EXPECT_EQ(3, Graph1->GetEdges());
-  NIds.Clr();
-  Graph1->GetNIdV(NIds);
-  for (int i = 0; i < NIds.Len(); i++) {
-    EXPECT_EQ(NIds[i], Graph1->GetIntAttrDatN(NIds[i], s));
+  for (TNEANet::TNodeI NI = Graph1->BegNI(); NI < Graph1->EndNI(); NI++) {
+    EXPECT_EQ(NI.GetId(), Graph1->GetIntAttrDatN(NI.GetId(), s));
   }
 
   Graph2 = TSnap::GetInEgonetSubAttr(Graph, 0, 1, 0, 0.9);
   EXPECT_EQ(3, Graph2->GetNodes());
   EXPECT_EQ(3, Graph2->GetEdges());
-  NIds.Clr();
-  Graph2->GetNIdV(NIds);
-  for (int i = 0; i < NIds.Len(); i++) {
-    EXPECT_EQ(NIds[i], Graph2->GetIntAttrDatN(NIds[i], s));
+  for (TNEANet::TNodeI NI = Graph2->BegNI(); NI < Graph2->EndNI(); NI++) {
+    EXPECT_EQ(NI.GetId(), Graph2->GetIntAttrDatN(NI.GetId(), s));
   }
 }
-
 
 // Generate TUNGraph
 PUNGraph GetTestTUNGraph() {
@@ -703,6 +816,7 @@ PNGraph GetTestTNGraph() {
 PNEANet GetTestTNEANet() {
   PNEANet Graph = PNEANet::New();
   TStr s = "id";
+  int EId;
 
   for (int i = 0; i < 20; i++) {
     Graph->AddNode(i);
@@ -710,9 +824,14 @@ PNEANet GetTestTNEANet() {
   }
 
   for (int i = 0; i < 20; i++) {
-    Graph->AddEdge(i, (i + 1) % 20);
-    Graph->AddEdge(i, (i + 2) % 20);
-    Graph->AddEdge(i, (i + 3) % 20);
+    EId = Graph->AddEdge(i, (i + 1) % 20);
+    Graph->AddIntAttrDatE(EId, i + (i + 1) % 20, s);
+
+    EId = Graph->AddEdge(i, (i + 2) % 20);
+    Graph->AddIntAttrDatE(EId, i + (i + 2) % 20, s);
+
+    EId = Graph->AddEdge(i, (i + 3) % 20);
+    Graph->AddIntAttrDatE(EId, i + (i + 3) % 20, s);
   }
 
   return Graph;
