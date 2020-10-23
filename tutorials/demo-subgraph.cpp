@@ -504,7 +504,7 @@ void TestGetInEgonetSubAttr() {
 }
 
 // Test PGraph GetGraphUnion
-TEST(subgraph, TestGetGraphUnion) {
+void TestGetGraphUnion() {
   PUNGraph Graph = TUNGraph::New();
   PUNGraph Graph0 = TUNGraph::New();
 
@@ -679,5 +679,6 @@ int main(int argc, char* argv[]) {
   TestGetInEgonetSubTNGraph();
   TestGetInEgonetSubTNEANet();
   TestGetInEgonetSubAttr();
+  TestGetGraphUnion();
 }
 
