@@ -521,6 +521,7 @@ void TestGetGraphUnion() {
   for (int i = 0; i < 5; i++) {
     Graph0->AddEdge(i + 3,((i+1) % 5) + 3);
   }
+  
   PrintGraph("PGraph DstGraph before union", Graph);
   PrintGraph("PGraph SrcGraph before union", Graph0);
 
