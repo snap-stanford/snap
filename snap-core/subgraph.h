@@ -669,12 +669,12 @@ template<class PGraph>
 PGraph GetGraphUnion(PGraph& DstGraph, const PGraph& SrcGraph) {
   for (typename PGraph::TObj::TNodeI NI = SrcGraph->BegNI(); NI < SrcGraph->EndNI(); NI++) {
     if (! DstGraph->IsNode(NI.GetId())){
-          DstGraph->AddNode(NI.GetId());
+      DstGraph->AddNode(NI.GetId());
     }
   }
   for (typename PGraph::TObj::TEdgeI EI = SrcGraph->BegEI(); EI < SrcGraph->EndEI(); EI++) {
     if (! DstGraph->IsEdge(EI.GetSrcNId(), EI.GetDstNId())){
-          DstGraph->AddEdge(EI.GetSrcNId(), EI.GetDstNId());
+      DstGraph->AddEdge(EI.GetSrcNId(), EI.GetDstNId());
     }
   }
   return DstGraph;

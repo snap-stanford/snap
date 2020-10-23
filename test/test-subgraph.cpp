@@ -790,7 +790,7 @@ TEST(subgraph, TestGetGraphUnion) {
     Graph->AddEdge(i,(i+1) % 5);
     Graph->AddEdge(i,(i+2) % 5);
   }
- for (int i = 3; i < 8; i++) {
+  for (int i = 3; i < 8; i++) {
     Graph0->AddNode(i);
   }
   for (int i = 0; i < 5; i++) {
