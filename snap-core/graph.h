@@ -199,6 +199,8 @@ public:
   int GetEdges() const;
   /// Adds an edge between node IDs SrcNId and DstNId to the graph. ##TUNGraph::AddEdge
   int AddEdge(const int& SrcNId, const int& DstNId);
+  /// Adds an edge between node IDs SrcNId and DstNId to the graph, ignores EId (for compatibility with TNEANet).
+  int AddEdge(const int& SrcNId, const int& DstNId, const int& EId) { return AddEdge(SrcNId, DstNId); }
   /// Adds an edge between node IDs SrcNId and DstNId to the graph. ##TUNGraph::AddEdgeUnchecked
   int AddEdgeUnchecked(const int& SrcNId, const int& DstNId);
   /// Adds an edge between node IDs SrcNId and DstNId to the graph. If nodes do not exists, create them.
@@ -209,6 +211,8 @@ public:
   void DelEdge(const int& SrcNId, const int& DstNId);
   /// Tests whether an edge between node IDs SrcNId and DstNId exists in the graph.
   bool IsEdge(const int& SrcNId, const int& DstNId) const;
+  /// Tests whether an edge EId exists in the graph (for compatibility with TNEANet), always returns false.
+  bool IsEdge(const int& EId) const { return false; }
   /// Returns an iterator referring to the first edge in the graph.
   TEdgeI BegEI() const { TNodeI NI = BegNI(); TEdgeI EI(NI, EndNI(), 0); if (GetNodes() != 0 && (NI.GetOutDeg()==0 || NI.GetId()>NI.GetOutNId(0))) { EI++; } return EI; }
   /// Returns an iterator referring to the past-the-end edge in the graph.
@@ -428,6 +432,8 @@ public:
   int GetEdges() const;
   /// Adds an edge from node SrcNId to node DstNId to the graph. ##TNGraph::AddEdge
   int AddEdge(const int& SrcNId, const int& DstNId);
+  /// Adds an edge between node IDs SrcNId and DstNId to the graph, ignores EId (for compatibility with TNEANet).
+  int AddEdge(const int& SrcNId, const int& DstNId, const int& EId) { return AddEdge(SrcNId, DstNId); }
   /// Adds an edge from node SrcNId to node DstNId to the graph. ##TNGraph::AddEdgeUnchecked
   int AddEdgeUnchecked(const int& SrcNId, const int& DstNId);
   /// Adds an edge from node IDs SrcNId to node DstNId to the graph. If nodes do not exist, create them.
@@ -438,6 +444,8 @@ public:
   void DelEdge(const int& SrcNId, const int& DstNId, const bool& IsDir = true);
   /// Tests whether an edge from node IDs SrcNId to DstNId exists in the graph.
   bool IsEdge(const int& SrcNId, const int& DstNId, const bool& IsDir = true) const;
+  /// Tests whether an edge EId exists in the graph (for compatibility with TNEANet), always returns false.
+  bool IsEdge(const int& EId) const { return false; }
   /// Returns an iterator referring to the first edge in the graph.
   TEdgeI BegEI() const { TNodeI NI=BegNI(); while(NI<EndNI() && NI.GetOutDeg()==0){NI++;} return TEdgeI(NI, EndNI()); }
   /// Returns an iterator referring to the past-the-end edge in the graph.
