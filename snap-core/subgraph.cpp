@@ -519,4 +519,30 @@ PNEANet GetInEgonetSubAttr(const PNEANet &Graph, const int CtrNId, const int Rad
   return NewGraphPt;
 }
 
+PNEANet GetGraphUnionAttr(PNEANet &DstGraph, const PNEANet &SrcGraph){
+    for (typename PGraph::TObj::TNodeI NI = SrcGraph->BegNI(); NI < SrcGraph->EndNI(); NI++) {
+    if (! DstGraph->IsNode(NI.GetId())){
+      DstGraph->AddNode(NI.GetId());
+    }
+  }
+  for (typename PGraph::TObj::TEdgeI EI = SrcGraph->BegEI(); EI < SrcGraph->EndEI(); EI++) {
+    if (!HasGraphFlag(typename PGraph::TObj, gfMultiGraph)){
+      if (! DstGraph->IsEdge(EI.GetSrcNId(), EI.GetDstNId())){
+        DstGraph->AddEdge(EI.GetSrcNId(), EI.GetDstNId());
+      }
+    }
+    else{
+      if (! DstGraph->IsEdge(EI.GetId())){
+        DstGraph->AddEdge(EI.GetSrcNId(), EI.GetDstNId(), EI.GetId());
+      }
+    }
+  }
+  return DstGraph;
+}
+
+
+
+
+
+
 } // namespace TSnap
