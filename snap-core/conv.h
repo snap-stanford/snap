@@ -1010,7 +1010,7 @@ inline PGraphMP ToNetworkMP(PTable Table,
               Graph->AddFltAttrDatE(RowId, Table->FltCols[Index][RowId], ColName);
               break;
             case atStr:
-              Graph->AddStrAttrDatE(RowId, Table->GetStrVal(Index, RowId), ColName);
+              Graph->AddStrAttrDatE(RowId, Table->GetStrValIdx(Index, RowId), ColName);
               break;
           }
         }
@@ -1047,7 +1047,7 @@ inline PGraphMP ToNetworkMP(PTable Table,
               Graph->AddFltAttrDatE(RowId, Table->FltCols[Index][RowId], ColName);
               break;
             case atStr:
-              Graph->AddStrAttrDatE(RowId, Table->GetStrVal(Index, RowId), ColName);
+              Graph->AddStrAttrDatE(RowId, Table->GetStrValIdx(Index, RowId), ColName);
               break;
           }
         }
@@ -1993,7 +1993,7 @@ inline PGraphMP ToNetworkMP(PTable Table,
           Graph->AddFltAttrDatE(CurrRowIdx, Table->FltCols[Index][CurrRowIdx], ColName);
           break;
         case atStr:
-          Graph->AddStrAttrDatE(CurrRowIdx, Table->GetStrVal(Index, CurrRowIdx), ColName);
+          Graph->AddStrAttrDatE(CurrRowIdx, Table->GetStrValIdx(Index, CurrRowIdx), ColName);
           break;
       }
     }
@@ -2475,7 +2475,7 @@ inline PGraphMP ToNetworkMP(PTable Table,
           Graph->AddFltAttrDatE(CurrRowIdx, Table->FltCols[Index][CurrRowIdx], ColName);
           break;
         case atStr:
-          Graph->AddStrAttrDatE(CurrRowIdx, Table->GetStrVal(Index, CurrRowIdx), ColName);
+          Graph->AddStrAttrDatE(CurrRowIdx, Table->GetStrValIdx(Index, CurrRowIdx), ColName);
           break;
       }
     }
@@ -2506,7 +2506,7 @@ inline PGraphMP ToNetworkMP(PTable Table,
             Graph->AddFltAttrDatN(NId, NodeTable->FltCols[Index][CurrRowIdx], ColName);
             break;
           case atStr:
-            Graph->AddStrAttrDatN(NId, NodeTable->GetStrVal(Index, CurrRowIdx), ColName);
+            Graph->AddStrAttrDatN(NId, NodeTable->GetStrValIdx(Index, CurrRowIdx), ColName);
             break;
         }
       }
