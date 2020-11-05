@@ -139,6 +139,36 @@ void TNEANet::IntVAttrValueNI(const TInt& NId, TStrIntPrH::TIter NodeHI, TVec<TI
   }
 }
 
+// Avery
+void TNEANet::FltVAttrNameNI(const TInt& NId, TStrIntPrH::TIter NodeHI, TStrV& Names) const {
+  Names = TVec<TStr>();
+  while (!NodeHI.IsEnd()) {
+    if (NodeHI.GetDat().Val1 == FltVType) {
+      Names.Add(NodeHI.GetKey());
+    }
+    NodeHI++;
+  }  
+}
+
+// Avery
+void TNEANet::FltVAttrValueNI(const TInt& NId, TStrIntPrH::TIter NodeHI, TVec<TFltV>& Values) const {
+  Values = TVec<TFltV>();
+  while (!NodeHI.IsEnd()) {
+    if (NodeHI.GetDat().Val1 == FltVType) {
+      TInt index = NodeHI.GetDat().Val2;
+      TStr attr =  NodeHI.GetKey();
+      TInt loc = CheckDenseOrSparseN(attr);
+      if (loc == 1) {
+        TFltV val = this->VecOfFltVecVecsN.GetVal(index).GetVal(NodeH.GetKeyId(NId));
+        if (val.Len() != 0) Values.Add(val);
+      } else {
+        // not implemented yet
+      }
+    }
+    NodeHI++;
+  }
+}
+
 void TNEANet::StrAttrNameNI(const TInt& NId, TStrIntPrH::TIter NodeHI, TStrV& Names) const {
   Names = TVec<TStr>();
   while (!NodeHI.IsEnd()) {
@@ -226,6 +256,14 @@ bool TNEANet::NodeAttrIsIntVDeleted(const int& NId, const TStrIntPrH::TIter& Nod
     return false;
   }
   return (TIntV() == this->VecOfIntVecVecsN.GetVal(
+    this->KeyToIndexTypeN.GetDat(NodeHI.GetKey()).Val2).GetVal(NodeH.GetKeyId(NId)));
+}
+
+bool TNEANet::NodeAttrIsFltVDeleted(const int& NId, const TStrIntPrH::TIter& NodeHI) const {
+  if (NodeHI.GetDat().Val1 != FltVType) {
+    return false;
+  }
+  return (TFltV() == this->VecOfFltVecVecsN.GetVal(
     this->KeyToIndexTypeN.GetDat(NodeHI.GetKey()).Val2).GetVal(NodeH.GetKeyId(NId)));
 }
 
@@ -1446,7 +1484,7 @@ int TNEANet::AddIntVAttrN(const TStr& attr, TBool UseDense){
   }
   return 0;
 }
-
+// Avery
 int TNEANet::AddFltVAttrN(const TStr& attr, TBool UseDense){
   TInt CurrLen;
   if (UseDense) {
