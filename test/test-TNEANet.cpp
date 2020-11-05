@@ -206,6 +206,224 @@ TEST(TNEANet, IntVAttr) {
 
 }
 
+// Tests AddIntVAttrDatN/E, GetIntVAttrDatN/E, AppendIntVAttrDatN/E
+TEST(TNEANet, IntVAttr2) {
+  PNEANet Graph = TNEANet::New();
+  TIntV test;
+  int numNodes = 10;
+  Graph->AddIntVAttrN("size");
+  Graph->AddIntVAttrN("single");
+  
+  for (int i = 0; i < 10; ++i) {
+    Graph->AddNode(i);
+    TIntV size(i);
+    Graph->AddIntVAttrDatN(i, size, "size");
+
+    TIntV single;
+    single.Add(i);
+    Graph->AddIntVAttrDatN(i, single, "single");
+  }
+
+  for (int i = 0; i < 10; ++i) {
+    TIntV size_check = Graph->GetIntVAttrDatN(i, "size");
+    TIntV single_check = Graph->GetIntVAttrDatN(i, "single");
+
+    TIntV size(i);
+    TIntV single;
+    single.Add(i);
+
+    EXPECT_EQ(size, size_check);
+    EXPECT_EQ(single, single_check);
+
+    Graph->AppendIntVAttrDatN(i, -i, "single");
+    single.Add(-i);
+
+    single_check = Graph->GetIntVAttrDatN(i, "single");
+    EXPECT_EQ(single, single_check);
+  }
+
+  Graph->AddIntVAttrE("cost");
+  Graph->AddIntVAttrE("reward");
+
+
+  for (int i = 0; i < 10; i++) {
+    for (int j = i+1; j < 10; j++) {
+      EXPECT_EQ(Graph->IsEdge(i, j), false);
+      TInt edgeID = Graph->AddEdge(i, j);
+      EXPECT_EQ(Graph->IsEdge(edgeID), true);
+      
+      TIntV costs;
+      costs.Add(i+j);
+
+      Graph->AddIntVAttrDatE(edgeID, costs, "cost");
+      Graph->AppendIntVAttrDatE(edgeID, i+j, "cost");
+      costs.Add(i+j);
+      Graph->AddIntVAttrDatE(edgeID, costs, "reward");
+      
+      TIntV cost_val = Graph->GetIntVAttrDatE(edgeID, "cost");
+      TIntV reward_val = Graph->GetIntVAttrDatE(edgeID, "reward");
+      
+      EXPECT_EQ(cost_val.Len(), 2);
+      EXPECT_EQ(reward_val.Len(), 2);
+
+      for (int d = 0; d < 2; d++) {
+        EXPECT_EQ(cost_val[d], i+j);
+        EXPECT_EQ(reward_val[d], i+j);
+      }
+    }
+  }
+
+  for (int i = 0; i < 10; i++) {
+    for (int j = i+1; j < 10; j++) {
+      TInt edgeID = Graph->GetEId(i, j);
+      EXPECT_EQ(Graph->IsEdge(edgeID), true);
+
+      TIntV cost_val = Graph->GetIntVAttrDatE(edgeID, "cost");
+      TIntV reward_val = Graph->GetIntVAttrDatE(edgeID, "reward");
+
+      EXPECT_EQ(cost_val.Len(), 2);
+      EXPECT_EQ(reward_val.Len(), 2);
+
+      for (int d = 0; d < 2; d++) {
+        EXPECT_EQ(cost_val[d], i+j);
+        EXPECT_EQ(reward_val[d], i+j);
+      }
+    }
+  }
+}
+
+// Avery
+TEST(TNEANet, FltVAttr) {
+  PNEANet Graph;
+  Graph = TNEANet::New();
+  int i;
+  TFltV test;
+  int numNodes = 10;
+  Graph->AddNode(0);
+  for (i = 1; i < numNodes; i++) {
+    Graph->AddNode(i);
+    Graph->AddEdge(i-1, i);
+  }
+  TStr TestAttr("Test1");
+  Graph->AddFltVAttrN(TestAttr);
+  for (i = 0; i < numNodes; i++) {
+    test = Graph->GetFltVAttrDatN(i, TestAttr);
+    EXPECT_EQ(0, test.Len());
+  }
+
+  TFltV testVB;
+  for (i = 0; i < numNodes; i++) {
+    testVB.Add(i);
+  }
+  const TFltV testV = testVB;
+  Graph->AddFltVAttrDatN(0, testV, TestAttr);
+  test = Graph->GetFltVAttrDatN(0, TestAttr);
+  EXPECT_EQ(numNodes, test.Len());
+
+  for (i = 0; i < numNodes; i++) {
+    EXPECT_EQ(test[i], i + 0.0);
+  }
+
+  Graph->AppendFltVAttrDatN(0, numNodes, TestAttr);
+  test = Graph->GetFltVAttrDatN(0, TestAttr);
+  EXPECT_EQ(numNodes+1, test.Len());
+  for (i = 0; i < numNodes+1; i++) {
+    EXPECT_EQ(test[i], i + 0.0);
+  }
+
+  Graph->DelAttrDatN(0, TestAttr);
+  for (i = 0; i < numNodes; i++) {
+    test = Graph->GetFltVAttrDatN(i, TestAttr);
+    EXPECT_EQ(0, test.Len());
+  }
+}
+
+// Tests AddIntVAttrDatN/E, GetIntVAttrDatN/E, AppendIntVAttrDatN/E
+TEST(TNEANet, FltVAttr2) {
+  PNEANet Graph = TNEANet::New();
+  TFltV test;
+  int numNodes = 10;
+  Graph->AddFltVAttrN("size");
+  Graph->AddFltVAttrN("single");
+  
+  for (int i = 0; i < 10; ++i) {
+    Graph->AddNode(i);
+    TFltV size(i);
+    Graph->AddFltVAttrDatN(i, size, "size");
+
+    TFltV single;
+    single.Add(i + 0.5);
+    Graph->AddFltVAttrDatN(i, single, "single");
+  }
+
+  for (int i = 0; i < 10; ++i) {
+    TFltV size_check = Graph->GetFltVAttrDatN(i, "size");
+    TFltV single_check = Graph->GetFltVAttrDatN(i, "single");
+
+    TFltV size(i);
+    TFltV single;
+    single.Add(i + 0.5);
+
+    EXPECT_EQ(size, size_check);
+    EXPECT_EQ(single, single_check);
+
+    Graph->AppendFltVAttrDatN(i, -i + 0.5, "single");
+    single.Add(-i + 0.5);
+
+    single_check = Graph->GetFltVAttrDatN(i, "single");
+    EXPECT_EQ(single, single_check);
+  }
+
+  Graph->AddFltVAttrE("cost");
+  Graph->AddFltVAttrE("reward");
+
+  for (int i = 0; i < 10; i++) {
+    for (int j = i+1; j < 10; j++) {
+      EXPECT_EQ(Graph->IsEdge(i, j), false);
+      TInt edgeID = Graph->AddEdge(i, j);
+      EXPECT_EQ(Graph->IsEdge(edgeID), true);
+      
+      TFltV costs;
+      costs.Add(i+j+0.5);
+
+      Graph->AddFltVAttrDatE(edgeID, costs, "cost");
+      Graph->AppendFltVAttrDatE(edgeID, i+j+0.5, "cost");
+      costs.Add(i+j+0.5);
+      Graph->AddFltVAttrDatE(edgeID, costs, "reward");
+
+      
+      TFltV cost_val = Graph->GetFltVAttrDatE(edgeID, "cost");
+      TFltV reward_val = Graph->GetFltVAttrDatE(edgeID, "reward");
+      
+      EXPECT_EQ(cost_val.Len(), 2);
+      EXPECT_EQ(reward_val.Len(), 2);
+
+      for (int d = 0; d < 2; d++) {
+        EXPECT_FLOAT_EQ(cost_val[d], i+j+0.5);
+        EXPECT_FLOAT_EQ(reward_val[d], i+j+0.5);
+      }
+    }
+  }
+
+  for (int i = 0; i < 10; i++) {
+    for (int j = i+1; j < 10; j++) {
+      TInt edgeID = Graph->GetEId(i, j);
+      EXPECT_EQ(Graph->IsEdge(edgeID), true);
+
+      TFltV cost_val = Graph->GetFltVAttrDatE(edgeID, "cost");
+      TFltV reward_val = Graph->GetFltVAttrDatE(edgeID, "reward");
+
+      EXPECT_EQ(cost_val.Len(), 2);
+      EXPECT_EQ(reward_val.Len(), 2);
+
+      for (int d = 0; d < 2; d++) {
+        EXPECT_FLOAT_EQ(cost_val[d], i+j+0.5);
+        EXPECT_FLOAT_EQ(reward_val[d], i+j+0.5);
+      }
+    }
+  }
+}
+
 // Test node, edge attribute functionality
 TEST(TNEANet, ManipulateNodesEdgeAttributes) {
   int NNodes = 1000;

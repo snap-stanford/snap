@@ -1878,8 +1878,9 @@ protected:
   TVec<TStrV> VecOfStrVecsN, VecOfStrVecsE;
   TVec<TFltV> VecOfFltVecsN, VecOfFltVecsE;
   TVec<TVec<TIntV> > VecOfIntVecVecsN, VecOfIntVecVecsE;
+  TVec<TVec<TFltV> > VecOfFltVecVecsN, VecOfFltVecVecsE; // added by Avery
   TVec<THash<TInt, TIntV> > VecOfIntHashVecsN, VecOfIntHashVecsE;
-  enum { IntType, StrType, FltType, IntVType };
+  enum { IntType, StrType, FltType, IntVType, FltVType };
 
   TAttr SAttrN;
   TAttr SAttrE;
@@ -1938,6 +1939,7 @@ public:
     StrDefaultsN(), StrDefaultsE(), FltDefaultsN(), FltDefaultsE(),
     VecOfIntVecsN(), VecOfIntVecsE(), VecOfStrVecsN(), VecOfStrVecsE(),
     VecOfFltVecsN(), VecOfFltVecsE(),  VecOfIntVecVecsN(), VecOfIntVecVecsE(),
+    VecOfFltVecVecsN(), VecOfFltVecVecsE(), // added by Avery
     VecOfIntHashVecsN(), VecOfIntHashVecsE(), SAttrN(), SAttrE(){ }
   /// Constructor that reserves enough memory for a graph of nodes and edges.
   explicit TNEANet(const int& Nodes, const int& Edges) : CRef(),
@@ -1945,6 +1947,7 @@ public:
     IntDefaultsN(), IntDefaultsE(), StrDefaultsN(), StrDefaultsE(),
     FltDefaultsN(), FltDefaultsE(), VecOfIntVecsN(), VecOfIntVecsE(),
     VecOfStrVecsN(), VecOfStrVecsE(), VecOfFltVecsN(), VecOfFltVecsE(), VecOfIntVecVecsN(), VecOfIntVecVecsE(),
+    VecOfFltVecVecsN(), VecOfFltVecVecsE(), // added by Avery
     VecOfIntHashVecsN(), VecOfIntHashVecsE(), SAttrN(), SAttrE()
     { Reserve(Nodes, Edges); }
   TNEANet(const TNEANet& Graph) : MxNId(Graph.MxNId), MxEId(Graph.MxEId),
@@ -1952,13 +1955,16 @@ public:
     IntDefaultsN(), IntDefaultsE(), StrDefaultsN(), StrDefaultsE(),
     FltDefaultsN(), FltDefaultsE(), VecOfIntVecsN(), VecOfIntVecsE(),
     VecOfStrVecsN(), VecOfStrVecsE(), VecOfFltVecsN(), VecOfFltVecsE(), VecOfIntVecVecsN(), VecOfIntVecVecsE(),
+    VecOfFltVecVecsN(), VecOfFltVecVecsE(), // added by Avery
     VecOfIntHashVecsN(), VecOfIntHashVecsE(), SAttrN(), SAttrE() { }
   /// Constructor for loading the graph from a (binary) stream SIn.
   TNEANet(TSIn& SIn) : MxNId(SIn), MxEId(SIn), NodeH(SIn), EdgeH(SIn),
     KeyToIndexTypeN(SIn), KeyToIndexTypeE(SIn), KeyToDenseN(SIn), KeyToDenseE(SIn), IntDefaultsN(SIn), IntDefaultsE(SIn),
     StrDefaultsN(SIn), StrDefaultsE(SIn), FltDefaultsN(SIn), FltDefaultsE(SIn),
     VecOfIntVecsN(SIn), VecOfIntVecsE(SIn), VecOfStrVecsN(SIn),VecOfStrVecsE(SIn),
-    VecOfFltVecsN(SIn), VecOfFltVecsE(SIn), VecOfIntVecVecsN(SIn), VecOfIntVecVecsE(SIn), VecOfIntHashVecsN(SIn), VecOfIntHashVecsE(SIn),
+    VecOfFltVecsN(SIn), VecOfFltVecsE(SIn), VecOfIntVecVecsN(SIn), VecOfIntVecVecsE(SIn), 
+    VecOfFltVecVecsN(SIn), VecOfFltVecVecsE(SIn), // added by Avery
+    VecOfIntHashVecsN(SIn), VecOfIntHashVecsE(SIn),
     SAttrN(SIn), SAttrE(SIn) { }
 protected:
   TNEANet(const TNEANet& Graph, bool modeSubGraph) : MxNId(Graph.MxNId), MxEId(Graph.MxEId),
@@ -1966,14 +1972,18 @@ protected:
     IntDefaultsN(Graph.IntDefaultsN), IntDefaultsE(Graph.IntDefaultsE), StrDefaultsN(Graph.StrDefaultsN), StrDefaultsE(Graph.StrDefaultsE),
     FltDefaultsN(Graph.FltDefaultsN), FltDefaultsE(Graph.FltDefaultsE), VecOfIntVecsN(Graph.VecOfIntVecsN), VecOfIntVecsE(Graph.VecOfIntVecsE),
     VecOfStrVecsN(Graph.VecOfStrVecsN), VecOfStrVecsE(Graph.VecOfStrVecsE), VecOfFltVecsN(Graph.VecOfFltVecsN), VecOfFltVecsE(Graph.VecOfFltVecsE),
-    VecOfIntVecVecsN(), VecOfIntVecVecsE(Graph.VecOfIntVecVecsE), VecOfIntHashVecsN(), VecOfIntHashVecsE(Graph.VecOfIntHashVecsE) { }
+    VecOfIntVecVecsN(), VecOfIntVecVecsE(Graph.VecOfIntVecVecsE), 
+    VecOfFltVecVecsN(), VecOfFltVecVecsE(Graph.VecOfFltVecVecsE), // added by Avery
+    VecOfIntHashVecsN(), VecOfIntHashVecsE(Graph.VecOfIntHashVecsE) { }
   TNEANet(bool copyAll, const TNEANet& Graph) : MxNId(Graph.MxNId), MxEId(Graph.MxEId),
     NodeH(Graph.NodeH), EdgeH(Graph.EdgeH), KeyToIndexTypeN(Graph.KeyToIndexTypeN), KeyToIndexTypeE(Graph.KeyToIndexTypeE), KeyToDenseN(Graph.KeyToDenseN), KeyToDenseE(Graph.KeyToDenseE),
     IntDefaultsN(Graph.IntDefaultsN), IntDefaultsE(Graph.IntDefaultsE), StrDefaultsN(Graph.StrDefaultsN), StrDefaultsE(Graph.StrDefaultsE),
     FltDefaultsN(Graph.FltDefaultsN), FltDefaultsE(Graph.FltDefaultsE), VecOfIntVecsN(Graph.VecOfIntVecsN), VecOfIntVecsE(Graph.VecOfIntVecsE),
     VecOfStrVecsN(Graph.VecOfStrVecsN), VecOfStrVecsE(Graph.VecOfStrVecsE), VecOfFltVecsN(Graph.VecOfFltVecsN), VecOfFltVecsE(Graph.VecOfFltVecsE),
-    VecOfIntVecVecsN(Graph.VecOfIntVecVecsN), VecOfIntVecVecsE(Graph.VecOfIntVecVecsE), VecOfIntHashVecsN(Graph.VecOfIntHashVecsN), VecOfIntHashVecsE(Graph.VecOfIntHashVecsE), SAttrN(Graph.SAttrN), SAttrE(Graph.SAttrE) { }
-  // virtual ~TNEANet() { }
+    VecOfIntVecVecsN(Graph.VecOfIntVecVecsN), VecOfIntVecVecsE(Graph.VecOfIntVecVecsE), 
+    VecOfFltVecVecsN(Graph.VecOfFltVecVecsN), VecOfFltVecVecsE(Graph.VecOfFltVecVecsE), // added by Avery
+    VecOfIntHashVecsN(Graph.VecOfIntHashVecsN), VecOfIntHashVecsE(Graph.VecOfIntHashVecsE), SAttrN(Graph.SAttrN), SAttrE(Graph.SAttrE) { }
+  // virtual ~TNEANet() { }cd ..
 public:
   /// Saves the graph to a (binary) stream SOut. Expects data structures for sparse attributes.
   void Save(TSOut& SOut) const {
@@ -1987,6 +1997,7 @@ public:
     VecOfStrVecsN.Save(SOut); VecOfStrVecsE.Save(SOut);
     VecOfFltVecsN.Save(SOut); VecOfFltVecsE.Save(SOut);
     VecOfIntVecVecsN.Save(SOut); VecOfIntVecVecsE.Save(SOut);
+    VecOfFltVecVecsN.Save(SOut); VecOfFltVecVecsE.Save(SOut); // added by Avery
     VecOfIntHashVecsN.Save(SOut); VecOfIntHashVecsE.Save(SOut); 
     SAttrN.Save(SOut); SAttrE.Save(SOut); }
   /// Saves the graph to a (binary) stream SOut. Available for backwards compatibility.
@@ -2010,6 +2021,7 @@ public:
     VecOfStrVecsN.Save(SOut); VecOfStrVecsE.Save(SOut);
     VecOfFltVecsN.Save(SOut); VecOfFltVecsE.Save(SOut);
     VecOfIntVecVecsN.Save(SOut); VecOfIntVecVecsE.Save(SOut); 
+    VecOfFltVecVecsN.Save(SOut); VecOfFltVecVecsE.Save(SOut); // added by Avery
     SAttrN.Save(SOut); SAttrE.Save(SOut); }
   /// Static cons returns pointer to graph. Ex: PNEANet Graph=TNEANet::New().
   static PNEANet New() { return PNEANet(new TNEANet()); }
@@ -2028,7 +2040,7 @@ public:
     Graph->FltDefaultsN.Load(SIn); Graph->FltDefaultsE.Load(SIn);
     Graph->VecOfIntVecsN.Load(SIn); Graph->VecOfIntVecsE.Load(SIn);
     Graph->VecOfStrVecsN.Load(SIn); Graph->VecOfStrVecsE.Load(SIn);
-    Graph->VecOfFltVecsN.Load(SIn); Graph->VecOfFltVecsE.Load(SIn);
+    Graph->VecOfFltVecsN.Load(SIn); Graph->VecOfFltVecsE.Load(SIn); 
     return Graph;
   }
 
@@ -2045,6 +2057,7 @@ public:
     Graph->VecOfStrVecsN.Load(SIn); Graph->VecOfStrVecsE.Load(SIn);
     Graph->VecOfFltVecsN.Load(SIn); Graph->VecOfFltVecsE.Load(SIn);
     Graph->VecOfIntVecVecsN.Load(SIn); Graph->VecOfIntVecVecsE.Load(SIn);
+    Graph->VecOfFltVecVecsN.Load(SIn); Graph->VecOfFltVecVecsE.Load(SIn); // Avery
     Graph->SAttrN.Load(SIn); Graph->SAttrE.Load(SIn);
     return Graph;
   }
@@ -2239,6 +2252,15 @@ public:
     IntVAttrValueNI(NId, KeyToIndexTypeN.BegI(), Values);}
   void IntVAttrValueNI(const TInt& NId, TStrIntPrH::TIter NodeHI, TVec<TIntV>& Values) const;
 
+  /// Avery: Returns a vector of int attr names for node NId.
+  void FltVAttrNameNI(const TInt& NId, TStrV& Names) const {
+    FltVAttrNameNI(NId, KeyToIndexTypeN.BegI(), Names);}
+  void FltVAttrNameNI(const TInt& NId, TStrIntPrH::TIter NodeHI, TStrV& Names) const;
+  /// Avery: Returns a vector of attr values for node NId.
+  void FltVAttrValueNI(const TInt& NId, TVec<TFltV>& Values) const {
+    FltVAttrValueNI(NId, KeyToIndexTypeN.BegI(), Values);}
+  void FltVAttrValueNI(const TInt& NId, TStrIntPrH::TIter NodeHI, TVec<TFltV>& Values) const;
+
 
   /// Returns a vector of str attr names for node NId.
   void StrAttrNameNI(const TInt& NId, TStrV& Names) const {
@@ -2283,6 +2305,15 @@ public:
   void IntVAttrValueEI(const TInt& EId, TVec<TIntV>& Values) const {
     IntVAttrValueEI(EId, KeyToIndexTypeE.BegI(), Values);}
   void IntVAttrValueEI(const TInt& EId, TStrIntPrH::TIter EdgeHI, TVec<TIntV>& Values) const;
+
+  /// Avery: Returns a vector of flt attr names for edge EId.
+  void FltVAttrNameEI(const TInt& EId, TStrV& Names) const {
+    FltVAttrNameEI(EId, KeyToIndexTypeE.BegI(), Names);}
+  void FltVAttrNameEI(const TInt& EId, TStrIntPrH::TIter EdgeHI, TStrV& Names) const;
+  /// Avery: Returns a vector of attr values for edge EId.
+  void FltVAttrValueEI(const TInt& EId, TVec<TFltV>& Values) const {
+    FltVAttrValueEI(EId, KeyToIndexTypeE.BegI(), Values);}
+  void FltVAttrValueEI(const TInt& EId, TStrIntPrH::TIter EdgeHI, TVec<TFltV>& Values) const;
 
 
   /// Returns a vector of str attr names for node NId.
@@ -2443,6 +2474,7 @@ public:
     StrDefaultsN.Clr(); StrDefaultsE.Clr(); FltDefaultsN.Clr(); FltDefaultsE.Clr();
     VecOfIntVecsN.Clr(); VecOfIntVecsE.Clr(); VecOfStrVecsN.Clr(); VecOfStrVecsE.Clr();
     VecOfFltVecsN.Clr(); VecOfFltVecsE.Clr(); VecOfIntVecVecsN.Clr(); VecOfIntVecVecsE.Clr(); 
+    VecOfFltVecVecsN.Clr(); VecOfFltVecVecsE.Clr(); // added by Avery
     SAttrN.Clr(); SAttrE.Clr();}
   /// Reserves memory for a graph of Nodes nodes and Edges edges.
   void Reserve(const int& Nodes, const int& Edges) {
@@ -2466,12 +2498,28 @@ public:
   /// Attribute based add function for attr to IntV value. ##TNEANet::AddIntVAttrDatN
   int AddIntVAttrDatN(const TNodeI& NodeI, const TIntV& value, const TStr& attr) { return AddIntVAttrDatN(NodeI.GetId(), value, attr); }
   int AddIntVAttrDatN(const int& NId, const TIntV& value, const TStr& attr, TBool UseDense=true);
+  /// Avery: Attribute based add function for attr to IntV value. ##TNEANet::AddIntVAttrDatN
+  int AddFltVAttrDatN(const TNodeI& NodeI, const TFltV& value, const TStr& attr) { return AddFltVAttrDatN(NodeI.GetId(), value, attr); }
+  int AddFltVAttrDatN(const int& NId, const TFltV& value, const TStr& attr, TBool UseDense=true);
+
+
+
   /// Appends value onto the TIntV attribute for the given node.
   int AppendIntVAttrDatN(const TNodeI& NodeI, const TInt& value, const TStr& attr) { return AppendIntVAttrDatN(NodeI.GetId(), value, attr); }
   int AppendIntVAttrDatN(const int& NId, const TInt& value, const TStr& attr, TBool UseDense=true);
   /// Deletes value from the TIntV attribute for the given node.
   int DelFromIntVAttrDatN(const TNodeI& NodeI, const TInt& value, const TStr& attr) { return DelFromIntVAttrDatN(NodeI.GetId(), value, attr); }
   int DelFromIntVAttrDatN(const int& NId, const TInt& value, const TStr& attr);
+
+  /// Appends value onto the TFltV attribute for the given node.
+  int AppendFltVAttrDatN(const TNodeI& NodeI, const TFlt& value, const TStr& attr) { return AppendFltVAttrDatN(NodeI.GetId(), value, attr); }
+  int AppendFltVAttrDatN(const int& NId, const TFlt& value, const TStr& attr, TBool UseDense=true);
+  /// Deletes value from the TFltV attribute for the given node.
+  int DelFromFltVAttrDatN(const TNodeI& NodeI, const TFlt& value, const TStr& attr) { return DelFromFltVAttrDatN(NodeI.GetId(), value, attr); }
+  int DelFromFltVAttrDatN(const int& NId, const TFlt& value, const TStr& attr);
+
+  
+
   /// Attribute based add function for attr to Int value. ##TNEANet::AddIntAttrDatE
   int AddIntAttrDatE(const TEdgeI& EdgeI, const TInt& value, const TStr& attr) { return AddIntAttrDatE(EdgeI.GetId(), value, attr); }
   int AddIntAttrDatE(const int& EId, const TInt& value, const TStr& attr);
@@ -2481,12 +2529,25 @@ public:
   /// Attribute based add function for attr to Flt value. ##TNEANet::AddFltAttrDatE
   int AddFltAttrDatE(const TEdgeI& EdgeI, const TFlt& value, const TStr& attr) { return AddFltAttrDatE(EdgeI.GetId(), value, attr); }
   int AddFltAttrDatE(const int& EId, const TFlt& value, const TStr& attr);
+
+
   /// Attribute based add function for attr to IntV value. ##TNEANet::AddIntVAttrDatE
   int AddIntVAttrDatE(const TEdgeI& EdgeI, const TIntV& value, const TStr& attr) { return AddIntVAttrDatE(EdgeI.GetId(), value, attr); }
   int AddIntVAttrDatE(const int& EId, const TIntV& value, const TStr& attr, TBool UseDense=true);
   /// Appends value onto the TIntV attribute for the given node.
   int AppendIntVAttrDatE(const TEdgeI& EdgeI, const TInt& value, const TStr& attr) { return AppendIntVAttrDatE(EdgeI.GetId(), value, attr); }
   int AppendIntVAttrDatE(const int& EId, const TInt& value, const TStr& attr, TBool UseDense=true);
+
+  /// Avery: Attribute based add function for attr to TFlt value. ##TNEANet::AddTFltAttrDatE
+  int AddFltVAttrDatE(const TEdgeI& EdgeI, const TFltV& value, const TStr& attr) { return AddFltVAttrDatE(EdgeI.GetId(), value, attr); }
+  int AddFltVAttrDatE(const int& EId, const TFltV& value, const TStr& attr, TBool UseDense=true);
+  /// Avery: Appends value onto the TFlt attribute for the given node.
+  int AppendFltVAttrDatE(const TEdgeI& EdgeI, const TFlt& value, const TStr& attr) { return AppendFltVAttrDatE(EdgeI.GetId(), value, attr); }
+  int AppendFltVAttrDatE(const int& EId, const TFlt& value, const TStr& attr, TBool UseDense=true);
+
+
+
+
   /// Gets the value of int attr from the node attr value vector.
   TInt GetIntAttrDatN(const TNodeI& NodeI, const TStr& attr) { return GetIntAttrDatN(NodeI.GetId(), attr); }
   TInt GetIntAttrDatN(const int& NId, const TStr& attr);
@@ -2500,6 +2561,10 @@ public:
   /// Gets the value of the intv attr from the node attr value vector.
   TIntV GetIntVAttrDatN(const TNodeI& NodeI, const TStr& attr) const { return GetIntVAttrDatN(NodeI.GetId(), attr); }
   TIntV GetIntVAttrDatN(const int& NId, const TStr& attr) const;
+
+  /// Avery: Gets the value of the intv attr from the node attr value vector.  
+  TFltV GetFltVAttrDatN(const TNodeI& NodeI, const TStr& attr) const { return GetFltVAttrDatN(NodeI.GetId(), attr); }
+  TFltV GetFltVAttrDatN(const int& NId, const TStr& attr) const;
 
   /// Gets the index of the node attr value vector specified by \c attr (same as GetAttrIndN for compatibility reasons).
   int GetIntAttrIndN(const TStr& attr);
@@ -2533,6 +2598,10 @@ public:
   /// Gets the value of the intv attr from the edge attr value vector.
   TIntV GetIntVAttrDatE(const TEdgeI& EdgeI, const TStr& attr) { return GetIntVAttrDatE(EdgeI.GetId(), attr); }
   TIntV GetIntVAttrDatE(const int& EId, const TStr& attr);
+
+  /// Avery: Gets the value of the fltv attr from the edge attr value vector.
+  TFltV GetFltVAttrDatE(const TEdgeI& EdgeI, const TStr& attr) { return GetFltVAttrDatE(EdgeI.GetId(), attr); }
+  TFltV GetFltVAttrDatE(const int& EId, const TStr& attr);
 
   /// Gets the index of the edge attr value vector specified by \c attr (same as GetAttrIndE for compatibility reasons).
   int GetIntAttrIndE(const TStr& attr);
@@ -2570,6 +2639,9 @@ public:
   /// Adds a new IntV node attribute to the hashmap.
   int AddIntVAttrN(const TStr& attr, TBool UseDense=true);
 
+  /// Avery: Adds a new FltV node attribute to the hashmap.
+  int AddFltVAttrN(const TStr& attr, TBool UseDense=true);
+
   /// Adds a new Int edge attribute to the hashmap.
   int AddIntAttrE(const TStr& attr, TInt defaultValue=TInt::Mn);
   /// Adds a new Str edge attribute to the hashmap.
@@ -2578,6 +2650,9 @@ public:
   int AddFltAttrE(const TStr& attr, TFlt defaultValue=TFlt::Mn);
   /// Adds a new IntV edge attribute to the hashmap.
   int AddIntVAttrE(const TStr& attr, TBool UseDense=true);
+
+  /// Avery: Adds a new IntV edge attribute to the hashmap.
+  int AddFltVAttrE(const TStr& attr, TBool UseDense=true);
 
   /// Removes all the values for node attr.
   int DelAttrN(const TStr& attr);
@@ -2590,6 +2665,8 @@ public:
   bool IsIntAttrDeletedN(const int& NId, const TStr& attr) const;
   /// Returns true if IntV \c attr exists for node \c NId and is an empty vector.
   bool IsIntVAttrDeletedN(const int& NId, const TStr& attr) const;
+  /// Avery: Returns true if FltV \c attr exists for node \c NId and is an empty vector.
+  bool IsFltVAttrDeletedN(const int& NId, const TStr& attr) const;
   /// Returns true if Str \c attr exists for node \c NId and has default value.
   bool IsStrAttrDeletedN(const int& NId, const TStr& attr) const;
   /// Returns true if Flt \c attr exists for node \c NId and has default value.
@@ -2601,6 +2678,8 @@ public:
   bool NodeAttrIsIntDeleted(const int& NId, const TStrIntPrH::TIter& NodeHI) const;
   /// Returns true if NId attr deleted value for current node int vector attr iterator.
   bool NodeAttrIsIntVDeleted(const int& NId, const TStrIntPrH::TIter& NodeHI) const;
+  /// Returns true if NId attr deleted value for current node int vector attr iterator.
+  bool NodeAttrIsFltVDeleted(const int& NId, const TStrIntPrH::TIter& NodeHI) const;
   /// Returns true if NId attr deleted value for current node str attr iterator.
   bool NodeAttrIsStrDeleted(const int& NId, const TStrIntPrH::TIter& NodeHI) const;
   /// Returns true if NId attr deleted value for current node flt attr iterator.
@@ -2612,6 +2691,8 @@ public:
   bool IsIntAttrDeletedE(const int& EId, const TStr& attr) const;
   /// Returns true if IntV \c attr exists for edge \c EId and is an empty vector.
   bool IsIntVAttrDeletedE(const int& EId, const TStr& attr) const;
+  /// Avery: Returns true if FltV \c attr exists for edge \c EId and is an empty vector.
+  bool IsFltVAttrDeletedE(const int& EId, const TStr& attr) const;
   /// Returns true if Str \c attr exists for edge \c NId and has default value.
   bool IsStrAttrDeletedE(const int& EId, const TStr& attr) const;
   /// Returns true if Flt \c attr exists for edge \c NId and has default value.
@@ -2623,6 +2704,8 @@ public:
   bool EdgeAttrIsIntDeleted(const int& EId, const TStrIntPrH::TIter& EdgeHI) const;
   /// Returns true if EId attr deleted for current edge int vector attr iterator.
   bool EdgeAttrIsIntVDeleted(const int& EId, const TStrIntPrH::TIter& EdgeHI) const;
+  /// Avery: Returns true if EId attr deleted for current edge flt vector attr iterator.
+  bool EdgeAttrIsFltVDeleted(const int& EId, const TStrIntPrH::TIter& EdgeHI) const;
   /// Returns true if EId attr deleted for current edge str attr iterator.
   bool EdgeAttrIsStrDeleted(const int& EId, const TStrIntPrH::TIter& EdgeHI) const;
   /// Returns true if EId attr deleted for current edge flt attr iterator.
@@ -2759,6 +2842,7 @@ public:
     return GetSAttrVN(NodeI.GetId(), AttrType, AttrV);
   }
 
+  // Avery: unsure about these
   /// Gets a list of all nodes that have a sparse attribute with name \c AttrName.
   int GetIdVSAttrN(const TStr& AttrName, TIntV& IdV) const;
   /// Gets a list of all nodes that have a sparse attribute with id \c AttrId.
@@ -2876,6 +2960,7 @@ public:
     return GetSAttrVE(EdgeI.GetId(), AttrType, AttrV);
   }
 
+  // Avery: unsure
   /// Gets a list of all edges that have a sparse attribute with name \c AttrName.
   int GetIdVSAttrE(const TStr& AttrName, TIntV& IdV) const;
   /// Gets a list of all edges that have a sparse attribute with id \c AttrId.
