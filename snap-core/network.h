@@ -1794,6 +1794,31 @@ public:
     friend class TNEANet;
   };
 
+  class TAFltVI {
+  private:
+    typedef TVec<TFltV>::TIter TFltVVecIter;
+    TFltVVecIter HI;
+    bool IsDense;
+    typedef THash<TInt, TFltV>::TIter TFltHVecIter;
+    TFltHVecIter HHI;
+    bool isNode;
+    TStr attr;
+    const TNEANet *Graph;
+  public:
+    TAFltVI() : HI(), IsDense(), HHI(), attr(), Graph(NULL) { }
+    TAFltVI(const TFltVVecIter& HIter, const TFltHVecIter& HHIter, TStr attribute, bool isEdgeIter, const TNEANet* GraphPt, bool is_dense) : HI(HIter), IsDense(is_dense), HHI(HHIter), attr(), Graph(GraphPt) {
+      isNode = !isEdgeIter; attr = attribute;
+    }
+    TAFltVI(const TAFltVI& I) : HI(I.HI), IsDense(I.IsDense), HHI(I.HHI), attr(I.attr), Graph(I.Graph) { isNode = I.isNode; }
+    TAFltVI& operator = (const TAFltVI& I) { HI = I.HI; HHI = I.HHI, Graph=I.Graph; isNode = I.isNode; attr = I.attr; return *this; }
+    bool operator < (const TAFltVI& I) const { return HI == I.HI ? HHI < I.HHI : HI < I.HI; }
+    bool operator == (const TAFltVI& I) const { return HI == I.HI && HHI == I.HHI; }
+    /// Returns an attribute of the node.
+    TFltV GetDat() const { return IsDense? HI[0] : HHI.GetDat(); }
+    TAFltVI& operator++(int) { if (IsDense) {HI++;} else {HHI++;} return *this; }
+    friend class TNEANet;
+  };
+
   /// Node/edge string attribute iterator. Iterates through all nodes/edges for one string attribute.
   class TAStrI {
   private:
@@ -2071,7 +2096,7 @@ public:
     return PNEANet(Network);
   }
 
-  void ConvertToSparse() {
+  void ConvertToSparse() { // TODO
     TInt VecLength = VecOfIntVecVecsN.Len();
     THash<TStr, TIntPr>::TIter iter;
     if (VecLength != 0) {
@@ -2202,7 +2227,59 @@ public:
     return TAIntVI(HI, HHI, attr, false, this, IsDense);
   }
 
+  /// Returns an iterator referring to the first node's int attribute.
+  TAFltVI BegNAFltVI(const TStr& attr) const {
+    TVec<TFltV>::TIter HI = NULL;
+    THash<TInt, TFltV>::TIter HHI;
+    TInt location = CheckDenseOrSparseN(attr);
+    TBool IsDense = true;
+    if (location != -1) {
+      TInt index = KeyToIndexTypeN.GetDat(attr).Val2;
+      if (location == 1) {
+        HI = VecOfFltVecVecsN[index].BegI();
+      } else {
+        // IsDense = false;
+        // HHI = VecOfIntHashVecsN[index].BegI();
+      }
+    }
+    return TAFltVI(HI, HHI, attr, false, this, IsDense);
+  }
+  /// Returns an iterator referring to the past-the-end node's attribute.
+  TAFltVI EndNAFltVI(const TStr& attr) const {
+    TVec<TFltV>::TIter HI = NULL;
+    THash<TInt, TFltV>::TIter HHI;
+    TInt location = CheckDenseOrSparseN(attr);
+    TBool IsDense = true;
+    if (location != -1) {
+      TInt index = KeyToIndexTypeN.GetDat(attr).Val2;
+      if (location == 1) {
+        HI = VecOfFltVecVecsN[index].EndI();
+      } else {
+        IsDense = false;
+        // HHI = VecOfIntHashVecsN[index].EndI();
+      }
+    }
+    return TAFltVI(HI, HHI, attr, false, this, IsDense);
+  }
 
+
+  /// Returns an iterator referring to the node of ID NId in the graph.
+  TAFltVI GetNAFltVI(const TStr& attr, const int& NId) const {
+    TVec<TFltV>::TIter HI = NULL;
+    THash<TInt, TFltV>::TIter HHI;
+    TInt location = CheckDenseOrSparseN(attr);
+    TBool IsDense = true;
+    if (location != -1) {
+      TInt index = KeyToIndexTypeN.GetDat(attr).Val2;
+      if (location == 1) {
+        HI = VecOfFltVecVecsN[index].GetI(NodeH.GetKeyId(NId));
+      } else {
+        // IsDense = false;
+        // HHI = VecOfIntHashVecsN[index].GetI(NodeH.GetKeyId(NId));
+      }
+    }
+    return TAFltVI(HI, HHI, attr, false, this, IsDense);
+  }
 
   /// Returns an iterator referring to the first node's str attribute.
   TAStrI BegNAStrI(const TStr& attr) const {
@@ -2396,6 +2473,58 @@ public:
       }
     }
     return TAIntVI(HI, HHI, attr, true, this, IsDense);
+  }
+
+    /// Returns an iterator referring to the first edge's int attribute.
+  TAFltVI BegEAFltVI(const TStr& attr) const {
+    TVec<TFltV>::TIter HI = NULL;
+    THash<TInt, TFltV>::TIter HHI;
+    TInt location = CheckDenseOrSparseE(attr);
+    TBool IsDense = true;
+    if (location != -1) {
+      TInt index = KeyToIndexTypeE.GetDat(attr).Val2;
+      if (location == 1) {
+        HI = VecOfFltVecVecsE[index].BegI();
+      } else {
+        // IsDense = false;
+        // HHI = VecOfIntHashVecsE[index].BegI();
+      }
+    }
+    return TAFltVI(HI, HHI, attr, true, this, IsDense);
+  }
+  /// Returns an iterator referring to the past-the-end edge's attribute.
+  TAFltVI EndEAFltVI(const TStr& attr) const {
+    TVec<TFltV>::TIter HI = NULL;
+    THash<TInt, TFltV>::TIter HHI;
+    TInt location = CheckDenseOrSparseE(attr);
+    TBool IsDense = true;
+    if (location != -1) {
+      TInt index = KeyToIndexTypeE.GetDat(attr).Val2;
+      if (location == 1) {
+        HI = VecOfFltVecVecsE[index].EndI();
+      } else {
+        // IsDense = false;
+        // HHI = VecOfIntHashVecsE[index].EndI();
+      }
+    }
+    return TAFltVI(HI, HHI, attr, true, this, IsDense);
+  }
+  /// Returns an iterator referring to the edge of ID EId in the graph.
+  TAFltVI GetEAFltVI(const TStr& attr, const int& EId) const {
+    TVec<TFltV>::TIter HI = NULL;
+    THash<TInt, TFltV>::TIter HHI;
+    TInt location = CheckDenseOrSparseE(attr);
+    TBool IsDense = true;
+    if (location != -1) {
+      TInt index = KeyToIndexTypeE.GetDat(attr).Val2;
+      if (location == 1) {
+        HI = VecOfFltVecVecsE[index].GetI(EdgeH.GetKeyId(EId));
+      } else {
+        // IsDense = false;
+        // HHI = VecOfIntHashVecsE[index].GetI(EdgeH.GetKeyId(EId));
+      }
+    }
+    return TAFltVI(HI, HHI, attr, true, this, IsDense);
   }
 
   /// Returns an iterator referring to the first edge's str attribute.

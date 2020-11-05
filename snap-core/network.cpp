@@ -216,7 +216,8 @@ bool TNEANet::IsAttrDeletedN(const int& NId, const TStr& attr) const {
   bool StrDel = IsStrAttrDeletedN(NId, attr);
   bool FltDel = IsFltAttrDeletedN(NId, attr);
   bool IntVDel = IsIntVAttrDeletedN(NId, attr);
-  return IntDel || StrDel || FltDel || IntVDel;
+  bool FltVDel = IsFltVAttrDeletedN(NId, attr);
+  return IntDel || StrDel || FltDel || IntVDel || FltVDel;
 }
 
 bool TNEANet::IsIntAttrDeletedN(const int& NId, const TStr& attr) const {
@@ -225,6 +226,10 @@ bool TNEANet::IsIntAttrDeletedN(const int& NId, const TStr& attr) const {
 
 bool TNEANet::IsIntVAttrDeletedN(const int& NId, const TStr& attr) const {
   return NodeAttrIsIntVDeleted(NId, KeyToIndexTypeN.GetI(attr));
+}
+
+bool TNEANet::IsFltVAttrDeletedN(const int& NId, const TStr& attr) const {
+  return NodeAttrIsFltVDeleted(NId, KeyToIndexTypeN.GetI(attr));
 }
 
 bool TNEANet::IsStrAttrDeletedN(const int& NId, const TStr& attr) const {
@@ -416,7 +421,8 @@ bool TNEANet::IsAttrDeletedE(const int& EId, const TStr& attr) const {
   bool IntVDel = IsIntVAttrDeletedE(EId, attr);
   bool StrDel = IsStrAttrDeletedE(EId, attr);
   bool FltDel = IsFltAttrDeletedE(EId, attr);
-  return IntDel || StrDel || FltDel || IntVDel;
+  bool FltVDel = IsFltVAttrDeletedE(EId, attr);
+  return IntDel || StrDel || FltDel || IntVDel || FltVDel;
 }
 
 bool TNEANet::IsIntAttrDeletedE(const int& EId, const TStr& attr) const {
@@ -425,6 +431,10 @@ bool TNEANet::IsIntAttrDeletedE(const int& EId, const TStr& attr) const {
 
 bool TNEANet::IsIntVAttrDeletedE(const int& EId, const TStr& attr) const {
   return EdgeAttrIsIntVDeleted(EId, KeyToIndexTypeE.GetI(attr));
+}
+
+bool TNEANet::IsFltVAttrDeletedE(const int& EId, const TStr& attr) const {
+  return EdgeAttrIsFltVDeleted(EId, KeyToIndexTypeE.GetI(attr));
 }
 
 bool TNEANet::IsStrAttrDeletedE(const int& EId, const TStr& attr) const {
@@ -452,6 +462,12 @@ bool TNEANet::EdgeAttrIsIntDeleted(const int& EId, const TStrIntPrH::TIter& Edge
 bool TNEANet::EdgeAttrIsIntVDeleted(const int& EId, const TStrIntPrH::TIter& EdgeHI) const {
   return (EdgeHI.GetDat().Val1 == IntVType &&
     TIntV() == this->VecOfIntVecVecsE.GetVal(
+    this->KeyToIndexTypeE.GetDat(EdgeHI.GetKey()).Val2).GetVal(EdgeH.GetKeyId(EId)));
+}
+
+bool TNEANet::EdgeAttrIsFltVDeleted(const int& EId, const TStrIntPrH::TIter& EdgeHI) const {
+  return (EdgeHI.GetDat().Val1 == FltVType &&
+    TFltV() == this->VecOfFltVecVecsE.GetVal(
     this->KeyToIndexTypeE.GetDat(EdgeHI.GetKey()).Val2).GetVal(EdgeH.GetKeyId(EId)));
 }
 
@@ -1417,9 +1433,9 @@ int TNEANet::DelAttrDatN(const int& NId, const TStr& attr) {
     TInt location = CheckDenseOrSparseN(attr);
     if (location == 0) VecOfIntHashVecsN[KeyToIndexTypeN.GetDat(attr).Val2][NodeH.GetKeyId(NId)] = TIntV();
     else VecOfIntVecVecsN[KeyToIndexTypeN.GetDat(attr).Val2][NodeH.GetKeyId(NId)] = TIntV();
-  } else if (vecType ==FltVType) { // added by Avery
-    TInt location = CheckDenseOrSparseN(attr);
-    IAssertR(location != 0, TStr::Fmt("Sparse representation not implemented yet!", NId, attr.CStr())); // not sure about this
+  } else if (vecType == FltVType) { // added by Avery
+    // TInt location = CheckDenseOrSparseN(attr);
+    // IAssertR(location != 0, TStr::Fmt("Sparse representation not implemented yet!", NId, attr.CStr())); // not sure about this
     VecOfFltVecVecsN[KeyToIndexTypeN.GetDat(attr).Val2][NodeH.GetKeyId(NId)] = TFltV();
   } else {
     return -1;

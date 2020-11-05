@@ -424,6 +424,126 @@ TEST(TNEANet, FltVAttr2) {
   }
 }
 
+TEST(TNEANet, IntVDelAttr) {
+  PNEANet Graph = TNEANet::New();
+  TIntV test;
+  int numNodes = 10;
+  Graph->AddIntVAttrN("nodeAttrEmpty");
+  Graph->AddIntVAttrN("nodeAttrOne");
+  Graph->AddIntVAttrN("edgeAttrEmpty");
+  Graph->AddIntVAttrN("edgeAttrOne");
+  
+  for (int i = 0; i < 10; ++i) {
+    Graph->AddNode(i);
+
+    TIntV single;
+    single.Add(i);
+    single.Add(i+1);
+    Graph->AddIntVAttrDatN(i, single, "nodeAttrOne");
+
+    if (i > 0) {
+      TInt edgeID = Graph->AddEdge(i-1, i);
+      single.Add(i-1);
+      Graph->AddIntVAttrDatE(edgeID, single, "edgeAttrOne");
+    }
+  }
+
+  for (int i = 0; i < 10; ++i) {
+    EXPECT_EQ(Graph->DelFromIntVAttrDatN(i, i, "nodeAttrOne"), 0);
+    EXPECT_EQ(Graph->DelFromIntVAttrDatN(i, i, "nodeAttrEmpty"), -1);
+    EXPECT_EQ(Graph->DelFromIntVAttrDatN(i, i, "nodeAttrOne"), -1);
+
+    TIntV vec = Graph->GetIntVAttrDatN(i, "nodeAttrOne");
+    EXPECT_EQ(vec.Len(), 1);
+    EXPECT_EQ(vec[0], i+1);
+  }
+
+  // what about for the edges?
+
+  for (int i = 0; i < 10; ++i) {
+    EXPECT_EQ(Graph->IsAttrDeletedN(i, "nodeAttrOne"), false);
+    EXPECT_EQ(Graph->IsIntVAttrDeletedN(i, "nodeAttrOne"), false);
+    Graph->DelAttrDatN(i, "nodeAttrOne");
+    EXPECT_EQ(Graph->IsAttrDeletedN(i, "nodeAttrOne"), true);
+    EXPECT_EQ(Graph->IsIntVAttrDeletedN(i, "nodeAttrOne"), true);
+
+    TIntV vec = Graph->GetIntVAttrDatN(i, "nodeAttrOne");
+    EXPECT_EQ(vec.Len(), 0);
+  }
+
+  for (int i = 1; i < 10; ++i) {
+    TInt edgeID = Graph->GetEId(i-1, i);
+    EXPECT_EQ(Graph->IsAttrDeletedE(edgeID, "edgeAttrOne"), false);
+    EXPECT_EQ(Graph->IsIntVAttrDeletedE(edgeID, "edgeAttrOne"), false);
+    Graph->DelAttrDatE(edgeID, "edgeAttrOne");
+    EXPECT_EQ(Graph->IsAttrDeletedE(edgeID, "edgeAttrOne"), true);
+    EXPECT_EQ(Graph->IsIntVAttrDeletedE(edgeID, "edgeAttrOne"), true);
+
+    TIntV vec = Graph->GetIntVAttrDatE(edgeID, "edgeAttrOne");
+    EXPECT_EQ(vec.Len(), 0);
+  }
+}
+
+TEST(TNEANet, FltVDelAttr) {
+  PNEANet Graph = TNEANet::New();
+  TFltV test;
+  int numNodes = 10;
+  Graph->AddFltVAttrN("nodeAttrEmpty");
+  Graph->AddFltVAttrN("nodeAttrOne");
+  Graph->AddFltVAttrN("edgeAttrEmpty");
+  Graph->AddFltVAttrN("edgeAttrOne");
+  
+  for (int i = 0; i < 10; ++i) {
+    Graph->AddNode(i);
+
+    TFltV single;
+    single.Add(i-1.5);
+    single.Add(i+1.5);
+    Graph->AddFltVAttrDatN(i, single, "nodeAttrOne");
+
+    if (i > 0) {
+      TInt edgeID = Graph->AddEdge(i-1, i);
+      single.Add(i-1);
+      Graph->AddFltVAttrDatE(edgeID, single, "edgeAttrOne");
+    }
+  }
+
+  for (int i = 0; i < 10; ++i) {
+    EXPECT_EQ(Graph->DelFromFltVAttrDatN(i, i-1.5, "nodeAttrOne"), 0);
+    EXPECT_EQ(Graph->DelFromFltVAttrDatN(i, i-1.5, "nodeAttrEmpty"), -1);
+    EXPECT_EQ(Graph->DelFromFltVAttrDatN(i, i-1.5, "nodeAttrOne"), -1);
+
+    TFltV vec = Graph->GetFltVAttrDatN(i, "nodeAttrOne");
+    EXPECT_EQ(vec.Len(), 1);
+    EXPECT_FLOAT_EQ(vec[0], i+1.5);
+  }
+
+  // what about for the edges?
+
+  for (int i = 0; i < 10; ++i) {
+    EXPECT_EQ(Graph->IsAttrDeletedN(i, "nodeAttrOne"), false);
+    EXPECT_EQ(Graph->IsFltVAttrDeletedN(i, "nodeAttrOne"), false);
+    Graph->DelAttrDatN(i, "nodeAttrOne");
+    EXPECT_EQ(Graph->IsAttrDeletedN(i, "nodeAttrOne"), true);
+    EXPECT_EQ(Graph->IsFltVAttrDeletedN(i, "nodeAttrOne"), true);
+
+    TFltV vec = Graph->GetFltVAttrDatN(i, "nodeAttrOne");
+    EXPECT_EQ(vec.Len(), 0);
+  }
+
+  for (int i = 1; i < 10; ++i) {
+    TInt edgeID = Graph->GetEId(i-1, i);
+    EXPECT_EQ(Graph->IsAttrDeletedE(edgeID, "edgeAttrOne"), false);
+    EXPECT_EQ(Graph->IsFltVAttrDeletedE(edgeID, "edgeAttrOne"), false);
+    Graph->DelAttrDatE(edgeID, "edgeAttrOne");
+    EXPECT_EQ(Graph->IsAttrDeletedE(edgeID, "edgeAttrOne"), true);
+    EXPECT_EQ(Graph->IsFltVAttrDeletedE(edgeID, "edgeAttrOne"), true);
+
+    TFltV vec = Graph->GetFltVAttrDatE(edgeID, "edgeAttrOne");
+    EXPECT_EQ(vec.Len(), 0);
+  }
+}
+
 // Test node, edge attribute functionality
 TEST(TNEANet, ManipulateNodesEdgeAttributes) {
   int NNodes = 1000;
