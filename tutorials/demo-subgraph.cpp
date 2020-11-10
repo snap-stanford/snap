@@ -505,6 +505,7 @@ void TestGetInEgonetSubAttr() {
 
 // Test PGraph GetGraphUnion
 void TestGetGraphUnion() {
+  //Undirected graph
   PUNGraph Graph = TUNGraph::New();
   PUNGraph Graph0 = TUNGraph::New();
 
@@ -521,12 +522,103 @@ void TestGetGraphUnion() {
   for (int i = 0; i < 5; i++) {
     Graph0->AddEdge(i + 3,((i+1) % 5) + 3);
   }
-  
-  PrintGraph("PGraph DstGraph before union", Graph);
-  PrintGraph("PGraph SrcGraph before union", Graph0);
+
+  PrintGraph("TUNGraph DstGraph before union", Graph);
+  PrintGraph("TUNGraph SrcGraph before union", Graph0);
 
   TSnap::GetGraphUnion(Graph, Graph0);
-  PrintGraph("PGraph DstGraph after union", Graph);
+  PrintGraph("TUNGraph DstGraph after union", Graph);
+
+  //Directed graph
+  PNGraph Graph1 = TNGraph::New();
+  PNGraph Graph2 = TNGraph::New();
+  for (int i = 0; i < 4; i++) {
+    Graph1->AddNode(i);
+  }
+  for (int i = 1; i < 5; i++) {
+    Graph2->AddNode(i);
+  }
+
+  Graph1->AddEdge(0, 1);
+  Graph1->AddEdge(1, 2);
+  Graph2->AddEdge(1, 2);
+  Graph2->AddEdge(2, 1);
+  Graph1->AddEdge(2, 3);
+  Graph2->AddEdge(2, 3);
+  Graph1->AddEdge(3, 2);
+  Graph2->AddEdge(3, 4);
+  Graph2->AddEdge(1, 4);
+
+  PrintGraph("TNGraph DstGraph before union", Graph1);
+  PrintGraph("TNGraph SrcGraph before union", Graph2);
+
+  TSnap::GetGraphUnion(Graph1, Graph2);
+  PrintGraph("TNGraph DstGraph after union", Graph1);
+
+  //Directed multi-graph
+  PNEANet Graph3 = TNEANet::New();
+  PNEANet Graph4 = TNEANet::New();
+  int EId = 0;
+  for (int i = 0; i < 4; i++) {
+    Graph3->AddNode(i);
+  }
+  for (int i = 1; i < 5; i++) {
+    Graph4->AddNode(i);
+  }
+
+  Graph3->AddEdge(0, 1, EId++);
+  Graph3->AddEdge(1, 2, EId++);
+  Graph4->AddEdge(1, 2, EId++);
+  Graph4->AddEdge(2, 1, EId++);
+  Graph3->AddEdge(2, 3, EId);
+  Graph4->AddEdge(2, 3, EId++);
+  Graph3->AddEdge(3, 2, EId++);
+  Graph4->AddEdge(3, 4, EId++);
+  Graph4->AddEdge(1, 4, EId++);
+
+  PrintGraph("TNEANet DstGraph before union", Graph3);
+  PrintGraph("TNEANet SrcGraph before union", Graph4);
+
+  TSnap::GetGraphUnion(Graph3, Graph4);
+  PrintGraph("TNEANet DstGraph after union", Graph3);
+}
+
+
+// Test PNEANet GetGraphUnionAttr
+void TestGetGraphUnionAttr() {
+  PNEANet Graph = PNEANet::New();
+  PNEANet Graph0 = PNEANet::New();
+  
+  TStr s = "id";
+  int EId;
+  for (int i = 0; i < 6; i++) {
+    Graph->AddNode(i);
+    Graph->AddIntAttrDatN(i, i, s);
+  }
+
+  for (int i = 3; i < 9; i++) {
+    Graph0->AddNode(i);
+    Graph0->AddIntAttrDatN(i, i, s);
+  }
+
+  for (int i = 0; i < 6; i++) {
+    EId = Graph->AddEdge(i, (i + 2) % 6);
+    Graph->AddIntAttrDatE(EId, (i + 2) % 6, s);
+    EId = Graph->AddEdge(i, (i + 5) % 6);
+    Graph->AddIntAttrDatE(EId, (i + 5) % 6, s);
+  }
+
+  for (int i = 0; i < 6; i++) {
+    EId = Graph0->AddEdge(i + 3, ((i + 3) % 6) + 3);
+    Graph0->AddIntAttrDatE(EId, ((i + 3) % 6) + 3, s);
+    EId = Graph0->AddEdge(i + 3, ((i + 4) % 6) + 3);
+    Graph0->AddIntAttrDatE(EId, ((i + 4) % 6) + 3, s);
+  }
+  PrintGraph("PNEANet DstGraph before union", Graph);
+  PrintGraph("PNEANet SrcGraph before union", Graph0);
+
+  TSnap::GetGraphUnionAttr(Graph, Graph0);
+  PrintGraph("PNEANet DstGraph after union", Graph);
 }
 
 
@@ -681,5 +773,6 @@ int main(int argc, char* argv[]) {
   TestGetInEgonetSubTNEANet();
   TestGetInEgonetSubAttr();
   TestGetGraphUnion();
+  TestGetGraphUnionAttr();
 }
 

@@ -520,29 +520,21 @@ PNEANet GetInEgonetSubAttr(const PNEANet &Graph, const int CtrNId, const int Rad
 }
 
 PNEANet GetGraphUnionAttr(PNEANet &DstGraph, const PNEANet &SrcGraph){
-    for (typename PGraph::TObj::TNodeI NI = SrcGraph->BegNI(); NI < SrcGraph->EndNI(); NI++) {
+  for (typename PNEANet::TObj::TNodeI NI = SrcGraph->BegNI(); NI < SrcGraph->EndNI(); NI++) {
     if (! DstGraph->IsNode(NI.GetId())){
-      DstGraph->AddNode(NI.GetId());
+      AddNodeWithAttributes(SrcGraph, DstGraph, NI.GetId());
     }
   }
-  for (typename PGraph::TObj::TEdgeI EI = SrcGraph->BegEI(); EI < SrcGraph->EndEI(); EI++) {
-    if (!HasGraphFlag(typename PGraph::TObj, gfMultiGraph)){
-      if (! DstGraph->IsEdge(EI.GetSrcNId(), EI.GetDstNId())){
-        DstGraph->AddEdge(EI.GetSrcNId(), EI.GetDstNId());
-      }
-    }
-    else{
+  for (typename PNEANet::TObj::TEdgeI EI = SrcGraph->BegEI(); EI < SrcGraph->EndEI(); EI++) {
+    if (! DstGraph->IsEdge(EI.GetSrcNId(), EI.GetDstNId()) || ! DstGraph->IsEdge(EI.GetId())){
       if (! DstGraph->IsEdge(EI.GetId())){
-        DstGraph->AddEdge(EI.GetSrcNId(), EI.GetDstNId(), EI.GetId());
+        AddEdgeWithAttributes(SrcGraph, DstGraph, EI.GetId());
+      }else{
+        AddEdgeWithAttributes(SrcGraph, DstGraph, EI.GetSrcNId(), EI.GetDstNId());
       }
     }
   }
   return DstGraph;
 }
-
-
-
-
-
 
 } // namespace TSnap
