@@ -2287,8 +2287,8 @@ public:
       if (location == 1) {
         HI = VecOfFltVecVecsN[index].BegI();
       } else {
-        // IsDense = false;
-        // HHI = VecOfIntHashVecsN[index].BegI();
+        IsDense = false;
+        HHI = VecOfFltHashVecsN[index].BegI();
       }
     }
     return TAFltVI(HI, HHI, attr, false, this, IsDense);
@@ -2305,7 +2305,7 @@ public:
         HI = VecOfFltVecVecsN[index].EndI();
       } else {
         IsDense = false;
-        // HHI = VecOfIntHashVecsN[index].EndI();
+        HHI = VecOfFltHashVecsN[index].EndI();
       }
     }
     return TAFltVI(HI, HHI, attr, false, this, IsDense);
@@ -2323,8 +2323,8 @@ public:
       if (location == 1) {
         HI = VecOfFltVecVecsN[index].GetI(NodeH.GetKeyId(NId));
       } else {
-        // IsDense = false;
-        // HHI = VecOfIntHashVecsN[index].GetI(NodeH.GetKeyId(NId));
+        IsDense = false;
+        HHI = VecOfFltHashVecsN[index].GetI(NodeH.GetKeyId(NId));
       }
     }
     return TAFltVI(HI, HHI, attr, false, this, IsDense);
@@ -2535,8 +2535,8 @@ public:
       if (location == 1) {
         HI = VecOfFltVecVecsE[index].BegI();
       } else {
-        // IsDense = false;
-        // HHI = VecOfIntHashVecsE[index].BegI();
+        IsDense = false;
+        HHI = VecOfFltHashVecsE[index].BegI();
       }
     }
     return TAFltVI(HI, HHI, attr, true, this, IsDense);
@@ -2552,8 +2552,8 @@ public:
       if (location == 1) {
         HI = VecOfFltVecVecsE[index].EndI();
       } else {
-        // IsDense = false;
-        // HHI = VecOfIntHashVecsE[index].EndI();
+        IsDense = false;
+        HHI = VecOfFltHashVecsE[index].EndI();
       }
     }
     return TAFltVI(HI, HHI, attr, true, this, IsDense);
@@ -2569,8 +2569,8 @@ public:
       if (location == 1) {
         HI = VecOfFltVecVecsE[index].GetI(EdgeH.GetKeyId(EId));
       } else {
-        // IsDense = false;
-        // HHI = VecOfIntHashVecsE[index].GetI(EdgeH.GetKeyId(EId));
+        IsDense = false;
+        HHI = VecOfFltHashVecsE[index].GetI(EdgeH.GetKeyId(EId));
       }
     }
     return TAFltVI(HI, HHI, attr, true, this, IsDense);
