@@ -922,7 +922,9 @@ TEST(TNEANet, AddSAttrN) {
   PNEANet Graph;
   Graph = TNEANet::New();
   TInt AttrId;
+  //std::cout << "NO crash?" << std::endl;
   int status = Graph->AddSAttrN("TestInt", atInt, AttrId);
+  //std::cout << "NO crash?" << std::endl;
   EXPECT_EQ(0, status);
   EXPECT_EQ(0, AttrId.Val);
   status = Graph->AddSAttrN("TestFlt", atFlt, AttrId);

@@ -1905,6 +1905,7 @@ protected:
   TVec<TVec<TIntV> > VecOfIntVecVecsN, VecOfIntVecVecsE;
   TVec<TVec<TFltV> > VecOfFltVecVecsN, VecOfFltVecVecsE; // added by Avery
   TVec<THash<TInt, TIntV> > VecOfIntHashVecsN, VecOfIntHashVecsE;
+  TVec<THash<TInt, TFltV> > VecOfFltHashVecsN, VecOfFltHashVecsE;
   enum { IntType, StrType, FltType, IntVType, FltVType };
 
   TAttr SAttrN;
@@ -1965,7 +1966,9 @@ public:
     VecOfIntVecsN(), VecOfIntVecsE(), VecOfStrVecsN(), VecOfStrVecsE(),
     VecOfFltVecsN(), VecOfFltVecsE(),  VecOfIntVecVecsN(), VecOfIntVecVecsE(),
     VecOfFltVecVecsN(), VecOfFltVecVecsE(), // added by Avery
-    VecOfIntHashVecsN(), VecOfIntHashVecsE(), SAttrN(), SAttrE(){ }
+    VecOfIntHashVecsN(), VecOfIntHashVecsE(), 
+    VecOfFltHashVecsN(), VecOfFltHashVecsE(), // added by Avery
+    SAttrN(), SAttrE(){ }
   /// Constructor that reserves enough memory for a graph of nodes and edges.
   explicit TNEANet(const int& Nodes, const int& Edges) : CRef(),
     MxNId(0), MxEId(0), NodeH(), EdgeH(), KeyToIndexTypeN(), KeyToIndexTypeE(), KeyToDenseN(), KeyToDenseE(),
@@ -1973,7 +1976,9 @@ public:
     FltDefaultsN(), FltDefaultsE(), VecOfIntVecsN(), VecOfIntVecsE(),
     VecOfStrVecsN(), VecOfStrVecsE(), VecOfFltVecsN(), VecOfFltVecsE(), VecOfIntVecVecsN(), VecOfIntVecVecsE(),
     VecOfFltVecVecsN(), VecOfFltVecVecsE(), // added by Avery
-    VecOfIntHashVecsN(), VecOfIntHashVecsE(), SAttrN(), SAttrE()
+    VecOfIntHashVecsN(), VecOfIntHashVecsE(), 
+    VecOfFltHashVecsN(), VecOfFltHashVecsE(), // added by Avery
+    SAttrN(), SAttrE()
     { Reserve(Nodes, Edges); }
   TNEANet(const TNEANet& Graph) : MxNId(Graph.MxNId), MxEId(Graph.MxEId),
     NodeH(Graph.NodeH), EdgeH(Graph.EdgeH), KeyToIndexTypeN(), KeyToIndexTypeE(), KeyToDenseN(), KeyToDenseE(),
@@ -1981,7 +1986,9 @@ public:
     FltDefaultsN(), FltDefaultsE(), VecOfIntVecsN(), VecOfIntVecsE(),
     VecOfStrVecsN(), VecOfStrVecsE(), VecOfFltVecsN(), VecOfFltVecsE(), VecOfIntVecVecsN(), VecOfIntVecVecsE(),
     VecOfFltVecVecsN(), VecOfFltVecVecsE(), // added by Avery
-    VecOfIntHashVecsN(), VecOfIntHashVecsE(), SAttrN(), SAttrE() { }
+    VecOfIntHashVecsN(), VecOfIntHashVecsE(), 
+    VecOfFltHashVecsN(), VecOfFltHashVecsE(), // added by Avery
+    SAttrN(), SAttrE() { }
   /// Constructor for loading the graph from a (binary) stream SIn.
   TNEANet(TSIn& SIn) : MxNId(SIn), MxEId(SIn), NodeH(SIn), EdgeH(SIn),
     KeyToIndexTypeN(SIn), KeyToIndexTypeE(SIn), KeyToDenseN(SIn), KeyToDenseE(SIn), IntDefaultsN(SIn), IntDefaultsE(SIn),
@@ -1990,6 +1997,7 @@ public:
     VecOfFltVecsN(SIn), VecOfFltVecsE(SIn), VecOfIntVecVecsN(SIn), VecOfIntVecVecsE(SIn), 
     VecOfFltVecVecsN(SIn), VecOfFltVecVecsE(SIn), // added by Avery
     VecOfIntHashVecsN(SIn), VecOfIntHashVecsE(SIn),
+    VecOfFltHashVecsN(SIn), VecOfFltHashVecsE(SIn), // added by Avery
     SAttrN(SIn), SAttrE(SIn) { }
 protected:
   TNEANet(const TNEANet& Graph, bool modeSubGraph) : MxNId(Graph.MxNId), MxEId(Graph.MxEId),
@@ -1999,7 +2007,9 @@ protected:
     VecOfStrVecsN(Graph.VecOfStrVecsN), VecOfStrVecsE(Graph.VecOfStrVecsE), VecOfFltVecsN(Graph.VecOfFltVecsN), VecOfFltVecsE(Graph.VecOfFltVecsE),
     VecOfIntVecVecsN(), VecOfIntVecVecsE(Graph.VecOfIntVecVecsE), 
     VecOfFltVecVecsN(), VecOfFltVecVecsE(Graph.VecOfFltVecVecsE), // added by Avery
-    VecOfIntHashVecsN(), VecOfIntHashVecsE(Graph.VecOfIntHashVecsE) { }
+    VecOfIntHashVecsN(), VecOfIntHashVecsE(Graph.VecOfIntHashVecsE),
+    VecOfFltHashVecsN(), VecOfFltHashVecsE(Graph.VecOfFltHashVecsE) // added by Avery
+     { }
   TNEANet(bool copyAll, const TNEANet& Graph) : MxNId(Graph.MxNId), MxEId(Graph.MxEId),
     NodeH(Graph.NodeH), EdgeH(Graph.EdgeH), KeyToIndexTypeN(Graph.KeyToIndexTypeN), KeyToIndexTypeE(Graph.KeyToIndexTypeE), KeyToDenseN(Graph.KeyToDenseN), KeyToDenseE(Graph.KeyToDenseE),
     IntDefaultsN(Graph.IntDefaultsN), IntDefaultsE(Graph.IntDefaultsE), StrDefaultsN(Graph.StrDefaultsN), StrDefaultsE(Graph.StrDefaultsE),
@@ -2007,7 +2017,9 @@ protected:
     VecOfStrVecsN(Graph.VecOfStrVecsN), VecOfStrVecsE(Graph.VecOfStrVecsE), VecOfFltVecsN(Graph.VecOfFltVecsN), VecOfFltVecsE(Graph.VecOfFltVecsE),
     VecOfIntVecVecsN(Graph.VecOfIntVecVecsN), VecOfIntVecVecsE(Graph.VecOfIntVecVecsE), 
     VecOfFltVecVecsN(Graph.VecOfFltVecVecsN), VecOfFltVecVecsE(Graph.VecOfFltVecVecsE), // added by Avery
-    VecOfIntHashVecsN(Graph.VecOfIntHashVecsN), VecOfIntHashVecsE(Graph.VecOfIntHashVecsE), SAttrN(Graph.SAttrN), SAttrE(Graph.SAttrE) { }
+    VecOfIntHashVecsN(Graph.VecOfIntHashVecsN), VecOfIntHashVecsE(Graph.VecOfIntHashVecsE), 
+    VecOfFltHashVecsN(Graph.VecOfFltHashVecsN), VecOfFltHashVecsE(Graph.VecOfFltHashVecsE), // added by Avery
+    SAttrN(Graph.SAttrN), SAttrE(Graph.SAttrE) { }
   // virtual ~TNEANet() { }cd ..
 public:
   /// Saves the graph to a (binary) stream SOut. Expects data structures for sparse attributes.
@@ -2024,6 +2036,7 @@ public:
     VecOfIntVecVecsN.Save(SOut); VecOfIntVecVecsE.Save(SOut);
     VecOfFltVecVecsN.Save(SOut); VecOfFltVecVecsE.Save(SOut); // added by Avery
     VecOfIntHashVecsN.Save(SOut); VecOfIntHashVecsE.Save(SOut); 
+    VecOfFltHashVecsN.Save(SOut); VecOfFltHashVecsE.Save(SOut); // added by Avery
     SAttrN.Save(SOut); SAttrE.Save(SOut); }
   /// Saves the graph to a (binary) stream SOut. Available for backwards compatibility.
   void Save_V1(TSOut& SOut) const {
@@ -2133,6 +2146,42 @@ public:
       }
     }
     VecOfIntVecVecsE.Clr();
+  
+    VecLength = VecOfFltVecVecsN.Len();
+    if (VecLength != 0) {
+      VecOfFltHashVecsN = TVec<THash<TInt, TFltV> >(VecLength);
+      for (iter = KeyToIndexTypeN.BegI(); !iter.IsEnd(); iter=iter.Next()) {
+        if (iter.GetDat().Val1 == FltVType) {
+          TStr attribute = iter.GetKey();
+          TInt index = iter.GetDat().Val2();
+          for (int i=0; i<VecOfFltVecVecsN[index].Len(); i++) {
+            if(VecOfFltVecVecsN[index][i].Len() > 0) {
+              VecOfFltHashVecsN[index].AddDat(TInt(i), VecOfFltVecVecsN[index][i]);
+            }
+          }
+          KeyToDenseN.AddDat(attribute, TBool(false));
+        }
+      }
+    }
+    VecOfFltVecVecsN.Clr();
+
+    VecLength = VecOfFltVecVecsE.Len();
+    if (VecLength != 0) {
+      VecOfFltHashVecsE = TVec<THash<TInt, TFltV> >(VecLength);
+      for (iter = KeyToIndexTypeE.BegI(); !iter.IsEnd(); iter=iter.Next()) {
+        if (iter.GetDat().Val1 == FltVType) {
+          TStr attribute = iter.GetKey();
+          TInt index = iter.GetDat().Val2();
+          for (int i=0; i<VecOfFltVecVecsE[index].Len(); i++) {
+            if(VecOfFltVecVecsE[index][i].Len() > 0) {
+              VecOfFltHashVecsE[index].AddDat(TInt(i), VecOfFltVecVecsE[index][i]);
+            }
+          }
+          KeyToDenseE.AddDat(attribute, TBool(false));
+        }
+      }
+    }
+    VecOfFltVecVecsE.Clr();
   }
 
 
