@@ -141,7 +141,6 @@ void TNEANet::IntVAttrValueNI(const TInt& NId, TStrIntPrH::TIter NodeHI, TVec<TI
   }
 }
 
-// Avery
 void TNEANet::FltVAttrNameNI(const TInt& NId, TStrIntPrH::TIter NodeHI, TStrV& Names) const {
   Names = TVec<TStr>();
   while (!NodeHI.IsEnd()) {
@@ -152,7 +151,6 @@ void TNEANet::FltVAttrNameNI(const TInt& NId, TStrIntPrH::TIter NodeHI, TStrV& N
   }  
 }
 
-// Avery
 void TNEANet::FltVAttrValueNI(const TInt& NId, TStrIntPrH::TIter NodeHI, TVec<TFltV>& Values) const {
   Values = TVec<TFltV>();
   while (!NodeHI.IsEnd()) {
@@ -618,7 +616,6 @@ int TNEANet::AddAttributes(const int NId) {
       IntVecV.Ins(KeyId, TIntV());
     }
   }
-  // Avery
   for (i = 0; i < VecOfFltVecVecsN.Len(); i++) {
     TVec<TFltV>& FltVecV = VecOfFltVecVecsN[i];
     int KeyId = NodeH.GetKeyId(NId);
@@ -734,7 +731,6 @@ void TNEANet::DelNode(const int& NId) {
     TVec<TIntV>& IntVecV = VecOfIntVecVecsN[i];
     IntVecV[NodeH.GetKeyId(NId)] = TIntV();
   }
-  // Avery
   for (i = 0; i < VecOfFltVecVecsN.Len(); i++) {
     TVec<TFltV>& FltVecV = VecOfFltVecVecsN[i];
     FltVecV[NodeH.GetKeyId(NId)] = TFltV();
@@ -1078,7 +1074,6 @@ int TNEANet::AddIntVAttrDatN(const int& NId, const TIntV& value, const TStr& att
   return 0;
 } 
 
-// Avery
 int TNEANet::AddFltVAttrDatN(const int& NId, const TFltV& value, const TStr& attr, TBool UseDense) {
   if (!IsNode(NId)) {
     // AddNode(NId);
@@ -1126,7 +1121,7 @@ int TNEANet::AppendIntVAttrDatN(const int& NId, const TInt& value, const TStr& a
   return 0;
 } 
 
-// Avery
+
 int TNEANet::AppendFltVAttrDatN(const int& NId, const TFlt& value, const TStr& attr, TBool UseDense) {
   if (!IsNode(NId)) {
     // AddNode(NId);
@@ -1177,7 +1172,7 @@ int TNEANet::DelFromIntVAttrDatN(const int& NId, const TInt& value, const TStr& 
   return 0;
 } 
 
-// Avery
+
 int TNEANet::DelFromFltVAttrDatN(const int& NId, const TFlt& value, const TStr& attr) {
   TInt CurrLen;
   if (!IsNode(NId)) {
@@ -1295,7 +1290,7 @@ int TNEANet::AddIntVAttrDatE(const int& EId, const TIntV& value, const TStr& att
   return 0;
 } 
 
-// Avery
+
 int TNEANet::AddFltVAttrDatE(const int& EId, const TFltV& value, const TStr& attr, TBool UseDense) {
   if (!IsEdge(EId)) {
     // AddNode(NId);
@@ -1338,7 +1333,7 @@ int TNEANet::AppendIntVAttrDatE(const int& EId, const TInt& value, const TStr& a
   return 0;
 }
 
-// Avery
+
 int TNEANet::AppendFltVAttrDatE(const int& EId, const TFlt& value, const TStr& attr, TBool UseDense) {
   if (!IsEdge(EId)) {
     // AddNode(NId);
@@ -1422,7 +1417,7 @@ TIntV TNEANet::GetIntVAttrDatN(const int& NId, const TStr& attr) const {
   else return VecOfIntHashVecsN[KeyToIndexTypeN.GetDat(attr).Val2][NodeH.GetKeyId(NId)];
 }
 
-// Avery
+
 TFltV TNEANet::GetFltVAttrDatN(const int& NId, const TStr& attr) const {
   TInt location = CheckDenseOrSparseN(attr);
   if (location != 0) return VecOfFltVecVecsN[KeyToIndexTypeN.GetDat(attr).Val2][NodeH.GetKeyId(NId)];
@@ -1467,7 +1462,7 @@ TIntV TNEANet::GetIntVAttrDatE(const int& EId, const TStr& attr) {
   else return VecOfIntHashVecsE[KeyToIndexTypeE.GetDat(attr).Val2][EdgeH.GetKeyId(EId)];
 }
 
-// Avery
+
 TFltV TNEANet::GetFltVAttrDatE(const int& EId, const TStr& attr) {
   TInt location = CheckDenseOrSparseE(attr);
   if (location != 0) return VecOfFltVecVecsE[KeyToIndexTypeE.GetDat(attr).Val2][EdgeH.GetKeyId(EId)];
@@ -1584,7 +1579,7 @@ int TNEANet::AddIntVAttrN(const TStr& attr, TBool UseDense){
   }
   return 0;
 }
-// Avery
+
 int TNEANet::AddFltVAttrN(const TStr& attr, TBool UseDense){
   TInt CurrLen;
   if (UseDense) {

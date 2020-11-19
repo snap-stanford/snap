@@ -544,6 +544,151 @@ TEST(TNEANet, FltVDelAttr) {
   }
 }
 
+TEST(TNEANet, IntVIterator) {
+  PNEANet Graph = TNEANet::New();
+  int numNodes = 10;
+  TStr TestAttrNodes("path");
+  TStr TestAttrEdges("line");
+  TStr TestAttrNodesSparse("path_sparse");
+  TStr TestAttrEdgesSparse("line_sparse");
+  Graph->AddIntVAttrN(TestAttrNodes);
+  Graph->AddIntVAttrE(TestAttrEdges);
+  Graph->AddIntVAttrN(TestAttrNodesSparse, false);
+  Graph->AddIntVAttrE(TestAttrEdgesSparse, false);
+
+  Graph->AddNode(0);
+  for (int i = 1; i < numNodes; i++) {
+    Graph->AddNode(i);
+    Graph->AddEdge(i-1, i);
+  }
+
+  for (int i = 0; i < numNodes; i++) {
+    TIntV testVB;
+    testVB.Add(i);
+    Graph->AddIntVAttrDatN(i, testVB, TestAttrNodes);
+    Graph->AddIntVAttrDatN(i, testVB, TestAttrNodesSparse, false);
+
+    if (i > 0) {
+      TInt edgeID = Graph->GetEId(i-1, i);
+      Graph->AddIntVAttrDatE(edgeID, testVB, TestAttrEdges);
+      Graph->AddIntVAttrDatE(edgeID, testVB, TestAttrEdgesSparse, false);
+    }
+  }
+
+  int count = 0;
+  TVec<TVec<TInt> > nodeAttrs = TVec<TVec<TInt> >();
+  TVec<TVec<TInt> > edgeAttrs = TVec<TVec<TInt> >();
+  TVec<TVec<TInt> > nodeAttrsSparse = TVec<TVec<TInt> >();
+  TVec<TVec<TInt> > edgeAttrsSparse = TVec<TVec<TInt> >();
+
+  for (TNEANet::TAIntVI NI = Graph->BegNAIntVI(TestAttrNodes); NI < Graph->EndNAIntVI(TestAttrNodes); NI++) {
+    nodeAttrs.Add(NI.GetDat());
+  }
+
+  for (TNEANet::TAIntVI EI = Graph->BegEAIntVI(TestAttrEdges); EI < Graph->EndEAIntVI(TestAttrEdges); EI++) {
+    edgeAttrs.Add(EI.GetDat());
+  }
+
+  for (TNEANet::TAIntVI NI = Graph->BegNAIntVI(TestAttrNodesSparse); NI < Graph->EndNAIntVI(TestAttrNodesSparse); NI++) {
+    nodeAttrsSparse.Add(NI.GetDat());
+  }
+
+  for (TNEANet::TAIntVI EI = Graph->BegEAIntVI(TestAttrEdgesSparse); EI < Graph->EndEAIntVI(TestAttrEdgesSparse); EI++) {
+    edgeAttrsSparse.Add(EI.GetDat());
+  }
+
+  EXPECT_EQ(nodeAttrs.Len(), numNodes);
+  EXPECT_EQ(edgeAttrs.Len(), numNodes-1);
+  EXPECT_EQ(nodeAttrsSparse.Len(), numNodes);
+  EXPECT_EQ(edgeAttrsSparse.Len(), numNodes-1);
+
+  for (int i = 0; i < numNodes; i++) {
+    TIntV testVB;
+    testVB.Add(i);
+    EXPECT_EQ(nodeAttrs.IsIn(testVB), true);
+    EXPECT_EQ(nodeAttrsSparse.IsIn(testVB), true);
+
+    if (i > 0) {
+      EXPECT_EQ(edgeAttrs.IsIn(testVB), true);
+      EXPECT_EQ(edgeAttrsSparse.IsIn(testVB), true);
+    }
+  }
+  
+}
+
+TEST(TNEANet, FltVIterator) {
+  PNEANet Graph = TNEANet::New();
+  int numNodes = 10;
+  TStr TestAttrNodes("path");
+  TStr TestAttrEdges("line");
+  TStr TestAttrNodesSparse("path_sparse");
+  TStr TestAttrEdgesSparse("line_sparse");
+  Graph->AddFltVAttrN(TestAttrNodes);
+  Graph->AddFltVAttrE(TestAttrEdges);
+  Graph->AddFltVAttrN(TestAttrNodesSparse, false);
+  Graph->AddFltVAttrE(TestAttrEdgesSparse, false);
+
+  Graph->AddNode(0);
+  for (int i = 1; i < numNodes; i++) {
+    Graph->AddNode(i);
+    Graph->AddEdge(i-1, i);
+  }
+
+  for (int i = 0; i < numNodes; i++) {
+    TFltV testVB;
+    testVB.Add(i+0.5);
+    Graph->AddFltVAttrDatN(i, testVB, TestAttrNodes);
+    Graph->AddFltVAttrDatN(i, testVB, TestAttrNodesSparse, false);
+
+    if (i > 0) {
+      TInt edgeID = Graph->GetEId(i-1, i);
+      Graph->AddFltVAttrDatE(edgeID, testVB, TestAttrEdges);
+      Graph->AddFltVAttrDatE(edgeID, testVB, TestAttrEdgesSparse, false);
+    }
+  }
+
+  int count = 0;
+  TVec<TVec<TFlt> > nodeAttrs = TVec<TVec<TFlt> >();
+  TVec<TVec<TFlt> > edgeAttrs = TVec<TVec<TFlt> >();
+  TVec<TVec<TFlt> > nodeAttrsSparse = TVec<TVec<TFlt> >();
+  TVec<TVec<TFlt> > edgeAttrsSparse = TVec<TVec<TFlt> >();
+
+  for (TNEANet::TAFltVI NI = Graph->BegNAFltVI(TestAttrNodes); NI < Graph->EndNAFltVI(TestAttrNodes); NI++) {
+    nodeAttrs.Add(NI.GetDat());
+  }
+
+  for (TNEANet::TAFltVI EI = Graph->BegEAFltVI(TestAttrEdges); EI < Graph->EndEAFltVI(TestAttrEdges); EI++) {
+    edgeAttrs.Add(EI.GetDat());
+  }
+
+  for (TNEANet::TAFltVI NI = Graph->BegNAFltVI(TestAttrNodesSparse); NI < Graph->EndNAFltVI(TestAttrNodesSparse); NI++) {
+    nodeAttrsSparse.Add(NI.GetDat());
+  }
+
+  for (TNEANet::TAFltVI EI = Graph->BegEAFltVI(TestAttrEdgesSparse); EI < Graph->EndEAFltVI(TestAttrEdgesSparse); EI++) {
+    edgeAttrsSparse.Add(EI.GetDat());
+  }
+
+  EXPECT_EQ(nodeAttrs.Len(), numNodes);
+  EXPECT_EQ(edgeAttrs.Len(), numNodes-1);
+  EXPECT_EQ(nodeAttrsSparse.Len(), numNodes);
+  EXPECT_EQ(edgeAttrsSparse.Len(), numNodes-1);
+
+  for (int i = 0; i < numNodes; i++) {
+    TFltV testVB;
+    testVB.Add(i + 0.5);
+    EXPECT_EQ(nodeAttrs.IsIn(testVB), true);
+    EXPECT_EQ(nodeAttrsSparse.IsIn(testVB), true);
+
+    if (i > 0) {
+      EXPECT_EQ(edgeAttrs.IsIn(testVB), true);
+      EXPECT_EQ(edgeAttrsSparse.IsIn(testVB), true);
+    }
+  }
+  
+}
+
+
 // Test node, edge attribute functionality
 TEST(TNEANet, ManipulateNodesEdgeAttributes) {
   int NNodes = 1000;
