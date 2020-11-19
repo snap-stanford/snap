@@ -81,7 +81,7 @@
 #if defined(WIN32_LEAN_AND_MEAN)
   #include <stdint.h>
 
-  int gettimeofday(struct timeval * tp, struct timezone * tzp);
+  int gettimeofday(struct timeval *tp, void *tzp);
 #endif
 
 // word size
