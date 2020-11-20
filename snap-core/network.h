@@ -1794,6 +1794,31 @@ public:
     friend class TNEANet;
   };
 
+  class TAFltVI {
+  private:
+    typedef TVec<TFltV>::TIter TFltVVecIter;
+    TFltVVecIter HI;
+    bool IsDense;
+    typedef THash<TInt, TFltV>::TIter TFltHVecIter;
+    TFltHVecIter HHI;
+    bool isNode;
+    TStr attr;
+    const TNEANet *Graph;
+  public:
+    TAFltVI() : HI(), IsDense(), HHI(), attr(), Graph(NULL) { }
+    TAFltVI(const TFltVVecIter& HIter, const TFltHVecIter& HHIter, TStr attribute, bool isEdgeIter, const TNEANet* GraphPt, bool is_dense) : HI(HIter), IsDense(is_dense), HHI(HHIter), attr(), Graph(GraphPt) {
+      isNode = !isEdgeIter; attr = attribute;
+    }
+    TAFltVI(const TAFltVI& I) : HI(I.HI), IsDense(I.IsDense), HHI(I.HHI), attr(I.attr), Graph(I.Graph) { isNode = I.isNode; }
+    TAFltVI& operator = (const TAFltVI& I) { HI = I.HI; HHI = I.HHI, Graph=I.Graph; isNode = I.isNode; attr = I.attr; return *this; }
+    bool operator < (const TAFltVI& I) const { return HI == I.HI ? HHI < I.HHI : HI < I.HI; }
+    bool operator == (const TAFltVI& I) const { return HI == I.HI && HHI == I.HHI; }
+    /// Returns an attribute of the node.
+    TFltV GetDat() const { return IsDense? HI[0] : HHI.GetDat(); }
+    TAFltVI& operator++(int) { if (IsDense) {HI++;} else {HHI++;} return *this; }
+    friend class TNEANet;
+  };
+
   /// Node/edge string attribute iterator. Iterates through all nodes/edges for one string attribute.
   class TAStrI {
   private:
@@ -1878,8 +1903,10 @@ protected:
   TVec<TStrV> VecOfStrVecsN, VecOfStrVecsE;
   TVec<TFltV> VecOfFltVecsN, VecOfFltVecsE;
   TVec<TVec<TIntV> > VecOfIntVecVecsN, VecOfIntVecVecsE;
+  TVec<TVec<TFltV> > VecOfFltVecVecsN, VecOfFltVecVecsE; 
   TVec<THash<TInt, TIntV> > VecOfIntHashVecsN, VecOfIntHashVecsE;
-  enum { IntType, StrType, FltType, IntVType };
+  TVec<THash<TInt, TFltV> > VecOfFltHashVecsN, VecOfFltHashVecsE;
+  enum { IntType, StrType, FltType, IntVType, FltVType };
 
   TAttr SAttrN;
   TAttr SAttrE;
@@ -1938,27 +1965,39 @@ public:
     StrDefaultsN(), StrDefaultsE(), FltDefaultsN(), FltDefaultsE(),
     VecOfIntVecsN(), VecOfIntVecsE(), VecOfStrVecsN(), VecOfStrVecsE(),
     VecOfFltVecsN(), VecOfFltVecsE(),  VecOfIntVecVecsN(), VecOfIntVecVecsE(),
-    VecOfIntHashVecsN(), VecOfIntHashVecsE(), SAttrN(), SAttrE(){ }
+    VecOfFltVecVecsN(), VecOfFltVecVecsE(), 
+    VecOfIntHashVecsN(), VecOfIntHashVecsE(), 
+    VecOfFltHashVecsN(), VecOfFltHashVecsE(), 
+    SAttrN(), SAttrE(){ }
   /// Constructor that reserves enough memory for a graph of nodes and edges.
   explicit TNEANet(const int& Nodes, const int& Edges) : CRef(),
     MxNId(0), MxEId(0), NodeH(), EdgeH(), KeyToIndexTypeN(), KeyToIndexTypeE(), KeyToDenseN(), KeyToDenseE(),
     IntDefaultsN(), IntDefaultsE(), StrDefaultsN(), StrDefaultsE(),
     FltDefaultsN(), FltDefaultsE(), VecOfIntVecsN(), VecOfIntVecsE(),
     VecOfStrVecsN(), VecOfStrVecsE(), VecOfFltVecsN(), VecOfFltVecsE(), VecOfIntVecVecsN(), VecOfIntVecVecsE(),
-    VecOfIntHashVecsN(), VecOfIntHashVecsE(), SAttrN(), SAttrE()
+    VecOfFltVecVecsN(), VecOfFltVecVecsE(), 
+    VecOfIntHashVecsN(), VecOfIntHashVecsE(), 
+    VecOfFltHashVecsN(), VecOfFltHashVecsE(), 
+    SAttrN(), SAttrE()
     { Reserve(Nodes, Edges); }
   TNEANet(const TNEANet& Graph) : MxNId(Graph.MxNId), MxEId(Graph.MxEId),
     NodeH(Graph.NodeH), EdgeH(Graph.EdgeH), KeyToIndexTypeN(), KeyToIndexTypeE(), KeyToDenseN(), KeyToDenseE(),
     IntDefaultsN(), IntDefaultsE(), StrDefaultsN(), StrDefaultsE(),
     FltDefaultsN(), FltDefaultsE(), VecOfIntVecsN(), VecOfIntVecsE(),
     VecOfStrVecsN(), VecOfStrVecsE(), VecOfFltVecsN(), VecOfFltVecsE(), VecOfIntVecVecsN(), VecOfIntVecVecsE(),
-    VecOfIntHashVecsN(), VecOfIntHashVecsE(), SAttrN(), SAttrE() { }
+    VecOfFltVecVecsN(), VecOfFltVecVecsE(), 
+    VecOfIntHashVecsN(), VecOfIntHashVecsE(), 
+    VecOfFltHashVecsN(), VecOfFltHashVecsE(), 
+    SAttrN(), SAttrE() { }
   /// Constructor for loading the graph from a (binary) stream SIn.
   TNEANet(TSIn& SIn) : MxNId(SIn), MxEId(SIn), NodeH(SIn), EdgeH(SIn),
     KeyToIndexTypeN(SIn), KeyToIndexTypeE(SIn), KeyToDenseN(SIn), KeyToDenseE(SIn), IntDefaultsN(SIn), IntDefaultsE(SIn),
     StrDefaultsN(SIn), StrDefaultsE(SIn), FltDefaultsN(SIn), FltDefaultsE(SIn),
     VecOfIntVecsN(SIn), VecOfIntVecsE(SIn), VecOfStrVecsN(SIn),VecOfStrVecsE(SIn),
-    VecOfFltVecsN(SIn), VecOfFltVecsE(SIn), VecOfIntVecVecsN(SIn), VecOfIntVecVecsE(SIn), VecOfIntHashVecsN(SIn), VecOfIntHashVecsE(SIn),
+    VecOfFltVecsN(SIn), VecOfFltVecsE(SIn), VecOfIntVecVecsN(SIn), VecOfIntVecVecsE(SIn), 
+    VecOfFltVecVecsN(SIn), VecOfFltVecVecsE(SIn), 
+    VecOfIntHashVecsN(SIn), VecOfIntHashVecsE(SIn),
+    VecOfFltHashVecsN(SIn), VecOfFltHashVecsE(SIn), 
     SAttrN(SIn), SAttrE(SIn) { }
 protected:
   TNEANet(const TNEANet& Graph, bool modeSubGraph) : MxNId(Graph.MxNId), MxEId(Graph.MxEId),
@@ -1966,14 +2005,22 @@ protected:
     IntDefaultsN(Graph.IntDefaultsN), IntDefaultsE(Graph.IntDefaultsE), StrDefaultsN(Graph.StrDefaultsN), StrDefaultsE(Graph.StrDefaultsE),
     FltDefaultsN(Graph.FltDefaultsN), FltDefaultsE(Graph.FltDefaultsE), VecOfIntVecsN(Graph.VecOfIntVecsN), VecOfIntVecsE(Graph.VecOfIntVecsE),
     VecOfStrVecsN(Graph.VecOfStrVecsN), VecOfStrVecsE(Graph.VecOfStrVecsE), VecOfFltVecsN(Graph.VecOfFltVecsN), VecOfFltVecsE(Graph.VecOfFltVecsE),
-    VecOfIntVecVecsN(), VecOfIntVecVecsE(Graph.VecOfIntVecVecsE), VecOfIntHashVecsN(), VecOfIntHashVecsE(Graph.VecOfIntHashVecsE) { }
+    VecOfIntVecVecsN(), VecOfIntVecVecsE(Graph.VecOfIntVecVecsE), 
+    VecOfFltVecVecsN(), VecOfFltVecVecsE(Graph.VecOfFltVecVecsE), 
+    VecOfIntHashVecsN(), VecOfIntHashVecsE(Graph.VecOfIntHashVecsE),
+    VecOfFltHashVecsN(), VecOfFltHashVecsE(Graph.VecOfFltHashVecsE) 
+     { }
   TNEANet(bool copyAll, const TNEANet& Graph) : MxNId(Graph.MxNId), MxEId(Graph.MxEId),
     NodeH(Graph.NodeH), EdgeH(Graph.EdgeH), KeyToIndexTypeN(Graph.KeyToIndexTypeN), KeyToIndexTypeE(Graph.KeyToIndexTypeE), KeyToDenseN(Graph.KeyToDenseN), KeyToDenseE(Graph.KeyToDenseE),
     IntDefaultsN(Graph.IntDefaultsN), IntDefaultsE(Graph.IntDefaultsE), StrDefaultsN(Graph.StrDefaultsN), StrDefaultsE(Graph.StrDefaultsE),
     FltDefaultsN(Graph.FltDefaultsN), FltDefaultsE(Graph.FltDefaultsE), VecOfIntVecsN(Graph.VecOfIntVecsN), VecOfIntVecsE(Graph.VecOfIntVecsE),
     VecOfStrVecsN(Graph.VecOfStrVecsN), VecOfStrVecsE(Graph.VecOfStrVecsE), VecOfFltVecsN(Graph.VecOfFltVecsN), VecOfFltVecsE(Graph.VecOfFltVecsE),
-    VecOfIntVecVecsN(Graph.VecOfIntVecVecsN), VecOfIntVecVecsE(Graph.VecOfIntVecVecsE), VecOfIntHashVecsN(Graph.VecOfIntHashVecsN), VecOfIntHashVecsE(Graph.VecOfIntHashVecsE), SAttrN(Graph.SAttrN), SAttrE(Graph.SAttrE) { }
-  // virtual ~TNEANet() { }
+    VecOfIntVecVecsN(Graph.VecOfIntVecVecsN), VecOfIntVecVecsE(Graph.VecOfIntVecVecsE), 
+    VecOfFltVecVecsN(Graph.VecOfFltVecVecsN), VecOfFltVecVecsE(Graph.VecOfFltVecVecsE), 
+    VecOfIntHashVecsN(Graph.VecOfIntHashVecsN), VecOfIntHashVecsE(Graph.VecOfIntHashVecsE), 
+    VecOfFltHashVecsN(Graph.VecOfFltHashVecsN), VecOfFltHashVecsE(Graph.VecOfFltHashVecsE), 
+    SAttrN(Graph.SAttrN), SAttrE(Graph.SAttrE) { }
+  // virtual ~TNEANet() { }cd ..
 public:
   /// Saves the graph to a (binary) stream SOut. Expects data structures for sparse attributes.
   void Save(TSOut& SOut) const {
@@ -1987,7 +2034,9 @@ public:
     VecOfStrVecsN.Save(SOut); VecOfStrVecsE.Save(SOut);
     VecOfFltVecsN.Save(SOut); VecOfFltVecsE.Save(SOut);
     VecOfIntVecVecsN.Save(SOut); VecOfIntVecVecsE.Save(SOut);
+    VecOfFltVecVecsN.Save(SOut); VecOfFltVecVecsE.Save(SOut); 
     VecOfIntHashVecsN.Save(SOut); VecOfIntHashVecsE.Save(SOut); 
+    VecOfFltHashVecsN.Save(SOut); VecOfFltHashVecsE.Save(SOut); 
     SAttrN.Save(SOut); SAttrE.Save(SOut); }
   /// Saves the graph to a (binary) stream SOut. Available for backwards compatibility.
   void Save_V1(TSOut& SOut) const {
@@ -2010,6 +2059,7 @@ public:
     VecOfStrVecsN.Save(SOut); VecOfStrVecsE.Save(SOut);
     VecOfFltVecsN.Save(SOut); VecOfFltVecsE.Save(SOut);
     VecOfIntVecVecsN.Save(SOut); VecOfIntVecVecsE.Save(SOut); 
+    VecOfFltVecVecsN.Save(SOut); VecOfFltVecVecsE.Save(SOut); 
     SAttrN.Save(SOut); SAttrE.Save(SOut); }
   /// Static cons returns pointer to graph. Ex: PNEANet Graph=TNEANet::New().
   static PNEANet New() { return PNEANet(new TNEANet()); }
@@ -2028,7 +2078,7 @@ public:
     Graph->FltDefaultsN.Load(SIn); Graph->FltDefaultsE.Load(SIn);
     Graph->VecOfIntVecsN.Load(SIn); Graph->VecOfIntVecsE.Load(SIn);
     Graph->VecOfStrVecsN.Load(SIn); Graph->VecOfStrVecsE.Load(SIn);
-    Graph->VecOfFltVecsN.Load(SIn); Graph->VecOfFltVecsE.Load(SIn);
+    Graph->VecOfFltVecsN.Load(SIn); Graph->VecOfFltVecsE.Load(SIn); 
     return Graph;
   }
 
@@ -2045,6 +2095,7 @@ public:
     Graph->VecOfStrVecsN.Load(SIn); Graph->VecOfStrVecsE.Load(SIn);
     Graph->VecOfFltVecsN.Load(SIn); Graph->VecOfFltVecsE.Load(SIn);
     Graph->VecOfIntVecVecsN.Load(SIn); Graph->VecOfIntVecVecsE.Load(SIn);
+    Graph->VecOfFltVecVecsN.Load(SIn); Graph->VecOfFltVecVecsE.Load(SIn); 
     Graph->SAttrN.Load(SIn); Graph->SAttrE.Load(SIn);
     return Graph;
   }
@@ -2058,7 +2109,7 @@ public:
     return PNEANet(Network);
   }
 
-  void ConvertToSparse() {
+  void ConvertToSparse() { 
     TInt VecLength = VecOfIntVecVecsN.Len();
     THash<TStr, TIntPr>::TIter iter;
     if (VecLength != 0) {
@@ -2095,6 +2146,42 @@ public:
       }
     }
     VecOfIntVecVecsE.Clr();
+  
+    VecLength = VecOfFltVecVecsN.Len();
+    if (VecLength != 0) {
+      VecOfFltHashVecsN = TVec<THash<TInt, TFltV> >(VecLength);
+      for (iter = KeyToIndexTypeN.BegI(); !iter.IsEnd(); iter=iter.Next()) {
+        if (iter.GetDat().Val1 == FltVType) {
+          TStr attribute = iter.GetKey();
+          TInt index = iter.GetDat().Val2();
+          for (int i=0; i<VecOfFltVecVecsN[index].Len(); i++) {
+            if(VecOfFltVecVecsN[index][i].Len() > 0) {
+              VecOfFltHashVecsN[index].AddDat(TInt(i), VecOfFltVecVecsN[index][i]);
+            }
+          }
+          KeyToDenseN.AddDat(attribute, TBool(false));
+        }
+      }
+    }
+    VecOfFltVecVecsN.Clr();
+
+    VecLength = VecOfFltVecVecsE.Len();
+    if (VecLength != 0) {
+      VecOfFltHashVecsE = TVec<THash<TInt, TFltV> >(VecLength);
+      for (iter = KeyToIndexTypeE.BegI(); !iter.IsEnd(); iter=iter.Next()) {
+        if (iter.GetDat().Val1 == FltVType) {
+          TStr attribute = iter.GetKey();
+          TInt index = iter.GetDat().Val2();
+          for (int i=0; i<VecOfFltVecVecsE[index].Len(); i++) {
+            if(VecOfFltVecVecsE[index][i].Len() > 0) {
+              VecOfFltHashVecsE[index].AddDat(TInt(i), VecOfFltVecVecsE[index][i]);
+            }
+          }
+          KeyToDenseE.AddDat(attribute, TBool(false));
+        }
+      }
+    }
+    VecOfFltVecVecsE.Clr();
   }
 
 
@@ -2189,7 +2276,59 @@ public:
     return TAIntVI(HI, HHI, attr, false, this, IsDense);
   }
 
+  /// Returns an iterator referring to the first node's flt attribute.
+  TAFltVI BegNAFltVI(const TStr& attr) const {
+    TVec<TFltV>::TIter HI = NULL;
+    THash<TInt, TFltV>::TIter HHI;
+    TInt location = CheckDenseOrSparseN(attr);
+    TBool IsDense = true;
+    if (location != -1) {
+      TInt index = KeyToIndexTypeN.GetDat(attr).Val2;
+      if (location == 1) {
+        HI = VecOfFltVecVecsN[index].BegI();
+      } else {
+        IsDense = false;
+        HHI = VecOfFltHashVecsN[index].BegI();
+      }
+    }
+    return TAFltVI(HI, HHI, attr, false, this, IsDense);
+  }
+  /// Returns an iterator referring to the past-the-end node's attribute.
+  TAFltVI EndNAFltVI(const TStr& attr) const {
+    TVec<TFltV>::TIter HI = NULL;
+    THash<TInt, TFltV>::TIter HHI;
+    TInt location = CheckDenseOrSparseN(attr);
+    TBool IsDense = true;
+    if (location != -1) {
+      TInt index = KeyToIndexTypeN.GetDat(attr).Val2;
+      if (location == 1) {
+        HI = VecOfFltVecVecsN[index].EndI();
+      } else {
+        IsDense = false;
+        HHI = VecOfFltHashVecsN[index].EndI();
+      }
+    }
+    return TAFltVI(HI, HHI, attr, false, this, IsDense);
+  }
 
+
+  /// Returns an iterator referring to the node of ID NId in the graph.
+  TAFltVI GetNAFltVI(const TStr& attr, const int& NId) const {
+    TVec<TFltV>::TIter HI = NULL;
+    THash<TInt, TFltV>::TIter HHI;
+    TInt location = CheckDenseOrSparseN(attr);
+    TBool IsDense = true;
+    if (location != -1) {
+      TInt index = KeyToIndexTypeN.GetDat(attr).Val2;
+      if (location == 1) {
+        HI = VecOfFltVecVecsN[index].GetI(NodeH.GetKeyId(NId));
+      } else {
+        IsDense = false;
+        HHI = VecOfFltHashVecsN[index].GetI(NodeH.GetKeyId(NId));
+      }
+    }
+    return TAFltVI(HI, HHI, attr, false, this, IsDense);
+  }
 
   /// Returns an iterator referring to the first node's str attribute.
   TAStrI BegNAStrI(const TStr& attr) const {
@@ -2239,6 +2378,15 @@ public:
     IntVAttrValueNI(NId, KeyToIndexTypeN.BegI(), Values);}
   void IntVAttrValueNI(const TInt& NId, TStrIntPrH::TIter NodeHI, TVec<TIntV>& Values) const;
 
+  /// Returns a vector of flt attr names for node NId.
+  void FltVAttrNameNI(const TInt& NId, TStrV& Names) const {
+    FltVAttrNameNI(NId, KeyToIndexTypeN.BegI(), Names);}
+  void FltVAttrNameNI(const TInt& NId, TStrIntPrH::TIter NodeHI, TStrV& Names) const;
+  /// Returns a vector of flt values for node NId.
+  void FltVAttrValueNI(const TInt& NId, TVec<TFltV>& Values) const {
+    FltVAttrValueNI(NId, KeyToIndexTypeN.BegI(), Values);}
+  void FltVAttrValueNI(const TInt& NId, TStrIntPrH::TIter NodeHI, TVec<TFltV>& Values) const;
+
 
   /// Returns a vector of str attr names for node NId.
   void StrAttrNameNI(const TInt& NId, TStrV& Names) const {
@@ -2283,6 +2431,15 @@ public:
   void IntVAttrValueEI(const TInt& EId, TVec<TIntV>& Values) const {
     IntVAttrValueEI(EId, KeyToIndexTypeE.BegI(), Values);}
   void IntVAttrValueEI(const TInt& EId, TStrIntPrH::TIter EdgeHI, TVec<TIntV>& Values) const;
+
+  /// Returns a vector of flt attr names for edge EId.
+  void FltVAttrNameEI(const TInt& EId, TStrV& Names) const {
+    FltVAttrNameEI(EId, KeyToIndexTypeE.BegI(), Names);}
+  void FltVAttrNameEI(const TInt& EId, TStrIntPrH::TIter EdgeHI, TStrV& Names) const;
+  /// Returns a vector of attr values for edge EId.
+  void FltVAttrValueEI(const TInt& EId, TVec<TFltV>& Values) const {
+    FltVAttrValueEI(EId, KeyToIndexTypeE.BegI(), Values);}
+  void FltVAttrValueEI(const TInt& EId, TStrIntPrH::TIter EdgeHI, TVec<TFltV>& Values) const;
 
 
   /// Returns a vector of str attr names for node NId.
@@ -2367,6 +2524,58 @@ public:
     return TAIntVI(HI, HHI, attr, true, this, IsDense);
   }
 
+    /// Returns an iterator referring to the first edge's int attribute.
+  TAFltVI BegEAFltVI(const TStr& attr) const {
+    TVec<TFltV>::TIter HI = NULL;
+    THash<TInt, TFltV>::TIter HHI;
+    TInt location = CheckDenseOrSparseE(attr);
+    TBool IsDense = true;
+    if (location != -1) {
+      TInt index = KeyToIndexTypeE.GetDat(attr).Val2;
+      if (location == 1) {
+        HI = VecOfFltVecVecsE[index].BegI();
+      } else {
+        IsDense = false;
+        HHI = VecOfFltHashVecsE[index].BegI();
+      }
+    }
+    return TAFltVI(HI, HHI, attr, true, this, IsDense);
+  }
+  /// Returns an iterator referring to the past-the-end edge's attribute.
+  TAFltVI EndEAFltVI(const TStr& attr) const {
+    TVec<TFltV>::TIter HI = NULL;
+    THash<TInt, TFltV>::TIter HHI;
+    TInt location = CheckDenseOrSparseE(attr);
+    TBool IsDense = true;
+    if (location != -1) {
+      TInt index = KeyToIndexTypeE.GetDat(attr).Val2;
+      if (location == 1) {
+        HI = VecOfFltVecVecsE[index].EndI();
+      } else {
+        IsDense = false;
+        HHI = VecOfFltHashVecsE[index].EndI();
+      }
+    }
+    return TAFltVI(HI, HHI, attr, true, this, IsDense);
+  }
+  /// Returns an iterator referring to the edge of ID EId in the graph.
+  TAFltVI GetEAFltVI(const TStr& attr, const int& EId) const {
+    TVec<TFltV>::TIter HI = NULL;
+    THash<TInt, TFltV>::TIter HHI;
+    TInt location = CheckDenseOrSparseE(attr);
+    TBool IsDense = true;
+    if (location != -1) {
+      TInt index = KeyToIndexTypeE.GetDat(attr).Val2;
+      if (location == 1) {
+        HI = VecOfFltVecVecsE[index].GetI(EdgeH.GetKeyId(EId));
+      } else {
+        IsDense = false;
+        HHI = VecOfFltHashVecsE[index].GetI(EdgeH.GetKeyId(EId));
+      }
+    }
+    return TAFltVI(HI, HHI, attr, true, this, IsDense);
+  }
+
   /// Returns an iterator referring to the first edge's str attribute.
   TAStrI BegEAStrI(const TStr& attr) const {
     return TAStrI(VecOfStrVecsE[KeyToIndexTypeE.GetDat(attr).Val2].BegI(), attr, true, this);   }
@@ -2443,6 +2652,7 @@ public:
     StrDefaultsN.Clr(); StrDefaultsE.Clr(); FltDefaultsN.Clr(); FltDefaultsE.Clr();
     VecOfIntVecsN.Clr(); VecOfIntVecsE.Clr(); VecOfStrVecsN.Clr(); VecOfStrVecsE.Clr();
     VecOfFltVecsN.Clr(); VecOfFltVecsE.Clr(); VecOfIntVecVecsN.Clr(); VecOfIntVecVecsE.Clr(); 
+    VecOfFltVecVecsN.Clr(); VecOfFltVecVecsE.Clr(); 
     SAttrN.Clr(); SAttrE.Clr();}
   /// Reserves memory for a graph of Nodes nodes and Edges edges.
   void Reserve(const int& Nodes, const int& Edges) {
@@ -2454,24 +2664,40 @@ public:
   /// Print the graph in a human readable form to an output stream OutF.
   void Dump(FILE *OutF=stdout) const;
 
-  /// Attribute based add function for attr to Int value. ##TNEANet::AddIntAttrDatN
+  /// Attribute based add function for attr to Int value. 
   int AddIntAttrDatN(const TNodeI& NodeI, const TInt& value, const TStr& attr) { return AddIntAttrDatN(NodeI.GetId(), value, attr); }
   int AddIntAttrDatN(const int& NId, const TInt& value, const TStr& attr);
-  /// Attribute based add function for attr to Str value. ##TNEANet::AddStrAttrDatN
+  /// Attribute based add function for attr to Str value. 
   int AddStrAttrDatN(const TNodeI& NodeI, const TStr& value, const TStr& attr) { return AddStrAttrDatN(NodeI.GetId(), value, attr); }
   int AddStrAttrDatN(const int& NId, const TStr& value, const TStr& attr);
-  /// Attribute based add function for attr to Flt value. ##TNEANet::AddFltAttrDatN
+  /// Attribute based add function for attr to Flt value. 
   int AddFltAttrDatN(const TNodeI& NodeI, const TFlt& value, const TStr& attr) { return AddFltAttrDatN(NodeI.GetId(), value, attr); }
   int AddFltAttrDatN(const int& NId, const TFlt& value, const TStr& attr);
-  /// Attribute based add function for attr to IntV value. ##TNEANet::AddIntVAttrDatN
+  /// Attribute based add function for attr to IntV value. 
   int AddIntVAttrDatN(const TNodeI& NodeI, const TIntV& value, const TStr& attr) { return AddIntVAttrDatN(NodeI.GetId(), value, attr); }
   int AddIntVAttrDatN(const int& NId, const TIntV& value, const TStr& attr, TBool UseDense=true);
+  /// Attribute based add function for attr to FltV value.
+  int AddFltVAttrDatN(const TNodeI& NodeI, const TFltV& value, const TStr& attr) { return AddFltVAttrDatN(NodeI.GetId(), value, attr); }
+  int AddFltVAttrDatN(const int& NId, const TFltV& value, const TStr& attr, TBool UseDense=true);
+
+
+
   /// Appends value onto the TIntV attribute for the given node.
   int AppendIntVAttrDatN(const TNodeI& NodeI, const TInt& value, const TStr& attr) { return AppendIntVAttrDatN(NodeI.GetId(), value, attr); }
   int AppendIntVAttrDatN(const int& NId, const TInt& value, const TStr& attr, TBool UseDense=true);
   /// Deletes value from the TIntV attribute for the given node.
   int DelFromIntVAttrDatN(const TNodeI& NodeI, const TInt& value, const TStr& attr) { return DelFromIntVAttrDatN(NodeI.GetId(), value, attr); }
   int DelFromIntVAttrDatN(const int& NId, const TInt& value, const TStr& attr);
+
+  /// Appends value onto the TFltV attribute for the given node.
+  int AppendFltVAttrDatN(const TNodeI& NodeI, const TFlt& value, const TStr& attr) { return AppendFltVAttrDatN(NodeI.GetId(), value, attr); }
+  int AppendFltVAttrDatN(const int& NId, const TFlt& value, const TStr& attr, TBool UseDense=true);
+  /// Deletes value from the TFltV attribute for the given node.
+  int DelFromFltVAttrDatN(const TNodeI& NodeI, const TFlt& value, const TStr& attr) { return DelFromFltVAttrDatN(NodeI.GetId(), value, attr); }
+  int DelFromFltVAttrDatN(const int& NId, const TFlt& value, const TStr& attr);
+
+  
+
   /// Attribute based add function for attr to Int value. ##TNEANet::AddIntAttrDatE
   int AddIntAttrDatE(const TEdgeI& EdgeI, const TInt& value, const TStr& attr) { return AddIntAttrDatE(EdgeI.GetId(), value, attr); }
   int AddIntAttrDatE(const int& EId, const TInt& value, const TStr& attr);
@@ -2481,12 +2707,25 @@ public:
   /// Attribute based add function for attr to Flt value. ##TNEANet::AddFltAttrDatE
   int AddFltAttrDatE(const TEdgeI& EdgeI, const TFlt& value, const TStr& attr) { return AddFltAttrDatE(EdgeI.GetId(), value, attr); }
   int AddFltAttrDatE(const int& EId, const TFlt& value, const TStr& attr);
+
+
   /// Attribute based add function for attr to IntV value. ##TNEANet::AddIntVAttrDatE
   int AddIntVAttrDatE(const TEdgeI& EdgeI, const TIntV& value, const TStr& attr) { return AddIntVAttrDatE(EdgeI.GetId(), value, attr); }
   int AddIntVAttrDatE(const int& EId, const TIntV& value, const TStr& attr, TBool UseDense=true);
   /// Appends value onto the TIntV attribute for the given node.
   int AppendIntVAttrDatE(const TEdgeI& EdgeI, const TInt& value, const TStr& attr) { return AppendIntVAttrDatE(EdgeI.GetId(), value, attr); }
   int AppendIntVAttrDatE(const int& EId, const TInt& value, const TStr& attr, TBool UseDense=true);
+
+  /// Attribute based add function for attr to TFltV value. ##TNEANet::AddTFltAttrDatE
+  int AddFltVAttrDatE(const TEdgeI& EdgeI, const TFltV& value, const TStr& attr) { return AddFltVAttrDatE(EdgeI.GetId(), value, attr); }
+  int AddFltVAttrDatE(const int& EId, const TFltV& value, const TStr& attr, TBool UseDense=true);
+  /// Appends value onto the TFltV attribute for the given node.
+  int AppendFltVAttrDatE(const TEdgeI& EdgeI, const TFlt& value, const TStr& attr) { return AppendFltVAttrDatE(EdgeI.GetId(), value, attr); }
+  int AppendFltVAttrDatE(const int& EId, const TFlt& value, const TStr& attr, TBool UseDense=true);
+
+
+
+
   /// Gets the value of int attr from the node attr value vector.
   TInt GetIntAttrDatN(const TNodeI& NodeI, const TStr& attr) { return GetIntAttrDatN(NodeI.GetId(), attr); }
   TInt GetIntAttrDatN(const int& NId, const TStr& attr);
@@ -2500,6 +2739,10 @@ public:
   /// Gets the value of the intv attr from the node attr value vector.
   TIntV GetIntVAttrDatN(const TNodeI& NodeI, const TStr& attr) const { return GetIntVAttrDatN(NodeI.GetId(), attr); }
   TIntV GetIntVAttrDatN(const int& NId, const TStr& attr) const;
+
+  /// Gets the value of the fltv attr from the node attr value vector.  
+  TFltV GetFltVAttrDatN(const TNodeI& NodeI, const TStr& attr) const { return GetFltVAttrDatN(NodeI.GetId(), attr); }
+  TFltV GetFltVAttrDatN(const int& NId, const TStr& attr) const;
 
   /// Gets the index of the node attr value vector specified by \c attr (same as GetAttrIndN for compatibility reasons).
   int GetIntAttrIndN(const TStr& attr);
@@ -2533,6 +2776,10 @@ public:
   /// Gets the value of the intv attr from the edge attr value vector.
   TIntV GetIntVAttrDatE(const TEdgeI& EdgeI, const TStr& attr) { return GetIntVAttrDatE(EdgeI.GetId(), attr); }
   TIntV GetIntVAttrDatE(const int& EId, const TStr& attr);
+
+  /// Gets the value of the fltv attr from the edge attr value vector.
+  TFltV GetFltVAttrDatE(const TEdgeI& EdgeI, const TStr& attr) { return GetFltVAttrDatE(EdgeI.GetId(), attr); }
+  TFltV GetFltVAttrDatE(const int& EId, const TStr& attr);
 
   /// Gets the index of the edge attr value vector specified by \c attr (same as GetAttrIndE for compatibility reasons).
   int GetIntAttrIndE(const TStr& attr);
@@ -2570,6 +2817,9 @@ public:
   /// Adds a new IntV node attribute to the hashmap.
   int AddIntVAttrN(const TStr& attr, TBool UseDense=true);
 
+  /// Adds a new FltV node attribute to the hashmap.
+  int AddFltVAttrN(const TStr& attr, TBool UseDense=true);
+
   /// Adds a new Int edge attribute to the hashmap.
   int AddIntAttrE(const TStr& attr, TInt defaultValue=TInt::Mn);
   /// Adds a new Str edge attribute to the hashmap.
@@ -2578,6 +2828,9 @@ public:
   int AddFltAttrE(const TStr& attr, TFlt defaultValue=TFlt::Mn);
   /// Adds a new IntV edge attribute to the hashmap.
   int AddIntVAttrE(const TStr& attr, TBool UseDense=true);
+
+  /// Adds a new FltV edge attribute to the hashmap.
+  int AddFltVAttrE(const TStr& attr, TBool UseDense=true);
 
   /// Removes all the values for node attr.
   int DelAttrN(const TStr& attr);
@@ -2590,6 +2843,8 @@ public:
   bool IsIntAttrDeletedN(const int& NId, const TStr& attr) const;
   /// Returns true if IntV \c attr exists for node \c NId and is an empty vector.
   bool IsIntVAttrDeletedN(const int& NId, const TStr& attr) const;
+  /// Returns true if FltV \c attr exists for node \c NId and is an empty vector.
+  bool IsFltVAttrDeletedN(const int& NId, const TStr& attr) const;
   /// Returns true if Str \c attr exists for node \c NId and has default value.
   bool IsStrAttrDeletedN(const int& NId, const TStr& attr) const;
   /// Returns true if Flt \c attr exists for node \c NId and has default value.
@@ -2601,6 +2856,8 @@ public:
   bool NodeAttrIsIntDeleted(const int& NId, const TStrIntPrH::TIter& NodeHI) const;
   /// Returns true if NId attr deleted value for current node int vector attr iterator.
   bool NodeAttrIsIntVDeleted(const int& NId, const TStrIntPrH::TIter& NodeHI) const;
+  /// Returns true if NId attr deleted value for current node int vector attr iterator.
+  bool NodeAttrIsFltVDeleted(const int& NId, const TStrIntPrH::TIter& NodeHI) const;
   /// Returns true if NId attr deleted value for current node str attr iterator.
   bool NodeAttrIsStrDeleted(const int& NId, const TStrIntPrH::TIter& NodeHI) const;
   /// Returns true if NId attr deleted value for current node flt attr iterator.
@@ -2612,6 +2869,8 @@ public:
   bool IsIntAttrDeletedE(const int& EId, const TStr& attr) const;
   /// Returns true if IntV \c attr exists for edge \c EId and is an empty vector.
   bool IsIntVAttrDeletedE(const int& EId, const TStr& attr) const;
+  /// Returns true if FltV \c attr exists for edge \c EId and is an empty vector.
+  bool IsFltVAttrDeletedE(const int& EId, const TStr& attr) const;
   /// Returns true if Str \c attr exists for edge \c NId and has default value.
   bool IsStrAttrDeletedE(const int& EId, const TStr& attr) const;
   /// Returns true if Flt \c attr exists for edge \c NId and has default value.
@@ -2623,6 +2882,8 @@ public:
   bool EdgeAttrIsIntDeleted(const int& EId, const TStrIntPrH::TIter& EdgeHI) const;
   /// Returns true if EId attr deleted for current edge int vector attr iterator.
   bool EdgeAttrIsIntVDeleted(const int& EId, const TStrIntPrH::TIter& EdgeHI) const;
+  /// Returns true if EId attr deleted for current edge flt vector attr iterator.
+  bool EdgeAttrIsFltVDeleted(const int& EId, const TStrIntPrH::TIter& EdgeHI) const;
   /// Returns true if EId attr deleted for current edge str attr iterator.
   bool EdgeAttrIsStrDeleted(const int& EId, const TStrIntPrH::TIter& EdgeHI) const;
   /// Returns true if EId attr deleted for current edge flt attr iterator.
