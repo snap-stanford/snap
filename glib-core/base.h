@@ -139,6 +139,7 @@
 
 #ifdef GLib_CYGWIN
   #define timezone _timezone
+  #define _OPENMP
 #endif
 
 //#ifdef GLib_MACOSX
