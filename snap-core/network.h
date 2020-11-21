@@ -2716,15 +2716,12 @@ public:
   int AppendIntVAttrDatE(const TEdgeI& EdgeI, const TInt& value, const TStr& attr) { return AppendIntVAttrDatE(EdgeI.GetId(), value, attr); }
   int AppendIntVAttrDatE(const int& EId, const TInt& value, const TStr& attr, TBool UseDense=true);
 
-  /// Attribute based add function for attr to TFltV value. ##TNEANet::AddTFltAttrDatE
+  /// Attribute based add function for attr to TFltV value. ##TNEANet::AddFltVAttrDatE
   int AddFltVAttrDatE(const TEdgeI& EdgeI, const TFltV& value, const TStr& attr) { return AddFltVAttrDatE(EdgeI.GetId(), value, attr); }
   int AddFltVAttrDatE(const int& EId, const TFltV& value, const TStr& attr, TBool UseDense=true);
   /// Appends value onto the TFltV attribute for the given node.
   int AppendFltVAttrDatE(const TEdgeI& EdgeI, const TFlt& value, const TStr& attr) { return AppendFltVAttrDatE(EdgeI.GetId(), value, attr); }
   int AppendFltVAttrDatE(const int& EId, const TFlt& value, const TStr& attr, TBool UseDense=true);
-
-
-
 
   /// Gets the value of int attr from the node attr value vector.
   TInt GetIntAttrDatN(const TNodeI& NodeI, const TStr& attr) { return GetIntAttrDatN(NodeI.GetId(), attr); }

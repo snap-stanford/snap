@@ -319,7 +319,11 @@ Adds the key int value pair to the corresponding edge attribute value vector.
 ///
 
 /// TNEANet::AddIntVAttrDatE
-Adds the key intv value pair to the corresponding edge attribute value vector.
+Adds the key integer vector value pair to the corresponding edge attribute value vector.
+///
+
+/// TNEANet::AddFltVAttrDatE
+Adds the key float vector value pair to the corresponding edge attribute value vector.
 ///
 
 /// TNEANet::AddStrAttrDatE
