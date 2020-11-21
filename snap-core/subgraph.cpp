@@ -349,7 +349,6 @@ PNEANet GetInEgonetAttr(const PNEANet &Graph, const int CtrNId, const int Radius
   Queue1.Clr(false);
   Queue1.Push(CtrNId);
   for (int r = 0; r < Radius; ++r) {
-    int EId;
     while (!Queue1.Empty()) {
       const int NId = Queue1.Top();
       Queue1.Pop();
@@ -520,12 +519,12 @@ PNEANet GetInEgonetSubAttr(const PNEANet &Graph, const int CtrNId, const int Rad
 }
 
 PNEANet GetGraphUnionAttr(PNEANet &DstGraph, const PNEANet &SrcGraph){
-  for (typename PNEANet::TObj::TNodeI NI = SrcGraph->BegNI(); NI < SrcGraph->EndNI(); NI++) {
+  for (PNEANet::TObj::TNodeI NI = SrcGraph->BegNI(); NI < SrcGraph->EndNI(); NI++) {
     if (! DstGraph->IsNode(NI.GetId())){
       AddNodeWithAttributes(SrcGraph, DstGraph, NI.GetId());
     }
   }
-  for (typename PNEANet::TObj::TEdgeI EI = SrcGraph->BegEI(); EI < SrcGraph->EndEI(); EI++) {
+  for (PNEANet::TObj::TEdgeI EI = SrcGraph->BegEI(); EI < SrcGraph->EndEI(); EI++) {
     if (! DstGraph->IsEdge(EI.GetSrcNId(), EI.GetDstNId()) || ! DstGraph->IsEdge(EI.GetId())){
       if (! DstGraph->IsEdge(EI.GetId())){
         AddEdgeWithAttributes(SrcGraph, DstGraph, EI.GetId());

@@ -1350,6 +1350,7 @@ int TNEANet::AppendFltVAttrDatE(const int& EId, const TFlt& value, const TStr& a
     THash<TInt, TFltV>& NewHash = VecOfFltHashVecsE[KeyToIndexTypeE.GetDat(attr).Val2];
     NewHash[EdgeH.GetKeyId(EId)].Add(value);
   }
+  return 0;
 }
 
 int TNEANet::AddStrAttrDatE(const int& EId, const TStr& value, const TStr& attr) {
