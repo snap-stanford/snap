@@ -5,6 +5,42 @@ performance system for graph and network manipulation and analysis.
 
 This file contains a high-level description of changes in SNAP releases.
 
+Release 6.0, Dec 4, 2020
+
+This is a major release, significant new functionality includes: a large family
+of egonet functions, dense and sparse floating-point vector attributes, graph
+union functions.
+
+Here is a detailed list:
+
+- implemented a large family of egonet functions GetEgonetHop(),
+  GetInEgonetHop(), GetOutEgonetHop(), GetInEgonetSub(), GetEgonetAttr(),
+  GetInEgonetAttr(), GetOutEgonetAttr(), GetInEgonetSubAttr()
+- implemented dense and sparse floating-point vector attributes for TNEANet
+- implemented graph union functions GetGraphUnion(), GetGraphUnionAttr()
+- implemented a new method TSnapQueue::Sample()
+- implemented AddNodeWithAttributes() and AddEdgeWithAttributes()
+- improved CommunityGirvanNewman(), so that the input graph is not modified
+- improved GetClustCf(), so that all output parameters are initialized
+- added dummy AddEdge(), IsEdge() methods with edge IDs to TUNGraph and
+  TNGraph classes for compatibility with TNEANet
+- changed the parameter names for GetClustCf(), which is needed for snap.py
+- updated the definition of gettimeofday() for compilation of snap.py with
+  python 3.5 and 3.6 on Windows
+- completed the implementation of aaMean policy in AggregateVector()
+- defined '/' operator for TStr, which is required in AggregateVector()
+- fixed the problem of GetStrVal() and AddRow() not being available in snap.py
+- fixed the handling of the random generator in GenDegSeq() and GenPrefAttach()
+- fixed a bug in edge attribute iterator in IntAttrValueEI()
+- fixed bugs in AddIntVAttrDatE(), AppendIntVAttrDatE()
+- fixed a few minor issues in the documentation
+- fixed compilation problems with TTable::GetStrVal()
+- improved parameters for OpenMP compilation on Cygwin and macOS
+- improved doxygen parameters and updated doxyblock.py for python3
+- updated Makefiles with $(HOME) references
+- updated Makefiles with additional instructions for building on Anaconda
+- updated graphviz baseline files for graphviz version 2.38.0
+
 Release 5.0, Aug 29, 2019
 
 This is a maintenance release and brings several upgrades.
