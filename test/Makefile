@@ -8,9 +8,14 @@
 # Compile and run all the tests:
 #	make run
 #
+# Note:
+#   graphviz test files were generated with graphviz version 2.38.0
 
 include ../Makefile.config
+CXXFLAGS += $(CXXOPENMP)
 LIBS += -lgtest
+# use the following line for linking the static library
+#LIBS += $(HOME)/miniconda3/lib/libgtest.a
 
 ## Main application file
 MAIN = run-all-tests
@@ -20,7 +25,12 @@ TEST_SRCS = \
 	test-TUNGraph.cpp test-TNGraph.cpp \
 	test-TNEGraph.cpp test-TNEANet.cpp \
 	test-TNodeNet.cpp test-TNodeEDatNet.cpp test-TNodeEdgeNet.cpp \
+	test-TTable.cpp \
 	test-TUndirNet.cpp test-TDirNet.cpp \
+	test-TMMNet.cpp \
+	test-TModeNet.cpp \
+	test-TCrossNet.cpp \
+	test-multimodal.cpp \
 	test-subgraph.cpp \
 	test-TStrPool.cpp \
 	test-TSysTm.cpp \
@@ -36,7 +46,8 @@ TEST_SRCS = \
 	test-TAttr.cpp \
 	test-flow.cpp \
 	test-randwalk.cpp \
-	test-priority-queue.cpp
+	test-priority-queue.cpp \
+	test-sim.cpp
 
 TEST_OBJS = $(TEST_SRCS:.cpp=.o)
 
@@ -59,6 +70,7 @@ test: $(MAIN)
 clean:
 	rm -f *.o $(MAIN) $(MAIN).exe
 	rm -rf Debug Release
-	rm -rf test*.dat *.Err
+	rm -rf demo*.dat test*.dat *.Err
 	rm -rf graphviz/test_*
+	rm -rf table/p1.txt
 

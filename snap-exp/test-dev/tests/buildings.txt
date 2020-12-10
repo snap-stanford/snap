@@ -1,0 +1,7 @@
+Quillen	0	0
+Blackwelder	1	1
+McFarland	-1	-1
+Rains	1	0
+Quad	0	6
+Gates	2	10
+Packard	1	10

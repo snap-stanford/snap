@@ -4,7 +4,9 @@
 
 /////////////////////////////////////////////////
 // Mathmatical-Errors
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__==0x0530)
+#if defined(__GNUC__) && (__GNUC__ >= 6)
+// skips matherr handling as matherr not supported in g++ 6 or later
+#elif defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__==0x0530)
 int std::_matherr(struct math_exception* e){
   e->retval=0;
   return 1;
@@ -75,8 +77,8 @@ void PrintBacktrace() {
 }
 
 void Crash() {
-  char *p;
-  p = (char *) 0;
+  int *p;
+  p = (int *) 0;
   *p = 1234;
 }
 #endif

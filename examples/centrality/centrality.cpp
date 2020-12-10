@@ -21,12 +21,12 @@ int main(int argc, char* argv[]) {
   printf("\nTreat graph as UNDIRECTED: ");
   printf(" Eigenvector...");           TSnap::GetEigenVectorCentr(UGraph, EigH);
   printf(" Clustering...");            TSnap::GetNodeClustCf(UGraph, CcfH);
-  printf(" Betweenness (SLOW!)...");   TSnap::GetBetweennessCentr(UGraph, BtwH, 1.0);
+  printf(" Betweenness (SLOW!)...");   TSnap::GetBetweennessCentr(UGraph, BtwH, 1);
   printf(" Constraint (SLOW!)...");    TNetConstraint<PUNGraph> NetC(UGraph, true);
   printf(" Closeness (SLOW!)...");
   for (TUNGraph::TNodeI NI = UGraph->BegNI(); NI < UGraph->EndNI(); NI++) {
     const int NId = NI.GetId();
-    CloseH.AddDat(NId, TSnap::GetClosenessCentr(UGraph, NId));
+    CloseH.AddDat(NId, TSnap::GetClosenessCentr<PUNGraph>(UGraph, NId, false));
   }
   printf("\nDONE! saving...");
   FILE *F = fopen(OutFNm.CStr(), "wt");

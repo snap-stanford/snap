@@ -1,7 +1,8 @@
-#ifndef snap_main_h
-#define snap_main_h
+#ifndef SNAP_H
+#define SNAP_H
 
 /// ##mainpage
+#define _USE_MATH_DEFINES    // to use cmath's constants for VS
 
 /////////////////////////////////////////////////
 // SNAP library
@@ -11,13 +12,21 @@
 
 #include "gbase.h"
 #include "util.h"
+#include "attr.h"            // sparse attributes
 
 // graph data structures
-#include "attr.h"			 // sparse attributes
 #include "graph.h"           // graphs
+#include "graphmp.h"         // graphs
 #include "network.h"         // networks
+#include "networkmp.h"       // networks OMP
 #include "bignet.h"          // large networks
 #include "timenet.h"         // time evolving networks
+#include "mmnet.h"           // multimodal networks
+
+// table data structures and algorithms
+#include "table.h"           // table
+#include "conv.h" 	         // conversion functions - table to graph
+#include "numpy.h" 	         // numpy conversion
 
 // algorithms
 #include "subgraph.h"        // subgraph manipulations
@@ -34,6 +43,9 @@
 #include "flow.h"            // network flow algorithms
 #include "coreper.h"         // core-periphery algorithms
 #include "randwalk.h"        // Personalized PageRank
+#include "casc.h"            // cascade graph construction from events^M
+#include "sim.h"             // K-nearest neighbors
+
 
 // graph generators
 #include "ggen.h"            // graph generators (preferential attachment, small-world, ...)
@@ -43,5 +55,4 @@
 #include "gviz.h"
 #include "ghash.h"
 #include "statplot.h"
-
-#endif
+#endif // SNAP_H

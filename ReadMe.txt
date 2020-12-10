@@ -33,7 +33,7 @@ Directory structure:
         SNAP reference manuals
 
 Code compiles under Windows (Microsoft Visual Studio, CygWin with gcc) and
-Linux and Mac (gcc). Use the SnapExamples.vcproj or provided makefiles.
+Linux and Mac (gcc). Use the SnapExamples*.sln or provided makefiles.
 
 Some of applications expect that GnuPlot and GraphViz are installed and
 accessible -- paths are in the system PATH variable or they reside in the
@@ -46,9 +46,9 @@ in the examples directory and described at:
   http://snap.stanford.edu/snap/description.html.
 
 To compile from the command line, execute:
-  make all   # compiles SNAP and all sample applications
+  make all	# compiles SNAP and all sample applications
 
-To compile on Mac OSX, using Xcode:
+To compile on Mac OS X, using Xcode:
   1. From the Toolbar, select Scheme (e.g. 'bigclam').
   2. Product -> Build.  (or Cmd + B).
   3. Run executable via the command line; or
@@ -70,6 +70,8 @@ Description of examples:
   bigclam :
 	Formulates community detection problems into non-negative matrix
 	factorization and discovers community membership factors of nodes.
+  cascadegen :
+        Identifies cascades in a list of events.
   cascades :
   	Simulates a SI (susceptible-infected) model on a network and computes
 	structural properties of cascades.
@@ -80,6 +82,8 @@ Description of examples:
         Implements a large scale overlapping community detection method
         for networks with node attributes based on Communities from
         Edge Structure and Node Attributes (CESNA).
+  circles :
+	Implements a method for identifying users social circles.
   cliques :
 	Finds overlapping dense groups of nodes in networks,
 	based on the Clique Percolation Method.
@@ -116,6 +120,10 @@ Description of examples:
   	Estimates Kronecker graph parameter matrix.
   krongen : 
   	Generates Kronecker graphs.
+  localmotifcluster :
+	Implements a local method for motif-based clustering using MAPPR.
+  lshtest :
+	Implements locality sensitive hashing.
   magfit :
 	Estimates Multiplicative Attribute Graph (MAG) model parameter.
   maggen : 
@@ -123,6 +131,8 @@ Description of examples:
   mkdatasets :
 	Demonstrates how to load different kinds of networks in various
 	network formats and how to compute various statistics of the network.
+  motifcluster : 
+  	Implements a spectral method for motif-based clustering.	
   motifs : 
   	Counts the number of occurrence of every possible subgraph on K nodes 
   	in the network.
@@ -139,11 +149,15 @@ Description of examples:
 	distribution, hop plot, clustering coefficient, distribution of sizes
 	of connected components, spectral properties of graph adjacency
 	matrix, etc.
+  randwalk :
+        Computes Personalized PageRank between pairs of nodes.
   rolx :
         Implements the rolx algorithm for analysing the structural
         roles in the graph.
   testgraph :
 	Demonstrates some of the basic SNAP functionality.
+  temporalmotifs :
+	Counts temporal motifs in temporal networks.
   zygote :
         Demonstrates how to use SNAP with the Zygote library, which
         significantly speeds up computations that need to process the
@@ -221,6 +235,7 @@ snap-core:
         similar.
   bignet.h : Memory efficient implementation of a network with data on
         nodes. Use when working with very large networks.
+  casc.h : Computes cascades from a list of events.
   centr.h : Node centrality measures: closeness, betweenness, PageRank, ...
   cmty.h : Algorithms for network community detection: Modularity,
         Girvan-Newman, Clauset-Newman-Moore.
@@ -245,6 +260,8 @@ snap-core:
   gviz.h : Interface to GraphViz for plotting small graphs.
   kcore.h : K-core decomposition of networks.
   network.h : Implements network types TNodeNet, TNodeEDatNet and TNodeEdgeNet.
+  randwalk.h : Computing random walk scores and personalized PageRank
+	between pairs of nodes
   Snap.h : Main include file of the library.
   statplot.h : Plots of various structural network properties: clustering,
         degrees, diameter, spectrum, connected components.
@@ -253,7 +270,6 @@ snap-core:
   timenet.h : Temporally evolving networks.
   triad.h : Functions for counting triads (triples of connected nodes in the
         network) and computing clustering coefficient.
-  randwalk.h : Computing random walk scores and personalized PageRank between pairs of nodes
   util.h : Utilities to manipulate PDFs, CDFs and CCDFs. Quick and dirty
         string manipulation, URL and domain manipulation routines.
 
@@ -265,6 +281,7 @@ snap-adv:
   kronecker.h : Kronecker Graph generator and KronFit algorithm for
         estimating parameters of Kronecker graphs.
   mag.h : Implements the Multiplicative Attribute Graph (MAG).
+  motifcluster.h : Implements motif-based clustering algorithms.
   ncp.h : Network community profile plot. Implements local spectral graph
         partitioning method to efficiently find communities in networks.
   rolx.h : Node role detection.
@@ -284,4 +301,6 @@ snap-exp:
   trawling.h : Algorithm of extracting bipartite cliques from the network.
   wgtnet.h : Weighted networks.
   wikinet.h : Networks based on Wikipedia.
+
+
 

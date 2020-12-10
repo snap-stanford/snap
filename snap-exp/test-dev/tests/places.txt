@@ -1,0 +1,11 @@
+Stanford Bookstore	CA, USA	37.424753	-122.170253
+Orrens Hummus	CA, USA	37.445561	-122.162145
+Pier 39	CA, USA	37.809138	-122.410035
+Statue of Liberty	NY, USA	40.689230	-74.044500
+Central Park	NY, USA	40.781493	-73.965306
+Taj Mahal	UP, India	27.174839	78.042139
+Qutub Minar	DL, India	28.52639	77.187029
+India Gate	DL, India	28.612721	77.229467
+Charminar	AP, India	17.361537	78.474662
+221B Baker Street	NW, England	51.523703	-0.158495
+Madame Tussauds	NW, England	51.522893	-0.154977

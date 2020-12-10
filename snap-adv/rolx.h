@@ -80,6 +80,8 @@ void PlotRoles(const PUNGraph Graph, const TIntIntH& Roles);
 void PrintRoles(const TIntIntH& Roles);
 /// Prints feature matrix to file.
 void FPrintMatrix(const TFltVV& Matrix, const TStr& Path);
+/// Prints node mappings to file, feature line -> node ID
+void FPrintNodeMappings(const TIntIntH& NodeIdMtxIdxH, const TStr& Path);
 /// Prints found roles to file.
 void FPrintRoles(const TIntIntH& Roles, const TStr& Path);
 

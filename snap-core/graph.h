@@ -36,6 +36,10 @@ public:
     TNode(const int& NId) : Id(NId), NIdV() { }
     TNode(const TNode& Node) : Id(Node.Id), NIdV(Node.NIdV) { }
     TNode(TSIn& SIn) : Id(SIn), NIdV(SIn) { }
+    void LoadShM(TShMIn& ShMIn) {
+      Id = TInt(ShMIn);
+      NIdV.LoadShM(ShMIn);
+    }
     void Save(TSOut& SOut) const { Id.Save(SOut); NIdV.Save(SOut); }
     int GetId() const { return Id; }
     int GetDeg() const { return NIdV.Len(); }
@@ -49,6 +53,7 @@ public:
     bool IsOutNId(const int& NId) const { return IsNbrNId(NId); }
     void PackOutNIdV() { NIdV.Pack(); }
     void PackNIdV() { NIdV.Pack(); }
+    void SortNIdV() { NIdV.Sort();}
     friend class TUNGraph;
     friend class TUNGraphMtx;
   };
@@ -80,6 +85,8 @@ public:
     int GetInDeg() const { return NodeHI.GetDat().GetInDeg(); }
     /// Returns out-degree of the current node (returns same as value GetDeg() since the graph is undirected).
     int GetOutDeg() const { return NodeHI.GetDat().GetOutDeg(); }
+    /// Sorts the adjacency lists of the current node.
+    void SortNIdV() { NodeHI.GetDat().SortNIdV(); }
     /// Returns ID of NodeN-th in-node (the node pointing to the current node). ##TUNGraph::TNodeI::GetInNId
     int GetInNId(const int& NodeN) const { return NodeHI.GetDat().GetInNId(NodeN); }
     /// Returns ID of NodeN-th out-node (the node the current node points to). ##TUNGraph::TNodeI::GetOutNId
@@ -121,8 +128,20 @@ private:
   TInt MxNId, NEdges;
   THash<TInt, TNode> NodeH;
 private:
+  class TLoadTNodeInitializer {
+  public:
+    TLoadTNodeInitializer() {}
+    void operator() (TNode* Node, TShMIn& ShMIn) { Node->LoadShM(ShMIn);}
+  };
+private:
   TNode& GetNode(const int& NId) { return NodeH.GetDat(NId); }
   const TNode& GetNode(const int& NId) const { return NodeH.GetDat(NId); }
+  void LoadGraphShM(TShMIn& ShMIn) {
+    MxNId = TInt(ShMIn);
+    NEdges = TInt(ShMIn);
+    TLoadTNodeInitializer Fn;
+    NodeH.LoadShM(ShMIn, Fn);
+  }
 public:
   TUNGraph() : CRef(), MxNId(0), NEdges(0), NodeH() { }
   /// Constructor that reserves enough memory for a graph of Nodes nodes and Edges edges.
@@ -131,6 +150,7 @@ public:
   /// Constructor that loads the graph from a (binary) stream SIn.
   TUNGraph(TSIn& SIn) : MxNId(SIn), NEdges(SIn), NodeH(SIn) { }
   /// Saves the graph to a (binary) stream SOut.
+
   void Save(TSOut& SOut) const { MxNId.Save(SOut); NEdges.Save(SOut); NodeH.Save(SOut); }
   /// Static constructor that returns a pointer to the graph. Call: PUNGraph Graph = TUNGraph::New().
   static PUNGraph New() { return new TUNGraph(); }
@@ -138,7 +158,12 @@ public:
   static PUNGraph New(const int& Nodes, const int& Edges) { return new TUNGraph(Nodes, Edges); }
   /// Static constructor that loads the graph from a stream SIn and returns a pointer to it.
   static PUNGraph Load(TSIn& SIn) { return PUNGraph(new TUNGraph(SIn)); }
-  /// Allows for run-time checking the type of the graph (see the TGraphFlag for flags).
+  /// Static constructor that loads the graph from shared memory ##TUNGraph::LoadShM
+  static PUNGraph LoadShM(TShMIn& ShMIn) {
+    TUNGraph* Graph = new TUNGraph();
+    Graph->LoadGraphShM(ShMIn);
+    return PUNGraph(Graph);
+  }  /// Allows for run-time checking the type of the graph (see the TGraphFlag for flags).
   bool HasFlag(const TGraphFlag& Flag) const;
   TUNGraph& operator = (const TUNGraph& Graph) {
     if (this!=&Graph) { MxNId=Graph.MxNId; NEdges=Graph.NEdges; NodeH=Graph.NodeH; } return *this; }
@@ -147,6 +172,8 @@ public:
   int GetNodes() const { return NodeH.Len(); }
   /// Adds a node of ID NId to the graph. ##TUNGraph::AddNode
   int AddNode(int NId = -1);
+  /// Adds a node of ID NId to the network, noop if the node already exists. ##TUNGraph::AddNodeUnchecked
+  int AddNodeUnchecked(int NId = -1);
   /// Adds a node of ID NodeI.GetId() to the graph.
   int AddNode(const TNodeI& NodeI) { return AddNode(NodeI.GetId()); }
   /// Adds a node of ID NId to the graph and create edges to all nodes in vector NbrNIdV. ##TUNGraph::AddNode-1
@@ -172,6 +199,10 @@ public:
   int GetEdges() const;
   /// Adds an edge between node IDs SrcNId and DstNId to the graph. ##TUNGraph::AddEdge
   int AddEdge(const int& SrcNId, const int& DstNId);
+  /// Adds an edge between node IDs SrcNId and DstNId to the graph, ignores EId (for compatibility with TNEANet).
+  int AddEdge(const int& SrcNId, const int& DstNId, const int& EId) { return AddEdge(SrcNId, DstNId); }
+  /// Adds an edge between node IDs SrcNId and DstNId to the graph. ##TUNGraph::AddEdgeUnchecked
+  int AddEdgeUnchecked(const int& SrcNId, const int& DstNId);
   /// Adds an edge between node IDs SrcNId and DstNId to the graph. If nodes do not exists, create them.
   int AddEdge2(const int& SrcNId, const int& DstNId);
   /// Adds an edge between EdgeI.GetSrcNId() and EdgeI.GetDstNId() to the graph.
@@ -180,6 +211,8 @@ public:
   void DelEdge(const int& SrcNId, const int& DstNId);
   /// Tests whether an edge between node IDs SrcNId and DstNId exists in the graph.
   bool IsEdge(const int& SrcNId, const int& DstNId) const;
+  /// Tests whether an edge EId exists in the graph (for compatibility with TNEANet), always returns false.
+  bool IsEdge(const int& EId) const { return false; }
   /// Returns an iterator referring to the first edge in the graph.
   TEdgeI BegEI() const { TNodeI NI = BegNI(); TEdgeI EI(NI, EndNI(), 0); if (GetNodes() != 0 && (NI.GetOutDeg()==0 || NI.GetId()>NI.GetOutNId(0))) { EI++; } return EI; }
   /// Returns an iterator referring to the past-the-end edge in the graph.
@@ -200,6 +233,8 @@ public:
   bool Empty() const { return GetNodes()==0; }
   /// Deletes all nodes and edges from the graph.
   void Clr() { MxNId=0; NEdges=0; NodeH.Clr(); }
+  /// Sorts the adjacency lists of each node
+  void SortNodeAdjV() { for (TNodeI NI = BegNI(); NI < EndNI(); NI++) { NI.SortNIdV();} }
   /// Reserves memory for a graph of Nodes nodes and Edges edges.
   void Reserve(const int& Nodes, const int& Edges) { if (Nodes>0) NodeH.Gen(Nodes/2); }
   /// Reserves memory for node ID NId having Deg edges.
@@ -246,6 +281,12 @@ public:
     bool IsNbrNId(const int& NId) const { return IsOutNId(NId) || IsInNId(NId); }
     void PackOutNIdV() { OutNIdV.Pack(); }
     void PackNIdV() { InNIdV.Pack(); }
+    void SortNIdV() { InNIdV.Sort(); OutNIdV.Sort();}
+    void LoadShM(TShMIn& ShMIn) {
+      Id = TInt(ShMIn);
+      InNIdV.LoadShM(ShMIn);
+      OutNIdV.LoadShM(ShMIn);
+    }
     friend class TNGraph;
     friend class TNGraphMtx;
   };
@@ -274,6 +315,8 @@ public:
     int GetInDeg() const { return NodeHI.GetDat().GetInDeg(); }
     /// Returns out-degree of the current node.
     int GetOutDeg() const { return NodeHI.GetDat().GetOutDeg(); }
+    /// Sorts the adjacency lists of the current node.
+    void SortNIdV() { NodeHI.GetDat().SortNIdV(); }
     /// Returns ID of NodeN-th in-node (the node pointing to the current node). ##TNGraph::TNodeI::GetInNId
     int GetInNId(const int& NodeN) const { return NodeHI.GetDat().GetInNId(NodeN); }
     /// Returns ID of NodeN-th out-node (the node the current node points to). ##TNGraph::TNodeI::GetOutNId
@@ -316,8 +359,20 @@ private:
   TInt MxNId;
   THash<TInt, TNode> NodeH;
 private:
+  class TLoadTNodeInitializer {
+  public:
+    TLoadTNodeInitializer() {}
+    void operator() (TNode* Node, TShMIn& ShMIn) {Node->LoadShM(ShMIn);}
+  };
+private:
   TNode& GetNode(const int& NId) { return NodeH.GetDat(NId); }
   const TNode& GetNode(const int& NId) const { return NodeH.GetDat(NId); }
+  void LoadGraphShM(TShMIn& ShMIn) {
+    MxNId = TInt(ShMIn);
+    TLoadTNodeInitializer Fn;
+    NodeH.LoadShM(ShMIn, Fn);
+  }
+
 public:
   TNGraph() : CRef(), MxNId(0), NodeH() { }
   /// Constructor that reserves enough memory for a graph of Nodes nodes and Edges edges.
@@ -333,6 +388,12 @@ public:
   static PNGraph New(const int& Nodes, const int& Edges) { return new TNGraph(Nodes, Edges); }
   /// Static constructor that loads the graph from a stream SIn and returns a pointer to it.
   static PNGraph Load(TSIn& SIn) { return PNGraph(new TNGraph(SIn)); }
+  /// Static constructor that loads the graph from a shared memory stream and returns pointer to it. ##TNGraph::LoadShM
+  static PNGraph LoadShM(TShMIn& ShMIn) {
+    TNGraph* Graph = new TNGraph();
+    Graph->LoadGraphShM(ShMIn);
+    return PNGraph(Graph);
+  }
   /// Allows for run-time checking the type of the graph (see the TGraphFlag for flags).
   bool HasFlag(const TGraphFlag& Flag) const;
   TNGraph& operator = (const TNGraph& Graph) {
@@ -342,6 +403,8 @@ public:
   int GetNodes() const { return NodeH.Len(); }
   /// Adds a node of ID NId to the graph. ##TNGraph::AddNode
   int AddNode(int NId = -1);
+  /// Adds a node of ID NId to the network, noop if the node already exists. ##TNGraph::AddNodeUnchecked
+  int AddNodeUnchecked(int NId = -1);
   /// Adds a node of ID NodeI.GetId() to the graph.
   int AddNode(const TNodeI& NodeId) { return AddNode(NodeId.GetId()); }
   /// Adds a node of ID NId to the graph, creates edges to the node from all nodes in vector InNIdV, creates edges from the node to all nodes in vector OutNIdV. ##TNGraph::AddNode-1
@@ -367,8 +430,12 @@ public:
 
   /// Returns the number of edges in the graph.
   int GetEdges() const;
-  /// Adds an edge from node IDs SrcNId to node DstNId to the graph. ##TNGraph::AddEdge
+  /// Adds an edge from node SrcNId to node DstNId to the graph. ##TNGraph::AddEdge
   int AddEdge(const int& SrcNId, const int& DstNId);
+  /// Adds an edge between node IDs SrcNId and DstNId to the graph, ignores EId (for compatibility with TNEANet).
+  int AddEdge(const int& SrcNId, const int& DstNId, const int& EId) { return AddEdge(SrcNId, DstNId); }
+  /// Adds an edge from node SrcNId to node DstNId to the graph. ##TNGraph::AddEdgeUnchecked
+  int AddEdgeUnchecked(const int& SrcNId, const int& DstNId);
   /// Adds an edge from node IDs SrcNId to node DstNId to the graph. If nodes do not exist, create them.
   int AddEdge2(const int& SrcNId, const int& DstNId);
   /// Adds an edge from EdgeI.GetSrcNId() to EdgeI.GetDstNId() to the graph.
@@ -377,6 +444,8 @@ public:
   void DelEdge(const int& SrcNId, const int& DstNId, const bool& IsDir = true);
   /// Tests whether an edge from node IDs SrcNId to DstNId exists in the graph.
   bool IsEdge(const int& SrcNId, const int& DstNId, const bool& IsDir = true) const;
+  /// Tests whether an edge EId exists in the graph (for compatibility with TNEANet), always returns false.
+  bool IsEdge(const int& EId) const { return false; }
   /// Returns an iterator referring to the first edge in the graph.
   TEdgeI BegEI() const { TNodeI NI=BegNI(); while(NI<EndNI() && NI.GetOutDeg()==0){NI++;} return TEdgeI(NI, EndNI()); }
   /// Returns an iterator referring to the past-the-end edge in the graph.
@@ -403,6 +472,8 @@ public:
   void ReserveNIdInDeg(const int& NId, const int& InDeg) { GetNode(NId).InNIdV.Reserve(InDeg); }
   /// Reserves memory for node ID NId having OutDeg out-edges.
   void ReserveNIdOutDeg(const int& NId, const int& OutDeg) { GetNode(NId).OutNIdV.Reserve(OutDeg); }
+  /// Sorts the adjacency lists of each node
+  void SortNodeAdjV() { for (TNodeI NI = BegNI(); NI < EndNI(); NI++) { NI.SortNIdV();} }
   /// Defragments the graph. ##TNGraph::Defrag
   void Defrag(const bool& OnlyNodeLinks=false);
   /// Checks the graph data structure for internal consistency. ##TNGraph::IsOk
@@ -884,3 +955,4 @@ public:
 namespace TSnap {
 template <> struct IsBipart<TBPGraph> { enum { Val = 1 }; };
 }
+

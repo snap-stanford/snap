@@ -705,7 +705,7 @@ void TNumericalStuff::SymetricToTridiag(TFltVV& a, int n, TFltV& d, TFltV& e) {
                     e[j]=g=e[j]-hh*f;
                     for (k=1;k<=j;k++) { //Reduce a, equation (11.2.13).
                         a(j-1,k-1) -= (f*e[k]+g*a(i-1,k-1));
-                        Assert(_isnan(a(j-1,k-1)) == 0);
+                        Assert(_isnan(static_cast<double>(a(j-1,k-1))) == 0);
                     }
                 }
             }
@@ -727,7 +727,7 @@ void TNumericalStuff::SymetricToTridiag(TFltVV& a, int n, TFltV& d, TFltV& e) {
                     g += a(i-1,k-1)*a(k-1,j-1);
                 for (k=1;k<=l;k++) {
                     a(k-1,j-1) -= g*a(k-1,i-1);
-                    Assert(_isnan(a(k-1,j-1)) == 0);
+                    Assert(_isnan(static_cast<double>(a(k-1,j-1))) == 0);
                 }
             }
         }

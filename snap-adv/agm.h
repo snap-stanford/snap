@@ -3,7 +3,7 @@
 #include "Snap.h"
 
 /////////////////////////////////////////////////
-/// Affiliaiton Graph Model (AGM) graph generator.
+/// Affiliation Graph Model (AGM) graph generator.
 class TAGM {
 public:
   static void RndConnectInsideCommunity(PUNGraph& Graph, const TIntV& CmtyV, const double& Prob, TRnd& Rnd);

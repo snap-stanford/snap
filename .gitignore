@@ -37,6 +37,8 @@ sample_*.dot
 
 # Backup files
 *~.nib
+*.swo
+*.swp
 
 # Doxygen-produced files
 doxygen/snapdoc-dev
@@ -53,6 +55,7 @@ tutorials/*
 !tutorials/Makefile
 !tutorials/cncom
 !tutorials/graphviz
+!tutorials/parser
 tutorials/.DS_Store
 tutorials/*.dSYM
 benchmarking/*.dat

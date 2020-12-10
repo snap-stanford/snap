@@ -74,7 +74,7 @@ void TGraphAnf<PGraph>::InitAnfBits(TAnfBitV& BitV) {
   IAssertR(VSize <= TInt::Mx,
     TStr::Fmt("Your graph is too large for Approximate Neighborhood Function, %s is larger than %d",
     TUInt64::GetStr(VSize).CStr(),TInt::Mx));
-  printf("size %d\n", static_cast<int>(VSize));
+  //printf("size %d\n", static_cast<int>(VSize));
   BitV.Gen((const int)VSize);  IAssert(BitV.BegI() != NULL);
   BitV.PutAll(0);
   int SetBit = 0;
@@ -153,9 +153,8 @@ void TGraphAnf<PGraph>::GetGraphAnf(TIntFltKdV& DistNbrsV, const int& MxDist, co
   double NPairs = 0.0;
   DistNbrsV.Clr();
   DistNbrsV.Add(TIntFltKd(0, Graph->GetNodes()));
-  DistNbrsV.Add(TIntFltKd(1, Graph->GetEdges()));
   //TExeTm ExeTm;
-  for (int dist = 2; dist < (MxDist==-1 ? TInt::Mx : MxDist); dist++) {
+  for (int dist = 1; dist < (MxDist==-1 ? TInt::Mx : MxDist); dist++) {
     //printf("ANF dist %d...", dist);  ExeTm.Tick();
     memcpy(LastBitsV.BegI(), CurBitsV.BegI(), sizeof(uint)*CurBitsV.Len()); //LastBitsV = CurBitsV;
     for (typename PGraph::TObj::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {

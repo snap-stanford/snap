@@ -310,9 +310,11 @@ double InfomapOnlineIncrement(PUNGraph& Graph, int n1, int n2, TIntFltH& PAlpha,
 // Maximum modularity clustering by Girvan-Newman algorithm (slow)
 //  Girvan M. and Newman M. E. J., Community structure in social and biological networks, Proc. Natl. Acad. Sci. USA 99, 7821-7826 (2002)
 double CommunityGirvanNewman(PUNGraph& Graph, TCnComV& CmtyV) {
+  PUNGraph LocalGraph = TSnap::ConvertGraph<PUNGraph>(Graph, false);
+
   TIntH OutDegH;
-  const int NEdges = Graph->GetEdges();
-  for (TUNGraph::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
+  const int NEdges = LocalGraph->GetEdges();
+  for (TUNGraph::TNodeI NI = LocalGraph->BegNI(); NI < LocalGraph->EndNI(); NI++) {
     OutDegH.AddDat(NI.GetId(), NI.GetOutDeg());
   }
   double BestQ = -1; // modularity
@@ -320,8 +322,8 @@ double CommunityGirvanNewman(PUNGraph& Graph, TCnComV& CmtyV) {
   CmtyV.Clr();
   TIntV Cmty1, Cmty2;
   while (true) {
-    TSnapDetail::CmtyGirvanNewmanStep(Graph, Cmty1, Cmty2);
-    const double Q = TSnapDetail::_GirvanNewmanGetModularity(Graph, OutDegH, NEdges, CurCmtyV);
+    TSnapDetail::CmtyGirvanNewmanStep(LocalGraph, Cmty1, Cmty2);
+    const double Q = TSnapDetail::_GirvanNewmanGetModularity(LocalGraph, OutDegH, NEdges, CurCmtyV);
     //printf("current modularity: %f\n", Q);
     if (Q > BestQ) {
       BestQ = Q; 

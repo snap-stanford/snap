@@ -140,7 +140,7 @@ void TAttr::GetSAttrV(const TInt& Id, const TAttrType AttrType, TAttrPrV& AttrV)
   AttrV = TAttrPrV();
   for (TStrIntPrH::TIter it = AttrNameToId.BegI(); it < AttrNameToId.EndI(); it++) {
     TAttrType CurType = static_cast<TAttrType>(it.GetDat().GetVal1().Val);
-    if (CurType == AttrType || AttrType == atAny) {
+    if (CurType == AttrType) {
       TIntPr AttrKey(it.GetDat().GetVal2(), Id);
       if (CurType == atInt) {
         if (IntAttrVals.IsKey(AttrKey)) {
@@ -384,7 +384,7 @@ void TAttrPair::GetSAttrV(const TIntPr& Id, const TAttrType AttrType, TAttrPrV& 
   AttrV = TAttrPrV();
   for (TStrIntPrH::TIter it = AttrNameToId.BegI(); it < AttrNameToId.EndI(); it++) {
     TAttrType CurType = static_cast<TAttrType>(it.GetDat().GetVal1().Val);
-    if (CurType == AttrType || AttrType == atAny) {
+    if (CurType == AttrType) {
       TIntIntPrPr AttrKey(it.GetDat().GetVal2(), Id);
       if (CurType == atInt) {
         if (IntAttrVals.IsKey(AttrKey)) {

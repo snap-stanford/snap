@@ -3,6 +3,7 @@
 PUNGraph GetTestTUNGraph();
 PNGraph GetTestTNGraph();
 PNEGraph GetTestTNEGraph();
+PNEANet GetTestTNEANet();
 TPt <TNodeEDatNet<TInt, TInt> > GetTestTNodeEDatNet();
 TPt <TNodeEdgeNet<TInt, TInt> > GetTestTNodeEdgeNet();
 
@@ -328,6 +329,299 @@ void TestGetRndGraphs() {
   printf("\n");
 }
 
+// Test TNGraph GetEgoNetHop
+void TestGetInEgonetHopTNGraph() {
+  // Test on TNSmall Graph
+  PNGraph Small = TNGraph::GetSmallGraph();
+  PNGraph ego1 = TSnap::GetInEgonetHop<PNGraph>(Small, 4, 1);
+  PrintGraph("small-ego1", ego1);
+  PNGraph ego2 = TSnap::GetInEgonetHop<PNGraph>(Small, 4, 2);
+  PrintGraph("small-ego2", ego2);
+  PNGraph ego3 = TSnap::GetInEgonetHop<PNGraph>(Small, 4, 3);
+  PrintGraph("small-ego3", ego3);
+
+  // Middle Size TN graph
+  PNGraph Middle = TNGraph::New();
+  for (int i = 0; i < 6; i++) {
+    Middle->AddNode(i);
+  }
+  for (int i = 0; i < 6; i++) {
+    Middle->AddEdge(i, (i + 1) % 6);
+    Middle->AddEdge(i, (i + 2) % 6);
+  }
+  PrintGraph("Mid-size TNGraph", Middle);
+  PNGraph midego2 = TSnap::GetInEgonetHop<PNGraph>(Middle, 0, 2);
+  PrintGraph("Mid-size Ego2", midego2);
+  PNGraph midego3 = TSnap::GetInEgonetHop<PNGraph>(Middle, 0, 3);
+  PrintGraph("Mid-size Ego3", midego3);
+
+  // Larger TN Graph
+  PNGraph Graph;
+  PNGraph Graph0;
+  PNGraph Graph1;
+  PNGraph Graph2;
+  PNGraph Graph3;
+  PNGraph Graph4;
+  PNGraph Graph5;
+  PNGraph Graph6;
+  PNGraph Graph7;
+
+  Graph = GetTestTNGraph();
+  PrintGraph("Large TNGraph", Graph);
+
+  Graph0 = TSnap::GetInEgonetHop<PNGraph>(Graph, 0, 0);
+  PrintGraph("Large TNGraph - Ego 0", Graph0);
+
+  Graph1 = TSnap::GetInEgonetHop<PNGraph>(Graph, 3, 1);
+  PrintGraph("Large TNGraph - Ego 1", Graph1);
+
+  Graph2 = TSnap::GetInEgonetHop<PNGraph>(Graph, 6, 2);
+  PrintGraph("Large TNGraph - Ego 2", Graph2);
+
+  Graph3 = TSnap::GetInEgonetHop<PNGraph>(Graph, 9, 3);
+  PrintGraph("Large TNGraph - Ego 3", Graph3);
+
+  Graph4 = TSnap::GetInEgonetHop<PNGraph>(Graph, 12, 4);
+  PrintGraph("Large TNGraph - Ego 4", Graph4);
+
+  Graph5 = TSnap::GetInEgonetHop<PNGraph>(Graph, 15, 5);
+  PrintGraph("Large TNGraph - Ego 5", Graph5);
+
+  Graph6 = TSnap::GetInEgonetHop<PNGraph>(Graph, 18, 6);
+  PrintGraph("Large TNGraph - Ego 6", Graph6);
+
+  Graph7 = TSnap::GetInEgonetHop<PNGraph>(Graph, 1, 7);
+  PrintGraph("Large TNGraph - Ego 7", Graph7);
+}
+
+// Test TUNGraph GetInEgonetHop
+void TestGetInEgonetHopTUNGraph() {
+  PUNGraph Graph;
+  PUNGraph Graph0;
+  PUNGraph Graph1;
+  PUNGraph Graph2;
+  PUNGraph Graph3;
+  PUNGraph Graph4;
+
+  Graph = GetTestTUNGraph();
+  PrintGraph("Large TUNGraph", Graph);
+
+  Graph0 = TSnap::GetInEgonetHop<PUNGraph>(Graph, 3, 0);
+  PrintGraph("Large TUNGraph - Ego 0", Graph0);
+
+  Graph1 = TSnap::GetInEgonetHop<PUNGraph>(Graph, 0, 1);
+  PrintGraph("Large TUNGraph - Ego 1", Graph1);
+
+  Graph2 = TSnap::GetInEgonetHop<PUNGraph>(Graph, 7, 2);
+  PrintGraph("Large TUNGraph - Ego 2", Graph1);
+
+  Graph3 = TSnap::GetInEgonetHop<PUNGraph>(Graph, 19, 3);
+  PrintGraph("Large TUNGraph - Ego 3", Graph1);
+
+  Graph4 = TSnap::GetInEgonetHop<PUNGraph>(Graph, 8, 4);
+  PrintGraph("Large TUNGraph - Ego 4", Graph4);
+}
+
+// Test TNEANet GetInEgonetAttr
+void TestGetInEgonetsAttr() {
+  PNEANet Graph;
+  PNEANet Graph0;
+  PNEANet Graph1;
+  PNEANet Graph2;
+
+  Graph = GetTestTNEANet();
+
+  Graph0 = TSnap::GetInEgonetAttr(Graph, 0, 0);
+  PrintGraph("TNEANet w/ Attr - Ego 0", Graph0);
+
+  Graph1 = TSnap::GetInEgonetAttr(Graph, 3, 1);
+  PrintGraph("TNEANet w/ Attr - Ego 1", Graph1);
+
+  Graph2 = TSnap::GetInEgonetAttr(Graph, 6, 2);
+  PrintGraph("TNEANet w/ Attr - Ego 2", Graph2);
+}
+
+// Test TUNGraph GetInEgonetSub
+void TestGetInEgonetSubTUNGraph() {
+  PUNGraph Graph;
+  PUNGraph Graph1;
+  PUNGraph Graph2;
+
+  Graph = GetTestTUNGraph();
+
+  Graph1 = TSnap::GetInEgonetSub<PUNGraph>(Graph, 0, 1, 3, -1.0);
+  PrintGraph("TUNGraph - Ego 1 - Sub 3", Graph1);
+
+  Graph2 = TSnap::GetInEgonetSub<PUNGraph>(Graph, 0, 1, 0, 0.9);
+  PrintGraph("TUNGraph - Ego 1 - Sub 90%", Graph2);
+}
+
+// Test TUNGraph GetInEgonetSub
+void TestGetInEgonetSubTNGraph() {
+  PNGraph Graph;
+  PNGraph Graph1;
+  PNGraph Graph2;
+
+  Graph = GetTestTNGraph();
+
+  Graph1 = TSnap::GetInEgonetSub<PNGraph>(Graph, 0, 1, 2, -1.0);
+  PrintGraph("TNGraph - Ego 1 - Sub 2", Graph1);
+
+  Graph2 = TSnap::GetInEgonetSub<PNGraph>(Graph, 0, 1, 0, 0.9);
+  PrintGraph("TNGraph - Ego 1 - Sub 90%", Graph2);
+}
+
+// Test TNEANet GetInEgonetSub
+void TestGetInEgonetSubTNEANet() {
+  PNEANet Graph;
+  PNEANet Graph0;
+  PNEANet Graph1;
+  PNEANet Graph2;
+
+  Graph = GetTestTNEANet();
+
+  Graph0 = TSnap::GetInEgonetSub<PNEANet>(Graph, 3, 0, 2, 1.0);
+
+  Graph1 = TSnap::GetInEgonetSub<PNEANet>(Graph, 0, 1, 2, -1.0);
+
+  Graph2 = TSnap::GetInEgonetSub<PNEANet>(Graph, 0, 1, 0, 0.9);
+}
+
+// Test TNEANet GetInEgonetSubAttr
+void TestGetInEgonetSubAttr() {
+  PNEANet Graph;
+  PNEANet Graph0;
+  PNEANet Graph1;
+  PNEANet Graph2;
+
+  Graph = GetTestTNEANet();
+
+  Graph1 = TSnap::GetInEgonetSubAttr(Graph, 0, 1, 2, -1.0);
+  PrintGraph("TNEANet w/ Attr - Ego 1 - Sub 2", Graph1);
+
+  Graph2 = TSnap::GetInEgonetSubAttr(Graph, 0, 1, 0, 0.9);
+  PrintGraph("TNEANet w/ Attr - Ego 1 - Sub 90%", Graph2);
+}
+
+// Test PGraph GetGraphUnion
+void TestGetGraphUnion() {
+  //Undirected graph
+  PUNGraph Graph = TUNGraph::New();
+  PUNGraph Graph0 = TUNGraph::New();
+
+  for (int i = 0; i < 5; i++) {
+    Graph->AddNode(i);
+  }
+  for (int i = 0; i < 5; i++) {
+    Graph->AddEdge(i,(i+1) % 5);
+    Graph->AddEdge(i,(i+2) % 5);
+  }
+  for (int i = 3; i < 8; i++) {
+    Graph0->AddNode(i);
+  }
+  for (int i = 0; i < 5; i++) {
+    Graph0->AddEdge(i + 3,((i+1) % 5) + 3);
+  }
+
+  PrintGraph("TUNGraph DstGraph before union", Graph);
+  PrintGraph("TUNGraph SrcGraph before union", Graph0);
+
+  TSnap::GetGraphUnion(Graph, Graph0);
+  PrintGraph("TUNGraph DstGraph after union", Graph);
+
+  //Directed graph
+  PNGraph Graph1 = TNGraph::New();
+  PNGraph Graph2 = TNGraph::New();
+  for (int i = 0; i < 4; i++) {
+    Graph1->AddNode(i);
+  }
+  for (int i = 1; i < 5; i++) {
+    Graph2->AddNode(i);
+  }
+
+  Graph1->AddEdge(0, 1);
+  Graph1->AddEdge(1, 2);
+  Graph2->AddEdge(1, 2);
+  Graph2->AddEdge(2, 1);
+  Graph1->AddEdge(2, 3);
+  Graph2->AddEdge(2, 3);
+  Graph1->AddEdge(3, 2);
+  Graph2->AddEdge(3, 4);
+  Graph2->AddEdge(1, 4);
+
+  PrintGraph("TNGraph DstGraph before union", Graph1);
+  PrintGraph("TNGraph SrcGraph before union", Graph2);
+
+  TSnap::GetGraphUnion(Graph1, Graph2);
+  PrintGraph("TNGraph DstGraph after union", Graph1);
+
+  //Directed multi-graph
+  PNEANet Graph3 = TNEANet::New();
+  PNEANet Graph4 = TNEANet::New();
+  int EId = 0;
+  for (int i = 0; i < 4; i++) {
+    Graph3->AddNode(i);
+  }
+  for (int i = 1; i < 5; i++) {
+    Graph4->AddNode(i);
+  }
+
+  Graph3->AddEdge(0, 1, EId++);
+  Graph3->AddEdge(1, 2, EId++);
+  Graph4->AddEdge(1, 2, EId++);
+  Graph4->AddEdge(2, 1, EId++);
+  Graph3->AddEdge(2, 3, EId);
+  Graph4->AddEdge(2, 3, EId++);
+  Graph3->AddEdge(3, 2, EId++);
+  Graph4->AddEdge(3, 4, EId++);
+  Graph4->AddEdge(1, 4, EId++);
+
+  PrintGraph("TNEANet DstGraph before union", Graph3);
+  PrintGraph("TNEANet SrcGraph before union", Graph4);
+
+  TSnap::GetGraphUnion(Graph3, Graph4);
+  PrintGraph("TNEANet DstGraph after union", Graph3);
+}
+
+
+// Test PNEANet GetGraphUnionAttr
+void TestGetGraphUnionAttr() {
+  PNEANet Graph = PNEANet::New();
+  PNEANet Graph0 = PNEANet::New();
+  
+  TStr s = "id";
+  int EId;
+  for (int i = 0; i < 6; i++) {
+    Graph->AddNode(i);
+    Graph->AddIntAttrDatN(i, i, s);
+  }
+
+  for (int i = 3; i < 9; i++) {
+    Graph0->AddNode(i);
+    Graph0->AddIntAttrDatN(i, i, s);
+  }
+
+  for (int i = 0; i < 6; i++) {
+    EId = Graph->AddEdge(i, (i + 2) % 6);
+    Graph->AddIntAttrDatE(EId, (i + 2) % 6, s);
+    EId = Graph->AddEdge(i, (i + 5) % 6);
+    Graph->AddIntAttrDatE(EId, (i + 5) % 6, s);
+  }
+
+  for (int i = 0; i < 6; i++) {
+    EId = Graph0->AddEdge(i + 3, ((i + 3) % 6) + 3);
+    Graph0->AddIntAttrDatE(EId, ((i + 3) % 6) + 3, s);
+    EId = Graph0->AddEdge(i + 3, ((i + 4) % 6) + 3);
+    Graph0->AddIntAttrDatE(EId, ((i + 4) % 6) + 3, s);
+  }
+  PrintGraph("PNEANet DstGraph before union", Graph);
+  PrintGraph("PNEANet SrcGraph before union", Graph0);
+
+  TSnap::GetGraphUnionAttr(Graph, Graph0);
+  PrintGraph("PNEANet DstGraph after union", Graph);
+}
+
+
 // Generate TUNGraph
 PUNGraph GetTestTUNGraph() {
   PUNGraph Graph = TUNGraph::New();
@@ -361,6 +655,26 @@ PNGraph GetTestTNGraph() {
 
   return Graph;
 }
+
+// Generate TNEANet
+PNEANet GetTestTNEANet() {
+  PNEANet Graph = PNEANet::New();
+  TStr s = "id";
+
+  for (int i = 0; i < 20; i++) {
+    Graph->AddNode(i);
+    Graph->AddIntAttrDatN(i, i, s);
+  }
+
+  for (int i = 0; i < 20; i++) {
+    Graph->AddEdge(i, (i + 1) % 20);
+    Graph->AddEdge(i, (i + 2) % 20);
+    Graph->AddEdge(i, (i + 3) % 20);
+  }
+
+  return Graph;
+}
+
 
 // Generate TNEGraph
 PNEGraph GetTestTNEGraph() {
@@ -451,5 +765,14 @@ int main(int argc, char* argv[]) {
   TestConvertSubGraphs();
   TestConvertESubGraphs();
   TestGetRndGraphs();
+  TestGetInEgonetHopTNGraph();
+  TestGetInEgonetHopTUNGraph();
+  TestGetInEgonetsAttr();
+  TestGetInEgonetSubTUNGraph();
+  TestGetInEgonetSubTNGraph();
+  TestGetInEgonetSubTNEANet();
+  TestGetInEgonetSubAttr();
+  TestGetGraphUnion();
+  TestGetGraphUnionAttr();
 }
 

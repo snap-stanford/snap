@@ -15,7 +15,7 @@ SLVER := $(VERSION)
 DOXYGEN = doxygen
 ifeq ($(shell uname), Darwin)
 	# OS X values
-	DOXYGEN = /Applications/Doxygen.app/Contents/Resources/doxygen
+	#DOXYGEN = /Applications/Doxygen.app/Contents/Resources/doxygen
 endif
 
 dummy:

@@ -39,5 +39,40 @@ int main(int argc, char* argv[]) {
   Net->AddNode(0, "zero");
   Net->AddNode(1, "one");
   Net->AddEdge(0, 1, "zero to one");
+
+  const PNGraph DirectedGraph = TNGraph::New();
+  for (int i = 0; i < 10; i++) {
+    DirectedGraph->AddNode(i);
+  }
+
+  DirectedGraph->AddEdge(0, 1);
+  DirectedGraph->AddEdge(1, 2);
+  DirectedGraph->AddEdge(2, 3);
+  DirectedGraph->AddEdge(3, 4);
+  DirectedGraph->AddEdge(4, 5);
+  DirectedGraph->AddEdge(5, 6);
+  DirectedGraph->AddEdge(6, 7);
+  DirectedGraph->AddEdge(7, 2);
+  DirectedGraph->AddEdge(8, 9);
+
+  TIntFltH nodeBtwH;
+  TIntPrFltH edgeBtwH;
+
+
+  printf("Testing Betweenness Centrality Calculation \n");
+  TSnap::GetBetweennessCentr<PNGraph> (DirectedGraph, nodeBtwH, edgeBtwH, true);
+  for (TIntFltH::TIter It = nodeBtwH.BegI(); It < nodeBtwH.EndI(); It++) {
+    int node_id = It.GetKey();
+    double centr = It.GetDat();
+    printf("NodeId: %d, Centr: %f \n", node_id, centr);
+  }
+
+  // printf("Testing Closeness Centrality Calculation \n");
+  // for (TNGraph::TNodeI NI = DirectedGraph->BegNI(); NI < DirectedGraph->EndNI(); NI++) {
+  //   int id = NI.GetId();
+  //   double centr = TSnap::GetClosenessCentr<PNGraph>(DirectedGraph, id, true);
+  //   printf("NodeId: %d, Centr: %f \n", id, centr);
+  // }
+
   return 0;
 }

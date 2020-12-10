@@ -50,8 +50,8 @@ void ManipulateSparseAttributes() {
   printf("ID %d has %d flt attributes.\n", NId.Val, AttrV.Len());
   Attrs.GetSAttrV(NId, atStr, AttrV);
   printf("ID %d has %d str attributes.\n", NId.Val, AttrV.Len());
-  Attrs.GetSAttrV(NId, atAny, AttrV);
-  printf("ID %d has %d attributes.\n", NId.Val, AttrV.Len());
+  //Attrs.GetSAttrV(NId, atAny, AttrV);
+  //printf("ID %d has %d attributes.\n", NId.Val, AttrV.Len());
 
   // Delete all attributes for id NId (use either name or id).
   Attrs.DelSAttrDat(NId, IntAttr);
@@ -131,8 +131,8 @@ void ManipulateSparseAttributesPair() {
   printf("ID (%d, %d) has %d flt attributes.\n", SrcNId, DstNId, AttrV.Len());
   Attrs.GetSAttrV(EId, atStr, AttrV);
   printf("ID (%d, %d) has %d str attributes.\n", SrcNId, DstNId, AttrV.Len());
-  Attrs.GetSAttrV(EId, atAny, AttrV);
-  printf("ID (%d, %d) has %d attributes.\n", SrcNId, DstNId, AttrV.Len());
+  //Attrs.GetSAttrV(EId, atAny, AttrV);
+  //printf("ID (%d, %d) has %d attributes.\n", SrcNId, DstNId, AttrV.Len());
 
   // Delete all attributes for id NId (use either name or id).
   Attrs.DelSAttrDat(EId, IntAttr);

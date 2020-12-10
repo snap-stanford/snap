@@ -9,8 +9,8 @@
 #define snap_core_randwalk_h
 
 #include <stdio.h>
+#include "priorityqueue.h"
 #include "Snap.h"
-#include "../glib-core/priorityqueue.h"
 
 // use anonymous namespace to limit name to this file.
 namespace {
@@ -97,7 +97,7 @@ template <class PGraph>
     MinProbability = 1.0 / Graph->GetNodes();
   }
   // In experiments, when relativeError = 0.1, a chernoff constant of 0.07 gave mean relative error less than 0.1 on several realistic graphs.
-  float kChernoffConstant = provableRelativeError ? 12 * exp(1) * log(2 / 1.0e-9) : 0.07;
+  float kChernoffConstant = provableRelativeError ? 12 * exp((double) 1) * log(2 / 1.0e-9) : 0.07;
   float kSecondsPerWalk = 4.0e-7; // The time required to generate a random walk. Can be tuned so that forward and reverse running times are equal, to improve running time
   float WalkCountRMaxRatio = kChernoffConstant / (RelativeError * RelativeError) / MinProbability;
   float ForwardSecondsRMaxRatio = kSecondsPerWalk * WalkCountRMaxRatio;

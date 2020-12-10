@@ -78,10 +78,10 @@ def convert(dirpath,srcname,dstname):
     f.close()
 
 def insert(lines,bfile,bname):
-    #print "*** .%s. .%s." % (bfile, bname)
+    #print("*** .%s. .%s." % (bfile, bname))
 
     if not os.path.exists(bfile):
-        print "*** Error: file not found - file:.%s." % (bfile)
+        print("*** Error: file not found - file:.%s." % (bfile))
         sys.exit(1)
 
     f = open(bfile)
@@ -100,14 +100,14 @@ def insert(lines,bfile,bname):
 
         # get the label match
         blabel = words[1]
-        #print "+++ .%s. .%s." % (blabel, l)
+        #print("+++ .%s. .%s." % (blabel, l))
         if bname == blabel:
             found = True
             break
 
     if not found:
         f.close()
-        print "*** Error: block not found - file:.%s., block:.%s." % (bfile, bname)
+        print("*** Error: block not found - file:.%s., block:.%s." % (bfile, bname))
         sys.exit(1)
         return
 
@@ -128,7 +128,7 @@ def insert(lines,bfile,bname):
 if __name__ == '__main__':
 
     if len(sys.argv) < 3:
-        print "Usage: " + sys.argv[0] + " <srcdir> <dstdir>"
+        print("Usage: " + sys.argv[0] + " <srcdir> <dstdir>")
         sys.exit(1)
 
     srcdir = sys.argv[1]

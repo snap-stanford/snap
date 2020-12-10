@@ -4,9 +4,14 @@
 
 all: MakeAll
 
+test: TestAll
+
 MakeAll:
 	$(MAKE) -C snap-core
 	$(MAKE) -C examples
+
+TestAll:
+	$(MAKE) run -C test
 
 clean:
 	$(MAKE) clean -C snap-core

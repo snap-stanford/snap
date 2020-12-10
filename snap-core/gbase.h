@@ -17,6 +17,9 @@ typedef enum TGraphFlag_ {
   gfMx          ///< sentinel, last value for iteration
 } TGraphFlag;
 
+/// Types for tables, sparse and dense attributes.
+typedef enum TAttrType_ {atInt, atFlt, atStr} TAttrType;
+
 namespace TSnap {
 
 /// Tests (at compile time) if the graph is directed.
@@ -169,6 +172,19 @@ public:
     First=Queue.First; Last=Queue.Last; ValV=Queue.ValV; } return *this; }
   /// Returns the value of the ValN element in the queue, but does not remove the element.
   const TVal& operator[](const int& ValN) const { return ValV[First+ValN]; }
+
+  // Randomly samples num elements from Queue and adds them to the front.
+  void Sample(const int num, TRnd& Rnd=TInt::Rnd) {
+    const int size = Last - First;
+    int loc;
+    TVal temp;
+    for (int i = 0; i < num && i < size; ++i) {
+      loc = Rnd.GetUniDevInt(size - i) + First + i;
+      temp = ValV[loc];
+      ValV[loc] = ValV[First + i];
+      ValV[First + i] = temp;
+    }
+  }
 
   /// Deletes all elements from the queue.
   void Clr(const bool& DoDel=true) { ValV.Clr(DoDel);  First=Last=0; }

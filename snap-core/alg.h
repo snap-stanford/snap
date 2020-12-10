@@ -44,13 +44,13 @@ template <class PGraph> void GetNodeInDegV(const PGraph& Graph, TIntPrV& NIdInDe
 /// Returns a vector of pairs <code>(node id, node out-degree)</code>
 template <class PGraph> void GetNodeOutDegV(const PGraph& Graph, TIntPrV& NIdOutDegV);
 
-/// Counts unique undirected edges in the graph \c Graph. Nodes <code>(u,v)<\code> (where <code>u!=v</code>) are connected via an undirected edge if there exists an edge in either direction <code>(u,v)</code> or <code>(v,u)</code>.
+/// Counts unique undirected edges in the graph \c Graph. Nodes <code>(u,v)</code> (where <code>u!=v</code>) are connected via an undirected edge if there exists an edge in either direction <code>(u,v)</code> or <code>(v,u)</code>.
 template <class PGraph> int CntUniqUndirEdges(const PGraph& Graph);
-/// Counts unique directed edges in the graph \c Graph. Nodes <code>(u,v)<\code> (where <code>u!=v</code>) are connected via an directted edge if there exists a directed edge from node \c u to node \c v.
+/// Counts unique directed edges in the graph \c Graph. Nodes <code>(u,v)</code> (where <code>u!=v</code>) are connected via a directed edge if there exists a directed edge from node \c u to node \c v.
 template <class PGraph> int CntUniqDirEdges(const PGraph& Graph);
-/// Counts unique bidirectional edges in the graph \c Graph. Edge is bidirectional is there exist directed edges in both directions: <code>(u,v)</code> and <code>(v,u)</code>
+/// Counts unique bidirectional edges in the graph \c Graph. Edge is bidirectional if there exist directed edges in both directions: <code>(u,v)</code> and <code>(v,u)</code>
 template <class PGraph> int CntUniqBiDirEdges(const PGraph& Graph);
-/// Counts the number fo of self-edges in a graph. Edge <code>(u,u)</code> is a self-edge.
+/// Counts the number of self-edges in a graph. Edge <code>(u,u)</code> is a self-edge.
 template <class PGraph> int CntSelfEdges(const PGraph& Graph);
 
 /////////////////////////////////////////////////

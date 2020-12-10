@@ -1,0 +1,205 @@
+/// Iterator
+An iterator class to iterate over all currently existing rows.
+Iteration over the rows should be done using only this iterator.
+///
+
+/// TTable::Context
+Execution context includes a global string pool for all string values of tables in current session.
+Access to the pool is done via \c Context.StringVals.
+///
+
+/// TTable::LoadShM
+Cannot perform operations that edit the edge vectors of nodes or perform illegal operations on any internal hashes (deletion or swapping keys)
+///
+
+/// TTable::Next
+\c Next[i] is the successor of row \c i. Table iterators follow the order dictated by Next
+///
+
+/// TTable::StrColMaps
+String columns are implemented using a string pool to fight memory fragmentation.
+The value of string column \c c in row \c r is \c Context.StringVals.GetKey(StrColMaps[c][r])
+///
+
+/// TTable::GroupStmtNames
+A mapping between the newly-added group id column name of a grouping statement to a vector
+of the group-by attribute names and a flag specifying whether those attributes are ordered or not. 
+///
+
+/// TTable::GroupIDMapping
+A mapping between grouping statement (group-by attribute names and 'Ordered' flag) to a hash map between
+given group ids to their corresponding group-by key.
+///
+
+/// TTable::GroupMapping
+A mapping between grouping statement (group-by attribute names and 'Ordered' flag) to a hash map between
+group-by keys to the ids of records that share the group-by key. Can be used as hash-index for the table.
+///
+
+/// TTable::CommonNodeAttrs
+Example: <T_1.age,T_2.age, age> - T_1.age is a src node attribute, T_2.age is a dst node attribute.
+However, since all nodes refer to the same universe of entities (users) we just do one assignment of age per node, and call that attribute 'age'.
+This list should be very small.
+///
+
+/// TTable::FillBucketsByWindow 
+Fill RowIdBuckets with sets of row ids partitioned on the value of the column SplitAttr, according to the windows specified by JumpSize and WindowSize.
+Called by ToGraphSequence and ToGraphSequenceIterator.
+///
+
+/// TTable::FillBucketsByInterval
+Fill RowIdBuckets with sets of row ids, partitioned on the value of the column SplitAttr, according to the intervals specified by SplitIntervals.
+Called by ToVarGraphSequence and ToVarGraphSequenceIterator.
+///
+
+/// TTable::GetGraphsFromSequence
+Return a sequence of graphs, each constructed from the set of row ids corresponding to a particular bucket in RowIdBuckets.
+///
+
+/// TTable::GetFirstGraphFromSequence
+Return the first graph of the sequence corresponding to the sets of row ids in RowIdBuckets.
+This is used by the ToGraph*Iterator functions.
+///
+
+/// TTable::GetNextGraphFromSequence
+Returns the next graph in sequence corresponding to RowIdBuckets.
+This is used to iterate over the graph sequence by constructing one graph at a time. Called by NextGraphIterator().
+///
+
+/// TTable::AggregateVector
+Aggregate vector into a single scalar value according to a policy. 
+Used for choosing an attribute value for a node when this node appears in several records and has conflicting attribute values
+///
+
+/// TTable::GroupByIntCol
+Group/hash by a single column with integer values. Returns hash table with grouping.
+IndexSet tells what rows to consider (vector of physical row ids). It is used only if All == true.
+Note that the IndexSet option is currently not used anywhere.
+///
+
+/// TTable::Load
+TTableContext \c Context must be provided as a parameter and loaded separately from a table load as it can be shared among multiple tables.
+\c Context can be loaded either before and after the table load, but must be available for operations that require string values (as opposed to string references).
+///
+
+/// TTable::Save
+Note that TTableContext must be saved separately as it can be shared among multiple tables.
+///
+
+/// TTable::ToGraphSequenceIterator
+Create the graph sequence one at a time, to allow efficient use of memory.
+A call to this function must be followed by subsequent calls to NextGraphIterator().
+///
+
+/// TTable::ToVarGraphSequenceIterator
+Create the graph sequence one at a time, to allow efficient use of memory.
+A call to this function must be followed by subsequent calls to NextGraphIterator().
+///
+
+/// TTable::ToGraphPerGroupIterator
+Create the graph sequence one at a time, to allow efficient use of memory.
+A call to this function must be followed by subsequent calls to NextGraphIterator().
+///
+
+/// TTable::Select 
+Select. Has two modes of operation:
+1. If Remove == true then (logically) remove the rows for which the predicate doesn't hold
+2. If Remove == false then add the physical indices of the rows for which the predicate holds to the vactor SelectedRows
+///
+
+/// TTable::SelectAtomic
+Select atomic - optimized cases of select with predicate of an atomic form: compare attribute to attribute or compare attribute to a constant
+///
+
+/// TTable::GroupAux
+If KeepUnique is true, UniqueVec will be modified to contain a row from each group
+If KeepUnique is false, then normal grouping is done and a new column is added depending on whether GroupColName is empty
+///
+
+/// TTable::Group 
+Specify columns to group by, name of column in new table, whether to treat columns as ordered 
+If name of column is an empty string, no column is created
+///
+
+/// TTable::Count
+Count the number of appearences of the different elements of column \Col.
+Record results in column CountCol
+///
+
+/// TTable::Join
+Perform equi-join with given columns - i.e. keep tuple pairs where this->Col1 == Table->Col2 
+Implementation: Hash-Join - build a hash out of the smaller table hash the larger table and check for collisions
+///
+
+/// TTable::SimJoinPerGroup
+Returns table with schema (GroupId1, GroupId2, Similarity).
+///
+
+/// TTable::Defrag
+Also updates meta-data as row indices have changed 
+Need some liveness analysis of columns
+///
+
+/// TTable::ColGenericOp
+Performs Attr1 OP Attr2 and stores it in Attr1
+If ResAttr != "", result is stored in a new column ResAttr
+///
+
+/// TTable::IsNextK
+Creates a table T' where the rows are joint rows (T[r1],T[r2]) such that r2 is one of the successive rows to r1 when this table is ordered by OrderCol, and both r1 and r2 have the same value of GroupBy column
+///
+
+/// TTable::RequestIndexInt
+Creates an Index on integer column ColName. The index is hash-based, going  from the
+column value to a vector of RowIdxs in the table that correspond to the value.
+If it exists, the index is used by the Get*RowIdxByVal functions; else, those
+functions will loop over the entire table.
+The index is NOT updated automatically when the table is modified; it is the
+user's responsibility to call RequestIndex after modifying the table if the
+index is necessary.
+///
+
+/// TTable::RequestIndexFlt
+Creates an Index on float column ColName. The index is hash-based, going  from the
+column value to a vector of RowIdxs in the table that correspond to the value.
+If it exists, the index is used by the Get*RowIdxByVal functions; else, those
+functions will loop over the entire table.
+The index is NOT updated automatically when the table is modified; it is the
+user's responsibility to call RequestIndex after modifying the table if the
+index is necessary.
+///
+
+/// TTable::RequestIndexStrMap
+Creates an Index on string column given by ColName. The index is hash-based, going  from the
+column value (that is, the integer mapping of the string value) to a vector of RowIdxs in the table that correspond to the value.
+If it exists, the index is used by the Get*RowIdxByVal functions; else, those
+functions will loop over the entire table.
+The index is NOT updated automatically when the table is modified; it is the
+user's responsibility to call RequestIndex after modifying the table if the
+index is necessary.
+///
+
+/// TTable::GetIntRowIdxByVal
+Returns the RowIdxs in the integer column given by ColName which have value
+Val, as a Vector. (If no such value is found, returns an empty vector.)
+Uses an index created by RequestIndex method if it exists, else loops 
+over the entire table (which can be slow, so it is recommended to request an
+index if multiple queries must be made).
+///
+
+/// TTable::GetStrRowIdxByMap
+Returns the RowIdxs in the string column given by ColName which have the
+string with integer mapping Map, as a Vector. (If no such value is found, returns an empty vector.)
+Uses an index created by RequestIndex method if it exists, else loops 
+over the entire table (which can be slow, so it is recommended to request an
+index if multiple queries must be made).
+///
+
+/// TTable::GetFltRowIdxByVal
+Returns the RowIdxs in the float column given by ColName which have value
+Val, as a Vector. (If no such value is found, returns an empty vector.)
+Uses an index created by RequestIndex method if it exists, else loops 
+over the entire table (which can be slow, so it is recommended to request an
+index if multiple queries must be made).
+///
+

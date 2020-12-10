@@ -57,6 +57,10 @@ TEST(triad, TestGetTriadsOpenClosed) {
   EXPECT_EQ(ExpClosedTr, ClosedTr);
   EXPECT_EQ(ExpOpenTr, OpenTr);
 
+  TSnap::GetTriadsAll(GraphTUN, ClosedTr, OpenTr);
+  EXPECT_EQ(ExpClosedTr, ClosedTr);
+  EXPECT_EQ(ExpOpenTr, OpenTr);
+
   // TNGraph should be treated as TUNGraph for calculations
   PNGraph GraphTN = TriadGetTestTNGraph();
   ClosedTr = 0;
@@ -66,12 +70,20 @@ TEST(triad, TestGetTriadsOpenClosed) {
   EXPECT_EQ(ExpClosedTr, ClosedTr);
   EXPECT_EQ(ExpOpenTr, OpenTr);
 
+  TSnap::GetTriadsAll(GraphTN, ClosedTr, OpenTr);
+  EXPECT_EQ(ExpClosedTr, ClosedTr);
+  EXPECT_EQ(ExpOpenTr, OpenTr);
+
   // TNEGraph should be treated as TUNGraph for calculations
   PNEGraph GraphTNE = TriadGetTestTNEGraph();
   ClosedTr = 0;
   OpenTr = 0;
 
   TSnap::GetTriads(GraphTNE, ClosedTr, OpenTr);
+  EXPECT_EQ(ExpClosedTr, ClosedTr);
+  EXPECT_EQ(ExpOpenTr, OpenTr);
+
+  TSnap::GetTriadsAll(GraphTNE, ClosedTr, OpenTr);
   EXPECT_EQ(ExpClosedTr, ClosedTr);
   EXPECT_EQ(ExpOpenTr, OpenTr);
 }
@@ -184,6 +196,11 @@ TEST(triad, TestGetClustCfDistCO) {
   EXPECT_EQ(ExpClosedTr, ClosedTr);
   EXPECT_EQ(ExpOpenTr, OpenTr);
 
+  TSnap::GetClustCfAll(GraphTUN, DegToCCfV, ClosedTr, OpenTr);
+  TestDegToCCfVector(DegToCCfV);
+  EXPECT_EQ(ExpClosedTr, ClosedTr);
+  EXPECT_EQ(ExpOpenTr, OpenTr);
+
   // TNGraph should be treated as TUNGraph for calculations
   PNGraph GraphTN = TriadGetTestTNGraph();
   DegToCCfV.Clr();
@@ -195,6 +212,11 @@ TEST(triad, TestGetClustCfDistCO) {
   EXPECT_EQ(ExpClosedTr, ClosedTr);
   EXPECT_EQ(ExpOpenTr, OpenTr);
 
+  TSnap::GetClustCfAll(GraphTN, DegToCCfV, ClosedTr, OpenTr);
+  TestDegToCCfVector(DegToCCfV);
+  EXPECT_EQ(ExpClosedTr, ClosedTr);
+  EXPECT_EQ(ExpOpenTr, OpenTr);
+
   // TNEGraph is not treated the same! Be careful with multigraphs
   PNEGraph GraphTNE = TriadGetTestTNEGraph();
   DegToCCfV.Clr();
@@ -202,6 +224,31 @@ TEST(triad, TestGetClustCfDistCO) {
   OpenTr = 0;
 
   TSnap::GetClustCf(GraphTNE, DegToCCfV, ClosedTr, OpenTr);
+  for (TFltPr *Pair = DegToCCfV.BegI(); Pair < DegToCCfV.EndI(); Pair++) {
+    double Diff = Pair->Val2 - 5.0/9.0;   // Used for case 4
+    Diff = (Diff < 0) ? -1.0*Diff : Diff; // Used for case 4
+    switch ((int) Pair->Val1) {
+      case 2:
+        EXPECT_EQ(1.0, Pair->Val2);
+        break;
+      case 4:
+        EXPECT_GT(0.00001, Diff); // Due to floats being imprecise
+        break;
+      case 7:
+        EXPECT_EQ(2.0/3.0, Pair->Val2);
+        break;
+      case 15:
+        EXPECT_EQ(0.3, Pair->Val2);
+        break;
+      default:
+        ASSERT_FALSE(true); // Shouldn't have degrees other than listed
+        break;
+    }
+  }
+  EXPECT_EQ(ExpClosedTr, ClosedTr);
+  EXPECT_EQ(ExpOpenTr, OpenTr);
+
+  TSnap::GetClustCfAll(GraphTNE, DegToCCfV, ClosedTr, OpenTr);
   for (TFltPr *Pair = DegToCCfV.BegI(); Pair < DegToCCfV.EndI(); Pair++) {
     double Diff = Pair->Val2 - 5.0/9.0;   // Used for case 4
     Diff = (Diff < 0) ? -1.0*Diff : Diff; // Used for case 4
@@ -332,6 +379,9 @@ TEST(triad, TestGetNodeCOTriads) {
     TSnap::GetNodeTriads(GraphTUN, i, ClosedTr, OpenTr);
     VerifyClosedTriads(i, ClosedTr);
     VerifyOpenTriads(i, OpenTr);
+    TSnap::GetNodeTriadsAll(GraphTUN, i, ClosedTr, OpenTr);
+    VerifyClosedTriads(i, ClosedTr);
+    VerifyOpenTriads(i, OpenTr);
   }
   
   // Test TNGraph which is treated same as undirected.
@@ -341,6 +391,9 @@ TEST(triad, TestGetNodeCOTriads) {
     TSnap::GetNodeTriads(GraphTN, i, ClosedTr, OpenTr);
     VerifyClosedTriads(i, ClosedTr);
     VerifyOpenTriads(i, OpenTr);
+    TSnap::GetNodeTriadsAll(GraphTN, i, ClosedTr, OpenTr);
+    VerifyClosedTriads(i, ClosedTr);
+    VerifyOpenTriads(i, OpenTr);
   }
 
   // Test TNEGraph which is treated same as undirected.
@@ -348,6 +401,9 @@ TEST(triad, TestGetNodeCOTriads) {
   for (int i = 0; i < GraphTNE->GetNodes(); i++) {
     int ClosedTr = -1, OpenTr = -1;
     TSnap::GetNodeTriads(GraphTNE, i, ClosedTr, OpenTr);
+    VerifyClosedTriads(i, ClosedTr);
+    VerifyOpenTriads(i, OpenTr);
+    TSnap::GetNodeTriadsAll(GraphTNE, i, ClosedTr, OpenTr);
     VerifyClosedTriads(i, ClosedTr);
     VerifyOpenTriads(i, OpenTr);
   }

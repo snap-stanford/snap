@@ -1,3 +1,6 @@
+#ifndef TRIAD_H
+#define TRIAD_H
+
 namespace TSnap {
 
 /////////////////////////////////////////////////
@@ -8,16 +11,20 @@ template <class PGraph> double GetClustCf(const PGraph& Graph, int SampleNodes=-
 /// Computes the distribution of average clustering coefficient. ##TSnap::GetClustCf1
 template <class PGraph> double GetClustCf(const PGraph& Graph, TFltPrV& DegToCCfV, int SampleNodes=-1);
 /// Computes the distribution of average clustering coefficient as well as the number of open and closed triads in the graph. ##TSnap::GetClustCf2
-template <class PGraph> double GetClustCf(const PGraph& Graph, TFltPrV& DegToCCfV, int64& ClosedTriadsX, int64& OpenTriadsX, int SampleNodes=-1);
+template <class PGraph> double GetClustCf(const PGraph& Graph, TFltPrV& DegToCCfV, int64& ClosedTriads, int64& OpenTriads, int SampleNodes=-1);
+/// Computes the distribution of average clustering coefficient as well as the number of open and closed triads in the graph. ##TSnap::GetClustCfAll
+template <class PGraph> double GetClustCfAll(const PGraph& Graph, TFltPrV& DegToCCfV, int64& ClosedTriadsX, int64& OpenTriadsX, int SampleNodes=-1);
 /// Returns clustering coefficient of a particular node. ##TSnap::GetNodeClustCf
 template <class PGraph> double GetNodeClustCf(const PGraph& Graph, const int& NId);
-/// Computes clustering coefficient of each node of the Graph. ##TSnap::GetClustCf1
+/// Computes clustering coefficient of each node of the Graph. ##TSnap::GetNodeClustCf
 template <class PGraph> void GetNodeClustCf(const PGraph& Graph, TIntFltH& NIdCCfH);
 
 /// Returns the number of triangles in a graph. ##TSnap::GetTriads
 template <class PGraph> int64 GetTriads(const PGraph& Graph, int SampleNodes=-1);
 /// Computes the number of Closed and Open triads. ##TSnap::GetTriads1
 template <class PGraph> int64 GetTriads(const PGraph& Graph, int64& ClosedTriadsX, int64& OpenTriadsX, int SampleNodes);
+/// Computes the number of Closed and Open triads. ##TSnap::GetTriadsAll
+template <class PGraph> int64 GetTriadsAll(const PGraph& Graph, int64& ClosedTriadsX, int64& OpenTriadsX, int SampleNodes=-1);
 /// Computes the number of open and close triads for every node of the network. ##TSnap::GetTriads2
 template <class PGraph> void GetTriads(const PGraph& Graph, TIntTrV& NIdCOTriadV, int SampleNodes=-1);
 /// Counts the number of edges that participate in at least one triad. ##TSnap::GetTriadEdges
@@ -27,6 +34,8 @@ template <class PGraph> int GetTriadEdges(const PGraph& Graph, int SampleEdges=-
 template <class PGraph> int GetNodeTriads(const PGraph& Graph, const int& NId);
 /// Returns number of Open and Closed triads a node \c NId participates in. ##TSnap::GetNodeTriads1
 template <class PGraph> int GetNodeTriads(const PGraph& Graph, const int& NId, int& ClosedNTriadsX, int& OpenNTriadsX);
+/// Returns number of Open and Closed triads a node \c NId participates in. ##TSnap::GetNodeTriadsAll
+template <class PGraph> int GetNodeTriadsAll(const PGraph& Graph, const int& NId, int& ClosedNTriadsX, int& OpenNTriadsX);
 /// Returns the number of triads between a node \c NId and a subset of its neighbors \c GroupSet. ##TSnap::GetNodeTriads3
 template <class PGraph>
 int GetNodeTriads(const PGraph& Graph, const int& NId, const TIntSet& GroupSet, int& InGroupEdgesX, int& InOutGroupEdgesX, int& OutGroupEdgesX);
@@ -41,6 +50,10 @@ template<class PGraph> int GetCmnNbrs(const PGraph& Graph, const int& NId1, cons
 template<class PGraph> int GetLen2Paths(const PGraph& Graph, const int& NId1, const int& NId2);
 /// Returns the 2 directed paths between a pair of nodes NId1, NId2 (NId1 --> U --> NId2). ##TSnap::GetLen2Paths
 template<class PGraph> int GetLen2Paths(const PGraph& Graph, const int& NId1, const int& NId2, TIntV& NbrV);
+/// Returns the number of triangles in graph \c Graph.
+template<class PGraph> int64 GetTriangleCnt(const PGraph& Graph);
+/// Merges neighbors by removing duplicates and produces one sorted vector of neighbors.
+template<class PGraph> void MergeNbrs(TIntV& NeighbourV, const typename PGraph::TObj::TNodeI& NI);
 
 /// Returns sorted vector \c NbrV containing unique in or out neighbors of node \c NId in graph \c Graph
 template <class PGraph> void GetUniqueNbrV(const PGraph& Graph, const int& NId, TIntV& NbrV);
@@ -68,6 +81,10 @@ template <class PGraph> double GetClustCf(const PGraph& Graph, int SampleNodes) 
 template <class PGraph> double GetClustCf(const PGraph& Graph, TFltPrV& DegToCCfV, int SampleNodes) {
   TIntTrV NIdCOTriadV;
   GetTriads(Graph, NIdCOTriadV, SampleNodes);
+  if (NIdCOTriadV.Empty()) {
+    DegToCCfV.Clr(false);
+    return 0.0;
+  }
   THash<TInt, TFltPr> DegSumCnt;
   double SumCcf = 0.0;
   for (int i = 0; i < NIdCOTriadV.Len(); i++) {
@@ -91,6 +108,12 @@ template <class PGraph>
 double GetClustCf(const PGraph& Graph, TFltPrV& DegToCCfV, int64& ClosedTriads, int64& OpenTriads, int SampleNodes) {
   TIntTrV NIdCOTriadV;
   GetTriads(Graph, NIdCOTriadV, SampleNodes);
+  if (NIdCOTriadV.Empty()) {
+    DegToCCfV.Clr(false);
+    ClosedTriads = 0;
+    OpenTriads = 0;
+    return 0.0;
+  }
   THash<TInt, TFltPr> DegSumCnt;
   double SumCcf = 0.0;
   int64 closedTriads = 0;
@@ -116,6 +139,11 @@ double GetClustCf(const PGraph& Graph, TFltPrV& DegToCCfV, int64& ClosedTriads, 
   OpenTriads = openTriads;
   DegToCCfV.Sort();
   return SumCcf / double(NIdCOTriadV.Len());
+}
+
+template <class PGraph>
+double GetClustCfAll(const PGraph& Graph, TFltPrV& DegToCCfV, int64& ClosedTriads, int64& OpenTriads, int SampleNodes) {
+  return GetClustCf(Graph, DegToCCfV, ClosedTriads, OpenTriads, SampleNodes);
 }
 
 template <class PGraph>
@@ -159,6 +187,11 @@ int64 GetTriads(const PGraph& Graph, int64& ClosedTriads, int64& OpenTriads, int
   ClosedTriads = int64(closedTriads/3); // each triad is counted 3 times
   OpenTriads = int64(openTriads);
   return ClosedTriads;
+}
+
+template <class PGraph>
+int64 GetTriadsAll(const PGraph& Graph, int64& ClosedTriads, int64& OpenTriads, int SampleNodes) {
+  return GetTriads(Graph, ClosedTriads, OpenTriads, SampleNodes);
 }
 
 // Function pretends that the graph is undirected (count unique connected triples of nodes)
@@ -291,6 +324,186 @@ void GetTriads(const PGraph& Graph, TIntTrV& NIdCOTriadV, int SampleNodes) {
   }
 }
 
+#if 0
+// OP RS 2016/08/25, this is an alternative implementation of GetTriangleCnt()
+template<class PGraph>
+int64 CountTriangles(const PGraph& Graph) {
+  THash<TInt, TInt> H;
+  TIntV MapV;
+
+  int ind = 0;
+  for (typename PGraph::TObj::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++)   {
+    H.AddDat(NI.GetId(), ind);
+    MapV.Add(NI.GetId());
+    ind += 1;
+  }
+
+  TVec<TIntV> HigherDegNbrV(ind);
+
+#ifdef USE_OPENMP
+#pragma omp parallel for schedule(dynamic)
+#endif
+  for (int i = 0; i < ind; i++) {
+    typename PGraph::TObj::TNodeI NI = Graph->GetNI(MapV[i]);
+    TIntV NbrV;
+
+    MergeNbrs<PGraph>(NbrV, NI);
+
+    TIntV V;
+    for (int j = 0; j < NbrV.Len(); j++) {
+      TInt Vert = NbrV[j];
+      TInt Deg = Graph->GetNI(Vert).GetDeg();
+      if (Deg > NI.GetDeg() ||
+         (Deg == NI.GetDeg() && Vert > NI.GetId())) {
+        V.Add(Vert);
+      }
+    }
+
+    HigherDegNbrV[i] = V;
+
+  }
+
+  int64 cnt = 0;
+#ifdef USE_OPENMP
+#pragma omp parallel for schedule(dynamic) reduction(+:cnt)
+#endif
+  for (int i = 0; i < HigherDegNbrV.Len(); i++) {
+    for (int j = 0; j < HigherDegNbrV[i].Len(); j++) {
+      TInt NbrInd = H.GetDat(HigherDegNbrV[i][j]);
+
+      int64 num = GetCommon(HigherDegNbrV[i], HigherDegNbrV[NbrInd]);
+      cnt += num;
+    }
+  }
+
+  return cnt;
+}
+#endif
+
+template<class PGraph>
+int64 GetTriangleCnt(const PGraph& Graph) {
+  const int NNodes = Graph->GetNodes();
+
+  TIntV MapV(NNodes);
+  TVec<typename PGraph::TObj::TNodeI> NV(NNodes);
+  NV.Reduce(0);
+
+  int MxId = -1;
+  int ind = 0;
+  for (typename PGraph::TObj::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++)   {
+    NV.Add(NI);
+    int Id = NI.GetId();
+    if (Id > MxId) {
+      MxId = Id;
+    }
+    MapV[ind] = Id;
+    ind++;
+  }
+
+  TIntV IndV(MxId+1);
+
+  for (int j = 0; j < NNodes; j++) {
+    IndV[MapV[j]] = j;
+  }
+
+  ind = MapV.Len();
+
+  TVec<TIntV> HigherDegNbrV(ind);
+
+  for (int i = 0; i < ind; i++) {
+    HigherDegNbrV[i] = TVec<TInt>();
+    HigherDegNbrV[i].Reserve(NV[i].GetDeg());
+    HigherDegNbrV[i].Reduce(0);
+  }
+
+#ifdef USE_OPENMP
+#pragma omp parallel for schedule(dynamic)
+#endif
+  for (int i = 0; i < ind; i++) {
+    typename PGraph::TObj::TNodeI NI = NV[i];
+    MergeNbrs<PGraph>(HigherDegNbrV[i], NI);
+
+    int k = 0;
+    for (int j = 0; j < HigherDegNbrV[i].Len(); j++) {
+      TInt Vert = HigherDegNbrV[i][j];
+      TInt Deg = NV[IndV[Vert]].GetDeg();
+      if (Deg > NI.GetDeg() ||
+         (Deg == NI.GetDeg() && Vert > NI.GetId())) {
+        HigherDegNbrV[i][k] = Vert;
+        k++;
+      }
+    }
+    HigherDegNbrV[i].Reduce(k);
+  }
+
+  int64 cnt = 0;
+#ifdef USE_OPENMP
+#pragma omp parallel for schedule(dynamic) reduction(+:cnt)
+#endif
+  for (int i = 0; i < HigherDegNbrV.Len(); i++) {
+    for (int j = 0; j < HigherDegNbrV[i].Len(); j++) {
+      TInt NbrInd = IndV[HigherDegNbrV[i][j]];
+
+      int64 num = GetCommon(HigherDegNbrV[i], HigherDegNbrV[NbrInd]);
+      cnt += num;
+    }
+  }
+
+  return cnt;
+}
+
+template<class PGraph>
+void MergeNbrs(TIntV& NeighbourV, const typename PGraph::TObj::TNodeI& NI) {
+  int j = 0;
+  int k = 0;
+  int prev = -1;
+  int indeg = NI.GetInDeg();
+  int outdeg = NI.GetOutDeg();
+  if (indeg > 0  &&  outdeg > 0) {
+    int v1 = NI.GetInNId(j);
+    int v2 = NI.GetOutNId(k);
+    while (1) {
+      if (v1 <= v2) {
+        if (prev != v1) {
+          NeighbourV.Add(v1);
+          prev = v1;
+        }
+        j += 1;
+        if (j >= indeg) {
+          break;
+        }
+        v1 = NI.GetInNId(j);
+      } else {
+        if (prev != v2) {
+          NeighbourV.Add(v2);
+          prev = v2;
+        }
+        k += 1;
+        if (k >= outdeg) {
+          break;
+        }
+        v2 = NI.GetOutNId(k);
+      }
+    }
+  }
+  while (j < indeg) {
+    int v = NI.GetInNId(j);
+    if (prev != v) {
+      NeighbourV.Add(v);
+      prev = v;
+    }
+    j += 1;
+  }
+  while (k < outdeg) {
+    int v = NI.GetOutNId(k);
+    if (prev != v) {
+      NeighbourV.Add(v);
+      prev = v;
+    }
+    k += 1;
+  }
+}
+
 // Count the number of edges that participate in at least one triad
 template <class PGraph>
 int GetTriadEdges(const PGraph& Graph, int SampleEdges) {
@@ -362,6 +575,11 @@ int GetNodeTriads(const PGraph& Graph, const int& NId, int& ClosedTriads, int& O
     }
   }
   return ClosedTriads;
+}
+
+template <class PGraph>
+int GetNodeTriadsAll(const PGraph& Graph, const int& NId, int& ClosedTriads, int& OpenTriads) {
+  return GetNodeTriads(Graph, NId, ClosedTriads, OpenTriads);
 }
 
 // Node NId and a subset of its neighbors GroupSet
@@ -701,4 +919,6 @@ void TNetConstraint<PGraph>::Test() {
   NetConstraint.Dump();
   printf("middle node network constraint: %f\n", NetConstraint.GetNodeC(0));
 }
+
+#endif // TRIAD_H
 

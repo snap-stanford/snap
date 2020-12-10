@@ -46,15 +46,18 @@ PUNGraph GenRndPowerLaw(const int& Nodes, const double& PowerExp, const bool& Co
     // use configuration model -- fast but does not exactly obey the degree sequence
     return GenConfModel(DegSeqV, Rnd);
   } else {
+    DegSeqV.Sort();
+    DegSeqV.Reverse();
     PUNGraph G = TSnap::GenDegSeq(DegSeqV, Rnd);
     return TSnap::GenRewire(G, 10, Rnd);
   }
 }
 
-/// Generates a random graph with exact degree sequence DegSeqV.
-/// The generated graph has no self loops. The graph generation process
-/// simulates the Configuration Model but if a duplicate edge occurs, we find a
-/// random edge, break it and reconnect it with the duplicate.
+/// Generates a random graph with exact degree sequence \c DegSeqV. \c DegSeqV
+/// must be sorted in descending order. The generated graph has no self loops.
+/// The graph generation process simulates the Configuration Model,
+/// but if a duplicate edge occurs, we find a random edge, break it and
+/// reconnect it with the duplicate.
 PUNGraph GenDegSeq(const TIntV& DegSeqV, TRnd& Rnd) {
   const int Nodes = DegSeqV.Len();
   PUNGraph GraphPt = TUNGraph::New();
@@ -72,8 +75,8 @@ PUNGraph GenDegSeq(const TIntV& DegSeqV, TRnd& Rnd) {
   IAssert(DegSum % 2 == 0);
   while (! DegH.Empty()) {
     // pick random nodes and connect
-    const int NId1 = DegH.GetKey(DegH.GetRndKeyId(TInt::Rnd, 0.5));
-    const int NId2 = DegH.GetKey(DegH.GetRndKeyId(TInt::Rnd, 0.5));
+    const int NId1 = DegH.GetKey(DegH.GetRndKeyId(Rnd, 0.5));
+    const int NId2 = DegH.GetKey(DegH.GetRndKeyId(Rnd, 0.5));
     IAssert(DegH.IsKey(NId1) && DegH.IsKey(NId2));
     if (NId1 == NId2) {
       if (DegH.GetDat(NId1) == 1) { continue; }
@@ -91,7 +94,7 @@ PUNGraph GenDegSeq(const TIntV& DegSeqV, TRnd& Rnd) {
       else {
         // find rnd edge, break and cross-connect
         const TIntPr Edge = TSnapDetail::GetRndEdgeNonAdjNode(GraphPt, NId1, NId2);
-        if (Edge.Val1==-1) {continue; }
+        if (Edge.Val1==-1) { continue; }
         Graph.DelEdge(Edge.Val1, Edge.Val2);
         Graph.AddEdge(NId1, Edge.Val1);
         Graph.AddEdge(NId2, Edge.Val2);
@@ -237,8 +240,8 @@ PNGraph GenRewire(const PNGraph& OrigGraph, const int& NSwitch, TRnd& Rnd) {
     if (keyId1 == keyId2) { skip++; continue; }
     const TIntPr& E1 = EdgeSet[keyId1];
     const TIntPr& E2 = EdgeSet[keyId2];
-    TIntPr NewE1(E1.Val1, E2.Val1), NewE2(E1.Val2, E2.Val2);
-    if (NewE1.Val1!=NewE2.Val1 && NewE1.Val2!=NewE2.Val1 && NewE1.Val2!=NewE2.Val1 && NewE1.Val2!=NewE2.Val2 && ! EdgeSet.IsKey(NewE1) && ! EdgeSet.IsKey(NewE2)) {
+    TIntPr NewE1(E1.Val1, E2.Val2), NewE2(E2.Val1, E1.Val2);
+    if (NewE1.Val1!=NewE1.Val2 && NewE2.Val1!=NewE2.Val2 && NewE1.Val1!=NewE2.Val1 && NewE1.Val2!=NewE2.Val2 && ! EdgeSet.IsKey(NewE1) && ! EdgeSet.IsKey(NewE2)) {
       EdgeSet.DelKeyId(keyId1);  EdgeSet.DelKeyId(keyId2);
       EdgeSet.AddKey(TIntPr(NewE1));
       EdgeSet.AddKey(TIntPr(NewE2));
@@ -320,7 +323,7 @@ PUNGraph GenPrefAttach(const int& Nodes, const int& NodeOutDeg, TRnd& Rnd) {
   for (int node = 2; node < Nodes; node++) {
     NodeSet.Clr(false);
     while (NodeSet.Len() < NodeOutDeg && NodeSet.Len() < node) {
-      NodeSet.AddKey(NIdV[TInt::Rnd.GetUniDevInt(NIdV.Len())]);
+      NodeSet.AddKey(NIdV[Rnd.GetUniDevInt(NIdV.Len())]);
     }
     const int N = Graph.AddNode();
     for (int i = 0; i < NodeSet.Len(); i++) {

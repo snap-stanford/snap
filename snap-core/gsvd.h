@@ -56,14 +56,15 @@ void GetSngVals(const PNGraph& Graph, const int& SngVals, TFltV& SngValV);
 void GetSngVec(const PNGraph& Graph, TFltV& LeftSV, TFltV& RightSV);
 /// Computes the singular values and left and right singular vectors of the adjacency matrix representing a directed Graph.
 /// @param SngVecs Number of singular values/vectors to compute.
-void GetSngVec(const PNGraph& Graph, const int& SngVecs, TFltV& SngValV, TVec<TFltV>& LeftSV, TVec<TFltV>& RightSV);
+void GetSngVec(const PNGraph& Graph, const int& SngVecs, TFltV& SngValV, TFltVFltV& LeftSV, TFltVFltV& RightSV);
 
 /// Computes top EigVals eigenvalues of the adjacency matrix representing a given undirected Graph.
 void GetEigVals(const PUNGraph& Graph, const int& EigVals, TFltV& EigValV);
 /// Computes the leading eigenvector of the adjacency matrix representing a given undirected Graph.
 void GetEigVec(const PUNGraph& Graph, TFltV& EigVecV);
 /// Computes top EigVecs eigenvalues and eigenvectors of the adjacency matrix representing a given undirected Graph.
-void GetEigVec(const PUNGraph& Graph, const int& EigVecs, TFltV& EigValV, TVec<TFltV>& EigVecV);
+//void GetEigVec(const PUNGraph& Graph, const int& EigVecs, TFltV& EigValV, TVec<TFltV>& EigVecV);
+void GetEigVec(const PUNGraph& Graph, const int& EigVecs, TFltV& EigValV, TFltVFltV& EigVecV);
 /// Computes Inverse participation ratio of a given graph.
 /// See Spectra of "real-world" graphs: Beyond the semicircle law by Farkas, Derenyi, Barabasi and Vicsek
 void GetInvParticipRat(const PUNGraph& Graph, int MaxEigVecs, int TimeLimit, TFltPrV& EigValIprV);

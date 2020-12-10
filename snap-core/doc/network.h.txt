@@ -10,10 +10,22 @@ Range of NodeN: 0 <= NodeN < GetOutDeg().
 Range of NodeN: 0 <= NodeN < GetNbrDeg().
 ///
 
+/// TNodeNet::LoadShM(TShMIn& ShMIn)
+The object is read-only. It does not support operations that edit the edge
+vectors of nodes or perform illegal operations on the NodeH, EdgeH
+(deletion or swapping keys).
+///
+
 /// TNodeNet::AddNode (int NId = -1)
 Returns the ID of the node being added.
 If NId is -1, node ID is automatically assigned.
 Aborts, if a node with ID NId already exists.
+///
+
+/// TNodeNet::AddNodeUnchecked (int NId = -1)
+Returns -1, if the node NId already exists.
+Otherwise, it returns the ID of the node being added.
+If NId is -1, node ID is automatically assigned.
 ///
 
 /// TNodeNet::AddNode-1 (int NId, const TNodeData& NodeDat)
@@ -64,10 +76,22 @@ Range of NodeN: 0 <= NodeN < GetOutDeg().
 Range of NodeN: 0 <= NodeN < GetNbrDeg().
 ///
 
+/// TNodeEDatNet::LoadShM(TShMIn& ShMIn)
+The object is read-only. It does not support operations that edit the edge
+vectors of nodes or perform illegal operations on the NodeH, EdgeH
+(deletion or swapping keys).
+///
+
 /// TNodeEDatNet::AddNode (int NId = -1)
 Returns the ID of the node being added.
 If NId is -1, node ID is automatically assigned.
 Aborts, if a node with ID NId already exists.
+///
+
+/// TNodeEDatNet::AddNodeUnchecked (int NId = -1)
+Returns -1, if the node NId already exists.
+Otherwise, it returns the ID of the node being added.
+If NId is -1, node ID is automatically assigned.
 ///
 
 /// TNodeEDatNet::AddNode-1 (int NId, const TNodeData& NodeDat)
@@ -130,10 +154,26 @@ Range of NodeN: 0 <= NodeN < GetOutDeg().
 Range of NodeN: 0 <= NodeN < GetNbrDeg().
 ///
 
+/// TNodeEdgeNet::New()
+Call with: TPt <TNodeEdgeNet<TNodeData, TEdgeData> > Net = TNodeEdgeNet<TNodeData, TEdgeData>::New().
+///
+
+/// TNodeEdgeNet::LoadShM(TShMIn& ShMIn)
+The object is read-only. It does not support operations that edit the edge
+vectors of nodes or perform illegal operations on the NodeH, EdgeH
+(deletion or swapping keys).
+///
+
 /// TNodeEdgeNet::AddNode (int NId = -1)
 Returns the ID of the node being added.
 If NId is -1, node ID is automatically assigned.
 Aborts, if a node with ID NId already exists.
+///
+
+/// TNodeEdgeNet::AddNodeUnchecked (int NId = -1)
+Returns -1, if the node NId already exists.
+Otherwise, it returns the ID of the node being added.
+If NId is -1, node ID is automatically assigned.
 ///
 
 /// TNodeEdgeNet::AddNode-1 (int NId, const TNodeData& NodeDat)
@@ -210,12 +250,24 @@ Range of NodeN: 0 <= NodeN < GetNbrDeg().
 /// TNEANet::New
 Call: PNEANet Net = TNEANet::New(Nodes, Edges).
 ///
+
+/// TNEANet::LoadShM(TShMIn& ShMIn)
+The object is read-only. It does not support operations that edit the edge
+vectors of nodes or perform illegal operations on the NodeH, EdgeH
+(deletion or swapping keys).
+///
     
 /// TNEANet::AddNode (int NId = -1)
 Returns the ID of the node being added.
 If NId is -1, node ID is automatically assigned.
 Aborts, if a node with ID NId already exists.
 /// 
+
+/// TNEANet::AddNodeUnchecked (int NId = -1)
+Returns -1, if the node NId already exists.
+Otherwise, it returns the ID of the node being added.
+If NId is -1, node ID is automatically assigned.
+///
 
 /// TNEANet::DelNode
 If the node of ID NId does not exist the function aborts.
@@ -250,6 +302,10 @@ graph.
 Adds the key int value pair to the corresponding node attribute value vector.
 ///
 
+/// TNEANet::AddIntVAttrDatN
+Adds the key intv value pair to the corresponding node attribute value vector.
+///
+
 /// TNEANet::AddStrAttrDatN
 Adds the key str value pair to the corresponding node attribute value vector.
 ///
@@ -260,6 +316,14 @@ Adds the key flt value pair to the corresponding node attribute value vector.
 
 /// TNEANet::AddIntAttrDatE
 Adds the key int value pair to the corresponding edge attribute value vector.
+///
+
+/// TNEANet::AddIntVAttrDatE
+Adds the key integer vector value pair to the corresponding edge attribute value vector.
+///
+
+/// TNEANet::AddFltVAttrDatE
+Adds the key float vector value pair to the corresponding edge attribute value vector.
 ///
 
 /// TNEANet::AddStrAttrDatE
@@ -308,10 +372,22 @@ GetInNId(), GetOutNId() and GetNbrNId() all give the same output.
 Call: PUndirNet Net = TUndirNet::New(Nodes, Edges).
 ///
 
+/// TUndirNet::LoadShM(TShMIn& ShMIn)
+The object is read-only. It does not support operations that edit the edge
+vectors of nodes or perform illegal operations on the NodeH, EdgeH
+(deletion or swapping keys).
+///
+
 /// TUndirNet::AddNode (int NId = -1)
 Returns the ID of the node being added.
 If NId is -1, node ID is automatically assigned.
 Aborts, if a node with ID NId already exists.
+///
+
+/// TUndirNet::AddNodeUnchecked (int NId = -1)
+Returns -1, if the node NId already exists.
+Otherwise, it returns the ID of the node being added.
+If NId is -1, node ID is automatically assigned.
 ///
 
 /// TUndirNet::AddNode-1 (const int& NId, const TIntV& NbrNIdV)
@@ -346,6 +422,15 @@ return -1.
 Normally the function should return an ID of the edge added but since edges in
 TUndirNet have no IDs we return -1.
 The function aborts if SrcNId or DstNId are not nodes in the graph.
+///
+
+/// TUndirNet::AddEdgeUnchecked
+Returns -1.
+The method assumes that SrcNId and DstNId are existing nodes in the graph and
+adds new neighbor values at the end of their adjacency vectors.
+No checks are performed to verify these assumptions.
+Adjacency vectors must be sorted and have duplicates removed after a sequence
+of these operations to assure consistency of data structures.
 ///
 
 /// TUndirNet::DelEdge
@@ -411,10 +496,22 @@ Range of NodeN: 0 <= NodeN < GetNbrDeg().
 Call: PDirNet Net = TDirNet::New(Nodes, Edges).
 ///
 
+/// TDirNet::LoadShM(TShMIn& ShMIn)
+The object is read-only. It does not support operations that edit the edge
+vectors of nodes or perform illegal operations on the NodeH, EdgeH
+(deletion or swapping keys).
+///
+
 /// TDirNet::AddNode (int NId = -1)
 Returns the ID of the node being added.
 If NId is -1, node ID is automatically assigned.
 Aborts, if a node with ID NId already exists.
+///
+
+/// TDirNet::AddNodeUnchecked (int NId = -1)
+Returns -1, if the node NId already exists.
+Otherwise, it returns the ID of the node being added.
+If NId is -1, node ID is automatically assigned.
 ///
 
 /// TDirNet::AddNode-1 (const int& NId, const TIntV& InNIdV, const TIntV&
@@ -450,6 +547,15 @@ return -1.
 Normally the function should return an ID of the edge added but since edges in
 TDirNet have no IDs we return -1.
 Function aborts if SrcNId or DstNId are not nodes in the graph.
+///
+
+/// TDirNet::AddEdgeUnchecked
+Returns -1.
+The method assumes that SrcNId and DstNId are existing nodes in the graph and
+adds new neighbor values at the end of their adjacency vectors.
+No checks are performed to verify these assumptions.
+Adjacency vectors must be sorted and have duplicates removed after a sequence
+of these operations to assure consistency of data structures.
 ///
 
 /// TDirNet::DelEdge

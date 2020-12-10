@@ -3,7 +3,7 @@
 #include "stdafx.h"
 #include "agmfast.h"
 #include "agm.h"
-#ifndef NOMP
+#ifdef USE_OPENMP
 #include <omp.h>
 #endif
 
@@ -23,22 +23,22 @@ int main(int argc, char* argv[]) {
   const double StepAlpha = Env.GetIfArgPrefixFlt("-sa:", 0.05, "Alpha for backtracking line search");
   const double StepBeta = Env.GetIfArgPrefixFlt("-sb:", 0.3, "Beta for backtracking line search");
 
-#ifndef NOMP
+#ifdef USE_OPENMP
   omp_set_num_threads(NumThreads);
 #endif
   PUNGraph G;
   TIntStrH NIDNameH;
-  if (InFNm.IsStrIn(".ungraph")) {
+  if (InFNm.IsSuffix(".ungraph")) {
     TFIn GFIn(InFNm);
     G = TUNGraph::Load(GFIn);
-  } else {
-    G = TAGMUtil::LoadEdgeListStr<PUNGraph>(InFNm, NIDNameH);
-  }
-  if (LabelFNm.Len() > 0) {
+  } else if (LabelFNm.Len() > 0) {
+    G = TSnap::LoadEdgeList<PUNGraph>(InFNm);
     TSsParser Ss(LabelFNm, ssfTabSep);
     while (Ss.Next()) {
       if (Ss.Len() > 0) { NIDNameH.AddDat(Ss.GetInt(0), Ss.GetFld(1)); }
     }
+  } else {
+    G = TAGMUtil::LoadEdgeListStr<PUNGraph>(InFNm, NIDNameH);
   }
   printf("Graph: %d Nodes %d Edges\n", G->GetNodes(), G->GetEdges());
   
@@ -58,7 +58,7 @@ int main(int argc, char* argv[]) {
     RAGM.MLEGradAscentParallel(0.0001, 1000, NumThreads, "", StepAlpha, StepBeta);
   }
   RAGM.GetCmtyVV(EstCmtyVV);
-   TAGMUtil::DumpCmtyVV(OutFPrx + "cmtyvv.txt", EstCmtyVV, NIDNameH);
+  TAGMUtil::DumpCmtyVV(OutFPrx + "cmtyvv.txt", EstCmtyVV, NIDNameH);
   TAGMUtil::SaveGephi(OutFPrx + "graph.gexf", G, EstCmtyVV, 1.5, 1.5, NIDNameH);
 
   Catch

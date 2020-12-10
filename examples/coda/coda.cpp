@@ -2,7 +2,7 @@
 #include "agmfast.h"
 #include "agmdirected.h"
 #include "agm.h"
-#ifndef NOMP
+#ifdef USE_OPENMP
 #include <omp.h>
 #endif
 
@@ -23,14 +23,14 @@ int main(int argc, char* argv[]) {
   const double StepAlpha = Env.GetIfArgPrefixFlt("-sa:", 0.05, "Alpha for backtracking line search");
   const double StepBeta = Env.GetIfArgPrefixFlt("-sb:", 0.3, "Beta for backtracking line search");
 
-#ifndef NOMP
+#ifdef USE_OPENMP
   omp_set_num_threads(NumThreads);
 #endif
   PNGraph G;
   TIntStrH NIDNameH;
   if (IsUndirected == 1) {
     PUNGraph UG;
-    if (InFNm.IsStrIn(".ungraph")) {
+    if (InFNm.IsSuffix(".ungraph")) {
       TFIn GFIn(InFNm);
       UG = TUNGraph::Load(GFIn);
       
@@ -39,7 +39,7 @@ int main(int argc, char* argv[]) {
     }
     G = TSnap::ConvertGraph<PNGraph, PUNGraph>(UG);
   } else {
-    if (InFNm.IsStrIn(".ngraph")) {
+    if (InFNm.IsSuffix(".ngraph")) {
       TFIn GFIn(InFNm);
       G = TNGraph::Load(GFIn);
       
