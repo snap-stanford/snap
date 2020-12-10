@@ -1,9 +1,43 @@
 # Speeding Up BigClam Implementation on SNAP
 
 
-C.H. Bryan Liu, Benjamin Paul Chamberlain
+C. H. Bryan Liu, Benjamin Paul Chamberlain
 
 We perform a detailed analysis of the C++ implementation of the Cluster Affiliation Model for Big Networks (BigClam) on the Stanford Network Analysis Project (SNAP). BigClam is a popular graph mining algorithm that is capable of finding overlapping communities in networks containing millions of nodes. Our analysis shows a key stage of the algorithm - determining if a node belongs to a community - dominates the runtime of the implementation, yet the computation is not parallelized. We show that by parallelizing computations across multiple threads using OpenMP we can speed up the algorithm by 5.3 times when solving large networks for communities, while preserving the integrity of the program and the result.
+
+The results are reported in our [pre-print hosted on arXiv](https://arxiv.org/pdf/1712.01209v1.pdf). The figure/table numbers referred in this README corresponds to **version 1** of the pre-print:
+```
+@misc{liu2018speeding,
+      title={Speeding Up BigClam Implementation on SNAP}, 
+      author={C. H. Bryan Liu and Benjamin Paul Chamberlain},
+      year={2018},
+      eprint={1712.01209},
+      archivePrefix={arXiv},
+      primaryClass={cs.SI}
+}
+```
+
+Part of the pre-print is also presented in [2018 Imperial College Computing Student Workshop (ICCSW 2018)](https://drops.dagstuhl.de/opus/volltexte/2019/10182/pdf/OASIcs-ICCSW-2018-1.pdf):
+```
+@InProceedings{liu_et_al:OASIcs:2019:10182,
+  author =	{C. H. Bryan Liu and Benjamin Paul Chamberlain},
+  title =	{{Speeding Up BigClam Implementation on SNAP}},
+  booktitle =	{2018 Imperial College Computing Student Workshop (ICCSW 2018)},
+  pages =	{1:1--1:13},
+  series =	{OpenAccess Series in Informatics (OASIcs)},
+  ISBN =	{978-3-95977-097-2},
+  ISSN =	{2190-6807},
+  year =	{2019},
+  volume =	{66},
+  editor =	{Edoardo Pirovano and Eva Graversen},
+  publisher =	{Schloss Dagstuhl--Leibniz-Zentrum fuer Informatik},
+  address =	{Dagstuhl, Germany},
+  URL =		{http://drops.dagstuhl.de/opus/volltexte/2019/10182},
+  URN =		{urn:nbn:de:0030-drops-101829},
+  doi =		{10.4230/OASIcs.ICCSW.2018.1},
+  annote =	{Keywords: BigClam, Community Detection, Parallelization, Networks}
+}
+```
 
 
 ## Setup
@@ -24,7 +58,7 @@ wc -w ./data/*.all.cmty.txt
 ```
 
 
-## Running the code
+## Running the C++ code
 
 Note: While the code is tested to be compilable and running on MacOSX and Linux machines. The effect of parallel computing can only be seen on a Linux machine on our side. We therefore **recommend you to run the following commands on a Linux machine to verify our claims**. 
 
@@ -57,7 +91,7 @@ parallelized versions, run the following - it is ordered by increasing runtime r
 ./bigclam -o:./data/youtube_ -i:./data/com-youtube.ungraph.txt -c:8385
 ./bigclam_old -o:./data/youtube_old_ -i:./data/com-youtube.ungraph.txt -c:8385
 
-# LiveJournal social network (very long runtime!)
+# LiveJournal social network (very long runtime - at least a day!)
 ./bigclam -o:./data/lj_ -i:./data/com-lj.ungraph.txt -c:287512
 ./bigclam_old -o:./data/lj_old_ -i:./data/com-lj.ungraph.txt -c:287512
 ```
@@ -73,6 +107,7 @@ To show the parallelized version produced the same community memberships
 ./cmtycompare -i1:./data/youtube_cmtyvv.txt -i2:./data/youtube_old_cmtyvv.txt
 ./cmtycompare -i1:./data/lj_cmtyvv.txt -i2:./data/lj_old_cmtyvv.txt
 ```
+To ensure the `cmtycompare` utility is working properly, you can manually manipulate (add, delete, or swap the node IDs between communities) the community associations in the files and check the utility does indeed notifying you that the communities are different with some diagnostics.
 
 You can remove the object files and executables by _either_ doing the shallow clean:
 

@@ -185,7 +185,7 @@ void PrintInconsistentCmtySetDiagnostic(const TVec<TIntV>& CmtyVV1,
 int main(int argc, char* argv[]) {
   Env = TEnv(argc, argv, TNotify::StdNotify);
   Env.PrepArgs(
-    TStr::Fmt("cmtycompare - Compare if two sets of communities"
+    TStr::Fmt("cmtycompare - Compare if two sets of communities "
               "from text dump are identical.\n"
               "Executable built at: %s, %s.\n"
               "Start time: %s", 
