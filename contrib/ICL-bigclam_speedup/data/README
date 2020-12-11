@@ -1,5 +1,7 @@
 We recommend you to save data files in this folder.
 
-The repository contains the edge lists for Amazon product network and DBLP 
-collaboration network. Other networks with ground-truth communities are
-available via http://snap.stanford.edu/data/index.html .
+Networks with ground-truth communities are available via 
+http://snap.stanford.edu/data/index.html .
+
+Alternatively, you can use ../load_data.sh to populate this directory with 
+the network graphs and ground-truth communities.

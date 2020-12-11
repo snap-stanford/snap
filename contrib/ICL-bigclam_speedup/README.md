@@ -5,19 +5,9 @@ C. H. Bryan Liu, Benjamin Paul Chamberlain
 
 We perform a detailed analysis of the C++ implementation of the Cluster Affiliation Model for Big Networks (BigClam) on the Stanford Network Analysis Project (SNAP). BigClam is a popular graph mining algorithm that is capable of finding overlapping communities in networks containing millions of nodes. Our analysis shows a key stage of the algorithm - determining if a node belongs to a community - dominates the runtime of the implementation, yet the computation is not parallelized. We show that by parallelizing computations across multiple threads using OpenMP we can speed up the algorithm by 5.3 times when solving large networks for communities, while preserving the integrity of the program and the result.
 
-The results are reported in our [pre-print hosted on arXiv](https://arxiv.org/pdf/1712.01209v1.pdf). The figure/table numbers referred in this README corresponds to **version 1** of the pre-print:
-```
-@misc{liu2018speeding,
-      title={Speeding Up BigClam Implementation on SNAP}, 
-      author={C. H. Bryan Liu and Benjamin Paul Chamberlain},
-      year={2018},
-      eprint={1712.01209},
-      archivePrefix={arXiv},
-      primaryClass={cs.SI}
-}
-```
+The results are reported in our [pre-print hosted on arXiv](https://arxiv.org/pdf/1712.01209v1.pdf). The figure/table numbers referred in this README corresponds to **version 1** of the pre-print. Part of the pre-print is also presented in [2018 Imperial College Computing Student Workshop (ICCSW 2018)](https://drops.dagstuhl.de/opus/volltexte/2019/10182/pdf/OASIcs-ICCSW-2018-1.pdf).
 
-Part of the pre-print is also presented in [2018 Imperial College Computing Student Workshop (ICCSW 2018)](https://drops.dagstuhl.de/opus/volltexte/2019/10182/pdf/OASIcs-ICCSW-2018-1.pdf):
+If you find the results useful, we will be grateful if you can cite the workshop paper:
 ```
 @InProceedings{liu_et_al:OASIcs:2019:10182,
   author =	{C. H. Bryan Liu and Benjamin Paul Chamberlain},
@@ -125,10 +115,75 @@ make deepclean
 ```
 
 
-## Using Our Experiment Data
+## Using Our Experiment Data in R & Python
 
-You can find the data generated in our experiments in the `experiment_data` directory. 
+You can find the code for and data generated in our experiments in the `experiment_data` directory:
 
-The file `parallelize_runtime.csv` contains data generated in the experiment described in Section 5.1 of the paper (showing parallelizing the CA stage speeds up the implementation), and the file `parallelize_speedup_limit_test.csv` contains data generated in the experiment described in Section 5.3 of the paper (exploring the limit in speed up with parallel computing).
+* The file `parallelize_runtime.csv` contains data generated in the experiment described in Section 5.1 of the pre-print / Section 4.1 of the workshop paper (showing parallelizing the CA stage speeds up the implementation);
+* The file `parallelize_speedup_limit_test.csv` contains data generated in the experiment described in Section 5.3 of the pre-print (exploring the limit in speed up with parallel computing);
+* The file `figure_3_proportion_time_spent.R` contains the R script that generates Figure 3 in the pre-print / Figure 2 in the workshop paper (which has a different legend placement);
+* The file `figure_6_box_plot.R` contains the R script that generates Figure 6 in the pre-print / Figure 4 in the workshop paper;
+* The file `figure_7_extra_speedup_limit.ipynb` contains the Jupyter notebook (Python) that generates Figure 7 in the pre-print; and
+* The file `table_3.R` contains the R script that produces Table 3 in the pre-print and the workshop paper and its associated t-test results.
 
-We also have a number of R scripts / Jupyter Notebook generating the figures and table featured in the paper. We will shortly update this file with a handy dependency installation script, though the dependencies are more or less the standard ones (R: ggplot2 and reshape2, Python: Numpy, Pandas, Matplotlib, Scipy, and Jupyter).
+### Running the R Scripts
+
+The R scripts should only require a R environment to be installed---each of the scripts will automatically install the dependencies (`ggplot2` and `reshape`) if they are not already installed.
+
+### Running the Jupyter notebook
+
+To run the notebook you would need `numpy`, `pandas`, `matplotlib`, `scipy`, `jupyter`, and their dependencies.
+
+We included a `Pipfile` and `Pipfile.lock` that specifies the dependencies above if you are running `pipenv`. To use the files:
+
+1. Ensure you have `gcc`, `make`, and `pip` installed---if you can run the C++ code above the first two should already be there.
+
+2. Install `pyenv`:
+  * For Linux (together with other required libraries):
+    ```bash
+    sudo apt-get install -y make build-essential libssl-dev zlib1g-dev libbz2-dev \
+    libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev libncursesw5-dev \
+    xz-utils tk-dev libffi-dev liblzma-dev python-openssl git
+    wget -L https://github.com/pyenv/pyenv-installer/raw/master/bin/pyenv-installer | bash
+     
+    chmod u+x pyenv-installer
+    ./pyenv-installer
+    ```
+  
+  * For Mac OS X:
+    ```bash
+    brew install pyenv
+    ```
+
+3. Configure the system PATHs for `pyenv`:
+  ```bash
+  export PATH="$HOME/.pyenv/bin:$PATH"
+  eval "$(pyenv init -)"
+  eval "$(pyenv virtualenv-init -)"
+  ```
+
+4. Install the right Python version for our project:
+  ```bash
+  pyenv install 3.7.3
+  ```
+
+5. Install `pipenv` using `pip` or `pip3`:
+  ```bash
+  pip install -U pipenv
+  ```
+
+6. Change directory to the same level as this README (i.e. `./ICL-bigclam_speedup/`) and sync the environment:
+  ```bash
+  # Exact cd target depends on where you downloaded the repo to
+  cd ./ICL-bigclam_speedup
+  
+  # Switch to Python 3.7.3 for pyenv
+  pyenv local 3.7.3
+  pipenv update --dev
+  ```
+
+7. Run `jupyter notebook` on the environment you have just set up:
+  ```bash
+  pipenv run jupyter notebook
+  ```
+
