@@ -60,7 +60,8 @@ wc -w ./data/*.all.cmty.txt
 
 ## Running the C++ code
 
-Note: While the code is tested to be compilable and running on MacOSX and Linux machines. The effect of parallel computing can only be seen on a Linux machine on our side. We therefore **recommend you to run the following commands on a Linux machine to verify our claims**. 
+Note: The code is tested to run on Linux and MacOSX systems. Although if you have a MacOSX and uses the default `clang` that comes with Xcode, OpenMP is explicitly disabled while we build the executable (as it is unsupported), and thus you will not see any wall clock time gain due to parallelisation for the entire BigClam implementation. 
+We therefore **recommend you to run the following commands on a Linux machine to verify our claims**. To use a `clang` compiler that supports OpenMP, see [this Q&A thread](https://stackoverflow.com/questions/43555410/enable-openmp-support-in-clang-in-mac-os-x-sierra-mojave).
 
 First compile the code (you need to have `make` and `g++` installed):
 
