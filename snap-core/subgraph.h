@@ -74,9 +74,9 @@ template<class PGraph> PGraph GetInEgonetSub(const PGraph &Graph, const int CtrN
 /// Returns the randomly sampled egonet with nodes sampled based on percentage or raw number, copying attributes
 PNEANet GetInEgonetSubAttr(const PNEANet &Graph, const int CtrNId, const int Radius, const int MaxNum, const float percent);
 
-//Modifies DstGraph so that it is the union of SrcGraph and DstGraph and returns a copy of DstGraph
+/// Modifies DstGraph so that it is the union of SrcGraph and DstGraph and returns a copy of DstGraph.
 template<class PGraph> PGraph GetGraphUnion(PGraph& DstGraph, const PGraph& SrcGraph);
-//Modifies DstGraph with attributes so that it is the union of SrcGraph and DstGraph and returns a copy of DstGraph
+/// Modifies DstGraph with attributes so that it is the union of SrcGraph and DstGraph and returns a copy of DstGraph.
 PNEANet GetGraphUnionAttr(PNEANet &DstGraph, const PNEANet &SrcGraph);
 
 /////////////////////////////////////////////////
