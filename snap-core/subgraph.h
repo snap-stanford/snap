@@ -670,24 +670,13 @@ PGraph GetInEgonetSub(const PGraph &Graph, const int CtrNId, const int Radius, c
 template<class PGraph> 
 PGraph GetGraphUnion(PGraph& DstGraph, const PGraph& SrcGraph) {
   for (typename PGraph::TObj::TNodeI NI = SrcGraph->BegNI(); NI < SrcGraph->EndNI(); NI++) {
-    if (! DstGraph->IsNode(NI.GetId())){
+    if (! DstGraph->IsNode(NI.GetId())) {
       DstGraph->AddNode(NI.GetId());
     }
   }
   for (typename PGraph::TObj::TEdgeI EI = SrcGraph->BegEI(); EI < SrcGraph->EndEI(); EI++) {
-    if (! HasGraphFlag(typename PGraph::TObj, gfMultiGraph)){
-      if (! DstGraph->IsEdge(EI.GetSrcNId(), EI.GetDstNId())){
-        DstGraph->AddEdge(EI.GetSrcNId(), EI.GetDstNId());
-      }
-    }
-    else{
-      if (! DstGraph->IsEdge(EI.GetSrcNId(), EI.GetDstNId()) || ! DstGraph->IsEdge(EI.GetId())){
-        if (! DstGraph->IsEdge(EI.GetId())){
-          DstGraph->AddEdge(EI.GetSrcNId(), EI.GetDstNId(), EI.GetId());
-        }else{
-          DstGraph->AddEdge(EI.GetSrcNId(), EI.GetDstNId());
-        }
-      }
+    if (! DstGraph->IsEdge(EI.GetSrcNId(), EI.GetDstNId())) {
+      DstGraph->AddEdge(EI.GetSrcNId(), EI.GetDstNId());
     }
   }
   return DstGraph;
