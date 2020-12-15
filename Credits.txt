@@ -8,6 +8,7 @@ extensively by SNAP, was started by Marko Grobelnik in 1996.
 The following people also contributed to the development of SNAP
 (in alphabetical order).
 
+Ruth-Ann Armstrong
 Arijit Banerjee
 Austin Benson
 Justin Cheng
@@ -27,6 +28,7 @@ Vikesh Khanna
 Emmanouil Kiagias
 Myunghwan Kim
 Vid Kocijan
+Viswesh Krishna
 Saachi Jain
 Jason Jong
 Peter Lofgren
@@ -53,6 +55,7 @@ Ba-Quan Truong
 Utkarsh Upadhyay
 Theodore Vasiloudis
 Viswajith Venugopal
+Avery Wang
 Jaewon Yang
 Hao Yin
 David Zeng

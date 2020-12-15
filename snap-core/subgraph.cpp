@@ -176,7 +176,7 @@ void AddNodeWithAttributes(const PNEANet& Graph1, PNEANet& Graph2, const int NId
   }
 }
 
-void AddEdgeWithAttributes(const PNEANet &Graph1, PNEANet &Graph2, const int EId){
+void AddEdgeWithAttributes(const PNEANet &Graph1, PNEANet &Graph2, const int EId) {
   const TNEANet::TEdgeI EI = Graph1->GetEI(EId);
   Graph2->AddEdge(EI);
   //const int EId = Graph2->GetEId(NId, NbrId);
@@ -216,38 +216,39 @@ void AddEdgeWithAttributes(const PNEANet &Graph1, PNEANet &Graph2, const int EId
 
 void AddEdgeWithAttributes(const PNEANet &Graph1, PNEANet &Graph2, const int NId, const int NbrId) {
   Graph2->AddEdge(NId, NbrId);
-  const int EId = Graph2->GetEId(NId, NbrId);
+  const int EId1 = Graph1->GetEId(NId, NbrId);
+  const int EId2 = Graph2->GetEId(NId, NbrId);
   // Copy Int Attributes
   TStrV IntAttrNames;
   TIntV IntAttrValues;
-  Graph1->IntAttrNameEI(EId, IntAttrNames);
-  Graph1->IntAttrValueEI(EId, IntAttrValues);
+  Graph1->IntAttrNameEI(EId1, IntAttrNames);
+  Graph1->IntAttrValueEI(EId1, IntAttrValues);
   for (int i = 0; i < IntAttrNames.Len(); i++) {
-    Graph2->AddIntAttrDatE(EId, IntAttrValues[i], IntAttrNames[i]);
+    Graph2->AddIntAttrDatE(EId2, IntAttrValues[i], IntAttrNames[i]);
   }
   // Copy Float Attributes
   TStrV FltAttrNames;
   TFltV FltAttrValues;
-  Graph1->FltAttrNameEI(EId, FltAttrNames);
-  Graph1->FltAttrValueEI(EId, FltAttrValues);
+  Graph1->FltAttrNameEI(EId1, FltAttrNames);
+  Graph1->FltAttrValueEI(EId1, FltAttrValues);
   for (int i = 0; i < FltAttrNames.Len(); i++) {
-    Graph2->AddFltAttrDatE(EId, FltAttrValues[i], FltAttrNames[i]);
+    Graph2->AddFltAttrDatE(EId2, FltAttrValues[i], FltAttrNames[i]);
   }
   // Copy Str Attributes
   TStrV StrAttrNames;
   TStrV StrAttrValues;
-  Graph1->StrAttrNameEI(EId, StrAttrNames);
-  Graph1->StrAttrValueEI(EId, StrAttrValues);
+  Graph1->StrAttrNameEI(EId1, StrAttrNames);
+  Graph1->StrAttrValueEI(EId1, StrAttrValues);
   for (int i = 0; i < StrAttrNames.Len(); i++) {
-    Graph2->AddStrAttrDatE(EId, StrAttrValues[i], StrAttrNames[i]);
+    Graph2->AddStrAttrDatE(EId2, StrAttrValues[i], StrAttrNames[i]);
   }
   // Copy IntV Attributes
   TStrV IntVAttrNames;
   TVec<TIntV> IntVAttrValues;
-  Graph1->IntVAttrNameEI(EId, IntVAttrNames);
-  Graph1->IntVAttrValueEI(EId, IntVAttrValues);
+  Graph1->IntVAttrNameEI(EId1, IntVAttrNames);
+  Graph1->IntVAttrValueEI(EId1, IntVAttrValues);
   for (int i = 0; i < IntVAttrNames.Len(); i++) {
-    Graph2->AddIntVAttrDatE(EId, IntVAttrValues[i], IntVAttrNames[i]);
+    Graph2->AddIntVAttrDatE(EId2, IntVAttrValues[i], IntVAttrNames[i]);
   }
 }
 
@@ -349,7 +350,6 @@ PNEANet GetInEgonetAttr(const PNEANet &Graph, const int CtrNId, const int Radius
   Queue1.Clr(false);
   Queue1.Push(CtrNId);
   for (int r = 0; r < Radius; ++r) {
-    int EId;
     while (!Queue1.Empty()) {
       const int NId = Queue1.Top();
       Queue1.Pop();
@@ -519,19 +519,15 @@ PNEANet GetInEgonetSubAttr(const PNEANet &Graph, const int CtrNId, const int Rad
   return NewGraphPt;
 }
 
-PNEANet GetGraphUnionAttr(PNEANet &DstGraph, const PNEANet &SrcGraph){
-  for (typename PNEANet::TObj::TNodeI NI = SrcGraph->BegNI(); NI < SrcGraph->EndNI(); NI++) {
-    if (! DstGraph->IsNode(NI.GetId())){
+PNEANet GetGraphUnionAttr(PNEANet &DstGraph, const PNEANet &SrcGraph) {
+  for (PNEANet::TObj::TNodeI NI = SrcGraph->BegNI(); NI < SrcGraph->EndNI(); NI++) {
+    if (!DstGraph->IsNode(NI.GetId())) {
       AddNodeWithAttributes(SrcGraph, DstGraph, NI.GetId());
     }
   }
-  for (typename PNEANet::TObj::TEdgeI EI = SrcGraph->BegEI(); EI < SrcGraph->EndEI(); EI++) {
-    if (! DstGraph->IsEdge(EI.GetSrcNId(), EI.GetDstNId()) || ! DstGraph->IsEdge(EI.GetId())){
-      if (! DstGraph->IsEdge(EI.GetId())){
-        AddEdgeWithAttributes(SrcGraph, DstGraph, EI.GetId());
-      }else{
-        AddEdgeWithAttributes(SrcGraph, DstGraph, EI.GetSrcNId(), EI.GetDstNId());
-      }
+  for (PNEANet::TObj::TEdgeI EI = SrcGraph->BegEI(); EI < SrcGraph->EndEI(); EI++) {
+    if (!DstGraph->IsEdge(EI.GetSrcNId(), EI.GetDstNId())) {
+      AddEdgeWithAttributes(SrcGraph, DstGraph, EI.GetSrcNId(), EI.GetDstNId());
     }
   }
   return DstGraph;

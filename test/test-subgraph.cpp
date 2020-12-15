@@ -848,7 +848,7 @@ TEST(subgraph, TestGetGraphUnion) {
 
   TSnap::GetGraphUnion(Graph3, Graph4);
   EXPECT_EQ(5, Graph3->GetNodes());
-  EXPECT_EQ(8, Graph3->GetEdges());
+  EXPECT_EQ(7, Graph3->GetEdges());
 }
 
 
@@ -882,6 +882,7 @@ TEST(subgraph, TestGetGraphUnionAttr) {
     EId = Graph0->AddEdge(i + 3, ((i + 4) % 6) + 3);
     Graph0->AddIntAttrDatE(EId, ((i + 4) % 6) + 3, s);
   }
+
   TSnap::GetGraphUnionAttr(Graph, Graph0);
   EXPECT_EQ(9, Graph->GetNodes());
   EXPECT_EQ(24, Graph->GetEdges());

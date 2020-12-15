@@ -8,6 +8,8 @@
 # Compile and run all the tests:
 #	make run
 #
+# Note:
+#   graphviz test files were generated with graphviz version 2.38.0
 
 include ../Makefile.config
 CXXFLAGS += $(CXXOPENMP)

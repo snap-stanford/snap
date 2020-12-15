@@ -57,6 +57,7 @@ TEST(GVizTest, DrawGViz) {
         else {
           TSnap::DrawGViz(UNGraph1, TGVizLayout(i), FNameTest, LNames[i], true);
         }
+
         // Check if file exists
         EXPECT_TRUE(fileExists(FNameTest.CStr()));
         
@@ -141,7 +142,7 @@ TEST(GVizTest, DrawGVizColor) {
                             true, NIdColorH);
           }
         }
-        
+
         // Check if file exists
         EXPECT_TRUE(fileExists(FNameTest.CStr()));
       }
