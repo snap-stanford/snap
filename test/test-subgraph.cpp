@@ -898,8 +898,8 @@ TEST(subgraph, TestGetGraphIntersection) {
     Graph->AddNode(i);
   }
   for (int i = 0; i < 5; i++) {
-    Graph->AddEdge(i,(i+1) % 5);
-    Graph->AddEdge(i,(i+2) % 5);
+    Graph->AddEdge(i,(i + 1) % 5);
+    Graph->AddEdge(i,(i + 2) % 5);
   }
 
   for (int i = 2; i < 6; i++) {
