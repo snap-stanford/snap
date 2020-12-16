@@ -533,24 +533,22 @@ PNEANet GetGraphUnionAttr(PNEANet &DstGraph, const PNEANet &SrcGraph) {
   return DstGraph;
 }
 
-
-
-PNEANet GetGraphIntersectionAttr(PNEANet &Graph, const PNEANet &Graph0){
-  // for (typename PNEANet::TObj::TNodeI NI = SrcGraph->BegNI(); NI < SrcGraph->EndNI(); NI++) {
-  //   if (! DstGraph->IsNode(NI.GetId())){
-  //     AddNodeWithAttributes(SrcGraph, DstGraph, NI.GetId());
-  //   }
-  // }
-  // for (typename PNEANet::TObj::TEdgeI EI = SrcGraph->BegEI(); EI < SrcGraph->EndEI(); EI++) {
-  //   if (! DstGraph->IsEdge(EI.GetSrcNId(), EI.GetDstNId()) || ! DstGraph->IsEdge(EI.GetId())){
-  //     if (! DstGraph->IsEdge(EI.GetId())){
-  //       AddEdgeWithAttributes(SrcGraph, DstGraph, EI.GetId());
-  //     }else{
-  //       AddEdgeWithAttributes(SrcGraph, DstGraph, EI.GetSrcNId(), EI.GetDstNId());
-  //     }
-  //   }
-  // }
-  // return DstGraph;
+PNEANet GetGraphIntersectionAttr(const PNEANet &Graph, const PNEANet &Graph0){
+  PNEANet IntersectionGraph = PNEANet::New();
+  for (PNEANet::TObj::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
+    if (Graph->IsNode(NI.GetId()) && Graph0->IsNode(NI.GetId())){
+      if (! IntersectionGraph->IsNode(NI.GetId())) {
+        AddNodeWithAttributes(Graph, IntersectionGraph, NI.GetId());
+      }
+    }
+  }
+  for (typename PNEANet::TObj::TEdgeI EI = Graph->BegEI(); EI < Graph->EndEI(); EI++) {
+    if (Graph->IsEdge(EI.GetSrcNId(), EI.GetDstNId()) && Graph0->IsEdge(EI.GetSrcNId(), EI.GetDstNId())){
+      if (! IntersectionGraph->IsEdge(EI.GetSrcNId(), EI.GetDstNId())){
+        AddEdgeWithAttributes(Graph, IntersectionGraph, EI.GetSrcNId(), EI.GetDstNId());
+      }
+    }   
+  }
+  return IntersectionGraph;
 }
-
 } // namespace TSnap

@@ -79,9 +79,10 @@ template<class PGraph> PGraph GetGraphUnion(PGraph& DstGraph, const PGraph& SrcG
 /// Modifies DstGraph with attributes so that it is the union of SrcGraph and DstGraph and returns a copy of DstGraph.
 PNEANet GetGraphUnionAttr(PNEANet &DstGraph, const PNEANet &SrcGraph);
 
-//Modifies DstGraph so that it is the union of SrcGraph and DstGraph and returns a copy of DstGraph
+/// Returns a graph that is the intersection of Graph and Graph0
 template<class PGraph> PGraph GetGraphIntersection(const PGraph& Graph, const PGraph& Graph0);
-PNEANet GetGraphIntersectionAttr(PNEANet &Graph, const PNEANet &Graph0);
+/// Returns a graph with attributes that is the intersection of Graph and Graph0
+PNEANet GetGraphIntersectionAttr(const PNEANet &Graph, const PNEANet &Graph0);
 
 /////////////////////////////////////////////////
 // Implementation
@@ -686,34 +687,22 @@ PGraph GetGraphUnion(PGraph& DstGraph, const PGraph& SrcGraph) {
   return DstGraph;
 }
 
-
 template<class PGraph> 
 PGraph GetGraphIntersection(const PGraph& Graph, const PGraph& Graph0) {
   PGraph IntersectionGraph = PGraph::TObj::New();
   for (typename PGraph::TObj::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
     if (Graph->IsNode(NI.GetId()) && Graph0->IsNode(NI.GetId())){
-      IntersectionGraph->AddNode(NI.GetId());
-    }
-  }
-
-  for (typename PGraph::TObj::TEdgeI EI = Graph->BegEI(); EI < Graph->EndEI(); EI++) {
-    if (! HasGraphFlag(typename PGraph::TObj, gfMultiGraph)){
-      if (Graph->IsEdge(EI.GetSrcNId(), EI.GetDstNId()) && Graph0->IsEdge(EI.GetSrcNId(), EI.GetDstNId())){
-        IntersectionGraph->AddEdge(EI.GetSrcNId(), EI.GetDstNId());
-      }   
-    }
-    else{
-      // if (Graph->IsEdge(EI.GetSrcNId(), EI.GetDstNId()) && Graph0->IsEdge(EI.GetSrcNId(), EI.GetDstNId())) {
-      if (Graph->IsEdge(EI.GetSrcNId(), EI.GetDstNId()) && Graph0->IsEdge(EI.GetSrcNId(), EI.GetDstNId())){
-            if ( ! IntersectionGraph->IsEdge(EI.GetId()) && Graph->IsEdge(EI.GetId()) &&  Graph0->IsEdge(EI.GetId())){
-              printf("ID %d ", EI.GetId());
-              printf("DST %d ", EI.GetDstNId());
-              printf("SRC %d\n", EI.GetSrcNId());
-
-              IntersectionGraph->AddEdge(EI.GetSrcNId(), EI.GetDstNId(), EI.GetId());
-            }
+      if (! IntersectionGraph->IsNode(NI.GetId())) {
+        IntersectionGraph->AddNode(NI.GetId());
       }
     }
+  }
+  for (typename PGraph::TObj::TEdgeI EI = Graph->BegEI(); EI < Graph->EndEI(); EI++) {
+    if (Graph->IsEdge(EI.GetSrcNId(), EI.GetDstNId()) && Graph0->IsEdge(EI.GetSrcNId(), EI.GetDstNId())){
+      if (! IntersectionGraph->IsEdge(EI.GetSrcNId(), EI.GetDstNId())){
+        IntersectionGraph->AddEdge(EI.GetSrcNId(), EI.GetDstNId());
+      }
+    }   
   }
   return IntersectionGraph;
 }

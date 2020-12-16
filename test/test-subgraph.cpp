@@ -888,138 +888,118 @@ TEST(subgraph, TestGetGraphUnionAttr) {
   EXPECT_EQ(24, Graph->GetEdges());
 }
 
-// // Test PGraph GetGraphIntersection
-// TEST(subgraph, TestGetIntersection) {
-//   //Undirected graph
-//   PUNGraph Graph = TUNGraph::New();
-//   PUNGraph Graph0 = TUNGraph::New();
+// Test PGraph GetGraphIntersection
+TEST(subgraph, TestGetGraphIntersection) {
+  //Undirected graph
+  PUNGraph Graph = TUNGraph::New();
+  PUNGraph Graph0 = TUNGraph::New();
 
-//   for (int i = 0; i < 5; i++) {
-//     Graph->AddNode(i);
-//   }
-//   for (int i = 0; i < 5; i++) {
-//     Graph->AddEdge(i,(i+1) % 5);
-//     Graph->AddEdge(i,(i+2) % 5);
-//   }
-//   for (int i = 2; i < 6; i++) {
-//     Graph0->AddNode(i);
-//   }
+  for (int i = 0; i < 5; i++) {
+    Graph->AddNode(i);
+  }
+  for (int i = 0; i < 5; i++) {
+    Graph->AddEdge(i,(i+1) % 5);
+    Graph->AddEdge(i,(i+2) % 5);
+  }
 
-//   for (int i = 0; i < 4; i++) {
-//     Graph0->AddEdge(i + 2, ((i + 1)%4) + 2);
-//   }
-//   Graph0->AddEdge(2, 4);
-//   Graph0->AddEdge(3, 5);
+  for (int i = 2; i < 6; i++) {
+    Graph0->AddNode(i);
+  }
+  for (int i = 0; i < 4; i++) {
+    Graph0->AddEdge(i + 2, ((i + 1) % 4) + 2);
+    Graph0->AddEdge(i + 2, ((i + 2) % 4) + 2);
+  }
 
-//   PUNGraph IntersectionGraph = TSnap::GetGraphIntersection(Graph, Graph0);
-//   EXPECT_EQ(3, IntersectionGraph->GetNodes());
-//   EXPECT_EQ(3, IntersectionGraph->GetEdges());
+  PUNGraph IntersectionGraph = TSnap::GetGraphIntersection(Graph, Graph0);
+  EXPECT_EQ(3, IntersectionGraph->GetNodes());
+  EXPECT_EQ(3, IntersectionGraph->GetEdges());
 
+  //Directed graph
+  PNGraph Graph1 = TNGraph::New();
+  PNGraph Graph2 = TNGraph::New();
 
+  for (int i = 0; i < 8; i++) {
+    Graph1->AddNode(i);
+  }
+  for (int i = 0; i < 8; i++) {
+    Graph1->AddEdge(i, (i + 1) % 8);
+    Graph1->AddEdge((i + 1) % 8, i);
+  }
 
-//   //Directed graph
-//   PNGraph Graph1 = TNGraph::New();
-//   PNGraph Graph2 = TNGraph::New();
-//   for (int i = 0; i < 8; i++) {
-//     Graph1->AddNode(i);
-//   }
-//   for (int i = 0; i < 3; i++) {
-//     Graph1->AddEdge((i * 2) + 3,i * 2);
-//     Graph1->AddEdge((i * 2) + 3,(i * 2) + 1);
-//   }
+  for (int i = 2; i < 6; i++) {
+    Graph2->AddNode(i);
+  }
+  for (int i = 0; i < 4; i++) {
+    Graph2->AddEdge(i + 2, ((i + 1) % 4) + 2);
+    Graph2->AddEdge(i + 2, ((i + 2) % 4) + 2);
+  }
 
-//   Graph1->AddEdge(0,1);
-//   Graph1->AddEdge(1,0);
+  PNGraph IntersectionGraph0 = TSnap::GetGraphIntersection(Graph1, Graph2);
+  EXPECT_EQ(4, IntersectionGraph0->GetNodes());
+  EXPECT_EQ(3, IntersectionGraph0->GetEdges());
 
-//   Graph1->AddEdge(6,7);
-//   Graph1->AddEdge(7,6);
+  //Directed multigraph
+  PNEANet Graph3 = TNEANet::New();
+  PNEANet Graph4 = TNEANet::New();
+  int EId3 = 0;
+  int EId4 = 1;
 
-//   Graph1->AddEdge(6,1);
+  for (int i = 0; i < 4; i++) {
+    Graph3->AddNode(i);
+  }
+  for (int i = 0; i < 3; i++) {
+    Graph3->AddEdge(i, i + 1, EId3++);
+  }
+  Graph3->AddEdge(1, 0, EId3++);
+  Graph3->AddEdge(1, 2, EId3++);
+  Graph3->AddEdge(3, 2, EId3++);
 
-//   for (int i = 4; i < 9; i++) {
-//     Graph2->AddNode(i);
-//   }
-//   Graph2->AddNode(0);
-//   Graph2->AddNode(1);
+  for (int i = 1; i < 5; i++) {
+    Graph4->AddNode(i);
+  }
+  for (int i = 1; i < 4; i++) {
+    Graph4->AddEdge(i + 1, i, EId4 + 3);
+    Graph4->AddEdge(i, i + 1, EId4++);
+  }
 
-//   Graph2->AddEdge(0,1);
-//   Graph2->AddEdge(1,0);
-//   Graph2->AddEdge(1,4);
-//   Graph2->AddEdge(5,8);
-//   Graph2->AddEdge(6,7);
+  PNEANet IntersectionGraph1 = TSnap::GetGraphIntersection(Graph3, Graph4);
+  EXPECT_EQ(3, IntersectionGraph1->GetNodes());
+  EXPECT_EQ(3, IntersectionGraph1->GetEdges());
+}
 
-//   PNGraph IntersectionGraph0 = TSnap::GetGraphIntersection(Graph1, Graph2);
-//   EXPECT_EQ(6, IntersectionGraph0->GetNodes());
-//   EXPECT_EQ(3, IntersectionGraph0->GetEdges());
+// Test PNEANet GetGraphIntersectionAttr
+TEST(subgraph, TestGetGraphIntersectionAttr) {
+  PNEANet Graph = PNEANet::New();
+  PNEANet Graph0 = PNEANet::New();
 
+  TStr s = "id";
+  int EId;
+  for (int i = 0; i < 7; i++) {
+    Graph->AddNode(i);
+    Graph->AddIntAttrDatN(i, i, s);
+  }
 
-//  //Directed multigraph
-//   PNEANet Graph3 = TNEANet::New();
-//   PNEANet Graph4 = TNEANet::New();
-//   int EId3 = 0;
-//   int EId4 = 1;
-//   for (int i = 0; i < 4; i++) {
-//     Graph3->AddNode(i);
-//   }
+  for (int i = 2; i < 9; i++) {
+    Graph0->AddNode(i);
+    Graph0->AddIntAttrDatN(i, i, s);
+  }
 
-//   for (int i = 0; i < 3; i++) {
-//     Graph3->AddEdge(i, i + 1, EId3++);
-//   }
-//   Graph3->AddEdge(1, 0, EId3++);
-//   Graph3->AddEdge(1, 2, EId3++);
-//   Graph3->AddEdge(3, 2, EId3++);
+  for (int i = 0; i < 7; i++) {
+    EId = Graph->AddEdge(i, (i + 2) % 7);
+    Graph->AddIntAttrDatE(EId, (i + 2) % 7, s);
+    EId = Graph->AddEdge(i, (i + 3) % 7);
+    Graph->AddIntAttrDatE(EId, (i + 3) % 7, s);
+  }
 
-//   for (int i = 1; i < 5; i++) {
-//     Graph4->AddNode(i);
-//   }
-//   for (int i = 1; i < 4; i++) {
-//     Graph4->AddEdge(i + 1, i, EId4 + 3);
-//     Graph4->AddEdge(i, i + 1, EId4++);
+  for (int i = 0; i < 7; i++) {
+    EId = Graph0->AddEdge(i + 2, ((i + 3) % 7) + 2);
+    Graph0->AddIntAttrDatE(EId, ((i + 3) % 7) + 2, s);
+  }
 
-//   }
-
-//   PNEANet IntersectionGraph1 = TSnap::GetGraphIntersection(Graph3, Graph4);
-//   EXPECT_EQ(3, IntersectionGraph1->GetNodes());
-//   EXPECT_EQ(3, IntersectionGraph1->GetEdges());
-//   // Graph1->AddEdge(0, 1);
-//   // Graph1->AddEdge(1, 2);
-//   // Graph2->AddEdge(1, 2);
-//   // Graph2->AddEdge(2, 1);
-//   // Graph1->AddEdge(2, 3);
-//   // Graph2->AddEdge(2, 3);
-//   // Graph1->AddEdge(3, 2);
-//   // Graph2->AddEdge(3, 4);
-//   // Graph2->AddEdge(1, 4);
-
-//   // TSnap::GetGraphUnion(Graph1, Graph2);
-//   // EXPECT_EQ(5, Graph1->GetNodes());
-//   // EXPECT_EQ(7, Graph1->GetEdges());
-
-//   // //Directed multigraph
-//   // PNEANet Graph3 = TNEANet::New();
-//   // PNEANet Graph4 = TNEANet::New();
-//   // int EId = 0;
-//   // for (int i = 0; i < 4; i++) {
-//   //   Graph3->AddNode(i);
-//   // }
-//   // for (int i = 1; i < 5; i++) {
-//   //   Graph4->AddNode(i);
-//   // }
-
-//   // Graph3->AddEdge(0, 1, EId++);
-//   // Graph3->AddEdge(1, 2, EId++);
-//   // Graph4->AddEdge(1, 2, EId++);
-//   // Graph4->AddEdge(2, 1, EId++);
-//   // Graph3->AddEdge(2, 3, EId);
-//   // Graph4->AddEdge(2, 3, EId++);
-//   // Graph3->AddEdge(3, 2, EId++);
-//   // Graph4->AddEdge(3, 4, EId++);
-//   // Graph4->AddEdge(1, 4, EId++);
-
-//   // TSnap::GetGraphUnion(Graph3, Graph4);
-//   // EXPECT_EQ(5, Graph3->GetNodes());
-//   // EXPECT_EQ(8, Graph3->GetEdges());
-// }
+  PNEANet IntersectionGraph = TSnap::GetGraphIntersectionAttr(Graph, Graph0);
+  EXPECT_EQ(5, IntersectionGraph->GetNodes());
+  EXPECT_EQ(3, IntersectionGraph->GetEdges());
+}
 
 // Generate TUNGraph
 PUNGraph GetTestTUNGraph() {
