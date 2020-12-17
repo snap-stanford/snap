@@ -542,7 +542,7 @@ PNEANet GetGraphIntersectionAttr(const PNEANet &Graph, const PNEANet &Graph0){
       }
     }
   }
-  for (typename PNEANet::TObj::TEdgeI EI = Graph->BegEI(); EI < Graph->EndEI(); EI++) {
+  for (PNEANet::TObj::TEdgeI EI = Graph->BegEI(); EI < Graph->EndEI(); EI++) {
     if (Graph->IsEdge(EI.GetSrcNId(), EI.GetDstNId()) && Graph0->IsEdge(EI.GetSrcNId(), EI.GetDstNId())){
       if (! IntersectionGraph->IsEdge(EI.GetSrcNId(), EI.GetDstNId())){
         AddEdgeWithAttributes(Graph, IntersectionGraph, EI.GetSrcNId(), EI.GetDstNId());
