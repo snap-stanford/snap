@@ -691,17 +691,13 @@ template<class PGraph>
 PGraph GetGraphIntersection(const PGraph& Graph, const PGraph& Graph0) {
   PGraph IntersectionGraph = PGraph::TObj::New();
   for (typename PGraph::TObj::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
-    if (Graph->IsNode(NI.GetId()) && Graph0->IsNode(NI.GetId())){
-      if (! IntersectionGraph->IsNode(NI.GetId())) {
-        IntersectionGraph->AddNode(NI.GetId());
-      }
+    if (Graph0->IsNode(NI.GetId()) && ! IntersectionGraph->IsNode(NI.GetId())) {
+      IntersectionGraph->AddNode(NI.GetId());
     }
   }
   for (typename PGraph::TObj::TEdgeI EI = Graph->BegEI(); EI < Graph->EndEI(); EI++) {
-    if (Graph->IsEdge(EI.GetSrcNId(), EI.GetDstNId()) && Graph0->IsEdge(EI.GetSrcNId(), EI.GetDstNId())){
-      if (! IntersectionGraph->IsEdge(EI.GetSrcNId(), EI.GetDstNId())){
-        IntersectionGraph->AddEdge(EI.GetSrcNId(), EI.GetDstNId());
-      }
+    if (Graph0->IsEdge(EI.GetSrcNId(), EI.GetDstNId()) && ! IntersectionGraph->IsEdge(EI.GetSrcNId(), EI.GetDstNId())) {
+      IntersectionGraph->AddEdge(EI.GetSrcNId(), EI.GetDstNId());
     }   
   }
   return IntersectionGraph;
