@@ -159,7 +159,7 @@ public:
   TNodeNet(TSIn& SIn) : MxNId(SIn), NodeH(SIn) { }
   virtual ~TNodeNet() { }
   /// Saves the network to a (binary) stream SOut.
-  virtual void Save(TSOut& SOut) const { MxNId.Save(SOut);  NodeH.Save(SOut); }
+  virtual void Save(TSOut& SOut) const { MxNId.Save(SOut);  NodeH.Save(SOut); SOut.Flush(); }
   /// Static constructor that returns a pointer to the network. Call: TPt <TNodeNet<TNodeData> > Net = TNodeNet<TNodeData>::New().
   static PNet New() { return PNet(new TNodeNet()); }
   /// Static constructor that loads the network from a stream SIn and returns a pointer to it.
@@ -608,7 +608,7 @@ public:
   TNodeEDatNet(TSIn& SIn) : MxNId(SIn), NodeH(SIn) { }
   virtual ~TNodeEDatNet() { }
   /// Saves the network to a (binary) stream SOut.
-  virtual void Save(TSOut& SOut) const { MxNId.Save(SOut);  NodeH.Save(SOut); }
+  virtual void Save(TSOut& SOut) const { MxNId.Save(SOut);  NodeH.Save(SOut); SOut.Flush(); }
   /// Static constructor that returns a pointer to the network. Call: TPt <TNodeEDatNet<TNodeData, TEdgeData> > Net = TNodeEDatNet<TNodeData, TEdgeData>::New().
   static PNet New() { return PNet(new TNet()); }
   /// Static constructor that loads the network from a stream SIn and returns a pointer to it.
@@ -1183,7 +1183,7 @@ public:
   TNodeEdgeNet(TSIn& SIn) : MxNId(SIn), MxEId(SIn), NodeH(SIn), EdgeH(SIn) { }
   virtual ~TNodeEdgeNet() { }
   /// Saves the network to a (binary) stream SOut.
-  virtual void Save(TSOut& SOut) const { MxNId.Save(SOut);  MxEId.Save(SOut);  NodeH.Save(SOut);  EdgeH.Save(SOut); }
+  virtual void Save(TSOut& SOut) const { MxNId.Save(SOut);  MxEId.Save(SOut);  NodeH.Save(SOut);  EdgeH.Save(SOut); SOut.Flush(); }
   /// Static constructor that returns a pointer to the network. ##TNodeEdgeNet::New()
   static PNet New() { return PNet(new TNet()); }
   /// Static constructor that loads the network from a stream SIn and returns a pointer to it.
@@ -2037,7 +2037,8 @@ public:
     VecOfFltVecVecsN.Save(SOut); VecOfFltVecVecsE.Save(SOut); 
     VecOfIntHashVecsN.Save(SOut); VecOfIntHashVecsE.Save(SOut); 
     VecOfFltHashVecsN.Save(SOut); VecOfFltHashVecsE.Save(SOut); 
-    SAttrN.Save(SOut); SAttrE.Save(SOut); }
+    SAttrN.Save(SOut); SAttrE.Save(SOut);
+    SOut.Flush(); }
   /// Saves the graph to a (binary) stream SOut. Available for backwards compatibility.
   void Save_V1(TSOut& SOut) const {
     MxNId.Save(SOut); MxEId.Save(SOut); NodeH.Save(SOut); EdgeH.Save(SOut);
@@ -2047,7 +2048,8 @@ public:
     FltDefaultsN.Save(SOut); FltDefaultsE.Save(SOut);
     VecOfIntVecsN.Save(SOut); VecOfIntVecsE.Save(SOut);
     VecOfStrVecsN.Save(SOut); VecOfStrVecsE.Save(SOut);
-    VecOfFltVecsN.Save(SOut); VecOfFltVecsE.Save(SOut); }
+    VecOfFltVecsN.Save(SOut); VecOfFltVecsE.Save(SOut);
+    SOut.Flush(); }
   /// Saves the graph without any sparse data structures. Available for backwards compatibility
   void Save_V2(TSOut& SOut) const {
     MxNId.Save(SOut); MxEId.Save(SOut); NodeH.Save(SOut); EdgeH.Save(SOut);
@@ -2060,7 +2062,8 @@ public:
     VecOfFltVecsN.Save(SOut); VecOfFltVecsE.Save(SOut);
     VecOfIntVecVecsN.Save(SOut); VecOfIntVecVecsE.Save(SOut); 
     VecOfFltVecVecsN.Save(SOut); VecOfFltVecVecsE.Save(SOut); 
-    SAttrN.Save(SOut); SAttrE.Save(SOut); }
+    SAttrN.Save(SOut); SAttrE.Save(SOut);
+    SOut.Flush(); }
   /// Static cons returns pointer to graph. Ex: PNEANet Graph=TNEANet::New().
   static PNEANet New() { return PNEANet(new TNEANet()); }
   /// Static constructor that returns a pointer to the graph and reserves enough memory for Nodes nodes and Edges edges. ##TNEANet::New
@@ -3312,9 +3315,10 @@ public:
   TUndirNet(TSIn& SIn) : MxNId(SIn), NEdges(SIn), NodeH(SIn), SAttrN(SIn), SAttrE(SIn) { }
   /// Saves the network to a (binary) stream SOut. Expects data structures for sparse attributes.
   void Save(TSOut& SOut) const { MxNId.Save(SOut); NEdges.Save(SOut); NodeH.Save(SOut);
-    SAttrN.Save(SOut); SAttrE.Save(SOut); }
+    SAttrN.Save(SOut); SAttrE.Save(SOut);
+    SOut.Flush(); }
   /// Saves the network to a (binary) stream SOut. Available for backwards compatibility.
-  void Save_V1(TSOut& SOut) const { MxNId.Save(SOut); NEdges.Save(SOut); NodeH.Save(SOut); }
+  void Save_V1(TSOut& SOut) const { MxNId.Save(SOut); NEdges.Save(SOut); NodeH.Save(SOut); SOut.Flush(); }
   /// Static constructor that returns a pointer to the network. Call: PUndirNet Graph = TUndirNet::New().
   static PUndirNet New() { return new TUndirNet(); }
   /// Static constructor that returns a pointer to the network and reserves enough memory for Nodes nodes and Edges edges. ##TUndirNet::New
@@ -3784,9 +3788,9 @@ public:
   /// Constructor that loads the network from a (binary) stream SIn.
   TDirNet(TSIn& SIn) : MxNId(SIn), NodeH(SIn), SAttrN(SIn), SAttrE(SIn) { }
   /// Saves the network to a (binary) stream SOut. Expects data structures for sparse attributes.
-  void Save(TSOut& SOut) const { MxNId.Save(SOut); NodeH.Save(SOut); SAttrN.Save(SOut); SAttrE.Save(SOut); }
+  void Save(TSOut& SOut) const { MxNId.Save(SOut); NodeH.Save(SOut); SAttrN.Save(SOut); SAttrE.Save(SOut); SOut.Flush(); }
   /// Saves the network to a (binary) stream SOut. Available for backwards compatibility.
-  void Save_V1(TSOut& SOut) const { MxNId.Save(SOut); NodeH.Save(SOut); }
+  void Save_V1(TSOut& SOut) const { MxNId.Save(SOut); NodeH.Save(SOut); SOut.Flush(); }
   /// Static constructor that returns a pointer to the network. Call: PDirNet Graph = TDirNet::New().
   static PDirNet New() { return new TDirNet(); }
   /// Static constructor that returns a pointer to the network and reserves enough memory for Nodes nodes and Edges edges. ##TDirNet::New

@@ -151,7 +151,7 @@ public:
   TUNGraph(TSIn& SIn) : MxNId(SIn), NEdges(SIn), NodeH(SIn) { }
   /// Saves the graph to a (binary) stream SOut.
 
-  void Save(TSOut& SOut) const { MxNId.Save(SOut); NEdges.Save(SOut); NodeH.Save(SOut); }
+  void Save(TSOut& SOut) const { MxNId.Save(SOut); NEdges.Save(SOut); NodeH.Save(SOut); SOut.Flush(); }
   /// Static constructor that returns a pointer to the graph. Call: PUNGraph Graph = TUNGraph::New().
   static PUNGraph New() { return new TUNGraph(); }
   /// Static constructor that returns a pointer to the graph and reserves enough memory for Nodes nodes and Edges edges. ##TUNGraph::New
@@ -381,7 +381,7 @@ public:
   /// Constructor that loads the graph from a (binary) stream SIn.
   TNGraph(TSIn& SIn) : MxNId(SIn), NodeH(SIn) { }
   /// Saves the graph to a (binary) stream SOut.
-  void Save(TSOut& SOut) const { MxNId.Save(SOut); NodeH.Save(SOut); }
+  void Save(TSOut& SOut) const { MxNId.Save(SOut); NodeH.Save(SOut); SOut.Flush(); }
   /// Static constructor that returns a pointer to the graph. Call: PNGraph Graph = TNGraph::New().
   static PNGraph New() { return new TNGraph(); }
   /// Static constructor that returns a pointer to the graph and reserves enough memory for Nodes nodes and Edges edges. ##TNGraph::New
@@ -629,7 +629,7 @@ public:
   /// Constructor for loading the graph from a (binary) stream SIn.
   TNEGraph(TSIn& SIn) : MxNId(SIn), MxEId(SIn), NodeH(SIn), EdgeH(SIn) { }
   /// Saves the graph to a (binary) stream SOut.
-  void Save(TSOut& SOut) const { MxNId.Save(SOut); MxEId.Save(SOut); NodeH.Save(SOut); EdgeH.Save(SOut); }
+  void Save(TSOut& SOut) const { MxNId.Save(SOut); MxEId.Save(SOut); NodeH.Save(SOut); EdgeH.Save(SOut); SOut.Flush(); }
   /// Static constructor that returns a pointer to the graph. Call: PNEGraph Graph = TNEGraph::New().
   static PNEGraph New() { return PNEGraph(new TNEGraph()); }
   /// Static constructor that returns a pointer to the graph and reserves enough memory for Nodes nodes and Edges edges. ##TNEGraph::New
@@ -849,7 +849,7 @@ public:
   /// Constructor for loading the graph from a (binary) stream SIn.
   TBPGraph(TSIn& SIn) : MxNId(SIn), LeftH(SIn), RightH(SIn) { }
   /// Saves the graph to a (binary) stream SOut.
-  void Save(TSOut& SOut) const { MxNId.Save(SOut); LeftH.Save(SOut); RightH.Save(SOut); }
+  void Save(TSOut& SOut) const { MxNId.Save(SOut); LeftH.Save(SOut); RightH.Save(SOut); SOut.Flush(); }
   /// Static constructor that returns a pointer to the graph. Call: PBPGraph BPGraph = TBPGraph::New();
   static PBPGraph New() { return new TBPGraph(); }
   /// Static constructor that returns a pointer to the graph and reserves enough memory for Nodes nodes and Edges edges. ##TBPGraph::New

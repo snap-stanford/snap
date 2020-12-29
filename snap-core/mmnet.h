@@ -59,7 +59,7 @@ private:
 public:
   /// Saves the graph to a (binary) stream SOut.
   void Save(TSOut& SOut) const {
-    TNEANet::Save(SOut); ModeId.Save(SOut); NeighborTypes.Save(SOut); }
+    TNEANet::Save(SOut); ModeId.Save(SOut); NeighborTypes.Save(SOut); SOut.Flush(); }
   /// Loads graph from shared memory.
   void LoadShM(TShMIn & ShMIn) {
     TNEANet::LoadNetworkShM(ShMIn);
@@ -336,7 +336,7 @@ public:
   /// Saves the TCrossNet to the binary stream.
   void Save(TSOut& SOut) const { CrossH.Save(SOut); MxEId.Save(SOut); Mode1.Save(SOut); Mode2.Save(SOut); IsDirect.Save(SOut); CrossNetId.Save(SOut); 
     KeyToIndexTypeE.Save(SOut); IntDefaultsE.Save(SOut); StrDefaultsE.Save(SOut); FltDefaultsE.Save(SOut); VecOfIntVecsE.Save(SOut);
-    VecOfStrVecsE.Save(SOut); VecOfFltVecsE.Save(SOut); }
+    VecOfStrVecsE.Save(SOut); VecOfFltVecsE.Save(SOut); SOut.Flush(); }
   /// Loads network from shared memory stream.
   void LoadShM(TShMIn& ShMIn) {
     CrossH.LoadShM(ShMIn);
@@ -601,9 +601,9 @@ public:
   int DelCrossNet(const TStr& CrossNet);
 
   /// Saves the TMMNet to binary stream.
-  void Save(TSOut& SOut) const {MxModeId.Save(SOut); MxCrossNetId.Save(SOut); TModeNetH.Save(SOut); 
+  void Save(TSOut& SOut) const { MxModeId.Save(SOut); MxCrossNetId.Save(SOut); TModeNetH.Save(SOut); 
     TCrossNetH.Save(SOut); ModeIdToNameH.Save(SOut); ModeNameToIdH.Save(SOut); CrossIdToNameH.Save(SOut);
-    CrossNameToIdH.Save(SOut); }
+    CrossNameToIdH.Save(SOut); SOut.Flush(); }
   /// Loads the TMMNet from binary stream.
   static PMMNet Load(TSIn& SIn) { return PMMNet(new TMMNet(SIn)); }
   /// Loads network from mmapped shared memory. 
