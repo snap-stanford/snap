@@ -354,16 +354,16 @@ typedef TVec<TStrTmPr> TStrTmPrV;
 // Execution-Time
 class TExeTm{
 private:
-  int LastTick;
+  double LastTick;
 public:
   TExeTm(): LastTick(0) { Tick(); }
   TExeTm(const TExeTm& Tm): LastTick(Tm.LastTick) { }
   TExeTm& operator=(const TExeTm& Tm){
     LastTick=Tm.LastTick; return *this;}
 
-  void Tick(){LastTick=(int)clock();}
-  int GetTime() const {return int(clock()-LastTick);}
-  double GetSecs() const {return double(clock()-LastTick)/double(CLOCKS_PER_SEC);}
+  void Tick(){LastTick=(double)clock();}
+  int GetTime() const {return int((double) clock()-LastTick);}
+  double GetSecs() const {return (double(clock())-LastTick)/double(CLOCKS_PER_SEC);}
   int GetSecInt() { return TFlt::Round(GetSecs()); }
   const char* GetStr() const {return GetTmStr();}
   TStr GetStr2() const {return GetTmStr();}
