@@ -864,6 +864,10 @@ void TNEANet::DelEdge(const int& SrcNId, const int& DstNId, const bool& IsDir) {
 }
 
 bool TNEANet::IsEdge(const int& SrcNId, const int& DstNId, int& EId, const bool& IsDir) const {
+  if (! IsNode(SrcNId) || ! IsNode(DstNId)) {
+    return false;
+  }
+
   const TNode& SrcNode = GetNode(SrcNId);
   for (int edge = 0; edge < SrcNode.GetOutDeg(); edge++) {
     const TEdge& Edge = GetEdge(SrcNode.GetOutEId(edge));
