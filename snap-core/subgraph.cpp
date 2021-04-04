@@ -533,4 +533,18 @@ PNEANet GetGraphUnionAttr(PNEANet &DstGraph, const PNEANet &SrcGraph) {
   return DstGraph;
 }
 
+PNEANet GetGraphIntersectionAttr(const PNEANet &Graph, const PNEANet &Graph0){
+  PNEANet IntersectionGraph = PNEANet::New();
+  for (PNEANet::TObj::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
+    if (Graph0->IsNode(NI.GetId()) && ! IntersectionGraph->IsNode(NI.GetId())) {
+      AddNodeWithAttributes(Graph, IntersectionGraph, NI.GetId());
+    }
+  }
+  for (PNEANet::TObj::TEdgeI EI = Graph->BegEI(); EI < Graph->EndEI(); EI++) {
+    if (Graph0->IsEdge(EI.GetSrcNId(), EI.GetDstNId()) && ! IntersectionGraph->IsEdge(EI.GetSrcNId(), EI.GetDstNId())) {
+      AddEdgeWithAttributes(Graph, IntersectionGraph, EI.GetSrcNId(), EI.GetDstNId());
+    }   
+  }
+  return IntersectionGraph;
+}
 } // namespace TSnap
