@@ -47,8 +47,7 @@ TEST_SRCS = \
 	test-flow.cpp \
 	test-randwalk.cpp \
 	test-priority-queue.cpp \
-	test-sim.cpp \
-	test-TVec.cpp
+	test-sim.cpp
 
 TEST_OBJS = $(TEST_SRCS:.cpp=.o)
 

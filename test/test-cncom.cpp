@@ -113,6 +113,10 @@ TEST(CnComTest, UndirectedDisconnected) {
   EXPECT_TRUE(SCnComV[1].Len() == 2);
   EXPECT_TRUE(SCnComV[2].Len() == 2);
 
+  for(TInt ValN = 0; ValN < SCnComV[2].Len(); ValN++) {
+     EXPECT_TRUE(SCnComV[2].IsNIdIn(SCnComV[2].GetVal(ValN)));
+  }
+
   double MxSccSz = GetMxSccSz(G);
   EXPECT_TRUE(MxSccSz > 0.86667 - EPSILON && MxSccSz < 0.86667 + EPSILON);
 

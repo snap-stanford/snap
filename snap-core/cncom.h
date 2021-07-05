@@ -73,7 +73,7 @@ public:
   TIntV& operator () () { return NIdV; }
   const TInt& GetVal(const int& NIdN) const { return operator[](NIdN); }
   void Sort(const bool& Asc = true) { NIdV.Sort(Asc); }
-  bool IsNIdIn(const int& NId) const { return NIdV.SearchBin(NId) != -1; }
+  bool IsNIdIn(const int& NId) const { return NIdV.IsIn(NId); }
   const TInt& GetRndNId() const { return NIdV[TInt::Rnd.GetUniDevInt(Len())]; }
   static void Dump(const TCnComV& CnComV, const TStr& Desc=TStr());
   static void SaveTxt(const TCnComV& CnComV, const TStr& FNm, const TStr& Desc=TStr());
