@@ -22,6 +22,7 @@ MakeAll:
 	$(MAKE) -C forestfire
 	$(MAKE) -C graphgen
 	$(MAKE) -C graphhash
+	$(MAKE) -C hysgen
 	$(MAKE) -C infopath
 	$(MAKE) -C kcores
 	$(MAKE) -C knnjaccardsim
@@ -63,6 +64,7 @@ clean:
 	$(MAKE) clean -C forestfire
 	$(MAKE) clean -C graphgen
 	$(MAKE) clean -C graphhash
+	$(MAKE) clean -C hysgen
 	$(MAKE) clean -C infopath
 	$(MAKE) clean -C kcores
 	$(MAKE) clean -C knnjaccardsim

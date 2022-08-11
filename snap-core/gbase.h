@@ -14,6 +14,7 @@ typedef enum TGraphFlag_ {
   gfEdgeDat,    ///< network with data on edges
   gfSources,    ///< nodes only store out-edges (but not in-edges). See TBigNet
   gfBipart,     ///< bipartite graph
+  gfHyperGraph,	///< undirected, unweighted ypergraph (THGraph)
   gfMx          ///< sentinel, last value for iteration
 } TGraphFlag;
 
@@ -34,6 +35,8 @@ template <class TGraph> struct IsEdgeDat    { enum { Val = 0 }; };
 template <class TGraph> struct IsSources    { enum { Val = 0 }; };
 /// Tests (at compile time) if the graph is a bipartite graph type.
 template <class TGraph> struct IsBipart     { enum { Val = 0 }; };
+/// Tests (at compile time) if the graph is a hypergraph.
+template <class TGraph> struct IsHyperGraph { enum { Val = 0 }; };
 
 /// For quick testing of the properties of the graph/network object (see TGraphFlag).
 #define HasGraphFlag(TGraph, Flag) \
@@ -42,7 +45,8 @@ template <class TGraph> struct IsBipart     { enum { Val = 0 }; };
   (Flag)==gfNodeDat ? TSnap::IsNodeDat<TGraph::TNet>::Val : \
   (Flag)==gfEdgeDat ? TSnap::IsEdgeDat<TGraph::TNet>::Val : \
   (Flag)==gfSources ? TSnap::IsSources<TGraph::TNet>::Val : \
-  (Flag)==gfBipart ? TSnap::IsBipart<TGraph::TNet>::Val : 0)
+  (Flag)==gfBipart ? TSnap::IsBipart<TGraph::TNet>::Val : \
+  (Flag)==gfHyperGraph ? TSnap::IsHyperGraph<TGraph::TNet>::Val : 0)
 
 #if 0
 // RS 2013/08/19, commented out IsDerivedFrom, it is not called anywhere

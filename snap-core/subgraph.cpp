@@ -79,6 +79,29 @@ PNGraph GetSubGraph(const PNGraph& Graph, const TIntV& NIdV, const bool& Renumbe
   return NewGraphPt;
 }
 
+PHGraph GetSubGraph(const TPt<THGraph>& Graph, const TIntV& NIdV) {
+  PHGraph NewGraphPt = THGraph::New();
+  THGraph& NewGraph = *NewGraphPt;
+  NewGraph.Reserve(NIdV.Len(), -1);
+  for (int n = 0; n < NIdV.Len(); n++) {
+    if (Graph->IsNode(NIdV[n])) {
+      NewGraph.AddNode(Graph->GetNI(NIdV[n]));
+    }
+  }
+  bool EdgeAddable;
+  TIntV NeiNIdV;
+  for (THGraph::TEdgeI EI = Graph->BegEI(); EI < Graph->EndEI(); EI++) {
+    EdgeAddable = true;
+    EI.GetEdge().GetNbrNodes(NeiNIdV);
+    for (int e=0; e < NeiNIdV.Len(); e++) {
+      if (!NewGraph.IsNode(NeiNIdV[e])) { EdgeAddable = false; break; }
+    }
+    if (EdgeAddable) { NewGraph.AddEdge(EI); }
+  }
+  NewGraph.Defrag();
+  return NewGraphPt;
+}
+
 PUNGraph GetEgonet(const PUNGraph& Graph, const int CtrNId, int& ArndEdges) {
   PUNGraph NewGraphPt = TUNGraph::New();
   TUNGraph& NewGraph = *NewGraphPt;

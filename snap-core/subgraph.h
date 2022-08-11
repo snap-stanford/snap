@@ -20,6 +20,9 @@ PNGraph GetSubGraph(const PNGraph& Graph, const TIntV& NIdV, const bool& Renumbe
 // TODO ROK 2012/08/15 PNGraph GetSubGraph is not documented by doxygen.
 //  It is combined with PUNGraph GetSubGraph.
 
+/// Returns an induced subgraph of a hypergraph Graph with NIdV nodes.
+PHGraph GetSubGraph(const TPt<THGraph>& Graph, const TIntV& NIdV);
+
 // edge subgraphs
 /// Returns a subgraph of graph Graph with EIdV edges. ##TSnap::GetESubGraph
 template<class PGraph> PGraph GetESubGraph(const PGraph& Graph, const TIntV& EIdV);
