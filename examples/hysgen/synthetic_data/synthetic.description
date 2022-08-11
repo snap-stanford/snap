@@ -1,0 +1,11 @@
+Supposed Scenario:
+
+It's the first day of an academic year. Student gatherings have been recorded from some point during the spring semester last year. Assume there exist two communities of CS student and history students; the only social communities to which they belong. The members of these two communities are specified in the file "ground_truth_comms.txt".
+The hypergraph for this example is a network of recorded gatherings in the university in the timeline mentioned before. Each gathering corresponds to a hyperedge that connects the attending students. The hypergraph is saved in "synthetic.hyperedges", where each line corresponds to the ID of the nodes in a hyperedge.
+A regular graph equivalent of the hypergraph is represented in "synthetic.edges", where the list of the edges are stored. This graph is created by mapping a k-clique to a hyperedge of size k.
+
+
+#################################
+Community detection complication:
+
+There are two large hyperedges in the hypergraph that make the problem of discoverying the communities complicated, which correspond to two outdoor welcome parties for the students. Nodes 36 through 71 in this hyperedges represent some passerbys who are not students, only joined the parties to enjoy the music, game and free food. Nodes 76 to 87 are new students, half (6) CS and half (6) histroy. The new students should not be correctly identified because the only gatherings they had so far has been an orientation, which has been gathered with 3 senior students of each major to talk about the dept for them; and of course the gathering of welcome party. In the party, they are divided into partiy groups (4-8) that are independent of their major.
