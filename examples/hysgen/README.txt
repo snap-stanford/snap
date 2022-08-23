@@ -33,9 +33,9 @@ Parameters:
    -ic: Initial membership value for the seed communities (Default: 0.1).
    -in: The default membership value of each node to all the communities (Default: 0.03).
    -rp: Ratio of initial memberships to be randomly perturbed (Default: 0.0).
-   -rw: Weight for l-1 regularization on learning the model parameters (Default: 0.0)
-   -sz: Initial step size for backtracking line search (Default: 0.5).
-   -sa: Control parameter for backtracking line search (Default: 0.5).
+   -rw: Weight for l-1 regularization on learning the model parameters (Default: 0.005)
+   -sz: Initial step size for backtracking line search (Default: 0.05).
+   -sa: Control parameter for backtracking line search (Default: 0.1).
    -sr: Step-size reduction ratio for backtracking line search (Default: 0.5).
    -th: Cut-off threshold for the final community membership values (Default: the l-1 regularization value).
 
