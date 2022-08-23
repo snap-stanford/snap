@@ -802,7 +802,7 @@ double THysgen::GetStepSizeByLineSearch(const int UID, const TIntFltH &DeltaH,
 int THysgen::MLEGradAscent(const double& Thres, const int& MaxIter, const TStr PlotNm,
                            const double StepSize, const double StepCtrlParam, const double StepReductionRatio) {
   int NegLikPermits = 0;
-  int MaxIterLineSearch = 1000;
+  int MaxIterLineSearch = 100;
   time_t InitTime = time(NULL);
   time_t InitIterTime;
   TExeTm ExeTm, CheckTm; //Execution time
