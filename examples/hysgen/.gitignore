@@ -31,3 +31,10 @@
 *.out
 *.app
 hysgen_main
+
+# Program output files
+*_cmtyvv_init.txt
+*_cmty_ById_values.txt
+*_cmty_ById_members.txt
+*_cmty_values.txt
+*_cmty_members.txt

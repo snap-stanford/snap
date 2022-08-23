@@ -2,45 +2,20 @@
     Hypergraph Simultaneous Generators (HySGen)
 ========================================================================
 
-This repository contains three main components:
+This program fits a probabilistic generative model to undirected, unweighted 
+hypergraphs to detect overlapping communities (node clusters) in hypergraphs. 
+It takes a hyperedge list, the number of communities to be discovered, 
+and several optional arguments as input, to produce a list of communities.
+The details of the model and the community inference algorithm are described 
+in the following paper:
 
-1) HySGen: An efficient probabilistic generative model for discovering node 
-      clusters/communities in hypergraphs. For the details of the model and 
-      the community inference algorithm, please see our paper*.
-2) HGraph: A fast, reliable, and comprehensive C++ data structure for 
-      undirected, unweighted hypergraphs.
-3) Three hypergraphs extracted from real-world data, uploaded in the "Data" 
-      directory. Please see our paper* for more information.
+B. Pedrood, C. Domeniconi, and K. Laskey. "Hypergraph Simultaneous Generators." AISTATS 2022.
 
-Please cite our paper upon using any of those components:
-* B. Pedrood, C. Domeniconi, and K. Laskey. "Hypergraph Simultaneous Generators." AISTATS 2022.
-
-/////////////////////////////////////////////////////////////////////////////
-
-The code in this project is developed on top of the SNAP [(c) 2007-2019, 
-Jure Leskovec] open-source graph analysis library. To facilitate the usage 
-for SNAP users, I maintained the structure and code standarads as recommended 
-in SNAP. The directory structure of this project is as follows below:
-
-snap: 
-        An intact copy of the original SNAP library's source code, which 
-        modules are used in this project.
-local_snap: 
-        We developed our classes in this directory. The subdirectories 
-        and file structures are chosen this way for maximum consistency 
-        with SNAP.
-local_snap/snap-adv:
-        HySGen's implemented classes and functions for community inference.
-local_snap/snap-core:
-        HGraph data structure is implemented in this directory. To see 
-        the details of the function and classes, see the files with 
-        "loc_graph" and "loc_subgraph" names.
-
-Like other SNAP projects, this code works under Windows with Cygwin with GCC, 
-Mac OS X, Linux and other Unix variants with GCC. To use with Visual Studio, 
-you have to create a new project for this project. Make sure that a C++ compiler 
-is installed on the system. Makefiles are provided, so you can complie the code 
-in the command line with the following command: 
+This code works under Windows with Cygwin with GCC, Mac OS X, Linux and other 
+Unix variants with GCC. To use with Visual Studio, you have to create a new 
+project for this program. Make sure that a C++ compiler is installed on the 
+system. Makefiles are provided, so you can complie the code in the command 
+line with the following command: 
     make all
 
 /////////////////////////////////////////////////////////////////////////////
@@ -62,11 +37,15 @@ Parameters:
    -sz: Initial step size for backtracking line search (Default: 0.5).
    -sa: Control parameter for backtracking line search (Default: 0.5).
    -sr: Step-size reduction ratio for backtracking line search (Default: 0.5).
+   -th: Cut-off threshold for the final community membership values (Default: the l-1 regularization value).
 
 /////////////////////////////////////////////////////////////////////////////
 
 Usage:
 
-Discover 309 communities from the NSF collaboration hypergraph.
+Discover 2 communities from the synthtic hypergraph (under synthetic_data/):
 
-./hysgen_main -i:./Data/NSF/hypergraph.hyperedges -o:./out_communities -c:309 -mc:3 -ic:0.1 -in:0.001 -rw:0.0001 -sa:0.95 -sz:0.01
+./hysgen_main -i:./synthetic_data/synthetic.hyperedges -o:./synthetic_res -c:2 -ic:0.3 -sr:0.1 -th:0.08 -rs:100
+
+
+** For real-world hypergraph data please visit https://github.com/bpedrood/HySGen

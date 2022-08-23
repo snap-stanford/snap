@@ -13,17 +13,18 @@ int main(int argc, char* argv[]) {
   int OptComs = Env.GetIfArgPrefixInt("-c:", 2, "The number of communities to detect.");
   const TStr OutPlt = Env.GetIfArgPrefixStr("-op:", "", "Output file performance plot (empty for no plot).");
   const TStr InitComFNm = Env.GetIfArgPrefixStr("-ci:", "", "Community initialization file url.");
-  const TStr LabelFNm = Env.GetIfArgPrefixStr("-l:", "", "Input file name for node names (Node ID, Node label) ");
+  const TStr LabelFNm = Env.GetIfArgPrefixStr("-l:", "", "Input file name for node names (Node ID, Node label).");
   const int MinComSize = Env.GetIfArgPrefixInt("-mc:", 3, "Minimum size of the communities.");
-  const int RndSeed = Env.GetIfArgPrefixInt("-rs:", 0, "Random Seed");
-  int MaxIter = Env.GetIfArgPrefixInt("-xi:", 1000, "Maximum number of iterations");
-  const double InitComS = Env.GetIfArgPrefixFlt("-ic:", 0.1, "Initial membership value for the initially assigned communities");
-  const double InitNulS = Env.GetIfArgPrefixFlt("-in:", 0.03, "The default membership value of each node to all the communities");
+  const int RndSeed = Env.GetIfArgPrefixInt("-rs:", 0, "Random Seed.");
+  int MaxIter = Env.GetIfArgPrefixInt("-xi:", 1000, "Maximum number of iterations.");
+  const double InitComS = Env.GetIfArgPrefixFlt("-ic:", 0.1, "Initial membership value for the initially assigned communities.");
+  const double InitNulS = Env.GetIfArgPrefixFlt("-in:", 0.03, "The default membership value of each node to all the communities.");
   double PerturbDensity = Env.GetIfArgPrefixFlt("-rp:", 0.0, "Ratio of initial memberships to be randomly perturbed.");
-  const double RegCoef = Env.GetIfArgPrefixFlt("-rw:", 0.0, "Weight for l-1 regularization on learning the model parameters");
-  const double StepSize = Env.GetIfArgPrefixFlt("-sz:", 0.5, "Initial step size for backtracking line search");
-  const double StepCtrlParam = Env.GetIfArgPrefixFlt("-sa:", 0.5, "Control parameter for backtracking line search");
-  const double StepReductionRatio = Env.GetIfArgPrefixFlt("-sr:", 0.5, "Step-size reduction ratio for backtracking line search");
+  const double RegCoef = Env.GetIfArgPrefixFlt("-rw:", 0.005, "Weight for l-1 regularization on learning the model parameters.");
+  const double StepSize = Env.GetIfArgPrefixFlt("-sz:", 0.05, "Initial step size for backtracking line search.");
+  const double StepCtrlParam = Env.GetIfArgPrefixFlt("-sa:", 0.1, "Control parameter for backtracking line search.");
+  const double StepReductionRatio = Env.GetIfArgPrefixFlt("-sr:", 0.5, "Step-size reduction ratio for backtracking line search.");
+  const double Threshold = Env.GetIfArgPrefixFlt("-th:", MAX(TFlt::EpsHalf, RegCoef), "Cut-off threshold for the final community membership values.");
 
 
   PHGraph G;
@@ -66,17 +67,16 @@ int main(int argc, char* argv[]) {
   }
   Optimizer.SetRegCoef(RegCoef);
   
-  double Threshold = TFlt::EpsHalf;
   Optimizer.GetCmtyVV(EstCmtyVH, EstCmtyVV, WckVV, InitNulS, MinComSize);
-  THysgenUtil::DumpCmtyVH(OutFPrx + "cmtyvv_init.txt", EstCmtyVH, NIDNameH);
+  THysgenUtil::DumpCmtyVH(OutFPrx + "_cmtyvv_init.txt", EstCmtyVH, NIDNameH);
   
   Optimizer.MLEGradAscent(0.01, MaxIter * G->GetNodes(), OutPlt, StepSize, StepCtrlParam, StepReductionRatio);
   
   Optimizer.GetCmtyVV(EstCmtyVH, EstCmtyVV, WckVV, Threshold, MinComSize);
-  THysgenUtil::DumpCmtyVH(OutFPrx + "cmty_ById_values.tsv", EstCmtyVH, NIDEdgelistnameH);
-  THysgenUtil::DumpCmtyVV(OutFPrx + "cmty_ById_members.txt", EstCmtyVV, NIDEdgelistnameH);
-  THysgenUtil::DumpCmtyVH(OutFPrx + "cmty_values.txt", EstCmtyVH, NIDNameH);
-  THysgenUtil::DumpCmtyVV(OutFPrx + "cmty_members.txt", EstCmtyVV, NIDNameH);
+  THysgenUtil::DumpCmtyVH(OutFPrx + "_cmty_ById_values.txt", EstCmtyVH, NIDEdgelistnameH);
+  THysgenUtil::DumpCmtyVV(OutFPrx + "_cmty_ById_members.txt", EstCmtyVV, NIDEdgelistnameH);
+  THysgenUtil::DumpCmtyVH(OutFPrx + "_cmty_values.txt", EstCmtyVH, NIDNameH);
+  THysgenUtil::DumpCmtyVV(OutFPrx + "_cmty_members.txt", EstCmtyVV, NIDNameH);
 
   Catch
 
