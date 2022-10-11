@@ -15,7 +15,7 @@ void node2vec(PWNet& InNet, const double& ParamP, const double& ParamQ,
   //Generate random walks
   int64 AllWalks = (int64)NumWalks * NIdsV.Len();
   WalksVV = TVVec<TInt, int64>(AllWalks,WalkLen);
-  TRnd Rnd(time(NULL));
+  TRnd Rnd(0); // seed from clock
   int64 WalksDone = 0;
   for (int64 i = 0; i < NumWalks; i++) {
     NIdsV.Shuffle(Rnd);
