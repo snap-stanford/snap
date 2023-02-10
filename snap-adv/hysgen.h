@@ -2,15 +2,16 @@
 #define Pedrood_CmntyHyper_h
 #include <execinfo.h>
 #include "Snap.h"
-//#include "loc_Snap.h"
-#include <sstream> 
-#include <stdlib.h> 
+#include <sstream>
+#include <stdlib.h>
 
 
 class THysgenUtil {
 public:
+  enum Criteria {Alphabetical, Value};
   static void DumpCmtyVV(const TStr OutFNm, TVec<TIntV>& CmtyVV, TIntStrH& NIDNmH);
-  static void DumpCmtyVH(const TStr OutFNm, TVec<TIntFltH>& CmtyVH, TIntStrH& NIDNmH);
+  static void DumpCmtyVH(const TStr OutFNm, TVec<TIntFltH>& CmtyVH,
+                         TIntStrH& NIDNmH, Criteria Crit=Value);
   static PHGraph LoadEdgeList(const TStr& InFNm, TStrHash<TInt>& NodeNameH,
                               const TSsFmt SsFmt = ssfTabSep);
   
@@ -27,6 +28,9 @@ public:
   
   static double Min(double	N1, double N2) {
     return N1 < N2 ? N1 : N2;
+  }
+  static bool IsEqual(const double Num1, const double Num2) {
+    return abs(Num1 - Num2) < TFlt::Eps;
   }
 };
 
@@ -60,9 +64,6 @@ private:
   TVec<TFltV> SumPrPsblEdgesPow_nVV;
   TFlt SNoise;
   TFlt ThreshLearnRate;
-  TInt DebugPrcCmpCnt;
-  TInt DebugPrcApproxCmpCnt;
-  TIntIntH DebugPrcCmpCntH;
 public:
   TFlt InitVal;   ///< default value of S for community initialization
   TFlt InitNullS; ///< Default membership value for all the nodes to the noise community
@@ -72,21 +73,42 @@ public:
   TFlt RegCoef;   ///< L1 regularization coefficient
   TFlt PrNoCom;
 private:
-  void GetUpdatedNodP(TIntFltH &SNew, const int &UID, const TIntFltH GradUH,
+  void GetUpdatedNodP(TIntFltH &SNew, const int &UID, const TIntFltH& GradUH,
                       double &StepSize);
+  void GetUpdatedNodP(TIntFltH &SNew, TIntFltH& SearchVecOut, const int& UID,
+                      const TIntFltH& GradUH, double& StepSize);
   bool AcceptStepSA(const int &UID, const TIntFltH &SNew, const int &Iter,
                     const int &MaxIter, const double &SAParamK);
+  bool RmvBadDirections(const int &UId, TIntFltH &GradH);
+  void InitEdgeProb();
+  void UpdateUEdgesProb(const int& UId, const int& CId, const double& SUNew);
+  void InitPrAllEdgesS(const double& DefVal, const bool& IsEqualComms=false);
+  void UpdatePrAllEdgesS(const int &UID, const int &CID, const double& SNNew);
+  void UpdatePrAllEdgesS(TFltV &PsiV, const int &UID, const int &CID,
+                         const double& SNNew, const bool IsApplyChange);
+  void UpdatePrAllEdgesS(const int &UID, const int &CID, const TFltV& SNodNewV){
+    UpdatePrAllEdgesS(UID, CID, SNodNewV[CID]);
+  }
+  double PredictAllCEdgesS_direct(const int &UID, const int &CID,
+                                  const bool IsLikelihood = false, const bool Verbose= false);
+  double PredictAllCEdgesS(const int &UID, const int &CID,
+                           const bool IsLikelihood = false, const bool Verbose=false);
+  double PredictAllCEdgesS(const int &UID, const int &CID, const double& SNNew,
+                           const bool IsLikelihood = true, const bool Verbose=false);
+  void UpdateProbNotEdgH(const int &EId, const double &PrECNew,
+                         const double &PrECOld);
+
+
 public:
   THysgen(const PHGraph& GraphPt, const int& InitComs,
           const int RndSeed = 0, const double _InitVal = 0.1, const double InitNulS = 0.03,
           const double NoiseConstS = 0.01):
-          Rnd(RndSeed), RegCoef(1),MinVal(0.0), MaxVal(1.0), NegWgt(1.0), InitVal(_InitVal),
-          TayN(50), MinTayN(10), TayThresh(0.00001),
-          InitNullS(InitNulS), SNoise(NoiseConstS),
-          DebugPrcCmpCnt(0), DebugPrcApproxCmpCnt(0), DebugPrcCmpCntH(5) {
-    SNoise = (InitNulS>0.0) ? THysgenUtil::Min(NoiseConstS, InitNulS / 2) : NoiseConstS;
+          Rnd(RndSeed), RegCoef(0.0), MinVal(0.0), MaxVal(1.0), NegWgt(1.0),
+          InitVal(_InitVal), TayN(50), MinTayN(10), TayThresh(0.00001),
+          InitNullS(InitNulS), SNoise(NoiseConstS) {
+    SNoise = (InitNulS>0.0) ? THysgenUtil::Min(NoiseConstS, InitNulS / 2.0) : NoiseConstS;
     ThreshLearnRate = TayThresh / GraphPt->GetNodes();
-    SetGraph(GraphPt); ComInit(InitComs);
+    SetGraph(GraphPt);
   }
   void Save(TSOut& SOut) {
     G->Save(SOut);
@@ -148,18 +170,16 @@ public:
   void ComInit(const int InitComs, const int MinComSiz=5, const double PerturbDens=0.0);
   void UniformComInit(const int InitComs);
   void RandomComPerturb(double Density = 1.0);
-  
   /// Initialize with the neighborhood communities (Gleich et.al. KDD'12)
   void NeighborComInit(const int MinComSiz, const bool& IsInit = false);
   void NeighborComInit(TFltIntPrV& PhiNIdPrV, const bool& IsInit = false);
-  
   TInt GetNumComs() { return NumComs; }
   void SetCmtyVV(const TVec<TIntV>& CmtyVV);
   double Likelihood();
   double Likelihood(const int UID, const TIntFltH& SU);
   double LikelihoodForRow(const int UID);
-  double LikelihoodForRow(const int UID, const TIntFltH& SU, const bool CmprDirct_vs_Taylor=false);
-  void GradientForRow(const int UId, TIntFltH& GradNod, const TIntSet& CIDSet, const bool CmprDirct_vs_Taylor=false);
+  double LikelihoodForRow(const int UID, const TIntFltH &SU);
+  void GradientForRow(const int UId, TIntFltH &GradNod);
   
   /// Dump community affiliation into a text file with node names
   void GetCmtyVV(TVec<TIntFltH>& CmtyVH, TVec<TIntV>& CmtyVV, TVec<TFltV>& WckVV,
@@ -178,7 +198,8 @@ public:
   }
   void GetCmtyVV(TVec<TIntFltH>& CmtyVH, TVec<TIntV>& CmtyVV) {
     TVec<TFltV> TmpVV;
-    GetCmtyVV(CmtyVH, CmtyVV, TmpVV, sqrt(2.0 * (double) G->GetEdges() / G->GetNodes() / G->GetNodes()), 3);
+    GetCmtyVV(CmtyVH, CmtyVV, TmpVV,
+              sqrt(2.0 * (double) G->GetEdges() / G->GetNodes() / G->GetNodes()), 3);
   }
   void GetCmtyVVUnSorted(TVec<TIntV>& CmtyVV);
   void GetCmtyVVUnSorted(TVec<TIntV>& CmtyVV, const double Thres, const int MinSz = 3);
@@ -189,7 +210,8 @@ public:
                                  const int MaxIter);
   
   int MLEGradAscent(const double& Thres, const int& MaxIter, const TStr PlotNm,
-                    const double StepSize = 0.3, const double StepCtrlParam = 0.3, const double StepReductionRatio = 0.3);
+                    const double StepSize = 0.3, const double StepCtrlParam = 0.3,
+                    const double StepReductionRatio = 0.3);
   
   void inline GetNCom(TIntFltH& NIdH, const int& NID) {
     NIdH = S[NID];
@@ -217,7 +239,7 @@ public:
     }
   }
   void inline AddNCom(const int& UId, const int& CID, const double& Val, const bool& IsInit = false) {
-    if (Val == 0.0) {
+    if (Val < DBL_EPSILON) {
       DelNCom(UId, CID);
       return;
     }
@@ -233,7 +255,7 @@ public:
   }
   
   double inline GetPrE(const int &EId) {
-    if (ProbNotEdgH.GetDat(EId)() == -1.0) {
+    if (THysgenUtil::IsEqual(ProbNotEdgH.GetDat(EId)(), -1.0)) {
       return ProbEdgH.GetDat(EId)();
     }
     return 1.0 - ProbNotEdgH.GetDat(EId);
@@ -243,10 +265,8 @@ public:
   double GetPrE(const int &EId, const int &UId, TIntFltH &PrEOutCH,
                        const TIntFltH &SU);
   
-  double GetPrEPrecisionApprox(const TIntFltH& ECH, TVec<TFltV>& DPMatVV,
-                                const double PrENoise);
-  
-  double GetPrEPrecision(const TIntFltH& ECH, TVec<TFltV>& DPMatVV, const double PrENoise, TInt LineNo);
+  double GetPrEPrecision(const TIntFltH &ECH, TVec<TFltV> &DPMatVV,
+                         const double PrENoise);
   
   double inline GetENoiseProb(const int Size) {
     if (Size > ProbENoiseV.Len()) { AddENoiseProb(Size); }
@@ -271,19 +291,20 @@ public:
   
   void inline AddECom(const int& EId, const TIntFltH& ProdH) {
     double PrENoise = GetENoiseProb(G->GetEI(EId).Len());
-    double PrNotE = 1 - PrENoise;
+    double PrNotE = 1.0 - PrENoise;
     if (ProdH.Len() != 0) {
       ProbEdgCommHH.AddDat(EId, ProdH);
       for (TIntFltH::TIter HI = ProdH.BegI(); HI < ProdH.EndI(); HI++) {
         PrNotE *= 1.0 - HI.GetDat();
       }
     }
-    if (PrNotE >= 1.0 && SNoise > 0) {
-      ProbEdgH.AddDat(EId, GetPrEPrecision(ProdH, AuxDPEdgVV, PrENoise, 730));
-      ProbNotEdgH.AddDat(EId,-1);
+    if (PrNotE >= 1.0) {
+      ProbEdgH.AddDat(EId, GetPrEPrecision(ProdH, AuxDPEdgVV, PrENoise));
+      ProbNotEdgH.AddDat(EId,-1.0);
       return;
     }
     ProbNotEdgH.AddDat(EId,PrNotE);
+    ProbEdgH.AddDat(EId,1-PrNotE);
   }
   void inline AddECom(const int& EId, const int& CId, const double& PrECNew) {
     double PrECOld = GetECom(EId, CId);
@@ -297,74 +318,17 @@ public:
   
   void inline DelECom(const int& EId, const int& CId) {
     double PrECOld = GetECom(EId, CId);
-    if (PrECOld > 0) {
+    if (PrECOld > 0.0) {
       ProbEdgCommHH.GetDat(EId).DelKey(CId);
       UpdateProbNotEdgH(EId, 0.0, PrECOld);
     }
   }
   
-  void InitEdgeProb();
-  void UpdateUEdgesProb(const int& UId, const int& CId, const double& SUNew);
-  void InitPrAllEdgesS(const double& DefVal, const bool& IsEqualComms=false);
-  void UpdatePrAllEdgesS(const int &UID, const int &CID, const double& SNNew);
-  void UpdatePrAllEdgesS(TFltV &PsiV, const int &UID, const int &CID, const double& SNNew, const bool IsApplyChange);
-  void UpdatePrAllEdgesS(const int &UID, const int &CID, const TFltV& SNodNewV){
-    UpdatePrAllEdgesS(UID, CID, SNodNewV[CID]);
-  }
-  double PredictAllCEdgesS_direct(const int &UID, const int &CID,
-                                  const bool IsLikelihood = false, const bool Verbose= false);
-  double PredictAllCEdgesS(const int &UID, const int &CID,
-                           const bool IsLikelihood = false, const bool Verbose=false);
-  double PredictAllCEdgesS(const int &UID, const int &CID, const double& SNNew,
-                           const bool IsLikelihood = true, const bool Verbose=false);
-  void inline UpdateProbNotEdgH(const int &EId, const double &PrECNew,
-                                const double &PrECOld) {
-    double PrENoise = GetENoiseProb(G->GetEI(EId).Len());    
-    if ((PrECNew>0.0 && 1-PrECNew>=1.0) || (ProbNotEdgH.IsKey(EId) && ProbNotEdgH.GetDat(EId)()==-1.0))  {      
-      TIntFltH& ProdH = ProbEdgCommHH.GetDat(EId); 
-      ProbEdgH.AddDat(EId, GetPrEPrecisionApprox(ProdH, AuxDPEdgVV, PrENoise));
-      ProbNotEdgH.AddDat(EId,-1);
-      return;
-    }
-    double PrNotE;
-    if (PrECOld < 1.0){
-      PrNotE = ProbNotEdgH.GetDat(EId) * (1.0 - PrECNew) / (1.0 - PrECOld);
-    } else {
-      PrNotE = 1.0 - PrENoise;
-      for (TIntFltH::TIter HI = ProbEdgCommHH.GetDat(EId).BegI();
-           HI < ProbEdgCommHH.GetDat(EId).EndI(); HI++) {
-        PrNotE *= 1.0 - HI.GetDat(); 
-      }
-    }
-    ProbNotEdgH.AddDat(EId, PrNotE);
-    if (PrNotE >= 1) {
-      TIntFltH& ProdH = ProbEdgCommHH.GetDat(EId); 
-      ProbEdgH.AddDat(EId, GetPrEPrecision(ProdH, AuxDPEdgVV, PrENoise,798));
-      ProbNotEdgH.AddDat(EId,-1);
-    }
-  }
-  
-  double inline DotProduct(const TIntFltH& UV, const TIntFltH& VV) {
-    double DP = 0;
-    if (UV.Len() > VV.Len()) {
-      for (TIntFltH::TIter HI = UV.BegI(); HI < UV.EndI(); HI++) {
-        if (VV.IsKey(HI.GetKey())) {
-          DP += VV.GetDat(HI.GetKey()) * HI.GetDat();
-        }
-      }
-    } else {
-      for (TIntFltH::TIter HI = VV.BegI(); HI < VV.EndI(); HI++) {
-        if (UV.IsKey(HI.GetKey())) {
-          DP += UV.GetDat(HI.GetKey()) * HI.GetDat();
-        }
-      }
-    }
-    return DP;
-  }
-  
+  static double DotProduct(const TIntFltH& UV, const TIntFltH& VV);
   double inline DotProduct(const int& UID, const int& VID) {
     return DotProduct(S[UID], S[VID]);
   }
+  
   void inline Normalize(const TIntFltH& UV, TIntFltH& UVNmd) {
     double Nrm = Norm2(UV);
     for (TIntFltH::TIter HI = UV.BegI(); HI < UV.EndI(); HI++) {
@@ -379,13 +343,14 @@ public:
   }
   void inline NormalizeIfLarge(const TIntFltH& UV, TIntFltH& UVNmd) {
     double Nrm = Norm2(UV);
-    if (Nrm >1) { Normalize(UV, UVNmd); }
+    if (Nrm >1.0) { Normalize(UV, UVNmd); }
     else { 
       for (TIntFltH::TIter HI = UV.BegI(); HI < UV.EndI(); HI++) {
         UVNmd.AddDat(HI.GetKey(), HI.GetDat());
       }
     }
   }
+  
   double inline Sum(const TIntFltH& UV) {
     double N = 0.0;
     for (TIntFltH::TIter HI = UV.BegI(); HI < UV.EndI(); HI++) {
@@ -393,6 +358,7 @@ public:
     }
     return N;
   }
+  
   double inline Norm2(const TIntFltH& UV) {
     double N = 0.0;
     for (TIntFltH::TIter HI = UV.BegI(); HI < UV.EndI(); HI++) {
@@ -400,35 +366,9 @@ public:
     }
     return sqrt(N);
   }
+  
   double inline Sigmoid(const double X) {
     return 1.0 / ( 1.0 + exp(-X));
-  }
-  
-  void PrintComms() {
-    printf("List of communities:\n");
-    for (int c = 0; c < GetNumComs(); c++) {
-      printf("comm %d has %d members:\t\t", c, NumCIdNV[c].Val);
-      for (THGraph::TNodeI NI = G->BegNI(); NI < G->EndNI(); NI++) {
-        if (GetNCom(NI.GetId(),c) > InitNullS) {
-          printf("%s,%0.2f\t",NI.GetName().CStr(), GetNCom(NI.GetId(),c));
-        }
-      }
-      printf("\n");
-    }
-  }
-  template <class TObj2d> void PrintObj(const TObj2d& O2D) {
-    printf("Obj = [");
-    for (typename TObj2d::TIter i = O2D.BegI(); i<O2D.EndI(); i++) {
-      printf("(%d,%f), ", i.GetKey(), i.GetDat());
-    }
-    printf("]\n");
-  }
-  template <class TObj2d> void PrintObj(const TObj2d& O2D, double coef) {
-    printf("Obj = [");
-    for (typename TObj2d::TIter i = O2D.BegI(); i<O2D.EndI(); i++) {
-      printf("(%d,%f), ", i.GetKey(), i.GetDat()*coef);
-    }
-    printf("]\n");
   }
   
 };

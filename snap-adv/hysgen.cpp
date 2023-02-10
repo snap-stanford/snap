@@ -17,14 +17,28 @@ void THysgenUtil::DumpCmtyVV(const TStr OutFNm, TVec<TIntV>& CmtyVV, TIntStrH& N
   }
   fclose(F);
 }
-
-void THysgenUtil::DumpCmtyVH(const TStr OutFNm, TVec<TIntFltH>& CmtyVH, TIntStrH& NIDNmH) {
+void THysgenUtil::DumpCmtyVH(const TStr OutFNm, TVec<TIntFltH>& CmtyVH, TIntStrH& NIDNmH, Criteria Crit) {
   FILE* F = fopen(OutFNm.CStr(), "wt");
   int UId;
   for (int c = 0; c < CmtyVH.Len(); c++) {
     fprintf(F, "\n\n*** COMMUNITY #%d, Length=%d ***\n", c+1, CmtyVH[c].Len());
-    for (int u = 0; u < CmtyVH[c].Len(); u++) {
-      UId = CmtyVH[c].GetKey(u);
+    TIntV SortedV;
+    if (Crit == Alphabetical) {
+      TIntStrH SortedCNames;
+      for (TIntFltH::TIter NI = CmtyVH[c].BegI(); NI < CmtyVH[c].EndI(); NI++) {
+        SortedCNames.AddDat(NI.GetKey(), NIDNmH.GetDat(NI.GetKey()));
+      }
+      SortedCNames.SortByDat();
+      for (TIntStrH::TIter NI = SortedCNames.BegI();
+           NI < SortedCNames.EndI(); NI++) {
+        SortedV.Add(NI.GetKey());
+      }
+    } else {
+      CmtyVH[c].SortByDat(false);
+      CmtyVH[c].GetKeyV(SortedV);
+    }
+    for (TIntV ::TIter NI = SortedV.BegI(); NI < SortedV.EndI(); NI++) {
+      UId = NI->Val;
       if (NIDNmH.IsKey(UId)){
         fprintf(F, "%s: ", NIDNmH.GetDat(UId).CStr());
       }
@@ -123,7 +137,6 @@ void THysgenUtil::GetPhiNIdPrV(const PHGraph &G, TFltIntPrV &PhiNIdPrV, const in
     PhiNIdPrV.Add(TFltIntPr(Phi, NI.GetId()));
   }
   PhiNIdPrV.Sort(true);
-  printf("conductance computation completed [%s]\n", RunTm.GetTmStr());
   fflush(stdout);
 }
 
@@ -147,12 +160,10 @@ void THysgen::SetGraph(const PHGraph& GraphPt) {
   NIdToIdx.Gen(NIDV.Len());
   NIdToIdx.AddKeyV(NIDV);
   // check that nodes IDs are {0,1,..,Nodes-1}
-  printf("rearrage nodes\n");
   G = TSnap::GetSubGraph(GraphPt, NIDV);
   for (int nid = 0; nid < G->GetNodes(); nid++) {
     IAssert(G->IsNode(nid));
   }
-  
   PrNoCom = 1.0 / (double) G->GetNodes();
   if (1.0 / PrNoCom > sqrt(TFlt::Mx)) { PrNoCom = 0.99 / sqrt(TFlt::Mx); } // to prevent overflow
   NegWgt = 1.0;
@@ -208,34 +219,32 @@ void THysgen::LoadComInit(const TStr& InFNm, TSsFmt SsFmt) {
 }
 
 void THysgen::ComInit(const int InitComs, const int MinComSiz, const double PerturbDens) {
-  IAssertR(InitVal>0.0 || InitNullS>0.0, "Error: At least one of -ic or -in parameters should be set > 0. Cannot start without any initalization.");
+  IAssertR(InitVal>0.0 || InitNullS>0.0, "Error: At least one of -ic or -in "
+           "parameters should be set > 0. Cannot start without any initalization.");
   S.Gen(G->GetNodes()); 
   time_t InitTime = time(NULL);
-  printf("\n** Community Initializations **  Initializing the communities over %d nodes is started...\n", S.Len());
+  printf("\n** Initializing the communities and the parameters is started...\n");
   NumCIdNV.Gen(InitComs);
   NumComs = InitComs;
   if (InitNullS > 0.0) {
     UniformComInit(InitComs);
-    printf("\n** Community Initializations **  First step of initializing the null memberships to the communities is finished [%lu sec]\n", time(NULL) - InitTime);
     InitTime = time(NULL);
     InitEdgeProb();
-    printf("\n** Community Initializations **  Taylor computation is finsihed [%lu sec]\n", time(NULL) - InitTime);
   }
   if (InitNullS != InitVal) {
     InitTime = time(NULL);
     NeighborComInit(MinComSiz, InitNullS==0.0);
-    printf("\n** Community Initializations **  Informed initial community assignment is finished [%lu sec]\n", time(NULL) - InitTime);
     if (InitNullS==0.0) {
       InitTime = time(NULL);
       InitEdgeProb();
-      printf("\n** Community Initializations **  Taylor computation is finsihed [%lu sec]\n", time(NULL) - InitTime);
     }
   }
-  // If no informed initialization in practice, a random perturbation on the equal initial memberships
   if (InitNullS != InitVal) {
     RandomComPerturb(PerturbDens);
   } else { RandomComPerturb(); }
+  printf("\n** Initializations finsihed [%lu sec]\n", time(NULL) - InitTime);
 }
+
 void THysgen::UniformComInit(const int InitComs) {
   for (int c=0; c < NumComs; c++) {
     for (THGraph::TNodeI NI = G->BegNI(); NI < G->EndNI(); NI++) {
@@ -243,8 +252,9 @@ void THysgen::UniformComInit(const int InitComs) {
     }
   }
 }
+
 void THysgen::RandomComPerturb(double Density) {
-  if (Density <= 0) { return; }
+  if (Density <= 0.0) { return; }
   for (int c=0; c < NumComs; c++) {
     for (THGraph::TNodeI NI = G->BegNI(); NI < G->EndNI(); NI++) {
       if (GetNCom(NI.GetId(), c) == 0) { continue; } // Reserve for later usages
@@ -252,6 +262,7 @@ void THysgen::RandomComPerturb(double Density) {
     }
   }
 }
+
 void THysgen::NeighborComInit(const int MinComSiz, const bool& IsInit) {
   TFltIntPrV PhiNIdPrV;
   THysgenUtil::GetPhiNIdPrV<PHGraph>(G, PhiNIdPrV, MinComSiz);
@@ -268,7 +279,7 @@ void THysgen::NeighborComInit(TFltIntPrV& PhiNIdPrV, const bool& IsInit) {
   TIntV NumCIdNDefV(NumComs, 0);
   int CurCID = 0;
   for (int ui = 0; ui < PhiNIdPrV.Len(); ui++) {
-    if (PhiNIdPrV[ui].Val1 == 0.0) { // Isolated nodes are not of our interest for community seeds.
+    if (PhiNIdPrV[ui].Val1 == 0.0) { // Isolated nodes are of no interest.
       continue;
     }
     int UID = PhiNIdPrV[ui].Val2;
@@ -292,7 +303,8 @@ void THysgen::NeighborComInit(TFltIntPrV& PhiNIdPrV, const bool& IsInit) {
   }
   for (int c = 0; c < NumCIdNV.Len(); c++) {
     if (NumCIdNDefV[c] == 0) {
-      printf("Empty comminities remained after initialization. Members are getting assigned randomly!!\n\n");
+      printf("Empty communities remained after initialization. "
+             "Members are getting assigned randomly!!\n\n");
       int ComSz = 10;
       for (int u = 0; u < ComSz; u++) {
         int UID = Rnd.GetUniDevInt(G->GetNodes());
@@ -310,14 +322,13 @@ void THysgen::InitEdgeProb(){
   ProbEdgH.Gen(G->GetEdges());
   ProbENoiseV.Gen(G->GetNodes(),1);
   ProbENoiseV[0] = 1;
-  
   // Initializing the DP Matrix with zeros, to prevent new memory assignment in each use.
-  int DPMatSize = NumComs + 1 + (SNoise>0); // If there is an active SNoise, must be counted in the matrix.
+  int DPMatSize = NumComs + (SNoise>0); // If there is an active SNoise, must be counted in the matrix.
   AuxDPEdgVV.Gen(DPMatSize);
   for (int i = 0; i < DPMatSize; i++) {
     AuxDPEdgVV[i].Gen(DPMatSize);
     for (int j = 0; j < DPMatSize; j++) {
-      AuxDPEdgVV[i][j] = 0;
+      AuxDPEdgVV[i][j] = 0.0;
     }
   }
   // INITIALIZING the SAVED EDGE PROBABILITIES (For lower computation)
@@ -347,7 +358,7 @@ void THysgen::InitEdgeProb(){
     }
     AddECom(EI.GetId(), ProdH);
   }
-  if (InitNullS > 0) { InitPrAllEdgesS(InitNullS, true);
+  if (InitNullS > 0.0) { InitPrAllEdgesS(InitNullS, true);
   } else { InitPrAllEdgesS(InitVal, false); }
 }
 
@@ -363,10 +374,9 @@ void THysgen::UpdateUEdgesProb(const int& UId, const int& CId, const double& SUN
   for (int e = 0; e < EIdV.Len(); e++) {
     EId = EIdV[e];
     PrECOld = GetECom(EId, CId);
-    if (SUOld <= 0.0) { Denom = 1; } else { Denom = SUOld; }
-    if (SUOld < 0.0) { printf("<<< OUT OF RANGE! LINE cpp 626 >>>\n"); } //todo debugTIntV ENodesV;
+    if (SUOld <= 0.0) { Denom = 1.0; } else { Denom = SUOld; }
     PrECNew = PrECOld*SUNew/Denom;
-    if (PrECNew > 0) {
+    if (PrECNew > 0.0) {
       AddECom(EId, CId, PrECNew);
     } else {
       DelECom(EId, CId);
@@ -376,10 +386,10 @@ void THysgen::UpdateUEdgesProb(const int& UId, const int& CId, const double& SUN
 
 void THysgen::InitPrAllEdgesS(const double& DefVal, const bool& IsEqualComms){
   if (SumPrPsblEdgesPow_nVV.Len()==0) {
-    SumPrPsblEdgesPow_nVV.Gen(NumCIdNV.Len(), 0);
+    SumPrPsblEdgesPow_nVV.Gen(NumCIdNV.Len(), 0.0);
   } else {
     SumPrPsblEdgesPow_nVV.Clr();
-    SumPrPsblEdgesPow_nVV.Gen(NumCIdNV.Len(), 0);
+    SumPrPsblEdgesPow_nVV.Gen(NumCIdNV.Len(), 0.0);
   }
   TFlt SToN = 1.0;
   for (int c=0; c<NumCIdNV.Len(); c++){
@@ -426,7 +436,7 @@ void THysgen::UpdatePrAllEdgesS(TFltV& PsiV, const int& UID, const int& CID, con
   if (IsApplyChange) {
     for (int n = 1; n <= nLast; n++) {
       if (n >= SumPrPsblEdgesPow_nVV[CID].Len()) {
-        SumPrPsblEdgesPow_nVV[CID].Add(-1);
+        SumPrPsblEdgesPow_nVV[CID].Add(-1.0);
       }
       SumPrPsblEdgesPow_nVV[CID][n] = PsiV[n];
     }
@@ -446,7 +456,7 @@ double THysgen::PredictAllCEdgesS(const int &UID, const int &CID,
   double SPowN = 1.0;
   if (!IsLikelihood){
     if (S_uc <= 0.0) { return SumPrPsblEdgesPow_nVV[CID][1]; }
-    else { SCoef = 1/S_uc; }
+    else { SCoef = 1.0/S_uc; }
   }
   if (S_uc<=0.0 && IsLikelihood) { return 0.0; }
   double Val = 0.0;
@@ -469,7 +479,7 @@ double THysgen::PredictAllCEdgesS(const int &UID, const int &CID,
 
 double THysgen::PredictAllCEdgesS(const int &UID, const int &CID, const double& SNNew,
                                   const bool IsLikelihood, const bool Verbose){
-  IAssertR(IsLikelihood,"This Overload of function is only designed for comuting the likelihood, not gradient!\n");
+  IAssertR(IsLikelihood,"This Overload of function is only designed for computing the likelihood, not gradient!\n");
   double SCoef = 1.0;
   double LikCoef;
   double SPowN = 1.0;
@@ -484,7 +494,7 @@ double THysgen::PredictAllCEdgesS(const int &UID, const int &CID, const double& 
   for (int n=1; n<PsiV.Len() && PsiV[n]>TayThresh; n++){ // n=0 is voided in the formulation
     LikCoef = -n;
     SPowN *= SNNew;
-    Val_n = SCoef * (SPowN/(1+SPowN)) * (PsiV[n] - SPowN) / LikCoef;
+    Val_n = SCoef * (SPowN/(1.0+SPowN)) * (PsiV[n] - SPowN) / LikCoef;
     Val += Val_n;
     if(Verbose){
       printf("\t --- (n=%d): %f\n", n , Val_n);
@@ -497,17 +507,17 @@ double THysgen::PredictAllCEdgesS_direct(const int &UID, const int &CID,
                                          const bool IsLikelihood, const bool Verbose) {
   double Psi_c = 0.0;
   double S_uc = GetNCom(UID,CID);
-  if (S_uc <= 0.0 && IsLikelihood) { return 0; }
+  if (S_uc <= 0.0 && IsLikelihood) { return 0.0; }
   TIntV CNodesV(S.Len(),0);
   for (int nod=0; nod < S.Len(); nod++) {
-    if (GetNCom(nod, CID) > 0 || nod==UID) {CNodesV.Add(nod);}
+    if (GetNCom(nod, CID) > 0.0 || nod==UID) {CNodesV.Add(nod);}
   }
-  TInt NPsbEdges = pow(2.0, CNodesV.Len());
+  TInt NPsbEdges = pow(2, CNodesV.Len());
   for (int e=0; e<NPsbEdges; e++) {
     TIntV ENodesV;
     THysgenUtil::GetBinLocs(e, ENodesV, CNodesV);
     if (!ENodesV.IsIn(UID) || ENodesV.Len() < 2) { continue; }
-    double ECProb = 1;
+    double ECProb = 1.0;
     for (int i = 0; i < ENodesV.Len(); i++) {
       if (Verbose) {
         printf("%d, ", ENodesV[i]()); }
@@ -518,14 +528,65 @@ double THysgen::PredictAllCEdgesS_direct(const int &UID, const int &CID,
     }
     if (ECProb == 1.0 && S_uc == 1.0) { continue; }
     if (!IsLikelihood) {
-      Psi_c += (ECProb / (1 - ECProb*S_uc));
+      Psi_c += (ECProb / (1.0 - ECProb*S_uc));
     } else {
-      Psi_c += log(1 - ECProb*S_uc);
+      Psi_c += log(1.0 - ECProb*S_uc);
     }
     if (Verbose) {
       printf(" *Islikelihood=%d*, Psi_c=%f\n", IsLikelihood, Psi_c); }
   }
   return Psi_c;
+}
+
+void THysgen::UpdateProbNotEdgH(const int &EId, const double &PrECNew,
+                              const double &PrECOld) {
+  double PrENoise = GetENoiseProb(G->GetEI(EId).Len());
+  if (PrECNew>=0.0 && ProbNotEdgH.IsKey(EId) && ProbNotEdgH.GetDat(EId)()==-1.0)  {
+    TIntFltH& ProdH = ProbEdgCommHH.GetDat(EId); // ProbEdgCommHH already updated from previous steps.
+    ProbEdgH.AddDat(EId, GetPrEPrecision(ProdH, AuxDPEdgVV, PrENoise));
+    if (1.0 - ProbEdgH.GetDat(EId) < 1.0) { // if PrE large enough
+      ProbNotEdgH.AddDat(EId, 1.0 - ProbEdgH.GetDat(EId));
+    }
+    return;
+  }
+  double PrNotE;
+  if (PrECOld < 1.0){
+    PrNotE = ProbNotEdgH.GetDat(EId) * (1.0 - PrECNew) / (1.0 - PrECOld);
+  } else {
+    PrNotE = 1.0 - PrENoise;
+    for (TIntFltH::TIter HI = ProbEdgCommHH.GetDat(EId).BegI();
+         HI < ProbEdgCommHH.GetDat(EId).EndI(); HI++) {
+      PrNotE *= 1.0 - HI.GetDat();
+    }
+  }
+  ProbNotEdgH.AddDat(EId, PrNotE);
+  ProbEdgH.AddDat(EId, 1-PrNotE);
+  if (PrNotE >= 1.0) {
+    TIntFltH& ProdH = ProbEdgCommHH.GetDat(EId);
+    ProbEdgH.AddDat(EId, GetPrEPrecision(ProdH, AuxDPEdgVV, PrENoise));
+    ProbNotEdgH.AddDat(EId,-1.0);
+  }
+}
+
+double THysgen::DotProduct(const TIntFltH& UV, const TIntFltH& VV) {
+  double DP = 0.0;
+  bool IsDoable = true;
+  if (UV.Len() == VV.Len()) {
+    for (TIntFltH::TIter HI = VV.BegI(); HI < VV.EndI(); HI++) {
+      if (UV.IsKey(HI.GetKey())) {
+        DP += UV.GetDat(HI.GetKey()) * HI.GetDat();
+      } else {
+        IsDoable = true;
+      }
+    }
+  } else {
+    IsDoable = true;
+  }
+  if (!IsDoable) {
+    printf("** Error: The two areguments do not have the same dimension!\n");
+    return NAN;
+  }
+  return DP;
 }
 
 void THysgen::SetCmtyVV(const TVec<TIntV>& CmtyVV) {
@@ -566,7 +627,7 @@ double THysgen::Likelihood(const int UID, const TIntFltH& SU) {
 double THysgen::LikelihoodForRow(const int UID) {
   return LikelihoodForRow(UID, S[UID]);
 }
-double THysgen::LikelihoodForRow(const int UID, const TIntFltH& SU, const bool CmprDirct_vs_Taylor) {
+double THysgen::LikelihoodForRow(const int UID, const TIntFltH &SU) {
   bool IsSUpdated = false;
   if (S[UID].Len() != SU.Len()) {
     IsSUpdated = true;
@@ -575,7 +636,7 @@ double THysgen::LikelihoodForRow(const int UID, const TIntFltH& SU, const bool C
       if (!S[UID].IsKey(CID) && !SU.IsKey(CID)) {continue;}
       if ( (S[UID].IsKey(CID) && !SU.IsKey(CID)) ||
           (!S[UID].IsKey(CID) && SU.IsKey(CID)) ||
-          S[UID].GetDat(CID) != SU.GetDat(CID) ) {
+          abs(S[UID].GetDat(CID) - SU.GetDat(CID)) > DBL_MIN ) {
         IsSUpdated = true;
         break;
       }
@@ -591,18 +652,18 @@ double THysgen::LikelihoodForRow(const int UID, const TIntFltH& SU, const bool C
     int EId = EIdV[e];
     TIntFltH PrENewCH;
     if (HONNIdsV[UID].IsKey(EId)) { continue; }
-    SumLgPrNotUEdges = 0.0; // For the NOT side, Noise source has no effect, no need to be included.
-    if (IsSUpdated){
+    SumLgPrNotUEdges = 0.0; // For the NOT side, Noise source has no effect, not included.
+//    if (IsSUpdated){
       L += log(GetPrE(EId, UID, PrENewCH, SU));
       for (TIntFltH::TIter PrECI = PrENewCH.BegI(); PrECI < PrENewCH.EndI(); PrECI++){
         SumLgPrNotUEdges += log(1.0 - PrECI.GetDat());
       }
-    } else {
-      L += log(GetPrE(EId));
-      for (TIntFltH::TIter UCI = SU.BegI(); UCI < SU.EndI(); UCI++){
-        SumLgPrNotUEdges += log(1.0 - GetECom(EId, UCI.GetKey()));
-      }
-    }
+//    } else {   /////// For faster but less accurate computations uncomment
+//      L += log(GetPrE(EId));
+//      for (TIntFltH::TIter UCI = SU.BegI(); UCI < SU.EndI(); UCI++){
+//        SumLgPrNotUEdges += log(1.0 - GetECom(EId, UCI.GetKey()));
+//      }
+//    }
   }
   TFlt SumAllPsbl = 0.0;
   for (TIntFltH::TIter UCI = SU.BegI(); UCI < SU.EndI(); UCI++) {
@@ -612,35 +673,24 @@ double THysgen::LikelihoodForRow(const int UID, const TIntFltH& SU, const bool C
       SumAllPsbl += PredictAllCEdgesS(UID, UCI.GetKey(), IsLikelihood);
     }
   }
-  if (CmprDirct_vs_Taylor && !IsSUpdated) {
-    TFlt SumAllPsbl_direct = 0.0;
-    for (TIntFltH::TIter UCI = SU.BegI(); UCI < SU.EndI(); UCI++) {
-      SumAllPsbl_direct += PredictAllCEdgesS_direct(UID, UCI.GetKey(), IsLikelihood,
-                                                    false);
-    }
-  }
   L += NegWgt * (SumAllPsbl - SumLgPrNotUEdges);
-  
-  // Add regularization
-  if (RegCoef > 0.0) { //L1
+  // Add L1 regularization
+  if (RegCoef > 0.0) {
     L -= RegCoef * Sum(SU);
-  }
-  if (RegCoef < 0.0) { //L2
-    L += RegCoef * Norm2(SU);
   }
   return L;
 }
 
-void THysgen::GradientForRow(const int UId, TIntFltH& GradNod, const TIntSet& CIDSet, const bool CmprDirct_vs_Taylor) {
-  GradNod.Gen(CIDSet.Len());
+void THysgen::GradientForRow(const int UId, TIntFltH &GradNod) {
+  GradNod.Gen(GetNumComs());
   THGraph::TNodeI NI = G->GetNI(UId);
   int NDeg = NI.GetDeg();
   TIntV EIdV; 
   NI.GetEIDs(EIdV);
   TIntFltH PredEH(NDeg);
-  TFltV PredECMinusUV(CIDSet.Len());
-  TFltV GradV(CIDSet.Len());
-  TIntV CIDV(CIDSet.Len());
+  TFltV PredECMinusUV(GetNumComs());
+  TFltV GradV(GetNumComs());
+  TIntV CIDV(GetNumComs());
   TIntV NIdV;
   TInt NId;
   TInt EId;
@@ -658,30 +708,29 @@ void THysgen::GradientForRow(const int UId, TIntFltH& GradNod, const TIntSet& CI
         PredECMinusUV[CId] =
           GetECom(EId, CId) / GetNCom(UId, CId); 
       } else {
-        PredECMinusUV[CId] = 1;
+        PredECMinusUV[CId] = 1.0;
         G->GetEI(EId).GetNodesV(NIdV);
         for (int m = 0; m < NIdV.Len(); m++) {
           NId = NIdV[m];
           if (NId != UId) { PredECMinusUV[CId] *= GetNCom(NId, CId); }
         }
       }
-      
       double PrENoise = GetENoiseProb(G->GetEI(EId).Len());
-      if (GetECom(EId, CId) >= 1.0 || (1 - GetECom(EId, CId) <= 0.0)) {
-        double PredENotCId = 1 - PrENoise;
+      if (GetECom(EId, CId) >= 1.0 || (1.0 - GetECom(EId, CId) <= 0.0)) {
+        double PredENotCId = 1.0 - PrENoise;
         for (int c2 = 0; c2 < NumComs; c2++) {
           if (c2 == CId) { continue; }
-          PredENotCId *= 1 - GetECom(EId, c2);
+          PredENotCId *= 1.0 - GetECom(EId, c2);
         }
         Val += PredECMinusUV[CId] * PredENotCId / PredEH.GetDat(EId); 
       }
       else {
-        double PrNotENotC = (1 - PredEH.GetDat(EId)) / (1 - GetECom(EId, CId)); // Precision safe!
+        double PrNotENotC = (1.0 - PredEH.GetDat(EId)) / (1.0 - GetECom(EId, CId));
         Val +=
           PredECMinusUV[CId] * PrNotENotC / PredEH.GetDat(EId);
       }
       Val += NegWgt * (PredECMinusUV[CId] /
-        (1 - GetECom(EId, CId)));
+        (1.0 - GetECom(EId, CId)));
     }
     Val -= NegWgt * PredictAllCEdgesS(UId, CId, false);
     CIDV[CId] = CId;
@@ -690,13 +739,12 @@ void THysgen::GradientForRow(const int UId, TIntFltH& GradNod, const TIntSet& CI
   for (int c = 0; c < GradV.Len(); c++) {
     GradNod.AddDat(CIDV[c], GradV[CIDV[c]]);
   }
-
 }
 
 void THysgen::GetCmtyVV(TVec<TIntFltH>& CmtyVH, TVec<TIntV>& CmtyVV, TVec<TFltV>& WckVV,
                         const double Thres, const int MinSz) {
-  CmtyVH.Gen(NumComs, 0);
-  CmtyVV.Gen(NumComs, 0);
+  CmtyVH.Gen(NumComs, 0.0);
+  CmtyVV.Gen(NumComs, 0.0);
   for (int CId = 0; CId < NumComs; CId++) {
     TIntFltH NIDSucH(S.Len());
     TIntV CmtyV;
@@ -713,7 +761,8 @@ void THysgen::GetCmtyVV(TVec<TIntFltH>& CmtyVH, TVec<TIntV>& CmtyVV, TVec<TFltV>
     CmtyVV.Add(CmtyV);
   }
   if ( NumComs != CmtyVV.Len()) {
-    printf("Sort-less Community vector generated. %d communities are ommitted\n", NumComs.Val - CmtyVV.Len());
+    printf("Unsorted Community vector generated. %d communities are ommitted\n",
+           NumComs.Val - CmtyVV.Len());
   }
 }
 
@@ -722,7 +771,7 @@ void THysgen::GetCmtyVVUnSorted(TVec<TIntV>& CmtyVV) {
 }
 
 void THysgen::GetCmtyVVUnSorted(TVec<TIntV>& CmtyVV, const double Thres, const int MinSz) {
-  CmtyVV.Gen(NumComs, 0);
+  CmtyVV.Gen(NumComs, 0.0);
   for (int c = 0; c < NumComs; c++) {
     TIntV CmtyV;
     for (int u = 0; u < G->GetNodes(); u++) {
@@ -731,10 +780,10 @@ void THysgen::GetCmtyVVUnSorted(TVec<TIntV>& CmtyVV, const double Thres, const i
     if (CmtyV.Len() >= MinSz) { CmtyVV.Add(CmtyV); }
   }
   if ( NumComs != CmtyVV.Len()) {
-    printf("*Sorted* Community vector generated. %d communities are ommitted\n", NumComs.Val - CmtyVV.Len());
+    printf("*Sorted* Community vector generated. %d communities are ommitted\n",
+           NumComs.Val - CmtyVV.Len());
   }
 }
-
 
 /// Armijo–Goldstein backtracking line search
 double THysgen::GetStepSizeByLineSearch(const int UID, const TIntFltH &DeltaH,
@@ -745,47 +794,29 @@ double THysgen::GetStepSizeByLineSearch(const int UID, const TIntFltH &DeltaH,
                                         const int MaxIter) {
   double StepSize = stepSize;
   double NewVal;
-  bool IsEligible = false;
-  for (TIntFltH::TIter CI = DeltaH.BegI(); CI < DeltaH.EndI(); CI++) {
-    int CID = CI.GetKey();
-    if (!((GetNCom(UID, CID) <= MinVal && CI.GetDat() < 0.0) ||
-          (GetNCom(UID, CID) >= MaxVal && CI.GetDat() > 0.0))) {
-      IsEligible = true;
-      break;
-    }
-  }
-  if (!IsEligible) { return 0.0; }
   bool ShouldReduce = true;
   while (ShouldReduce) {
+    ShouldReduce = false;
     for (TIntFltH::TIter CI = DeltaH.BegI(); CI < DeltaH.EndI(); CI++) {
       int CID = CI.GetKey();
       NewVal = GetNCom(UID, CID) + StepSize * CI.GetDat();
-      if (!(NewVal < MinVal || NewVal > MaxVal)) {
-        ShouldReduce = false;
+      if ((NewVal < MinVal || NewVal > MaxVal)) {
+        StepSize *= ReductionRatio;
+        ShouldReduce = true;
         break;
       }
     }
-    if (ShouldReduce) {
-      StepSize *= ReductionRatio;
-    }
   }
-  
   double InitLikelihood = LikelihoodForRow(UID);
   double FinalLikelihood = 0.0;
   TIntFltH NewVarH;
   double ChangeVal;
   GetNCom(NewVarH, UID);
   for(int iter = 0; iter < MaxIter; iter++) {
-    for (TIntFltH::TIter CI = DeltaH.BegI(); CI < DeltaH.EndI(); CI++) {
-      NewVal = GetNCom(UID, CI.GetKey()) + StepSize * CI.GetDat();
-      ChangeVal = StepSize * CI.GetDat();
-      if (NewVal < MinVal) { NewVal = MinVal; ChangeVal = MinVal - GetNCom(UID, CI.GetKey()); }
-      if (NewVal > MaxVal) { NewVal = MaxVal - TayThresh; ChangeVal = MaxVal - TayThresh - GetNCom(UID, CI.GetKey()); }
-      NewVarH.AddDat(CI.GetKey(), NewVal); SearchVecH.AddDat(CI.GetKey(), ChangeVal);
-    }
-    FinalLikelihood = LikelihoodForRow(UID, NewVarH, false);
-    if (FinalLikelihood < InitLikelihood + CtrlParam * StepSize * DotProduct(SearchVecH, SearchVecH)
-        || isinf(FinalLikelihood)) {
+    GetUpdatedNodP(NewVarH, SearchVecH, UID, DeltaH, StepSize);
+    FinalLikelihood = LikelihoodForRow(UID, NewVarH);
+    if (FinalLikelihood < InitLikelihood + CtrlParam * StepSize *
+    DotProduct(SearchVecH, SearchVecH) || isinf(FinalLikelihood)) {
       // ***** True Armijo Rule:
       StepSize *= ReductionRatio;
     } else {
@@ -801,11 +832,11 @@ double THysgen::GetStepSizeByLineSearch(const int UID, const TIntFltH &DeltaH,
 
 int THysgen::MLEGradAscent(const double& Thres, const int& MaxIter, const TStr PlotNm,
                            const double StepSize, const double StepCtrlParam, const double StepReductionRatio) {
-  int NegLikPermits = 0;
+  int NegLikPermits = MaxIter/3;
   int MaxIterLineSearch = 100;
   time_t InitTime = time(NULL);
   time_t InitIterTime;
-  TExeTm ExeTm, CheckTm; //Execution time
+  TExeTm ExeTm, CheckTm;
   int iter = 0; 
   TIntFltPrV IterLV; 
   THGraph::TNodeI UI; 
@@ -814,50 +845,44 @@ int THysgen::MLEGradAscent(const double& Thres, const int& MaxIter, const TStr P
   TIntV NIdxV(S.Len(), 0);  
   for (int i = 0; i < S.Len(); i++) { NIdxV.Add(i); }
   TIntFltH GradUH;
-  TIntSet CIDSet(NumComs);
-  for (int c = 0; c < NumComs; c++) { CIDSet.AddKey(c); }
+  TFltV Last5;
+  double SumLast5 = 0;
   while(iter < MaxIter) {
     InitIterTime = time(NULL);
-    DebugPrcCmpCnt = 0;
-    DebugPrcApproxCmpCnt = 0;
-    DebugPrcCmpCntH.Gen(5);
     NIdxV.Shuffle(Rnd);
     for (int ui = 0; ui < S.Len(); ui++, iter++) {
-      int u = NIdxV[ui]; 
-      GradientForRow(u, GradUH, CIDSet, false);
+      int u = NIdxV[ui];
+      GradientForRow(u, GradUH);
       if (Norm2(GradUH) < 1e-4) { continue; }
       TIntFltH GradAdjustedH;
       TIntFltH SearchVecH;
       NormalizeIfLarge(GradUH, GradAdjustedH);
+      bool IsAnyValidChange = RmvBadDirections(u, GradAdjustedH);
+      if (! IsAnyValidChange) { continue; }
       double LearnRate = GetStepSizeByLineSearch(u, GradAdjustedH,
                                                  SearchVecH, StepSize,
                                                  StepCtrlParam,
                                                  StepReductionRatio, MaxIterLineSearch);
-      if (LearnRate < ThreshLearnRate) { continue; }
       TIntFltH SNew;
       GetUpdatedNodP(SNew, u, GradAdjustedH, LearnRate);
-      if (!AcceptStepSA(u, SNew, iter, MaxIter, 1.0)) { continue; }
-      for (int ci = 0; ci < GradAdjustedH.Len(); ci++) {
-        int CID = GradAdjustedH.GetKey(ci);
-        double NewSuc = SNew.GetDat(CID);
-        if (NewSuc <= 0.0) {
+      double NewSuc;
+      for (int CID = 0; CID < NumComs; CID++) {
+        if (! SNew.IsKey(CID)) {
+          NewSuc = 0.0;
+        } else {
+          NewSuc = SNew.GetDat(CID);
+        }
+        if (NewSuc < DBL_EPSILON) {
           DelNCom(u, CID);
         } else {
           AddNCom(u, CID, NewSuc);
         }
       }
-      /// Add regularization
-      if (RegCoef > 0.0) { //L1
+      /// Add L1 regularization
+      if (RegCoef > 0.0) {
         for (int c = 0; c < GetNumComs(); c++) {
           if (GetNCom(u, c) > RegCoef) {
             AddNCom(u, c, GetNCom(u, c) - RegCoef);
-          } else { DelNCom(u, c); }
-        }
-      }
-      if (RegCoef < 0.0) { //L2
-        for (int c = 0; c < GetNumComs(); c++) {
-          if (GetNCom(u, c) > - 2 * RegCoef * GetNCom(u, c)) {
-            AddNCom(u, c, GetNCom(u, c) + 2 * RegCoef * GetNCom(u, c));
           } else { DelNCom(u, c); }
         }
       }
@@ -867,12 +892,12 @@ int THysgen::MLEGradAscent(const double& Thres, const int& MaxIter, const TStr P
     }
     CurL = Likelihood();
     DiffL = CurL - PrevL;
-    printf("High Precision computation is used %d times as exact and %d times as "
-           "approximate during this iteration.\n\tMoreover, Below is the per line of "
-           "call statistics of precise computation:\n",DebugPrcCmpCnt(), DebugPrcApproxCmpCnt());
-    
-    for (TIntIntH::TIter LI=DebugPrcCmpCntH.BegI(); LI<DebugPrcCmpCntH.EndI(); LI++) {
-      printf("\t\tLine# %d: \t%d\n", LI.GetKey()(), LI.GetDat()());
+    double AdjDiffL = DiffL < 1000.0? DiffL : 1000.0;
+    Last5.Add(abs(AdjDiffL));
+    SumLast5 += abs(AdjDiffL);
+    if (Last5.Len() > 5) {
+      SumLast5 -= Last5[0];
+      Last5.Del(0);
     }
     if (fabs(CurL) < 1e9) {
       if (fabs(DiffL) < 1e9) {
@@ -893,11 +918,14 @@ int THysgen::MLEGradAscent(const double& Thres, const int& MaxIter, const TStr P
     }
     printf("\n");
     fflush(stdout);
-    if (DiffL < 0) { // If the likelihood goes negative several times, then we are actually converged, so stop!
+    if (DiffL < 0.0) { // If the likelihood goes negative several times, then we are actually converged, so stop!
       if (NegLikPermits <= 0) { break; }
       NegLikPermits --;
     }
-    if (fabs(DiffL) <= Thres) { break; }
+    if (SumLast5/Last5.Len() <= Thres) {
+      printf("The average of last five differences < threshold. Iterations end...\n");
+      break;
+    }
     else { PrevL = CurL; }
   }
   printf("\n");
@@ -915,13 +943,13 @@ double THysgen::GetPrE(const int &EId, const int &UId, TIntFltH &PrEOutCH,
   double SUOld;
   double SUNew;
   double PrECOld;
-  double PrENew = 1 - PrENoise; // Noise source is the first community to be counted.
+  double PrENew = 1.0 - PrENoise;
   int SCId;
   for (TIntFltH::TIter SCI = SU.BegI(); SCI < SU.EndI(); SCI++) {
     SCId = SCI.GetKey();
     SUNew = SCI.GetDat();
     SUOld = GetNCom(UId, SCId);
-    if (SUOld <= 0.0) {
+    if (SUOld < DBL_EPSILON) {
       TIntV ENodesV;
       G->GetEI(EId).GetNbrNodes(ENodesV);
       double PrEC = SUNew;
@@ -934,85 +962,69 @@ double THysgen::GetPrE(const int &EId, const int &UId, TIntFltH &PrEOutCH,
       PrECOld = GetECom(EId, SCId);
       PrEOutCH.AddDat(SCId, PrECOld * SU.GetDat(SCId) / SUOld);
     }
-    PrENew *= 1 - PrEOutCH.GetDat(SCId);
-    if (PrENew >= 1 && PrEOutCH.GetDat(SCId) > 0) { DirectCompValid = false; }
+    PrENew *= 1.0 - PrEOutCH.GetDat(SCId);
   }
-  if (DirectCompValid) { PrENew = 1 - PrENew; }
+  if (PrENew < 1.0) { PrENew = 1.0 - PrENew; }
   else {
-    PrENew = GetPrEPrecisionApprox(PrEOutCH, AuxDPEdgVV, PrENoise);
+    PrENew = GetPrEPrecision(PrEOutCH, AuxDPEdgVV, PrENoise);
   }
   return PrENew;
 }
 
-double THysgen::GetPrEPrecisionApprox(const TIntFltH& ECH, TVec<TFltV>& DPMatVV,
-                             const double PrENoise) {
-  DebugPrcApproxCmpCnt ++;
-  int ApproxLevel = 2;
+double THysgen::GetPrEPrecision(const TIntFltH &ECH, TVec<TFltV> &DPMatVV,
+                                const double PrENoise) {
   int NumEC = ECH.Len();
   TFltV ECV(NumEC);
   ECH.GetDatV(ECV);
-  if (PrENoise > 0) { ECV.Add(PrENoise); NumEC++; }
-  for (int i=0; i<NumEC+1; i++) {
-    DPMatVV[0][i] = 1.0;
+  if (PrENoise > 0.0) { ECV.Add(PrENoise); NumEC++; }
+  DPMatVV[0][NumEC-1] = ECV[NumEC-1];
+  for (int j= NumEC - 2; j >= 0; j--) {
+    DPMatVV[0][j] = DPMatVV[0][j + 1] + ECV[j];
   }
-  for (int i=0; i<=ApproxLevel; i++) {
-    DPMatVV[i][NumEC] = 0.0;
-  }
-  for (int i=1; i<=ApproxLevel; i++) {
-    for (int j=NumEC-1; j>=i-1; j--) {
-      DPMatVV[i][j] = (ECV[j-i+1] * DPMatVV[i-1][j]) + DPMatVV[i][j+1];
+  for (int i=1; i<NumEC; i++) {
+    for (int j=NumEC-1-i; j>=0; j--) {
+      DPMatVV[i][j] = ECV[j] * DPMatVV[i-1][j+1] + DPMatVV[i][j+1];
     }
   }
-  double prob = 0;
-  double SignCoef = 1;
-  for (int i=1; i<=ApproxLevel; i++) {
-    if (i==ApproxLevel)  { prob += SignCoef * DPMatVV[i][i-1] / 2;
-    } else               { prob += SignCoef * DPMatVV[i][i-1]; }
-    SignCoef *= -1;
+  double prob = 0.0;
+  double SignCoef = 1.0;
+  for (int i=0; i<NumEC; i++) {
+    prob += SignCoef * DPMatVV[i][0];
+    SignCoef *= -1.0;
+  }
+  if (prob < DBL_MIN || prob >1) {
+    prob = DBL_MIN;
   }
   return prob;
 }
 
-double THysgen::GetPrEPrecision(const TIntFltH& ECH, TVec<TFltV>& DPMatVV, const double PrENoise, TInt LineNo) {
-  DebugPrcCmpCnt ++;
-  if (!DebugPrcCmpCntH.IsKey(LineNo)) { DebugPrcCmpCntH.AddDat(LineNo, 0); }
-  DebugPrcCmpCntH.AddDat(LineNo, DebugPrcCmpCntH.GetDat(LineNo)+1);
-  int NumEC = ECH.Len();
-  TFltV ECV(NumEC);
-  ECH.GetDatV(ECV);
-  if (PrENoise > 0) { ECV.Add(PrENoise); NumEC++; }
-  for (int i=0; i<NumEC+1; i++) {
-    DPMatVV[0][i] = 1.0;
-  }
-  for (int i=0; i<NumEC+1; i++) {
-    DPMatVV[i][NumEC] = 0.0;
-  }
-  for (int i=1; i<=NumEC; i++) {
-    for (int j=NumEC-1; j>=i-1; j--) {
-      DPMatVV[i][j] = ECV[j-i+1] * DPMatVV[i-1][j] + DPMatVV[i][j+1];
-    }
-  }
-  double prob = 0;
-  double SignCoef = 1;
-  for (int i=1; i<=NumEC; i++) {
-    prob += SignCoef * DPMatVV[i][i-1];
-    SignCoef *= -1;
-  }
-  return prob;
-}
-
-void THysgen::GetUpdatedNodP(TIntFltH &SNew, const int &UID, const TIntFltH GradUH,
+void THysgen::GetUpdatedNodP(TIntFltH &SNew, const int &UID, const TIntFltH& GradUH,
                         double &StepSize) {
+  TIntFltH SearchVecOut;
+  GetUpdatedNodP(SNew, SearchVecOut, UID, GradUH, StepSize);
+}
+
+void THysgen::GetUpdatedNodP(TIntFltH &SNew, TIntFltH& SearchVecOut, const int& UID,
+                             const TIntFltH& GradUH, double& StepSize) {
   for (int CID = 0; CID < NumComs; CID++) {
-    if (!(GetNCom(UID, CID) > 0 || GradUH.IsKey(CID))) { continue; }
-    double Change = StepSize * GradUH.GetDat(CID);
-    double NewSuc = GetNCom(UID, CID) + Change;
-    if (NewSuc <= MinVal) {
-      NewSuc = MinVal;
-    } else if (NewSuc >= MaxVal){
-      NewSuc = MaxVal - TayThresh;
+    if (GradUH.IsKey(CID)) {
+      double Change = StepSize * GradUH.GetDat(CID);
+      double NewSuc = GetNCom(UID, CID) + Change;
+      if (NewSuc < DBL_EPSILON) {
+        NewSuc = MinVal;
+      } else if (NewSuc >= MaxVal) {
+        NewSuc = MaxVal - TayThresh;
+      }
+      Change = NewSuc - GetNCom(UID, CID);
+      if (NewSuc >= DBL_EPSILON) {
+        SNew.AddDat(CID, NewSuc);
+      }
+      SearchVecOut.AddDat(CID, Change);
+    } else {
+      if (GetNCom(UID, CID) > 0.0) {
+        SNew.AddDat(CID, GetNCom(UID, CID) );
+      }
     }
-    SNew.AddDat(CID, NewSuc);
   }
 }
 
@@ -1022,9 +1034,32 @@ bool THysgen::AcceptStepSA(const int &UID, const TIntFltH &SNew, const int &Iter
   double T = T0/((double)Iter+1.0);
   
   double OldLikelihood = LikelihoodForRow(UID);
-  double NewLikelihood = LikelihoodForRow(UID,SNew);
+  double NewLikelihood = LikelihoodForRow(UID, SNew);
   double DeltaE = - (NewLikelihood-OldLikelihood);
   double PrAccept = exp(-DeltaE/(SAParamK*T));
   if (Rnd.GetUniDev() < PrAccept) { return true; }
   return false;
-} 
+}
+
+bool THysgen::RmvBadDirections(const int &UId, TIntFltH &GradH) {
+  TIntFltH NCH;
+  GetNCom(NCH, UId);
+  bool IsEligible = false;
+  THashSet<TInt> BadDirH;
+  for (TIntFltH::TIter CI = GradH.BegI(); CI < GradH.EndI(); CI++) {
+    if ((GetNCom(UId, CI.GetKey()) < DBL_EPSILON && CI.GetDat() < DBL_EPSILON) ||
+          (1.0 - GetNCom(UId, CI.GetKey()) < DBL_EPSILON && CI.GetDat() > DBL_EPSILON)) {
+      BadDirH.AddKey(CI.GetKey());
+    } else {
+      IsEligible = true;
+    }
+  }
+  if (BadDirH.Len() > 0) {
+    for (THashSet<TInt>::TIter CId = BadDirH.BegI();
+         CId < BadDirH.EndI(); CId++) {
+      GradH.DelKey(CId.GetKey());
+    }
+  }
+  return IsEligible;
+}
+

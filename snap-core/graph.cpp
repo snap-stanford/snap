@@ -886,6 +886,7 @@ bool THGraph::HasFlag(const TGraphFlag& Flag) const {
   return HasGraphFlag(THGraph::TNet, Flag);
 }
 
+// Add a node of ID NId to the graph.
 int THGraph::AddNode(int NId, TStr NName) {
   if (NId == -1) {
     NId = MxNId;  MxNId++;
@@ -897,6 +898,7 @@ int THGraph::AddNode(int NId, TStr NName) {
   return NId;
 }
 
+// Add a node of ID NId to the graph.
 int THGraph::AddNodeUnchecked(int NId, TStr NName) {
   if (IsNode(NId)) { return -1;}
   MxNId = TMath::Mx(NId+1, MxNId());
@@ -904,6 +906,7 @@ int THGraph::AddNodeUnchecked(int NId, TStr NName) {
   return NId;
 }
 
+// Delete node of ID NId from the graph.
 void THGraph::DelNode(const int& NId) {
   AssertR(IsNode(NId), TStr::Fmt("NodeId %d does not exist", NId));
   TNode& Node = GetNode(NId);
@@ -986,6 +989,7 @@ bool THGraph::IsEdge(const TIntSet& NIdH) {
   return false;
 }
 
+/// Add an edge between the nodes in NodeIdsHS set.
 int THGraph::AddEdge(const TIntSet& NIdH, int& EId) {
   if (IsEdge(NIdH)) { return -1; }
   EId = TMath::Mx(EId, MxEId());
@@ -1026,12 +1030,14 @@ void THGraph::DelEdge(const int& EId) {
   delete &GetEdge(EId);
 }
 
+// Get a vector IDs of all nodes in the graph.
 void THGraph::GetNIdV(TIntV& NIdV) const {
   NIdV.Gen(GetNodes(), 0);
   for (int N=NodeH.FFirstKeyId(); NodeH.FNextKeyId(N); ) {
     NIdV.Add(NodeH.GetKey(N)); }
 }
 
+// Defragment the graph.
 void THGraph::Defrag(const bool& OnlyNodeLinks) {
   int nKey;
   for (int n = EdgeH.FFirstKeyId(); EdgeH.FNextKeyId(n); ) {
@@ -1067,6 +1073,7 @@ void THGraph::PrintEdge(const int EId) {
   printf(EStr.GetCStr());
 }
 
+// Print the graph in a human readable form to an output stream OutF.
 void THGraph::Dump(FILE *OutF) const {
   const int NodePlaces = (int) ceil(log10((double) GetNodes()));
   int NKey;
@@ -1081,6 +1088,7 @@ void THGraph::Dump(FILE *OutF) const {
   fprintf(OutF, "\n");
 }
 
+// Return a small hypergraph on 5 nodes and 5 edges.
 PHGraph THGraph::GetSmallGraph() {
   PHGraph Graph = THGraph::New();
   for (int i = 0; i < 5; i++) { Graph->AddNode(i); }

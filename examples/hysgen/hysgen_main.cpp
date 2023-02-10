@@ -68,15 +68,15 @@ int main(int argc, char* argv[]) {
   Optimizer.SetRegCoef(RegCoef);
   
   Optimizer.GetCmtyVV(EstCmtyVH, EstCmtyVV, WckVV, InitNulS, MinComSize);
-  THysgenUtil::DumpCmtyVH(OutFPrx + "_cmtyvv_init.txt", EstCmtyVH, NIDNameH);
+  THysgenUtil::DumpCmtyVH(OutFPrx + "_cmtyvv_init.txt", EstCmtyVH, NIDNameH, THysgenUtil::Alphabetical);
   
-  Optimizer.MLEGradAscent(0.01, MaxIter * G->GetNodes(), OutPlt, StepSize, StepCtrlParam, StepReductionRatio);
-  
+  Optimizer.MLEGradAscent(1.0, MaxIter * G->GetNodes(), OutPlt, StepSize, StepCtrlParam, StepReductionRatio);
   Optimizer.GetCmtyVV(EstCmtyVH, EstCmtyVV, WckVV, Threshold, MinComSize);
-  THysgenUtil::DumpCmtyVH(OutFPrx + "_cmty_ById_values.txt", EstCmtyVH, NIDEdgelistnameH);
-  THysgenUtil::DumpCmtyVV(OutFPrx + "_cmty_ById_members.txt", EstCmtyVV, NIDEdgelistnameH);
-  THysgenUtil::DumpCmtyVH(OutFPrx + "_cmty_values.txt", EstCmtyVH, NIDNameH);
-  THysgenUtil::DumpCmtyVV(OutFPrx + "_cmty_members.txt", EstCmtyVV, NIDNameH);
+  
+  THysgenUtil::DumpCmtyVH(OutFPrx + "_cmty_SrtAlphbt_ByID_values.txt", EstCmtyVH, NIDEdgelistnameH, THysgenUtil::Alphabetical);
+  THysgenUtil::DumpCmtyVH(OutFPrx + "_cmty_SrtS_ByID_values.txt", EstCmtyVH, NIDEdgelistnameH, THysgenUtil::Value);
+  THysgenUtil::DumpCmtyVH(OutFPrx + "_cmty_SrtS_ByNamevalues.txt", EstCmtyVH, NIDNameH, THysgenUtil::Value);
+  THysgenUtil::DumpCmtyVV(OutFPrx + "_cmty_ByName_members.txt", EstCmtyVV, NIDNameH);
 
   Catch
 
