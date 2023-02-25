@@ -31,7 +31,10 @@
 *.out
 *.app
 hysgen_main
+*.sh
 
-# Program output files
+# Other
 *_cmtyvv_*
 *_cmty_*
+backups/
+results/

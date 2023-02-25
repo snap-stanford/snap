@@ -45,7 +45,7 @@ Usage:
 
 Discover 2 communities from the synthtic hypergraph (under synthetic_data/):
 
-./hysgen_main -i:./synthetic_data/synthetic.hyperedges -o:./synthetic_res -c:2 -ic:0.3 -sr:0.1 -th:0.08 -rs:100
+./hysgen_main -i:./synthetic_data/synthetic.hyperedges -o:./synthetic_res -c:2 -th:0.1 -rs:1
 
 
 ** For real-world hypergraph data please visit https://github.com/bpedrood/HySGen

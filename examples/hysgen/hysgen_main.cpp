@@ -18,13 +18,13 @@ int main(int argc, char* argv[]) {
   const int RndSeed = Env.GetIfArgPrefixInt("-rs:", 0, "Random Seed.");
   int MaxIter = Env.GetIfArgPrefixInt("-xi:", 1000, "Maximum number of iterations.");
   const double InitComS = Env.GetIfArgPrefixFlt("-ic:", 0.1, "Initial membership value for the initially assigned communities.");
-  const double InitNulS = Env.GetIfArgPrefixFlt("-in:", 0.03, "The default membership value of each node to all the communities.");
+  const double InitNulS = Env.GetIfArgPrefixFlt("-in:", 0.0, "The default membership value of each node to all the communities.");
   double PerturbDensity = Env.GetIfArgPrefixFlt("-rp:", 0.0, "Ratio of initial memberships to be randomly perturbed.");
   const double RegCoef = Env.GetIfArgPrefixFlt("-rw:", 0.005, "Weight for l-1 regularization on learning the model parameters.");
-  const double StepSize = Env.GetIfArgPrefixFlt("-sz:", 0.05, "Initial step size for backtracking line search.");
-  const double StepCtrlParam = Env.GetIfArgPrefixFlt("-sa:", 0.1, "Control parameter for backtracking line search.");
+  const double StepSize = Env.GetIfArgPrefixFlt("-sz:", 1.0, "Initial step size for backtracking line search.");
+  const double StepCtrlParam = Env.GetIfArgPrefixFlt("-sa:", 1.0, "Control parameter for backtracking line search.");
   const double StepReductionRatio = Env.GetIfArgPrefixFlt("-sr:", 0.5, "Step-size reduction ratio for backtracking line search.");
-  const double Threshold = Env.GetIfArgPrefixFlt("-th:", MAX(TFlt::EpsHalf, RegCoef), "Cut-off threshold for the final community membership values.");
+  const double Threshold = Env.GetIfArgPrefixFlt("-th:", MAX(0.01, RegCoef), "Cut-off threshold for the final community membership values.");
 
 
   PHGraph G;
@@ -73,10 +73,10 @@ int main(int argc, char* argv[]) {
   Optimizer.MLEGradAscent(1.0, MaxIter * G->GetNodes(), OutPlt, StepSize, StepCtrlParam, StepReductionRatio);
   Optimizer.GetCmtyVV(EstCmtyVH, EstCmtyVV, WckVV, Threshold, MinComSize);
   
-  THysgenUtil::DumpCmtyVH(OutFPrx + "_cmty_SrtAlphbt_ByID_values.txt", EstCmtyVH, NIDEdgelistnameH, THysgenUtil::Alphabetical);
-  THysgenUtil::DumpCmtyVH(OutFPrx + "_cmty_SrtS_ByID_values.txt", EstCmtyVH, NIDEdgelistnameH, THysgenUtil::Value);
-  THysgenUtil::DumpCmtyVH(OutFPrx + "_cmty_SrtS_ByNamevalues.txt", EstCmtyVH, NIDNameH, THysgenUtil::Value);
-  THysgenUtil::DumpCmtyVV(OutFPrx + "_cmty_ByName_members.txt", EstCmtyVV, NIDNameH);
+  THysgenUtil::DumpCmtyVH(OutFPrx + "_cmty_SrtById_IdValues.txt", EstCmtyVH, NIDEdgelistnameH, THysgenUtil::Alphabetical);
+  THysgenUtil::DumpCmtyVH(OutFPrx + "_cmty_SrtByVals_IdValues.txt", EstCmtyVH, NIDEdgelistnameH, THysgenUtil::Value);
+  THysgenUtil::DumpCmtyVH(OutFPrx + "_cmty_SrtByVals_NameValues.txt", EstCmtyVH, NIDNameH, THysgenUtil::Value);
+  THysgenUtil::DumpCmtyVV(OutFPrx + "_cmty_SrtByName_Names.txt", EstCmtyVV, NIDNameH);
 
   Catch
 
