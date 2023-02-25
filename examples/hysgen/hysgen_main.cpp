@@ -60,7 +60,7 @@ int main(int argc, char* argv[]) {
   G->GetNIdV(NIDV);
   
   TExeTm RunTm;
-  THysgen Optimizer(G, 5, RndSeed, InitComS, InitNulS);
+  THysgen Optimizer(G, RndSeed, InitComS, InitNulS);
   Optimizer.ComInit(OptComs, MinComSize, PerturbDensity);
   if (InitComFNm.Len() > 0) {
     Optimizer.LoadComInit(InitComFNm);
