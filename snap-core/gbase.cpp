@@ -11,6 +11,7 @@ TStr GetFlagStr(const TGraphFlag& GraphFlag) {
     case gfEdgeDat : return "EdgeDat";
     case gfSources : return "Sources";
     case gfBipart : return "Bipartite";
+    case gfHyperGraph : return "Hypergraph";
     default: FailR("Unknown graph type");
   };
   return TStr();
