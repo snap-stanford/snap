@@ -173,7 +173,7 @@ void THysgen::LoadComInit(const TStr& InFNm, TSsFmt SsFmt) {
   TSsParser Ss(InFNm, SsFmt);
   TVec<TStrFltH> ComsVH;
   TStrSet NodsInFile(G->GetNodes());
-  int CId = 0;
+  // int CId = 0;
   std::string Curr;
   printf("Loading community initializations from file ...\n");
   while (Ss.Next()) {
@@ -190,7 +190,7 @@ void THysgen::LoadComInit(const TStr& InFNm, TSsFmt SsFmt) {
         SN = InitVal;
       } else {
         NName = Curr.substr(0, SepLoc).c_str();
-        SN = std::strtod(Curr.substr(SepLoc + 2, 8).c_str(), NULL);
+        SN = strtod(Curr.substr(SepLoc + 2, 8).c_str(), NULL);
       }
       CurComH.AddDat(NName, SN);
       NodsInFile.AddKey(NName);
@@ -430,7 +430,7 @@ void THysgen::UpdatePrAllEdgesS(TFltV& PsiV, const int& UID, const int& CID, con
   PsiV[0] = 1.0; /// The 0th index is meaningless and is never used
   double SNOld = GetNCom(UID,CID);
   double SToNOld = 1.0, SToNNew = 1.0;
-  int nLast;
+  int nLast = 0;
   for (int n=1; (n <= MinTayN && PsiV[n-1] > 0.0) ||
                 (n <= TayN    && PsiV[n-1]>TayThresh); n++){
     if (n >= PsiV.Len()) {
@@ -792,7 +792,7 @@ double THysgen::GetStepSizeByLineSearch(const int UID, const TIntFltH &DeltaH,
   }
   double InitLikelihood = LikelihoodForRow(UID);
   double FinalLikelihood = 0.0;
-  double ChangeVal;
+  // double ChangeVal;
   TIntFltH SearchVecH;
   for(int iter = 0; iter < MaxIter; iter++) {
     TIntFltH NewVarH;

@@ -35,8 +35,8 @@ int main(int argc, char* argv[]) {
   FILE* output_file = fopen(output.CStr(), "wt");
   for (int i = 0; i < counts.m(); i++) {
     for (int j = 0; j < counts.n(); j++) {
-      unsigned long long count = counts(i, j);
-      fprintf(output_file, "%llu", count);
+      uint64 count = counts(i, j);
+      fprintf(output_file, "%s", TUInt64::GetStr(count).CStr());
       if (j < counts.n() - 1) { fprintf(output_file, " "); }
     }
     fprintf(output_file, "\n");

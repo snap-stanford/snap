@@ -103,9 +103,9 @@ public:
   explicit THysgen(const PHGraph &GraphPt, const int RndSeed = 0,
           const double InitCVal = 0.1, const double InitNulS = 0.03,
           const double NoiseConstS = 0.01) :
-          Rnd(RndSeed), RegCoef(0.0), MinVal(0.0), MaxVal(1.0), NegWgt(1.0),
-          InitVal(InitCVal), TayN(50), MinTayN(10), TayThresh(0.00001),
-          InitNullS(InitNulS), SNoise(NoiseConstS) {
+          Rnd(RndSeed), MinTayN(10), TayN(50), TayThresh(0.00001),
+          SNoise(NoiseConstS), InitVal(InitCVal), InitNullS(InitNulS),
+          MinVal(0.0), MaxVal(1.0), NegWgt(1.0), RegCoef(0.0) {
     SNoise = (InitNulS>0.0) ? THysgenUtil::Min(NoiseConstS, InitNulS / 2.0) : NoiseConstS;
     ThreshLearnRate = TayThresh / GraphPt->GetNodes();
     SetGraph(GraphPt);

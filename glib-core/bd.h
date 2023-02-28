@@ -2,18 +2,6 @@
 #define bd_h
 
 /////////////////////////////////////////////////
-// For Ubuntu >= 18.04
-#if defined(GLib_GLIBC) || defined(GLib_BSD)
-struct __exception {
-  int    type;      /* Exception type */
-  char*  name;      /* Name of function causing exception */
-  double arg1;      /* 1st argument to function */
-  double arg2;      /* 2nd argument to function */
-  double retval;    /* Function return value */
-};
-#endif
-
-/////////////////////////////////////////////////
 // Basic-Macro-Definitions
 #define forever for(;;)
 
@@ -69,6 +57,21 @@ typedef ptrdiff_t ssize_t;
 
 typedef size_t TSize;
 #define TSizeMx SIZE_MAX
+
+#if 0
+// op RS 2023/02/27, Ubuntu 18.10 works fine without this code
+/////////////////////////////////////////////////
+// For Ubuntu >= 18.04
+#if defined(GLib_GLIBC) || defined(GLib_BSD)
+struct __exception {
+  int    type;      /* Exception type */
+  char*  name;      /* Name of function causing exception */
+  double arg1;      /* 1st argument to function */
+  double arg2;      /* 2nd argument to function */
+  double retval;    /* Function return value */
+};
+#endif
+#endif
 
 /////////////////////////////////////////////////
 // Localization
