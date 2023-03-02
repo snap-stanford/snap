@@ -1,0 +1,17 @@
+# Temp files
+*~
+
+# C++ object files
+*.o
+
+# R command cache
+*.Rhistory
+
+# iPython notebook checkpoints
+*.ipynb_checkpoint
+
+# Data files
+data/*.txt
+
+# Plots
+*.pdf
