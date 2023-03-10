@@ -64,7 +64,9 @@ void InitUnigramTable(TIntV& Vocab, TIntV& KTable, TFltV& UTable) {
 }
 
 int64 RndUnigramInt(TIntV& KTable, TFltV& UTable, TRnd& Rnd) {
-  TInt X = KTable[static_cast<int64>(Rnd.GetUniDev()*KTable.Len())];
+  // TInt X = KTable[static_cast<int64>(Rnd.GetUniDev()*KTable.Len())];
+  // taking X from the aliases is wrong - not uniform
+  TInt X = static_cast<int64>(Rnd.GetUniDev()*KTable.Len());
   double Y = Rnd.GetUniDev();
   return Y < UTable[X] ? X : KTable[X];
 }
