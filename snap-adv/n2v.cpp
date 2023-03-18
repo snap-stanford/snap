@@ -33,7 +33,7 @@ void node2vec(PWNet& InNet, const double& ParamP, const double& ParamQ,
     }
   }
   if (Verbose) {
-    printf("\n");
+    printf("\rWalking Progress: %.2lf%%\n",100);
     fflush(stdout);
   }
   //Learning embeddings

@@ -154,6 +154,10 @@ void TrainModel(TVVec<TInt, int64>& WalksVV, const int& Dimensions,
     }
     WordCntAll++;
   }
+  if ( Verbose ) {
+    printf("\rLearning Progress: %.2lf%% ",100);
+    fflush(stdout);
+  }
 }
 
 
