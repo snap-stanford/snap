@@ -65,6 +65,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "randwalk", "randwalk\randwa
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "rolx", "rolx\rolx.vcxproj", "{54A2FDEC-58F5-4EFA-A10A-838263E89629}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "node2vec", "node2vec\node2vec.vcxproj", "{54A2FDEC-58F5-4EFA-A10A-838263E89629}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
