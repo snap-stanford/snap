@@ -17,7 +17,7 @@ build/
 *.dSYM/
 *.pyc
 
-# Test-generated files 
+# Test-generated files
 test_*.dat
 test_*.dot
 test_*.gif
