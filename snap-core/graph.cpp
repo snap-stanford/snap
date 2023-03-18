@@ -203,6 +203,43 @@ bool TUNGraph::IsOk(const bool& ThrowExcept) const {
   return RetVal;
 }
 
+void TUNGraph::GetNeighbors(const int& NId, TIntV& NeighborsIdV){
+  //check if the node exists
+  AssertR(IsNode(NId), TStr::Fmt("NodeId %d does not exist", NId));
+
+  //get the snap node corresponding to nodeId
+  TNode& Node = GetNode(NId);
+
+  int neighborCount = Node.GetDeg();
+
+  NeighborsIdV.Gen(neighborCount, 0);
+  
+  //go through the entire degree (as it is undirected) of this node
+  //NEdges -= Node.GetDeg();
+
+  for (int e = 0; e < Node.GetDeg(); e++) {
+    
+    const int nbr = Node.GetNbrNId(e);
+    
+    if (nbr == NId) 
+    { 
+        continue; 
+    }
+    
+    TNode& N = GetNode(nbr);
+    
+    const int n = N.NIdV.SearchBin(NId);
+    
+    IAssert(n != -1); // if NId points to N, then N also should point back
+    
+    //add neighbor to neighbors list
+    if (n != -1) { 
+      NeighborsIdV.Add(nbr); 
+    }
+
+  } 
+}
+
 // Print the graph in a human readable form to an output stream OutF.
 void TUNGraph::Dump(FILE *OutF) const {
   const int NodePlaces = (int) ceil(log10((double) GetNodes()));
@@ -432,6 +469,57 @@ bool TNGraph::IsOk(const bool& ThrowExcept) const {
     }
   }
   return RetVal;
+}
+
+void TNGraph::GetNeighbors(const int& NId, TIntV& NeighborsIdV, bool outDegreeNeighbors){
+  //check if the node exists
+  AssertR(IsNode(NId), TStr::Fmt("NodeId %d does not exist", NId));
+
+  //get the snap node corresponding to nodeId
+  TNode& Node = GetNode(NId);
+
+  int neighborCount = 0;
+
+  if(outDegreeNeighbors){
+      neighborCount = Node.GetOutDeg();
+  }
+  else{
+      neighborCount = Node.GetInDeg();
+  }
+
+  NeighborsIdV.Gen(neighborCount, 0);
+  
+  //go through the entire degree (as it is undirected) of this node
+  for (int e = 0; e < neighborCount; e++) {
+    int nbr; 
+    
+    if(outDegreeNeighbors){
+      nbr = Node.GetOutNId(e);
+    }
+    else{
+      nbr = Node.GetInNId(e);
+    }
+
+    if (nbr == NId) 
+    { 
+        continue; 
+    }
+    
+    TNode& N = GetNode(nbr);
+    
+    if(outDegreeNeighbors){
+        const int n = N.InNIdV.SearchBin(NId);
+        if (n != -1) { 
+          NeighborsIdV.Add(nbr);
+        }
+    }
+    else{
+        const int n = N.OutNIdV.SearchBin(NId);
+        if (n != -1) { 
+          NeighborsIdV.Add(nbr);
+        }
+    }
+  }
 }
 
 void TNGraph::Dump(FILE *OutF) const {

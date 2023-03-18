@@ -247,6 +247,8 @@ public:
   void Defrag(const bool& OnlyNodeLinks=false);
   /// Checks the graph data structure for internal consistency. ##TUNGraph::IsOk
   bool IsOk(const bool& ThrowExcept=true) const;
+  /// Fills in the neighbor list of the node in the provided vector ##TUNGraph::GetNeighbors
+  void GetNeighbors(const int& NId, TIntV& NeighborsIdV);
   /// Print the graph in a human readable form to an output stream OutF.
   void Dump(FILE *OutF=stdout) const;
   /// Returns a small graph on 5 nodes and 5 edges. ##TUNGraph::GetSmallGraph
@@ -333,6 +335,7 @@ public:
     bool IsOutNId(const int& NId) const { return NodeHI.GetDat().IsOutNId(NId); }
     /// Tests whether node with ID NId is a neighbor of the current node.
     bool IsNbrNId(const int& NId) const { return IsOutNId(NId) || IsInNId(NId); }
+    
     friend class TNGraph;
   };
   /// Edge iterator. Only forward iteration (operator++) is supported.
@@ -482,6 +485,8 @@ public:
   void Defrag(const bool& OnlyNodeLinks=false);
   /// Checks the graph data structure for internal consistency. ##TNGraph::IsOk
   bool IsOk(const bool& ThrowExcept=true) const;
+  /// Fills in the neighbor list of the node in the provided vector ##TNGraph::GetNeighbors
+  void GetNeighbors(const int& NId, TIntV& NeighborsIdV, bool outDegreeNeighbors=true);
   /// Print the graph in a human readable form to an output stream OutF.
   void Dump(FILE *OutF=stdout) const;
   /// Returns a small graph on 5 nodes and 6 edges. ##TNGraph::GetSmallGraph
