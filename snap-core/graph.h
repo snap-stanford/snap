@@ -1076,8 +1076,8 @@ public:
       TIntV EV = NodeHI.GetDat().EIdV;
       for (int i = 0; i < EV.Len(); i++) {
         if (EId == EV[i]) { return true; }
-        return false;
       }
+      return false;
     }
     friend class THGraph;
   };
