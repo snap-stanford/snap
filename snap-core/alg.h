@@ -21,6 +21,13 @@ template <class PGraph> int GetMxInDegNId(const PGraph& Graph);
 /// Returns a randomly chosen node from all the nodes with the maximum out-degree.
 template <class PGraph> int GetMxOutDegNId(const PGraph& Graph);
 
+/// Returns a randomly chosen node from all the nodes with the minimum degree.
+template <class PGraph> int GetMnDegNId(const PGraph& Graph);
+/// Returns a randomly chosen node from all the nodes with the minimum in-degree.
+template <class PGraph> int GetMnInDegNId(const PGraph& Graph);
+/// Returns a randomly chosen node from all the nodes with the minimum out-degree.
+template <class PGraph> int GetMnOutDegNId(const PGraph& Graph);
+
 // degree histograms
 /// Returns an in-degree histogram: a set of pairs <code>(in-degree, number of nodes of such in-degree)</code>
 template <class PGraph> void GetInDegCnt(const PGraph& Graph, TIntPrV& DegToCntV);
@@ -173,6 +180,42 @@ int GetMxOutDegNId(const PGraph& Graph) {
   }
   EAssertR(! MxDegV.Empty(), "Input graph is empty!");
   return MxDegV[TInt::Rnd.GetUniDevInt(MxDegV.Len())];
+}
+
+template <class PGraph>
+int GetMnDegNId(const PGraph& Graph) {
+  TIntV MnDegV;
+  int MnDeg=INT_MAX;
+  for (typename PGraph::TObj::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
+    if (MnDeg > NI.GetDeg()) { MnDegV.Clr(); MnDeg = NI.GetDeg(); }
+    if (MnDeg == NI.GetDeg()) { MnDegV.Add(NI.GetId()); }
+  }
+  EAssertR(! MnDegV.Empty(), "Input graph is empty!");
+  return MnDegV[TInt::Rnd.GetUniDevInt(MnDegV.Len())];
+}
+
+template <class PGraph>
+int GetMnInDegNId(const PGraph& Graph) {
+  TIntV MnDegV;
+  int MnDeg=INT_MAX;
+  for (typename PGraph::TObj::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
+    if (MnDeg > NI.GetInDeg()) { MnDegV.Clr(); MnDeg = NI.GetInDeg(); }
+    if (MnDeg == NI.GetInDeg()) { MnDegV.Add(NI.GetId()); }
+  }
+  EAssertR(! MnDegV.Empty(), "Input graph is empty!");
+  return MnDegV[TInt::Rnd.GetUniDevInt(MnDegV.Len())];
+}
+
+template <class PGraph>
+int GetMnOutDegNId(const PGraph& Graph) {
+  TIntV MnDegV;
+  int MnDeg=INT_MAX;
+  for (typename PGraph::TObj::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
+    if (MnDeg > NI.GetOutDeg()) { MnDegV.Clr(); MnDeg = NI.GetOutDeg(); }
+    if (MnDeg == NI.GetOutDeg()) { MnDegV.Add(NI.GetId()); }
+  }
+  EAssertR(! MnDegV.Empty(), "Input graph is empty!");
+  return MnDegV[TInt::Rnd.GetUniDevInt(MnDegV.Len())];
 }
 
 template <class PGraph>
