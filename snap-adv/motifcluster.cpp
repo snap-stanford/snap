@@ -1004,7 +1004,7 @@ void SymeigsSmallest(const TSparseColMatrix& A, int nev, TFltV& evals,
       result[i] = load[i];
     }
 
-    if (ido == 1) {
+    if (ido == -1 || ido == 1) {
       // Need another matrix-vector product.
       A.Multiply(result, Ax);
       double *store = &workd[ipntr[1] - 1];
