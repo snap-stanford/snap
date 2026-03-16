@@ -232,9 +232,14 @@ public:
   bool operator==(const TChA& ChA) const {return strcmp(CStr(), ChA.CStr())==0;}
   bool operator==(const char* _CStr) const {return strcmp(CStr(), _CStr)==0;}
   bool operator==(const char& Ch) const {return (BfL==1)&&(Bf[0]==Ch);}
+  // TStr and TChA implicitly convert to each other. In C++20 that makes
+  // TChA==TStr ambiguous because the compiler generates two synthesized
+  // candidates via the two conversion paths. An explicit overload wins.
+  bool operator==(const TStr& Str) const;
   bool operator!=(const TChA& ChA) const {return strcmp(CStr(), ChA.CStr())!=0;}
   bool operator!=(const char* _CStr) const {return strcmp(CStr(), _CStr)!=0;}
   bool operator!=(const char& Ch) const {return !((BfL==1)&&(Bf[0]==Ch));}
+  bool operator!=(const TStr& Str) const;
   bool operator<(const TChA& ChA) const {return strcmp(CStr(), ChA.CStr())<0;}
 
   TChA& operator+=(const TMem& Mem);
@@ -1236,6 +1241,14 @@ public:
   static void SaveFrugalIntV(TSOut& SOut, const TVec<TInt, int>& IntV);
   static void LoadFrugalIntV(TSIn& SIn, TVec<TInt, int>& IntV, bool ClrP=true);
 };
+
+// C++20 introduced "rewritten candidates": for `a == b` the compiler also
+// tries `b == a` as a synthesized candidate. When TInt has both
+// operator==(const int&) and operator==(const TInt&), comparing `int == TInt`
+// finds two synthesized candidates via different paths and is ambiguous.
+// These non-member overloads give the compiler an exact match to pick.
+inline bool operator==(int lhs, const TInt& rhs) { return rhs.Val == lhs; }
+inline bool operator!=(int lhs, const TInt& rhs) { return rhs.Val != lhs; }
 
 /////////////////////////////////////////////////
 // Unsigned-Integer
