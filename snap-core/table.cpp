@@ -779,9 +779,10 @@ PTable TTable::LoadSS(const Schema& S, const TStr& InFNm, TTableContext* Context
   }
 
   if (GetMP() && NoStringCols) {
-    // Right now, can load in parallel only in Linux (for mmap) and if
-    // there are no string columns
-#ifdef GLib_LINUX
+    // Right now, can load in parallel only if GCC_ATOMIC (mmap + atomic ops)
+    // are available. The guard used to be GLib_LINUX, but LoadSSPar is only
+    // defined when GCC_ATOMIC is set, so a broader Linux check is wrong.
+#ifdef GCC_ATOMIC
     LoadSSPar(T, S, InFNm, RelevantCols, Separator, HasTitleLine);
 #else
     LoadSSSeq(T, S, InFNm, RelevantCols, Separator, HasTitleLine);
