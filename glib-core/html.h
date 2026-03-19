@@ -47,8 +47,11 @@ public:
      (Ch=='.')||(Ch=='-')||(Ch==':')||(Ch=='/')||(Ch=='~');}
 
   // upper/lower-case & escape-string operations
-  bool IsUc(const char& Ch) const {return Ch==UcChV[Ch-TCh::Mn];}
-  bool IsLc(const char& Ch) const {return Ch==LcChV[Ch-TCh::Mn];}
+  // Cast to char to avoid C++20 ambiguity: TCh has both an implicit
+  // constructor from char and operator char(), so `char == TCh` finds two
+  // equally good synthesized candidates and fails to compile.
+  bool IsUc(const char& Ch) const {return Ch==(char)UcChV[Ch-TCh::Mn];}
+  bool IsLc(const char& Ch) const {return Ch==(char)LcChV[Ch-TCh::Mn];}
   char GetUc(const char& Ch) const {return UcChV[Ch-TCh::Mn];}
   char GetLc(const char& Ch) const {return LcChV[Ch-TCh::Mn];}
   void GetUcChA(TChA& ChA) const {

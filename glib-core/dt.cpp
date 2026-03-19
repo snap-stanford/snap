@@ -377,6 +377,9 @@ TChA& TChA::operator=(const TStr& Str){
   return *this;
 }
 
+bool TChA::operator==(const TStr& Str) const {return strcmp(CStr(), Str.CStr())==0;}
+bool TChA::operator!=(const TStr& Str) const {return strcmp(CStr(), Str.CStr())!=0;}
+
 TChA& TChA::operator=(const char* CStr){
   int CStrLen=int(strlen(CStr));
   if (CStrLen>MxBfL){delete[] Bf; Bf=new char[(MxBfL=CStrLen)+1];}
